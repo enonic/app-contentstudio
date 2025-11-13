@@ -441,7 +441,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#page_controller">Page controller</a></li>
+<li><a href="#preview">Preview</a></li>
 <li><a href="#editor_panel">Editor panel</a></li>
 <li><a href="#preview_modes">Preview modes</a></li>
 <li><a href="#page_widget">Page widget</a></li>
@@ -453,31 +453,53 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Page Editor is a modifiable preview of the content page that will open automatically when a content that has a supporting page template is created or edited. It is used in conjunction with the <a href="./context-panel.ahtml">Context Panel</a> to add, remove, and move components around the page with drag and drop. The page editor can be toggled with the <span class="image"><img src="images/page-editor-icon-monitor.png" alt="Monitor icon" width="30" height="30"></span> icon on the far right of the toolbar.</p>
+<p>Page Editor is a modifiable preview of the content page that will open automatically when a content is created or edited. It is used in conjunction with the <a href="./context-panel.ahtml">Context Panel</a> to add, remove, and move components around the page with drag and drop. The page editor can be toggled on/off with the <span class="image"><img src="images/page-editor-icon-monitor.png" alt="Monitor icon" width="30" height="30"></span> icon on the far right of the toolbar.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="page_controller"><a class="link" href="#page_controller">Page controller</a></h2>
+<h2 id="preview"><a class="link" href="#preview">Preview</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>As mentioned earlier, Page Editor panel won&#8217;t be displayed for a content that can&#8217;t be rendered, such as Folder, Media, or a Shortcut.</p>
-</div>
-<div class="paragraph">
-<p>Page Editor will be shown but not available for a <strong>Site</strong> without at least one application that contains a template or a controller that implement rendering.</p>
+<p>Page Editor panel will not display any preview if there is no template or controller that is capable of rendering the content. This could be because no application is assigned to the site that supports the content type, or because the application does not have any templates or controllers defined for it.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/page-editor-no-application.png" alt="page editor no application">
+<img src="images/page-editor-no-application.png" alt="No Preview" width="75%">
 </div>
 </div>
 <div class="paragraph">
-<p>If there is at least one application, but the template was not set automatically, the dropdown with the list of available templates and controllers will appear.</p>
+<p>To enable the preview, do the following:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Assign an application to the site that provides rendering for the selected content.</p>
+</li>
+<li>
+<p>Click the Visual Editor panel and select "Page Settings" from the menu (or manually open the Page widget from the Context Panel).</p>
+</li>
+</ol>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/page-editor-no-controller.png" alt="page editor no controller">
+<img src="images/page-editor-page-settings.png" alt="Page Settings" width="75%">
 </div>
+</div>
+<div class="olist arabic">
+<ol class="arabic" start="3">
+<li>
+<p>If there are no applications assigned to the site, or none of the assigned applications has page controllers and no page templates exist on the site, the Page widget will say "<em>No page templates or components available</em>". Otherwise, you will see a dropdown with the list of available controllers and templates.</p>
+</li>
+</ol>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/page-editor-controller.png" alt="Select template or controller" width="75%">
+</div>
+</div>
+<div class="paragraph">
+<p>Default selection in the dropdown is "Automatic" which means that the best suitable <a href="../content-types.ahtml#page_templates">page template</a> will be used for rendering the content. If there&#8217;s already a template that matches the content type, preview should automatically start working at this point. Otherwise, you will have to select a specific controller from the list.</p>
 </div>
 </div>
 </div>
@@ -485,23 +507,23 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="editor_panel"><a class="link" href="#editor_panel">Editor panel</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The page that uses a template is locked for editing. Clicking on it, or inside the <a href="#components-view">Components View</a> will show the menu with the option to enable the editing.</p>
+<p>The content that is using a template will be locked for editing. In this case, a click on the pane will display the "Page Settings" shortcut to open the "Page" widget where you can unlink the content from the template by clicking the "Customize Page" button (requires additional confirmation).</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/page-editor-lock.png" alt="page editor lock">
+<img src="images/page-editor-lock.png" alt="Unlock the page" width="75%">
 </div>
 </div>
 <div class="paragraph">
-<p>A component can be selected in the page editor by clicking on it. This will highlight the selected component and show its configuration in the inspect panel. Right-clicking a component will open a context menu with various actions that can be performed on the component. These options may include <strong>Select parent</strong>, <strong>Insert</strong> another component, <strong>Inspect</strong> its configuration, <strong>Reset</strong> the component’s configuration, <strong>Remove</strong> the component, <strong>Duplicate</strong> it, and <strong>Save as fragment</strong>.</p>
-</div>
-<div class="paragraph">
-<p>For the <strong>Fragment</strong> component, the last action will be replaced with the <strong>Detach from fragment</strong> and the <strong>Edit</strong> action will be added.</p>
+<p>If the content is not using a template, its components can be selected inside the Editor panel (or in the Page Components tree). This will highlight the selected component and show its configuration in the Inspect panel of the Page widget on the right. Right-clicking a component will open a context menu with various actions that can be performed on the component. These options may include <strong>Select parent</strong>, <strong>Insert</strong> another component, <strong>Inspect</strong> its configuration, <strong>Reset</strong> the component’s configuration, <strong>Remove</strong> the component, <strong>Duplicate</strong> it, and <strong>Save as fragment</strong>.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/page-editor-menu.png" alt="page editor menu">
+<img src="images/page-editor-menu.png" alt="Page component context menu" width="75%">
 </div>
+</div>
+<div class="paragraph">
+<p>For the <strong>Fragment</strong> component, the last action will be replaced with the <strong>Detach from Fragment</strong> and the <strong>Edit</strong> action will be added.</p>
 </div>
 </div>
 </div>
@@ -509,7 +531,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="preview_modes"><a class="link" href="#preview_modes">Preview modes</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Similar to the preview mode selector in the Navigator&#8217;s <a href="../navigator.ahtml#preview_panel">Preview panel</a>, Page Editor has its own preview mode selector located in the top-right corner of the panel. Predefined modes are Automatic (default, the best suitable mode), Media, Enonic rendering, and JSON.</p>
+<p>Similar to the preview mode selector in the Navigator&#8217;s <a href="../navigator.ahtml#preview_panel">Preview panel</a>, Page Editor has its own preview mode selector located in the top-right corner of the panel. Predefined modes are <strong>Automatic</strong> (default, the best suitable mode), <strong>Media</strong>, <strong>Enonic rendering</strong>, and <strong>JSON</strong>.</p>
 </div>
 </div>
 </div>
@@ -517,7 +539,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="page_widget"><a class="link" href="#page_widget">Page widget</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Page Editor adds a new Page widget to the widget list in the Context Panel. This widget can be used to switch between different templates and controllers for the current content and manage components on the page.</p>
+<p>Page Editor adds a new Page widget to the widget list in the Context Panel. This widget can be used to switch between different page templates and controllers for the current content and manage components on the page.</p>
 </div>
 <div class="imageblock text-center">
 <div class="content">
@@ -530,22 +552,22 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="page_components_tree"><a class="link" href="#page_components_tree">Page Components tree</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>When the Content form is collapsed (with the <span class="image"><img src="images/page-editor-icon-collapse.png" alt="Collapse icon" width="30" height="30"></span> icon in the menu toolbar), the Page Components tree will automatically undock and switch into floating mode.</p>
+<p>When the Content form is collapsed (with the <span class="image"><img src="images/page-editor-icon-collapse.png" alt="Collapse icon" width="30" height="30"></span> icon in the menu toolbar), the Page Components tree will be docked inside the vertical menu toolbar, left-bottom corner.</p>
+</div>
+<div class="paragraph">
+<p>Clicking the <span class="image"><img src="images/page-editor-components-expand.png" alt="Expand icon" width="30" height="30"></span> icon will open the view in floating mode, over the Editor panel.</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="images/page-editor-component-view-floating.png" alt="Page Components floating" width="75%">
 </div>
 </div>
-<div class="paragraph">
-<p>This view can be collapsed with the <span class="image"><img src="images/page-editor-components-collapse.png" alt="Collapse icon" width="30" height="30"></span> icon in the view header and the tree will be docked inside the vertical menu toolbar on the left. Clicking the <span class="image"><img src="images/page-editor-components-expand.png" alt="Expand icon" width="30" height="30"></span> icon will reopen the view again.</p>
-</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-10-31 16:14:11 UTC
+Last updated 2025-11-13 11:46:10 UTC
 </div>
 </div>
 </body>

@@ -444,13 +444,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#content_studio_5_update_4">Content Studio 5 Update 4</a>
 <ul class="sectlevel2">
 <li><a href="#whats_new">What&#8217;s new</a></li>
+<li><a href="#improved_workflow_for_page_customization">Improved workflow for page customization</a></li>
+<li><a href="#preview_mode_selector_in_the_editor_view">Preview mode selector in the Editor view</a></li>
 <li><a href="#gallery_mode_in_customselector">Gallery mode in CustomSelector</a></li>
 <li><a href="#schedule_publish_improvements">Schedule Publish improvements</a></li>
 <li><a href="#juke_translation_on_language_change">Juke translation on language change</a></li>
 <li><a href="#layers_widget">Layers widget</a></li>
-<li><a href="#language_plugin_in_htmlarea">Language plugin in HtmlArea</a></li>
 <li><a href="#version_history_improvements">Version History improvements</a></li>
-<li><a href="#preview_mode_selector_in_page_editor">Preview mode selector in Page Editor</a></li>
+<li><a href="#archive_comment">Archive comment</a></li>
+<li><a href="#language_plugin_in_htmlarea">Language plugin in HtmlArea</a></li>
 <li><a href="#notification_about_a_new_release">Notification about a new release</a></li>
 <li><a href="#other_improvements">Other improvements</a></li>
 </ul>
@@ -539,10 +541,73 @@ Content Studio 5.4 requires XP 7.16.0 or higher.
 
 </div>
 <div class="sect2">
+<h3 id="improved_workflow_for_page_customization"><a class="link" href="#improved_workflow_for_page_customization">Improved workflow for page customization</a></h3>
+<div class="paragraph">
+<p>Several improvements have been made to make page customization more accessible, yet robust:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The preview panel is by default always expanded in the Editor view.</p>
+</li>
+<li>
+<p>"Components" widget has been renamed to "Page" and is now always present in the Context panel when editing a page.</p>
+</li>
+<li>
+<p>Page controller or template can now be selected/changed only in the Inspect panel.</p>
+</li>
+<li>
+<p>When a content preview is not available or a page template is used, a click on the Preview panel will open a context menu with "Page Settings" shortcut. Click "Page Settings" to select a page controller/template or customize the page in the Inspect panel.</p>
+</li>
+</ul>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
+<div class="content">
+<img src="release/images/cs54-no-preview.png" alt="No preview" width="75%">
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
+<div class="content">
+<img src="release/images/cs54-customize.png" alt="Customise page" width="75%">
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="ulist">
+<ul>
+<li>
+<p>Detaching a content from a template now requires a confirmation to avoid accidental customization.</p>
+</li>
+<li>
+<p>"Save as Template" function is no longer available in the Inspect panel and can be executed only from the Page context menu.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="preview_mode_selector_in_the_editor_view"><a class="link" href="#preview_mode_selector_in_the_editor_view">Preview mode selector in the Editor view</a></h3>
+<div class="paragraph">
+<p>Preview mode selector added to the Preview panel in Content Studio v5.3 is now also available in the Page Editor. In a future version it will be possible to extend the predefined list of modes by plugging in your own preview engines with editing capabilities.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="release/images/cs54-preview-mode.png" alt="Preview selector" width="75%">
+</div>
+</div>
+</div>
+<div class="sect2">
 <h3 id="gallery_mode_in_customselector"><a class="link" href="#gallery_mode_in_customselector">Gallery mode in CustomSelector</a></h3>
 <div class="paragraph">
 <p><a href="https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/customselector" target="_blank" rel="noopener">CustomSelector</a> input type now supports gallery mode, similar to the appearance of ImageSelector&#8217;s dropdown.
-When enabled, the selector will display options in a gallery style (three big images in a row), making it more suitable for selecting images.</p>
+When enabled, the selector will display the dropdown in a gallery layout (three big images in a row), making it more suitable for selecting images.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -585,11 +650,23 @@ When enabled, the selector will display options in a gallery style (three big im
 <div class="paragraph">
 <p>In the previous release we introduced integration with Juke AI Translator to provide AI-powered translation
 when localizing content in a layer. In this release we have extended this functionality to also provide
-automatic translation when changing the language of existing content that doesn&#8217;t belong to a layer.</p>
+automatic translation when changing the language of existing content in a regular project, not a layer.</p>
 </div>
 <div class="paragraph">
 <p>After changing the language of content that has text fields, Content Studio will now suggest translating
-all text fields to the new language using Juke AI Translator.</p>
+all text fields to the new language using Juke AI Translator (assuming it&#8217;s installed).</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Translation will only be suggested when changing language in the content edit view.
+</td>
+</tr>
+</table>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -617,17 +694,6 @@ all text fields to the new language using Juke AI Translator.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="language_plugin_in_htmlarea"><a class="link" href="#language_plugin_in_htmlarea">Language plugin in HtmlArea</a></h3>
-<div class="paragraph">
-<p>A new Language plugin has been added to the <a href="https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/htmlarea" target="_blank" rel="noopener">HtmlArea</a> input type. This plugin allows setting the <code>lang</code> attribute on selected text inside the editor to correctly present content written in multiple languages to screen readers (<a href="https://www.w3.org/TR/UNDERSTANDING-WCAG20/meaning-other-lang-id.html" target="_blank" rel="noopener">WCAG specs</a>).</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="release/images/cs54-language-plugin.png" alt="Language plugin" width="50%">
-</div>
-</div>
-</div>
-<div class="sect2">
 <h3 id="version_history_improvements"><a class="link" href="#version_history_improvements">Version History improvements</a></h3>
 <div class="paragraph">
 <p>Selection of two versions for comparison in the Version History panel is now done with checkboxes, instead of clicking the "Compare" icon next to each version. This makes it more obvious which versions are going to be compared.</p>
@@ -642,13 +708,24 @@ all text fields to the new language using Juke AI Translator.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="preview_mode_selector_in_page_editor"><a class="link" href="#preview_mode_selector_in_page_editor">Preview mode selector in Page Editor</a></h3>
+<h3 id="archive_comment"><a class="link" href="#archive_comment">Archive comment</a></h3>
 <div class="paragraph">
-<p>Preview mode selector added to the Preview panel in Content Studio 5.3 is now also available in the Page Editor. In a future version it will be possible to extend the predefined list of modes by plugging in your own preview engines with editing capabilities.</p>
+<p>When archiving content, it&#8217;s now possible to provide an optional comment in the Archive dialog explaining the reason for archiving. The comment will be visible in the Version History panel.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="release/images/cs54-preview-mode.png" alt="Preview selector" width="75%">
+<img src="release/images/cs54-archive-comment.png" alt="Language plugin" width="50%">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="language_plugin_in_htmlarea"><a class="link" href="#language_plugin_in_htmlarea">Language plugin in HtmlArea</a></h3>
+<div class="paragraph">
+<p>A new Language plugin has been added to the <a href="https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/htmlarea" target="_blank" rel="noopener">HtmlArea</a> input type. This plugin allows setting the <code>lang</code> attribute on selected text inside the editor to correctly present content written in multiple languages to screen readers (<a href="https://www.w3.org/TR/UNDERSTANDING-WCAG20/meaning-other-lang-id.html" target="_blank" rel="noopener">WCAG specs</a>).</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="release/images/cs54-language-plugin.png" alt="Language plugin" width="50%">
 </div>
 </div>
 </div>
@@ -681,15 +758,20 @@ Once the user clicks on the close icon to dismiss the banner, it will not be sho
 <div class="ulist">
 <ul>
 <li>
-<p>Websocket stability has been improved to avoid disconnections in case of temporary network issues.</p>
-</li>
-<li>
-<p>When the current user didn&#8217;t have READ permissions for a selected content in Content Selector, the placeholder was displayed saying that the item is missing. Now, a more descriptive message is shown saying that the user doesn&#8217;t have permissions to view the item, which helps distinguish the lack of permissions from actual missing items.</p>
+<p>Websocket stability has been improved.</p>
 </li>
 <li>
 <p>A lifetime of warning and error notifications has been increased to give users more time to read them. Also, a notification will now only be dismissed when the user clicks the close icon, not anywhere on the notification itself.</p>
 </li>
+<li>
+<p>When the current user didn&#8217;t have READ permissions for a selected content in Content Selector, the placeholder was displayed saying that the item is not available. Now, a more descriptive message is shown saying that the user doesn&#8217;t have permissions to view the item, which helps distinguish the lack of permissions from actual missing items.</p>
+</li>
 </ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="release/images/cs54-missing-selected-items.png" alt="Missing selected items" width="75%">
+</div>
 </div>
 </div>
 </div>
@@ -1275,7 +1357,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-10-31 16:14:11 UTC
+Last updated 2025-11-13 11:46:10 UTC
 </div>
 </div>
 </body>

@@ -451,9 +451,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>This panel appears on the left side of the page after content is created or while being edited. It is here the form appears in which content
-data is entered. The structure and fields in the form are determined by the <strong>content type</strong> which is defined in the application code.
-The content editor panel can be collapsed to give the page editor more room by clicking the arrow icon on the top right of the panel.</p>
+<p>This form appears on the left side of the page after a content is created or while being edited. The structure and fields in the form are determined by the <a href="../content-types.ahtml">content type</a> the content is using.
+The content form can be collapsed - to give the page editor (on the right) more screen estate - by clicking the <span class="image"><img src="images/editor-collapse-form-icon.png" alt="editor collapse form icon" width="24px" title="Collapse icon"></span> icon in the form toolbar.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -466,11 +465,11 @@ The content editor panel can be collapsed to give the page editor more room by c
 <h2 id="header"><a class="link" href="#header">Header</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The top of the content form has the content type icon, the Display Name, and the content path name.
-The default icon can be replaced with a thumbnail image by clicking on it and uploading an image file.
+<p>The form header contains the content type icon, the Display Name field, and the content path name.
+The default content type icon can be replaced with a more content-specific thumbnail by clicking on it and uploading an image file.
 When the Display Name is being changed, the path name will change accordingly, to a URL-friendly version.
 It is also possible for the Display Name to be generated dynamically using values from other form
-fields by using a <a href="https://developer.enonic.com/docs/xp/stable/cms/content-types#display_name_expressions">Display Name expression</a>.</p>
+fields by using a <a href="../content-types.ahtml#display_name_expression">Display Name expression</a>.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -512,24 +511,12 @@ modal dialog. These precautions aim to prevent accidental breaking of external h
 <h2 id="form"><a class="link" href="#form">Form</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Underneath the header is the toolbar with clickable navigation steps that correspond to different sections of the content form. The first one is always
+<p>Under the header is the toolbar with clickable navigation steps that correspond to different sections of the content form. The first one is always
 the content type name followed by optional <strong>X-data</strong> steps (if any). Clicking on an item in the toolbar will scroll the content
 form down to the corresponding section.</p>
 </div>
 <div class="paragraph">
-<p>Clicking the "&lt;" icon in the menu toolbar will collapse the Content Form and automatically undock the Page Components tree.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-If you collapse the tree, your browser will remember this selection and won&#8217;t reopen it the next time you collapse the form.
-</td>
-</tr>
-</table>
+<p>Clicking the <span class="image"><img src="images/editor-collapse-form-icon.png" alt="editor collapse form icon" width="24px" title="Collapse icon"></span> icon in the menu toolbar will collapse the Content Form and give room to the Visual Editor panel.</p>
 </div>
 </div>
 </div>
@@ -537,19 +524,19 @@ If you collapse the tree, your browser will remember this selection and won&#821
 <h2 id="page_components_tree"><a class="link" href="#page_components_tree">Page Components tree</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>When content has a controller the toolbar menu will have a step called "Page". This form step contains a hierarchical tree representation
-of all the components and regions on the page, including the page itself. This tree makes it very easy to manage content structure without having to use the Page Editor.</p>
+<p>When the content is using a controller, the toolbar menu will contain a step called "Page". This form step contains a hierarchical tree structure
+of all the components and regions on the page, including the page itself. This tree makes it very easy to manage content structure without having to use the Visual Editor.</p>
 </div>
 <div class="paragraph">
-<p>Selecting a component in the tree will highlight the component in the Page Editor and display its configuration in the <a href="../widgets.ahtml#insert-tab">Components</a> widget.
-The triple dot icon on the right of each component will open a context menu. This menu is the same as the one that would open for the same component
-in the <a href="page-editor.ahtml#editing-page">Page Editor</a>.</p>
+<p>Selecting a component in the tree will highlight the component in the Page Editor and display its configuration in the <a href="../widgets.ahtml#page">Page</a> widget.
+The <span class="image"><img src="images/editor-pcv-context-menu-icon.png" alt="editor pcv context menu icon" width="24px" title="Component context menu icon"></span> icon on the right of each component will open a context menu - same as the one that would open for the same component
+in the <a href="page-editor.ahtml#editing-page">Visual Editor</a>.</p>
 </div>
 <div class="paragraph">
 <p>Components can be rearranged directly in the tree with drag’n’drop function.</p>
 </div>
 <div class="paragraph">
-<p>In the image below, a part called <strong>Latest comments</strong> is selected in the Page Components view and highlighted with a blue border/mask in the Page Editor. The selected part&#8217;s configuration form is displayed in the Components widget on the right.</p>
+<p>In the image below, a part called <strong>Latest comments</strong> is selected in the Page Components view and highlighted with a blue border/mask in the Page Editor. The selected part&#8217;s configuration form is displayed in the Page widget on the right.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -563,7 +550,7 @@ in the <a href="page-editor.ahtml#editing-page">Page Editor</a>.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-For fragments and page templates the Page Components tree will be inside the first form step.
+For fragments and page templates the Page Components tree will be displayed on top of the form, inside the first step.
 </td>
 </tr>
 </table>
@@ -573,7 +560,7 @@ For fragments and page templates the Page Components tree will be inside the fir
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-10-31 16:14:11 UTC
+Last updated 2025-11-13 11:46:10 UTC
 </div>
 </div>
 </body>
