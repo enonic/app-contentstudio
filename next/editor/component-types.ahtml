@@ -457,7 +457,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Enonic XP has five types of components that can be added to regions on a page. These component types are listed under the <a href="../widgets.ahtml#insert-tab">Insert tab</a> of the components widget in the <a href="page-editor.ahtml">Page Editor</a>. This section covers each type of component in detail.</p>
+<p>Enonic XP has five types of components that can be added to regions on a page. These component types are listed under the <a href="../widgets.ahtml#insert_tab">Insert tab</a> of the components widget in the <a href="page-editor.ahtml">Page Editor</a>. This section covers each type of component in detail.</p>
 </div>
 </div>
 </div>
@@ -559,7 +559,7 @@ to explicitly add their types to allowed content types:
 <p>Layout components are reusable, configurable components (similar to Part components) that can be placed into any region defined in a page component. Layouts themselves define regions where other components can be placed with the <a href="page-editor.ahtml">Page Editor</a>. The primary purpose of a layout is to enable other components to be placed side-by-side. As of version 6.15, a layout cannot be placed inside another layout. There are no built-in layouts. Each one is custom made in the application code. Layouts are typically created for two or three columns and have configuration options for column widths.</p>
 </div>
 <div class="paragraph">
-<p>In the <a href="page-editor.ahtml">Page Editor</a>, drag a Layout component placeholder from the components widget to the desired region on the page. The layout placeholder will now appear as a blue box with a dropdown selector. The same dropdown selector will appear in <a href="../widgets.ahtml#insert-tab">Insert tab</a> of the components widget. Use one of the selectors to find the desired layout component.</p>
+<p>In the <a href="page-editor.ahtml">Page Editor</a>, drag a Layout component placeholder from the components widget to the desired region on the page. The layout placeholder will now appear as a blue box with a dropdown selector. The same dropdown selector will appear in <a href="../widgets.ahtml#insert_tab">Insert tab</a> of the components widget. Use one of the selectors to find the desired layout component.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -609,7 +609,7 @@ Just as with parts, you can limit a layout to be used only on specific content t
 <p>The Text component allows content editors to place text blocks into any region on a page without writing any code. Images, videos, and links can also be added inside text components. Macros allow YouTube videos, embedded code, and no-format text to be added as well. The formatting and macro options are the same as those for the HtmlArea inputs that can be found in content types and other configuration forms in the Content Studio. The only difference is that the formatting toolbar is at the top of the page for text components.</p>
 </div>
 <div class="paragraph">
-<p>In the <a href="page-editor.ahtml">Page Editor</a>, drag a Text component from the <a href="../widgets.ahtml#insert-tab">Insert tab</a> of the components widget to the desired region on the page. A cursor will appear inside the text component and editing can begin. If another component is selected, the text component will need to be double-clicked to resume editing.</p>
+<p>In the <a href="page-editor.ahtml">Page Editor</a>, drag a Text component from the <a href="../widgets.ahtml#insert_tab">Insert tab</a> of the components widget to the desired region on the page. A cursor will appear inside the text component and editing can begin. If another component is selected, the text component will need to be double-clicked to resume editing.</p>
 </div>
 <div class="paragraph">
 <p>Alternatively, edit the text component directly in the Inspect panel of the Page widget.</p>
@@ -648,7 +648,7 @@ Documentation on Rich Text Editor used by Text component can be found <a href="r
 <div class="sect2">
 <h3 id="using_fragments"><a class="link" href="#using_fragments">Using fragments</a></h3>
 <div class="paragraph">
-<p>Once a fragment content has been created, it can be added to pages with the page editor. Drag a fragment placeholder from the <a href="../widgets.ahtml#insert-tab">Insert tab</a> of the components widget to the desired location on the page. Use the dropdown selector in the placeholder to find the desired fragment content. Once selected, the fragment will appear.</p>
+<p>Once a fragment content has been created, it can be added to pages with the page editor. Drag a fragment placeholder from the <a href="../widgets.ahtml#insert_tab">Insert tab</a> of the components widget to the desired location on the page. Use the dropdown selector in the placeholder to find the desired fragment content. Once selected, the fragment will appear.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -673,7 +673,7 @@ Click "Edit Fragment" in the "Inspect" panel of a selected fragment to open the 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-11-13 17:21:56 UTC
+Last updated 2025-11-13 17:26:48 UTC
 </div>
 </div>
 </body>
