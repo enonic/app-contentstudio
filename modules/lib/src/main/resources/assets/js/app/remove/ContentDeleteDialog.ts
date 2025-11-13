@@ -22,7 +22,7 @@ import {ConfirmValueDialog} from './ConfirmValueDialog';
 import {ContentDeleteDialogAction} from './ContentDeleteDialogAction';
 import {DependantItemsWithReferencesDialog} from '../dialog/DependantItemsWithReferencesDialog';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {DialogPresetConfirmDeletePreset} from '../ui2/dialog/DialogPreset';
+import {DialogPresetConfirmDeletePreset} from '../../v6/features/shared/dialogs/DialogPreset';
 
 enum ActionType {
     DELETE = 'delete',

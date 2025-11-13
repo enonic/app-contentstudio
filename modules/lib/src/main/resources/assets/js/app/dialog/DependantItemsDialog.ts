@@ -19,8 +19,8 @@ import {DialogDependantItemsList, ObserverConfig, SelectionType} from './DialogD
 import {DialogMainItemsList} from './DialogMainItemsList';
 import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
 import {StatusCheckableItem} from './StatusCheckableItem';
-import {ContentItem} from '../ui2/list/ContentItem';
-import {PublishItemsListElement} from '../ui2/list/PublishItemsList';
+import {ContentItem} from '../../v6/features/shared/items/ContentItem';
+import {PublishItemsListElement} from '../../v6/features/shared/dialogs/publish/PublishItemsList';
 
 enum DependantsStatus {
     HAS_EXCLUDED = 'has-excluded',

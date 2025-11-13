@@ -16,7 +16,7 @@ import {ResolvePublishDependenciesRequest} from '../resource/ResolvePublishDepen
 import {ResolvePublishDependenciesResult} from '../resource/ResolvePublishDependenciesResult';
 import {PublishDialogDependantList} from './PublishDialogDependantList';
 import {PublishDialogItemList} from './PublishDialogItemList';
-import {PublishItemsListElement} from '../ui2/list/PublishItemsList';
+import {PublishItemsListElement} from '../../v6/features/shared/dialogs/publish/PublishItemsList';
 
 interface ReloadDependenciesParams {
     resetDependantItems?: boolean;

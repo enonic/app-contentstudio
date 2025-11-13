@@ -5,7 +5,7 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {DialogDependantItemsList, ObserverConfig} from '../dialog/DialogDependantItemsList';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import {ContentItemCheckableElement} from '../ui2/list/ContentItemCheckable';
+import {ContentItemCheckableElement} from '../../v6/features/shared/items/ContentItemCheckable';
 
 export class PublishDialogDependantList
     extends DialogDependantItemsList {

@@ -24,7 +24,7 @@ import {ContentAppHelper} from '../wizard/ContentAppHelper';
 import {ContentMoveComboBox} from './ContentMoveComboBox';
 import {ContentMovePromptEvent} from './ContentMovePromptEvent';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {DialogPresetConfirmElement} from '../ui2/dialog/DialogPreset';
+import {DialogPresetConfirmElement} from '../../v6/features/shared/dialogs/DialogPreset';
 
 export class MoveContentDialog
     extends ModalDialogWithConfirmation

@@ -21,7 +21,7 @@ import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {Branch} from './versioning/Branch';
-import {AppBarElement} from '../v6/features/layout/AppShell/AppBar';
+import {BrowseAppBarElement} from '../v6/features/views/browse/layout/BrowseAppBar';
 
 export class ContentAppContainer
     extends AppContainer {
@@ -52,7 +52,7 @@ export class ContentAppContainer
     }
 
     private handleNoProjectsAvailable() {
-        AppBarElement.getInstance().disable();
+        BrowseAppBarElement.getInstance().disable();
     }
 
     private initSearchPanelListener(panel: ContentAppPanel) {

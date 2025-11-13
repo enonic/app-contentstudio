@@ -39,7 +39,6 @@ import {ContentSummary} from 'lib-contentstudio/app/content/ContentSummary';
 import {ContentEventsListener} from 'lib-contentstudio/app/ContentEventsListener';
 import {ContentEventsProcessor} from 'lib-contentstudio/app/ContentEventsProcessor';
 import {NewContentEvent} from 'lib-contentstudio/app/create/NewContentEvent';
-import {ProjectSelectionDialog} from 'lib-contentstudio/app/ui2/dialog/ProjectSelectionDialog';
 import {AggregatedServerEventsListener} from 'lib-contentstudio/app/event/AggregatedServerEventsListener';
 import {ContentServerEventsHandler} from 'lib-contentstudio/app/event/ContentServerEventsHandler';
 import {ContentUpdatedEvent} from 'lib-contentstudio/app/event/ContentUpdatedEvent';
@@ -63,6 +62,8 @@ import {UrlAction} from 'lib-contentstudio/app/UrlAction';
 import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
 import {ContentWizardPanelParams} from 'lib-contentstudio/app/wizard/ContentWizardPanelParams';
 import {VersionHelper} from 'lib-contentstudio/app/util/VersionHelper';
+import {$activeProjectName} from 'lib-contentstudio/v6/features/store/projects.store';
+import {AppElement} from 'lib-contentstudio/v6/features/App';
 import Q from 'q';
 
 // Dynamically import and execute all input types, since they are used
@@ -298,6 +299,9 @@ const getFirstAvailableProject = (projects: Project[]): Project => {
 let connectionDetector: ConnectionDetector;
 
 async function startApplication() {
+    // v6 app initialization
+    AppElement.initialize();
+
     const application: Application = getApplication();
     connectionDetector = startLostConnectionDetector();
     Store.instance().set('application', application);
@@ -555,7 +559,7 @@ async function startContentBrowser() {
 
 function initProjectContext(application: Application): Q.Promise<void> {
     return new ProjectListRequest(true).sendAndParse().then((projects: Project[]) => {
-        const projectName: string = application.getPath().getElement(0) || localStorage.getItem(ProjectContext.LOCAL_STORAGE_KEY);
+        const projectName: string = application.getPath().getElement(0) || localStorage.getItem(ProjectContext.LOCAL_STORAGE_KEY) || $activeProjectName.get();
 
         if (projectName) {
             const currentProject: Project =

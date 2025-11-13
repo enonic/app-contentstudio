@@ -2,7 +2,7 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {compareItems, DialogDependantItemsList, ObserverConfig} from '../dialog/DialogDependantItemsList';
 import {EditContentEvent} from '../event/EditContentEvent';
 import {ContentWithRefsResult} from '../resource/ContentWithRefsResult';
-import {ContentItem} from '../ui2/list/ContentItem';
+import {ContentItem} from '../../v6/features/shared/items/ContentItem';
 
 export class DialogWithRefsDependantList
     extends DialogDependantItemsList<ContentItem> {

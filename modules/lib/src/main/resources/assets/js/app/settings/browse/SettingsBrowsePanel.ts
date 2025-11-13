@@ -108,6 +108,8 @@ export class SettingsBrowsePanel
         return this.treeActions;
     }
 
+
+
     hasItemWithId(id: string) {
         return !!this.treeListBox.getItem(id);
     }
