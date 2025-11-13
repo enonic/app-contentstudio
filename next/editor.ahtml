@@ -452,7 +452,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>The <strong>Content Editor</strong> opens in a new browser tab from the <a href="navigator.ahtml">Browse View</a> when content is created or edited. Clicking on the <strong>Content Studio</strong> tree icon in the top left corner will open the <a href="navigator.ahtml">Browse View</a> in a new browser tab. User will get a browser warning upon trying to close a tab with modified but unsaved content.</p>
 </div>
 <div class="paragraph">
-<p>The edit view consists of several parts. On the left is the <a href="editor/content-form.ahtml">Content Form</a>. If the content is editable, the <a href="editor/page-editor.ahtml">Page Editor</a> will automatically open on the right. A click on the <span class="image"><img src="editor/images/navigator-context-panel-icon.png" alt="navigator context panel icon" width="24px" title="Preview button"></span> in the top right corner will open the <a href="editor/context-panel.ahtml">Context Panel</a>. In addition to the same widgets that are available from the Browser View, there&#8217;s one special widget here called "Page" which provides page editing capabilities.</p>
+<p>The edit view consists of several parts. On the left is the <a href="editor/content-form.ahtml">Content Form</a>. If the content is editable, the <a href="editor/page-editor.ahtml">Page Editor</a> will automatically open on the right. A click on the <span class="image"><img src="editor/images/context-panel-icon.png" alt="context panel icon" width="24px" title="Context panel icon"></span> in the top right corner will open the <a href="editor/context-panel.ahtml">Context Panel</a>. In addition to the same widgets that are available from the Browser View, there&#8217;s one special widget here called "Page" which provides page editing capabilities.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -477,7 +477,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-11-13 11:46:10 UTC
+Last updated 2025-11-13 15:17:33 UTC
 </div>
 </div>
 </body>
