@@ -12,6 +12,8 @@ IMPORTANT: Content Studio 5.4 requires XP 7.16.0 or higher.
 
 === What's new
 
+video::vu8xR-gkN84[youtube, 75%]
+
 === Improved workflow for page customization
 
 Several improvements have been made to make page customization more accessible, yet robust:
@@ -22,7 +24,7 @@ Several improvements have been made to make page customization more accessible, 
 
 * Page controller or template can now be selected/changed only in the Inspect panel.
 
-* When a content preview is not available or a page template is used, a click on the Preview panel will open a context menu with "Page Settings" shortcut. Click "Page Settings" to select a page controller/template or customize the page in the Inspect panel.
+* When content preview is not available or a page template is used, a click on the Preview panel will open a context menu with "Page Settings" shortcut. Click "Page Settings" to select a page controller/template or customize the page in the Inspect panel.
 
 [cols="a,a", frame=none, grid=none]
 |===
@@ -95,9 +97,9 @@ image::layer-modal-dialog.png[Layer dialog, 50%]
 
 Selection of two versions for comparison in the Version History panel is now done with checkboxes, instead of clicking the "Compare" icon next to each version. This makes it more obvious which versions are going to be compared.
 
-image::widgets-version-history-select.png[Select versions for comparison, 50%]
-
 Long lists of versions in the Version History panel have been optimized for a faster load.
+
+image::widgets-version-history-select.png[Select versions for comparison, 50%]
 
 :imagesdir: release/images
 
