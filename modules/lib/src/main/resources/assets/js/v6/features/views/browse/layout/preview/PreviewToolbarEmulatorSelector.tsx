@@ -22,7 +22,7 @@ const getDeviceIcon = (device: EmulatorDevice, className?: string) => {
     return (
         <Icon
             size={className?.includes('@sm:hidden') ? 14 : 24}
-            className={cn('stroke-black group-data-[state=checked]:stroke-white dark:stroke-white', className)}
+            className={cn('stroke-black dark:stroke-white', className)}
         />
     );
 };
@@ -47,11 +47,12 @@ export const PreviewToolbarEmulatorSelector = (): ReactElement => {
             <Toolbar.Item asChild>
                 <Menu.Trigger asChild>
                     <Button
+                        className="group"
                         endIcon={isOpen ? ChevronUp : ChevronDown}
                         size="sm"
                         aria-label={useI18n('wcag.preview.toolbar.emulatorSelector.label')}
                     >
-                        {getDeviceIcon(selectedDevice, '@sm:hidden')}
+                        {getDeviceIcon(selectedDevice, 'group-data-[active=true]:stroke-white @sm:hidden')}
                         <span className="hidden @sm:inline">{selectedDevice.getWidthWithUnits()}</span>
                     </Button>
                 </Menu.Trigger>
@@ -65,7 +66,9 @@ export const PreviewToolbarEmulatorSelector = (): ReactElement => {
                                 value={getEmulatorKey(device)}
                                 onClick={() => handleDeviceSelect(device)}
                             >
-                                <Menu.ItemIndicator>{getDeviceIcon(device)}</Menu.ItemIndicator>
+                                <Menu.ItemIndicator>
+                                    {getDeviceIcon(device, 'group-data-[state=checked]:stroke-white')}
+                                </Menu.ItemIndicator>
                                 <p className="ml-2">
                                     <span className="font-semibold block">{device.getName()}</span>
                                     <span className="text-xs text-subtle group-data-[state=checked]:text-alt">

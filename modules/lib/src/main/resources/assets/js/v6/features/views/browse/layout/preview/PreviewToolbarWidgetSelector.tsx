@@ -36,12 +36,13 @@ export const PreviewToolbarWidgetSelector = (): ReactElement => {
             <Toolbar.Item asChild>
                 <Menu.Trigger asChild>
                     <Button
+                        className="group"
                         endIcon={isOpen ? ChevronUp : ChevronDown}
                         size="sm"
                         aria-label={useI18n('wcag.preview.toolbar.widgetSelector.label')}
                     >
                         <img
-                            className="size-3.5 @sm:hidden @dark:invert-100"
+                            className="size-3.5 @sm:hidden group-data-[active=true]:invert-100 dark:invert-100"
                             src={activeWidget.getFullIconUrl()}
                             alt={activeWidget.getDisplayName()}
                         />
