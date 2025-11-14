@@ -1,4 +1,4 @@
-import {Button, Tooltip} from '@enonic/ui';
+import {Button, Toolbar} from '@enonic/ui';
 import {History} from 'lucide-react';
 import {ReactElement} from 'react';
 import {InternalWidgetType} from '../../../../../../app/view/context/WidgetView';
@@ -6,9 +6,6 @@ import {InspectEvent} from '../../../../../../app/event/InspectEvent';
 import {useI18n} from '../../../../hooks/useI18n';
 
 export function PreviewToolbarVersionHistoryButton(): ReactElement {
-    const label = useI18n('field.preview.toolbar.versionHistory');
-    const tooltipLabel = useI18n('field.preview.toolbar.versionHistory.tooltip');
-
     const handleShowVersionHistory = () => {
         InspectEvent.create()
             .setWidgetType(InternalWidgetType.HISTORY)
@@ -19,17 +16,17 @@ export function PreviewToolbarVersionHistoryButton(): ReactElement {
     };
 
     return (
-        <Tooltip value={tooltipLabel} side="bottom">
+        <Toolbar.Item asChild>
             <Button
                 size="sm"
                 className="flex-shrink-0"
-                aria-label={tooltipLabel}
+                aria-label={useI18n('wcag.preview.toolbar.versionHistory.label')}
                 startIcon={History}
                 onClick={handleShowVersionHistory}
             >
-                <span className="hidden @sm:inline">{label}</span>
+                <span className="hidden @sm:inline">{useI18n('field.preview.toolbar.versionHistory.label')}</span>
             </Button>
-        </Tooltip>
+        </Toolbar.Item>
     );
 }
 
