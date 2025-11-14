@@ -17,6 +17,7 @@ import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
 import {EmulatedDeviceEvent} from '../../v6/features/utils/events/registry';
 import {EmulatorDevice} from './context/widget/emulator/EmulatorDevice';
 import {$autoModeWidgets, WIDGET_AUTO_DESCRIPTOR} from '../../v6/features/store/liveViewWidgets.store';
+import {$isWidgetRenderable} from '../../v6/features/store/isWidgetRenderable';
 
 export enum PREVIEW_TYPE {
     WIDGET,
@@ -75,9 +76,14 @@ export class WidgetRenderingHandler {
         this.showMask();
         this.renderer.getPreviewAction()?.setEnabled(false);
 
+        $isWidgetRenderable.set(false);
+
         return this.doRender(summary, widget)
             .then((result) => {
                 const isRenderable = result.isRenderable();
+
+                $isWidgetRenderable.set(isRenderable);
+
                 deferred.resolve(isRenderable);
 
                 if (isRenderable !== wasRenderable) {
