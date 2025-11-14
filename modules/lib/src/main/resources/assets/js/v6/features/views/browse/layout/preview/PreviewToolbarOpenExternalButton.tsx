@@ -1,8 +1,8 @@
-import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {IconButton, Tooltip, Toolbar} from '@enonic/ui';
 import {SquareArrowOutUpRight} from 'lucide-react';
 import {ReactElement, useEffect, useState} from 'react';
+import {formatShortcut} from '../../../../utils/action';
 
 export const PreviewToolbarOpenExternalButton = ({action}: {action: Action}): ReactElement => {
     const tooltipValue = `${action.getLabel()} (${formatShortcut(action)})`;
@@ -39,19 +39,5 @@ export const PreviewToolbarOpenExternalButton = ({action}: {action: Action}): Re
         </Tooltip>
     );
 };
-
-//
-// * Utilities
-//
-function formatShortcut(action: Action): string {
-    const isApple = BrowserHelper.isOSX() || BrowserHelper.isIOS();
-
-    return (
-        action
-            .getShortcut()
-            .getCombination()
-            ?.replace(/mod\+/i, isApple ? 'cmd+' : 'ctrl+') ?? ''
-    );
-}
 
 PreviewToolbarOpenExternalButton.displayName = 'PreviewToolbarOpenExternalButton';
