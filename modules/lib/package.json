@@ -21,7 +21,7 @@
     "check:lint": "eslint **/*.ts --quiet --cache"
   },
   "dependencies": {
-    "@enonic/ui": "~0.20.0",
+    "@enonic/ui": "~0.20.1",
     "@nanostores/preact": "^1.0.0",
     "class-variance-authority": "^0.7.1",
     "d3": "^7.9.0",

@@ -1,10 +1,11 @@
 import {ReactElement, useCallback, useEffect, useState} from 'react';
 import {ChevronDown, ChevronUp} from 'lucide-react';
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
-import {Button, Menu} from '@enonic/ui';
+import {Button, Menu, Toolbar} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {$activeWidget, $liveViewWidgets, setActiveWidget} from '../../../../store/liveViewWidgets.store';
 import {ViewWidgetEvent} from '../../../../../../app/event/ViewWidgetEvent';
+import {useI18n} from '../../../../hooks/useI18n';
 
 function getWidgetKey(widget: Widget): string {
     return widget.getWidgetDescriptorKey().toString();
@@ -32,16 +33,23 @@ export const PreviewToolbarWidgetSelector = (): ReactElement => {
 
     return (
         <Menu open={isOpen} onOpenChange={setIsOpen}>
-            <Menu.Trigger asChild>
-                <Button endIcon={isOpen ? ChevronUp : ChevronDown} size="sm">
-                    <img
-                        className="size-3.5 @sm:hidden @dark:invert-100"
-                        src={activeWidget.getFullIconUrl()}
-                        alt={activeWidget.getDisplayName()}
-                    />
-                    <span className="hidden @sm:inline">{activeWidget?.getDisplayName()}</span>
-                </Button>
-            </Menu.Trigger>
+            <Toolbar.Item asChild>
+                <Menu.Trigger asChild>
+                    <Button
+                        className="group"
+                        endIcon={isOpen ? ChevronUp : ChevronDown}
+                        size="sm"
+                        aria-label={useI18n('wcag.preview.toolbar.widgetSelector.label')}
+                    >
+                        <img
+                            className="size-3.5 @sm:hidden group-data-[active=true]:invert-100 dark:invert-100"
+                            src={activeWidget.getFullIconUrl()}
+                            alt={activeWidget.getDisplayName()}
+                        />
+                        <span className="hidden @sm:inline">{activeWidget?.getDisplayName()}</span>
+                    </Button>
+                </Menu.Trigger>
+            </Toolbar.Item>
             <Menu.Portal>
                 <Menu.Content>
                     <Menu.RadioGroup value={radioControlKey} onValueChange={setRadioControlKey}>
