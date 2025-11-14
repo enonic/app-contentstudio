@@ -14,7 +14,7 @@
     },
     {
       "label": "next",
-      "checkout": "issue-9290"
+      "checkout": "5.4"
     },
     {
       "label": "stable",

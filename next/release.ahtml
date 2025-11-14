@@ -538,7 +538,11 @@ Content Studio 5.4 requires XP 7.16.0 or higher.
 </div>
 <div class="sect2">
 <h3 id="whats_new"><a class="link" href="#whats_new">What&#8217;s new</a></h3>
-
+<div class="videoblock">
+<div class="content">
+<iframe width="75%" src="https://www.youtube.com/embed/vu8xR-gkN84?rel=0" frameborder="0" allowfullscreen></iframe>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="improved_workflow_for_page_customization"><a class="link" href="#improved_workflow_for_page_customization">Improved workflow for page customization</a></h3>
@@ -557,7 +561,7 @@ Content Studio 5.4 requires XP 7.16.0 or higher.
 <p>Page controller or template can now be selected/changed only in the Inspect panel.</p>
 </li>
 <li>
-<p>When a content preview is not available or a page template is used, a click on the Preview panel will open a context menu with "Page Settings" shortcut. Click "Page Settings" to select a page controller/template or customize the page in the Inspect panel.</p>
+<p>When content preview is not available or a page template is used, a click on the Preview panel will open a context menu with "Page Settings" shortcut. Click "Page Settings" to select a page controller/template or customize the page in the Inspect panel.</p>
 </li>
 </ul>
 </div>
@@ -698,13 +702,13 @@ Translation will only be suggested when changing language in the content edit vi
 <div class="paragraph">
 <p>Selection of two versions for comparison in the Version History panel is now done with checkboxes, instead of clicking the "Compare" icon next to each version. This makes it more obvious which versions are going to be compared.</p>
 </div>
+<div class="paragraph">
+<p>Long lists of versions in the Version History panel have been optimized for a faster load.</p>
+</div>
 <div class="imageblock">
 <div class="content">
 <img src="widgets/images/widgets-version-history-select.png" alt="Select versions for comparison" width="50%">
 </div>
-</div>
-<div class="paragraph">
-<p>Long lists of versions in the Version History panel have been optimized for a faster load.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1357,7 +1361,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-11-13 17:26:48 UTC
+Last updated 2025-11-14 13:01:29 UTC
 </div>
 </div>
 </body>
