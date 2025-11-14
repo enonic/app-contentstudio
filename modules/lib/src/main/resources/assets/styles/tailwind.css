@@ -1,8 +1,15 @@
-@import "tailwindcss";
+@layer theme, base, legacy, utilities, overrides;
+
+
+@import "tailwindcss/theme.css" layer(theme);
+
+@import "tailwindcss/preflight.css" layer(base);
 
 @import "@enonic/ui/preset.css";
 
 @import "tw-animate-css";
+
+@import "tailwindcss/utilities.css" layer(utilities);
 
 @source "../../../../../node_modules/@enonic/ui/";
 
@@ -13,6 +20,14 @@
 }
 
 /* HACKS */
-#launcher-button { 
-  display: none !important; 
+@layer overrides {
+  /* Hide laucher buttons that is injected from Launcher app */
+  #launcher-button {
+    display: none !important;
+  }
+
+  /* Make all elements inside Preact roots to ignore legacy outline styles*/
+  .contents * {
+    outline-style: none;
+  }
 }
