@@ -1,8 +1,9 @@
 import {useCallback, type ReactElement, useState} from 'react';
-import {Button, cn, Menu} from '@enonic/ui';
+import {Button, cn, Menu, Toolbar} from '@enonic/ui';
 import {ChevronDown, ChevronUp} from 'lucide-react';
 import {EmulatorDevice} from '../../../../../../app/view/context/widget/emulator/EmulatorDevice';
 import {EmulatedDeviceEvent} from '../../../../utils/events/registry';
+import {useI18n} from '../../../../hooks/useI18n';
 
 const EMULATORS = [
     EmulatorDevice.getFullscreen(),
@@ -43,12 +44,18 @@ export const PreviewToolbarEmulatorSelector = (): ReactElement => {
 
     return (
         <Menu open={isOpen} onOpenChange={setIsOpen}>
-            <Menu.Trigger asChild>
-                <Button endIcon={isOpen ? ChevronUp : ChevronDown} size="sm">
-                    {getDeviceIcon(selectedDevice, '@sm:hidden')}
-                    <span className="hidden @sm:inline">{selectedDevice.getWidthWithUnits()}</span>
-                </Button>
-            </Menu.Trigger>
+            <Toolbar.Item asChild>
+                <Menu.Trigger asChild>
+                    <Button
+                        endIcon={isOpen ? ChevronUp : ChevronDown}
+                        size="sm"
+                        aria-label={useI18n('wcag.preview.toolbar.emulatorSelector.label')}
+                    >
+                        {getDeviceIcon(selectedDevice, '@sm:hidden')}
+                        <span className="hidden @sm:inline">{selectedDevice.getWidthWithUnits()}</span>
+                    </Button>
+                </Menu.Trigger>
+            </Toolbar.Item>
             <Menu.Portal>
                 <Menu.Content>
                     <Menu.RadioGroup value={radioControlKey} onValueChange={setRadioControlKey}>

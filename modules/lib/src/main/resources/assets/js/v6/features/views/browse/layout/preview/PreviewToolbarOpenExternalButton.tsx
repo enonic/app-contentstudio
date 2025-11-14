@@ -1,6 +1,6 @@
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {IconButton, Tooltip} from '@enonic/ui';
+import {IconButton, Tooltip, Toolbar} from '@enonic/ui';
 import {SquareArrowOutUpRight} from 'lucide-react';
 import {ReactElement, useEffect, useState} from 'react';
 
@@ -25,15 +25,17 @@ export const PreviewToolbarOpenExternalButton = ({action}: {action: Action}): Re
     }, [action]);
 
     return (
-        <Tooltip value={tooltipValue} side="bottom">
-            <IconButton
-                size="sm"
-                className="flex-shrink-0"
-                icon={SquareArrowOutUpRight}
-                onClick={() => action?.execute()}
-                aria-label={tooltipValue}
-                disabled={!isEnabled}
-            />
+        <Tooltip value={tooltipValue}>
+            <Toolbar.Item asChild disabled={!isEnabled}>
+                <IconButton
+                    size="sm"
+                    className="flex-shrink-0"
+                    icon={SquareArrowOutUpRight}
+                    onClick={() => action?.execute()}
+                    aria-label={tooltipValue}
+                    disabled={!isEnabled}
+                />
+            </Toolbar.Item>
         </Tooltip>
     );
 };
