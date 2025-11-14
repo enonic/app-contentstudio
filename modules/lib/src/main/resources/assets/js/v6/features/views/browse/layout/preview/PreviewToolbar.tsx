@@ -12,6 +12,7 @@ import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {PreviewToolbarVersionHistoryButton} from './PreviewToolbarVersionHistoryButton';
 import {PreviewToolbarOpenExternalButton} from './PreviewToolbarOpenExternalButton';
+import {Toolbar} from '@enonic/ui';
 
 type PreviewToolbarProps = {
     item?: ContentSummaryAndCompareStatus | null;
@@ -25,18 +26,22 @@ type PreviewToolbarElementProps = PreviewToolbarProps & {
 const PreviewToolbar = ({item = null, previewAction}: PreviewToolbarProps): ReactElement => {
     if (!item) return <></>;
 
-    // TODO: Enonic UI - Migrate outer div to Toolbar component from enonic-ui
     return (
-        <div className="@container bg-surface-neutral h-15 px-5 py-3.75 flex items-center justify-between border-b border-bdr-soft">
-            <PreviewToolbarVersionHistoryButton />
+        <Toolbar>
+            <Toolbar.Container
+                aria-label="Preview toolbar"
+                className="@container bg-surface-neutral h-15 px-5 py-3.75 flex items-center justify-between border-b border-bdr-soft"
+            >
+                <PreviewToolbarVersionHistoryButton />
 
-            <div className="flex gap-1 @md:gap-5 flex-nowrap flex-shrink-0">
-                <PreviewToolbarEmulatorSelector />
-                <PreviewToolbarWidgetSelector />
-            </div>
+                <div className="flex gap-1 @md:gap-5 flex-nowrap flex-shrink-0">
+                    <PreviewToolbarEmulatorSelector />
+                    <PreviewToolbarWidgetSelector />
+                </div>
 
-            <PreviewToolbarOpenExternalButton action={previewAction} />
-        </div>
+                <PreviewToolbarOpenExternalButton action={previewAction} />
+            </Toolbar.Container>
+        </Toolbar>
     );
 };
 
