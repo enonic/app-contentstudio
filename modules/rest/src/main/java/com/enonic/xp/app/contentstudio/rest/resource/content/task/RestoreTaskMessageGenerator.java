@@ -36,14 +36,14 @@ class RestoreTaskMessageGenerator
         final List<ContentPath> restored = result.getSucceeded();
         if ( restored != null && restored.size() == 1 )
         {
-            builder.append( String.format( "Item \"%s\" is restored.", restored.get( 0 ).getName() ) );
+            builder.append( String.format( "Item \"%s\" has been restored.", restored.get( 0 ).getName() ) );
         }
     }
 
     @Override
     void appendMessageForMultipleSuccess( final StringBuilder builder, final RestoreRunnableTaskResult result )
     {
-        builder.append( result.getSuccessCount() ).append( " items were restored." );
+        builder.append( result.getSuccessCount() ).append( " items have been restored." );
     }
 
 }

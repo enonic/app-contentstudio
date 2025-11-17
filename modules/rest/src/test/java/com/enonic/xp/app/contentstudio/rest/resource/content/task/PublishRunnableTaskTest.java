@@ -73,8 +73,9 @@ public class PublishRunnableTaskTest
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 1 );
 
         assertEquals(
-            "{\"state\":\"WARNING\",\"message\":\"Item \\\"content1\\\" is published. Item \\\"content3\\\" could not be published.\"}",
-            resultMessage );
+    "{\"state\":\"WARNING\",\"message\":\"Item \\\"content1\\\" has been published. Item \\\"content3\\\" could not be published.\"}",
+            resultMessage
+        );
     }
 
     private String runTask( final PublishContentResult result )
@@ -99,7 +100,7 @@ public class PublishRunnableTaskTest
             setPushed( ContentIds.from( contents.get( 0 ).getId() ) ).
             build();
 
-        assertEquals( "{\"state\":\"SUCCESS\",\"message\":\"Item \\\"content1\\\" is published.\"}", runTask( result ) );
+        assertEquals( "{\"state\":\"SUCCESS\",\"message\":\"Item \\\"content1\\\" has been published.\"}", runTask( result ) );
     }
 
     @Test

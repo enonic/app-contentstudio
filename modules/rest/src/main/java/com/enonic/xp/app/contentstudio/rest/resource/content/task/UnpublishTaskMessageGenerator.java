@@ -24,13 +24,13 @@ class UnpublishTaskMessageGenerator
     @Override
     void appendMessageForSingleSuccess( final StringBuilder builder, final UnpublishRunnableTaskResult result )
     {
-        builder.append( String.format( "Item \"%s\" is unpublished.", result.getSucceeded().get( 0 ).getName() ) );
+        builder.append( String.format( "Item \"%s\" has been unpublished.", result.getSucceeded().get( 0 ).getName() ) );
     }
 
     @Override
     void appendMessageForMultipleSuccess( final StringBuilder builder, final UnpublishRunnableTaskResult result )
     {
-        builder.append( String.format( "%s items are unpublished", result.getSuccessCount() ) );
+        builder.append( String.format( "%s items have been unpublished", result.getSuccessCount() ) );
     }
 
 }
