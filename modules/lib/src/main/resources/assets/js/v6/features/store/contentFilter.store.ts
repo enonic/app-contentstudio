@@ -11,7 +11,7 @@ export const $contentFilterState = map<ContentFilterStore>({
     selection: [],
 });
 
-export const $contentFilterOpen = atom<boolean>(false);
+export const $isContentFilterOpen = atom<boolean>(false);
 
 export function setContentFilterValue(value: string): void {
     $contentFilterState.setKey('value', value);
@@ -22,7 +22,7 @@ export function setContentFilterSelection(selection: AggregationSelection[]): vo
 }
 
 export function setContentFilterOpen(open: boolean): void {
-    $contentFilterOpen.set(open);
+    $isContentFilterOpen.set(open);
 }
 
 // TODO: Enonic UI - Remove legacy functions

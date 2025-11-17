@@ -5,7 +5,7 @@ import {Search} from 'lucide-react';
 import {ReactElement} from 'react';
 import {useAction} from '../../../hooks/useAction';
 import {useI18n} from '../../../hooks/useI18n';
-import {$contentFilterOpen} from '../../../store/contentFilter.store';
+import {$isContentFilterOpen} from '../../../store/contentFilter.store';
 
 type Props = {
     action: Action;
@@ -13,7 +13,7 @@ type Props = {
 };
 
 export const SearchToggle = ({action, className}: Props): ReactElement => {
-    const isContentFilterOpen = useStore($contentFilterOpen);
+    const isContentFilterOpen = useStore($isContentFilterOpen);
     const {label, enabled, execute} = useAction(action);
 
     const showReachLabel = useI18n('action.search.show');
@@ -24,7 +24,9 @@ export const SearchToggle = ({action, className}: Props): ReactElement => {
         <Tooltip value={searchLabel} asChild>
             <Toolbar.Item asChild>
                 <Toggle
-                    className={cn('size-10 p-0', className)}
+                    className={cn('size-9 p-0', className)}
+                    size='sm'
+                    iconStrokeWidth={2}
                     aria-label={searchLabel}
                     startIcon={Search}
                     pressed={isContentFilterOpen}
