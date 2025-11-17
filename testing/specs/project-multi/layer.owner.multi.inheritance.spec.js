@@ -128,8 +128,8 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
             await contentWizard.waitForOpened();
             // 'Inherited content is localized' - message should appear
             let message = await contentWizard.waitForNotificationMessage();
-            assert.equal(message, appConst.NOTIFICATION_MESSAGES.LOCALIZED_MESSAGE_2,
-                "'Inherited content is localized' - message should appear");
+            assert.equal(message, appConst.NOTIFICATION_MESSAGES.INHERITED_CONTENT_LOCALIZED,
+                "'Inherited content has been localized' - message should appear");
         });
 
 
@@ -146,8 +146,8 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
             await studioUtils.doSwitchToNextTab();
             await contentWizard.waitForOpened();
             let message = await contentWizard.waitForNotificationMessage();
-            assert.equal(message, appConst.NOTIFICATION_MESSAGES.LOCALIZED_MESSAGE_2,
-                "'Inherited content is localized' - message should appear");
+            assert.equal(message, appConst.NOTIFICATION_MESSAGES.INHERITED_CONTENT_LOCALIZED,
+                "'Inherited content has been localized' - message should appear");
         });
 
     it("WHEN user-owner navigated to 'Settings Panel' THEN parent project and its layer should be visible",

@@ -18,14 +18,14 @@ describe('project.wizard.dialog.permissions.step.spec - ui-tests for Permissions
     }
     const PARENT_DEFAULT = 'Default';
 
-    it(`GIVEN wizard dialog is opened AND Default project is selected here WHEN navigate to Permissions wizard step THEN 'Copy from parent' button should be disabled`,
+    it(`GIVEN Default project has been selected as a parent WHEN an user has been selected in Permissions step THEN 'Copy from parent' button gets enabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let languageStep = new ProjectWizardDialogLanguageStep();
             let parentProjectStep = new ProjectWizardDialogParentProjectStep();
             let accessModeStep = new ProjectWizardDialogAccessModeStep();
             let permissionsStep = new ProjectWizardDialogPermissionsStep();
-            // 1.Open new project wizard:
+            // 1. Open new project wizard:
             await settingsBrowsePanel.openProjectWizardDialog();
             // 2. Select 'Default' project and go to 'Permissions' step
             await parentProjectStep.selectParentProject(PARENT_DEFAULT);
@@ -45,7 +45,8 @@ describe('project.wizard.dialog.permissions.step.spec - ui-tests for Permissions
             // 7. Click on 'Copy from parent' button:
             await accessModeStep.clickOnCopyFromParentButton(PARENT_DEFAULT);
             let actualMessage = await accessModeStep.waitForNotificationMessage();
-            assert.equal(actualMessage, 'Roles successfully copied from "Default"');
+            // Verify the message - 'Roles has been copied from "Default"'
+            assert.equal(actualMessage, appConst.projectRolesCopied(PARENT_DEFAULT));
             await studioUtils.saveScreenshot('roles_copied_from_default');
             // 8. Verify that 'Skip' button gets visible and enabled:
             await accessModeStep.waitForSkipButtonEnabled();
@@ -53,7 +54,7 @@ describe('project.wizard.dialog.permissions.step.spec - ui-tests for Permissions
             await accessModeStep.waitForCopyFromParentButtonDisabled(PARENT_DEFAULT);
         });
 
-    it(`GIVEN wizard dialog is opened AND Default project is selected here WHEN navigate to Permissions wizard step THEN 'Copy from parent' button should be disabled`,
+    it(`GIVEN Default project is selected as a parent project WHEN navigate to Permissions wizard step THEN 'Copy from parent' button should be disabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let languageStep = new ProjectWizardDialogLanguageStep();
@@ -77,13 +78,13 @@ describe('project.wizard.dialog.permissions.step.spec - ui-tests for Permissions
             // 6. Click on remove and clear roles:
             await permissionsStep.removeProjectAccessItem(appConst.systemUsersDisplayName.SUPER_USER);
             await studioUtils.saveScreenshot('roles_cleared');
-            // 7. Verify that 'Copy from parent' is disabled
+            // 7. Verify that 'Copy from parent' gets disabled
             await permissionsStep.waitForCopyFromParentButtonDisabled(PARENT_DEFAULT);
             // 8. and 'Skip' buttons gets visible again and enabled:
             await permissionsStep.waitForSkipButtonEnabled();
         });
 
-    it(`GIVEN Permissions step is loaded and SU has been added  WHEN navigate to the previos wizard step then go back to permissions step again THEN expected permissions entry should be displayed`,
+    it(`GIVEN Permissions step is loaded and SU has been added  WHEN navigate to the previous wizard step then go back to permissions step again THEN expected permissions entry should be displayed`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let languageStep = new ProjectWizardDialogLanguageStep();

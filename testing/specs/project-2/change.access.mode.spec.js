@@ -60,7 +60,7 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
             await studioUtils.saveScreenshot('project_access_mode_updated');
             assert.equal(actualMessages[1], appConst.projectModifiedMessage(PROJECT_DISPLAY_NAME));
             assert.ok(actualMessages[0].includes('Permissions'), 'Permissions are applied - the second expected notification message');
-            assert.ok(actualMessages[0].includes('are applied'), 'Permissions are applied - the second expected notification message');
+            assert.ok(actualMessages[0].includes('have been applied'), 'Permissions have been applied - the second expected notification message');
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/1889

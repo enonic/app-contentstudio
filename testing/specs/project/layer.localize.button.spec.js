@@ -16,7 +16,7 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
+    const LAYER_DISPLAY_NAME = studioUtils.generateRandomName('layer');
     const FOLDER_NAME = studioUtils.generateRandomName('folder');
     const FOLDER_2_NAME = studioUtils.generateRandomName('folder');
 
@@ -70,8 +70,8 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
             await contentWizardPanel.waitForOpened();
             let localizedMes = await contentWizardPanel.waitForNotificationMessage();
             // Expected Message: Inherited content was localized:
-            assert.equal(localizedMes, appConst.NOTIFICATION_MESSAGES.LOCALIZED_MESSAGE_2,
-                "'Inherited content is localized' message should appear after the content has been opened");
+            assert.equal(localizedMes, appConst.NOTIFICATION_MESSAGES.INHERITED_CONTENT_LOCALIZED,
+                "'Inherited content has been localized' message should appear after the content has been opened");
             // 4. 'Save' button should be disabled:
             await contentWizardPanel.waitForSaveButtonDisabled();
         });

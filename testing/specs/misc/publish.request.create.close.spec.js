@@ -82,7 +82,7 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             await publishRequestDetailsDialog.clickOnPublishNowButton();
             await publishRequestDetailsDialog.waitForClosed();
             // 4. Verify the notification messages:
-            let expectedMsg1 = appConst.publishRequestClosedMessage(REQ_TITLE);
+            let expectedMsg1 = appConst.NOTIFICATION_MESSAGES.REQUEST_HAS_BEEN_CLOSED;
             let expectedMsg2 = appConst.itemPublishedNotificationMessage(TEST_FOLDER1.displayName);
             // Item "...." is published.
             await browsePanel.waitForExpectedNotificationMessage(expectedMsg1);

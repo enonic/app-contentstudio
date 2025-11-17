@@ -19,7 +19,7 @@ describe('overwrite.permissions.spec: tests for permissions in parent and child 
 
     let PARENT_FOLDER;
     let CHILD_FOLDER;
-    const NOTIFICATION_MESSAGE = 'Permissions for 2 items are applied.';
+    const NOTIFICATION_MESSAGE = 'Permissions for 2 items have been applied.';
 
     it(`Preconditions: parent and child folder should be created with default permissions`,
         async () => {

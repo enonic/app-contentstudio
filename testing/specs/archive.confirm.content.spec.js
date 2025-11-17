@@ -65,14 +65,14 @@ describe('archive.confirm.content.dialog.spec:  tests for archiving content', fu
             await confirmValueDialog.waitForDialogOpened();
             // 5. Verify the title in the dialog
             let titleActual = await confirmValueDialog.getDialogTitle();
-            assert.equal(titleActual, DIALOG_TITLE, "Expected title should be displayed in the dialog");
+            assert.equal(titleActual, DIALOG_TITLE, `'Confirm archive' title should be displayed in the dialog`);
             // 6. Fill in the number input:
             await confirmValueDialog.typeNumberOrName(2);
             // 7. Verify that Confirm button gets enabled:
             await confirmValueDialog.clickOnConfirmButton();
             // 8. Verify the notification message:
             let message = await contentBrowsePanel.waitForNotificationMessage();
-            assert.equal(message, '2 items are archived', "Expected notification message should appear");
+            assert.equal(message, '2 items have been archived', '2 items have been archived -  notification message should appear');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

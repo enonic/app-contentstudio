@@ -61,7 +61,7 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
             let actualMessage = await nameAndIdStep.getProjectIdentifierValidationMessage();
             assert.equal(actualMessage, appConst.VALIDATION_MESSAGE.PROJECT_IS_OCCUPIED, "Expected this message should appear");
             // 9. Add "1" at the end of identifier:
-            await nameAndIdStep.addTextInProjectIdentifierInput("1");
+            await nameAndIdStep.addTextInProjectIdentifierInput('1');
             await studioUtils.saveScreenshot("project_name_validation_1");
             // 10. Verify that Next button gets enabled:
             await nameAndIdStep.waitForNextButtonEnabled();
