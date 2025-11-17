@@ -9,6 +9,7 @@ import {ManagedActionManager} from '@enonic/lib-admin-ui/managedaction/ManagedAc
 import {ManagedActionState} from '@enonic/lib-admin-ui/managedaction/ManagedActionState';
 import {ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
+import {ContentTreeListElement} from '../../v6/features/views/browse/grid/ContentTreeListElement';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentTreeGridAction} from './action/ContentTreeGridAction';
 import {ShowNewContentDialogAction} from './action/ShowNewContentDialogAction';
@@ -24,7 +25,6 @@ import {MarkAsReadyContentAction} from './action/MarkAsReadyContentAction';
 import {RequestPublishContentAction} from './action/RequestPublishContentAction';
 import {CreateIssueAction} from './action/CreateIssueAction';
 import {ToggleSearchPanelAction} from './action/ToggleSearchPanelAction';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {Permission} from '../access/Permission';
 import {ContentTreeGridItemsState} from './action/ContentTreeGridItemsState';
 import {GetPermittedActionsRequest} from '../resource/GetPermittedActionsRequest';
@@ -43,7 +43,7 @@ export enum ActionName {
 
 export class ContentTreeActions implements TreeGridActions<ContentSummaryAndCompareStatus> {
 
-    private readonly grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>;
+    private readonly grid: ContentTreeListElement;
 
     private actionsMap: Map<ActionName, ContentTreeGridAction> = new Map<ActionName, ContentTreeGridAction>();
 
@@ -53,7 +53,7 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
 
     private state: State = State.ENABLED;
 
-    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
+    constructor(grid: ContentTreeListElement) {
         this.grid = grid;
         this.initActions();
         this.initListeners();

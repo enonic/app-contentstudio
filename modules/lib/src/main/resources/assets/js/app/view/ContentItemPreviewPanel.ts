@@ -46,6 +46,7 @@ export class ContentItemPreviewPanel extends Panel implements WidgetRenderer {
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
+            this.addClass('bg-surface-neutral');
             this.widgetRenderingHandler.layout();
             this.mask.addClass('content-item-preview-panel-load-mask');
             return rendered;
