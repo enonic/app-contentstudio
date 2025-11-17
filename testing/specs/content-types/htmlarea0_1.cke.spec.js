@@ -130,7 +130,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             await contentWizard.pause(1000);
             await contentWizard.typeData(htmlAreaContent);
             await contentWizard.waitAndClickOnSave();
-            let expectedMessage = '\"' + htmlAreaContent.displayName + '\"' + ' is saved';
+            let expectedMessage = appConst.itemSavedNotificationMessage(htmlAreaContent.displayName);
             await contentWizard.waitForExpectedNotificationMessage(expectedMessage);
         });
 

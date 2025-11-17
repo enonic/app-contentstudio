@@ -31,7 +31,7 @@ describe('project.delete.in.grid.panel.spec - ui-tests for saving/deleting a pro
             let settingsBrowsePanel = new SettingsBrowsePanel();
             await settingsBrowsePanel.clickOnSyncButton();
             let messages = await settingsBrowsePanel.waitForNotificationMessages();
-            assert.equal(messages[0], appConst.PROJECT_SYNC.STARTED, "Expected message should be displayed");
+            assert.equal(messages[0], appConst.PROJECT_SYNC.STARTED, 'Expected message should be displayed');
             // "Content synchronisation job has finished" - this message should appear:
             await settingsBrowsePanel.waitForExpectedNotificationMessage(appConst.PROJECT_SYNC.FINISHED);
         });

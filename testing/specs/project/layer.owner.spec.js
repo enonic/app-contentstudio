@@ -216,7 +216,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             // 5. Verify the message:
             let message = await contentWizard.waitForNotificationMessage();
             await pageComponentsWizardStepForm.waitForNotLocked();
-            assert.equal(message, 'Inherited content is localized', 'Expected notification message should be displayed');
+            assert.equal(message, appConst.NOTIFICATION_MESSAGES.INHERITED_CONTENT_LOCALIZED, 'Expected notification message should be displayed');
             // 6. Verify that Preview button is enabled in the ItemPreview toolbar:
             await contentWizard.waitForPreviewButtonEnabled();
             let actualOption = await contentWizard.getSelectedOptionInPreviewWidget();

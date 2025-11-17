@@ -54,7 +54,7 @@ describe('browse.panel.mark.as.ready.multiselection.spec - select 2 folders and 
 
             let message = await contentBrowsePanel.waitForNotificationMessage();
             let expectedMessage = appConst.itemMarkedAsReadyMessage(folder.displayName);
-            await studioUtils.saveScreenshot("mark_as_ready_confirmation");
+            await studioUtils.saveScreenshot('mark_as_ready_confirmation');
             assert.equal(message, expectedMessage, "Item is marked as ready - message should appear");
         });
 

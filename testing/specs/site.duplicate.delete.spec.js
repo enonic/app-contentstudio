@@ -140,14 +140,14 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             // 5. Click on 'Confirm' button and verify the message:
             await confirmValueDialog.clickOnConfirmButton();
             let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
-            assert.equal(actualMessage, '3 items are deleted.', "Expected notification message should be displayed");
+            assert.equal(actualMessage, '3 items have been deleted.', 'Expected notification message should be displayed');
         });
 
     it("WHEN the original site has been deleted THEN the copy of the site should not be deleted",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the copy of deleted site and expand this site:
-            await studioUtils.findAndSelectItem(SITE.displayName + "-copy");
+            await studioUtils.findAndSelectItem(SITE.displayName + '-copy');
             // 2. Verify that the copy of the site and its children are present:
             await contentBrowsePanel.clickOnExpanderIcon(SITE.displayName + '-copy');
             await studioUtils.saveScreenshot('site_copy_expanded');

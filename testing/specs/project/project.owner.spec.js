@@ -16,7 +16,6 @@ const CreateRequestPublishDialog = require('../../page_objects/issue/create.requ
 const CreateTaskDialog = require('../../page_objects/issue/create.issue.dialog');
 const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const IssueDetailsDialogAssigneesTab = require('../../page_objects/issue/issue.details.dialog.assignees.tab');
-const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const appConst = require('../../libs/app_const');
 const projectUtils = require('../../libs/project.utils');
 const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
