@@ -1,15 +1,16 @@
-import {ContentPublishPromptEvent} from '../ContentPublishPromptEvent';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {getSelectedItems} from '../../../v6/features/store/contentTreeSelectionStore';
+import {ContentTreeListElement} from '../../../v6/features/views/browse/grid/ContentTreeListElement';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {ContentPublishPromptEvent} from '../ContentPublishPromptEvent';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class PublishContentAction extends ContentTreeGridAction {
 
     private includeChildItems: boolean = false;
 
-    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>, includeChildItems: boolean = false, useShortcut: boolean = true) {
+    constructor(grid: ContentTreeListElement, includeChildItems: boolean = false, useShortcut: boolean = true) {
         super(grid, i18n('action.publish'), useShortcut ? 'ctrl+alt+p' : null);
 
         this.setEnabled(false).setClass('publish');
@@ -18,7 +19,7 @@ export class PublishContentAction extends ContentTreeGridAction {
     }
 
     protected handleExecuted() {
-        const contents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedItems();
+        const contents: ContentSummaryAndCompareStatus[] = getSelectedItems();
         new ContentPublishPromptEvent({model: contents, includeChildItems: this.includeChildItems}).fire();
     }
 

@@ -122,11 +122,11 @@ export class WidgetRenderingHandler {
     }
 
     protected createEmptyView(): DivEl {
-        return this.createMessageView(i18n('panel.noselection'), 'no-selection-message');
+        return this.createMessageView(i18n('panel.noselection'), 'no-selection-message bg-surface-neutral');
     }
 
     protected createErrorView(): DivEl {
-        return this.createMessageView(this.getDefaultMessage(), 'no-preview-message');
+        return this.createMessageView(this.getDefaultMessage(), 'no-preview-message bg-surface-neutral');
     }
 
     protected createMessageView(message: string, className?: string): DivEl {

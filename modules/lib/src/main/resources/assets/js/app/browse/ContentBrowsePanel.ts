@@ -16,6 +16,7 @@ import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
+import {ContentTreeListElement} from '../../v6/features/views/browse/grid/ContentTreeListElement';
 import {ContentId} from '../content/ContentId';
 import {ContentPath, ContentPathBuilder} from '../content/ContentPath';
 import {ContentQuery} from '../content/ContentQuery';
@@ -43,6 +44,7 @@ import {ContentBrowseToolbar} from './ContentBrowseToolbar';
 import {ContentsTreeGridList, ContentsTreeGridListElement} from './ContentsTreeGridList';
 import {ContentsTreeGridRootList} from './ContentsTreeGridRootList';
 import {ActionName, ContentTreeActions} from './ContentTreeActions';
+import {ContentTreeListSelectablePanelProxy} from './ContentTreeListSelectablePanelProxy';
 import {DeletedContentItem} from './DeletedContentItem';
 import {ContentBrowseFilterPanel} from './filter/ContentBrowseFilterPanel';
 import {MovedContentItem} from './MovedContentItem';
@@ -78,6 +80,8 @@ export class ContentBrowsePanel
     declare protected selectableListBoxPanel: SelectableListBoxPanel<ContentSummaryAndCompareStatus>;
 
     protected expandedContext: TreeListBoxExpandedHolder;
+
+    private contentTreeList: ContentTreeListElement;
 
     protected initElements() {
         super.initElements();
@@ -134,8 +138,9 @@ export class ContentBrowsePanel
         super.initListeners();
 
         this.filterPanel.onSearchEvent((query?: ContentQuery) => {
-            this.treeListBox.setTargetBranch(this.filterPanel.getTargetBranch());
-            this.treeListBox.setFilterQuery(query);
+            // this.treeListBox.setTargetBranch(this.filterPanel.getTargetBranch());
+            // this.treeListBox.setFilterQuery(query);
+            this.contentTreeList.setFilterQuery(query);
         });
 
         this.handleGlobalEvents();
@@ -196,10 +201,11 @@ export class ContentBrowsePanel
             refreshAction: () => this.treeListBox.reload(),
         });
 
-        this.treeActions = new ContentTreeActions(this.selectionWrapper);
+        this.contentTreeList = new ContentTreeListElement();
+        this.treeActions = new ContentTreeActions(this.contentTreeList);
         this.contextMenu = new TreeGridContextMenu(this.treeActions);
 
-        const panel = new SelectableListBoxPanel(this.selectionWrapper, this.toolbar);
+        const panel = new ContentTreeListSelectablePanelProxy(this.selectionWrapper, this.contentTreeList, this.toolbar);
         panel.addClass('content-selectable-list-box-panel');
 
         return panel;
@@ -256,7 +262,8 @@ export class ContentBrowsePanel
         this.filterPanel.resetConstraints();
         this.hideFilterPanel();
         super.disableSelectionMode();
-        this.treeListBox.setFilterQuery(null);
+        // this.treeListBox.setFilterQuery(null);
+        this.contentTreeList.setFilterQuery(null);
     }
 
     protected createContextView(): ContextView {
@@ -522,7 +529,8 @@ export class ContentBrowsePanel
         this.deleteTreeItems(items);
 
         if (this.treeListBox.isFiltered() && this.treeListBox.getItems().length === 0) {
-            this.treeListBox.setFilterQuery(null);
+            // this.treeListBox.setFilterQuery(null);
+            this.contentTreeList.setFilterQuery(null);
         }
 
         this.updateContextPanelOnNodesDelete(items);
