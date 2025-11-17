@@ -33,6 +33,6 @@ export function normalize(text: string): string {
         .replace(/^_+|_+$/g, ''); // Trim leading/trailing underscores
 }
 
-export function toKey(...args: string[]): string {
+export function buildKey(...args: string[]): string {
     return args.map(normalize).join('-');
 }

@@ -1,7 +1,7 @@
 import {Layers} from 'lucide-react';
 import type {ReactElement, ReactNode} from 'react';
 import {DefaultProjectIcon} from '../icons/DefaultProjectIcon';
-import {resolveProjectIconUrl} from '../../utils/url';
+import {resolveProjectIconUrl} from '../../utils/url/projects';
 import {Flag} from '../../../../app/locale/Flag';
 import {cn} from '@enonic/ui';
 

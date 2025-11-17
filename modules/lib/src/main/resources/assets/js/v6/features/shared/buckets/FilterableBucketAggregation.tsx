@@ -3,7 +3,7 @@ import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregat
 import {Checkbox, cn, Combobox, Listbox, useControlledState} from '@enonic/ui';
 import {ReactElement, useCallback, useMemo, useState} from 'react';
 import {useI18n} from '../../hooks/useI18n';
-import {toKey} from '../../utils/text';
+import {buildKey} from '../../utils/format/keys';
 
 export type FilterableBucketAggregationProps = {
     aggregation: BucketAggregation;
@@ -40,13 +40,13 @@ export const FilterableBucketAggregation = ({
     }, [buckets, inputValue]);
 
     const listboxSelection = useMemo(
-        () => selectionState.map(b => toKey(b.getKey())),
+        () => selectionState.map(b => buildKey(b.getKey())),
         [selectionState]
     );
 
     const onListboxSelectionChange = useCallback(
         (selectedKeys: string[]) => {
-            const selectedBuckets = buckets.filter(b => selectedKeys.includes(toKey(b.getKey())));
+            const selectedBuckets = buckets.filter(b => selectedKeys.includes(buildKey(b.getKey())));
             setSelectionState(selectedBuckets);
         },
         [buckets, setSelectionState]
@@ -91,7 +91,7 @@ export const FilterableBucketAggregation = ({
         <div className='relative'>
             <div className='font-semibold mb-2'>{displayName}</div>
             {topBuckets.map((bucket) => {
-                const key = toKey(aggregation.getName(), bucket.getKey(), 'top');
+                const key = buildKey(aggregation.getName(), bucket.getKey(), 'top');
 
                 return(
                     <Checkbox
@@ -115,11 +115,11 @@ export const FilterableBucketAggregation = ({
                     <Combobox.Popup>
                         <Listbox.Content>
                             {filteredBuckets.map((bucket) => {
-                                const key = toKey(aggregation.getName(), bucket.getKey(), 'list-item');
+                                const key = buildKey(aggregation.getName(), bucket.getKey(), 'list-item');
                                 const isBucketSelected = isSelected(bucket);
 
                                 return (
-                                    <Listbox.Item key={key} value={toKey(bucket.getKey())} className={cn('h-9', isBucketSelected && 'group')} data-tone={isBucketSelected ? 'inverse' : ''} >
+                                    <Listbox.Item key={key} value={buildKey(bucket.getKey())} className={cn('h-9', isBucketSelected && 'group')} data-tone={isBucketSelected ? 'inverse' : ''} >
                                         <Checkbox
                                             checked={isBucketSelected}
                                             onClick={e => { // listbox will handle selection

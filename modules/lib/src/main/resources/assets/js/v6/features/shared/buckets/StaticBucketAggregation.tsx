@@ -3,7 +3,7 @@ import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregat
 import {Button, Checkbox, CheckboxChecked, useControlledState} from '@enonic/ui';
 import {ReactElement, useCallback, useMemo} from 'react';
 import {useI18n} from '../../hooks/useI18n';
-import {toKey} from '../../utils/text';
+import {buildKey} from '../../utils/format/keys';
 
 export type StaticBucketAggregationProps = {
     aggregation: BucketAggregation;
@@ -50,7 +50,7 @@ export const StaticBucketAggregation = ({
             <div className='flex flex-col gap-2.5 px-2.5 py-2'>
                 {visibleBuckets.map(bucket => {
                     const label = `${bucket.getDisplayName() ?? bucket.getKey()} (${bucket.getDocCount()})`;
-                    const key = toKey(aggregation.getName(), bucket.getKey());
+                    const key = buildKey(aggregation.getName(), bucket.getKey());
                     return (
                         <Checkbox
                             key={key}
