@@ -18,7 +18,6 @@ type EventDescriptor<T> = {
 export function defineEvent<T>(eventName: string): EventDescriptor<T> {
     return {
         name: eventName,
-
         dispatch(detail: T, options?: Partial<CustomEventDetail<T>>): boolean {
             return dispatchCustomEvent(eventName, {
                 detail,
@@ -27,16 +26,12 @@ export function defineEvent<T>(eventName: string): EventDescriptor<T> {
                 composed: options?.composed ?? false,
             });
         },
-
         listen(handler: (detail: T) => void, options?: AddEventListenerOptions): () => void {
             return listen<T>(eventName, (event) => handler(event.detail), options);
         },
     };
 }
 
-// *
-// * Utilities
-// *
 function createCustomEvent<T>(name: string, config: CustomEventDetail<T>): CustomEvent<T> {
     const {detail, bubbles = true, cancelable = true, composed = false} = config;
 

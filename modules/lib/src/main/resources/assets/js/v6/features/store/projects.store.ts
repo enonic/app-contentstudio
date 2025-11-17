@@ -4,7 +4,7 @@ import {ProjectListRequest} from '../../../app/settings/resource/ProjectListRequ
 import {ProjectUpdatedEvent} from '../../../app/settings/event/ProjectUpdatedEvent';
 import {ProjectCreatedEvent} from '../../../app/settings/event/ProjectCreatedEvent';
 import {ProjectDeletedEvent} from '../../../app/settings/event/ProjectDeletedEvent';
-import {syncMapStore} from '../utils/stores';
+import {syncMapStore} from '../utils/storage/sync';
 import {$config} from './config.store';
 import {setProjectSelectionDialogOpen} from './dialogs.store';
 import {ProjectContext} from '../../../app/project/ProjectContext';

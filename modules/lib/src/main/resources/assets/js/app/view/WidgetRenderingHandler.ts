@@ -14,10 +14,10 @@ import {ContentPreviewPathChangedEvent} from './ContentPreviewPathChangedEvent';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
 import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
-import {EmulatedDeviceEvent} from '../../v6/features/utils/events/registry';
+import {EmulatedDeviceEvent} from '../../v6/features/utils/dom/events/registry';
 import {EmulatorDevice} from './context/widget/emulator/EmulatorDevice';
 import {$autoModeWidgets, WIDGET_AUTO_DESCRIPTOR} from '../../v6/features/store/liveViewWidgets.store';
-import {$isWidgetRenderable} from '../../v6/features/store/isWidgetRenderable';
+import {$isWidgetRenderable} from '../../v6/features/store/contextWidgets.store';
 
 export enum PREVIEW_TYPE {
     WIDGET,

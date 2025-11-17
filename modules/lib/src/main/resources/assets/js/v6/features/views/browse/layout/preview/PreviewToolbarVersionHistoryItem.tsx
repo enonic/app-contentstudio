@@ -5,7 +5,7 @@ import {InternalWidgetType} from '../../../../../../app/view/context/WidgetView'
 import {InspectEvent} from '../../../../../../app/event/InspectEvent';
 import {useI18n} from '../../../../hooks/useI18n';
 
-export function PreviewToolbarVersionHistoryButton(): ReactElement {
+export function PreviewToolbarVersionHistoryItem(): ReactElement {
     const handleShowVersionHistory = () => {
         InspectEvent.create()
             .setWidgetType(InternalWidgetType.HISTORY)
@@ -30,4 +30,4 @@ export function PreviewToolbarVersionHistoryButton(): ReactElement {
     );
 }
 
-PreviewToolbarVersionHistoryButton.displayName = 'PreviewToolbarVersionHistoryButton';
+PreviewToolbarVersionHistoryItem.displayName = 'PreviewToolbarVersionHistoryItem';

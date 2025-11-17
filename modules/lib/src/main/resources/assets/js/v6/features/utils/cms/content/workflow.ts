@@ -1,5 +1,5 @@
-import type {ContentSummary} from '../../../app/content/ContentSummary';
-import {WorkflowStateStatus} from '../../../app/wizard/WorkflowStateManager';
+import type {ContentSummary} from '../../../../../app/content/ContentSummary';
+import {WorkflowStateStatus} from '../../../../../app/wizard/WorkflowStateManager';
 
 export function calcWorkflowStateStatus(summary: ContentSummary | null | undefined): WorkflowStateStatus | null {
     if (!summary) {

@@ -8,7 +8,7 @@ import {ProjectHelper} from '../../../../app/settings/data/project/ProjectHelper
 import {ProjectItem} from '../items/ProjectItem';
 import {useI18n} from '../../hooks/useI18n';
 import {setActiveProject, $projects} from '../../store/projects.store';
-import {flattenProjects} from '../../utils/projects';
+import {flattenProjects} from '../../utils/cms/projects/flattenProjects';
 import {ProjectWizardDialog} from '../../../../app/settings/dialog/project/create/ProjectWizardDialog';
 import {ProjectSteps} from '../../../../app/settings/dialog/project/create/ProjectSteps';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';

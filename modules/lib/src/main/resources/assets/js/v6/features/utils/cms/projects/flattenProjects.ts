@@ -1,4 +1,4 @@
-import {Project} from '../../../app/settings/data/project/Project';
+import {Project} from '../../../../../app/settings/data/project/Project';
 
 export type FlatProject = {
     project: Project;

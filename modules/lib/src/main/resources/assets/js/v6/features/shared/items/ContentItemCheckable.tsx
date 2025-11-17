@@ -3,7 +3,7 @@ import {Button, Checkbox, CheckboxProps, ListItem} from '@enonic/ui';
 import {useMemo} from 'react';
 import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../../../app/event/EditContentEvent';
-import {calcWorkflowStateStatus} from '../../utils/content';
+import {calcWorkflowStateStatus} from '../../utils/cms/content/workflow';
 import {StatusBadge} from '../StatusBadge';
 import {WorkflowContentIcon} from '../icons/WorkflowContentIcon';
 

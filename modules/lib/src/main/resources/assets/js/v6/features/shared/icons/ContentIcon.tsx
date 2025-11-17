@@ -9,7 +9,7 @@ import {
     SplinePointer, SquareArrowOutUpRight, SquareCode, SquarePlay,
 } from 'lucide-react';
 import {Image} from '../primitives/Image';
-import {createImageUrl} from '../../utils/url';
+import {createImageUrl} from '../../utils/url/images';
 import {cn} from '@enonic/ui';
 
 type Props = {

@@ -2,11 +2,11 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {IconButton, Tooltip, Toolbar} from '@enonic/ui';
 import {SquareArrowOutUpRight} from 'lucide-react';
 import {ReactElement} from 'react';
-import {formatShortcut} from '../../../../utils/action';
-import {$isWidgetRenderable} from '../../../../store/isWidgetRenderable';
+import {formatShortcut} from '../../../../utils/format/shortcuts';
+import {$isWidgetRenderable} from '../../../../store/contextWidgets.store';
 import {useStore} from '@nanostores/preact';
 
-export const PreviewToolbarOpenExternalButton = ({action}: {action: Action}): ReactElement => {
+export const PreviewToolbarOpenExternalItem = ({action}: {action: Action}): ReactElement => {
     const label = action.getLabel();
     const shortcut = formatShortcut(action);
     const isWidgetRenderable = useStore($isWidgetRenderable);
@@ -33,4 +33,4 @@ export const PreviewToolbarOpenExternalButton = ({action}: {action: Action}): Re
     );
 };
 
-PreviewToolbarOpenExternalButton.displayName = 'PreviewToolbarOpenExternalButton';
+PreviewToolbarOpenExternalItem.displayName = 'PreviewToolbarOpenExternalItem';

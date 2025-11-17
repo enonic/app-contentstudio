@@ -1,8 +1,8 @@
 import {useCallback, type ReactElement, useState} from 'react';
-import {Button, cn, Menu, Toolbar} from '@enonic/ui';
+import {Button, Menu, Toolbar} from '@enonic/ui';
 import {ChevronDown, ChevronUp} from 'lucide-react';
 import {EmulatorDevice} from '../../../../../../app/view/context/widget/emulator/EmulatorDevice';
-import {EmulatedDeviceEvent} from '../../../../utils/events/registry';
+import {EmulatedDeviceEvent} from '../../../../utils/dom/events/registry';
 import {useI18n} from '../../../../hooks/useI18n';
 
 const EMULATORS = [
@@ -15,17 +15,6 @@ const EMULATORS = [
     EmulatorDevice.getNotebook15(),
     EmulatorDevice.getHDTV(),
 ];
-
-const getDeviceIcon = (device: EmulatorDevice, className?: string) => {
-    const Icon = device.getIcon();
-
-    return (
-        <Icon
-            size={className?.includes('@sm:hidden') ? 14 : 24}
-            className={cn('stroke-black dark:stroke-white', className)}
-        />
-    );
-};
 
 function getEmulatorKey(device: EmulatorDevice): string {
     return device.getName();
@@ -42,6 +31,8 @@ export const PreviewToolbarEmulatorSelector = (): ReactElement => {
         EmulatedDeviceEvent.dispatch(device);
     }, []);
 
+    const SelectedIcon = selectedDevice.getIcon();
+
     return (
         <Menu open={isOpen} onOpenChange={setIsOpen}>
             <Toolbar.Item asChild>
@@ -52,7 +43,7 @@ export const PreviewToolbarEmulatorSelector = (): ReactElement => {
                         size="sm"
                         aria-label={useI18n('wcag.preview.toolbar.emulatorSelector.label')}
                     >
-                        {getDeviceIcon(selectedDevice, 'group-data-[active=true]:stroke-white @sm:hidden')}
+                        <SelectedIcon className="size-3.5 text-main group-data-[active=true]:text-rev @sm:hidden" />
                         <span className="hidden @sm:inline">{selectedDevice.getWidthWithUnits()}</span>
                     </Button>
                 </Menu.Trigger>
@@ -60,23 +51,27 @@ export const PreviewToolbarEmulatorSelector = (): ReactElement => {
             <Menu.Portal>
                 <Menu.Content>
                     <Menu.RadioGroup value={radioControlKey} onValueChange={setRadioControlKey}>
-                        {EMULATORS.map((device) => (
-                            <Menu.RadioItem
-                                key={getEmulatorKey(device)}
-                                value={getEmulatorKey(device)}
-                                onClick={() => handleDeviceSelect(device)}
-                            >
-                                <Menu.ItemIndicator>
-                                    {getDeviceIcon(device, 'group-data-[state=checked]:stroke-white')}
-                                </Menu.ItemIndicator>
-                                <p className="ml-2">
-                                    <span className="font-semibold block">{device.getName()}</span>
-                                    <span className="text-xs text-subtle group-data-[state=checked]:text-alt">
-                                        {device.getWidthWithUnits()} * {device.getHeightWithUnits()}
-                                    </span>
-                                </p>
-                            </Menu.RadioItem>
-                        ))}
+                        {EMULATORS.map((device) => {
+                            const DeviceIcon = device.getIcon();
+
+                            return (
+                                <Menu.RadioItem
+                                    key={getEmulatorKey(device)}
+                                    value={getEmulatorKey(device)}
+                                    onClick={() => handleDeviceSelect(device)}
+                                >
+                                    <Menu.ItemIndicator>
+                                        <DeviceIcon className="size-6 text-main group-data-[state=checked]:text-rev" />
+                                    </Menu.ItemIndicator>
+                                    <p className="ml-2">
+                                        <span className="font-semibold block">{device.getName()}</span>
+                                        <span className="text-xs text-subtle group-data-[state=checked]:text-alt">
+                                            {device.getWidthWithUnits()} * {device.getHeightWithUnits()}
+                                        </span>
+                                    </p>
+                                </Menu.RadioItem>
+                            );
+                        })}
                     </Menu.RadioGroup>
                 </Menu.Content>
             </Menu.Portal>

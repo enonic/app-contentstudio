@@ -5,7 +5,7 @@ import type {ContentSummaryAndCompareStatus} from '../../../../app/content/Conte
 import type {Branch} from '../../../../app/versioning/Branch';
 import {ContentReferencesLink} from '../ContentReferencesLink';
 import {StatusBadge} from '../StatusBadge';
-import {calcWorkflowStateStatus} from '../../utils/content';
+import {calcWorkflowStateStatus} from '../../utils/cms/content/workflow';
 import {WorkflowContentIcon} from '../icons/WorkflowContentIcon';
 
 type Props = {

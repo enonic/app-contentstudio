@@ -1,6 +1,6 @@
 import {MapStore, StoreValue, WritableAtom} from 'nanostores';
-import {createThrottle} from './functions';
-import {normalize} from './text';
+import {createThrottle} from '../timing/createThrottle';
+import {normalize} from '../format/keys';
 
 type StorageType = 'local' | 'session';
 
