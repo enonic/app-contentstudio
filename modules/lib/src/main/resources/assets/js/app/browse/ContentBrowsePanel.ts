@@ -51,6 +51,8 @@ import {SearchAndExpandItemEvent} from './SearchAndExpandItemEvent';
 import {State} from './State';
 import {ToggleSearchPanelEvent} from './ToggleSearchPanelEvent';
 import {ToggleSearchPanelWithDependenciesEvent} from './ToggleSearchPanelWithDependenciesEvent';
+import {setContentFilterOpen} from '../../v6/features/store/contentFilter.store';
+import {BrowseToolbarElement} from '../../v6/features/views/browse/toolbar/BrowseToolbar';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -79,6 +81,10 @@ export class ContentBrowsePanel
 
     protected initElements() {
         super.initElements();
+
+        this.prependChild(new BrowseToolbarElement({
+            toggleFilterPanelAction: this.getBrowseActions().getToggleSearchPanelAction(),
+        }));
 
         this.browseToolbar.addActions(this.getBrowseActions().getAllActionsNoPublish());
 
@@ -779,5 +785,12 @@ export class ContentBrowsePanel
         uploadItem.onFailed(() => {
             parentLists.forEach(parent => parent.removeItems(data));
         });
+    }
+
+    // TODO: Enonic UI - Sync layer
+    toggleFilterPanel() {
+        super.toggleFilterPanel();
+        const isFilterPanelHidden = this.filterPanelIsHidden();
+        setContentFilterOpen(!isFilterPanelHidden);
     }
 }
