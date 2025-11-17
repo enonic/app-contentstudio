@@ -10,9 +10,9 @@ const XPATH = {
     anchorFormItem: "//div[contains(@class,'anchor-form-item')]",
     parametersFormItem: "//div[contains(@id,'FormItem') and descendant::span[text()='Parameters']]",
     showContentCheckboxCheckboxDiv: "//div[contains(@id,'Checkbox') and child::label[contains(.,'Show content from the entire')]]",
-    openInNewTabCheckboxDiv: "//div[contains(@id,'Checkbox') and child::label[contains(.,'Open in new tab')]]",
+    openInNewTabCheckboxDiv: "//div[contains(@id,'Checkbox') and child::label[contains(.,'Open in a new tab')]]",
     showContentCheckboxLabel: "//div[contains(@id,'Checkbox')]//label[contains(.,'Show content from the entire')]",
-    openInNewTabCheckboxLabel: "//div[contains(@id,'Checkbox')]//label[contains(.,'Open in new tab')]",
+    openInNewTabCheckboxLabel: "//div[contains(@id,'Checkbox')]//label[contains(.,'Open in a new tab')]",
 };
 
 class InsertLinkDialogContentPanel extends Page {
@@ -114,9 +114,13 @@ class InsertLinkDialogContentPanel extends Page {
         return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
-    waitForOpenInNewTabCheckboxDisplayed() {
-        let locator = XPATH.contentPanel + XPATH.openInNewTabCheckboxLabel;
-        return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    async waitForOpenInNewTabCheckboxDisplayed() {
+        try {
+            let locator = XPATH.container + XPATH.contentPanel + XPATH.openInNewTabCheckboxLabel;
+            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(`'Open In New Tab' checkbox should be displayed!`, 'err_open_in_new_tab_checkbox', err);
+        }
     }
 
     isShowContentFromEntireProjectCheckboxSelected() {
@@ -154,7 +158,7 @@ class InsertLinkDialogContentPanel extends Page {
             return this.waitForElementDisplayed(this.addParametersButton, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_add_param_btn');
-            throw new Error(`Add parameters button should be displayed! screenshot:${screenshot} `  + err);
+            throw new Error(`Add parameters button should be displayed! screenshot:${screenshot} ` + err);
         }
     }
 
@@ -162,7 +166,7 @@ class InsertLinkDialogContentPanel extends Page {
         try {
             return this.waitForElementDisplayed(this.addAnchorButton, appConst.mediumTimeout);
         } catch (err) {
-           let screenshot =  await this.saveScreenshotUniqueName('err_anchor_btn');
+            let screenshot = await this.saveScreenshotUniqueName('err_anchor_btn');
             throw new Error(`Add Anchor button should be displayed! screenshot: ${screenshot} ` + err);
         }
     }

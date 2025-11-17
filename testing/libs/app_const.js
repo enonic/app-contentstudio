@@ -6,40 +6,46 @@ module.exports = Object.freeze({
         return part + Math.round(Math.random() * 1000000);
     },
     itemMarkedAsReadyMessage(name) {
-        return `Item \"${name}\" is marked as ready`
+        return `Item \"${name}\" has been marked as ready.`
     },
     itemIsArchived(name) {
-        return `Item \"${name}\" is archived`
+        return `Item \"${name}\" has been archived.`
     },
 
     itemSavedNotificationMessage(name) {
-        return `Item \"${name}\" is saved.`
+        return `Item \"${name}\" has been saved.`
     },
-    languageCopiedNotification: parent => `Language successfully copied from \"${parent}\"`,
+    languageCopiedNotification: parent => `Language has been copied from \"${parent}\"`,
     itemPublishedNotificationMessage: (name) => {
-        return `Item \"${name}\" is published.`
+        return `Item \"${name}\" has been published.`
     },
     issueClosedNotificationMessage(name) {
-        return `Issue \"${name}\" is closed.`
+        return `Issue \"${name}\" has been closed.`
     },
     sortOrderTitle(by, order) {
         return `Sorted by \"${by}\" in ${order} order`
     },
-    projectModifiedMessage: displayName => `Project \"${displayName}\" is modified.`,
+    projectModifiedMessage: displayName => `Project \"${displayName}\" has been modified.`,
     markedAsReadyMessage: function (name) {
-        return `Item \"${name}\" is marked as ready`;
+        return `Item \"${name}\" has been marked as ready`;
     },
-    publishRequestClosedMessage: function (name) {
-        return `Publish request \"${name}\" is closed`;
+    publishRequestClosedMessage (name) {
+        return `Publish request \"${name}\" has been closed.`;
     },
     issueClosedMessage(name) {
-        return `Issue \"${name}\" is closed`;
+        return `Issue \"${name}\" has been closed.`;
     },
     contentSettingsUpdated(displayName) {
-        return `Settings for \"${displayName}\" are updated`
+        return `Settings for \"${displayName}\" have been updated.`
     },
     saveFailedAttempt(name) {
         return `Content \[${name}\] could not be updated. A content with that name already exists`;
+    },
+    projectAccessModeCopied(projName){
+        return `Access mode has been copied from \"${projName}\"`;
+    },
+    projectRolesCopied(projName){
+        return `Roles has been copied from \"${projName}\"`;
     },
     requiredValidationMessage: (occurrences) => {
         return `Min ${occurrences} valid occurrence(s) required`;
@@ -47,9 +53,9 @@ module.exports = Object.freeze({
     issueClosedBy: userName => {
         return `Closed by user:system:${userName}`
     },
-    projectCreatedMessage: name => `Project \"${name}\" is created.`,
+    projectCreatedMessage: name => `Project \"${name}\" has been created.`,
     projectNameAlreadyExistsMessage: name => `Project with name [${name}] already exists`,
-    projectDeletedMessage: name => `Project \"${name}\" is deleted.`,
+    projectDeletedMessage: name => `Project \"${name}\" has been deleted.`,
 
     TEST_FOLDER_WITH_IMAGES: 'All Content types images',
     TEST_FOLDER_WITH_IMAGES_NAME: 'all-content-types-images',
@@ -76,21 +82,23 @@ module.exports = Object.freeze({
 
     },
     NOTIFICATION_MESSAGES: {
-        PERMISSIONS_APPLIED: 'Permissions are applied.',
-        YOUR_COMMENT_ADDED: 'Your comment is added to the issue.',
+        PERMISSIONS_APPLIED: 'Permissions have been applied.',
+        YOUR_COMMENT_ADDED: 'A comment has been added to the issue.',
         LOCALIZED_MESSAGE_1: 'Language was copied from current project.',
-        LOCALIZED_MESSAGE_2: 'Inherited content is localized',
-        NO_CHANGES_TO_REVERT_MESSAGE: 'No changes to revert.',
-        ISSUE_CREATED_MESSAGE: 'A new issue is successfully created.',
-        ISSUE_CLOSED_MESSAGE: 'The issue is Closed.',
-        REQUEST_CREATED_MESSAGE: 'A new Publish Request is successfully created.',
-        PUBLISH_REQUEST_CLOSED_MESSAGE: 'The publish request is Closed.',
-        ISSUE_OPENED_MESSAGE: 'The issue is Open.',
-        THIS_PUBLISH_REQUEST_OPEN: 'The publish request is Open.',
+        LOCALIZED_MESSAGE_2: 'Inherited content has been localized',
+        NO_CHANGES_TO_REVERT_MESSAGE: "No changes to revert.",
+        ISSUE_CREATED_MESSAGE: "The issue has been created.",
+        ISSUE_CLOSED_MESSAGE: 'The issue has been closed.',
+        REQUEST_CREATED_MESSAGE: 'The publish request has been created.',
+        PUBLISH_REQUEST_CLOSED_MESSAGE: 'The publish request has been closed.',
+        ISSUE_OPENED_MESSAGE: 'The issue has been opened.',
+        ISSUE_UPDATED_MESSAGE: 'The issue has been updated.',
+        THIS_PUBLISH_REQUEST_OPEN: 'The publish request has been opened.',
         CONTENT_RENAMED: 'Content has been renamed',
-        TWO_ITEMS_PUBLISHED: '2 items are published.',
-        TWO_ITEMS_UNPUBLISHED: '2 items are unpublished',
-        CONTENT_REVERTED: 'The content was reverted to the version from',
+        TWO_ITEMS_PUBLISHED: '2 items have been published.',
+        TWO_ITEMS_UNPUBLISHED: '2 items have been unpublished',
+        CONTENT_REVERTED: 'The content has been reverted to the version from',
+        INHERITED_CONTENT_LOCALIZED: 'The inherited content has been localized.',
         applicationsCopiedFromParent: (name) => {
             return `Applications successfully copied from \"${name}\"`
         },
@@ -137,8 +145,8 @@ module.exports = Object.freeze({
         EVERYONE_CAN_READ: 'Everyone can read this item'
     },
     PROJECT_SYNC: {
-        STARTED: 'Content synchronisation job has started',
-        FINISHED: 'Content synchronisation job has finished'
+        STARTED: 'Content synchronization job has started',
+        FINISHED: 'Content synchronization job has finished'
     },
     PASSWORD: {
         MEDIUM: 'AUserA567$',
@@ -168,8 +176,8 @@ module.exports = Object.freeze({
         SCHEDULE_FORM_ONLINE_FROM_EMPTY: "Online to cannot be set without Online from",
         THIS_FIELD_IS_REQUIRED: 'This field is required',
         SINGLE_SELECTION_OPTION_SET: "At least one option must be selected",
-        LINK_PARAMETERS: 'All parameters must have a name',
-        PROJECT_IS_OCCUPIED: 'Project identifier is occupied',
+        LINK_PARAMETERS: "All parameters must have a name",
+        PROJECT_IS_OCCUPIED: 'This project identifier is occupied',
     },
     ISSUES: {
         TASK_CLOSED: 'Task is closed',

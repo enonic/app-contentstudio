@@ -88,7 +88,7 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             await contentPublishDialog.clickOnPublishNowButton();
             let message = await issueDetailsDialog.waitForNotificationMessage();
             assert.equal(message, appConst.NOTIFICATION_MESSAGES.TWO_ITEMS_PUBLISHED, "'2 items are published' message should be displayed");
-            let expectedMessage = appConst.issueClosedMessage(ISSUE_TITLE);
+            let expectedMessage = appConst.NOTIFICATION_MESSAGES.ISSUE_CLOSED_MESSAGE;
             await issueDetailsDialog.waitForExpectedNotificationMessage(expectedMessage);
         });
 

@@ -74,7 +74,7 @@ describe('issue.details.dialog.items.spec: open issue details dialog and check c
             // 3. Click on 'Include Child' icon:
             await issueDetailsDialogItemsTab.clickOnIncludeChildItems(appConst.TEST_FOLDER_WITH_IMAGES);
             let message = await issueDetailsDialogItemsTab.waitForNotificationMessage();
-            assert.equal(message, "The issue is updated.");
+            assert.equal(message, appConst.NOTIFICATION_MESSAGES.ISSUE_UPDATED_MESSAGE,'The issue has been updated. - should appear');
             await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
             let isSelected = await issueDetailsDialogItemsTab.isAllDependantsCheckboxSelected();
             assert.ok(isSelected, "'All' checkbox should be selected");

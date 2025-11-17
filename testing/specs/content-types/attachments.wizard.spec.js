@@ -21,7 +21,7 @@ describe('attachments.wizard.spec: tests for attachments content', function () {
     const ATTACHMENT_NAME2 = contentBuilder.generateRandomName('attach');
     const IMPORTED_ATTACHMENT_1_1 = 'attachment1-1';
     const IMPORTED_ATTACHMENT_2_4 = 'attachment2-4';
-    const NOTIFICATION_MESSAGE = 'Item "attachment1-1" is saved.'
+    const NOTIFICATION_MESSAGE = appConst.itemSavedNotificationMessage('attachment1-1');
 
     it(`Preconditions: new site should be created`,
         async () => {
