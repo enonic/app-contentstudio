@@ -84,7 +84,7 @@ public class DeleteRunnableTaskTest
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 1 );
 
         assertEquals(
-            "{\"state\":\"WARNING\",\"message\":\"2 items are deleted. Item \\\"content2\\\" could not be deleted.\"}",
+            "{\"state\":\"WARNING\",\"message\":\"2 items have been deleted. Item \\\"content2\\\" could not be deleted.\"}",
             resultMessage );
     }
 
@@ -103,7 +103,7 @@ public class DeleteRunnableTaskTest
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 1 );
 
-        assertEquals( "{\"state\":\"SUCCESS\",\"message\":\"Item \\\"content4\\\" is deleted.\"}", resultMessage );
+        assertEquals( "{\"state\":\"SUCCESS\",\"message\":\"Item \\\"content4\\\" has been deleted.\"}", resultMessage );
     }
 
     @Test
@@ -126,7 +126,7 @@ public class DeleteRunnableTaskTest
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 1 );
 
-        assertEquals( "{\"state\":\"SUCCESS\",\"message\":\"Item \\\"content4\\\" is deleted.\"}", resultMessage );
+        assertEquals( "{\"state\":\"SUCCESS\",\"message\":\"Item \\\"content4\\\" has been deleted.\"}", resultMessage );
     }
 
     @Test

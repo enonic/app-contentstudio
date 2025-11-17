@@ -5,10 +5,13 @@ export enum IssueStatus {
 }
 
 export class IssueStatusFormatter {
-    public static formatStatus(issueStatus: IssueStatus): string {
+    public static getFormattedStatus(issueStatus: IssueStatus): string {
         const statusName = IssueStatus[issueStatus] || 'unknown';
-        const status = statusName.toLowerCase();
-        return i18n(`field.issue.status.${status}`);
+        return statusName.toLowerCase();
+    }
+
+    public static formatStatus(issueStatus: IssueStatus): string {
+        return i18n(`field.issue.status.${IssueStatusFormatter.getFormattedStatus(issueStatus)}`);
     }
 
     static fromString(value: string): IssueStatus | null {

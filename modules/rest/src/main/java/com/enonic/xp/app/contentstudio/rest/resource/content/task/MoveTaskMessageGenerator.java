@@ -10,7 +10,7 @@ class MoveTaskMessageGenerator
     @Override
     String getNoResultsMessage()
     {
-        return "Nothing was moved.";
+        return "Nothing to move.";
     }
 
     @Override
@@ -33,7 +33,7 @@ class MoveTaskMessageGenerator
         else if ( accessFailed != null && accessFailed.size() == 1 )
         {
             ContentPath dest = result.getDestination();
-            builder.append( String.format( "You don't have permissions to move to \"%s\".", !dest.isRoot() ? dest.getName() : "/" ) );
+            builder.append( String.format( "Insufficient permissions to move to \"%s\".", !dest.isRoot() ? dest.getName() : "/" ) );
         }
         else if ( failed != null && failed.size() == 1 )
         {
@@ -82,18 +82,18 @@ class MoveTaskMessageGenerator
         final List<ContentPath> moved = result.getSucceeded();
         if ( alreadyMoved != null && alreadyMoved.size() == 1 )
         {
-            builder.append( String.format( "Item \"%s\" is already moved.", alreadyMoved.get( 0 ).getName() ) );
+            builder.append( String.format( "Item \"%s\" has already been moved.", alreadyMoved.get( 0 ).getName() ) );
         }
         else if ( moved != null && moved.size() == 1 )
         {
-            builder.append( String.format( "Item \"%s\" is moved.", moved.get( 0 ).getName() ) );
+            builder.append( String.format( "Item \"%s\" has been moved.", moved.get( 0 ).getName() ) );
         }
     }
 
     @Override
     void appendMessageForMultipleSuccess( final StringBuilder builder, final MoveRunnableTaskResult result )
     {
-        builder.append( result.getSuccessCount() ).append( " items were moved" );
+        builder.append( result.getSuccessCount() ).append( " items have been moved" );
         if ( result.getAlreadyMoved().size() > 0 )
         {
             builder.append( " ( Already moved: " ).append( getNameOrSize( result.getAlreadyMoved() ) ).append( " )" );

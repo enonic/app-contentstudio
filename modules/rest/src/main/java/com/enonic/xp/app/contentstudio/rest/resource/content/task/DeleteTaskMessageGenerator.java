@@ -40,11 +40,11 @@ class DeleteTaskMessageGenerator
             ContentName name = ContentName.from( deleted.get( 0 ).getName() );
             if ( name.isUnnamed() )
             {
-                builder.append( "Item is deleted" );
+                builder.append( "The item has been deleted" );
             }
             else
             {
-                builder.append( String.format( "Item \"%s\" is deleted.", name ) );
+                builder.append( String.format( "Item \"%s\" has been deleted.", name ) );
             }
         }
     }
@@ -53,7 +53,7 @@ class DeleteTaskMessageGenerator
     void appendMessageForMultipleSuccess( final StringBuilder builder, final DeleteRunnableTaskResult result )
     {
         final List<ContentPath> pending = result.getPending();
-        builder.append( String.format( "%s items are deleted", result.getSuccessCount() ) );
+        builder.append( String.format( "%s items have been deleted", result.getSuccessCount() ) );
         if ( pending.size() > 0 )
         {
             final String isOrAre = pending.size() > 1 ? "are" : "is";
