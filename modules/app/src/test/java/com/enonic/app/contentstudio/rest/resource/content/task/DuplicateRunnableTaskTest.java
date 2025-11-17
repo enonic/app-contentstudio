@@ -98,7 +98,7 @@ public class DuplicateRunnableTaskTest
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 1 );
 
         assertEquals(
-            "{\"state\":\"WARNING\",\"message\":\"4 items are duplicated ( Already duplicated: \\\"content3\\\" ). Item \\\"id2\\\" could not be duplicated.\"}",
+            "{\"state\":\"WARNING\",\"message\":\"4 items have been duplicated ( Already duplicated: \\\"content3\\\" ). Item \\\"id2\\\" could not be duplicated.\"}",
             resultMessage );
     }
 
@@ -128,7 +128,7 @@ public class DuplicateRunnableTaskTest
 
         final String resultMessage = contentQueryArgumentCaptor.getAllValues().get( 1 );
 
-        assertEquals( "{\"state\":\"SUCCESS\",\"message\":\"Item \\\"content1\\\" is duplicated.\"}", resultMessage );
+        assertEquals( "{\"state\":\"SUCCESS\",\"message\":\"Item \\\"content1\\\" has been duplicated.\"}", resultMessage );
     }
 
     @Test

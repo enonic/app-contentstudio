@@ -771,7 +771,7 @@ export class ContentBrowsePanel
 
         uploadItem.onUploaded(() => {
             parentLists.forEach(parent => parent.removeItems(data));
-            showFeedback(i18n('notify.item.created', data.getContentSummary().getType().toString(), uploadItem.getName()));
+            showFeedback(i18n('notify.content.uploaded'));
         });
 
         uploadItem.onFailed(() => {

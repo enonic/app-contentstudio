@@ -29,16 +29,16 @@ class PublishTaskMessageGenerator
     void appendMessageForSingleSuccess( final StringBuilder builder, final PublishRunnableTaskResult result )
     {
         final List<ContentPath> published = result.getSucceeded();
-         if ( published != null && published.size() == 1 )
+        if ( published != null && published.size() == 1 )
         {
-            builder.append( String.format( "Item \"%s\" is published.", published.get( 0 ).getName() ) );
+            builder.append( String.format( "Item \"%s\" has been published.", published.get( 0 ).getName() ) );
         }
     }
 
     @Override
     void appendMessageForMultipleSuccess( final StringBuilder builder, final PublishRunnableTaskResult result )
     {
-        builder.append( String.format( "%s items are published", result.getSuccessCount() ) );
+        builder.append( String.format( "%s items have been published", result.getSuccessCount() ) );
         builder.append( "." );
     }
 

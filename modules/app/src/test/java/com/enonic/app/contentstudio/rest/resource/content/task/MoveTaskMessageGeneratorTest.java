@@ -29,7 +29,7 @@ public class MoveTaskMessageGeneratorTest
 
         final String message = generator.generate( result );
 
-        assertEquals( "Item \"moved-1\" is moved.", message );
+        assertEquals( "Item \"moved-1\" has been moved.", message );
     }
 
     @Test
@@ -44,7 +44,7 @@ public class MoveTaskMessageGeneratorTest
 
         final String message = generator.generate( result );
 
-        assertEquals( "3 items were moved ( Already moved: \"already-moved-3\" ).", message );
+        assertEquals( "3 items have been moved ( Already moved: \"already-moved-3\" ).", message );
     }
 
     @Test
@@ -61,7 +61,7 @@ public class MoveTaskMessageGeneratorTest
 
         final String message = generator.generate( result );
 
-        assertEquals( "3 items were moved ( Already moved: 2 ). You don't have permissions to move to \"/\".", message );
+        assertEquals( "3 items have been moved ( Already moved: 2 ). Insufficient permissions to move to \"/\".", message );
     }
 
     @Test

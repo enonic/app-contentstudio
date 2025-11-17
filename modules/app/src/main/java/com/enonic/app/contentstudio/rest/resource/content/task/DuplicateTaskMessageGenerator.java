@@ -33,18 +33,18 @@ class DuplicateTaskMessageGenerator
         final List<ContentPath> succeeded = result.getSucceeded();
         if ( alreadyDuplicated != null && alreadyDuplicated.size() == 1 )
         {
-            builder.append( String.format( "Item \"%s\" is already duplicated.", alreadyDuplicated.get( 0 ).getName() ) );
+            builder.append( String.format( "Item \"%s\" has already been duplicated.", alreadyDuplicated.get( 0 ).getName() ) );
         }
         else if ( succeeded != null && succeeded.size() == 1 )
         {
             ContentName name = succeeded.get( 0 ).getName();
             if ( name.isUnnamed() )
             {
-                builder.append( "Item is duplicated" );
+                builder.append( "The item has been duplicated" );
             }
             else
             {
-                builder.append( String.format( "Item \"%s\" is duplicated.", name ) );
+                builder.append( String.format( "Item \"%s\" has been duplicated.", name ) );
             }
         }
     }
@@ -53,7 +53,7 @@ class DuplicateTaskMessageGenerator
     void appendMessageForMultipleSuccess( final StringBuilder builder, final DuplicateRunnableTaskResult result )
     {
         final List<ContentPath> alreadyDuplicated = result.getAlreadyDuplicated();
-        builder.append( String.format( "%s items are duplicated", result.getSuccessCount() ) );
+        builder.append( String.format( "%s items have been duplicated", result.getSuccessCount() ) );
         if ( alreadyDuplicated.size() > 0 )
         {
             builder.append( String.format( " ( Already duplicated: %s )", getNameOrSize( alreadyDuplicated ) ) );

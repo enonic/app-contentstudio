@@ -10,7 +10,7 @@ class ArchiveTaskMessageGenerator
     @Override
     String getNoResultsMessage()
     {
-        return "Nothing was archived.";
+        return "Nothing to archive.";
     }
 
     @Override
@@ -36,14 +36,14 @@ class ArchiveTaskMessageGenerator
         final List<ContentPath> archived = result.getSucceeded();
         if ( archived != null && archived.size() == 1 )
         {
-            builder.append( "The item is archived." );
+            builder.append( "The item has been archived." );
         }
     }
 
     @Override
     void appendMessageForMultipleSuccess( final StringBuilder builder, final ArchiveRunnableTaskResult result )
     {
-        builder.append( result.getSuccessCount() ).append( " items are archived." );
+        builder.append( result.getSuccessCount() ).append( " items have been archived." );
     }
 
 }

@@ -8,7 +8,7 @@ class ApplyPermissionsTaskMessageGenerator
     @Override
     String getNoResultsMessage()
     {
-        return "Nothing to edit.";
+        return "Nothing to apply.";
     }
 
     @Override
@@ -31,7 +31,7 @@ class ApplyPermissionsTaskMessageGenerator
         if ( result.getSucceeded() != null && result.getSucceeded().size() == 1 )
         {
             final ContentPath succeedPath = result.getSucceeded().get( 0 );
-            builder.append(String.format("Permissions are applied.",
+            builder.append( String.format( "Permissions have been applied.",
                                            !succeedPath.isRoot() ? succeedPath.getName() : succeedPath.toString() ) );
         }
     }
@@ -39,7 +39,7 @@ class ApplyPermissionsTaskMessageGenerator
     @Override
     void appendMessageForMultipleSuccess( final StringBuilder builder, final RunnableTaskResult result )
     {
-        builder.append( String.format( "Permissions for %s items are applied.", result.getSuccessCount() ) );
+        builder.append( String.format( "Permissions for %s items have been applied.", result.getSuccessCount() ) );
     }
 
 }

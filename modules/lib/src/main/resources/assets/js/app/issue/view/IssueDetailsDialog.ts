@@ -1042,15 +1042,18 @@ export class IssueDetailsDialog
 
         return this.populateSchedule(updateIssueRequest).sendAndParse()
             .then((updatedIssue: Issue) => {
+                const messageKey = this.isPublishRequest() ? 'notify.publishRequest.' : 'notify.issue.';
+                const statusKey = statusChanged ? IssueStatusFormatter.getFormattedStatus(status) : 'updated';
+
                 if (statusChanged) {
-                    const messageKey = this.isPublishRequest() ? 'notify.publishRequest.status' : 'notify.issue.status';
-                    showFeedback(i18n(messageKey, IssueStatusFormatter.formatStatus(status)));
                     this.toggleControlsAccordingToStatus(status);
                     this.detailsSubTitle.setIssue(updatedIssue, true);
-                } else {
-                    const messageKey = this.isPublishRequest() ? 'notify.publishRequest.updated' : 'notify.issue.updated';
-                    showFeedback(i18n(messageKey));
                 }
+
+                if (statusChanged || status !== IssueStatus.CLOSED) {
+                    showFeedback(i18n(messageKey + statusKey));
+                }
+
                 this.notifyIssueUpdated(updatedIssue);
                 this.skipNextServerUpdatedEvent = true;
             })
