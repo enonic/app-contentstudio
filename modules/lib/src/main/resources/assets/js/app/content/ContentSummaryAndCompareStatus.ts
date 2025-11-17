@@ -8,6 +8,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
 import {ContentIconUrlResolver} from './ContentIconUrlResolver';
 import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {ContentState, contentStateToString} from './ContentStatus';
 import {ContentSummary, ContentSummaryBuilder} from './ContentSummary';
 import {ContentInheritType} from './ContentInheritType';
 import {ContentId} from './ContentId';
@@ -212,32 +213,37 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     }
 
     getStatusText(): string {
+        return contentStateToString(this.getContentState());
+    }
+
+    getContentState(): ContentState {
         if (this.isUnpublished()) {
-            return i18n('status.unpublished');
+            return 'unpublished';
         }
 
         if (this.isNew()) {
-            return i18n('status.new');
+            return 'new';
         }
 
         if (this.isPublished() || this.isModified()) {
             if (this.isScheduledPublishing()) {
-                let publishStatus = i18n('status.scheduled');
                 if (this.isModified()) {
-                    publishStatus = `${publishStatus}, ${i18n('status.modified')}`;
+                    return ['scheduled', 'modified'];
                 }
-                return publishStatus;
+
+                return 'scheduled';
             }
+
             if (this.isExpiredPublishing()) {
-                return i18n('status.expired');
+                return 'expired';
             }
         }
 
         if (this.isMovedAndModified()) {
-            return `${CompareStatusFormatter.formatStatusText(CompareStatus.MOVED)}, ${CompareStatusFormatter.formatStatusText(CompareStatus.NEWER)}`;
+            return ['moved', 'modified'];
         }
 
-        return CompareStatusFormatter.formatStatusText(this.getCompareStatus());
+        return this.getCompareStatus();
     }
 
     getStatusClass(): string {

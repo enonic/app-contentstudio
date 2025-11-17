@@ -2,17 +2,11 @@ import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {Checkbox, CheckboxChecked, cn, IconButton, Toggle} from '@enonic/ui';
 import {RefreshCcw} from 'lucide-react';
 import {ReactElement, useMemo, useState} from 'react';
-import {
-    $isAllSelected,
-    $isLoading,
-    $isNoneSelected,
-    $numberOfSelectedContents,
-    deselectAllContent,
-    reload,
-    selectAllContent,
-} from '../../../store/content.store';
 import {useStore} from '@nanostores/preact';
 import {useI18n} from '../../../hooks/useI18n';
+import {$contentTreeRootLoadingState, reload} from '../../../store/contentTreeLoadingStore';
+import {resetSelection, selectAllItems, setMultipleSelectionMode} from '../../../store/contentTreeSelectionStore';
+import {$isAllSelected, $isNoneSelected, $numberOfSelected} from '../../../store/contentTreeSelectionToolbarStore';
 
 type TreeListToolbarProps = {
     enabled?: boolean;
@@ -28,7 +22,7 @@ const Toggler = ({handleToggleClick}: TogglerProps): ReactElement => {
 
     const [togglePressed, setTogglePressed] = useState(false);
 
-    const numberOfSelectedContents = useStore($numberOfSelectedContents);
+    const numberOfSelectedContents = useStore($numberOfSelected);
 
     return (
         <Toggle
@@ -57,13 +51,14 @@ const Toggler = ({handleToggleClick}: TogglerProps): ReactElement => {
 };
 
 const TreeListToolbar = ({enabled = true, handleToggleClick = () => { }}: TreeListToolbarProps): ReactElement => {
-    const selectAllLabel = useI18n('field.treeListToolbar.selectAll');
-    const selectedLabel = useI18n('field.treeListToolbar.selected');
+    // const selectedLabel = useI18n('field.treeListToolbar.selected');
 
-    const isLoading = useStore($isLoading);
-    const numberOfSelectedContents = useStore($numberOfSelectedContents);
+    const loadingState = useStore($contentTreeRootLoadingState);
+    const isLoading = loadingState === 'loading';
+    const totalSelected = useStore($numberOfSelected);
     const isAllSelected = useStore($isAllSelected);
     const isNoneSelected = useStore($isNoneSelected);
+    const selectAllLabel = isNoneSelected ? useI18n('field.treeListToolbar.selectAll') : useI18n('field.treeListToolbar.deselectAll', totalSelected);
 
     const checkedStatus = useMemo<CheckboxChecked>(() => {
         if (isAllSelected) return true;
@@ -73,26 +68,26 @@ const TreeListToolbar = ({enabled = true, handleToggleClick = () => { }}: TreeLi
 
     const handleCheckboxClick = () => {
         if (isNoneSelected) {
-            selectAllContent();
-
+            setMultipleSelectionMode();
+            selectAllItems();
             return;
         }
 
-        deselectAllContent();
+        resetSelection();
     };
 
     return (
         <div className="bg-surface-neutral flex items-center justify-between px-5 py-2.5 gap-2">
             <div className="ml-2.5 flex items-center gap-2.5">
                 <Checkbox
-                    aria-label={numberOfSelectedContents === 0 ? selectAllLabel : selectedLabel}
-                    label={numberOfSelectedContents === 0 && selectAllLabel}
+                    aria-label={selectAllLabel}
+                    label={selectAllLabel}
                     defaultChecked={false}
                     checked={checkedStatus}
                     disabled={isLoading || !enabled}
                     onClick={handleCheckboxClick}
                 />
-                {numberOfSelectedContents > 0 && <Toggler handleToggleClick={handleToggleClick} />}
+                {/*{numberOfSelectedContents > 0 && <Toggler handleToggleClick={handleToggleClick} />}*/}
             </div>
 
             <IconButton icon={RefreshCcw} disabled={isLoading || !enabled} onClick={reload} />
@@ -103,8 +98,8 @@ const TreeListToolbar = ({enabled = true, handleToggleClick = () => { }}: TreeLi
 TreeListToolbar.displayName = 'TreeListToolbar';
 
 export class TreeListToolbarElement extends LegacyElement<typeof TreeListToolbar, TreeListToolbarProps> {
-    constructor(props: TreeListToolbarProps) {
-        super(props, TreeListToolbar);
+    constructor(props?: TreeListToolbarProps) {
+        super(props ?? {}, TreeListToolbar);
     }
 
     disable() {

@@ -1,20 +1,21 @@
-import {SortContentEvent} from '../sort/SortContentEvent';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {getSelectedItems} from '../../../v6/features/store/contentTreeSelectionStore';
+import {ContentTreeListElement} from '../../../v6/features/views/browse/grid/ContentTreeListElement';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {SortContentEvent} from '../sort/SortContentEvent';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class SortContentAction extends ContentTreeGridAction {
 
-    constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
+    constructor(grid: ContentTreeListElement) {
         super(grid, i18n('action.sort'));
 
         this.setEnabled(false).setClass('sort');
     }
 
     protected handleExecuted() {
-        const contents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedItems();
+        const contents: ContentSummaryAndCompareStatus[] = getSelectedItems();
         new SortContentEvent(contents).fire();
     }
 

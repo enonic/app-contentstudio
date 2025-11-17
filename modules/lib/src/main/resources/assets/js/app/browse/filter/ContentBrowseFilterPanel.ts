@@ -8,6 +8,7 @@ import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {SearchInputValues} from '@enonic/lib-admin-ui/query/SearchInputValues';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {cn} from '@enonic/ui';
 import Q from 'q';
@@ -97,8 +98,12 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
             super.appendChild(this.elementsContainer);
         });
 
+        const debouncedSearch = AppHelper.debounce(() => {
+           this.search();
+        }, 300);
+
         const unsubscribe = $contentFilterState.listen(() => {
-            this.search();
+            debouncedSearch();
         });
 
         this.onRemoved(() => {
