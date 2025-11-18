@@ -21,7 +21,7 @@ export const SearchToggle = ({action, className}: Props): ReactElement => {
     const searchLabel = label || (isContentFilterOpen ? showReachLabel : hideReachLabel);
 
     return (
-        <Tooltip value={searchLabel} asChild>
+        <Tooltip delay={300} value={searchLabel} asChild>
             <Toolbar.Item asChild>
                 <Toggle
                     className={cn('size-9 p-0', className)}

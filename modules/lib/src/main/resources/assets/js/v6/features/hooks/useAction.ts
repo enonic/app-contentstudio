@@ -13,22 +13,21 @@ export function useAction(action: Action): UseActionResult {
 
     const execute = useCallback(() => {
         action.execute();
-    }, [action.execute]);
-
-    const updateProps = () => {
-        const newLabel = action.getLabel();
-        if (newLabel !== label) {
-            setLabel(newLabel);
-        }
-
-        const newEnabled = action.isEnabled();
-        if (newEnabled !== enabled) {
-            setEnabled(newEnabled);
-        }
-    };
+    }, [action]);
 
     useEffect(() => {
+        const updateProps = () => {
+            // Always update state - React will handle optimization if values haven't changed
+            setLabel(action.getLabel());
+            setEnabled(action.isEnabled());
+        };
+
+        // Subscribe to action property changes
         action.onPropertyChanged(updateProps);
+
+        // Initial update in case action state changed before mount
+        updateProps();
+
         return () => action.unPropertyChanged(updateProps);
     }, [action]);
 

@@ -8,7 +8,7 @@ import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/Se
 export class ShowNewContentDialogAction extends ContentTreeGridAction {
 
     constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
-        super(grid, i18n('action.newMore'), 'alt+n');
+        super(grid, i18n('action.new'), 'alt+n');
 
         this.setEnabled(true).setClass('new');
     }

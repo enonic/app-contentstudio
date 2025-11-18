@@ -6,7 +6,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class UnpublishAction extends BasePublishAction {
     constructor(wizard: ContentWizardPanel) {
-        super({wizard, label: i18n('action.unpublishMore'), omitCanPublishCheck: true});
+        super({wizard, label: i18n('action.unpublish'), omitCanPublishCheck: true});
     }
 
     protected createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void {

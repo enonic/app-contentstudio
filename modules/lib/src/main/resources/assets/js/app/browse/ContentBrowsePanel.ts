@@ -82,11 +82,25 @@ export class ContentBrowsePanel
     protected initElements() {
         super.initElements();
 
+        const browseActions = this.getBrowseActions();
+
         this.prependChild(new BrowseToolbarElement({
-            toggleFilterPanelAction: this.getBrowseActions().getToggleSearchPanelAction(),
+            toggleFilterPanelAction: browseActions.getToggleSearchPanelAction(),
+            showNewDialogAction: browseActions.getAction(ActionName.SHOW_NEW_DIALOG),
+            editAction: browseActions.getAction(ActionName.EDIT),
+            archiveAction: browseActions.getAction(ActionName.ARCHIVE),
+            duplicateAction: browseActions.getAction(ActionName.DUPLICATE),
+            moveAction: browseActions.getAction(ActionName.MOVE),
+            sortAction: browseActions.getAction(ActionName.SORT),
+            publishAction: browseActions.getAction(ActionName.PUBLISH),
+            unpublishAction: browseActions.getAction(ActionName.UNPUBLISH),
+            publishTreeAction: browseActions.getAction(ActionName.PUBLISH_TREE),
+            markAsReadyAction: browseActions.getAction(ActionName.MARK_AS_READY),
+            requestPublishAction: browseActions.getAction(ActionName.REQUEST_PUBLISH),
+            createIssueAction: browseActions.getAction(ActionName.CREATE_ISSUE),
         }));
 
-        this.browseToolbar.addActions(this.getBrowseActions().getAllActionsNoPublish());
+        this.browseToolbar.addActions(browseActions.getAllActionsNoPublish());
 
         this.debouncedFilterRefresh = AppHelper.debounce(this.refreshFilter.bind(this), 1000);
         this.debouncedBrowseActionsAndPreviewRefreshOnDemand = AppHelper.debounce(() => {

@@ -12,7 +12,7 @@ type Props = {
 export const WidgetButton = ({label, icon, iconUrl, active, onClick}: Props): React.ReactElement => {
     if (iconUrl) {
         return (
-            <Tooltip value={label} side="right">
+            <Tooltip delay={300} value={label} side="right">
                 <Button
                     className={cn(
                         'size-11.5 p-1',
@@ -32,7 +32,7 @@ export const WidgetButton = ({label, icon, iconUrl, active, onClick}: Props): Re
     }
 
     return (
-        <Tooltip value={label} side="right">
+        <Tooltip delay={300} value={label} side="right">
             <IconButton
                 className='size-11.5'
                 icon={icon || CircleQuestionMark}

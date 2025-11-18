@@ -8,7 +8,7 @@ import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/Se
 export class UnpublishContentAction extends ContentTreeGridAction {
 
     constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
-        super(grid, i18n('action.unpublishMore'));
+        super(grid, i18n('action.unpublish'));
 
         this.setEnabled(false).setClass('unpublish');
     }

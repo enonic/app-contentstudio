@@ -8,7 +8,7 @@ export class ArchiveContentAction
     extends Action {
 
     constructor(wizardPanel: ContentWizardPanel) {
-        super(i18n('action.archiveMore'), 'mod+del', true);
+        super(i18n('action.archive'), 'mod+del', true);
         this.onExecuted(() => {
             new ContentDeletePromptEvent([new ContentSummaryAndCompareStatus().
                 setContentSummary(wizardPanel.getPersistedItem()).

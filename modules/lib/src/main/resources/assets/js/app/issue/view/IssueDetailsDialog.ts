@@ -509,7 +509,7 @@ export class IssueDetailsDialog
 
             return IssueDetailsDialog.makeLabelWithCounter(containsOnlyScheduled ? i18n('action.updateScheduled') : i18n('action.publishNow'), itemsCount);
         } else {
-            return i18n('action.publishMore');
+            return i18n('action.publish');
         }
     }
 

@@ -18,7 +18,7 @@ export const ContextToggle = ({className}: Props): ReactElement => {
     const ContextIcon = isContextOpen ? PanelRightClose : PanelRightOpen;
 
     return (
-        <Tooltip side='left' value={contextLabel} asChild>
+        <Tooltip delay={300} side='left' value={contextLabel} asChild>
             <Toolbar.Item asChild>
                 <Toggle
                     className={cn('size-9 p-0', className)}

@@ -10,7 +10,7 @@ export class PublishContentAction extends ContentTreeGridAction {
     private includeChildItems: boolean = false;
 
     constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>, includeChildItems: boolean = false, useShortcut: boolean = true) {
-        super(grid, i18n('action.publishMore'), useShortcut ? 'ctrl+alt+p' : null);
+        super(grid, i18n('action.publish'), useShortcut ? 'ctrl+alt+p' : null);
 
         this.setEnabled(false).setClass('publish');
 
