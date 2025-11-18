@@ -478,7 +478,7 @@ export class PageView
     }
 
     private addVerticalSpaceForEditorToolbar() {
-        this.getEl().setPosition('relative');
+        this.getEl().setPosition('fixed');
         this.updateVerticalSpaceForEditorToolbar();
         this.toggleStickyToolbar();
     }
@@ -499,7 +499,7 @@ export class PageView
         const result = this.getEditorToolbarWidth();
 
         if (!!result) {
-            this.getEl().setTop(this.getEditorToolbarWidth() + 'px');
+            this.getEl().setTopPx(this.getEditorToolbarWidth()).setLeft('0');
         } else {
             this.waitUntilEditorToolbarShown();
         }
