@@ -9,7 +9,7 @@ export class DuplicateContentAction
     extends ContentTreeGridAction {
 
     constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
-        super(grid, i18n('action.duplicateMore'));
+        super(grid, i18n('action.duplicate'));
 
         this.setEnabled(false).setClass('duplicate');
     }

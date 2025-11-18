@@ -9,7 +9,7 @@ export class PublishTreeContentAction extends PublishContentAction {
     constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
         super(grid, true, false);
 
-        this.setClass('publish-tree').setLabel(i18n('action.publishTreeMore'));
+        this.setClass('publish-tree').setLabel(i18n('action.publishTree'));
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {

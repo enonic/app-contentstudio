@@ -9,7 +9,7 @@ export class RequestPublishContentAction
     extends ContentTreeGridAction {
 
     constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
-        super(grid, i18n('action.requestPublishMore'));
+        super(grid, i18n('action.requestPublish'));
 
         this.setEnabled(false).setClass('request-publish');
     }

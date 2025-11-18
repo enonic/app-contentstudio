@@ -1,5 +1,5 @@
 import {AggregationSelection} from '@enonic/lib-admin-ui/aggregation/AggregationSelection';
-import {map} from 'nanostores';
+import {atom, map} from 'nanostores';
 
 type ContentFilterStore = {
     value: string;
@@ -11,12 +11,18 @@ export const $contentFilterState = map<ContentFilterStore>({
     selection: [],
 });
 
+export const $isContentFilterOpen = atom<boolean>(false);
+
 export function setContentFilterValue(value: string): void {
     $contentFilterState.setKey('value', value);
 }
 
 export function setContentFilterSelection(selection: AggregationSelection[]): void {
     $contentFilterState.setKey('selection', selection);
+}
+
+export function setContentFilterOpen(open: boolean): void {
+    $isContentFilterOpen.set(open);
 }
 
 // TODO: Enonic UI - Remove legacy functions

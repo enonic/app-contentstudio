@@ -51,6 +51,8 @@ import {SearchAndExpandItemEvent} from './SearchAndExpandItemEvent';
 import {State} from './State';
 import {ToggleSearchPanelEvent} from './ToggleSearchPanelEvent';
 import {ToggleSearchPanelWithDependenciesEvent} from './ToggleSearchPanelWithDependenciesEvent';
+import {setContentFilterOpen} from '../../v6/features/store/contentFilter.store';
+import {BrowseToolbarElement} from '../../v6/features/views/browse/toolbar/BrowseToolbar';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -80,7 +82,25 @@ export class ContentBrowsePanel
     protected initElements() {
         super.initElements();
 
-        this.browseToolbar.addActions(this.getBrowseActions().getAllActionsNoPublish());
+        const browseActions = this.getBrowseActions();
+
+        this.prependChild(new BrowseToolbarElement({
+            toggleFilterPanelAction: browseActions.getToggleSearchPanelAction(),
+            showNewDialogAction: browseActions.getAction(ActionName.SHOW_NEW_DIALOG),
+            editAction: browseActions.getAction(ActionName.EDIT),
+            archiveAction: browseActions.getAction(ActionName.ARCHIVE),
+            duplicateAction: browseActions.getAction(ActionName.DUPLICATE),
+            moveAction: browseActions.getAction(ActionName.MOVE),
+            sortAction: browseActions.getAction(ActionName.SORT),
+            publishAction: browseActions.getAction(ActionName.PUBLISH),
+            unpublishAction: browseActions.getAction(ActionName.UNPUBLISH),
+            publishTreeAction: browseActions.getAction(ActionName.PUBLISH_TREE),
+            markAsReadyAction: browseActions.getAction(ActionName.MARK_AS_READY),
+            requestPublishAction: browseActions.getAction(ActionName.REQUEST_PUBLISH),
+            createIssueAction: browseActions.getAction(ActionName.CREATE_ISSUE),
+        }));
+
+        this.browseToolbar.addActions(browseActions.getAllActionsNoPublish());
 
         this.debouncedFilterRefresh = AppHelper.debounce(this.refreshFilter.bind(this), 1000);
         this.debouncedBrowseActionsAndPreviewRefreshOnDemand = AppHelper.debounce(() => {
@@ -779,5 +799,12 @@ export class ContentBrowsePanel
         uploadItem.onFailed(() => {
             parentLists.forEach(parent => parent.removeItems(data));
         });
+    }
+
+    // TODO: Enonic UI - Sync layer
+    toggleFilterPanel() {
+        super.toggleFilterPanel();
+        const isFilterPanelHidden = this.filterPanelIsHidden();
+        setContentFilterOpen(!isFilterPanelHidden);
     }
 }

@@ -9,7 +9,7 @@ export class MoveContentAction
     extends ContentTreeGridAction {
 
     constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
-        super(grid, i18n('action.moveMore'), 'alt+m');
+        super(grid, i18n('action.move'), 'alt+m');
 
         this.setEnabled(false).setClass('move');
     }

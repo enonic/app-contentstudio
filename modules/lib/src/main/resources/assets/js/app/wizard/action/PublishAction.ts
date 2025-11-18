@@ -9,7 +9,7 @@ export class PublishAction extends BasePublishAction {
     constructor(wizard: ContentWizardPanel) {
         super({
             wizard,
-            label: i18n('action.publishMore'),
+            label: i18n('action.publish'),
             shortcut: 'ctrl+alt+p',
             errorMessage: i18n('notify.publish.invalidError')
         });

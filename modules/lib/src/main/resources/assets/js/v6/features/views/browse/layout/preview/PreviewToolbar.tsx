@@ -1,4 +1,3 @@
-import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {ReactElement} from 'react';
 import {RenderingMode} from '../../../../../../app/rendering/RenderingMode';
 import {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
@@ -13,6 +12,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {PreviewToolbarVersionHistoryItem} from './PreviewToolbarVersionHistoryItem';
 import {PreviewToolbarOpenExternalItem} from './PreviewToolbarOpenExternalItem';
 import {Toolbar} from '@enonic/ui';
+import {LegacyElement} from '../../../../shared/LegacyElement';
 
 type PreviewToolbarProps = {
     item?: ContentSummaryAndCompareStatus | null;

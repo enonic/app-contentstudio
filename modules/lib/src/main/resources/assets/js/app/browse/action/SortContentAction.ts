@@ -8,7 +8,7 @@ import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/Se
 export class SortContentAction extends ContentTreeGridAction {
 
     constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
-        super(grid, i18n('action.sortMore'));
+        super(grid, i18n('action.sort'));
 
         this.setEnabled(false).setClass('sort');
     }

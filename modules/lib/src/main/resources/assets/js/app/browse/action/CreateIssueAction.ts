@@ -8,7 +8,7 @@ import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/Se
 export class CreateIssueAction extends ContentTreeGridAction {
 
     constructor(grid: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>) {
-        super(grid, i18n('action.createIssueMore'));
+        super(grid, i18n('action.createIssue'));
 
         this.setEnabled(false).setClass('create-issue');
     }
