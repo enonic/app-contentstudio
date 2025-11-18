@@ -27,7 +27,7 @@ module.exports = Object.freeze({
     },
     projectModifiedMessage: displayName => `Project \"${displayName}\" has been modified.`,
     markedAsReadyMessage: function (name) {
-        return `Item \"${name}\" has been marked as ready`;
+        return `Item \"${name}\" has been marked as ready.`;
     },
     publishRequestClosedMessage (name) {
         return `Publish request \"${name}\" has been closed.`;
@@ -92,6 +92,7 @@ module.exports = Object.freeze({
         REQUEST_CREATED_MESSAGE: 'The publish request has been created.',
         PUBLISH_REQUEST_CLOSED_MESSAGE: 'The publish request has been closed.',
         ISSUE_OPENED_MESSAGE: 'The issue has been opened.',
+        REQUEST_HAS_BEEN_CLOSED:'The publish request has been closed.',
         ISSUE_UPDATED_MESSAGE: 'The issue has been updated.',
         THIS_PUBLISH_REQUEST_OPEN: 'The publish request has been opened.',
         CONTENT_RENAMED: 'Content has been renamed',
