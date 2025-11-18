@@ -192,8 +192,8 @@ class CreateRequestPublishDialog extends Page {
         try {
             await this.waitForElementDisplayed(this.invalidIcon, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_request_publish_dialog_invalid_icon');
-            throw new Error("Request Publishing dialog:  'invalid' icon should be visible :" + err);
+            await this.handleError(`Request Publishing dialog:  'invalid' icon should be visible`,
+                'err_request_publish_dialog_invalid_icon', err)
         }
     }
 
@@ -201,8 +201,8 @@ class CreateRequestPublishDialog extends Page {
         try {
             await this.waitForElementNotDisplayed(this.invalidIcon, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_request_publish_dialog_invalid_icon');
-            throw new Error("Request Publishing dialog:  'invalid' icon should be not visible :" + err);
+            await this.handleError(`Request Publishing dialog:  'invalid' icon should be not visible`,
+                'err_request_publish_dialog_invalid_icon', err);
         }
     }
 
@@ -245,7 +245,7 @@ class CreateRequestPublishDialog extends Page {
             await this.clickOnElement(this.nextButton);
             return await this.pause(300);
         } catch (err) {
-            throw new Error('Request Publish Dialog -Error when clicking on Next button:' + err);
+            await this.handleError('Request Publish Dialog -  tried to click on Next button', 'err_click_next_btn', err);
         }
     }
 
@@ -255,7 +255,7 @@ class CreateRequestPublishDialog extends Page {
             await principalComboBox.clickOnDropdownHandle(xpath.container);
             return await this.pause(300);
         } catch (err) {
-            throw new Error('Request Publish Dialog -Error when clicking on Assignees button:' + err);
+            await this.handleError('Request Publish Dialog tried to click on Assignees button', 'err_click_assignees_btn', err);
         }
     }
 
@@ -269,7 +269,7 @@ class CreateRequestPublishDialog extends Page {
             await this.waitForPreviousButtonDisplayed();
             return await this.clickOnElement(this.previousButton);
         } catch (err) {
-            throw new Error('Request Publish Dialog -Error when clicking on Previous button:' + err);
+            await this.handleError('Request Publish Dialog tried to click on Previous button', 'err_click_previous_btn', err);
         }
     }
 
@@ -321,8 +321,7 @@ class CreateRequestPublishDialog extends Page {
             await this.clickOnElement(this.markAsReadyButton);
             return await this.pause(700);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_mark_as_ready_btn');
-            throw new Error(`Error during clicking on Mark as ready button, screenshot: ${screenshot} ` + err);
+            await this.handleError('Request Publish Dialog tried to click on Mark as ready  button', 'err_click_mark_as_ready_btn', err);
         }
     }
 
