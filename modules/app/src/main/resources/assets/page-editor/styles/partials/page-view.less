@@ -65,17 +65,18 @@
     }
   }
 
+  &.text-edit-mode {
+    .cke-toolbar-container > .cke_chrome {
+      border: none;
+    }
+  }
+
   &::before {
     display: none;
   }
 
   .@{_CLS_PREFIX}page-descriptor-dropdown {
     margin-top: 53px;
-  }
-
-  .mce-widget.mce-tooltip.mce-tooltip-n {
-    position: fixed;
-    z-index: @z-index-context-menu + 1 !important;
   }
 
   .fnr-panel {
