@@ -7,6 +7,7 @@ import {ToolbarActionButton} from './ToolbarActionButton';
 import {ActionGroup} from './ActionGroup';
 import {ContextToggle} from './ContextToggle';
 import {SearchToggle} from './SearchToggle';
+import {SplitActionButton, type SplitActionButtonAction} from './SplitActionButton';
 
 type Props = {
     toggleFilterPanelAction: Action;
@@ -32,7 +33,22 @@ export const BrowseToolbar = ({
     duplicateAction,
     moveAction,
     sortAction,
+    publishAction,
+    unpublishAction,
+    publishTreeAction,
+    markAsReadyAction,
+    requestPublishAction,
+    createIssueAction,
 }: Props): ReactElement => {
+    const publishSplitActions: SplitActionButtonAction[] = [
+        {action: markAsReadyAction},
+        {action: publishAction},
+        {action: publishTreeAction},
+        {action: unpublishAction},
+        {action: requestPublishAction},
+        {action: createIssueAction},
+    ];
+
     return (
         <Toolbar>
             <Toolbar.Container
@@ -49,6 +65,7 @@ export const BrowseToolbar = ({
                     <ToolbarActionButton action={sortAction} />
                 </ActionGroup>
                 <div className="flex-1" />
+                <SplitActionButton actions={publishSplitActions} />
                 <ContextToggle />
             </Toolbar.Container>
         </Toolbar>
