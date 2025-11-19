@@ -1,11 +1,11 @@
-import * as $ from 'jquery';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {SelectionToolbar} from './SelectionToolbar';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {BaseGallerySelectedOptionView} from './BaseGallerySelectedOptionView';
+import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 
 export interface SelectedOptionsViewConfig {
     editable?: boolean;
@@ -21,11 +21,21 @@ export abstract class BaseGallerySelectedOptionsView<T> extends BaseSelectedOpti
     constructor(config: SelectedOptionsViewConfig) {
         super();
 
+        this.initListeners();
+
         this.readonly = config.readonly || false;
         if (!config.readonly) {
             this.initAndAppendSelectionToolbar(config.editable);
             this.addOptionMovedEventHandler();
         }
+    }
+
+    protected initListeners(): void {
+        const responsiveItem: ResponsiveItem = new ResponsiveItem(this);
+
+        const resizeListener = () => responsiveItem.update();
+
+        new ResizeObserver(AppHelper.debounce(resizeListener, 200)).observe(this.getHTMLElement());
     }
 
     private initAndAppendSelectionToolbar(editable: boolean) {
