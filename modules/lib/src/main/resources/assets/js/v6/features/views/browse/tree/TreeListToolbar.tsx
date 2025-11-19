@@ -43,7 +43,7 @@ const Toggler = ({handleToggleClick}: TogglerProps): ReactElement => {
         >
             <span
                 className={cn(
-                    'flex items-center justify-center rounded-full shrink-0 text-xs text-black bg-white',
+                    'flex items-center justify-center rounded-full shrink-0 text-xs text-main bg-surface-neutral',
                     numberOfSelectedContents < 10 ? 'size-6' : 'px-2',
                     numberOfSelectedContents === 0 && 'hidden'
                 )}
@@ -56,7 +56,7 @@ const Toggler = ({handleToggleClick}: TogglerProps): ReactElement => {
     );
 };
 
-const TreeListToolbar = ({enabled = true, handleToggleClick = () => {}}: TreeListToolbarProps): ReactElement => {
+const TreeListToolbar = ({enabled = true, handleToggleClick = () => { }}: TreeListToolbarProps): ReactElement => {
     const selectAllLabel = useI18n('field.treeListToolbar.selectAll');
     const selectedLabel = useI18n('field.treeListToolbar.selected');
 

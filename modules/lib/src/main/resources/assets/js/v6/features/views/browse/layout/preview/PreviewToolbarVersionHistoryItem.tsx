@@ -19,7 +19,7 @@ export function PreviewToolbarVersionHistoryItem(): ReactElement {
         <Toolbar.Item asChild>
             <Button
                 size="sm"
-                className="min-w-9 p-0 @sm:p-3.5 flex-shrink-0"
+                className="min-w-9 @max-sm:p-0 flex-shrink-0"
                 aria-label={useI18n('wcag.preview.toolbar.versionHistory.label')}
                 startIcon={History}
                 onClick={handleShowVersionHistory}
