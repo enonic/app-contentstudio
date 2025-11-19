@@ -4,13 +4,19 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {Tooltip} from '@enonic/ui';
 import {ProjectIcon} from '../../../shared/icons/ProjectIcon';
 import {WidgetButton} from '../../../shared/WidgetButton';
-import {Pen} from 'lucide-react';
+import {LucideIcon, Pen, Settings} from 'lucide-react';
 import {useStore} from '@nanostores/preact';
-import {$sidebarWidgets, getWidgetKey, isMainWidget, setActiveWidget} from '../../../store/sidebarWidgets.store';
+import {$sidebarWidgets, getWidgetKey, isMainWidget, isSettingsWidget, setActiveWidget} from '../../../store/sidebarWidgets.store';
 import {ReactElement, useCallback} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {$activeProject} from '../../../store/projects.store';
 import {LegacyElement} from '../../../shared/LegacyElement';
+
+function getWidgetIcon(widget: Readonly<Widget>): LucideIcon | undefined {
+    if (isMainWidget(widget)) return Pen;
+    if (isSettingsWidget(widget)) return Settings;
+    return undefined;
+}
 
 export const BrowseSidebar = (): ReactElement => {
     const activeProject = useStore($activeProject);
@@ -50,7 +56,7 @@ export const BrowseSidebar = (): ReactElement => {
                         <WidgetButton
                             key={widget.getWidgetDescriptorKey()}
                             label={widget.getDisplayName()}
-                            icon={isMainWidget(widget) && Pen}
+                            icon={getWidgetIcon(widget)}
                             active={isWidgetActive(widget)}
                             iconUrl={widget.getIconUrl() && widget.getFullIconUrl()}
                             onClick={() => {
@@ -65,7 +71,7 @@ export const BrowseSidebar = (): ReactElement => {
                         <WidgetButton
                             label={lastWidget.getDisplayName()}
                             active={isWidgetActive(lastWidget)}
-                            icon={isMainWidget(lastWidget) && Pen}
+                            icon={getWidgetIcon(lastWidget)}
                             iconUrl={lastWidget.getIconUrl() && lastWidget.getFullIconUrl()}
                             onClick={() => {
                                 setActiveWidget(lastWidget);

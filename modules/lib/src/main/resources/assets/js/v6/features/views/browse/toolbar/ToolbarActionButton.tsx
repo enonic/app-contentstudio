@@ -12,11 +12,10 @@ export const ToolbarActionButton = ({action}: Props): ReactElement => {
     const {label, enabled, execute} = useAction(action);
 
     return (
-        <Toolbar.Item asChild>
+        <Toolbar.Item asChild disabled={!enabled}>
             <Button
                 size='sm'
                 label={label}
-                disabled={!enabled}
                 onClick={() => execute()}
             />
         </Toolbar.Item>

@@ -44,6 +44,10 @@ export function isMainWidget(widget: Readonly<Widget>): boolean {
     return getWidgetKey(widget)?.endsWith('studio:main') ?? false;
 }
 
+export function isSettingsWidget(widget: Readonly<Widget>): boolean {
+    return getWidgetKey(widget)?.endsWith('studio:settings') ?? false;
+}
+
 //
 // * Internal
 //

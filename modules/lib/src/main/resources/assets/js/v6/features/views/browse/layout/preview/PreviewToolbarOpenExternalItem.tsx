@@ -26,7 +26,6 @@ export const PreviewToolbarOpenExternalItem = ({action}: {action: Action}): Reac
                     icon={SquareArrowOutUpRight}
                     onClick={() => action?.execute()}
                     aria-label={`${label} (${shortcut})`}
-                    disabled={!isWidgetRenderable}
                 />
             </Toolbar.Item>
         </Tooltip>
