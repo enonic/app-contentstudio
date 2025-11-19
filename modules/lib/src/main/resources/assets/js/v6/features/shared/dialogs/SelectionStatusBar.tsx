@@ -1,8 +1,8 @@
 import {Button, ButtonProps, cn} from '@enonic/ui';
 import {StatusIcon} from '../icons/StatusIcon';
 import {LoaderCircle} from 'lucide-react';
-import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {useI18n} from '../../hooks/useI18n';
+import {LegacyElement} from '../LegacyElement';
 
 type StatusEntryProps = {
     className?: string;
@@ -80,7 +80,7 @@ const StatusEntry = ({className, children}: StatusEntryProps): React.ReactElemen
 
 const ErrorEntry = ({className, status, label, disabled, children}: ErrorEntryProps): React.ReactElement => {
     return <StatusEntry className={cn(status === 'in-progress' ? 'bg-surface-warn' : 'bg-surface-error', className)}>
-        <StatusIcon className="w-6 h-6" status={status}/>
+        <StatusIcon className="w-6 h-6" status={status} />
         <span className="text-sm font-semibold">{label}</span>
         {disabled || children}
     </StatusEntry>
@@ -109,12 +109,12 @@ export const SelectionStatusBar = ({className, onApply, onCancel, ...props}: Pro
             </StatusEntry>}
 
             {status === 'failed' && <StatusEntry className="bg-surface-error">
-                <StatusIcon className="w-6 h-6" status='invalid'/>
+                <StatusIcon className="w-6 h-6" status='invalid' />
                 <span className="text-sm font-semibold">{useI18n('dialog.publish.error.loadFailed')}</span>
             </StatusEntry>}
 
             {status === 'editing' && <StatusEntry className="bg-surface-info">
-                <StatusIcon className="w-6 h-6" status='info'/>
+                <StatusIcon className="w-6 h-6" status='info' />
                 <span className="text-sm font-semibold">{useI18n('dialog.state.editing')}</span>
                 <EntryButton onClick={onApply}>
                     {useI18n('action.apply')}
@@ -125,7 +125,7 @@ export const SelectionStatusBar = ({className, onApply, onCancel, ...props}: Pro
             </StatusEntry>}
 
             {status === 'ready' && <StatusEntry className="bg-surface-success">
-                <StatusIcon className="w-6 h-6" status='ready'/>
+                <StatusIcon className="w-6 h-6" status='ready' />
                 <span className="text-sm font-semibold">{useI18n('dialog.publish.error.resolved')}</span>
             </StatusEntry>}
 

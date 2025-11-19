@@ -1,4 +1,3 @@
-import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {Button, ListItem, type ListItemProps} from '@enonic/ui';
 import {useMemo, type ReactNode} from 'react';
 import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
@@ -7,6 +6,7 @@ import {ContentReferencesLink} from '../ContentReferencesLink';
 import {StatusBadge} from '../StatusBadge';
 import {calcWorkflowStateStatus} from '../../utils/cms/content/workflow';
 import {WorkflowContentIcon} from '../icons/WorkflowContentIcon';
+import {LegacyElement} from '../LegacyElement';
 
 type Props = {
     content: ContentSummaryAndCompareStatus;

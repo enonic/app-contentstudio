@@ -1,4 +1,3 @@
-import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {Button, IconButton} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
@@ -10,6 +9,7 @@ import {$activeProjectName} from '../../../store/projects.store';
 import {setProjectSelectionDialogOpen} from '../../../store/dialogs.store';
 import {$issuesStats} from '../../../store/issuesStats.store';
 import {IssueStatsJson} from '../../../../../app/issue/json/IssueStatsJson';
+import {LegacyElement} from '../../../shared/LegacyElement';
 
 function createIssuesLabelKeys(stats: Readonly<IssueStatsJson> | undefined): [`field.${string}`, ...string[]] {
     if (stats?.openAssignedToMe > 0) {
@@ -84,15 +84,15 @@ export class BrowseAppBarElement extends LegacyElement<typeof BrowseAppBar> {
         return instance;
     }
 
-    setAppName(name: string) {}
+    setAppName(name: string) { }
 
-    disable() {}
+    disable() { }
 
-    showIssuesButton() {}
+    showIssuesButton() { }
 
-    hideIssuesButton() {}
+    hideIssuesButton() { }
 
-    showProjectSelector() {}
+    showProjectSelector() { }
 
-    hideProjectSelector() {}
+    hideProjectSelector() { }
 }

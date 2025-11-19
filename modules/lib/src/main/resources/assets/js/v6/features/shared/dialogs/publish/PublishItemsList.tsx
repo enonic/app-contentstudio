@@ -1,9 +1,9 @@
-import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {cn} from '@enonic/ui';
 import {atom, WritableAtom} from 'nanostores';
 import {ContentId} from '../../../../../app/content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {ContentItemWithChildren} from '../../items/ContentItemWithChildren';
+import {LegacyElement} from '../../LegacyElement';
 
 export type Props = {
     className?: string;

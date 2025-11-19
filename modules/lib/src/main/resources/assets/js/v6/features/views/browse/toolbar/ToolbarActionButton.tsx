@@ -9,9 +9,16 @@ type Props = {
 };
 
 export const ToolbarActionButton = ({action}: Props): ReactElement => {
+    const {label, enabled, execute} = useAction(action);
+
     return (
         <Toolbar.Item asChild>
-            <ActionButton action={action} size='sm' />
+            <Button
+                size='sm'
+                label={label}
+                disabled={!enabled}
+                onClick={() => execute()}
+            />
         </Toolbar.Item>
     );
 };

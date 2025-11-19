@@ -1,7 +1,6 @@
 import {AggregationSelection} from '@enonic/lib-admin-ui/aggregation/AggregationSelection';
 import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
 import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
-import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {Button, SearchField} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Download} from 'lucide-react';
@@ -10,6 +9,7 @@ import {$contentFilterState, setContentFilterSelection, setContentFilterValue} f
 import {StaticBucketAggregation} from '../../../shared/buckets/StaticBucketAggregation';
 import {FilterableBucketAggregation} from '../../../shared/buckets/FilterableBucketAggregation';
 import {useI18n} from '../../../hooks/useI18n';
+import {LegacyElement} from '../../../shared/LegacyElement';
 
 export type BrowseFilterProps = {
     hits?: number;
@@ -80,18 +80,18 @@ export const BrowseFilter = ({
 
                     return (
                         filterableOptions ?
-                        <FilterableBucketAggregation
-                            key={safeKey}
-                            selection={selection}
-                            idsToKeepOnTop={filterableOptions.idsToKeepOnTop}
-                            onSelectionChange={onSelectionChange}
-                            aggregation={ba}/> :
-                        <StaticBucketAggregation
-                            key={safeKey}
-                            selection={selection}
-                            onSelectionChange={onSelectionChange}
-                            aggregation={ba}
-                        />
+                            <FilterableBucketAggregation
+                                key={safeKey}
+                                selection={selection}
+                                idsToKeepOnTop={filterableOptions.idsToKeepOnTop}
+                                onSelectionChange={onSelectionChange}
+                                aggregation={ba} /> :
+                            <StaticBucketAggregation
+                                key={safeKey}
+                                selection={selection}
+                                onSelectionChange={onSelectionChange}
+                                aggregation={ba}
+                            />
                     );
                 })}
             </div>

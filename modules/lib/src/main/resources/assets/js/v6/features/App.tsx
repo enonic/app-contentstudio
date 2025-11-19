@@ -1,9 +1,9 @@
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import type {ReactElement} from 'react';
 import {ContentAppHelper} from '../../app/wizard/ContentAppHelper';
 import {WizardPage} from './views/wizard/WizardPage';
 import {BrowsePage} from './views/browse/BrowsePage';
+import {LegacyElement} from './shared/LegacyElement';
 
 /**
  * AppShell component that renders the whole application layout.
@@ -13,11 +13,11 @@ import {BrowsePage} from './views/browse/BrowsePage';
  */
 const App = (): ReactElement => {
 
-  const isWizard = ContentAppHelper.isContentWizardUrl();
+    const isWizard = ContentAppHelper.isContentWizardUrl();
 
     return (
         <>
-        {isWizard ? <WizardPage /> : <BrowsePage />}
+            {isWizard ? <WizardPage /> : <BrowsePage />}
         </>
     );
 };

@@ -1,6 +1,5 @@
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
-import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {Tooltip} from '@enonic/ui';
 import {ProjectIcon} from '../../../shared/icons/ProjectIcon';
@@ -11,6 +10,7 @@ import {$sidebarWidgets, getWidgetKey, isMainWidget, setActiveWidget} from '../.
 import {ReactElement, useCallback} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {$activeProject} from '../../../store/projects.store';
+import {LegacyElement} from '../../../shared/LegacyElement';
 
 export const BrowseSidebar = (): ReactElement => {
     const activeProject = useStore($activeProject);

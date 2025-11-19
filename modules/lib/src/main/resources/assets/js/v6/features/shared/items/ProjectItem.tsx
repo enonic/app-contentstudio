@@ -1,9 +1,9 @@
 import {cn, ListItem, type ListItemProps} from '@enonic/ui';
 import type {ReactElement} from 'react';
-import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {Project} from '../../../../app/settings/data/project/Project';
 import {ProjectHelper} from '../../../../app/settings/data/project/ProjectHelper';
 import {ProjectIcon} from '../icons/ProjectIcon';
+import {LegacyElement} from '../LegacyElement';
 
 export type ProjectItemProps = {
     label: string;

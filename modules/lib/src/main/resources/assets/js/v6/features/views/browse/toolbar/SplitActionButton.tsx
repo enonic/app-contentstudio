@@ -48,9 +48,11 @@ export const SplitActionButton = ({actions, className}: Props): ReactElement | n
         return null;
     }
 
+    // const isDropdownDisabled = !primaryState.enabled || !hasMenuActions;
+
     return (
-        <Toolbar.Item asChild>
-            <div className={cn('flex items-stretch', className)}>
+        <div className={cn('flex items-stretch', className)}>
+            <Toolbar.Item asChild>
                 <Button
                     className={cn(hasMenuActions && 'rounded-r-none border-r-0', 'focus-visible:z-1')}
                     size="sm"
@@ -60,36 +62,37 @@ export const SplitActionButton = ({actions, className}: Props): ReactElement | n
                     disabled={!primaryState.enabled}
                     onClick={() => primaryState.execute()}
                 />
+            </Toolbar.Item>
 
-                {hasMenuActions && (
-                    <Menu>
-                        <Tooltip delay={300} value={moreLabel} asChild>
-                            <Menu.Trigger asChild>
-                                <IconButton
-                                    className="p-0 rounded-l-none"
-                                    size="sm"
-                                    iconStrokeWidth={2}
-                                    aria-label={moreLabel}
-                                    icon={ChevronDown}
-                                    disabled={!primaryState.enabled}
-                                />
-                            </Menu.Trigger>
-                        </Tooltip>
-                        <Menu.Portal>
-                            <Menu.Content align="end">
-                                {menuStates.map((state, index) => {
-                                    return (
-                                        <Menu.Item key={index} disabled={!state.enabled} onSelect={() => state.execute()}>
-                                            <span className="font-semibold">{state.label}</span>
-                                        </Menu.Item>
-                                    );
-                                })}
-                            </Menu.Content>
-                        </Menu.Portal>
-                    </Menu>
-                )}
-            </div>
-        </Toolbar.Item>
+            <Menu>
+                <Tooltip delay={300} value={moreLabel} asChild>
+                    <Toolbar.Item asChild>
+                        <Menu.Trigger asChild>
+                            <IconButton
+                                className={cn(hasMenuActions ? 'p-0 rounded-l-none' : 'hidden')}
+                                size="sm"
+                                iconStrokeWidth={2}
+                                aria-label={moreLabel}
+                                icon={ChevronDown}
+                                disabled={!primaryState.enabled}
+                            />
+                        </Menu.Trigger>
+                    </Toolbar.Item>
+                </Tooltip>
+                <Menu.Portal>
+                    <Menu.Content align="end">
+                        {menuStates.map((state, index) => {
+                            return (
+                                <Menu.Item key={index} disabled={!state.enabled} onSelect={() => state.execute()}>
+                                    <span className="font-semibold">{state.label}</span>
+                                </Menu.Item>
+                            );
+                        })}
+                    </Menu.Content>
+                </Menu.Portal>
+            </Menu>
+        </div>
+
     );
 };
 
