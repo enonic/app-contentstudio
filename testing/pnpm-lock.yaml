@@ -21,8 +21,8 @@ importers:
         specifier: ^9.19.1
         version: 9.19.1
       '@wdio/spec-reporter':
-        specifier: ^9.19.1
-        version: 9.19.1
+        specifier: ^9.20.0
+        version: 9.20.0
       allure-commandline:
         specifier: ^2.34.1
         version: 2.34.1
@@ -505,8 +505,8 @@ packages:
       expect-webdriverio: ^5.3.4
       webdriverio: ^9.0.0
 
-  '@wdio/spec-reporter@9.19.1':
-    resolution: {integrity: sha512-lxi/4g+kkQHRczbWPw36VYuJRDd1iotOeKbauWgz+IluJqyNw3G9M52hxn2JeAfdXob4Az0Ey3iFcfjMOCIETQ==}
+  '@wdio/spec-reporter@9.20.0':
+    resolution: {integrity: sha512-YHj3kF86RoOVVR+k3eb+e/Fki6Mq1FIrJQ380Cz5SSWbIc9gL8HXG3ydReldY6/80KLFOuHn9ZHvDHrCIXRjiw==}
     engines: {node: '>=18.20.0'}
 
   '@wdio/types@9.19.0':
@@ -698,6 +698,10 @@ packages:
 
   chalk@5.5.0:
     resolution: {integrity: sha512-1tm8DTaJhPBG3bIkVeZt1iZM9GfSX2lzOeDVZH9R9ffRHpmHvxZ/QhgQH/aDTkswQVt+YHdXAdS/In/30OjCbg==}
+    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
+
+  chalk@5.6.2:
+    resolution: {integrity: sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
 
   chardet@2.1.0:
@@ -1497,8 +1501,8 @@ packages:
     resolution: {integrity: sha512-D1tKtYvByrBkFLe2wHJl2bwMJIiT8rW+XA+TiataH79/FszLQMrpGEvzUVkzPau7OCO0Qnrhpe87PqtOAIB8Yw==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
 
-  pretty-ms@9.2.0:
-    resolution: {integrity: sha512-4yf0QO/sllf/1zbZWYnvWw3NxCQwLXKzIj0G849LSufP15BXKM0rbD2Z3wVnkMfjdn/CB0Dpp444gYAACdsplg==}
+  pretty-ms@9.3.0:
+    resolution: {integrity: sha512-gjVS5hOP+M3wMm5nmNOucbIrqudzs9v/57bWRHQWLYklXqoXKrVfYW2W9+glfGsqtPgpiz5WwyEEB+ksXIx3gQ==}
     engines: {node: '>=18'}
 
   process-nextick-args@2.0.1:
@@ -2340,7 +2344,7 @@ snapshots:
     dependencies:
       '@wdio/reporter': 9.19.0
       '@wdio/types': 9.19.0
-      chalk: 5.5.0
+      chalk: 5.6.2
 
   '@wdio/globals@9.17.0(expect-webdriverio@5.4.1)(webdriverio@9.19.1)':
     dependencies:
@@ -2436,19 +2440,23 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@wdio/spec-reporter@9.19.1':
+  '@wdio/spec-reporter@9.20.0':
     dependencies:
-      '@wdio/reporter': 9.19.1
-      '@wdio/types': 9.19.1
-      chalk: 5.5.0
+      '@wdio/reporter': 9.20.0
+      '@wdio/types': 9.20.0
+      chalk: 5.6.2
       easy-table: 1.2.0
-      pretty-ms: 9.2.0
+      pretty-ms: 9.3.0
 
   '@wdio/types@9.19.0':
     dependencies:
       '@types/node': 20.19.25
 
   '@wdio/types@9.19.1':
+    dependencies:
+      '@types/node': 20.19.25
+
+  '@wdio/types@9.20.0':
     dependencies:
       '@types/node': 20.19.25
 
@@ -2639,6 +2647,8 @@ snapshots:
       supports-color: 7.2.0
 
   chalk@5.5.0: {}
+
+  chalk@5.6.2: {}
 
   chardet@2.1.0: {}
 
@@ -2939,7 +2949,7 @@ snapshots:
       is-plain-obj: 4.1.0
       is-stream: 4.0.1
       npm-run-path: 6.0.0
-      pretty-ms: 9.2.0
+      pretty-ms: 9.3.0
       signal-exit: 4.1.0
       strip-final-newline: 4.0.0
       yoctocolors: 2.1.1
@@ -3521,7 +3531,7 @@ snapshots:
       ansi-styles: 5.2.0
       react-is: 18.3.1
 
-  pretty-ms@9.2.0:
+  pretty-ms@9.3.0:
     dependencies:
       parse-ms: 4.0.0
 
