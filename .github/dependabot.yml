@@ -1,7 +1,10 @@
 version: 2
 updates:
   - package-ecosystem: "gradle"
-    directory: "/modules/app"
+    directories:
+      - "/modules/app"
+      - "/modules/lib"
+      - "/modules/rest"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 10
@@ -9,44 +12,13 @@ updates:
       - "rymsha"
     reviewers:
       - "rymsha"
-  - package-ecosystem: "gradle"
-    directory: "/modules/lib"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-    assignees:
-      - "rymsha"
-    reviewers:
-      - "rymsha"
-  - package-ecosystem: "gradle"
-    directory: "/modules/rest"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-    assignees:
-      - "rymsha"
-    reviewers:
-      - "rymsha"
   - package-ecosystem: "npm"
-    directory: "/modules/app"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-    assignees:
-      - "alansemenov"
-    reviewers:
-      - "alansemenov"
-  - package-ecosystem: "npm"
-    directory: "/modules/lib"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-    assignees:
-      - "alansemenov"
-    reviewers:
-      - "alansemenov"
-  - package-ecosystem: "npm"
-    directory: "/testing"
+    directories:
+      - "/modules/app"
+      - "/modules/lib"
+      - "/testing"
+    ignore:
+      - dependency-name: "@enonic/lib-admin-ui"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
