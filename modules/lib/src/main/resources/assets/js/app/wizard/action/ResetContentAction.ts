@@ -4,9 +4,9 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {RestoreInheritRequest} from '../../resource/RestoreInheritRequest';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ContentInheritType} from '../../content/ContentInheritType';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {DialogPresetConfirmElement} from '../../../v6/features/shared/dialogs/DialogPreset';
 
 export class ResetContentAction
     extends Action {
@@ -15,10 +15,17 @@ export class ResetContentAction
         super(i18n('action.reset'));
 
         this.onExecuted(() => {
-            new ConfirmationDialog()
-                .setQuestion(i18n('dialog.confirm.resetInheritance'))
-                .setYesCallback(() => this.restoreContentInheritance(wizardPanel))
-                .open();
+            const dialog = new DialogPresetConfirmElement({
+                open: true,
+                title: i18n('dialog.confirm.title'),
+                description: i18n('dialog.confirm.resetInheritance'),
+                onConfirm: () => {
+                    dialog.close();
+                    this.restoreContentInheritance(wizardPanel);
+                },
+                onCancel: () => dialog.close()
+            });
+            dialog.open();
         });
     }
 
