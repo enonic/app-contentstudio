@@ -32,6 +32,8 @@ const Toggler = ({handleToggleClick}: TogglerProps): ReactElement => {
 
     return (
         <Toggle
+            className="flex items-center gap-2"
+            variant="filled"
             aria-label={togglePressed ? showSelectedLabel : showAllLabel}
             pressed={togglePressed}
             onPressedChange={(pressed) => {
@@ -39,21 +41,22 @@ const Toggler = ({handleToggleClick}: TogglerProps): ReactElement => {
                 handleToggleClick(pressed);
             }}
         >
-            {selectedLabel}{' '}
             <span
                 className={cn(
-                    'flex items-center justify-center rounded-full shrink-0 text-xs text-white bg-surface-secondary',
+                    'flex items-center justify-center rounded-full shrink-0 text-xs text-main bg-surface-neutral',
                     numberOfSelectedContents < 10 ? 'size-6' : 'px-2',
                     numberOfSelectedContents === 0 && 'hidden'
                 )}
             >
                 {numberOfSelectedContents}
             </span>
+
+            <span>{selectedLabel}</span>
         </Toggle>
     );
 };
 
-const TreeListToolbar = ({enabled = true, handleToggleClick = () => {}}: TreeListToolbarProps): ReactElement => {
+const TreeListToolbar = ({enabled = true, handleToggleClick = () => { }}: TreeListToolbarProps): ReactElement => {
     const selectAllLabel = useI18n('field.treeListToolbar.selectAll');
     const selectedLabel = useI18n('field.treeListToolbar.selected');
 
