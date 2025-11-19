@@ -36,14 +36,19 @@ export class GetComponentDescriptorRequest
         return Descriptor.fromJson(response.getResult()).setComponentType(this.componentType);
     }
 
+    private getCacheKey(): string {
+        return `${this.componentType.getShortName()}::${this.descriptorKey}`;
+    }
+
     sendAndParse(): Q.Promise<Descriptor> {
-        if (GetComponentDescriptorRequest.CACHE.has(this.descriptorKey)) {
-            return GetComponentDescriptorRequest.CACHE.get(this.descriptorKey);
+        const cacheKey = this.getCacheKey();
+        if (GetComponentDescriptorRequest.CACHE.has(cacheKey)) {
+            return GetComponentDescriptorRequest.CACHE.get(cacheKey);
         }
 
 
         const promise: Q.Promise<Descriptor> = super.sendAndParse();
-        GetComponentDescriptorRequest.CACHE.set(this.descriptorKey, promise);
+        GetComponentDescriptorRequest.CACHE.set(cacheKey, promise);
 
         return promise;
 
