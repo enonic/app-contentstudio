@@ -25,7 +25,6 @@ import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ActivatedEvent} from '@enonic/lib-admin-ui/ui/ActivatedEvent';
-import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {KeyBindings} from '@enonic/lib-admin-ui/ui/KeyBindings';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
@@ -45,6 +44,7 @@ import {ValidationErrorHelper} from '@enonic/lib-admin-ui/ValidationErrorHelper'
 import {ValidityChangedEvent} from '@enonic/lib-admin-ui/ValidityChangedEvent';
 import Q from 'q';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
+import {DialogPresetConfirmElement} from '../../v6/features/shared/dialogs/DialogPreset';
 import {Permission} from '../access/Permission';
 import {AI} from '../ai/AI';
 import {AiContentDataHelper} from '../ai/AiContentDataHelper';
@@ -151,6 +151,8 @@ export class ContentWizardPanel
     private contextSplitPanel: ContentWizardContextSplitPanel;
 
     private contextView: ContextView;
+
+    private loadDifferenceDialog?: DialogPresetConfirmElement;
 
     private livePanel?: LiveFormPanel;
 
@@ -1104,12 +1106,15 @@ export class ContentWizardPanel
                     if (persistedContent.getType().isDescendantOfMedia()) {
                         this.updateXDataStepForms(currentContent);
                     } else {
-                        new ConfirmationDialog()
-                            .setQuestion(i18n('dialog.confirm.contentDiffers'))
-                            .setYesCallback(() => void this.doLayoutPersistedItem(currentContent))
-                            .setNoCallback(() => { /* empty */
-                            })
-                            .show();
+                        this.loadDifferenceDialog = new DialogPresetConfirmElement({
+                            open: true,
+                            title: i18n('dialog.confirm.title'),
+                            description: i18n('dialog.confirm.contentDiffers'),
+                            onConfirm: () => void this.doLayoutPersistedItem(currentContent),
+                            onCancel: () => this.loadDifferenceDialog.close()
+                        });
+
+                        this.loadDifferenceDialog.open();
                     }
                 }
 
