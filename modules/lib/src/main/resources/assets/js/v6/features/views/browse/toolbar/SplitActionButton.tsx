@@ -48,25 +48,24 @@ export const SplitActionButton = ({actions, className}: Props): ReactElement | n
         return null;
     }
 
-    // const isDropdownDisabled = !primaryState.enabled || !hasMenuActions;
+    const isDropdownDisabled = !primaryState.enabled || !hasMenuActions;
 
     return (
         <div className={cn('flex items-stretch', className)}>
-            <Toolbar.Item asChild>
+            <Toolbar.Item asChild disabled={!primaryState.enabled}>
                 <Button
                     className={cn(hasMenuActions && 'rounded-r-none border-r-0', 'focus-visible:z-1')}
                     size="sm"
                     iconStrokeWidth={2}
                     aria-label={primaryState.label}
                     label={primaryState.label}
-                    disabled={!primaryState.enabled}
                     onClick={() => primaryState.execute()}
                 />
             </Toolbar.Item>
 
             <Menu>
                 <Tooltip delay={300} value={moreLabel} asChild>
-                    <Toolbar.Item asChild>
+                    <Toolbar.Item asChild disabled={isDropdownDisabled}>
                         <Menu.Trigger asChild>
                             <IconButton
                                 className={cn(hasMenuActions ? 'p-0 rounded-l-none' : 'hidden')}
@@ -74,17 +73,16 @@ export const SplitActionButton = ({actions, className}: Props): ReactElement | n
                                 iconStrokeWidth={2}
                                 aria-label={moreLabel}
                                 icon={ChevronDown}
-                                disabled={!primaryState.enabled}
                             />
                         </Menu.Trigger>
                     </Toolbar.Item>
                 </Tooltip>
                 <Menu.Portal>
                     <Menu.Content align="end">
-                        {menuStates.map((state, index) => {
+                        {menuStates.map(({enabled, label, execute}, index) => {
                             return (
-                                <Menu.Item key={index} disabled={!state.enabled} onSelect={() => state.execute()}>
-                                    <span className="font-semibold">{state.label}</span>
+                                <Menu.Item key={index} disabled={!enabled} onSelect={() => execute()}>
+                                    <span className="font-semibold">{label}</span>
                                 </Menu.Item>
                             );
                         })}

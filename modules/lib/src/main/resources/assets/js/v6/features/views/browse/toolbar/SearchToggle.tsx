@@ -22,7 +22,7 @@ export const SearchToggle = ({action, className}: Props): ReactElement => {
 
     return (
         <Tooltip delay={300} value={searchLabel} asChild>
-            <Toolbar.Item asChild>
+            <Toolbar.Item asChild disabled={!enabled}>
                 <Toggle
                     className={cn('size-9 p-0', className)}
                     size='sm'
@@ -31,7 +31,6 @@ export const SearchToggle = ({action, className}: Props): ReactElement => {
                     startIcon={Search}
                     pressed={isContentFilterOpen}
                     onPressedChange={() => execute()}
-                    disabled={!enabled}
                 />
             </Toolbar.Item>
         </Tooltip>

@@ -10,7 +10,7 @@ type Props = {
 } & ComponentPropsWithoutRef<'button'>;
 
 export const WidgetButton = ({label, icon, iconUrl, active, onClick}: Props): React.ReactElement => {
-    if (iconUrl) {
+    if (!icon && iconUrl) {
         return (
             <Tooltip delay={300} value={label} side="right">
                 <Button
