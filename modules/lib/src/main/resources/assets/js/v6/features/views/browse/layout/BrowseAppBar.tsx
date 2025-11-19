@@ -10,6 +10,7 @@ import {setProjectSelectionDialogOpen} from '../../../store/dialogs.store';
 import {$issuesStats} from '../../../store/issuesStats.store';
 import {IssueStatsJson} from '../../../../../app/issue/json/IssueStatsJson';
 import {LegacyElement} from '../../../shared/LegacyElement';
+import {ThemeSwitcher} from '../../../shared/ThemeSwitcher';
 
 function createIssuesLabelKeys(stats: Readonly<IssueStatsJson> | undefined): [`field.${string}`, ...string[]] {
     if (stats?.openAssignedToMe > 0) {
@@ -49,6 +50,8 @@ export const BrowseAppBar = (): ReactElement => {
                 aria-label={useI18n('wcag.appbar.issues.label')}
                 label={issuesStatsLabel}
             />
+
+            <ThemeSwitcher />
 
             <IconButton
                 size="sm"
