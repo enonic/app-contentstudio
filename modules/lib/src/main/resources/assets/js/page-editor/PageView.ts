@@ -477,12 +477,6 @@ export class PageView
         }
     }
 
-    private addVerticalSpaceForEditorToolbar() {
-        this.getEl().setPosition('fixed');
-        this.updateVerticalSpaceForEditorToolbar();
-        this.toggleStickyToolbar();
-    }
-
     getPageView(): PageView {
         return this;
     }
@@ -524,9 +518,25 @@ export class PageView
 
     }
 
+    private addVerticalSpaceForEditorToolbar() {
+        this.getEl()
+            .setPosition('fixed')
+            .setHeight('calc(100% - ' + this.getEditorToolbarWidth() + 'px)')
+            .setMinHeight('unset');
+        this.getEl().getHTMLElement().style.overflow = 'auto';
+        this.updateVerticalSpaceForEditorToolbar();
+        this.toggleStickyToolbar();
+    }
+
     private removeVerticalSpaceForEditorToolbar() {
-        this.getEl().setPosition('');
-        this.getEl().setTop('');
+        this.getEl()
+            .setPosition('')
+            .setTop('')
+            .setLeft('')
+            .setHeight('')
+            .setMinHeight('');
+
+        this.getEl().getHTMLElement().style.overflow = '';
     }
 
     private getEditorToolbarWidth(): number {
