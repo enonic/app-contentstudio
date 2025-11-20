@@ -490,18 +490,12 @@ public final class ContentResource
             throw new WebApplicationException( String.format( "Content [%s] could not be updated. A content with that name already exists",
                                                               json.getRenameContentParams().getNewName() ), Response.Status.CONFLICT );
         }
-        validatePublishInfo( json );
 
         final UpdateContentParams updateParams = json.getUpdateContentParams();
 
         final AccessControlList permissionsBeforeSave = contentService.getById( updateParams.getContentId() ).getPermissions();
 
         final Content updatedContent = ContextBuilder.copyOf(ContextAccessor.current()).branch(ContentConstants.BRANCH_DRAFT).build().callWith(() -> contentService.update( updateParams ));
-
-       /* if ( !permissionsBeforeSave.equals( updatedContent.getPermissions() ) )
-        {
-            this.contentService.applyPermissions( json.getApplyContentPermissionsParams() );
-        }*/
 
         if ( json.getContentName().equals( updatedContent.getName() ) )
         {
@@ -1741,27 +1735,6 @@ public final class ContentResource
 
         return true;
     }
-
-    private void validatePublishInfo( final UpdateContentJson updateContentJson )
-    {
-
-        final Instant publishToInstant = updateContentJson.getPublishToInstant();
-        if ( publishToInstant != null )
-        {
-            final Instant publishFromInstant = updateContentJson.getPublishFromInstant();
-            if ( publishFromInstant == null )
-            {
-                throw new WebApplicationException( "[Online to] date/time cannot be set without [Online from]",
-                                                   HttpStatus.UNPROCESSABLE_ENTITY.value() );
-            }
-            if ( publishToInstant.compareTo( publishFromInstant ) < 0 )
-            {
-                throw new WebApplicationException( "[Online from] date/time must be earlier than [Online to]",
-                                                   HttpStatus.UNPROCESSABLE_ENTITY.value() );
-            }
-        }
-    }
-
 
     @Reference
     public void setContentService( final ContentService contentService )

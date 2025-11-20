@@ -104,7 +104,6 @@ import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.ContentValidityParams;
 import com.enonic.xp.content.ContentValidityResult;
-import com.enonic.xp.content.ContentVersion;
 import com.enonic.xp.content.ContentVersionId;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.CreateContentParams;
@@ -831,75 +830,6 @@ public class ContentResourceTest
 
         verify( contentService, times( 1 ) ).rename( argumentCaptor.capture() );
         assertTrue( argumentCaptor.getValue().getNewName().toString().equals( "new-name" ) );
-    }
-
-
-    @Test
-    public void update_content_success_publish_dates_are_updated()
-        throws Exception
-    {
-        Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
-        when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
-        when( contentService.getById( any() ) ).thenReturn( content );
-        when( contentService.getById( content.getId() ) ).thenReturn( content );
-        when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
-
-        String jsonString = request().path( "content/update" )
-            .entity( readFromFile( "update_content_params_with_publish_dates.json" ), MediaType.APPLICATION_JSON_TYPE )
-            .post()
-            .getAsString();
-
-        verify( contentService, times( 0 ) ).rename( isA( RenameContentParams.class ) );
-
-        assertJson( "update_content_success.json", jsonString );
-    }
-
-   /* @Test
-    public void update_content_with_new_permissions()
-        throws Exception
-    {
-        Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
-        when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
-        when( contentService.getById( any() ) ).thenReturn( content );
-        when( contentService.getPermissionsById( content.getId() ) ).
-            thenReturn( AccessControlList.of( AccessControlEntry.create().
-                allow( Permission.WRITE_PERMISSIONS ).
-                principal( PrincipalKey.from( "user:store:user" ) ).
-                build() ) );
-
-        request().path( "content/update" ).
-            entity( readFromFile( "update_content_params.json" ), MediaType.APPLICATION_JSON_TYPE ).
-            post().getAsString();
-
-        verify( contentService, times( 1 ) ).applyPermissions( any() );
-    }*/
-
-    @Test
-    public void update_content_without_publish_from()
-        throws Exception
-    {
-        Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
-        when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
-        when( contentService.getById( any() ) ).thenReturn( content );
-        final int status = request().path( "content/update" )
-            .entity( readFromFile( "update_content_params_without_publish_from.json" ), MediaType.APPLICATION_JSON_TYPE )
-            .post()
-            .getStatus();
-        assertEquals( 422, status );
-    }
-
-    @Test
-    public void update_content_with_invalid_publish_info()
-        throws Exception
-    {
-        Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
-        when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
-        when( contentService.getById( any() ) ).thenReturn( content );
-        final int status = request().path( "content/update" )
-            .entity( readFromFile( "update_content_params_with_invalid_publish_info.json" ), MediaType.APPLICATION_JSON_TYPE )
-            .post()
-            .getStatus();
-        assertEquals( 422, status );
     }
 
     @Test
