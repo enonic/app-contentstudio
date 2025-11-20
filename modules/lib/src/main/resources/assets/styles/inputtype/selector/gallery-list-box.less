@@ -74,7 +74,6 @@
 
             .@{_COMMON_PREFIX}main-name {
               color: @admin-black;
-              font-size: 12px;
             }
           }
         }
@@ -90,11 +89,21 @@
   }
 
 
-  &._0-240 {
+  &._0-240,
+  &._240-360 {
     grid-template-columns: 1fr;
   }
 
-  &._240-360 {
-    grid-template-columns: 1fr 1fr;
+  &._360-540 {
+    .viewer {
+      .names-and-icon-view {
+        .@{_COMMON_PREFIX}names-view {
+          .@{_COMMON_PREFIX}main-name {
+            font-size: 10px;
+          }
+        }
+      }
+    }
   }
+
 }
