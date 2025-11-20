@@ -23,7 +23,9 @@ const DialogPresetConfirm = ({
     onCancel,
 }: DialogPresetConfirmProps): ReactElement => {
     return (
-        <ConfirmationDialog.Root open={open} onOpenChange={(next) => {if (!next) onCancel?.();}}>
+        <ConfirmationDialog.Root open={open} onOpenChange={(next) => {
+            if (!next) onCancel?.();
+        }}>
             <ConfirmationDialog.Portal>
                 <ConfirmationDialog.Overlay />
                 <ConfirmationDialog.Content defaultConfirmEnabled={defaultConfirmEnabled}>
@@ -138,7 +140,9 @@ const DialogPresetConfirmDelete = ({
     return (
         <ConfirmationDialog.Root
             open={open}
-            onOpenChange={(next) => {if (!next) onCancel?.();}}
+            onOpenChange={(next) => {
+                if (!next) onCancel?.();
+            }}
         >
             <ConfirmationDialog.Portal>
                 <ConfirmationDialog.Overlay />

@@ -1,7 +1,14 @@
 import {map} from 'nanostores';
+import {parseBoolean, parseString} from '../utils/format/values';
 
 type ConfigStore = {
     appId: string;
+    excludeDependencies?: boolean;
+};
+
+type ConfigJson = {
+    appId: unknown;
+    excludeDependencies?: unknown;
 };
 
 export const $config = map<ConfigStore>(loadConfig());
@@ -32,8 +39,17 @@ function loadConfig(): ConfigStore | undefined {
 
     const content = scriptElement.innerText;
 
+    return parseConfig(content);
+}
+
+function parseConfig(content: string): ConfigStore | undefined {
     try {
-        return JSON.parse(content) as ConfigStore;
+        const config = JSON.parse(content) as ConfigJson;
+
+        return {
+            appId: parseString(config.appId),
+            excludeDependencies: parseBoolean(config.excludeDependencies),
+        } satisfies ConfigStore;
     } catch (error) {
         console.error('Unable to parse config script content.', error);
         return;
