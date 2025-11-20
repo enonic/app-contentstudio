@@ -17,6 +17,7 @@ import {ResolvePublishDependenciesResult} from '../resource/ResolvePublishDepend
 import {PublishDialogDependantList} from './PublishDialogDependantList';
 import {PublishDialogItemList} from './PublishDialogItemList';
 import {PublishItemsListElement} from '../../v6/features/shared/dialogs/publish/PublishItemsList';
+import {$config} from '../../v6/features/store/config.store';
 
 interface ReloadDependenciesParams {
     resetDependantItems?: boolean;
@@ -189,7 +190,7 @@ export class PublishProcessor {
         }
 
         const {resetDependantItems, resetExclusions, silent} = params;
-        const excludeNonRequired = CONFIG.isTrue('excludeDependencies') && !this.keepDependencies;
+        const excludeNonRequired = $config.get().excludeDependencies && !this.keepDependencies;
 
         if (!silent) {
             this.notifyLoadingStarted(true);
