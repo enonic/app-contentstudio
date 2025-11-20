@@ -149,10 +149,12 @@ export class ContextView
     }
 
     handle(event: PageNavigationEvent): void {
+        /* Uncomment to switch to the Details widget on component deselect.
         if (event.getType() === PageNavigationEventType.DESELECT) {
             this.deactivatePageEditorWidget();
             return;
         }
+         */
 
         if (event.getType() === PageNavigationEventType.SELECT) {
             this.activatePageEditorWidget();
