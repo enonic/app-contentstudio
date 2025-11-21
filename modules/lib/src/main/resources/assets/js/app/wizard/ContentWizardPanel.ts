@@ -1148,7 +1148,7 @@ export class ContentWizardPanel
     }
 
     public checkContentCanBePublished(): boolean {
-        if (!this.isContentFormValid) {
+        if (!this.isContentFormValid || !this.contentType) {
             return false;
         }
 
@@ -1652,15 +1652,17 @@ export class ContentWizardPanel
             return;
         }
 
-        const form = this.getContentType().getForm();
+        const form = this.contentType?.getForm();
 
-        ContentHelper.doContentComponentsContainId(this.getPersistedItem(), form, updatedContent.getContentId())
-            .then((containsId) => {
-                if (containsId) {
-                    this.debouncedEditorReload();
-                }
-            })
-            .catch(DefaultErrorHandler.handle).done();
+        if (form) {
+            ContentHelper.doContentComponentsContainId(this.getPersistedItem(), form, updatedContent.getContentId())
+                .then((containsId) => {
+                    if (containsId) {
+                        this.debouncedEditorReload();
+                    }
+                })
+                .catch(DefaultErrorHandler.handle).done();
+        }
     }
 
     private handleTemplateUpdate(template: ContentSummaryAndCompareStatus): void {
