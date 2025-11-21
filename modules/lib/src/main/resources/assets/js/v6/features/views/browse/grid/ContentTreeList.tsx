@@ -130,7 +130,7 @@ export const ContentTreeList = ({fetcher}: ContentTreeListProps): React.ReactEle
             active={active}
             setActive={setActive}
         >
-            <TreeList.Container className={'px-5 py-2.5'}>
+            <TreeList.Container className={'px-5 py-2.5 tree-scroll-container'}>
                 <TreeList.Content load={false}>
                     <TreeListRowsWithContext/>
                 </TreeList.Content>

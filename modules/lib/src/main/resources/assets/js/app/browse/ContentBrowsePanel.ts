@@ -114,6 +114,11 @@ export class ContentBrowsePanel
         }, 300);
 
         this.getBrowseActions().updateActionsEnabledState([]);
+
+        this.gridAndItemsSplitPanel.addSplitterClass('bg-bdr-soft');
+        this.gridAndItemsSplitPanel.removeSplitterClass('splitter-bg-standard');
+        this.filterAndGridSplitPanel.addSplitterClass('bg-bdr-soft');
+        this.filterAndGridSplitPanel.removeSplitterClass('splitter-bg-standard');
     }
 
     private handleProjectNotSet() {
@@ -814,5 +819,9 @@ export class ContentBrowsePanel
         super.toggleFilterPanel();
         const isFilterPanelHidden = this.filterPanelIsHidden();
         setContentFilterOpen(!isFilterPanelHidden);
+    }
+
+    protected getSplitterThickness(): number {
+        return 3;
     }
 }

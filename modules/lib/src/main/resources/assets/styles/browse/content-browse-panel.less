@@ -7,4 +7,19 @@
     overflow: auto;
     height: calc(100% - 40px); // minus toolbar height
   }
+
+  /* WebKit browsers: Chrome, Safari, Edge */
+  .tree-scroll-container::-webkit-scrollbar {
+    width: 10px;
+    background: transparent;
+  }
+
+  .tree-scroll-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .tree-scroll-container::-webkit-scrollbar-thumb {
+    background: rgba(120,120,120,0.4);
+    border-radius: 6px;
+  }
 }
