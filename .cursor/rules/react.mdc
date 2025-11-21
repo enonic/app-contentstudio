@@ -65,6 +65,20 @@ export function MyComponent({
 }
 ```
 
+## Early Return Best Practices
+
+```typescript
+    const MyContent = ({ isReady }: Props) => {
+    // ✅ Prefer early return over conditional fragments
+    // ❌ DON'T: Wrap conditional content in fragments
+    return <>{isReady && <div>Content</div>}</>;
+
+    // ✅ DO: Return early with null/undefined
+    if (!isReady) return null;
+    return <div>Content</div>;
+};
+```
+
 ## Variable Placement in Components
 
 ```typescript
