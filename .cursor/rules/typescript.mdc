@@ -159,6 +159,14 @@ type User = {
 type UserStatus = 'active' | 'inactive' | 'pending';
 type UserId = string;
 
+// ✅ Use T[] syntax for arrays
+type Users = User[];
+const items: string[] = [];
+
+// ❌ Avoid Array<T> generic syntax
+type Users = Array<User>; // Bad
+const items: Array<string> = []; // Bad
+
 // ❌ Avoid any type
 const data: any = fetchData(); // Bad
 
@@ -201,7 +209,24 @@ type Maybe<T> = T | null | undefined;
 function findUser(id: string): Maybe<User> {
   // ...
 }
+
+// ✅ Prefer `undefined` over `null` for unset values
+const [activeId, setActiveId] = useState<string | undefined>(undefined);
+const context = createContext<MenuContextValue | undefined>(undefined);
+
+// ❌ Avoid `null` for optional/unset values
+const [activeId, setActiveId] = useState<string | null>(null); // Bad
+const context = createContext<MenuContextValue | null>(null); // Bad
+
+// ✅ Exception: refs use `null` (React convention)
+const ref = useRef<HTMLDivElement | null>(null);
 ```
+
+**Rationale for `undefined` over `null`:**
+- `undefined` is JavaScript's default for uninitialized values
+- More semantically correct for "not set" vs "intentionally empty"
+- Consistent with TypeScript optional properties (`prop?: string`)
+- Exception: React refs use `null` by convention
 
 - Do not place types in the same file with the store definition, except the store type
 - Prefer one file per type
