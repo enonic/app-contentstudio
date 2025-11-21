@@ -191,8 +191,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             assert.ok(isDefaultIcon === false, 'The part should be displayed with the custom icon');
         });
 
-    // Verify the issue - Part Inspection panel remains visible after removing a part #7523
-    it(`GIVEN a part has been selected in PCV WHEN the part has been removed THEN 'Insert panel' should be loaded in Context Window`,
+    it(`GIVEN a part has been selected in PCV WHEN the part has been removed THEN 'Insert panel' should be loaded in Page widget in Context Window`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
@@ -212,10 +211,10 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.REMOVE);
             // 6. Verify that 'Details' widget is loaded after removing a part:
             let selectedWidget = await wizardContextWindow.getSelectedOptionInWidgetSelectorDropdown();
-            assert.equal(selectedWidget, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS, 'Details should be selected in the widget selector');
-            await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
+            assert.equal(selectedWidget, appConst.WIDGET_SELECTOR_OPTIONS.PAGE, `'Page widget' remains selected after removing a part`);
             // 7. Verify that 'Save' button is enabled
             await contentWizard.waitForSaveButtonEnabled();
+            // 8. Verify that Insert panel is opened in the Context Window:
             let items = await insertTab.getItems();
             assert.equal(items.length, 4, 'Four items should be present in Insert panel');
         });

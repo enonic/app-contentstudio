@@ -901,7 +901,7 @@ export class LiveFormPanel
 
     private isInspectComponentToHide(component: Component): boolean {
         if (this.isTextModeOn) {
-            return true;
+            return false;
         }
 
         return component instanceof DescriptorBasedComponent && !component.hasDescriptor() && this.isShown();
