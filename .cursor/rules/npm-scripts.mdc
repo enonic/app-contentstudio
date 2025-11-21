@@ -6,8 +6,6 @@ alwaysApply: true
 
 # Using pnpm Scripts
 
-`modules/app` and `modules/lib` are the main modules of the project and contain their own package.json files with their own scripts.
-
 ## Dependency Management
 
 - Always use `pnpm` instead of `npm` if possible:
@@ -32,27 +30,80 @@ pnpm dedupe
 pnpm dlx <cli>
 ```
 
-- Pin critical dev tools (eslint, prettier, jest) to exact versions in `devDependencies` to avoid unexpected CI failures.
+- Pin critical dev tools (eslint, vite, webpack) to exact versions in `devDependencies` to avoid unexpected CI failures.
 
 ## Project Scripts
 
-Use these commands to keep your code healthy, consistent, and secure:
+Use these commands to keep your code healthy, consistent, and secure.
 
-### Building
+**Note**: When running from the repository root, use `pnpm -C ./modules/lib run <command>` or `pnpm -C ./modules/app run <command>` to target specific modules.
+
+### Building (lib module)
+
+- **`pnpm build:prod`**
+  Complete production build: TypeScript compilation, Webpack bundling, and Vite CSS build (minification, no source maps).
+
+- **`pnpm build:prod:client`**
+  TypeScript compilation only (production).
+
+- **`pnpm build:prod:lib`**
+  Webpack bundling only (production).
+
+- **`pnpm build:prod:css`**
+  Vite CSS build only (production).
+
+- **`pnpm build:dev`**
+  Complete development build: TypeScript compilation with source maps, Webpack bundling, and Vite CSS build.
+
+- **`pnpm build:dev:client`**
+  TypeScript compilation with inline source maps (development).
+
+- **`pnpm build:dev:lib`**
+  Webpack bundling (development).
+
+- **`pnpm build:dev:css`**
+  Vite CSS build (development).
+
+### Building (app module)
 
 - **`pnpm build`**
-  Build the library for production (cleans + compiles + bundles).
+  Complete build: worker, client, and server compilation.
 
-### Code Quality
+- **`pnpm build:worker`**
+  Build shared worker for WebSocket communication.
+
+- **`pnpm build:client`**
+  Build client-side code with Webpack.
+
+- **`pnpm build:server`**
+  Build server-side TypeScript code.
+
+### Code Quality (both modules)
 
 - **`pnpm check`**
-  Run complete code quality check: typecheck + lint + format:check.
+  Run complete code quality check: typecheck + linting.
 
 - **`pnpm check:types`**
   Validate TypeScript types without emitting files.
+  - **lib**: Single check
+  - **app**: Runs both `check:types:client` and `check:types:worker`
 
 - **`pnpm check:lint`**
-  Run ESLint to catch code-style issues and potential bugs.
+  Run ESLint to catch code-style issues (read-only, with cache).
 
-- **`pnpm format`**
-  To Be Implemented: Run Prettier to normalize code style; always after code changes.
+- **`pnpm check:lint:fix`**
+  Run ESLint and auto-fix minor issues (with cache).
+
+### Testing (lib module only)
+
+- **`pnpm test`**
+  Run Vitest in watch mode (interactive development).
+
+- **`pnpm test:ui`**
+  Run Vitest with UI dashboard for visual test exploration.
+
+- **`pnpm test:run`**
+  Run all tests once (CI mode).
+
+- **`pnpm test:coverage`**
+  Run tests with coverage report (text, JSON, HTML).

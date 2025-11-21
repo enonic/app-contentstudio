@@ -253,7 +253,7 @@ export function Component({ className, ...props }: ComponentProps) {
 <li
   data-active={isActive}
   data-selected={isSelected}
-  className="option data-[active=true]:bg-surface-primary-hover data-[selected=true]:bg-surface-primary"
+  className="option data-[active=true]:bg-surface-neutral-hover data-[selected=true]:bg-surface-primary"
 >
   Option
 </li>
@@ -266,7 +266,7 @@ export function Component({ className, ...props }: ComponentProps) {
     isSelected && 'option-selected'
   )}
 >
-  {/* Then using: 'focus-within:[&>li.option-active:not(.option-selected)]:bg-surface-primary-hover' */}
+  {/* Then using: 'focus-within:[&>li.option-active:not(.option-selected)]:bg-surface-neutral-hover' */}
   Option
 </li>
 
