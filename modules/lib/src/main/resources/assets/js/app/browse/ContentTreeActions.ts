@@ -252,11 +252,9 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
         NotifyManager.get().showWarning(
             i18n('notify.contentType.notFound', selectedItem.getContentSummary().getType().getLocalName()));
 
-        this.disableAllActions();
-        this.getAction(ActionName.CREATE_ISSUE).setEnabled(true);
+        this.getAction(ActionName.PUBLISH).setEnabled(false);
+        this.getAction(ActionName.PUBLISH_TREE).setEnabled(false);
 
-        this.getAction(ActionName.UNPUBLISH).setVisible(false);
-        (this.getAction(ActionName.EDIT) as EditContentAction).resetLabel();
         this.showDefaultActions();
     }
 
@@ -293,9 +291,14 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
     private checkIsChildrenAllowedByContentType(selectedItem: ContentSummaryAndCompareStatus): Q.Promise<boolean> {
         const deferred = Q.defer<boolean>();
 
-        new GetContentTypeByNameRequest(selectedItem.getContentSummary().getType()).sendAndParse()
-            .then((contentType: ContentType) => deferred.resolve(contentType && contentType.isAllowChildContent()))
-            .fail(() => this.handleContentTypeNotFound(selectedItem));
+        new GetContentTypeByNameRequest(selectedItem.getContentSummary().getType())
+            .sendAndParse()
+            .then((contentType: ContentType) =>
+                deferred.resolve(contentType && contentType.isAllowChildContent())
+            )
+            .catch(() =>
+                this.handleContentTypeNotFound(selectedItem)
+            );
 
         return deferred.promise;
     }
