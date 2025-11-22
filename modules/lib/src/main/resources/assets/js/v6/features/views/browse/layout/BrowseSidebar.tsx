@@ -66,7 +66,7 @@ export const BrowseSidebar = (): ReactElement => {
                     ))}
                 </div>
                 {/* Footer */}
-                <div>
+                <div className={'flex flex-col gap-1'}>
                     {lastWidget && (
                         <WidgetButton
                             label={lastWidget.getDisplayName()}
