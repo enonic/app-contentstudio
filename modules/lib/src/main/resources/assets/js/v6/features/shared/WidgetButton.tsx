@@ -15,7 +15,7 @@ export const WidgetButton = ({label, icon, iconUrl, active, onClick}: Props): Re
             <Tooltip delay={300} value={label} side="right">
                 <Button
                     className={cn(
-                        'size-11.5 p-1',
+                        'size-10 p-1',
                         active && 'bg-surface-selected hover:bg-surface-selected-hover'
                     )}
                     aria-label={label}
@@ -34,7 +34,7 @@ export const WidgetButton = ({label, icon, iconUrl, active, onClick}: Props): Re
     return (
         <Tooltip delay={300} value={label} side="right">
             <IconButton
-                className='size-11.5'
+                className='size-10'
                 icon={icon || CircleQuestionMark}
                 iconSize={24}
                 aria-label={label}
