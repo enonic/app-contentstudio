@@ -2,6 +2,7 @@ import {isLoadingPlaceholder, TreeList, useTreeList} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {KeyboardEventHandler} from 'preact';
 import {useCallback} from 'react';
+import {Virtuoso} from 'react-virtuoso';
 import {
     $contentTreeItems,
 } from '../../../store/contentTreeData.store';
@@ -43,12 +44,14 @@ const TreeListRowsWithContext = (): React.ReactElement => {
     const {items} = useTreeList<ContentData>();
 
     return (
-        <>
-            {items.map(item =>
+        <Virtuoso
+            data={items}
+            increaseViewportBy={200}
+            itemContent={(_index, item) => (
                 isLoadingPlaceholder(item) ? <ContentTreeListLoadingRow key={item.id} item={item}/> : <ContentTreeListRow item={item}
                                                                                                                           key={item.id}/>
             )}
-        </>
+        />
     );
 };
 
