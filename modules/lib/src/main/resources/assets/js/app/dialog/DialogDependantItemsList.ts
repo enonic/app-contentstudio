@@ -5,7 +5,7 @@ import {ContentId} from '../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {StatusCheckableItem} from './StatusCheckableItem';
-import {ContentItem} from '../../v6/features/shared/items/ContentItem';
+import {ContentItemElement} from '../../v6/features/shared/items/ContentItem';
 import {cn} from '@enonic/ui';
 
 export enum SelectionType {
@@ -52,7 +52,7 @@ export function compareItems(a: ContentSummaryAndCompareStatus, b: ContentSummar
     return readOnlyToNumber(b) - readOnlyToNumber(a) + validityToNumber(a) - validityToNumber(b);
 }
 
-export class DialogDependantItemsList<View extends StatusCheckableItem | ContentItem = StatusCheckableItem>
+export class DialogDependantItemsList<View extends StatusCheckableItem | ContentItemElement = StatusCheckableItem>
     extends LazyListBox<ContentSummaryAndCompareStatus> {
 
     protected config: DialogDependantItemsListConfig<View>;

@@ -2,10 +2,10 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {compareItems, DialogDependantItemsList, ObserverConfig} from '../dialog/DialogDependantItemsList';
 import {EditContentEvent} from '../event/EditContentEvent';
 import {ContentWithRefsResult} from '../resource/ContentWithRefsResult';
-import {ContentItem} from '../../v6/features/shared/items/ContentItem';
+import {ContentItemElement} from '../../v6/features/shared/items/ContentItem';
 
 export class DialogWithRefsDependantList
-    extends DialogDependantItemsList<ContentItem> {
+    extends DialogDependantItemsList<ContentItemElement> {
     private resolveDependenciesResult: ContentWithRefsResult;
 
     constructor(observer: Omit<ObserverConfig, 'sort'>) {
@@ -19,10 +19,10 @@ export class DialogWithRefsDependantList
         });
     }
 
-    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): ContentItem {
+    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): ContentItemElement {
         const hasInbound = !!this.resolveDependenciesResult?.hasInboundDependency(item.getId());
 
-        return new ContentItem({
+        return new ContentItemElement({
             content: item,
             selected: false,
             className: 'archive-item',

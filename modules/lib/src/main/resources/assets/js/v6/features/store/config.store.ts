@@ -3,12 +3,14 @@ import {parseBoolean, parseString} from '../utils/format/values';
 
 type ConfigStore = {
     appId: string;
-    excludeDependencies?: boolean;
+    excludeDependencies: boolean;
+    allowContentUpdate: boolean;
 };
 
 type ConfigJson = {
     appId: unknown;
     excludeDependencies?: unknown;
+    allowContentUpdate?: unknown;
 };
 
 export const $config = map<ConfigStore>(loadConfig());
@@ -49,6 +51,7 @@ function parseConfig(content: string): ConfigStore | undefined {
         return {
             appId: parseString(config.appId),
             excludeDependencies: parseBoolean(config.excludeDependencies),
+            allowContentUpdate: parseBoolean(config.allowContentUpdate),
         } satisfies ConfigStore;
     } catch (error) {
         console.error('Unable to parse config script content.', error);

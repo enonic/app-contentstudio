@@ -102,7 +102,7 @@ export const SelectionStatusBar = ({className, onApply, onCancel, ...props}: Pro
     const {inProgress, invalid, noPermissions, inbound} = props.errors || {};
 
     return (
-        <div className={cn('flex flex-col gap-2.5 pb-10', className)}>
+        <div className={cn('flex flex-col gap-2.5', className)}>
             {status === 'loading' && <StatusEntry>
                 <LoaderCircle className="w-7 h-7 animate-spin text-subtle" />
                 <span className="text-sm font-semibold">{useI18n('dialog.publish.resolving')}</span>
@@ -129,10 +129,10 @@ export const SelectionStatusBar = ({className, onApply, onCancel, ...props}: Pro
                 <span className="text-sm font-semibold">{useI18n('dialog.publish.error.resolved')}</span>
             </StatusEntry>}
 
-            {status === 'errors' && inProgress.count > 0 && <ErrorEntry status='in-progress' label={useI18n('dialog.publish.error.inProgress') + ` (${inProgress.count})`} disabled={inProgress.disabled}>
-                <EntryButton onClick={inProgress.onExclude}>
+            {status === 'errors' && inProgress.count > 0 && <ErrorEntry status='in-progress' label={useI18n('dialog.publish.error.inProgress') + ` (${inProgress.count})`}>
+                {!inProgress.disabled && <EntryButton onClick={inProgress.onExclude}>
                     {useI18n('dialog.publish.exclude')}
-                </EntryButton>
+                </EntryButton>}
                 {inProgress.onMarkAsReady && <EntryButton onClick={inProgress.onMarkAsReady}>
                     {useI18n('action.markAsReady')}
                 </EntryButton>}
@@ -150,7 +150,7 @@ export const SelectionStatusBar = ({className, onApply, onCancel, ...props}: Pro
                 </EntryButton>
             </ErrorEntry>}
 
-            {status === 'errors' && inbound.count > 0 && <ErrorEntry status='invalid' label={useI18n('dialog.archive.warning.text') + ` (${inbound.count})`}>
+            {status === 'errors' && inbound && inbound.count > 0 && <ErrorEntry status='invalid' label={useI18n('dialog.archive.warning.text') + ` (${inbound.count})`}>
                 <EntryButton onClick={inbound.onIgnore}>
                     {useI18n('dialog.archive.warning.ignore')}
                 </EntryButton>

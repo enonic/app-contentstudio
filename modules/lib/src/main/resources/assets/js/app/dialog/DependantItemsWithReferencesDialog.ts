@@ -12,11 +12,11 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {CmsContentResourceRequest} from '../resource/CmsContentResourceRequest';
 import {DialogWithRefsDependantList} from '../remove/DialogWithRefsDependantList';
 import {DialogWithRefsItemList, DialogWithRefsItemListConfig} from '../remove/DialogWithRefsItemList';
-import {ContentItem} from '../../v6/features/shared/items/ContentItem';
+import {ContentItemElement} from '../../v6/features/shared/items/ContentItem';
 import {ArchiveSelectableItem} from './ArchiveSelectableItem';
 
 export abstract class DependantItemsWithReferencesDialog
-    extends DependantItemsWithProgressDialog<ContentItem> {
+    extends DependantItemsWithProgressDialog<ContentItemElement> {
     protected stateBar: DialogStateBar;
     protected inboundErrorsEntry: DialogStateEntry;
 
@@ -68,7 +68,7 @@ export abstract class DependantItemsWithReferencesDialog
         ContentServerEventsHandler.getInstance().onContentDeleted(handleRefsChange);
     }
 
-    private updateItemViewsWithInboundDependencies(views: readonly (ContentItem | ArchiveSelectableItem)[]): void {
+    private updateItemViewsWithInboundDependencies(views: readonly (ContentItemElement | ArchiveSelectableItem)[]): void {
         for (const v of views) {
             v.setHasInbound(this.hasInboundRef(v.getItem().getId()));
         }
@@ -130,9 +130,9 @@ export abstract class DependantItemsWithReferencesDialog
         const hasInboundDeps = this.resolveDependenciesResult.hasInboundDependencies();
 
         if (hasInboundDeps || forceUpdate) {
-            const allViews: ContentItem[] = [
-                ...(this.getItemList().getItemViews() as unknown as ContentItem[]),
-                ...(this.getDependantList().getItemViews() as unknown as ContentItem[]),
+            const allViews: ContentItemElement[] = [
+                ...(this.getItemList().getItemViews() as unknown as ContentItemElement[]),
+                ...(this.getDependantList().getItemViews() as unknown as ContentItemElement[]),
             ];
             this.updateItemViewsWithInboundDependencies(allViews);
         }

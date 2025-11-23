@@ -381,6 +381,7 @@ async function startApplication() {
             contentPublishDialog = ContentPublishDialog.get();
         }
 
+        // TODO: Enonic UI - Reference event
         contentPublishDialog
             .setContentToPublish(event.getModels())
             .setKeepDependencies(event.isKeepDependencies())
