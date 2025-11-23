@@ -9,14 +9,17 @@ import {LegacyElement} from '../LegacyElement';
 
 export type Props = {
     content: ContentSummaryAndCompareStatus;
+    id?: string;
 } & Pick<CheckboxProps, 'className' | 'readOnly' | 'checked' | 'defaultChecked' | 'onCheckedChange'> & {
     checked?: boolean;
     defaultChecked?: boolean;
     onCheckedChange?: (checked: boolean) => void;
 } & ComponentPropsWithoutRef<'div'>;
 
+const CONTENT_ITEM_CHECKABLE_NAME = 'ContentItemCheckable';
 
 export const ContentItemCheckable = ({
+    id,
     className,
     content,
     checked,
@@ -29,6 +32,8 @@ export const ContentItemCheckable = ({
     const contentType = String(content.getType());
     const url = content.getContentSummary().getIconUrl();
     const status = calcWorkflowStateStatus(content.getContentSummary());
+
+    const checkboxId = `${CONTENT_ITEM_CHECKABLE_NAME}-${id || content.getId()}-checkbox`
 
     const Icon = useMemo(
         () => <WorkflowContentIcon status={status} contentType={contentType} url={url} />,
@@ -44,6 +49,7 @@ export const ContentItemCheckable = ({
         >
             <ListItem.Left>
                 <Checkbox
+                    id={checkboxId}
                     checked={checked}
                     defaultChecked={defaultChecked}
                     onCheckedChange={onCheckedChange}
@@ -63,6 +69,8 @@ export const ContentItemCheckable = ({
         </ListItem>
     );
 };
+
+ContentItemCheckable.displayName = CONTENT_ITEM_CHECKABLE_NAME;
 
 export class ContentItemCheckableElement
     extends LegacyElement<typeof ContentItemCheckable, Props> {

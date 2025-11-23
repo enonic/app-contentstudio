@@ -8,7 +8,7 @@ import {calcWorkflowStateStatus} from '../../utils/cms/content/workflow';
 import {WorkflowContentIcon} from '../icons/WorkflowContentIcon';
 import {LegacyElement} from '../LegacyElement';
 
-type Props = {
+export type ContentItemProps = {
     content: ContentSummaryAndCompareStatus;
     children?: ReactNode;
     onClick?: () => void;
@@ -20,7 +20,7 @@ type Props = {
     hasInbound?: boolean;
 } & Pick<ListItemProps, 'className' | 'selected'>;
 
-const ContentItemComponent = ({
+export const ContentItem = ({
     content,
     children,
     onClick,
@@ -28,7 +28,7 @@ const ContentItemComponent = ({
     showReferences = false,
     target,
     hasInbound = false,
-}: Props): React.ReactElement => {
+}: ContentItemProps): React.ReactElement => {
     const label = String(content.getPath());
     const contentType = String(content.getType());
     const url = content.getContentSummary().getIconUrl();
@@ -61,10 +61,10 @@ const ContentItemComponent = ({
     );
 };
 
-export class ContentItem extends LegacyElement<typeof ContentItemComponent, Props> {
+export class ContentItemElement extends LegacyElement<typeof ContentItem, ContentItemProps> {
 
-    constructor(props: Props) {
-        super({clickable: true, ...props}, ContentItemComponent);
+    constructor(props: ContentItemProps) {
+        super({clickable: true, ...props}, ContentItem);
     }
 
     getItem(): ContentSummaryAndCompareStatus {
