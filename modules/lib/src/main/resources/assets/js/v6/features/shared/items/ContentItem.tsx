@@ -55,7 +55,7 @@ const ContentItemComponent = ({
                         target={target}
                     />
                 )}
-                <StatusBadge status={content.getCompareStatus()} />
+                <StatusBadge status={content.getCompareStatus()} wasPublished={!!content.getContentSummary().getPublishFirstTime()} />
             </ListItem.Right>
         </ListItem>
     );
