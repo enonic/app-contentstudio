@@ -16,7 +16,10 @@
     "check:types": "pnpm --color /^check:types:.*$/",
     "check:types:client": "tsc --pretty --skipLibCheck --noEmit",
     "check:types:worker": "tsc --pretty --skipLibCheck --noEmit --project ./src/main/resources/assets/shared-socket/tsconfig.json",
-    "check:lint": "eslint **/*.ts --quiet --cache"
+    "check:lint": "eslint **/*.ts --quiet --cache",
+    "check:lint:fix": "eslint **/*.ts --quiet --cache --fix",
+    "test": "echo 'No tests yet'",
+    "test:run": "echo 'No tests yet'"
   },
   "dependencies": {
     "@enonic/lib-admin-ui": "workspace:*",

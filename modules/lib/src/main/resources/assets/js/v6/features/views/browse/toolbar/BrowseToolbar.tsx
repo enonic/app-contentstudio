@@ -8,11 +8,6 @@ import {ActionGroup} from './ActionGroup';
 import {ContextToggle} from './ContextToggle';
 import {SearchToggle} from './SearchToggle';
 import {SplitActionButton, type SplitActionButtonAction} from './SplitActionButton';
-import {setPublishDialogOpen} from '../../../store/dialogs.store';
-
-const NEW_PUBLISH_ACTION = new Action('New Publish').onExecuted(() => {
-    setPublishDialogOpen(true);
-});
 
 type Props = {
     toggleFilterPanelAction: Action;
@@ -68,8 +63,6 @@ export const BrowseToolbar = ({
                     <ToolbarActionButton action={duplicateAction} />
                     <ToolbarActionButton action={moveAction} />
                     <ToolbarActionButton action={sortAction} />
-                    // TODO: Test new publish
-                    <ToolbarActionButton action={NEW_PUBLISH_ACTION} />
                 </ActionGroup>
                 <div className="flex-1" />
                 <SplitActionButton actions={publishSplitActions} />

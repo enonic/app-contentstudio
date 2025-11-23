@@ -19,7 +19,7 @@ import {DialogDependantItemsList, ObserverConfig, SelectionType} from './DialogD
 import {DialogMainItemsList} from './DialogMainItemsList';
 import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
 import {StatusCheckableItem} from './StatusCheckableItem';
-import {ContentItem} from '../../v6/features/shared/items/ContentItem';
+import {ContentItemElement} from '../../v6/features/shared/items/ContentItem';
 import {PublishItemsListElement} from '../../v6/features/shared/dialogs/publish/PublishItemsList';
 
 enum DependantsStatus {
@@ -39,7 +39,7 @@ export interface DependantItemsDialogConfig
     controls?: boolean;
 }
 
-export abstract class DependantItemsDialog<Item extends StatusCheckableItem | ContentItem>
+export abstract class DependantItemsDialog<Item extends StatusCheckableItem | ContentItemElement>
     extends ModalDialogWithConfirmation {
 
     protected actionButton: ActionButton;
