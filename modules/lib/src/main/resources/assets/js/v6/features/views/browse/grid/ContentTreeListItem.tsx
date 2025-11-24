@@ -15,7 +15,7 @@ export const ContentTreeListItem = ({
 
     const Icon = useMemo(
         () => <WorkflowContentIcon status={content.workflowStatus} contentType={content.contentType.toString()} url={content.iconUrl} />,
-        []
+        [content]
     );
 
     return (
