@@ -6,7 +6,8 @@ import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import Q from 'q';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContextView} from './ContextView';
-import {WidgetItemView} from './WidgetItemView';
+import {WidgetItemView, WidgetItemViewInterface} from './WidgetItemView';
+import {LucideIcon} from 'lucide-react';
 
 export enum InternalWidgetType {
     INFO,
@@ -25,7 +26,9 @@ export class WidgetView
 
     private widgetIconClass: string;
 
-    private widgetItemViews: WidgetItemView[];
+    private widgetIcon: LucideIcon;
+
+    private widgetItemViews: WidgetItemViewInterface[];
 
     private contextView: ContextView;
 
@@ -51,6 +54,7 @@ export class WidgetView
         this.contextView = builder.contextView;
         this.widgetName = builder.name;
         this.widgetIconClass = builder.iconClass;
+        this.widgetIcon = builder.icon;
         this.widgetDescription = (builder.widget ? builder.widget.getDescription() : builder.description) || noDescription;
         this.widgetItemViews = builder.widgetItemViews;
         this.widget = builder.widget;
@@ -177,6 +181,10 @@ export class WidgetView
         return this.widgetIconClass;
     }
 
+    getWidgetIcon(): LucideIcon {
+        return this.widgetIcon;
+    }
+
     getWidgetKey(): string {
         return this.widget ? this.widget.getWidgetDescriptorKey().getApplicationKey().getName() : null;
     }
@@ -254,7 +262,7 @@ export class WidgetView
     compareByType(widgetView: WidgetView): boolean {
         return widgetView != null && (
             this === widgetView ||
-            (this.getType() === widgetView.getType() && this.hasType() && widgetView.hasType()) ||
+                (this.getType() === widgetView.getType() && this.hasType() && widgetView.hasType()) ||
             (this.getWidgetKey() === widgetView.getWidgetKey() && this.hasKey() && widgetView.hasKey())
         );
     }
@@ -306,11 +314,13 @@ export class WidgetViewBuilder {
 
     contextView: ContextView;
 
-    widgetItemViews: WidgetItemView[] = [];
+    widgetItemViews: WidgetItemViewInterface[] = [];
 
     widget: Widget;
 
     widgetClass: string;
+
+    icon: LucideIcon;
 
     iconClass: string;
 
@@ -341,7 +351,7 @@ export class WidgetViewBuilder {
         return this;
     }
 
-    public setWidgetItemViews(widgetItemViews: WidgetItemView[]): WidgetViewBuilder {
+    public setWidgetItemViews(widgetItemViews: WidgetItemViewInterface[]): WidgetViewBuilder {
         this.widgetItemViews = widgetItemViews;
         return this;
     }
@@ -353,6 +363,11 @@ export class WidgetViewBuilder {
 
     public setIconClass(iconClass: string) {
         this.iconClass = iconClass;
+        return this;
+    }
+
+    public setIcon(icon: LucideIcon) {
+        this.icon = icon;
         return this;
     }
 
