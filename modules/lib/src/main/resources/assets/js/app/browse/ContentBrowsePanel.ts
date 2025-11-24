@@ -16,6 +16,9 @@ import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
+import {removeContentTreeItem, updateContentTreeItem} from '../../v6/features/store/contentTreeData.store';
+import {hasSelectedItems} from '../../v6/features/store/contentTreeSelectionStore';
+import {toContentData, toContentProps} from '../../v6/features/utils/cms/content/converter';
 import {ContentTreeListElement} from '../../v6/features/views/browse/grid/ContentTreeListElement';
 import {ContentId} from '../content/ContentId';
 import {ContentPath, ContentPathBuilder} from '../content/ContentPath';
@@ -53,7 +56,7 @@ import {SearchAndExpandItemEvent} from './SearchAndExpandItemEvent';
 import {State} from './State';
 import {ToggleSearchPanelEvent} from './ToggleSearchPanelEvent';
 import {ToggleSearchPanelWithDependenciesEvent} from './ToggleSearchPanelWithDependenciesEvent';
-import {setContentFilterOpen} from '../../v6/features/store/contentFilter.store';
+import {hasFilterSet, setContentFilterOpen} from '../../v6/features/store/contentFilter.store';
 import {BrowseToolbarElement} from '../../v6/features/views/browse/toolbar/BrowseToolbar';
 
 export class ContentBrowsePanel
@@ -528,7 +531,11 @@ export class ContentBrowsePanel
         this.handleCUD();
         this.deleteTreeItems(items);
 
-        if (this.treeListBox.isFiltered() && this.treeListBox.getItems().length === 0) {
+        items.forEach(i => {
+            removeContentTreeItem(i.id.toString());
+        });
+
+        if (hasFilterSet()) {
             // this.treeListBox.setFilterQuery(null);
             this.contentTreeList.setFilterQuery(null);
         }
@@ -626,16 +633,7 @@ export class ContentBrowsePanel
         this.updateContextPanel(data);
 
         data.forEach((newItem: ContentSummaryAndCompareStatus) => {
-            const existingItem: ContentSummaryAndCompareStatus = this.treeListBox.getItem(newItem.getId());
-
-            if (existingItem) {
-                newItem.setReadOnly(existingItem.isReadOnly());
-                const parentLists = this.treeListBox.findParentLists(newItem);
-                parentLists.forEach(list => list.replaceItems(newItem));
-            } else if (this.selectionWrapper.isItemSelected(newItem)) {
-                // Need to update selected item anyway
-                this.selectionWrapper.updateItemIfSelected(newItem);
-            }
+            updateContentTreeItem(newItem.getId(), toContentProps(newItem));
         });
 
         this.refreshFilterWithDelay();
@@ -741,7 +739,7 @@ export class ContentBrowsePanel
     }
 
     private handleCUD() {
-        if (this.selectableListBoxPanel.getSelectedItems().length > 0) {
+        if (hasSelectedItems()) {
             this.browseActionsAndPreviewUpdateRequired = true;
             this.debouncedBrowseActionsAndPreviewRefreshOnDemand();
         }

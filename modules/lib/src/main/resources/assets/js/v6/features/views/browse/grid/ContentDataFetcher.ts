@@ -1,9 +1,7 @@
 import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
-import {TreeNode} from '@enonic/ui';
 import {ContentsTreeGridList} from '../../../../../app/browse/ContentsTreeGridList';
 import {ContentId} from '../../../../../app/content/ContentId';
 import {ContentQuery} from '../../../../../app/content/ContentQuery';
-import {toCS6ContentStatus} from '../../../../../app/content/ContentStatus';
 import {ContentSummary} from '../../../../../app/content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {ContentSummaryJson} from '../../../../../app/content/ContentSummaryJson';
@@ -14,7 +12,7 @@ import {ChildOrder} from '../../../../../app/resource/order/ChildOrder';
 import {Branch} from '../../../../../app/versioning/Branch';
 import {$contentTreeItems} from '../../../store/contentTreeData.store';
 import {$contentTreeRootLoadingState} from '../../../store/contentTreeLoadingStore';
-import {calcWorkflowStateStatus, resolveDisplayName, resolveSubName} from '../../../utils/cms/content/workflow';
+import {toContentData} from '../../../utils/cms/content/converter';
 import {ContentData} from './ContentData';
 
 export class ContentDataFetcher {
@@ -112,7 +110,7 @@ export class ContentDataFetcher {
         const dataItems = csItems.map(item => {
             const itemId = item.getId();
             const children = this.cachedRootItems.find(cachedRootItem => cachedRootItem.id === itemId)?.children;
-            return this.toContentData(item, undefined, children);
+            return this.toContentData(item, undefined, children as ContentData[]);
         });
 
         return {
@@ -121,22 +119,9 @@ export class ContentDataFetcher {
         };
     }
 
-    private toContentData = (item: ContentSummaryAndCompareStatus, parent?: ContentData, children?: TreeNode[]): ContentData => {
+    private toContentData = (item: ContentSummaryAndCompareStatus, parent?: ContentData, children?: ContentData[]): ContentData => {
         const path = parent ? [...parent.path, parent.id] : [];
-
-        return {
-            id: item.getId().toString(),
-            displayName: resolveDisplayName(item),
-            name: resolveSubName(item),
-            hasChildren: item.hasChildren(),
-            contentType: item.getType(),
-            workflowStatus: calcWorkflowStateStatus(item.getContentSummary()),
-            iconUrl: item.getContentSummary().getIconUrl(),
-            contentStatus: toCS6ContentStatus(item.getContentState()),
-            item, // temporary, for backward compatibility
-            path,
-            children,
-        }
+        return toContentData(item, path, children);
     }
 
     private makeContentQueryRequest(from: number): ContentQueryRequest<ContentSummaryJson, ContentSummary> {
