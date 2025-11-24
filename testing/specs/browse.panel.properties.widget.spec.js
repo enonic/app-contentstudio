@@ -13,6 +13,9 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const PublishContentDialog = require('../page_objects/content.publish.dialog');
 const ContentBrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
+const PropertiesWidgetItem = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
+const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.window.panel');
+const WidgetSelectorDropdown = require('../page_objects/components/selectors/widget.selector.dropdown');
 
 describe('Browse panel, properties widget, language spec', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -45,6 +48,21 @@ describe('Browse panel, properties widget, language spec', function () {
 
             let statusWidget = new StatusWidget();
             await statusWidget.waitForStatusDisplayed(appConst.STATUS_WIDGET.NEW);
+        });
+
+    // Verifies - Component dropdown: don't allow deselecting single selected item #8759
+    it(`GIVEN existing folder is opened WHEN tried to deselect the single selected item THEN the same widgets are displayed after clicking on the selected option in the list`,
+        async () => {
+            let wizardContextWindow = new WizardContextPanel();
+            let propertiesWidgetItem = new PropertiesWidgetItem();
+            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+            // 1. Click on the dropdown handler, expand the list of options and try to deselect the single selected item
+            await wizardContextWindow.clickOnWidgetSelectorDropdownOption(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
+            let widgetSelectorDropdown = new WidgetSelectorDropdown();
+            await widgetSelectorDropdown.clickOnOptionByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
+            // 2. Verify that 'Apply' button is not displayed and 'Edit Settings' button remains visible in the context window:
+            await wizardContextWindow.waitForApplyButtonInWidgetSelectorNotDisplayed();
+            await propertiesWidgetItem.waitForEditSettingsButtonDisplayed();
         });
 
     it(`WHEN existing folder has been published THEN 'First Published' date gets visible in Properties Widget`,
