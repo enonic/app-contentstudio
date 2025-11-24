@@ -1832,11 +1832,7 @@ export class ContentWizardPanel
 
     private unbindSiteModelListeners() {
         if (this.siteModel) {
-            this.siteModel.unApplicationAdded(this.applicationAddedListener);
-            this.siteModel.unApplicationRemoved(this.applicationRemovedListener);
-            this.siteModel.unApplicationUnavailable(this.applicationStoppedListener);
-            this.siteModel.unApplicationStarted(this.applicationStartedListener);
-            this.siteModel.unApplicationUninstalled(this.applicationUninstalledListener);
+            this.siteModel.clearListeners();
         }
     }
 
