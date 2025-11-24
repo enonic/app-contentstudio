@@ -226,4 +226,14 @@ export class SiteModel {
             listener();
         });
     }
+
+    clearListeners() {
+        this.applicationAddedListeners = [];
+        this.applicationRemovedListeners = [];
+        this.propertyChangedListeners = [];
+        this.applicationStoppedListeners = [];
+        this.applicationStartedListeners = [];
+        this.applicationUninstalledListeners = [];
+        this.siteModelUpdatedListeners = [];
+    }
 }
