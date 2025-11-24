@@ -39,7 +39,6 @@ export abstract class DescriptorBasedComponentView
         const component = PageState.getComponentByPath(this.getPath());
 
         if (!component || !(component instanceof DescriptorBasedComponent)) {
-            console.warn('Component not found in state object');
             return null;
         }
 

@@ -87,21 +87,23 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     }
 
     setModel(liveEditModel: LiveEditModel) {
+        const isFirstInit = !this.liveEditModel;
         if (this.liveEditModel !== liveEditModel) {
             this.unbindSiteModelListeners();
 
             super.setModel(liveEditModel);
 
-            this.reloadDescriptors();
+            if (isFirstInit) {
+                this.reloadDescriptors();
+            }
 
             this.bindSiteModelListeners();
         }
     }
 
     unbindSiteModelListeners() {
-        if (this.liveEditModel != null && this.liveEditModel.getSiteModel() != null) {
-            const siteModel: SiteModel = this.liveEditModel.getSiteModel();
-
+        const siteModel: SiteModel = this.liveEditModel?.getSiteModel();
+        if (siteModel) {
             siteModel.unSiteModelUpdated(this.debouncedDescriptorsReload);
             siteModel.unApplicationUnavailable(this.applicationUnavailableListener);
             siteModel.unApplicationAdded(this.debouncedDescriptorsReload);
@@ -148,7 +150,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         // Ensure displayed config form and selector option are removed when descriptor is removed
         if (event.getPath().equals(this.component?.getPath()) && event instanceof ComponentDescriptorUpdatedEvent) {
             if (event.getDescriptorKey()) {
-                this.updateSelectorValue();
+                this.cleanFormView();
             } else {
                 this.setSelectorValue(null);
             }
@@ -167,6 +169,9 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private setSelectorValue(descriptor: Descriptor) {
         clearTimeout(this.timeoutId);
+        if (this.selector.getSelectedDescriptor() === descriptor) {
+            return;
+        }
         this.selector.setDescriptor(descriptor);
         this.setupComponentForm(descriptor);
     }
@@ -233,7 +238,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
                         this.notifyLayoutListeners();
                     })
                     .done(),
-            100);
+            200);
 
     }
 
