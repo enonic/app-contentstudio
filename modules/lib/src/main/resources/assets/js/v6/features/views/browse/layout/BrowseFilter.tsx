@@ -57,7 +57,6 @@ export const BrowseFilter = ({
     return (
         <div className='bg-surface-neutral'>
             <SearchField.Root className='h-11.5' id='SearchInput' placeholder={searchPlaceholder} value={value} onChange={setContentFilterValue}>
-                <SearchField.Icon />
                 <SearchField.Input />
                 <SearchField.Clear />
             </SearchField.Root>

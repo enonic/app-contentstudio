@@ -58,6 +58,7 @@ import {ToggleSearchPanelEvent} from './ToggleSearchPanelEvent';
 import {ToggleSearchPanelWithDependenciesEvent} from './ToggleSearchPanelWithDependenciesEvent';
 import {hasFilterSet, setContentFilterOpen} from '../../v6/features/store/contentFilter.store';
 import {BrowseToolbarElement} from '../../v6/features/views/browse/toolbar/BrowseToolbar';
+import {cn} from '@enonic/ui';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -812,5 +813,9 @@ export class ContentBrowsePanel
         super.toggleFilterPanel();
         const isFilterPanelHidden = this.filterPanelIsHidden();
         setContentFilterOpen(!isFilterPanelHidden);
+    }
+
+    protected getSplitterThickness(): number {
+        return 1;
     }
 }

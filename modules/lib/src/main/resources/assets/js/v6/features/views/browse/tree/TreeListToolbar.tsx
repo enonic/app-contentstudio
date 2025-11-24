@@ -51,14 +51,11 @@ const Toggler = ({handleToggleClick}: TogglerProps): ReactElement => {
 };
 
 const TreeListToolbar = ({enabled = true, handleToggleClick = () => { }}: TreeListToolbarProps): ReactElement => {
-    // const selectedLabel = useI18n('field.treeListToolbar.selected');
-
     const loadingState = useStore($contentTreeRootLoadingState);
     const isLoading = loadingState === 'loading';
-    const totalSelected = useStore($numberOfSelected);
     const isAllSelected = useStore($isAllSelected);
     const isNoneSelected = useStore($isNoneSelected);
-    const selectAllLabel = isNoneSelected ? useI18n('field.treeListToolbar.selectAll') : useI18n('field.treeListToolbar.deselectAll', totalSelected);
+    const selectAllLabel = useI18n('field.treeListToolbar.selectAll');
 
     const checkedStatus = useMemo<CheckboxChecked>(() => {
         if (isAllSelected) return true;

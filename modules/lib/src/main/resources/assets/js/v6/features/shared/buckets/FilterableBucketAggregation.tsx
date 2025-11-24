@@ -88,25 +88,27 @@ export const FilterableBucketAggregation = ({
     const displayName = useMemo(() => useI18n(`field.${aggregation.getName()}`), [aggregation]);
 
     return (
-        <div className='relative'>
-            <div className='font-semibold mb-2'>{displayName}</div>
+        <div className='relative flex flex-col gap-2'>
+            <div className='font-semibold'>{displayName}</div>
+            <div>
             {topBuckets.map((bucket) => {
                 const key = buildKey(aggregation.getName(), bucket.getKey(), 'top');
 
                 return(
                     <Checkbox
                         key={key}
-                        className='mb-2'
                         checked={isSelected(bucket)}
                         onClick={() => toggleTopBucket(bucket)}
                         label={toLabel(bucket)}
                     />
                 )
             })}
+            </div>
             <Combobox.Root value={inputValue} onChange={setInputValue} selectionMode='multiple' onSelectionChange={onListboxSelectionChange} selection={listboxSelection}>
                 <Combobox.Content>
                     <Combobox.Control>
                     <Combobox.Search>
+                        <Combobox.SearchIcon />
                         <Combobox.Input placeholder={searchPlaceholder}/>
                         <Combobox.Toggle/>
                     </Combobox.Search>
