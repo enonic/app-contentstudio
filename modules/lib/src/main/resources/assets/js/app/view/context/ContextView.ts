@@ -13,26 +13,25 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {InspectEvent} from '../../event/InspectEvent';
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
-import {UserAccessWidgetItemView} from '../../security/UserAccessWidgetItemView';
 import {ContextWindow} from '../../wizard/page/contextwindow/ContextWindow';
 import {ReloadActiveWidgetEvent} from './ReloadActiveWidgetEvent';
 import {DependenciesWidgetItemView} from './widget/dependency/DependenciesWidgetItemView';
-import {AttachmentsWidgetItemView} from './widget/details/AttachmentsWidgetItemView';
-import {BasePropertiesWidgetItemView} from './widget/details/BasePropertiesWidgetItemView';
-import {ContentWidgetItemView} from './widget/details/ContentWidgetItemView';
-import {OnlinePropertiesWidgetItemView} from './widget/details/OnlinePropertiesWidgetItemView';
-import {PageTemplateWidgetItemView} from './widget/details/PageTemplateWidgetItemView';
-import {StatusWidgetItemView} from './widget/details/StatusWidgetItemView';
 import {PageEditorWidgetItemView} from './widget/pageeditor/PageEditorWidgetItemView';
 import {VersionHistoryView} from './widget/version/VersionHistoryView';
-import {WidgetItemView} from './WidgetItemView';
-import {WidgetsSelectionRow} from './WidgetsSelectionRow';
+import {WidgetItemViewInterface} from './WidgetItemView';
 import {InternalWidgetType, WidgetView} from './WidgetView';
 import {PageEventsManager} from '../../wizard/PageEventsManager';
 import {PageNavigationMediator} from '../../wizard/PageNavigationMediator';
 import {PageNavigationEvent} from '../../wizard/PageNavigationEvent';
 import {PageNavigationEventType} from '../../wizard/PageNavigationEventType';
 import {PageNavigationHandler} from '../../wizard/PageNavigationHandler';
+import WidgetsDropdownElement from '../../../v6/features/views/context/widget/WidgetsDropdown';
+import {History, Link, List} from 'lucide-react';
+import {DetailsWidgetContentSectionElement} from '../../../v6/features/views/context/widget/details/ContentSection';
+import {DetailsWidgetPermissionsSectionElement} from '../../../v6/features/views/context/widget/details/PermissionsSection';
+import {DetailsWidgetInfoSectionElement} from '../../../v6/features/views/context/widget/details/InfoSection';
+import {DetailsWidgetScheduleSectionElement} from '../../../v6/features/views/context/widget/details/ScheduleSection';
+import {DetailsWidgetAttachmentsSectionElement} from '../../../v6/features/views/context/widget/details/AttachmentsSection';
 
 export class ContextView
     extends DivEl
@@ -40,7 +39,7 @@ export class ContextView
 
     protected widgetViews: WidgetView[] = [];
     protected contextContainer: DivEl;
-    protected widgetsSelectionRow: WidgetsSelectionRow;
+    protected widgetsSelectionRow: WidgetsDropdownElement//WidgetsSelectionRow;
 
     protected loadMask: LoadMask;
     protected divForNoSelection: DivEl;
@@ -69,11 +68,11 @@ export class ContextView
     public static debug: boolean = false;
 
     constructor(editorMode: boolean = false) {
-        super('context-panel-view');
+        super('context-panel-view bg-surface-neutral');
 
         this.editorMode = editorMode;
 
-        this.contextContainer = new DivEl('context-container');
+        this.contextContainer = new DivEl('context-container px-5 pt-2.5 pb-12');
 
         this.loadMask = new LoadMask(this);
         this.loadMask.addClass('context-panel-mask');
@@ -172,7 +171,7 @@ export class ContextView
     }
 
     private initWidgetsSelectionRow() {
-        this.widgetsSelectionRow = new WidgetsSelectionRow();
+        this.widgetsSelectionRow = new WidgetsDropdownElement({});//new WidgetsSelectionRow();
         this.appendChild(this.widgetsSelectionRow);
         this.widgetsSelectionRow.updateState(this.activeWidget);
     }
@@ -364,6 +363,7 @@ export class ContextView
             .setDescription(i18n('field.contextPanel.details.description'))
             .setWidgetClass('properties-widget')
             .setIconClass('icon-list')
+            .setIcon(List)
             .setType(InternalWidgetType.INFO)
             .setContextView(this)
             .setWidgetItemViews(this.getDetailsWidgetItemViews()).build();
@@ -416,6 +416,7 @@ export class ContextView
             .setDescription(i18n('field.contextPanel.versionHistory.description'))
             .setWidgetClass('versions-widget')
             .setIconClass('icon-history')
+            .setIcon(History)
             .setType(InternalWidgetType.HISTORY)
             .setContextView(this)
             .addWidgetItemView(new VersionHistoryView()).build();
@@ -427,20 +428,26 @@ export class ContextView
             .setDescription(i18n('field.contextPanel.dependencies.description'))
             .setWidgetClass('dependency-widget')
             .setIconClass('icon-link')
+            .setIcon(Link)
             .setType(InternalWidgetType.DEPENDENCIES)
             .setContextView(this)
             .addWidgetItemView(new DependenciesWidgetItemView()).build();
     }
 
-    protected getDetailsWidgetItemViews(): WidgetItemView[] {
+    protected getDetailsWidgetItemViews(): WidgetItemViewInterface[] {
         return [
-            new ContentWidgetItemView(),
-            new StatusWidgetItemView(),
-            new UserAccessWidgetItemView(),
-            new BasePropertiesWidgetItemView(),
-            new OnlinePropertiesWidgetItemView(),
-            new PageTemplateWidgetItemView(),
-            new AttachmentsWidgetItemView()
+            new DetailsWidgetContentSectionElement({}),
+            //new ContentWidgetItemView(),
+            //new StatusWidgetItemView(),
+            new DetailsWidgetPermissionsSectionElement({}),
+            //new UserAccessWidgetItemView(),
+            new DetailsWidgetInfoSectionElement({}),
+            //new BasePropertiesWidgetItemView(),
+            new DetailsWidgetScheduleSectionElement({}),
+            //new OnlinePropertiesWidgetItemView(),
+            //new PageTemplateWidgetItemView(),
+            new DetailsWidgetAttachmentsSectionElement({}),
+            //new AttachmentsWidgetItemView()
         ];
     }
 
