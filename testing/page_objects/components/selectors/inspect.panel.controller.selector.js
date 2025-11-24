@@ -23,8 +23,7 @@ class InspectPanelControllerSelector extends BaseDropdown {
         try {
             await this.clickOnFilteredByDisplayNameItem(optionName, parentElement);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('CustomSelectorComboBox - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError(`Inspect Panel, Controller Selector - Error during selecting the filtered option: ${optionName}`, err);
         }
     }
 
@@ -46,6 +45,16 @@ class InspectPanelControllerSelector extends BaseDropdown {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.pause(500);
         return await this.getTextInDisplayedElements(locator);
+    }
+
+    async waitForApplySelectionButtonNotDisplayed(parentLocator = '') {
+        try {
+            // Wait until the Apply Selection button is not displayed
+            await this.waitForElementNotDisplayed(this.applySelectionButton, appConst.shortTimeout);
+        } catch (err) {
+            await this.handleError(`Page Inspection Panel 'Apply Selection' button should not be displayed in the controller selector`,
+                'err_page_controller_apply_button', err);
+        }
     }
 }
 

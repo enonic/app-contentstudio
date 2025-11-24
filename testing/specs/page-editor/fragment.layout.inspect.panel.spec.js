@@ -18,6 +18,7 @@ const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizar
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
+const InspectPanelControllerSelector = require('../../page_objects/components/selectors/inspect.panel.controller.selector');
 
 describe('fragment.layout.inspect.panel.spec - Select a site with invalid child and try to publish it', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -142,6 +143,29 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             assert.equal(displayName, LAYOUT_2_COL, 'Expected display name should be present');
             // Verify 'Preview' button is displayed:
             await contentWizard.waitForPreviewButtonDisplayed();
+        });
+
+    // Verify the bug -  Page/Fragment selectors: forbid deselecting single selected item #9180
+    it("GIVEN a page controller has been selected on PCV WHEN controller dropdown has been expanded AND the controller has been clicked THEN Apply selection button should not appear in the dropdown list",
+        async () => {
+            let pageComponentView = new PageComponentView();
+            let pageInspectionPanel = new PageInspectionPanel();
+            let contentWizard = new ContentWizardPanel();
+            let inspectPanelControllerSelector = new InspectPanelControllerSelector();
+            // 1. Open the site:
+            await studioUtils.selectAndOpenContentInWizard(SITE_1_NAME);
+            // 2. Click on minimize-toggle expand Live Edit and show Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Click on the controller item in Page Components View:
+            await pageComponentView.clickOnComponent(appConst.CONTROLLER_NAME.MAIN_REGION);
+            await pageInspectionPanel.waitForOpened();
+            // 4. Expand the dropdown and try to deselect the current controller:
+            await pageInspectionPanel.clickOnPageControllerDropdownHandle();
+            await inspectPanelControllerSelector.clickOnOptionByDisplayName(appConst.CONTROLLER_NAME.MAIN_REGION);
+            // 5. Verify that Apply button is not displayed in the dropdown list:
+            await inspectPanelControllerSelector.waitForApplySelectionButtonNotDisplayed();
+            // 6. Apply button should not be displayed in the Page Inspection panel as well
+            await pageInspectionPanel.waitForApplyButtonNotDisplayed();
         });
 
     it("GIVEN existing site with 2 fragments is opened WHEN 'Show Outbound' dependencies button has been pressed THEN 2 fragments should be filtered in new browser tab",
