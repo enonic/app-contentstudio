@@ -88,12 +88,15 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     }
 
     setModel(liveEditModel: LiveEditModel) {
+        const isFirstInit = !this.liveEditModel;
         if (this.liveEditModel !== liveEditModel) {
             this.unbindSiteModelListeners();
 
             super.setModel(liveEditModel);
 
-            this.reloadDescriptors();
+            if (isFirstInit) {
+                this.reloadDescriptors();
+            }
 
             this.bindSiteModelListeners();
         }
@@ -237,7 +240,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
                         this.notifyLayoutListeners();
                     })
                     .done(),
-            100);
+            200);
 
     }
 

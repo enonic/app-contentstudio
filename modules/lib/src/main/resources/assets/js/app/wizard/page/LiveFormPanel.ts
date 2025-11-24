@@ -606,10 +606,6 @@ export class LiveFormPanel
             return Promise.resolve(false);
         }
 
-        if (clearInspection) {
-            this.clearSelectionAndInspect(false, true);
-        }
-
         this.pageLoading = true;
 
         return this.liveEditPageProxy.load(this.widgetRenderingHandler, this.getWidgetSelector().getSelectedWidget())
@@ -617,14 +613,6 @@ export class LiveFormPanel
                 if (!loaded) {
                     // no widget was able to render it so there will be no page loaded eventt
                     this.pageLoading = false;
-                }
-
-                if (clearInspection) {
-                    let clearInspectionFn = () => {
-                        this.contextWindow.clearSelection();
-                        PageEventsManager.get().unLoaded(clearInspectionFn);
-                    };
-                    PageEventsManager.get().onLoaded(clearInspectionFn);
                 }
 
                 return loaded;
@@ -663,12 +651,21 @@ export class LiveFormPanel
         });
 
         eventsManager.onLiveEditPageViewReady(() => {
-            if (this.content.getPage()?.isFragment()) { // preselection selector's value to make it not empty
+            if (this.isRendered() && this.content.getPage()?.isFragment()) { // preselection selector's value to make it not empty
                 const component = PageState.getState().getFragment();
                 const inspectionPanel = this.availableInspectPanels.get(component.getType());
 
                 if (inspectionPanel instanceof ComponentInspectionPanel) {
                     inspectionPanel.setComponent(component);
+                }
+            } else {
+                if (this.contextWindow.isRenderable() && this.contextWindow.getComponent()) {
+                    PageNavigationMediator.get().notify(
+                        new PageNavigationEvent(
+                            PageNavigationEventType.SELECT,
+                            new PageNavigationEventData(this.contextWindow.getComponent().getPath())
+                        )
+                    );
                 }
             }
         });
@@ -761,27 +758,6 @@ export class LiveFormPanel
         }
     }
 
-    private clearSelection(showInsertables: boolean = true): boolean {
-        const customizedWithController = !this.content.getPage() && PageState.getState()?.hasController();
-        const isFragmentContent = PageState.getState()?.isFragment();
-
-        if (this.liveEditModel?.getDefaultModels()?.hasDefaultPageTemplate() || customizedWithController || isFragmentContent) {
-            this.contextWindow.clearSelection(showInsertables);
-            return true;
-        }
-
-        return false;
-    }
-
-    clearSelectionAndInspect(showPanel: boolean, showWidget: boolean) {
-        const cleared = this.clearSelection(false);
-        const params = cleared ?
-            {showPanel: showPanel, showWidget: showWidget, keepPanelSelection: true} :
-            {showPanel: false, showWidget: true, keepPanelSelection: true};
-
-        this.inspectPage(params);
-    }
-
     private inspectRegion(regionPath: ComponentPath, source?: PageNavigationEventSource): void {
         const region: Region = PageState.getState().getComponentByPath(regionPath) as Region;
         const regionInspectionPanel = this.availableInspectPanels.get('region') as RegionInspectionPanel;
@@ -816,6 +792,7 @@ export class LiveFormPanel
         if (inspectionPanel instanceof ComponentInspectionPanel) {
             showInspectionPanel(inspectionPanel);
             inspectionPanel.setComponent(component);
+            this.contextWindow.setComponent(component);
 
             // show apply for text comp, page, part and layout will handle it themselves when selected descriptor is set
             if (!(inspectionPanel instanceof DescriptorBasedComponentInspectionPanel)) {
