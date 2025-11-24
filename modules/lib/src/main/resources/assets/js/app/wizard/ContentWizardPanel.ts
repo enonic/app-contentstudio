@@ -912,9 +912,6 @@ export class ContentWizardPanel
             if (this.getPersistedItem().getPage()) {
                 this.updateLiveEditModel(content);
 
-                this.getLivePanel().clearSelectionAndInspect(renderable, false);
-
-
                 return Q();
             }
 
