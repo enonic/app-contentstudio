@@ -30,4 +30,12 @@
   .contents * {
     outline-style: none;
   }
+
+  .splitter {
+    @apply !bg-bdr-soft after:content-[''] after:absolute after:w-2.25 after:h-full after:z-1 after:-left-1;
+  }
+
+  .vertical .ghost-dragger {
+    @apply -ml-0.5;
+  }
 }

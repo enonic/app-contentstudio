@@ -43,7 +43,7 @@ export const PreviewToolbarEmulatorSelector = (): ReactElement => {
                         size="sm"
                         aria-label={useI18n('wcag.preview.toolbar.emulatorSelector.label')}
                     >
-                        <SelectedIcon className="size-3.5 text-main group-data-[active=true]:text-rev @sm:hidden" />
+                        <SelectedIcon className="size-3.5 text-main group-data-[active=true]:text-alt @sm:hidden" />
                         <span className="hidden @sm:inline">{selectedDevice.getWidthWithUnits()}</span>
                     </Button>
                 </Menu.Trigger>
@@ -61,7 +61,7 @@ export const PreviewToolbarEmulatorSelector = (): ReactElement => {
                                     onClick={() => handleDeviceSelect(device)}
                                 >
                                     <Menu.ItemIndicator>
-                                        <DeviceIcon className="size-6 text-main group-data-[state=checked]:text-rev" />
+                                        <DeviceIcon className="size-6 text-main group-data-[state=checked]:text-alt" />
                                     </Menu.ItemIndicator>
                                     <p className="ml-2">
                                         <span className="font-semibold block">{device.getName()}</span>
