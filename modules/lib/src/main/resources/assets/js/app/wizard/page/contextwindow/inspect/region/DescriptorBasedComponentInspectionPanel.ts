@@ -100,9 +100,8 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     }
 
     unbindSiteModelListeners() {
-        if (this.liveEditModel != null && this.liveEditModel.getSiteModel() != null) {
-            const siteModel: SiteModel = this.liveEditModel.getSiteModel();
-
+        const siteModel: SiteModel = this.liveEditModel?.getSiteModel();
+        if (siteModel) {
             siteModel.unSiteModelUpdated(this.debouncedDescriptorsReload);
             siteModel.unApplicationUnavailable(this.applicationUnavailableListener);
             siteModel.unApplicationAdded(this.debouncedDescriptorsReload);
@@ -149,7 +148,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         // Ensure displayed config form and selector option are removed when descriptor is removed
         if (event.getPath().equals(this.component?.getPath()) && event instanceof ComponentDescriptorUpdatedEvent) {
             if (event.getDescriptorKey()) {
-                this.updateSelectorValue();
+                this.cleanFormView();
             } else {
                 this.setSelectorValue(null);
             }
