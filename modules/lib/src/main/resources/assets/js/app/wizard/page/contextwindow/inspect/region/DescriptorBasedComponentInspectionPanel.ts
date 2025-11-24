@@ -88,12 +88,15 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     }
 
     setModel(liveEditModel: LiveEditModel) {
+        const isFirstInit = !this.liveEditModel;
         if (this.liveEditModel !== liveEditModel) {
             this.unbindSiteModelListeners();
 
             super.setModel(liveEditModel);
 
-            this.reloadDescriptors();
+            if (isFirstInit) {
+                this.reloadDescriptors();
+            }
 
             this.bindSiteModelListeners();
         }
@@ -166,13 +169,12 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     protected abstract getFormName(): string;
 
     private setSelectorValue(descriptor: Descriptor) {
-        if (!ObjectHelper.equals(descriptor, this.selector.getSelectedDescriptor())) {
-            clearTimeout(this.timeoutId);
-            this.selector.setDescriptor(descriptor);
-            this.setupComponentForm(descriptor);
-        } else {
-            this.notifyLayoutListeners(); // content is already selected, but we need to notify that layout is done
+        clearTimeout(this.timeoutId);
+        if (this.selector.getSelectedDescriptor() === descriptor) {
+            return;
         }
+        this.selector.setDescriptor(descriptor);
+        this.setupComponentForm(descriptor);
     }
 
     setComponent(component: COMPONENT): void {
@@ -237,7 +239,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
                         this.notifyLayoutListeners();
                     })
                     .done(),
-            100);
+            200);
 
     }
 

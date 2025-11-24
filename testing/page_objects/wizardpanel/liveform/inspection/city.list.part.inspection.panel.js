@@ -66,7 +66,8 @@ class CityListPartInspectionPanel extends PartInspectionPanel {
 
     async waitForLoaded() {
         try {
-            return await this.waitForElementDisplayed(this.container, appConst.mediumTimeout)
+             await this.waitForElementDisplayed(this.container, appConst.mediumTimeout);
+             await this.pause(400);
         } catch (err) {
             await this.handleError('City List Part Inspection Panel, was not loaded', 'err_city_list_inspect_panel', err);
         }
