@@ -4,6 +4,7 @@ import {ContentAppHelper} from '../../app/wizard/ContentAppHelper';
 import {WizardPage} from './views/wizard/WizardPage';
 import {BrowsePage} from './views/browse/BrowsePage';
 import {LegacyElement} from './shared/LegacyElement';
+import {socketService} from './services/socket/socketService';
 
 /**
  * AppShell component that renders the whole application layout.
@@ -33,6 +34,7 @@ export class AppElement extends LegacyElement<typeof App> {
 
     static initialize(): void {
         if (!AppElement.INSTANCE) {
+            socketService.start();
             AppElement.INSTANCE = new AppElement();
             Body.get().appendChild(AppElement.INSTANCE);
         }
