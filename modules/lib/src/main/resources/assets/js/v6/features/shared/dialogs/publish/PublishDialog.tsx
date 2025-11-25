@@ -1,7 +1,7 @@
-import {Button, cn, Dialog, Separator} from '@enonic/ui';
+import {Button, cn, Dialog, Separator, Toggle} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Calendar} from 'lucide-react';
-import {useId, type ReactElement} from 'react';
+import {useId, useState, type ReactElement} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {$config} from '../../../store/config.store';
 import {$dependantPublishItems, $isPublishChecking, $isPublishReady, $isPublishSelectionSynced, $mainPublishItems, $publishCheckErrors, $publishDialog, $totalPublishableItems, applyDraftPublishDialogSelection, cancelDraftPublishDialogSelection, excludeInProgressPublishItems, excludeInvalidPublishItems, excludeNotPublishablePublishItems, markAllAsReadyInProgressPublishItems, publishItems, resetPublishDialogContext, setPublishDialogDependantItemSelected, setPublishDialogItemSelected, setPublishDialogItemWithChildrenSelected} from '../../../store/dialogs/publishDialog.store';
@@ -26,6 +26,15 @@ export const PublishDialog = (): ReactElement => {
     const isSelectionSynced = useStore($isPublishSelectionSynced);
 
     const {invalid, inProgress, noPermissions} = useStore($publishCheckErrors);
+
+    const [showExcluded, setShowExcluded] = useState(false);
+    const visibleDependantItems = showExcluded
+        ? dependantItems
+        : dependantItems.filter(item => !item.excludedByDefault);
+    const hasVisibleDependantItems = visibleDependantItems.length > 0;
+    const showExcludedLabel = useI18n('dialog.publish.excluded.show');
+    const hideExcludedLabel = useI18n('dialog.publish.excluded.hide');
+    const toggleExcludedLabel = showExcluded ? hideExcludedLabel : showExcludedLabel;
 
     const title = useI18n('dialog.publish');
     const separatorLabel = useI18n('dialog.publish.dependants');
@@ -94,9 +103,12 @@ export const PublishDialog = (): ReactElement => {
                             })}
                         </ul>
                         <div className={cn("flex flex-col gap-y-7.5", !hasDependantItems && 'hidden')}>
-                            <Separator className="pr-2.5" label={separatorLabel} />
+                            <div className="flex items-center gap-2.5 -my-2.5 pr-1">
+                                <Separator className="text-sm flex-1" label={separatorLabel} />
+                                <Toggle size="sm" label={toggleExcludedLabel} pressed={showExcluded} onPressedChange={setShowExcluded} />
+                            </div>
                             <ul className='flex flex-col gap-y-2.5'>
-                                {dependantItems.map(({id, content, included, required}) => {
+                                {visibleDependantItems.map(({id, content, included, required}) => {
                                     return <ContentItemCheckable
                                         key={id}
                                         id={`dependant-${id}`}
@@ -106,6 +118,7 @@ export const PublishDialog = (): ReactElement => {
                                         readOnly={required || loading}
                                     />;
                                 })}
+                                {!hasVisibleDependantItems && <li className="text-sm text-subtle italic">{useI18n('field.publish.dependencies.empty')}</li>}
                             </ul>
                         </div>
                     </Dialog.Body>
@@ -116,8 +129,8 @@ export const PublishDialog = (): ReactElement => {
                     </Dialog.Footer>
 
                 </Dialog.Content>
-            </Dialog.Portal>
-        </Dialog.Root>
+            </Dialog.Portal >
+        </Dialog.Root >
     );
 };
 
