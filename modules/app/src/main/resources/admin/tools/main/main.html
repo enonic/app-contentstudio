@@ -8,6 +8,29 @@
 
     <title>{{appName}} - Enonic XP Admin</title>
 
+    <!-- Set theme before styles are loaded to prevent flash of incorrect theme -->
+    <script>
+        try {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const stored = localStorage.getItem('enonic:cs:app');
+            const storedTheme = JSON.parse(stored)?.theme;
+            const isDark = storedTheme === 'dark' || (storedTheme === 'system' && prefersDark) || (storedTheme === undefined && prefersDark);
+            document.documentElement.classList.toggle('dark', isDark);
+        } catch (e) {
+            console.error('Error reading theme preference', e);
+        }
+    </script>
+
+    <style>
+      :root {
+        color-scheme: light;
+      }
+
+      :root.dark {
+        color-scheme: dark;
+      }
+    </style>
+
     <!-- favicons -->
 
     <link rel="apple-touch-icon" href="{{assetsUri}}/icons/favicons/apple-touch-icon-60x60.png" sizes="60x60">
