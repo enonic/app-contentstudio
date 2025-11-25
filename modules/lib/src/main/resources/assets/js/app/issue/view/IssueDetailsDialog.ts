@@ -62,6 +62,7 @@ import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {CSPrincipalCombobox} from '../../security/CSPrincipalCombobox';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
+import {openPublishDialog, setPublishDialogState} from '../../../v6/features/store/dialogs/publishDialog.store';
 
 export class IssueDetailsDialog
     extends DependantItemsWithProgressDialog {
@@ -145,7 +146,7 @@ export class IssueDetailsDialog
             dialogSubName: i18n('dialog.issue.resolving'),
             processingLabel: `${i18n('field.progress.publishing')}...`,
             buttonRow: new IssueDetailsDialogButtonRow(),
-            processHandler: () => new ContentPublishPromptEvent({model: []}).fire(),
+            processHandler: () => openPublishDialog([]),
             confirmation: {},
             controls: true,
         } satisfies DependantItemsWithProgressDialogConfig);
@@ -930,14 +931,16 @@ export class IssueDetailsDialog
         const excludedIds = this.publishProcessor.getExcludedIds();
         const message = this.issue.getTitle();
 
-        new ContentPublishPromptEvent({
-            model: contents,
-            includeChildItems: false,
-            exceptedContentIds,
-            excludedIds,
-            keepDependencies: true,
-            message,
-        }).fire();
+        openPublishDialog(contents, false, excludedIds);
+        // TODO: Enonic UI - Use other props
+        // new ContentPublishPromptEvent({
+        //     model: contents,
+        //     includeChildItems: false,
+        //     exceptedContentIds,
+        //     excludedIds,
+        //     keepDependencies: true,
+        //     message,
+        // }).fire();
 
         const publishDialog = ContentPublishDialog.get();
         const closedListener = () => {

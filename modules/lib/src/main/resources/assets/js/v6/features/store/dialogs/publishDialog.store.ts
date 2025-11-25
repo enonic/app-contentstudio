@@ -102,14 +102,6 @@ const $publishChecks = map<PublishChecksStore>({
     notPublishableExcludable: false,
 });
 
-export const $isPublishChecking = computed([$publishChecks], ({loading}): boolean => {
-    return loading;
-});
-
-export const $isPublishReady = computed([$publishChecks], ({loading, invalidIds, inProgressIds, notPublishableIds}): boolean => {
-    return !loading && invalidIds.length === 0 && inProgressIds.length === 0 && notPublishableIds.length === 0;
-});
-
 export const $mainPublishItems = computed([$publishDialog, $draftPublishDialogSelection, $publishChecks], ({items}, {excludedItemsIds, excludedItemsWithChildrenIds}, {requiredIds}): MainItem[] => {
     return items.map(item => ({
         id: item.getId(),
@@ -154,6 +146,14 @@ export const $publishCheckErrors = computed([$publishChecks], (state): PublishCh
     };
 });
 
+export const $isPublishChecking = computed([$publishChecks], ({loading}): boolean => {
+    return loading;
+});
+
+export const $isPublishReady = computed([$publishChecks, $isPublishSelectionSynced, $totalPublishableItems], ({loading, invalidIds, inProgressIds, notPublishableIds}, synced, totalPublishableItems): boolean => {
+    return synced && !loading && invalidIds.length === 0 && inProgressIds.length === 0 && notPublishableIds.length === 0 && totalPublishableItems > 0;
+});
+
 // ! ID of the current fetch operation
 // Used to cancel old ongoing fetch operations if the instanceId changes
 let instanceId = 0;
@@ -162,9 +162,23 @@ let instanceId = 0;
 // * Public API
 //
 
+export const setPublishDialogState = (state: Partial<Omit<PublishDialogStore, 'open' | 'failed' | 'items' | 'dependantItems'>>) => {
+    const {message, ...exclusions} = state;
+
+    $publishDialog.set({
+        ...$publishDialog.get(),
+        message,
+        ...exclusions,
+    });
+    $draftPublishDialogSelection.set({
+        ...$draftPublishDialogSelection.get(),
+        ...exclusions,
+    });
+}
+
 // OPEN & RESET
 
-export const openPublishDialog = (items: ContentSummaryAndCompareStatus[], includeChildItems = false) => {
+export const openPublishDialog = (items: ContentSummaryAndCompareStatus[], includeChildItems = false, excludedIds: ContentId[] = []) => {
     const current = $publishDialog.value;
 
     if (current.open || items.length === 0) return;
@@ -176,18 +190,25 @@ export const openPublishDialog = (items: ContentSummaryAndCompareStatus[], inclu
         failed: false,
         items,
         dependantItems: [],
-        excludedItemsIds: [],
-        excludedItemsWithChildrenIds,
-        excludedDependantItemsIds: [],
+        excludedItemsIds: [...excludedIds],
+        excludedItemsWithChildrenIds: [...excludedItemsWithChildrenIds],
+        excludedDependantItemsIds: [...excludedIds],
     });
 
     // TODO: Sync after updates to $publishDialog
     $draftPublishDialogSelection.set({
-        excludedItemsIds: [],
-        excludedItemsWithChildrenIds,
-        excludedDependantItemsIds: [],
+        excludedItemsIds: [...excludedIds],
+        excludedItemsWithChildrenIds: [...excludedItemsWithChildrenIds],
+        excludedDependantItemsIds: [...excludedIds],
     });
 };
+
+export const openPublishDialogWithState = (items: ContentSummaryAndCompareStatus[], excludedIds: ContentId[], message?: string) => {
+    openPublishDialog(items, false, excludedIds);
+    if (message) {
+        $publishDialog.setKey('message', message);
+    }
+}
 
 export const resetPublishDialogContext = () => {
     $publishDialog.set({
@@ -433,14 +454,18 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
     const currentInstanceId = instanceId;
 
     const {items, excludedItemsIds, excludedDependantItemsIds, excludedItemsWithChildrenIds} = $publishDialog.get();
+
     const initialExcludedIds = uniqueIds([...excludedItemsIds, ...excludedDependantItemsIds]);
+    const allExcludedItemsWithChildrenIds = uniqueIds([...excludedItemsWithChildrenIds, ...excludedItemsIds]);
 
     const itemsIds = items.map(item => item.getContentId());
-    const itemsWithChildrenIds = $publishDialogItemsWithChildren.get().filter(item => !hasContentIdInIds(item.getContentId(), excludedItemsWithChildrenIds)).map(item => item.getContentId());
+    const itemsWithChildrenIds = $publishDialogItemsWithChildren.get().filter(item => {
+        return !hasContentIdInIds(item.getContentId(), allExcludedItemsWithChildrenIds);
+    }).map(item => item.getContentId());
 
     const childrenIds = itemsWithChildrenIds.length > 0 ? await new FindIdsByParentsRequest(itemsWithChildrenIds).sendAndParse() : [];
-    const maxResult = await createResolveDependenciesRequest(itemsIds, excludedItemsIds, excludedItemsWithChildrenIds).sendAndParse();
-    const minResult = await createResolveDependenciesRequest(itemsIds, initialExcludedIds, excludedItemsWithChildrenIds).sendAndParse();
+    const maxResult = await createResolveDependenciesRequest(itemsIds, excludedItemsIds, allExcludedItemsWithChildrenIds).sendAndParse();
+    const minResult = await createResolveDependenciesRequest(itemsIds, initialExcludedIds, allExcludedItemsWithChildrenIds).sendAndParse();
 
     if (currentInstanceId !== instanceId) return;
 
@@ -559,13 +584,14 @@ async function markIdsReady(ids: ContentId[]): Promise<ContentId[]> {
 async function sendPublishRequest(): Promise<TaskId | undefined> {
     const publishableIds = $publishableIds.get();
     const {message, excludedItemsIds, excludedItemsWithChildrenIds, excludedDependantItemsIds} = $publishDialog.get();
-    const totalExcludedIds = uniqueIds([...excludedItemsIds, ...excludedDependantItemsIds]);
+    const allExcludedItemsWithChildrenIds = uniqueIds([...excludedItemsWithChildrenIds, ...excludedItemsIds]);
+    const allExcludedItemsIds = uniqueIds([...excludedItemsIds, ...excludedDependantItemsIds, ...allExcludedItemsWithChildrenIds]);
 
     const request = new PublishContentRequest()
         .setIds(publishableIds)
         .setMessage(message || undefined)
-        .setExcludedIds(totalExcludedIds)
-        .setExcludeChildrenIds(excludedItemsWithChildrenIds);
+        .setExcludedIds(allExcludedItemsIds)
+        .setExcludeChildrenIds(allExcludedItemsWithChildrenIds);
 
     try {
         const taskId = await request.sendAndParse();
