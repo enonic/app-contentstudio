@@ -11,6 +11,9 @@ const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const TextComponentCke = require('../../page_objects/components/text.component');
 const appConst = require('../../libs/app_const');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
+const PageWidgetContextWindowPanel = require('../../page_objects/wizardpanel/liveform/page.widget.context.window');
+const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 
 describe("revert.site.with.components.spec: Insert Text component then revert the previous version and check Live Frame", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -53,6 +56,33 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             await liveFormPanel.clickOnCloseEditModeButton();
             // Verify that the close-icon  gets not visible:
             await liveFormPanel.waitForCloseEditModeButtonNotDisplayed();
+        });
+
+    // Inspect panel changes when switching between preview modes #9449
+    // https://github.com/enonic/app-contentstudio/issues/9449
+    it(`GIVEN text component has been clicked in PCV WHEN JSON option has been selected in Preview Mode dropdown THEN the text component remains selected in Inspect Tab in Context Window`,
+        async () => {
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
+            let contentWizard = new ContentWizard();
+            let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
+            let pageWidgetContextWindowPanel = new PageWidgetContextWindowPanel();
+            // 1. Open the site with text component:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            // 2. Click on the component:
+            await pageComponentsWizardStepForm.clickOnComponentByDisplayName(TEXT);
+            // 3. Verify that text-component inspection panel is loaded:
+            await textComponentInspectionPanel.waitForOpened();
+            // 4. Select 'JSON' in Preview Mode dropdown:
+            await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.JSON);
+            // 5. Verify that 'Inspect' tab is active in Context Window:
+            let result  = await pageWidgetContextWindowPanel.isTabBarItemActive('Inspect');
+            assert.ok(result, "'Inspect' tab should be active in the Context Window");
+            await studioUtils.saveScreenshot('text_component_issue_9449');
+            // 6. Verify that text-component inspection panel remains displayed :
+            await textComponentInspectionPanel.waitForOpened();
+            // Error after trying to DnD items from Insert Tab when Json #9451
+            // 7. Verify that 'Insert' tab is not displayed in Context Window when JSON option is selected:
+            await pageWidgetContextWindowPanel.waitForTabBarItemNotDisplayed('Insert')
         });
 
     it(`GIVEN existing site with text component is opened WHEN do right click on the text-component THEN component's context menu should appear`,
