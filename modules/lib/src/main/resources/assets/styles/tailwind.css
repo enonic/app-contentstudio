@@ -43,4 +43,8 @@
   .context-split-panel {
     @apply bg-surface-neutral;
   }
+
+  .load-mask {
+    @apply !bg-overlay;
+  }
 }
