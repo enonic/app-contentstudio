@@ -65,11 +65,14 @@ function applyTheme(theme: Theme): void {
     if (typeof document === 'undefined') return;
 
     const resolvedTheme = resolveTheme(theme);
+    const isDark = resolvedTheme === 'dark';
 
-    if (resolvedTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
+    document.documentElement.classList.toggle('dark', isDark);
+
+    // Update color-scheme meta tag to match the resolved theme
+    const colorSchemeMeta = document.querySelector('meta[name="color-scheme"]');
+    if (colorSchemeMeta) {
+        colorSchemeMeta.setAttribute('content', isDark ? 'dark' : 'light');
     }
 }
 
