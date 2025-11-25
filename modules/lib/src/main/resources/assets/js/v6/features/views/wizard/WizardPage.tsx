@@ -1,10 +1,9 @@
 import type {ReactElement} from 'react';
+import {WizardAppShell} from './layout/WizardAppShell';
 
 export const WizardPage = (): ReactElement => {
     return (
-        <>
-        {/* TODO: Add wizard page content */}
-        </>
+        <WizardAppShell />
     );
 };
 

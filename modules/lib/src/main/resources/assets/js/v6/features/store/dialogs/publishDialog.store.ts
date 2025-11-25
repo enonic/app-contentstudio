@@ -10,6 +10,8 @@ import {showError, showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {PublishContentRequest} from '../../../../app/resource/PublishContentRequest';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {$contentCreated, $contentUpdated, $contentDeleted, $contentArchived, $contentPublished} from '../socket.store';
+import {createDebounce} from '../../utils/timing/createDebounce';
 
 type MainItem = {
     id: string;
@@ -425,13 +427,148 @@ const filterItemsWithChildren = (items: ContentSummaryAndCompareStatus[]): Conte
 };
 
 //
-// * Internal
+// * Internal Helpers
 //
 
+/** Debounced reload to batch rapid server events (100ms delay like PublishProcessor) */
+const reloadPublishDialogDataDebounced = createDebounce(() => {
+    reloadPublishDialogData();
+}, 100);
+
+/** Check if dialog is open and has items */
+const isDialogActive = (): boolean => {
+    const {open, items} = $publishDialog.get();
+    return open && items.length > 0;
+};
+
+/** Remove items by IDs from both main items and dependant items */
+const removeItemsByIds = (idsToRemove: Set<string>): {removedMain: boolean; removedDependant: boolean} => {
+    const {items, dependantItems} = $publishDialog.get();
+
+    const newItems = items.filter(item => !idsToRemove.has(item.getId()));
+    const newDependantItems = dependantItems.filter(item => !idsToRemove.has(item.getId()));
+
+    const removedMain = newItems.length !== items.length;
+    const removedDependant = newDependantItems.length !== dependantItems.length;
+
+    if (removedMain) {
+        $publishDialog.setKey('items', newItems);
+    }
+    if (removedDependant) {
+        $publishDialog.setKey('dependantItems', newDependantItems);
+    }
+
+    return {removedMain, removedDependant};
+};
+
+/** Patch items with updated data, keeping items not in the update */
+const patchItemsWithUpdates = (updates: ContentSummaryAndCompareStatus[]): boolean => {
+    const {items} = $publishDialog.get();
+    const updateMap = new Map(updates.map(u => [u.getId(), u]));
+
+    const hasUpdates = items.some(item => updateMap.has(item.getId()));
+    if (!hasUpdates) return false;
+
+    const patchedItems = items.map(item => updateMap.get(item.getId()) ?? item);
+    $publishDialog.setKey('items', patchedItems);
+    return true;
+};
+
+//
+// * Internal Subscriptions
+//
+
+// Reload data when dialog opens
 $publishDialog.subscribe(({open}, _) => {
     if (!open) return;
-
     reloadPublishDialogData();
+});
+
+//
+// * Socket Event Handlers
+//
+
+// Handle content created: reload dependencies as new content might be a child or dependency
+$contentCreated.subscribe((event) => {
+    if (!event || !isDialogActive()) return;
+
+    // New content could be a child of items with "include children" or a new dependency
+    reloadPublishDialogDataDebounced();
+});
+
+// Handle content updates: patch main items, reload if dependants affected
+$contentUpdated.subscribe((event) => {
+    if (!event || !isDialogActive()) return;
+
+    const {dependantItems} = $publishDialog.get();
+    const updatedIds = new Set(event.data.map(item => item.getId()));
+
+    // Patch main items immutably
+    patchItemsWithUpdates(event.data);
+
+    // Reload when dependants change - dependency graph might have changed
+    const hasUpdatedDependants = dependantItems.some(item => updatedIds.has(item.getId()));
+    if (hasUpdatedDependants) {
+        reloadPublishDialogDataDebounced();
+    }
+});
+
+// Handle content deletion: remove from lists, close if no items left, reload if needed
+$contentDeleted.subscribe((event) => {
+    if (!event || !isDialogActive()) return;
+
+    const deletedIds = new Set(event.data.map(item => item.getContentId().toString()));
+    const {removedMain, removedDependant} = removeItemsByIds(deletedIds);
+
+    // Close dialog if all main items were deleted
+    const {items} = $publishDialog.get();
+    if (items.length === 0) {
+        resetPublishDialogContext();
+        return;
+    }
+
+    // Reload dependencies if any items were removed
+    if (removedMain || removedDependant) {
+        reloadPublishDialogDataDebounced();
+    }
+});
+
+// Handle content archived: same as delete
+$contentArchived.subscribe((event) => {
+    if (!event || !isDialogActive()) return;
+
+    const archivedIds = new Set(event.data.map(item => item.getContentId().toString()));
+    const {removedMain, removedDependant} = removeItemsByIds(archivedIds);
+
+    // Close dialog if all main items were archived
+    const {items} = $publishDialog.get();
+    if (items.length === 0) {
+        resetPublishDialogContext();
+        return;
+    }
+
+    // Reload dependencies if any items were removed
+    if (removedMain || removedDependant) {
+        reloadPublishDialogDataDebounced();
+    }
+});
+
+// Handle content published: close dialog if all main items were published
+$contentPublished.subscribe((event) => {
+    if (!event || !isDialogActive()) return;
+
+    const {items} = $publishDialog.get();
+    const publishedIds = new Set(event.data.map(item => item.getId()));
+
+    // Check if all main items were published
+    const allMainItemsPublished = items.every(item => publishedIds.has(item.getId()));
+    if (allMainItemsPublished) {
+        resetPublishDialogContext();
+        return;
+    }
+
+    // Otherwise reload to update status
+    reloadPublishDialogDataDebounced();
 });
 
 // TODO: Use AbortController to cancel the request if the instanceId changes
