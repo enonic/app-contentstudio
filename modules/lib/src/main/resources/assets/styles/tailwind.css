@@ -22,7 +22,7 @@
 
 /* HACKS */
 @layer overrides {
-  /* Hide laucher buttons that is injected from Launcher app */
+  /* Hide launcher buttons that is injected from Launcher app */
   #launcher-button {
     display: none !important;
   }
