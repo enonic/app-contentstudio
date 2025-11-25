@@ -53,6 +53,7 @@ export const StaticBucketAggregation = ({
                     const key = buildKey(aggregation.getName(), bucket.getKey());
                     return (
                         <Checkbox
+                            id={key}
                             key={key}
                             checked={isSelected(bucket)}
                             defaultChecked={false}
