@@ -19,10 +19,10 @@ export const ContentItemWithChildren = ({
     onCheckedChange,
     defaultChecked,
     readOnly,
-    className,
     includeChildren,
     onIncludeChildrenChange,
     defaultIncludeChildren,
+    className,
 }: Props): React.ReactElement => {
     const hasChildren = content.hasChildren();
     const includeChildrenLabel = useI18n('field.content.includeChildren');
@@ -49,7 +49,8 @@ export const ContentItemWithChildren = ({
                         checked={includeChildren}
                         defaultChecked={defaultIncludeChildren}
                         onCheckedChange={onIncludeChildrenChange}
-                        readOnly={readOnly || !(checked || defaultChecked)}
+                        readOnly={readOnly || !(defaultChecked || checked)}
+                        disabled={!(defaultChecked || checked)}
                         label={includeChildrenLabel}
                     />
                 </div>

@@ -26,6 +26,7 @@ import {PublishRequest} from '../issue/PublishRequest';
 import {PublishRequestItem} from '../issue/PublishRequestItem';
 import {CreateIssueRequest} from '../issue/resource/CreateIssueRequest';
 import {CSPrincipalCombobox} from '../security/CSPrincipalCombobox';
+import {openPublishDialog} from '../../v6/features/store/dialogs/publishDialog.store';
 
 enum Step {
     ITEMS = 'items-step',
@@ -67,7 +68,7 @@ export class RequestContentPublishDialog
             class: 'request-publish-dialog',
             buttonRow: new DropdownButtonRow(),
             processingLabel: `${i18n('field.progress.publishing')}...`,
-            processHandler: () => new ContentPublishPromptEvent({model: []}).fire(),
+            processHandler: () => openPublishDialog([]),
         } satisfies DependantItemsWithProgressDialogConfig);
     }
 

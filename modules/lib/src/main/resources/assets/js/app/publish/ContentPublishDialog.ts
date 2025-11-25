@@ -15,6 +15,7 @@ import {PublishContentRequest} from '../resource/PublishContentRequest';
 import {ContentPublishDialogAction} from './ContentPublishDialogAction';
 import {PublishItemsListElement} from '../../v6/features/shared/dialogs/publish/PublishItemsList';
 import {PublishDialogItemList} from './PublishDialogItemList';
+import {openPublishDialog} from '../../v6/features/store/dialogs/publishDialog.store';
 
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.
@@ -41,7 +42,7 @@ export class ContentPublishDialog
             class: 'publish-dialog',
             buttonRow: new DropdownButtonRow(),
             processingLabel: `${i18n('field.progress.publishing')}...`,
-            processHandler: () => new ContentPublishPromptEvent({model: []}).fire(),
+            processHandler: () => openPublishDialog([]),
         } satisfies DependantItemsWithProgressDialogConfig);
 
         this.onProgressComplete((taskState) => {

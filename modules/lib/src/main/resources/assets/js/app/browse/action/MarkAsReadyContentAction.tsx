@@ -11,6 +11,7 @@ import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 import {ContentPublishPromptEvent} from '../ContentPublishPromptEvent';
 import {ContentId} from '../../content/ContentId';
 import {DialogPresetConfirmElement} from '../../../v6/features/shared/dialogs/DialogPreset';
+import {openPublishDialog} from '../../../v6/features/store/dialogs/publishDialog.store';
 
 export class MarkAsReadyContentAction
     extends ContentTreeGridAction {
@@ -65,7 +66,7 @@ export class MarkAsReadyContentAction
             }
         }).then(() => {
             if (this.canPublish) {
-                new ContentPublishPromptEvent({model: contentToPublish}).fire();
+                openPublishDialog(contentToPublish);
             }
         }).catch(DefaultErrorHandler.handle);
     }
