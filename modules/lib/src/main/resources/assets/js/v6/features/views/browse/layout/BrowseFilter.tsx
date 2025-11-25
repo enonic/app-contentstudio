@@ -4,8 +4,13 @@ import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregat
 import {Button, SearchField} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Download} from 'lucide-react';
-import {useMemo} from 'react';
-import {$contentFilterState, setContentFilterSelection, setContentFilterValue} from '../../../store/contentFilter.store';
+import {useEffect, useMemo, useRef} from 'react';
+import {
+    $contentFilterState,
+    $isContentFilterOpen,
+    setContentFilterSelection,
+    setContentFilterValue
+} from '../../../store/contentFilter.store';
 import {StaticBucketAggregation} from '../../../shared/buckets/StaticBucketAggregation';
 import {FilterableBucketAggregation} from '../../../shared/buckets/FilterableBucketAggregation';
 import {useI18n} from '../../../hooks/useI18n';
@@ -34,6 +39,7 @@ export const BrowseFilter = ({
 
     const exportAction = exportOptions?.action;
     const exportLabel = exportOptions?.label || useI18n('action.export');
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const nonEmptyAggregations = useMemo(
         () => bucketAggregations.filter(ba => ba.getBuckets().some(b => b.getDocCount() > 0)),
@@ -54,10 +60,17 @@ export const BrowseFilter = ({
         setContentFilterSelection(newSelection);
     }
 
+    const isOpen = useStore($isContentFilterOpen);
+    useEffect(() => {
+        if (isOpen) {
+            inputRef.current?.focus();
+        }
+    }, [isOpen]);
+
     return (
         <div className='bg-surface-neutral'>
             <SearchField.Root className='h-11.5' id='SearchInput' placeholder={searchPlaceholder} value={value} onChange={setContentFilterValue}>
-                <SearchField.Input />
+                <SearchField.Input ref={inputRef}/>
                 <SearchField.Clear />
             </SearchField.Root>
 
