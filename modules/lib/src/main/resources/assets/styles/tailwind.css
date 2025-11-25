@@ -39,4 +39,8 @@
   .vertical .ghost-dragger {
     @apply -ml-0.5;
   }
+
+  .context-split-panel {
+    @apply bg-surface-neutral;
+  }
 }
