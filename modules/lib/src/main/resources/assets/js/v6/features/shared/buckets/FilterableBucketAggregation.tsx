@@ -96,6 +96,7 @@ export const FilterableBucketAggregation = ({
 
                 return(
                     <Checkbox
+                        id={key}
                         key={key}
                         checked={isSelected(bucket)}
                         onClick={() => toggleTopBucket(bucket)}
@@ -123,6 +124,7 @@ export const FilterableBucketAggregation = ({
                                 return (
                                     <Listbox.Item key={key} value={buildKey(bucket.getKey())} className={cn('h-9', isBucketSelected && 'group')} data-tone={isBucketSelected ? 'inverse' : ''} >
                                         <Checkbox
+                                            id={`${key}-checkbox`}
                                             checked={isBucketSelected}
                                             onClick={e => { // listbox will handle selection
                                                 e.stopPropagation();
