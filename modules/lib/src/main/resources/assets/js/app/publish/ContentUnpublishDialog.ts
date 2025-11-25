@@ -8,7 +8,6 @@ import {ContentUnpublishPromptEvent} from '../browse/ContentUnpublishPromptEvent
 import {CompareStatus} from '../content/CompareStatus';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentIds} from '../content/ContentIds';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {ResolveUnpublishRequest} from '../resource/ResolveUnpublishRequest';
 import {UnpublishContentRequest} from '../resource/UnpublishContentRequest';
@@ -62,7 +61,7 @@ export class ContentUnpublishDialog
         if (this.isSiteOrMultipleItemsToUnPublish()) {
             this.showUnPublishConfirmationDialog();
         } else {
-            this.doUnPublish();
+            this.doUnPublish(this.getContentToUnpublishIds());
         }
     }
 
@@ -72,20 +71,14 @@ export class ContentUnpublishDialog
 
     private showUnPublishConfirmationDialog(): void {
         const totalToUnpublish = this.countTotal();
-        const contentIds = ContentIds.create()
-            .fromContentIds(this.getContentToUnpublishIds())
-            .build();
-
+        const contentIds = this.getContentToUnpublishIds();
 
         this.unPublishConfirmationDialog = new DialogPresetConfirmDeletePreset({
             open: true,
             title: i18n('dialog.unpublish.confirm.title'),
             description: i18n('dialog.unpublish.confirm.subtitle'),
             expected: totalToUnpublish,
-            onConfirm: () => {
-                const selectedIds = contentIds.map(id => id);
-                this.doUnPublish(selectedIds, totalToUnpublish);
-            },
+            onConfirm: () => this.doUnPublish(contentIds, totalToUnpublish),
             onCancel: () => this.unPublishConfirmationDialog.close(),
         });
         this.unPublishConfirmationDialog.open();
@@ -134,7 +127,7 @@ export class ContentUnpublishDialog
         });
     }
 
-    private doUnPublish(selectedIds: ContentId[] = this.getContentToUnpublishIds(), total?: number): void {
+    private doUnPublish(selectedIds: ContentId[], total?: number): void {
         if (selectedIds.length === 0) {
             return;
         }
