@@ -12,6 +12,7 @@
 @import "tailwindcss/utilities.css" layer(utilities);
 
 @source "../../../../../node_modules/@enonic/ui/";
+@source "../../../../../node_modules/@enonic/lib-admin-ui/ui2/";
 
 @theme {
   /* SIZINGS */
