@@ -54,8 +54,10 @@ const TreeListToolbar = ({enabled = true, handleToggleClick = () => { }}: TreeLi
     const loadingState = useStore($contentTreeRootLoadingState);
     const isLoading = loadingState === 'loading';
     const isAllSelected = useStore($isAllSelected);
+    const totalSelected = useStore($numberOfSelected);
     const isNoneSelected = useStore($isNoneSelected);
-    const selectAllLabel = useI18n('field.treeListToolbar.selectAll');
+    const selectAllLabel = isNoneSelected ? useI18n('field.treeListToolbar.selectAll') : useI18n('field.treeListToolbar.deselectAll',
+        totalSelected);
 
     const checkedStatus = useMemo<CheckboxChecked>(() => {
         if (isAllSelected) return true;
