@@ -81,7 +81,7 @@ export const ContentIcon = ({
     if (canShowImage && src) {
         // 2x size for better quality
         return <Image
-            className={cn('w-6 h-6', isImageType ? 'object-cover' : 'object-contain', className)}
+            className={cn('w-6 h-6 dark:invert-100 dark:brightness-75 dark:contrast-125', isImageType ? 'object-cover' : 'object-contain', className)}
             alt={contentType}
             src={src}
             onError={() => setImageBroken(true)}
