@@ -26,6 +26,7 @@ type DependantItem = {
     content: ContentSummaryAndCompareStatus;
     included: boolean;
     required: boolean;
+    excludedByDefault: boolean;
 };
 
 type PublishDialogSelectionStore = {
@@ -114,12 +115,13 @@ export const $mainPublishItems = computed([$publishDialog, $draftPublishDialogSe
     }));
 });
 
-export const $dependantPublishItems = computed([$publishDialog, $draftPublishDialogSelection, $publishChecks], ({dependantItems}, {excludedDependantItemsIds}, {requiredIds}): DependantItem[] => {
+export const $dependantPublishItems = computed([$publishDialog, $draftPublishDialogSelection, $publishChecks], ({dependantItems, excludedDependantItemsIds}, {excludedDependantItemsIds: draftExcludedIds}, {requiredIds}): DependantItem[] => {
     return dependantItems.map(item => ({
         id: item.getId(),
         content: item,
-        included: !hasContentIdInIds(item.getContentId(), excludedDependantItemsIds),
+        included: !hasContentIdInIds(item.getContentId(), draftExcludedIds),
         required: hasContentIdInIds(item.getContentId(), requiredIds),
+        excludedByDefault: hasContentIdInIds(item.getContentId(), excludedDependantItemsIds),
     }));
 });
 

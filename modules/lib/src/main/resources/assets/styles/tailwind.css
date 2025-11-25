@@ -32,6 +32,14 @@
     outline-style: none;
   }
 
+  .xp-admin-focused,
+  :focus-visible,
+  :focus,
+  input[type="checkbox"]:focus + label::before,
+  input[type="checkbox"]:focus + label::after {
+    outline: none;
+  }
+
   .splitter {
     @apply !bg-bdr-soft after:content-[''] after:absolute after:w-2.25 after:h-full after:z-1 after:-left-1;
   }
