@@ -22,7 +22,8 @@ export const BrowseSidebar = (): ReactElement => {
     const activeProject = useStore($activeProject);
     const {widgets, activeWidgetId} = useStore($sidebarWidgets);
     const name = Store.instance().get('application').getName();
-    const version = 'v' + CONFIG.getString('appVersion');
+    // const version = 'v' + CONFIG.getString('appVersion');
+    const version = 'v6.0.0'; // temporary hardcoded for demo purposes
 
     const mainWidgets = widgets.slice(0, -1);
     const lastWidget = widgets.at(-1);
