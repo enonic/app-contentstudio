@@ -12,6 +12,7 @@ import {DockedPanel} from '@enonic/lib-admin-ui/ui/panel/DockedPanel';
 import {PageState} from '../PageState';
 import {PageNavigationEventSource} from '../../PageNavigationEventData';
 import {PageEventsManager} from '../../PageEventsManager';
+import {Component} from '../../../page/region/Component';
 
 export interface ContextWindowConfig {
 
@@ -57,7 +58,7 @@ export class ContextWindow
 
     private isPageReady: boolean = false;
 
-    private isInspecting: boolean = false;
+    private component: Component;
 
     public static debug = false;
 
@@ -91,7 +92,6 @@ export class ContextWindow
             }
         });
         eventManager.onRenderableChanged((isRenderable) => {
-            const wasRenderable = this.isPageRenderable;
             this.isPageRenderable = isRenderable;
             if (ContextWindow.debug) {
                 console.info(
@@ -99,7 +99,7 @@ export class ContextWindow
             }
             if (this.isPageReady) {
                 // don't select insertables when renderable was set for the first time (undefined -> true/false)
-                this.updateInsertablesPanel(isRenderable && wasRenderable !== undefined);
+                this.updateInsertablesPanel();
             }
         })
         eventManager.onLiveEditPageViewReady((event) => {
@@ -111,7 +111,7 @@ export class ContextWindow
             }
             // disable insert tab if there is no page for some reason (i.e. error occurred)
             // or there is no controller or template set or no automatic template
-            this.updateInsertablesPanel(this.isPageRenderable && !this.isInspecting);
+            this.updateInsertablesPanel();
         })
         eventManager.onLiveEditPageInitializationError(() => {
             if (ContextWindow.debug) {
@@ -153,7 +153,7 @@ export class ContextWindow
         this.toggleClass('no-insertion', !visible);
     }
 
-    updateInsertablesPanel(selectInsertables?: boolean) {
+    updateInsertablesPanel() {
         let setVisible: boolean;
         // check for renderable because it can have a controller/template but not be renderable (e.g. app is turned off )
         if (this.insertablesPanel && !this.isPageLocked && this.isPageRenderable) {
@@ -164,7 +164,7 @@ export class ContextWindow
         } else {
             setVisible = false;
         }
-        return this.setInsertablesVisible(setVisible, selectInsertables);
+        return this.setInsertablesVisible(setVisible);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -205,8 +205,6 @@ export class ContextWindow
 
             this.inspectionsPanel.showInspectionPanel(params.panel);
 
-            this.isInspecting = true;
-
             if (!params.keepPanelSelection) {
                 this.selectPanel(this.inspectionsPanel);
             }
@@ -214,9 +212,8 @@ export class ContextWindow
     }
 
     public clearSelection(showInsertables?: boolean) {
+        this.component = null;
         this.inspectionsPanel.clearInspection();
-
-        this.isInspecting = false;
 
         const isPageInspectionPanelSelectable = this.isPanelSelectable(this.inspectionsPanel.getPanelShown());
         this.toggleClass('no-inspection', !isPageInspectionPanelSelectable);
@@ -227,5 +224,17 @@ export class ContextWindow
                 this.selectPanel(this.insertablesPanel);
             }
         }
+    }
+
+    isRenderable(): boolean {
+        return this.isPageRenderable;
+    }
+
+    setComponent(component: Component) {
+        this.component = component;
+    }
+
+    getComponent(): Component {
+        return this.component;
     }
 }
