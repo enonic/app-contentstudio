@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <meta name="theme-color" content="#ffffff">
+    <meta name="color-scheme" content="light dark">
 
     <title>{{appName}} - Enonic XP Admin</title>
 
@@ -16,19 +17,22 @@
             const storedTheme = JSON.parse(stored)?.theme;
             const isDark = storedTheme === 'dark' || (storedTheme === 'system' && prefersDark) || (storedTheme === undefined && prefersDark);
             document.documentElement.classList.toggle('dark', isDark);
+            document.querySelector('meta[name="color-scheme"]').content = isDark ? 'dark' : 'light';
         } catch (e) {
             console.error('Error reading theme preference', e);
         }
     </script>
 
     <style>
-      :root {
-        color-scheme: light;
-      }
+        :root {
+            color-scheme: light;
+            background-color: #ffffff;
+        }
 
-      :root.dark {
-        color-scheme: dark;
-      }
+        :root.dark {
+            color-scheme: dark;
+            background-color: #242829;
+        }
     </style>
 
     <!-- favicons -->
