@@ -23,7 +23,7 @@ export const ProjectIcon = ({
 }: ProjectIconProps): ReactElement => {
     const url = hasIcon ? resolveProjectIconUrl(projectName) : null;
     if (url) {
-        return <img src={url} alt={projectName} draggable={false} className="ml-2.5 size-8 rounded-full bg-center object-cover"/>;
+        return <img src={url} alt={projectName} draggable={false} className={cn('size-8 rounded-full bg-center object-cover', className)} />;
     }
 
     if (!language) {
@@ -31,7 +31,7 @@ export const ProjectIcon = ({
             return (
                 <Layers
                     className={cn(
-                        'ml-2.5 size-8 flex items-center justify-center',
+                        'size-8 flex items-center justify-center',
                         className
                     )}
                 />
@@ -39,7 +39,7 @@ export const ProjectIcon = ({
         }
         return (
             <DefaultProjectIcon
-                className={cn('ml-2.5 size-8 flex items-center justify-center', className)}
+                className={cn('size-8 flex items-center justify-center', className)}
             />
         );
     }
@@ -52,7 +52,7 @@ export const ProjectIcon = ({
     const initials = lang.slice(0, 2);
 
     return (
-        <div className={cn('ml-2.5 relative size-8', className)} aria-hidden="true">
+        <div className={cn('relative size-8', className)} aria-hidden="true">
             <div className="absolute inset-0 flex items-center justify-center rounded-full border-1 border-bdr-subtle text-xs font-semibold lowercase text-subtle">
                 {initials}
             </div>
