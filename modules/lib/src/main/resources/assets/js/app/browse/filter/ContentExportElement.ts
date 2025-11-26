@@ -1,6 +1,5 @@
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
-import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
+import {DialogPresetConfirmElement} from '../../../v6/features/shared/dialogs/DialogPreset';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentAggregation} from './ContentAggregation';
 import {AggregationSelection} from '@enonic/lib-admin-ui/aggregation/AggregationSelection';
@@ -21,7 +20,6 @@ enum EXPORT_TYPE {
 export class ContentExportElement extends SpanEl {
 
     protected exportServicePath: string;
-    protected exportConfirmationDialog: ConfirmationDialog;
 
     protected total: number;
     protected searchInputValues: SearchInputValues;
@@ -66,15 +64,19 @@ export class ContentExportElement extends SpanEl {
     }
 
     handleExportClicked(): void {
-        if (!this.exportConfirmationDialog) {
-            this.exportConfirmationDialog = new ConfirmationDialog()
-                .setYesCallback(() => {
-                    this.exportSearch(this.getSelectedType());
-                });
-        }
-
         const typeString = i18n(`dialog.export.type.${this.getSelectedType()}`);
-        this.exportConfirmationDialog.setQuestion(i18n('dialog.confirm.export', this.total, typeString)).open();
+        const dialog = new DialogPresetConfirmElement({
+            open: true,
+            title: i18n('dialog.confirm.title'),
+            description: i18n('dialog.confirm.export', this.total, typeString),
+            onConfirm: () => {
+                dialog.close();
+                this.exportSearch(this.getSelectedType());
+            },
+            onCancel: () => dialog.close()
+        });
+
+        dialog.open();
     }
 
     protected getSelectedType(): EXPORT_TYPE {
