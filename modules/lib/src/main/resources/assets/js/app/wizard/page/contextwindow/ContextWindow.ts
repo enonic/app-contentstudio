@@ -139,13 +139,13 @@ export class ContextWindow
         }
     }
 
-    private setInsertablesVisible(visible: boolean, select = false): void {
+    private setInsertablesVisible(visible: boolean): void {
         this.insertablesPanel?.whenRendered(() => {
             if (ContextWindow.debug) {
-                console.info(`ContextWindow.setInsertablesVisible: visible = ${visible}, select = ${select}`);
+                console.info(`ContextWindow.setInsertablesVisible: visible = ${visible}`);
             }
             this.setItemVisible(this.insertablesPanel, visible);
-            if (select && visible) {
+            if (!this.component && visible) {
                 this.selectPanel(this.insertablesPanel);
             }
         });

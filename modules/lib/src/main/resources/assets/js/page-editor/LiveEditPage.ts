@@ -182,7 +182,7 @@ export class LiveEditPage {
 
             this.registerGlobalListeners();
 
-            this.restoreSelection(event.getParams().contentId);
+            //this.restoreSelection(event.getParams().contentId);
 
             if (LiveEditPage.debug) {
                 console.debug('LiveEditPage: done live edit initializing in ' + (Date.now() - startTime) + 'ms');
