@@ -27,6 +27,14 @@ class PageWidgetContextWindowPanel extends Page {
             await this.handleError('Page Widget, TabBar item was not found', 'err_page_widget_panel_tab')
         }
     }
+    async waitForTabBarItemNotDisplayed(tabName) {
+        try {
+            let selector = xpath.container + xpath.tabBarItemByName(tabName);
+            await this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(`Page Widget, TabBar item ${tabName} should not be displayed in the Page Widget`, 'err_page_widget_panel_tab')
+        }
+    }
 
     async clickOnTabBarItem(tabName) {
         try {

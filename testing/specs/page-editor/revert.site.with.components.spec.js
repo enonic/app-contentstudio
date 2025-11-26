@@ -64,7 +64,6 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
         async () => {
             let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let contentWizard = new ContentWizard();
-            //let pageComponentView = new PageComponentView();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             let pageWidgetContextWindowPanel = new PageWidgetContextWindowPanel();
             // 1. Open the site with text component:
@@ -81,6 +80,9 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             await studioUtils.saveScreenshot('text_component_issue_9449');
             // 6. Verify that text-component inspection panel remains displayed :
             await textComponentInspectionPanel.waitForOpened();
+            // Error after trying to DnD items from Insert Tab when Json #9451
+            // 7. Verify that 'Insert' tab is not displayed in Context Window when JSON option is selected:
+            await pageWidgetContextWindowPanel.waitForTabBarItemNotDisplayed('Insert')
         });
 
     it(`GIVEN existing site with text component is opened WHEN do right click on the text-component THEN component's context menu should appear`,
