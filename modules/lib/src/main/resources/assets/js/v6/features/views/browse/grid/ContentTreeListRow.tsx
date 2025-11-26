@@ -1,6 +1,7 @@
 import {Checkbox, cn, TreeList, useTreeList} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import type {ComponentPropsWithoutRef} from 'react';
+import {EditContentEvent} from '../../../../../app/event/EditContentEvent';
 import {$contentTreeSelectionMode, isItemSelected} from '../../../store/contentTreeSelectionStore';
 import {ContentData} from './ContentData';
 import {ContentTreeListItem} from './ContentTreeListItem';
@@ -38,7 +39,7 @@ export const ContentTreeListRow = ({item}: ContentTreeListRowProps): React.React
                     <TreeList.RowLevelSpacer level={item.path.length} />
                     <TreeList.RowExpandControl data={item} />
                 </TreeList.RowLeft>
-                <TreeList.RowContent>
+                <TreeList.RowContent onDblClick={() => new EditContentEvent([item.item]).fire()}>
                     <ContentTreeListItem content={item} key={item.id}/>
                 </TreeList.RowContent>
             </TreeList.Row>
