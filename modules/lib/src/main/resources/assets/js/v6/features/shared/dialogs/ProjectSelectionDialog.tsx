@@ -88,8 +88,8 @@ export const ProjectSelectionDialog = (): ReactElement => {
                                         <Listbox.Item
                                             key={project.getName()}
                                             value={project.getName()}
-                                            className="group flex self-stretch w-full min-w-full"
-                                            style={{paddingInlineStart: level * 20}}
+                                            className="group flex self-stretch w-full min-w-full px-2.5"
+                                            style={{paddingInlineStart: level * 20 + 10}}
                                             data-tone={project.getName() === activeProjectId ? 'inverse' : undefined}
                                         >
                                             <ProjectItem
