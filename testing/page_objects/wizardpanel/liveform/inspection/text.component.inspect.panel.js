@@ -13,8 +13,12 @@ const XPATH = {
 // Context Window, Text Component Inspect tab
 class TextComponentInspectionPanel extends BaseComponentInspectionPanel {
 
-    waitForOpened() {
-        return this.waitForElementDisplayed(XPATH.container);
+    async waitForOpened() {
+        try {
+            return await this.waitForElementDisplayed(XPATH.container,appConst.mediumTimeout);
+        }catch (err){
+            await this.handleError('Text component Inspect Panel: ', 'err_text_component_inspect_panel_not_loaded', err);
+        }
     }
 
     async typeTextInEditor(text) {
@@ -23,7 +27,7 @@ class TextComponentInspectionPanel extends BaseComponentInspectionPanel {
             await utils.insertTextInCKE(id, text);
             return await this.pause(700);
         } catch (err) {
-            await this.handleError('Inspect Panel with text area: ', 'err_text_component_inspect_panel', err);
+            await this.handleError('Text component Inspect Panel: ', 'err_text_component_inspect_panel', err);
         }
     }
 

@@ -13,6 +13,7 @@ const WizardContextWindowPanel = require('../../page_objects/wizardpanel/details
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const appConst = require('../../libs/app_const');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
+const PageWidgetContextWindowPanel = require('../../page_objects/wizardpanel/liveform/page.widget.context.window');
 
 describe('context.window.insert.panel: tests for Insert tab in Page widget', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -74,6 +75,7 @@ describe('context.window.insert.panel: tests for Insert tab in Page widget', fun
 
     it("WHEN existing site is opened THEN 'Insert tab' panel should be loaded AND all expected components should be present",
         async () => {
+            let pageWidgetContextWindowPanel = new PageWidgetContextWindowPanel();
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             let contentWizard = new ContentWizard();
             let contextWindow = await contentWizard.openContextWindow();
@@ -81,6 +83,8 @@ describe('context.window.insert.panel: tests for Insert tab in Page widget', fun
             let insertTabPanel = new InsertablesPanel();
             // 1. Verify that 'Insert' tab Panel is loaded automatically:
             await insertTabPanel.waitForOpened();
+            let result  = await pageWidgetContextWindowPanel.isTabBarItemActive('Insert');
+            assert.ok(result, "'Insert' tab should be active in the Context Window");
             // 2. Verify items in the panel:
             let items = await insertTabPanel.getItems();
             await studioUtils.saveScreenshot('insert_tab_options');

@@ -87,6 +87,13 @@ export class WidgetRenderingHandler {
                     this.handlePreviewFailure(result.getResponse(), result.getData());
                 }
 
+                if (Object.keys(result.getData()).length === 0) {
+                    // if there's no data with page components, the content is in fact
+                    // not editable (JSON or Media preview), so page editing from
+                    // the Page widget must not be allowed
+                    isRenderable = false;
+                }
+
                 return isRenderable;
             })
             .catch((err) => {
