@@ -83,8 +83,8 @@ describe('context.window.insert.panel: tests for Insert tab in Page widget', fun
             let insertTabPanel = new InsertablesPanel();
             // 1. Verify that 'Insert' tab Panel is loaded automatically:
             await insertTabPanel.waitForOpened();
-            let result  = await pageWidgetContextWindowPanel.isTabBarItemActive('Inspect');
-            assert.ok(result, "'Inspect' tab should be active in the Context Window");
+            let result  = await pageWidgetContextWindowPanel.isTabBarItemActive('Insert');
+            assert.ok(result, "'Insert' tab should be active in the Context Window");
             // 2. Verify items in the panel:
             let items = await insertTabPanel.getItems();
             await studioUtils.saveScreenshot('insert_tab_options');
