@@ -163,6 +163,9 @@ export class ContextWindow
             setVisible = hasControllerOrTemplate || hasDefaultTemplate;
         } else {
             setVisible = false;
+            if (!PageState.getState()) {
+                this.clearSelection();
+            }
         }
         return this.setInsertablesVisible(setVisible);
     }
