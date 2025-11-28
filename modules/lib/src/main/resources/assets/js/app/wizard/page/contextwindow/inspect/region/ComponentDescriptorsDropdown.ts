@@ -124,6 +124,9 @@ export class ComponentDescriptorsDropdown
     }
 
     setDescriptor(descriptor: Descriptor) {
+        if (this.selectedDescriptor === descriptor) {
+            return;
+        }
         this.selectedDescriptor = descriptor;
         this.hideDropdown();
         this.deselectAll(true);
