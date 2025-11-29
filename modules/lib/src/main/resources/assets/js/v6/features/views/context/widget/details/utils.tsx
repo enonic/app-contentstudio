@@ -1,43 +1,76 @@
-import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
 import {Content} from '../../../../../../app/content/Content';
-import {Access} from '../../../../../../app/security/Access';
-import {AccessControlEntryView} from '../../../../../../app/view/AccessControlEntryView';
 import {ReactElement} from 'react';
-import {EffectivePermission} from '../../../../../../app/security/EffectivePermission';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
-import {WidgetView} from 'src/main/resources/assets/js/app/view/context/WidgetView';
-import {cn} from '@enonic/ui';
+import {ContentId} from '../../../../../../app/content/ContentId';
+import {PageTemplate} from '../../../../../../app/content/PageTemplate';
+import {GetPageTemplateByKeyRequest} from '../../../../../../app/resource/GetPageTemplateByKeyRequest';
+import {GetComponentDescriptorRequest} from '../../../../../../app/resource/GetComponentDescriptorRequest';
+import {Descriptor} from '../../../../../../app/page/Descriptor';
+import {Site} from '../../../../../../app/content/Site';
+import {GetNearestSiteRequest} from '../../../../../../app/resource/GetNearestSiteRequest';
+import {GetDefaultPageTemplateRequest} from '../../../../../../app/wizard/page/GetDefaultPageTemplateRequest';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 
 /**
- * Helper functions
+ * Requests
  */
 
-export function getEveryoneAccess(content: Content): Access {
-    const entry = content.getPermissions().getEntry(RoleKeys.EVERYONE);
+export async function loadPageTemplate(contentId: ContentId): Promise<PageTemplate | undefined> {
+    try {
+        const request = new GetPageTemplateByKeyRequest(contentId);
 
-    return entry ? AccessControlEntryView.getAccessValueFromEntry(entry) : null;
+        const pageTemplate = await request.sendAndParse();
+
+        return pageTemplate;
+    } catch (error) {
+        console.error(error);
+
+        return undefined;
+    }
 }
 
-export function filterEffectivePermissions(
-    content: Content,
-    permissions: EffectivePermission[]
-): EffectivePermission[] {
-    return permissions.filter(
-        (item: EffectivePermission) =>
-            item.getAccess() !== getEveryoneAccess(content) && item.getPermissionAccess().getCount() > 0
-    );
+export async function loadComponentDescriptor(content: Content): Promise<Descriptor | undefined> {
+    try {
+        const request = new GetComponentDescriptorRequest(content.getPage().getController().toString());
+
+        const pageDescriptor = await request.sendAndParse();
+
+        return pageDescriptor;
+    } catch (error) {
+        console.error(error);
+
+        return undefined;
+    }
 }
 
-export function sortPrincipals(principals: Principal[]): Principal[] {
-    const currentUser = AuthContext.get().getUser();
+export async function loadNearestSite(contentId: ContentId): Promise<Site | undefined> {
+    try {
+        const request = new GetNearestSiteRequest(contentId);
 
-    return principals.sort((a, _) => {
-        if (currentUser && currentUser.getKey().equals(a.getKey())) {
-            return -1;
-        }
-        return 1;
-    });
+        const site = await request.sendAndParse();
+
+        return site;
+    } catch (error) {
+        console.error(error);
+
+        return undefined;
+    }
+}
+
+export async function loadDefaultPageTemplate(
+    siteId: ContentId,
+    contentType: ContentTypeName
+): Promise<PageTemplate | undefined> {
+    try {
+        const request = new GetDefaultPageTemplateRequest(siteId, contentType);
+
+        const pageTemplate = await request.sendAndParse();
+
+        return pageTemplate;
+    } catch (error) {
+        console.error(error);
+
+        return undefined;
+    }
 }
 
 /**
@@ -52,55 +85,6 @@ export function Title({text}: {text: string}): ReactElement {
     );
 }
 
-export function Subtitle({text}: {text: string}): ReactElement {
+export const Subtitle = ({text}: {text: string}): ReactElement => {
     return <h3 className="text-xs text-subtle mb-1">{text}</h3>;
-}
-
-export function HorizontalDivider(): ReactElement {
-    return <span className="text-gray-300"> | </span>;
-}
-
-export function WidgetIcon({
-    widgetView,
-    size = 'md',
-}: {
-    widgetView: WidgetView;
-    size?: 'sm' | 'md' | 'lg';
-}): ReactElement {
-    if (!widgetView) return undefined;
-
-    let sizeNumber = 6;
-    let className = 'size-6';
-
-    if (size === 'sm') {
-        sizeNumber = 4;
-        className = 'size-4';
-    }
-
-    if (size === 'lg') {
-        sizeNumber = 8;
-        className = 'size-8';
-    }
-
-    if (widgetView.getWidgetIconUrl()) {
-        return (
-            <img
-                src={widgetView.getWidgetIconUrl()}
-                alt={widgetView.getWidgetName()}
-                className={cn('size-6 dark:invert-100', className)}
-            />
-        );
-    }
-
-    if (widgetView.getWidgetIcon()) {
-        const Icon = widgetView.getWidgetIcon();
-
-        return <Icon size={sizeNumber} className={cn(className)} />;
-    }
-
-    if (widgetView.getWidgetIconClass()) {
-        return <span className={cn(widgetView.getWidgetIconClass(), 'dark:before:invert-100', className)} />;
-    }
-
-    return undefined;
-}
+};

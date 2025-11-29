@@ -12,6 +12,9 @@ import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox
 import {SelectedOptionView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionView';
 import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
 
+/**
+ * @deprecated Use WidgetsDropdownElement instead
+ */
 export class WidgetsSelectionRow
     extends DivEl {
 
