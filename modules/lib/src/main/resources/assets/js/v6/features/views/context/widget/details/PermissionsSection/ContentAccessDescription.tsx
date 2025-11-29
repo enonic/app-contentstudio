@@ -3,7 +3,7 @@ import {LockKeyhole, LockKeyholeOpen} from 'lucide-react';
 import {useI18n} from '../../../../../hooks/useI18n';
 import {Content} from 'src/main/resources/assets/js/app/content/Content';
 import {ReactElement} from 'react';
-import {getEveryoneAccess} from '../utils';
+import {getEveryoneAccess} from '../../../../../store/context/detailsWidgets.store';
 
 export const ContentAccessDescription = ({content}: {content: Content}): ReactElement => {
     const everyoneAccess = getEveryoneAccess(content);
@@ -15,10 +15,10 @@ export const ContentAccessDescription = ({content}: {content: Content}): ReactEl
     const Icon = !!content.getPermissions().getEntry(RoleKeys.EVERYONE) ? LockKeyholeOpen : LockKeyhole;
 
     return (
-        <span class="flex items-center gap-3.5 text-xs text-subtle">
-            <Icon size={14} />
-            {text}
-        </span>
+        <div className="flex items-center gap-3.5 text-xs text-subtle overflow-hidden">
+            <Icon size={14} className="shrink-0" />
+            <span className="truncate">{text}</span>
+        </div>
     );
 };
 

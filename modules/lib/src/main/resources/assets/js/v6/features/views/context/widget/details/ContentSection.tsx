@@ -1,20 +1,19 @@
-import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {ReactElement} from 'react';
 import {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
-import {WidgetItemViewInterface} from '../../../../../../app/view/context/WidgetItemView';
 import {useI18n} from '../../../../hooks/useI18n';
 import {Workflow} from '../../../../../../app/content/Workflow';
 import {cn} from '@enonic/ui';
 import {PublishStatusChecker} from '../../../../../../app/publish/PublishStatus';
-import {HorizontalDivider, Subtitle} from './utils';
-import Q from 'q';
 import {StatusIcon} from '../../../../shared/icons/StatusIcon';
 import {WorkflowState} from '../../../../../../app/content/WorkflowState';
 import {capitalize} from '../../../../utils/format/capitalize';
 import {ContentIcon} from '../../../../shared/icons/ContentIcon';
+import {useStore} from '@nanostores/preact';
+import {$contextContent} from '../../../../store/context/contextContent.store';
+import {Subtitle} from './utils';
 
 type Props = {
-    content?: ContentSummaryAndCompareStatus;
+    content: ContentSummaryAndCompareStatus;
 };
 
 const Icon = ({content}: Props): ReactElement => {
@@ -31,7 +30,7 @@ const Status = ({content}: Props): ReactElement => {
     const publishStatus = content.getPublishStatus();
     const workflow: Workflow = contentSummary.getWorkflow();
     const workflowState = workflow ? useI18n(`status.workflow.${workflow.getState()}`) : '';
-    let status: 'info' | 'ready' | 'in-progress' | 'invalid';
+    let status: 'info' | 'ready' | 'in-progress' | 'invalid' | undefined = undefined;
 
     switch (workflow.getState()) {
         case WorkflowState.READY:
@@ -47,23 +46,17 @@ const Status = ({content}: Props): ReactElement => {
             <Subtitle text={useI18n('field.contextPanel.details.sections.content.status')} />
             <p className="flex gap-2 items-center text-sm">
                 {publishStatus && (
-                    <span
-                        className={cn(
-                            PublishStatusChecker.isOnline(publishStatus) && 'text-success'
-                            //PublishStatusChecker.isScheduled(publishStatus) && 'text-green-600',
-                            //PublishStatusChecker.isExpired(publishStatus) && 'text-green-600',
-                        )}
-                    >
+                    <span className={cn(PublishStatusChecker.isOnline(publishStatus) && 'text-success')}>
                         {capitalize(publishStatus)}
                     </span>
                 )}
 
-                {publishStatus && workflowState && <HorizontalDivider />}
+                {publishStatus && workflowState && <span className="text-gray-300"> | </span>}
 
-                <span className="flex items-center gap-1">
-                    {status && <StatusIcon status={status} />}
-                    {workflowState}
-                </span>
+                <div className="flex items-center gap-1 overflow-hidden">
+                    {status && <StatusIcon status={status} aria-label={workflowState} className="shrink-0" />}
+                    <span className="truncate">{workflowState}</span>
+                </div>
             </p>
         </div>
     );
@@ -88,14 +81,16 @@ const DisplayName = ({content}: Props): ReactElement => {
 
 const Path = ({content}: Props): ReactElement => {
     return (
-        <div class="flex flex-col shrink-1">
+        <div className="flex flex-col shrink-1">
             <Subtitle text={useI18n('field.contextPanel.details.sections.content.path')} />
             <p className="text-sm truncate">{content.getPath().toString()}</p>
         </div>
     );
 };
 
-const DetailsWidgetContentSection = ({content}: Props): ReactElement => {
+export const DetailsWidgetContentSection = (): ReactElement => {
+    const content = useStore($contextContent);
+
     if (!content) return undefined;
 
     return (
@@ -109,40 +104,3 @@ const DetailsWidgetContentSection = ({content}: Props): ReactElement => {
 };
 
 DetailsWidgetContentSection.displayName = 'DetailsWidgetContentSection';
-
-export class DetailsWidgetContentSectionElement
-    extends LegacyElement<typeof DetailsWidgetContentSection>
-    implements WidgetItemViewInterface
-{
-    constructor(props: Props) {
-        super(props, DetailsWidgetContentSection);
-    }
-
-    // Backwards compatibility
-
-    public static debug: boolean = false;
-
-    public layout(): Q.Promise<void> {
-        return Q();
-    }
-
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<null | void> {
-        if (!item) return;
-
-        this.props.setKey('content', item);
-
-        return Q();
-    }
-
-    public fetchWidgetContents(url: string, contentId: string): Q.Promise<void> {
-        return Q();
-    }
-
-    public hide(): void {
-        return;
-    }
-
-    public show(): void {
-        return;
-    }
-}

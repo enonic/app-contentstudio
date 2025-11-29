@@ -26,3 +26,5 @@ export const EditPermissionsButton = ({content}: {content: Content}): ReactEleme
         </Button>
     );
 };
+
+EditPermissionsButton.displayName = 'EditPermissionsButton';
