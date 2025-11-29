@@ -5,6 +5,9 @@ import {CompareStatus} from '../../../../content/CompareStatus';
 import {PublishStatus} from '../../../../publish/PublishStatus';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 
+/**
+ * @deprecated Use DetailsWidgetElement instead
+ */
 export class StatusWidgetItemView extends WidgetItemView {
 
     private content: ContentSummaryAndCompareStatus;

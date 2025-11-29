@@ -15,6 +15,9 @@ import {ContentSummary} from '../../../../content/ContentSummary';
 import {ContentId} from '../../../../content/ContentId';
 import {ContentPath} from '../../../../content/ContentPath';
 
+/**
+ * @deprecated Use DetailsWidgetElement instead
+ */
 export class AttachmentsWidgetItemView extends WidgetItemView {
 
     private content: ContentSummary;

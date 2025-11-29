@@ -39,6 +39,9 @@ import {ContentId} from '../../../../content/ContentId';
 import {ContentSummaryJson} from '../../../../content/ContentSummaryJson';
 import {ContentUrlHelper} from '../../../../util/ContentUrlHelper';
 
+/**
+ * @deprecated Use DetailsWidgetElement instead
+ */
 export class PageTemplateWidgetItemView
     extends WidgetItemView {
 
