@@ -1,16 +1,15 @@
 import {ReactElement} from 'react';
 import {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
 import {useI18n} from '../../../../hooks/useI18n';
-import {Workflow} from '../../../../../../app/content/Workflow';
 import {cn} from '@enonic/ui';
 import {PublishStatusChecker} from '../../../../../../app/publish/PublishStatus';
 import {StatusIcon} from '../../../../shared/icons/StatusIcon';
-import {WorkflowState} from '../../../../../../app/content/WorkflowState';
 import {capitalize} from '../../../../utils/format/capitalize';
 import {ContentIcon} from '../../../../shared/icons/ContentIcon';
 import {useStore} from '@nanostores/preact';
 import {$contextContent} from '../../../../store/context/contextContent.store';
 import {Subtitle} from './utils';
+import {calcWorkflowStateStatus} from '../../../../utils/cms/content/workflow';
 
 type Props = {
     content: ContentSummaryAndCompareStatus;
@@ -28,18 +27,8 @@ const Icon = ({content}: Props): ReactElement => {
 const Status = ({content}: Props): ReactElement => {
     const contentSummary = content.getContentSummary();
     const publishStatus = content.getPublishStatus();
-    const workflow: Workflow = contentSummary.getWorkflow();
-    const workflowState = workflow ? useI18n(`status.workflow.${workflow.getState()}`) : '';
-    let status: 'info' | 'ready' | 'in-progress' | 'invalid' | undefined = undefined;
-
-    switch (workflow.getState()) {
-        case WorkflowState.READY:
-            status = 'ready';
-            break;
-        case WorkflowState.IN_PROGRESS:
-            status = 'in-progress';
-            break;
-    }
+    const status = calcWorkflowStateStatus(contentSummary);
+    const statusLabel = status ? useI18n(`field.contextPanel.details.sections.content.status.${status}`) : '';
 
     return (
         <div>
@@ -51,11 +40,11 @@ const Status = ({content}: Props): ReactElement => {
                     </span>
                 )}
 
-                {publishStatus && workflowState && <span className="text-gray-300"> | </span>}
+                {publishStatus && status && <span className="text-gray-300"> | </span>}
 
                 <div className="flex items-center gap-1 overflow-hidden">
-                    {status && <StatusIcon status={status} aria-label={workflowState} className="shrink-0" />}
-                    <span className="truncate">{workflowState}</span>
+                    {status && <StatusIcon status={status} aria-label={statusLabel} className="shrink-0" />}
+                    <span className="truncate">{statusLabel}</span>
                 </div>
             </p>
         </div>

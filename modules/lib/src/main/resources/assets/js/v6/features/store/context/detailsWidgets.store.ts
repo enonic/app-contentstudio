@@ -1,4 +1,4 @@
-import {atom, computed} from 'nanostores';
+import {computed, task} from 'nanostores';
 import {$contextContent} from './contextContent.store';
 import {Content} from '../../../../app/content/Content';
 import {EffectivePermission} from '../../../../app/security/EffectivePermission';
@@ -15,9 +15,44 @@ import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 
-export const $detailsWidgetContent = atom<Content | undefined>(undefined);
+export const $detailsWidgetContent = computed($contextContent, (contentSummary) =>
+    task(async () => {
+        if (!contentSummary) return undefined;
 
-export const $detailsWidgetPermissions = atom<EffectivePermission[]>([]);
+        try {
+            return await loadContent(contentSummary);
+        } catch (error) {
+            console.error(error);
+            return undefined;
+        }
+    })
+);
+
+export const $detailsWidgetPermissions = computed($detailsWidgetContent, (content) =>
+    task(async () => {
+        if (!content) return undefined;
+
+        try {
+            return await loadPermissions(content.getContentId());
+        } catch (error) {
+            console.error(error);
+            return undefined;
+        }
+    })
+);
+
+export const $detailsWidgetAttachments = computed($detailsWidgetContent, (content) =>
+    task(async () => {
+        if (!content) return undefined;
+
+        try {
+            return await loadAttachments(content.getContentId());
+        } catch (error) {
+            console.error(error);
+            return undefined;
+        }
+    })
+);
 
 export const $detailsWidgetEffectivePermissions = computed(
     [$detailsWidgetContent, $detailsWidgetPermissions],
@@ -26,8 +61,6 @@ export const $detailsWidgetEffectivePermissions = computed(
         return filterEffectivePermissions(content, permissions);
     }
 );
-
-export const $detailsWidgetAttachments = atom<Attachments | undefined>(undefined);
 
 //
 // * Utilities
@@ -102,31 +135,3 @@ async function loadPermissions(contentId: ContentId): Promise<EffectivePermissio
         return undefined;
     }
 }
-
-//
-// * Initialization
-//
-
-$contextContent.listen(async (contentSummary) => {
-    if (!contentSummary) {
-        $detailsWidgetContent.set(undefined);
-        $detailsWidgetPermissions.set([]);
-        $detailsWidgetAttachments.set(undefined);
-        return;
-    }
-
-    const content = await loadContent(contentSummary);
-
-    $detailsWidgetContent.set(content);
-
-    if (!content) return;
-
-    Promise.all([loadPermissions(content.getContentId()), loadAttachments(content.getContentId())])
-        .then(([perms, attachments]) => {
-            $detailsWidgetPermissions.set(perms);
-            $detailsWidgetAttachments.set(attachments);
-        })
-        .catch((error) => {
-            console.error(error);
-        });
-});
