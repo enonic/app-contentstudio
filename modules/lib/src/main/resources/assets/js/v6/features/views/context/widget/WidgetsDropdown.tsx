@@ -3,7 +3,7 @@ import {IconButton, Listbox} from '@enonic/ui';
 import {useState} from 'react';
 import {WidgetView} from '../../../../../app/view/context/WidgetView';
 import {ChevronDown, ChevronUp} from 'lucide-react';
-import {WidgetIcon} from './details/utils';
+import {WidgetIcon} from '../../../shared/icons/WidgetIcon';
 
 type Props = {
     widgetViews?: WidgetView[];

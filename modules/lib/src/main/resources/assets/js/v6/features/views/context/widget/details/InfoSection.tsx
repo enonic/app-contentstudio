@@ -1,9 +1,6 @@
-import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import React, {ReactElement, useEffect, useState} from 'react';
-import {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
-import {WidgetItemViewInterface} from '../../../../../../app/view/context/WidgetItemView';
 import {Title} from './utils';
-import {Button} from '@enonic/ui';
+import {Button, Tooltip} from '@enonic/ui';
 import {BasePropertiesWidgetItemViewHelper} from '../../../../../../app/view/context/widget/details/BasePropertiesWidgetItemViewHelper';
 import {PropertiesWidgetItemViewValue} from '../../../../../../app/view/context/widget/details/PropertiesWidgetItemViewValue';
 import {Copy} from 'lucide-react';
@@ -13,22 +10,49 @@ import {Content} from '../../../../../../app/content/Content';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {ContentLanguageUpdatedEvent} from '../../../../../../app/event/ContentLanguageUpdatedEvent';
 import {PropertiesWizardStepFormType} from '../../../../../../app/view/context/widget/details/PropertiesWizardStepFormFactory';
-import Q from 'q';
 import {useI18n} from '../../../../hooks/useI18n';
-
-type Props = {
-    content?: ContentSummaryAndCompareStatus;
-};
+import {useStore} from '@nanostores/preact';
+import {$contextContent} from '../../../../store/context/contextContent.store';
 
 type ContentProps = Map<string, PropertiesWidgetItemViewValue>;
 
 const helper = new BasePropertiesWidgetItemViewHelper();
 
-const copyIdToClipboard = (props: ContentProps) => {
-    navigator.clipboard.writeText(props.get('Id')?.getDisplayName() || '');
+const copyIdToClipboard = (text: string) => {
+    navigator?.clipboard?.writeText(text);
 };
 
-const DetailsWidgetInfoSection = ({content}: Props): ReactElement => {
+const IdRow = ({key, value}: {key: string; value: PropertiesWidgetItemViewValue}): ReactElement => {
+    return (
+        <>
+            <span className="text-xs text-subtle">{key}</span>
+            <div className="flex items-center justify-between gap-2 overflow-hidden">
+                <span className="text-xs truncate" title={value.getTitle() || ''}>
+                    {value.getDisplayName()}
+                </span>
+                <Tooltip
+                    value={
+                        <div className="mr-7.5">
+                            <span>{useI18n('field.contextPanel.details.sections.info.copy')}</span>
+                        </div>
+                    }
+                    className="mr-5"
+                >
+                    <button
+                        aria-label={useI18n('field.contextPanel.details.sections.info.copy')}
+                        onClick={() => copyIdToClipboard(value.getDisplayName())}
+                        className="shrink-0 bg-transparent p-0 m-0 cursor-pointer"
+                    >
+                        <Copy className="size-3.5" />
+                    </button>
+                </Tooltip>
+            </div>
+        </>
+    );
+};
+
+export const DetailsWidgetInfoSection = (): ReactElement => {
+    const content = useStore($contextContent);
     const [props, setProps] = useState<ContentProps>(new Map());
     const [dialog, setDialog] = useState<EditPropertiesDialog>();
 
@@ -65,22 +89,15 @@ const DetailsWidgetInfoSection = ({content}: Props): ReactElement => {
             <div className="grid grid-cols-[max-content_1fr] items-center justify-start gap-y-2.5 gap-x-7.5 my-5">
                 {Array.from(props.entries()).map(([key, value]) => (
                     <React.Fragment key={key}>
-                        <span className="text-xs text-subtle">{key}</span>
-
                         {key === 'Id' ? (
-                            <div className="flex items-center justify-between gap-2 min-w-0">
-                                <span className="text-xs truncate" title={value.getTitle() || ''}>
+                            <IdRow key={key} value={value} />
+                        ) : (
+                            <>
+                                <span className="text-xs text-subtle">{key}</span>
+                                <span className="text-xs truncate " title={value.getTitle() || ''}>
                                     {value.getDisplayName()}
                                 </span>
-                                <Copy
-                                    className="size-3.5 shrink-0 hover:cursor-pointer"
-                                    onClick={() => copyIdToClipboard(props)}
-                                />
-                            </div>
-                        ) : (
-                            <span className="text-xs truncate min-w-0" title={value.getTitle() || ''}>
-                                {value.getDisplayName()}
-                            </span>
+                            </>
                         )}
                     </React.Fragment>
                 ))}
@@ -98,40 +115,3 @@ const DetailsWidgetInfoSection = ({content}: Props): ReactElement => {
 };
 
 DetailsWidgetInfoSection.displayName = 'DetailsWidgetInfoSection';
-
-export class DetailsWidgetInfoSectionElement
-    extends LegacyElement<typeof DetailsWidgetInfoSection>
-    implements WidgetItemViewInterface
-{
-    constructor(props: Props) {
-        super(props, DetailsWidgetInfoSection);
-    }
-
-    // Backwards compatibility
-
-    public static debug: boolean = false;
-
-    public layout(): Q.Promise<void> {
-        return Q();
-    }
-
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<null | void> {
-        if (!item) return;
-
-        this.props.setKey('content', item);
-
-        return Q();
-    }
-
-    public fetchWidgetContents(url: string, contentId: string): Q.Promise<void> {
-        return Q();
-    }
-
-    public hide(): void {
-        return;
-    }
-
-    public show(): void {
-        return;
-    }
-}

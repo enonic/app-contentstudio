@@ -27,11 +27,7 @@ import {PageNavigationEventType} from '../../wizard/PageNavigationEventType';
 import {PageNavigationHandler} from '../../wizard/PageNavigationHandler';
 import WidgetsDropdownElement from '../../../v6/features/views/context/widget/WidgetsDropdown';
 import {History, Link, List} from 'lucide-react';
-import {DetailsWidgetContentSectionElement} from '../../../v6/features/views/context/widget/details/ContentSection';
-import {DetailsWidgetPermissionsSectionElement} from '../../../v6/features/views/context/widget/details/PermissionsSection';
-import {DetailsWidgetInfoSectionElement} from '../../../v6/features/views/context/widget/details/InfoSection';
-import {DetailsWidgetScheduleSectionElement} from '../../../v6/features/views/context/widget/details/ScheduleSection';
-import {DetailsWidgetAttachmentsSectionElement} from '../../../v6/features/views/context/widget/details/AttachmentsSection';
+import {DetailsWidgetElement} from '../../../v6/features/views/context/widget/details';
 
 export class ContextView
     extends DivEl
@@ -39,7 +35,7 @@ export class ContextView
 
     protected widgetViews: WidgetView[] = [];
     protected contextContainer: DivEl;
-    protected widgetsSelectionRow: WidgetsDropdownElement//WidgetsSelectionRow;
+    protected widgetsSelectionRow: WidgetsDropdownElement;
 
     protected loadMask: LoadMask;
     protected divForNoSelection: DivEl;
@@ -366,7 +362,7 @@ export class ContextView
             .setIcon(List)
             .setType(InternalWidgetType.INFO)
             .setContextView(this)
-            .setWidgetItemViews(this.getDetailsWidgetItemViews()).build();
+            .addWidgetItemView(new DetailsWidgetElement()).build();
 
         this.versionsWidgetView = this.createVersionsWidgetView();
         if (this.editorMode) {
@@ -432,23 +428,6 @@ export class ContextView
             .setType(InternalWidgetType.DEPENDENCIES)
             .setContextView(this)
             .addWidgetItemView(new DependenciesWidgetItemView()).build();
-    }
-
-    protected getDetailsWidgetItemViews(): WidgetItemViewInterface[] {
-        return [
-            new DetailsWidgetContentSectionElement({}),
-            //new ContentWidgetItemView(),
-            //new StatusWidgetItemView(),
-            new DetailsWidgetPermissionsSectionElement({}),
-            //new UserAccessWidgetItemView(),
-            new DetailsWidgetInfoSectionElement({}),
-            //new BasePropertiesWidgetItemView(),
-            new DetailsWidgetScheduleSectionElement({}),
-            //new OnlinePropertiesWidgetItemView(),
-            //new PageTemplateWidgetItemView(),
-            new DetailsWidgetAttachmentsSectionElement({}),
-            //new AttachmentsWidgetItemView()
-        ];
     }
 
     protected fetchCustomWidgetViews(): Q.Promise<Widget[]> {

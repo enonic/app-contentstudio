@@ -1,79 +1,57 @@
-import {ReactElement, useEffect, useLayoutEffect, useRef, useState} from 'react';
-import {Content} from '../../../../../../../app/content/Content';
-import {GetEffectivePermissionsRequest} from '../../../../../../../app/resource/GetEffectivePermissionsRequest';
+import {ReactElement, useRef} from 'react';
 import {EffectivePermission} from '../../../../../../../app/security/EffectivePermission';
-import {filterEffectivePermissions, sortPrincipals} from '../utils';
 import {ACCESS_OPTIONS} from '../../../../../../../app/security/Access';
-import {PrincipalViewerCompact} from './PrincipalViewerCompact';
-import {cn} from '@enonic/ui';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {Avatar, cn, Tooltip} from '@enonic/ui';
+import {getInitials} from '../../../../../utils/format/initials';
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
+import {useVisibleAvatars} from '../../../../../hooks/useVisibleAvatars';
+import {$detailsWidgetEffectivePermissions, sortPrincipals} from '../../../../../store/context/detailsWidgets.store';
+import {useStore} from '@nanostores/preact';
 
 const PermissionItem = ({permission}: {permission: EffectivePermission}): ReactElement => {
-    const [visibleCount, setVisibleCount] = useState<number>(0);
-    const [extraCount, setExtraCount] = useState<number>(0);
     const listRef = useRef<HTMLDivElement>(null);
+    const AVATAR_OVERFLOW_OFFSET = 20;
     const access = permission.getAccess().toString();
-    const status = ACCESS_OPTIONS.find((option) => option.id === access).displayName;
+    const status = ACCESS_OPTIONS.find((option) => option.id === access)?.displayName;
     const principals = sortPrincipals(permission.getMembers().map((epm) => epm.toPrincipal()));
+    const currentUser = AuthContext.get().getUser();
+    const {visibleCount, extraCount} = useVisibleAvatars(listRef, principals.length, AVATAR_OVERFLOW_OFFSET);
 
-    useLayoutEffect(() => {
-        const calculateVisible = AppHelper.debounce(() => {
-            if (!listRef.current) return;
-
-            const containerRight = listRef.current.getBoundingClientRect().right;
-
-            const children = Array.from(listRef.current.children);
-
-            const visible = children.filter((child) => {
-                const rect = child.getBoundingClientRect();
-                return rect.right <= containerRight - 40;
-            }).length;
-
-            setVisibleCount(visible);
-
-            setExtraCount(principals.length - visible);
-        }, 10);
-
-        const resizeObserver = new ResizeObserver(calculateVisible);
-
-        if (listRef.current) {
-            resizeObserver.observe(listRef.current);
-        }
-
-        return () => {
-            resizeObserver.disconnect();
-        };
-    }, [principals.length]);
+    if (!status) return undefined;
 
     return (
         <>
             <span className="text-xs text-subtle text-nowrap">{status}</span>
 
-            <div ref={listRef} className="flex items-center gap-2.5 overflow-hidden min-w-0">
+            <div ref={listRef} className="flex overflow-hidden  -space-x-2">
                 {principals.map((p, index) => (
-                    <PrincipalViewerCompact
-                        key={p.getKey().toString()}
-                        className={cn(index >= visibleCount && 'invisible order-last')}
-                        principal={p}
-                    />
+                    <Tooltip value={p.getDisplayName()}>
+                        <Avatar
+                            key={index}
+                            className={cn(
+                                'border-2 border-surface-neutral',
+                                currentUser?.getKey().equals(p.getKey()) && 'border-info',
+                                index >= visibleCount && 'invisible order-last'
+                            )}
+                        >
+                            <Avatar.Fallback className="text-alt font-semibold">
+                                {getInitials(p.getDisplayName())}
+                            </Avatar.Fallback>
+                        </Avatar>
+                    </Tooltip>
                 ))}
-
-                {extraCount > 0 && <span className="text-xs text-subtle">(+{extraCount})</span>}
+                {extraCount > 0 && (
+                    <Avatar className="border-2 border-surface-neutral text-alt font-semibold">
+                        <Avatar.Fallback>+{extraCount}</Avatar.Fallback>
+                    </Avatar>
+                )}
             </div>
         </>
     );
 };
 
-export const PermissionsList = ({content}: {content: Content}): ReactElement => {
-    const [permissions, setPermissions] = useState<EffectivePermission[]>([]);
-
-    useEffect(() => {
-        new GetEffectivePermissionsRequest(content.getContentId())
-            .sendAndParse()
-            .then((results: EffectivePermission[]) => {
-                setPermissions(filterEffectivePermissions(content, results));
-            });
-    }, [content]);
+export const PermissionsList = (): ReactElement => {
+    const permissions = useStore($detailsWidgetEffectivePermissions);
 
     return (
         <div className="grid grid-cols-[max-content_1fr] items-center gap-y-2.5 gap-x-12">
