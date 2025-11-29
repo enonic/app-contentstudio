@@ -239,7 +239,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
                         this.notifyLayoutListeners();
                     })
                     .done(),
-            100);
+            200);
 
     }
 
