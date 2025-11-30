@@ -24,13 +24,7 @@ export const ItemLabel = ({
             className={cn('grid grid-cols-[auto_1fr] gap-2.5 items-center', className)}
             {...props}
         >
-            <div
-                className={cn(
-                    'flex items-center justify-center shrink-0 group-data-[tone=inverse]:text-alt',
-                    // Limit the icon container in case there is no secondary text
-                    secondary ? 'h-10' : 'h-7.5 [&>*]:size-full'
-                )}
-            >
+            <div className={cn('flex items-center justify-center shrink-0 group-data-[tone=inverse]:text-alt size-6')}>
                 {icon}
             </div>
 

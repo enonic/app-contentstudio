@@ -6,7 +6,9 @@ import {WorkflowContentIcon} from '../icons/WorkflowContentIcon';
 
 const CONTENT_LABEL_NAME = 'ContentLabel';
 
-type ContentLabelProps = {
+export type ContentLabelVariant = 'compact' | 'normal' | 'detailed';
+
+export type ContentLabelProps = {
     content: ContentSummaryAndCompareStatus;
     /**
      * Display variant:
@@ -14,7 +16,7 @@ type ContentLabelProps = {
      * - `normal` - Display name with short path below (default)
      * - `detailed` - Display name with full path below (when hierarchy context matters)
      */
-    variant?: 'compact' | 'normal' | 'detailed';
+    variant?: ContentLabelVariant;
     /** Hide the workflow status icon. @default false */
     hideStatus?: boolean;
 } & Omit<ItemLabelProps, 'icon' | 'primary' | 'secondary'>;

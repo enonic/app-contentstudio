@@ -1,61 +1,55 @@
-import {Button, ListItem, type ListItemProps} from '@enonic/ui';
+import {Button, cn, ListItem, type ListItemProps} from '@enonic/ui';
 import {type ReactNode} from 'react';
 import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
-import type {Branch} from '../../../../app/versioning/Branch';
-import {ContentLabel} from '../content/ContentLabel';
-import {ContentReferencesLink} from '../ContentReferencesLink';
+import {EditContentEvent} from '../../../../app/event/EditContentEvent';
+import {ContentLabel, ContentLabelVariant} from '../content/ContentLabel';
 import {LegacyElement} from '../LegacyElement';
-import {DiffStatusBadge} from '../status/DiffStatusBadge';
+import {StatusBadge} from '../status/StatusBadge';
 
 export type ContentItemProps = {
     content: ContentSummaryAndCompareStatus;
+    variant?: ContentLabelVariant;
+    'data-component'?: string;
     children?: ReactNode;
-    onClick?: () => void;
-    clickable?: boolean;
-    className?: string;
-    selected?: boolean;
-    showReferences?: boolean;
-    target?: Branch;
-    hasInbound?: boolean;
-} & Pick<ListItemProps, 'className' | 'selected'>;
+} & Omit<ListItemProps, 'children'>;
+
+const CONTENT_ITEM_NAME = 'ContentItem';
 
 export const ContentItem = ({
     content,
-    children,
-    onClick,
+    variant,
     selected = false,
-    showReferences = false,
-    target,
-    hasInbound = false,
-}: ContentItemProps): React.ReactElement => (
-    <ListItem selected={selected}>
-        <ListItem.Content>
-            <Button onClick={onClick} className="block flex-1 w-[calc(100%+10px)] -mx-1.25 -my-0.75 px-1.25 py-1">
-                <ContentLabel content={content} variant='compact' />
-            </Button>
-        </ListItem.Content>
-        <ListItem.Right>
-            {children}
-            {showReferences && hasInbound && (
-                <ContentReferencesLink
-                    contentId={content.getContentSummary().getContentId().toString()}
-                    target={target}
-                />
-            )}
-            <DiffStatusBadge
-                publishStatus={content.getPublishStatus()}
-                compareStatus={content.getCompareStatus()}
-                wasPublished={!!content.getContentSummary().getPublishFirstTime()}
-            />
-        </ListItem.Right>
-    </ListItem>
-);
+    className,
+    children,
+    'data-component': componentName = CONTENT_ITEM_NAME,
+    ...props
+}: ContentItemProps): React.ReactElement => {
+    const isCompact = variant === 'compact';
 
-ContentItem.displayName = 'ContentItem';
+    const handleClick = () => {
+        new EditContentEvent([content]).fire();
+    };
+
+    return (
+        <ListItem selected={selected} data-component={componentName} className={cn('pl-0 py-0', className)} {...props}>
+            <ListItem.Content className='flex'>
+                <Button onClick={handleClick} className={cn('box-content justify-start flex-1 px-2.5 py-1', isCompact && 'h-6')}>
+                    <ContentLabel content={content} variant={variant} />
+                </Button>
+            </ListItem.Content>
+            <ListItem.Right>
+                {children}
+                <StatusBadge status={content.getPublishStatus()} />
+            </ListItem.Right>
+        </ListItem>
+    )
+};
+
+ContentItem.displayName = CONTENT_ITEM_NAME;
 
 export class ContentItemElement extends LegacyElement<typeof ContentItem, ContentItemProps> {
     constructor(props: ContentItemProps) {
-        super({clickable: true, ...props}, ContentItem);
+        super({...props}, ContentItem);
     }
 
     getItem(): ContentSummaryAndCompareStatus {
@@ -67,7 +61,7 @@ export class ContentItemElement extends LegacyElement<typeof ContentItem, Conten
     }
 
     isSelectable(): boolean {
-        return this.props.get().clickable !== false;
+        return true;
     }
 
     setSelected(selected: boolean): void {
@@ -75,10 +69,6 @@ export class ContentItemElement extends LegacyElement<typeof ContentItem, Conten
     }
 
     onSelected(): void {
-        // Backwards compatibility
-    }
-
-    setHasInbound(hasInbound: boolean): void {
-        this.props.setKey('hasInbound', hasInbound);
+        // Backward compatibility
     }
 }

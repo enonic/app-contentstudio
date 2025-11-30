@@ -1,20 +1,23 @@
-import {DependantItemsWithProgressDialog} from './DependantItemsWithProgressDialog';
-import {DialogStateBar} from './DialogStateBar';
-import {DialogStateEntry} from './DialogStateEntry';
-import {ContentWithRefsResult} from '../resource/ContentWithRefsResult';
-import {ContentId} from '../content/ContentId';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import Q from 'q';
+import {ContentItemElement} from '../../v6/features/shared/items/ContentItem';
+import {ContentId} from '../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import Q from 'q';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {CmsContentResourceRequest} from '../resource/CmsContentResourceRequest';
 import {DialogWithRefsDependantList} from '../remove/DialogWithRefsDependantList';
 import {DialogWithRefsItemList, DialogWithRefsItemListConfig} from '../remove/DialogWithRefsItemList';
-import {ContentItemElement} from '../../v6/features/shared/items/ContentItem';
+import {CmsContentResourceRequest} from '../resource/CmsContentResourceRequest';
+import {ContentWithRefsResult} from '../resource/ContentWithRefsResult';
 import {ArchiveSelectableItem} from './ArchiveSelectableItem';
+import {DependantItemsWithProgressDialog} from './DependantItemsWithProgressDialog';
+import {DialogStateBar} from './DialogStateBar';
+import {DialogStateEntry} from './DialogStateEntry';
 
+/**
+ * @deprecated Use React components instead (DeleteDialog, UnpublishDialog)
+ */
 export abstract class DependantItemsWithReferencesDialog
     extends DependantItemsWithProgressDialog<ContentItemElement> {
     protected stateBar: DialogStateBar;
@@ -70,7 +73,7 @@ export abstract class DependantItemsWithReferencesDialog
 
     private updateItemViewsWithInboundDependencies(views: readonly (ContentItemElement | ArchiveSelectableItem)[]): void {
         for (const v of views) {
-            v.setHasInbound(this.hasInboundRef(v.getItem().getId()));
+            // v.setHasInbound(this.hasInboundRef(v.getItem().getId()));
         }
     }
 

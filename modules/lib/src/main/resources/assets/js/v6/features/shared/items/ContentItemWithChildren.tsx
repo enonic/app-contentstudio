@@ -30,7 +30,7 @@ export const ContentItemWithChildren = ({
     const includeChildrenCheckboxId = `${CONTENT_ITEM_WITH_CHILDREN_NAME}-${id || content.getId()}-include-children-checkbox`;
 
     return (
-        <li role="row" className={cn("flex flex-col", className)}>
+        <li role="row" className={cn("flex flex-col gap-1", className)}>
             <ContentItemCheckable
                 id={id}
                 role={undefined}
@@ -41,8 +41,8 @@ export const ContentItemWithChildren = ({
                 readOnly={readOnly}
             />
             {hasChildren && (
-                <div className="flex items-center gap-2.5 pl-5 py-1">
-                    <CornerDownRight className="w-4 h-4 shrink-0" />
+                <div className="flex items-center gap-2.5 h-8 pl-5">
+                    <CornerDownRight className="size-4 shrink-0" />
                     <Checkbox
                         id={includeChildrenCheckboxId}
                         className="font-semibold"
