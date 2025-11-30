@@ -1,5 +1,5 @@
 import {Body} from "@enonic/lib-admin-ui/dom/Body";
-import type {ReactElement} from "react";
+import React, {ReactElement} from "react";
 import {useEffect, useRef} from "react";
 import {ConfirmationDialog, useConfirmationDialog} from "./ConfirmationDialog";
 import {Gate} from "./Gate";
@@ -74,7 +74,7 @@ type DialogPresetConfirmDeleteContentProps = {
 } & Omit<DialogPresetGatedConfirm, 'open'>;
 
 // Internal component that renders inside ConfirmationDialog.Content to access ConfirmationDialogProvider context.
-// This allows useConfirmationDialog() to work properly and track the confirmEnabled state set by Gate.Input validation.
+// This allows useConfirmationDialog() to work properly, tracking the confirmEnabled state set by Gate.Input validation.
 const DialogPresetConfirmDeleteContent = ({
     gateInputRef,
     confirmButtonRef,
@@ -88,7 +88,7 @@ const DialogPresetConfirmDeleteContent = ({
 }: DialogPresetConfirmDeleteContentProps): ReactElement => {
     const {confirmEnabled} = useConfirmationDialog();
 
-    // Shift focus to confirm button when Gate becomes valid
+    // Shift focus to confirm the button when Gate becomes valid
     useEffect(() => {
         if (confirmEnabled) {
             confirmButtonRef.current?.focus();
@@ -120,7 +120,7 @@ const DialogPresetConfirmDeleteContent = ({
     );
 };
 
-const DialogPresetConfirmDelete = ({
+export const DialogPresetConfirmDelete = ({
     open = false,
     title,
     description,
@@ -133,7 +133,7 @@ const DialogPresetConfirmDelete = ({
     const gateInputRef = useRef<HTMLInputElement>(null);
     const confirmButtonRef = useRef<HTMLButtonElement>(null);
 
-    // Handle initial focus when dialog opens - prevent default and focus Gate input
+    // Handle initial focus when the dialog opens - prevent default and focus Gate input
     const handleOpenAutoFocus = (event: Event): void => {
         event.preventDefault();
         gateInputRef.current?.focus();
