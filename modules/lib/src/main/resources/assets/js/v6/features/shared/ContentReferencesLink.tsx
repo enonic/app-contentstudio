@@ -1,38 +1,50 @@
-import {Link} from '@enonic/ui';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {cn, Link, LinkProps} from '@enonic/ui';
 import {useMemo} from 'react';
 
-import {ProjectContext} from '../../../app/project/ProjectContext';
-import {Branch} from '../../../app/versioning/Branch';
-import {DependencyType} from '../../../app/browse/DependencyType';
 import type {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {useStore} from '@nanostores/preact';
+import {DependencyType} from '../../../app/browse/DependencyType';
 import {UrlHelper} from '../../../app/util/UrlHelper';
+import {Branch} from '../../../app/versioning/Branch';
+import {useI18n} from '../hooks/useI18n';
+import {$activeProject} from '../store/projects.store';
 
 export type ContentReferencesLinkProps = {
     contentId: string;
-    target?: Branch;
+    branch: Branch;
     contentTypeName?: ContentTypeName;
-};
+    'data-component'?: string;
+} & Omit<LinkProps, 'href' | 'newTab'>;
 
+const CONTENT_REFERENCES_LINK_NAME = 'ContentReferencesLink';
 export function ContentReferencesLink({
     contentId,
-    target,
+    branch,
     contentTypeName,
+    className,
+    'data-component': componentName = CONTENT_REFERENCES_LINK_NAME,
+    ...props
 }: ContentReferencesLinkProps) {
-    const project = ProjectContext.get().getProject().getName();
-    const branch = target ?? Branch.DRAFT;
+    const label = useI18n('action.showReferences');
+    const projectName = useStore($activeProject)?.getName();
     const contentType = contentTypeName?.toString();
 
     const href = useMemo(() => {
-        const relative = `${project}/${DependencyType.INBOUND}/${branch}/${contentId}${contentType ? `/${contentType}` : ''}`;
+        const relative = `${projectName}/${DependencyType.INBOUND}/${branch}/${contentId}${contentType ? `/${contentType}` : ''}`;
         return UrlHelper.getPrefixedUrl(relative);
-    }, [project, branch, contentType, contentId]);
+    }, [projectName, branch, contentType, contentId]);
 
     return (
-        <Link href={href} newTab className='hover:bg-btn-primary-hover box-border rounded-sm transition-highlight h-8 -my-1 px-1.25 py-1'>
-            {i18n('action.showReferences')}
+        <Link
+            className={cn('visited:text-main', className)}
+            href={href}
+            newTab
+            data-component={componentName}
+            {...props}
+        >
+            {label}
         </Link>
     );
 }
 
-ContentReferencesLink.displayName = 'ContentReferencesLink';
+ContentReferencesLink.displayName = CONTENT_REFERENCES_LINK_NAME;

@@ -67,7 +67,7 @@ export const PublishDialog = (): ReactElement => {
             <Dialog.Portal>
                 <Dialog.Overlay />
                 <Dialog.Content
-                    className="w-full h-full gap-7.5 sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220"
+                    className="w-full h-full gap-10 sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220"
                 >
                     <Dialog.DefaultHeader titleId={titleId} title={title} withClose />
 
@@ -94,8 +94,8 @@ export const PublishDialog = (): ReactElement => {
                             },
                         }} />
 
-                    <Dialog.Body className="flex flex-col gap-y-7.5">
-                        <ul className='flex flex-col gap-y-2.5 py-2.5'>
+                    <Dialog.Body className="flex flex-col gap-y-10">
+                        <ul className='flex flex-col gap-y-2.5'>
                             {mainItems.map(({id, content, included, childrenIncluded, required}) => {
                                 return <ContentItemWithChildren
                                     key={id}
@@ -114,7 +114,7 @@ export const PublishDialog = (): ReactElement => {
                                 <Separator className="text-sm flex-1" label={separatorLabel} />
                                 <Toggle size="sm" label={toggleExcludedLabel} pressed={showExcluded} onPressedChange={setShowExcluded} disabled={!hasAnyExcludedDependantItems} />
                             </div>
-                            <ul className='flex flex-col gap-y-2.5'>
+                            <ul className='flex flex-col gap-y-1.5'>
                                 {visibleDependantItems.map(({id, content, included, required}) => {
                                     return <ContentItemCheckable
                                         key={id}
