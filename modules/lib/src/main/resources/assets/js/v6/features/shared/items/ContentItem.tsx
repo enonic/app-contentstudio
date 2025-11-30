@@ -1,9 +1,10 @@
-import {Button, ListItem, type ListItemProps} from '@enonic/ui';
-import {useMemo, type ReactNode} from 'react';
+import {Button, cn, ListItem, type ListItemProps} from '@enonic/ui';
+import React, {useMemo, type ReactNode} from 'react';
 import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import type {Branch} from '../../../../app/versioning/Branch';
 import {ContentReferencesLink} from '../ContentReferencesLink';
 import {StatusBadge} from '../StatusBadge';
+import {OnlineBadge} from '../OnlineBadge';
 import {calcWorkflowStateStatus} from '../../utils/cms/content/workflow';
 import {WorkflowContentIcon} from '../icons/WorkflowContentIcon';
 import {LegacyElement} from '../LegacyElement';
@@ -18,6 +19,8 @@ export type ContentItemProps = {
     showReferences?: boolean;
     target?: Branch;
     hasInbound?: boolean;
+    showOnlineStatus?: boolean;
+    mainItem?: boolean;
 } & Pick<ListItemProps, 'className' | 'selected'>;
 
 export const ContentItem = ({
@@ -28,8 +31,11 @@ export const ContentItem = ({
     showReferences = false,
     target,
     hasInbound = false,
+    showOnlineStatus = false,
+    mainItem = false,
 }: ContentItemProps): React.ReactElement => {
-    const label = String(content.getPath());
+    const name = String(content.getDisplayName());
+    const path = String(content.getPath());
     const contentType = String(content.getType());
     const url = content.getContentSummary().getIconUrl();
     const contentId = content.getContentSummary().getContentId();
@@ -43,8 +49,8 @@ export const ContentItem = ({
     return (
         <ListItem selected={selected}>
             <ListItem.Content>
-                <Button onClick={onClick} className="block flex-1 w-[calc(100%+10px)] h-8 -mx-1.25 -my-1 px-1.25 py-1">
-                    <ListItem.DefaultContent label={label} icon={Icon} />
+                <Button onClick={onClick} className={cn('block flex-1 w-full h-8 -mx-1.25 -my-1 px-1.25 py-1', mainItem && "h-13")}>
+                    <ListItem.DefaultContent label={mainItem ? name : path} description={mainItem && path} icon={Icon} />
                 </Button>
             </ListItem.Content>
             <ListItem.Right>
@@ -55,7 +61,8 @@ export const ContentItem = ({
                         target={target}
                     />
                 )}
-                <StatusBadge status={content.getCompareStatus()} wasPublished={!!content.getContentSummary().getPublishFirstTime()} />
+                {showOnlineStatus ? <OnlineBadge status={content.getCompareStatus()} /> : <StatusBadge status={content.getCompareStatus()} wasPublished={!!content.getContentSummary().getPublishFirstTime()} />}
+
             </ListItem.Right>
         </ListItem>
     );
@@ -86,7 +93,7 @@ export class ContentItemElement extends LegacyElement<typeof ContentItem, Conten
     }
 
     onSelected(): void {
-        // Backwards compatibility
+        // Backward compatibility
     }
 
     setHasInbound(hasInbound: boolean): void {

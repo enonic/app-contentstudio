@@ -29,7 +29,7 @@ export function ContentReferencesLink({
     }, [project, branch, contentType, contentId]);
 
     return (
-        <Link href={href} newTab className='hover:bg-btn-primary-hover box-border rounded-sm transition-highlight h-8 -my-1 px-1.25 py-1'>
+        <Link href={href} newTab className='hover:bg-btn-primary-hover visited:text-current box-border rounded-sm transition-highlight h-8 -my-1 px-1.25 py-1'>
             {i18n('action.showReferences')}
         </Link>
     );

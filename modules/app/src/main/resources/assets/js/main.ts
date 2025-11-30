@@ -64,6 +64,7 @@ import {ContentWizardPanelParams} from 'lib-contentstudio/app/wizard/ContentWiza
 import {VersionHelper} from 'lib-contentstudio/app/util/VersionHelper';
 import {$activeProjectName} from 'lib-contentstudio/v6/features/store/projects.store';
 import {AppElement} from 'lib-contentstudio/v6/features/App';
+import {openDeleteDialog} from 'lib-contentstudio/v6/features/store/dialogs/deleteDialog.store';
 import Q from 'q';
 
 // Dynamically import and execute all input types, since they are used
@@ -358,19 +359,11 @@ async function startApplication() {
         moveContentDialog.handlePromptEvent(event);
     });
 
-    const {ContentDeleteDialog} = await import('lib-contentstudio/app/remove/ContentDeleteDialog');
-    let contentDeleteDialog = null;
-
     ContentDeletePromptEvent.on((event) => {
-        if (!contentDeleteDialog) {
-            contentDeleteDialog = new ContentDeleteDialog();
-        }
-
-        contentDeleteDialog
-            .setContentToDelete(event.getModels())
-            .setYesCallback(event.getYesCallback())
-            .setNoCallback(event.getNoCallback())
-            .open();
+        openDeleteDialog(event.getModels(), {
+            onYes: event.getYesCallback(),
+            onNo: event.getNoCallback(),
+        });
     });
 
     const {ContentPublishDialog} = await import('lib-contentstudio/app/publish/ContentPublishDialog');
