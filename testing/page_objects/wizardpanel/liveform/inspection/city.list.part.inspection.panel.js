@@ -25,8 +25,12 @@ class CityListPartInspectionPanel extends BaseComponentInspectionPanel {
         return xpath.container + xpath.zoomLevelViewDiv + lib.TEXT_INPUT;
     }
 
-    typeTextInZoomLevelInput(text) {
-        return this.typeTextInInput(this.zoomLevelTextInput, text);
+    async typeTextInZoomLevelInput(text) {
+        try {
+            return await this.typeTextInInput(this.zoomLevelTextInput, text);
+        } catch (err) {
+            await this.handleError('City List Part Inspection Panel - type text in Zoom Level input', 'err_type_zoom_level_input', err);
+        }
     }
 
     getTextInZoomLevelInput() {
@@ -68,8 +72,8 @@ class CityListPartInspectionPanel extends BaseComponentInspectionPanel {
 
     async waitForLoaded() {
         try {
-             await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
-             await this.pause(400);
+            await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
+            await this.pause(400);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_load_inspect_panel');
             throw new Error(`Live Edit, City List Part Inspection Panel is not loaded, screenshot: ${screenshot} ` + err);
