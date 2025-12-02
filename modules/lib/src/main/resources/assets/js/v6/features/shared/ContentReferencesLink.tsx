@@ -34,3 +34,5 @@ export function ContentReferencesLink({
         </Link>
     );
 }
+
+ContentReferencesLink.displayName = 'ContentReferencesLink';

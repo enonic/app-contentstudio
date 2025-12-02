@@ -76,3 +76,5 @@ export const StaticBucketAggregation = ({
         </div>
     );
 };
+
+StaticBucketAggregation.displayName = 'StaticBucketAggregation';

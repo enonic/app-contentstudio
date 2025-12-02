@@ -42,6 +42,8 @@ const PublishItemsList = ({
     );
 };
 
+PublishItemsList.displayName = 'PublishItemsList';
+
 type ElementProps = Omit<Props, 'onIncludeChildrenChange' | 'onCheckedChange'>;
 
 export class PublishItemsListElement

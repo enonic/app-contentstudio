@@ -7,31 +7,26 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {History, Link, List} from 'lucide-react';
 import Q from 'q';
+import {DetailsWidgetElement} from '../../../v6/features/views/context/widget/details/';
+import WidgetsDropdownElement from '../../../v6/features/views/context/widget/WidgetsDropdown';
 import {CompareStatus} from '../../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {InspectEvent} from '../../event/InspectEvent';
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
 import {ContextWindow} from '../../wizard/page/contextwindow/ContextWindow';
+import {PageEventsManager} from '../../wizard/PageEventsManager';
+import {PageNavigationEvent} from '../../wizard/PageNavigationEvent';
+import {PageNavigationEventType} from '../../wizard/PageNavigationEventType';
+import {PageNavigationHandler} from '../../wizard/PageNavigationHandler';
+import {PageNavigationMediator} from '../../wizard/PageNavigationMediator';
 import {ReloadActiveWidgetEvent} from './ReloadActiveWidgetEvent';
 import {DependenciesWidgetItemView} from './widget/dependency/DependenciesWidgetItemView';
 import {PageEditorWidgetItemView} from './widget/pageeditor/PageEditorWidgetItemView';
 import {VersionHistoryView} from './widget/version/VersionHistoryView';
-import {WidgetItemViewInterface} from './WidgetItemView';
 import {InternalWidgetType, WidgetView} from './WidgetView';
-import {PageEventsManager} from '../../wizard/PageEventsManager';
-import {PageNavigationMediator} from '../../wizard/PageNavigationMediator';
-import {PageNavigationEvent} from '../../wizard/PageNavigationEvent';
-import {PageNavigationEventType} from '../../wizard/PageNavigationEventType';
-import {PageNavigationHandler} from '../../wizard/PageNavigationHandler';
-import WidgetsDropdownElement from '../../../v6/features/views/context/widget/WidgetsDropdown';
-import {History, Link, List} from 'lucide-react';
-import {DetailsWidgetContentSectionElement} from '../../../v6/features/views/context/widget/details/ContentSection';
-import {DetailsWidgetPermissionsSectionElement} from '../../../v6/features/views/context/widget/details/PermissionsSection';
-import {DetailsWidgetInfoSectionElement} from '../../../v6/features/views/context/widget/details/InfoSection';
-import {DetailsWidgetScheduleSectionElement} from '../../../v6/features/views/context/widget/details/ScheduleSection';
-import {DetailsWidgetAttachmentsSectionElement} from '../../../v6/features/views/context/widget/details/AttachmentsSection';
 
 export class ContextView
     extends DivEl
@@ -39,7 +34,7 @@ export class ContextView
 
     protected widgetViews: WidgetView[] = [];
     protected contextContainer: DivEl;
-    protected widgetsSelectionRow: WidgetsDropdownElement//WidgetsSelectionRow;
+    protected widgetsSelectionRow: WidgetsDropdownElement;
 
     protected loadMask: LoadMask;
     protected divForNoSelection: DivEl;
@@ -368,7 +363,7 @@ export class ContextView
             .setIcon(List)
             .setType(InternalWidgetType.INFO)
             .setContextView(this)
-            .setWidgetItemViews(this.getDetailsWidgetItemViews()).build();
+            .addWidgetItemView(new DetailsWidgetElement()).build();
 
         this.versionsWidgetView = this.createVersionsWidgetView();
         if (this.editorMode) {
@@ -434,23 +429,6 @@ export class ContextView
             .setType(InternalWidgetType.DEPENDENCIES)
             .setContextView(this)
             .addWidgetItemView(new DependenciesWidgetItemView()).build();
-    }
-
-    protected getDetailsWidgetItemViews(): WidgetItemViewInterface[] {
-        return [
-            new DetailsWidgetContentSectionElement({}),
-            //new ContentWidgetItemView(),
-            //new StatusWidgetItemView(),
-            new DetailsWidgetPermissionsSectionElement({}),
-            //new UserAccessWidgetItemView(),
-            new DetailsWidgetInfoSectionElement({}),
-            //new BasePropertiesWidgetItemView(),
-            new DetailsWidgetScheduleSectionElement({}),
-            //new OnlinePropertiesWidgetItemView(),
-            //new PageTemplateWidgetItemView(),
-            new DetailsWidgetAttachmentsSectionElement({}),
-            //new AttachmentsWidgetItemView()
-        ];
     }
 
     protected fetchCustomWidgetViews(): Q.Promise<Widget[]> {
