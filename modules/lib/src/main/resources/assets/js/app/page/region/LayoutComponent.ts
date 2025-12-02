@@ -47,16 +47,14 @@ export class LayoutComponent
         return this.regions;
     }
 
-    setDescriptor(descriptor: Descriptor): Q.Promise<void> {
-        return super.setDescriptor(descriptor).then(() => {
-            if (descriptor?.getRegions().length > 0) {
-                this.mergeDescriptorRegions(descriptor);
-            } else {
-                this.getRegions().removeAllRegions();
-            }
+    setDescriptor(descriptor: Descriptor) {
+        super.setDescriptor(descriptor);
 
-            return Q.resolve();
-        });
+        if (descriptor?.getRegions().length > 0) {
+            this.mergeDescriptorRegions(descriptor);
+        } else {
+            this.getRegions().removeAllRegions();
+        }
     }
 
     // preserving this merging logic for now for the sake of backward compatibility

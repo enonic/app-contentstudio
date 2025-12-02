@@ -240,10 +240,10 @@ export class PageStateEventHandler {
                 if (descriptorKey) {
                     new GetComponentDescriptorRequest(descriptorKey.toString(), item.getType()).sendAndParse().then(
                         (descriptor: Descriptor) => {
-                            return item.setDescriptor(descriptor);
+                            item.setDescriptor(descriptor);
                         }).catch(DefaultErrorHandler.handle);
                 } else {
-                    item.setDescriptor(null).catch(DefaultErrorHandler.handle);
+                    item.setDescriptor(null);
                 }
             }
         });
