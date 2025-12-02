@@ -10,7 +10,13 @@ import {useI18n} from '../../../../hooks/useI18n';
 import {$contextContent} from '../../../../store/context/contextContent.store';
 import {$detailsWidgetAttachments} from '../../../../store/context/detailsWidgets.store';
 
-export function DetailsWidgetAttachmentsSection(): ReactElement {
+function getAttachmentUrl(contentId: ContentId, attachmentName: AttachmentName) {
+    return Attachment.getUrl(contentId.toString(), attachmentName.toString(), ContentPath.CONTENT_ROOT);
+}
+
+const DETAILS_WIDGET_ATTACHMENTS_SECTION_NAME = 'DetailsWidgetAttachmentsSection';
+
+export const DetailsWidgetAttachmentsSection = (): ReactElement => {
     const content = useStore($contextContent);
     const attachments = useStore($detailsWidgetAttachments);
     const titleText = useI18n('field.contextPanel.details.sections.attachments');
@@ -18,7 +24,7 @@ export function DetailsWidgetAttachmentsSection(): ReactElement {
     if (!content || !attachments || attachments.getSize() === 0) return null;
 
     return (
-        <section className='flex flex-col gap-5'>
+        <section data-component={DETAILS_WIDGET_ATTACHMENTS_SECTION_NAME} className='flex flex-col gap-5'>
             <Separator label={titleText} />
             <ul className="list-none">
                 {attachments.map((attachment) => (
@@ -36,8 +42,6 @@ export function DetailsWidgetAttachmentsSection(): ReactElement {
             </ul>
         </section>
     );
-}
+};
 
-function getAttachmentUrl(contentId: ContentId, attachmentName: AttachmentName) {
-    return Attachment.getUrl(contentId.toString(), attachmentName.toString(), ContentPath.CONTENT_ROOT);
-}
+DetailsWidgetAttachmentsSection.displayName = DETAILS_WIDGET_ATTACHMENTS_SECTION_NAME;

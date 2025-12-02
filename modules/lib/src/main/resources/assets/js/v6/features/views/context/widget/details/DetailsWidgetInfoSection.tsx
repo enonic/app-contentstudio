@@ -21,7 +21,9 @@ function copyToClipboard(text: string): void {
     navigator?.clipboard?.writeText(text);
 }
 
-export function DetailsWidgetInfoSection(): ReactElement {
+const DETAILS_WIDGET_INFO_SECTION_NAME = 'DetailsWidgetInfoSection';
+
+export const DetailsWidgetInfoSection = (): ReactElement => {
     const content = useStore($contextContent);
     const [props, setProps] = useState<ContentProps>(new Map());
     const [dialog, setDialog] = useState<EditPropertiesDialog>();
@@ -58,7 +60,7 @@ export function DetailsWidgetInfoSection(): ReactElement {
     if (!content) return null;
 
     return (
-        <section className="flex flex-col gap-5">
+        <section data-component={DETAILS_WIDGET_INFO_SECTION_NAME} className="flex flex-col gap-5">
             <Separator label={titleText} />
 
             <dl className="grid grid-cols-[max-content_1fr] items-center gap-x-7.5 gap-y-2.5">
@@ -101,4 +103,6 @@ export function DetailsWidgetInfoSection(): ReactElement {
             />
         </section>
     );
-}
+};
+
+DetailsWidgetInfoSection.displayName = DETAILS_WIDGET_INFO_SECTION_NAME;

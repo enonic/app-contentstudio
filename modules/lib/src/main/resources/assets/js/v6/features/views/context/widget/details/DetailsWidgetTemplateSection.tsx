@@ -65,7 +65,9 @@ async function getState(content: Content): Promise<State> {
     return attemptAutomaticMode(content);
 }
 
-export function DetailsWidgetTemplateSection(): ReactElement {
+const DETAILS_WIDGET_TEMPLATE_SECTION_NAME = 'DetailsWidgetTemplateSection';
+
+export const DetailsWidgetTemplateSection = (): ReactElement => {
     const content = useStore($detailsWidgetContent);
     const [state, setState] = useState<State>({mode: PageMode.NO_CONTROLLER, template: null, descriptor: null});
 
@@ -89,7 +91,7 @@ export function DetailsWidgetTemplateSection(): ReactElement {
     const displayName = getDisplayName(content, state, modeTranslations);
 
     return (
-        <section className="flex flex-col gap-5">
+        <section data-component={DETAILS_WIDGET_TEMPLATE_SECTION_NAME} className="flex flex-col gap-5">
             <Separator label={titleText} />
             <div>
                 <div className="flex gap-2.5 items-center">
@@ -125,4 +127,6 @@ export function DetailsWidgetTemplateSection(): ReactElement {
             </div>
         </section>
     );
-}
+};
+
+DetailsWidgetTemplateSection.displayName = DETAILS_WIDGET_TEMPLATE_SECTION_NAME;

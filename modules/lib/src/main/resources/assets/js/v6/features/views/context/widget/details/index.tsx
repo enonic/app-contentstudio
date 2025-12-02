@@ -3,18 +3,18 @@ import {ReactElement} from 'react';
 import {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
 import {WidgetItemViewInterface} from '../../../../../../app/view/context/WidgetItemView';
 import {LegacyElement} from '../../../../shared/LegacyElement';
-import {DetailsWidgetAttachmentsSection} from './AttachmentsSection';
-import {DetailsWidgetContentSection} from './ContentSection';
-import {DetailsWidgetInfoSection} from './InfoSection';
-import {DetailsWidgetPermissionsSection} from './PermissionsSection';
-import {DetailsWidgetScheduleSection} from './ScheduleSection';
-import {DetailsWidgetTemplateSection} from './TemplateSection';
+import {DetailsWidgetAttachmentsSection} from './DetailsWidgetAttachmentsSection';
+import {DetailsWidgetContentSection} from './DetailsWidgetContentSection';
+import {DetailsWidgetInfoSection} from './DetailsWidgetInfoSection';
+import {DetailsWidgetPermissionsSection} from './DetailsWidgetPermissionsSection';
+import {DetailsWidgetScheduleSection} from './DetailsWidgetScheduleSection';
+import {DetailsWidgetTemplateSection} from './DetailsWidgetTemplateSection';
 
 const DETAILS_WIDGET_NAME = 'DetailsWidget';
 
-const DetailsWidget = (): ReactElement => {
+export const DetailsWidget = (): ReactElement => {
     return (
-        <div data-component={DETAILS_WIDGET_NAME} className='flex flex-col gap-7.5'>
+        <div data-component={DETAILS_WIDGET_NAME} className="flex flex-col gap-7.5">
             <DetailsWidgetContentSection />
             <DetailsWidgetPermissionsSection />
             <DetailsWidgetInfoSection />
@@ -32,7 +32,7 @@ export class DetailsWidgetElement extends LegacyElement<typeof DetailsWidget> im
         super({}, DetailsWidget);
     }
 
-    // Backwards compatibility
+    // Backward compatibility
 
     public static debug: boolean = false;
 

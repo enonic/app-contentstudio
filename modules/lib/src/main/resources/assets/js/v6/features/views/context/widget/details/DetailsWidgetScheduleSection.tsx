@@ -10,7 +10,9 @@ type ContentProps = Map<string, PropertiesWidgetItemViewValue>;
 
 const helper = new OnlinePropertiesWidgetItemViewHelper();
 
-export function DetailsWidgetScheduleSection(): ReactElement {
+const DETAILS_WIDGET_SCHEDULE_SECTION_NAME = 'DetailsWidgetScheduleSection';
+
+export const DetailsWidgetScheduleSection = (): ReactElement => {
     const content = useStore($contextContent);
     const [props, setProps] = useState<ContentProps>(new Map());
     const [propsHasValue, setPropsHasValue] = useState(false);
@@ -29,7 +31,7 @@ export function DetailsWidgetScheduleSection(): ReactElement {
     if (!content || !propsHasValue) return null;
 
     return (
-        <section className='flex flex-col gap-5'>
+        <section data-component={DETAILS_WIDGET_SCHEDULE_SECTION_NAME} className='flex flex-col gap-5'>
             <Separator label={titleText} />
             <div className="grid grid-cols-[max-content_1fr] items-center justify-start gap-y-2.5 gap-x-7.5 relative pr-5">
                 {Array.from(props.entries()).map(([key, value]) => (
@@ -43,4 +45,6 @@ export function DetailsWidgetScheduleSection(): ReactElement {
             </div>
         </section>
     );
-}
+};
+
+DetailsWidgetScheduleSection.displayName = DETAILS_WIDGET_SCHEDULE_SECTION_NAME;
