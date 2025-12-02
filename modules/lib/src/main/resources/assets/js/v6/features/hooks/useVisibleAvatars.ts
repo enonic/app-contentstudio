@@ -1,14 +1,16 @@
 import {RefObject} from 'react';
 import {useLayoutEffect, useState} from 'react';
-import {createDebounce} from '../utils/timing/createDebounce';
+import {createThrottle} from '../utils/timing/createThrottle';
 
-export function useVisibleAvatars(containerRef: RefObject<HTMLElement>, totalCount: number, offset: number = 20) {
+export function useVisibleAvatars(containerRef: RefObject<HTMLElement>, totalCount: number, offset = 20) {
     const [visibleCount, setVisibleCount] = useState(0);
 
     useLayoutEffect(() => {
-        if (!containerRef.current) return;
+        const container = containerRef.current;
+        if (!container) return;
 
         const calculateVisible = () => {
+            if (!containerRef.current) return;
             const containerRight = containerRef.current.getBoundingClientRect().right;
             const children = Array.from(containerRef.current.children);
             const visible = children.filter(
@@ -17,14 +19,18 @@ export function useVisibleAvatars(containerRef: RefObject<HTMLElement>, totalCou
             setVisibleCount(visible);
         };
 
-        const debouncedCalc = createDebounce(calculateVisible, 50);
-        const observer = new ResizeObserver(debouncedCalc);
-        observer.observe(containerRef.current);
+        // Calculate immediately on mount
+        calculateVisible();
+
+        const throttledCalc = createThrottle(calculateVisible, 50);
+        const observer = new ResizeObserver(throttledCalc);
+        observer.observe(container);
 
         return () => {
             observer.disconnect();
+            throttledCalc.cancel();
         };
-    }, [containerRef, totalCount]);
+    }, [containerRef, offset]);
 
     return {visibleCount, extraCount: totalCount - visibleCount};
 }

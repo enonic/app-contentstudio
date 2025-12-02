@@ -92,6 +92,8 @@ const EntryButton = ({className, children, ...props}: Pick<ButtonProps, 'classNa
     </Button>
 }
 
+const SELECTION_STATUS_BAR_NAME = 'SelectionStatusBar';
+
 export const SelectionStatusBar = ({className, onApply, onCancel, ...props}: Props): React.ReactElement => {
     const status = getStatus(props);
 
@@ -158,6 +160,8 @@ export const SelectionStatusBar = ({className, onApply, onCancel, ...props}: Pro
         </div>
     );
 };
+
+SelectionStatusBar.displayName = SELECTION_STATUS_BAR_NAME;
 
 export class SelectionStatusBarElement extends LegacyElement<typeof SelectionStatusBar, Props> {
     constructor(props: Props) {

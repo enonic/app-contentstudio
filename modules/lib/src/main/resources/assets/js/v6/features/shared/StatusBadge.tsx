@@ -1,7 +1,6 @@
 import {cn} from '@enonic/ui';
-import {CompareStatus, CompareStatusChecker, CompareStatusFormatter} from '../../../app/content/CompareStatus';
+import {CompareStatus} from '../../../app/content/CompareStatus';
 import {useI18n} from '../hooks/useI18n';
-import {i18n} from '.xp/dev/lib-admin-ui/util/Messages';
 
 type Props = {
     status: CompareStatus;
@@ -44,3 +43,5 @@ export const StatusBadge = ({status, wasPublished, className}: Props) => {
         </span>
     );
 };
+
+StatusBadge.displayName = 'StatusBadge';

@@ -1,29 +1,31 @@
+import Q from 'q';
 import {ReactElement} from 'react';
-import {LegacyElement} from '../../../../shared/LegacyElement';
 import {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
 import {WidgetItemViewInterface} from '../../../../../../app/view/context/WidgetItemView';
+import {LegacyElement} from '../../../../shared/LegacyElement';
+import {DetailsWidgetAttachmentsSection} from './AttachmentsSection';
 import {DetailsWidgetContentSection} from './ContentSection';
-import {DetailsWidgetPermissionsSection} from './PermissionsSection';
 import {DetailsWidgetInfoSection} from './InfoSection';
+import {DetailsWidgetPermissionsSection} from './PermissionsSection';
 import {DetailsWidgetScheduleSection} from './ScheduleSection';
 import {DetailsWidgetTemplateSection} from './TemplateSection';
-import {DetailsWidgetAttachmentsSection} from './AttachmentsSection';
-import Q from 'q';
+
+const DETAILS_WIDGET_NAME = 'DetailsWidget';
 
 const DetailsWidget = (): ReactElement => {
     return (
-        <>
+        <div data-component={DETAILS_WIDGET_NAME} className='flex flex-col gap-7.5'>
             <DetailsWidgetContentSection />
             <DetailsWidgetPermissionsSection />
             <DetailsWidgetInfoSection />
             <DetailsWidgetScheduleSection />
             <DetailsWidgetTemplateSection />
             <DetailsWidgetAttachmentsSection />
-        </>
+        </div>
     );
 };
 
-DetailsWidget.displayName = 'DetailsWidget';
+DetailsWidget.displayName = DETAILS_WIDGET_NAME;
 
 export class DetailsWidgetElement extends LegacyElement<typeof DetailsWidget> implements WidgetItemViewInterface {
     constructor() {

@@ -1,15 +1,15 @@
+import {Link, Separator, Tooltip} from '@enonic/ui';
+import {useStore} from '@nanostores/preact';
 import {ReactElement, useEffect, useState} from 'react';
-import {loadComponentDescriptor, loadDefaultPageTemplate, loadNearestSite, loadPageTemplate, Title} from './utils';
 import {Content} from '../../../../../../app/content/Content';
 import {PageTemplate} from '../../../../../../app/content/PageTemplate';
-import {PageMode} from '../../../../../../app/page/PageMode';
-import {Link, Tooltip} from '@enonic/ui';
-import {useI18n} from '../../../../hooks/useI18n';
-import {ContentUrlHelper} from '../../../../../../app/util/ContentUrlHelper';
 import {Descriptor} from '../../../../../../app/page/Descriptor';
+import {PageMode} from '../../../../../../app/page/PageMode';
+import {ContentUrlHelper} from '../../../../../../app/util/ContentUrlHelper';
+import {loadComponentDescriptor, loadDefaultPageTemplate, loadNearestSite, loadPageTemplate} from '../../../../api/details';
+import {useI18n} from '../../../../hooks/useI18n';
 import {TemplateIcon} from '../../../../shared/icons/TemplateIcon';
 import {$detailsWidgetContent} from '../../../../store/context/detailsWidgets.store';
-import {useStore} from '@nanostores/preact';
 
 type State = {
     mode: PageMode;
@@ -17,23 +17,14 @@ type State = {
     descriptor: Descriptor | null;
 };
 
-function getDisplayName(content: Content, state: State): string {
+type ModeTranslations = Record<PageMode, string>;
+
+function getDisplayName(content: Content, state: State, translations: ModeTranslations): string {
     if (content.isPageTemplate()) {
         return content.getDisplayName();
     }
 
-    switch (state.mode) {
-        case PageMode.AUTOMATIC:
-            return useI18n('widget.pagetemplate.automatic');
-        case PageMode.FORCED_CONTROLLER:
-            return useI18n('widget.pagetemplate.forcedcontroller');
-        case PageMode.FORCED_TEMPLATE:
-            return useI18n('widget.pagetemplate.forcedtemplate');
-        case PageMode.FRAGMENT:
-            return useI18n('widget.pagetemplate.fragment');
-        default:
-            return useI18n('widget.pagetemplate.default');
-    }
+    return translations[state.mode];
 }
 
 async function attemptAutomaticMode(content: Content): Promise<State> {
@@ -74,9 +65,18 @@ async function getState(content: Content): Promise<State> {
     return attemptAutomaticMode(content);
 }
 
-export const DetailsWidgetTemplateSection = (): ReactElement => {
+export function DetailsWidgetTemplateSection(): ReactElement {
     const content = useStore($detailsWidgetContent);
     const [state, setState] = useState<State>({mode: PageMode.NO_CONTROLLER, template: null, descriptor: null});
+
+    const titleText = useI18n('field.contextPanel.details.sections.template');
+    const modeTranslations: ModeTranslations = {
+        [PageMode.AUTOMATIC]: useI18n('widget.pagetemplate.automatic'),
+        [PageMode.FORCED_CONTROLLER]: useI18n('widget.pagetemplate.forcedcontroller'),
+        [PageMode.FORCED_TEMPLATE]: useI18n('widget.pagetemplate.forcedtemplate'),
+        [PageMode.FRAGMENT]: useI18n('widget.pagetemplate.fragment'),
+        [PageMode.NO_CONTROLLER]: useI18n('widget.pagetemplate.default'),
+    };
 
     useEffect(() => {
         if (!content) return;
@@ -84,22 +84,21 @@ export const DetailsWidgetTemplateSection = (): ReactElement => {
         getState(content).then(setState);
     }, [content]);
 
-    if (!content || state.mode === PageMode.NO_CONTROLLER) return undefined;
+    if (!content || state.mode === PageMode.NO_CONTROLLER) return null;
+
+    const displayName = getDisplayName(content, state, modeTranslations);
 
     return (
-        <div>
-            <Title text={useI18n('field.contextPanel.details.sections.template')} />
-            <div className="my-4">
-                <div className="flex gap-7.5 items-center">
-                    {/* Icon */}
-                    <TemplateIcon pageMode={state.mode} className="shrink-0" />
-                    <div className="flex flex-col gap-1 overflow-hidden">
-                        {/* Name */}
-                        <span className="text-sm truncate" title={getDisplayName(content, state)}>
-                            {getDisplayName(content, state)}
+        <section className="flex flex-col gap-5">
+            <Separator label={titleText} />
+            <div>
+                <div className="flex gap-2.5 items-center">
+                    <TemplateIcon pageMode={state.mode} className="shrink-0" size={24} />
+                    <div className="flex flex-col overflow-hidden">
+                        <span className="text-sm font-semibold truncate" title={displayName}>
+                            {displayName}
                         </span>
 
-                        {/* Descriptor */}
                         {state.template ? (
                             <Tooltip value={state.template.getPath().toString()}>
                                 <Link
@@ -120,12 +119,10 @@ export const DetailsWidgetTemplateSection = (): ReactElement => {
                                     {state.descriptor.getDisplayName()}
                                 </span>
                             </Tooltip>
-                        ) : undefined}
+                        ) : null}
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     );
-};
-
-DetailsWidgetTemplateSection.displayName = 'DetailsWidgetTemplateSection';
+}

@@ -8,16 +8,20 @@ const TEMPLATE_ICON_MAP = new Map<PageMode, LucideIcon>([
     [PageMode.FORCED_CONTROLLER, Cog],
 ]);
 
-type Props = LucideProps & {
+type TemplateIconProps = LucideProps & {
     pageMode: PageMode;
 };
 
-export function TemplateIcon({pageMode, ...props}: Props): ReactElement {
-    const Icon = TEMPLATE_ICON_MAP.get(pageMode);
-
-    if (Icon) {
-        return <Icon {...props} />;
-    }
-
-    return undefined;
+function getIcon(pageMode: PageMode): LucideIcon | null {
+    return TEMPLATE_ICON_MAP.get(pageMode) ?? null;
 }
+
+export function TemplateIcon({pageMode, ...props}: TemplateIconProps): ReactElement {
+    const Icon = getIcon(pageMode);
+
+    if (!Icon) return null;
+
+    return <Icon {...props} />;
+}
+
+TemplateIcon.displayName = 'TemplateIcon';

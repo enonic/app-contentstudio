@@ -93,6 +93,13 @@ const badVariants = cva('base', {
 ### Spacing & Layout
 
 ```typescript
+// ✅ Use size-* for equal width and height
+<Icon className="size-4" /> // Not h-4 w-4
+<Avatar className="size-10" /> // Not h-10 w-10
+
+// ❌ Don't use separate h-* w-* when values are equal
+<Icon className="h-4 w-4" /> // Use size-4 instead
+
 // ✅ Use logical properties
 <div className="ps-4 me-2" /> // padding-start, margin-end
 

@@ -55,3 +55,5 @@ export const StatusIcon = ({className, status, ...props}: Props): React.ReactEle
 
     return <Icon className={classNames} aria-label={status} {...props} />;
 };
+
+StatusIcon.displayName = 'StatusIcon';

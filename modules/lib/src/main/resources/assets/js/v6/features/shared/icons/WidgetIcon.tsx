@@ -2,34 +2,29 @@ import {ReactElement} from 'react';
 import {WidgetView} from '../../../../app/view/context/WidgetView';
 import {cn} from '@enonic/ui';
 
-export function WidgetIcon({
-    widgetView,
-    size = 'md',
-}: {
+type WidgetIconProps = {
     widgetView: WidgetView;
     size?: 'sm' | 'md' | 'lg';
-}): ReactElement {
-    if (!widgetView) return undefined;
+    className?: string;
+};
 
-    let sizeNumber = 6;
-    let className = 'size-6';
+const SIZE_MAP = {
+    sm: {className: 'size-4', number: 4},
+    md: {className: 'size-6', number: 6},
+    lg: {className: 'size-8', number: 8},
+} as const;
 
-    if (size === 'sm') {
-        sizeNumber = 4;
-        className = 'size-4';
-    }
+export function WidgetIcon({widgetView, size = 'md', className}: WidgetIconProps): ReactElement {
+    if (!widgetView) return null;
 
-    if (size === 'lg') {
-        sizeNumber = 8;
-        className = 'size-8';
-    }
+    const {className: sizeClass, number: sizeNumber} = SIZE_MAP[size];
 
     if (widgetView.getWidgetIconUrl()) {
         return (
             <img
                 src={widgetView.getWidgetIconUrl()}
                 alt={widgetView.getWidgetName()}
-                className={cn('size-6 dark:invert-100', className)}
+                className={cn(sizeClass, 'dark:invert-100', className)}
             />
         );
     }
@@ -37,12 +32,14 @@ export function WidgetIcon({
     if (widgetView.getWidgetIcon()) {
         const Icon = widgetView.getWidgetIcon();
 
-        return <Icon size={sizeNumber} className={cn(className)} />;
+        return <Icon size={sizeNumber} className={cn(sizeClass, className)} />;
     }
 
     if (widgetView.getWidgetIconClass()) {
-        return <span className={cn(widgetView.getWidgetIconClass(), 'dark:before:invert-100', className)} />;
+        return <span className={cn(widgetView.getWidgetIconClass(), sizeClass, 'dark:before:invert-100', className)} />;
     }
 
-    return undefined;
+    return null;
 }
+
+WidgetIcon.displayName = 'WidgetIcon';

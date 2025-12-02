@@ -1,95 +1,83 @@
-import {ReactElement} from 'react';
-import {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
-import {useI18n} from '../../../../hooks/useI18n';
 import {cn} from '@enonic/ui';
-import {PublishStatusChecker} from '../../../../../../app/publish/PublishStatus';
-import {StatusIcon} from '../../../../shared/icons/StatusIcon';
-import {capitalize} from '../../../../utils/format/capitalize';
-import {ContentIcon} from '../../../../shared/icons/ContentIcon';
 import {useStore} from '@nanostores/preact';
+import {ReactElement} from 'react';
+import {PublishStatusChecker, PublishStatusFormatter} from '../../../../../../app/publish/PublishStatus';
+import {useI18n} from '../../../../hooks/useI18n';
+import {ContentIcon} from '../../../../shared/icons/ContentIcon';
+import {StatusIcon} from '../../../../shared/icons/StatusIcon';
 import {$contextContent} from '../../../../store/context/contextContent.store';
-import {Subtitle} from './utils';
 import {calcWorkflowStateStatus} from '../../../../utils/cms/content/workflow';
 
-type Props = {
-    content: ContentSummaryAndCompareStatus;
-};
-
-const Icon = ({content}: Props): ReactElement => {
-    return (
-        <div>
-            <Subtitle text={useI18n('field.contextPanel.details.sections.content.icon')} />
-            <ContentIcon contentType={String(content.getType())} url={content.getContentSummary().getIconUrl()} />
-        </div>
-    );
-};
-
-const Status = ({content}: Props): ReactElement => {
-    const contentSummary = content.getContentSummary();
-    const publishStatus = content.getPublishStatus();
-    const status = calcWorkflowStateStatus(contentSummary);
-    const statusLabel = status ? useI18n(`field.contextPanel.details.sections.content.status.${status}`) : '';
-
-    return (
-        <div>
-            <Subtitle text={useI18n('field.contextPanel.details.sections.content.status')} />
-            <p className="flex gap-2 items-center text-sm">
-                {publishStatus && (
-                    <span className={cn(PublishStatusChecker.isOnline(publishStatus) && 'text-success')}>
-                        {capitalize(publishStatus)}
-                    </span>
-                )}
-
-                {publishStatus && status && <span className="text-gray-300"> | </span>}
-
-                <div className="flex items-center gap-1 overflow-hidden">
-                    {status && <StatusIcon status={status} aria-label={statusLabel} className="shrink-0" />}
-                    <span className="truncate">{statusLabel}</span>
-                </div>
-            </p>
-        </div>
-    );
-};
-
-const DisplayName = ({content}: Props): ReactElement => {
-    const displayName = content.hasContentSummary()
-        ? content.getContentSummary().getDisplayName()
-        : content.hasUploadItem()
-          ? content.getUploadItem().getName()
-          : '';
-
-    if (!displayName) return undefined;
-
-    return (
-        <div className="flex flex-col shrink-1">
-            <Subtitle text={useI18n('field.contextPanel.details.sections.content.displayName')} />
-            <p className="text-sm truncate">{displayName}</p>
-        </div>
-    );
-};
-
-const Path = ({content}: Props): ReactElement => {
-    return (
-        <div className="flex flex-col shrink-1">
-            <Subtitle text={useI18n('field.contextPanel.details.sections.content.path')} />
-            <p className="text-sm truncate">{content.getPath().toString()}</p>
-        </div>
-    );
-};
-
-export const DetailsWidgetContentSection = (): ReactElement => {
+export function DetailsWidgetContentSection(): ReactElement {
     const content = useStore($contextContent);
 
-    if (!content) return undefined;
+    const iconLabel = useI18n('field.contextPanel.details.sections.content.icon');
+    const statusLabel = useI18n('field.contextPanel.details.sections.content.status');
+    const displayNameLabel = useI18n('field.contextPanel.details.sections.content.displayName');
+    const pathLabel = useI18n('field.contextPanel.details.sections.content.path');
+    const readyLabel = useI18n('field.contextPanel.details.sections.content.status.ready');
+    const inProgressLabel = useI18n('field.contextPanel.details.sections.content.status.in-progress');
+    const invalidLabel = useI18n('field.contextPanel.details.sections.content.status.invalid');
+
+    if (!content) return null;
+
+    const contentSummary = content.getContentSummary();
+    const publishStatus = content.getPublishStatus();
+    const workflowStatus = calcWorkflowStateStatus(contentSummary);
+
+    const workflowStatusLabelMap: Record<string, string> = {
+        ready: readyLabel,
+        'in-progress': inProgressLabel,
+        invalid: invalidLabel,
+    };
+    const workflowStatusLabel = workflowStatus ? workflowStatusLabelMap[workflowStatus] : '';
+
+    const displayName = content.hasContentSummary()
+        ? contentSummary.getDisplayName()
+        : content.hasUploadItem()
+            ? content.getUploadItem().getName()
+            : '';
 
     return (
-        <div className="flex flex-col gap-5">
-            <Icon content={content} />
-            <Status content={content} />
-            <DisplayName content={content} />
-            <Path content={content} />
-        </div>
-    );
-};
+        <dl className="flex flex-col gap-5">
+            <div className="flex flex-col gap-1">
+                <dt className="text-xs text-subtle">{iconLabel}</dt>
+                <dd>
+                    <ContentIcon contentType={String(content.getType())} url={contentSummary.getIconUrl()} />
+                </dd>
+            </div>
 
-DetailsWidgetContentSection.displayName = 'DetailsWidgetContentSection';
+            <div className="flex flex-col gap-1">
+                <dt className="text-xs text-subtle">{statusLabel}</dt>
+                <dd className="flex gap-2 items-center text-sm">
+                    {publishStatus && (
+                        <span className={cn(PublishStatusChecker.isOnline(publishStatus) && 'text-success')}>
+                            {PublishStatusFormatter.formatStatusText(publishStatus)}
+                        </span>
+                    )}
+
+                    {publishStatus && workflowStatus && <span className="text-gray-300"> | </span>}
+
+                    {workflowStatus && (
+                        <span className="flex items-center gap-1 overflow-hidden">
+                            <StatusIcon status={workflowStatus} aria-label={workflowStatusLabel} className="shrink-0" />
+                            <span className="truncate">{workflowStatusLabel}</span>
+                        </span>
+                    )}
+                </dd>
+            </div>
+
+            {displayName && (
+                <div className="flex flex-col gap-1">
+                    <dt className="text-xs text-subtle">{displayNameLabel}</dt>
+                    <dd className="text-sm truncate">{displayName}</dd>
+                </div>
+            )}
+
+            <div className="flex flex-col gap-1">
+                <dt className="text-xs text-subtle">{pathLabel}</dt>
+                <dd className="text-sm truncate">{content.getPath().toString()}</dd>
+            </div>
+        </dl>
+    );
+}

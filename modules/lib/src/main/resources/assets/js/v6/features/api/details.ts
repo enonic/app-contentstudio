@@ -1,18 +1,13 @@
-import {Content} from '../../../../../../app/content/Content';
-import {ReactElement} from 'react';
-import {ContentId} from '../../../../../../app/content/ContentId';
-import {PageTemplate} from '../../../../../../app/content/PageTemplate';
-import {GetPageTemplateByKeyRequest} from '../../../../../../app/resource/GetPageTemplateByKeyRequest';
-import {GetComponentDescriptorRequest} from '../../../../../../app/resource/GetComponentDescriptorRequest';
-import {Descriptor} from '../../../../../../app/page/Descriptor';
-import {Site} from '../../../../../../app/content/Site';
-import {GetNearestSiteRequest} from '../../../../../../app/resource/GetNearestSiteRequest';
-import {GetDefaultPageTemplateRequest} from '../../../../../../app/wizard/page/GetDefaultPageTemplateRequest';
+import {Content} from '../../../app/content/Content';
+import {ContentId} from '../../../app/content/ContentId';
+import {PageTemplate} from '../../../app/content/PageTemplate';
+import {Site} from '../../../app/content/Site';
+import {Descriptor} from '../../../app/page/Descriptor';
+import {GetPageTemplateByKeyRequest} from '../../../app/resource/GetPageTemplateByKeyRequest';
+import {GetComponentDescriptorRequest} from '../../../app/resource/GetComponentDescriptorRequest';
+import {GetNearestSiteRequest} from '../../../app/resource/GetNearestSiteRequest';
+import {GetDefaultPageTemplateRequest} from '../../../app/wizard/page/GetDefaultPageTemplateRequest';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-
-/**
- * Requests
- */
 
 export async function loadPageTemplate(contentId: ContentId): Promise<PageTemplate | undefined> {
     try {
@@ -72,19 +67,3 @@ export async function loadDefaultPageTemplate(
         return undefined;
     }
 }
-
-/**
- * Helper components
- */
-
-export function Title({text}: {text: string}): ReactElement {
-    return (
-        <h3 className="mt-7.5 flex items-baseline gap-3 text-subtle uppercase after:border-b after:border-bdr-subtle after:flex-1">
-            <span className="text-nowrap">{text}</span>
-        </h3>
-    );
-}
-
-export const Subtitle = ({text}: {text: string}): ReactElement => {
-    return <h3 className="text-xs text-subtle mb-1">{text}</h3>;
-};

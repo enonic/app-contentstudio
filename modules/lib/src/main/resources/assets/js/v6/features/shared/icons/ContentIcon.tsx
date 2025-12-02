@@ -90,3 +90,5 @@ export const ContentIcon = ({
 
     return <BuiltInIcon className={cn('w-6 h-6', className)} contentType={contentType} />;
 };
+
+ContentIcon.displayName = 'ContentIcon';

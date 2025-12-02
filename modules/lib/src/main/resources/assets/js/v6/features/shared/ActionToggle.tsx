@@ -20,4 +20,4 @@ export const ActionToggle = ({action, ...props}: ActionButtonProps): ReactElemen
     );
 };
 
-ActionToggle.displayName = 'ActionButton';
+ActionToggle.displayName = 'ActionToggle';

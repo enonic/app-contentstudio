@@ -38,6 +38,8 @@ const DialogPresetConfirm = ({
     );
 };
 
+DialogPresetConfirm.displayName = 'DialogPreset.Confirm';
+
 export const DialogPreset = {
     Confirm: DialogPresetConfirm,
 };

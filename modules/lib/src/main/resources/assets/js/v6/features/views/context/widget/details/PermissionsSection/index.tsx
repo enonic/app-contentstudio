@@ -1,30 +1,26 @@
+import {Separator} from '@enonic/ui';
+import {useStore} from '@nanostores/preact';
 import {ReactElement} from 'react';
 import {useI18n} from '../../../../../hooks/useI18n';
-import {Content} from '../../../../../../../app/content/Content';
-import {ContentAccessDescription} from './ContentAccessDescription';
-import {PermissionsList} from './PermissionsList';
-import {EditPermissionsButton} from './EditPermissionsButton';
-import {Title} from '../utils';
 import {$detailsWidgetContent} from '../../../../../store/context/detailsWidgets.store';
-import {useStore} from '@nanostores/preact';
+import {ContentAccessDescription} from './ContentAccessDescription';
+import {EditPermissionsButton} from './EditPermissionsButton';
+import {PermissionsList} from './PermissionsList';
 
-export const DetailsWidgetPermissionsSection = (): ReactElement => {
+export function DetailsWidgetPermissionsSection(): ReactElement {
     const content = useStore($detailsWidgetContent);
+    const titleText = useI18n('field.contextPanel.details.sections.permissions');
 
-    if (!content) return undefined;
+    if (!content) return null;
 
     return (
-        <div>
-            <Title text={useI18n('field.contextPanel.details.sections.permissions')} />
-            <div className="flex flex-col gap-2.5 my-5">
+        <section className='flex flex-col gap-5'>
+            <Separator label={titleText} />
+            <div className="flex flex-col gap-2.5">
                 <ContentAccessDescription content={content} />
                 <PermissionsList />
             </div>
-            <div className="flex justify-end">
-                <EditPermissionsButton content={content} />
-            </div>
-        </div>
+            <EditPermissionsButton className='self-end' content={content} />
+        </section>
     );
-};
-
-DetailsWidgetPermissionsSection.displayName = 'DetailsWidgetPermissionsSection';
+}
