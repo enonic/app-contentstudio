@@ -274,6 +274,51 @@ const options = useMemo(() => ({ sort: true, filter }), [filter]);
 return <MemoizedList options={options} />;
 ```
 
+## Refs in Dependency Arrays
+
+```typescript
+// ❌ DON'T: Put ref.current in dependency arrays
+// Refs are mutable containers - React won't detect changes to .current
+useEffect(() => {
+  contentRef.current?.focus();
+}, [contentRef.current]); // Wrong! .current changes don't trigger re-render
+
+// ✅ DO: Use ref object (stable) or omit from deps, check .current inside
+useEffect(() => {
+  contentRef.current?.focus();
+}, []); // Or [contentRef] if you need the ref object itself
+
+// ❌ DON'T: Wrap arrays in another array
+// Creates new array reference every render, defeating memoization
+function useComposedRefs<T>(...refs: Ref<T>[]) {
+  return useCallback((node: T) => {
+    refs.forEach(ref => setRef(ref, node));
+  }, [refs]); // Wrong! [refs] !== [refs] on every render
+}
+
+// ✅ DO: Use array directly as deps (with biome-ignore if needed)
+function useComposedRefs<T>(...refs: Ref<T>[]) {
+  // biome-ignore lint/correctness/useExhaustiveDependencies: refs spread as deps
+  return useCallback((node: T) => {
+    refs.forEach(ref => setRef(ref, node));
+  }, refs); // Correct - array used directly
+}
+
+// ✅ Ref objects from useRef() are stable - safe to include
+const containerRef = useRef<HTMLDivElement>(null);
+useEffect(() => {
+  // containerRef is stable, containerRef.current may change
+  containerRef.current?.focus();
+}, [containerRef]); // OK but usually unnecessary since ref is stable
+```
+
+**Rules:**
+
+1. **Never `ref.current`** - Refs are mutable, changes don't trigger re-renders
+2. **Never `[array]`** - Wrapping an array creates a new reference each render
+3. **Ref objects are stable** - `const ref = useRef()` creates a stable reference
+4. **Rest parameters** - Use the array directly with lint suppression if needed
+
 ## Extending Component Props
 
 ```typescript

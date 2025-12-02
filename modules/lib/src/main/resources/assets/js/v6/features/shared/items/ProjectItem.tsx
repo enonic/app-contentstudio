@@ -41,6 +41,8 @@ export function ProjectItem({
     );
 }
 
+ProjectItem.displayName = 'ProjectItem';
+
 export class ProjectItemElement
     extends LegacyElement<typeof ProjectItem, ProjectItemProps> {
     private project: Project;

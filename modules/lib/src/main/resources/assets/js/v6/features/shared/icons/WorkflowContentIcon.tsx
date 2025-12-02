@@ -19,3 +19,5 @@ export function WorkflowContentIcon({
         </span>
     );
 }
+
+WorkflowContentIcon.displayName = 'WorkflowContentIcon';

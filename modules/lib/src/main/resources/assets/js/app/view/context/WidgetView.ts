@@ -341,7 +341,7 @@ export class WidgetViewBuilder {
         return this;
     }
 
-    public addWidgetItemView(widgetItemView: WidgetItemView): WidgetViewBuilder {
+    public addWidgetItemView(widgetItemView: WidgetItemViewInterface): WidgetViewBuilder {
         this.widgetItemViews.push(widgetItemView);
         return this;
     }

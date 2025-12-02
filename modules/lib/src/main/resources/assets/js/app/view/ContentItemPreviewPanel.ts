@@ -1,18 +1,19 @@
-import Q from 'q';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
-import {ContentSummaryAndCompareStatusHelper} from '../content/ContentSummaryAndCompareStatusHelper';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {WidgetRenderingHandler, WidgetRenderer} from './WidgetRenderingHandler';
-import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
-import {$activeWidget} from '../../v6/features/store/liveViewWidgets.store';
-import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import {Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
+import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {cn} from '@enonic/ui';
+import Q from 'q';
+import {$activeWidget} from '../../v6/features/store/liveViewWidgets.store';
 import {PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentSummaryAndCompareStatusHelper} from '../content/ContentSummaryAndCompareStatusHelper';
+import {ContentResourceRequest} from '../resource/ContentResourceRequest';
+import {WidgetRenderer, WidgetRenderingHandler} from './WidgetRenderingHandler';
 
 export class ContentItemPreviewPanel extends Panel implements WidgetRenderer {
 
@@ -48,7 +49,7 @@ export class ContentItemPreviewPanel extends Panel implements WidgetRenderer {
         return super.doRender().then((rendered) => {
             this.addClass('bg-surface-neutral');
             this.widgetRenderingHandler.layout();
-            this.mask.addClass('content-item-preview-panel-load-mask');
+            this.mask.addClass(cn('transition-opacity duration-300 opacity-0'));
             return rendered;
         });
     }
@@ -160,10 +161,14 @@ export class ContentItemPreviewPanel extends Panel implements WidgetRenderer {
     public showMask() {
         if (this.isVisible()) {
             this.mask.show();
+            const className = 'opacity-0';
+            this.mask.addClass(className);
         }
     }
 
     public hideMask() {
         this.mask.hide();
+        const className = 'opacity-0';
+        this.mask.removeClass(className);
     }
 }

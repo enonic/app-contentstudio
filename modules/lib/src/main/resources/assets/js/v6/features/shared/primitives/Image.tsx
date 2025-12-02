@@ -26,3 +26,5 @@ export const Image = ({
         onError={onError}
     />
 );
+
+Image.displayName = 'Image';

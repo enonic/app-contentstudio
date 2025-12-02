@@ -61,6 +61,8 @@ export const ContentItem = ({
     );
 };
 
+ContentItem.displayName = 'ContentItem';
+
 export class ContentItemElement extends LegacyElement<typeof ContentItem, ContentItemProps> {
 
     constructor(props: ContentItemProps) {

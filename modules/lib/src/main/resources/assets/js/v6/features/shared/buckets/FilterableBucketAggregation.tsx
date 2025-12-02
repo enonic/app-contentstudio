@@ -143,3 +143,5 @@ export const FilterableBucketAggregation = ({
         </div>
     );
 };
+
+FilterableBucketAggregation.displayName = 'FilterableBucketAggregation';
