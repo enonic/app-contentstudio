@@ -8,6 +8,7 @@ const appConst = require('../../libs/app_const');
 const xpath = {
     parentListElement: "//ancestor::div[contains(@class,'item-view-wrapper')]",
     pageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer')]",
+    partPageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer') and contains(@class,'part')]",
     pageComponentsItemViewerByType(componentType) {
         return `//div[contains(@id,'PageComponentsItemViewer') and contains(@class,'${componentType}')]`
     },
@@ -74,8 +75,25 @@ class BasePageComponentView extends Page {
             await this.clickOnElement(selector);
             return await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_component_click');
-            throw new Error(`Page Component View - Error occurred after clicking on the component, screenshot${screenshot}: ` + err);
+            await this.handleError('Page Component View, tried to click on the component:', 'err_click_component_by_display_name', err);
+        }
+    }
+
+    // Part components can have the same display names, so index is required
+    async clickOnPartComponentByDisplayName(displayName, index) {
+        try {
+            let selector = this.container + xpath.partPageComponentsItemViewer + lib.itemByDisplayName(displayName);
+            let items = await this.findElements(selector);
+            if (items.length === 0) {
+                throw new Error(`No part components with display name ${displayName} were found`);
+            }
+            if (index >= items.length) {
+                throw new Error(`Index ${index} is out of bounds for part components with display name ${displayName}`);
+            }
+            await items[index].click();
+            return await this.pause(100);
+        } catch (err) {
+            await this.handleError('Page Component View, tried to click on the component:', 'err_click_component_by_display_name', err);
         }
     }
 
@@ -100,8 +118,7 @@ class BasePageComponentView extends Page {
             await this.clickOnElement(toggleIcon);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_component_view');
-            throw new Error(`PCV, Error occurred after clicking on 'toggle icon' in the row screenshot:${screenshot} ` + err);
+            await this.handleError(`PCV, click on row expander - tried to click on 'toggle icon' in the row`, 'err_click_row_expander', err);
         }
     }
 
@@ -119,8 +136,7 @@ class BasePageComponentView extends Page {
             await this.clickOnElement(menuButton);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_component_menu');
-            throw new Error(`PCV, open menu - Error occurred after clicking on 'Menu button', screenshot:${screenshot} ` + err);
+            await this.handleError(`PCV, open menu - tried to open menu`, 'err_open_menu', err);
         }
     }
 
@@ -168,8 +184,7 @@ class BasePageComponentView extends Page {
             let selector = xpath.contextMenuItemByName(name);
             return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_pcv_item');
-            throw new Error(`Page Component View - the context menu item is not displayed, screenshot: ${screenshot}  ` + err);
+            await this.handleError(`Page Component View, ${name} context menu item should be displayed`, 'err_wait_menu_item_present', err);
         }
     }
 
@@ -182,8 +197,7 @@ class BasePageComponentView extends Page {
                 return atr.includes('disabled');
             }, {timeout: appConst.mediumTimeout, timeoutMsg: 'The context menu item is not disabled!'});
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_pcv_context_menu');
-            throw new Error(`Page Component View - the context menu item is not disabled, screenshot: ${screenshot}  ` + err);
+            await this.handleError(`Page Component View, ${menuItem} should be disabled`, 'err_wait_context_menu_item_disabled', err);
         }
     }
 
@@ -195,14 +209,13 @@ class BasePageComponentView extends Page {
                 return !atr.includes('disabled');
             }, {timeout: appConst.mediumTimeout, timeoutMsg: 'The context menu item is not enabled'});
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_pcv_context_menu');
-            throw new Error(`Page Component View - the context menu item is not enabled, screenshot: ${screenshot}  ` + err);
+            await this.handleError(`Page Component View, ${menuItem} should be enabled`, 'err_wait_context_menu_item_enabled', err);
         }
     }
 
     async swapComponents(sourceName, destinationName) {
         let sourceElem = this.container + xpath.componentByName(sourceName);
-        let destinationElem = this.container  + xpath.componentByName(destinationName);
+        let destinationElem = this.container + xpath.componentByName(destinationName);
         let source = await this.findElement(sourceElem);
         let destination = await this.findElement(destinationElem);
         await source.dragAndDrop(destination);
@@ -256,8 +269,7 @@ class BasePageComponentView extends Page {
             let locator = this.container + xpath.pageComponentsItemViewer + lib.itemByDisplayName(itemDisplayName);
             return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_pcv_item');
-            throw new Error(`Page Component View -  item is not displayed, screenshot: ${screenshot}  ` + err);
+            await this.handleError('Page Component View, waitForItemDisplayed', 'err_wait_item_displayed', err);
         }
     }
 
@@ -268,8 +280,7 @@ class BasePageComponentView extends Page {
             let attr = await this.getAttribute(locator, 'class');
             return attr.includes('icon-state-invalid');
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_select_layout');
-            throw new Error(`Error during checking the component  in PCV, screenshot:${screenshot} ` + err);
+            await this.handleError('Page Component View, isComponentItemInvalid', 'err_check_invalid_component', err);
         }
     }
 

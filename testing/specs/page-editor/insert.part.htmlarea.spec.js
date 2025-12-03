@@ -12,7 +12,7 @@ const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel
 const TextComponentCke = require('../../page_objects/components/text.component');
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
-const PartInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/part.inspection.panel');
+const BasePartInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/base.part.inspection.panel');
 const InsertablesPanel = require('../../page_objects/wizardpanel/liveform/insertables.panel');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const WizardContextWindow = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
@@ -157,7 +157,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
     it(`GIVEN html-area content is opened AND part with html-example has been inserted WHEN text has been typed in the html-area THEN the text should appear in the Page Editor`,
         async () => {
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
-            let partInspectionPanel = new PartInspectionPanel();
+            let partInspectionPanel = new BasePartInspectionPanel();
             let contentWizard = new ContentWizard();
             // 1. Open the fragment created from the part:
             await studioUtils.openContentAndSwitchToTabByDisplayName(PART_FRAGMENT_NAME, HTML_AREA_PART_NAME);
@@ -195,7 +195,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            let partInspectionPanel = new PartInspectionPanel();
+            let partInspectionPanel = new BasePartInspectionPanel();
             let insertTab = new InsertablesPanel();
             let wizardContextWindow = new WizardContextWindow();
             // 1. Open the content:
@@ -205,7 +205,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             // 3. Select the 'Html area' part:
             await pageComponentView.clickOnComponent(HTML_AREA_PART_NAME);
             // 4. Verify that 'Part Inspection Panel' is loaded:
-            await partInspectionPanel.waitForOpened();
+            await partInspectionPanel.waitForLoaded();
             // 5. Expand the menu and click on "Remove" menu item in PCV, remove the component:
             await pageComponentView.openMenu(HTML_AREA_PART_NAME);
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.REMOVE);
