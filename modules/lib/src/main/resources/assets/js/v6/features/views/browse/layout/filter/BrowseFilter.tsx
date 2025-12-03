@@ -10,11 +10,11 @@ import {
     $isContentFilterOpen,
     setContentFilterSelection,
     setContentFilterValue
-} from '../../../store/contentFilter.store';
-import {StaticBucketAggregation} from '../../../shared/buckets/StaticBucketAggregation';
-import {FilterableBucketAggregation} from '../../../shared/buckets/FilterableBucketAggregation';
-import {useI18n} from '../../../hooks/useI18n';
-import {LegacyElement} from '../../../shared/LegacyElement';
+} from '../../../../store/contentFilter.store';
+import {StaticBucketAggregation} from '../../../../shared/buckets/StaticBucketAggregation';
+import {FilterableBucketAggregation} from '../../../../shared/buckets/FilterableBucketAggregation';
+import {useI18n} from '../../../../hooks/useI18n';
+import {LegacyElement} from '../../../../shared/LegacyElement';
 
 export type BrowseFilterProps = {
     hits?: number;

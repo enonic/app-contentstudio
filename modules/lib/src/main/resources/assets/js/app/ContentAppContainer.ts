@@ -13,7 +13,6 @@ import {GetIssueRequest} from './issue/resource/GetIssueRequest';
 import {Issue} from './issue/Issue';
 import {IssueDialogsManager} from './issue/IssueDialogsManager';
 import {Path} from '@enonic/lib-admin-ui/rest/Path';
-import {ContentTreeGridLoadedEvent} from './browse/ContentTreeGridLoadedEvent';
 import {ResolveDependenciesRequest} from './resource/ResolveDependenciesRequest';
 import {ResolveDependenciesResult} from './resource/ResolveDependenciesResult';
 import {ResolveDependencyResult} from './resource/ResolveDependencyResult';
@@ -22,6 +21,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {Branch} from './versioning/Branch';
 import {BrowseAppBarElement} from '../v6/features/views/browse/layout/BrowseAppBar';
+import {$contentTreeRootLoadingState} from '../v6/features/store/contentTreeLoadingStore';
 
 export class ContentAppContainer
     extends AppContainer {
@@ -123,13 +123,11 @@ export class ContentAppContainer
         const id = path.getElement(3);
         const type = path.getElement(4);
 
-        const treeGridLoadedListener = () => {
+        const unsubscribe = $contentTreeRootLoadingState.listen((state) => {
+            if (state !== 'ok') return;
+            unsubscribe();
             this.doHandleDependencies(id, inbound, branch, type);
-
-            ContentTreeGridLoadedEvent.un(treeGridLoadedListener);
-        };
-
-        ContentTreeGridLoadedEvent.on(treeGridLoadedListener);
+        });    
     }
 
     private doHandleDependencies(id: string, inbound: boolean, target: Branch, type?: string) {
