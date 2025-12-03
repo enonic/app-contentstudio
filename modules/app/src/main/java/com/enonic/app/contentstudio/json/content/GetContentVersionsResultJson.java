@@ -16,8 +16,9 @@ public class GetContentVersionsResultJson
 
     private final int from;
 
-    public GetContentVersionsResultJson( final FindContentVersionsResult result, int from, final ContentPrincipalsResolver principalsResolver, final
-                                         ContentPublishInfoResolver contentPublishInfoResolver )
+    public GetContentVersionsResultJson( final FindContentVersionsResult result, int from,
+                                         final ContentPrincipalsResolver principalsResolver,
+                                         final ContentPublishInfoResolver contentPublishInfoResolver )
     {
         this.totalHits = result.getTotalHits();
         this.from = from;

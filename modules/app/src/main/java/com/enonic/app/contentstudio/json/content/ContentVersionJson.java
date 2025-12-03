@@ -34,15 +34,15 @@ public class ContentVersionJson
 
     private final List<ActionJson> changes;
 
-    public ContentVersionJson( final ContentVersion contentVersion, final ContentPrincipalsResolver principalsResolver,
+    public ContentVersionJson( final ContentVersion version, final ContentPrincipalsResolver principalsResolver,
                                final ContentPublishInfoResolver contentPublishInfoResolver )
     {
-        this.timestamp = contentVersion.getTimestamp();
-        this.comment = contentVersion.getComment();
-        this.contentPath = contentVersion.getPath().toString(); // TODO not essential
-        this.id = contentVersion.getVersionId().toString();
+        this.timestamp = version.getTimestamp();
+        this.comment = version.getComment();
+        this.contentPath = version.getPath().toString(); // TODO not essential
+        this.id = version.getVersionId().toString();
 
-        final Optional<ContentVersion.Action> modChange = contentVersion.getActions()
+        final Optional<ContentVersion.Action> modChange = version.getActions()
             .reversed()
             .stream()
             .filter( c -> ContentVersionHelper.CHANGE_OPERATIONS.contains( c.operation() ) )
@@ -60,30 +60,31 @@ public class ContentVersionJson
         {
             this.modifier = null;
             this.modifierDisplayName = "";
-            this.modified = contentVersion.getTimestamp(); // TODO just to make old UI happy
+            this.modified = version.getTimestamp(); // TODO just to make old UI happy
         }
 
         // TODO just an example. In reality one version can have multiple attributes
 
-        ContentVersionPublishInfoJson info = contentVersion.getActions()
+        ContentVersionPublishInfoJson info = version.getActions()
             .stream()
             .filter( c -> c.operation().equals( ContentVersionHelper.PUBLISH_KEY ) )
             .findFirst()
             .map( c -> {
-                return new ContentVersionPublishInfoJson( c.user(), c.opTime(), contentVersion.getComment(), "PUBLISHED",
+                return new ContentVersionPublishInfoJson( c.user(), c.opTime(), version.getComment(), "PUBLISHED",
                                                           new ContentPublishInfoJson(
-                                                              contentPublishInfoResolver.resolvePublishInfo( contentVersion.getContentId(),
-                                                                                                             contentVersion.getVersionId() ) ),
+                                                              contentPublishInfoResolver.resolvePublishInfo( version.getContentId(),
+                                                                                                             version.getVersionId() ) ),
                                                           principalsResolver );
-            } ).orElse( null );
+            } )
+            .orElse( null );
 
         // TODO This is just an example to make old UI work. unpublishing happens on the same version as publishing
-        info = contentVersion.getActions()
+        info = version.getActions()
             .stream()
             .filter( c -> c.operation().equals( ContentVersionHelper.UNPUBLISH_KEY ) )
             .findFirst()
             .map( c -> {
-                return new ContentVersionPublishInfoJson( c.user(), c.opTime(), contentVersion.getComment(), "UNPUBLISHED",
+                return new ContentVersionPublishInfoJson( c.user(), c.opTime(), version.getComment(), "UNPUBLISHED",
                                                           new ContentPublishInfoJson( ContentPublishInfo.create().build() ),
                                                           principalsResolver );
             } ).orElse(  info );
@@ -100,19 +101,19 @@ public class ContentVersionJson
                     };
                     return commitType == null
                         ? null
-                        : new ContentVersionPublishInfoJson( c.user(), c.opTime(), contentVersion.getComment(),
+                        : new ContentVersionPublishInfoJson( c.user(), c.opTime(), version.getComment(),
                                                              commitType, null, principalsResolver );
                 } )).orElse( null );
         }
 
         this.publishInfo = info;
 
-        this.changes = contentVersion.getActions()
+        this.changes = version.getActions()
             .stream()
             .map( c -> new ActionJson( c.operation(), c.fields(), c.user().toString(), c.opTime() ) )
             .toList();
 
-        this.permissionsChanged = contentVersion.getActions()
+        this.permissionsChanged = version.getActions()
             .stream()
             .map( ContentVersion.Action::operation )
             .anyMatch( c -> c.equals( ContentVersionHelper.PERMISSIONS_KEY ) );

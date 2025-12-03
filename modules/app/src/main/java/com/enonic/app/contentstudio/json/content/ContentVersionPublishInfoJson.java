@@ -21,9 +21,9 @@ public class ContentVersionPublishInfoJson
 
     private final ContentPublishInfoJson contentPublishInfo;
 
-    public ContentVersionPublishInfoJson( final PrincipalKey publisher, final Instant timestamp, final String message,
-                                          final String type,
-                                          final ContentPublishInfoJson contentPublishInfo, final ContentPrincipalsResolver principalsResolver)
+    public ContentVersionPublishInfoJson( final PrincipalKey publisher, final Instant timestamp, final String message, final String type,
+                                          final ContentPublishInfoJson contentPublishInfo,
+                                          final ContentPrincipalsResolver principalsResolver )
     {
         this.publisher = publisher.toString();
         this.timestamp = timestamp;

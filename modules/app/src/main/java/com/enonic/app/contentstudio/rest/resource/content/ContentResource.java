@@ -92,7 +92,6 @@ import com.enonic.app.contentstudio.rest.resource.content.json.LocaleListJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.LocalizeContentsJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.MarkAsReadyJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.MoveContentJson;
-import com.enonic.app.contentstudio.rest.resource.content.json.MoveContentResultJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.PublishContentJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.ReorderChildJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.ReorderChildrenJson;
