@@ -120,8 +120,9 @@ import com.enonic.xp.content.GetPublishStatusResult;
 import com.enonic.xp.content.GetPublishStatusesParams;
 import com.enonic.xp.content.GetPublishStatusesResult;
 import com.enonic.xp.content.HasUnpublishedChildrenParams;
+import com.enonic.xp.content.MoveContentParams;
+import com.enonic.xp.content.MoveContentsResult;
 import com.enonic.xp.content.PublishStatus;
-import com.enonic.xp.content.RenameContentParams;
 import com.enonic.xp.content.ResetContentInheritParams;
 import com.enonic.xp.content.ResolvePublishDependenciesParams;
 import com.enonic.xp.content.ResolveRequiredDependenciesParams;
@@ -750,7 +751,7 @@ public class ContentResourceTest
             .post()
             .getAsString();
 
-        verify( contentService, times( 0 ) ).rename( isA( RenameContentParams.class ) );
+        verify( contentService, times( 0 ) ).move( isA( MoveContentParams.class ) );
 
         assertJson( "update_content_nothing_updated.json", jsonString );
     }
@@ -769,7 +770,7 @@ public class ContentResourceTest
             .post()
             .getAsString();
 
-        verify( contentService, times( 0 ) ).rename( isA( RenameContentParams.class ) );
+        verify( contentService, times( 0 ) ).move( isA( MoveContentParams.class ) );
 
         assertJson( "update_content_success.json", jsonString );
     }
@@ -787,7 +788,7 @@ public class ContentResourceTest
             .post()
             .getAsString();
 
-        verify( contentService, times( 0 ) ).rename( isA( RenameContentParams.class ) );
+        verify( contentService, times( 0 ) ).move( isA( MoveContentParams.class ) );
 
         assertJson( "update_content_inherit_success.json", jsonString );
     }
@@ -799,16 +800,16 @@ public class ContentResourceTest
         Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
         when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
         when( contentService.getById( any() ) ).thenReturn( content );
-        when( contentService.rename( any() ) ).thenReturn( content );
+        when( contentService.move( any() ) ).thenReturn( MoveContentsResult.create().addMoved( content.getId() ).build() );
         when( contentService.getByPath( any() ) ).thenThrow( ContentNotFoundException.class );
         when( contentService.getById( content.getId() ) ).thenReturn( content );
         String jsonString = request().path( "content/update" )
             .entity( readFromFile( "update_content_renamed_to_unnamed.json" ), MediaType.APPLICATION_JSON_TYPE )
             .post()
             .getAsString();
-        ArgumentCaptor<RenameContentParams> argumentCaptor = ArgumentCaptor.forClass( RenameContentParams.class );
+        ArgumentCaptor<MoveContentParams> argumentCaptor = ArgumentCaptor.forClass( MoveContentParams.class );
 
-        verify( contentService, times( 1 ) ).rename( argumentCaptor.capture() );
+        verify( contentService, times( 1 ) ).move( argumentCaptor.capture() );
         assertTrue( argumentCaptor.getValue().getNewName().hasUniqueness() );
     }
 
@@ -819,16 +820,16 @@ public class ContentResourceTest
         Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
         when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
         when( contentService.getById( any() ) ).thenReturn( content );
-        when( contentService.rename( any() ) ).thenReturn( content );
+        when( contentService.move( any() ) ).thenReturn( MoveContentsResult.create().addMoved( content.getId() ).build() );
         when( contentService.getByPath( any() ) ).thenThrow( ContentNotFoundException.class );
         when( contentService.getById( content.getId() ) ).thenReturn( content );
         request().path( "content/update" )
             .entity( readFromFile( "update_content_renamed.json" ), MediaType.APPLICATION_JSON_TYPE )
             .post()
             .getAsString();
-        ArgumentCaptor<RenameContentParams> argumentCaptor = ArgumentCaptor.forClass( RenameContentParams.class );
+        ArgumentCaptor<MoveContentParams> argumentCaptor = ArgumentCaptor.forClass( MoveContentParams.class );
 
-        verify( contentService, times( 1 ) ).rename( argumentCaptor.capture() );
+        verify( contentService, times( 1 ) ).move( argumentCaptor.capture() );
         assertTrue( argumentCaptor.getValue().getNewName().toString().equals( "new-name" ) );
     }
 
@@ -932,7 +933,7 @@ public class ContentResourceTest
         when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
         when( contentService.getById( any() ) ).thenReturn( content );
 
-        when( contentService.rename( any() ) ).thenThrow(
+        when( contentService.move( any() ) ).thenThrow(
             new ContentAlreadyExistsException( ContentPath.from( "/path" ), RepositoryId.from( "some.repo" ), Branch.from( "draft" ) ) );
         when( contentService.getByPath( any() ) ).thenThrow( ContentNotFoundException.class );
 

@@ -5,15 +5,13 @@ import java.util.List;
 import java.util.Optional;
 
 import com.enonic.app.contentstudio.rest.resource.content.ContentPrincipalsResolver;
+import com.enonic.app.contentstudio.rest.resource.content.ContentPublishInfoResolver;
 import com.enonic.app.contentstudio.rest.resource.content.json.ChildOrderJson;
 import com.enonic.xp.content.ContentPublishInfo;
 import com.enonic.xp.content.ContentVersion;
 import com.enonic.xp.index.ChildOrder;
 import com.enonic.xp.security.Principal;
 import com.enonic.xp.security.PrincipalKey;
-import com.enonic.xp.app.contentstudio.json.content.ActionJson;
-import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPublishInfoResolver;
-import com.enonic.xp.app.contentstudio.json.content.ContentVersionHelper;
 public class ContentVersionJson
 {
     private final String modifier;

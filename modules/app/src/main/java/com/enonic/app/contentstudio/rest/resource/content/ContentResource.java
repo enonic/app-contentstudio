@@ -2,7 +2,6 @@ package com.enonic.app.contentstudio.rest.resource.content;
 
 import java.io.InputStream;
 import java.net.URL;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -93,6 +92,7 @@ import com.enonic.app.contentstudio.rest.resource.content.json.LocaleListJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.LocalizeContentsJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.MarkAsReadyJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.MoveContentJson;
+import com.enonic.app.contentstudio.rest.resource.content.json.MoveContentResultJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.PublishContentJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.ReorderChildJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.ReorderChildrenJson;
@@ -152,7 +152,8 @@ import com.enonic.xp.content.GetContentByIdsParams;
 import com.enonic.xp.content.GetPublishStatusesParams;
 import com.enonic.xp.content.GetPublishStatusesResult;
 import com.enonic.xp.content.HasUnpublishedChildrenParams;
-import com.enonic.xp.content.RenameContentParams;
+import com.enonic.xp.content.MoveContentParams;
+import com.enonic.xp.content.MoveContentsResult;
 import com.enonic.xp.content.ReorderChildContentParams;
 import com.enonic.xp.content.ResolvePublishDependenciesParams;
 import com.enonic.xp.content.ResolveRequiredDependenciesParams;
@@ -196,10 +197,8 @@ import com.enonic.xp.task.TaskService;
 import com.enonic.xp.util.BinaryReference;
 import com.enonic.xp.util.ByteSizeParser;
 import com.enonic.xp.util.Exceptions;
-import com.enonic.xp.web.HttpStatus;
 import com.enonic.xp.web.multipart.MultipartForm;
 import com.enonic.xp.web.multipart.MultipartItem;
-import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPublishInfoResolver;
 
 import static com.enonic.app.contentstudio.rest.resource.ResourceConstants.CONTENT_CMS_PATH;
 import static com.enonic.app.contentstudio.rest.resource.ResourceConstants.REST_ROOT;
@@ -502,12 +501,13 @@ public final class ContentResource
             return jsonObjectsFactory.createContentJson( updatedContent, request );
         }
 
+        // TODO split move and update operations in the REST API
         try
         {
             // in case content with same name and path was created in between content updated and renamed
-            final RenameContentParams renameParams = makeRenameParams( json.getRenameContentParams() );
-            final Content renamedContent = contentService.rename( renameParams );
-            return jsonObjectsFactory.createContentJson( renamedContent, request );
+            final MoveContentParams renameParams = makeRenameParams( json.getRenameContentParams() );
+            final MoveContentsResult renamedContent = contentService.move( renameParams );
+            return jsonObjectsFactory.createContentJson( contentService.getById( renameParams.getContentId() ), request );
         }
         catch ( ContentAlreadyExistsException e )
         {
@@ -519,11 +519,11 @@ public final class ContentResource
         }
     }
 
-    private RenameContentParams makeRenameParams( final RenameContentParams renameParams )
+    private MoveContentParams makeRenameParams( final MoveContentParams renameParams )
     {
         if ( renameParams.getNewName().isUnnamed() && !renameParams.getNewName().hasUniqueness() )
         {
-            return RenameContentParams.create().newName( ContentName.uniqueUnnamed() ).contentId( renameParams.getContentId() ).build();
+            return MoveContentParams.create().newName( ContentName.uniqueUnnamed() ).contentId( renameParams.getContentId() ).build();
         }
 
         return renameParams;
@@ -1715,7 +1715,7 @@ public final class ContentResource
             .getTotalHits();
     }
 
-    private boolean contentNameIsOccupied( final RenameContentParams renameParams )
+    private boolean contentNameIsOccupied( final MoveContentParams renameParams )
     {
         Content content = contentService.getById( renameParams.getContentId() );
         if ( content.getName().equals( renameParams.getNewName() ) )

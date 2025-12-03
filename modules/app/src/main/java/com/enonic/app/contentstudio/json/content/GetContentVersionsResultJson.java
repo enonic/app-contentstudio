@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.enonic.app.contentstudio.rest.resource.content.ContentPrincipalsResolver;
-import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPublishInfoResolver;
+import com.enonic.app.contentstudio.rest.resource.content.ContentPublishInfoResolver;
 import com.enonic.xp.content.ContentVersion;
 import com.enonic.xp.content.FindContentVersionsResult;
 

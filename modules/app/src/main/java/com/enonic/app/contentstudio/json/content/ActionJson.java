@@ -1,4 +1,4 @@
-package com.enonic.xp.app.contentstudio.json.content;
+package com.enonic.app.contentstudio.json.content;
 
 import java.time.Instant;
 import java.util.List;

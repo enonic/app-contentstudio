@@ -13,7 +13,7 @@ import com.enonic.app.contentstudio.json.content.ExtraDataJson;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentName;
 import com.enonic.xp.content.ExtraDatas;
-import com.enonic.xp.content.RenameContentParams;
+import com.enonic.xp.content.MoveContentParams;
 import com.enonic.xp.content.UpdateContentParams;
 import com.enonic.xp.data.PropertyArrayJson;
 import com.enonic.xp.data.PropertyTree;
@@ -28,7 +28,7 @@ public final class UpdateContentJson
 
     final UpdateContentParams updateContentParams;
 
-    final RenameContentParams renameContentParams;
+    final MoveContentParams renameContentParams;
 
     @JsonCreator
     UpdateContentJson( @JsonProperty("contentId") final String contentId, @JsonProperty("contentName") final String contentName,
@@ -55,7 +55,7 @@ public final class UpdateContentJson
                 edit.workflowInfo = workflowInfo == null ? null : workflowInfo.getWorkflowInfo();
             } );
 
-        this.renameContentParams = RenameContentParams.create().
+        this.renameContentParams = MoveContentParams.create().
             contentId( ContentId.from( contentId ) ).
             newName( this.contentName ).
             build();
@@ -68,7 +68,7 @@ public final class UpdateContentJson
     }
 
     @JsonIgnore
-    public RenameContentParams getRenameContentParams()
+    public MoveContentParams getRenameContentParams()
     {
         return renameContentParams;
     }

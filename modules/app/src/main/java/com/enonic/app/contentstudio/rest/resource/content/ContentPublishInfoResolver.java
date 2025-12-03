@@ -1,4 +1,4 @@
-package com.enonic.xp.app.contentstudio.rest.resource.content;
+package com.enonic.app.contentstudio.rest.resource.content;
 
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPublishInfo;
