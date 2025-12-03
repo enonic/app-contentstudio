@@ -183,7 +183,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Expand the menu and click on "Customize" menu item
             await pageComponentView.openMenuByDescription('part');
-            await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.CUSTOMIZE);
+            await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT);
             // 4. Verify that custom icon should be displayed after the part detached from fragment:
             let isDefaultIcon = await pageComponentView.isItemWithDefaultIcon(HTML_AREA_PART_NAME, 0);
             assert.ok(isDefaultIcon === false, 'The part should be displayed with the custom icon');
