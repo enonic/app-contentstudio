@@ -30,7 +30,7 @@ const BrowseDependencies = ({
         <div data-component={BROWSE_DEPENDENCIES_SECTION_NAME} className="mb-7.5">
             <h4 className="font-semibold">{label}</h4>
             <div className="flex items-center justify-between gap-2 mt-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 overflow-hidden">
                     <ContentIcon contentType={String(item.getType())} url={item.getIconUrl()} />
                     <div className="flex flex-col overflow-hidden">
                         <span className="block truncate">{item.getDisplayName()}</span>
