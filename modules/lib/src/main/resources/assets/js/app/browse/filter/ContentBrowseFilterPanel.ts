@@ -19,7 +19,8 @@ import {
     getFilterValue,
     hasFilterSet,
     hasFilterValueSet,
-    resetContentFilter, setContentFilterSelection
+    resetContentFilter,
+    setContentFilterSelection,
 } from '../../../v6/features/store/contentFilter.store';
 import {ContentId} from '../../content/ContentId';
 import {ContentQuery} from '../../content/ContentQuery';
@@ -29,7 +30,6 @@ import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {ProjectContext} from '../../project/ProjectContext';
 import {Router} from '../../Router';
-import {BrowseFilterElement} from '../../../v6/features/views/browse/layout/BrowseFilter';
 import {Branch} from '../../versioning/Branch';
 import {AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
 import {AggregationsQueryResult} from './AggregationsQueryResult';
@@ -37,7 +37,8 @@ import {ContentAggregation} from './ContentAggregation';
 import {ContentAggregationsFetcher} from './ContentAggregationsFetcher';
 import {ContentDependency} from './ContentDependency';
 import {ContentExportElement} from './ContentExportElement';
-import {DependenciesSection} from './DependenciesSection'
+import {BrowseFilterElement} from '../../../v6/features/views/browse/layout/filter/BrowseFilter';
+import {BrowseDependenciesElement} from '../../../v6/features/views/browse/layout/filter/BrowseDependencies';
 
 export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus>
     extends BrowseFilterPanel<T> {
@@ -47,7 +48,7 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
     protected aggregationsFetcher: ContentAggregationsFetcher;
     protected searchEventListeners: ((query?: ContentQuery) => void)[] = [];
 
-    private dependenciesSection: DependenciesSection;
+    private dependenciesSection: BrowseDependenciesElement;
     private elementsContainer: Element;
     private exportElement?: ContentExportElement;
     private targetBranch: Branch = Branch.DRAFT;
@@ -59,14 +60,16 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
         this.addClass(cn('content-browse-filter-panel bg-surface-neutral text-main'));
         this.aggregationsFetcher = this.createAggregationFetcher();
         this.displayNamesResolver = new AggregationsDisplayNamesResolver();
-        this.dependenciesSection = new DependenciesSection();
-
+        this.dependenciesSection = new BrowseDependenciesElement({
+            onCancelClick: this.dependenciesCancelHandler.bind(this),
+        });
         this.filterComponent = new BrowseFilterElement({
             bucketAggregations: [],
             filterableAggregations: this.getFilterableAggregations(),
             exportOptions: this.getExportOptions(),
         });
 
+        this.appendChild(this.dependenciesSection);
         this.appendChild(this.filterComponent);
 
         this.handleEvents();
@@ -99,7 +102,7 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
         });
 
         const debouncedSearch = AppHelper.debounce(() => {
-           this.search();
+            this.search();
         }, 300);
 
         const unsubscribe = $contentFilterState.listen(() => {
@@ -158,11 +161,11 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
         return [
             {
                 name: ContentAggregation.OWNER.toString(),
-                idsToKeepOnTop: [currentUserKey]
+                idsToKeepOnTop: [currentUserKey],
             },
             {
                 name: ContentAggregation.MODIFIED_BY.toString(),
-                idsToKeepOnTop: [currentUserKey]
+                idsToKeepOnTop: [currentUserKey],
             },
         ];
     }
@@ -174,7 +177,7 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
             label: i18n('action.export'),
             action: () => {
                 this.exportElement.handleExportClicked();
-            }
+            },
         };
     }
 
@@ -190,13 +193,16 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
     }
 
     public setDependencyItem(item: ContentSummary, inbound: boolean, type?: string): void {
+        this.dependenciesSection.setDependencyItem(item);
         this.dependenciesSection.setInbound(inbound);
 
         if (type) {
-            this.selectBucketByTypeOnLoad(type);
+            const aggregationSelection = new AggregationSelection(ContentAggregation.CONTENT_TYPE);
+            aggregationSelection.setValues([new Bucket(type, 0)]);
+            setContentFilterSelection([aggregationSelection]);
+        } else {
+            resetContentFilter();
         }
-
-        this.dependenciesSection.setDependencyItem(item);
     }
 
     public setTargetBranch(branch: Branch): void {
@@ -206,21 +212,6 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
 
     public getTargetBranch(): Branch {
         return this.targetBranch;
-    }
-
-    private selectBucketByTypeOnLoad(type: string): void {
-        const handler = () => { // waiting for aggregations views added
-            this.unSearchEvent(handler);
-            this.selectContentTypeBucket(type);
-        };
-
-        this.onSearchEvent(handler);
-    }
-
-    private selectContentTypeBucket(key: string): void {
-        const aggregationSelection = new AggregationSelection(ContentAggregation.CONTENT_TYPE);
-        aggregationSelection.setValues([new Bucket(key, 0)]);
-        setContentFilterSelection([aggregationSelection]);
     }
 
     searchItemById(id: ContentId): void {
@@ -310,7 +301,7 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
             this.updateExportState(aggregationsQueryResult);
 
             return this.processAggregations(aggregationsQueryResult.getAggregations() as BucketAggregation[]).then(() => {
-                return aggregationsQueryResult;
+                    return aggregationsQueryResult;
             });
         });
     }
@@ -379,5 +370,11 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
         }
 
         return this.elementsContainer.appendChild(child, lazyRender);
+    }
+
+    private dependenciesCancelHandler(): void {
+        resetContentFilter();
+        this.removeDependencyItem();
+        this.getAndUpdateAggregations().then(() => this.notifySearchEvent());
     }
 }

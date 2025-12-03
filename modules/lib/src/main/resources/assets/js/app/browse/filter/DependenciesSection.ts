@@ -4,6 +4,9 @@ import {ContentId} from '../../content/ContentId';
 import {ConstraintSection} from '@enonic/lib-admin-ui/app/browse/filter/BrowseFilterPanel';
 import {ContentSummaryViewer} from '../../content/ContentSummaryViewer';
 
+/**
+ * @deprecated Use DependenciesSectionElement instead
+ */
 export class DependenciesSection
     extends ConstraintSection {
 
