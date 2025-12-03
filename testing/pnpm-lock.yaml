@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@wdio/allure-reporter':
-        specifier: 9.20.0
-        version: 9.20.0
+        specifier: 9.21.0
+        version: 9.21.0
       '@wdio/cli':
         specifier: ^9.21.1
         version: 9.21.1(@types/node@24.10.1)(expect-webdriverio@5.4.3)
@@ -443,8 +443,8 @@ packages:
   '@vitest/snapshot@3.2.4':
     resolution: {integrity: sha512-dEYtS7qQP2CjU27QBC5oUOxLE/v5eLkGqPE0ZKEIDGMs4vKWe7IjgLOeauHsR0D5YuuycGRO5oSRXnwnmA78fQ==}
 
-  '@wdio/allure-reporter@9.20.0':
-    resolution: {integrity: sha512-Mhk9+8x2rOKunMlFDXcRt9Qxph6Wgjlepv25413n0euPiu3pf+sfaUfAGyFcfnwnPHYH9wc4NydUqdI8QaCxuA==}
+  '@wdio/allure-reporter@9.21.0':
+    resolution: {integrity: sha512-DfkUymAtbP+H1aGt3yy5HuKu/8Wiv6I6T34rijVmufaKgoIMxIL/pPWeCGVNoKKVsJKRqf7ZMJV87Jsku17chA==}
     engines: {node: '>=18.20.0'}
 
   '@wdio/cli@9.21.1':
@@ -541,10 +541,10 @@ packages:
     resolution: {integrity: sha512-l42csZ2bz7FdtJI1t5zA3IXtOZ0YJaP/+JMRC9gt6aBHRVUIu+6r+3F7KRyshQ79osLz9/MHlGqAjBPRqH0QFw==}
     hasBin: true
 
-  allure-js-commons@3.4.2:
-    resolution: {integrity: sha512-bWzqduvU/LzSTI4wJKzWbHWe64xluF30pDxFfSP+jlloQx9F1Vytdqrit5oAgNj+czzdA+Nocv3Dh6d4COCTvA==}
+  allure-js-commons@3.4.3:
+    resolution: {integrity: sha512-2n2uUFVmI7OaKXfkUPq2AcD1ksPR/WXZ9IhmQlMylb8bNpPChn1QPA/W97+RDYawFgvfhnadzIrH9ZWTWKjiNg==}
     peerDependencies:
-      allure-playwright: 3.4.2
+      allure-playwright: 3.4.3
     peerDependenciesMeta:
       allure-playwright:
         optional: true
@@ -2287,12 +2287,12 @@ snapshots:
       magic-string: 0.30.21
       pathe: 2.0.3
 
-  '@wdio/allure-reporter@9.20.0':
+  '@wdio/allure-reporter@9.21.0':
     dependencies:
       '@types/node': 20.19.25
       '@wdio/reporter': 9.20.0
       '@wdio/types': 9.20.0
-      allure-js-commons: 3.4.2
+      allure-js-commons: 3.4.3
       csv-stringify: 6.6.0
       html-entities: 2.6.0
       strip-ansi: 7.1.2
@@ -2527,7 +2527,7 @@ snapshots:
 
   allure-commandline@2.34.1: {}
 
-  allure-js-commons@3.4.2:
+  allure-js-commons@3.4.3:
     dependencies:
       md5: 2.3.0
 
