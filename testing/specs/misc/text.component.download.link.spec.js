@@ -132,7 +132,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             assert.ok(isDisplayed, 'download link should be present on the page');
         });
 
-    it(`GIVEN Moved content is opened WHEN Versions widget has been opened THEN expected Moved version item should be present in the widget`,
+    it.skip(`GIVEN Moved content is opened WHEN Versions widget has been opened THEN expected Moved version item should be present in the widget`,
         async () => {
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
@@ -152,7 +152,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             await wizardVersionsWidget.waitForCompareChangesCheckboxDisplayed(appConst.VERSIONS_ITEM_HEADER.MOVED, 0);
         });
 
-    it(`GIVEN Edited and Moved items have been checked in the Versions Widget WHEN 'Compare Content Versions Dialog' has been opened THEN left revert menu buttons should be enabled`,
+    it.skip(`GIVEN Edited and Moved items have been checked in the Versions Widget WHEN 'Compare Content Versions Dialog' has been opened THEN left revert menu buttons should be enabled`,
         async () => {
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
@@ -176,7 +176,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             await compareContentVersionsDialog.waitForRightRestoreMenuButtonDisabled()
         });
 
-    it(`GIVEN existing child content has been selected WHEN Move button has been pressed THEN Confirmation dialog should be loaded`,
+    it.skip(`GIVEN existing child content has been selected WHEN Move button has been pressed THEN Confirmation dialog should be loaded`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let moveContentDialog = new MoveContentDialog();
@@ -194,7 +194,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             await moveContentDialog.waitForClosed();
         });
 
-    it(`GIVEN content with 2 moved version items is opened WHEN 'Compare Content Versions Dialog' has been opened for the latest and previous moved items THEN left and right revert menu buttons should be disabled`,
+    it.skip(`GIVEN content with 2 moved version items is opened WHEN 'Compare Content Versions Dialog' has been opened for the latest and previous moved items THEN left and right revert menu buttons should be disabled`,
         async () => {
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();

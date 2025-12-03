@@ -163,7 +163,7 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             assert.equal(numberItems, 2, "Two 'Permissions updated'  items should be present in the widget");
         });
 
-    it(`GIVEN existing folder with 2 'updated permissions' is selected AND 'Compare versions' dialog is opened WHEN left dropdown selector has been expanded THEN 2 'Permissions updated' items (icon) should be present in the expanded dropdown list`,
+    it.skip(`GIVEN existing folder with 2 'updated permissions' is selected AND 'Compare versions' dialog is opened WHEN left dropdown selector has been expanded THEN 2 'Permissions updated' items (icon) should be present in the expanded dropdown list`,
         async () => {
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();

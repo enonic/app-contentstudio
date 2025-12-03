@@ -10,7 +10,6 @@ import {FormContext} from '@enonic/lib-admin-ui/form/FormContext';
 import {LocalDateTime} from '@enonic/lib-admin-ui/util/LocalDateTime';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {PropertiesWizardStepForm} from './PropertiesWizardStepForm';
-import {UpdateContentRequest} from '../../../../resource/UpdateContentRequest';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {InputView} from '@enonic/lib-admin-ui/form/InputView';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
@@ -158,13 +157,6 @@ export class ScheduleWizardStepForm
         super.setEnabled(enable);
 
         this.formView.setEnabled(enable);
-    }
-
-    applyChange(request: UpdateContentRequest): UpdateContentRequest {
-        request.setPublishFrom(this.getPublishFrom() || new Date());
-        request.setPublishTo(this.getPublishTo());
-
-        return request;
     }
 
     isChanged(): boolean {

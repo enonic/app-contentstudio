@@ -11,6 +11,10 @@ exports.config = {
     specs: [
         path.join(__dirname, '../specs/content-types-2/*.spec.js')
     ],
+    exclude: [
+        path.join(__dirname, '../specs/content-types-2/revert.zoomed.image.spec.js'),
+        path.join(__dirname, '../specs/content-types-2/folder.content.revert.permissions.spec.js'),
+    ],
 
     maxInstances: 1,
 

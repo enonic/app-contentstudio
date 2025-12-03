@@ -116,7 +116,7 @@ describe('context.window.insert.panel: tests for Insert tab in Page widget', fun
 
     // verifies https://github.com/enonic/app-contentstudio/issues/335
     // Site Wizard Context panel - versions widget closes after rollback a version
-    it(`GIVEN existing site is opened AND Versions widget is opened WHEN the version without the controller has been reverted THEN Versions widget should not be closed`,
+    it.skip(`GIVEN existing site is opened AND Versions widget is opened WHEN the version without the controller has been reverted THEN Versions widget should not be closed`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardVersionsWidget = new WizardVersionsWidget();

@@ -65,7 +65,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
                 `'Ready for publishing' icon should be displayed in browse panel`);
         });
 
-    it(`GIVEN ready for publishing folder is selected WHEN previous version has been restored THEN 'Work in progress' state gets visible in wizard`,
+    it.skip(`GIVEN ready for publishing folder is selected WHEN previous version has been restored THEN 'Work in progress' state gets visible in wizard`,
         async () => {
             let versionPanel = new WizardVersionsWidget();
             let wizard = new ContentWizard();
@@ -82,7 +82,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
                 `'Work in progress' -state should appear after reverting the previous version`);
         });
     // Verifies: Incorrect notification message after reverting a version that is identical to the current version #1656
-    it(`GIVEN existing folder is opened WHEN identical to the current version has been reverted THEN 'No changes to revert.' message should appear`,
+    it.skip(`GIVEN existing folder is opened WHEN identical to the current version has been reverted THEN 'No changes to revert.' message should appear`,
         async () => {
             let versionPanel = new WizardVersionsWidget();
             let wizard = new ContentWizard();

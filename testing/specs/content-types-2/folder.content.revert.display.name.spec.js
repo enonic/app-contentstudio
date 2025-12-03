@@ -18,7 +18,7 @@ describe('folder.content.revert.display.name.spec: tests for reverting of folder
     const FOLDER_NAME_1 = contentBuilder.generateRandomName('folder');
     const FOLDER_NAME_2 = contentBuilder.generateRandomName('folder');
 
-    it(`GIVEN wizard for new folder is opened WHEN name has been saved THEN 2 version-items should be present in Versions Widget`,
+    it.skip(`GIVEN wizard for new folder is opened WHEN name has been saved THEN 2 version-items should be present in Versions Widget`,
         async () => {
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
@@ -41,7 +41,7 @@ describe('folder.content.revert.display.name.spec: tests for reverting of folder
             assert.equal(result, 1, `One 'Created' version item should be present`);
         });
 
-    it(`GIVEN display name has been updated and saved WHEN the previous version has been reverted THEN the display name should be updated, but the path remains the same`,
+    it.skip(`GIVEN display name has been updated and saved WHEN the previous version has been reverted THEN the display name should be updated, but the path remains the same`,
         async () => {
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();

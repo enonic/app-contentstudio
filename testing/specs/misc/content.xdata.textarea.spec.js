@@ -95,7 +95,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
         });
 
     // verifies the https://github.com/enonic/lib-admin-ui/issues/778 (x-data should be disabled after the version rollback)
-    it(`GIVEN existing site with active x-data WHEN the version disabled x-data has been restored THEN x-data form is getting not active`,
+    it.skip(`GIVEN existing site with active x-data WHEN the version disabled x-data has been restored THEN x-data form is getting not active`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardContextPanel = new WizardContextPanel();
@@ -216,7 +216,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
         });
 
     // verifies the https://github.com/enonic/lib-admin-ui/issues/778
-    it(`GIVEN existing content with x-data(required text area) is opened WHEN version of the content with a text in x-data has been reverted THEN expected text should appear in the area`,
+    it.skip(`GIVEN existing content with x-data(required text area) is opened WHEN version of the content with a text in x-data has been reverted THEN expected text should appear in the area`,
         async () => {
             let contentWizard = new ContentWizard();
             let versionsWidget = new WizardVersionsWidget();

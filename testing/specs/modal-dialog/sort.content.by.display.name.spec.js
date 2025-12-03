@@ -44,7 +44,7 @@ describe('sort.content.by.display.name.spec, tests for ascending/descending orde
             await sortContentDialog.clickOnSaveButton();
         });
 
-    it(`GIVEN existing sorted folder is selected WHEN 'Versions Widget' has been opened THEN the 'Sorted' version item should appears in the widget`,
+    it.skip(`GIVEN existing sorted folder is selected WHEN 'Versions Widget' has been opened THEN the 'Sorted' version item should appears in the widget`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();

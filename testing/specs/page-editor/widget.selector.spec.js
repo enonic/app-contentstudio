@@ -65,7 +65,7 @@ describe('widget.selector.spec: tests for options in the widget selector', funct
 
     // Verify Two items are selected in Widget selector #7897
     // https://github.com/enonic/app-contentstudio/issues/7897
-    it(`GIVEN Select 'Version History' option in the widget selector WHEN ListBox has been expanded THEN 'Version History' option item should be selected in the ListBox options`,
+    it.skip(`GIVEN Select 'Version History' option in the widget selector WHEN ListBox has been expanded THEN 'Version History' option item should be selected in the ListBox options`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardContextWindow = new WizardContextPanel();

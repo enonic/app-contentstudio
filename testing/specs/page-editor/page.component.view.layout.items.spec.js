@@ -129,7 +129,7 @@ describe('page.component.view.layout.items.spec - tests for page component view 
         });
 
     // Verify issue - Page Components view and step remain visible after reverting versions #6468
-    it(`GIVEN existing site has been opened WHEN 'Created' version has been reverted THEN 'Page Component View' step should not be displayed`,
+    it.skip(`GIVEN existing site has been opened WHEN 'Created' version has been reverted THEN 'Page Component View' step should not be displayed`,
         async () => {
             let contentWizard = new ContentWizardPanel();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();

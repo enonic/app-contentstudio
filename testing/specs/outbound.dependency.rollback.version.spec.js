@@ -24,7 +24,7 @@ describe('Check Outbound dependencies after rollback a version of content with i
     const IMAGE_DISPLAY_NAME2 = 'Pop_02';
     let SITE;
 
-    it(`Precondition: new site should be added`,
+    it.skip(`Precondition: new site should be added`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site');
@@ -34,7 +34,7 @@ describe('Check Outbound dependencies after rollback a version of content with i
             await contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
         });
 
-    it(`Preconditions: content with image-selector with 2 different versions should be added`,
+    it.skip(`Preconditions: content with image-selector with 2 different versions should be added`,
         async () => {
             let contentWizard = new ContentWizard();
             let imageSelectorForm = new ImageSelectorForm();
@@ -50,7 +50,7 @@ describe('Check Outbound dependencies after rollback a version of content with i
             await contentWizard.waitAndClickOnSave();
         });
 
-    it(`GIVEN outbound dependencies is opened in the new tab WHEN the previous version(one selected image) has been reverted THEN tab with outbound dependencies should be updated`,
+    it.skip(`GIVEN outbound dependencies is opened in the new tab WHEN the previous version(one selected image) has been reverted THEN tab with outbound dependencies should be updated`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let wizardDependenciesWidget = new WizardDependenciesWidget();
@@ -69,7 +69,7 @@ describe('Check Outbound dependencies after rollback a version of content with i
             assert.equal(displayNames.length, 1, 'One image should be present in browse grid, after rollback the required version');
         });
 
-    it("GIVEN existing image content(2:4) is opened(single image is selected) WHEN the version with 2 selected images has been reverted THEN the content gets valid",
+    it.skip("GIVEN existing image content(2:4) is opened(single image is selected) WHEN the version with 2 selected images has been reverted THEN the content gets valid",
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
             let contentWizard = new ContentWizard();

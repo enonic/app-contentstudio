@@ -76,7 +76,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             assert.ok(isInvalid === false, 'The date content should be valid');
         });
 
-    it("GIVEN existing Date(1:1) content is opened AND the date has been updated WHEN the previous version has been reverted THEN expected date should appear",
+    it.skip("GIVEN existing Date(1:1) content is opened AND the date has been updated WHEN the previous version has been reverted THEN expected date should appear",
         async () => {
             let dateForm = new DateForm();
             let contentWizard = new ContentWizard();

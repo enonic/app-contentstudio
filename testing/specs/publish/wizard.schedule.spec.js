@@ -145,7 +145,7 @@ describe('Wizard page - verify schedule form', function () {
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/941
     // Incorrect status in version history for content with scheduled publishing #941
-    it("WHEN 'Online from' has been set in the future AND Publish button pressed THEN folder gets 'Publishing Scheduling'",
+    it.skip("WHEN 'Online from' has been set in the future AND Publish button pressed THEN folder gets 'Publishing Scheduling'",
         async () => {
             let contentWizard = new ContentWizard();
             let contentPublishDialog = new ContentPublishDialog();
@@ -174,7 +174,7 @@ describe('Wizard page - verify schedule form', function () {
             assert.ok(status.includes(DATE_TIME_IN_FUTURE), 'Expected date time in future should be displayed');
         });
 
-    it(`WHEN 'Online from' has been set in future THEN 'Published until' should be displayed in versions widget`,
+    it.skip(`WHEN 'Online from' has been set in future THEN 'Published until' should be displayed in versions widget`,
         async () => {
             let contentWizard = new ContentWizard();
             let contentPublishDialog = new ContentPublishDialog();

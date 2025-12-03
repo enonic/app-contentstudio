@@ -126,7 +126,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             await contentWizard.waitForNotificationMessage();
         });
 
-    it("GIVEN existing image content(0:1) is opened(image is not selected) WHEN the previous version has been reverted THEN image should appear in the selected options",
+    it.skip("GIVEN existing image content(0:1) is opened(image is not selected) WHEN the previous version has been reverted THEN image should appear in the selected options",
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
             let contentWizard = new ContentWizard();

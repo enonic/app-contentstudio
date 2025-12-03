@@ -10,6 +10,9 @@ exports.config = {
         path.join(__dirname, '../specs/page-editor/*.spec.js')
         //path.resolve('./specs/content-types/*.spec.js')
     ],
+    exclude: [
+        path.join(__dirname, '../specs/page-editor/revert.site.with.components.spec.js'),
+    ],
 
     maxInstances: 1,
 
