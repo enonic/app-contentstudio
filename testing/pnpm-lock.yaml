@@ -13,10 +13,10 @@ importers:
         version: 9.20.0
       '@wdio/cli':
         specifier: ^9.21.1
-        version: 9.21.1(@types/node@24.10.1)(expect-webdriverio@5.4.3)
+        version: 9.21.1(@types/node@24.10.1)(expect-webdriverio@5.5.0)
       '@wdio/local-runner':
-        specifier: ^9.20.1
-        version: 9.20.1(@wdio/globals@9.17.0)(webdriverio@9.20.1)
+        specifier: ^9.21.0
+        version: 9.21.0(@wdio/globals@9.17.0)(webdriverio@9.20.1)
       '@wdio/mocha-framework':
         specifier: ^9.21.0
         version: 9.21.0
@@ -434,14 +434,14 @@ packages:
   '@vitest/pretty-format@2.1.9':
     resolution: {integrity: sha512-KhRIdGV2U9HOUzxfiHmY8IFHTdqtOhIzCpd8WRdJiE7D/HUcZVD0EgQCVjm+Q9gkUXWgBvMmTtZgIG48wq7sOQ==}
 
-  '@vitest/pretty-format@3.2.4':
-    resolution: {integrity: sha512-IVNZik8IVRJRTr9fxlitMKeJeXFFFN0JaB9PHPGQ8NKQbGpfjlTx9zO4RefN8gp7eqjNy8nyK3NZmBzOPeIxtA==}
+  '@vitest/pretty-format@4.0.15':
+    resolution: {integrity: sha512-SWdqR8vEv83WtZcrfLNqlqeQXlQLh2iilO1Wk1gv4eiHKjEzvgHb2OVc3mIPyhZE6F+CtfYjNlDJwP5MN6Km7A==}
 
   '@vitest/snapshot@2.1.9':
     resolution: {integrity: sha512-oBO82rEjsxLNJincVhLhaxxZdEtV0EFHMK5Kmx5sJ6H9L183dHECjiefOAdnqpIgT5eZwT04PoggUnW88vOBNQ==}
 
-  '@vitest/snapshot@3.2.4':
-    resolution: {integrity: sha512-dEYtS7qQP2CjU27QBC5oUOxLE/v5eLkGqPE0ZKEIDGMs4vKWe7IjgLOeauHsR0D5YuuycGRO5oSRXnwnmA78fQ==}
+  '@vitest/snapshot@4.0.15':
+    resolution: {integrity: sha512-A7Ob8EdFZJIBjLjeO0DZF4lqR6U7Ydi5/5LIZ0xcI+23lYlsYJAfGn8PrIWTYdZQRNnSRlzhg0zyGu37mVdy5g==}
 
   '@wdio/allure-reporter@9.20.0':
     resolution: {integrity: sha512-Mhk9+8x2rOKunMlFDXcRt9Qxph6Wgjlepv25413n0euPiu3pf+sfaUfAGyFcfnwnPHYH9wc4NydUqdI8QaCxuA==}
@@ -471,8 +471,8 @@ packages:
       expect-webdriverio: ^5.3.4
       webdriverio: ^9.0.0
 
-  '@wdio/local-runner@9.20.1':
-    resolution: {integrity: sha512-O4zMa3SKcS+3jnMT1C/IqRl6Owl5c2e4aFpz6nRPFRdcs6Cwr+d7OXw8XGdfDtgSIEcpcDws+B53De9YDZmPzA==}
+  '@wdio/local-runner@9.21.0':
+    resolution: {integrity: sha512-Ydr3bFdrFxNSzijG4W+bvvFKTSbJyG3BgB0T07PcExhiVwBlN7pz2PBl6prqBq0wm7uT8HZtF/QfZCpSV1Eikw==}
     engines: {node: '>=18.20.0'}
 
   '@wdio/logger@9.18.0':
@@ -494,8 +494,8 @@ packages:
     resolution: {integrity: sha512-HjKJzm8o0MCcnwGVGprzaCAyau0OB8mWHwH1ZI/ka+z1nmVBr2tsr7H53SdHsGIhAg/XuZObobqdzeVF63ApeA==}
     engines: {node: '>=18.20.0'}
 
-  '@wdio/runner@9.20.1':
-    resolution: {integrity: sha512-aoB1ytsWuN8YH2SCpY4dyD1VZHSKRub4xDo0gZ2r7fh3qup4zJCPrCNV0Dq1CcUvsq3TgGlySbfazPjSpm1g3g==}
+  '@wdio/runner@9.21.0':
+    resolution: {integrity: sha512-JpcG7OcKCq4jILU02mWShFKQdXVu9ubg1akf8Smlau7OM2B/5lS4iYvKYjaFtsU5mVfN8I8+1NwqF+wPi81rTQ==}
     engines: {node: '>=18.20.0'}
     peerDependencies:
       expect-webdriverio: ^5.3.4
@@ -965,8 +965,8 @@ packages:
     resolution: {integrity: sha512-Fqs7ChZm72y40wKjOFXBKg7nJZvQJmewP5/7LtePDdnah/+FH9Hp5sgMujSCMPXlxOAW2//1jrW9pnsY7o20vQ==}
     engines: {node: '>=18'}
 
-  expect-webdriverio@5.4.3:
-    resolution: {integrity: sha512-/XxRRR90gNSuNf++w1jOQjhC5LE9Ixf/iAQctVb/miEI3dwzPZTuG27/omoh5REfSLDoPXofM84vAH/ULtz35g==}
+  expect-webdriverio@5.5.0:
+    resolution: {integrity: sha512-2K7RMnmdZqOlo1jitOg/mAJDwv1HumInQdDLil+wQe5xol0ZdGLp6UsT+DB++vqVemc4ZOeAW+5z/EN3zNFvXQ==}
     engines: {node: '>=18 || >=20 || >=22'}
     peerDependencies:
       '@wdio/globals': ^9.0.0
@@ -1746,8 +1746,8 @@ packages:
     resolution: {integrity: sha512-weEDEq7Z5eTHPDh4xjX789+fHfF+P8boiFB+0vbWzpbnbsEr/GRaohi/uMKxg8RZMXnl1ItAi/IUHWMsjDV7kQ==}
     engines: {node: '>=14.0.0'}
 
-  tinyrainbow@2.0.0:
-    resolution: {integrity: sha512-op4nsTR47R6p0vMUUoYl/a+ljLFVtlfaXkLQmqfLR1qHma1h/ysYk4hEXZ880bf2CYgTskvTa/e196Vd5dDQXw==}
+  tinyrainbow@3.0.3:
+    resolution: {integrity: sha512-PSkbLUoxOFRzJYjjxHJt9xro7D+iilgMX/C9lawzVuYiIdcihh9DXmVibBe8lmcFrRi/VzlPjBxbN7rH24q8/Q==}
     engines: {node: '>=14.0.0'}
 
   to-regex-range@5.0.1:
@@ -2271,9 +2271,9 @@ snapshots:
     dependencies:
       tinyrainbow: 1.2.0
 
-  '@vitest/pretty-format@3.2.4':
+  '@vitest/pretty-format@4.0.15':
     dependencies:
-      tinyrainbow: 2.0.0
+      tinyrainbow: 3.0.3
 
   '@vitest/snapshot@2.1.9':
     dependencies:
@@ -2281,9 +2281,9 @@ snapshots:
       magic-string: 0.30.21
       pathe: 1.1.2
 
-  '@vitest/snapshot@3.2.4':
+  '@vitest/snapshot@4.0.15':
     dependencies:
-      '@vitest/pretty-format': 3.2.4
+      '@vitest/pretty-format': 4.0.15
       magic-string: 0.30.21
       pathe: 2.0.3
 
@@ -2299,11 +2299,11 @@ snapshots:
     transitivePeerDependencies:
       - allure-playwright
 
-  '@wdio/cli@9.21.1(@types/node@24.10.1)(expect-webdriverio@5.4.3)':
+  '@wdio/cli@9.21.1(@types/node@24.10.1)(expect-webdriverio@5.5.0)':
     dependencies:
       '@vitest/snapshot': 2.1.9
       '@wdio/config': 9.21.0
-      '@wdio/globals': 9.17.0(expect-webdriverio@5.4.3)(webdriverio@9.21.0)
+      '@wdio/globals': 9.17.0(expect-webdriverio@5.5.0)(webdriverio@9.21.0)
       '@wdio/logger': 9.18.0
       '@wdio/protocols': 9.16.2
       '@wdio/types': 9.20.0
@@ -2366,26 +2366,26 @@ snapshots:
       '@wdio/types': 9.20.0
       chalk: 5.6.2
 
-  '@wdio/globals@9.17.0(expect-webdriverio@5.4.3)(webdriverio@9.20.1)':
+  '@wdio/globals@9.17.0(expect-webdriverio@5.5.0)(webdriverio@9.20.1)':
     dependencies:
-      expect-webdriverio: 5.4.3(@wdio/globals@9.17.0)(@wdio/logger@9.18.0)(webdriverio@9.20.1)
+      expect-webdriverio: 5.5.0(@wdio/globals@9.17.0)(@wdio/logger@9.18.0)(webdriverio@9.20.1)
       webdriverio: 9.20.1
 
-  '@wdio/globals@9.17.0(expect-webdriverio@5.4.3)(webdriverio@9.21.0)':
+  '@wdio/globals@9.17.0(expect-webdriverio@5.5.0)(webdriverio@9.21.0)':
     dependencies:
-      expect-webdriverio: 5.4.3(@wdio/globals@9.17.0)(@wdio/logger@9.18.0)(webdriverio@9.20.1)
+      expect-webdriverio: 5.5.0(@wdio/globals@9.17.0)(@wdio/logger@9.18.0)(webdriverio@9.20.1)
       webdriverio: 9.21.0
 
-  '@wdio/local-runner@9.20.1(@wdio/globals@9.17.0)(webdriverio@9.20.1)':
+  '@wdio/local-runner@9.21.0(@wdio/globals@9.17.0)(webdriverio@9.20.1)':
     dependencies:
       '@types/node': 20.19.25
       '@wdio/logger': 9.18.0
       '@wdio/repl': 9.16.2
-      '@wdio/runner': 9.20.1(expect-webdriverio@5.4.3)(webdriverio@9.20.1)
+      '@wdio/runner': 9.21.0(expect-webdriverio@5.5.0)(webdriverio@9.20.1)
       '@wdio/types': 9.20.0
       '@wdio/xvfb': 9.20.0
       exit-hook: 4.0.0
-      expect-webdriverio: 5.4.3(@wdio/globals@9.17.0)(@wdio/logger@9.18.0)(webdriverio@9.20.1)
+      expect-webdriverio: 5.5.0(@wdio/globals@9.17.0)(@wdio/logger@9.18.0)(webdriverio@9.20.1)
       split2: 4.2.0
       stream-buffers: 3.0.3
     transitivePeerDependencies:
@@ -2434,18 +2434,18 @@ snapshots:
       diff: 8.0.2
       object-inspect: 1.13.4
 
-  '@wdio/runner@9.20.1(expect-webdriverio@5.4.3)(webdriverio@9.20.1)':
+  '@wdio/runner@9.21.0(expect-webdriverio@5.5.0)(webdriverio@9.20.1)':
     dependencies:
       '@types/node': 20.19.25
-      '@wdio/config': 9.20.1
+      '@wdio/config': 9.21.0
       '@wdio/dot-reporter': 9.20.0
-      '@wdio/globals': 9.17.0(expect-webdriverio@5.4.3)(webdriverio@9.20.1)
+      '@wdio/globals': 9.17.0(expect-webdriverio@5.5.0)(webdriverio@9.20.1)
       '@wdio/logger': 9.18.0
       '@wdio/types': 9.20.0
-      '@wdio/utils': 9.20.1
+      '@wdio/utils': 9.21.0
       deepmerge-ts: 7.1.5
-      expect-webdriverio: 5.4.3(@wdio/globals@9.17.0)(@wdio/logger@9.18.0)(webdriverio@9.20.1)
-      webdriver: 9.20.1
+      expect-webdriverio: 5.5.0(@wdio/globals@9.17.0)(@wdio/logger@9.18.0)(webdriverio@9.20.1)
+      webdriver: 9.21.0
       webdriverio: 9.20.1
     transitivePeerDependencies:
       - bare-abort-controller
@@ -2980,10 +2980,10 @@ snapshots:
 
   exit-hook@4.0.0: {}
 
-  expect-webdriverio@5.4.3(@wdio/globals@9.17.0)(@wdio/logger@9.18.0)(webdriverio@9.20.1):
+  expect-webdriverio@5.5.0(@wdio/globals@9.17.0)(@wdio/logger@9.18.0)(webdriverio@9.20.1):
     dependencies:
-      '@vitest/snapshot': 3.2.4
-      '@wdio/globals': 9.17.0(expect-webdriverio@5.4.3)(webdriverio@9.20.1)
+      '@vitest/snapshot': 4.0.15
+      '@wdio/globals': 9.17.0(expect-webdriverio@5.5.0)(webdriverio@9.20.1)
       '@wdio/logger': 9.18.0
       deep-eql: 5.0.2
       expect: 30.2.0
@@ -3824,7 +3824,7 @@ snapshots:
 
   tinyrainbow@1.2.0: {}
 
-  tinyrainbow@2.0.0: {}
+  tinyrainbow@3.0.3: {}
 
   to-regex-range@5.0.1:
     dependencies:
