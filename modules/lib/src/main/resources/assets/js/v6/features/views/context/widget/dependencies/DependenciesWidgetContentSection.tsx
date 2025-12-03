@@ -11,17 +11,20 @@ export const DependenciesWidgetContentSection = ({
     content: ContentSummaryAndCompareStatus;
 }): ReactElement => {
     return (
-        <div data-component={DEPENDENCIES_WIDGET_CONTENT_SECTION_NAME} className="flex flex-col items-center">
-            <DottedDownArrow />
+        <section
+            data-component={DEPENDENCIES_WIDGET_CONTENT_SECTION_NAME}
+            className="flex flex-col items-center w-full"
+        >
+            <DottedDownArrow className="box-content py-1" />
 
-            <div className="flex flex-col justify-center items-center gap-1 py-3.5 px-2.5 overflow-hidden">
+            <div className="flex flex-col justify-center items-center gap-1 py-3.5 px-2.5 overflow-hidden w-full">
                 <ContentIcon contentType={String(content.getType())} url={content.getContentSummary().getIconUrl()} />
-                <span className="text-center font-semibold truncate">{content.getDisplayName()}</span>
-                <span className="text-center text-xs text-subtle truncate">{content.getPath().toString()}</span>
+                <p className="text-center font-semibold truncate w-full">{content.getDisplayName()}</p>
+                <p className="text-center text-xs text-subtle truncate w-full">{content.getPath().toString()}</p>
             </div>
 
-            <DottedDownArrow />
-        </div>
+            <DottedDownArrow className="box-content py-1" />
+        </section>
     );
 };
 

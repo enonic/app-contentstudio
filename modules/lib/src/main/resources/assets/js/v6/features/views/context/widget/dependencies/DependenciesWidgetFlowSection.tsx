@@ -1,14 +1,14 @@
-import {ReactElement, useCallback} from 'react';
-import {DependencyType} from '../../../../../../app/browse/DependencyType';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ContentIcon} from '../../../../shared/icons/ContentIcon';
 import {Button} from '@enonic/ui';
-import {useI18n} from '../../../../hooks/useI18n';
-import {capitalize} from '../../../../utils/format/capitalize';
-import {ShowDependenciesEvent} from '../../../../../../app/browse/ShowDependenciesEvent';
-import {DependencyParams} from '../../../../../../app/browse/DependencyParams';
-import {ContentId} from '../../../../../../app/content/ContentId';
+import {ReactElement, useCallback} from 'react';
 import {DependencyItem} from '.';
+import {DependencyParams} from '../../../../../../app/browse/DependencyParams';
+import {DependencyType} from '../../../../../../app/browse/DependencyType';
+import {ShowDependenciesEvent} from '../../../../../../app/browse/ShowDependenciesEvent';
+import {ContentId} from '../../../../../../app/content/ContentId';
+import {useI18n} from '../../../../hooks/useI18n';
+import {ContentIcon} from '../../../../shared/icons/ContentIcon';
+import {capitalize} from '../../../../utils/format/capitalize';
 
 type DependenciesProps = {
     type: DependencyType;
@@ -35,7 +35,7 @@ export const DependenciesWidgetFlowSection = (props: DependenciesProps): ReactEl
 
     if (type === DependencyType.INBOUND) {
         return (
-            <div data-component={DEPENDENCIES_WIDGET_FLOW_SECTION_NAME} className="space-y-7.5 w-full">
+            <div data-component={DEPENDENCIES_WIDGET_FLOW_SECTION_NAME} className="flex flex-col gap-7.5 items-center w-full">
                 <DependenciesList {...props} />
                 <ShowAllButton {...props} total={total} />
             </div>
@@ -43,7 +43,7 @@ export const DependenciesWidgetFlowSection = (props: DependenciesProps): ReactEl
     }
 
     return (
-        <div data-component={DEPENDENCIES_WIDGET_FLOW_SECTION_NAME} className="space-y-7.5 w-full">
+        <div data-component={DEPENDENCIES_WIDGET_FLOW_SECTION_NAME} className="flex flex-col gap-7.5 items-center w-full">
             <ShowAllButton {...props} total={total} />
             <DependenciesList {...props} />
         </div>
@@ -57,19 +57,6 @@ DependenciesWidgetFlowSection.displayName = DEPENDENCIES_WIDGET_FLOW_SECTION_NAM
  */
 
 const DependenciesList = ({type, dependencies, contentId}: DependenciesProps) => {
-    const toLabel = useCallback((contentType: ContentTypeName, itemCount: number): string => {
-        const name = contentType.toString().split(':').pop();
-
-        if (!name) return contentType.toString();
-
-        const ctyName = name
-            .split('-')
-            .map((s) => capitalize(s))
-            .join(' ');
-
-        return `${ctyName} (${itemCount})`;
-    }, []);
-
     const onDependencyClick = useCallback(
         (dependency: DependencyItem) => {
             new ShowDependenciesEvent(
@@ -84,15 +71,16 @@ const DependenciesList = ({type, dependencies, contentId}: DependenciesProps) =>
     );
 
     return (
-        <ul className="list-none flex flex-col gap-2.5">
+        <ul className="list-none flex flex-col gap-2.5 w-full">
             {dependencies.map((dependency) => (
                 <li key={dependency.contentType.toString()}>
                     <Button
+                        size="sm"
                         className="flex justify-start items-center gap-2.5 w-full"
                         onClick={() => onDependencyClick(dependency)}
+                        label={createLabel(dependency.contentType, dependency.itemCount)}
                     >
                         <ContentIcon contentType={dependency.contentType.toString()} url={dependency.iconUrl} />
-                        <span className="font-semibold">{toLabel(dependency.contentType, dependency.itemCount)}</span>
                     </Button>
                 </li>
             ))}
@@ -103,10 +91,9 @@ const DependenciesList = ({type, dependencies, contentId}: DependenciesProps) =>
 DependenciesList.displayName = 'DependenciesList';
 
 const ShowAllButton = ({type, contentId, total}: ShowAllButtonProps) => {
-    const showAllDependenciesLabel =
-        type === DependencyType.INBOUND
-            ? useI18n('field.contextPanel.showAllInbound', total)
-            : useI18n('field.contextPanel.showAllOutbound', total);
+    const showAllInboundLabel = useI18n('field.contextPanel.showAllInbound', total);
+    const showAllOutboundLabel = useI18n('field.contextPanel.showAllOutbound', total);
+    const showAllDependenciesLabel = type === DependencyType.INBOUND ? showAllInboundLabel : showAllOutboundLabel;
 
     const onShowDependenciesClick = useCallback(() => {
         new ShowDependenciesEvent(
@@ -116,7 +103,7 @@ const ShowAllButton = ({type, contentId, total}: ShowAllButtonProps) => {
 
     return (
         <Button
-            className="mx-auto block"
+            size="sm"
             onClick={onShowDependenciesClick}
             label={showAllDependenciesLabel}
             variant="outline"
@@ -125,3 +112,16 @@ const ShowAllButton = ({type, contentId, total}: ShowAllButtonProps) => {
 };
 
 ShowAllButton.displayName = 'ShowAllButton';
+
+function createLabel(contentType: ContentTypeName, itemCount: number): string {
+    const name = contentType.toString().split(':').pop();
+
+    if (!name) return contentType.toString();
+
+    const ctyName = name
+        .split('-')
+        .map((s) => capitalize(s))
+        .join(' ');
+
+    return `${ctyName} (${itemCount})`;
+}

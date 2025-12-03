@@ -4,12 +4,11 @@ import {ContentSummaryAndCompareStatus} from '../../../../../../app/content/Cont
 import {WidgetItemViewInterface} from '../../../../../../app/view/context/WidgetItemView';
 import {$contextContent} from '../../../../store/context/contextContent.store';
 import {useStore} from '@nanostores/preact';
-import {ResolveDependenciesRequest} from '../../../../../../app/resource/ResolveDependenciesRequest';
 import {DependencyType} from '../../../../../../app/browse/DependencyType';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ContentDependencyJson} from '../../../../../../app/resource/json/ContentDependencyJson';
 import {DependenciesWidgetContentSection} from './DependenciesWidgetContentSection';
 import {DependenciesWidgetFlowSection} from './DependenciesWidgetFlowSection';
+import {resolveDependencies} from '../../../../api/dependencies';
 import Q from 'q';
 
 export type DependencyItem = {
@@ -26,6 +25,7 @@ const DependenciesWidget = (): ReactElement => {
     const [inboundDependencies, setInboundDependencies] = useState<DependencyItem[]>([]);
     const [outboundDependencies, setOutboundDependencies] = useState<DependencyItem[]>([]);
 
+    // TODO: Enonic UI - use tanstack query instead of useEffect
     useEffect(() => {
         if (!content) {
             setInboundDependencies([]);
@@ -33,7 +33,7 @@ const DependenciesWidget = (): ReactElement => {
             return;
         }
 
-        resolveDependencies(content).then((dependencyEntry) => {
+        resolveDependencies(content.getContentId()).then((dependencyEntry) => {
             const inbound = dependencyEntry.inbound.map((item) => ({
                 type: DependencyType.INBOUND,
                 itemCount: item.count,
@@ -54,12 +54,12 @@ const DependenciesWidget = (): ReactElement => {
         });
     }, [content]);
 
-    if (!content) return undefined;
+    if (!content) return null;
 
     return (
         <div
             data-component={DEPENDENCIES_WIDGET_NAME}
-            className="flex flex-col gap-7.5 items-center justify-between h-full overflow-hidden"
+            className="flex flex-col gap-7.5 items-center h-full overflow-hidden"
         >
             <DependenciesWidgetFlowSection
                 contentId={content.getContentId()}
@@ -110,25 +110,5 @@ export class DependenciesWidgetElement
 
     public show(): void {
         return;
-    }
-}
-
-/**
- * Internal
- */
-
-async function resolveDependencies(item: ContentSummaryAndCompareStatus): Promise<ContentDependencyJson | undefined> {
-    try {
-        const request = new ResolveDependenciesRequest([item.getContentId()]);
-
-        const resolveDependenciesResult = await request.sendAndParse();
-
-        const dependencyEntry = resolveDependenciesResult.getDependencies()[0];
-
-        return dependencyEntry.getDependency();
-    } catch (error) {
-        console.error(error);
-
-        return undefined;
     }
 }
