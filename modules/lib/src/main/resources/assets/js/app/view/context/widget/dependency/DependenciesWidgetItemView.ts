@@ -15,6 +15,9 @@ import {ResolveDependencyResult} from '../../../../resource/ResolveDependencyRes
 import {WidgetItemView} from '../../WidgetItemView';
 import {DependencyGroup} from './DependencyGroup';
 
+/**
+ * @deprecated Use DependenciesWidgetElement instead
+ */
 export class DependenciesWidgetItemView
     extends WidgetItemView {
 
