@@ -3,9 +3,9 @@ import {ComponentPropsWithoutRef, useMemo} from 'react';
 import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../../../app/event/EditContentEvent';
 import {calcWorkflowStateStatus} from '../../utils/cms/content/workflow';
-import {StatusBadge} from '../StatusBadge';
 import {WorkflowContentIcon} from '../icons/WorkflowContentIcon';
 import {LegacyElement} from '../LegacyElement';
+import {DiffStatusBadge} from '../status/DiffStatusBadge';
 
 export type Props = {
     content: ContentSummaryAndCompareStatus;
@@ -64,7 +64,10 @@ export const ContentItemCheckable = ({
                 </Button>
             </ListItem.Content>
             <ListItem.Right>
-                <StatusBadge status={content.getCompareStatus()} wasPublished={!!content.getContentSummary().getPublishFirstTime()} />
+                <DiffStatusBadge
+                    publishStatus={content.getPublishStatus()}
+                    compareStatus={content.getCompareStatus()}
+                    wasPublished={!!content.getContentSummary().getPublishFirstTime()} />
             </ListItem.Right>
         </ListItem>
     );

@@ -28,15 +28,15 @@ const TreeListRowsWithContext = (): React.ReactElement => {
             id: 'root-loading-placeholder',
             displayName: '',
             name: '',
+            publishStatus: null,
             workflowStatus: null,
             contentType: null,
-            contentStatus: null,
             iconUrl: null,
             item: null,
             path: [null],
         }
         return (
-            <ContentTreeListLoadingRow key={item.id} item={item}/>
+            <ContentTreeListLoadingRow key={item.id} item={item} />
         )
     }
 
@@ -45,8 +45,8 @@ const TreeListRowsWithContext = (): React.ReactElement => {
     return (
         <>
             {items.map(item =>
-                isLoadingPlaceholder(item) ? <ContentTreeListLoadingRow key={item.id} item={item}/> : <ContentTreeListRow item={item}
-                                                                                                                          key={item.id}/>
+                isLoadingPlaceholder(item) ? <ContentTreeListLoadingRow key={item.id} item={item} /> : <ContentTreeListRow item={item}
+                    key={item.id} />
             )}
         </>
     );
@@ -132,7 +132,7 @@ export const ContentTreeList = ({fetcher}: ContentTreeListProps): React.ReactEle
         >
             <TreeList.Container className={'px-5 py-2.5 bg-surface-neutral'}>
                 <TreeList.Content load={false}>
-                    <TreeListRowsWithContext/>
+                    <TreeListRowsWithContext />
                 </TreeList.Content>
             </TreeList.Container>
         </TreeList>

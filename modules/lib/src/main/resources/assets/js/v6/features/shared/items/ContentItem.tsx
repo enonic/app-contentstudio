@@ -2,11 +2,11 @@ import {Button, ListItem, type ListItemProps} from '@enonic/ui';
 import {useMemo, type ReactNode} from 'react';
 import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import type {Branch} from '../../../../app/versioning/Branch';
-import {ContentReferencesLink} from '../ContentReferencesLink';
-import {StatusBadge} from '../StatusBadge';
 import {calcWorkflowStateStatus} from '../../utils/cms/content/workflow';
+import {ContentReferencesLink} from '../ContentReferencesLink';
 import {WorkflowContentIcon} from '../icons/WorkflowContentIcon';
 import {LegacyElement} from '../LegacyElement';
+import {DiffStatusBadge} from '../status/DiffStatusBadge';
 
 export type ContentItemProps = {
     content: ContentSummaryAndCompareStatus;
@@ -33,11 +33,11 @@ export const ContentItem = ({
     const contentType = String(content.getType());
     const url = content.getContentSummary().getIconUrl();
     const contentId = content.getContentSummary().getContentId();
-    const status = calcWorkflowStateStatus(content.getContentSummary());
+    const workflowStatus = calcWorkflowStateStatus(content.getContentSummary());
 
     const Icon = useMemo(
-        () => <WorkflowContentIcon status={status} contentType={contentType} url={url} />,
-        [status, contentType, url]
+        () => <WorkflowContentIcon status={workflowStatus} contentType={contentType} url={url} />,
+        [workflowStatus, contentType, url]
     );
 
     return (
@@ -55,7 +55,10 @@ export const ContentItem = ({
                         target={target}
                     />
                 )}
-                <StatusBadge status={content.getCompareStatus()} wasPublished={!!content.getContentSummary().getPublishFirstTime()} />
+                <DiffStatusBadge
+                    publishStatus={content.getPublishStatus()}
+                    compareStatus={content.getCompareStatus()}
+                    wasPublished={!!content.getContentSummary().getPublishFirstTime()} />
             </ListItem.Right>
         </ListItem>
     );
