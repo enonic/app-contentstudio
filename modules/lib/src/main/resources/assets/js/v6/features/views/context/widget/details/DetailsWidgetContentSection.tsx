@@ -3,7 +3,7 @@ import {ReactElement} from 'react';
 import {ContentSummaryAndCompareStatus} from 'src/main/resources/assets/js/app/content/ContentSummaryAndCompareStatus';
 import {useI18n} from '../../../../hooks/useI18n';
 import {ContentIcon} from '../../../../shared/icons/ContentIcon';
-import {StatusBadge} from '../../../../shared/StatusBadge';
+import {DiffStatusBadge} from '../../../../shared/status/DiffStatusBadge';
 import {$contextContent} from '../../../../store/context/contextContent.store';
 import {calcWorkflowStateStatus} from '../../../../utils/cms/content/workflow';
 
@@ -44,8 +44,9 @@ export const DetailsWidgetContentSection = (): ReactElement => {
                 <div className="flex flex-col gap-1">
                     <dt className="text-xs text-subtle">{statusLabel}</dt>
                     <dd className="flex gap-2 items-center">
-                        <StatusBadge
-                            status={content.getCompareStatus()}
+                        <DiffStatusBadge
+                            publishStatus={content.getPublishStatus()}
+                            compareStatus={content.getCompareStatus()}
                             workflowStatus={workflowStatus}
                             wasPublished={!!contentSummary.getPublishFirstTime()} />
                     </dd>
