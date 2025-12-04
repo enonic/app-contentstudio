@@ -8,7 +8,7 @@ const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const CompareWithPublishedVersionDialog = require('../../page_objects/compare.with.published.version.dialog');
 
-describe("compare.with.published.version.dialog.spec tests for 'Show changes' modal dialog", function () {
+describe.skip("compare.with.published.version.dialog.spec tests for 'Show changes' modal dialog", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();

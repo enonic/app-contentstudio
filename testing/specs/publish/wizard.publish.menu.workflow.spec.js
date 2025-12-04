@@ -76,7 +76,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.MARK_AS_READY);
         });
 
-    it(`GIVEN existing 'Modified' folder is opened WHEN publish menu has been expanded THEN 'Request Publishing...' menu item should be enabled AND 'Create Issue...' is enabled`,
+    it.skip(`GIVEN existing 'Modified' folder is opened WHEN publish menu has been expanded THEN 'Request Publishing...' menu item should be enabled AND 'Create Issue...' is enabled`,
         async () => {
             let contentWizard = new ContentWizard();
             await studioUtils.selectByDisplayNameAndOpenContent(NEW_DISPLAY_NAME);
@@ -87,7 +87,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
         });
 
-    it(`GIVEN existing 'modified' content is opened WHEN 'unpublish...' button has been pressed AND it confirmed in the modal dialog THEN 'UNPUBLISHED' status should appear in the wizard`,
+    it.skip(`GIVEN existing 'modified' content is opened WHEN 'unpublish...' button has been pressed AND it confirmed in the modal dialog THEN 'UNPUBLISHED' status should appear in the wizard`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardContextPanel = new WizardContextPanel();

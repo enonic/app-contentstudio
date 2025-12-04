@@ -47,8 +47,10 @@ export class PublishDialogItemList
             const itemsToReplace = updatedItems.filter(updatedItem => {
                 return this.getItems().some(item => {
                     const isSameId = item.getContentId().equals(updatedItem.getContentId());
-                    return isSameId && item.getContentSummary().getModifiedTime().valueOf() <
-                           updatedItem.getContentSummary().getModifiedTime().valueOf();
+                    return isSameId && (item.getContentSummary().getModifiedTime().valueOf() <
+                                        updatedItem.getContentSummary().getModifiedTime().valueOf() ||
+                                        item.getContentSummary().getWorkflow().getState() !==
+                                        updatedItem.getContentSummary().getWorkflow().getState());
                 });
             });
 

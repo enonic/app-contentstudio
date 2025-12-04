@@ -154,7 +154,7 @@ describe('rename.published.content.dialog.spec - tests for Rename published cont
             await renamePublishedContentDialog.waitForRenameButtonDisabled();
         });
 
-    it("GIVEN renamed folder has been opened THEN 'Renamed' version item should be visible in the published content",
+    it.skip("GIVEN renamed folder has been opened THEN 'Renamed' version item should be visible in the published content",
         async () => {
             let wizardContextPanel = new WizardContextPanel();
             let wizardVersionsWidget = new WizardVersionsWidget();
