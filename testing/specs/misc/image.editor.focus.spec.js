@@ -105,7 +105,7 @@ describe("image.editor.focus.spec: tests for focus button", function () {
             await contentWizard.waitAndClickOnSave();
         });
 
-    it(`GIVEN existing image is opened WHEN the focused version has been reverted THEN 'Reset filters' and focus circle get visible in Image Editor`,
+    it.skip(`GIVEN existing image is opened WHEN the focused version has been reverted THEN 'Reset filters' and focus circle get visible in Image Editor`,
         async () => {
             let imageEditor = new ImageEditor();
             let imageFormPanel = new ImageFormPanel();

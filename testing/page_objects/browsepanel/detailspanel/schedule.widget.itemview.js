@@ -39,15 +39,6 @@ class ScheduleItemView extends Page {
         return this.waitForElementNotDisplayed(this.editScheduleButton, appConst.mediumTimeout);
     }
 
-    async clickOnEditScheduleButton() {
-        try {
-            await this.waitForEditScheduleButtonDisplayed();
-            await this.clickOnElement(this.editScheduleButton);
-            await this.pause(300);
-        } catch (err) {
-            await this.handleError('OnlinePropertiesWidget - Edit Schedule button:', 'err_edit_schedule_button', err);
-        }
-    }
     async getOnlineFromDateTime() {
         try {
             await this.waitForElementDisplayed(this.onlineFromDateTimeTerm, appConst.mediumTimeout);

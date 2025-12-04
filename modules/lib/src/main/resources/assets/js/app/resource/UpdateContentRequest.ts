@@ -28,10 +28,6 @@ export class UpdateContentRequest
 
     private owner: PrincipalKey;
 
-    private publishFrom: Date;
-
-    private publishTo: Date;
-
     private workflow: Workflow;
 
     constructor(id: string) {
@@ -82,17 +78,6 @@ export class UpdateContentRequest
         return this;
     }
 
-    setPublishFrom(date: Date): UpdateContentRequest {
-        this.publishFrom = date;
-        return this;
-    }
-
-    setPublishTo(date: Date): UpdateContentRequest {
-        this.publishTo = date;
-        return this;
-    }
-
-
     setWorkflow(workflow: Workflow): UpdateContentRequest {
         this.workflow = workflow;
         return this;
@@ -106,8 +91,6 @@ export class UpdateContentRequest
             .setExtraData(content.getAllExtraData())
             .setOwner(content.getOwner())
             .setLanguage(content.getLanguage())
-            .setPublishFrom(content.getPublishFromTime())
-            .setPublishTo(content.getPublishToTime())
             .setWorkflow(content.getWorkflow());
     }
 
@@ -123,8 +106,6 @@ export class UpdateContentRequest
             displayName: !!this.displayName ? this.displayName.trim() : '',
             language: this.language,
             owner: this.owner ? this.owner.toString() : undefined,
-            publishFrom: this.publishFrom,
-            publishTo: this.publishTo,
             workflow: this.workflow.toJson()
         };
     }

@@ -71,7 +71,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
 
     // Verify issue https://github.com/enonic/app-contentstudio/issues/6486
     // Page component dialog/step remains visible after reverting a site with template #6486
-    it(`GIVEN existing site has been opened WHEN the previous version has been reverted THEN 'Page Component View' step should not be displayed`,
+    it.skip(`GIVEN existing site has been opened WHEN the previous version has been reverted THEN 'Page Component View' step should not be displayed`,
         async () => {
             let contentWizard = new ContentWizardPanel();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();

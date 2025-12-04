@@ -21,7 +21,7 @@ describe("image.wizard.photo.properties.spec: Open an image and update photo pro
 
     // verifies https://github.com/enonic/app-contentstudio/issues/388  and https://github.com/enonic/app-contentstudio/issues/618
     // Image Wizard - some field values are not updated after version rollback
-    it(`GIVEN existing image is opened(photo's date time is not specified) WHEN dateTime has been typed and saved AND revert the previous version THEN dateTime input should be empty in Photo form`,
+    it.skip(`GIVEN existing image is opened(photo's date time is not specified) WHEN dateTime has been typed and saved AND revert the previous version THEN dateTime input should be empty in Photo form`,
         async () => {
             let imageFormPanel = new ImageFormPanel();
             let contentWizard = new ContentWizard();

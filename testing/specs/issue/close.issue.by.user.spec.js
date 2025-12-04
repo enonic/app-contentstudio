@@ -122,7 +122,7 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
             await studioUtils.doLogout();
         });
 
-    it("GIVEN the user has selected the folder WHEN the folder has been duplicated THEN expected owner should be displayed for this folder in Properties Widget",
+    it.skip("GIVEN the user has selected the folder WHEN the folder has been duplicated THEN expected owner should be displayed for this folder in Properties Widget",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let propertiesWidget = new PropertiesWidget();

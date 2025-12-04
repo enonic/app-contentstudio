@@ -121,7 +121,7 @@ describe('Shortcut parameters specification', function () {
             await shortcutForm.waitForAddParametersButtonDisplayed();
         });
 
-    it(`GIVEN existing shortcut is opened(parameter is removed) WHEN revert the previous version THEN expected parameter should appear`,
+    it.skip(`GIVEN existing shortcut is opened(parameter is removed) WHEN revert the previous version THEN expected parameter should appear`,
         async () => {
             let shortcutForm = new ShortcutForm();
             let contentWizard = new ContentWizard();

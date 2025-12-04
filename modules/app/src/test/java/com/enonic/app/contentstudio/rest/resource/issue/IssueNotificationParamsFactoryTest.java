@@ -85,7 +85,7 @@ public class IssueNotificationParamsFactoryTest
         final Content content = createContent();
         final List<IssueComment> comments = this.createComments( creator.getKey() );
         final CompareContentResults compareResults = CompareContentResults.create()
-            .add( new CompareContentResult( CompareStatus.CONFLICT_PATH_EXISTS, ContentId.from( "content-id" ) ) )
+            .add( new CompareContentResult( CompareStatus.NEW_TARGET, ContentId.from( "content-id" ) ) )
             .build();
         final ContentType contentType = ContentType.create()
             .icon( Icon.from( new byte[]{1, 2, 3}, "image/svg+xml", Instant.now() ) )
@@ -133,7 +133,7 @@ public class IssueNotificationParamsFactoryTest
         final Content content = createContent();
         final List<IssueComment> comments = this.createComments( creator.getKey() );
         final CompareContentResults compareResults = CompareContentResults.create()
-            .add( new CompareContentResult( CompareStatus.CONFLICT_PATH_EXISTS, ContentId.from( "content-id" ) ) )
+            .add( new CompareContentResult( CompareStatus.NEW_TARGET, ContentId.from( "content-id" ) ) )
             .build();
         final ContentType contentType = ContentType.create()
             .icon( Icon.from( new byte[]{1, 2, 3}, "image/svg+xml", Instant.now() ) )

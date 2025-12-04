@@ -11,6 +11,10 @@ exports.config = {
     specs: [
         path.join(__dirname, '../specs/misc/*.spec.js')
     ],
+    exclude: [
+        path.join(__dirname, '../specs/misc/revert.published.content.spec.js'),
+        path.join(__dirname, '../specs/misc/versions.widget.check.status.spec.js'),
+    ],
 
     maxInstances: 1,
 

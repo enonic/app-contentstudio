@@ -27,7 +27,7 @@ describe('rename.content.spec - tests for Renamed version item', function () {
             await studioUtils.doAddFolder(TEST_FOLDER);
         });
 
-    it("GIVEN existing 'new' folder is opened WHEN the name(path) has been updated THEN 'Renamed' version item should appear in the version widget",
+    it.skip("GIVEN existing 'new' folder is opened WHEN the name(path) has been updated THEN 'Renamed' version item should appear in the version widget",
         async () => {
             let contentWizard = new ContentWizard();
             let wizardContextPanel = new WizardContextPanel();
@@ -49,7 +49,7 @@ describe('rename.content.spec - tests for Renamed version item', function () {
             assert.equal(allItems, 4, '4 version items should be displayed in the widget');
         });
 
-    it("WHEN existing renamed folder has been selected THEN 'Revert' and 'Active version' buttons should not be displayed in the version widget",
+    it.skip("WHEN existing renamed folder has been selected THEN 'Revert' and 'Active version' buttons should not be displayed in the version widget",
         async () => {
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();

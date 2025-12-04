@@ -36,9 +36,7 @@ const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.c
 const fs = require('fs');
 const path = require('path');
 const PropertiesWidgetItem = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
-const ScheduleWidgetItem = require('../page_objects/browsepanel/detailspanel/schedule.widget.itemview');
 const EditSettingDialog = require('../page_objects/details_panel/edit.settings.dialog');
-const EditScheduleDialog = require('../page_objects/details_panel/edit.schedule.dialog');
 const InsertLinkDialogContentPanel = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.content.panel');
 const InsertLinkDialogUrlPanel = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
 const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
@@ -1177,14 +1175,6 @@ module.exports = {
         await propertiesWidgetItem.clickOnEditSettingsButton();
         await editSettingsDialog.waitForLoaded();
         return editSettingsDialog;
-    },
-    async openEditScheduleDialog() {
-        let scheduleWidgetItem = new ScheduleWidgetItem();
-        let editScheduleDialog = new EditScheduleDialog();
-        // 3. Open Edit Schedule modal dialog:
-        await scheduleWidgetItem.clickOnEditScheduleButton();
-        await editScheduleDialog.waitForLoaded();
-        return editScheduleDialog;
     },
     async doSwitchToApplicationsBrowsePanel() {
         let appBrowsePanel = new AppBrowsePanel();

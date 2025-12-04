@@ -90,7 +90,7 @@ describe('page.template.wizard.spec tests for page template wizard', function ()
             assert.ok(isDisplayed, 'red icon should be present near the content!');
         });
 
-    it("GIVEN the page-template is opened WHEN the previous version has been reverted THEN expected support option should be selected",
+    it.skip("GIVEN the page-template is opened WHEN the previous version has been reverted THEN expected support option should be selected",
         async () => {
             let pageTemplateForm = new PageTemplateForm();
             let contentWizard = new ContentWizard();

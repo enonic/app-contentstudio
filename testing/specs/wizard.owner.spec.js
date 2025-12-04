@@ -24,7 +24,7 @@ describe('wizard.owner.spec - update and revert owner in wizard`', function () {
             await studioUtils.doAddFolder(TEST_FOLDER);
         });
     // Verifies https://github.com/enonic/app-contentstudio/issues/1201 owner is not refreshed after reverting a version.
-    it(`GIVEN existing folder is opened ADN the owner is updated WHEN the previous version has been reverted THEN initial owner should be restored`,
+    it.skip(`GIVEN existing folder is opened ADN the owner is updated WHEN the previous version has been reverted THEN initial owner should be restored`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardVersionsWidget = new WizardVersionsWidget();

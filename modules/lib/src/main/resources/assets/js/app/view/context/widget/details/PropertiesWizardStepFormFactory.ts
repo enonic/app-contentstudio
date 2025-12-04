@@ -1,6 +1,5 @@
 import {PropertiesWizardStepForm} from './PropertiesWizardStepForm';
 import {SettingsWizardStepForm} from './SettingsWizardStepForm';
-import {ScheduleWizardStepForm} from './ScheduleWizardStepForm';
 
 export enum PropertiesWizardStepFormType {
     SETTINGS = 'settings',
@@ -26,10 +25,6 @@ export class PropertiesWizardStepFormFactory {
     private static createFormByType(type: PropertiesWizardStepFormType): PropertiesWizardStepForm {
         if (type === PropertiesWizardStepFormType.SETTINGS) {
             return new SettingsWizardStepForm();
-        }
-
-        if (type === PropertiesWizardStepFormType.SCHEDULE) {
-            return new ScheduleWizardStepForm();
         }
 
         throw new Error(`Unknown properties form type: ${type}`);

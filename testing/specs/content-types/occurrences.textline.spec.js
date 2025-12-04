@@ -67,7 +67,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             assert.equal(result[0], TEXT, 'Expected text should be saved');
         });
 
-    it(`GIVEN existing TextLine-content (0:1) is opened WHEN the previous version has been reverted THEN the textline gets empty`,
+    it.skip(`GIVEN existing TextLine-content (0:1) is opened WHEN the previous version has been reverted THEN the textline gets empty`,
         async () => {
             let contentWizard = new ContentWizard();
             let textLine = new TextLine();

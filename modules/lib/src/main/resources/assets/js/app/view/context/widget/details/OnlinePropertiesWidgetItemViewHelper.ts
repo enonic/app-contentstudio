@@ -35,7 +35,7 @@ export class OnlinePropertiesWidgetItemViewHelper
 
     protected isFormAllowed(type: PropertiesWizardStepFormType): Q.Promise<boolean> {
         if (type === PropertiesWizardStepFormType.SCHEDULE) {
-            return Q.resolve(this.isEditScheduleAllowed());
+            return Q.resolve(false);
         }
 
         return super.isFormAllowed(type);

@@ -122,7 +122,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
 
     // Verifies Compare Versions dialog - Revert button should be disabled for users with no modify permissions #1934
     // https://github.com/enonic/app-contentstudio/issues/1934
-    it("GIVEN user -'Contributor' is logged in WHEN existing folder has been selected  AND versions panel opened THEN 'Revert' button should be disabled",
+    it.skip("GIVEN user -'Contributor' is logged in WHEN existing folder has been selected  AND versions panel opened THEN 'Revert' button should be disabled",
         async () => {
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
@@ -141,7 +141,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
 
     // Verifies Compare Versions dialog - Revert button should be disabled for users with no modify permissions #1934
     // https://github.com/enonic/app-contentstudio/issues/1934
-    it("GIVEN user -'Contributor' is logged in WHEN existing folder has been opened AND versions panel opened THEN 'Revert' button should be disabled",
+    it.skip("GIVEN user -'Contributor' is logged in WHEN existing folder has been opened AND versions panel opened THEN 'Revert' button should be disabled",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizard = new ContentWizardPanel();

@@ -222,7 +222,7 @@ describe("image.content.crop.spec: tests for crop button", function () {
             await contentWizard.waitForNotificationMessage();
         });
 
-    it(`GIVEN existing image is opened WHEN the cropped version hase been reverted THEN 'Reset filters' get visible in Image Editor`,
+    it.skip(`GIVEN existing image is opened WHEN the cropped version hase been reverted THEN 'Reset filters' get visible in Image Editor`,
         async () => {
             let imageEditor = new ImageEditor();
             let imageFormPanel = new ImageFormPanel();

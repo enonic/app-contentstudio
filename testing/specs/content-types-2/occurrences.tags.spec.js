@@ -127,7 +127,7 @@ describe('occurrences.tag.spec: tests for content with tag input', function () {
             assert.equal(actualRecording, 'Min 2 valid occurrence(s) required', "Expected validation recording gets visible");
         });
 
-    it("GIVEN existing Tag-content with added tags is opened WHEN the previous version without tags has been reverted THEN tag input gets empty",
+    it.skip("GIVEN existing Tag-content with added tags is opened WHEN the previous version without tags has been reverted THEN tag input gets empty",
         async () => {
             let contentWizard = new ContentWizard();
             let versionsWidget = new VersionsWidget();

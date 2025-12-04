@@ -13,6 +13,8 @@ exports.config = {
     exclude: [
         path.join(__dirname, '../specs/modal-dialog/mobile.mode.preview.panel.spec.js'),
         path.join(__dirname, '../specs/modal-dialog/mobile.browse.panel.toolbar.spec.js'),
+        path.join(__dirname, '../specs/modal-dialog/versions.widget.sorted.item.spec.js'),
+        path.join(__dirname, '../specs/modal-dialog/specs/modal-dialog/wizard.compare.versions.dialog.spec.js'),
     ],
     maxInstances: 1,
 

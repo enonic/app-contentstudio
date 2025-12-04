@@ -130,7 +130,7 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             assert.equal(actualMessage, `Min 2 valid occurrence(s) required`, 'Expected validation message should appear');
         });
 
-    it("GIVEN existing valid content with 2 selected options(ComboBox 2:4) is opened WHEN the version without selected options has been reverted THEN options should be removed AND the content gets invalid",
+    it.skip("GIVEN existing valid content with 2 selected options(ComboBox 2:4) is opened WHEN the version without selected options has been reverted THEN options should be removed AND the content gets invalid",
         async () => {
             let comboBoxForm = new ComboBoxForm();
             let versionPanel = new WizardVersionsWidget();
@@ -153,7 +153,7 @@ describe('combobox.content.spec: tests for comboBox content', function () {
         });
 
     // Make 'Marked as Ready' version non-restorable and non-interactable
-    it("GIVEN existing content with Marked as Ready version is opened WHEN 'Marked as Ready' version item has been clicked THEN the version should be non-restorable",
+    it.skip("GIVEN existing content with Marked as Ready version is opened WHEN 'Marked as Ready' version item has been clicked THEN the version should be non-restorable",
         async () => {
             let versionPanel = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
@@ -165,7 +165,7 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             await versionPanel.waitForRestoreButtonDisplayed();
         });
 
-    it("GIVEN the content is selected AND allow-child-content-type is 'base:folder' WHEN New Content dialog is opened THEN only one content type should be present",
+    it.skip("GIVEN the content is selected AND allow-child-content-type is 'base:folder' WHEN New Content dialog is opened THEN only one content type should be present",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();

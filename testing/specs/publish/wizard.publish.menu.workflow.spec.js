@@ -9,8 +9,6 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dialog');
 const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
-const ScheduleWidgetItem = require('../../page_objects/browsepanel/detailspanel/schedule.widget.itemview');
-const EditScheduleDialog = require('../../page_objects/details_panel/edit.schedule.dialog');
 
 describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single folder in wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -62,25 +60,6 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             await contentWizard.waitForUnpublishButtonDisplayed();
         });
 
-    it(`GIVEN wizard for existing 'published' folder is opened WHEN 'Edit Schedule' button has been clicked  THEN 'Online from' and 'Online to' appear in the Schedule step form`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let scheduleWidgetItem = new ScheduleWidgetItem();
-            let  editScheduleDialog = new EditScheduleDialog();
-            // 1. Open the published folder
-            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            await contentWizard.openContextWindow();
-            // 2. Open 'Edit Schedule' dialog
-            await scheduleWidgetItem.clickOnEditScheduleButton();
-            // 3. Verify that actual dateTime is correct in Online From input
-            let fromActual = await editScheduleDialog.getOnlineFrom();
-            let expectedDate = new Date().toISOString().substring(0, 10);
-            assert.ok(fromActual.includes(expectedDate), 'Expected date time should be displayed');
-            // 4. Verify that 'Online to' input is empty
-            let to = await editScheduleDialog.getOnlineTo();
-            assert.equal(to, '', "'Online to' should be empty");
-        });
-
     it(`GIVEN existing 'published' folder is opened WHEN publish menu has been expanded THEN 'Request Publishing...' menu item should be disabled AND 'Create Task...' is enabled`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -95,33 +74,6 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH);
             await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.MARK_AS_READY);
-        });
-
-    it(`GIVEN existing 'Published' folder is opened WHEN the folder has been updated THEN 'Modified' status AND MARK AS READY button get visible`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            // 1. Open the Published content:
-            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            // 2. Update the display name:
-            await contentWizard.typeDisplayName(NEW_DISPLAY_NAME);
-            await contentWizard.waitAndClickOnSave();
-            // 3. Verify that status is 'Modified':
-            let status = await contentWizard.getContentStatus();
-            assert.equal(status, appConst.CONTENT_STATUS.MODIFIED);
-            // 4. Verify that 'Mark as ready' button gets visible:
-            await contentWizard.waitForMarkAsReadyButtonVisible();
-            await contentWizard.openContextWindow();
-            // 5. Open Edit Schedule modal dialog:
-            let scheduleWidgetItem = new ScheduleWidgetItem();
-            let editScheduleDialog = new EditScheduleDialog();
-            await scheduleWidgetItem.clickOnEditScheduleButton();
-            await editScheduleDialog.waitForLoaded();
-            // 6. Verify that actual dateTime is correct in 'Online From' input
-            let onlineFrom = await editScheduleDialog.getOnlineFrom();
-            assert.ok(studioUtils.isStringEmpty(onlineFrom) === false, 'Online from input should not be empty');
-            // 7. Verify that workflow state is Work in progress:
-            let workflow = await contentWizard.getContentWorkflowState();
-            assert.equal(workflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
         });
 
     it(`GIVEN existing 'Modified' folder is opened WHEN publish menu has been expanded THEN 'Request Publishing...' menu item should be enabled AND 'Create Issue...' is enabled`,
