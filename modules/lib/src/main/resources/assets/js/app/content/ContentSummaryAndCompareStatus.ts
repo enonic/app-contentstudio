@@ -1,20 +1,20 @@
-import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
-import {CompareStatus, CompareStatusChecker, CompareStatusFormatter} from './CompareStatus';
-import {PublishStatus, PublishStatusChecker} from '../publish/PublishStatus';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
-import {ContentIconUrlResolver} from './ContentIconUrlResolver';
 import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
-import {ContentState, contentStateToString} from './ContentStatus';
-import {ContentSummary, ContentSummaryBuilder} from './ContentSummary';
-import {ContentInheritType} from './ContentInheritType';
-import {ContentId} from './ContentId';
-import {ContentPath} from './ContentPath';
-import {ContentSummaryAndCompareStatusHelper} from './ContentSummaryAndCompareStatusHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {createPublishStatusKey} from '../../v6/features/utils/cms/content/status';
 import {isEqual} from '../Diff';
+import {PublishStatus, PublishStatusChecker} from '../publish/PublishStatus';
+import {CompareStatus, CompareStatusChecker, CompareStatusFormatter} from './CompareStatus';
+import {ContentIconUrlResolver} from './ContentIconUrlResolver';
+import {ContentId} from './ContentId';
+import {ContentInheritType} from './ContentInheritType';
+import {ContentPath} from './ContentPath';
+import {ContentSummary, ContentSummaryBuilder} from './ContentSummary';
+import {ContentSummaryAndCompareStatusHelper} from './ContentSummaryAndCompareStatusHelper';
 
 export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
 
@@ -213,37 +213,7 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     }
 
     getStatusText(): string {
-        return contentStateToString(this.getContentState());
-    }
-
-    getContentState(): ContentState {
-        if (this.isUnpublished()) {
-            return 'unpublished';
-        }
-
-        if (this.isNew()) {
-            return 'new';
-        }
-
-        if (this.isPublished() || this.isModified()) {
-            if (this.isScheduledPublishing()) {
-                if (this.isModified()) {
-                    return ['scheduled', 'modified'];
-                }
-
-                return 'scheduled';
-            }
-
-            if (this.isExpiredPublishing()) {
-                return 'expired';
-            }
-        }
-
-        if (this.isMovedAndModified()) {
-            return ['moved', 'modified'];
-        }
-
-        return this.getCompareStatus();
+        return i18n(createPublishStatusKey(this.getPublishStatus()));
     }
 
     getStatusClass(): string {
