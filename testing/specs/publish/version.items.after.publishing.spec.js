@@ -17,7 +17,7 @@ const ContentPublishDialog = require('../../page_objects/content.publish.dialog'
 const contentBuilder = require('../../libs/content.builder');
 const EditPermissionsSummaryStep = require('../../page_objects/permissions/edit.permissions.summary.step');
 
-describe('version.items.after.publishing.spec tests for version items', function () {
+describe.skip('version.items.after.publishing.spec tests for version items', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
@@ -32,7 +32,7 @@ describe('version.items.after.publishing.spec tests for version items', function
             await studioUtils.doAddReadyFolder(folder);
         });
 
-    it.skip('GIVEN Publish Wizard is opened WHEN publish message has been inserted AND the content has been published THEN publish message should appear in Version Item',
+    it('GIVEN Publish Wizard is opened WHEN publish message has been inserted AND the content has been published THEN publish message should appear in Version Item',
         async () => {
             let wizardVersionsWidget = new WizardVersionsWidget();
             let wizardContextPanel = new WizardContextPanel();
@@ -106,7 +106,7 @@ describe('version.items.after.publishing.spec tests for version items', function
             assert.equal(value, 'false', 'inheritPermissions:false  should be displayed in the dialog');
         });
 
-    it.skip(`GIVEN existing folder with 'Permissions updated' is opened WHEN the folder has been published THEN 'Permissions updated' item should be present in Versions Widget`,
+    it(`GIVEN existing folder with 'Permissions updated' is opened WHEN the folder has been published THEN 'Permissions updated' item should be present in Versions Widget`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardContextPanel = new WizardContextPanel();

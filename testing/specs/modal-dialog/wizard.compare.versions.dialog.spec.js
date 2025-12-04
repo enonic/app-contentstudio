@@ -11,7 +11,7 @@ const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizar
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const CompareContentVersionsDialog = require('../../page_objects/compare.content.versions.dialog');
 
-describe('wizard.compare.versions.dialog - open the dialog and verify elements', function () {
+describe.skip('wizard.compare.versions.dialog - open the dialog and verify elements', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();

@@ -1427,9 +1427,8 @@ export class ContentWizardPanel
         };
 
         const movedHandler = (movedItems: MovedContentItem[]) => {
-
             const wasMoved: boolean = movedItems.some((movedItem: MovedContentItem) => {
-                return this.persistedItemPathIsDescendantOrEqual(movedItem.oldPath);
+                return this.isCurrentContentId(movedItem.item.getContentId()) || this.persistedItemPathIsDescendantOrEqual(movedItem.oldPath);
             });
 
             if (wasMoved) {
