@@ -310,7 +310,7 @@ export class ContentWizardPanel
                 this.livePanel.loadPage(clearInspection)
                     .then((isRenderable) => {
                         if (wasRenderable !== isRenderable) {
-                            return this.refreshLivePanel(this.getCurrentItem());
+                            return this.refreshLivePanel(this.getCurrentItem(), isRenderable);
                         }
                     })
                     .then(() => {
@@ -452,10 +452,9 @@ export class ContentWizardPanel
         const updateSaveInLivePanel = AppHelper.debounce(() => {
             this.livePanel?.setSaveEnabled(!ObjectHelper.equals(PageState.getState(), this.getPersistedItem().getPage()));
         }, 200);
-
-        this.getWizardActions().getMarkAsReadyAction().onExecuted(updateSaveInLivePanel);
-        saveAction.onExecuted(updateSaveInLivePanel);
         this.onPageStateChanged(updateSaveInLivePanel);
+        saveAction.onExecuted(() => this.livePanel?.setSaveEnabled(false));
+
 
         ContentLanguageUpdatedEvent.on((event: ContentLanguageUpdatedEvent) => {
             this.renderAndOpenTranslatorDialog(event.getLanguage());
@@ -864,14 +863,13 @@ export class ContentWizardPanel
 
     private updateWithContent(newPersistedContent: Content): void {
         if (ContentWizardPanel.debug) {
-            console.debug('ContentWizardPanel.doUpdatePersistedContent');
+            console.debug('ContentWizardPanel.updateWithContent');
         }
 
         this.setPersistedItem(newPersistedContent);
         const currentItem: Content = this.getCurrentItem();
 
         this.initFormContext();
-        this.updateLiveEditModel(currentItem);
         this.updateWizard(currentItem, true);
 
         this.debouncedEditorReload(false);
@@ -898,27 +896,21 @@ export class ContentWizardPanel
         }
     }
 
-    private refreshLivePanel(content: Content): Q.Promise<void> {
+    private refreshLivePanel(content: Content, isRenderable?: boolean): Q.Promise<boolean> {
+        const renderablePromise: Q.Promise<boolean> =
+            typeof isRenderable === 'boolean' ? Q.resolve(isRenderable) : this.isRenderable();
 
-        return this.isRenderable().then((renderable: boolean) => {
-            if (renderable) {
-                if (this.getPersistedItem().getPage() || this.isWithinSite()) {
-                    this.updateLiveEditModel(content);
-                }
-
-                return Q();
-            }
-
-            if (this.getPersistedItem().getPage()) {
+        return renderablePromise.then((renderable: boolean) => {
+            if (this.getPersistedItem().getPage() || (renderable && this.isWithinSite())) {
                 this.updateLiveEditModel(content);
 
-                return Q();
+                return Q(true);
             }
 
             this.livePanel.unloadPage();
             this.removePageComponentsView();
 
-            return Q();
+            return Q(false);
         });
     }
 
@@ -968,37 +960,27 @@ export class ContentWizardPanel
             return Q.Promise<Content>((resolve, reject) => {
 
                 if (!currentContent.equals(previousPersistedItem)) {
-
-                    // needed before loadPage in case content was moved
-                    // because content path is used to load the page
-                    this.updateLiveEditModel(currentContent);
-
                     this.contextView?.setItem(this.getContent());
 
                     if (this.reloadPageEditorOnSave && this.livePanel) {
-
                         this.livePanel.loadPage(clearInspection).then(() => {
-
-                            this.refreshLivePanel(currentContent).then(() => {
+                            this.refreshLivePanel(currentContent).then((refreshed: boolean) => {
+                                if (!refreshed) {
+                                    this.updateLiveEditModel(currentContent);
+                                }
                                 resolve(currentContent);
                             });
                         });
-
                     } else {
                         resolve(currentContent);
                     }
-
-                } else {
+                } {
                     resolve(currentContent);
                 }
-
             });
         }).finally(() => {
             this.contentUpdateDisabled = false;
             this.isRename = false;
-            if (this.isRendered()) {
-                this.updateButtonsState();
-            }
             this.wizardHeader.toggleEnabled(true);
         });
     }
@@ -1628,13 +1610,18 @@ export class ContentWizardPanel
     /*
     * Callback on content updated server event
     * */
-    private handlePersistedContentUpdate(updatedContent: ContentSummaryAndCompareStatus) {
+    private handlePersistedContentUpdate(contentSummary: ContentSummaryAndCompareStatus): Q.Promise<Content> {
         if (ContentWizardPanel.debug) {
-            console.debug('ContentWizardPanel.handlePersistedContentUpdate for: ' + updatedContent.getPath().toString());
+            console.debug('ContentWizardPanel.handlePersistedContentUpdate for: ' + contentSummary.getPath().toString());
         }
-        this.updateWithContentSummary(updatedContent);
+        this.updateWithContentSummary(contentSummary);
 
-        return this.fetchContentAndUpdate(updatedContent);
+        return this.fetchContentAndUpdate(contentSummary)
+            .then((updatedContent) => {
+                this.updateButtonsState();
+                this.livePanel?.setSaveEnabled(false);
+                return Q(updatedContent);
+            });
     }
 
     private handleOtherContentUpdate(updatedContent: ContentSummaryAndCompareStatus) {
@@ -1742,14 +1729,19 @@ export class ContentWizardPanel
             });
     }
 
-    private fetchContentAndUpdate(summaryAndStatus: ContentSummaryAndCompareStatus) {
+    private fetchContentAndUpdate(summaryAndStatus: ContentSummaryAndCompareStatus): Q.Promise<Content> {
         return this.fetchPersistedContent(summaryAndStatus).then((content: Content) => {
             const viewedContent: Content = this.assembleViewedContent(new ContentBuilder(this.getPersistedItem()), true).build();
 
             if (!viewedContent.equals(content)) {
                 this.updateWithContent(content);
             }
-        }).catch(DefaultErrorHandler.handle).done();
+
+            return Q(content);
+        }).catch((err) => {
+            DefaultErrorHandler.handle(err);
+            return null;
+        });
     }
 
     private isContentPublishableByUser(loginResult: LoginResult): boolean {
@@ -2096,10 +2088,13 @@ export class ContentWizardPanel
         // set the new property set to the form so that we receive change events
         // should happen before resetWizard which clears dirty state on inputs
         const currentContent = this.getCurrentItem();
-        this.updateWizardStepForms(currentContent.getContentData());
-        this.updateXDataStepForms(currentContent);
-        // sets validation errors on form context
-        this.initFormContext();
+        if (!persistedItem.getContentData().equals(currentContent.getContentData())) {
+            this.updateWizardStepForms(currentContent.getContentData());
+            this.updateXDataStepForms(currentContent);
+
+            // sets validation errors on form context
+            this.initFormContext();
+        }
 
         if (!this.isRename) {
             this.resetWizard();

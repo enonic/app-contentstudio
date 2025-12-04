@@ -176,6 +176,9 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     }
 
     setComponent(component: COMPONENT): void {
+        if (this.component === component && !!this.selector.getSelectedDescriptor()) {
+            return;
+        }
         this.unregisterComponentListeners();
         super.setComponent(component);
         this.updateSelectorValue();
@@ -228,15 +231,17 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.appendChild(this.formView);
         this.component.setDisableEventForwarding(true);
 
-        this.timeoutId = setTimeout(() =>
-            this.formView.layout(false)
-                .catch((reason) => DefaultErrorHandler.handle(reason))
-                .finally(() => {
-                    this.unmask();
-                    this.component.setDisableEventForwarding(false);
-                    this.notifyLayoutListeners();
-                })
-                .done(),
+        this.timeoutId = setTimeout(() => {
+            this.formView.whenRendered(() => {
+                this.formView.layout(false)
+                    .catch((reason) => DefaultErrorHandler.handle(reason))
+                    .finally(() => {
+                        this.unmask();
+                        this.component.setDisableEventForwarding(false);
+                        this.notifyLayoutListeners();
+                    });
+                });
+            },
         200);
     }
 
