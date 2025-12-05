@@ -49,7 +49,7 @@ export const ContentItem = ({
     return (
         <ListItem selected={selected}>
             <ListItem.Content>
-                <Button onClick={onClick} className={cn('block flex-1 w-full h-8 -mx-1.25 -my-1 px-1.25 py-1', mainItem && "h-13")}>
+                <Button onClick={onClick} className={cn('block flex-1 w-[calc(100%+10px)] h-8 -mx-1.25 -my-1 px-1.25 py-1', mainItem && "h-13")}>
                     <ListItem.DefaultContent label={mainItem ? name : path} description={mainItem && path} icon={Icon} />
                 </Button>
             </ListItem.Content>
@@ -59,6 +59,7 @@ export const ContentItem = ({
                     <ContentReferencesLink
                         contentId={contentId.toString()}
                         target={target}
+                        mainItem={mainItem}
                     />
                 )}
                 {showOnlineStatus ? <OnlineBadge status={content.getCompareStatus()} /> : <StatusBadge status={content.getCompareStatus()} wasPublished={!!content.getContentSummary().getPublishFirstTime()} />}

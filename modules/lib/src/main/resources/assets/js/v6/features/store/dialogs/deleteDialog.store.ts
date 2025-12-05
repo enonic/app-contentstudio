@@ -208,6 +208,10 @@ export const executeDeleteDialogAction = async (action: DeleteAction): Promise<b
     }
 };
 
+export const confirmDeleteAction = async (action: DeleteAction, _items: ContentSummaryAndCompareStatus[]): Promise<boolean> => {
+    return executeDeleteDialogAction(action);
+};
+
 //
 // * Data loading
 //
