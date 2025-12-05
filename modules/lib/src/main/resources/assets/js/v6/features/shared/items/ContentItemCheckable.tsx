@@ -1,11 +1,10 @@
 import {Button, Checkbox, CheckboxProps, cn, ListItem} from '@enonic/ui';
-import {ComponentPropsWithoutRef, useMemo} from 'react';
+import {ComponentPropsWithoutRef} from 'react';
 import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../../../app/event/EditContentEvent';
-import {calcWorkflowStateStatus} from '../../utils/cms/content/workflow';
-import {WorkflowContentIcon} from '../icons/WorkflowContentIcon';
 import {LegacyElement} from '../LegacyElement';
 import {DiffStatusBadge} from '../status/DiffStatusBadge';
+import {ContentLabel} from '../content/ContentLabel';
 
 export type Props = {
     content: ContentSummaryAndCompareStatus;
@@ -28,17 +27,7 @@ export const ContentItemCheckable = ({
     readOnly,
     ...props
 }: Props): React.ReactElement => {
-    const label = String(content.getPath());
-    const contentType = String(content.getType());
-    const url = content.getContentSummary().getIconUrl();
-    const status = calcWorkflowStateStatus(content.getContentSummary());
-
     const checkboxId = `${CONTENT_ITEM_CHECKABLE_NAME}-${id || content.getId()}-checkbox`
-
-    const Icon = useMemo(
-        () => <WorkflowContentIcon status={status} contentType={contentType} url={url} />,
-        [status, contentType, url]
-    );
 
     return (
         <ListItem
@@ -59,8 +48,8 @@ export const ContentItemCheckable = ({
             <ListItem.Content>
                 <Button onClick={() => {
                     new EditContentEvent([content]).fire();
-                }} className="block flex-1 w-[calc(100%+10px)] h-7.5 -mx-1.25 -my-0.75 px-1.25 py-0.75">
-                    <ListItem.DefaultContent label={label} icon={Icon} />
+                }} className="block flex-1 w-[calc(100%+10px)] -mx-1.25 -my-0.75 px-1.25 py-1">
+                    <ContentLabel content={content} compact/>
                 </Button>
             </ListItem.Content>
             <ListItem.Right>
