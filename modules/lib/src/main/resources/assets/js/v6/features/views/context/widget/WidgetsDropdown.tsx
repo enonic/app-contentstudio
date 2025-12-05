@@ -1,9 +1,10 @@
 import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {IconButton, Listbox} from '@enonic/ui';
-import {useState} from 'react';
+import {useRef, useState} from 'react';
 import {WidgetView} from '../../../../../app/view/context/WidgetView';
 import {ChevronDown, ChevronUp} from 'lucide-react';
 import {WidgetIcon} from '../../../shared/icons/WidgetIcon';
+import {useOnClickOutside} from '../../../hooks/useOnClickOutside';
 
 type Props = {
     widgetViews?: WidgetView[];
@@ -11,11 +12,16 @@ type Props = {
 };
 
 const WidgetsDropdown = ({widgetViews = [], selectedWidgetView = undefined}: Props) => {
+    const dropdownRef = useRef<HTMLDivElement>(null);
     const [selection, setSelection] = useState<readonly string[]>([]);
     const [toggleDropdown, setToggleDropdown] = useState<boolean>(false);
+    useOnClickOutside(dropdownRef, () => setToggleDropdown(false));
 
     return (
-        <div className="h-15 bg-surface-neutral flex items-center justify-between px-5 border-b border-bdr-soft relative shrink-0">
+        <div
+            ref={dropdownRef}
+            className="h-15 bg-surface-neutral flex items-center justify-between px-5 border-b border-bdr-soft relative shrink-0"
+        >
             <div className="flex items-center gap-2.5">
                 <WidgetIcon widgetView={selectedWidgetView} />
                 <span className="text-sm font-semibold">{selectedWidgetView?.getWidgetName() || ''}</span>
