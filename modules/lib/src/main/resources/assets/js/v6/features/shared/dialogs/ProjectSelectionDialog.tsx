@@ -5,7 +5,6 @@ import type {ReactElement} from 'react';
 import {useMemo, useRef} from 'react';
 import {ConfirmationDialog} from './ConfirmationDialog';
 import {ProjectHelper} from '../../../../app/settings/data/project/ProjectHelper';
-import {ProjectItem} from '../items/ProjectItem';
 import {useI18n} from '../../hooks/useI18n';
 import {setActiveProject, $projects} from '../../store/projects.store';
 import {flattenProjects} from '../../utils/cms/projects/flattenProjects';
@@ -13,6 +12,7 @@ import {ProjectWizardDialog} from '../../../../app/settings/dialog/project/creat
 import {ProjectSteps} from '../../../../app/settings/dialog/project/create/ProjectSteps';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 import {$dialogs, setProjectSelectionDialogOpen} from '../../store/dialogs.store';
+import {ProjectLabel} from '../project/ProjectLabel';
 
 export const ProjectSelectionDialog = (): ReactElement => {
     const {projects, activeProjectId} = useStore($projects);
@@ -92,14 +92,7 @@ export const ProjectSelectionDialog = (): ReactElement => {
                                             style={{paddingInlineStart: level * 20 + 10}}
                                             data-tone={project.getName() === activeProjectId ? 'inverse' : undefined}
                                         >
-                                            <ProjectItem
-                                                className="w-full px-0 py-1.25"
-                                                label={project.getDisplayName() || project.getName()}
-                                                projectName={project.getName()}
-                                                language={project.getLanguage()}
-                                                hasIcon={!!project.getIcon()}
-                                                isLayer={project.hasParents()}
-                                            />
+                                            <ProjectLabel project={project} className="w-full px-0 py-1.25" />
                                         </Listbox.Item>
                                     ))}
                                 </Listbox.Content>

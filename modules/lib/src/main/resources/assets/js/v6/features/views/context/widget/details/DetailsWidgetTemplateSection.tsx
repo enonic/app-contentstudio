@@ -6,10 +6,16 @@ import {PageTemplate} from '../../../../../../app/content/PageTemplate';
 import {Descriptor} from '../../../../../../app/page/Descriptor';
 import {PageMode} from '../../../../../../app/page/PageMode';
 import {ContentUrlHelper} from '../../../../../../app/util/ContentUrlHelper';
-import {loadComponentDescriptor, loadDefaultPageTemplate, loadNearestSite, loadPageTemplate} from '../../../../api/details';
+import {
+    loadComponentDescriptor,
+    loadDefaultPageTemplate,
+    loadNearestSite,
+    loadPageTemplate,
+} from '../../../../api/details';
 import {useI18n} from '../../../../hooks/useI18n';
 import {TemplateIcon} from '../../../../shared/icons/TemplateIcon';
 import {$detailsWidgetContent} from '../../../../store/context/detailsWidgets.store';
+import {ItemLabel} from '../../../../shared/ItemLabel';
 
 type State = {
     mode: PageMode;
@@ -93,38 +99,30 @@ export const DetailsWidgetTemplateSection = (): ReactElement => {
     return (
         <section data-component={DETAILS_WIDGET_TEMPLATE_SECTION_NAME} className="flex flex-col gap-5">
             <Separator label={titleText} />
-            <div>
-                <div className="flex gap-2.5 items-center">
-                    <TemplateIcon pageMode={state.mode} className="shrink-0" size={24} />
-                    <div className="flex flex-col overflow-hidden">
-                        <span className="text-sm font-semibold truncate" title={displayName}>
-                            {displayName}
-                        </span>
-
-                        {state.template ? (
-                            <Tooltip value={state.template.getPath().toString()}>
-                                <Link
-                                    target="_blank"
-                                    className="text-xs text-subtle truncate"
-                                    href={ContentUrlHelper.generateEditContentUrl(state.template.getContentId())}
-                                    title={state.template.getDisplayName()}
-                                >
-                                    {state.template.getDisplayName()}
-                                </Link>
-                            </Tooltip>
-                        ) : state.descriptor ? (
-                            <Tooltip value={state.descriptor.getKey().toString()}>
-                                <span
-                                    className="text-xs text-subtle truncate"
-                                    title={state.descriptor.getDisplayName()}
-                                >
-                                    {state.descriptor.getDisplayName()}
-                                </span>
-                            </Tooltip>
-                        ) : null}
-                    </div>
-                </div>
-            </div>
+            <ItemLabel
+                icon={<TemplateIcon pageMode={state.mode} size={24} />}
+                primary={displayName}
+                secondary={
+                    state.template ? (
+                        <Tooltip value={state.template.getPath().toString()}>
+                            <Link
+                                target="_blank"
+                                className="text-xs text-subtle truncate"
+                                href={ContentUrlHelper.generateEditContentUrl(state.template.getContentId())}
+                                title={state.template.getDisplayName()}
+                            >
+                                {state.template.getDisplayName()}
+                            </Link>
+                        </Tooltip>
+                    ) : state.descriptor ? (
+                        <Tooltip value={state.descriptor.getKey().toString()}>
+                            <span className="text-xs text-subtle truncate" title={state.descriptor.getDisplayName()}>
+                                {state.descriptor.getDisplayName()}
+                            </span>
+                        </Tooltip>
+                    ) : null
+                }
+            />
         </section>
     );
 };
