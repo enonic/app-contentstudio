@@ -1,4 +1,4 @@
-import {Link} from '@enonic/ui';
+import {Link, cn} from '@enonic/ui';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {useMemo} from 'react';
 
@@ -12,12 +12,14 @@ export type ContentReferencesLinkProps = {
     contentId: string;
     target?: Branch;
     contentTypeName?: ContentTypeName;
+    mainItem?: boolean;
 };
 
 export function ContentReferencesLink({
     contentId,
     target,
     contentTypeName,
+    mainItem,
 }: ContentReferencesLinkProps) {
     const project = ProjectContext.get().getProject().getName();
     const branch = target ?? Branch.DRAFT;
@@ -29,7 +31,16 @@ export function ContentReferencesLink({
     }, [project, branch, contentType, contentId]);
 
     return (
-        <Link href={href} newTab className='hover:bg-btn-primary-hover visited:text-current box-border rounded-sm transition-highlight h-8 -my-1 px-1.25 py-1'>
+        <Link
+            href={href}
+            newTab
+            className={cn(
+                'hover:bg-btn-primary-hover visited:text-current box-border rounded-sm transition-highlight',
+                mainItem
+                ? 'h-13 -my-2.5 px-[10px] py-2.5'
+                : 'h-8 -my-1 px-1.25 py-1'
+            )}
+        >
             {i18n('action.showReferences')}
         </Link>
     );
