@@ -2,10 +2,10 @@ import {Button, ListItem, type ListItemProps} from '@enonic/ui';
 import {type ReactNode} from 'react';
 import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import type {Branch} from '../../../../app/versioning/Branch';
+import {ContentLabel} from '../content/ContentLabel';
 import {ContentReferencesLink} from '../ContentReferencesLink';
 import {LegacyElement} from '../LegacyElement';
 import {DiffStatusBadge} from '../status/DiffStatusBadge';
-import {ContentLabel} from '../content/ContentLabel';
 
 export type ContentItemProps = {
     content: ContentSummaryAndCompareStatus;
@@ -31,7 +31,7 @@ export const ContentItem = ({
     <ListItem selected={selected}>
         <ListItem.Content>
             <Button onClick={onClick} className="block flex-1 w-[calc(100%+10px)] -mx-1.25 -my-0.75 px-1.25 py-1">
-                <ContentLabel content={content} compact />
+                <ContentLabel content={content} variant='compact' />
             </Button>
         </ListItem.Content>
         <ListItem.Right>

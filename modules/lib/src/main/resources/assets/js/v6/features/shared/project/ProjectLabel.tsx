@@ -1,16 +1,19 @@
 import {ReactElement} from 'react';
-import {ItemLabel} from '../ItemLabel';
 import {Project} from '../../../../app/settings/data/project/Project';
 import {ProjectIcon} from '../icons/ProjectIcon';
+import {ItemLabel, ItemLabelProps} from '../ItemLabel';
 
 const PROJECT_LABEL_NAME = 'ProjectLabel';
 
 type ProjectLabelProps = {
     project: Readonly<Project>;
-    className?: string;
-};
+} & Omit<ItemLabelProps, 'icon' | 'primary' | 'secondary'>;
 
-export const ProjectLabel = ({project, className}: ProjectLabelProps): ReactElement => {
+export const ProjectLabel = ({
+    project,
+    'data-component': dataComponent = PROJECT_LABEL_NAME,
+    ...props
+}: ProjectLabelProps): ReactElement => {
     const primaryText = (
         <>
             {project.getDisplayName() || project.getName()}
@@ -20,7 +23,7 @@ export const ProjectLabel = ({project, className}: ProjectLabelProps): ReactElem
 
     return (
         <ItemLabel
-            data-component={PROJECT_LABEL_NAME}
+            data-component={dataComponent}
             icon={
                 <ProjectIcon
                     projectName={project.getName()}
@@ -31,7 +34,7 @@ export const ProjectLabel = ({project, className}: ProjectLabelProps): ReactElem
             }
             primary={primaryText}
             secondary={project.getName()}
-            className={className}
+            {...props}
         />
     );
 };

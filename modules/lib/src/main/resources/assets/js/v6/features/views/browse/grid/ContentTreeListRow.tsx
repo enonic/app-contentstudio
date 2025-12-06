@@ -16,8 +16,8 @@ type ContentTreeListRowSelectionControlProps = {
     className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const ContentTreeListRowSelectionControl = ({ data, className }: ContentTreeListRowSelectionControlProps): React.ReactElement => {
-    const { isItemSelectable } = useTreeList();
+const ContentTreeListRowSelectionControl = ({data, className}: ContentTreeListRowSelectionControlProps): React.ReactElement => {
+    const {isItemSelectable} = useTreeList();
     const selectionMode = useStore($contentTreeSelectionMode);
     const isSelected = isItemSelected(data.id);
 
@@ -27,7 +27,7 @@ const ContentTreeListRowSelectionControl = ({ data, className }: ContentTreeList
 
     return <Checkbox
         className='content-tree-row-checkbox relative z-0 after:absolute after:-inset-2 after:content-[""] after:rounded-sm after:pointer-events-auto after:-z-10'
-        tabindex={-1} key={data.id} id={'content-tree-' + data.id} checked={selectionMode === 'multiple' && isSelected}/>
+        tabindex={-1} key={data.id} id={'content-tree-' + data.id} checked={selectionMode === 'multiple' && isSelected} />
 };
 
 export const ContentTreeListRow = ({item}: ContentTreeListRowProps): React.ReactElement => {
@@ -40,7 +40,7 @@ export const ContentTreeListRow = ({item}: ContentTreeListRowProps): React.React
                     <TreeList.RowExpandControl data={item} />
                 </TreeList.RowLeft>
                 <TreeList.RowContent onDblClick={() => new EditContentEvent([item.item]).fire()}>
-                    <ContentTreeListItem content={item} key={item.id}/>
+                    <ContentTreeListItem content={item} key={item.id} />
                 </TreeList.RowContent>
             </TreeList.Row>
         </ContentTreeListRowWrapper>

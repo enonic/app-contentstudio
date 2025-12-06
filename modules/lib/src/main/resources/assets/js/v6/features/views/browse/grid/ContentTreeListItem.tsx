@@ -1,7 +1,7 @@
 import {ListItem} from '@enonic/ui';
+import {ContentLabel} from '../../../shared/content/ContentLabel';
 import {StatusBadge} from '../../../shared/status/StatusBadge';
 import {ContentData} from './ContentData';
-import {ContentLabel} from '../../../shared/content/ContentLabel';
 
 export type ContentTreeListItemProps = {
     content: ContentData;

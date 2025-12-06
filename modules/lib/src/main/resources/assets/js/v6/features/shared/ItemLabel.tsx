@@ -3,16 +3,24 @@ import {ComponentPropsWithoutRef, ReactElement, ReactNode} from 'react';
 
 const ITEM_LABEL_NAME = 'ItemLabel';
 
-type ItemLabelProps = {
+export type ItemLabelProps = {
     icon: ReactNode;
     primary: ReactNode;
     secondary?: ReactNode;
+    'data-component'?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-export const ItemLabel = ({icon, primary, secondary, className, ...props}: ItemLabelProps): ReactElement => {
+export const ItemLabel = ({
+    icon,
+    primary,
+    secondary,
+    className,
+    'data-component': dataComponent = ITEM_LABEL_NAME,
+    ...props
+}: ItemLabelProps): ReactElement => {
     return (
         <div
-            data-component={ITEM_LABEL_NAME}
+            data-component={dataComponent}
             className={cn('grid grid-cols-[auto_1fr] gap-2.5 items-center', className)}
             {...props}
         >
@@ -27,10 +35,10 @@ export const ItemLabel = ({icon, primary, secondary, className, ...props}: ItemL
             </div>
 
             <div className="flex flex-col text-left overflow-hidden">
-                <span className="font-semibold truncate w-full group-data-[tone=inverse]:text-alt">{primary}</span>
+                <span className="font-semibold leading-5.5 truncate w-full group-data-[tone=inverse]:text-alt">{primary}</span>
 
                 {secondary && (
-                    <small className="text-xs text-subtle truncate w-full group-data-[tone=inverse]:text-alt">
+                    <small className="text-sm leading-4.5 text-subtle truncate w-full group-data-[tone=inverse]:text-alt">
                         {secondary}
                     </small>
                 )}

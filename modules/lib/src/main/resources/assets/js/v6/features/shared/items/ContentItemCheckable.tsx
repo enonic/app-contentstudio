@@ -49,7 +49,7 @@ export const ContentItemCheckable = ({
                 <Button onClick={() => {
                     new EditContentEvent([content]).fire();
                 }} className="block flex-1 w-[calc(100%+10px)] -mx-1.25 -my-0.75 px-1.25 py-1">
-                    <ContentLabel content={content} compact/>
+                    <ContentLabel content={content} variant="compact" />
                 </Button>
             </ListItem.Content>
             <ListItem.Right>
