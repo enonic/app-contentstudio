@@ -5,8 +5,8 @@ import {useEffect, useId, useState, type ReactElement} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {$config} from '../../../store/config.store';
 import {$dependantPublishItems, $isPublishChecking, $isPublishReady, $isPublishSelectionSynced, $mainPublishItems, $publishCheckErrors, $publishDialog, $totalPublishableItems, applyDraftPublishDialogSelection, cancelDraftPublishDialogSelection, excludeInProgressPublishItems, excludeInvalidPublishItems, excludeNotPublishablePublishItems, markAllAsReadyInProgressPublishItems, publishItems, resetPublishDialogContext, setPublishDialogDependantItemSelected, setPublishDialogItemSelected, setPublishDialogItemWithChildrenSelected} from '../../../store/dialogs/publishDialog.store';
-import {ContentItemCheckable} from '../../items/ContentItemCheckable';
-import {ContentItemWithChildren} from '../../items/ContentItemWithChildren';
+import {ContentListItemSelectable} from '../../items/ContentListItemSelectable';
+import {ContentListItemWithChildren} from '../../items/ContentListItemWithChildren';
 import {SelectionStatusBar} from '../SelectionStatusBar';
 
 const PUBLISH_DIALOG_NAME = 'PublishDialog';
@@ -97,7 +97,7 @@ export const PublishDialog = (): ReactElement => {
                     <Dialog.Body className="flex flex-col gap-y-10">
                         <ul className='flex flex-col gap-y-2.5'>
                             {mainItems.map(({id, content, included, childrenIncluded, required}) => {
-                                return <ContentItemWithChildren
+                                return <ContentListItemWithChildren
                                     key={id}
                                     id={`main-${id}`}
                                     content={content}
@@ -116,7 +116,7 @@ export const PublishDialog = (): ReactElement => {
                             </div>
                             <ul className='flex flex-col gap-y-1.5'>
                                 {visibleDependantItems.map(({id, content, included, required}) => {
-                                    return <ContentItemCheckable
+                                    return <ContentListItemSelectable
                                         key={id}
                                         id={`dependant-${id}`}
                                         content={content}

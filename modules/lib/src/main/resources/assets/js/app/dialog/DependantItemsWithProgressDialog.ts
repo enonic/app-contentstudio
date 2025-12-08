@@ -1,6 +1,6 @@
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
-import {ContentItemElement} from '../../v6/features/shared/items/ContentItem';
+import {ContentListItemElement} from '../../v6/features/shared/items/ContentListItem';
 import {DependantItemsDialog, DependantItemsDialogConfig} from './DependantItemsDialog';
 import {StatusCheckableItem} from './StatusCheckableItem';
 import {TaskProgressManager, WithTaskProgress} from './TaskProgressManager';
@@ -14,7 +14,7 @@ export interface DependantItemsWithProgressDialogConfig
 /**
  * @deprecated Use React components instead (DeleteDialog, UnpublishDialog)
  */
-export abstract class DependantItemsWithProgressDialog<Item extends StatusCheckableItem | ContentItemElement = StatusCheckableItem>
+export abstract class DependantItemsWithProgressDialog<Item extends StatusCheckableItem | ContentListItemElement = StatusCheckableItem>
     extends DependantItemsDialog<Item>
     implements WithTaskProgress {
 

@@ -6,7 +6,7 @@ import {ContentLabel} from '../content/ContentLabel';
 import {LegacyElement} from '../LegacyElement';
 import {DiffStatusBadge} from '../status/DiffStatusBadge';
 
-export type Props = {
+export type ContentListItemSelectableProps = {
     content: ContentSummaryAndCompareStatus;
     id?: string;
 } & Pick<CheckboxProps, 'className' | 'readOnly' | 'checked' | 'defaultChecked' | 'onCheckedChange'> & {
@@ -15,9 +15,9 @@ export type Props = {
     onCheckedChange?: (checked: boolean) => void;
 } & ComponentPropsWithoutRef<'div'>;
 
-const CONTENT_ITEM_CHECKABLE_NAME = 'ContentItemCheckable';
+const CONTENT_LIST_ITEM_SELECTABLE_NAME = 'ContentListItemSelectable';
 
-export const ContentItemCheckable = ({
+export const ContentListItemSelectable = ({
     id,
     className,
     content,
@@ -26,8 +26,8 @@ export const ContentItemCheckable = ({
     onCheckedChange,
     readOnly,
     ...props
-}: Props): React.ReactElement => {
-    const checkboxId = `${CONTENT_ITEM_CHECKABLE_NAME}-${id || content.getId()}-checkbox`;
+}: ContentListItemSelectableProps): React.ReactElement => {
+    const checkboxId = `${CONTENT_LIST_ITEM_SELECTABLE_NAME}-${id || content.getId()}-checkbox`;
 
     const handleClick = () => {
         new EditContentEvent([content]).fire();
@@ -64,19 +64,19 @@ export const ContentItemCheckable = ({
     );
 };
 
-ContentItemCheckable.displayName = CONTENT_ITEM_CHECKABLE_NAME;
+ContentListItemSelectable.displayName = CONTENT_LIST_ITEM_SELECTABLE_NAME;
 
-export class ContentItemCheckableElement
-    extends LegacyElement<typeof ContentItemCheckable, Props> {
+export class ContentListItemSelectableElement
+    extends LegacyElement<typeof ContentListItemSelectable, ContentListItemSelectableProps> {
 
-    constructor(props: Props) {
+    constructor(props: ContentListItemSelectableProps) {
         super({
             ...props,
             onCheckedChange: (checked) => {
                 this.props.setKey('checked', checked);
                 props.onCheckedChange?.(checked);
             },
-        }, ContentItemCheckable);
+        }, ContentListItemSelectable);
     }
 
     getItem(): ContentSummaryAndCompareStatus {

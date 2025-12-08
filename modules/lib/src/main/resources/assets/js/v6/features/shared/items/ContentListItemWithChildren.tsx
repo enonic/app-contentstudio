@@ -1,18 +1,18 @@
 import {Checkbox, cn} from '@enonic/ui';
 import {CornerDownRight} from 'lucide-react';
 import {useI18n} from '../../hooks/useI18n';
-import type {Props as ContentItemCheckableProps} from './ContentItemCheckable';
-import {ContentItemCheckable} from './ContentItemCheckable';
+import type {ContentListItemSelectableProps as ContentItemCheckableProps} from './ContentListItemSelectable';
+import {ContentListItemSelectable} from './ContentListItemSelectable';
 
-export type Props = {
+export type ContentListItemWithChildrenProps = {
     includeChildren?: boolean;
     defaultIncludeChildren?: boolean;
     onIncludeChildrenChange?: (checked: boolean) => void;
 } & ContentItemCheckableProps;
 
-const CONTENT_ITEM_WITH_CHILDREN_NAME = 'ContentItemWithChildren';
+const CONTENT_LIST_ITEM_WITH_CHILDREN_NAME = 'ContentListItemWithChildren';
 
-export const ContentItemWithChildren = ({
+export const ContentListItemWithChildren = ({
     id,
     content,
     checked,
@@ -23,15 +23,15 @@ export const ContentItemWithChildren = ({
     onIncludeChildrenChange,
     defaultIncludeChildren,
     className,
-}: Props): React.ReactElement => {
+}: ContentListItemWithChildrenProps): React.ReactElement => {
     const hasChildren = content.hasChildren();
     const includeChildrenLabel = useI18n('field.content.includeChildren');
 
-    const includeChildrenCheckboxId = `${CONTENT_ITEM_WITH_CHILDREN_NAME}-${id || content.getId()}-include-children-checkbox`;
+    const includeChildrenCheckboxId = `${CONTENT_LIST_ITEM_WITH_CHILDREN_NAME}-${id || content.getId()}-include-children-checkbox`;
 
     return (
         <li role="row" className={cn("flex flex-col gap-1", className)}>
-            <ContentItemCheckable
+            <ContentListItemSelectable
                 id={id}
                 role={undefined}
                 content={content}
@@ -59,4 +59,4 @@ export const ContentItemWithChildren = ({
     );
 };
 
-ContentItemWithChildren.displayName = CONTENT_ITEM_WITH_CHILDREN_NAME;
+ContentListItemWithChildren.displayName = CONTENT_LIST_ITEM_WITH_CHILDREN_NAME;

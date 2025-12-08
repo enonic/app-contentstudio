@@ -13,15 +13,15 @@ export type ContentItemProps = {
     children?: ReactNode;
 } & Omit<ListItemProps, 'children'>;
 
-const CONTENT_ITEM_NAME = 'ContentItem';
+const CONTENT_LIST_ITEM_NAME = 'ContentListItem';
 
-export const ContentItem = ({
+export const ContentListItem = ({
     content,
     variant,
     selected = false,
     className,
     children,
-    'data-component': componentName = CONTENT_ITEM_NAME,
+    'data-component': componentName = CONTENT_LIST_ITEM_NAME,
     ...props
 }: ContentItemProps): React.ReactElement => {
     const isCompact = variant === 'compact';
@@ -45,11 +45,11 @@ export const ContentItem = ({
     )
 };
 
-ContentItem.displayName = CONTENT_ITEM_NAME;
+ContentListItem.displayName = CONTENT_LIST_ITEM_NAME;
 
-export class ContentItemElement extends LegacyElement<typeof ContentItem, ContentItemProps> {
+export class ContentListItemElement extends LegacyElement<typeof ContentListItem, ContentItemProps> {
     constructor(props: ContentItemProps) {
-        super({...props}, ContentItem);
+        super({...props}, ContentListItem);
     }
 
     getItem(): ContentSummaryAndCompareStatus {

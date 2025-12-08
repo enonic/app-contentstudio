@@ -52,7 +52,7 @@ export const ProjectIcon = ({
     const initials = lang.slice(0, 2);
 
     return (
-        <div className={cn('relative size-8', className)} aria-hidden="true">
+        <div className={cn('relative size-6', className)} aria-hidden="true">
             <div className="absolute inset-0 flex items-center justify-center rounded-full border-1 border-bdr-subtle text-xs font-semibold lowercase text-subtle">
                 {initials}
             </div>

@@ -1,7 +1,7 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
-import {ContentItemElement} from '../../v6/features/shared/items/ContentItem';
+import {ContentListItemElement} from '../../v6/features/shared/items/ContentListItem';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
@@ -19,7 +19,7 @@ import {DialogStateEntry} from './DialogStateEntry';
  * @deprecated Use React components instead (DeleteDialog, UnpublishDialog)
  */
 export abstract class DependantItemsWithReferencesDialog
-    extends DependantItemsWithProgressDialog<ContentItemElement> {
+    extends DependantItemsWithProgressDialog<ContentListItemElement> {
     protected stateBar: DialogStateBar;
     protected inboundErrorsEntry: DialogStateEntry;
 
@@ -71,7 +71,7 @@ export abstract class DependantItemsWithReferencesDialog
         ContentServerEventsHandler.getInstance().onContentDeleted(handleRefsChange);
     }
 
-    private updateItemViewsWithInboundDependencies(views: readonly (ContentItemElement | ArchiveSelectableItem)[]): void {
+    private updateItemViewsWithInboundDependencies(views: readonly (ContentListItemElement | ArchiveSelectableItem)[]): void {
         for (const v of views) {
             // v.setHasInbound(this.hasInboundRef(v.getItem().getId()));
         }
@@ -133,9 +133,9 @@ export abstract class DependantItemsWithReferencesDialog
         const hasInboundDeps = this.resolveDependenciesResult.hasInboundDependencies();
 
         if (hasInboundDeps || forceUpdate) {
-            const allViews: ContentItemElement[] = [
-                ...(this.getItemList().getItemViews() as unknown as ContentItemElement[]),
-                ...(this.getDependantList().getItemViews() as unknown as ContentItemElement[]),
+            const allViews: ContentListItemElement[] = [
+                ...(this.getItemList().getItemViews() as unknown as ContentListItemElement[]),
+                ...(this.getDependantList().getItemViews() as unknown as ContentListItemElement[]),
             ];
             this.updateItemViewsWithInboundDependencies(allViews);
         }

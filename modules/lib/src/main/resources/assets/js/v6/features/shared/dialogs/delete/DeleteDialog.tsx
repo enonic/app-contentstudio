@@ -2,11 +2,20 @@ import {Button, Dialog, Separator, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {useEffect, useMemo, useRef, useState, type ReactElement} from 'react';
 import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
-import {EditContentEvent} from '../../../../../app/event/EditContentEvent';
 import {Branch} from '../../../../../app/versioning/Branch';
 import {useI18n} from '../../../hooks/useI18n';
-import {$deleteDialog, $deleteDialogReady, $deleteHasSite, $deleteInboundIds, $deleteTotalItems, cancelDeleteDialog, confirmDeleteAction, executeDeleteDialogAction, ignoreDeleteInboundDependencies, type DeleteAction} from '../../../store/dialogs/deleteDialog.store';
-import {ContentItemWithReference} from '../../items/ContentWithReferenceItem';
+import {
+    $deleteDialog,
+    $deleteInboundIds,
+    $deleteItemsCount,
+    $isDeleteDialogReady,
+    $isDeleteTargetSite,
+    cancelDeleteDialog,
+    executeDeleteDialogAction,
+    ignoreDeleteInboundDependencies,
+    type DeleteAction,
+} from '../../../store/dialogs/deleteDialog.store';
+import {ContentListItemWithReference} from '../../items/ContentListItemWithReference';
 import {ConfirmationDialog, useConfirmationDialog} from '../ConfirmationDialog';
 import {Gate} from '../Gate';
 import {SelectionStatusBar} from '../SelectionStatusBar';
@@ -16,9 +25,9 @@ type View = 'main' | 'confirmation' | 'progress';
 
 export const DeleteDialog = (): ReactElement => {
     const {open, loading, failed, items, dependants, inboundIgnored} = useStore($deleteDialog, {keys: ['open', 'loading', 'failed', 'items', 'dependants', 'inboundIgnored']});
-    const ready = useStore($deleteDialogReady);
-    const total = useStore($deleteTotalItems);
-    const hasSite = useStore($deleteHasSite);
+    const ready = useStore($isDeleteDialogReady);
+    const total = useStore($deleteItemsCount);
+    const hasSite = useStore($isDeleteTargetSite);
     const inboundIds = useStore($deleteInboundIds);
     const inboundSet = useMemo(() => new Set(inboundIds), [inboundIds]);
     const isInbound = (content: ContentSummaryAndCompareStatus) => inboundSet.has(content.getContentId().toString());
@@ -119,7 +128,7 @@ export const DeleteDialog = (): ReactElement => {
                         label={confirmLabel}
                         disabled={!confirmEnabled}
                         onClick={() => {
-                            void confirmDeleteAction(confirmAction, items);
+                            void executeDeleteDialogAction(confirmAction);
                             resetConfirmation();
                         }}
                     />
@@ -174,7 +183,7 @@ export const DeleteDialog = (): ReactElement => {
                             <Dialog.Body className="flex flex-col gap-y-10">
                                 <ul className="flex flex-col gap-y-2.5">
                                     {items.map(item => (
-                                        <ContentItemWithReference
+                                        <ContentListItemWithReference
                                             key={`main-${item.getId()}`}
                                             variant='normal'
                                             content={item}
@@ -188,7 +197,7 @@ export const DeleteDialog = (): ReactElement => {
                                     <Separator className="pr-1" label={dependantsLabel} />
                                     <ul className="flex flex-col gap-y-1.5">
                                         {dependants.map(item => (
-                                            <ContentItemWithReference
+                                            <ContentListItemWithReference
                                                 key={`dep-${item.getId()}`}
                                                 variant='compact'
                                                 content={item}

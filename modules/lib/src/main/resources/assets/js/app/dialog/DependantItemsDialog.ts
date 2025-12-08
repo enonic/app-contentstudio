@@ -4,12 +4,15 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {TogglerButton} from '@enonic/lib-admin-ui/ui/button/TogglerButton';
-import {Checkbox} from '@enonic/lib-admin-ui/ui2/Checkbox';
 import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
+import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
+import {Checkbox} from '@enonic/lib-admin-ui/ui2/Checkbox';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {CheckboxChecked} from '@enonic/ui';
 import Q from 'q';
+import {PublishItemsListElement} from '../../v6/features/shared/dialogs/publish/PublishItemsList';
+import {ContentListItemElement} from '../../v6/features/shared/items/ContentListItem';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
@@ -17,10 +20,7 @@ import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfConte
 import {DependantItemViewer} from './DependantItemViewer';
 import {DialogDependantItemsList, ObserverConfig, SelectionType} from './DialogDependantItemsList';
 import {DialogMainItemsList} from './DialogMainItemsList';
-import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
 import {StatusCheckableItem} from './StatusCheckableItem';
-import {ContentItemElement} from '../../v6/features/shared/items/ContentItem';
-import {PublishItemsListElement} from '../../v6/features/shared/dialogs/publish/PublishItemsList';
 
 enum DependantsStatus {
     HAS_EXCLUDED = 'has-excluded',
@@ -39,7 +39,7 @@ export interface DependantItemsDialogConfig
     controls?: boolean;
 }
 
-export abstract class DependantItemsDialog<Item extends StatusCheckableItem | ContentItemElement>
+export abstract class DependantItemsDialog<Item extends StatusCheckableItem | ContentListItemElement>
     extends ModalDialogWithConfirmation {
 
     protected actionButton: ActionButton;

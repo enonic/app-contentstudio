@@ -4,7 +4,6 @@ import {Application} from '@enonic/lib-admin-ui/app/Application';
 import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
-import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
@@ -24,7 +23,6 @@ import {CONFIG, ConfigObject} from '@enonic/lib-admin-ui/util/Config';
 import {LauncherHelper} from '@enonic/lib-admin-ui/util/LauncherHelper';
 import {i18n, Messages} from '@enonic/lib-admin-ui/util/Messages';
 import * as $ from 'jquery';
-import {ContentDeletePromptEvent} from 'lib-contentstudio/app/browse/ContentDeletePromptEvent';
 import {ContentDuplicatePromptEvent} from 'lib-contentstudio/app/browse/ContentDuplicatePromptEvent';
 import {ContentPublishPromptEvent} from 'lib-contentstudio/app/browse/ContentPublishPromptEvent';
 import {ContentUnpublishPromptEvent} from 'lib-contentstudio/app/browse/ContentUnpublishPromptEvent';
@@ -59,12 +57,11 @@ import {SettingsServerEventsListener} from 'lib-contentstudio/app/settings/event
 import {ProjectListRequest} from 'lib-contentstudio/app/settings/resource/ProjectListRequest';
 import {$isDown, subscribe as subscribeToWorker} from 'lib-contentstudio/app/stores/worker';
 import {UrlAction} from 'lib-contentstudio/app/UrlAction';
+import {VersionHelper} from 'lib-contentstudio/app/util/VersionHelper';
 import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
 import {ContentWizardPanelParams} from 'lib-contentstudio/app/wizard/ContentWizardPanelParams';
-import {VersionHelper} from 'lib-contentstudio/app/util/VersionHelper';
-import {$activeProjectName} from 'lib-contentstudio/v6/features/store/projects.store';
 import {AppElement} from 'lib-contentstudio/v6/features/App';
-import {openDeleteDialog} from 'lib-contentstudio/v6/features/store/dialogs/deleteDialog.store';
+import {$activeProjectName} from 'lib-contentstudio/v6/features/store/projects.store';
 import Q from 'q';
 
 // Dynamically import and execute all input types, since they are used
@@ -357,13 +354,6 @@ async function startApplication() {
         }
 
         moveContentDialog.handlePromptEvent(event);
-    });
-
-    ContentDeletePromptEvent.on((event) => {
-        openDeleteDialog(event.getModels(), {
-            onYes: event.getYesCallback(),
-            onNo: event.getNoCallback(),
-        });
     });
 
     const {ContentPublishDialog} = await import('lib-contentstudio/app/publish/ContentPublishDialog');

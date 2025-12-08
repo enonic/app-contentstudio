@@ -1,11 +1,11 @@
-import {ContentItemElement} from '../../v6/features/shared/items/ContentItem';
+import {ContentListItemElement} from '../../v6/features/shared/items/ContentListItem';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {compareItems, DialogDependantItemsList, ObserverConfig} from '../dialog/DialogDependantItemsList';
 import {EditContentEvent} from '../event/EditContentEvent';
 import {ContentWithRefsResult} from '../resource/ContentWithRefsResult';
 
 export class DialogWithRefsDependantList
-    extends DialogDependantItemsList<ContentItemElement> {
+    extends DialogDependantItemsList<ContentListItemElement> {
     private resolveDependenciesResult: ContentWithRefsResult;
 
     constructor(observer: Omit<ObserverConfig, 'sort'>) {
@@ -19,8 +19,8 @@ export class DialogWithRefsDependantList
         });
     }
 
-    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): ContentItemElement {
-        return new ContentItemElement({
+    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): ContentListItemElement {
+        return new ContentListItemElement({
             content: item,
             selected: false,
             className: 'archive-item',

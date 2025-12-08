@@ -2,7 +2,7 @@ import {cn} from '@enonic/ui';
 import {atom, WritableAtom} from 'nanostores';
 import {ContentId} from '../../../../../app/content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
-import {ContentItemWithChildren} from '../../items/ContentItemWithChildren';
+import {ContentListItemWithChildren} from '../../items/ContentListItemWithChildren';
 import {LegacyElement} from '../../LegacyElement';
 
 export type Props = {
@@ -26,7 +26,7 @@ const PublishItemsList = ({
         <ul className={cn("flex flex-col gap-2", className)}>
             {items.map((item) => (
                 <li key={item.getContentId().toString()}>
-                    <ContentItemWithChildren
+                    <ContentListItemWithChildren
                         content={item}
                         defaultChecked={true}
                         onCheckedChange={(enabled) => onCheckedChange(item.getContentId(), enabled)}

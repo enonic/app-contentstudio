@@ -1,17 +1,21 @@
-import {computed, map} from 'nanostores';
-import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
-import {ContentId} from '../../../../app/content/ContentId';
-import {hasContentById, hasContentIdInIds, isIdsEqual, uniqueIds} from '../../utils/cms/content/ids';
-import {ResolvePublishDependenciesRequest} from '../../../../app/resource/ResolvePublishDependenciesRequest';
-import {FindIdsByParentsRequest} from '../../../../app/resource/FindIdsByParentsRequest';
-import {ContentSummaryAndCompareStatusFetcher} from '../../../../app/resource/ContentSummaryAndCompareStatusFetcher';
-import {MarkAsReadyRequest} from '../../../../app/resource/MarkAsReadyRequest';
 import {showError, showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {PublishContentRequest} from '../../../../app/resource/PublishContentRequest';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {$contentCreated, $contentUpdated, $contentDeleted, $contentArchived, $contentPublished} from '../socket.store';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {computed, map} from 'nanostores';
+import {ContentId} from '../../../../app/content/ContentId';
+import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import {ContentSummaryAndCompareStatusFetcher} from '../../../../app/resource/ContentSummaryAndCompareStatusFetcher';
+import {FindIdsByParentsRequest} from '../../../../app/resource/FindIdsByParentsRequest';
+import {MarkAsReadyRequest} from '../../../../app/resource/MarkAsReadyRequest';
+import {PublishContentRequest} from '../../../../app/resource/PublishContentRequest';
+import {ResolvePublishDependenciesRequest} from '../../../../app/resource/ResolvePublishDependenciesRequest';
+import {hasContentById, hasContentIdInIds, isIdsEqual, uniqueIds} from '../../utils/cms/content/ids';
 import {createDebounce} from '../../utils/timing/createDebounce';
+import {$contentArchived, $contentCreated, $contentDeleted, $contentPublished, $contentUpdated} from '../socket.store';
+
+//
+// * Types
+//
 
 type MainItem = {
     id: string;
@@ -67,7 +71,11 @@ type PublishCheckErrorsStore = {
     noPermissions: PublishCheckError;
 }
 
-export const $publishDialog = map<PublishDialogStore>({
+//
+// * Store State
+//
+
+const initialPublishDialogState: PublishDialogStore = {
     open: false,
     failed: false,
     items: [],
@@ -75,26 +83,15 @@ export const $publishDialog = map<PublishDialogStore>({
     excludedItemsIds: [],
     excludedItemsWithChildrenIds: [],
     excludedDependantItemsIds: [],
-});
+};
 
-const $publishDialogItemsWithChildren = computed($publishDialog, (state) => {
-    return filterItemsWithChildren(state.items);
-});
-
-export const $draftPublishDialogSelection = map<PublishDialogSelectionStore>({
+const initialSelectionState: PublishDialogSelectionStore = {
     excludedItemsIds: [],
     excludedItemsWithChildrenIds: [],
     excludedDependantItemsIds: [],
-});
+};
 
-export const $isPublishSelectionSynced = computed([$draftPublishDialogSelection, $publishDialog], (draft, current): boolean => {
-    const {excludedItemsIds, excludedItemsWithChildrenIds, excludedDependantItemsIds} = current;
-    return isIdsEqual(excludedItemsIds, draft.excludedItemsIds) &&
-        isIdsEqual(excludedItemsWithChildrenIds, draft.excludedItemsWithChildrenIds) &&
-        isIdsEqual(excludedDependantItemsIds, draft.excludedDependantItemsIds);
-});
-
-const $publishChecks = map<PublishChecksStore>({
+const initialChecksState: PublishChecksStore = {
     loading: false,
     requiredIds: [],
     invalidIds: [],
@@ -103,6 +100,27 @@ const $publishChecks = map<PublishChecksStore>({
     inProgressExcludable: false,
     notPublishableIds: [],
     notPublishableExcludable: false,
+};
+
+export const $publishDialog = map<PublishDialogStore>(structuredClone(initialPublishDialogState));
+
+export const $draftPublishDialogSelection = map<PublishDialogSelectionStore>(structuredClone(initialSelectionState));
+
+const $publishChecks = map<PublishChecksStore>(structuredClone(initialChecksState));
+
+//
+// * Derived State
+//
+
+const $publishDialogItemsWithChildren = computed($publishDialog, (state) => {
+    return filterItemsWithChildren(state.items);
+});
+
+export const $isPublishSelectionSynced = computed([$draftPublishDialogSelection, $publishDialog], (draft, current): boolean => {
+    const {excludedItemsIds, excludedItemsWithChildrenIds, excludedDependantItemsIds} = current;
+    return isIdsEqual(excludedItemsIds, draft.excludedItemsIds) &&
+        isIdsEqual(excludedItemsWithChildrenIds, draft.excludedItemsWithChildrenIds) &&
+        isIdsEqual(excludedDependantItemsIds, draft.excludedDependantItemsIds);
 });
 
 export const $mainPublishItems = computed([$publishDialog, $draftPublishDialogSelection, $publishChecks], ({items}, {excludedItemsIds, excludedItemsWithChildrenIds}, {requiredIds}): MainItem[] => {
@@ -157,6 +175,10 @@ export const $isPublishChecking = computed([$publishChecks], ({loading}): boolea
 export const $isPublishReady = computed([$publishChecks, $isPublishSelectionSynced, $totalPublishableItems], ({loading, invalidIds, inProgressIds, notPublishableIds}, synced, totalPublishableItems): boolean => {
     return synced && !loading && invalidIds.length === 0 && inProgressIds.length === 0 && notPublishableIds.length === 0 && totalPublishableItems > 0;
 });
+
+//
+// * Instance Guard
+//
 
 // ! ID of the current fetch operation
 // Used to cancel old ongoing fetch operations if the instanceId changes
@@ -215,34 +237,10 @@ export const openPublishDialogWithState = (items: ContentSummaryAndCompareStatus
 }
 
 export const resetPublishDialogContext = () => {
-    $publishDialog.set({
-        open: false,
-        failed: false,
-        items: [],
-        dependantItems: [],
-        excludedItemsIds: [],
-        excludedItemsWithChildrenIds: [],
-        excludedDependantItemsIds: [],
-    });
-
-    $draftPublishDialogSelection.set({
-        excludedItemsIds: [],
-        excludedItemsWithChildrenIds: [],
-        excludedDependantItemsIds: [],
-    });
-
-    $publishChecks.set({
-        loading: false,
-        requiredIds: [],
-        invalidIds: [],
-        invalidExcludable: false,
-        inProgressIds: [],
-        inProgressExcludable: false,
-        notPublishableIds: [],
-        notPublishableExcludable: false,
-    });
-
     instanceId += 1;
+    $publishDialog.set(structuredClone(initialPublishDialogState));
+    $draftPublishDialogSelection.set(structuredClone(initialSelectionState));
+    $publishChecks.set(structuredClone(initialChecksState));
 };
 
 // SELECTION
@@ -481,8 +479,10 @@ const patchItemsWithUpdates = (updates: ContentSummaryAndCompareStatus[]): boole
 //
 
 // Reload data when dialog opens
-$publishDialog.subscribe(({open}, _) => {
-    if (!open) return;
+$publishDialog.subscribe(({open}, oldState) => {
+    const wasOpen = !!oldState?.open;
+    const {loading} = $publishChecks.get();
+    if (!open || wasOpen || loading) return;
     reloadPublishDialogData();
 });
 
@@ -690,7 +690,9 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
     };
 }
 
-// REQUESTS
+//
+// * Requests
+//
 
 function createResolveDependenciesRequest(ids: ContentId[], excludedIds: ContentId[] = [], excludedChildrenIds: ContentId[] = []): ResolvePublishDependenciesRequest {
     return ResolvePublishDependenciesRequest.create()

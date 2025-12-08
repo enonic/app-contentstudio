@@ -1,11 +1,10 @@
-import {cn} from '@enonic/ui';
+import {ContentListItemSelectableElement} from '../../v6/features/shared/items/ContentListItemSelectable';
 import {ContentId} from '../content/ContentId';
 import {ContentIds} from '../content/ContentIds';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {DialogDependantItemsList, ObserverConfig} from '../dialog/DialogDependantItemsList';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import {ContentItemCheckableElement} from '../../v6/features/shared/items/ContentItemCheckable';
 
 export class PublishDialogDependantList
     extends DialogDependantItemsList {
@@ -39,10 +38,10 @@ export class PublishDialogDependantList
     }
 
 
-    createItemView(content: ContentSummaryAndCompareStatus, readOnly: boolean): ContentItemCheckableElement {
+    createItemView(content: ContentSummaryAndCompareStatus, readOnly: boolean): ContentListItemSelectableElement {
         const className = this.isItemHidden(content) ? 'hidden' : undefined;
 
-        return new ContentItemCheckableElement({
+        return new ContentListItemSelectableElement({
             content,
             className,
             readOnly: readOnly || !this.isItemExcludable(content),
