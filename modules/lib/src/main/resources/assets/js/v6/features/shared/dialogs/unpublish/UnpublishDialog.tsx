@@ -1,52 +1,47 @@
 import {Button, Dialog, Separator, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {useEffect, useMemo, useRef, useState, type ReactElement} from 'react';
-import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {Branch} from '../../../../../app/versioning/Branch';
+import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {useI18n} from '../../../hooks/useI18n';
-import {
-    $deleteDialog,
-    $deleteInboundIds,
-    $deleteItemsCount,
-    $isDeleteDialogReady,
-    $isDeleteTargetSite,
-    cancelDeleteDialog,
-    executeDeleteDialogAction,
-    ignoreDeleteInboundDependencies,
-    type DeleteAction,
-} from '../../../store/dialogs/deleteDialog.store';
-import {ContentListItemWithReference} from '../../items/ContentListItemWithReference';
+import {SelectionStatusBar} from '../SelectionStatusBar';
 import {ConfirmationDialog, useConfirmationDialog} from '../ConfirmationDialog';
 import {Gate} from '../Gate';
-import {SelectionStatusBar} from '../SelectionStatusBar';
+import {ContentListItemWithReference} from '../../items/ContentListItemWithReference';
+import {
+    $unpublishDialog,
+    $unpublishDialogReady,
+    $unpublishHasSite,
+    $unpublishInboundIds,
+    $unpublishTotalItems,
+    cancelUnpublishDialog,
+    confirmUnpublishAction,
+    ignoreUnpublishInboundDependencies,
+} from '../../../store/dialogs/unpublishDialog.store';
 
-const DELETE_DIALOG_NAME = 'DeleteDialog';
+const UNPUBLISH_DIALOG_NAME = 'UnpublishDialog';
 type View = 'main' | 'confirmation' | 'progress';
 
-export const DeleteDialog = (): ReactElement => {
-    const {open, loading, failed, items, dependants, inboundIgnored} = useStore($deleteDialog, {keys: ['open', 'loading', 'failed', 'items', 'dependants', 'inboundIgnored']});
-    const ready = useStore($isDeleteDialogReady);
-    const total = useStore($deleteItemsCount);
-    const hasSite = useStore($isDeleteTargetSite);
-    const inboundIds = useStore($deleteInboundIds);
+export const UnpublishDialog = (): ReactElement => {
+    const {open, loading, failed, items, dependants, inboundIgnored} = useStore($unpublishDialog,
+        {keys: ['open', 'loading', 'failed', 'items', 'dependants', 'inboundIgnored']});
+    const ready = useStore($unpublishDialogReady);
+    const total = useStore($unpublishTotalItems);
+    const hasSite = useStore($unpublishHasSite);
+    const inboundIds = useStore($unpublishInboundIds);
     const inboundSet = useMemo(() => new Set(inboundIds), [inboundIds]);
     const isInbound = (content: ContentSummaryAndCompareStatus) => inboundSet.has(content.getContentId().toString());
 
-    const [confirmAction, setConfirmAction] = useState<DeleteAction>('delete');
     const [view, setView] = useState<View>('main');
     const gateInputRef = useRef<HTMLInputElement>(null);
     const confirmButtonRef = useRef<HTMLButtonElement>(null);
 
-    const title = useI18n('dialog.archive');
-    const dependantsLabel = useI18n('dialog.archive.dependants');
-    const archiveLabel = useI18n('dialog.archive.action');
-    const deleteLabel = useI18n('action.delete');
-    const confirmDeleteTitle = useI18n('dialog.confirmDelete');
-    const confirmDeleteDescription = useI18n('dialog.confirmDelete.subname');
-    const confirmArchiveTitle = useI18n('dialog.confirmArchive');
-    const confirmArchiveDescription = useI18n('dialog.confirmArchive.subname');
-    const archiveButtonLabel = total > 1 ? `${archiveLabel} (${total})` : archiveLabel;
-    const deleteButtonLabel = total > 1 ? `${deleteLabel} (${total})` : deleteLabel;
+    const title = useI18n('dialog.unpublish');
+    const dependantsLabel = useI18n('dialog.unpublish.dependants');
+    const unpublishLabel = useI18n('action.unpublish');
+    const confirmTitle = useI18n('dialog.unpublish.confirm.title');
+    const confirmDescription = useI18n('dialog.unpublish.confirm.subtitle');
+    const unpublishButtonLabel = total > 1 ? `${unpublishLabel} (${total})` : unpublishLabel;
 
     useEffect(() => {
         if (view === 'confirmation') {
@@ -54,37 +49,21 @@ export const DeleteDialog = (): ReactElement => {
         }
     }, [view]);
 
-    const resetConfirmation = () => {
-        setConfirmAction('delete');
-        setView('main');
-    };
+    const resetView = () => setView('main');
 
     const handleOpenChange = (next: boolean) => {
         if (!next) {
-            cancelDeleteDialog();
-            resetConfirmation();
+            cancelUnpublishDialog();
+            resetView();
         }
     };
 
-    const openConfirm = (action: DeleteAction) => {
-        setConfirmAction(action);
-        setView('confirmation');
-    };
-
-    const handleDelete = async () => {
+    const handleUnpublish = async () => {
         if (total > 1 || hasSite) {
-            openConfirm('delete');
+            setView('confirmation');
             return;
         }
-        await executeDeleteDialogAction('delete');
-    };
-
-    const handleArchive = async () => {
-        if (total > 1 || hasSite) {
-            openConfirm('archive');
-            return;
-        }
-        await executeDeleteDialogAction('archive');
+        await confirmUnpublishAction('unpublish', items);
     };
 
     const inboundCount = useMemo(() => {
@@ -95,9 +74,6 @@ export const DeleteDialog = (): ReactElement => {
         return allItems.filter(item => inboundSet.has(item.getContentId().toString())).length;
     }, [items, dependants, inboundSet, inboundIgnored]);
 
-    const confirmTitle = confirmAction === 'archive' ? confirmArchiveTitle : confirmDeleteTitle;
-    const confirmDescription = confirmAction === 'archive' ? confirmArchiveDescription : confirmDeleteDescription;
-
     const ConfirmationView = (): ReactElement => {
         const cancelLabel = useI18n('action.cancel');
         const {confirmEnabled} = useConfirmationDialog();
@@ -107,8 +83,6 @@ export const DeleteDialog = (): ReactElement => {
                 confirmButtonRef.current?.focus();
             }
         }, [confirmEnabled]);
-
-        const confirmLabel = confirmAction === 'archive' ? archiveButtonLabel : deleteButtonLabel;
 
         return (
             <>
@@ -126,17 +100,17 @@ export const DeleteDialog = (): ReactElement => {
                         variant="outline"
                         size="lg"
                         label={cancelLabel}
-                        onClick={resetConfirmation}
+                        onClick={resetView}
                     />
                     <Button
                         ref={confirmButtonRef}
                         variant="solid"
                         size="lg"
-                        label={confirmLabel}
+                        label={unpublishButtonLabel}
                         disabled={!confirmEnabled}
                         onClick={() => {
-                            void executeDeleteDialogAction(confirmAction);
-                            resetConfirmation();
+                            void confirmUnpublishAction('unpublish', items);
+                            resetView();
                         }}
                     />
                 </Dialog.Footer>
@@ -148,7 +122,7 @@ export const DeleteDialog = (): ReactElement => {
         <>
             <Dialog.Root open={open} onOpenChange={handleOpenChange}>
                 <Dialog.Portal>
-                    <Dialog.Overlay />
+                    <Dialog.Overlay/>
                     {view === 'confirmation' ? (
                         <ConfirmationDialog.Content
                             defaultConfirmEnabled={false}
@@ -162,7 +136,7 @@ export const DeleteDialog = (): ReactElement => {
                         </ConfirmationDialog.Content>
                     ) : (
                         <Dialog.Content className="w-full h-full gap-10 sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220">
-                            <Dialog.DefaultHeader title={title} description={useI18n('dialog.archive.subname')} withClose />
+                            <Dialog.DefaultHeader title={title} withClose/>
 
                             <SelectionStatusBar
                                 loading={loading}
@@ -176,7 +150,7 @@ export const DeleteDialog = (): ReactElement => {
                                     noPermissions: {count: 0, onExclude: () => { }},
                                     inbound: {
                                         count: inboundCount,
-                                        onIgnore: () => ignoreDeleteInboundDependencies(),
+                                        onIgnore: () => ignoreUnpublishInboundDependencies(),
                                     },
                                 }}
                             />
@@ -195,7 +169,7 @@ export const DeleteDialog = (): ReactElement => {
                                 </ul>
 
                                 <div className={cn('flex flex-col gap-y-7.5', dependants.length === 0 && 'hidden')}>
-                                    <Separator className="pr-1" label={dependantsLabel} />
+                                    <Separator className="pr-1" label={dependantsLabel}/>
                                     <ul className="flex flex-col gap-y-1.5">
                                         {dependants.map(item => (
                                             <ContentListItemWithReference
@@ -212,8 +186,13 @@ export const DeleteDialog = (): ReactElement => {
                             </Dialog.Body>
 
                             <Dialog.Footer className="flex items-center gap-1">
-                                <Button variant="text" size="lg" className="text-error font-normal" label={deleteButtonLabel} disabled={!ready} onClick={() => void handleDelete()} />
-                                <Button variant="solid" size="lg" className="font-normal" label={archiveButtonLabel} disabled={!ready} onClick={() => void handleArchive()} />
+                                <Button
+                                    variant="solid"
+                                    size="lg"
+                                    label={unpublishButtonLabel}
+                                    disabled={!ready}
+                                    onClick={() => void handleUnpublish()}
+                                />
                             </Dialog.Footer>
                         </Dialog.Content>
                     )}
@@ -223,4 +202,4 @@ export const DeleteDialog = (): ReactElement => {
     );
 };
 
-DeleteDialog.displayName = DELETE_DIALOG_NAME;
+UnpublishDialog.displayName = UNPUBLISH_DIALOG_NAME;

@@ -1,5 +1,6 @@
 import type {ReactElement} from 'react';
 import {PublishDialog} from '../../../shared/dialogs/publish/PublishDialog';
+import {UnpublishDialog} from '../../../shared/dialogs/unpublish/UnpublishDialog';
 import {DeleteDialog} from '../../../shared/dialogs/delete/DeleteDialog';
 
 export const WizardAppShell = (): ReactElement => {
@@ -7,6 +8,7 @@ export const WizardAppShell = (): ReactElement => {
         <>
             {/* Shared dialogs */}
             <PublishDialog />
+            <UnpublishDialog />
             <DeleteDialog />
         </>
     );
