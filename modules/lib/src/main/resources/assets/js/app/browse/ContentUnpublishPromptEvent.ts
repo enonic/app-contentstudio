@@ -5,8 +5,30 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 
 export class ContentUnpublishPromptEvent extends BaseContentModelEvent {
 
+    private yesCallback?: () => void;
+
+    private noCallback?: () => void;
+
     constructor(model: ContentSummaryAndCompareStatus[]) {
         super(model);
+    }
+
+    setYesCallback(callback: () => void): ContentUnpublishPromptEvent {
+        this.yesCallback = callback;
+        return this;
+    }
+
+    setNoCallback(callback: () => void): ContentUnpublishPromptEvent {
+        this.noCallback = callback;
+        return this;
+    }
+
+    getYesCallback(): (() => void) | undefined {
+        return this.yesCallback;
+    }
+
+    getNoCallback(): (() => void) | undefined {
+        return this.noCallback;
     }
 
     static on(handler: (event: ContentUnpublishPromptEvent) => void) {

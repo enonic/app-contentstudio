@@ -65,6 +65,7 @@ import {VersionHelper} from 'lib-contentstudio/app/util/VersionHelper';
 import {$activeProjectName} from 'lib-contentstudio/v6/features/store/projects.store';
 import {AppElement} from 'lib-contentstudio/v6/features/App';
 import {openDeleteDialog} from 'lib-contentstudio/v6/features/store/dialogs/deleteDialog.store';
+import {openUnpublishDialog} from 'lib-contentstudio/v6/features/store/dialogs/unpublishDialog.store';
 import Q from 'q';
 
 // Dynamically import and execute all input types, since they are used
@@ -384,17 +385,11 @@ async function startApplication() {
             .open();
     });
 
-    const {ContentUnpublishDialog} = await import('lib-contentstudio/app/publish/ContentUnpublishDialog');
-    let contentUnpublishDialog = null;
-
     ContentUnpublishPromptEvent.on((event) => {
-        if (!contentUnpublishDialog) {
-            contentUnpublishDialog = new ContentUnpublishDialog();
-        }
-
-        contentUnpublishDialog
-            .setContentToUnpublish(event.getModels())
-            .open();
+        openUnpublishDialog(event.getModels(), {
+            onYes: event.getYesCallback(),
+            onNo: event.getNoCallback(),
+        });
     });
 
     RequestContentPublishPromptEvent.on(
@@ -515,7 +510,7 @@ async function startContentBrowser() {
     const newContentDialog = new NewContentDialog();
     ShowNewContentDialogEvent.on((event) => {
         const parentContent: ContentSummary = event.getParentContent()
-            ? event.getParentContent().getContentSummary() : null;
+                                              ? event.getParentContent().getContentSummary() : null;
 
         if (parentContent != null) {
             new GetContentByIdRequest(parentContent.getContentId()).sendAndParse().then(
@@ -528,15 +523,15 @@ async function startContentBrowser() {
                                 newContentDialog.setParentContent(newParentContent);
                                 newContentDialog.open();
                             }).catch((reason) => {
-                                DefaultErrorHandler.handle(reason);
-                            }).done();
+                            DefaultErrorHandler.handle(reason);
+                        }).done();
                     } else {
                         newContentDialog.setParentContent(newParentContent);
                         newContentDialog.open();
                     }
                 }).catch((reason) => {
-                    DefaultErrorHandler.handle(reason);
-                }).done();
+                DefaultErrorHandler.handle(reason);
+            }).done();
         } else {
             newContentDialog.setParentContent(null);
             newContentDialog.open();
