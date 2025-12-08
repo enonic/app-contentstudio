@@ -7,10 +7,9 @@ import {ContentId} from '../../../../app/content/ContentId';
 import {ContentSummaryAndCompareStatusFetcher} from '../../../../app/resource/ContentSummaryAndCompareStatusFetcher';
 import {ResolveUnpublishRequest} from '../../../../app/resource/ResolveUnpublishRequest';
 import {UnpublishContentRequest} from '../../../../app/resource/UnpublishContentRequest';
-import {$contentUnpublished} from '../socket.store';
+import {$contentArchived, $contentCreated, $contentDeleted, $contentUnpublished, $contentUpdated} from '../socket.store';
 import {createDebounce} from '../../utils/timing/createDebounce';
-
-export type UnpublishAction = 'unpublish';
+import {sortDependantsByInbound} from '../../utils/cms/content/sortDependants';
 
 //
 // * Store state
@@ -24,20 +23,17 @@ type UnpublishDialogStore = {
     dependants: ContentSummaryAndCompareStatus[];
     inboundTargets: ContentId[];
     inboundIgnored: boolean;
-    yesCallback?: () => void;
-    noCallback?: () => void;
 };
 
 type UnpublishDialogPendingStore = {
     submitting: boolean;
-    pendingAction?: UnpublishAction;
     pendingIds: string[];
     pendingTotal: number;
     pendingPrimaryName?: string;
 };
 
 // Initial state snapshot for reset
-const initialViewState: UnpublishDialogStore = {
+const initialState: UnpublishDialogStore = {
     open: false,
     loading: false,
     failed: false,
@@ -45,40 +41,36 @@ const initialViewState: UnpublishDialogStore = {
     dependants: [],
     inboundTargets: [],
     inboundIgnored: true,
-    yesCallback: undefined,
-    noCallback: undefined,
 };
 
 const initialPendingState: UnpublishDialogPendingStore = {
     submitting: false,
-    pendingAction: undefined,
     pendingIds: [],
     pendingTotal: 0,
     pendingPrimaryName: undefined,
 };
 
-export const $unpublishDialog = map<UnpublishDialogStore>(initialViewState);
+export const $unpublishDialog = map<UnpublishDialogStore>(structuredClone(initialState));
 export const $unpublishDialogPending = map<UnpublishDialogPendingStore>(initialPendingState);
 
 //
 // * Derived state
 //
 
-export const $unpublishTotalItems = computed($unpublishDialog, ({items, dependants}) => items.length + dependants.length);
+export const $unpublishItemsCount = computed($unpublishDialog, ({items, dependants}) => items.length + dependants.length);
 
-export const $unpublishHasSite = computed($unpublishDialog, ({items, dependants}) => {
+export const $isUnpublishTargetSite = computed($unpublishDialog, ({items, dependants}) => {
     return [...items, ...dependants].some(item => item.getContentSummary().isSite());
 });
 
-export const $unpublishHasBlockingInbound = computed($unpublishDialog, ({inboundTargets, inboundIgnored}) => {
+export const $isUnpublishBlockedByInbound = computed($unpublishDialog, ({inboundTargets, inboundIgnored}) => {
     return inboundTargets.length > 0 && !inboundIgnored;
 });
 
 export const $unpublishInboundIds = computed($unpublishDialog, ({inboundTargets}) => inboundTargets.map(id => id.toString()));
 
-export const $unpublishDialogReady = computed([$unpublishDialog, $unpublishHasBlockingInbound], (state, hasInbound) => {
-    const {submitting} = $unpublishDialogPending.get();
-    return state.open && !state.loading && !state.failed && !submitting && state.items.length > 0 && !hasInbound;
+export const $isUnpublishDialogReady = computed([$unpublishDialog, $unpublishDialogPending, $isUnpublishBlockedByInbound], (state, pending, hasInbound) => {
+    return state.open && !state.loading && !state.failed && !pending.submitting && state.items.length > 0 && !hasInbound;
 });
 
 // ! Guards against stale async results (increment on each dialog lifecycle)
@@ -87,23 +79,6 @@ let instanceId = 0;
 //
 // * Helpers
 //
-
-const sortDependants = (dependants: ContentSummaryAndCompareStatus[], inboundTargets: ContentId[]): ContentSummaryAndCompareStatus[] => {
-    if (dependants.length === 0 || inboundTargets.length === 0) {
-        return dependants;
-    }
-    const inboundSet = new Set(inboundTargets.map(id => id.toString()));
-    return [...dependants].sort((a, b) => {
-        const aInbound = inboundSet.has(a.getContentId().toString()) ? 1 : 0;
-        const bInbound = inboundSet.has(b.getContentId().toString()) ? 1 : 0;
-        if (aInbound !== bInbound) {
-            return bInbound - aInbound;
-        }
-        const aLabel = a.getDisplayName() || a.getPath()?.toString() || '';
-        const bLabel = b.getDisplayName() || b.getPath()?.toString() || '';
-        return aLabel.localeCompare(bLabel);
-    });
-};
 
 const getAllTargetIds = (): ContentId[] => {
     const {items, dependants} = $unpublishDialog.get();
@@ -121,39 +96,32 @@ const buildUnpublishRequest = (items: ContentSummaryAndCompareStatus[]): Unpubli
 // * Public API
 //
 
-export const openUnpublishDialog = (items: ContentSummaryAndCompareStatus[], callbacks?: {onYes?: () => void; onNo?: () => void;}): void => {
+export const openUnpublishDialog = (items: ContentSummaryAndCompareStatus[]): void => {
     if (items.length === 0) {
         return;
     }
 
-    instanceId += 1;
-
     $unpublishDialog.set({
-        ...initialViewState,
+        ...structuredClone(initialState),
         open: true,
-        loading: true,
         items,
         inboundIgnored: true,
-        yesCallback: callbacks?.onYes,
-        noCallback: callbacks?.onNo,
     });
     $unpublishDialogPending.set(initialPendingState);
 };
 
 export const cancelUnpublishDialog = (): void => {
-    const {pendingAction} = $unpublishDialogPending.get();
-    const {noCallback} = $unpublishDialog.get();
-    if (pendingAction) {
+    const {submitting, pendingIds} = $unpublishDialogPending.get();
+    if (submitting || pendingIds.length > 0) {
         return;
     }
 
-    noCallback?.();
     resetUnpublishDialogContext();
 };
 
 export const resetUnpublishDialogContext = (): void => {
     instanceId += 1;
-    $unpublishDialog.set(initialViewState);
+    $unpublishDialog.set(initialState);
     $unpublishDialogPending.set(initialPendingState);
 };
 
@@ -162,55 +130,46 @@ export const ignoreUnpublishInboundDependencies = (): void => {
 };
 
 export const executeUnpublishDialogAction = async (): Promise<boolean> => {
-    const viewState = $unpublishDialog.get();
-    const pendingState = $unpublishDialogPending.get();
-    if (viewState.loading || viewState.failed || pendingState.submitting || viewState.items.length === 0) {
+    const {loading, failed, items} = $unpublishDialog.get();
+    const {submitting} = $unpublishDialogPending.get();
+    if (loading || failed || submitting || items.length === 0) {
         return false;
     }
-    return confirmUnpublishAction('unpublish', viewState.items);
+    return confirmUnpublishAction(items);
 };
 
-export const confirmUnpublishAction = async (action: UnpublishAction, items: ContentSummaryAndCompareStatus[]): Promise<boolean> => {
-    const viewState = $unpublishDialog.get();
-    const pendingState = $unpublishDialogPending.get();
-    if (action !== 'unpublish' || pendingState.submitting || viewState.loading || viewState.failed) {
+export const confirmUnpublishAction = async (selectedItems: ContentSummaryAndCompareStatus[]): Promise<boolean> => {
+    const {items, loading, failed} = $unpublishDialog.get();
+    const {submitting} = $unpublishDialogPending.get();
+    if (submitting || loading || failed) {
         return false;
     }
 
-    const itemsToUnpublish = items.length > 0 ? items : viewState.items;
+    const itemsToUnpublish = selectedItems.length > 0 ? selectedItems : items;
     if (itemsToUnpublish.length === 0) {
         return false;
     }
 
     const pendingIds = getAllTargetIds().map(id => id.toString());
     const pendingPrimaryName = itemsToUnpublish[0]?.getDisplayName() || itemsToUnpublish[0]?.getPath()?.toString();
-    const pendingTotal = $unpublishTotalItems.get() || pendingIds.length;
+    const pendingTotal = $unpublishItemsCount.get() || pendingIds.length;
     const request = buildUnpublishRequest(itemsToUnpublish);
 
     try {
-        viewState.yesCallback?.();
-
         $unpublishDialogPending.set({
             submitting: true,
-            pendingAction: action,
             pendingIds,
             pendingTotal,
             pendingPrimaryName,
         });
-        $unpublishDialog.set({
-            ...viewState,
-            open: false,
-        });
+        $unpublishDialog.setKey('open', false);
 
         await request.sendAndParse();
         return true;
     } catch (error) {
         showError(error?.message ?? String(error));
         $unpublishDialogPending.set(initialPendingState);
-        $unpublishDialog.set({
-            ...viewState,
-            open: true,
-        });
+        $unpublishDialog.setKey('failed', true);
         return false;
     }
 };
@@ -220,6 +179,7 @@ export const confirmUnpublishAction = async (action: UnpublishAction, items: Con
 //
 
 const reloadUnpublishDialogData = async (): Promise<void> => {
+    instanceId += 1;
     const currentInstance = instanceId;
     const {items, open} = $unpublishDialog.get();
     if (!open || items.length === 0) {
@@ -235,7 +195,7 @@ const reloadUnpublishDialogData = async (): Promise<void> => {
 
         $unpublishDialog.set({
             ...$unpublishDialog.get(),
-            dependants: sortDependants(dependants, inboundTargets),
+            dependants: sortDependantsByInbound(dependants, inboundTargets),
             inboundTargets,
             inboundIgnored: inboundTargets.length === 0,
             loading: false,
@@ -313,15 +273,36 @@ const removeItemsByIds = (ids: Set<string>): {removedMain: boolean; removedDepen
     const removedMain = newItems.length !== items.length;
     const removedDependant = newDependants.length !== dependants.length;
 
-    if (removedMain || removedDependant) {
-        $unpublishDialog.set({
-            ...$unpublishDialog.get(),
-            items: newItems,
-            dependants: newDependants,
-        });
+    if (removedMain) {
+        $unpublishDialog.setKey('items', newItems);
+    }
+    if (removedDependant) {
+        $unpublishDialog.setKey('dependants', newDependants);
     }
 
     return {removedMain, removedDependant};
+};
+
+const patchItemsWithUpdates = (updates: ContentSummaryAndCompareStatus[]): {patchedMain: boolean; patchedDependants: boolean} => {
+    const {items, dependants} = $unpublishDialog.get();
+    const updateMap = new Map(updates.map(update => [update.getId(), update]));
+
+    const patchedMain = items.some(item => updateMap.has(item.getId()));
+    const patchedDependants = dependants.some(item => updateMap.has(item.getId()));
+
+    if (patchedMain) {
+        $unpublishDialog.setKey('items', items.map(item => updateMap.get(item.getId()) ?? item));
+    }
+    if (patchedDependants) {
+        $unpublishDialog.setKey('dependants', dependants.map(item => updateMap.get(item.getId()) ?? item));
+    }
+
+    return {patchedMain, patchedDependants};
+};
+
+const isDialogActive = (): boolean => {
+    const {open, items} = $unpublishDialog.get();
+    return open && items.length > 0;
 };
 
 //
@@ -331,8 +312,8 @@ const removeItemsByIds = (ids: Set<string>): {removedMain: boolean; removedDepen
 const handleCompletionEvent = (changeItems: ContentSummaryAndCompareStatus[]): void => {
     const ids = new Set(changeItems.map(item => item.getContentId().toString()));
     const state = $unpublishDialog.get();
-    const {pendingAction, pendingIds, pendingTotal, pendingPrimaryName} = $unpublishDialogPending.get();
-    const isPendingMatch = pendingAction === 'unpublish' && pendingIds.length > 0;
+    const {pendingIds, pendingTotal, pendingPrimaryName} = $unpublishDialogPending.get();
+    const isPendingMatch = pendingIds.length > 0;
 
     if (state.open) {
         const {removedMain, removedDependant} = removeItemsByIds(ids);
@@ -368,12 +349,65 @@ const handleCompletionEvent = (changeItems: ContentSummaryAndCompareStatus[]): v
 // * Subscriptions
 //
 
-$unpublishDialog.subscribe(({open}, prev) => {
-    const wasOpen = prev?.open ?? false;
-    if (open && !wasOpen) {
-        void reloadUnpublishDialogData();
-    } else if (!open && wasOpen) {
-        instanceId += 1;
+$unpublishDialog.subscribe(({open, loading}, prev) => {
+    const wasOpen = !!prev?.open;
+    if (!open || wasOpen || loading) {
+        return;
+    }
+    void reloadUnpublishDialogData();
+});
+
+$contentCreated.subscribe((event) => {
+    if (!event || !isDialogActive()) {
+        return;
+    }
+    reloadUnpublishDialogDataDebounced();
+});
+
+$contentUpdated.subscribe((event) => {
+    if (!event || !isDialogActive()) {
+        return;
+    }
+
+    const {patchedMain, patchedDependants} = patchItemsWithUpdates(event.data);
+    if (patchedMain || patchedDependants) {
+        reloadUnpublishDialogDataDebounced();
+    }
+});
+
+$contentArchived.subscribe((event) => {
+    if (!event || !isDialogActive()) {
+        return;
+    }
+
+    const archivedIds = new Set(event.data.map(item => item.getContentId().toString()));
+    const {removedMain, removedDependant} = removeItemsByIds(archivedIds);
+
+    if ($unpublishDialog.get().items.length === 0) {
+        resetUnpublishDialogContext();
+        return;
+    }
+
+    if (removedMain || removedDependant) {
+        reloadUnpublishDialogDataDebounced();
+    }
+});
+
+$contentDeleted.subscribe((event) => {
+    if (!event || !isDialogActive()) {
+        return;
+    }
+
+    const deletedIds = new Set(event.data.map(item => item.getContentId().toString()));
+    const {removedMain, removedDependant} = removeItemsByIds(deletedIds);
+
+    if ($unpublishDialog.get().items.length === 0) {
+        resetUnpublishDialogContext();
+        return;
+    }
+
+    if (removedMain || removedDependant) {
+        reloadUnpublishDialogDataDebounced();
     }
 });
 

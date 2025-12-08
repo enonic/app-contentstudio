@@ -25,7 +25,6 @@ import {i18n, Messages} from '@enonic/lib-admin-ui/util/Messages';
 import * as $ from 'jquery';
 import {ContentDuplicatePromptEvent} from 'lib-contentstudio/app/browse/ContentDuplicatePromptEvent';
 import {ContentPublishPromptEvent} from 'lib-contentstudio/app/browse/ContentPublishPromptEvent';
-import {ContentUnpublishPromptEvent} from 'lib-contentstudio/app/browse/ContentUnpublishPromptEvent';
 import {CreateIssuePromptEvent} from 'lib-contentstudio/app/browse/CreateIssuePromptEvent';
 import {RequestContentPublishPromptEvent} from 'lib-contentstudio/app/browse/RequestContentPublishPromptEvent';
 import {ShowDependenciesEvent} from 'lib-contentstudio/app/browse/ShowDependenciesEvent';
@@ -61,7 +60,6 @@ import {VersionHelper} from 'lib-contentstudio/app/util/VersionHelper';
 import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
 import {ContentWizardPanelParams} from 'lib-contentstudio/app/wizard/ContentWizardPanelParams';
 import {AppElement} from 'lib-contentstudio/v6/features/App';
-import {openUnpublishDialog} from 'lib-contentstudio/v6/features/store/dialogs/unpublishDialog.store';
 import {$activeProjectName} from 'lib-contentstudio/v6/features/store/projects.store';
 import Q from 'q';
 
@@ -373,13 +371,6 @@ async function startApplication() {
             .setIncludeChildItems(event.isIncludeChildItems(), event.getExceptedContentIds())
             .setMessage(event.getMessage())
             .open();
-    });
-
-    ContentUnpublishPromptEvent.on((event) => {
-        openUnpublishDialog(event.getModels(), {
-            onYes: event.getYesCallback(),
-            onNo: event.getNoCallback(),
-        });
     });
 
     RequestContentPublishPromptEvent.on(

@@ -112,9 +112,7 @@ export const DeleteDialog = (): ReactElement => {
 
         return (
             <>
-                <Dialog.DefaultHeader title={confirmTitle}>
-                    <p className="text-subtle">{confirmDescription}</p>
-                </Dialog.DefaultHeader>
+                <Dialog.DefaultHeader title={confirmTitle} description={confirmDescription}/>
                 <Dialog.Body className="flex flex-col gap-y-5 py-5">
                     <Gate className="mt-2.5">
                         <Gate.Hint value={total} />
@@ -145,7 +143,6 @@ export const DeleteDialog = (): ReactElement => {
     };
 
     return (
-        <>
             <Dialog.Root open={open} onOpenChange={handleOpenChange}>
                 <Dialog.Portal>
                     <Dialog.Overlay />
@@ -168,12 +165,7 @@ export const DeleteDialog = (): ReactElement => {
                                 loading={loading}
                                 failed={failed}
                                 showReady={false}
-                                onApply={() => { }}
-                                onCancel={() => { }}
                                 errors={{
-                                    inProgress: {count: 0, onExclude: () => { }},
-                                    invalid: {count: 0, onExclude: () => { }},
-                                    noPermissions: {count: 0, onExclude: () => { }},
                                     inbound: {
                                         count: inboundCount,
                                         onIgnore: () => ignoreDeleteInboundDependencies(),
@@ -219,7 +211,6 @@ export const DeleteDialog = (): ReactElement => {
                     )}
                 </Dialog.Portal>
             </Dialog.Root>
-        </>
     );
 };
 

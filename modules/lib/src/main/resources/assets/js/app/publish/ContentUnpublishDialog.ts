@@ -4,7 +4,6 @@ import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentUnpublishPromptEvent} from '../browse/ContentUnpublishPromptEvent';
 import {CompareStatus} from '../content/CompareStatus';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
@@ -29,7 +28,7 @@ export class ContentUnpublishDialog
             class: 'unpublish-dialog',
             dialogSubName: i18n('dialog.unpublish.subname'),
             processingLabel: `${i18n('field.progress.unpublishing')}...`,
-            processHandler: () => void new ContentUnpublishPromptEvent([]).fire(),
+            processHandler: () => {},
         } satisfies DependantItemsWithProgressDialogConfig);
 
         // SubTitle uses html decorated text, that can't be passed into the super config

@@ -1,19 +1,17 @@
 import {Button, Dialog, Separator, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {useEffect, useMemo, useRef, useState, type ReactElement} from 'react';
-import {Branch} from '../../../../../app/versioning/Branch';
-import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {useI18n} from '../../../hooks/useI18n';
 import {SelectionStatusBar} from '../SelectionStatusBar';
 import {ConfirmationDialog, useConfirmationDialog} from '../ConfirmationDialog';
 import {Gate} from '../Gate';
-import {ContentListItemWithReference} from '../../items/ContentListItemWithReference';
+import {ContentListItem} from '../../items/ContentListItem';
 import {
     $unpublishDialog,
-    $unpublishDialogReady,
-    $unpublishHasSite,
+    $isUnpublishDialogReady,
+    $isUnpublishTargetSite,
     $unpublishInboundIds,
-    $unpublishTotalItems,
+    $unpublishItemsCount,
     cancelUnpublishDialog,
     confirmUnpublishAction,
     ignoreUnpublishInboundDependencies,
@@ -25,12 +23,11 @@ type View = 'main' | 'confirmation' | 'progress';
 export const UnpublishDialog = (): ReactElement => {
     const {open, loading, failed, items, dependants, inboundIgnored} = useStore($unpublishDialog,
         {keys: ['open', 'loading', 'failed', 'items', 'dependants', 'inboundIgnored']});
-    const ready = useStore($unpublishDialogReady);
-    const total = useStore($unpublishTotalItems);
-    const hasSite = useStore($unpublishHasSite);
+    const ready = useStore($isUnpublishDialogReady);
+    const total = useStore($unpublishItemsCount);
+    const hasSite = useStore($isUnpublishTargetSite);
     const inboundIds = useStore($unpublishInboundIds);
     const inboundSet = useMemo(() => new Set(inboundIds), [inboundIds]);
-    const isInbound = (content: ContentSummaryAndCompareStatus) => inboundSet.has(content.getContentId().toString());
 
     const [view, setView] = useState<View>('main');
     const gateInputRef = useRef<HTMLInputElement>(null);
@@ -63,7 +60,7 @@ export const UnpublishDialog = (): ReactElement => {
             setView('confirmation');
             return;
         }
-        await confirmUnpublishAction('unpublish', items);
+        await confirmUnpublishAction(items);
     };
 
     const inboundCount = useMemo(() => {
@@ -86,9 +83,7 @@ export const UnpublishDialog = (): ReactElement => {
 
         return (
             <>
-                <Dialog.DefaultHeader title={confirmTitle}>
-                    <p className="text-subtle">{confirmDescription}</p>
-                </Dialog.DefaultHeader>
+                <Dialog.DefaultHeader title={confirmTitle} description={confirmDescription}/>
                 <Dialog.Body className="flex flex-col gap-y-5 py-5">
                     <Gate className="mt-2.5">
                         <Gate.Hint value={total} />
@@ -109,7 +104,7 @@ export const UnpublishDialog = (): ReactElement => {
                         label={unpublishButtonLabel}
                         disabled={!confirmEnabled}
                         onClick={() => {
-                            void confirmUnpublishAction('unpublish', items);
+                            void confirmUnpublishAction(items);
                             resetView();
                         }}
                     />
@@ -119,11 +114,63 @@ export const UnpublishDialog = (): ReactElement => {
     };
 
     return (
-        <>
             <Dialog.Root open={open} onOpenChange={handleOpenChange}>
                 <Dialog.Portal>
                     <Dialog.Overlay/>
-                    {view === 'confirmation' ? (
+
+                    {view === 'main' &&
+                     <Dialog.Content className="w-full h-full gap-10 sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220">
+                         <Dialog.DefaultHeader title={title} withClose/>
+
+                         <SelectionStatusBar
+                             loading={loading}
+                             failed={failed}
+                             showReady={false}
+                             errors={{
+                                 inbound: {
+                                     count: inboundCount,
+                                     onIgnore: () => ignoreUnpublishInboundDependencies(),
+                                 },
+                             }}
+                         />
+
+                         <Dialog.Body className="flex flex-col gap-y-10">
+                             <ul className="flex flex-col gap-y-2.5">
+                                 {items.map(item => (
+                                     <ContentListItem
+                                         key={`main-${item.getId()}`}
+                                         content={item}
+                                     />
+                                 ))}
+                             </ul>
+
+                             <div className={cn('flex flex-col gap-y-7.5', dependants.length === 0 && 'hidden')}>
+                                 <Separator className="pr-1" label={dependantsLabel}/>
+                                 <ul className="flex flex-col gap-y-1.5">
+                                     {dependants.map(item => (
+                                         <ContentListItem
+                                             key={`main-${item.getId()}`}
+                                             content={item}
+                                             variant="compact"
+                                         />
+                                     ))}
+                                 </ul>
+                             </div>
+
+                         </Dialog.Body>
+
+                         <Dialog.Footer className="flex items-center gap-1">
+                             <Button
+                                 variant="solid"
+                                 size="lg"
+                                 label={unpublishButtonLabel}
+                                 disabled={!ready}
+                                 onClick={() => void handleUnpublish()}
+                             />
+                         </Dialog.Footer>
+                     </Dialog.Content>
+                    }
+                    {view === 'confirmation' &&
                         <ConfirmationDialog.Content
                             defaultConfirmEnabled={false}
                             className="w-full h-full gap-7.5 sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220"
@@ -134,71 +181,9 @@ export const UnpublishDialog = (): ReactElement => {
                         >
                             <ConfirmationView />
                         </ConfirmationDialog.Content>
-                    ) : (
-                        <Dialog.Content className="w-full h-full gap-10 sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220">
-                            <Dialog.DefaultHeader title={title} withClose/>
-
-                            <SelectionStatusBar
-                                loading={loading}
-                                failed={failed}
-                                showReady={false}
-                                onApply={() => { }}
-                                onCancel={() => { }}
-                                errors={{
-                                    inProgress: {count: 0, onExclude: () => { }},
-                                    invalid: {count: 0, onExclude: () => { }},
-                                    noPermissions: {count: 0, onExclude: () => { }},
-                                    inbound: {
-                                        count: inboundCount,
-                                        onIgnore: () => ignoreUnpublishInboundDependencies(),
-                                    },
-                                }}
-                            />
-
-                            <Dialog.Body className="flex flex-col gap-y-10">
-                                <ul className="flex flex-col gap-y-2.5">
-                                    {items.map(item => (
-                                        <ContentListItemWithReference
-                                            key={`main-${item.getId()}`}
-                                            variant='normal'
-                                            content={item}
-                                            branch={Branch.DRAFT}
-                                            hasInbound={isInbound(item)}
-                                        />
-                                    ))}
-                                </ul>
-
-                                <div className={cn('flex flex-col gap-y-7.5', dependants.length === 0 && 'hidden')}>
-                                    <Separator className="pr-1" label={dependantsLabel}/>
-                                    <ul className="flex flex-col gap-y-1.5">
-                                        {dependants.map(item => (
-                                            <ContentListItemWithReference
-                                                key={`dep-${item.getId()}`}
-                                                variant='compact'
-                                                content={item}
-                                                branch={Branch.DRAFT}
-                                                hasInbound={isInbound(item)}
-                                            />
-                                        ))}
-                                    </ul>
-                                </div>
-
-                            </Dialog.Body>
-
-                            <Dialog.Footer className="flex items-center gap-1">
-                                <Button
-                                    variant="solid"
-                                    size="lg"
-                                    label={unpublishButtonLabel}
-                                    disabled={!ready}
-                                    onClick={() => void handleUnpublish()}
-                                />
-                            </Dialog.Footer>
-                        </Dialog.Content>
-                    )}
+                    }
                 </Dialog.Portal>
             </Dialog.Root>
-        </>
     );
 };
 
