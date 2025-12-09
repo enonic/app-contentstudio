@@ -31,30 +31,32 @@ const WidgetsSelector = ({widgetViews = [], externalSelectedWidgetView = undefin
     };
 
     return (
-        <Selector.Root value={value} onValueChange={onValueChange}>
-            <Selector.Trigger className="h-15 shrink-0">
-                <Selector.Value placeholder={selectorPlaceholder}>
-                    <WidgetsSelectorItem
-                        widgetView={widgetViews.find((widgetView) => widgetView.getWidgetName() === value)}
-                    />
-                </Selector.Value>
-                <Selector.Icon />
-            </Selector.Trigger>
-            <Selector.Content>
-                <Selector.Viewport>
-                    {widgetViews.map((widgetView) => {
-                        const name = widgetView.getWidgetName();
+        <div className="flex shrink-0 border-b border-bdr-soft p-1.5 h-15">
+            <Selector.Root value={value} onValueChange={onValueChange}>
+                <Selector.Trigger className="h-full border-0">
+                    <Selector.Value placeholder={selectorPlaceholder}>
+                        <WidgetsSelectorItem
+                            widgetView={widgetViews.find((widgetView) => widgetView.getWidgetName() === value)}
+                        />
+                    </Selector.Value>
+                    <Selector.Icon />
+                </Selector.Trigger>
+                <Selector.Content>
+                    <Selector.Viewport>
+                        {widgetViews.map((widgetView) => {
+                            const name = widgetView.getWidgetName();
 
-                        return (
-                            <Selector.Item key={name} value={name} textValue={name}>
-                                <WidgetsSelectorItem widgetView={widgetView} secondary />
-                                <Selector.ItemIndicator />
-                            </Selector.Item>
-                        );
-                    })}
-                </Selector.Viewport>
-            </Selector.Content>
-        </Selector.Root>
+                            return (
+                                <Selector.Item key={name} value={name} textValue={name}>
+                                    <WidgetsSelectorItem widgetView={widgetView} secondary />
+                                    <Selector.ItemIndicator />
+                                </Selector.Item>
+                            );
+                        })}
+                    </Selector.Viewport>
+                </Selector.Content>
+            </Selector.Root>
+        </div>
     );
 };
 

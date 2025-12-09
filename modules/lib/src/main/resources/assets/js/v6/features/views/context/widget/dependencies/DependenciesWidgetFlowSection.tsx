@@ -35,7 +35,10 @@ export const DependenciesWidgetFlowSection = (props: DependenciesProps): ReactEl
 
     if (type === DependencyType.INBOUND) {
         return (
-            <div data-component={DEPENDENCIES_WIDGET_FLOW_SECTION_NAME} className="flex flex-col gap-7.5 items-center w-full">
+            <div
+                data-component={DEPENDENCIES_WIDGET_FLOW_SECTION_NAME}
+                className="flex flex-col gap-7.5 items-center w-full px-1.5"
+            >
                 <DependenciesList {...props} />
                 <ShowAllButton {...props} total={total} />
             </div>
@@ -43,7 +46,10 @@ export const DependenciesWidgetFlowSection = (props: DependenciesProps): ReactEl
     }
 
     return (
-        <div data-component={DEPENDENCIES_WIDGET_FLOW_SECTION_NAME} className="flex flex-col gap-7.5 items-center w-full">
+        <div
+            data-component={DEPENDENCIES_WIDGET_FLOW_SECTION_NAME}
+            className="flex flex-col gap-7.5 items-center w-full px-1.5"
+        >
             <ShowAllButton {...props} total={total} />
             <DependenciesList {...props} />
         </div>
