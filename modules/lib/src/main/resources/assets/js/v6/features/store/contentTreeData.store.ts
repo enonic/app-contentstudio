@@ -1,125 +1,102 @@
-import {atom, computed} from 'nanostores';
+import {TreeItems} from '@enonic/ui';
+import {atom} from 'nanostores';
 import {ContentData} from '../views/browse/grid/ContentData';
 
-export const $contentTreeItems = atom<ContentData[]>([]);
-
-export const $flatContentTreeItems = computed($contentTreeItems, (items) => {
-    return flattenTree(items);
+export const $contentTreeItems = atom<TreeItems<ContentData>>({
+    nodes: {},
+    children: {},
+    hasMore: {},
 });
 
-export function removeContentTreeItem(id: string): void {
-    const {nodes, changed} = removeNode($contentTreeItems.get(), id);
+export function getItemById(id: string): ContentData | undefined {
+    return $contentTreeItems.get().nodes[id];
+}
 
-    if (changed) {
-        $contentTreeItems.set(nodes);
+export function getAllContentTreeItems(): ContentData[] {
+    return Object.values($contentTreeItems.get().nodes);
+}
+
+export function getContentTreeItemsCount(): number {
+    return Object.keys($contentTreeItems.get().nodes).length;
+}
+
+export function resetContentTreeItems(): void {
+    $contentTreeItems.set({
+        nodes: {},
+        children: {},
+        hasMore: {},
+    });
+}
+
+export function removeContentTreeItem(id: string): void {
+    const currentItems = $contentTreeItems.get();
+    const parentId = Object.entries(currentItems.children)
+        .find(([, childIds]) => childIds?.includes(id))
+        ?.[0];
+
+    if (!currentItems.nodes[id]) {
+        return;
     }
+
+    const nodes = {...currentItems.nodes};
+    const children = {...currentItems.children};
+    const hasMore = {...currentItems.hasMore};
+    const idsToRemove = [id];
+
+    for (const currentId of idsToRemove) {
+        const currentChildren = children[currentId];
+
+        if (currentChildren?.length) {
+            idsToRemove.push(...currentChildren);
+        }
+
+        delete nodes[currentId];
+        delete children[currentId];
+        delete hasMore[currentId];
+    }
+
+    if (parentId) {
+        const updatedParentChildren = (children[parentId] ?? []).filter((childId) => childId !== id);
+        children[parentId] = updatedParentChildren;
+
+        const parentNode = nodes[parentId];
+
+        if (parentNode && !hasMore[parentId] && updatedParentChildren.length === 0) {
+            nodes[parentId] = {
+                ...parentNode,
+                hasChildren: false,
+            };
+        }
+    }
+
+    $contentTreeItems.set({
+        nodes,
+        children,
+        hasMore,
+    });
 }
 
 export function updateContentTreeItem(id: string, patch: Partial<ContentData>): void {
-    const {nodes, changed} = updateNode($contentTreeItems.get(), id, patch);
+    const currentItems = $contentTreeItems.get();
+    const existingItem = currentItems.nodes[id];
 
-    if (changed) {
-        $contentTreeItems.set(nodes);
-    }
-}
-
-function flattenTree(items: ContentData[]): ContentData[] {
-    let flatItems: ContentData[] = [];
-
-    items.forEach(item => {
-        flatItems.push(item);
-        if (item.children?.length > 0) {
-            flatItems = [...flatItems, ...flattenTree(item.children as ContentData[])];
-        }
-    });
-
-    return flatItems;
-}
-
-type TreeOperationResult = {
-    nodes: ContentData[];
-    changed: boolean;
-};
-
-function removeNode(nodes: ContentData[], id: string): TreeOperationResult {
-    let changed = false;
-    const nextNodes: ContentData[] = [];
-
-    for (const node of nodes) {
-        if (node.id === id) {
-            changed = true;
-            continue;
-        }
-
-        if (node.children?.length) {
-            const childResult = removeNode(node.children as ContentData[], id);
-
-            if (childResult.changed) {
-                changed = true;
-                nextNodes.push(setChildren(node, childResult.nodes));
-                continue;
-            }
-        }
-
-        nextNodes.push(node);
+    if (!existingItem) {
+        return;
     }
 
-    return {
-        nodes: changed ? nextNodes : nodes,
-        changed,
-    };
-}
-
-function updateNode(nodes: ContentData[], id: string, patch: Partial<ContentData>): TreeOperationResult {
-    let changed = false;
-    const nextNodes: ContentData[] = [];
-
-    for (const node of nodes) {
-        if (node.id === id) {
-            changed = true;
-            nextNodes.push(applyPatch(node, patch));
-            continue;
-        }
-
-        if (node.children?.length) {
-            const childResult = updateNode(node.children as ContentData[], id, patch);
-
-            if (childResult.changed) {
-                changed = true;
-                nextNodes.push(setChildren(node, childResult.nodes));
-                continue;
-            }
-        }
-
-        nextNodes.push(node);
-    }
-
-    return {
-        nodes: changed ? nextNodes : nodes,
-        changed,
-    };
-}
-
-function setChildren(node: ContentData, children: ContentData[]): ContentData {
-    const normalizedChildren = children.length > 0 ? children : undefined;
-
-    return {
-        ...node,
-        children: normalizedChildren,
-        hasChildren: !!normalizedChildren,
-    };
-}
-
-function applyPatch(node: ContentData, patch: Partial<ContentData>): ContentData {
-    const merged = {
-        ...node,
+    const updatedItem: ContentData = {
+        ...existingItem,
         ...patch,
     };
 
-    if ('children' in patch) {
-        const children = (patch.children as ContentData[] | undefined) ?? [];
-        return setChildren(merged, children);
-    }
+    const nodes = {...currentItems.nodes};
+    nodes[id] = updatedItem;
+    const children = {...currentItems.children};
+    const hasMore = {...currentItems.hasMore};
 
-    return merged;
+    $contentTreeItems.set({
+        nodes,
+        children,
+        hasMore,
+    });
 }

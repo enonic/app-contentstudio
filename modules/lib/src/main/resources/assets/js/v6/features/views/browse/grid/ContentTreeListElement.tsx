@@ -2,7 +2,7 @@ import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentQuery} from '../../../../../app/content/ContentQuery';
 import {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
-import {$flatContentTreeItems} from '../../../store/contentTreeData.store';
+import {getItemById} from '../../../store/contentTreeData.store';
 import {reload} from '../../../store/contentTreeLoadingStore';
 import {$contentTreeSelection} from '../../../store/contentTreeSelectionStore';
 import {ContentDataFetcher} from './ContentDataFetcher';
@@ -54,7 +54,7 @@ export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList
 
         newSelection.forEach((item) => {
             if (!oldSelection.has(item)) {
-                const itemToSelect = $flatContentTreeItems.get().find(data => data.id === item);
+                const itemToSelect = getItemById(item);
                 if (itemToSelect) {
                     selected.push(itemToSelect.item);
                 }
@@ -65,7 +65,7 @@ export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList
 
         oldSelection.forEach((item) => {
             if (!newSelection.has(item)) {
-                const itemToDeselect = $flatContentTreeItems.get().find(data => data.id === item);
+                const itemToDeselect = getItemById(item);
                 if (itemToDeselect) {
                     deselected.push(itemToDeselect.item);
                 }

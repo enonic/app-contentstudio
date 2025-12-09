@@ -1,11 +1,12 @@
-import {isLoadingPlaceholder, TreeList, useTreeList} from '@enonic/ui';
+import {FlatTreeNode, TreeList, useTreeList} from '@enonic/ui';
+import {TreeItems} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
+import {children} from 'happy-dom/lib/PropertySymbol';
 import {KeyboardEventHandler} from 'preact';
-import {useCallback} from 'react';
+import {ReactNode, useCallback} from 'react';
 import {
     $contentTreeItems,
 } from '../../../store/contentTreeData.store';
-import {$contentTreeRootLoadingState} from '../../../store/contentTreeLoadingStore';
 import {
     $contentTreeActiveItem,
     $contentTreeSelection,
@@ -17,40 +18,13 @@ import {
 } from '../../../store/contentTreeSelectionStore';
 import {ContentData} from './ContentData';
 import {ContentDataFetcher} from './ContentDataFetcher';
-import {ContentTreeListLoadingRow} from './ContentTreeListLoadingRow';
 import {ContentTreeListRow} from './ContentTreeListRow';
 
-const TreeListRowsWithContext = (): React.ReactElement => {
-    const loadingState = useStore($contentTreeRootLoadingState);
-
-    if (loadingState === 'requested') {
-        const item: ContentData = {
-            id: 'root-loading-placeholder',
-            displayName: '',
-            name: '',
-            publishStatus: null,
-            workflowStatus: null,
-            contentType: null,
-            iconUrl: null,
-            item: null,
-            path: [null],
-        }
-        return (
-            <ContentTreeListLoadingRow key={item.id} item={item} />
-        )
-    }
-
-    const {items} = useTreeList<ContentData>();
-
+const renderItem = (item: FlatTreeNode<ContentData>): React.ReactElement => {
     return (
-        <>
-            {items.map(item =>
-                isLoadingPlaceholder(item) ? <ContentTreeListLoadingRow key={item.id} item={item} /> : <ContentTreeListRow item={item}
-                    key={item.id} />
-            )}
-        </>
+        <ContentTreeListRow item={item}/>
     );
-};
+}
 
 export type ContentTreeListProps = {
     fetcher: ContentDataFetcher;
@@ -84,7 +58,7 @@ export const ContentTreeList = ({fetcher}: ContentTreeListProps): React.ReactEle
         setSingleSelectionMode();
     };
 
-    const setItemsHandler = useCallback((newItems: ContentData[]) => {
+    const setItemsHandler = useCallback((newItems: TreeItems<ContentData>) => {
         $contentTreeItems.set(newItems);
     }, []);
 
@@ -122,7 +96,7 @@ export const ContentTreeList = ({fetcher}: ContentTreeListProps): React.ReactEle
             className={'w-full h-full bg-surface-neutral'}
             fetchChildren={fetcher.fetchChildren}
             items={items}
-            setItems={setItemsHandler}
+            onItemsChange={setItemsHandler}
             selection={selection}
             onSelectionChange={handleSelection}
             selectionMode={'multiple'}
@@ -131,9 +105,7 @@ export const ContentTreeList = ({fetcher}: ContentTreeListProps): React.ReactEle
             setActive={setActive}
         >
             <TreeList.Container className={'px-5 py-2.5 bg-surface-neutral'}>
-                <TreeList.Content load={false}>
-                    <TreeListRowsWithContext />
-                </TreeList.Content>
+                <TreeList.Content renderNode={renderItem}/>
             </TreeList.Container>
         </TreeList>
     );

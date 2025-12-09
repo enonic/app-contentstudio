@@ -4,7 +4,7 @@ import {SelectableListBoxWrapper, SelectionMode} from '@enonic/lib-admin-ui/ui/s
 import {DataChangedEvent} from '@enonic/lib-admin-ui/ui/treegrid/DataChangedEvent';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import Q from 'q';
-import {$flatContentTreeItems} from '../../v6/features/store/contentTreeData.store';
+import {$contentTreeItems, getContentTreeItemsCount, getItemById} from '../../v6/features/store/contentTreeData.store';
 import {getSelectedItems} from '../../v6/features/store/contentTreeSelectionStore';
 import {ContentTreeListElement} from '../../v6/features/views/browse/grid/ContentTreeListElement';
 import {TreeListToolbarElement} from '../../v6/features/views/browse/tree/TreeListToolbar';
@@ -54,7 +54,7 @@ export class ContentTreeListSelectablePanelProxy extends SelectableListBoxPanel<
     }
 
     getItem(id: string): ContentSummaryAndCompareStatus {
-        return $flatContentTreeItems.get().find(data => data.id === id)?.item;
+        return getItemById(id)?.item;
     }
 
     getWrapper(): SelectableListBoxWrapper<ContentSummaryAndCompareStatus> {
@@ -66,6 +66,6 @@ export class ContentTreeListSelectablePanelProxy extends SelectableListBoxPanel<
     }
 
     getTotalItems(): number {
-        return $flatContentTreeItems.get().length;
+        return getContentTreeItemsCount();
     }
 }

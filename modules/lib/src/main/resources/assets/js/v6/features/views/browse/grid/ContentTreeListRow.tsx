@@ -1,4 +1,4 @@
-import {Checkbox, cn, TreeList, useTreeList} from '@enonic/ui';
+import {Checkbox, cn, FlatTreeNode, TreeList, useTreeList} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import type {ComponentPropsWithoutRef} from 'react';
 import {EditContentEvent} from '../../../../../app/event/EditContentEvent';
@@ -8,7 +8,7 @@ import {ContentTreeListItem} from './ContentTreeListItem';
 import {ContentTreeListRowWrapper} from './ContentTreeListRowWrapper';
 
 export type ContentTreeListRowProps = {
-    item: ContentData;
+    item: FlatTreeNode<ContentData>;
 }
 
 type ContentTreeListRowSelectionControlProps = {
@@ -32,15 +32,15 @@ const ContentTreeListRowSelectionControl = ({data, className}: ContentTreeListRo
 
 export const ContentTreeListRow = ({item}: ContentTreeListRowProps): React.ReactElement => {
     return (
-        <ContentTreeListRowWrapper item={item}>
+        <ContentTreeListRowWrapper item={item.data}>
             <TreeList.Row<ContentData> key={item.id} item={item}>
                 <TreeList.RowLeft>
-                    <ContentTreeListRowSelectionControl data={item} />
-                    <TreeList.RowLevelSpacer level={item.path.length} />
+                    <ContentTreeListRowSelectionControl data={item.data} />
+                    <TreeList.RowLevelSpacer level={item.level} />
                     <TreeList.RowExpandControl data={item} />
                 </TreeList.RowLeft>
-                <TreeList.RowContent onDblClick={() => new EditContentEvent([item.item]).fire()}>
-                    <ContentTreeListItem content={item} key={item.id} />
+                <TreeList.RowContent onDblClick={() => new EditContentEvent([item.data.item]).fire()}>
+                    <ContentTreeListItem content={item.data} key={item.id} />
                 </TreeList.RowContent>
             </TreeList.Row>
         </ContentTreeListRowWrapper>
