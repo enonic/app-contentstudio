@@ -1,6 +1,8 @@
 import {Button, Dialog, Separator, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {useMemo, useRef, type ReactElement} from 'react';
+import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
+import {Branch} from '../../../../../app/versioning/Branch';
 import {useI18n} from '../../../hooks/useI18n';
 import {useOnceWhen} from '../../../hooks/useOnce';
 import {
@@ -9,6 +11,7 @@ import {
     $unpublishItemsCount, ignoreUnpublishInboundDependencies
 } from '../../../store/dialogs/unpublishDialog.store';
 import {ContentListItem} from '../../items/ContentListItem';
+import {ContentListItemWithReference} from '../../items/ContentListItemWithReference';
 import {InboundStatusBar} from '../status-bar/InboundStatusBar';
 
 type UnpublishDialogMainContentProps = {
@@ -24,6 +27,7 @@ export const UnpublishDialogMainContent = ({onUnpublish}: UnpublishDialogMainCon
     const total = useStore($unpublishItemsCount);
     const inboundIds = useStore($unpublishInboundIds);
     const inboundSet = useMemo(() => new Set(inboundIds), [inboundIds]);
+    const isInbound = (content: ContentSummaryAndCompareStatus) => inboundSet.has(content.getContentId().toString());
 
     const title = useI18n('dialog.unpublish');
     const dependantsLabel = useI18n('dialog.unpublish.dependants');
@@ -67,9 +71,12 @@ export const UnpublishDialogMainContent = ({onUnpublish}: UnpublishDialogMainCon
             <Dialog.Body className="flex flex-col gap-y-10">
                 <ul className="flex flex-col gap-y-2.5">
                     {items.map(item => (
-                        <ContentListItem
+                        <ContentListItemWithReference
                             key={`main-${item.getId()}`}
+                            variant='normal'
                             content={item}
+                            branch={Branch.DRAFT}
+                            hasInbound={isInbound(item)}
                         />
                     ))}
                 </ul>
@@ -78,10 +85,12 @@ export const UnpublishDialogMainContent = ({onUnpublish}: UnpublishDialogMainCon
                     <Separator className="pr-1" label={dependantsLabel} />
                     <ul className="flex flex-col gap-y-1.5">
                         {dependants.map(item => (
-                            <ContentListItem
-                                key={`dep-${item.getId()}`}
+                            <ContentListItemWithReference
+                                key={`main-${item.getId()}`}
+                                variant='normal'
                                 content={item}
-                                variant="compact"
+                                branch={Branch.DRAFT}
+                                hasInbound={isInbound(item)}
                             />
                         ))}
                     </ul>

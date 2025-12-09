@@ -1,6 +1,6 @@
 import {Dialog} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {useState, type ReactElement} from 'react';
+import {useEffect, useState, type ReactElement} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {
     $isUnpublishTargetSite,
@@ -10,6 +10,8 @@ import {
 } from '../../../store/dialogs/unpublishDialog.store';
 import {DialogPresetGatedConfirmContent} from '../DialogPreset';
 import {UnpublishDialogMainContent} from './UnpublishDialogMainContent';
+import {$progressValue} from '../../../store/dialogs/progress.store';
+import {ProgressDialog} from '../ProgressDialog';
 
 type View = 'main' | 'confirmation' | 'progress';
 
@@ -19,6 +21,7 @@ export const UnpublishDialog = (): ReactElement => {
     const {open, items} = useStore($unpublishDialog, {keys: ['open', 'items']});
     const total = useStore($unpublishItemsCount);
     const hasSite = useStore($isUnpublishTargetSite);
+    // const progress = useStore($progressValue);
 
     const [view, setView] = useState<View>('main');
 
@@ -34,13 +37,29 @@ export const UnpublishDialog = (): ReactElement => {
         }
     };
 
-    const handleUnpublish = async () => {
+    const startUnpublish = async () => {
+        setView('progress');
+        const started = await confirmUnpublishAction(items);
+        if (!started) {
+            setView('main');
+        }
+    };
+
+    const handleUnpublish =  () => {
         if (total > 1 || hasSite) {
             setView('confirmation');
             return;
         }
-        await confirmUnpublishAction(items);
+        // await confirmUnpublishAction(items);
+        // setView('progress');
+        void startUnpublish();
     };
+
+    useEffect(() => {
+        if (!open) {
+            resetView();
+        }
+    }, [open]);
 
     return (
         <Dialog.Root open={open} onOpenChange={handleOpenChange}>
@@ -55,12 +74,34 @@ export const UnpublishDialog = (): ReactElement => {
                     title={confirmTitle}
                     description={confirmDescription}
                     expected={total}
-                    onConfirm={() => void handleUnpublish()}
+                    // onConfirm={() => void handleUnpublish()}
+                    onConfirm={() => void startUnpublish()}
                     onCancel={resetView}
                 />}
+                {view === 'progress' &&
+                    <UnpublishProgressView
+                        total={total || items.length || 1}
+                    />
+                }
             </Dialog.Portal>
         </Dialog.Root>
     );
 };
 
 UnpublishDialog.displayName = UNPUBLISH_DIALOG_NAME;
+
+type UnpublishProgressViewProps = {
+    total: number;
+};
+
+const UnpublishProgressView = ({total}: UnpublishProgressViewProps): ReactElement => {
+    const progress = useStore($progressValue);
+
+    return (
+        <ProgressDialog
+            title={useI18n('dialog.unpublish')}
+            description={useI18n('dialog.unpublish.beingUnpublished', total)}
+            progress={progress}
+        />
+    );
+};

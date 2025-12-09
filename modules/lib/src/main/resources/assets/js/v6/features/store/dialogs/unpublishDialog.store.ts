@@ -10,6 +10,7 @@ import {UnpublishContentRequest} from '../../../../app/resource/UnpublishContent
 import {$contentArchived, $contentCreated, $contentDeleted, $contentUnpublished, $contentUpdated} from '../socket.store';
 import {createDebounce} from '../../utils/timing/createDebounce';
 import {sortDependantsByInbound} from '../../utils/cms/content/sortDependants';
+import {completeProgress, resetProgress, startProgress} from './progress.store';
 
 //
 // * Store state
@@ -73,6 +74,18 @@ export const $isUnpublishDialogReady = computed([$unpublishDialog, $unpublishDia
     return state.open && !state.loading && !state.failed && !pending.submitting && state.items.length > 0 && !hasInbound;
 });
 
+export const $unpublishProgress = computed($unpublishDialogPending, ({pendingIds, pendingTotal, submitting}) => {
+    if (!submitting) {
+        return 0;
+    }
+    const total = pendingTotal || pendingIds.length;
+    if (total === 0) {
+        return 0;
+    }
+    const completed = Math.max(0, total - pendingIds.length);
+    return Math.min(100, Math.max(0, Math.round((completed / total) * 100)));
+});
+
 // ! Guards against stale async results (increment on each dialog lifecycle)
 let instanceId = 0;
 
@@ -101,6 +114,7 @@ export const openUnpublishDialog = (items: ContentSummaryAndCompareStatus[]): vo
         return;
     }
 
+    resetProgress();
     $unpublishDialog.set({
         ...structuredClone(initialState),
         open: true,
@@ -123,6 +137,7 @@ export const resetUnpublishDialogContext = (): void => {
     instanceId += 1;
     $unpublishDialog.set(initialState);
     $unpublishDialogPending.set(initialPendingState);
+    resetProgress();
 };
 
 export const ignoreUnpublishInboundDependencies = (): void => {
@@ -156,21 +171,26 @@ export const confirmUnpublishAction = async (selectedItems: ContentSummaryAndCom
     const request = buildUnpublishRequest(itemsToUnpublish);
 
     try {
+        startProgress();
         $unpublishDialogPending.set({
             submitting: true,
             pendingIds,
             pendingTotal,
             pendingPrimaryName,
         });
-        $unpublishDialog.setKey('open', false);
+        // $unpublishDialog.setKey('open', false);
 
         await request.sendAndParse();
+        completeProgress();
+        // $unpublishDialog.setKey('open', false);
         return true;
     } catch (error) {
         showError(error?.message ?? String(error));
         $unpublishDialogPending.set(initialPendingState);
         $unpublishDialog.setKey('failed', true);
         return false;
+    } finally {
+        // resetProgress();
     }
 };
 
