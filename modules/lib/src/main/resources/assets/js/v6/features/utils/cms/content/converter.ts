@@ -3,11 +3,10 @@ import {ContentData} from '../../../views/browse/grid/ContentData';
 import {calcWorkflowStateStatus, resolveDisplayName, resolveSubName} from './workflow';
 
 
-export function toContentData(item: ContentSummaryAndCompareStatus, path: string[] = [], children?: ContentData[]): ContentData {
+export function toContentData(item: ContentSummaryAndCompareStatus): ContentData {
     return {
         ...toContentProps(item),
-        path,
-        children,
+        hasChildren: item.hasChildren(),
     }
 }
 

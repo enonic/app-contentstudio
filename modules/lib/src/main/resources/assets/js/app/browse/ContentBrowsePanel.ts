@@ -412,8 +412,8 @@ export class ContentBrowsePanel
 
         handler.onContentPermissionsUpdated((data: ContentSummaryAndCompareStatus[]) => this.handleContentPermissionsUpdated(data));
 
-        handler.onContentRenamed((data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
-            this.handleContentRenamed(data, oldPaths);
+        handler.onContentRenamed((data: ContentSummaryAndCompareStatus[]) => {
+            this.handleContentRenamed(data);
         });
 
         handler.onContentDeleted((data: ContentServerChangeItem[]) => {
@@ -428,9 +428,26 @@ export class ContentBrowsePanel
         handler.onContentDuplicated((data: ContentSummaryAndCompareStatus[]) => this.handleContentCreated(data));
 
         handler.onContentMoved((movedItems: MovedContentItem[]) => {
-            this.handleContentDeleted(
-                movedItems.map((item: MovedContentItem) => new DeletedContentItem(item.item.getContentId(), item.oldPath)));
-            this.handleContentCreated(movedItems.map((item: MovedContentItem) => item.item));
+            let movedToOtherParentItems: MovedContentItem[] = [];
+            let renamedItems: MovedContentItem[] = [];
+
+            movedItems.forEach((movedItem: MovedContentItem) => {
+                if (movedItem.oldPath.getParentPath().equals(movedItem.item.getPath().getParentPath())) {
+                    renamedItems.push(movedItem);
+                } else {
+                    movedToOtherParentItems.push(movedItem);
+                }
+            });
+
+            if (movedToOtherParentItems.length > 0) {
+                this.handleContentDeleted(
+                    movedToOtherParentItems.map((item: MovedContentItem) => new DeletedContentItem(item.item.getContentId(), item.oldPath)));
+                this.handleContentCreated(movedToOtherParentItems.map((item: MovedContentItem) => item.item));
+            }
+
+            if (renamedItems.length > 0) {
+                this.handleContentRenamed(renamedItems.map(renamedItem => renamedItem.item));
+            }
         });
 
         handler.onContentSorted((data: ContentSummaryAndCompareStatus[]) => this.handleContentSorted(data));
@@ -479,11 +496,7 @@ export class ContentBrowsePanel
         }
     }
 
-    private handleContentRenamed(data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) {
-        if (ContentBrowsePanel.debug) {
-            console.debug('ContentBrowsePanel: renamed', data, oldPaths);
-        }
-
+    private handleContentRenamed(data: ContentSummaryAndCompareStatus[]) {
         data.forEach((item: ContentSummaryAndCompareStatus) => {
             this.treeListBox.findParentLists(item).forEach(list => list.replaceItems(item));
         });
