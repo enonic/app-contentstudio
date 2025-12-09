@@ -555,7 +555,7 @@ export class ContentWizardPanel
                 this.persistedPublishStatus = loader.publishStatus;
                 this.currentCompareStatus = loader.compareStatus;
                 this.currentPublishStatus = loader.publishStatus;
-                this.peristedLanguage = loader.content?.getLanguage();
+                //this.peristedLanguage = loader.content?.getLanguage();
 
                 this.wizardHeader.setPlaceholder(this.contentType?.getDisplayNameLabel());
                 this.wizardHeader.setPersistedPath(this.isItemPersisted() ? this.getPersistedItem() : null);
@@ -595,7 +595,7 @@ export class ContentWizardPanel
 
         return pagePromise.then((page: Page | null) => {
             PageState.setState(page);
-            return Q.resolve();
+            return Q.resolve(); //??
         });
     }
 
@@ -879,7 +879,7 @@ export class ContentWizardPanel
         if (!ObjectHelper.equals(PageState.getState(), currentItem.getPage())) {
             this.loadAndSetPageState(currentItem.getPage()).then(() => {
 
-                this.contentAfterLayout = this.assembleViewedContent(this.getPersistedItem().newBuilder(), true).build();
+                //this.contentAfterLayout = this.assembleViewedContent(this.getPersistedItem().newBuilder(), true).build();
 
                 if (this.isPageComponentsViewRequired()) {
                     this.pageComponentsView.reload();
@@ -911,6 +911,7 @@ export class ContentWizardPanel
 
             if (this.getPersistedItem().getPage()) {
                 this.updateLiveEditModel(content);
+                //this.getLivePanel().clearSelectionAndInspect(renderable, false);
 
                 return Q();
             }
@@ -1207,7 +1208,7 @@ export class ContentWizardPanel
         });
 
         PageEventsManager.get().onPageReloadRequested(() => {
-            this.getLivePanel()?.loadPage();
+            this.getLivePanel()?.loadPage(false);
         });
 
         let firstLoad = true;
@@ -1302,7 +1303,7 @@ export class ContentWizardPanel
     }
 
     private createSteps(): ContentWizardStep[] {
-        if (this.livePanel && this.getContentTypeName().isFragment()) {
+        if (/*this.livePanel && */this.getContentTypeName().isFragment()) {
             return this.createFragmentSteps();
         }
 
@@ -1746,9 +1747,13 @@ export class ContentWizardPanel
         return this.fetchPersistedContent(summaryAndStatus).then((content: Content) => {
             const viewedContent: Content = this.assembleViewedContent(new ContentBuilder(this.getPersistedItem()), true).build();
 
-            if (!viewedContent.equals(content)) {
-                this.updateWithContent(content);
-            }
+            return this.generateDataAndXDataAfterLayout(content).then((data) => {
+                this.contentAfterLayout = content.newBuilder().setData(data.data).setExtraData(data.xData).build();
+
+                if (!viewedContent.equals(this.contentAfterLayout)) {
+                    this.updateWithContent(content);
+                }
+            });
         }).catch(DefaultErrorHandler.handle).done();
     }
 
@@ -1780,28 +1785,6 @@ export class ContentWizardPanel
             .setEnabled(this.contentType ? !content.isImage() : false)
             .setValue(new ContentIconUrlResolver().setContent(content).resolve());
         this.workflowStateManager.update();
-    }
-
-    // sync persisted content extra data with xData
-    // when rendering form - we may add extra fields from xData;
-    // as this is intended action from XP, not user - it should be present in persisted content
-    private syncPersistedItemWithXData(xDataName: XDataName, xDataPropertyTree: PropertyTree) {
-        let persistedContent = this.getPersistedItem();
-        let extraData = persistedContent.getExtraDataByName(xDataName);
-        if (!extraData) { // ensure ExtraData object corresponds to each step form
-            this.enrichWithExtraData(persistedContent, xDataName, xDataPropertyTree);
-        } else {
-            let diff = extraData.getData().diff(xDataPropertyTree);
-            diff.added.forEach((property: Property) => {
-                extraData.getData().addProperty(property.getName(), property.getValue());
-            });
-        }
-    }
-
-    private enrichWithExtraData(content: Content, xDataName: XDataName, propertyTree?: PropertyTree): ExtraData {
-        let extraData = new ExtraData(xDataName, propertyTree ? propertyTree.copy() : new PropertyTree());
-        content.getAllExtraData().push(extraData);
-        return extraData;
     }
 
     private toggleLiveEdit(): Q.Promise<void> {
@@ -1891,7 +1874,7 @@ export class ContentWizardPanel
     }
 
     private createWizardStepForms(): Q.Promise<void> {
-        this.contentWizardStepForm = new ContentWizardStepForm();
+        this.contentWizardStepForm = this.createEmptyStepForm();
 
         if (this.isPageComponentsViewRequired() || this.getContentTypeName().isPageTemplate()) {
             this.pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
@@ -2026,10 +2009,7 @@ export class ContentWizardPanel
         const xDataForm: Form = new FormBuilder().addFormItems(xDataStepForm.getXData().getFormItems()).build();
         const formContext = this.makeXDataFormContext(xDataStepForm.getXData());
 
-        return xDataStepForm.layout(formContext, data, xDataForm).then(() => {
-            this.syncPersistedItemWithXData(xDataStepForm.getXDataName(), data);
-            return Q(null);
-        });
+        return xDataStepForm.layout(formContext, data, xDataForm);
     }
 
     private initLiveEditModel(content: Content): LiveEditModel {
@@ -2110,7 +2090,10 @@ export class ContentWizardPanel
         this.xDataWizardStepForms.validate();
         this.displayValidationErrors(!this.isValid());
 
-        return Q.resolve(persistedItem);
+        return this.generateDataAndXDataAfterLayout(persistedItem).then((data) => {
+            this.contentAfterLayout = persistedItem.newBuilder().setData(data.data).setExtraData(data.xData).build();
+            return Q.resolve(persistedItem);
+        });
     }
 
     private showFeedbackContentSaved(content: Content, wasInherited: boolean = false) {
@@ -2299,7 +2282,9 @@ export class ContentWizardPanel
         const extraData: ExtraData[] = [];
 
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
-            extraData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), form.getData().copy()));
+            if (!form.isOptional() || form.isEnabled()) {
+                extraData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), form.getData().copy()));
+            }
         });
 
         viewedContentBuilder.setExtraData(extraData);
@@ -2413,13 +2398,6 @@ export class ContentWizardPanel
             } else {
                 form.resetData();
             }
-
-            const viewedData: PropertyTree = form.getData().copy();
-
-            if (!form.isOptional() || !extraData || extraData.getData().getRoot().getSize() > 0) {
-                this.syncPersistedItemWithXData(xDataName, form.isEnabled() ? viewedData : new PropertyTree());
-            }
-
         });
     }
 
@@ -2522,7 +2500,6 @@ export class ContentWizardPanel
 
     protected setPersistedItem(newPersistedItem: Content): void {
         super.setPersistedItem(newPersistedItem);
-        this.contentAfterLayout = this.getPersistedItem();
 
         this.wizardHeader?.setPersistedPath(newPersistedItem);
         AI.get().setContent(newPersistedItem);
@@ -2544,7 +2521,7 @@ export class ContentWizardPanel
         ContentContext.get().setContent(content);
         this.persistedPublishStatus = content.getPublishStatus();
         this.persistedCompareStatus = content.getCompareStatus();
-        this.peristedLanguage = content.getLanguage();
+        //this.peristedLanguage = content.getLanguage();
 
         AI.get().setCompareStatus(this.persistedCompareStatus);
 
@@ -2807,5 +2784,55 @@ export class ContentWizardPanel
         this.formsContexts.set(xData.getName(), formContext);
 
         return formContext;
+    }
+
+    private generateDataAndXDataAfterLayout(content: Content): Q.Promise<{data: PropertyTree, xData:  ExtraData[]}> {
+        const contentForm = this.createEmptyStepForm();
+
+        return this.createEmptyXDataWizardStepForms().then((xDataForms) => {
+            const formViewLayoutPromises: Q.Promise<void>[] = [];
+            formViewLayoutPromises.push(
+                contentForm.layout(this.formsContexts.get('content'), new PropertyTree(content.getContentData().getRoot()), this.contentType?.getForm()));
+            // Must pass FormView from contentWizardStepForm displayNameResolver,
+            // since a new is created for each call to renderExisting
+
+            xDataForms.forEach((form: XDataWizardStepForm) => {
+                const promise: Q.Promise<void> = this.layoutXDataWizardStepForm(content, form);
+
+                form.getData().onChanged(this.dataChangedHandler);
+
+                formViewLayoutPromises.push(promise);
+            });
+
+            return Q.all(formViewLayoutPromises).then(() => {
+
+                const extraData: ExtraData[] = [];
+
+                xDataForms.forEach((form: XDataWizardStepForm) => {
+                    if (!form.isOptional() || form.isEnabled()) {
+                        extraData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), form.getData().copy()));
+                    }
+                });
+
+                return {data: contentForm.getData(), xData: extraData};
+            })
+        });
+    }
+
+    private createEmptyStepForm(): ContentWizardStepForm {
+        return new ContentWizardStepForm();
+    }
+
+    private createEmptyXDataWizardStepForms(): Q.Promise<XDataWizardStepForm[]> {
+        const result: XDataWizardStepForm[] = [];
+
+        return this.fetchContentXData().then((xDatas: XData[]) => {
+            xDatas.forEach((xData: XData) => {
+                result.push(new XDataWizardStepForm(xData));
+            });
+
+            return result;
+        });
+
     }
 }
