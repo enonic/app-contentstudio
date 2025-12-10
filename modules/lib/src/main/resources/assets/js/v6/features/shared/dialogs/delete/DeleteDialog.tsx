@@ -10,6 +10,7 @@ import {
     $deleteItemsCount,
     $isDeleteDialogReady,
     $isDeleteTargetSite,
+    $deleteProgress,
     cancelDeleteDialog,
     executeDeleteDialogAction,
     ignoreDeleteInboundDependencies,
@@ -18,15 +19,29 @@ import {
 import {ContentListItemWithReference} from '../../items/ContentListItemWithReference';
 import {ConfirmationDialog, useConfirmationDialog} from '../ConfirmationDialog';
 import {Gate} from '../Gate';
+import {ProgressDialog} from '../ProgressDialog';
 import {SelectionStatusBar} from '../SelectionStatusBar';
 
 const DELETE_DIALOG_NAME = 'DeleteDialog';
 type View = 'main' | 'confirmation' | 'progress';
 
 export const DeleteDialog = (): ReactElement => {
-    const {open, loading, failed, items, dependants, inboundIgnored} = useStore($deleteDialog, {keys: ['open', 'loading', 'failed', 'items', 'dependants', 'inboundIgnored']});
+    const {
+        open,
+        loading,
+        failed,
+        items,
+        dependants,
+        inboundIgnored,
+        submitting,
+        pendingAction,
+        pendingTotal,
+    } = useStore($deleteDialog, {
+        keys: ['open', 'loading', 'failed', 'items', 'dependants', 'inboundIgnored', 'submitting', 'pendingAction', 'pendingTotal'],
+    });
     const ready = useStore($isDeleteDialogReady);
     const total = useStore($deleteItemsCount);
+    const progress = useStore($deleteProgress);
     const hasSite = useStore($isDeleteTargetSite);
     const inboundIds = useStore($deleteInboundIds);
     const inboundSet = useMemo(() => new Set(inboundIds), [inboundIds]);
@@ -54,6 +69,26 @@ export const DeleteDialog = (): ReactElement => {
         }
     }, [view]);
 
+    useEffect(() => {
+        if (pendingAction) {
+            setConfirmAction(pendingAction);
+        }
+    }, [pendingAction]);
+
+    useEffect(() => {
+        if (submitting) {
+            setView('progress');
+        } else if (view === 'progress') {
+            setView('main');
+        }
+    }, [submitting, view]);
+
+    useEffect(() => {
+        if (!open) {
+            resetConfirmation();
+        }
+    }, [open]);
+
     const resetConfirmation = () => {
         setConfirmAction('delete');
         setView('main');
@@ -76,6 +111,7 @@ export const DeleteDialog = (): ReactElement => {
             openConfirm('delete');
             return;
         }
+        setConfirmAction('delete');
         await executeDeleteDialogAction('delete');
     };
 
@@ -84,6 +120,7 @@ export const DeleteDialog = (): ReactElement => {
             openConfirm('archive');
             return;
         }
+        setConfirmAction('archive');
         await executeDeleteDialogAction('archive');
     };
 
@@ -95,8 +132,14 @@ export const DeleteDialog = (): ReactElement => {
         return allItems.filter(item => inboundSet.has(item.getContentId().toString())).length;
     }, [items, dependants, inboundSet, inboundIgnored]);
 
+    const currentAction = pendingAction ?? confirmAction;
     const confirmTitle = confirmAction === 'archive' ? confirmArchiveTitle : confirmDeleteTitle;
     const confirmDescription = confirmAction === 'archive' ? confirmArchiveDescription : confirmDeleteDescription;
+    const progressTitle = currentAction === 'archive' ? useI18n('dialog.archive.progress.title') : useI18n('dialog.delete.progress.title');
+    const progressCount = Math.max(1, pendingTotal || total || items.length || 1);
+    const progressDescription = currentAction === 'archive'
+        ? useI18n('dialog.archiving', progressCount)
+        : useI18n('dialog.deleting', progressCount);
 
     const ConfirmationView = (): ReactElement => {
         const cancelLabel = useI18n('action.cancel');
@@ -131,10 +174,9 @@ export const DeleteDialog = (): ReactElement => {
                         variant="solid"
                         size="lg"
                         label={confirmLabel}
-                        disabled={!confirmEnabled}
+                        disabled={!confirmEnabled || submitting}
                         onClick={() => {
                             void executeDeleteDialogAction(confirmAction);
-                            resetConfirmation();
                         }}
                     />
                 </Dialog.Footer>
@@ -146,7 +188,7 @@ export const DeleteDialog = (): ReactElement => {
             <Dialog.Root open={open} onOpenChange={handleOpenChange}>
                 <Dialog.Portal>
                     <Dialog.Overlay />
-                    {view === 'confirmation' ? (
+                    {view === 'confirmation' && (
                         <ConfirmationDialog.Content
                             defaultConfirmEnabled={false}
                             className="w-full h-full gap-7.5 sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220"
@@ -157,7 +199,9 @@ export const DeleteDialog = (): ReactElement => {
                         >
                             <ConfirmationView />
                         </ConfirmationDialog.Content>
-                    ) : (
+                    )}
+
+                    {view === 'main' && (
                         <Dialog.Content className="w-full h-full gap-10 sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220">
                             <Dialog.DefaultHeader title={title} description={useI18n('dialog.archive.subname')} withClose />
 
@@ -208,6 +252,15 @@ export const DeleteDialog = (): ReactElement => {
                                 <Button variant="solid" size="lg" className="font-normal" label={archiveButtonLabel} disabled={!ready} onClick={() => void handleArchive()} />
                             </Dialog.Footer>
                         </Dialog.Content>
+                    )}
+
+                    {view === 'progress' && (
+                        <ProgressDialog
+                            title={progressTitle}
+                            description={progressDescription}
+                            progress={progress}
+                            contentClassName="w-full h-full gap-10 sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220"
+                        />
                     )}
                 </Dialog.Portal>
             </Dialog.Root>
