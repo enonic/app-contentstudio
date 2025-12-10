@@ -138,8 +138,8 @@ export const DeleteDialog = (): ReactElement => {
     const progressTitle = currentAction === 'archive' ? useI18n('dialog.archive.progress.title') : useI18n('dialog.delete.progress.title');
     const progressCount = Math.max(1, pendingTotal || total || items.length || 1);
     const progressDescription = currentAction === 'archive'
-        ? useI18n('dialog.archiving', progressCount || 0)
-        : useI18n('dialog.deleting', progressCount || 0);
+        ? useI18n('dialog.archiving', progressCount)
+        : useI18n('dialog.deleting', progressCount);
 
     const ConfirmationView = (): ReactElement => {
         const cancelLabel = useI18n('action.cancel');

@@ -335,7 +335,11 @@ const trackDeleteTask = (taskId: TaskId): void => {
             $deleteDialog.setKey('taskProgress', 100);
             if (deleteTaskHandler) { TaskEvent.un(deleteTaskHandler); deleteTaskHandler = undefined; }
             if ($deleteDialog.get().pendingIds.length === 0) {
-                deleteCompletionTimeout = setTimeout(() => { if ($deleteDialog.get().submitting) resetDeleteDialogContext(); }, 3000);
+                deleteCompletionTimeout = setTimeout(() => {
+                    if ($deleteDialog.get().submitting) {
+                        resetDeleteDialogContext();
+                    }
+                }, 3000);
             }
             return;
         }
