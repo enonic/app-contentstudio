@@ -551,8 +551,12 @@ class ContentWizardPanel extends Page {
     }
 
     async waitForPublishMenuItemEnabled(menuItem) {
-        let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
-        return await this.waitForAttributeNotIncludesValue(selector, 'class', 'disabled');
+        try {
+            let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
+            return await this.waitForAttributeNotIncludesValue(selector, 'class', 'disabled');
+        } catch (err) {
+            await this.handleError(`Content Wizard - Publish menu item: ${menuItem} is not enabled`, 'err_publish_menu_item_enabled', err);
+        }
     }
 
     async isContentInvalid() {
