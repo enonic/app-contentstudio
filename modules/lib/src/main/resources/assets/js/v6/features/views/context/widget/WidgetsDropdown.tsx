@@ -10,12 +10,14 @@ type Props = {
     selectedWidgetView?: WidgetView;
 };
 
+const COMPONENT_NAME = 'WidgetsDropdown';
+
 const WidgetsDropdown = ({widgetViews = [], selectedWidgetView = undefined}: Props) => {
     const [selection, setSelection] = useState<readonly string[]>([]);
     const [toggleDropdown, setToggleDropdown] = useState<boolean>(false);
 
     return (
-        <div className="h-15 bg-surface-neutral flex items-center justify-between px-5 border-b border-bdr-soft relative shrink-0">
+        <div data-component={COMPONENT_NAME} className="h-15 bg-surface-neutral flex items-center justify-between px-5 border-b border-bdr-soft relative shrink-0">
             <div className="flex items-center gap-2.5">
                 <WidgetIcon widgetView={selectedWidgetView} />
                 <span className="text-sm font-semibold">{selectedWidgetView?.getWidgetName() || ''}</span>

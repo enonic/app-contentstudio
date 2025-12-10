@@ -9,6 +9,10 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {History, Link, List} from 'lucide-react';
 import Q from 'q';
+import {setActiveWidgetId} from '../../../v6/features/store/contextWidgets.store';
+import {APP_NAME} from '../../../v6/features/utils/cms/app/app';
+import {VERSIONS_WIDGET_KEY} from '../../../v6/features/utils/widget/versions/versions';
+import {VersionsWidgetElement} from '../../../v6/features/views/context/widget/versions/VersionsWidget';
 import WidgetsDropdownElement from '../../../v6/features/views/context/widget/WidgetsDropdown';
 import {DetailsWidgetElement} from '../../../v6/features/views/context/widget/details';
 import {DependenciesWidgetElement} from '../../../v6/features/views/context/widget/dependencies';
@@ -169,7 +173,7 @@ export class ContextView
     }
 
     private initWidgetsSelectionRow() {
-        this.widgetsSelectionRow = new WidgetsDropdownElement({}); 
+        this.widgetsSelectionRow = new WidgetsDropdownElement({});
         this.appendChild(this.widgetsSelectionRow);
         this.widgetsSelectionRow.updateState(this.activeWidget);
     }
@@ -279,6 +283,8 @@ export class ContextView
         this.activeWidget = widgetView;
         this.activeWidget.addClass('active');
 
+        setActiveWidgetId(this.activeWidget.getWidgetKey());
+
         this.toggleClass('default-widget', this.defaultWidgetView.isActive());
         this.toggleClass('internal', widgetView.isInternal());
 
@@ -302,6 +308,7 @@ export class ContextView
             this.activeWidget.removeClass('active');
         }
         this.activeWidget = null;
+        setActiveWidgetId(undefined);
     }
 
     activateDefaultWidget() {
@@ -357,6 +364,7 @@ export class ContextView
 
     private initCommonWidgetViews() {
         this.propertiesWidgetView = WidgetView.create()
+            .setWidget(Widget.create().setWidgetDescriptorKey(`${APP_NAME}:details`).build())
             .setName(i18n('field.contextPanel.details'))
             .setDescription(i18n('field.contextPanel.details.description'))
             .setWidgetClass('properties-widget')
@@ -390,6 +398,7 @@ export class ContextView
         this.pageEditorWidgetItemView.appendContextWindow(this.contextWindow);
 
         const pageEditorWidgetView = WidgetView.create()
+            .setWidget(Widget.create().setWidgetDescriptorKey(`${APP_NAME}:page`).build())
             .setName(i18n('field.contextPanel.pageEditor'))
             .setDescription(i18n('field.contextPanel.pageEditor.description'))
             .setWidgetClass('page-editor-widget')
@@ -410,6 +419,7 @@ export class ContextView
 
     protected createVersionsWidgetView(): WidgetView {
         return WidgetView.create()
+            .setWidget(Widget.create().setWidgetDescriptorKey(VERSIONS_WIDGET_KEY).build())
             .setName(i18n('field.contextPanel.versionHistory'))
             .setDescription(i18n('field.contextPanel.versionHistory.description'))
             .setWidgetClass('versions-widget')
@@ -417,11 +427,14 @@ export class ContextView
             .setIcon(History)
             .setType(InternalWidgetType.HISTORY)
             .setContextView(this)
-            .addWidgetItemView(new VersionHistoryView()).build();
+            .addWidgetItemView(new VersionsWidgetElement())
+            // .addWidgetItemView(new VersionHistoryView())
+            .build();
     }
 
     protected createDependenciesWidgetView(): WidgetView {
         return WidgetView.create()
+            .setWidget(Widget.create().setWidgetDescriptorKey(`${APP_NAME}:dependencies`).build())
             .setName(i18n('field.contextPanel.dependencies'))
             .setDescription(i18n('field.contextPanel.dependencies.description'))
             .setWidgetClass('dependency-widget')
