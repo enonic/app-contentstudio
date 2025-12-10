@@ -18,8 +18,7 @@ class BaseSelectorForm extends Page {
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getText(locator);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_validation_message');
-            throw new Error("Validation message should be displayed in the form, screenshot:" + screenshot + ' ' + err);
+            await this.handleError(`Selector form - tried to get the validation message`, 'err_validation_message', err);
         }
     }
 
@@ -30,7 +29,7 @@ class BaseSelectorForm extends Page {
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Selector Validation recording should not be displayed"});
     }
 
-    async clearOptionsFilterInput(){
+    async clearOptionsFilterInput() {
         await this.clearTextInput(this.optionsFilterInput);
         await this.pause(1000);
     }
@@ -57,10 +56,9 @@ class BaseSelectorForm extends Page {
 
     async waitForEmptyOptionsMessage() {
         try {
-            return await this.waitForElementDisplayed(lib.EMPTY_OPTIONS_H5, appConst.longTimeout);
+            return await this.waitForElementDisplayed(lib.EMPTY_OPTIONS_H5, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_empty_opt');
-            throw new Error("Empty options text is not visible, screenshot: " + screenshot + ' ' + err);
+            await this.handleError(`Dropdown Selector - 'No matching items' text should be shown`, 'err_no_match_items', err);
         }
     }
 
@@ -79,32 +77,28 @@ class BaseSelectorForm extends Page {
             let contentSelectorDropdown = new ContentSelectorDropdown();
             return await contentSelectorDropdown.getOptionsDisplayNameInTreeMode()
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error("Error occurred in the dropdown selector, screenshot: " + screenshot + ' ' + err);
+            await this.handleError(`Error occurred in the dropdown selector`, 'err_dropdown', err);
         }
     }
 
-    // Click on OK button:
-    async clickOnOkButton() {
+    async clickOnEditSelectedOption(displayName) {
         try {
-            let contentSelectorDropdown = new ContentSelectorDropdown();
-            await contentSelectorDropdown.clickOnApplySelectionButton();
+            let locator = `//div[contains(@id,'ContentSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${displayName}']]` +
+                          lib.EDIT_ICON;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.clickOnElement(locator);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
-            throw new Error("Content Selector, Apply selection (OK) button, screenshot: " + screenshot + ' ' + err);
+            await this.handleError(`Error during clicking on Edit icon for selected option: ${displayName}`, 'err_click_edit_icon', err);
         }
-    }
-
-    async clickOnEditSelectedOption(optionDisplayName) {
-        let locator = `//div[contains(@id,'ContentSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${optionDisplayName}']]` +
-                      lib.EDIT_ICON;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.clickOnElement(locator);
     }
 
     async clickOnExpanderIconInOptionsList(optionName) {
-        let contentSelector = new ContentSelectorDropdown();
-        return await contentSelector.clickOnExpanderIconInOptionsList(optionName);
+        try {
+            let contentSelector = new ContentSelectorDropdown();
+            return await contentSelector.clickOnExpanderIconInOptionsList(optionName);
+        } catch (err) {
+            await this.handleError(`Error during clicking on Expander icon for option: ${optionName}`, 'err_click_expander_icon', err);
+        }
     }
 }
 
