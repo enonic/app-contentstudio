@@ -7,7 +7,7 @@ import {reload} from '../../../store/contentTreeLoadingStore';
 import {$contentTreeSelection} from '../../../store/contentTreeSelectionStore';
 import {ContentDataFetcher} from './ContentDataFetcher';
 import {ContentTreeList, ContentTreeListProps} from './ContentTreeList';
-
+import {Action} from '.xp/dev/lib-admin-ui/ui/Action';
 
 export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList, ContentTreeListProps> {
 
@@ -17,9 +17,7 @@ export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList
     constructor() {
         const fetcher = new ContentDataFetcher();
 
-        super({
-            fetcher,
-        }, ContentTreeList);
+        super({ fetcher }, ContentTreeList);
 
         this.fetcher = fetcher;
 
@@ -81,5 +79,9 @@ export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList
     setFilterQuery(filterQuery: ContentQuery | null): void {
         this.fetcher.setFilterQuery(filterQuery);
         reload();
+    }
+
+    setContextMenuActions(actions: Action[]): void {
+        this.props.setKey('contextMenuActions', actions);
     }
 }
