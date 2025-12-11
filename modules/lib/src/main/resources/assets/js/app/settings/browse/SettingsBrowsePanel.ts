@@ -14,6 +14,7 @@ import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selecto
 import {EditSettingsItemEvent} from '../event/EditSettingsItemEvent';
 import {ProjectViewItem} from '../view/ProjectViewItem';
 import {SettingsDataViewItem} from '../view/SettingsDataViewItem';
+import {SettingsBrowseToolbarElement} from '../../../v6/features/views/browse/toolbar/SettingsBrowseToolbar';
 
 export class SettingsBrowsePanel
     extends BrowsePanel {
@@ -29,6 +30,12 @@ export class SettingsBrowsePanel
     protected selectionWrapper: SelectableListBoxWrapper<SettingsViewItem>;
 
     declare protected selectableListBoxPanel: SelectableListBoxPanel<SettingsViewItem>;
+
+    protected initElements(): void {
+        super.initElements();
+        
+        this.prependChild(new SettingsBrowseToolbarElement(this.treeActions));
+    }
 
     protected initListeners(): void {
         super.initListeners();
