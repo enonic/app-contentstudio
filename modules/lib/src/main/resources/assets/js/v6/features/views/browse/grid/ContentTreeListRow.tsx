@@ -33,20 +33,20 @@ const ContentTreeListRowSelectionControl = ({data, className}: ContentTreeListRo
 export const ContentTreeListRow = ({item}: ContentTreeListRowProps): React.ReactElement => {
     return (
         <ContentTreeListRowWrapper item={item.data}>
-            <TreeList.Row<ContentData> key={item.id} item={item}>
+            <TreeList.Row<ContentData> 
+                key={item.id} 
+                item={item} 
+                onContextMenu={() => {
+                    setSingleSelectionMode();
+                    setActiveItem(null);
+                    setSelection([item.data.id]);
+                }}>
                 <TreeList.RowLeft>
                     <ContentTreeListRowSelectionControl data={item.data} />
                     <TreeList.RowLevelSpacer level={item.level} />
                     <TreeList.RowExpandControl data={item} />
                 </TreeList.RowLeft>
-                <TreeList.RowContent
-                    onDblClick={() => new EditContentEvent([item.data.item]).fire()}
-                    onContextMenu={() => {
-                        setSingleSelectionMode();
-                        setActiveItem(null);
-                        setSelection([item.data.id]);
-                    }}
-                >
+                <TreeList.RowContent onDblClick={() => new EditContentEvent([item.data.item]).fire()}>
                     <ContentTreeListItem content={item.data} key={item.id} />
                 </TreeList.RowContent>
             </TreeList.Row>
