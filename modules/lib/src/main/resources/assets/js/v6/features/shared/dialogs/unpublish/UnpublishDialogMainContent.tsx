@@ -11,8 +11,6 @@ import {
 import {ContentListItem} from '../../items/ContentListItem';
 import {InboundStatusBar} from '../status-bar/InboundStatusBar';
 
-type View = 'main' | 'confirmation' | 'progress';
-
 type UnpublishDialogMainContentProps = {
     onUnpublish: () => void;
 };
@@ -81,7 +79,7 @@ export const UnpublishDialogMainContent = ({onUnpublish}: UnpublishDialogMainCon
                     <ul className="flex flex-col gap-y-1.5">
                         {dependants.map(item => (
                             <ContentListItem
-                                key={`main-${item.getId()}`}
+                                key={`dep-${item.getId()}`}
                                 content={item}
                                 variant="compact"
                             />

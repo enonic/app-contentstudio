@@ -111,7 +111,7 @@ const DialogPresetGatedConfirmContentParts = ({
         if (confirmEnabled) {
             confirmButtonRef.current?.focus({focusVisible: true});
         }
-    }, [confirmEnabled, confirmButtonRef]);
+    }, [confirmEnabled]);
 
     const cancel = useI18n('action.cancel');
     const confirm = useI18n('action.confirm');
