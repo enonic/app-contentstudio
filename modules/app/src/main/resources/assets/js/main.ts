@@ -25,7 +25,6 @@ import {i18n, Messages} from '@enonic/lib-admin-ui/util/Messages';
 import * as $ from 'jquery';
 import {ContentDuplicatePromptEvent} from 'lib-contentstudio/app/browse/ContentDuplicatePromptEvent';
 import {ContentPublishPromptEvent} from 'lib-contentstudio/app/browse/ContentPublishPromptEvent';
-import {ContentUnpublishPromptEvent} from 'lib-contentstudio/app/browse/ContentUnpublishPromptEvent';
 import {CreateIssuePromptEvent} from 'lib-contentstudio/app/browse/CreateIssuePromptEvent';
 import {RequestContentPublishPromptEvent} from 'lib-contentstudio/app/browse/RequestContentPublishPromptEvent';
 import {ShowDependenciesEvent} from 'lib-contentstudio/app/browse/ShowDependenciesEvent';
@@ -374,19 +373,6 @@ async function startApplication() {
             .open();
     });
 
-    const {ContentUnpublishDialog} = await import('lib-contentstudio/app/publish/ContentUnpublishDialog');
-    let contentUnpublishDialog = null;
-
-    ContentUnpublishPromptEvent.on((event) => {
-        if (!contentUnpublishDialog) {
-            contentUnpublishDialog = new ContentUnpublishDialog();
-        }
-
-        contentUnpublishDialog
-            .setContentToUnpublish(event.getModels())
-            .open();
-    });
-
     RequestContentPublishPromptEvent.on(
         (event) => IssueDialogsManager.get().openCreateRequestDialog(event.getModels(), event.isIncludeChildItems()));
 
@@ -518,15 +504,15 @@ async function startContentBrowser() {
                                 newContentDialog.setParentContent(newParentContent);
                                 newContentDialog.open();
                             }).catch((reason) => {
-                                DefaultErrorHandler.handle(reason);
-                            }).done();
+                            DefaultErrorHandler.handle(reason);
+                        }).done();
                     } else {
                         newContentDialog.setParentContent(newParentContent);
                         newContentDialog.open();
                     }
                 }).catch((reason) => {
-                    DefaultErrorHandler.handle(reason);
-                }).done();
+                DefaultErrorHandler.handle(reason);
+            }).done();
         } else {
             newContentDialog.setParentContent(null);
             newContentDialog.open();

@@ -1,6 +1,6 @@
 import {BasePublishAction} from './BasePublishAction';
 import {ContentWizardPanel} from '../ContentWizardPanel';
-import {ContentUnpublishPromptEvent} from '../../browse/ContentUnpublishPromptEvent';
+import {openUnpublishDialog} from '../../../v6/features/store/dialogs/unpublishDialog.store';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
@@ -10,6 +10,6 @@ export class UnpublishAction extends BasePublishAction {
     }
 
     protected createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void {
-        new ContentUnpublishPromptEvent(summary).fire();
+        openUnpublishDialog(summary);
     }
 }

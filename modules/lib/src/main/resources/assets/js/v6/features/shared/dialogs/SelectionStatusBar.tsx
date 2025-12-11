@@ -23,28 +23,28 @@ type Props = {
     editing?: boolean;
     failed?: boolean;
     showReady?: boolean;
-    onApply: () => void;
-    onCancel: () => void;
-    errors: {
-        inProgress: {
-            count: number;
+    onApply?: () => void;
+    onCancel?: () => void;
+    errors?: {
+        inProgress?: {
+            count?: number;
             disabled?: boolean;
-            onExclude: () => void;
+            onExclude?: () => void;
             onMarkAsReady?: () => void;
         };
-        invalid: {
-            count: number;
+        invalid?: {
+            count?: number;
             disabled?: boolean;
-            onExclude: () => void;
+            onExclude?: () => void;
         };
-        noPermissions: {
-            count: number;
+        noPermissions?: {
+            count?: number;
             disabled?: boolean;
-            onExclude: () => void;
+            onExclude?: () => void;
         };
         inbound?: {
-            count: number;
-            onIgnore: () => void;
+            count?: number;
+            onIgnore?: () => void;
         };
     },
 };
@@ -53,7 +53,36 @@ type ErrorKind = keyof Props['errors'];
 
 type Status = 'loading' | 'failed' | 'editing' | 'ready' | 'errors' | 'none';
 
+const noop = (): void => undefined;
+
+const normalizeErrors = (errors: Props['errors']) => ({
+    inProgress: {
+        count: errors?.inProgress?.count ?? 0,
+        disabled: errors?.inProgress?.disabled,
+        onExclude: errors?.inProgress?.onExclude ?? noop,
+        onMarkAsReady: errors?.inProgress?.onMarkAsReady,
+    },
+    invalid: {
+        count: errors?.invalid?.count ?? 0,
+        disabled: errors?.invalid?.disabled,
+        onExclude: errors?.invalid?.onExclude ?? noop,
+    },
+    noPermissions: {
+        count: errors?.noPermissions?.count ?? 0,
+        disabled: errors?.noPermissions?.disabled,
+        onExclude: errors?.noPermissions?.onExclude ?? noop,
+    },
+    inbound: errors?.inbound
+        ? {
+            count: errors.inbound.count ?? 0,
+            onIgnore: errors.inbound.onIgnore ?? noop,
+        }
+        : undefined,
+});
+
 function getStatus({loading, failed, editing, showReady, errors}: Omit<Props, 'className' | 'onApply' | 'onCancel'>): Status {
+    const normalizedErrors = normalizeErrors(errors);
+
     if (loading) {
         return 'loading';
     }
@@ -63,7 +92,10 @@ function getStatus({loading, failed, editing, showReady, errors}: Omit<Props, 'c
     if (editing) {
         return 'editing';
     }
-    if (Object.values(errors).some(({count}) => count > 0)) {
+    if (Object.values(normalizedErrors).some((entry) => {
+        if (!entry) return false;
+        return entry.count > 0;
+    })) {
         return 'errors';
     }
     if (showReady) {
@@ -95,13 +127,14 @@ const EntryButton = ({className, children, ...props}: Pick<ButtonProps, 'classNa
 const SELECTION_STATUS_BAR_NAME = 'SelectionStatusBar';
 
 export const SelectionStatusBar = ({className, onApply, onCancel, ...props}: Props): React.ReactElement => {
-    const status = getStatus(props);
+    const errors = normalizeErrors(props.errors);
+    const status = getStatus({...props, errors});
 
     if (status === 'none') {
         return null;
     }
 
-    const {inProgress, invalid, noPermissions, inbound} = props.errors || {};
+    const {inProgress, invalid, noPermissions, inbound} = errors;
 
     return (
         <div className={cn('flex flex-col gap-2.5', className)}>
@@ -118,10 +151,10 @@ export const SelectionStatusBar = ({className, onApply, onCancel, ...props}: Pro
             {status === 'editing' && <StatusEntry className="bg-surface-info">
                 <StatusIcon className="w-6 h-6" status='info' />
                 <span className="text-sm font-semibold">{useI18n('dialog.state.editing')}</span>
-                <EntryButton onClick={onApply}>
+                <EntryButton onClick={onApply ?? noop}>
                     {useI18n('action.apply')}
                 </EntryButton>
-                <EntryButton onClick={onCancel}>
+                <EntryButton onClick={onCancel ?? noop}>
                     {useI18n('action.cancel')}
                 </EntryButton>
             </StatusEntry>}
@@ -193,7 +226,7 @@ export class SelectionStatusBarElement extends LegacyElement<typeof SelectionSta
     }
 
     reset(): void {
-        const {inProgress, invalid, noPermissions, inbound} = this.props.get().errors;
+        const {inProgress, invalid, noPermissions, inbound} = normalizeErrors(this.props.get().errors);
         this.setProps({
             failed: false,
             editing: false,
