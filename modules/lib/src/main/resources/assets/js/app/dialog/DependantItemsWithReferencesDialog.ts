@@ -31,10 +31,10 @@ export abstract class DependantItemsWithReferencesDialog
 
         this.stateBar = new DialogStateBar({hideIfResolved: true});
         this.inboundErrorsEntry = this.stateBar.addErrorEntry({
-            text: i18n('dialog.archive.warning.text'),
+            text: i18n('dialog.statusBar.error.inbound.text'),
             actionButtons: [
                 {
-                    label: i18n('dialog.archive.warning.ignore'),
+                    label: i18n('dialog.statusBar.error.inbound.action'),
                     markIgnored: true,
                 },
             ],

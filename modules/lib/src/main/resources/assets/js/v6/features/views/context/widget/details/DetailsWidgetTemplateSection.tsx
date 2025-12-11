@@ -14,8 +14,8 @@ import {
 } from '../../../../api/details';
 import {useI18n} from '../../../../hooks/useI18n';
 import {TemplateIcon} from '../../../../shared/icons/TemplateIcon';
-import {$detailsWidgetContent} from '../../../../store/context/detailsWidgets.store';
 import {ItemLabel} from '../../../../shared/ItemLabel';
+import {$detailsWidgetContent} from '../../../../store/context/detailsWidgets.store';
 
 type State = {
     mode: PageMode;
@@ -36,7 +36,7 @@ function getDisplayName(content: Content, state: State, translations: ModeTransl
 async function attemptAutomaticMode(content: Content): Promise<State> {
     const site = await loadNearestSite(content.getContentId());
 
-    const defaultPageTemplate = await loadDefaultPageTemplate(site.getContentId(), content.getType());
+    const defaultPageTemplate = site ? await loadDefaultPageTemplate(site.getContentId(), content.getType()) : undefined;
 
     if (defaultPageTemplate?.isPage()) {
         return {mode: PageMode.AUTOMATIC, template: defaultPageTemplate, descriptor: null};

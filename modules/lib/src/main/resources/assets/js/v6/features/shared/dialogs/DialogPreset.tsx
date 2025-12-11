@@ -1,9 +1,14 @@
-import {Body} from "@enonic/lib-admin-ui/dom/Body";
-import React, {ReactElement} from "react";
-import {useEffect, useRef} from "react";
-import {ConfirmationDialog, useConfirmationDialog} from "./ConfirmationDialog";
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {Button, Dialog} from '@enonic/ui';
+import {ReactElement, RefObject, useEffect, useRef} from 'react';
+import {useI18n} from '../../hooks/useI18n';
+import {LegacyElement} from './../LegacyElement';
+import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
 import {Gate} from "./Gate";
-import {LegacyElement} from "../LegacyElement";
+
+//
+// * DialogPresetConfirm
+//
 
 type DialogPresetConfirmProps = {
     open?: boolean;
@@ -13,6 +18,8 @@ type DialogPresetConfirmProps = {
     onConfirm?: () => void;
     onCancel?: () => void;
 };
+
+const DIALOG_PRESET_CONFIRM_NAME = 'DialogPresetConfirm';
 
 const DialogPresetConfirm = ({
     open = false,
@@ -28,7 +35,7 @@ const DialogPresetConfirm = ({
         }}>
             <ConfirmationDialog.Portal>
                 <ConfirmationDialog.Overlay />
-                <ConfirmationDialog.Content defaultConfirmEnabled={defaultConfirmEnabled}>
+                <ConfirmationDialog.Content data-component={DIALOG_PRESET_CONFIRM_NAME} defaultConfirmEnabled={defaultConfirmEnabled}>
                     <ConfirmationDialog.DefaultHeader title={title} />
                     <ConfirmationDialog.Body className="mb-7">{description}</ConfirmationDialog.Body>
                     <ConfirmationDialog.Footer onConfirm={onConfirm} onCancel={onCancel} />
@@ -38,62 +45,76 @@ const DialogPresetConfirm = ({
     );
 };
 
-DialogPresetConfirm.displayName = 'DialogPreset.Confirm';
+DialogPresetConfirm.displayName = DIALOG_PRESET_CONFIRM_NAME;
 
-export const DialogPreset = {
-    Confirm: DialogPresetConfirm,
-};
+//
+// * DialogPresetGatedConfirmContent
+//
 
-export class DialogPresetConfirmElement
-    extends LegacyElement<typeof DialogPresetConfirm, DialogPresetConfirmProps> {
-
-    constructor(props: DialogPresetConfirmProps) {
-        super({...props}, DialogPresetConfirm);
-    }
-
-    open(): void {
-        Body.get().appendChild(this);
-        this.setProps({open: true});
-    }
-
-    close(): void {
-        this.setProps({open: false});
-        Body.get().removeChild(this);
-    }
-}
-
-type DialogPresetGatedConfirm = {
+type DialogPresetGatedConfirmContentProps = {
     expected: string | number;
     validate?: (value: string) => boolean;
-    intent?: 'default' | 'danger';
-} & Omit<DialogPresetConfirmProps, 'defaultSubmitEnabled'>;
+    className?: string;
+} & Omit<DialogPresetConfirmProps, 'defaultSubmitEnabled' | 'open'>;
 
-type DialogPresetConfirmDeleteContentProps = {
-    gateInputRef: React.RefObject<HTMLInputElement>;
-    confirmButtonRef: React.RefObject<HTMLButtonElement>;
-} & Omit<DialogPresetGatedConfirm, 'open'>;
+const DIALOG_PRESET_GATED_CONFIRM_CONTENT_NAME = 'DialogPresetGatedConfirmContent';
 
-// Internal component that renders inside ConfirmationDialog.Content to access ConfirmationDialogProvider context.
-// This allows useConfirmationDialog() to work properly, tracking the confirmEnabled state set by Gate.Input validation.
-const DialogPresetConfirmDeleteContent = ({
-    gateInputRef,
-    confirmButtonRef,
+/**
+ * Internal component that renders inside ConfirmationDialog.Content to access ConfirmationDialogProvider context.
+ * This allows useConfirmationDialog() to work properly, tracking the confirmEnabled state set by Gate.Input validation.
+*/
+export const DialogPresetGatedConfirmContent = ({
+    className,
+    ...props
+}: DialogPresetGatedConfirmContentProps): ReactElement => {
+    const gateInputRef = useRef<HTMLInputElement>(null);
+
+    // Handles both on open and on rendered (e.g. when switching views in the Dialog)
+    const handleOpenAutoFocus = (event: Event): void => {
+        event.preventDefault();
+        gateInputRef.current?.focus({focusVisible: true});
+    };
+
+    return (
+        <ConfirmationDialog.Content
+            defaultConfirmEnabled={false}
+            onOpenAutoFocus={handleOpenAutoFocus}
+            data-component={DIALOG_PRESET_GATED_CONFIRM_CONTENT_NAME}
+            className={className}
+        >
+            <DialogPresetGatedConfirmContentParts gateInputRef={gateInputRef} {...props} />
+        </ConfirmationDialog.Content>
+    );
+};
+
+DialogPresetGatedConfirmContent.displayName = DIALOG_PRESET_GATED_CONFIRM_CONTENT_NAME;
+
+type DialogPresetGatedConfirmContentPartsProps = {
+    gateInputRef: RefObject<HTMLInputElement>;
+} & Omit<DialogPresetGatedConfirmContentProps, 'className'>;
+
+const DialogPresetGatedConfirmContentParts = ({
     title,
     description,
     expected,
     validate,
-    intent,
     onConfirm,
     onCancel,
-}: DialogPresetConfirmDeleteContentProps): ReactElement => {
+    gateInputRef,
+}: DialogPresetGatedConfirmContentPartsProps): ReactElement => {
     const {confirmEnabled} = useConfirmationDialog();
+
+    const confirmButtonRef = useRef<HTMLButtonElement>(null);
 
     // Shift focus to confirm the button when Gate becomes valid
     useEffect(() => {
         if (confirmEnabled) {
-            confirmButtonRef.current?.focus();
+            confirmButtonRef.current?.focus({focusVisible: true});
         }
     }, [confirmEnabled, confirmButtonRef]);
+
+    const cancel = useI18n('action.cancel');
+    const confirm = useI18n('action.confirm');
 
     return (
         <>
@@ -110,70 +131,34 @@ const DialogPresetConfirmDeleteContent = ({
                     validate={validate}
                 />
             </Gate>
-            <ConfirmationDialog.Footer
-                ref={confirmButtonRef}
-                intent={intent}
-                onConfirm={onConfirm}
-                onCancel={onCancel}
-            />
+            <Dialog.Footer>
+                <Button size='lg' label={cancel} variant='outline' onClick={onCancel} />
+                <Button ref={confirmButtonRef}
+                    className='bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50'
+                    size='lg'
+                    variant='solid'
+                    onClick={onConfirm}
+                    disabled={!confirmEnabled}
+                    label={confirm}
+                />
+            </Dialog.Footer>
         </>
     );
 };
 
-export const DialogPresetConfirmDelete = ({
-    open = false,
-    title,
-    description,
-    expected,
-    validate,
-    onConfirm,
-    onCancel,
-    intent = 'danger',
-}: DialogPresetGatedConfirm): ReactElement => {
-    const gateInputRef = useRef<HTMLInputElement>(null);
-    const confirmButtonRef = useRef<HTMLButtonElement>(null);
+//
+// * Legacy elements
+//
 
-    // Handle initial focus when the dialog opens - prevent default and focus Gate input
-    const handleOpenAutoFocus = (event: Event): void => {
-        event.preventDefault();
-        gateInputRef.current?.focus();
-    };
-
-    return (
-        <ConfirmationDialog.Root
-            open={open}
-            onOpenChange={(next) => {
-                if (!next) onCancel?.();
-            }}
-        >
-            <ConfirmationDialog.Portal>
-                <ConfirmationDialog.Overlay />
-                <ConfirmationDialog.Content
-                    defaultConfirmEnabled={false}
-                    onOpenAutoFocus={handleOpenAutoFocus}
-                >
-                    <DialogPresetConfirmDeleteContent
-                        gateInputRef={gateInputRef}
-                        confirmButtonRef={confirmButtonRef}
-                        title={title}
-                        description={description}
-                        expected={expected}
-                        validate={validate}
-                        intent={intent}
-                        onConfirm={onConfirm}
-                        onCancel={onCancel}
-                    />
-                </ConfirmationDialog.Content>
-            </ConfirmationDialog.Portal>
-        </ConfirmationDialog.Root>
-    );
+export const DialogPreset = {
+    Confirm: DialogPresetConfirm,
 };
 
-export class DialogPresetConfirmDeletePreset
-    extends LegacyElement<typeof DialogPresetConfirmDelete, DialogPresetGatedConfirm> {
+export class DialogPresetConfirmElement
+    extends LegacyElement<typeof DialogPresetConfirm, DialogPresetConfirmProps> {
 
-    constructor(props: DialogPresetGatedConfirm) {
-        super({...props}, DialogPresetConfirmDelete);
+    constructor(props: DialogPresetConfirmProps) {
+        super({...props}, DialogPresetConfirm);
     }
 
     open(): void {
