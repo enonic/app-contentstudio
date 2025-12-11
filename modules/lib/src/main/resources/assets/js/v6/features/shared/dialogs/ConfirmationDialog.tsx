@@ -1,6 +1,6 @@
 import {Button, Dialog, cn} from '@enonic/ui';
 import type {ComponentPropsWithoutRef, ReactElement, ReactNode} from 'react';
-import {createContext, useContext, useMemo, forwardRef, useState} from 'react';
+import {createContext, forwardRef, useContext, useMemo, useState} from 'react';
 import {useI18n} from '../../hooks/useI18n';
 
 //
@@ -17,7 +17,8 @@ const ConfirmationDialogContext = createContext<ConfirmationDialogContextValue |
 export const useConfirmationDialog = (): ConfirmationDialogContextValue => {
     const ctx = useContext(ConfirmationDialogContext);
     if (!ctx) {
-        return {confirmEnabled: true, setConfirmEnabled: () => void 0};
+        throw new Error('useConfirmationDialog must be used within a ConfirmationDialogProvider');
+        // return {confirmEnabled: true, setConfirmEnabled: () => void 0};
     }
     return ctx;
 };
@@ -49,7 +50,7 @@ const ConfirmationDialogContent = forwardRef<HTMLDivElement, ConfirmationDialogC
     ({defaultConfirmEnabled = true, className, children, ...props}, ref): ReactElement => {
         return (
             <Dialog.Content ref={ref}
-                            className={cn('max-w-180 w-fit sm:min-w-152 text-main gap-2.5', className)} {...props}>
+                className={cn('max-w-180 w-fit sm:min-w-152 text-main gap-2.5', className)} {...props}>
                 <ConfirmationDialogProvider defaultConfirmEnabled={defaultConfirmEnabled}>{children}</ConfirmationDialogProvider>
             </Dialog.Content>
         );
@@ -84,15 +85,17 @@ const ConfirmationDialogFooter = forwardRef<HTMLButtonElement, ConfirmationDialo
     return (
         <Dialog.Footer {...props}>
             <Dialog.Close asChild>
-                <Button label={cancel} variant='outline' onClick={onCancel}/>
+                <Button size='lg' label={cancel} variant='outline' onClick={onCancel} />
             </Dialog.Close>
             <Dialog.Close asChild>
                 <Button ref={ref}
-                        onClick={onConfirm}
-                        disabled={!confirmEnabled}
-                        label={confirm} variant='solid'
-                        className={cn(intent === 'danger' && 'bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50')}
-                        />
+                    onClick={onConfirm}
+                    disabled={!confirmEnabled}
+                    size='lg'
+                    label={confirm}
+                    variant='solid'
+                    className={cn(intent === 'danger' && 'bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50')}
+                />
             </Dialog.Close>
         </Dialog.Footer>
     );

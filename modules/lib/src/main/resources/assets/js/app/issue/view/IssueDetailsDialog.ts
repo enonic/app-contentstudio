@@ -1,3 +1,4 @@
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
@@ -19,17 +20,23 @@ import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalCombo
 import {TabBar} from '@enonic/lib-admin-ui/ui/tab/TabBar';
 import {TabBarItem, TabBarItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
+import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {LocalDateTime} from '@enonic/lib-admin-ui/util/LocalDateTime';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import Q from 'q';
-import {ContentPublishPromptEvent} from '../../browse/ContentPublishPromptEvent';
+import {openPublishDialog} from '../../../v6/features/store/dialogs/publishDialog.store';
 import {ContentId} from '../../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../../dialog/DependantItemsWithProgressDialog';
 import {DialogStateBar} from '../../dialog/DialogStateBar';
+import {ContentListBox} from '../../inputtype/selector/ContentListBox';
+import {ContentSelectorDropdownOptions} from '../../inputtype/selector/ContentSelectorDropdown';
+import {ContentTreeSelectorDropdown} from '../../inputtype/selector/ContentTreeSelectorDropdown';
 import {ContentSelectedOptionsView} from '../../inputtype/ui/selector/ContentComboBox';
+import {ContentSummaryOptionDataLoader} from '../../inputtype/ui/selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {ContentPublishDialog} from '../../publish/ContentPublishDialog';
 import {ContentPublishDialogAction} from '../../publish/ContentPublishDialogAction';
@@ -40,6 +47,7 @@ import {PublishScheduleForm} from '../../publish/PublishScheduleForm';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {PublishContentRequest} from '../../resource/PublishContentRequest';
 import {Router} from '../../Router';
+import {CSPrincipalCombobox} from '../../security/CSPrincipalCombobox';
 import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
 import {Issue} from '../Issue';
 import {IssueComment} from '../IssueComment';
@@ -54,15 +62,6 @@ import {IssueCommentTextArea} from './IssueCommentTextArea';
 import {IssueDetailsDialogButtonRow} from './IssueDetailsDialogDropdownButtonRow';
 import {IssueDetailsDialogHeader} from './IssueDetailsDialogHeader';
 import {IssueDetailsDialogSubTitle} from './IssueDetailsDialogSubTitle';
-import {ContentTreeSelectorDropdown} from '../../inputtype/selector/ContentTreeSelectorDropdown';
-import {ContentSummaryOptionDataLoader} from '../../inputtype/ui/selector/ContentSummaryOptionDataLoader';
-import {ContentListBox} from '../../inputtype/selector/ContentListBox';
-import {ContentSelectorDropdownOptions} from '../../inputtype/selector/ContentSelectorDropdown';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {CSPrincipalCombobox} from '../../security/CSPrincipalCombobox';
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
-import {ActionButton} from '@enonic/lib-admin-ui/ui2/ActionButton';
-import {openPublishDialog, setPublishDialogState} from '../../../v6/features/store/dialogs/publishDialog.store';
 
 export class IssueDetailsDialog
     extends DependantItemsWithProgressDialog {
@@ -253,8 +252,8 @@ export class IssueDetailsDialog
 
     protected initStateBar(): void {
         this.stateBar = new DialogStateBar({
-            failText: i18n('dialog.publish.error.loadFailed'),
-            resolvedText: i18n('dialog.publish.error.resolved'),
+            failText: i18n('dialog.statusBar.error.failed.text'),
+            resolvedText: i18n('dialog.statusBar.error.ready.text'),
             hideIfResolved: true,
             edit: {
                 applyHandler: () => {

@@ -1,3 +1,4 @@
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {PropertyEvent} from '@enonic/lib-admin-ui/data/PropertyEvent';
 import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
@@ -7,6 +8,8 @@ import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRo
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
+import {PublishItemsListElement} from '../../v6/features/shared/dialogs/publish/PublishItemsList';
+import {SelectionStatusBarElement} from '../../v6/features/shared/dialogs/status-bar/SelectionStatusBar';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {IssueServerEventsHandler} from '../issue/event/IssueServerEventsHandler';
@@ -19,9 +22,6 @@ import {PublishScheduleForm} from '../publish/PublishScheduleForm';
 import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
 import {MarkAsReadyRequest} from '../resource/MarkAsReadyRequest';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from './DependantItemsWithProgressDialog';
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
-import {SelectionStatusBarElement} from '../../v6/features/shared/dialogs/SelectionStatusBar';
-import {PublishItemsListElement} from '../../v6/features/shared/dialogs/publish/PublishItemsList';
 
 export abstract class BasePublishDialog
     extends DependantItemsWithProgressDialog {
@@ -178,7 +178,7 @@ export abstract class BasePublishDialog
         this.isLoading = true;
         this.lockControls();
         if (checking) {
-            this.setSubTitle(i18n('dialog.publish.resolving'));
+            this.setSubTitle(i18n('dialog.statusBar.loading'));
             this.statusBar.setLoading(true);
             this.statusBar.reset();
         }

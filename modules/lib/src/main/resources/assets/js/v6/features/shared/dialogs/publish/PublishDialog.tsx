@@ -7,7 +7,7 @@ import {$config} from '../../../store/config.store';
 import {$dependantPublishItems, $isPublishChecking, $isPublishReady, $isPublishSelectionSynced, $mainPublishItems, $publishCheckErrors, $publishDialog, $totalPublishableItems, applyDraftPublishDialogSelection, cancelDraftPublishDialogSelection, excludeInProgressPublishItems, excludeInvalidPublishItems, excludeNotPublishablePublishItems, markAllAsReadyInProgressPublishItems, publishItems, resetPublishDialogContext, setPublishDialogDependantItemSelected, setPublishDialogItemSelected, setPublishDialogItemWithChildrenSelected} from '../../../store/dialogs/publishDialog.store';
 import {ContentListItemSelectable} from '../../items/ContentListItemSelectable';
 import {ContentListItemWithChildren} from '../../items/ContentListItemWithChildren';
-import {SelectionStatusBar} from '../SelectionStatusBar';
+import {SelectionStatusBar} from '../status-bar/SelectionStatusBar';
 
 const PUBLISH_DIALOG_NAME = 'PublishDialog';
 
