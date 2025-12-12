@@ -9,7 +9,6 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {History, Link, List} from 'lucide-react';
 import Q from 'q';
-import WidgetsDropdownElement from '../../../v6/features/views/context/widget/WidgetsDropdown';
 import {DetailsWidgetElement} from '../../../v6/features/views/context/widget/details';
 import {DependenciesWidgetElement} from '../../../v6/features/views/context/widget/dependencies';
 import {CompareStatus} from '../../content/CompareStatus';
@@ -28,6 +27,7 @@ import {PageEditorWidgetItemView} from './widget/pageeditor/PageEditorWidgetItem
 import {VersionHistoryView} from './widget/version/VersionHistoryView';
 import {InternalWidgetType, WidgetView} from './WidgetView';
 import {cn} from '@enonic/ui';
+import WidgetsSelectorElement from '../../../v6/features/views/context/widget/WidgetsSelector';
 
 export class ContextView
     extends DivEl
@@ -35,7 +35,7 @@ export class ContextView
 
     protected widgetViews: WidgetView[] = [];
     protected contextContainer: DivEl;
-    protected widgetsSelectionRow: WidgetsDropdownElement;
+    protected widgetsSelectionRow: WidgetsSelectorElement;
 
     protected loadMask: LoadMask;
     protected divForNoSelection: DivEl;
@@ -169,7 +169,7 @@ export class ContextView
     }
 
     private initWidgetsSelectionRow() {
-        this.widgetsSelectionRow = new WidgetsDropdownElement({}); 
+        this.widgetsSelectionRow = new WidgetsSelectorElement({}); 
         this.appendChild(this.widgetsSelectionRow);
         this.widgetsSelectionRow.updateState(this.activeWidget);
     }
@@ -253,7 +253,7 @@ export class ContextView
     }
 
     private updateView() {
-        this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews);
+        this.widgetsSelectionRow.updateWidgetsSelector(this.widgetViews);
         this.widgetsSelectionRow.updateState(this.activeWidget);
     }
 
@@ -261,7 +261,7 @@ export class ContextView
         let deferred = Q.defer<void>();
         if (!this.alreadyFetchedCustomWidgets) {
             this.fetchAndInitCustomWidgetViews().then(() => {
-                this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews);
+                this.widgetsSelectionRow.updateWidgetsSelector(this.widgetViews);
                 this.alreadyFetchedCustomWidgets = true;
                 deferred.resolve(null);
             });

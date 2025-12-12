@@ -23,7 +23,7 @@ export enum ContextPanelMode {
 export class ContextSplitPanel
     extends SplitPanel {
 
-    public static CONTEXT_MIN_WIDTH: number = 280;
+    public static CONTEXT_MIN_WIDTH: number = 310;
 
     private contextPanelMode: ContextPanelMode;
     private contextPanelState: ContextPanelState = ContextPanelState.COLLAPSED;
