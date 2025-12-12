@@ -1,5 +1,5 @@
-import {FlatTreeNode, TreeList} from '@enonic/ui';
-import {TreeItems} from '@enonic/ui';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {FlatTreeNode, TreeItems, TreeList} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {KeyboardEventHandler} from 'preact';
 import {useCallback} from 'react';
@@ -17,13 +17,12 @@ import {
 } from '../../../store/contentTreeSelectionStore';
 import {ContentData} from './ContentData';
 import {ContentDataFetcher} from './ContentDataFetcher';
-import {ContentTreeListRow} from './ContentTreeListRow';
 import {ContentTreeContextMenu} from './ContentTreeContextMenu';
-import {Action} from '.xp/dev/lib-admin-ui/ui/Action';
+import {ContentTreeListRow} from './ContentTreeListRow';
 
 const renderItem = (item: FlatTreeNode<ContentData>): React.ReactElement => {
     return (
-        <ContentTreeListRow item={item}/>
+        <ContentTreeListRow item={item} />
     );
 }
 
@@ -95,7 +94,7 @@ export const ContentTreeList = ({fetcher, contextMenuActions = []}: ContentTreeL
 
     return (
         <TreeList<ContentData>
-            className={'w-full h-full bg-surface-neutral'}
+            className='w-full h-full bg-surface-neutral'
             fetchChildren={fetcher.fetchChildren}
             items={items}
             onItemsChange={setItemsHandler}
@@ -107,8 +106,8 @@ export const ContentTreeList = ({fetcher, contextMenuActions = []}: ContentTreeL
             setActive={setActive}
         >
             <ContentTreeContextMenu actions={contextMenuActions}>
-                <TreeList.Container className={'px-5 py-2.5 bg-surface-neutral'}>
-                    <TreeList.Content renderNode={renderItem}/>
+                <TreeList.Container className='px-5 py-2.5 bg-surface-neutral'>
+                    <TreeList.Content renderNode={renderItem} />
                 </TreeList.Container>
             </ContentTreeContextMenu>
         </TreeList>

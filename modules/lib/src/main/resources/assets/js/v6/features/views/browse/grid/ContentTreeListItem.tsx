@@ -8,7 +8,7 @@ export type ContentTreeListItemProps = {
 };
 
 export const ContentTreeListItem = ({content}: ContentTreeListItemProps): React.ReactElement => (
-    <ListItem className={'p-0'}>
+    <ListItem className='p-0'>
         <ListItem.Left className="flex-1">
             <ContentLabel content={content.item} />
         </ListItem.Left>

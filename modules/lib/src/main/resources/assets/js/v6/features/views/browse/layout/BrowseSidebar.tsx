@@ -1,16 +1,15 @@
 import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {Tooltip} from '@enonic/ui';
-import {ProjectIcon} from '../../../shared/icons/ProjectIcon';
-import {WidgetButton} from '../../../shared/WidgetButton';
-import {LucideIcon, Pen, Settings} from 'lucide-react';
 import {useStore} from '@nanostores/preact';
-import {$sidebarWidgets, getWidgetKey, isMainWidget, isSettingsWidget, setActiveWidget} from '../../../store/sidebarWidgets.store';
+import {LucideIcon, Pen, Settings} from 'lucide-react';
 import {ReactElement, useCallback} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
-import {$activeProject} from '../../../store/projects.store';
+import {ProjectIcon} from '../../../shared/icons/ProjectIcon';
 import {LegacyElement} from '../../../shared/LegacyElement';
+import {WidgetButton} from '../../../shared/WidgetButton';
+import {$activeProject} from '../../../store/projects.store';
+import {$sidebarWidgets, getWidgetKey, isMainWidget, isSettingsWidget, setActiveWidget} from '../../../store/sidebarWidgets.store';
 
 function getWidgetIcon(widget: Readonly<Widget>): LucideIcon | undefined {
     if (isMainWidget(widget)) return Pen;
@@ -67,7 +66,7 @@ export const BrowseSidebar = (): ReactElement => {
                     ))}
                 </div>
                 {/* Footer */}
-                <div className={'flex flex-col gap-1'}>
+                <div className='flex flex-col gap-1'>
                     {lastWidget && (
                         <WidgetButton
                             label={lastWidget.getDisplayName()}

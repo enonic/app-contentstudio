@@ -1,3 +1,4 @@
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentQuery} from '../../../../../app/content/ContentQuery';
@@ -7,7 +8,6 @@ import {reload} from '../../../store/contentTreeLoadingStore';
 import {$contentTreeSelection} from '../../../store/contentTreeSelectionStore';
 import {ContentDataFetcher} from './ContentDataFetcher';
 import {ContentTreeList, ContentTreeListProps} from './ContentTreeList';
-import {Action} from '.xp/dev/lib-admin-ui/ui/Action';
 
 export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList, ContentTreeListProps> {
 
@@ -17,7 +17,7 @@ export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList
     constructor() {
         const fetcher = new ContentDataFetcher();
 
-        super({ fetcher }, ContentTreeList);
+        super({fetcher}, ContentTreeList);
 
         this.fetcher = fetcher;
 
