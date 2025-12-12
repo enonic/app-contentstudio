@@ -33,8 +33,8 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
 
     async clickOnPageControllerDropdownHandle() {
         try {
+            await this.waitForElementDisplayed(this.pageTemplateDropdownHandle, appConst.mediumTimeout);
             await this.clickOnElement(this.pageTemplateDropdownHandle);
-            return await this.pause(700);
         } catch (err) {
             await this.handleError('Page Inspection, tried to click on page template dropdown handle', 'err_page_inspection_dropdown', err);
         }

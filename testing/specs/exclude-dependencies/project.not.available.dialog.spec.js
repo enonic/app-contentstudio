@@ -54,7 +54,7 @@ describe("project.not.available.dialog.spec - clicking on 'Start Wizard' button"
             await summaryStep.waitForDialogClosed();
             await settingsBrowsePanel.waitForNotificationMessage();
             // 9. project-context should be loaded after creating a project:
-            let actualContext = await contentBrowsePanel.getSelectedProjectDisplayName();
+            let actualContext = await contentBrowsePanel.getCurrentProjectDisplayName();
             assert.equal(actualContext, PROJECT_DISPLAY_NAME, 'Expected name should be displayed in the project selected option(App Bar)');
         });
 
