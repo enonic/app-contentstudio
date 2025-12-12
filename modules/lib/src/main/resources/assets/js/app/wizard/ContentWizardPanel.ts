@@ -555,7 +555,6 @@ export class ContentWizardPanel
                 this.persistedPublishStatus = loader.publishStatus;
                 this.currentCompareStatus = loader.compareStatus;
                 this.currentPublishStatus = loader.publishStatus;
-                //this.peristedLanguage = loader.content?.getLanguage();
 
                 this.wizardHeader.setPlaceholder(this.contentType?.getDisplayNameLabel());
                 this.wizardHeader.setPersistedPath(this.isItemPersisted() ? this.getPersistedItem() : null);
@@ -595,7 +594,7 @@ export class ContentWizardPanel
 
         return pagePromise.then((page: Page | null) => {
             PageState.setState(page);
-            return Q.resolve(); //??
+            return Q.resolve();
         });
     }
 
@@ -878,9 +877,6 @@ export class ContentWizardPanel
 
         if (!ObjectHelper.equals(PageState.getState(), currentItem.getPage())) {
             this.loadAndSetPageState(currentItem.getPage()).then(() => {
-
-                //this.contentAfterLayout = this.assembleViewedContent(this.getPersistedItem().newBuilder(), true).build();
-
                 if (this.isPageComponentsViewRequired()) {
                     this.pageComponentsView.reload();
                 }
@@ -911,7 +907,6 @@ export class ContentWizardPanel
 
             if (this.getPersistedItem().getPage()) {
                 this.updateLiveEditModel(content);
-                //this.getLivePanel().clearSelectionAndInspect(renderable, false);
 
                 return Q();
             }
@@ -1197,7 +1192,9 @@ export class ContentWizardPanel
         PageState.getEvents().onPageReset(() => {
             this.removePageComponentsView();
             this.setMarkedAsReady(false);
-            this.saveChanges(true).catch(DefaultErrorHandler.handle);
+            this.saveChanges(true)
+                .then(() => this.lockPage())
+                .catch(DefaultErrorHandler.handle);
         });
 
         // to be changed: make default models static and remove that call by directly using DefaultModels in PageState
@@ -2366,6 +2363,10 @@ export class ContentWizardPanel
         this.getEl().toggleClass('no-modify-permissions', !value);
         this.getLivePanel()?.setEnabled(value);
         this.pageComponentsView?.setEnabled(value);
+    }
+
+    lockPage(): void {
+        this.liveEditPage?.setLocked(true);
     }
 
     unLockPage(): void {
