@@ -1,9 +1,8 @@
-import {FlatTreeNode, TreeList, useTreeList} from '@enonic/ui';
-import {TreeItems} from '@enonic/ui';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {FlatTreeNode, TreeItems, TreeList} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {children} from 'happy-dom/lib/PropertySymbol';
 import {KeyboardEventHandler} from 'preact';
-import {ReactNode, useCallback} from 'react';
+import {useCallback} from 'react';
 import {
     $contentTreeItems,
 } from '../../../store/contentTreeData.store';
@@ -18,19 +17,21 @@ import {
 } from '../../../store/contentTreeSelectionStore';
 import {ContentData} from './ContentData';
 import {ContentDataFetcher} from './ContentDataFetcher';
+import {ContentTreeContextMenu} from './ContentTreeContextMenu';
 import {ContentTreeListRow} from './ContentTreeListRow';
 
 const renderItem = (item: FlatTreeNode<ContentData>): React.ReactElement => {
     return (
-        <ContentTreeListRow item={item}/>
+        <ContentTreeListRow item={item} />
     );
 }
 
 export type ContentTreeListProps = {
     fetcher: ContentDataFetcher;
+    contextMenuActions?: Action[];
 }
 
-export const ContentTreeList = ({fetcher}: ContentTreeListProps): React.ReactElement => {
+export const ContentTreeList = ({fetcher, contextMenuActions = []}: ContentTreeListProps): React.ReactElement => {
     const items = useStore($contentTreeItems);
     const selection = useStore($contentTreeSelection);
     const active = useStore($contentTreeActiveItem);
@@ -93,7 +94,7 @@ export const ContentTreeList = ({fetcher}: ContentTreeListProps): React.ReactEle
 
     return (
         <TreeList<ContentData>
-            className={'w-full h-full bg-surface-neutral'}
+            className='w-full h-full bg-surface-neutral'
             fetchChildren={fetcher.fetchChildren}
             items={items}
             onItemsChange={setItemsHandler}
@@ -104,9 +105,11 @@ export const ContentTreeList = ({fetcher}: ContentTreeListProps): React.ReactEle
             active={active}
             setActive={setActive}
         >
-            <TreeList.Container className={'px-5 py-2.5 bg-surface-neutral'}>
-                <TreeList.Content renderNode={renderItem}/>
-            </TreeList.Container>
+            <ContentTreeContextMenu actions={contextMenuActions}>
+                <TreeList.Container className='px-5 py-2.5 bg-surface-neutral'>
+                    <TreeList.Content renderNode={renderItem} />
+                </TreeList.Container>
+            </ContentTreeContextMenu>
         </TreeList>
     );
-}
+};

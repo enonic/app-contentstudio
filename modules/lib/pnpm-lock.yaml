@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@enonic/ui':
-        specifier: ~0.24.0
-        version: 0.24.0(@radix-ui/react-slot@1.2.3(@types/react@19.2.2)(react@19.2.0))(focus-trap-react@11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(lucide-react@0.545.0(react@19.2.0))(preact@10.27.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        specifier: ~0.25.0
+        version: 0.25.0(@radix-ui/react-slot@1.2.3(@types/react@19.2.2)(react@19.2.0))(focus-trap-react@11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(lucide-react@0.545.0(react@19.2.0))(preact@10.27.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@nanostores/preact':
         specifier: ^1.0.0
         version: 1.0.0(nanostores@0.11.4)(preact@10.27.2)
@@ -323,8 +323,8 @@ packages:
       react-dom:
         optional: true
 
-  '@enonic/ui@0.24.0':
-    resolution: {integrity: sha512-1e7xbkSI90DXNQf9Vnz5cM4Mkr1mwIisvJN7Vx7m4ga1e2N9Tnlb4HdYm6V5o6HAEHEMfzYV4WIZDc5PCAT7rg==}
+  '@enonic/ui@0.25.0':
+    resolution: {integrity: sha512-g71Mht6ZdywlvzPAEFisU1pYWJuUjt3XhGHfcM0kbAwnF4nTIBvMXBfKKlrlJ8WtTke5CAQbKXRnuHVkG6V3tw==}
     engines: {node: '>=24.11.1', npm: '>=11.6.2', pnpm: '>=10.24.0'}
     peerDependencies:
       '@radix-ui/react-slot': ^1.2.0
@@ -3466,7 +3466,7 @@ snapshots:
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
 
-  '@enonic/ui@0.24.0(@radix-ui/react-slot@1.2.3(@types/react@19.2.2)(react@19.2.0))(focus-trap-react@11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(lucide-react@0.545.0(react@19.2.0))(preact@10.27.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+  '@enonic/ui@0.25.0(@radix-ui/react-slot@1.2.3(@types/react@19.2.2)(react@19.2.0))(focus-trap-react@11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(lucide-react@0.545.0(react@19.2.0))(preact@10.27.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@radix-ui/react-slot': 1.2.3(@types/react@19.2.2)(react@19.2.0)
       class-variance-authority: 0.7.1

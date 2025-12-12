@@ -1,3 +1,4 @@
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentQuery} from '../../../../../app/content/ContentQuery';
@@ -8,7 +9,6 @@ import {$contentTreeSelection} from '../../../store/contentTreeSelectionStore';
 import {ContentDataFetcher} from './ContentDataFetcher';
 import {ContentTreeList, ContentTreeListProps} from './ContentTreeList';
 
-
 export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList, ContentTreeListProps> {
 
     private fetcher: ContentDataFetcher;
@@ -17,9 +17,7 @@ export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList
     constructor() {
         const fetcher = new ContentDataFetcher();
 
-        super({
-            fetcher,
-        }, ContentTreeList);
+        super({fetcher}, ContentTreeList);
 
         this.fetcher = fetcher;
 
@@ -81,5 +79,9 @@ export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList
     setFilterQuery(filterQuery: ContentQuery | null): void {
         this.fetcher.setFilterQuery(filterQuery);
         reload();
+    }
+
+    setContextMenuActions(actions: Action[]): void {
+        this.props.setKey('contextMenuActions', actions);
     }
 }

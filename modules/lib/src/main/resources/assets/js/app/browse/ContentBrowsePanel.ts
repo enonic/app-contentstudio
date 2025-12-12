@@ -11,14 +11,13 @@ import {ListBoxToolbar} from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolb
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
 import {TreeListBoxExpandedHolder} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
-import {TreeGridContextMenu} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridContextMenu';
 import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
 import {removeContentTreeItem, updateContentTreeItem} from '../../v6/features/store/contentTreeData.store';
 import {hasSelectedItems} from '../../v6/features/store/contentTreeSelectionStore';
-import {toContentData, toContentProps} from '../../v6/features/utils/cms/content/converter';
+import {toContentProps} from '../../v6/features/utils/cms/content/converter';
 import {ContentTreeListElement} from '../../v6/features/views/browse/grid/ContentTreeListElement';
 import {ContentId} from '../content/ContentId';
 import {ContentPath, ContentPathBuilder} from '../content/ContentPath';
@@ -58,7 +57,6 @@ import {ToggleSearchPanelEvent} from './ToggleSearchPanelEvent';
 import {ToggleSearchPanelWithDependenciesEvent} from './ToggleSearchPanelWithDependenciesEvent';
 import {hasFilterSet, setContentFilterOpen} from '../../v6/features/store/contentFilter.store';
 import {BrowseToolbarElement} from '../../v6/features/views/browse/toolbar/BrowseToolbar';
-import {cn} from '@enonic/ui';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -76,8 +74,6 @@ export class ContentBrowsePanel
     declare protected treeActions: ContentTreeActions;
 
     protected toolbar: ListBoxToolbar<ContentTreeSelectorItem>;
-
-    protected contextMenu: TreeGridContextMenu;
 
     protected selectionWrapper: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>;
 
@@ -107,6 +103,8 @@ export class ContentBrowsePanel
             requestPublishAction: browseActions.getAction(ActionName.REQUEST_PUBLISH),
             createIssueAction: browseActions.getAction(ActionName.CREATE_ISSUE),
         }));
+
+        this.contentTreeList.setContextMenuActions(this.treeActions.getAllCommonActions());
 
         this.browseToolbar.addActions(browseActions.getAllActionsNoPublish());
 
@@ -162,11 +160,6 @@ export class ContentBrowsePanel
 
                     new EditContentEvent([item]).fire();
                 });
-
-                listElement?.onContextMenu((event: MouseEvent) => {
-                    event.preventDefault();
-                    this.contextMenu.showAt(event.clientX, event.clientY);
-                });
             });
 
             itemViews?.forEach((itemView: ContentsTreeGridListElement) => {
@@ -207,8 +200,7 @@ export class ContentBrowsePanel
 
         this.contentTreeList = new ContentTreeListElement();
         this.treeActions = new ContentTreeActions(this.contentTreeList);
-        this.contextMenu = new TreeGridContextMenu(this.treeActions);
-
+        
         const panel = new ContentTreeListSelectablePanelProxy(this.selectionWrapper, this.contentTreeList, this.toolbar);
         panel.addClass('content-selectable-list-box-panel');
 

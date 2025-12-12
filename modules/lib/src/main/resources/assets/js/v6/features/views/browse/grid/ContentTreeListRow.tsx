@@ -2,7 +2,7 @@ import {Checkbox, cn, FlatTreeNode, TreeList, useTreeList} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import type {ComponentPropsWithoutRef} from 'react';
 import {EditContentEvent} from '../../../../../app/event/EditContentEvent';
-import {$contentTreeSelectionMode, isItemSelected} from '../../../store/contentTreeSelectionStore';
+import {$contentTreeSelectionMode, isItemSelected, setActiveItem, setSelection, setSingleSelectionMode} from '../../../store/contentTreeSelectionStore';
 import {ContentData} from './ContentData';
 import {ContentTreeListItem} from './ContentTreeListItem';
 import {ContentTreeListRowWrapper} from './ContentTreeListRowWrapper';
@@ -26,14 +26,21 @@ const ContentTreeListRowSelectionControl = ({data, className}: ContentTreeListRo
     }
 
     return <Checkbox
-        className='content-tree-row-checkbox relative z-0 after:absolute after:-inset-2 after:content-[""] after:rounded-sm after:pointer-events-auto after:-z-10'
+            className='content-tree-row-checkbox relative z-0 after:absolute after:-inset-2 after:content-[""] after:rounded-sm after:pointer-events-auto after:-z-10'
         tabindex={-1} key={data.id} id={'content-tree-' + data.id} checked={selectionMode === 'multiple' && isSelected} />
 };
 
 export const ContentTreeListRow = ({item}: ContentTreeListRowProps): React.ReactElement => {
     return (
         <ContentTreeListRowWrapper item={item.data}>
-            <TreeList.Row<ContentData> key={item.id} item={item}>
+            <TreeList.Row<ContentData> 
+                key={item.id} 
+                item={item} 
+                onContextMenu={() => {
+                    setSingleSelectionMode();
+                    setActiveItem(null);
+                    setSelection([item.data.id]);
+                }}>
                 <TreeList.RowLeft>
                     <ContentTreeListRowSelectionControl data={item.data} />
                     <TreeList.RowLevelSpacer level={item.level} />
