@@ -95,14 +95,13 @@ describe('Browse panel, properties widget, language spec', function () {
 
     it(`GIVEN existing folder is selected WHEN 'Hide Context Panel' button has been clicked THEN Context panel should be hidden`,
         async () => {
-            let browseContextWindow = new BrowseContextWindow();
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             // 1. Click on Hide Context Panel button:
             await contentBrowsePanel.clickOnDetailsPanelToggleButton();
             await studioUtils.saveScreenshot('details_panel_hidden');
             // 2. Verify that the details panel is not visible now:
-            //await browseDetailsPanel.waitForDetailsPanelClosed();
+            //await contentBrowsePanel.waitForDetailsPanelClosed();
         });
 
     it(`GIVEN existing folder is selected WHEN widget dropdown selector has been clicked THEN expected 4 options should be displayed in the dropdown list`,

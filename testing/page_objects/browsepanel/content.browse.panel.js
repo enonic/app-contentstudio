@@ -248,7 +248,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(this.unpublishButton);
             let unpublishDialog = new ContentUnpublishDialog();
             await unpublishDialog.waitForDialogOpened();
-            await unpublishDialog.pause(1000);
+            await unpublishDialog.pause(400);
             return unpublishDialog;
         } catch (err) {
             await this.handleError('Browse Panel - Clicked on Unpublish button', 'err_click_unpublish_button', err);
@@ -285,17 +285,27 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
+    async waitForPublishButtonEnabled() {
+        return await this.waitForElementEnabled(this.publishButton, appConst.mediumTimeout);
+    }
+
     async clickOnPublishButton() {
-        await this.waitForPublishButtonVisible();
-        await this.pause(400);
-        return await this.clickOnElement(this.publishButton);
+        try {
+            await this.waitForPublishButtonVisible();
+            await this.waitForPublishButtonEnabled();
+            return await this.clickOnElement(this.publishButton);
+        }catch(err){
+            await this.handleError('Browse Panel - Clicked on Publish button', 'err_click_publish_button', err);
+        }
     }
 
     async clickOnSortButton() {
-        await this.waitForElementEnabled(this.sortButton, appConst.mediumTimeout);
-        await this.pause(200);
-        await this.clickOnElement(this.sortButton);
-        return await this.pause(400);
+        try {
+            await this.waitForElementEnabled(this.sortButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.sortButton);
+        }catch (err){
+            await this.handleError('Browse Panel - Tried to click on Sort button', 'err_click_sort_button', err);
+        }
     }
 
     async clickOnDuplicateButton() {
@@ -303,7 +313,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(this.duplicateButton, appConst.mediumTimeout);
             await this.clickOnElement(this.duplicateButton);
         } catch (err) {
-            throw new Error('Clicked on the Duplicate button ' + err);
+            await this.handleError('Browse Panel - Tried to click on Duplicate button', 'err_click_sort_button', err);
         }
     }
 
@@ -445,7 +455,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         try {
             await this.waitForOpenButtonEnabled();
             await this.clickOnElement(this.openButton);
-            return await this.pause(500);
         } catch (err) {
             await this.handleError('Browse Panel: Clicked on Open button ', 'err_browse_panel_open_button', err);
         }
@@ -517,8 +526,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
                 ]
             }]);
             await this.getBrowser().releaseActions();
-
-            return await this.pause(500);
         } catch (err) {
             await this.handleError(`Tried to hold down Shift key and click on row by number: ${rowNumber}`, 'err_click_on_row_in_grid');
         }
@@ -827,7 +834,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         } else if (result.includes('ready')) {
             // green circle icon in grid
             return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
-        } else if (result.includes( 'viewer content-summary-and-compare-status-viewer')) {
+        } else if (result.includes('viewer content-summary-and-compare-status-viewer')) {
             return appConst.WORKFLOW_STATE.PUBLISHED;
         } else {
             throw new Error(`Error during checking the content's workflow, @class:` + result);
