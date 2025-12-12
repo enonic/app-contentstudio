@@ -12,9 +12,10 @@ export class MoveContentAction
         super(i18n('action.move'), 'alt+m');
         this.onExecuted(() => {
             const content = wizardPanel.getPersistedItem();
-            openMoveDialog([new ContentSummaryAndCompareStatus().
-                setContentSummary(content).
-                setCompareStatus(wizardPanel.getCompareStatus())]);
+            const summary = new ContentSummaryAndCompareStatus()
+                .setContentSummary(content)
+                .setCompareStatus(wizardPanel.getCompareStatus());
+            openMoveDialog([summary]);
         });
     }
 }

@@ -2,6 +2,7 @@ import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {computed, map} from 'nanostores';
+import {MovedContentItem} from '../../../../app/browse/MovedContentItem';
 import {ContentId} from '../../../../app/content/ContentId';
 import {ContentIds} from '../../../../app/content/ContentIds';
 import {ContentPath} from '../../../../app/content/ContentPath';
@@ -131,7 +132,7 @@ export const executeMoveDialogAction = async (): Promise<void> => {
 // * Completion Handling
 //
 
-const handleMoveCompletionEvent = (movedItems: import('../../../../app/browse/MovedContentItem').MovedContentItem[]): void => {
+const handleMoveCompletionEvent = (movedItems: MovedContentItem[]): void => {
     const ids = new Set(movedItems.map(moved => moved.item.getContentId().toString()));
     const state = $moveDialog.get();
     const {pendingIds} = state;

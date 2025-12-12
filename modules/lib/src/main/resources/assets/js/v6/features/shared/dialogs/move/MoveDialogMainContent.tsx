@@ -107,7 +107,7 @@ export const MoveDialogMainContent = (): ReactElement => {
                     size="lg"
                     label={moveButtonLabel}
                     disabled={!ready}
-                    onClick={() => void handleMove()}
+                    onClick={handleMove}
                     ref={moveButtonRef}
                 />
             </Dialog.Footer>
