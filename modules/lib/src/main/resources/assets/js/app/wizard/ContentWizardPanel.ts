@@ -600,6 +600,7 @@ export class ContentWizardPanel
 
         return pagePromise.then((page: Page | null) => {
             PageState.setState(page);
+            return Q.resolve();
         });
     }
 
@@ -882,7 +883,6 @@ export class ContentWizardPanel
 
         if (!ObjectHelper.equals(PageState.getState(), currentItem.getPage())) {
             this.loadAndSetPageState(currentItem.getPage()).then(() => {
-
                 if (this.isPageComponentsViewRequired()) {
                     this.pageComponentsView.reload();
                 }
@@ -1198,7 +1198,9 @@ export class ContentWizardPanel
         PageState.getEvents().onPageReset(() => {
             this.removePageComponentsView();
             this.setMarkedAsReady(false);
-            this.saveChanges(true).catch(DefaultErrorHandler.handle);
+            this.saveChanges(true)
+                .then(() => this.lockPage())
+                .catch(DefaultErrorHandler.handle);
         });
 
         // to be changed: make default models static and remove that call by directly using DefaultModels in PageState
@@ -2383,6 +2385,10 @@ export class ContentWizardPanel
         this.getEl().toggleClass('no-modify-permissions', !value);
         this.getLivePanel()?.setEnabled(value);
         this.pageComponentsView?.setEnabled(value);
+    }
+
+    lockPage(): void {
+        this.liveEditPage?.setLocked(true);
     }
 
     unLockPage(): void {
