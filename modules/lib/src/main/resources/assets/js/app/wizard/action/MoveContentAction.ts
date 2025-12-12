@@ -2,7 +2,8 @@ import {WizardPanel} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Content} from '../../content/Content';
-import {ContentMovePromptEvent} from '../../move/ContentMovePromptEvent';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {openMoveDialog} from '../../../v6/features/store/dialogs/moveDialog.store';
 
 export class MoveContentAction
     extends Action {
@@ -11,7 +12,9 @@ export class MoveContentAction
         super(i18n('action.move'), 'alt+m');
         this.onExecuted(() => {
             const content = wizardPanel.getPersistedItem();
-            new ContentMovePromptEvent([content]).fire();
+            openMoveDialog([new ContentSummaryAndCompareStatus().
+                setContentSummary(content).
+                setCompareStatus(wizardPanel.getCompareStatus())]);
         });
     }
 }
