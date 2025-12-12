@@ -1,4 +1,5 @@
 import {computed} from 'nanostores';
+import {EditContentEvent} from '../../../../app/event/EditContentEvent';
 import {$contentTreeItems} from '../contentTreeData.store';
 import {$contentTreeActiveItem, $contentTreeSelection} from '../contentTreeSelectionStore';
 
@@ -18,3 +19,11 @@ export const $contextContent = computed(
         return null;
     }
 );
+
+export const openContextContentForEdit = (): void => {
+    if (!$contextContent.get()) {
+        return;
+    }
+
+    new EditContentEvent([$contextContent.get()]).fire();
+}

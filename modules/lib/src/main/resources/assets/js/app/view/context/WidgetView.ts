@@ -186,19 +186,19 @@ export class WidgetView
     }
 
     getWidgetKey(): string {
-        return this.widget ? this.widget.getWidgetDescriptorKey().getApplicationKey().getName() : null;
+        return this.widget ? this.widget.getWidgetDescriptorKey().toString() : null;
     }
 
     getWidgetIconUrl(): string {
-        return this.widget ? this.widget.getFullIconUrl() : null;
+        return this.widget?.getIconUrl() ? this.widget.getFullIconUrl() : null;
     }
 
     isInternal(): boolean {
-        return this.widget == null;
+        return this.widget == null || !this.widget.getUrl();
     }
 
     isExternal(): boolean {
-        return this.widget != null;
+        return !this.isInternal();
     }
 
     slideOut() {
