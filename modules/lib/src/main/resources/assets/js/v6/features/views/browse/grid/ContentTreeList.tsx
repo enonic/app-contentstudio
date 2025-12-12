@@ -94,7 +94,7 @@ export const ContentTreeList = ({fetcher, contextMenuActions = []}: ContentTreeL
 
     return (
         <TreeList<ContentData>
-            className='w-full h-full bg-surface-neutral'
+            className='w-full h-full bg-surface-neutral overflow-y-auto'
             fetchChildren={fetcher.fetchChildren}
             items={items}
             onItemsChange={setItemsHandler}
