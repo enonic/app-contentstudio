@@ -144,6 +144,8 @@ describe('create.content.in.project.spec - create new content in the selected co
             let contentWidget = new ContentWidgetView();
             // 1. Select the just created project in 'Select Context' dialog:
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
+            let currentProject = await contentBrowsePanel.getCurrentProjectDisplayName();
+            await contentBrowsePanel.waitForContentDisplayed(TEST_FOLDER_NAME);
             // 2. Check the folder in the current context:
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(TEST_FOLDER_NAME);
             // 3. Verify that 'Selection Toggle' gets visible in tree-grid-toolbar

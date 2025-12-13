@@ -36,7 +36,7 @@ class ProjectAccessControlComboBox extends BasDropdown {
         let menuItem = parentElement + XPATH.container + XPATH.accessItemByName(userDisplayName) + lib.tabMenuItem(newRole);
         await this.waitForElementDisplayed(menuItem, appConst.shortTimeout);
         await this.clickOnElement(menuItem);
-        return await this.pause(500);
+        return await this.pause(300);
     }
 
     async removeProjectAccessItem(principalName, parentLocator) {

@@ -53,7 +53,7 @@ class ProjectSelectionDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
         } catch (err) {
-            throw new Error("Dialog should be closed " + err);
+            await this.handleError("Project Selection Dialog should be closed! ", 'err_project_selection', err);
         }
     }
 
@@ -100,7 +100,8 @@ class ProjectSelectionDialog extends Page {
     }
 
     async getNameOfSelectedProjectItem() {
-        let locator = XPATH.container + XPATH.projectList + `//a[contains(@id,'ProjectListItem') and contains(@class,'selected')]//span[@class='display-name']]`;
+        let locator = XPATH.container + XPATH.projectList +
+                      `//a[contains(@id,'ProjectListItem') and contains(@class,'selected')]//span[@class='display-name']]`;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }

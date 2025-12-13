@@ -70,7 +70,6 @@ class InsertMacroModalDialog extends Page {
     async clickOnPreviewTabItem() {
         try {
             await this.waitForElementDisplayed(this.previewTabItem, appConst.mediumTimeout);
-            await this.pause(500);
             await this.clickOnElement(this.previewTabItem);
             return await this.waitForElementDisplayed(XPATH.previewTab, appConst.mediumTimeout);
         } catch (err) {
@@ -93,7 +92,6 @@ class InsertMacroModalDialog extends Page {
 
     async waitForDialogClosed() {
         await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
-        return this.pause(1000);
     }
 
     async getTextInPreviewTab() {

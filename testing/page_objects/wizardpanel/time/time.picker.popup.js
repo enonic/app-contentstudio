@@ -17,7 +17,6 @@ class TimePickerPopup extends Page {
 
     async waitForLoaded() {
         await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
-        return await this.pause(200);
     }
 
     async waitForTimeZoneNotDisplayed() {

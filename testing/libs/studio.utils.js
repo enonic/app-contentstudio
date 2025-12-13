@@ -522,6 +522,8 @@ module.exports = {
         await deleteContentDialog.waitForDialogOpened();
         // Click on 'Delete' menu item in the modal dialog:
         await deleteContentDialog.clickOnDeleteMenuItem();
+        // TODO pause issue
+        await deleteContentDialog.pause(500);
         return await deleteContentDialog.waitForDialogClosed();
     },
     async doDeleteContentByDisplayName(displayName) {

@@ -33,7 +33,7 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
             await contentWizard.typeDisplayName(appConst.generateRandomName('double'));
             // 1. Click on 'Add' button and add one more input:
             await doubleForm.clickOnAddButton();
-            await doubleForm.pause(1000);
+            await doubleForm.pause(300);
             let numberInputs = await doubleForm.getNumberOfInputs();
             assert.equal(numberInputs.length, 3, '3 double input should be displayed');
             // 2. Remove the top input:

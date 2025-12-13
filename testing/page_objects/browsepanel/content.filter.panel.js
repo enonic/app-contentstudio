@@ -118,7 +118,6 @@ class BrowseFilterPanel extends Page {
 
     async waitForOpened() {
         await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
-        await this.pause(300);
     }
 
     waitForShowResultsButtonDisplayed() {

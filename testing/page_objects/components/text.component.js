@@ -90,7 +90,6 @@ class TextComponent extends Page {
             let id = await this.getEditorId();
             await utils.setTextInCKE(id, text);
             await this.getBrowser().switchToParentFrame();
-            return await this.pause(300);
         } catch (err) {
             await this.handleError('Tried to set the text in Text Component', 'err_text_component_insert_text', err);
         }
@@ -103,7 +102,6 @@ class TextComponent extends Page {
             let id = await this.getEditorId();
             await utils.insertTextInCKE(id, text);
             await this.getBrowser().switchToParentFrame();
-            return await this.pause(300);
         } catch (err) {
             await this.handleError('Tried to insert the text in Text Component', 'err_text_component_insert_text', err);
         }
@@ -226,7 +224,6 @@ class TextComponent extends Page {
             let res = await this.getDisplayedElements(this.insertImageButton);
             await res[0].click();
             //await this.clickOnElement(this.insertImageButton);
-            await this.pause(500);
             await this.switchToParentFrame();
             return await insertImageDialog.waitForDialogVisible();
         } catch (err) {

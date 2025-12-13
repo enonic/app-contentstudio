@@ -46,13 +46,12 @@ class SingleSelectionOptionSet extends Page {
     async typeTextInOptionsFilterInput(text) {
         await this.waitForElementDisplayed(this.optionsFilterInput, appConst.mediumTimeout);
         await this.typeTextInInput(this.optionsFilterInput, text);
-        return await this.pause(300);
     }
 
     // Type a text in the Input name. This is an item from 'Option 1' in the single selection option-set
     async typeTextInOptionNameInput(name) {
+        await this.waitForElementDisplayed(this.nameTextInput, appConst.mediumTimeout);
         await this.typeTextInInput(this.nameTextInput, name);
-        return await this.pause(300);
     }
 
     // Label text input is an item from 'Option 1'
@@ -71,10 +70,8 @@ class SingleSelectionOptionSet extends Page {
         try {
             await this.waitForElementEnabled(this.addItemSetButton, appConst.mediumTimeout);
             await this.clickOnElement(this.addItemSetButton);
-            return await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_add_button');
-            throw new Error(`Error occurred in Add Item screenshot:${screenshot}` + err);
+            await this.handleError('Option set - AddItemSetButton', 'err_add_button', err);
         }
     }
 
@@ -87,7 +84,6 @@ class SingleSelectionOptionSet extends Page {
             "//div[contains(@id,'FormItemSetOccurrenceView')]" + "//li[contains(@id,'MenuItem') and text()='Delete']");
         await res[0].waitForEnabled({timeout: appConst.shortTimeout, timeoutMsg: "Option Set - Delete menu item should be enabled!"});
         await res[0].click();
-        return await this.pause(300);
     }
 
     // Clicks on 'More' button then clicks on a menu item (Reset,Delete, Add above)
@@ -133,10 +129,9 @@ class SingleSelectionOptionSet extends Page {
             let filterableListBox = new FilterableListBox();
             await filterableListBox.clickOnDropdownHandle(xpath.container);
             await filterableListBox.clickOnOptionByDisplayName(optionDisplayName);
-            return await this.pause(500);
+            return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_optionset');
-            throw new Error('Error,after selecting the option in single selection, screenshot:' + screenshot + "  " + err);
+            await this.handleError('Single selection option set - tried to select the option', 'err_select_option', err);
         }
     }
 
@@ -146,8 +141,7 @@ class SingleSelectionOptionSet extends Page {
             await filterableListBox.clickOnFilteredByDisplayNameItem(option);
             return await this.pause(100);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_optionset');
-            throw new Error('Error, during selecting the option in single selection, screenshot:' + screenshot + "  " + err);
+            await this.handleError('Single selection option set - tried to select the option', 'err_select_option', err);
         }
     }
 
@@ -159,8 +153,7 @@ class SingleSelectionOptionSet extends Page {
             await menuButtons[index].click();
             return await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_opt_set');
-            throw new Error("Option Set , error after expand option menu, screenshot:" + screenshot + " " + err);
+            await this.handleError('Option Set - tried to expand item set menu', 'err_opt_set_menu', err);
         }
     }
 
@@ -218,8 +211,7 @@ class SingleSelectionOptionSet extends Page {
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getText(locator);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_validation_recording');
-            throw new Error(`Validation recording, screenshot:${screenshot}` + err);
+            await this.handleError('Single selection option set - validation recording', 'err_get_validation_recording', err);
         }
     }
 

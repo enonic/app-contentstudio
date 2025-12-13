@@ -170,7 +170,6 @@ describe('occurrences.double.spec: tests for content with Double inputs', functi
             // 1. Type an invalid value in both inputs:
             await doubleForm.typeDouble(INVALID_VALUE);
             await doubleForm.typeDouble(INVALID_VALUE, 1);
-            await doubleForm.pause(700);
             await studioUtils.saveScreenshot('double_invalid_values_2');
             await doubleForm.waitForShowDetailsButtonNotDisplayed();
             await doubleForm.waitForHideDetailsButtonNotDisplayed();

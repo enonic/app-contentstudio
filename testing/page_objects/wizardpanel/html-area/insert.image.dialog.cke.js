@@ -237,6 +237,8 @@ class InsertImageDialog extends Page {
         try {
             await this.waitForElementDisplayed(this.insertButton, appConst.shortTimeout);
             await this.clickOnElement(this.insertButton);
+            // TODO pause issue
+            await this.pause(300);
             await this.waitForDialogClosed();
         } catch (err) {
             await this.handleError(`Insert Image Dialog`, 'err_click_on_insert_image_button', err);

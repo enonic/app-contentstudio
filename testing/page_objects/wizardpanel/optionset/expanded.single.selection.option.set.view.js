@@ -76,8 +76,7 @@ class ExpandedSingleSelectionOptionSet extends Page {
             await singleSelectionOptionSet.selectOption(option)
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_optionset');
-            throw new Error(`Error,after selecting the option in single selection, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Single Selection Option Set - tried to select the option`, 'err_optionset_select_option', err);
         }
     }
 }

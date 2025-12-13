@@ -31,6 +31,7 @@ describe('sort.dialog.sorticon.spec, sorts a folder(with child items) and checks
             await studioUtils.saveScreenshot('sort_menu_item_clicked');
             // 3. Save the sorting and close the dialog:
             await sortContentDialog.clickOnSaveButton();
+            await contentBrowsePanel.pause(1000);
             await studioUtils.saveScreenshot('manually_sorted');
             // 4. The folder is selected, get sorting-type in grid:
             let sortingType = await contentBrowsePanel.getSortingIcon(appConst.TEST_FOLDER_WITH_IMAGES_NAME);

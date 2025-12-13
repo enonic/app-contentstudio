@@ -57,8 +57,7 @@ class MoveContentDialog extends Page {
             await this.waitForSpinnerNotVisible(appConst.mediumTimeout);
             await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_move_dialog_dropdown');
-            throw new Error("Error occurred in Move Dialog, screenshot: " + screenshot + "  " + err);
+            await this.handleError('Move Dialog - tried to click on dropdown handle', 'err_move_dialog_dropdown_handle', err);
         }
     }
 
@@ -82,7 +81,6 @@ class MoveContentDialog extends Page {
 
     async clickOnMoveButton() {
         await this.clickOnElement(this.moveButton);
-        return await this.pause(700);
     }
 
     async typeTextAndClickOnOption(displayName) {
@@ -103,7 +101,6 @@ class MoveContentDialog extends Page {
             await this.handleError('Move Dialog - tried to click on the option', 'err_move_dialog_filter', err);
         }
     }
-
 
     async clickOnApplySelectionButton() {
         let contentMoveComboBox = new ContentMoveComboBox();

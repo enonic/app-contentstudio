@@ -80,6 +80,8 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
             await insertImageDialog.waitForDialogClosed();
+            // TODO pause issue - image can be not inserted
+            await contentWizard.pause(400);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
         });

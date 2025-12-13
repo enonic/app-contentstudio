@@ -483,7 +483,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
                 throw new Error('The number of content-rows less than the index');
             }
             await rows[rowNumber].click();
-            return await this.pause(500);
         } catch (err) {
             await this.handleError(`Tried to click on row by number: ${rowNumber}`, 'err_click_on_row_in_grid');
         }
@@ -528,7 +527,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             let nameXpath = XPATH.contentsTreeGridRootUL + lib.itemByDisplayName(displayName);
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
             await this.clickOnElement(nameXpath);
-            return await this.pause(500);
+            return await this.pause(300);
         } catch (err) {
             await this.handleError(`Tried click on row by displayName: ${displayName}`, 'err_find_content');
         }
@@ -546,7 +545,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async waitForContentByDisplayNameVisible(displayName) {
         try {
             let nameXpath = XPATH.contentsTreeGridRootUL + lib.itemByDisplayName(displayName);
-            await this.waitForElementDisplayed(nameXpath, 3000)
+            await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
         } catch (err) {
             await this.handleError(`Content was not found by displayName: ${displayName}`, 'err_find_content');
         }
@@ -653,7 +652,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             let expanderIcon = this.treeGrid + lib.TREE_GRID.itemTreeGridListElementByName(contentName) + lib.TREE_GRID.EXPANDER_ICON_DIV;
             await this.waitForExpandToggleDisplayed(contentName);
             await this.clickOnElement(expanderIcon);
-            return await this.pause(900);
+            return await this.pause(500);
         } catch (err) {
             await this.handleError(`Clicked on the expand-toggle for content: ${contentName}`, 'err_click_on_expander', err);
         }
@@ -826,7 +825,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         } else if (result.includes('ready')) {
             // green circle icon in grid
             return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
-        } else if (result.includes( 'viewer content-summary-and-compare-status-viewer')) {
+        } else if (result.includes('viewer content-summary-and-compare-status-viewer')) {
             return appConst.WORKFLOW_STATE.PUBLISHED;
         } else {
             throw new Error(`Error during checking the content's workflow, @class:` + result);
@@ -854,9 +853,10 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return browseContextWindow;
     }
 
-    getCurrentProjectDisplayName() {
+    async getCurrentProjectDisplayName() {
         let selector = this.projectViewerButton + lib.H6_DISPLAY_NAME + "//span[@class='display-name']";
-        return this.getText(selector);
+        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+        return await this.getText(selector);
     }
 
     async getContextLanguage() {

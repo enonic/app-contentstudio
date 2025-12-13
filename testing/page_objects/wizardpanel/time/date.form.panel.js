@@ -64,7 +64,6 @@ class DateForm extends OccurrencesFormView {
 
     async showPicker() {
         await this.clickOnElement(this.dateInput);
-        return this.pause(300);
     }
 }
 

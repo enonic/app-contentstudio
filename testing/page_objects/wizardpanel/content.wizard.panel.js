@@ -332,7 +332,7 @@ class ContentWizardPanel extends Page {
         try {
             const isMacOS = await this.isMacOS();
             const keyCombination = isMacOS ? [Key.Command, 'Enter'] : [Key.Ctrl, 'Enter'];
-            return await this.getBrowser().keys(keyCombination);
+            await this.getBrowser().keys(keyCombination);
             await this.doSwitchToContentBrowsePanel();
         } catch (err) {
             await this.doSwitchToContentBrowsePanel();
@@ -513,7 +513,6 @@ class ContentWizardPanel extends Page {
 
     async openPublishMenu() {
         await this.clickOnPublishMenuDropdownHandle();
-        await this.pause(300);
     }
 
     async waitForPublishMenuItemDisabled(menuItem) {
@@ -605,7 +604,6 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(frameContainer);
             let menuLocator = `//div[contains(@id,'ItemViewContextMenu') and descendant::h6[contains(@class,'main-name') and text()='${contentName}']]`;
             await this.waitForElementDisplayed(menuLocator, appConst.mediumTimeout);
-            return await this.pause(300);
         } catch (err) {
             await this.handleError('Content wizard, tried to open Page View Context Menu(Page Setting)', 'err_page_view_context_menu', err);
         }
@@ -619,7 +617,6 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(selector);
             await this.switchToLiveEditFrame();
             await this.waitForElementDisplayed(XPATH.itemViewContextMenu, appConst.mediumTimeout);
-            return await this.pause(300);
         } catch (err) {
             await this.handleError('Content wizard, tried to open Item View Context Menu', 'err_item_view_context_menu', err);
         }
