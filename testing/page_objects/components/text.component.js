@@ -90,6 +90,7 @@ class TextComponent extends Page {
             let id = await this.getEditorId();
             await utils.setTextInCKE(id, text);
             await this.getBrowser().switchToParentFrame();
+            await this.pause(700);
         } catch (err) {
             await this.handleError('Tried to set the text in Text Component', 'err_text_component_insert_text', err);
         }
@@ -102,6 +103,7 @@ class TextComponent extends Page {
             let id = await this.getEditorId();
             await utils.insertTextInCKE(id, text);
             await this.getBrowser().switchToParentFrame();
+            await this.pause(700);
         } catch (err) {
             await this.handleError('Tried to insert the text in Text Component', 'err_text_component_insert_text', err);
         }
@@ -138,8 +140,8 @@ class TextComponent extends Page {
             let result = await utils.getTextInCKE(editorId);
             return result.trim();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_text_component_get_text');
-            throw new Error(`Error during getting text from CKE editor, screenshot: ${screenshot}` + err);
+            await this.handleError('Tried to get the text from CKE editor', 'err_text_component_get_text', err);
+
         }
     }
 

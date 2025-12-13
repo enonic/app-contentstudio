@@ -91,6 +91,7 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_1_1);
             // 2. Fill the name input:
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('area'));
+            await contentWizard.pause(1000);
             // 3. Insert a text in html-area
             await htmlAreaForm.insertTextInHtmlArea(0, 'test');
             let isInvalid = await contentWizard.isContentInvalid();

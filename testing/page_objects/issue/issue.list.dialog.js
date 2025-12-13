@@ -221,7 +221,7 @@ class IssuesListDialog extends Page {
             let issueXpath = xpath.issueByName(issueName);
             let result = await this.isElementDisplayed(issueXpath);
             if (!result) {
-                await this.scrollToIssue(issueXpath);
+                //await this.scrollToIssue(issueXpath);
             }
             return await this.clickOnElement(issueXpath);
         } catch (err) {

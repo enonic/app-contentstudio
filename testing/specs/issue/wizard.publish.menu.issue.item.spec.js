@@ -41,6 +41,7 @@ describe('wizard.publish.menu.issue.item.spec - tests for Publish menu in wizard
             await issueDetailsDialog.clickOnCancelTopButton();
             await issueDetailsDialog.waitForDialogClosed();
             await issueListDialog.waitForDialogClosed();
+            await contentWizard.pause(1000);
             // New menu item should appear in the Wizard Publish Menu:
             await contentWizard.openPublishMenuSelectItem(ISSUE_TITLE);
             // Issue details dialog should be loaded after clicking on the menu item:
