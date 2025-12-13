@@ -101,6 +101,8 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await confirmationDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('article_details_panel');
             // 4. Verify that the 'title' text input is displayed in the Page Inspection panel(config):
+            let pageWidgetPanel = new PageWidgetPanel();
+            await pageWidgetPanel.clickOnTabBarItem('Inspect');
             await homePageInspectionPanel.waitForTitleInputDisplayed();
             // 5. insert a text in the input:
             await homePageInspectionPanel.typeTitle(TITLE_TEXT);

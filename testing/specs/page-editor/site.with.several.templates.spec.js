@@ -11,6 +11,7 @@ const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/ins
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
+const PageWidgetPanel = require('../../page_objects/wizardpanel/liveform/page.widget.context.window');
 
 describe('site.with.several.templates: click on dropdown handle in Inspection Panel and change a template ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -109,6 +110,8 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             await confirmationDialog.clickOnYesButton();
             await confirmationDialog.waitForDialogClosed();
             // 4. Select the controller:
+            let pageWidgetPanel = new PageWidgetPanel();
+            await pageWidgetPanel.clickOnTabBarItem('Inspect');
             await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE1.displayName);
             // 5. Confirmation dialog appears:
             await confirmationDialog.waitForDialogOpened();
@@ -144,6 +147,8 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             assert.ok(result.includes('main region'), 'main region item should be displayed in the modal dialog');
             assert.ok(result.includes('Main'), 'Main item should be displayed in the modal dialog');
             // 4. Select another template:
+            let pageWidgetPanel = new PageWidgetPanel();
+            await pageWidgetPanel.clickOnTabBarItem('Inspect');
             await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE2.displayName);
             // 5. Confirmation dialog appears:
             await confirmationDialog.waitForDialogOpened();

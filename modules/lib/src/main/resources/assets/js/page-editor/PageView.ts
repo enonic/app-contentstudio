@@ -453,7 +453,6 @@ export class PageView
             this.unshade();
 
             new PageUnlockedEvent().fire();
-            new ComponentInspectedEvent(this.getPath()).fire();
         }
 
         PageViewController.get().setLocked(locked);

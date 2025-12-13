@@ -44,7 +44,7 @@ describe('create.content.in.project.spec - create new content in the selected co
             // Verify that the grid is empty:
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.equal(result.length, 0, 'Browse Panel should not contain content');
-            let actualDisplayName = await contentBrowsePanel.getSelectedProjectDisplayName();
+            let actualDisplayName = await contentBrowsePanel.getCurrentProjectDisplayName();
             assert.equal(actualDisplayName, PROJECT_DISPLAY_NAME,
                 'Expected name should be displayed in the project selected option(App Bar)');
         });
