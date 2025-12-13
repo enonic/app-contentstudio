@@ -38,7 +38,6 @@ class NewPrincipalDialog extends Page {
     async waitForDialogLoaded() {
         try {
             await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
-            return await this.pause(300);
         } catch (err) {
             throw new Error("New Principal dialog is not loaded in: " + appConst.mediumTimeout + " ms  " + err);
         }

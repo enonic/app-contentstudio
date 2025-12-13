@@ -302,8 +302,7 @@ class Page {
                 return res;
             }, {timeout: timeout1, timeoutMsg: message});
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_spinner');
-            throw new Error(` Spinner error, screenshot :${screenshot}  ` + err);
+            await this.handleError('Waited for spinner not visible', 'err_spinner_not_visible', err);
         }
     }
 
@@ -337,8 +336,7 @@ class Page {
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_remove_notif_msg');
-            throw new Error(`Error after removing the notification message, screenshot:${screenshot} ` + err);
+            await this.handleError('Tried to remove the notification message', 'err_remove_notif_msg', err);
         }
     }
 
@@ -380,8 +378,7 @@ class Page {
             let selector = `//div[contains(@id,'NotificationMessage')]//div[contains(@class,'notification-text') and contains(.,'${expectedMessage}')]`;
             await this.waitForElementDisplayed(selector, appConst.shortTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_notification');
-            throw new Error('expected notification message was not shown, screenshot: ' + screenshot + "  " + err);
+            await this.handleError('Tried to wait for the expected notification message', 'err_expected_notification_message', err);
         }
     }
 
@@ -480,7 +477,7 @@ class Page {
             type: 'key',
             id: 'keyboard',
             actions: [
-                { type: 'keyDown', value: Key.Shift }
+                {type: 'keyDown', value: Key.Shift}
             ]
         }]);
 
@@ -490,8 +487,8 @@ class Page {
                 type: 'key',
                 id: 'keyboard',
                 actions: [
-                    { type: 'keyDown', value: Key.ArrowDown },
-                    { type: 'keyUp', value: Key.ArrowDown  }
+                    {type: 'keyDown', value: Key.ArrowDown},
+                    {type: 'keyUp', value: Key.ArrowDown}
                 ]
             }]);
             await this.getBrowser().pause(400);
@@ -501,7 +498,7 @@ class Page {
             type: 'key',
             id: 'keyboard',
             actions: [
-                { type: 'keyUp', value: Key.Shift } // Shift
+                {type: 'keyUp', value: Key.Shift} // Shift
             ]
         }]);
     }

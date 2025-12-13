@@ -115,7 +115,7 @@ class ProjectWizardDialog extends Page {
             await this.clickOnElement(this.skipButton);
             return await this.pause(300);
         } catch (err) {
-            throw new Error("Error occurred during clicking on Skip button: " + err);
+            await this.handleError("Error occurred during clicking on Skip button", 'err_click_on_skip_button', err);
         }
     }
 
@@ -150,7 +150,6 @@ class ProjectWizardDialog extends Page {
         try {
             await this.waitForNextButtonDisplayed();
             await this.waitForNextButtonEnabled();
-            await this.pause(500);
             await this.clickOnElement(this.nextButton);
             return await this.pause(300);
         } catch (err) {
@@ -162,8 +161,7 @@ class ProjectWizardDialog extends Page {
         try {
             return await this.waitUntilDisplayed(this.backButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_back_button');
-            throw new Error('Back button is not displayed: screenshot ' + screenshot + ' ' + err);
+            await this.handleError('Back button is not displayed', 'err_back_button_displayed', err);
         }
     }
 
@@ -172,8 +170,7 @@ class ProjectWizardDialog extends Page {
             await this.clickOnElement(this.cancelButtonTop);
             return await this.waitForDialogClosed();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_cancel_button');
-            throw new Error('Project Wizard dialog, error when clicking on Cancel(Top) button  ' + err);
+            await this.handleError('Project Wizard dialog, tried to click on Cancel(Top) button', 'err_click_on_cancel_button', err);
         }
     }
 
@@ -181,8 +178,7 @@ class ProjectWizardDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(XPATH.container, appConst.saveProjectTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_wizard_not_closed');
-            throw new Error('Project Wizard dialog should be closed, screenshot ' + screenshot + '  ' + err);
+            await this.handleError('Project Wizard dialog should be closed', 'err_wizard_not_closed', err);
         }
     }
 
@@ -209,8 +205,7 @@ class ProjectWizardDialog extends Page {
             await this.waitForElementEnabled(this.backButton, appConst.mediumTimeout);
             return await this.clickOnElement(this.backButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_back_button');
-            throw new Error('Error after clicking on Back button, Screenshot: ' + screenshot + '  ' + err);
+            await this.handleError('Error after clicking on Back button', 'err_click_on_back_button', err);
         }
     }
 }

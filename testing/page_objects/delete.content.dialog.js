@@ -61,7 +61,6 @@ class DeleteContentDialog extends Page {
     async waitForDialogOpened() {
         try {
             await this.waitForElementDisplayed(this.archiveButton, appConst.mediumTimeout);
-            return await this.pause(500);
         } catch (err) {
             await this.handleError('Delete Content Dialog', 'err_archive_dialog_opened', err);
         }
@@ -88,7 +87,6 @@ class DeleteContentDialog extends Page {
             await this.waitForElementDisplayed(this.archiveButton, appConst.mediumTimeout);
             await this.waitForElementEnabled(this.archiveButton, appConst.mediumTimeout);
             await this.clickOnElement(this.archiveButton);
-            return await this.pause(500);
         } catch (err) {
             await this.handleError('Delete Content Dialog', 'err_click_on_archive_button', err);
         }
@@ -99,7 +97,6 @@ class DeleteContentDialog extends Page {
         let menuItem = XPATH.container + XPATH.archiveOrDeleteMenu + XPATH.deleteMenuItem;
         await this.waitForElementDisplayed(menuItem, appConst.mediumTimeout);
         await this.clickOnElement(menuItem);
-        return await this.pause(500);
     }
 
     // Call the method for deleting single content, Delete Content should be closed after clicking on the menu item
@@ -117,7 +114,6 @@ class DeleteContentDialog extends Page {
         await this.waitForArchiveMenuDropDownHandleDisplayed();
         await this.waitForArchiveMenuDropDownHandleEnabled();
         await this.clickOnElement(this.archiveMenuDropDownHandle);
-        return await this.pause(300);
     }
 
     waitForArchiveMenuDropDownHandleDisplayed() {

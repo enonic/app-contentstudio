@@ -31,24 +31,22 @@ class UninstallAppDialog extends Page {
     async waitForOpened() {
         try {
             await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
-            return await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot('err_load_uninstall_dialog');
-            throw new Error('Uninstall dialog was not loaded! ' + err);
+            await this.handleError('Uninstall dialog was not loaded!', 'err_open_uninstall_dialog', err);
         }
     }
 
     async clickOnYesButton() {
         await this.waitForElementDisplayed(this.yesButton, appConst.mediumTimeout);
         await this.clickOnElement(this.yesButton);
-        return await this.pause(300);
     }
 
-    clickOnCancelButtonTop() {
-        return this.clickOnElement(this.cancelButtonTop).catch(err => {
-            this.saveScreenshot('err_uninstall_dialog_cancel');
-            throw new Error("Error occurred after clicking on Cancel button " + err);
-        })
+    async clickOnCancelButtonTop() {
+        try {
+            await this.clickOnElement(this.cancelButtonTop)
+        } catch (err) {
+            await this.handleError('Cancel top button has been clicked', 'err_uninstall_dialog_cancel', err);
+        }
     }
 
     clickOnNoButton() {
@@ -61,9 +59,8 @@ class UninstallAppDialog extends Page {
         try {
             await this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_close_uninstall_dialog');
             await this.clickOnCancelButtonTop();
-            throw new Error(`Uninstall Dialog was not closed, screenshot : ${screenshot} ` + err);
+            await this.handleError('Uninstall Dialog was not closed', 'err_close_uninstall_dialog', err);
         }
     }
 
@@ -71,8 +68,7 @@ class UninstallAppDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.yesButton, appConst.mediumTimeout)
         } catch (err) {
-            await this.saveScreenshot('err_uninstall_dialog_yes_button');
-            throw new Error('Uninstall Dialog Yes button is not visible ' + err);
+            await this.handleError('Uninstall Dialog - Yes button is not visible', 'err_uninstall_dialog_yes_button', err);
         }
     }
 
@@ -80,8 +76,7 @@ class UninstallAppDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.noButton, appConst.mediumTimeout)
         } catch (err) {
-            await this.saveScreenshot('err_uninstall_dialog_no_button');
-            throw new Error('Uninstall Dialog -  No button is not visible ' + err);
+            await this.handleError('Uninstall Dialog -  No button is not visible', 'err_uninstall_dialog_no_button', err);
         }
     }
 }

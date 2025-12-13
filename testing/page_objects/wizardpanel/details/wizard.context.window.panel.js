@@ -60,24 +60,15 @@ class WizardContextWindowPanel extends BaseContextWindowPanel {
         try {
             return await super.openVersionHistory();
         } catch (err) {
-            //Workaround for issue with the empty selector:
-            await this.saveScreenshotUniqueName('err_versions');
-            await this.refresh();
-            await this.pause(4000);
-            await super.openVersionHistory();
+            await this.handleError("Wizard Context Window Panel: Tried to open Version History widget", 'err_open_version_history', err);
         }
     }
 
     async openDependenciesWidget() {
         try {
             await super.openDependenciesWidget();
-            await this.pause(700);
         } catch (err) {
-            //Workaround for issue with the empty selector:
-            await this.saveScreenshotUniqueName('err_dependencies');
-            await this.refresh();
-            await this.pause(3000);
-            await super.openDependenciesWidget();
+            await this.handleError("Wizard Context Window Panel: Tried to open Dependencies widget", 'err_open_dependencies_widget', err);
         }
     }
 }

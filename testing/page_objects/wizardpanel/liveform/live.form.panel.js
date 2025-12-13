@@ -55,7 +55,6 @@ class LiveFormPanel extends Page {
             await contentWizard.switchToLiveEditFrame();
             await componentDescriptorsDropdown.selectFilteredComponent(displayName, parentForComboBox);
             await contentWizard.switchToParentFrame();
-            return await this.pause(1000);
         } catch (err) {
             await this.handleError(`Error during selecting the layout in Live Edit`, 'err_select_layout', err);
         }
@@ -68,7 +67,6 @@ class LiveFormPanel extends Page {
             let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
             await contentWizard.switchToLiveEditFrame();
             await componentDescriptorsDropdown.selectFilteredComponent(displayName, parentForComboBox);
-            return await this.pause(1000);
         } catch (err) {
             await this.handleError('Error during selecting the part in Live Edit', 'err_select_part', err);
         }
@@ -239,7 +237,6 @@ class LiveFormPanel extends Page {
         try {
             let selector = xpath.textComponentByText(text);
             await this.clickOnElement(selector);
-            return await this.pause(1000);
         } catch (err) {
             await this.handleError(`Try to click on text component`, 'err_live_frame_click_text_component', err);
         }
@@ -264,7 +261,6 @@ class LiveFormPanel extends Page {
         let fragmentDropdown = new FragmentDropdown();
         await fragmentDropdown.clickOnDropdownHandle(xpath.fragmentPlaceHolderDiv);
         await fragmentDropdown.selectFilteredFragment(option);
-        return await this.pause(1000);
     }
 
     async selectFragmentByDisplayName(displayName) {
@@ -340,7 +336,6 @@ class LiveFormPanel extends Page {
         let locator = xpath.partComponentByName(name);
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
-        return await this.pause(500);
     }
 
     async waitForEditingNotAvailableMessageDisplayed() {
@@ -371,7 +366,6 @@ class LiveFormPanel extends Page {
         let locator = xpath.container + xpath.pageSettingsLink;
         await this.waitForPageSettingsLinkDisplayed();
         await this.clickOnElement(locator);
-        await this.pause(200);
     }
 }
 

@@ -24,7 +24,6 @@ class MobileContentWizardPanel extends ContentWizardPanel {
     async clickOnMoreFoldButton() {
         await this.waitForMoreFoldButtonDisplayed();
         await this.clickOnElement(this.moreButton);
-        return this.pause(200);
     }
 
     async getPublishMenuDropdownCSSProperty(property) {

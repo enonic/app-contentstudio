@@ -84,7 +84,6 @@ class BaseDropdown extends Page {
         await this.waitUntilDisplayed(parentLocator + this.optionsFilterInput, appConst.mediumTimeout);
         let elements = await this.getDisplayedElements(parentLocator + this.optionsFilterInput);
         await elements[0].setValue(text);
-        return await this.pause(300);
     }
 
     async isOptionsFilterInputDisplayed(parentLocator) {
@@ -172,7 +171,6 @@ class BaseDropdown extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         let result = await this.findElements(locator);
         await result[index].click();
-        return await this.pause(300);
     }
 
     async clickOnCheckboxInDropdownByDisplayName(displayName, parentXpath) {
@@ -183,7 +181,6 @@ class BaseDropdown extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         let result = await this.findElements(locator);
         await result[0].click();
-        return await this.pause(300);
     }
 
     // tree mode if 'active' is present in @class attribute

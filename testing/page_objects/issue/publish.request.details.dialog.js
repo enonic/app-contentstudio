@@ -117,7 +117,6 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
             let includeIcon = xpath.selectionItemByDisplayName(displayName) + xpath.includeChildrenToggler;
             await this.waitForElementDisplayed(includeIcon, appConst.shortTimeout);
             await this.clickOnElement(includeIcon)
-            return this.pause(2000);
         } catch (err) {
             throw new Error('error occurred during clicking on `Include Child items`: ' + err)
         }
@@ -148,7 +147,6 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
     async waitForTabLoaded() {
         try {
             await this.waitForElementDisplayed(xpath.container, appConst.shortTimeout);
-            await this.pause(300);
         } catch (err) {
             await this.handleError("Issue Details Dialog , Requests Tab is not loaded! ", 'err_request_tab_loaded', err);
         }
@@ -168,10 +166,8 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
         try {
             await this.waitForElementDisplayed(this.closeRequestButton, appConst.shortTimeout);
             await this.clickOnElement(this.closeRequestButton);
-            return await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_close_request');
-            throw new Error(`Error when clicking on Close Request, screenshot:${screenshot} ` + err);
+            await this.handleError(`Publish Request Dialog , Error during clicking on Close Request`, 'err_click_on_close_request', err);
         }
     }
 
@@ -188,7 +184,6 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
     async clickOnPublishNowButton() {
         try {
             await this.waitForPublishNowButtonEnabled();
-            await this.pause(300);
             await this.clickOnElement(this.publishNowButton);
             return await this.pause(700);
         } catch (err) {
@@ -199,7 +194,6 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
     async waitForClosed() {
         try {
             await this.waitForElementNotDisplayed(xpath.container, appConst.mediumTimeout);
-            await this.pause(500);
         } catch (err) {
             await this.handleError(`Request Details dialog should be closed`, 'err_publish_request_details_closed', err);
         }

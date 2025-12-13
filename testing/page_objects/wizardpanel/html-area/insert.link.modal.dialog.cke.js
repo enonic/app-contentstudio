@@ -88,13 +88,11 @@ class InsertLinkDialog extends Page {
 
     async clickOnCancelButton() {
         await this.clickOnElement(this.cancelButton);
-        return await this.pause(300);
     }
 
     async clickOnInsertButton() {
         await this.waitForElementDisplayed(this.insertButton, appConst.shortTimeout);
         await this.clickOnElement(this.insertButton);
-        return await this.pause(500);
     }
 
     async clickOnInsertButtonAndWaitForClosed() {
@@ -150,7 +148,6 @@ class InsertLinkDialog extends Page {
     waitForValidationMessageForEmailInputDisplayed() {
         return this.waitForElementDisplayed(this.emailInputValidationRecording, appConst.mediumTimeout);
     }
-
 
     async getEmailInputValidationMessage() {
         await this.waitForValidationMessageForEmailInputDisplayed();

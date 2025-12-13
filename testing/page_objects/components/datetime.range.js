@@ -65,7 +65,6 @@ class DateTimeRange extends Page {
 
     async getOnlineFrom() {
         await this.waitForOnlineFromInputDisplayed();
-        await this.pause(300);
         return await this.getTextInInput(this.onlineFromDateTimeInput);
     }
 

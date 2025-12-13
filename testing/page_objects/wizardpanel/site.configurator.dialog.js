@@ -102,7 +102,6 @@ class SiteConfiguratorDialog extends Page {
             await this.clickInTextAreaShowToolbar();
             await this.waitForElementDisplayed(insertLinkButton, appConst.mediumTimeout);
             await this.clickOnElement(insertLinkButton);
-            return await this.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_insert_link_button');
             throw new Error(`Site Config, insert link button, screenshot: '${screenshot}' ` + err);
@@ -130,7 +129,6 @@ class SiteConfiguratorDialog extends Page {
 
     async waitForDialogOpened() {
         await this.waitForElementDisplayed(this.applyButton, appConst.mediumTimeout);
-        await this.pause(500);
     }
 
     waitForDialogClosed() {

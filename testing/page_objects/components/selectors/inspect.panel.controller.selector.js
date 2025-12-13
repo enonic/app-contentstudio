@@ -23,8 +23,7 @@ class InspectPanelControllerSelector extends BaseDropdown {
         try {
             await this.clickOnFilteredByDisplayNameItem(optionName, parentElement);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('CustomSelectorComboBox - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError(`Error during selecting the option ${optionName}`,'err_select_option' , err);
         }
     }
 

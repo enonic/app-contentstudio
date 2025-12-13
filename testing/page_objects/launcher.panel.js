@@ -39,7 +39,6 @@ class LauncherPanel extends Page {
     async clickOnUsersLink() {
         await this.waitForElementDisplayed(this.usersLink, appConst.mediumTimeout);
         await this.waitForElementEnabled(this.usersLink, appConst.longTimeout);
-        await this.pause(400);
         await this.clickOnElement(this.usersLink);
         return await this.pause(500);
     }
@@ -47,7 +46,6 @@ class LauncherPanel extends Page {
     async clickOnApplicationsLink() {
         await this.waitForElementDisplayed(this.applicationsLink, appConst.mediumTimeout);
         await this.waitForElementEnabled(this.applicationsLink, appConst.mediumTimeout);
-        await this.pause(400);
         await this.clickOnElement(this.applicationsLink);
         return await this.pause(500);
     }
@@ -56,12 +54,10 @@ class LauncherPanel extends Page {
         try {
             await this.waitForElementDisplayed(this.contentStudioLink, appConst.longTimeout);
             await this.waitForElementEnabled(this.contentStudioLink, appConst.longTimeout);
-            await this.pause(300);
             await this.clickOnElement(this.contentStudioLink);
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_launcher_panel_content_studio_link');
-            throw new Error(`Error occurred in Launcher Panel screenshot: ${screenshot} ` + err);
+            await this.handleError('Launcher Panel - Tried to click on Content Studio link', 'err_launcher_panel_content_studio', err);
         }
     }
 
@@ -128,10 +124,8 @@ class LauncherPanel extends Page {
         try {
             await this.waitForElementDisplayed(this.launcherToggler, appConst.mediumTimeout);
             await this.clickOnElement(this.launcherToggler);
-            return await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_launcher_panel_toggler');
-            throw new Error(`Error occurred in Launcher Panel screenshot: ${screenshot} ` + err);
+            await this.handleError('Tried to click on Launcher Panel toggle', 'err_launcher_panel_toggle', err);
         }
     }
 }

@@ -24,10 +24,7 @@ class PageTemplateWidget extends Page {
         try {
             return await this.waitForElementDisplayed(xpath.container, appConst.shortTimeout);
         } catch (err) {
-            //Workaround for the issue with empty Details panel in Wizard
-            await this.refresh();
-            await this.pause(3000);
-            await this.waitForElementDisplayed(xpath.container, appConst.shortTimeout);
+           await this.handleError('Page Template Widget was not loaded!', 'err_page_template_widget_load', err);
         }
     }
 

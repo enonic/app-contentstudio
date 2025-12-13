@@ -50,7 +50,6 @@ class ConfirmationDialog extends Page {
     async waitForDialogOpened() {
         try {
             await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
-            await this.pause(700);
         } catch (err) {
             await this.handleError('Confirmation dialog', 'err_confirmation_dlg_opened', err);
         }
@@ -63,7 +62,6 @@ class ConfirmationDialog extends Page {
     async waitForDialogClosed() {
         try {
             await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
-            return await this.pause(400);
         } catch (err) {
             await this.handleError('Confirmation dialog should be closed', 'err_confirmation_dlg_closed', err);
         }

@@ -23,13 +23,11 @@ class CityFormPanel extends Page {
     async typeLocation(location) {
         await this.waitForElementDisplayed(this.locationInput, appConst.mediumTimeout);
         await this.typeTextInInput(this.locationInput, location);
-        return await this.pause(200);
     }
 
     async typePopulation(population) {
         await this.waitForElementDisplayed(this.populationInput, appConst.mediumTimeout);
         await this.typeTextInInput(this.populationInput, population);
-        return await this.pause(200);
     }
 
     async getPopulation() {

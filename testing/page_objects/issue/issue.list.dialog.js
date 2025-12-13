@@ -54,10 +54,8 @@ class IssuesListDialog extends Page {
     async waitForDialogOpened() {
         try {
             await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
-            await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_issue_list_dlg');
-            throw new Error(`Issues list dialog is not loaded screenshot: ${screenshot} ` + err);
+            await this.handleError('Issues List dialog is not loaded', 'err_issue_list_dlg_not_loaded', err);
         }
     }
 
@@ -105,8 +103,7 @@ class IssuesListDialog extends Page {
         try {
             await this.waitForElementDisabled(this.closedButton, appConst.shortTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_closed_button_should_be_disabled');
-            throw new Error(`Issues List Dialog-  Closed button should be disabled , screenshot: ${screenshot} ` + err);
+            await this.handleError(`Issues List Dialog-  'Closed' button should be disabled`, 'err_closed_button_should_be_disabled', err);
         }
     }
 
@@ -123,8 +120,7 @@ class IssuesListDialog extends Page {
         try {
             await this.waitForElementDisplayed(this.openButton, appConst.shortTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_open_button_should_be_displayed');
-            throw new Error(`Issues List Dialog-  'Open' button should be displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Issues List Dialog,  'Open' button should be displayed`, 'err_open_button_should_be_displayed', err);
         }
     }
 
@@ -149,8 +145,7 @@ class IssuesListDialog extends Page {
             await this.clickOnElement(this.openButton);
             return await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_open_button');
-            throw new Error(`Issues List dialog - Error when clicking on 'Open' button, screenshot: ${screenshot}  ` + err);
+            await this.handleError(`Issues List dialog - Tried to click on 'Open' button`, 'err_click_open_button', err);
         }
     }
 
@@ -178,7 +173,6 @@ class IssuesListDialog extends Page {
     async clickOnTypeFilterDropDownHandle() {
         await this.waitForElementDisplayed(this.typeFilterDropDownHandle, appConst.shortTimeout);
         await this.clickOnElement(this.typeFilterDropDownHandle);
-        return await this.pause(200);
     }
 
     getTypeFilterSelectedOption() {
@@ -203,8 +197,7 @@ class IssuesListDialog extends Page {
                 return text.includes('disabled');
             }, appConst.shortTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_type_filter1');
-            throw new Error(`Type Filter - menu item:` + option + ` should be disabled! screenshot: ${screenshot} ` + err);
+            await this.handleError(`Type Filter - menu item:` + option + ` should be disabled!`, 'err_type_filter1', err);
         }
     }
 
@@ -222,14 +215,6 @@ class IssuesListDialog extends Page {
         })
     }
 
-    scrollToIssue(issueName) {
-        let issueXpath = xpath.issueByName(issueName);
-        //TODO implement it.
-        //return this.element(issueXpath).then(elem => {
-        //     return elem.scroll();
-        //})
-    }
-
     // Scrolls the modal dialog and clicks on the issue:
     async clickOnIssue(issueName) {
         try {
@@ -240,8 +225,7 @@ class IssuesListDialog extends Page {
             }
             return await this.clickOnElement(issueXpath);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_issue');
-            throw new Error(`error when clicked on issue, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Issues List Dialog: tried to click on issue: ${issueName}`, 'err_click_on_issue', err);
         }
     }
 
@@ -297,8 +281,7 @@ class IssuesListDialog extends Page {
             }
             return buttonText.substring(startIndex + 1, endIndex);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_issue_list');
-            throw new Error(`Issue List Dialog : error when getting the number in Open button, screenshot:${screenshot} ` + err);
+            await this.handleError('Issue List Dialog : tried to get the number in Open button', 'err_issue_list', err);
         }
     }
 

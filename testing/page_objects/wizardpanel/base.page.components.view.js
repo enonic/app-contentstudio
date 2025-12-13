@@ -72,10 +72,8 @@ class BasePageComponentView extends Page {
             let selector = this.container + lib.itemByDisplayName(displayName);
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             await this.clickOnElement(selector);
-            return await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_component_click');
-            throw new Error(`Page Component View - Error occurred after clicking on the component, screenshot${screenshot}: ` + err);
+            await this.handleError(`Page Component View -tried to click on the component '${displayName}'`, 'err_component_click', err);
         }
     }
 
@@ -84,10 +82,8 @@ class BasePageComponentView extends Page {
             let component = this.container + xpath.componentByName(componentName);
             await this.waitForElementDisplayed(component, appConst.shortTimeout);
             await this.clickOnElement(component);
-            return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_component_click');
-            throw new Error('Error when clicking on the `Component`, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError(`Page Component View -tried to click on the component '${displayName}'`, 'err_component_click', err);
         }
     }
 
@@ -96,9 +92,7 @@ class BasePageComponentView extends Page {
         try {
             let toggleIcon = this.container + xpath.componentByName(componentName) + "/../..//span[contains(@class,'toggle icon')]";
             await this.waitForElementDisplayed(toggleIcon, appConst.shortTimeout);
-            await this.pause(300);
             await this.clickOnElement(toggleIcon);
-            return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_component_view');
             throw new Error(`PCV, Error occurred after clicking on 'toggle icon' in the row screenshot:${screenshot} ` + err);
@@ -115,7 +109,6 @@ class BasePageComponentView extends Page {
         try {
             let menuButton = this.container + xpath.componentByName(componentName) + "/../..//div[contains(@id,'PageComponentsMenuIcon')]";
             await this.waitForElementDisplayed(menuButton, appConst.shortTimeout);
-            await this.pause(300);
             await this.clickOnElement(menuButton);
             return await this.pause(500);
         } catch (err) {
@@ -168,8 +161,7 @@ class BasePageComponentView extends Page {
             let selector = xpath.contextMenuItemByName(name);
             return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_pcv_item');
-            throw new Error(`Page Component View - the context menu item is not displayed, screenshot: ${screenshot}  ` + err);
+            await this.handleError(`Page Component View - the context menu item is not displayed`, 'err_pcv_context_menu', err);
         }
     }
 
@@ -202,7 +194,7 @@ class BasePageComponentView extends Page {
 
     async swapComponents(sourceName, destinationName) {
         let sourceElem = this.container + xpath.componentByName(sourceName);
-        let destinationElem = this.container  + xpath.componentByName(destinationName);
+        let destinationElem = this.container + xpath.componentByName(destinationName);
         let source = await this.findElement(sourceElem);
         let destination = await this.findElement(destinationElem);
         await source.dragAndDrop(destination);
@@ -256,8 +248,7 @@ class BasePageComponentView extends Page {
             let locator = this.container + xpath.pageComponentsItemViewer + lib.itemByDisplayName(itemDisplayName);
             return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_pcv_item');
-            throw new Error(`Page Component View -  item is not displayed, screenshot: ${screenshot}  ` + err);
+            await this.handleError(`Page Component View -  item is not displayed`, 'err_pcv_item', err);
         }
     }
 

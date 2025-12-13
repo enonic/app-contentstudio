@@ -39,11 +39,12 @@ class MoveContentDialog extends Page {
         return XPATH.container + lib.CANCEL_BUTTON_TOP;
     }
 
-    clickOnCancelButton() {
-        return this.clickOnElement(this.cancelButton).catch(err => {
-            this.saveScreenshot('err_move_dialog_cancel');
-            throw new Error('Error when try click on Cancel button ' + err);
-        })
+    async clickOnCancelButton() {
+        try {
+            return await this.clickOnElement(this.cancelButton);
+        } catch (err) {
+            await this.handleError('Tried to click on Cancel button', 'err_move_dialog_cancel', err);
+        }
     }
 
     clickOnCancelTopButton() {
@@ -53,7 +54,6 @@ class MoveContentDialog extends Page {
     async clickOnDropdownHandle() {
         try {
             await this.clickOnElement(this.dropDownHandle);
-            await this.pause(300);
             await this.waitForSpinnerNotVisible(appConst.mediumTimeout);
             await this.pause(500);
         } catch (err) {
@@ -90,8 +90,7 @@ class MoveContentDialog extends Page {
             let contentMoveComboBox = new ContentMoveComboBox();
             return await contentMoveComboBox.selectFilteredContent(displayName, XPATH.container);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_move_dialog');
-            throw new Error("Error occurred in Move Dialog - after selecting an option, screenshot: " + screenshot + "  " + err);
+            await this.handleError('Move Dialog - tried to click on the option', 'err_move_dialog_filter', err);
         }
     }
 
@@ -101,8 +100,7 @@ class MoveContentDialog extends Page {
             let optionLocator = contentMoveComboBox.buildLocatorForOptionByDisplayName(displayName, XPATH.container);
             return await contentMoveComboBox.clickOnElement(optionLocator);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_option');
-            throw new Error("Error occurred in Move Dialog after clicking on the option, screenshot: " + screenshot + "  " + err);
+            await this.handleError('Move Dialog - tried to click on the option', 'err_move_dialog_filter', err);
         }
     }
 
@@ -121,7 +119,7 @@ class MoveContentDialog extends Page {
 
     async typeTextInOptionFilterInput(text) {
         await this.typeTextInInput(this.optionFilterInput, text);
-        return await this.pause(1000);
+        return await this.pause(200);
     }
 
     async isDestinationDisabled(name) {
@@ -147,8 +145,7 @@ class MoveContentDialog extends Page {
         try {
             return await this.waitForElementDisabled(this.moveButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_move_dialog');
-            throw new Error("Move Dialog - Move button should be disabled, screenshot: " + screenshot + "  " + err);
+            await this.handleError('Move Dialog - Move button should be disabled', 'err_move_dialog');
         }
     }
 
@@ -156,8 +153,7 @@ class MoveContentDialog extends Page {
         try {
             return await this.waitForElementEnabled(this.moveButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_move_btn_dialog');
-            throw new Error("Move Dialog - Move button should be enabled, screenshot: " + screenshot + "  " + err);
+            await this.handleError('Move Dialog - Move button should be enabled', 'err_move_btn_dialog');
         }
     }
 }

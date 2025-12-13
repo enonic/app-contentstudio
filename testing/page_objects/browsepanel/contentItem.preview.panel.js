@@ -299,7 +299,7 @@ class ContentItemPreviewPanel extends Page {
         try {
             await this.waitForPreviewButtonEnabled();
             await this.clickOnElement(this.previewButton);
-            return await this.pause(2000);
+            return await this.pause(1000);
         } catch (err) {
             await this.handleError(`Tried to click on 'Preview' button in the Preview Toolbar: `, 'err_preview_btn', err);
         }

@@ -21,8 +21,7 @@ class ContentSelectorDropdown extends BaseDropdown {
             // doesn't click on Apply - just click on the option:
             await this.clickOnFilteredByDisplayNameItem(displayName, parent);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_content_selector_dropdown');
-            throw new Error(`Content selector - Error during selecting the option, screenshot:${screenshot} ` + err);
+            await this.handleError(`Tried to select the option ${displayName}`,'err_content_selector_dropdown', err);
         }
     }
 
@@ -31,8 +30,7 @@ class ContentSelectorDropdown extends BaseDropdown {
             // Selects then clicks on Apply button:
             await this.clickOnFilteredByDisplayNameItemAndClickOnApply(displayName, parent);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_content_selector_dropdown');
-            throw new Error(`Content selector - Error during selecting the option, screenshot:${screenshot} ` + err);
+            await this.handleError(`Tried to select the option ${displayName} in multi-select mode`, 'err_content_selector_dropdown', err);
         }
     }
 
@@ -40,8 +38,7 @@ class ContentSelectorDropdown extends BaseDropdown {
         try {
             await this.clickOnFilteredByNameItem(name, parent);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error(`Content selector - Error during selecting the option, screenshot:${screenshot} ` + err);
+            await this.handleError(`Tried to select the option by name: ${name}`, 'err_content_selector_name_dropdown', err);
         }
     }
 

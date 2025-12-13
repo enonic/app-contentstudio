@@ -52,7 +52,6 @@ class GeoPointForm extends OccurrencesFormView {
             throw new Error("Geo Point Form - Remove buttons were not found!");
         }
         await removeButtons[index].click();
-        return await this.pause(500);
     }
 }
 

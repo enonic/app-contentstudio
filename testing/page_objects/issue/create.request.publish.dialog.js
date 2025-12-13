@@ -165,7 +165,6 @@ class CreateRequestPublishDialog extends Page {
 
     async waitForDialogLoaded() {
         await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
-        await this.pause(1000);
     }
 
     waitForNextButtonDisplayed() {
@@ -219,7 +218,6 @@ class CreateRequestPublishDialog extends Page {
         await this.getBrowser().waitUntil(async () => {
             return await this.isElementNotDisplayed(xpath.container);
         }, {timeout: appConst.mediumTimeout, timeoutMsg: message});
-        return await this.pause(400);
     }
 
     waitForCreateRequestButtonDisabled() {

@@ -69,7 +69,6 @@ class CustomSelectorForm extends BaseSelectorForm {
         let locator = XPATH.selectedOptionByName(option) + lib.REMOVE_ICON;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
-        return this.pause(300);
     }
 
     isOptionsFilterInputDisplayed() {

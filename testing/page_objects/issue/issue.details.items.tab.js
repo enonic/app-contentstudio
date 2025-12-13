@@ -76,8 +76,8 @@ class IssueDetailsDialogItemsTab extends Page {
             await publishContentDialog.pause(1000);
             return publishContentDialog;
         } catch (err) {
-            await this.saveScreenshot('err_click_on_publish_and_close');
-            throw new Error('Error when clicking on Publish and close ' + err);
+            await this.handleError('Issue Details Items Tab - tried to click on Publish and open Publish Wizard', 'err_click_on_publish',
+                err);
         }
     }
 
@@ -113,8 +113,7 @@ class IssueDetailsDialogItemsTab extends Page {
         try {
             return await this.waitForElementNotClickable(this.publishButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_issue_publish_btn');
-            throw new Error(`Publish button is not disabled, screenshot: ${screenshot} ` + err);
+            await this.handleError('Publish button is not disabled', 'err_issue_publish_btn', err);
         }
     }
 
@@ -155,8 +154,7 @@ class IssueDetailsDialogItemsTab extends Page {
             await this.clickOnElement(includeIcon);
             return await this.pause(2000);
         } catch (err) {
-            await this.saveScreenshot('err_issue_items');
-            throw new Error('error during clicking on `Include Child items`: ' + err)
+            await this.handleError(`Issue Details Items Tab - tried to click on 'Include Child items'`, 'err_click_on_include_child_items');
         }
     }
 
@@ -167,7 +165,7 @@ class IssueDetailsDialogItemsTab extends Page {
             await this.clickOnElement(removeIcon)
             return await this.pause(700);
         } catch (err) {
-            throw new Error("error during clicking on 'remove' icon: " + err)
+            await this.handleError("Issue Details Items Tab - tried to click on 'remove' icon", "err_click_on_remove_icon", err);
         }
     }
 

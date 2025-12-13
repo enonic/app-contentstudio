@@ -95,8 +95,7 @@ class BrowseFilterPanel extends Page {
                 return text.includes('disabled');
             }, {timeout: appConst.shortTimeout, timeoutMsg: "'Export' button should be disabled"});
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_export_btn');
-            throw new Error("Error - Export button should be disabled, screenshot: " + screenshot + ' ' + err);
+            await this.handleError("'Export' button should be disabled", 'err_export_btn_disabled', err);
         }
     }
 
@@ -108,8 +107,7 @@ class BrowseFilterPanel extends Page {
                 return !text.includes('disabled');
             }, {timeout: appConst.shortTimeout, timeoutMsg: "'Export' button should be enabled"});
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_export_btn');
-            throw new Error("Error - Export button should be enabled, screenshot: " + screenshot + ' ' + err);
+            await this.handleError("'Export' button should be enabled", 'err_export_btn_enabled', err);
         }
     }
 
@@ -190,15 +188,13 @@ class BrowseFilterPanel extends Page {
             timeout = ms === undefined ? appConst.mediumTimeout : ms;
             return await this.waitForElementDisplayed(XPATH.container + XPATH.dependenciesSection, timeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_load_dependencies_section');
-            throw new Error("Filter Panel: Dependencies section should be visible! screenshot " + screenshot + ' ' + err);
+            await this.handleError('Filter Panel: Dependencies section should be visible!', 'err_load_dependencies_section', err);
         }
     }
 
     async clickOnClearLink() {
         await this.waitForClearLinkDisplayed();
         await this.clickOnElement(this.clearFilterLink)
-        await this.pause(1000);
     }
 
     //clicks on a checkbox in Content Types aggregation block
@@ -212,10 +208,8 @@ class BrowseFilterPanel extends Page {
             }
             await this.waitForElementDisplayed(selector, appConst.shortTimeout);
             await this.clickOnElement(selector);
-            return await this.pause(1200);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_content_types_filtering');
-            throw new Error("Error, checkbox in Content Types aggregation block, screenshot " + screenshot + ' ' + err);
+            await this.handleError('Filter Panel: tried to click on aggregation block', 'err_click_content_types_checkbox', err);
         }
     }
 
@@ -241,10 +235,8 @@ class BrowseFilterPanel extends Page {
                            XPATH.aggregationLabelByName(checkBoxLabel);
             await this.waitForElementDisplayed(selector, appConst.shortTimeout);
             await this.clickOnElement(selector);
-            return await this.pause(1200);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_click_on_aggregation"));
-            throw new Error("Error when click on the aggregation checkbox: " + err);
+            await this.handleError("Filter Panel: tried to click on the aggregation checkbox", "err_click_on_aggregation", err);
         }
     }
 
@@ -254,10 +246,8 @@ class BrowseFilterPanel extends Page {
                            XPATH.aggregationLabelByName(checkBoxLabel);
             await this.waitForElementDisplayed(selector, appConst.shortTimeout);
             await this.clickOnElement(selector);
-            return await this.pause(1200);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_click_on_aggregation"));
-            throw new Error('Error when click on the aggregation checkbox: ' + err);
+            await this.handleError("Filter Panel: tried to click on the aggregation checkbox", "err_click_on_aggregation", err);
         }
     }
 
@@ -276,7 +266,7 @@ class BrowseFilterPanel extends Page {
             let endIndex = label.indexOf(')');
             return label.substring(startIndex + 1, endIndex);
         } catch (err) {
-            await this.handleError('Filter Panel: Tried to get the number in aggregation','err_numb_in_aggregation', err);
+            await this.handleError('Filter Panel: Tried to get the number in aggregation', 'err_numb_in_aggregation', err);
         }
     }
 

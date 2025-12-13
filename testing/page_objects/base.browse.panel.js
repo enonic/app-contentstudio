@@ -24,7 +24,6 @@ class BaseBrowsePanel extends Page {
     //refresh the grid:
     async clickOnRefreshButton() {
         await this.clickOnElement(this.refreshButton);
-        return await this.pause(1000);
     }
 
     async waitForGridLoaded(ms) {
@@ -55,8 +54,8 @@ class BaseBrowsePanel extends Page {
 
     async clickOnSelectionControllerCheckbox() {
         try {
+            await this.waitForElementDisplayed(this.selectionControllerCheckBox, appConst.mediumTimeout);
             await this.clickOnElement(this.selectionControllerCheckBox);
-            return await this.pause(300);
         } catch (err) {
             await this.handleError('Browse Panel, click on Selection Controller checkbox. ', 'err_click_on_selection_controller', err);
         }
@@ -130,7 +129,6 @@ class BaseBrowsePanel extends Page {
     async waitForNewButtonEnabled() {
         try {
             await this.waitForElementEnabled(this.newButton, appConst.mediumTimeout);
-            await this.pause(200);
         } catch (err) {
             await this.handleError('Browse Panel, New button should be enabled. ', 'err_new_button_enabled', err);
         }
@@ -140,8 +138,7 @@ class BaseBrowsePanel extends Page {
         try {
             await this.waitForElementDisabled(this.editButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_edit_disabled_button');
-            throw Error(`Edit button should be disabled screenshot: ${screenshot} ` + err);
+            await this.handleError('Browse Panel, Edit button should be disabled. ', 'err_edit_button_disabled', err);
         }
     }
 
@@ -160,7 +157,6 @@ class BaseBrowsePanel extends Page {
 
     async clickOnNewButton() {
         await this.waitForNewButtonEnabled();
-        await this.pause(200);
         return await this.clickOnElement(this.newButton);
     }
 
@@ -168,7 +164,7 @@ class BaseBrowsePanel extends Page {
         try {
             await this.waitForElementEnabled(this.editButton, appConst.mediumTimeout);
             await this.clickOnElement(this.editButton);
-            return await this.pause(1500);
+            return await this.pause(1000);
         } catch (err) {
             await this.handleError('Browse Panel toolbar, click on Edit button: ', 'err_browse_panel_edit_button', err);
         }
@@ -179,7 +175,6 @@ class BaseBrowsePanel extends Page {
             let nameXpath = this.treeGrid + lib.itemByName(name);
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
             await this.clickOnElement(nameXpath);
-            return await this.pause(300);
         } catch (err) {
             await this.handleError('Browse Panel, click on row by name: ', 'err_click_on_row_by_name', err);
         }
@@ -197,7 +192,6 @@ class BaseBrowsePanel extends Page {
         // check only the last element:
         await checkboxElement.waitForDisplayed();
         await checkboxElement.click();
-        return await this.pause(200);
     }
 
     async waitForRowCheckboxSelected(itemName) {
@@ -221,7 +215,6 @@ class BaseBrowsePanel extends Page {
         let checkboxElement = lib.TREE_GRID.itemTreeGridListElementByDisplayName(displayName) + lib.DIV.CHECKBOX_DIV + '/label';
         await this.waitForElementDisplayed(checkboxElement, appConst.mediumTimeout);
         await this.clickOnElement(checkboxElement);
-        return await this.pause(200);
     }
 
     async waitForContextMenuDisplayed() {
@@ -268,7 +261,6 @@ class BaseBrowsePanel extends Page {
             throw new Error("Menu item is not displayed: " + menuItem);
         }
         await el[0].click();
-        return await this.pause(1000);
     }
 
     async doubleClickOnRowByDisplayName(displayName) {

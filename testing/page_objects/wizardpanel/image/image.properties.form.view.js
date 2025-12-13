@@ -86,13 +86,11 @@ class ImagePropertiesForm extends Page {
     async typeDescription(description) {
         await this.waitForDescriptionInputDisplayed();
         await this.typeTextInInput(this.descriptionInput, description);
-        return await this.pause(200);
     }
 
     async typeColorSpace(text) {
         await this.waitForColorSpaceInputDisplayed();
         await this.typeTextInInput(this.colorSpaceInput, text);
-        return await this.pause(500);
     }
 
     async getTextInDescription() {

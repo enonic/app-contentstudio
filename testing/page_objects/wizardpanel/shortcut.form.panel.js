@@ -172,7 +172,6 @@ class ShortcutForm extends Page {
         await res[0].waitForEnabled(
             {timeout: appConst.shortTimeout, timeoutMsg: "Shortcut Parameters - Delete menu item should be enabled!"});
         await res[0].click();
-        return await this.pause(300);
     }
 
     clickOnExpandLink() {

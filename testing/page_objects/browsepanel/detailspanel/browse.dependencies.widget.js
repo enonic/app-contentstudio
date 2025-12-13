@@ -32,10 +32,8 @@ class BrowseDependenciesWidget extends BaseDependenciesWidget {
     async waitForWidgetLoaded() {
         try {
             await this.waitForElementDisplayed(this.dependenciesWidget, appConst.shortTimeout);
-            await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_widget_load');
-            throw new Error(`Content Wizard: Dependencies Widget was not screenshot:${screenshot} ` + err);
+            await this.handleError('Dependencies Widget was not loaded!', 'err_dep_widget_load', err);
         }
     }
 }

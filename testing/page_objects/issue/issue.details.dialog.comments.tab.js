@@ -85,7 +85,6 @@ class IssueDetailsDialogCommentsTab extends Page {
         await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         //clicks on menu and opens menu items
         await this.clickOnElement(selector);
-        await this.pause(700);
         let editMenuItem = `//li[contains(@id,'MenuItem') and text()='Edit']`;
         let elems = await this.getDisplayedElements(editMenuItem);
         await elems[0].click();
@@ -111,7 +110,6 @@ class IssueDetailsDialogCommentsTab extends Page {
 
     async clickOnCommentAndCloseRequestButton() {
         await this.clickOnElement(this.commentAndCloseRequestButton);
-        return await this.pause(500);
     }
 
     async waitForReopenRequestButtonDisplayed() {

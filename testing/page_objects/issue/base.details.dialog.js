@@ -60,12 +60,9 @@ class BaseDetailsDialog extends Page {
     async clickOnCancelTopButton() {
         try {
             await this.waitForElementDisplayed(this.cancelTopButton, appConst.mediumTimeout);
-            await this.pause(500);
             await this.clickOnElement(this.cancelTopButton);
-            return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_cancel_top');
-            throw new Error('Error after clicking on Cancel Top button, screenshot:  ' + screenshot + ' ' + err);
+            await this.handleError('Issue Details Dialog - clicking on Cancel Top button failed','err_click_cancel_top', err);
         }
     }
 
@@ -89,8 +86,7 @@ class BaseDetailsDialog extends Page {
             await this.typeTextInInput(this.titleInput, title);
             await this.pause(400);
         } catch (err) {
-            await this.saveScreenshot('err_type_issue_title');
-            throw new Error('error when type the issue-title ' + err);
+            await this.handleError('Issue Details Dialog - tried to insert the issue-title','err_type_issue_title', err);
         }
     }
 
@@ -99,8 +95,7 @@ class BaseDetailsDialog extends Page {
             await this.addTextInInput(this.titleInput, newTitle);
             await this.pause(400);
         } catch (err) {
-            await this.saveScreenshot('err_type_issue_title');
-            throw new Error('error during update the issue-title ' + err);
+            await this.handleError('Issue Details Dialog - error during update the issue-title','err_type_issue_title', err);
         }
     }
 
@@ -127,8 +122,7 @@ class BaseDetailsDialog extends Page {
             await this.clickOnElement(menuItemSelector);
             return await this.waitForNotificationMessage();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_issue_status_selector');
-            throw new Error(`Error occurred in IssueDetails, status selector menu , screenshot:${screenshot} ` + err);
+            await this.handleError('Error occurred in IssueDetails, status selector menu','err_issue_status_selector', err);
         }
     }
 
@@ -167,7 +161,7 @@ class BaseDetailsDialog extends Page {
 
     async clickOnAssigneesTabBarItem() {
         await this.clickOnElement(this.assigneesTabBarItem);
-        return await this.pause(800);
+        return await this.pause(400);
     }
 
     getCurrentStatusInStatusSelector() {

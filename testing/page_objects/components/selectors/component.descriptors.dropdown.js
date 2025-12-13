@@ -19,8 +19,7 @@ class ComponentDescriptorsDropdown extends BasDropdown {
         try {
             await this.clickOnFilteredByDisplayNameItem(displayName, parentElement);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('Component Descriptors Dropdown - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError('Tried to select the option in Component Descriptors Dropdown', 'err_select_component_descriptor', err);
         }
     }
 

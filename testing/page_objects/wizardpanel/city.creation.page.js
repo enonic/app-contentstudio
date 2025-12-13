@@ -33,25 +33,21 @@ class CityCreationPage extends Page {
     async typeCityName(name) {
         await this.waitForElementDisplayed(this.cityNameInput, appConst.mediumTimeout);
         await this.typeTextInInput(this.cityNameInput, name);
-        return await this.pause(200);
     }
 
     async typeLocation(location) {
         await this.waitForElementDisplayed(this.cityLocation, appConst.mediumTimeout);
         await this.typeTextInInput(this.cityLocation, location);
-        return await this.pause(200);
     }
 
     async typePopulation(population) {
         await this.waitForElementDisplayed(this.cityPopulation, appConst.mediumTimeout);
         await this.typeTextInInput(this.cityPopulation, population);
-        return await this.pause(200);
     }
 
     async clickOnSubmitButton() {
         await this.waitForElementEnabled(this.submitButton, appConst.mediumTimeout);
         await this.clickOnElement(this.submitButton);
-        return await this.pause(1000);
     }
 }
 

@@ -28,19 +28,16 @@ class PersonForm extends Page {
     async typeInFirstNameInput(title) {
         await this.waitForElementDisplayed(this.firstNameInput, appConst.mediumTimeout);
         await this.typeTextInInput(this.firstNameInput, title);
-        return await this.pause(500);
     }
 
     async typeInLastNameInput(text) {
         await this.waitForElementDisplayed(this.lastNameInput, appConst.mediumTimeout);
         await this.typeTextInInput(this.lastNameInput, text);
-        return await this.pause(500);
     }
 
     async typeInCItyInput(text) {
         await this.waitForElementDisplayed(this.cityInput, appConst.mediumTimeout);
         await this.typeTextInInput(this.cityInput, text);
-        return await this.pause(500);
     }
 }
 

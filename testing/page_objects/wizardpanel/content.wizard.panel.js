@@ -239,15 +239,8 @@ class ContentWizardPanel extends Page {
             await this.openContextWindow();
             await wizardContextWindow.openVersionHistory();
             await versionPanel.waitForVersionsLoaded();
-            return await this.pause(200);
         } catch (err) {
-            //Workaround for issue with empty selector:
-            await this.refresh();
-            await this.pause(4000);
-            let wizardContextWindow = new WizardContextPanel();
-            await wizardContextWindow.openVersionHistory();
-            let versionPanel = new VersionsWidget();
-            return await versionPanel.waitForVersionsLoaded();
+            await this.handleError('Content Wizard - tried to open Versions History panel', 'err_open_versions_history', err);
         }
     }
 
@@ -307,7 +300,6 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForElementDisplayed(XPATH.xDataTogglerByName(name), appConst.mediumTimeout);
             await this.clickOnElement(XPATH.xDataTogglerByName(name));
-            return await this.pause(400);
         } catch (err) {
             await this.handleError(`Tried to click on X-data toggle`, 'err_x_data_toggle_click', err);
         }
@@ -338,14 +330,13 @@ class ContentWizardPanel extends Page {
 
     async hotKeySaveAndCloseWizard() {
         try {
-            let status = await this.getBrowser().status();
-            await this.getBrowser().keys(['Control', 'Enter']);
+            const isMacOS = await this.isMacOS();
+            const keyCombination = isMacOS ? [Key.Command, 'Enter'] : [Key.Ctrl, 'Enter'];
+            return await this.getBrowser().keys(keyCombination);
             await this.doSwitchToContentBrowsePanel();
-            return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_close_wizard');
             await this.doSwitchToContentBrowsePanel();
-            throw new Error(`Wizard was not closed!  screenshot: ${screenshot} ` + err);
+            await this.handleError(`Tried to use hot key to Save and Close the wizard`, 'err_hot_key_save_close', err);
         }
     }
 
@@ -381,7 +372,6 @@ class ContentWizardPanel extends Page {
     async waitForOpened() {
         try {
             await this.waitForElementDisplayed(this.displayNameInput, appConst.longTimeout);
-            return await this.pause(200);
         } catch (err) {
             await this.handleError('Content wizard should be opened', 'err_wizard_opened', err);
         }
@@ -478,7 +468,7 @@ class ContentWizardPanel extends Page {
             await this.waitForSaveButtonEnabled();
             await this.clickOnElement(this.saveButton);
             await this.waitForSavingButtonNotVisible();
-            return await this.pause(800);
+            return await this.pause(200);
         } catch (err) {
             await this.handleError('Error in waitAndClickOnSave', 'err_save_content', err);
         }
@@ -806,7 +796,7 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForShowPublishMenuButtonVisible();
             await this.clickOnElement(this.publishDropDownHandle);
-            await this.pause(1000);
+            await this.pause(500);
             let selector = XPATH.publishMenuItemByName(menuItem);
             let result = await this.findElements(selector);
             return result.length > 0;
@@ -819,7 +809,6 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForShowPublishMenuButtonVisible();
             await this.clickOnElement(this.publishDropDownHandle);
-            await this.pause(500);
             let selector = XPATH.publishMenuItemByName(menuItem);
             await this.waitForElementEnabled(selector, appConst.shortTimeout);
             await this.clickOnElement(selector);
@@ -857,7 +846,6 @@ class ContentWizardPanel extends Page {
             let selector = XPATH.container + XPATH.publishMenuButton + XPATH.markAsReadyButton;
             await this.waitForMarkAsReadyButtonVisible();
             await this.clickOnElement(selector);
-            return await this.pause(500);
         } catch (err) {
             await this.handleError(`Tried to click on 'Mark As Ready' button`, 'err_mark_as_ready_button', err);
         }
@@ -919,7 +907,6 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForElementDisplayed(this.pageEditorTogglerButton, appConst.mediumTimeout);
             await this.clickOnElement(this.pageEditorTogglerButton);
-            return await this.pause(800);
         } catch (err) {
             await this.handleError(`Tried to click on Page Editor toggle`, 'err_page_editor_toggle', err);
         }
@@ -1106,7 +1093,6 @@ class ContentWizardPanel extends Page {
     async clickOnGoToGridButton() {
         await this.waitForElementDisplayed(this.goToGridButton, appConst.mediumTimeout);
         await this.clickOnElement(this.goToGridButton);
-        return await this.pause(300);
     }
 
     async getCollaborationUserCompactName() {
@@ -1163,7 +1149,6 @@ class ContentWizardPanel extends Page {
             let optionSelector = this.previewWidgetDropdown + lib.DROPDOWN_SELECTOR.listItemByDisplayName(optionName);
             await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
             await this.clickOnElement(optionSelector);
-            await this.pause(200);
         } catch (err) {
             await this.handleError(`Preview Widget, tried to select the widget: ${optionName}`, 'err_preview_widget', err);
         }

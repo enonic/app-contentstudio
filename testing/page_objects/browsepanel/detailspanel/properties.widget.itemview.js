@@ -62,7 +62,6 @@ class PropertiesItemView extends Page {
         try {
             await this.waitForEditSettingsButtonDisplayed();
             await this.clickOnElement(this.editSettingsButton);
-            await this.pause(300);
         } catch (err) {
             await this.handleError('Properties Widget, Edit button is not displayed','err_click_edit_settings', err, );
         }

@@ -20,16 +20,14 @@ class CompareDropdown extends BaseDropdown {
         try {
             await this.clickOnFilteredByNameItemAndClickOnApply(optionName, parentElement);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('CompareDropdown - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError('CompareDropdown - Tried to select the option', 'err_compare_dropdown_select',err);
         }
     }
 
     async getOptionsDisplayName() {
         let locator = XPATH.container + XPATH.compareVersionsDropdownListUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM +
                       lib.H6_DISPLAY_NAME;
-        await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
-        await this.pause(300);
+        await this.waitUntilDisplayed(locator, appConst.mediumTimeout);;
         return await this.getTextInDisplayedElements(locator);
     }
 }

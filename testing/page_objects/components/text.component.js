@@ -90,7 +90,7 @@ class TextComponent extends Page {
             let id = await this.getEditorId();
             await utils.setTextInCKE(id, text);
             await this.getBrowser().switchToParentFrame();
-            return await this.pause(1000);
+            return await this.pause(300);
         } catch (err) {
             await this.handleError('Tried to set the text in Text Component', 'err_text_component_insert_text', err);
         }
@@ -103,7 +103,7 @@ class TextComponent extends Page {
             let id = await this.getEditorId();
             await utils.insertTextInCKE(id, text);
             await this.getBrowser().switchToParentFrame();
-            return await this.pause(1000);
+            return await this.pause(300);
         } catch (err) {
             await this.handleError('Tried to insert the text in Text Component', 'err_text_component_insert_text', err);
         }
@@ -117,7 +117,7 @@ class TextComponent extends Page {
         let id = await this.getAttribute(locator, 'id');
         await utils.setTextInCKE(id, text);
         await this.getBrowser().switchToParentFrame();
-        return await this.pause(1000);
+        return await this.pause(300);
     }
 
     async isTextAreaFocused() {
@@ -129,7 +129,7 @@ class TextComponent extends Page {
             await this.getBrowser().switchToParentFrame();
             return result;
         } catch (err) {
-            await this.handleError('Text component, Editor was not focused', 'err_text_component_focus', err )
+            await this.handleError('Text component, Editor was not focused', 'err_text_component_focus', err)
         }
     }
 
@@ -180,15 +180,13 @@ class TextComponent extends Page {
             await this.switchToParentFrame();
         } catch (err) {
             await this.switchToParentFrame();
-            let screenshot = await this.saveScreenshotUniqueName('err_more_button');
-            throw new Error(`Error after clicking on More button(Insert Table), screenshot: ${screenshot}` + err);
+            await this.handleError('Text Component - Clicked on More button(Insert Table)', 'err_text_component_more_button', err);
         }
     }
 
     async clickOnInsertTableButton() {
         await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.mediumTimeout);
         await this.clickOnElement(this.insertTableButton);
-        return await this.pause(300);
     }
 
     async clickOnInsertLinkButton() {
@@ -199,8 +197,7 @@ class TextComponent extends Page {
             await this.switchToParentFrame();
             return await insertLinkDialog.waitForDialogLoaded();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_insert_link');
-            throw new Error(`Text Component - Error when clicking on Insert Link button, screenshot:${screenshot} ` + err);
+            await this.handleError('Text Component - Clicked on Insert Link button', 'err_text_component_insert_link', err);
         }
     }
 
@@ -210,8 +207,7 @@ class TextComponent extends Page {
             await this.clickOnElement(this.insertMacroButton);
             return await this.switchToParentFrame();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_insert_macro');
-            throw new Error(`Text Component - Error when clicking on Insert Macro button, screenshot:${screenshot} ` + err);
+            await this.handleError('Text Component - Clicked on Insert Macro button', 'err_text_component_insert_macro', err);
         }
     }
 
@@ -235,8 +231,7 @@ class TextComponent extends Page {
             return await insertImageDialog.waitForDialogVisible();
         } catch (err) {
             await this.switchToParentFrame();
-            let screenshot = await this.saveScreenshotUniqueName('err_insert_image_button');
-            throw new Error(`Text Component Toolbar - Error after clicking on Insert Image button, screenshot:${screenshot} ` + err);
+            await this.handleError('Text Component - Clicked on Insert Image button', 'err_text_component_insert_image', err);
         }
     }
 
@@ -274,8 +269,7 @@ class TextComponent extends Page {
             await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.mediumTimeout);
             await this.clickOnElement(this.sourceButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_source_btn');
-            throw new Error(`Text Component - Error occurred during clicking on Source button, screenshot:${screenshot} ` + err);
+            await this.handleError('Text Component - Clicked on Source button', 'err_text_component_source_btn', err);
         }
     }
 }

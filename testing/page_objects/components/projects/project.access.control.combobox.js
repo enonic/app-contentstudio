@@ -23,8 +23,7 @@ class ProjectAccessControlComboBox extends BasDropdown {
         try {
             await this.clickOnFilteredByDisplayNameItemAndClickOnApply(displayName, parentElement);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('Error occurred in ProjectAccessControlComboBox, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError("Error after trying to select principal by display name and click on Apply", 'err_select_principal_apply', err);
         }
     }
 
@@ -34,10 +33,8 @@ class ProjectAccessControlComboBox extends BasDropdown {
                           "//div[contains(@id,'TabMenuButton')]";
         await this.waitForElementEnabled(menuLocator, appConst.mediumTimeout);
         await this.clickOnElement(menuLocator);
-        await this.pause(400);
         let menuItem = parentElement + XPATH.container + XPATH.accessItemByName(userDisplayName) + lib.tabMenuItem(newRole);
         await this.waitForElementDisplayed(menuItem, appConst.shortTimeout);
-        await this.pause(300);
         await this.clickOnElement(menuItem);
         return await this.pause(500);
     }
@@ -46,10 +43,8 @@ class ProjectAccessControlComboBox extends BasDropdown {
         try {
             let selector = parentLocator + XPATH.container + XPATH.accessItemByDisplayName(principalName) + lib.REMOVE_ICON;
             await this.clickOnElement(selector);
-            return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_remove_principal');
-            throw new Error("Error when trying to remove project Access Item, screenshot: " + screenshot + "  " + err);
+            await this.handleError("Error after trying to remove project Access Item", 'err_remove_principal', err);
         }
     }
 }

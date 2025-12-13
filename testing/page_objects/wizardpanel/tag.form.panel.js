@@ -31,7 +31,7 @@ class TagForm extends Page {
 
     async typeInTagInput(text) {
         await this.clickOnElement(this.tagInput);
-        await this.pause(700);
+        await this.pause(200);
         return await this.getBrowser().keys(text);
     }
 
@@ -50,9 +50,8 @@ class TagForm extends Page {
             await this.typeInTagInput(text)
             await this.pause(200);
             await utils.doPressEnter();
-            return await this.pause(200);
         } catch (err) {
-            throw new Error("Error when typing the tag:  " + err);
+            await this.handleError('Tag Form - tried to add a new tag', 'err_type_tag_input', err);
         }
     }
 

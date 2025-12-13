@@ -125,7 +125,6 @@ class BaseVersionsWidget extends Page {
             let items = await this.findElements(this.versionItems);
             //click on the item:
             await this.getBrowser().elementClick(items[index].elementId);
-            return await this.pause(300);
         } catch (err) {
             await this.handleError(`Version Widget - error during expanding version item at index: ${index}`, 'err_expand_version', err);
         }
@@ -207,7 +206,7 @@ class BaseVersionsWidget extends Page {
         try {
             await this.waitForElementDisplayed(this.restoreButton, appConst.mediumTimeout);
             await this.clickOnElement(this.restoreButton);
-            return await this.pause(2000);
+            return await this.pause(1000);
         } catch (err) {
             await this.handleError(`Version Widget - clicked on 'Restore' button`, 'err_restore_button', err);
         }
@@ -250,7 +249,6 @@ class BaseVersionsWidget extends Page {
             let itemLocator = this.versionsWidget + xpath.anyItemByHeader(itemHeader);
             let versionItems = await this.findElements(itemLocator);
             await this.doPerformMoveToAction(versionItems[index]);
-            return await this.pause(200);
         } catch (err) {
             await this.handleError(`Version Widget - moving cursor to version item: ${itemHeader}`, 'err_move_cursor_to_version', err);
         }

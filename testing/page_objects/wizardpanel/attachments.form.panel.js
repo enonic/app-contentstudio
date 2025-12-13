@@ -24,7 +24,6 @@ class AttachmentsForm extends OccurrencesFormView {
         await this.waitForElementDisplayed(this.removeItemIcon, appConst.mediumTimeout);
         let result = await this.findElements(this.removeItemIcon);
         result[index].click();
-        await this.pause(200);
     }
 
     waitForUploaderDisplayed() {

@@ -35,10 +35,9 @@ class InstallAppDialog extends Page {
 
     async waitForAppInstalled(appName) {
         try {
-            return await this.waitForElementDisplayed(XPATH.installedStatusByName(appName), 30000);
+            return await this.waitForElementDisplayed(XPATH.installedStatusByName(appName), appConst.installAppTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_inst_status');
-            throw new Error(`Install App Dialog - App status for : ${appName} should be 'Installed', screenshot ${screenshot} ` + err);
+            await this.handleError(`App status for : ${appName} should be 'Installed'`, 'err_inst_status', err);
         }
     }
 
@@ -46,8 +45,7 @@ class InstallAppDialog extends Page {
         try {
             await this.waitForElementDisplayed(this.grid, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_load_install_dialog');
-            throw new Error(`Install App dialog was not loaded! screenshot: ${screenshot}  ` + err);
+            await this.handleError('Install App dialog was not opened!', 'err_open_install_dialog', err);
         }
     }
 
@@ -55,9 +53,8 @@ class InstallAppDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(XPATH.container, ms)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_install_dialog_close');
             await this.clickOnCancelButtonTop();
-            throw new Error(`Install Dialog was not closed! screenshot: ${screenshot} ` + err);
+            await this.handleError('Install Dialog was not closed!', 'err_install_dialog_close', err);
         }
     }
 
@@ -70,10 +67,9 @@ class InstallAppDialog extends Page {
 
     async waitForGridLoaded() {
         try {
-            await this.waitForElementDisplayed(this.grid + lib.H6_DISPLAY_NAME, 30000);
+            await this.waitForElementDisplayed(this.grid + lib.H6_DISPLAY_NAME, appConst.longTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_install_dialog_grid');
-            throw new Error(`Install App dialog, grid was not loaded! screenshot: ${screenshot}  ` + err);
+            await this.handleError('Install App dialog, grid was not loaded!', 'err_install_dialog', err);
         }
     }
 
@@ -82,8 +78,7 @@ class InstallAppDialog extends Page {
             const selector = XPATH.installButtonByName(appName);
             return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_install_link');
-            throw new Error(`Install link is not displayed for the application: ${appName},  screenshot: ${screenshot} ` + err);
+            await this.handleError(`Install link is not displayed for the application: ${appName}`, 'err_install_link', err);
         }
     }
 
@@ -91,11 +86,9 @@ class InstallAppDialog extends Page {
         try {
             let locator = XPATH.installButtonByName(appName);
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-            await this.pause(400);
             return await this.clickOnElement(locator);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_find_installed_status');
-            throw new Error(`Couldn't find install link for the application: ${appName}, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Couldn't find install link for the application: ${appName}`, 'err_click_install_link', err);
         }
     }
 
@@ -105,8 +98,7 @@ class InstallAppDialog extends Page {
             let locator = XPATH.installedStatusByName(appName);
             return await this.waitForElementDisplayed(locator, appConst.longTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_find_installed_status');
-            throw new Error(`Couldn't find 'Installed' label for the application: ${appName}, screenshot: ${screenshot} ` + err);
+            await this.handleError(`App status for : ${appName} should be 'Installed'`, 'err_app_installed_status', err);
         }
     }
 
@@ -122,8 +114,7 @@ class InstallAppDialog extends Page {
             await this.waitForElementDisplayed(selector, appConst.longTimeout);
             return await this.getText(selector);
         } catch (err) {
-            let screenshot = this.saveScreenshotUniqueName('err_wait_for_validation_message');
-            throw new Error(`Validation message is not visible in 'Install app' dialog,  screenshot: ${screenshot}  ` + err);
+            await this.handleError(`Validation message is not visible in 'Install app' dialog`, 'err_get_validation_message', err);
         }
     }
 
@@ -133,8 +124,7 @@ class InstallAppDialog extends Page {
             await this.waitForElementDisplayed(selector, appConst.longTimeout);
             return await this.getTextInDisplayedElements(selector);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_app_not_found_message');
-            throw new Error(`'Application not found' message should be displayed, screenshot: ${screenshot}  ` + err);
+            await this.handleError(`'Application not found' message should be displayed!`, 'err_get_app_not_found_message', err);
         }
     }
 
@@ -143,8 +133,7 @@ class InstallAppDialog extends Page {
             let selector = XPATH.container + `//div[contains(@class,'status-message') and contains(.,'No applications found')]`;
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshot('err_app_not_found_mess');
-            throw new Error(`expected notification message should be displayed! screenshot: ${screenshot}  ` + err);
+            await this.handleError(`'Application not found' message should be displayed!`, 'err_app_not_found_mess', err);
         }
     }
 
@@ -162,8 +151,7 @@ class InstallAppDialog extends Page {
             let selector = XPATH.appByDisplayName(appDisplayName);
             return await this.waitForElementDisplayed(selector, appConst.longTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_app_displayed');
-            throw new Error(`Application ${appDisplayName} is not displayed in the Install app dialog, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Application ${appDisplayName} is not displayed in the Install app dialog!`, 'err_app_displayed', err);
         }
     }
 
@@ -174,8 +162,7 @@ class InstallAppDialog extends Page {
                 return !attrClass.includes('disabled');
             }, {timeout: appConst.longTimeout, timeoutMsg: "'Search Input' is not enabled!"});
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_search_input');
-            throw new Error(`Error - Install App Dialog, search input,  screenshot:${screenshot} ` + err);
+            await this.handleError("'Search Input' is not enabled!", 'err_search_input_enabled', err);
         }
     }
 

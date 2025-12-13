@@ -45,19 +45,16 @@ class SetInSetView extends Page {
     async clickOnAddContactInfoButton() {
         await this.waitForAddContactInfoButtonDisplayed();
         await this.clickOnElement(this.addContactInfoButton);
-        return this.pause(300);
     }
 
     async typeTextInStreetInput(text) {
         await this.waitForElementDisplayed(this.streetInput, appConst.mediumTimeout);
         await this.typeTextInInput(this.streetInput, text);
-        return await this.pause(200);
     }
 
     async typeTextInLabelInput(text) {
         await this.waitForElementDisplayed(this.labelInput, appConst.mediumTimeout);
         await this.typeTextInInput(this.labelInput, text);
-        return await this.pause(200);
     }
 
     async getItemSetTitle() {
@@ -75,13 +72,11 @@ class SetInSetView extends Page {
     async typeTextInFirstNameInput(text) {
         await this.waitForElementDisplayed(this.firstNameInput, appConst.mediumTimeout);
         await this.typeTextInInput(this.firstNameInput, text);
-        return await this.pause(300);
     }
 
     async typeTextInLastNameInput(text) {
         await this.waitForElementDisplayed(this.lastNameInput, appConst.mediumTimeout);
         await this.typeTextInInput(this.lastNameInput, text);
-        return await this.pause(300);
     }
 }
 

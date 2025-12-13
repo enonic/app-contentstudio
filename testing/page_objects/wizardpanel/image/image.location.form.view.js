@@ -41,19 +41,16 @@ class ImageLocationForm extends Page {
     async typeAltitude(altitude) {
         await this.waitForAltitudeInputDisplayed();
         await this.typeTextInInput(this.altitudeInput, altitude);
-        return await this.pause(200);
     }
 
     async typeDirection(text) {
         await this.waitForDirectionInputDisplayed();
         await this.typeTextInInput(this.directionInput, text);
-        return await this.pause(200);
     }
 
     async typeGeoPoint(text) {
         await this.waitForGeoPointInputDisplayed();
         await this.typeTextInInput(this.geoPointInput, text);
-        return await this.pause(200);
     }
 
     async getTextInAltitude() {

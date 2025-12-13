@@ -78,7 +78,6 @@ class DependantsControls extends Page {
     }
 
 
-
     async getNumberInAllCheckbox() {
         let locator = this.allDependantsCheckbox + '//label';
         return await this.getText(locator);
@@ -88,8 +87,7 @@ class DependantsControls extends Page {
         try {
             return await this.waitForElementDisplayed(this.dependantsBlock, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dependencies_block');
-            throw new Error(`Dependants block is not displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError('Dependants block is not displayed', 'err_dependencies_block', err);
         }
     }
 
@@ -97,8 +95,7 @@ class DependantsControls extends Page {
         try {
             return await this.waitForElementDisplayed(this.applySelectionButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
-            throw new Error(`Dependants block - 'Apply selection' button is not displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError('Dependants block - Apply selection button is not displayed', 'err_apply_btn', err);
         }
     }
 
@@ -156,8 +153,7 @@ class DependantsControls extends Page {
             await this.clickOnElement(this.showExcludedItemsButton);
             await this.pause(900);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
-            throw new Error('Dependants block, Error during clicking on Show Excluded button, screenshot  ' + screenshot + ' ' + err);
+            await this.handleError('Dependants block, Error during clicking on Show Excluded button', 'err_show_excluded_btn', err);
         }
     }
 
@@ -167,8 +163,7 @@ class DependantsControls extends Page {
             await this.clickOnElement(this.hideExcludedItemsButton);
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
-            throw new Error('Dependants block, Error during clicking on Hide Excluded button, screenshot  ' + screenshot + ' ' + err);
+            await this.handleError('Dependants block, tried to click on Hide Excluded button', 'err_hide_excluded_btn', err);
         }
     }
 
@@ -176,8 +171,7 @@ class DependantsControls extends Page {
         try {
             return this.waitForElementDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
-            throw new Error(`Dependants block, 'Hide excluded items' button should be displayed! screenshot: ${screenshot} ` + +err)
+            await this.handleError('Dependants block, Hide Excluded Items button should be displayed', 'err_hide_excluded_btn', err);
         }
     }
 
@@ -185,8 +179,7 @@ class DependantsControls extends Page {
         try {
             return this.waitForElementNotDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
-            throw new Error(`Dependants block, 'Hide excluded items' button should be hidden! screenshot: ${screenshot} ` + +err)
+            await this.handleError('Dependants block, Hide Excluded Items button should be hidden', 'err_hide_excluded_btn', err);
         }
     }
 

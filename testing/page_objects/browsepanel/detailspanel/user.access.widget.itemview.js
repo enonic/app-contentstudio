@@ -50,7 +50,6 @@ class UserAccessWidgetItemView extends Page {
         let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
         await this.clickOnEditPermissionsLink();
         await editPermissionsGeneralStep.waitForLoaded();
-        return await this.pause(500);
     }
 
     async waitForLoaded() {

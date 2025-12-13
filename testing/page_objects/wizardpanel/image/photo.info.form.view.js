@@ -195,13 +195,11 @@ class ImagePhotoInfoForm extends Page {
     async typeMake(text) {
         await this.waitForMakeInputDisplayed();
         await this.typeTextInInput(this.makeInput, text);
-        return await this.pause(200);
     }
 
     async typeModel(text) {
         await this.waitForModelInputDisplayed();
         await this.typeTextInInput(this.modelInput, text);
-        return await this.pause(200);
     }
 
     async getTextInDescription() {

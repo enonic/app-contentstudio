@@ -31,9 +31,8 @@ class BaseContextWindowPanel extends Page {
     async clickOnWidgetSelectorDropdownHandle() {
         try {
             await this.waitForWidgetSelectorDropDownHandleDisplayed();
-            await this.pause(300);
             await this.clickOnElement(this.widgetSelectorDropdownHandle);
-            await this.pause(700);
+            await this.pause(300);
         } catch (err) {
             await this.handleError('Tried to click on Widget Selector dropdown handle.', 'err_widget_selector_dropdown_handle', err);
         }
@@ -43,9 +42,7 @@ class BaseContextWindowPanel extends Page {
         try {
             await this.waitForElementDisplayed(this.widgetSelectorDropdownHandle, appConst.mediumTimeout);
         } catch (err) {
-            await this.refresh();
-            await this.pause(2000);
-            await this.waitForElementDisplayed(this.widgetSelectorDropdownHandle, appConst.shortTimeout);
+            await this.handleError('Widget Selector dropdown handle should be displayed.', 'err_widget_selector_dropdown_handle', err);
         }
     }
 
@@ -73,8 +70,7 @@ class BaseContextWindowPanel extends Page {
             await widgetSelectorDropdown.clickOnOptionByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY);
             await this.pause(900);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_open_versions');
-            throw new Error(`Error occurred in widget selector dropdown, Version History, screenshot ${screenshot}: ` + err);
+            await this.handleError(`Widget selector dropdown - Tried to open Versions Widget `, 'err_open_versions', err);
         }
     }
 
@@ -107,7 +103,6 @@ class BaseContextWindowPanel extends Page {
             let widgetSelectorDropdown = new WidgetSelectorDropdown();
             await this.clickOnWidgetSelectorDropdownHandle();
             await widgetSelectorDropdown.clickOnOptionByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
-            await this.pause(300);
             return new PageWidgetContextWindowPanel();
         } catch (err) {
             await this.handleError(`Tried to open Page Widget. `, 'err_open_page_widget', err);

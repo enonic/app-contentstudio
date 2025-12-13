@@ -52,7 +52,6 @@ class FreeFormView extends Page {
         await this.pause(300);
         let filterableListBox = new FilterableListBox();
         await filterableListBox.clickOnFilteredByDisplayNameItem(inputTypeName, xpath.itemSet);
-        return await this.pause(200);
     }
 
     async expandInputTypeMenu() {
@@ -62,7 +61,7 @@ class FreeFormView extends Page {
     }
 
     async resetInputTypeOption() {
-        await this.expandInputTypeMenu(600);
+        await this.expandInputTypeMenu();
         return await this.selectMenuItem("Reset");
     }
 
@@ -77,7 +76,6 @@ class FreeFormView extends Page {
     async clickOnAddButton() {
         try {
             await this.waitForAddButtonDisplayed();
-            await this.pause(300);
             await this.scrollAndClickOnElement(this.addButton);
             return await this.pause(300);
         } catch (err) {

@@ -139,7 +139,6 @@ class UserWizard extends wizards.WizardPanel {
         try {
             await this.waitForSetPasswordButtonDisplayed();
             await this.clickOnElement(this.setPasswordButton);
-            await this.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_set_password_btn');
             throw new Error(`Error occurred when tried to click on 'Set Password' button, screenshot: ${screenshot} ` + err);

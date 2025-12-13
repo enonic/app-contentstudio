@@ -32,15 +32,14 @@ class PageTemplateForm extends Page {
         await contentTypeFilterDropdown.selectFilteredContentTypeAndClickOnApply(contentTypeDisplayName);
         return await this.pause(500);
     }
+
     async clickOnRemoveSupportIcon(displayName) {
         try {
             let selector = XPATH.contentTypeSelectedOptionsView(displayName) + lib.REMOVE_ICON;
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             await this.clickOnElement(selector);
-            return await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot('err_remove_support');
-            throw new Error('error when clicking on remove-support icon ' + err);
+            await this.handleError('Page Template Form - click on remove support icon', 'err_click_remove_support', err);
         }
     }
 

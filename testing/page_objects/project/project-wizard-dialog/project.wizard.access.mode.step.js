@@ -18,9 +18,9 @@ class ProjectWizardDialogAccessModeStep extends ProjectWizardDialog {
     async clickOnAccessModeRadio(mode) {
         let selector = XPATH.radioButtonByDescription(mode) + "/input[@type='radio']";
         await this.waitForElementEnabled(XPATH.radioButtonByDescription(mode), appConst.shortTimeout);
-        await this.pause(200);
         return await this.clickOnElement(selector);
     }
+
     async waitForLoaded() {
         await this.getBrowser().waitUntil(async () => {
             let actualDescription = await this.getStepDescription();

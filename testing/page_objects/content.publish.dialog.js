@@ -233,9 +233,7 @@ class ContentPublishDialog extends Page {
     async clickOnMarkAsReadyButton() {
         try {
             await this.waitForMarkAsReadyButtonDisplayed();
-            await this.pause(700);
             await this.clickOnElement(this.markAsReadyButton);
-            return await this.pause(700);
         } catch (err) {
             await this.handleError(`Publish Dialog, click on 'Mark as ready' button `, 'err_click_mark_as_ready_btn', err);
         }
@@ -257,7 +255,6 @@ class ContentPublishDialog extends Page {
     async waitForDialogOpened() {
         try {
             await this.waitForElementDisplayed(XPATH.dialogTitle, appConst.mediumTimeout);
-            await this.pause(1000);
         } catch (err) {
             await this.handleError(`Publish Dialog, dialog should be opened `, 'err_open_publish_dialog', err);
         }
@@ -266,7 +263,6 @@ class ContentPublishDialog extends Page {
     async waitForDialogClosed() {
         try {
             await this.waitForElementNotDisplayed(XPATH.container, appConst.longTimeout);
-            await this.pause(500);
         } catch (err) {
             await this.handleError(`Publish Dialog, wait for dialog to be closed `, 'err_close_publish_dialog', err);
         }
@@ -292,7 +288,6 @@ class ContentPublishDialog extends Page {
         try {
             await this.waitForElementDisplayed(this.addScheduleIcon, appConst.shortTimeout);
             await this.clickOnElement(this.addScheduleIcon);
-            return await this.pause(500);
         } catch (err) {
             await this.handleError(`Publish Dialog, click on 'Add Schedule' icon-button `, 'err_publish_dialog_schedule_button', err);
         }
@@ -321,7 +316,6 @@ class ContentPublishDialog extends Page {
         try {
             await this.waitForShowExcludedItemsButtonDisplayed();
             await this.clickOnElement(this.showExcludedItemsButton);
-            await this.pause(400);
         } catch (err) {
             await this.handleError(`Publish Dialog, click on Show Excluded dependent items button `, 'err_show_excluded_btn', err);
         }
@@ -373,7 +367,6 @@ class ContentPublishDialog extends Page {
         try {
             await this.waitForElementDisplayed(this.includeChildrenToogler, appConst.mediumTimeout);
             await this.clickOnElement(this.includeChildrenToogler);
-            return await this.pause(700);
         } catch (err) {
             await this.handleError(`Publish Dialog, click on Include Children toggle `, 'err_include_children_toggle', err);
         }
@@ -410,7 +403,7 @@ class ContentPublishDialog extends Page {
 
     async typeTextInChangeLog(text) {
         await this.keys(text);
-        return await this.pause(1000);
+        return await this.pause(200);
     }
 
     async getTextInChangeLog() {
@@ -464,7 +457,6 @@ class ContentPublishDialog extends Page {
     }
 
     async clickOnCancelTopButton() {
-        await this.pause(400);
         await this.clickOnElement(this.cancelButtonTop);
     }
 
@@ -551,7 +543,6 @@ class ContentPublishDialog extends Page {
             let locator = XPATH.container + XPATH.publishScheduleForm + `//a[contains(@class,'icon-close')]`;
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             await this.clickOnElement(locator);
-            return await this.pause(300);
         } catch (err) {
             await this.handleError(`Publish Schedule Form, close icon `, 'err_close_schedule_form', err);
         }
@@ -647,7 +638,6 @@ class ContentPublishDialog extends Page {
     async clickOnUpdateScheduledButton(){
         try {
             await this.clickOnElement(this.updateScheduledButton);
-            return await this.pause(300);
         } catch (err) {
             await this.handleError(`Publish Dialog, click on 'Update Scheduled' button `, 'err_click_update_scheduled_button', err);
         }

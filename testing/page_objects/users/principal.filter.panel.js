@@ -51,13 +51,11 @@ class PrincipalFilterPanel extends Page {
     async clickOnRoleAggregation() {
         let selector = xpath.container + xpath.aggregationGroupView + xpath.roleAggregationCheckbox + '/label';
         await this.clickOnElement(selector);
-        await this.pause(400);
     }
 
     async clickOnIdProviderAggregation() {
         let selector = xpath.container + xpath.aggregationGroupView + xpath.idProviderAggregationCheckbox + '/label';
         await this.clickOnElement(selector);
-        await this.pause(400);
     }
 
     waitForOpened() {

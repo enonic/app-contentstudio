@@ -113,7 +113,7 @@ class SiteForm extends Page {
         try {
             let siteConfiguratorComboBox = new SiteConfiguratorComboBox();
             await siteConfiguratorComboBox.selectFilteredApplicationAndClickOnApply(displayName, XPATH.wizardSteps);
-            await this.pause(900);
+            await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_app_option');
             throw new Error(`Error occurred in Site wizard, application selector, screenshot : ${screenshot} ` + err);
@@ -130,10 +130,8 @@ class SiteForm extends Page {
             let locator = XPATH.selectedAppByDisplayName(displayName) + lib.REMOVE_ICON;
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             await this.clickOnElement(locator);
-            return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_app_remove_icon');
-            throw new Error(`Site wizard, application remove icon, screenshot :${screenshot}` + err);
+            await this.handleError('Site wizard, application remove icon', 'err_app_remove_icon', err);
         }
     }
 
@@ -160,7 +158,7 @@ class SiteForm extends Page {
             await this.clickOnElement(selector);
             let siteConfigDialog = new SiteConfigDialog();
             await siteConfigDialog.waitForDialogOpened();
-            return await siteConfigDialog.pause(1000);
+            return await siteConfigDialog.pause(300);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_open_site_configurator_dialog');
             throw new Error(`Error occurred in Site wizard, site configurator dialog, screenshot: ${screenshot} ` + err);

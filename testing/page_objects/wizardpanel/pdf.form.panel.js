@@ -22,7 +22,6 @@ class PdfForm extends Page {
     async typeTextInAbstractionTextArea(text) {
         await this.waitForAbstractionTextAreaDisplayed();
         await this.typeTextInInput(this.abstractTextArea, text);
-        return await this.pause(300);
     }
 
     waitForAbstractionTextAreaDisplayed() {

@@ -44,7 +44,6 @@ class ContentDuplicateDialog extends Page {
     async clickOnIncludeChildToggler() {
         try {
             await this.clickOnElement(this.includeChildToggler);
-            return await this.pause(1000);
         } catch (err) {
             await this.handleError('Content Duplicate dialog', 'err_duplicate_dlg_child_toggle', err);
         }
@@ -54,7 +53,6 @@ class ContentDuplicateDialog extends Page {
         try {
             await this.waitForElementEnabled(this.duplicateButton, appConst.mediumTimeout);
             await this.clickOnElement(this.duplicateButton);
-            return await this.pause(500);
         } catch (err) {
             await this.handleError('Content Duplicate dialog', 'err_duplicate_btn', err);
         }
@@ -76,7 +74,6 @@ class ContentDuplicateDialog extends Page {
     async waitForDialogOpened() {
         try {
             await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
-            await this.pause(400);
         } catch (err) {
             await this.handleError('Content Duplicate dialog', 'err_duplicate_dlg', err);
         }

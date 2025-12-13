@@ -70,7 +70,6 @@ class IssueDetailsDialog extends BaseDetailsDialog {
 
     async clickOnReopenIssueButton() {
         await this.clickOnElement(this.reopenIssueButton);
-        await this.pause(800);
     }
 
     async getIssueTitle() {
@@ -104,14 +103,12 @@ class IssueDetailsDialog extends BaseDetailsDialog {
             await this.clickOnElement(this.itemsTabBarItem);
             return await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot('err_click_on_items_tab_bar_item');
-            throw new Error('Issue Details Dialog: error during clicking on Items tab bar item: ' + err)
+            await this.handleError(`Issue Details Dialog: tried to click on 'Items' tab bar item`, 'err_click_on_items_tab_bar_item', err);
         }
     }
 
     async clickOncloseTabMenuItem() {
         await this.waitForElementDisplayed(XPATH.closeTabMenuItem, appConst.mediumTimeout);
-        await this.pause(200);
         await this.clickOnElement(XPATH.closeTabMenuItem);
     }
 

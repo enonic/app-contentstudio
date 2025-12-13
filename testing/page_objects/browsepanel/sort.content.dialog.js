@@ -34,10 +34,8 @@ class SortContentDialog extends Page {
             await this.clickOnElement(this.saveButton);
             await this.waitForSpinnerNotVisible();
             await this.waitForDialogClosed();
-            return await this.pause(1200);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_sort_save_button');
-            throw new Error(`Error occurred in Sort Content dialog, screenshot: ${screenshot} ` + err);
+            await this.handleError('Tried to click on Save button in Sort Content dialog', 'err_click_sort_save_button', err);
         }
     }
 
@@ -57,8 +55,7 @@ class SortContentDialog extends Page {
         try {
             await this.waitForElementNotDisplayed(XPATH.container, appConst.longTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_close_sort_dialog');
-            throw new Error(`Sort content dialog must be closed, screenshot: ${screenshot} ` + err);
+            await this.handleError('Sort content dialog should be closed', 'err_wait_sort_dialog_closed', err);
         }
     }
 
@@ -116,7 +113,6 @@ class SortContentDialog extends Page {
     async clickOndropDownHandle() {
         await this.waitForElementDisplayed(this.dropdownHandle, appConst.mediumTimeout);
         await this.clickOnElement(this.dropdownHandle);
-        await this.pause(700);
         return await this.waitForSpinnerNotVisible();
     }
 

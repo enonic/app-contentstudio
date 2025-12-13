@@ -70,7 +70,6 @@ class AppBrowsePanel extends Page {
             const nameXpath = XPATH.rowByDescription(description);
             await this.waitForElementDisplayed(nameXpath, appConst.shortTimeout);
             await this.clickOnElement(nameXpath);
-            return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_grid_item');
             throw new Error(`Row with the app was not found, screenshot: ${screenshot} ` + err);
@@ -82,7 +81,6 @@ class AppBrowsePanel extends Page {
             let nameXpath = XPATH.rowByDisplayName(displayName);
             await this.waitForElementDisplayed(nameXpath, 3000);
             await this.clickOnElement(nameXpath);
-            return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_click_on_app');
             throw new Error(`Error when clicking on the row, screenshot: ${screenshot} ` + err);
@@ -147,7 +145,6 @@ class AppBrowsePanel extends Page {
         try {
             await this.waitForElementEnabled(XPATH.startButton, appConst.mediumTimeout);
             await this.clickOnElement(XPATH.startButton);
-            return await this.pause(1500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_browsepanel_start');
             throw new Error(`Start button is disabled!screenshot: ${screenshot} ` + err);
@@ -158,7 +155,6 @@ class AppBrowsePanel extends Page {
         try {
             await this.waitForElementEnabled(XPATH.stopButton, appConst.mediumTimeout);
             await this.clickOnElement(XPATH.stopButton);
-            return await this.pause(1500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_browsepanel_stop');
             throw new Error(`Stop button is disabled! screenshot:${screenshot} ` + err);
@@ -200,7 +196,6 @@ class AppBrowsePanel extends Page {
             const nameXpath = XPATH.rowByDisplayName(name) + "//div[contains(@id,'ApplicationsListViewer')]";
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
             await this.doRightClick(nameXpath);
-            return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_open_context_menu');
             throw new Error(`Error when do right click on the row, screenshot: ${screenshot} ` + err);
@@ -245,7 +240,6 @@ class AppBrowsePanel extends Page {
         try {
             await this.waitForElementDisplayed(displayNameXpath, appConst.mediumTimeout);
             await this.clickOnElement(displayNameXpath);
-            return await this.pause(500);
         } catch (err) {
             throw Error(`Row with the displayName ${displayName} was not found.` + err)
         }

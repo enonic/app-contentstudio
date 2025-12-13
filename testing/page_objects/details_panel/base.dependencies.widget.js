@@ -13,8 +13,7 @@ class BaseDependenciesWidget extends Page {
             await this.clickOnElement(this.showOutboundButton);
             return await this.pause(3000);
         } catch (err) {
-            await this.saveScreenshot('err_outbound_button');
-            throw new Error('Show Outbound button is not visible in ' + err);
+           await this.handleError('Error after clicking on Show Outbound button', 'err_click_outbound_button', err);
         }
     }
 
@@ -53,8 +52,7 @@ class BaseDependenciesWidget extends Page {
         try {
             await this.waitForElementNotDisplayed(this.showOutboundButton, appConst.shortTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshot('err_outbound_button_should_be_hidden');
-            throw new Error('show Outbound Button is visible, screenshot' + screenshot + ' ' + err);
+            await this.handleError('Error: show Outbound Button should not be visible', 'err_outbound_button_should_be_hidden', err);
         }
     }
 
@@ -65,18 +63,9 @@ class BaseDependenciesWidget extends Page {
     async waitForOutboundButtonVisible() {
         try {
             await this.waitForElementDisplayed(this.showOutboundButton, appConst.shortTimeout);
-            await this.pause(500);
         } catch (err) {
-            await this.saveScreenshotUniqueName('err_outbound_button');
-            throw new Error('showOutboundButton is not visible in ' + err);
+            await this.handleError('Error: show Outbound Button is not visible', 'err_outbound_button', err);
         }
-    }
-
-    waitForInboundButtonVisible() {
-        return this.waitForElementDisplayed(this.showInboundButton, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot('err_inbound_button');
-            throw new Error('showInboundButton: is not visible in ' + err);
-        });
     }
 }
 

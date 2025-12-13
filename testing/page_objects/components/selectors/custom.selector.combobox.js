@@ -23,8 +23,7 @@ class CustomSelectorComboBox extends BaseDropdown {
         try {
             await this.clickOnFilteredByDisplayNameItemAndClickOnApply(optionName, parentElement);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('CustomSelectorComboBox - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError(`Error after trying to select option ${optionName} and click on Apply`, 'err_select_option_apply', err);
         }
     }
 
@@ -34,7 +33,6 @@ class CustomSelectorComboBox extends BaseDropdown {
         }
         let locator = parentXpath + XPATH.selectorListBoxUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.pause(500);
         return await this.getTextInDisplayedElements(locator);
     }
 }

@@ -193,7 +193,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             let projectSelectionDialog = await this.clickOnProjectViewerButton();
             await projectSelectionDialog.selectContext(projectDisplayName);
             await projectSelectionDialog.waitForDialogClosed();
-            return await this.pause(1000);
         } catch (err) {
             await this.handleError('Browse Panel - Tried to select the context', 'err_select_context', err);
         }

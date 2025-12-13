@@ -110,7 +110,6 @@ class InsertImageDialog extends Page {
     async clickOnDecorativeImageRadioButton() {
         try {
             await this.waitForDecorativeImageRadioButtonDisplayed();
-            await this.pause(500);
             await this.clickOnElement(this.accessibilityDecorativeImageRadioButton);
             return await this.pause(200);
         } catch (err) {
@@ -122,7 +121,6 @@ class InsertImageDialog extends Page {
         try {
             await this.waitForElementDisplayed(this.accessibilityAlternativeTextRadioButton, appConst.shortTimeout);
             await this.clickOnElement(this.accessibilityAlternativeTextRadioButton);
-            return await this.pause(200);
         } catch (err) {
             await this.handleError(`Insert Image Dialog, alternative text radio...`, 'err_clicking_on_alternative_text_radio', err);
         }
@@ -132,7 +130,6 @@ class InsertImageDialog extends Page {
         try {
             await this.waitForElementDisplayed(this.removeContentSelectedOptionIcon, appConst.shortTimeout);
             await this.clickOnElement(this.removeContentSelectedOptionIcon);
-            return await this.pause(300);
         } catch (err) {
             await this.handleError(`Insert Image Dialog, Remove image icon`, 'err_clicking_on_remove_img_icon', err);
         }
@@ -241,7 +238,6 @@ class InsertImageDialog extends Page {
             await this.waitForElementDisplayed(this.insertButton, appConst.shortTimeout);
             await this.clickOnElement(this.insertButton);
             await this.waitForDialogClosed();
-            return await this.pause(500);
         } catch (err) {
             await this.handleError(`Insert Image Dialog`, 'err_click_on_insert_image_button', err);
         }

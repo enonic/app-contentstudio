@@ -65,11 +65,9 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
     async getSelectedProjects() {
         try {
             let locator = XPATH.container + XPATH.projectSelectedOptionView + lib.H6_DISPLAY_NAME;
-            await this.pause(1000);
             return await this.getTextInDisplayedElements(locator);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_proj_parent_step_selected_tems');
-            throw new Error(`Project Wizard, parent step, screenshot:${screenshot} ` + err);
+            await this.handleError('Project Wizard, parent step, getting selected projects failed', 'err_get_proj_parent_step_selected_tems', err);
         }
     }
 
@@ -97,8 +95,7 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
             let projectsComboBox = new ProjectsComboBox();
             return await projectsComboBox.clickOnApplySelectionButton();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('parent_proj_combobox');
-            throw new Error(`Error occurred in Projects Combobox, screenshot:${screenshot} ` + err);
+            await this.handleError('Error occurred in Projects Combobox, during clicking on Apply button','err_parent_proj_combobox_apply_btn', err);
         }
     }
 

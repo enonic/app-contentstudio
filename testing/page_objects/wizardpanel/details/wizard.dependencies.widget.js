@@ -39,7 +39,6 @@ class WizardDependenciesWidget extends BaseDependenciesWidget {
     async waitForWidgetLoaded() {
         try {
             await this.waitForElementDisplayed(this.dependenciesWidget, appConst.shortTimeout);
-            await this.pause(500);
         } catch (err) {
             await this.handleError('Wizard: Dependencies Widget', 'err_dependencies_widget_loaded', err);
         }

@@ -40,7 +40,6 @@ class ConfirmValueDialog extends Page {
     async waitForDialogOpened() {
         try {
             await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
-            await this.pause(300);
         } catch (err) {
             await this.handleError('Confirm Value Dialog', 'err_confirm_value_dlg_opened', err);
         }

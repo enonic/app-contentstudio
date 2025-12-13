@@ -71,10 +71,8 @@ class CreateIssueDialog extends Page {
         try {
             await this.waitForElementEnabled(this.createIssueButton, appConst.shortTimeout);
             await this.clickOnElement(this.createIssueButton);
-            await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_create_issue_btn');
-            throw new Error(`create issue dialog:${screenshot} `  + err);
+            await this.handleError('Error after clicking on Create Issue button','err_click_create_issue_btn', err);
         }
     }
 
@@ -136,10 +134,9 @@ class CreateIssueDialog extends Page {
     async waitForDialogLoaded() {
         try {
             await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
-            await this.pause(2000);
+            await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_create_issue_loaded');
-            throw new Error(`Create issue dialog: screenshot ${screenshot}`  + err);
+            await this.handleError('Create issue dialog should be opened','err_create_issue_dialog', err);
         }
     }
 
@@ -238,10 +235,8 @@ class CreateIssueDialog extends Page {
         try {
             await this.waitForShowExcludedItemsButtonDisplayed();
             await this.clickOnElement(this.showExcludedItemsButton);
-            await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
-            throw new Error(`Create Issue dialog, Show Excluded button, screenshot:${screenshot}  `  + err);
+            await this.handleError('Create Issue dialog, Show Excluded button','err_click_show_excluded_btn', err);
         }
     }
 
@@ -249,8 +244,7 @@ class CreateIssueDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
-            throw new Error(`Create Issue, 'Show excluded button' should be visible! screenshot: ${screenshot} `  +err)
+            await this.handleError('Create Issue dialog, Show Excluded button', 'err_show_excluded_btn', err);
         }
     }
 
@@ -258,8 +252,7 @@ class CreateIssueDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_should_be_hidden');
-            throw new Error(`'Show excluded items' button should not be visible! screenshot: ${screenshot} ` + err);
+            await this.handleError('Create Issue dialog, Show Excluded button should be hidden', 'err_show_excluded_should_be_hidden', err);
         }
     }
 
@@ -267,10 +260,9 @@ class CreateIssueDialog extends Page {
         try {
             await this.waitForHideExcludedItemsButtonDisplayed();
             await this.clickOnElement(this.hideExcludedItemsButton);
-            return await this.pause(1000);
+            return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
-            throw new Error('Create issue dialog, Hide Excluded button, screenshot  ' + screenshot + ' ' + err);
+            await this.handleError('Create Issue dialog, Clicked on Hide Excluded button','err_click_hide_excluded_btn', err);
         }
     }
 
@@ -278,8 +270,7 @@ class CreateIssueDialog extends Page {
         try {
             return this.waitForElementNotDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
-            throw new Error(`'Hide excluded items' button should be hidden! screenshot: ${screenshot} `  +err)
+            await this.handleError('Create Issue dialog, Hide Excluded button should be hidden','err_hide_excluded_btn', err);
         }
     }
 

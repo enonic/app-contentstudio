@@ -49,7 +49,6 @@ class EditSettingDialog extends Page {
     async clickOnCancelButton() {
         await this.waitForElementDisplayed(this.cancelButton, appConst.mediumTimeout);
         await this.clickOnElement(this.cancelButton);
-        await this.pause(300);
     }
 
     waitForApplyButtonDisplayed() {
@@ -132,7 +131,6 @@ class EditSettingDialog extends Page {
     async clickOnRemoveLanguage() {
         try {
             await this.clickOnElement(this.removeLanguageButton);
-            return await this.pause(500);
         } catch (err) {
             await this.handleError('Edit Setting dialog, error when removing the language','err_click_remove_lang', err);
         }
@@ -141,7 +139,6 @@ class EditSettingDialog extends Page {
     async clickOnRemoveOwner() {
         try {
             await this.clickOnElement(this.removeOwnerButton);
-            return await this.pause(500);
         } catch (err) {
             await this.handleError('Edit Setting dialog, error when removing the owner','err_click_remove_owner', err);
         }

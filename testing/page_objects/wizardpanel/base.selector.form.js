@@ -31,7 +31,6 @@ class BaseSelectorForm extends Page {
 
     async clearOptionsFilterInput() {
         await this.clearTextInput(this.optionsFilterInput);
-        await this.pause(1000);
     }
 
     async typeTextInOptionsFilterInput(text) {
@@ -47,7 +46,6 @@ class BaseSelectorForm extends Page {
     async swapOptions(sourceName, destinationName) {
         let sourceLocator = this.selectedOptionByDisplayName(sourceName);
         let destinationLocator = this.selectedOptionByDisplayName(destinationName);
-        let source1 = await this.findElements(sourceLocator);
         let source = await this.findElement(sourceLocator);
         let destination = await this.findElement(destinationLocator);
         await source.dragAndDrop(destination);
@@ -67,8 +65,7 @@ class BaseSelectorForm extends Page {
             let contentSelectorDropdown = new ContentSelectorDropdown();
             return await contentSelectorDropdown.getOptionsDisplayNameInFlatMode()
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error("Error occurred in the dropdown selector, screenshot: " + screenshot + ' ' + err);
+            await this.handleError(`getOptionsDisplayNameInFlatMode -`, 'err_dropdown', err);
         }
     }
 

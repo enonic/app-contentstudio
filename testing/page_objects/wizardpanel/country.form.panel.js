@@ -23,13 +23,11 @@ class CountryFormPanel extends Page {
     async typeDescription(description) {
         await this.waitForElementDisplayed(this.descriptionTextArea, appConst.mediumTimeout);
         await this.typeTextInInput(this.descriptionTextArea, description);
-        return await this.pause(200);
     }
 
     async typePopulation(population) {
         await this.waitForElementDisplayed(this.populationInput, appConst.mediumTimeout);
         await this.typeTextInInput(this.populationInput, population);
-        return await this.pause(200);
     }
 }
 

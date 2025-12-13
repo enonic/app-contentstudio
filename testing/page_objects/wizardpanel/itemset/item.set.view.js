@@ -85,7 +85,6 @@ class ItemSetFormView extends Page {
     async clickOnAddButton() {
         await this.waitForAddButtonDisplayed();
         await this.clickOnElement(this.addItemSetButton);
-        return await this.pause(500);
     }
 
     async waitForCollapseButtonDisplayed() {

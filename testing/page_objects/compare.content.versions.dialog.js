@@ -60,7 +60,6 @@ class CompareContentVersionsDialog extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         let res = await this.findElements(locator);
         await res[index].click();
-        return await this.pause(500);
     }
 
     async clickOnOKAndApplySelection() {
@@ -71,7 +70,6 @@ class CompareContentVersionsDialog extends Page {
     async clickOnLeftRestoreMenuButton() {
         await this.waitForLeftRestoreButtonDisplayed();
         await this.clickOnElement(this.leftRestoreMenuButton);
-        return await this.pause(300);
     }
 
     async waitForLeftRestoreMenuItemDisplayed() {
@@ -134,7 +132,6 @@ class CompareContentVersionsDialog extends Page {
     async clickOnShowEntireContentCheckbox() {
         await this.waitForElementDisplayed(this.showEntireContentCheckbox, appConst.mediumTimeout);
         await this.clickOnElement(this.showEntireContentCheckbox);
-        await this.pause(500);
     }
 
     async getTypeProperty() {
@@ -152,7 +149,6 @@ class CompareContentVersionsDialog extends Page {
     async clickOnLeftDropdownHandle() {
         await this.waitForElementDisplayed(this.leftDropdownHandle, appConst.mediumTimeout);
         await this.clickOnElement(this.leftDropdownHandle);
-        return await this.pause(300);
     }
 
     async getSortedOptionsInDropdownList() {

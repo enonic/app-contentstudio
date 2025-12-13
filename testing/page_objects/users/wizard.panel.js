@@ -59,10 +59,8 @@ class WizardPanel extends Page {
         try {
             await this.waitForSaveButtonEnabled();
             await this.clickOnElement(this.saveButton);
-            return await this.pause(500);
         } catch (err) {
-            this.saveScreenshot(appConst.generateRandomName("err_save_button"));
-            throw new Error("Error when Save button has been clicked!" + err);
+            await this.handleError("Save button has been clicked", 'err_save_button', err);
         }
     }
 
@@ -73,6 +71,7 @@ class WizardPanel extends Page {
         });
     }
 }
+
 module.exports = {WizardPanel, XPATH};
 
 
