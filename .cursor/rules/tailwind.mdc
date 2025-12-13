@@ -22,6 +22,17 @@ const buttonClasses = cn(
 // ✅ Use cn for simple conditional classes
 <div className={cn('flex gap-2', isVertical && 'flex-col')} />
 
+// ✅ When using `className` prop, pass it as the last argument in cn()
+// This allows parent components to override styles
+const classes = cn(
+  'base-styles',
+  condition && 'conditional-styles',
+  className, // Last, so parent can override
+);
+
+// ❌ Don't place className before other classes - overrides won't work
+const badClasses = cn(className, 'base-styles'); // Wrong order - parent styles get overwritten
+
 // ❌ Don't use cva for single conditions
 // ❌ Don't use template literals for Tailwind classes
 ```

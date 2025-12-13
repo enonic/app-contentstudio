@@ -232,6 +232,56 @@ const ref = useRef<HTMLDivElement | null>(null);
 - Prefer one file per type
 - Define types in the same file, if one of the type is used inside the other one
 
+## Type Composition
+
+```typescript
+// ✅ Use regular imports for types
+import { MenuContextOperations } from '@/primitives/menu-primitive';
+
+export type MenuItemProps = Omit<MenuPrimitiveItemProps, keyof MenuContextOperations>;
+
+// ❌ Avoid inline/dynamic type imports - harder to read and refactor
+export type MenuItemPropsBad = Omit<
+  MenuPrimitiveItemProps,
+  keyof import('@/primitives/menu-primitive').MenuContextOperations
+>;
+
+// ✅ Prefer composition: define base "own" types, then extend
+type MenuItemOwnProps = {
+  id?: string;
+  disabled?: boolean;
+  onSelect?: (event: Event) => void;
+} & ComponentPropsWithoutRef<'div'>;
+
+// Internal type combines base + injected dependencies
+type MenuPrimitiveItemProps = MenuItemOwnProps & MenuContextOperations;
+
+// Consumer type uses base directly - clean and readable
+export type MenuItemProps = MenuItemOwnProps;
+
+// ❌ Avoid subtracting types that were just added (Omit gymnastics)
+type FullProps = BaseProps & InjectedDeps;
+export type PublicProps = Omit<FullProps, keyof InjectedDeps>; // Bad - just use BaseProps
+
+// ❌ Especially avoid nested Omit - very hard to understand
+export type RadioItemProps = Omit<
+  PrimitiveRadioItemProps,
+  keyof Omit<MenuContextOperations, 'setOpen'>
+>; // Bad
+
+// ✅ Instead, define what you need directly (single-level Omit is fine)
+type RadioItemOwnProps = { value: string; disabled?: boolean; /* ... */ };
+type PrimitiveRadioItemProps = RadioItemOwnProps & Omit<MenuContextOperations, 'setOpen'>;
+export type RadioItemProps = RadioItemOwnProps; // Clean
+```
+
+**Rationale:**
+- Inline type imports (`import('...').Type`) are harder to read, refactor, and don't show up in "Find References"
+- Composition (`Base & Extensions`) is clearer than subtraction (`Full - Removed`)
+- IDE hover shows actual properties instead of computed `Omit<...>` types
+- TypeScript errors reference real property names, not derived types
+- Nested `Omit<X, keyof Omit<Y, 'z'>>` is a code smell - restructure the types
+
 ## Function Signatures
 
 ```typescript
