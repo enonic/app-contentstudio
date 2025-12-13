@@ -37,7 +37,9 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
             // 1. open new wizard with html-area
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await contentWizard.typeDisplayName(CONTENT_NAME);
-            await htmlAreaForm.pause(1500);
+            await htmlAreaForm.pause(500);
+            // remove the message - Item has been created
+            await contentWizard.removeNotificationMessage();
             // 2. Insert an image and save:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);

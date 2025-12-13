@@ -27,6 +27,7 @@ describe('add.new.in.selector.spec ui-tests for adding a new content directly fr
             await studioUtils.openContentWizard(appConst.contentTypes.SHORTCUT);
             await contentWizard.typeDisplayName(SHORTCUT_NAME);
             await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
             // 2. Click on 'Add new' button and create new folder
             await shortcutForm.clickOnAddNewContentButton();
             await newContentDialog.waitForOpened();
@@ -34,6 +35,7 @@ describe('add.new.in.selector.spec ui-tests for adding a new content directly fr
             await contentWizard.typeDisplayName(NEW_CONTENT_NAME);
             // 3. Save the target-folder
             await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
             // 4. Switch to shortcut-wizard:
             await studioUtils.doSwitchToPrevTab();
             // 5. Verify that 'Add new' button gets not visible:

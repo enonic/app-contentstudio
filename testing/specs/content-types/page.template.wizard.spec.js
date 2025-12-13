@@ -72,7 +72,7 @@ describe('page.template.wizard.spec tests for page template wizard', function ()
             // 1. Open the existing valid template:
             await studioUtils.selectAndOpenContentInWizard(TEMPLATE_NAME);
             // 2. Click on 'Remove' icon and remove the support selected option:
-            await pageTemplateForm.clickOnRemoveSupportIcon("Site");
+            await pageTemplateForm.clickOnRemoveSupportIcon('Site');
             // 3. Verify that the template is not valid now:
             let isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid, 'Red icon gets displayed in Wizard after removing the support option');

@@ -38,6 +38,7 @@ class PageTemplateForm extends Page {
             let selector = XPATH.contentTypeSelectedOptionsView(displayName) + lib.REMOVE_ICON;
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             await this.clickOnElement(selector);
+            await this.pause(500);
         } catch (err) {
             await this.handleError('Page Template Form - click on remove support icon', 'err_click_remove_support', err);
         }
