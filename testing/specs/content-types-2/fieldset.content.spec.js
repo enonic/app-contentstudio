@@ -36,10 +36,10 @@ describe('fieldset.content.spec: tests for fieldSet content', function () {
             //1. open new wizard and fill in all required inputs:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.FIELDSET);
             await contentWizard.typeDisplayName(FIELDSET_NAME_1);
-            await fieldSetForm.typeTextInHtmlArea(TEXT_1, 0);
-            await fieldSetForm.typeTextInTextLine(TEXT_2);
             await fieldSetForm.typeDouble(DOUBLE_1, 0);
             await fieldSetForm.typeDouble(DOUBLE_2, 1);
+            await fieldSetForm.typeTextInTextLine(TEXT_2);
+            await fieldSetForm.typeTextInHtmlArea(TEXT_1, 0);
             // 2. Verify that the content gets valid even before clicking on the 'Save' button
             let isInValid = await contentWizard.isContentInvalid();
             assert.ok(isInValid === false, 'the content should be valid, because all required inputs are filled');

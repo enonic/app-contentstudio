@@ -55,6 +55,7 @@ describe("Tests for updating a number in aggregation checkboxes", function () {
             await studioUtils.openFilterPanel();
             // 4. Click on Deutsch checkbox:
             await filterPanel.clickOnCheckboxInLanguageBlock('Deutsch');
+            await contentBrowsePanel.waitForContentDisplayed(SHORTCUT_DE_NAME);
             // 5. Verify that one item should be present in the filtered grid:
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.ok(result.length === 1, "One item should be filtered in the grid");

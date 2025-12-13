@@ -87,6 +87,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             // 1. Click on 'Image' checkbox in Filter Panel:
             await contentFilterPanel.clickOnCheckboxInContentTypesBlock('Image');
             // 2. Select 2 images:
+            await contentBrowsePanel.waitForContentDisplayed(appConst.TEST_IMAGES.BOOK);
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_IMAGES.BOOK);
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_IMAGES.CAPE);
             // "Selection Controller checkbox shows that the selection is partial"
@@ -114,6 +115,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             // 1. Click on 'Image' checkbox in Filter Panel:
             await contentFilterPanel.clickOnCheckboxInContentTypesBlock('Image');
             // 2. Select 2 images:
+            await contentBrowsePanel.waitForContentDisplayed(appConst.TEST_IMAGES.BOOK);
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_IMAGES.BOOK);
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_IMAGES.CAPE);
             // 3. Click on Selection Toggle (circle, Show Selection),grid gets filtered:
@@ -137,6 +139,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             // 1. Click on 'Image' checkbox in Filter Panel:
             await contentFilterPanel.clickOnCheckboxInContentTypesBlock('Image');
             // 2. Select 2 images:
+            await contentBrowsePanel.waitForContentDisplayed(appConst.TEST_IMAGES.BOOK);
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_IMAGES.BOOK);
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_IMAGES.CAPE);
             // 3. Click on Selection Toggle (circle, Show Selection):

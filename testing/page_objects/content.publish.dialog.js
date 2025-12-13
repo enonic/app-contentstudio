@@ -255,6 +255,7 @@ class ContentPublishDialog extends Page {
     async waitForDialogOpened() {
         try {
             await this.waitForElementDisplayed(XPATH.dialogTitle, appConst.mediumTimeout);
+            await this.pause(1000);
         } catch (err) {
             await this.handleError(`Publish Dialog, dialog should be opened `, 'err_open_publish_dialog', err);
         }
@@ -316,6 +317,7 @@ class ContentPublishDialog extends Page {
         try {
             await this.waitForShowExcludedItemsButtonDisplayed();
             await this.clickOnElement(this.showExcludedItemsButton);
+            await this.pause(1000);
         } catch (err) {
             await this.handleError(`Publish Dialog, click on Show Excluded dependent items button `, 'err_show_excluded_btn', err);
         }
@@ -367,6 +369,7 @@ class ContentPublishDialog extends Page {
         try {
             await this.waitForElementDisplayed(this.includeChildrenToogler, appConst.mediumTimeout);
             await this.clickOnElement(this.includeChildrenToogler);
+            await this.pause(1000);
         } catch (err) {
             await this.handleError(`Publish Dialog, click on Include Children toggle `, 'err_include_children_toggle', err);
         }

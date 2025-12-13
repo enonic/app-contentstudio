@@ -96,6 +96,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             await studioUtils.openFilterPanel();
             await contentFilterPanel.clickOnCheckboxInContentTypesBlock(appConst.FILTER_PANEL_AGGREGATION_BLOCK.IMAGE);
             // 2. Click on the first row - highlight the first item
+            await contentBrowsePanel.waitForContentDisplayed(appConst.TEST_IMAGES.BOOK);
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_IMAGES.BOOK);
             // 3. hold down Shift key and press Arrow down key 3 times:
             await contentBrowsePanel.holdDownShiftAndPressArrowDown(3);
@@ -112,7 +113,9 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             let contentFilterPanel = new ContentFilterPanel();
             // 1. Open Filter Panel and filter by 'Images' content type:
             await studioUtils.openFilterPanel();
+            // check Images checkbox
             await contentFilterPanel.clickOnCheckboxInContentTypesBlock(appConst.FILTER_PANEL_AGGREGATION_BLOCK.IMAGE);
+            await contentBrowsePanel.waitForContentDisplayed(appConst.TEST_IMAGES.BOOK);
             // 2. Click on the first row - highlight the first item
             await contentBrowsePanel.clickOnRowByIndex(0);
             // 3. hold down Shift key and click on the 5th row in the grid:

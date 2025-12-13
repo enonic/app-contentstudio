@@ -619,7 +619,8 @@ module.exports = {
             let browsePanel = new BrowsePanel();
             let filterPanel = new FilterPanel();
             await browsePanel.clickOnSearchButton();
-            return await filterPanel.waitForOpened();
+            await filterPanel.waitForOpened();
+            await filterPanel.pause(300);
         } catch (err) {
             throw new Error('Error when opening Filter Panel! ' + err);
         }

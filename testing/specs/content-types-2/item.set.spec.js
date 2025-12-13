@@ -56,8 +56,8 @@ describe('item.set.spec: tests for content with Item Set', function () {
             // 2. Fill in the name input:
             await contentWizard.typeDisplayName(ITEM_SET_CONTENT_NAME_2);
             // 3. Fill in required inputs in the added form:
-            await itemSetForm.typeTextInHtmlArea(0, 'hello htmlarea');
             await itemSetForm.typeTextInTextLine(0, TEXT_LINE_TEXT_1);
+            await itemSetForm.typeTextInHtmlArea(0, 'hello htmlarea');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             // 4. Verify that red border gets not visible in the ItemSet form:

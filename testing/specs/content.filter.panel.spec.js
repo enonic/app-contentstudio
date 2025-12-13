@@ -43,6 +43,7 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             await filterPanel.waitForOpened();
             // 1. Click on "Executable" checkbox in 'Filter Panel'
             await filterPanel.clickOnCheckboxInContentTypesBlock("Executable");
+            await contentBrowsePanel.waitForContentDisplayed(appConst.EXECUTABLE_TEST_CONTENT.SERVER);
             let items1 = await contentBrowsePanel.getDisplayNamesInGrid();
             // 2. Click on 'Clear' link:
             await filterPanel.clickOnClearLink();

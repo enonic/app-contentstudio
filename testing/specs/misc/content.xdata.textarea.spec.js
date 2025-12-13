@@ -190,11 +190,14 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             await studioUtils.selectContentAndOpenWizard(DOUBLE_0_0_CONTENT);
             // 1. Enable x-data:
             await contentWizard.clickOnXdataTogglerByName(TEXT_AREA_X_DATA_NAME);
+            await xDataTextArea.waitForTextAreaVisible();
+            await contentWizard.waitUntilInvalidIconAppears();
             // 2. Type the text in x-data:
             await xDataTextArea.typeText(TEST_TEXT);
-            await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('xdata_text_filled_in_textarea');
-            // 3. 'Red icon should not be present in the wizard, because required text-area in x-data is not empty'
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
+            // 3. 'Red icon should not be present in the wizard, because required text-area in x-data is not empty
             await contentWizard.waitUntilInvalidIconDisappears();
         });
 
@@ -203,11 +206,14 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             let contentWizard = new ContentWizard();
             let xDataTextArea = new XDataTextArea();
             await studioUtils.selectContentAndOpenWizard(DOUBLE_0_0_CONTENT);
-            // 1. x-data form has been disabled(click on the toggler):
+            // 1. x-data form has been disabled(click on the toggle):
             await contentWizard.clickOnXdataTogglerByName(TEXT_AREA_X_DATA_NAME);
+            await xDataTextArea.waitForTextAreaNotVisible();
             await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
             // 2. x-data form has been enabled again
             await contentWizard.clickOnXdataTogglerByName(TEXT_AREA_X_DATA_NAME);
+            await xDataTextArea.waitForTextAreaVisible();
             let result = await xDataTextArea.getTextInTextArea();
             await studioUtils.saveScreenshot('xdata_textarea_should_be_cleared');
             assert.ok(result === '', 'text-area in the x-data should be cleared');

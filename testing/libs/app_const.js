@@ -274,6 +274,9 @@ module.exports = Object.freeze({
         SMALL_PHONE: '320px',
         NOTEBOOK_15: '1356px',
     },
+    EXECUTABLE_TEST_CONTENT:{
+        SERVER:'server',
+    },
     ACCESS_MENU_ITEM: {
         CUSTOM: 'Custom...',
         CAN_PUBLISH: 'Can Publish',

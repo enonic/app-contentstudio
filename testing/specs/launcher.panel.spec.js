@@ -49,6 +49,7 @@ describe('launcher.panel.spec: tests for Launcher Panel', function () {
             // 2. Open Launcher Panel in the tab with browse panel:
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await launcherPanel.clickOnLauncherToggler();
+            await launcherPanel.waitForPanelDisplayed();
             let appNAme = await launcherPanel.getActiveRowName();
             assert.equal(appNAme, 'Content Studio', 'contentstudio link should be active');
         });
