@@ -727,6 +727,18 @@ Translation will only be suggested when changing language in the content edit vi
 <div class="paragraph">
 <p>A new Language plugin has been added to the <a href="https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/htmlarea" target="_blank" rel="noopener">HtmlArea</a> input type. This plugin allows setting the <code>lang</code> attribute on selected text inside the editor to correctly present content written in multiple languages to screen readers (<a href="https://www.w3.org/TR/UNDERSTANDING-WCAG20/meaning-other-lang-id.html" target="_blank" rel="noopener">WCAG specs</a>).</p>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Contact a developer to help you enable this plugin by configuring an HtmlArea input type in content type schema.
+</td>
+</tr>
+</table>
+</div>
 <div class="imageblock">
 <div class="content">
 <img src="release/images/cs54-language-plugin.png" alt="Language plugin" width="50%">
@@ -1361,7 +1373,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-11-14 13:01:29 UTC
+Last updated 2025-12-15 09:18:11 UTC
 </div>
 </div>
 </body>
