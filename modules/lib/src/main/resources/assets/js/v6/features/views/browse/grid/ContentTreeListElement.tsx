@@ -8,6 +8,7 @@ import {reload} from '../../../store/contentTreeLoadingStore';
 import {$contentTreeSelection} from '../../../store/contentTreeSelectionStore';
 import {ContentDataFetcher} from './ContentDataFetcher';
 import {ContentTreeList, ContentTreeListProps} from './ContentTreeList';
+import { ContentTreeContextMenuProps } from './ContentTreeContextMenu';
 
 export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList, ContentTreeListProps> {
 
@@ -81,7 +82,7 @@ export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList
         reload();
     }
 
-    setContextMenuActions(actions: Action[]): void {
+    setContextMenuActions(actions: ContentTreeContextMenuProps['actions']): void {
         this.props.setKey('contextMenuActions', actions);
     }
 }

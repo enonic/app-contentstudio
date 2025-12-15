@@ -104,7 +104,16 @@ export class ContentBrowsePanel
             createIssueAction: browseActions.getAction(ActionName.CREATE_ISSUE),
         }));
 
-        this.contentTreeList.setContextMenuActions(this.treeActions.getAllCommonActions());
+        this.contentTreeList.setContextMenuActions({
+            showNewDialogAction: browseActions.getAction(ActionName.SHOW_NEW_DIALOG),
+            editAction: browseActions.getAction(ActionName.EDIT),
+            archiveAction: browseActions.getAction(ActionName.ARCHIVE),
+            duplicateAction: browseActions.getAction(ActionName.DUPLICATE),
+            moveAction: browseActions.getAction(ActionName.MOVE),
+            sortAction: browseActions.getAction(ActionName.SORT),
+            publishAction: browseActions.getAction(ActionName.PUBLISH),
+            unpublishAction: browseActions.getAction(ActionName.UNPUBLISH),
+        });
 
         this.browseToolbar.addActions(browseActions.getAllActionsNoPublish());
 
