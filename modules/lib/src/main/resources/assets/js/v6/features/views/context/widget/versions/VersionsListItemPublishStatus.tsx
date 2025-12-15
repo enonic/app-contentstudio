@@ -23,7 +23,7 @@ export const VersionsListItemPublishStatus = ({version}: VersionsListItemPublish
 
     if (publishStatus === 'was_online') {
         return (
-            <IconButton icon={Globe} size={'sm'} className='shrink-0 w-4 bg-transparent'/>
+            <Globe className='shrink-0 w-4 bg-transparent'/>
         );
     }
 

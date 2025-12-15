@@ -1,122 +1,151 @@
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
-import {Button, Checkbox, cn, IconButton} from '@enonic/ui';
+import {Button, Checkbox, cn, IconButton, useListbox} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {PenLine} from 'lucide-react';
-import {TargetedMouseEvent} from 'preact';
 import {ComponentPropsWithoutRef} from 'preact/compat';
-import {useCallback, useMemo, useRef} from 'react';
+import {useCallback, useMemo} from 'react';
 import {ContentVersion} from '../../../../../../app/ContentVersion';
 import {useI18n} from '../../../../hooks/useI18n';
 import {openContextContentForEdit} from '../../../../store/context/contextContent.store';
 import {
-    $activeVersionId,
-    $expandedVersion,
+    $latestVersionId,
     $selectedVersions,
     $selectionModeOn,
-    isVersionSelected, setExpandedVersion,
-    toggleVersionSelection
+    $visualFocus,
+    revertToVersion,
+    toggleVersionSelection,
 } from '../../../../store/context/versionStore';
-import {getOperationLabel, getVersionUser} from '../../../../utils/widget/versions/versions';
+import {getOperationLabel} from '../../../../utils/widget/versions/versions';
 import {VersionsListItemPublishStatus} from './VersionsListItemPublishStatus';
+
 
 export type VersionItemProps = {
     version: ContentVersion;
+    isFocused?: boolean;
 } & ComponentPropsWithoutRef<'div'>;
 
 export const COMPONENT_NAME = 'VersionsListItem';
 
-export const VersionsListItem = ({version, className, ...props}: VersionItemProps): React.ReactElement => {
-    const expanded = useStore($expandedVersion);
+export const VersionsListItem = ({version, isFocused, ...props}: VersionItemProps): React.ReactElement => {
     const selectedVersions = useStore($selectedVersions);
     const isSelectionModeOn = useStore($selectionModeOn);
-    const activeVersionId = useStore($activeVersionId);
 
-    const byLabel = useI18n('field.version.by', getVersionUser(version));
-    const revertLabel = useI18n('field.version.revert');
-    const compareLabel = useI18n('field.version.compare');
+    const latestVersionId = useStore($latestVersionId);
+    const isLatestVersion = latestVersionId === version.getId();
 
-    const checkBoxDivRef = useRef<HTMLDivElement>(null);
+    const modifierDisplayName = version.getModifierDisplayName() || version.getPublishInfo()?.getPublisherDisplayName();
+    const modifierLabel = useI18n('field.version.by', modifierDisplayName ?? '');
+
+    const {active, setActive} = useListbox();
+    const isActiveListItem = active === version.getId();
+
+    const visualFocus = useStore($visualFocus);
 
     const isSelected = useMemo(() => {
-        return isVersionSelected(version.getId());
+        return selectedVersions.has(version.getId());
     }, [version, selectedVersions]);
-    const toggleSelection = useCallback(() => {
-        toggleVersionSelection(version.getId());
-    }, [version]);
-    const isExpanded = useMemo(() => {
-        return expanded === version.getId();
-    }, [version, expanded]);
-    const toggleExpand = useCallback((e: TargetedMouseEvent<HTMLDivElement>) => {
-        if (e.target instanceof Node && checkBoxDivRef?.current?.contains(e.target)) { // Workaround until UI Checkbox is fixed
-            return;
-        }
 
-        setExpandedVersion(isExpanded ? undefined : version.getId());
-    }, [version, isExpanded]);
-    const handleRestoreClick = useCallback((e: TargetedMouseEvent<HTMLButtonElement>) => {
+    const handleRestoreClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
-        // restoreVersion(version.getId());
+        revertToVersion(version.getId());
     }, [version]);
+
+    const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+        e.stopPropagation();
+
+        if (!isActiveListItem) {
+            setActive(version.getId());
+        }
+    }, [version, isActiveListItem, setActive]);
+
+    const handleCheckboxClick = useCallback((e: React.MouseEvent<HTMLLabelElement>) => {
+        e.stopPropagation();
+        e.preventDefault();
+        toggleVersionSelection(version.getId());
+
+        if (!isActiveListItem) {
+            setActive(version.getId());
+        }
+    }, [version, setActive, isActiveListItem]);
+
+
+    const handleCheckboxMouseDown = useCallback((e: React.MouseEvent<HTMLLabelElement>) => {
+        e.preventDefault();
+    }, []);
+
+    const handleButtonMouseDown = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+    }, []);
 
     return (
-        <div key={version.getId()}
+        <div
             data-component={COMPONENT_NAME}
             className={cn(
-                'p-2.5 flex flex-col gap-5 hover:bg-surface-neutral-hover cursor-pointer',
-                isExpanded && 'shadow-sm shadow-btn-tertiary-hover',
-                className)}
-            onClick={toggleExpand}
+                'w-full p-2.5 flex flex-col gap-5 hover:bg-surface-neutral-hover cursor-pointer rounded-sm',
+            )}
+            onClick={handleClick}
             {...props}>
-            <div className='w-full flex gap-2'>
-                <div className='flex flex-col justify-start grow'>
+            <div className='w-full flex items-center gap-2'>
+                <div className='flex flex-col justify-center grow'>
                     <div className='flex gap-1'>
-                        <span className='shrink-0 text-sm'>{DateHelper.getFormattedTimeFromDate(
-                            version.getTimestamp())}</span>
+                                                <span className='shrink-0 text-sm'>{DateHelper.getFormattedTimeFromDate(
+                                                    version.getTimestamp())}</span>
                         <span className='text-bdr-soft text-sm'>|</span>
                         <span className='text-sm'>{getOperationLabel(version)}</span>
                     </div>
-                    <div className='text-xs'>{byLabel}</div>
+                    {modifierDisplayName && <div className='text-xs'>{modifierLabel}</div>}
                 </div>
-                <VersionsListItemPublishStatus version={version} />
+                <VersionsListItemPublishStatus version={version}/>
                 {
-                    activeVersionId === version.getId() && (
-                        <IconButton icon={PenLine} size={'sm'} onClick={openContextContentForEdit} className='shrink-0 w-4 bg-transparent' />
-                    )
+                    isLatestVersion && (
+                                        <IconButton
+                                            icon={PenLine} size={'sm'}
+                                            tabIndex={-1}
+                                            onMouseDown={handleButtonMouseDown}
+                                            onClick={openContextContentForEdit}
+                                            className={cn(
+                                                'shrink-0 w-4 bg-transparent',
+                                                isActiveListItem && visualFocus === 'edit' && 'ring-2'
+                                            )}
+                                        />
+                                    )
                 }
                 {
-                    isSelectionModeOn && !isExpanded && (
-                        <div ref={checkBoxDivRef} className='flex items-center'>
-                            <Checkbox
-                                checked={isSelected}
-                                onCheckedChange={toggleSelection}
-                            />
-                        </div>
-                    )
+                    isSelectionModeOn && (!isActiveListItem || !isFocused) && (
+                                          <div className='flex items-center'>
+                                              <Checkbox checked={isSelected} tabIndex={-1} onMouseDown={handleCheckboxMouseDown} onClick={handleCheckboxClick}/>
+                                          </div>
+                                      )
                 }
 
             </div>
             {
-                isExpanded && (
-                    <div className='w-full flex flex-col gap-5'>
-                        <div className='flex'>
-                            <Button
-                                label={revertLabel}
-                                size='sm'
-                                variant='solid'
-                                onClick={handleRestoreClick}
-                            />
-                            <div ref={checkBoxDivRef} className={'flex grow items-center justify-end'}>
-                                <Checkbox
-                                    className='text-sm'
-                                    label={compareLabel}
-                                    checked={isSelected}
-                                    onCheckedChange={toggleSelection}
-                                    align='right' />
-                            </div>
+                isFocused && isActiveListItem && (
+                                     <div className='w-full flex flex-col gap-5'>
+                                         <div className='flex'>
+                                             <Button
+                                                 label={useI18n('field.version.revert')}
+                                                 size='sm'
+                                                 variant='solid'
+                                                 onClick={handleRestoreClick}
+                                                 onMouseDown={handleButtonMouseDown}
+                                                 tabIndex={-1}
+                                                 className={cn(isSelected && 'ring-1', isActiveListItem && visualFocus === 'restore' && 'ring-2')}
+                                             />
+                                             <div className={'flex grow items-center justify-end'}>
+                                                 <Checkbox
+                                                     className={cn('text-sm', isActiveListItem && visualFocus === 'compare' && 'outline-2 outline-offset-4 outline-solid')}
+                                                     label={useI18n('field.version.compare')}
+                                                     checked={isSelected}
+                                                     tabIndex={-1}
+                                                     onMouseDown={handleCheckboxMouseDown}
+                                                     onClick={handleCheckboxClick}
+                                                     align='right'/>
+                                             </div>
 
-                        </div>
-                    </div>
-                )}
+                                         </div>
+                                     </div>
+                                 )}
         </div>
     );
 }

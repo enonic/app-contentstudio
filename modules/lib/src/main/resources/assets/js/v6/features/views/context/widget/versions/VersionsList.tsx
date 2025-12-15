@@ -1,34 +1,95 @@
+import {Button, Listbox} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {ReactElement, useCallback, useEffect, useRef, useState} from 'react';
+import {ReactElement, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useI18n} from '../../../../hooks/useI18n';
-import {$contextContent} from '../../../../store/context/contextContent.store';
+import {$contextContent, openContextContentForEdit} from '../../../../store/context/contextContent.store';
 import {
     $selectedVersions,
     $versionsByDate,
+    $visualFocus,
     appendVersions,
+    getVisualTargets,
+    moveVisualFocus,
     resetVersionsSelection,
-    setExpandedVersion,
-    setVersions
+    revertToVersion,
+    setSelectedVersions,
+    setVersions, setVisualFocus,
+    toggleVersionSelection,
 } from '../../../../store/context/versionStore';
 import {loadContentVersions} from '../../../../utils/widget/versions/versionsLoader';
 import {VersionsListItem} from './VersionsListItem';
-import {VersionSelectionToolbar} from './VersionSelectionToolbar';
 
 const COMPONENT_NAME = 'VersionsList';
 
 export const VersionsList = (): ReactElement => {
     const versionsByDate = useStore($versionsByDate);
     const selection = useStore($selectedVersions);
+    const selectionArray = useMemo(() => Array.from(selection), [selection]);
     const content = useStore($contextContent);
-
+    const visualFocus = useStore($visualFocus);
+    const [activeListItem, setActiveListItem] = useState<string | null>(null);
+    const [isFocused, setFocused] = useState(false);
+    const showChangesButtonLabel = useI18n('text.versions.showChanges');
+    const cancelButtonLabel = useI18n('action.cancel');
     const loadingLabel = useI18n('widget.versions.loading');
     const noVersionsLabel = useI18n('widget.versions.noVersions');
-
     const [moreToLoad, setMoreToLoad] = useState(true);
     const [offset, setOffset] = useState(0);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
-
     const loadMoreRef = useRef<HTMLDivElement | null>(null);
+    const listRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        setVisualFocus('compare');
+    }, [activeListItem, isFocused]);
+
+    useEffect(() => {
+        setActiveListItem(null);
+    }, [content]);
+
+    const handleSelectionChange = useCallback((newSelection: string[]) => {
+        setSelectedVersions(newSelection);
+    }, []);
+
+    const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (!activeListItem) return;
+
+        const visualTargets = getVisualTargets(activeListItem);
+
+        if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            e.stopPropagation();
+            moveVisualFocus(1, visualTargets);
+        }
+
+        if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            e.stopPropagation();
+            moveVisualFocus(-1, visualTargets);
+        }
+
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            e.stopPropagation();
+
+            switch (visualFocus) {
+                case 'edit':
+                    openContextContentForEdit();
+                    break;
+                case 'restore':
+                    revertToVersion(activeListItem);
+                    break;
+                case 'compare':
+                    toggleVersionSelection(activeListItem);
+                    break;
+            }
+        }
+    }, [activeListItem, visualFocus]);
+
+    const cancelHandler = useCallback(() => {
+        resetVersionsSelection();
+        listRef.current?.focus();
+    }, []);
 
     // Initial load when content changes
     useEffect(() => {
@@ -37,7 +98,6 @@ export const VersionsList = (): ReactElement => {
             resetVersionsSelection();
             setMoreToLoad(false);
             setOffset(0);
-            setExpandedVersion(undefined);
             return;
         }
 
@@ -47,7 +107,6 @@ export const VersionsList = (): ReactElement => {
                 resetVersionsSelection();
                 setMoreToLoad(result.hasMore);
                 setOffset(result.versions.length);
-                setExpandedVersion(undefined);
             })
             .catch(() => {
                 // TODO: handle error
@@ -104,20 +163,44 @@ export const VersionsList = (): ReactElement => {
     }
 
     return (
-        <div className='flex flex-col gap-7.5' data-component={COMPONENT_NAME}>
-            {selection.size > 0 && <VersionSelectionToolbar />}
+        <div data-component={COMPONENT_NAME} onFocus={() => setFocused(true)}
+             onBlur={() => setFocused(false)}>
+            {selection.size > 0 &&
 
-            {Object.entries(versionsByDate).map(([date, versions]) => (
-                <div key={date} className='flex flex-col gap-3 w-full'>
-                    <div className='text-base font-semibold'>{date}</div>
+             <div className='flex justify-center items-center gap-2.5 sticky top-0 bg-surface-neutral/85 py-3 z-1' data-component={COMPONENT_NAME}>
+                 <Button label={showChangesButtonLabel} variant='filled' disabled={selection.size !== 2} />
+                 <Button label={cancelButtonLabel} variant='outline' onClick={cancelHandler} />
+             </div>
+            }
 
-                    <div className='flex flex-col gap-1.25'>
-                        {versions.map((version) => (
-                            <VersionsListItem key={version.getId()} version={version} />
-                        ))}
-                    </div>
-                </div>
-            ))}
+            <Listbox
+                selectionMode='multiple'
+                selection={selectionArray}
+                focusMode={'activedescendant'}
+                active={activeListItem}
+                setActive={setActiveListItem}
+                onSelectionChange={handleSelectionChange}
+            >
+                <Listbox.Content className='flex flex-col gap-7.5 max-h-none p-0 overflow-y-visible' onKeyDownCapture={handleKeyDown} ref={listRef}>
+                    {Object.entries(versionsByDate).map(([date, versions]) => (
+                        <div key={date} className='flex flex-col gap-3 w-full'>
+                            <div className='text-base font-semibold'>{date}</div>
+
+                            <div className='flex flex-col gap-1.25'>
+                                {versions.map((version) => (
+                                    <Listbox.Item key={version.getId()}
+                                                  value={version.getId()}
+                                                  className='p-0 data-[active=true]:ring-1 data-[active=true]:ring-offset-0 rounded-sm'
+                                                  data-active={isFocused && activeListItem === version.getId()}
+                                    >
+                                        <VersionsListItem version={version} isFocused={isFocused} />
+                                    </Listbox.Item>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </Listbox.Content>
+            </Listbox>
 
             {isLoadingMore && (
                 <div className='flex items-center justify-center text-sm text-grey-600'>
