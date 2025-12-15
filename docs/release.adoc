@@ -113,6 +113,8 @@ image::cs54-archive-comment.png[Language plugin, 50%]
 
 A new Language plugin has been added to the https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/htmlarea[HtmlArea^] input type. This plugin allows setting the `lang` attribute on selected text inside the editor to correctly present content written in multiple languages to screen readers (https://www.w3.org/TR/UNDERSTANDING-WCAG20/meaning-other-lang-id.html[WCAG specs^]).
 
+NOTE: Contact a developer to help you enable this plugin by configuring an HtmlArea input type in content type schema.
+
 image::cs54-language-plugin.png[Language plugin, 50%]
 
 === Notification about a new release
