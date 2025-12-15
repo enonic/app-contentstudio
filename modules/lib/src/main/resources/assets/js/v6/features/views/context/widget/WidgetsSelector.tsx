@@ -23,11 +23,13 @@ const WidgetsSelector = ({widgetViews = [], externalSelectedWidgetView = undefin
 
     // TODO: Enonic UI - backwards compatibility due to the active widget being handled by ContextView
     useEffect(() => {
-        setValue(externalSelectedWidgetView?.getWidgetName());
+        setValue(getWidgetKeyForSelector(externalSelectedWidgetView));
     }, [externalSelectedWidgetView]);
 
+    useEffect(() => {}, [widgetViews]);
+
     const onValueChange = (newValue: string) => {
-        widgetViews.find((widgetView) => widgetView.getWidgetName() === newValue)?.setActive();
+        widgetViews.find((widgetView) => getWidgetKeyForSelector(widgetView) === newValue)?.setActive();
     };
 
     return (
@@ -36,7 +38,7 @@ const WidgetsSelector = ({widgetViews = [], externalSelectedWidgetView = undefin
                 <Selector.Trigger className="h-full border-0">
                     <Selector.Value placeholder={selectorPlaceholder}>
                         <WidgetsSelectorItem
-                            widgetView={widgetViews.find((widgetView) => widgetView.getWidgetName() === value)}
+                            widgetView={widgetViews.find((widgetView) => getWidgetKeyForSelector(widgetView) === value)}
                         />
                     </Selector.Value>
                     <Selector.Icon />
@@ -44,10 +46,11 @@ const WidgetsSelector = ({widgetViews = [], externalSelectedWidgetView = undefin
                 <Selector.Content>
                     <Selector.Viewport>
                         {widgetViews.map((widgetView) => {
+                            const key = getWidgetKeyForSelector(widgetView);
                             const name = widgetView.getWidgetName();
 
                             return (
-                                <Selector.Item key={name} value={name} textValue={name}>
+                                <Selector.Item key={key} value={key} textValue={name}>
                                     <WidgetsSelectorItem widgetView={widgetView} secondary />
                                     <Selector.ItemIndicator />
                                 </Selector.Item>
@@ -100,6 +103,15 @@ const WidgetsSelectorItem = ({widgetView, secondary = false}: WidgetsSelectorIte
 };
 
 WidgetsSelectorItem.displayName = WIDGETS_SELECTOR_ITEM_NAME;
+
+// enonic-ui selector.item set its id based on the value, so we need to convert the widget key to a string that is an valid id.
+function getWidgetKeyForSelector(widgetView?: WidgetView): string {
+    if (!widgetView) {
+        return undefined;
+    }
+
+    return widgetView.getWidgetKey().replace(/[.:]/g, '-');
+}
 
 export default class WidgetsSelectorElement extends LegacyElement<typeof WidgetsSelector, WidgetsSelectorProps> {
     constructor(props: WidgetsSelectorProps) {
