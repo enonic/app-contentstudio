@@ -8,19 +8,12 @@ import {$activeWidgetId, $isContextOpen} from '../../../../store/contextWidgets.
 import {VERSIONS_WIDGET_KEY} from '../../../../utils/widget/versions/versions';
 import {VersionsList} from './VersionsList';
 
-
-const VERSIONS_WIDGET_NAME = 'VersionsWidget';
-
 export const VersionsWidget = (): ReactElement => {
     const isContextOpen = useStore($isContextOpen);
     const activeWidget = useStore($activeWidgetId);
     const isActiveWidget = useMemo(() => activeWidget === VERSIONS_WIDGET_KEY, [activeWidget]);
 
-    return (isContextOpen && isActiveWidget &&
-        <div data-component={VERSIONS_WIDGET_NAME} className='flex flex-col gap-7.5 overflow-y-visible'>
-            <VersionsList />
-        </div>
-    )
+    return (isContextOpen && isActiveWidget && <VersionsList />)
 }
 
 

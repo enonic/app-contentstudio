@@ -1,11 +1,16 @@
 import {ContentId} from '../../../../../app/content/ContentId';
+import {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {ContentVersion} from '../../../../../app/ContentVersion';
+import {ContentServerChangeItem} from '../../../../../app/event/ContentServerChangeItem';
+import {ContentServerEventsHandler} from '../../../../../app/event/ContentServerEventsHandler';
 
-// TODO: Implement cache invalidation strategy (Server-side events, TTL, etc.)
+// TTL for cache entries (ms)
+const CACHE_TTL_MS = 3 * 60 * 1000; // 3 minutes
 
 type CachedVersionsEntry = {
     versions: ContentVersion[];
     totalHits: number;
+    expiresAt: number;
 };
 
 const versionsCache = new Map<string, CachedVersionsEntry>();
@@ -20,9 +25,19 @@ export const getCachedVersions = (
     from: number,
     size: number,
 ): ContentVersionsLoadResult | undefined => {
-    const cached = versionsCache.get(contentId.toString());
+    const key = contentId.toString();
+    const cached = versionsCache.get(key);
 
-    if (!cached || from >= cached.versions.length) {
+    if (!cached) {
+        return undefined;
+    }
+
+    if (Date.now() > cached.expiresAt) {
+        versionsCache.delete(key);
+        return undefined;
+    }
+
+    if (from >= cached.versions.length) {
         return undefined;
     }
 
@@ -41,13 +56,15 @@ export const cacheVersions = (
     versions: ContentVersion[],
     totalHits: number,
 ): void => {
-    const cacheKey = contentId.toString();
-    const cached = versionsCache.get(cacheKey);
+    const key = contentId.toString();
+    const cached = versionsCache.get(key);
+    const expiresAt = Date.now() + CACHE_TTL_MS;
 
-    if (!cached) {
-        versionsCache.set(cacheKey, {
+    if (!cached || Date.now() > cached.expiresAt) {
+        versionsCache.set(key, {
             versions: versions.slice(),
             totalHits,
+            expiresAt,
         });
         return;
     }
@@ -58,9 +75,10 @@ export const cacheVersions = (
         mergedVersions[from + index] = version;
     });
 
-    versionsCache.set(cacheKey, {
+    versionsCache.set(key, {
         versions: mergedVersions,
         totalHits,
+        expiresAt,
     });
 };
 
@@ -72,3 +90,32 @@ export const clearVersionsCache = (contentId?: ContentId): void => {
 
     versionsCache.clear();
 };
+
+const contentSummaryCacheHandler = (items: ContentSummaryAndCompareStatus[]) => {
+    items.forEach((item) => {
+        clearVersionsCache(item.getContentId());
+    });
+};
+
+ContentServerEventsHandler.getInstance().onContentUpdated(contentSummaryCacheHandler);
+ContentServerEventsHandler.getInstance().onContentPermissionsUpdated(contentSummaryCacheHandler);
+ContentServerEventsHandler.getInstance().onContentPublished(contentSummaryCacheHandler);
+ContentServerEventsHandler.getInstance().onContentUnpublished(contentSummaryCacheHandler);
+ContentServerEventsHandler.getInstance().onContentRenamed(contentSummaryCacheHandler);
+
+
+ContentServerEventsHandler.getInstance().onContentMoved((items) => {
+    items.forEach((item) => {
+        clearVersionsCache(item.item.getContentId());
+    });
+});
+
+const deleteCacheHandler = (items: ContentServerChangeItem[]) => {
+    items.forEach((item) => {
+        clearVersionsCache(item.getContentId());
+    });
+};
+
+ContentServerEventsHandler.getInstance().onContentDeleted(deleteCacheHandler);
+ContentServerEventsHandler.getInstance().onContentArchived(deleteCacheHandler);
+
