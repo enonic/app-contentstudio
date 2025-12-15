@@ -8,7 +8,7 @@ import {useVisibleAvatars} from '../../../../hooks/useVisibleAvatars';
 import {$detailsWidgetEffectivePermissions, sortPrincipals} from '../../../../store/context/detailsWidgets.store';
 import {getInitials} from '../../../../utils/format/initials';
 
-const AVATAR_OVERFLOW_OFFSET = 20;
+const AVATAR_OVERFLOW_OFFSET = 50;
 
 const PermissionItem = ({permission}: {permission: EffectivePermission}): ReactElement => {
     const listRef = useRef<HTMLDivElement>(null);
@@ -55,10 +55,9 @@ const PermissionItem = ({permission}: {permission: EffectivePermission}): ReactE
             </div>
         </>
     );
-}
+};
 
 PermissionItem.displayName = 'PermissionItem';
-
 
 const PERMISSIONS_LIST_NAME = 'PermissionsList';
 
