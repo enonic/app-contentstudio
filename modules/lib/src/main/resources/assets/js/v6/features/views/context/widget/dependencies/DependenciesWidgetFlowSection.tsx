@@ -77,7 +77,7 @@ const DependenciesList = ({type, dependencies, contentId}: DependenciesProps) =>
     );
 
     return (
-        <ul className="list-none flex flex-col gap-2.5 w-full">
+        <ul className="list-none flex flex-col gap-2.5 w-full first:mt-1.5 last:mb-1.5">
             {dependencies.map((dependency) => (
                 <li key={dependency.contentType.toString()}>
                     <Button
