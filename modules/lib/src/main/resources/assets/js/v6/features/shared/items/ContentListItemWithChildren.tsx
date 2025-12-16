@@ -8,6 +8,7 @@ export type ContentListItemWithChildrenProps = {
     includeChildren?: boolean;
     defaultIncludeChildren?: boolean;
     onIncludeChildrenChange?: (checked: boolean) => void;
+    showIncludeChildren?: boolean;
 } & ContentItemCheckableProps;
 
 const CONTENT_LIST_ITEM_WITH_CHILDREN_NAME = 'ContentListItemWithChildren';
@@ -22,9 +23,11 @@ export const ContentListItemWithChildren = ({
     includeChildren,
     onIncludeChildrenChange,
     defaultIncludeChildren,
+    showIncludeChildren = true,
     className,
 }: ContentListItemWithChildrenProps): React.ReactElement => {
     const hasChildren = content.hasChildren();
+    const showIncludeChildrenCheckbox = hasChildren && showIncludeChildren;
     const includeChildrenLabel = useI18n('field.content.includeChildren');
 
     const includeChildrenCheckboxId = `${CONTENT_LIST_ITEM_WITH_CHILDREN_NAME}-${id || content.getId()}-include-children-checkbox`;
@@ -40,7 +43,7 @@ export const ContentListItemWithChildren = ({
                 onCheckedChange={onCheckedChange}
                 readOnly={readOnly}
             />
-            {hasChildren && (
+            {showIncludeChildrenCheckbox && (
                 <div className="flex items-center gap-2.5 h-8 pl-5">
                     <CornerDownRight className="size-4 shrink-0" />
                     <Checkbox

@@ -1,15 +1,15 @@
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {useStore} from '@nanostores/preact';
+import Q from 'q';
 import {ReactElement, useEffect, useState} from 'react';
-import {LegacyElement} from '../../../../shared/LegacyElement';
+import {DependencyType} from '../../../../../../app/browse/DependencyType';
 import {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
 import {WidgetItemViewInterface} from '../../../../../../app/view/context/WidgetItemView';
+import {resolveDependenciesForId} from '../../../../api/resolveDependencies';
+import {LegacyElement} from '../../../../shared/LegacyElement';
 import {$contextContent} from '../../../../store/context/contextContent.store';
-import {useStore} from '@nanostores/preact';
-import {DependencyType} from '../../../../../../app/browse/DependencyType';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {DependenciesWidgetContentSection} from './DependenciesWidgetContentSection';
 import {DependenciesWidgetFlowSection} from './DependenciesWidgetFlowSection';
-import {resolveDependencies} from '../../../../api/dependencies';
-import Q from 'q';
 
 export type DependencyItem = {
     type: DependencyType;
@@ -33,7 +33,7 @@ const DependenciesWidget = (): ReactElement => {
             return;
         }
 
-        resolveDependencies(content.getContentId()).then((dependencyEntry) => {
+        resolveDependenciesForId(content.getContentId()).then((dependencyEntry) => {
             const inbound = dependencyEntry.inbound.map((item) => ({
                 type: DependencyType.INBOUND,
                 itemCount: item.count,
@@ -82,8 +82,7 @@ DependenciesWidget.displayName = DEPENDENCIES_WIDGET_NAME;
 
 export class DependenciesWidgetElement
     extends LegacyElement<typeof DependenciesWidget>
-    implements WidgetItemViewInterface
-{
+    implements WidgetItemViewInterface {
     constructor() {
         super({}, DependenciesWidget);
     }

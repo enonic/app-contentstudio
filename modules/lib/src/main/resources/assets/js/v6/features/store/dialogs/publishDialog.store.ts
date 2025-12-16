@@ -6,6 +6,7 @@ import {ContentId} from '../../../../app/content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusFetcher} from '../../../../app/resource/ContentSummaryAndCompareStatusFetcher';
 import {FindIdsByParentsRequest} from '../../../../app/resource/FindIdsByParentsRequest';
+import {hasUnpublishedChildren} from '../../api/hasUnpublishedChildren';
 import {MarkAsReadyRequest} from '../../../../app/resource/MarkAsReadyRequest';
 import {PublishContentRequest} from '../../../../app/resource/PublishContentRequest';
 import {ResolvePublishDependenciesRequest} from '../../../../app/resource/ResolvePublishDependenciesRequest';
@@ -23,6 +24,7 @@ type MainItem = {
     included: boolean;
     childrenIncluded: boolean;
     required: boolean;
+    hasUnpublishedChildren: boolean;
 };
 
 type DependantItem = {
@@ -110,6 +112,9 @@ const $publishChecks = map<PublishChecksStore>(structuredClone(initialChecksStat
 // Store for resolved dependencies (output of reloadPublishDialogData)
 const $publishDialogDependants = atom<ContentSummaryAndCompareStatus[]>([]);
 
+// Store for IDs of items that have unpublished children
+const $hasUnpublishedChildrenIds = atom<Set<string>>(new Set());
+
 //
 // * Derived State
 //
@@ -118,6 +123,20 @@ const $publishDialogItemsWithChildren = computed($publishDialog, (state) => {
     return filterItemsWithChildren(state.items);
 });
 
+// Computed store: Set of main item IDs that have at least one unpublished child
+const $itemsWithUnpublishedChildren = computed(
+    [$publishDialog, $hasUnpublishedChildrenIds],
+    ({items}, hasUnpublishedIds): Set<string> => {
+        const result = new Set<string>();
+        for (const item of items) {
+            if (item.hasChildren() && hasUnpublishedIds.has(item.getId())) {
+                result.add(item.getId());
+            }
+        }
+        return result;
+    }
+);
+
 export const $isPublishSelectionSynced = computed([$draftPublishDialogSelection, $publishDialog], (draft, current): boolean => {
     const {excludedItemsIds, excludedItemsWithChildrenIds, excludedDependantItemsIds} = current;
     return isIdsEqual(excludedItemsIds, draft.excludedItemsIds) &&
@@ -125,13 +144,14 @@ export const $isPublishSelectionSynced = computed([$draftPublishDialogSelection,
         isIdsEqual(excludedDependantItemsIds, draft.excludedDependantItemsIds);
 });
 
-export const $mainPublishItems = computed([$publishDialog, $draftPublishDialogSelection, $publishChecks], ({items}, {excludedItemsIds, excludedItemsWithChildrenIds}, {requiredIds}): MainItem[] => {
+export const $mainPublishItems = computed([$publishDialog, $draftPublishDialogSelection, $publishChecks, $itemsWithUnpublishedChildren], ({items}, {excludedItemsIds, excludedItemsWithChildrenIds}, {requiredIds}, itemsWithUnpublished): MainItem[] => {
     return items.map(item => ({
         id: item.getId(),
         content: item,
         included: !hasContentIdInIds(item.getContentId(), excludedItemsIds),
         childrenIncluded: !hasContentIdInIds(item.getContentId(), excludedItemsWithChildrenIds),
         required: hasContentIdInIds(item.getContentId(), requiredIds),
+        hasUnpublishedChildren: itemsWithUnpublished.has(item.getId()),
     }));
 });
 
@@ -149,7 +169,9 @@ export const $dependantPublishItems = computed(
 );
 
 export const $publishableIds = computed([$mainPublishItems, $dependantPublishItems], (mainItems, dependantItems): ContentId[] => {
-    return [...mainItems, ...dependantItems].filter(item => item.included).map(item => item.content.getContentId());
+    return [...mainItems, ...dependantItems].filter(item => {
+        return item.included && !item.content.isOnline();
+    }).map(item => item.content.getContentId());
 });
 
 export const $totalPublishableItems = computed($publishableIds, (publishableIds): number => {
@@ -249,6 +271,7 @@ export const resetPublishDialogContext = () => {
     $draftPublishDialogSelection.set(structuredClone(initialSelectionState));
     $publishChecks.set(structuredClone(initialChecksState));
     $publishDialogDependants.set([]);
+    $hasUnpublishedChildrenIds.set(new Set());
 };
 
 // SELECTION
@@ -360,6 +383,10 @@ async function reloadPublishDialogData(): Promise<void> {
             ...$publishChecks.get(),
             ...checks,
         });
+
+        // Fetch unpublished children status
+        const {items} = $publishDialog.get();
+        await fetchHasUnpublishedChildren(items);
     } catch (error) {
         $publishDialog.setKey('failed', true);
         // TODO: Notify error
@@ -779,4 +806,23 @@ async function sendPublishRequest(): Promise<TaskId | undefined> {
         showError(i18n('dialog.publish.publishing.error'));
         return undefined;
     }
+}
+
+async function fetchHasUnpublishedChildren(items: ContentSummaryAndCompareStatus[]): Promise<void> {
+    const itemsWithChildren = items.filter(item => item.hasChildren());
+    if (itemsWithChildren.length === 0) {
+        $hasUnpublishedChildrenIds.set(new Set());
+        return;
+    }
+
+    const ids = itemsWithChildren.map(item => item.getContentId());
+    const result = await hasUnpublishedChildren(ids);
+
+    const set = new Set<string>();
+    for (const [id, hasChildren] of result) {
+        if (hasChildren) {
+            set.add(id);
+        }
+    }
+    $hasUnpublishedChildrenIds.set(set);
 }
