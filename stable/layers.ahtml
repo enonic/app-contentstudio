@@ -453,8 +453,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </li>
 <li><a href="#reset">Reset</a></li>
-<li><a href="#layers_panel">Layers Panel</a></li>
-<li><a href="#management">Management</a></li>
+<li><a href="#layers_widget">Layers Widget</a></li>
 </ul>
 </div>
 </div>
@@ -619,7 +618,7 @@ For inherited items <b class="button">Edit</b> is replaced with <b class="button
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The <a href="https://market.enonic.com/vendors/enonic/juke-ai-content-translator">Juke AI translator</a> application must be installed to access the features described in this section
+The <a href="https://market.enonic.com/vendors/enonic/ai-translator">Juke AI translator</a> application must be installed to access the features described in this section
 </td>
 </tr>
 </table>
@@ -671,7 +670,7 @@ Changing these settings require <code>Project Owner</code> role or higher.
 </div>
 </div>
 <div class="sect1">
-<h2 id="layers_panel"><a class="link" href="#layers_panel">Layers Panel</a></h2>
+<h2 id="layers_widget"><a class="link" href="#layers_widget">Layers Widget</a></h2>
 <div class="sectionbody">
 <div class="admonitionblock note">
 <table>
@@ -686,31 +685,14 @@ The <a href="https://market.enonic.com/vendors/enonic/content-studio-plus">Conte
 </table>
 </div>
 <div class="paragraph">
-<p>The Layers widget enables the user to see the status of a specific content item in all existing layers in the system.</p>
+<p>The Layers widget enables the user to see the status of a specific content item in each of the existing layers in the system.</p>
 </div>
 <div class="paragraph">
-<p>The current layer is highlighted with a blue border. You can also see how many parents (<em>Ascendants</em>)
-and children (<em>Descendants</em>) the current item has.</p>
+<p>By default, only direct ancestors and descendants of the current layer are shown, and the current layer is highlighted with a blue border. The content can be opened in any of the displayed layers by expanding the layer box and clicking the action button.</p>
 </div>
-<div class="paragraph">
-<p>By clicking an item, a related action button will appear.</p>
-</div>
-<div class="imageblock">
+<div class="imageblock text-center">
 <div class="content">
-<img src="layers/images/layer-widget-1.png" alt="Layers Widget" width="275">
-</div>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="layers/images/layer-widget-3.png" alt="Layers Widget" width="274">
-</div>
-</div>
-<div class="paragraph">
-<p>Boxes of parent layers where the content item is not localized are hidden by default and can be displayed by clicking on the Ascendants link.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="layers/images/layer-widget-2.png" alt="Layers Widget" width="274">
+<img src="layers/images/layer-widget.png" alt="Layer Widget" width="75%">
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -726,9 +708,7 @@ You can localize content in the current layer directly from the widget.
 </table>
 </div>
 <div class="paragraph">
-<p><strong>Show all</strong> button at the bottom of the widget displays the total number of layers where this item exists. This number can be different from tbe number
-of boxes displayed in the widget, since the widget only displays the branch of the current layer. To see status of the content item in the entire tree of layers
-click the button to open the modal dialog.</p>
+<p><strong>Show all</strong> button at the bottom of the widget opens the modal dialog with the full hierarchy of layers in the system where the content exists.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -736,8 +716,7 @@ click the button to open the modal dialog.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Just like with the Layers widget, you can expand layer boxes in this dialog to either localize or edit the content in the current layer,
-or open it in other layers (given your user has sufficient permissions to access the layer).</p>
+<p>Just like with the Layers widget, you can expand layer boxes in this dialog to either localize or open the content in a specific layer (given your user has sufficient permissions to access the layer).</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -753,16 +732,10 @@ Read about the high-level concept of Content Layers <a href="https://developer.e
 </div>
 </div>
 </div>
-<div class="sect1">
-<h2 id="management"><a class="link" href="#management">Management</a></h2>
-<div class="sectionbody">
-
-</div>
-</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-12-16 09:00:48 UTC
+Last updated 2025-12-16 12:32:16 UTC
 </div>
 </div>
 </body>

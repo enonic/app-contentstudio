@@ -441,48 +441,64 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#content_studio_5_update_3">Content Studio 5 Update 3</a>
+<li><a href="#content_studio_5_update_4">Content Studio 5 Update 4</a>
 <ul class="sectlevel2">
 <li><a href="#whats_new">What&#8217;s new</a></li>
+<li><a href="#improved_workflow_for_page_customization">Improved workflow for page customization</a></li>
+<li><a href="#preview_mode_selector_in_the_editor_view">Preview mode selector in the Editor view</a></li>
+<li><a href="#gallery_mode_in_customselector">Gallery mode in CustomSelector</a></li>
+<li><a href="#schedule_publish_improvements">Schedule Publish improvements</a></li>
+<li><a href="#juke_translation_on_language_change">Juke translation on language change</a></li>
+<li><a href="#layers_widget">Layers widget</a></li>
+<li><a href="#version_history_improvements">Version History improvements</a></li>
+<li><a href="#archive_comment">Archive comment</a></li>
+<li><a href="#language_plugin_in_htmlarea">Language plugin in HtmlArea</a></li>
+<li><a href="#notification_about_a_new_release">Notification about a new release</a></li>
+<li><a href="#other_improvements">Other improvements</a></li>
+</ul>
+</li>
+<li><a href="#content_studio_5_update_3">Content Studio 5 Update 3</a>
+<ul class="sectlevel2">
+<li><a href="#whats_new_2">What&#8217;s new</a></li>
 <li><a href="#juke_ai_support">Juke AI support</a></li>
 <li><a href="#preview_mode">Preview mode</a></li>
 <li><a href="#edit_text_in_the_inspect_panel">Edit text in the Inspect panel</a></li>
 <li><a href="#support_for_webp_and_avif">Support for webp and avif</a></li>
 <li><a href="#accessibility_improvements">Accessibility improvements</a></li>
-<li><a href="#other_improvements">Other improvements</a></li>
+<li><a href="#other_improvements_2">Other improvements</a></li>
 </ul>
 </li>
 <li><a href="#content_studio_5_update_2">Content Studio 5 Update 2</a>
 <ul class="sectlevel2">
-<li><a href="#whats_new_2">What&#8217;s new</a></li>
+<li><a href="#whats_new_3">What&#8217;s new</a></li>
 <li><a href="#project_graph">Project graph</a></li>
 <li><a href="#project_wizard_improvements">Project Wizard improvements</a></li>
 <li><a href="#reference_check_in_the_unpublish_wizard">Reference check in the Unpublish Wizard</a></li>
 <li><a href="#decorative_images">Decorative images</a></li>
 <li><a href="#default_online_from_time">Default Online From time</a></li>
 <li><a href="#page_components_view">Page Components view</a></li>
-<li><a href="#other_improvements_2">Other improvements</a></li>
+<li><a href="#other_improvements_3">Other improvements</a></li>
 </ul>
 </li>
 <li><a href="#content_studio_5_update_1">Content Studio 5 Update 1</a>
 <ul class="sectlevel2">
-<li><a href="#whats_new_3">What&#8217;s new</a></li>
+<li><a href="#whats_new_4">What&#8217;s new</a></li>
 <li><a href="#improved_move_operation">Improved move operation</a></li>
 <li><a href="#improved_auto_exclusion_of_optional_dependencies">Improved auto-exclusion of optional dependencies</a></li>
 <li><a href="#export_of_search_results">Export of search results</a></li>
 <li><a href="#new_findreplace_dialog_in_rich_text_editor">New Find/Replace dialog in Rich Text Editor</a></li>
 <li><a href="#locked_path_for_published_content">Locked path for published content</a></li>
-<li><a href="#other_improvements_3">Other improvements</a></li>
+<li><a href="#other_improvements_4">Other improvements</a></li>
 </ul>
 </li>
 <li><a href="#content_studio_5">Content Studio 5</a>
 <ul class="sectlevel2">
-<li><a href="#whats_new_4">What&#8217;s new</a></li>
+<li><a href="#whats_new_5">What&#8217;s new</a></li>
 <li><a href="#default_content_project_is_hidden_by_default">Default Content Project is hidden by default</a></li>
 <li><a href="#page_components_view_2">Page Components View</a></li>
 <li><a href="#publishing_wizard_improvements">Publishing Wizard improvements</a></li>
 <li><a href="#call_links_in_the_insert_link_dialog">Call links in the Insert Link dialog</a></li>
-<li><a href="#other_improvements_4">Other improvements</a></li>
+<li><a href="#other_improvements_5">Other improvements</a></li>
 </ul>
 </li>
 </ul>
@@ -506,6 +522,277 @@ Release Notes for Content Studio 4.x can be found <a href="https://developer.eno
 </div>
 </div>
 <div class="sect1">
+<h2 id="content_studio_5_update_4"><a class="link" href="#content_studio_5_update_4">Content Studio 5 Update 4</a></h2>
+<div class="sectionbody">
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Content Studio 5.4 requires XP 7.16.0 or higher.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="whats_new"><a class="link" href="#whats_new">What&#8217;s new</a></h3>
+<div class="videoblock">
+<div class="content">
+<iframe width="75%" src="https://www.youtube.com/embed/vu8xR-gkN84?rel=0" frameborder="0" allowfullscreen></iframe>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="improved_workflow_for_page_customization"><a class="link" href="#improved_workflow_for_page_customization">Improved workflow for page customization</a></h3>
+<div class="paragraph">
+<p>Several improvements have been made to make page customization more accessible, yet robust:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The preview panel is by default always expanded in the Editor view.</p>
+</li>
+<li>
+<p>"Components" widget has been renamed to "Page" and is now always present in the Context panel when editing a page.</p>
+</li>
+<li>
+<p>Page controller or template can now be selected/changed only in the Inspect panel.</p>
+</li>
+<li>
+<p>When content preview is not available or a page template is used, a click on the Preview panel will open a context menu with "Page Settings" shortcut. Click "Page Settings" to select a page controller/template or customize the page in the Inspect panel.</p>
+</li>
+</ul>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
+<div class="content">
+<img src="release/images/cs54-no-preview.png" alt="No preview" width="75%">
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="imageblock">
+<div class="content">
+<img src="release/images/cs54-customize.png" alt="Customise page" width="75%">
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="ulist">
+<ul>
+<li>
+<p>Detaching a content from a template now requires a confirmation to avoid accidental customization.</p>
+</li>
+<li>
+<p>"Save as Template" function is no longer available in the Inspect panel and can be executed only from the Page context menu.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="preview_mode_selector_in_the_editor_view"><a class="link" href="#preview_mode_selector_in_the_editor_view">Preview mode selector in the Editor view</a></h3>
+<div class="paragraph">
+<p>Preview mode selector added to the Preview panel in Content Studio v5.3 is now also available in the Page Editor. In a future version it will be possible to extend the predefined list of modes by plugging in your own preview engines with editing capabilities.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="release/images/cs54-preview-mode.png" alt="Preview selector" width="75%">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="gallery_mode_in_customselector"><a class="link" href="#gallery_mode_in_customselector">Gallery mode in CustomSelector</a></h3>
+<div class="paragraph">
+<p><a href="https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/customselector" target="_blank" rel="noopener">CustomSelector</a> input type now supports gallery mode, similar to the appearance of ImageSelector&#8217;s dropdown.
+When enabled, the selector will display the dropdown in a gallery layout (three big images in a row), making it more suitable for selecting images.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="release/images/cs54-customselector-gallery.png" alt="Custom Selector in gallery mode" width="75%">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="schedule_publish_improvements"><a class="link" href="#schedule_publish_improvements">Schedule Publish improvements</a></h3>
+<div class="paragraph">
+<p>Two major improvements have been made to the Schedule Publish functionality in the Publishing Wizard.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>It&#8217;s no longer necessary to select date/time in the "Online from" field of the Schedule form. Default value is "Now", meaning that content will go online as soon as the content is published. If a specific date/time in the future is required, it can still be set manually.</p>
+</li>
+</ol>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="actions/images/publishing-wizard-schedule.png" alt="Optionally schedule publish from and to" width="75%">
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic" start="2">
+<li>
+<p>If content has already been scheduled for publishing, then modified and needs to be republished, caption on the publish button will change from "Publish Now" to "Update Scheduled".</p>
+</li>
+</ol>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="release/images/cs54-update-scheduled.png" alt="Update scheduled publishing" width="75%">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="juke_translation_on_language_change"><a class="link" href="#juke_translation_on_language_change">Juke translation on language change</a></h3>
+<div class="paragraph">
+<p>In the previous release we introduced integration with Juke AI Translator to provide AI-powered translation
+when localizing content in a layer. In this release we have extended this functionality to also provide
+automatic translation when changing the language of existing content in a regular project, not a layer.</p>
+</div>
+<div class="paragraph">
+<p>After changing the language of content that has text fields, Content Studio will now suggest translating
+all text fields to the new language using Juke AI Translator (assuming it&#8217;s installed).</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Translation will only be suggested when changing language in the content edit view.
+</td>
+</tr>
+</table>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="release/images/cs54-translate.png" alt="Translate content" width="50%">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="layers_widget"><a class="link" href="#layers_widget">Layers widget</a></h3>
+<div class="paragraph">
+<p><a href="layers.ahtml#layers_widget">Layers Widget</a> has been improved to better visualize placement of the content in the project hierarchy. By default, only direct ancestors and descendants of the current layer are shown.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="layers/images/layer-widget.png" alt="Layer widget" width="75%">
+</div>
+</div>
+<div class="paragraph">
+<p>To see all layers where the content exists, click "Show all" button at the bottom of the widget. This will open a modal dialog with the full overview of content placement in the project hierarchy.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="layers/images/layer-modal-dialog.png" alt="Layer dialog" width="50%">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="version_history_improvements"><a class="link" href="#version_history_improvements">Version History improvements</a></h3>
+<div class="paragraph">
+<p>Selection of two versions for comparison in the Version History panel is now done with checkboxes, instead of clicking the "Compare" icon next to each version. This makes it more obvious which versions are going to be compared.</p>
+</div>
+<div class="paragraph">
+<p>Long lists of versions in the Version History panel have been optimized for a faster load.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="widgets/images/widgets-version-history-select.png" alt="Select versions for comparison" width="50%">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="archive_comment"><a class="link" href="#archive_comment">Archive comment</a></h3>
+<div class="paragraph">
+<p>When archiving content, it&#8217;s now possible to provide an optional comment in the Archive dialog explaining the reason for archiving. The comment will be visible in the Version History panel.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="release/images/cs54-archive-comment.png" alt="Language plugin" width="50%">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="language_plugin_in_htmlarea"><a class="link" href="#language_plugin_in_htmlarea">Language plugin in HtmlArea</a></h3>
+<div class="paragraph">
+<p>A new Language plugin has been added to the <a href="https://developer.enonic.com/docs/xp/stable/cms/schemas/input-types/htmlarea" target="_blank" rel="noopener">HtmlArea</a> input type. This plugin allows setting the <code>lang</code> attribute on selected text inside the editor to correctly present content written in multiple languages to screen readers (<a href="https://www.w3.org/TR/UNDERSTANDING-WCAG20/meaning-other-lang-id.html" target="_blank" rel="noopener">WCAG specs</a>).</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Contact a developer to help you enable this plugin by configuring an HtmlArea input type in content type schema.
+</td>
+</tr>
+</table>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="release/images/cs54-language-plugin.png" alt="Language plugin" width="50%">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="notification_about_a_new_release"><a class="link" href="#notification_about_a_new_release">Notification about a new release</a></h3>
+<div class="paragraph">
+<p>Content Studio will now notify users with Administrator and Content Manager roles about availability of a new feature release (not patch releases).
+A non-intrusive banner will be briefly shown at the bottom of the Content Studio window, with a link to the release notes page.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="release/images/cs54-version-update.png" alt="Notification about new release" width="75%">
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Once the user clicks on the close icon to dismiss the banner, it will not be shown again until a new feature release is available.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="other_improvements"><a class="link" href="#other_improvements">Other improvements</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Websocket stability has been improved.</p>
+</li>
+<li>
+<p>A lifetime of warning and error notifications has been increased to give users more time to read them. Also, a notification will now only be dismissed when the user clicks the close icon, not anywhere on the notification itself.</p>
+</li>
+<li>
+<p>When the current user didn&#8217;t have READ permissions for a selected content in Content Selector, the placeholder was displayed saying that the item is not available. Now, a more descriptive message is shown saying that the user doesn&#8217;t have permissions to view the item, which helps distinguish the lack of permissions from actual missing items.</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="release/images/cs54-missing-selected-items.png" alt="Missing selected items" width="75%">
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="content_studio_5_update_3"><a class="link" href="#content_studio_5_update_3">Content Studio 5 Update 3</a></h2>
 <div class="sectionbody">
 <div class="admonitionblock important">
@@ -521,7 +808,7 @@ Content Studio 5.3 requires XP 7.15.0 or higher.
 </table>
 </div>
 <div class="sect2">
-<h3 id="whats_new"><a class="link" href="#whats_new">What&#8217;s new</a></h3>
+<h3 id="whats_new_2"><a class="link" href="#whats_new_2">What&#8217;s new</a></h3>
 <div class="videoblock">
 <div class="content">
 <iframe width="75%" src="https://www.youtube.com/embed/PG_OzKGDow8?rel=0" frameborder="0" allowfullscreen></iframe>
@@ -705,7 +992,7 @@ In future versions it will be possible to add custom preview modes.
 </div>
 </div>
 <div class="sect2">
-<h3 id="other_improvements"><a class="link" href="#other_improvements">Other improvements</a></h3>
+<h3 id="other_improvements_2"><a class="link" href="#other_improvements_2">Other improvements</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -738,7 +1025,7 @@ Content Studio 5.2 requires XP 7.14.1 or higher.
 </table>
 </div>
 <div class="sect2">
-<h3 id="whats_new_2"><a class="link" href="#whats_new_2">What&#8217;s new</a></h3>
+<h3 id="whats_new_3"><a class="link" href="#whats_new_3">What&#8217;s new</a></h3>
 <div class="videoblock">
 <div class="content">
 <iframe width="75%" src="https://www.youtube.com/embed/MjWxNLDsUEc?rel=0" frameborder="0" allowfullscreen></iframe>
@@ -838,7 +1125,7 @@ Content Studio 5.2 requires XP 7.14.1 or higher.
 </div>
 </div>
 <div class="sect2">
-<h3 id="other_improvements_2"><a class="link" href="#other_improvements_2">Other improvements</a></h3>
+<h3 id="other_improvements_3"><a class="link" href="#other_improvements_3">Other improvements</a></h3>
 <div class="sect3">
 <h4 id="performance"><a class="link" href="#performance">Performance</a></h4>
 <div class="paragraph">
@@ -887,7 +1174,7 @@ Content Studio 5.1 requires XP 7.13.0 or higher.
 </table>
 </div>
 <div class="sect2">
-<h3 id="whats_new_3"><a class="link" href="#whats_new_3">What&#8217;s new</a></h3>
+<h3 id="whats_new_4"><a class="link" href="#whats_new_4">What&#8217;s new</a></h3>
 <div class="videoblock">
 <div class="content">
 <iframe width="75%" src="https://www.youtube.com/embed/Lc8GVT7V5cU?rel=0" frameborder="0" allowfullscreen></iframe>
@@ -975,7 +1262,7 @@ This mode can be turned on in Content Studio&#8217;s <a href="config.ahtml#exclu
 </div>
 </div>
 <div class="sect2">
-<h3 id="other_improvements_3"><a class="link" href="#other_improvements_3">Other improvements</a></h3>
+<h3 id="other_improvements_4"><a class="link" href="#other_improvements_4">Other improvements</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1014,7 +1301,7 @@ Content Studio 5.0 requires XP 7.13.0 or higher.
 </table>
 </div>
 <div class="sect2">
-<h3 id="whats_new_4"><a class="link" href="#whats_new_4">What&#8217;s new</a></h3>
+<h3 id="whats_new_5"><a class="link" href="#whats_new_5">What&#8217;s new</a></h3>
 <div class="videoblock">
 <div class="content">
 <iframe width="75%" src="https://www.youtube.com/embed/hB8TOBjRxYc?rel=0" frameborder="0" allowfullscreen></iframe>
@@ -1066,7 +1353,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 </div>
 <div class="sect2">
-<h3 id="other_improvements_4"><a class="link" href="#other_improvements_4">Other improvements</a></h3>
+<h3 id="other_improvements_5"><a class="link" href="#other_improvements_5">Other improvements</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1086,7 +1373,7 @@ of the <a href="editor/content-form.ahtml#page_components_tree">Content Editor f
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-12-16 09:00:48 UTC
+Last updated 2025-12-16 12:32:16 UTC
 </div>
 </div>
 </body>

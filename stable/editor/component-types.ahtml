@@ -457,7 +457,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Enonic XP has five types of components that can be added to regions on a page. These component types are listed under the <a href="../widgets.ahtml#insert-tab">Insert tab</a> of the components widget in the <a href="page-editor.ahtml">Page Editor</a>. This section covers each type of component in detail.</p>
+<p>Enonic XP has five types of components that can be added to regions on a page. These component types are listed under the <a href="../widgets.ahtml#insert_tab">Insert tab</a> of the components widget in the <a href="page-editor.ahtml">Page Editor</a>. This section covers each type of component in detail.</p>
 </div>
 </div>
 </div>
@@ -465,25 +465,25 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="part_component"><a class="link" href="#part_component">Part component</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Part components are reusable, configurable components that can be placed into any region of a page. This allows content editors to build and customize pages without writing any code. There are no built-in part components. Each one is custom made in the application code. Parts are typically created to render custom content, lists of content, forms, etc.</p>
+<p>Part components are reusable, configurable components that can be placed into any region of a page. This allows content editors to build and customize pages without writing any code. There are no built-in part components, each one is implemented in the application code. Parts are typically created to render custom content, lists of content, forms, etc.</p>
 </div>
 <div class="paragraph">
-<p>The first step in adding a part component to a page is to edit the page content and open the <a href="../widgets.ahtml#insert_tab">Insert tab</a> of the Components widget. Drag the part component placeholder (puzzle piece) to the desired location on the page. The part placeholder will now appear as a blue box with a dropdown selector. The same part dropdown selector will appear in the components widget. Use one of the selectors to find the desired part component.</p>
+<p>The first step in adding a part component to a page is to edit the page content and open the <a href="../widgets.ahtml#insert_tab">Insert tab</a> of the Page widget. Click, hold and drag the (<span class="image"><img src="images/context-panel-part-icon.png" alt="context panel part icon" width="24px" title="Part icon"></span>) icon to the desired location on the page. The part placeholder will now appear as a blue box with a dropdown selector. The same dropdown selector will appear in the Inspect panel of the Page widget. Use any of these two dropdowns to select the desired part component.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/component-types-part-edit.png" alt="component types part edit">
+<img src="images/component-types-part-edit.png" alt="Part placeholder" width="75%">
 </div>
 </div>
 <div class="paragraph">
-<p>Once a part component is selected, the placeholder will be replaced with the actual part and the <a href="../widgets.ahtml#insert_tab">Insert tab</a> will show the part’s configuration options in a form.</p>
+<p>Once a part component is selected, the placeholder will be replaced with the actual rendered part, and the <a href="../widgets.ahtml#inspect_tab">Inspect tab</a> will show the part&#8217;s config form (if it&#8217;s defined in the part schema).</p>
 </div>
 <div class="paragraph">
-<p>Some parts won’t have any configuration. Parts with configuration options are independently configured. This means that the same part component can be added to multiple pages, or even multiple times on the same page, and each instance can have different configuration values.</p>
+<p>Configurable parts are configured in the context of the current content. This means that the same part component can be added to multiple pages, or even multiple times on the same page, and each instance may have different configuration values.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/component-types-part-insert.png" alt="component types part insert">
+<img src="images/component-types-part-insert.png" alt="Part component" width="75%">
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -559,32 +559,20 @@ to explicitly add their types to allowed content types:
 <p>Layout components are reusable, configurable components (similar to Part components) that can be placed into any region defined in a page component. Layouts themselves define regions where other components can be placed with the <a href="page-editor.ahtml">Page Editor</a>. The primary purpose of a layout is to enable other components to be placed side-by-side. As of version 6.15, a layout cannot be placed inside another layout. There are no built-in layouts. Each one is custom made in the application code. Layouts are typically created for two or three columns and have configuration options for column widths.</p>
 </div>
 <div class="paragraph">
-<p>In the <a href="page-editor.ahtml">Page Editor</a>, drag a Layout component placeholder from the components widget to the desired region on the page. The layout placeholder will now appear as a blue box with a dropdown selector. The same dropdown selector will appear in <a href="../widgets.ahtml#insert-tab">Insert tab</a> of the components widget. Use one of the selectors to find the desired layout component.</p>
+<p>In the <a href="page-editor.ahtml">Page Editor</a>, drag a Layout component placeholder from the components widget to the desired region on the page. The layout placeholder will now appear as a blue box with a dropdown selector. The same dropdown selector will appear in <a href="../widgets.ahtml#insert_tab">Insert tab</a> of the components widget. Use one of the selectors to find the desired layout component.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/component-types-layout-insert.png" alt="component types layout insert">
+<img src="images/component-types-layout-insert.png" alt="Layout placeholder" width="75%">
 </div>
 </div>
 <div class="paragraph">
-<p>Once a layout is selected, the actual layout rendering will replace the placeholder and its configuration options will appear in the components widget. Some layout components may not have any configuration options.</p>
+<p>Once a layout is selected, the actual layout will replace the placeholder and its configuration options will appear in the Inspect panel of the Page widget. Just as with parts, config of layout components is optional and has to be defined in a layout schema inside an application.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/component-types-layout-edit.png" alt="component types layout edit">
+<img src="images/component-types-layout-edit.png" alt="Layout component" width="75%">
 </div>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-While editing a page, it may be difficult to select a layout to access its configuration. In this case, the <a href="page-editor.ahtml#components-view">Components View</a> can help to select the layout. Alternatively, a part within the layout can be selected and then that part’s parent can be selected from the right-click context menu. Continue selecting the parent component until the layout is the selected component.
-</td>
-</tr>
-</table>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -610,7 +598,7 @@ Just as with parts, you can limit a layout to be used only on specific content t
 </div>
 </div>
 <div class="paragraph">
-<p>This layout will only be allowed on a site, but not for example on a page template or any of custom content types.</p>
+<p>This layout will only be allowed on a site but not, for example, on a page template or any of custom content types.</p>
 </div>
 </div>
 </div>
@@ -618,10 +606,13 @@ Just as with parts, you can limit a layout to be used only on specific content t
 <h2 id="text_component"><a class="link" href="#text_component">Text component</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The Text component allows content editors to place and format text into any region on a page without writing any code. Images, videos, and links can also be added inside text components. Macros allow YouTube videos, embedded code, and no-format text to be added as well. The formatting and macro options are the same as those for the HtmlArea inputs that can be found in content types and other configuration forms in the Content Studio. The only difference is that the formatting toolbar is at the top of the page for text components.</p>
+<p>The Text component allows content editors to place text blocks into any region on a page without writing any code. Images, videos, and links can also be added inside text components. Macros allow YouTube videos, embedded code, and no-format text to be added as well. The formatting and macro options are the same as those for the HtmlArea inputs that can be found in content types and other configuration forms in the Content Studio. The only difference is that the formatting toolbar is at the top of the page for text components.</p>
 </div>
 <div class="paragraph">
-<p>In the <a href="page-editor.ahtml">Page Editor</a>, drag a Text component from the <a href="../widgets.ahtml#insert-tab">Insert tab</a> of the components widget to the desired region on the page. A cursor will appear inside the text component and editing can begin. If another component is selected, the text component will need to be double-clicked to resume editing.</p>
+<p>In the <a href="page-editor.ahtml">Page Editor</a>, drag a Text component from the <a href="../widgets.ahtml#insert_tab">Insert tab</a> of the components widget to the desired region on the page. A cursor will appear inside the text component and editing can begin. If another component is selected, the text component will need to be double-clicked to resume editing.</p>
+</div>
+<div class="paragraph">
+<p>Alternatively, edit the text component directly in the Inspect panel of the Page widget.</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -637,7 +628,7 @@ Documentation on Rich Text Editor used by Text component can be found <a href="r
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/component-types-text-insert.png" alt="component types text insert">
+<img src="images/component-types-text-insert.png" alt="Text component" width="75%">
 </div>
 </div>
 </div>
@@ -646,7 +637,7 @@ Documentation on Rich Text Editor used by Text component can be found <a href="r
 <h2 id="fragment_component"><a class="link" href="#fragment_component">Fragment component</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Fragments are created as content from an instance of another component. What makes a fragment special is that it uses the same configuration on every page where it’s added. When a fragment content is altered, the change is instantly visible on every page that uses it. All of the other components are independently configured.</p>
+<p>Fragments are reusable components stored as content items. What makes a fragment special is that it uses the same configuration on every page where it’s added. When a fragment content is altered, the change is instantly visible on every page that uses it. All the other components are independently configured.</p>
 </div>
 <div class="sect2">
 <h3 id="creating_fragments"><a class="link" href="#creating_fragments">Creating fragments</a></h3>
@@ -657,12 +648,24 @@ Documentation on Rich Text Editor used by Text component can be found <a href="r
 <div class="sect2">
 <h3 id="using_fragments"><a class="link" href="#using_fragments">Using fragments</a></h3>
 <div class="paragraph">
-<p>Once a fragment content has been created, it can be added to pages with the page editor. Drag a fragment placeholder from the <a href="../widgets.ahtml#insert-tab">Insert tab</a> of the components widget to the desired location on the page. Use the dropdown selector in the placeholder to find the desired fragment content. Once selected, the fragment will appear.</p>
+<p>Once a fragment content has been created, it can be added to pages with the page editor. Drag a fragment placeholder from the <a href="../widgets.ahtml#insert_tab">Insert tab</a> of the components widget to the desired location on the page. Use the dropdown selector in the placeholder to find the desired fragment content. Once selected, the fragment will appear.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/component-types-fragment-insert.png" alt="component types fragment insert">
+<img src="images/component-types-fragment-insert.png" alt="Fragment placeholder" width="75%">
 </div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Click "Edit Fragment" in the "Inspect" panel of a selected fragment to open the fragment content in a new editor tab for editing.
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -670,7 +673,7 @@ Documentation on Rich Text Editor used by Text component can be found <a href="r
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-12-16 09:00:48 UTC
+Last updated 2025-12-16 12:32:16 UTC
 </div>
 </div>
 </body>
