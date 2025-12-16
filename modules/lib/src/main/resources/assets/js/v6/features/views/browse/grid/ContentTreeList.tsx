@@ -17,7 +17,7 @@ import {
 } from '../../../store/contentTreeSelectionStore';
 import {ContentData} from './ContentData';
 import {ContentDataFetcher} from './ContentDataFetcher';
-import {ContentTreeContextMenu} from './ContentTreeContextMenu';
+import {ContentTreeContextMenu, ContentTreeContextMenuProps} from './ContentTreeContextMenu';
 import {ContentTreeListRow} from './ContentTreeListRow';
 
 const renderItem = (item: FlatTreeNode<ContentData>): React.ReactElement => {
@@ -28,10 +28,10 @@ const renderItem = (item: FlatTreeNode<ContentData>): React.ReactElement => {
 
 export type ContentTreeListProps = {
     fetcher: ContentDataFetcher;
-    contextMenuActions?: Action[];
+    contextMenuActions?: ContentTreeContextMenuProps['actions'];
 }
 
-export const ContentTreeList = ({fetcher, contextMenuActions = []}: ContentTreeListProps): React.ReactElement => {
+export const ContentTreeList = ({fetcher, contextMenuActions = {}}: ContentTreeListProps): React.ReactElement => {
     const items = useStore($contentTreeItems);
     const selection = useStore($contentTreeSelection);
     const active = useStore($contentTreeActiveItem);
