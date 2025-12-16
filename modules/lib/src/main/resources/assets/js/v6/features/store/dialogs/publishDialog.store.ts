@@ -1,7 +1,7 @@
 import {showError, showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {computed, map} from 'nanostores';
+import {atom, computed, map} from 'nanostores';
 import {ContentId} from '../../../../app/content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusFetcher} from '../../../../app/resource/ContentSummaryAndCompareStatusFetcher';
@@ -45,7 +45,7 @@ type PublishDialogStore = {
     failed: boolean;
     // Content
     items: ContentSummaryAndCompareStatus[];
-    dependantItems: ContentSummaryAndCompareStatus[];
+    // dependantItems moved to $publishDialogDependants
     message?: string;
 } & PublishDialogSelectionStore;
 
@@ -79,7 +79,6 @@ const initialPublishDialogState: PublishDialogStore = {
     open: false,
     failed: false,
     items: [],
-    dependantItems: [],
     excludedItemsIds: [],
     excludedItemsWithChildrenIds: [],
     excludedDependantItemsIds: [],
@@ -108,6 +107,9 @@ export const $draftPublishDialogSelection = map<PublishDialogSelectionStore>(str
 
 const $publishChecks = map<PublishChecksStore>(structuredClone(initialChecksState));
 
+// Store for resolved dependencies (output of reloadPublishDialogData)
+const $publishDialogDependants = atom<ContentSummaryAndCompareStatus[]>([]);
+
 //
 // * Derived State
 //
@@ -133,15 +135,18 @@ export const $mainPublishItems = computed([$publishDialog, $draftPublishDialogSe
     }));
 });
 
-export const $dependantPublishItems = computed([$publishDialog, $draftPublishDialogSelection, $publishChecks], ({dependantItems, excludedDependantItemsIds}, {excludedDependantItemsIds: draftExcludedIds}, {requiredIds}): DependantItem[] => {
-    return dependantItems.map(item => ({
-        id: item.getId(),
-        content: item,
-        included: !hasContentIdInIds(item.getContentId(), draftExcludedIds),
-        required: hasContentIdInIds(item.getContentId(), requiredIds),
-        excludedByDefault: hasContentIdInIds(item.getContentId(), excludedDependantItemsIds),
-    }));
-});
+export const $dependantPublishItems = computed(
+    [$publishDialogDependants, $publishDialog, $draftPublishDialogSelection, $publishChecks],
+    (dependantItems, {excludedDependantItemsIds}, {excludedDependantItemsIds: draftExcludedIds}, {requiredIds}): DependantItem[] => {
+        return dependantItems.map(item => ({
+            id: item.getId(),
+            content: item,
+            included: !hasContentIdInIds(item.getContentId(), draftExcludedIds),
+            required: hasContentIdInIds(item.getContentId(), requiredIds),
+            excludedByDefault: hasContentIdInIds(item.getContentId(), excludedDependantItemsIds),
+        }));
+    }
+);
 
 export const $publishableIds = computed([$mainPublishItems, $dependantPublishItems], (mainItems, dependantItems): ContentId[] => {
     return [...mainItems, ...dependantItems].filter(item => item.included).map(item => item.content.getContentId());
@@ -188,7 +193,7 @@ let instanceId = 0;
 // * Public API
 //
 
-export const setPublishDialogState = (state: Partial<Omit<PublishDialogStore, 'open' | 'failed' | 'items' | 'dependantItems'>>) => {
+export const setPublishDialogState = (state: Partial<Omit<PublishDialogStore, 'open' | 'failed' | 'items'>>) => {
     const {message, ...exclusions} = state;
 
     $publishDialog.set({
@@ -215,11 +220,13 @@ export const openPublishDialog = (items: ContentSummaryAndCompareStatus[], inclu
         open: true,
         failed: false,
         items,
-        dependantItems: [],
         excludedItemsIds: [...excludedIds],
         excludedItemsWithChildrenIds: [...excludedItemsWithChildrenIds],
         excludedDependantItemsIds: [...excludedIds],
     });
+
+    // Reset dependants store
+    $publishDialogDependants.set([]);
 
     // TODO: Sync after updates to $publishDialog
     $draftPublishDialogSelection.set({
@@ -241,6 +248,7 @@ export const resetPublishDialogContext = () => {
     $publishDialog.set(structuredClone(initialPublishDialogState));
     $draftPublishDialogSelection.set(structuredClone(initialSelectionState));
     $publishChecks.set(structuredClone(initialChecksState));
+    $publishDialogDependants.set([]);
 };
 
 // SELECTION
@@ -305,7 +313,7 @@ export const setPublishDialogItemWithChildrenSelected = (id: ContentId, selected
 }
 
 export const setPublishDialogDependantItemSelected = (id: ContentId, selected: boolean) => {
-    const hasItem = hasContentById(id, $publishDialog.get().dependantItems);
+    const hasItem = hasContentById(id, $publishDialogDependants.get());
     if (!hasItem) return;
 
     const {excludedDependantItemsIds, ...rest} = $draftPublishDialogSelection.get();
@@ -332,9 +340,12 @@ async function reloadPublishDialogData(): Promise<void> {
 
         const {dependantItems, excludedItemsIds, excludedDependantItemsIds, ...checks} = result;
 
+        // Write dependantItems to separate store
+        $publishDialogDependants.set(dependantItems);
+
+        // Only update exclusion IDs in $publishDialog
         $publishDialog.set({
             ...$publishDialog.get(),
-            dependantItems,
             excludedItemsIds,
             excludedDependantItemsIds,
         });
@@ -375,7 +386,8 @@ export const markAllAsReadyInProgressPublishItems = async (): Promise<void> => {
 };
 
 export const excludeInProgressPublishItems = (): void => {
-    const {dependantItems, excludedDependantItemsIds} = $publishDialog.get();
+    const {excludedDependantItemsIds} = $publishDialog.get();
+    const dependantItems = $publishDialogDependants.get();
     const dependantItemsIds = dependantItems.map(item => item.getContentId());
     const inProgressDependantIds = $publishChecks.get().inProgressIds.filter(id => hasContentIdInIds(id, dependantItemsIds));
     const newExcludedDependantItemsIds = uniqueIds([...excludedDependantItemsIds, ...inProgressDependantIds]);
@@ -385,7 +397,8 @@ export const excludeInProgressPublishItems = (): void => {
 };
 
 export const excludeInvalidPublishItems = (): void => {
-    const {dependantItems, excludedDependantItemsIds} = $publishDialog.get();
+    const {excludedDependantItemsIds} = $publishDialog.get();
+    const dependantItems = $publishDialogDependants.get();
     const dependantItemsIds = dependantItems.map(item => item.getContentId());
     const invalidDependantIds = $publishChecks.get().invalidIds.filter(id => hasContentIdInIds(id, dependantItemsIds));
     const newExcludedDependantItemsIds = uniqueIds([...excludedDependantItemsIds, ...invalidDependantIds]);
@@ -395,7 +408,8 @@ export const excludeInvalidPublishItems = (): void => {
 };
 
 export const excludeNotPublishablePublishItems = (): void => {
-    const {dependantItems, excludedDependantItemsIds} = $publishDialog.get();
+    const {excludedDependantItemsIds} = $publishDialog.get();
+    const dependantItems = $publishDialogDependants.get();
     const dependantItemsIds = dependantItems.map(item => item.getContentId());
     const notPublishableDependantIds = $publishChecks.get().notPublishableIds.filter(id => hasContentIdInIds(id, dependantItemsIds));
     const newExcludedDependantItemsIds = uniqueIds([...excludedDependantItemsIds, ...notPublishableDependantIds]);
@@ -443,7 +457,8 @@ const isDialogActive = (): boolean => {
 
 /** Remove items by IDs from both main items and dependant items */
 const removeItemsByIds = (idsToRemove: Set<string>): {removedMain: boolean; removedDependant: boolean} => {
-    const {items, dependantItems} = $publishDialog.get();
+    const {items} = $publishDialog.get();
+    const dependantItems = $publishDialogDependants.get();
 
     const newItems = items.filter(item => !idsToRemove.has(item.getId()));
     const newDependantItems = dependantItems.filter(item => !idsToRemove.has(item.getId()));
@@ -455,7 +470,7 @@ const removeItemsByIds = (idsToRemove: Set<string>): {removedMain: boolean; remo
         $publishDialog.setKey('items', newItems);
     }
     if (removedDependant) {
-        $publishDialog.setKey('dependantItems', newDependantItems);
+        $publishDialogDependants.set(newDependantItems);
     }
 
     return {removedMain, removedDependant};
@@ -478,12 +493,34 @@ const patchItemsWithUpdates = (updates: ContentSummaryAndCompareStatus[]): boole
 // * Internal Subscriptions
 //
 
-// Reload data when dialog opens
-$publishDialog.subscribe(({open}, oldState) => {
+// Reload data when dialog opens OR exclusions change
+$publishDialog.subscribe((state, oldState) => {
+    const {open, excludedItemsIds, excludedItemsWithChildrenIds, excludedDependantItemsIds} = state;
     const wasOpen = !!oldState?.open;
     const {loading} = $publishChecks.get();
-    if (!open || wasOpen || loading) return;
-    reloadPublishDialogData();
+
+    if (!open) {
+        return;
+    }
+
+    // Initial open - always reload
+    if (!wasOpen) {
+        reloadPublishDialogData();
+        return;
+    }
+
+    // Already loading - skip
+    if (loading) return;
+
+    // Check if exclusions changed since last resolve
+    const exclusionsChanged =
+        !isIdsEqual(excludedItemsIds, oldState?.excludedItemsIds) ||
+        !isIdsEqual(excludedItemsWithChildrenIds, oldState?.excludedItemsWithChildrenIds) ||
+        !isIdsEqual(excludedDependantItemsIds, oldState?.excludedDependantItemsIds);
+
+    if (exclusionsChanged) {
+        reloadPublishDialogDataDebounced();
+    }
 });
 
 //
@@ -502,7 +539,7 @@ $contentCreated.subscribe((event) => {
 $contentUpdated.subscribe((event) => {
     if (!event || !isDialogActive()) return;
 
-    const {dependantItems} = $publishDialog.get();
+    const dependantItems = $publishDialogDependants.get();
     const updatedIds = new Set(event.data.map(item => item.getId()));
 
     // Patch main items immutably
