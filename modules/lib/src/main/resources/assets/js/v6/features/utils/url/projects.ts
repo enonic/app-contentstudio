@@ -1,9 +1,9 @@
-import {UrlHelper} from '../../../../app/util/UrlHelper';
+import {getCmsRestUri} from './cms';
 
 export function resolveProjectIconUrl(projectName: string | undefined | null): string | undefined {
     if (projectName == null) {
         return undefined;
     }
 
-    return `${UrlHelper.getCmsRestUri('project/icon/')}${encodeURIComponent(projectName)}`;
+    return `${getCmsRestUri('project/icon/')}${encodeURIComponent(projectName)}`;
 }

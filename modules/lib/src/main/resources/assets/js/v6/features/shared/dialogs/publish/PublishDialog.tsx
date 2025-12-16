@@ -96,7 +96,7 @@ export const PublishDialog = (): ReactElement => {
 
                     <Dialog.Body className="flex flex-col gap-y-10">
                         <ul className='flex flex-col gap-y-2.5'>
-                            {mainItems.map(({id, content, included, childrenIncluded, required}) => {
+                            {mainItems.map(({id, content, included, childrenIncluded, required, hasUnpublishedChildren}) => {
                                 return <ContentListItemWithChildren
                                     key={id}
                                     id={`main-${id}`}
@@ -106,6 +106,7 @@ export const PublishDialog = (): ReactElement => {
                                     defaultIncludeChildren={childrenIncluded}
                                     onIncludeChildrenChange={(enabled) => setPublishDialogItemWithChildrenSelected(content.getContentId(), enabled)}
                                     readOnly={required || loading}
+                                    showIncludeChildren={hasUnpublishedChildren}
                                 />;
                             })}
                         </ul>
