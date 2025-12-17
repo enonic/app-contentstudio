@@ -11,7 +11,7 @@ export async function resolveDependencies(
     contentIds: ContentId[],
     target: Branch = Branch.DRAFT
 ): Promise<ResolveDependenciesResult> {
-    const url = getCmsApiUrl('content/content/getDependencies');
+    const url = getCmsApiUrl('getDependencies');
 
     const payload = {
         contentIds: contentIds.map(id => id.toString()),

@@ -4,14 +4,14 @@ import {useEffect, useState, type ReactElement} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {
     $isUnpublishTargetSite,
-    $unpublishDialog, $unpublishItemsCount,
+    $unpublishDialog,
+    $unpublishItemsCount,
     cancelUnpublishDialog,
     confirmUnpublishAction
 } from '../../../store/dialogs/unpublishDialog.store';
 import {DialogPresetGatedConfirmContent} from '../DialogPreset';
 import {UnpublishDialogMainContent} from './UnpublishDialogMainContent';
-import {$progressValue} from '../../../store/dialogs/progress.store';
-import {ProgressDialog} from '../ProgressDialog';
+import {UnpublishDialogProgressContent} from './UnpublishDialogProgressContent';
 
 type View = 'main' | 'confirmation' | 'progress';
 
@@ -45,7 +45,7 @@ export const UnpublishDialog = (): ReactElement => {
         }
     };
 
-    const handleUnpublish =  () => {
+    const handleUnpublish = () => {
         if (total > 1 || hasSite) {
             setView('confirmation');
             return;
@@ -65,7 +65,6 @@ export const UnpublishDialog = (): ReactElement => {
         <Dialog.Root open={open} onOpenChange={handleOpenChange}>
             <Dialog.Portal>
                 <Dialog.Overlay />
-
                 {view === 'main' &&
                     <UnpublishDialogMainContent onUnpublish={() => void handleUnpublish()} />
                 }
@@ -79,7 +78,7 @@ export const UnpublishDialog = (): ReactElement => {
                     onCancel={resetView}
                 />}
                 {view === 'progress' &&
-                    <UnpublishProgressView
+                    <UnpublishDialogProgressContent
                         total={total || items.length || 1}
                     />
                 }
@@ -89,19 +88,3 @@ export const UnpublishDialog = (): ReactElement => {
 };
 
 UnpublishDialog.displayName = UNPUBLISH_DIALOG_NAME;
-
-type UnpublishProgressViewProps = {
-    total: number;
-};
-
-const UnpublishProgressView = ({total}: UnpublishProgressViewProps): ReactElement => {
-    const progress = useStore($progressValue);
-
-    return (
-        <ProgressDialog
-            title={useI18n('dialog.unpublish')}
-            description={useI18n('dialog.unpublish.beingUnpublished', total)}
-            progress={progress}
-        />
-    );
-};

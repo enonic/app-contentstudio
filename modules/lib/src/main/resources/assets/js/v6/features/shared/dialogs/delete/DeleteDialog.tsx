@@ -4,39 +4,19 @@ import {useEffect, useState, type ReactElement} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {
     $deleteDialog,
-    $isDeleteDialogReady,
     $deleteItemsCount,
     $isDeleteTargetSite,
     cancelDeleteDialog,
     executeDeleteDialogAction,
-    type DeleteAction,
+    type DeleteAction
 } from '../../../store/dialogs/deleteDialog.store';
 import {DialogPresetGatedConfirmContent} from '../DialogPreset';
 import {DeleteDialogMainContent} from './DeleteDialogMainContent';
-import {ProgressDialog} from '../ProgressDialog';
-import {$progressValue} from '../../../store/dialogs/progress.store';
+import {DeleteDialogProgressContent} from './DeleteDialogProgressContent';
 
 type View = 'main' | 'confirmation' | 'progress';
 
 const DELETE_DIALOG_NAME = 'DeleteDialog';
-
-type DeleteProgressViewProps = {
-    title: string;
-    description: string;
-};
-
-const DeleteProgressView = ({title, description}: DeleteProgressViewProps): ReactElement => {
-    const progress = useStore($progressValue);
-
-    return (
-        <ProgressDialog
-            title={title}
-            description={description}
-            progress={progress}
-            contentClassName="w-full h-full gap-10 sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220"
-        />
-    );
-};
 
 export const DeleteDialog = (): ReactElement => {
     const {
@@ -57,14 +37,12 @@ export const DeleteDialog = (): ReactElement => {
     const confirmDeleteDescription = useI18n('dialog.confirmDelete.subname');
     const confirmArchiveTitle = useI18n('dialog.confirmArchive');
     const confirmArchiveDescription = useI18n('dialog.confirmArchive.subname');
-    const progressTitle = (pendingAction ?? confirmAction) === 'archive' ? useI18n('dialog.archive.progress.title') : useI18n('dialog.delete.progress.title');
-    const progressCount = Math.max(1, pendingTotal || total || 1);
-    const progressDescription = (pendingAction ?? confirmAction) === 'archive'
-        ? useI18n('dialog.archiving', progressCount)
-        : useI18n('dialog.deleting', progressCount);
 
     const confirmTitle = confirmAction === 'archive' ? confirmArchiveTitle : confirmDeleteTitle;
     const confirmDescription = confirmAction === 'archive' ? confirmArchiveDescription : confirmDeleteDescription;
+
+    const progressAction = pendingAction ?? confirmAction;
+    const progressTotal = Math.max(1, pendingTotal || total || 1);
 
     const resetView = () => {
         setConfirmAction('delete');
@@ -126,14 +104,6 @@ export const DeleteDialog = (): ReactElement => {
         <Dialog.Root open={open} onOpenChange={handleOpenChange}>
             <Dialog.Portal>
                 <Dialog.Overlay />
-
-                {view === 'progress' && (
-                    <DeleteProgressView
-                        title={progressTitle}
-                        description={progressDescription}
-                    />
-                )}
-
                 {view === 'main' &&
                     <DeleteDialogMainContent
                         onDelete={() => void handleDelete()}
@@ -148,6 +118,12 @@ export const DeleteDialog = (): ReactElement => {
                     onConfirm={() => void handleConfirm()}
                     onCancel={resetView}
                 />}
+                {view === 'progress' && (
+                    <DeleteDialogProgressContent
+                        action={progressAction}
+                        total={progressTotal}
+                    />
+                )}
             </Dialog.Portal>
         </Dialog.Root>
     );

@@ -15,7 +15,7 @@ type HasUnpublishedChildrenListJson = {
  * Returns a Map of content ID to hasUnpublishedChildren boolean.
  */
 export async function hasUnpublishedChildren(contentIds: ContentId[]): Promise<Map<string, boolean>> {
-    const url = getCmsApiUrl('content/content/hasUnpublishedChildren');
+    const url = getCmsApiUrl('hasUnpublishedChildren');
 
     const payload = {
         contentIds: contentIds.map(id => id.toString()),

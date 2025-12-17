@@ -22,6 +22,7 @@ export const VersionsList = (): ReactElement => {
     const content = useStore($contextContent);
 
     const loadingLabel = useI18n('widget.versions.loading');
+    const noVersionsLabel = useI18n('widget.versions.noVersions');
 
     const [moreToLoad, setMoreToLoad] = useState(true);
     const [offset, setOffset] = useState(0);
@@ -97,7 +98,7 @@ export const VersionsList = (): ReactElement => {
     if (Object.keys(versionsByDate).length === 0) {
         return (
             <div className='text-center text-subtle'>
-                {useI18n('widget.versions.noVersions')}
+                {noVersionsLabel}
             </div>
         );
     }

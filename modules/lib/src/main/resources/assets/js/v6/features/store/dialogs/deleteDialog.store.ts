@@ -7,7 +7,6 @@ import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {TaskInfo} from '@enonic/lib-admin-ui/task/TaskInfo';
 import {clampProgress} from '../../utils/cms/content/progress';
-import {startProgress, completeProgress, resetProgress, updateProgress} from './progress.store';
 import {ContentId} from '../../../../app/content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import {ContentServerChangeItem} from '../../../../app/event/ContentServerChangeItem';
@@ -50,6 +49,8 @@ type DeleteDialogStore = {
     pendingIds: string[];
     pendingTotal: number;
     pendingPrimaryName?: string;
+    // Progress bar
+    progressValue: number;
 };
 
 const initialState: DeleteDialogStore = {
@@ -65,6 +66,7 @@ const initialState: DeleteDialogStore = {
     taskProgress: undefined,
     pendingIds: [],
     pendingTotal: 0,
+    progressValue: 0,
 };
 
 export const $deleteDialog = map<DeleteDialogStore>(structuredClone(initialState));
@@ -105,6 +107,28 @@ export const $isDeleteDialogReady = computed([$deleteDialog, $isDeleteBlockedByI
 let instanceId = 0;
 let deleteTaskHandler: ((event: TaskEvent) => void) | undefined;
 let deleteCompletionTimeout: ReturnType<typeof setTimeout> | undefined;
+let deleteProgressInterval: ReturnType<typeof setInterval> | undefined;
+
+const clearDeleteProgressInterval = (): void => {
+    if (deleteProgressInterval) {
+        clearInterval(deleteProgressInterval);
+        deleteProgressInterval = undefined;
+    }
+};
+
+const startDeleteProgressSimulation = (): void => {
+    clearDeleteProgressInterval();
+    $deleteDialog.setKey('progressValue', 0);
+    deleteProgressInterval = setInterval(() => {
+        const {progressValue, submitting} = $deleteDialog.get();
+        if (!submitting || progressValue >= 95) {
+            return;
+        }
+        // Gentle curve: moderate initial growth, slowing down near the end
+        const increment = Math.max(1, Math.round(Math.cbrt(95 - progressValue) * 1.5));
+        $deleteDialog.setKey('progressValue', Math.min(95, progressValue + increment));
+    }, 350);
+};
 
 //
 // * Helpers
@@ -137,7 +161,7 @@ export const openDeleteDialog = (items: ContentSummaryAndCompareStatus[]): void 
         return;
     }
 
-    resetProgress();
+    clearDeleteProgressInterval();
     $deleteDialog.set({
         ...structuredClone(initialState),
         open: true,
@@ -164,8 +188,8 @@ export const resetDeleteDialogContext = (): void => {
         clearTimeout(deleteCompletionTimeout);
         deleteCompletionTimeout = undefined;
     }
+    clearDeleteProgressInterval();
     $deleteDialog.set(structuredClone(initialState));
-    resetProgress();
 };
 
 // TODO: Wire up archive message input in the dialog after design is ready
@@ -176,6 +200,8 @@ export const setDeleteArchiveMessage = (message: string): void => {
 export const ignoreDeleteInboundDependencies = (): void => {
     $deleteDialog.setKey('inboundIgnored', true);
 };
+
+export const $deleteProgressValue = computed($deleteDialog, ({progressValue}) => clampProgress(progressValue));
 
 export const $deleteProgress = computed($deleteDialog, ({pendingIds, pendingTotal, submitting, taskProgress}): number => {
     if (!submitting) {
@@ -210,7 +236,7 @@ export const executeDeleteDialogAction = async (action: DeleteAction): Promise<b
         : buildDeleteRequest(state.items);
 
     try {
-        startProgress();
+        startDeleteProgressSimulation();
         $deleteDialog.set({
             ...state,
             submitting: true,
@@ -219,6 +245,7 @@ export const executeDeleteDialogAction = async (action: DeleteAction): Promise<b
             pendingIds,
             pendingTotal: totalCount || state.items.length,
             pendingPrimaryName,
+            progressValue: 0,
         });
 
         const taskId = await request.sendAndParse();
@@ -226,6 +253,7 @@ export const executeDeleteDialogAction = async (action: DeleteAction): Promise<b
         return true;
     } catch (error) {
         showError(error?.message ?? String(error));
+        clearDeleteProgressInterval();
         $deleteDialog.set({
             ...$deleteDialog.get(),
             submitting: false,
@@ -233,11 +261,9 @@ export const executeDeleteDialogAction = async (action: DeleteAction): Promise<b
             pendingAction: undefined,
             pendingIds: [],
             pendingTotal: 0,
+            progressValue: 0,
         });
-        resetProgress();
         return false;
-    } finally {
-        // resetProgress();
     }
 };
 
@@ -339,8 +365,9 @@ const trackDeleteTask = (taskId: TaskId): void => {
 
     const handleTaskInfo = (taskInfo: TaskInfo): void => {
         if (taskInfo.getState() === TaskState.FINISHED) {
+            clearDeleteProgressInterval();
             $deleteDialog.setKey('taskProgress', 100);
-            completeProgress();
+            $deleteDialog.setKey('progressValue', 100);
             if (deleteTaskHandler) { TaskEvent.un(deleteTaskHandler); deleteTaskHandler = undefined; }
             if ($deleteDialog.get().pendingIds.length === 0) {
                 deleteCompletionTimeout = setTimeout(() => {
@@ -353,6 +380,7 @@ const trackDeleteTask = (taskId: TaskId): void => {
         }
 
         if (taskInfo.getState() === TaskState.FAILED) {
+            clearDeleteProgressInterval();
             $deleteDialog.set({
                 ...$deleteDialog.get(),
                 submitting: false,
@@ -360,6 +388,7 @@ const trackDeleteTask = (taskId: TaskId): void => {
                 pendingAction: undefined,
                 pendingIds: [],
                 pendingTotal: 0,
+                progressValue: 0,
             });
             if (deleteTaskHandler) {
                 TaskEvent.un(deleteTaskHandler);
@@ -375,7 +404,6 @@ const trackDeleteTask = (taskId: TaskId): void => {
 
         const nextProgress = clampProgress(taskInfo.getProgressPercentage());
         $deleteDialog.setKey('taskProgress', nextProgress);
-        updateProgress(nextProgress);
     };
 
     deleteTaskHandler = (event) => {
@@ -425,6 +453,8 @@ const handleCompletionEvent = (changeItems: ContentServerChangeItem[], kind: Del
 
     const remaining = pendingIds.filter(id => !ids.has(id));
     if (remaining.length === 0) {
+        clearDeleteProgressInterval();
+        $deleteDialog.setKey('progressValue', 100);
         const total = state.pendingTotal || pendingIds.length;
         if (pendingAction === 'archive') {
             const message = total > 1
