@@ -1,7 +1,7 @@
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {Button, Checkbox, cn, IconButton} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {PenLine, X} from 'lucide-react';
+import {PenLine} from 'lucide-react';
 import {TargetedMouseEvent} from 'preact';
 import {ComponentPropsWithoutRef} from 'preact/compat';
 import {useCallback, useMemo, useRef} from 'react';
@@ -31,6 +31,10 @@ export const VersionsListItem = ({version, className, ...props}: VersionItemProp
     const isSelectionModeOn = useStore($selectionModeOn);
     const activeVersionId = useStore($activeVersionId);
 
+    const byLabel = useI18n('field.version.by', getVersionUser(version));
+    const revertLabel = useI18n('field.version.revert');
+    const compareLabel = useI18n('field.version.compare');
+
     const checkBoxDivRef = useRef<HTMLDivElement>(null);
 
     const isSelected = useMemo(() => {
@@ -56,63 +60,63 @@ export const VersionsListItem = ({version, className, ...props}: VersionItemProp
 
     return (
         <div key={version.getId()}
-             data-component={COMPONENT_NAME}
-             className={cn(
-                 'p-2.5 flex flex-col gap-5 hover:bg-surface-neutral-hover cursor-pointer',
-                 isExpanded && 'shadow-sm shadow-btn-tertiary-hover',
-                 className)}
-             onClick={toggleExpand}
-             {...props}>
+            data-component={COMPONENT_NAME}
+            className={cn(
+                'p-2.5 flex flex-col gap-5 hover:bg-surface-neutral-hover cursor-pointer',
+                isExpanded && 'shadow-sm shadow-btn-tertiary-hover',
+                className)}
+            onClick={toggleExpand}
+            {...props}>
             <div className='w-full flex gap-2'>
                 <div className='flex flex-col justify-start grow'>
                     <div className='flex gap-1'>
-                                                <span className='shrink-0 text-sm'>{DateHelper.getFormattedTimeFromDate(
-                                                    version.getTimestamp())}</span>
+                        <span className='shrink-0 text-sm'>{DateHelper.getFormattedTimeFromDate(
+                            version.getTimestamp())}</span>
                         <span className='text-bdr-soft text-sm'>|</span>
                         <span className='text-sm'>{getOperationLabel(version)}</span>
                     </div>
-                    <div className='text-xs'>{useI18n('field.version.by', getVersionUser(version))}</div>
+                    <div className='text-xs'>{byLabel}</div>
                 </div>
                 <VersionsListItemPublishStatus version={version} />
                 {
                     activeVersionId === version.getId() && (
-                                        <IconButton icon={PenLine} size={'sm'} onClick={openContextContentForEdit} className='shrink-0 w-4 bg-transparent'/>
-                                    )
+                        <IconButton icon={PenLine} size={'sm'} onClick={openContextContentForEdit} className='shrink-0 w-4 bg-transparent' />
+                    )
                 }
                 {
                     isSelectionModeOn && !isExpanded && (
-                                          <div ref={checkBoxDivRef} className='flex items-center'>
-                                              <Checkbox
-                                                  checked={isSelected}
-                                                  onCheckedChange={toggleSelection}
-                                              />
-                                          </div>
-                                      )
+                        <div ref={checkBoxDivRef} className='flex items-center'>
+                            <Checkbox
+                                checked={isSelected}
+                                onCheckedChange={toggleSelection}
+                            />
+                        </div>
+                    )
                 }
 
             </div>
             {
                 isExpanded && (
-                               <div className='w-full flex flex-col gap-5'>
-                                   <div className='flex'>
-                                       <Button
-                                           label={useI18n('field.version.revert')}
-                                           size='sm'
-                                           variant='solid'
-                                           onClick={handleRestoreClick}
-                                       />
-                                       <div ref={checkBoxDivRef} className={'flex grow items-center justify-end'}>
-                                           <Checkbox
-                                               className='text-sm'
-                                               label={useI18n('field.version.compare')}
-                                               checked={isSelected}
-                                               onCheckedChange={toggleSelection}
-                                               align='right'/>
-                                       </div>
+                    <div className='w-full flex flex-col gap-5'>
+                        <div className='flex'>
+                            <Button
+                                label={revertLabel}
+                                size='sm'
+                                variant='solid'
+                                onClick={handleRestoreClick}
+                            />
+                            <div ref={checkBoxDivRef} className={'flex grow items-center justify-end'}>
+                                <Checkbox
+                                    className='text-sm'
+                                    label={compareLabel}
+                                    checked={isSelected}
+                                    onCheckedChange={toggleSelection}
+                                    align='right' />
+                            </div>
 
-                                   </div>
-                               </div>
-                           )}
+                        </div>
+                    </div>
+                )}
         </div>
     );
 }

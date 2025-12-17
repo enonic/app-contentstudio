@@ -11,11 +11,12 @@ export type VersionsListItemPublishStatusProps = {
 
 export const VersionsListItemPublishStatus = ({version}: VersionsListItemPublishStatusProps): React.ReactElement => {
     const publishStatus = useMemo(() => getVersionPublishStatus(version), [version]);
+    const onlineLabel = useI18n('status.online');
 
     if (publishStatus === 'online') {
         return (
             <div className='text-sm flex items-center text-success'>
-                {useI18n('status.online')}
+                {onlineLabel}
             </div>
         );
     }

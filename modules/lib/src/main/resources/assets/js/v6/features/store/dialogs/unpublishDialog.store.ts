@@ -1,16 +1,15 @@
-import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {computed, map} from 'nanostores';
-import {showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import {ContentId} from '../../../../app/content/ContentId';
-import {ContentSummaryAndCompareStatusFetcher} from '../../../../app/resource/ContentSummaryAndCompareStatusFetcher';
-import {ResolveUnpublishRequest} from '../../../../app/resource/ResolveUnpublishRequest';
-import {UnpublishContentRequest} from '../../../../app/resource/UnpublishContentRequest';
-import {$contentArchived, $contentCreated, $contentDeleted, $contentUnpublished, $contentUpdated} from '../socket.store';
-import {createDebounce} from '../../utils/timing/createDebounce';
+import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import {fetchContentSummariesWithStatus} from '../../api/content';
+import {resolveUnpublish, unpublishContent} from '../../api/unpublish';
+import {hasContentIdInIds} from '../../utils/cms/content/ids';
+import {clampProgress} from '../../utils/cms/content/progress';
 import {sortDependantsByInbound} from '../../utils/cms/content/sortDependants';
-import {completeProgress, resetProgress, startProgress} from './progress.store';
+import {createDebounce} from '../../utils/timing/createDebounce';
+import {$contentArchived, $contentCreated, $contentDeleted, $contentUnpublished, $contentUpdated} from '../socket.store';
 
 //
 // * Store state
@@ -24,6 +23,7 @@ type UnpublishDialogStore = {
     dependants: ContentSummaryAndCompareStatus[];
     inboundTargets: ContentId[];
     inboundIgnored: boolean;
+    referenceIds: string[]; // IDs of content that references items/dependants (for change detection)
 };
 
 type UnpublishDialogPendingStore = {
@@ -31,6 +31,7 @@ type UnpublishDialogPendingStore = {
     pendingIds: string[];
     pendingTotal: number;
     pendingPrimaryName?: string;
+    progressValue: number;
 };
 
 // Initial state snapshot for reset
@@ -42,6 +43,7 @@ const initialState: UnpublishDialogStore = {
     dependants: [],
     inboundTargets: [],
     inboundIgnored: true,
+    referenceIds: [],
 };
 
 const initialPendingState: UnpublishDialogPendingStore = {
@@ -49,6 +51,7 @@ const initialPendingState: UnpublishDialogPendingStore = {
     pendingIds: [],
     pendingTotal: 0,
     pendingPrimaryName: undefined,
+    progressValue: 0,
 };
 
 export const $unpublishDialog = map<UnpublishDialogStore>(structuredClone(initialState));
@@ -74,20 +77,32 @@ export const $isUnpublishDialogReady = computed([$unpublishDialog, $unpublishDia
     return state.open && !state.loading && !state.failed && !pending.submitting && state.items.length > 0 && !hasInbound;
 });
 
-export const $unpublishProgress = computed($unpublishDialogPending, ({pendingIds, pendingTotal, submitting}) => {
-    if (!submitting) {
-        return 0;
-    }
-    const total = pendingTotal || pendingIds.length;
-    if (total === 0) {
-        return 0;
-    }
-    const completed = Math.max(0, total - pendingIds.length);
-    return Math.min(100, Math.max(0, Math.round((completed / total) * 100)));
-});
+export const $unpublishProgress = computed($unpublishDialogPending, ({progressValue}) => clampProgress(progressValue));
 
 // ! Guards against stale async results (increment on each dialog lifecycle)
 let instanceId = 0;
+let unpublishProgressInterval: ReturnType<typeof setInterval> | undefined;
+
+const clearUnpublishProgressInterval = (): void => {
+    if (unpublishProgressInterval) {
+        clearInterval(unpublishProgressInterval);
+        unpublishProgressInterval = undefined;
+    }
+};
+
+const startUnpublishProgressSimulation = (): void => {
+    clearUnpublishProgressInterval();
+    $unpublishDialogPending.setKey('progressValue', 0);
+    unpublishProgressInterval = setInterval(() => {
+        const {progressValue, submitting} = $unpublishDialogPending.get();
+        if (!submitting || progressValue >= 95) {
+            return;
+        }
+        // Gentle curve: moderate initial growth, slowing down near the end
+        const increment = Math.max(1, Math.round(Math.cbrt(95 - progressValue) * 1.5));
+        $unpublishDialogPending.setKey('progressValue', Math.min(95, progressValue + increment));
+    }, 350);
+};
 
 //
 // * Helpers
@@ -96,13 +111,6 @@ let instanceId = 0;
 const getAllTargetIds = (): ContentId[] => {
     const {items, dependants} = $unpublishDialog.get();
     return [...items, ...dependants].map(item => item.getContentId());
-};
-
-const buildUnpublishRequest = (items: ContentSummaryAndCompareStatus[]): UnpublishContentRequest => {
-    const request = new UnpublishContentRequest();
-    request.setIncludeChildren(true);
-    items.forEach(item => request.addId(item.getContentId()));
-    return request;
 };
 
 //
@@ -114,7 +122,7 @@ export const openUnpublishDialog = (items: ContentSummaryAndCompareStatus[]): vo
         return;
     }
 
-    resetProgress();
+    clearUnpublishProgressInterval();
     $unpublishDialog.set({
         ...structuredClone(initialState),
         open: true,
@@ -135,9 +143,9 @@ export const cancelUnpublishDialog = (): void => {
 
 export const resetUnpublishDialogContext = (): void => {
     instanceId += 1;
+    clearUnpublishProgressInterval();
     $unpublishDialog.set(initialState);
     $unpublishDialogPending.set(initialPendingState);
-    resetProgress();
 };
 
 export const ignoreUnpublishInboundDependencies = (): void => {
@@ -168,29 +176,25 @@ export const confirmUnpublishAction = async (selectedItems: ContentSummaryAndCom
     const pendingIds = getAllTargetIds().map(id => id.toString());
     const pendingPrimaryName = itemsToUnpublish[0]?.getDisplayName() || itemsToUnpublish[0]?.getPath()?.toString();
     const pendingTotal = $unpublishItemsCount.get() || pendingIds.length;
-    const request = buildUnpublishRequest(itemsToUnpublish);
 
     try {
-        startProgress();
+        startUnpublishProgressSimulation();
         $unpublishDialogPending.set({
             submitting: true,
             pendingIds,
             pendingTotal,
             pendingPrimaryName,
+            progressValue: 0,
         });
-        // $unpublishDialog.setKey('open', false);
 
-        await request.sendAndParse();
-        completeProgress();
-        // $unpublishDialog.setKey('open', false);
+        await unpublishContent(itemsToUnpublish);
         return true;
     } catch (error) {
         showError(error?.message ?? String(error));
+        clearUnpublishProgressInterval();
         $unpublishDialogPending.set(initialPendingState);
         $unpublishDialog.setKey('failed', true);
         return false;
-    } finally {
-        // resetProgress();
     }
 };
 
@@ -211,13 +215,14 @@ const reloadUnpublishDialogData = async (): Promise<void> => {
 
     try {
         const ids = items.map(item => item.getContentId());
-        const {dependants, inboundTargets} = await resolveAllDependantsAndInbound(currentInstance, ids);
+        const {dependants, inboundTargets, referenceIds} = await resolveAllDependantsAndInbound(currentInstance, ids);
 
         $unpublishDialog.set({
             ...$unpublishDialog.get(),
             dependants: sortDependantsByInbound(dependants, inboundTargets),
             inboundTargets,
             inboundIgnored: inboundTargets.length === 0,
+            referenceIds,
             loading: false,
             failed: false,
         });
@@ -238,46 +243,29 @@ const reloadUnpublishDialogDataDebounced = createDebounce(() => {
     void reloadUnpublishDialogData();
 }, 100);
 
-const resolveAllDependantsAndInbound = async (currentInstance: number, roots: ContentId[]): Promise<{dependants: ContentSummaryAndCompareStatus[]; inboundTargets: ContentId[]}> => {
-    const visited = new Set<string>(roots.map(id => id.toString()));
-    const queue: ContentId[] = [...roots];
-    const dependantIds: ContentId[] = [];
-    const inboundTargets = new Set<string>();
+const resolveAllDependantsAndInbound = async (currentInstance: number, roots: ContentId[]): Promise<{dependants: ContentSummaryAndCompareStatus[]; inboundTargets: ContentId[]; referenceIds: string[]}> => {
+    const result = await resolveUnpublish(roots);
 
-    while (queue.length > 0) {
-        const batch = queue.splice(0);
-        const result = await new ResolveUnpublishRequest(batch).sendAndParse();
-        if (currentInstance !== instanceId) {
-            return {dependants: [], inboundTargets: []};
-        }
-
-        // Collect dependants returned for this batch
-        result.getContentIds()
-            .filter(id => !visited.has(id.toString()))
-            .forEach(id => {
-                visited.add(id.toString());
-                dependantIds.push(id);
-                queue.push(id);
-            });
-
-        // Flag any item (root or dependant) that has inbound deps
-        result.getInboundDependencies().forEach(dep => {
-            inboundTargets.add(dep.getId().toString());
-        });
+    if (currentInstance !== instanceId || !result) {
+        return {dependants: [], inboundTargets: [], referenceIds: []};
     }
 
-    const dependants = dependantIds.length > 0
-        ? await new ContentSummaryAndCompareStatusFetcher().fetchAndCompareStatus(dependantIds)
-        : [];
+    // Filter out root IDs from dependants
+    const dependantIds = result.contentIds.filter(id => !hasContentIdInIds(id, roots));
+    const dependants = await fetchContentSummariesWithStatus(dependantIds);
 
     if (currentInstance !== instanceId) {
-        return {dependants: [], inboundTargets: []};
+        return {dependants: [], inboundTargets: [], referenceIds: []};
     }
 
-    return {
-        dependants,
-        inboundTargets: Array.from(inboundTargets).map(id => new ContentId(id)),
-    };
+    const inboundTargets = result.inboundDependencies.map(dep => dep.id);
+
+    // Extract IDs of content that references items (for change detection)
+    const referenceIds = result.inboundDependencies.flatMap(dep =>
+        dep.inboundDependencies.map(id => id.toString())
+    );
+
+    return {dependants, inboundTargets, referenceIds};
 };
 
 //
@@ -353,6 +341,8 @@ const handleCompletionEvent = (changeItems: ContentSummaryAndCompareStatus[]): v
 
     const remaining = pendingIds.filter(id => !ids.has(id));
     if (remaining.length === 0) {
+        clearUnpublishProgressInterval();
+        $unpublishDialogPending.setKey('progressValue', 100);
         const total = pendingTotal || pendingIds.length;
         const message = total > 1
             ? i18n('dialog.unpublish.success.multiple', total)
@@ -389,8 +379,15 @@ $contentUpdated.subscribe((event) => {
         return;
     }
 
+    const {referenceIds} = $unpublishDialog.get();
+    const updatedIds = new Set(event.data.map(item => item.getId()));
+
     const {patchedMain, patchedDependants} = patchItemsWithUpdates(event.data);
-    if (patchedMain || patchedDependants) {
+
+    // Check if referencing content was updated (might have removed reference)
+    const referenceUpdated = referenceIds.some(id => updatedIds.has(id));
+
+    if (patchedMain || patchedDependants || referenceUpdated) {
         reloadUnpublishDialogDataDebounced();
     }
 });
@@ -418,6 +415,7 @@ $contentDeleted.subscribe((event) => {
         return;
     }
 
+    const {referenceIds} = $unpublishDialog.get();
     const deletedIds = new Set(event.data.map(item => item.getContentId().toString()));
     const {removedMain, removedDependant} = removeItemsByIds(deletedIds);
 
@@ -426,7 +424,10 @@ $contentDeleted.subscribe((event) => {
         return;
     }
 
-    if (removedMain || removedDependant) {
+    // Check if referencing content was deleted (removes reference)
+    const referenceDeleted = referenceIds.some(id => deletedIds.has(id));
+
+    if (removedMain || removedDependant || referenceDeleted) {
         reloadUnpublishDialogDataDebounced();
     }
 });

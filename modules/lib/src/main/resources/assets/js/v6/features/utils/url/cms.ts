@@ -20,7 +20,7 @@ function joinPath(...paths: string[]): string {
  */
 export function getCmsPath(endpoint: string, projectName?: string): string {
     const project = projectName ?? $projects.get().activeProjectId ?? '';
-    return `cms/${project}/${endpoint}`;
+    return `cms/${project}/content/content/${endpoint}`;
 }
 
 /**
