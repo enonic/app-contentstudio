@@ -1,15 +1,13 @@
-import {useStore} from '@nanostores/preact';
 import {type ReactElement} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
-import {$unpublishProgress} from '../../../store/dialogs/unpublishDialog.store';
 import {ProgressDialogContent} from '../ProgressDialogContent';
 
 type UnpublishDialogProgressContentProps = {
     total: number;
+    progress: number;
 };
 
-export const UnpublishDialogProgressContent = ({total}: UnpublishDialogProgressContentProps): ReactElement => {
-    const progress = useStore($unpublishProgress);
+export const UnpublishDialogProgressContent = ({total, progress}: UnpublishDialogProgressContentProps): ReactElement => {
     const title = useI18n('dialog.unpublish');
     const description = useI18n('dialog.unpublish.beingUnpublished', total);
 

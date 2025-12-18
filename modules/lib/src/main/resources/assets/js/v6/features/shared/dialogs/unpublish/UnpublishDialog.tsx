@@ -2,10 +2,12 @@ import {Dialog} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {useEffect, useState, type ReactElement} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
+import {useTaskProgress} from '../../../hooks/useTaskProgress';
 import {
     $isUnpublishTargetSite,
     $unpublishDialog,
     $unpublishItemsCount,
+    $unpublishTaskId,
     cancelUnpublishDialog,
     confirmUnpublishAction
 } from '../../../store/dialogs/unpublishDialog.store';
@@ -21,7 +23,8 @@ export const UnpublishDialog = (): ReactElement => {
     const {open, items} = useStore($unpublishDialog, {keys: ['open', 'items']});
     const total = useStore($unpublishItemsCount);
     const hasSite = useStore($isUnpublishTargetSite);
-    // const progress = useStore($progressValue);
+    const taskId = useStore($unpublishTaskId);
+    const {progress} = useTaskProgress(taskId);
 
     const [view, setView] = useState<View>('main');
 
@@ -80,6 +83,7 @@ export const UnpublishDialog = (): ReactElement => {
                 {view === 'progress' &&
                     <UnpublishDialogProgressContent
                         total={total || items.length || 1}
+                        progress={progress}
                     />
                 }
             </Dialog.Portal>

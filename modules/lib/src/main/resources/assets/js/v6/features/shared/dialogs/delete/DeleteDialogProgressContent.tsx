@@ -1,17 +1,15 @@
-import {useStore} from '@nanostores/preact';
 import {type ReactElement} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
-import {$deleteProgressValue, type DeleteAction} from '../../../store/dialogs/deleteDialog.store';
+import type {DeleteAction} from '../../../store/dialogs/deleteDialog.store';
 import {ProgressDialogContent} from '../ProgressDialogContent';
 
 type DeleteDialogProgressContentProps = {
     action: DeleteAction;
     total: number;
+    progress: number;
 };
 
-export const DeleteDialogProgressContent = ({action, total}: DeleteDialogProgressContentProps): ReactElement => {
-    const progress = useStore($deleteProgressValue);
-
+export const DeleteDialogProgressContent = ({action, total, progress}: DeleteDialogProgressContentProps): ReactElement => {
     const archiveTitle = useI18n('dialog.archive.progress.title');
     const deleteTitle = useI18n('dialog.delete.progress.title');
     const archiveDescription = useI18n('dialog.archiving', total);
