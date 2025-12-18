@@ -2,9 +2,11 @@ import {Dialog} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {useEffect, useState, type ReactElement} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
+import {useTaskProgress} from '../../../hooks/useTaskProgress';
 import {
     $deleteDialog,
     $deleteItemsCount,
+    $deleteTaskId,
     $isDeleteTargetSite,
     cancelDeleteDialog,
     executeDeleteDialogAction,
@@ -21,14 +23,13 @@ const DELETE_DIALOG_NAME = 'DeleteDialog';
 export const DeleteDialog = (): ReactElement => {
     const {
         open,
-        // submitting,
         pendingAction,
         pendingTotal,
-    } = useStore($deleteDialog, {keys: ['open', 'submitting', 'pendingAction', 'pendingTotal']});
-    // const ready = useStore($isDeleteDialogReady);
+    } = useStore($deleteDialog, {keys: ['open', 'pendingAction', 'pendingTotal']});
     const total = useStore($deleteItemsCount);
     const hasSite = useStore($isDeleteTargetSite);
-    // const progress = useStore($progressValue);
+    const taskId = useStore($deleteTaskId);
+    const {progress} = useTaskProgress(taskId);
 
     const [confirmAction, setConfirmAction] = useState<DeleteAction>('delete');
     const [view, setView] = useState<View>('main');
@@ -122,6 +123,7 @@ export const DeleteDialog = (): ReactElement => {
                     <DeleteDialogProgressContent
                         action={progressAction}
                         total={progressTotal}
+                        progress={progress}
                     />
                 )}
             </Dialog.Portal>

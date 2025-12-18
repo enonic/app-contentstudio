@@ -1,12 +1,13 @@
 import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
+import type {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {computed, map} from 'nanostores';
 import {ContentId} from '../../../../app/content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import {fetchContentSummariesWithStatus} from '../../api/content';
 import {resolveUnpublish, unpublishContent} from '../../api/unpublish';
+import {trackTask, cleanupTask} from '../../services/task.service';
 import {hasContentIdInIds} from '../../utils/cms/content/ids';
-import {clampProgress} from '../../utils/cms/content/progress';
 import {sortDependantsByInbound} from '../../utils/cms/content/sortDependants';
 import {createDebounce} from '../../utils/timing/createDebounce';
 import {$contentArchived, $contentCreated, $contentDeleted, $contentUnpublished, $contentUpdated} from '../socket.store';
@@ -31,7 +32,7 @@ type UnpublishDialogPendingStore = {
     pendingIds: string[];
     pendingTotal: number;
     pendingPrimaryName?: string;
-    progressValue: number;
+    taskId?: TaskId;
 };
 
 // Initial state snapshot for reset
@@ -51,7 +52,7 @@ const initialPendingState: UnpublishDialogPendingStore = {
     pendingIds: [],
     pendingTotal: 0,
     pendingPrimaryName: undefined,
-    progressValue: 0,
+    taskId: undefined,
 };
 
 export const $unpublishDialog = map<UnpublishDialogStore>(structuredClone(initialState));
@@ -77,32 +78,10 @@ export const $isUnpublishDialogReady = computed([$unpublishDialog, $unpublishDia
     return state.open && !state.loading && !state.failed && !pending.submitting && state.items.length > 0 && !hasInbound;
 });
 
-export const $unpublishProgress = computed($unpublishDialogPending, ({progressValue}) => clampProgress(progressValue));
+export const $unpublishTaskId = computed($unpublishDialogPending, ({taskId}) => taskId);
 
 // ! Guards against stale async results (increment on each dialog lifecycle)
 let instanceId = 0;
-let unpublishProgressInterval: ReturnType<typeof setInterval> | undefined;
-
-const clearUnpublishProgressInterval = (): void => {
-    if (unpublishProgressInterval) {
-        clearInterval(unpublishProgressInterval);
-        unpublishProgressInterval = undefined;
-    }
-};
-
-const startUnpublishProgressSimulation = (): void => {
-    clearUnpublishProgressInterval();
-    $unpublishDialogPending.setKey('progressValue', 0);
-    unpublishProgressInterval = setInterval(() => {
-        const {progressValue, submitting} = $unpublishDialogPending.get();
-        if (!submitting || progressValue >= 95) {
-            return;
-        }
-        // Gentle curve: moderate initial growth, slowing down near the end
-        const increment = Math.max(1, Math.round(Math.cbrt(95 - progressValue) * 1.5));
-        $unpublishDialogPending.setKey('progressValue', Math.min(95, progressValue + increment));
-    }, 350);
-};
 
 //
 // * Helpers
@@ -122,7 +101,6 @@ export const openUnpublishDialog = (items: ContentSummaryAndCompareStatus[]): vo
         return;
     }
 
-    clearUnpublishProgressInterval();
     $unpublishDialog.set({
         ...structuredClone(initialState),
         open: true,
@@ -143,7 +121,10 @@ export const cancelUnpublishDialog = (): void => {
 
 export const resetUnpublishDialogContext = (): void => {
     instanceId += 1;
-    clearUnpublishProgressInterval();
+    const {taskId} = $unpublishDialogPending.get();
+    if (taskId) {
+        cleanupTask(taskId);
+    }
     $unpublishDialog.set(initialState);
     $unpublishDialogPending.set(initialPendingState);
 };
@@ -178,20 +159,34 @@ export const confirmUnpublishAction = async (selectedItems: ContentSummaryAndCom
     const pendingTotal = $unpublishItemsCount.get() || pendingIds.length;
 
     try {
-        startUnpublishProgressSimulation();
+        const taskId = await unpublishContent(itemsToUnpublish);
+
         $unpublishDialogPending.set({
             submitting: true,
             pendingIds,
             pendingTotal,
             pendingPrimaryName,
-            progressValue: 0,
+            taskId,
         });
 
-        await unpublishContent(itemsToUnpublish);
+        trackTask(taskId, {
+            onComplete: (state, message) => {
+                if (state === 'SUCCESS') {
+                    const total = pendingTotal || pendingIds.length;
+                    const successMessage = total > 1
+                        ? i18n('dialog.unpublish.success.multiple', total)
+                        : i18n('dialog.unpublish.success.single', pendingPrimaryName ?? '');
+                    showSuccess(successMessage);
+                } else {
+                    showError(message);
+                }
+                resetUnpublishDialogContext();
+            },
+        });
+
         return true;
     } catch (error) {
         showError(error?.message ?? String(error));
-        clearUnpublishProgressInterval();
         $unpublishDialogPending.set(initialPendingState);
         $unpublishDialog.setKey('failed', true);
         return false;
@@ -317,13 +312,13 @@ const isDialogActive = (): boolean => {
 // * Completion handling
 //
 
-const handleCompletionEvent = (changeItems: ContentSummaryAndCompareStatus[]): void => {
+/** Handles external unpublish events (not triggered by this dialog's action) */
+const handleExternalUnpublishEvent = (changeItems: ContentSummaryAndCompareStatus[]): void => {
     const ids = new Set(changeItems.map(item => item.getContentId().toString()));
     const state = $unpublishDialog.get();
-    const {pendingIds, pendingTotal, pendingPrimaryName} = $unpublishDialogPending.get();
-    const isPendingMatch = pendingIds.length > 0;
 
-    if (state.open) {
+    // If dialog is open but not submitting, update items/dependants
+    if (state.open && !$unpublishDialogPending.get().submitting) {
         const {removedMain, removedDependant} = removeItemsByIds(ids);
         if (removedMain && state.items.length === 0) {
             resetUnpublishDialogContext();
@@ -334,25 +329,6 @@ const handleCompletionEvent = (changeItems: ContentSummaryAndCompareStatus[]): v
             reloadUnpublishDialogDataDebounced();
         }
     }
-
-    if (!isPendingMatch) {
-        return;
-    }
-
-    const remaining = pendingIds.filter(id => !ids.has(id));
-    if (remaining.length === 0) {
-        clearUnpublishProgressInterval();
-        $unpublishDialogPending.setKey('progressValue', 100);
-        const total = pendingTotal || pendingIds.length;
-        const message = total > 1
-            ? i18n('dialog.unpublish.success.multiple', total)
-            : i18n('dialog.unpublish.success.single', pendingPrimaryName ?? '');
-        showSuccess(message);
-        resetUnpublishDialogContext();
-        return;
-    }
-
-    $unpublishDialogPending.setKey('pendingIds', remaining);
 };
 
 //
@@ -436,5 +412,5 @@ $contentUnpublished.subscribe((event) => {
     if (!event) {
         return;
     }
-    handleCompletionEvent(event.data);
+    handleExternalUnpublishEvent(event.data);
 });

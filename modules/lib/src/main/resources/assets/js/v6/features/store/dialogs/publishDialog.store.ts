@@ -1,5 +1,5 @@
 import {showError, showFeedback, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import type {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {atom, computed, map} from 'nanostores';
 import {ContentId} from '../../../../app/content/ContentId';
@@ -10,8 +10,8 @@ import {MarkAsReadyRequest} from '../../../../app/resource/MarkAsReadyRequest';
 import {PublishContentRequest} from '../../../../app/resource/PublishContentRequest';
 import {ResolvePublishDependenciesRequest} from '../../../../app/resource/ResolvePublishDependenciesRequest';
 import {hasUnpublishedChildren} from '../../api/hasUnpublishedChildren';
+import {trackTask, cleanupTask} from '../../services/task.service';
 import {hasContentById, hasContentIdInIds, isIdsEqual, uniqueIds} from '../../utils/cms/content/ids';
-import {clampProgress} from '../../utils/cms/content/progress';
 import {createDebounce} from '../../utils/timing/createDebounce';
 import {$contentArchived, $contentCreated, $contentDeleted, $contentPublished, $contentUpdated} from '../socket.store';
 
@@ -79,7 +79,7 @@ type PublishDialogPendingStore = {
     pendingIds: string[];
     pendingTotal: number;
     pendingPrimaryName?: string;
-    progressValue: number;
+    taskId?: TaskId;
 };
 
 //
@@ -117,7 +117,7 @@ const initialPendingState: PublishDialogPendingStore = {
     pendingIds: [],
     pendingTotal: 0,
     pendingPrimaryName: undefined,
-    progressValue: 0,
+    taskId: undefined,
 };
 
 export const $publishDialog = map<PublishDialogStore>(structuredClone(initialPublishDialogState));
@@ -222,37 +222,11 @@ export const $isPublishReady = computed([$publishChecks, $isPublishSelectionSync
     return synced && !loading && invalidIds.length === 0 && inProgressIds.length === 0 && notPublishableIds.length === 0 && totalPublishableItems > 0;
 });
 
-export const $publishProgress = computed($publishDialogPending, ({progressValue}) => clampProgress(progressValue));
-
-//
-// * Instance Guard
-//
+export const $publishTaskId = computed($publishDialogPending, ({taskId}) => taskId);
 
 // ! ID of the current fetch operation
 // Used to cancel old ongoing fetch operations if the instanceId changes
 let instanceId = 0;
-let publishProgressInterval: ReturnType<typeof setInterval> | undefined;
-
-const clearPublishProgressInterval = (): void => {
-    if (publishProgressInterval) {
-        clearInterval(publishProgressInterval);
-        publishProgressInterval = undefined;
-    }
-};
-
-const startPublishProgressSimulation = (): void => {
-    clearPublishProgressInterval();
-    $publishDialogPending.setKey('progressValue', 0);
-    publishProgressInterval = setInterval(() => {
-        const {progressValue, submitting} = $publishDialogPending.get();
-        if (!submitting || progressValue >= 95) {
-            return;
-        }
-        // Gentle curve: moderate initial growth, slowing down near the end
-        const increment = Math.max(1, Math.round(Math.cbrt(95 - progressValue) * 1.5));
-        $publishDialogPending.setKey('progressValue', Math.min(95, progressValue + increment));
-    }, 350);
-};
 
 //
 // * Public API
@@ -310,7 +284,10 @@ export const openPublishDialogWithState = (items: ContentSummaryAndCompareStatus
 
 export const resetPublishDialogContext = () => {
     instanceId += 1;
-    clearPublishProgressInterval();
+    const {taskId} = $publishDialogPending.get();
+    if (taskId) {
+        cleanupTask(taskId);
+    }
     $publishDialog.set(structuredClone(initialPublishDialogState));
     $draftPublishDialogSelection.set(structuredClone(initialSelectionState));
     $publishChecks.set(structuredClone(initialChecksState));
@@ -503,24 +480,36 @@ export const publishItems = async (): Promise<boolean> => {
     const pendingTotal = publishableIds.length;
 
     try {
-        startPublishProgressSimulation();
+        const taskId = await sendPublishRequest();
+        if (!taskId) {
+            return false;
+        }
+
         $publishDialogPending.set({
             submitting: true,
             pendingIds,
             pendingTotal,
             pendingPrimaryName,
-            progressValue: 0,
+            taskId,
         });
 
-        const taskId = await sendPublishRequest();
-        if (!taskId) {
-            clearPublishProgressInterval();
-            $publishDialogPending.set(initialPendingState);
-            return false;
-        }
+        trackTask(taskId, {
+            onComplete: (resultState, message) => {
+                if (resultState === 'SUCCESS') {
+                    const total = pendingTotal || pendingIds.length;
+                    const successMessage = total > 1
+                        ? i18n('dialog.publish.success.multiple', total)
+                        : i18n('dialog.publish.success.single', pendingPrimaryName ?? '');
+                    showSuccess(successMessage);
+                } else {
+                    showError(message);
+                }
+                resetPublishDialogContext();
+            },
+        });
+
         return true;
     } catch (error) {
-        clearPublishProgressInterval();
         $publishDialogPending.set(initialPendingState);
         return false;
     }
@@ -690,39 +679,15 @@ $contentArchived.subscribe((event) => {
 // * Completion Handling
 //
 
-const handlePublishCompletionEvent = (publishedItems: ContentSummaryAndCompareStatus[]): void => {
-    const ids = new Set(publishedItems.map(item => item.getId()));
-    const {pendingIds, pendingTotal, pendingPrimaryName} = $publishDialogPending.get();
-    const isPendingMatch = pendingIds.length > 0;
-
-    if (!isPendingMatch) {
-        return;
-    }
-
-    const remaining = pendingIds.filter(id => !ids.has(id));
-    if (remaining.length === 0) {
-        clearPublishProgressInterval();
-        $publishDialogPending.setKey('progressValue', 100);
-        const total = pendingTotal || pendingIds.length;
-        const message = total > 1
-            ? i18n('dialog.publish.success.multiple', total)
-            : i18n('dialog.publish.success.single', pendingPrimaryName ?? '');
-        showSuccess(message);
-        resetPublishDialogContext();
-        return;
-    }
-
-    $publishDialogPending.setKey('pendingIds', remaining);
-};
-
-// Handle content published: track completion, close dialog if all main items were published
+// Handle content published: close dialog if all main items were published
 $contentPublished.subscribe((event) => {
     if (!event) return;
 
-    // Handle pending completion first
-    handlePublishCompletionEvent(event.data);
+    // Skip if dialog is submitting - task service handles completion
+    const {submitting} = $publishDialogPending.get();
+    if (submitting) return;
 
-    // Then handle dialog-open state updates
+    // Handle dialog-open state updates
     if (!isDialogActive()) return;
 
     const {items} = $publishDialog.get();

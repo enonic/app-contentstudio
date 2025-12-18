@@ -1,8 +1,10 @@
 import {Dialog} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {useEffect, useState, type ReactElement} from 'react';
+import {useTaskProgress} from '../../../hooks/useTaskProgress';
 import {
     $publishDialog,
+    $publishTaskId,
     $totalPublishableItems,
     publishItems,
     resetPublishDialogContext
@@ -17,6 +19,8 @@ const PUBLISH_DIALOG_NAME = 'PublishDialog';
 export const PublishDialog = (): ReactElement => {
     const {open, items} = useStore($publishDialog, {keys: ['open', 'items']});
     const publishCount = useStore($totalPublishableItems);
+    const taskId = useStore($publishTaskId);
+    const {progress} = useTaskProgress(taskId);
 
     const [view, setView] = useState<View>('main');
 
@@ -53,7 +57,7 @@ export const PublishDialog = (): ReactElement => {
                     <PublishDialogMainContent onPublish={() => void handlePublish()} />
                 )}
                 {view === 'progress' && (
-                    <PublishDialogProgressContent total={progressTotal} />
+                    <PublishDialogProgressContent total={progressTotal} progress={progress} />
                 )}
             </Dialog.Portal>
         </Dialog.Root>
