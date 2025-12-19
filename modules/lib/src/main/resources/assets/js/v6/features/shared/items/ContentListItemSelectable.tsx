@@ -9,6 +9,7 @@ import {DiffStatusBadge} from '../status/DiffStatusBadge';
 export type ContentListItemSelectableProps = {
     content: ContentSummaryAndCompareStatus;
     id?: string;
+    status?: boolean;
 } & Pick<CheckboxProps, 'className' | 'readOnly' | 'checked' | 'defaultChecked' | 'onCheckedChange'> & {
     checked?: boolean;
     defaultChecked?: boolean;
@@ -21,6 +22,7 @@ export const ContentListItemSelectable = ({
     id,
     className,
     content,
+    status = true,
     checked,
     defaultChecked,
     onCheckedChange,
@@ -55,10 +57,10 @@ export const ContentListItemSelectable = ({
                 </Button>
             </ListItem.Content>
             <ListItem.Right>
-                <DiffStatusBadge
+                {status && <DiffStatusBadge
                     publishStatus={content.getPublishStatus()}
                     compareStatus={content.getCompareStatus()}
-                    wasPublished={!!content.getContentSummary().getPublishFirstTime()} />
+                    wasPublished={!!content.getContentSummary().getPublishFirstTime()} />}
             </ListItem.Right>
         </ListItem>
     );

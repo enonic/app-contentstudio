@@ -4,7 +4,7 @@ import {ReactElement, RefObject, useEffect, useRef} from 'react';
 import {useI18n} from '../../hooks/useI18n';
 import {LegacyElement} from './../LegacyElement';
 import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
-import {Gate} from "./Gate";
+import {Gate} from './Gate';
 
 //
 // * DialogPresetConfirm
@@ -35,7 +35,7 @@ const DialogPresetConfirm = ({
         }}>
             <ConfirmationDialog.Portal>
                 <ConfirmationDialog.Overlay />
-                <ConfirmationDialog.Content data-component={DIALOG_PRESET_CONFIRM_NAME} defaultConfirmEnabled={defaultConfirmEnabled}>
+                    <ConfirmationDialog.Content data-component={DIALOG_PRESET_CONFIRM_NAME} defaultConfirmEnabled={defaultConfirmEnabled}>
                     <ConfirmationDialog.DefaultHeader title={title} />
                     <ConfirmationDialog.Body className="mb-7">{description}</ConfirmationDialog.Body>
                     <ConfirmationDialog.Footer onConfirm={onConfirm} onCancel={onCancel} />

@@ -16,14 +16,14 @@ export type ContentItemProps = {
 const CONTENT_LIST_ITEM_NAME = 'ContentListItem';
 
 export const ContentListItem = ({
-    content,
-    variant,
-    selected = false,
-    className,
-    children,
-    'data-component': componentName = CONTENT_LIST_ITEM_NAME,
-    ...props
-}: ContentItemProps): React.ReactElement => {
+                                    content,
+                                    variant,
+                                    selected = false,
+                                    className,
+                                    children,
+                                    'data-component': componentName = CONTENT_LIST_ITEM_NAME,
+                                    ...props
+                                }: ContentItemProps): React.ReactElement => {
     const isCompact = variant === 'compact';
 
     const handleClick = () => {

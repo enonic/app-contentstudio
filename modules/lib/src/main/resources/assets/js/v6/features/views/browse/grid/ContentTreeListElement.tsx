@@ -8,7 +8,7 @@ import {reload} from '../../../store/contentTreeLoadingStore';
 import {$contentTreeSelection} from '../../../store/contentTreeSelectionStore';
 import {ContentDataFetcher} from './ContentDataFetcher';
 import {ContentTreeList, ContentTreeListProps} from './ContentTreeList';
-import { ContentTreeContextMenuProps } from './ContentTreeContextMenu';
+import {ContentTreeContextMenuProps} from './ContentTreeContextMenu';
 
 export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList, ContentTreeListProps> {
 

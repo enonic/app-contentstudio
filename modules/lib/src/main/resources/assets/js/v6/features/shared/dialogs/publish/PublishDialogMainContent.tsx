@@ -24,16 +24,20 @@ import {
     setPublishDialogItemWithChildrenSelected
 } from '../../../store/dialogs/publishDialog.store';
 import {ContentListItemSelectable} from '../../items/ContentListItemSelectable';
-import {ContentListItemWithChildren} from '../../items/ContentListItemWithChildren';
+import {ContentListItemSelectableWithChildren} from '../../items/ContentListItemSelectableWithChildren';
 import {SelectionStatusBar} from '../status-bar/SelectionStatusBar';
 
 type PublishDialogMainContentProps = {
     onPublish: () => void;
+    'data-component'?: string;
 };
 
 const PUBLISH_DIALOG_MAIN_CONTENT_NAME = 'PublishDialogMainContent';
 
-export const PublishDialogMainContent = ({onPublish}: PublishDialogMainContentProps): ReactElement => {
+export const PublishDialogMainContent = ({
+    onPublish,
+    'data-component': componentName = PUBLISH_DIALOG_MAIN_CONTENT_NAME,
+}: PublishDialogMainContentProps): ReactElement => {
     const {failed} = useStore($publishDialog, {keys: ['failed']});
     const loading = useStore($isPublishChecking);
     const isPublishReady = useStore($isPublishReady);
@@ -83,6 +87,7 @@ export const PublishDialogMainContent = ({onPublish}: PublishDialogMainContentPr
     return (
         <Dialog.Content
             className="w-full h-full gap-10 sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220"
+            data-component={componentName}
         >
             <Dialog.DefaultHeader titleId={titleId} title={title} withClose />
 
@@ -112,7 +117,7 @@ export const PublishDialogMainContent = ({onPublish}: PublishDialogMainContentPr
             <Dialog.Body className="flex flex-col gap-y-10">
                 <ul className='flex flex-col gap-y-2.5'>
                     {mainItems.map(({id, content, included, childrenIncluded, required, hasUnpublishedChildren}) => {
-                        return <ContentListItemWithChildren
+                        return <ContentListItemSelectableWithChildren
                             key={id}
                             id={`main-${id}`}
                             content={content}

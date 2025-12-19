@@ -16,11 +16,15 @@ import {InboundStatusBar} from '../status-bar/InboundStatusBar';
 
 type UnpublishDialogMainContentProps = {
     onUnpublish: () => void;
+    'data-component'?: string;
 };
 
 const UNPUBLISH_DIALOG_MAIN_CONTENT_NAME = 'UnpublishDialogMainContent';
 
-export const UnpublishDialogMainContent = ({onUnpublish}: UnpublishDialogMainContentProps): ReactElement => {
+export const UnpublishDialogMainContent = ({
+    onUnpublish,
+    'data-component': componentName = UNPUBLISH_DIALOG_MAIN_CONTENT_NAME,
+}: UnpublishDialogMainContentProps): ReactElement => {
     const {loading, failed, items, dependants, inboundIgnored} = useStore($unpublishDialog,
         {keys: ['loading', 'failed', 'items', 'dependants', 'inboundIgnored']});
     const ready = useStore($isUnpublishDialogReady);
@@ -54,7 +58,11 @@ export const UnpublishDialogMainContent = ({onUnpublish}: UnpublishDialogMainCon
     }, [items, dependants, inboundSet, inboundIgnored]);
 
     return (
-        <Dialog.Content className="w-full h-full gap-10 sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220" onOpenAutoFocus={handleOpenAutoFocus}>
+        <Dialog.Content
+            className="w-full h-full gap-10 sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220"
+            onOpenAutoFocus={handleOpenAutoFocus}
+            data-component={componentName}
+        >
             <Dialog.DefaultHeader title={title} withClose />
 
             <InboundStatusBar

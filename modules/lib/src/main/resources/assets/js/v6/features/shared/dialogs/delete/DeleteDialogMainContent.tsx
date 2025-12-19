@@ -18,11 +18,16 @@ import {InboundStatusBar} from '../status-bar/InboundStatusBar';
 type DeleteDialogMainContentProps = {
     onDelete: () => void;
     onArchive: () => void;
+    'data-component'?: string;
 };
 
 const DELETE_DIALOG_MAIN_CONTENT_NAME = 'DeleteDialogMainContent';
 
-export const DeleteDialogMainContent = ({onDelete, onArchive}: DeleteDialogMainContentProps): ReactElement => {
+export const DeleteDialogMainContent = ({
+    onDelete,
+    onArchive,
+    'data-component': componentName = DELETE_DIALOG_MAIN_CONTENT_NAME,
+}: DeleteDialogMainContentProps): ReactElement => {
     const {loading, failed, items, dependants, inboundIgnored} = useStore($deleteDialog,
         {keys: ['loading', 'failed', 'items', 'dependants', 'inboundIgnored']});
     const ready = useStore($isDeleteDialogReady);
@@ -58,7 +63,11 @@ export const DeleteDialogMainContent = ({onDelete, onArchive}: DeleteDialogMainC
     }, [items, dependants, inboundSet, inboundIgnored]);
 
     return (
-        <Dialog.Content className="w-full h-full gap-10 sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220" onOpenAutoFocus={handleOpenAutoFocus}>
+        <Dialog.Content
+            className="w-full h-full gap-10 sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220"
+            onOpenAutoFocus={handleOpenAutoFocus}
+            data-component={componentName}
+        >
             <Dialog.DefaultHeader title={title} description={useI18n('dialog.archive.subname')} withClose />
 
             <InboundStatusBar

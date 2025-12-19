@@ -1,13 +1,15 @@
-import {map} from 'nanostores';
+import {computed, map} from 'nanostores';
 import {syncMapStore} from '../utils/storage/sync';
 
 export type Theme = 'light' | 'dark' | 'system';
 export type ResolvedTheme = 'light' | 'dark';
+export type AppPage = 'browse' | 'wizard';
 
 const SYNC_NAME = 'app';
 
 type AppStore = {
     theme: Theme;
+    page: AppPage;
 };
 
 function getSystemPreference(): ResolvedTheme {
@@ -48,6 +50,7 @@ function resolveTheme(theme: Theme): ResolvedTheme {
 
 export const $app = map<AppStore>({
     theme: getInitialTheme(),
+    page: 'browse',
 });
 
 // Sync theme to localStorage and across tabs
@@ -132,10 +135,16 @@ export function cycleTheme(): void {
     }
 }
 
+export const $isWizard = computed($app, ({page}) => page === 'wizard');
+
 /**
  * Returns the resolved theme (what's actually being displayed).
  * Useful for components that need to know the actual theme value.
  */
 export function getResolvedTheme(): ResolvedTheme {
     return resolveTheme($app.get().theme);
+}
+
+export function setPage(page: AppPage): void {
+    $app.setKey('page', page);
 }

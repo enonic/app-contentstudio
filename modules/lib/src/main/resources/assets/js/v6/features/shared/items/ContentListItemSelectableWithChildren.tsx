@@ -2,40 +2,49 @@ import {Checkbox, cn} from '@enonic/ui';
 import {type ReactElement} from 'react';
 import {CornerDownRight} from 'lucide-react';
 import {useI18n} from '../../hooks/useI18n';
-import {ContentItemProps, ContentListItem} from './ContentListItem';
+import type {ContentListItemSelectableProps as ContentItemCheckableProps} from './ContentListItemSelectable';
+import {ContentListItemSelectable} from './ContentListItemSelectable';
 
-export type ContentListItemWithChildrenProps = {
-    id?: string;
+export type ContentListItemSelectableWithChildrenProps = {
     includeChildren?: boolean;
     defaultIncludeChildren?: boolean;
     onIncludeChildrenChange?: (checked: boolean) => void;
     showIncludeChildren?: boolean;
-    readOnly?: boolean;
-    className?: string;
-} & Omit<ContentItemProps, 'className'>;
+} & ContentItemCheckableProps;
 
-const CONTENT_LIST_ITEM_WITH_CHILDREN_NAME = 'ContentListItemWithChildren';
+const CONTENT_LIST_ITEM_SELECTABLE_WITH_CHILDREN_NAME = 'ContentListItemSelectableWithChildren';
 
-export const ContentListItemWithChildren = ({
+export const ContentListItemSelectableWithChildren = ({
     id,
     content,
+    checked,
+    onCheckedChange,
+    defaultChecked,
+    readOnly,
     includeChildren,
     onIncludeChildrenChange,
     defaultIncludeChildren,
     showIncludeChildren = true,
-    readOnly,
     className,
-    ...props
-}: ContentListItemWithChildrenProps): ReactElement => {
+}: ContentListItemSelectableWithChildrenProps): ReactElement => {
     const includeChildrenLabel = useI18n('field.content.includeChildren');
     const hasChildren = content.hasChildren();
     const showIncludeChildrenCheckbox = hasChildren && showIncludeChildren;
 
-    const includeChildrenCheckboxId = `${CONTENT_LIST_ITEM_WITH_CHILDREN_NAME}-${id || content.getId()}-include-children-checkbox`;
+    const includeChildrenCheckboxId =
+        `${CONTENT_LIST_ITEM_SELECTABLE_WITH_CHILDREN_NAME}-${id || content.getId()}-include-children-checkbox`;
 
     return (
         <li role="row" className={cn("flex flex-col gap-1", className)}>
-            <ContentListItem content={content} {...props} />
+            <ContentListItemSelectable
+                id={id}
+                role={undefined}
+                content={content}
+                checked={checked}
+                defaultChecked={defaultChecked}
+                onCheckedChange={onCheckedChange}
+                readOnly={readOnly}
+            />
             {showIncludeChildrenCheckbox && (
                 <div className="flex items-center gap-2.5 h-8 pl-5">
                     <CornerDownRight className="size-4 shrink-0" />
@@ -45,8 +54,8 @@ export const ContentListItemWithChildren = ({
                         checked={includeChildren}
                         defaultChecked={defaultIncludeChildren}
                         onCheckedChange={onIncludeChildrenChange}
-                        readOnly={readOnly}
-                        disabled={readOnly}
+                        readOnly={readOnly || !(defaultChecked || checked)}
+                        disabled={!(defaultChecked || checked)}
                         label={includeChildrenLabel}
                     />
                 </div>
@@ -55,4 +64,4 @@ export const ContentListItemWithChildren = ({
     );
 };
 
-ContentListItemWithChildren.displayName = CONTENT_LIST_ITEM_WITH_CHILDREN_NAME;
+ContentListItemSelectableWithChildren.displayName = CONTENT_LIST_ITEM_SELECTABLE_WITH_CHILDREN_NAME;

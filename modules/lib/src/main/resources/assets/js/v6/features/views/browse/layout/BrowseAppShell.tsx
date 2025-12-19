@@ -3,6 +3,7 @@ import {ProjectSelectionDialog} from '../../../shared/dialogs/ProjectSelectionDi
 import {PublishDialog} from '../../../shared/dialogs/publish/PublishDialog';
 import {UnpublishDialog} from '../../../shared/dialogs/unpublish/UnpublishDialog';
 import {DeleteDialog} from '../../../shared/dialogs/delete/DeleteDialog';
+import {DuplicateDialog} from '../../../shared/dialogs/duplicate/DuplicateDialog';
 
 export const BrowseAppShell = (): ReactElement => {
     return (
@@ -12,6 +13,7 @@ export const BrowseAppShell = (): ReactElement => {
             <PublishDialog />
             <UnpublishDialog />
             <DeleteDialog />
+            <DuplicateDialog />
         </>
     );
 };
