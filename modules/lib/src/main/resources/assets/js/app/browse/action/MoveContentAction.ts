@@ -1,7 +1,7 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {getSelectedItems} from '../../../v6/features/store/contentTreeSelectionStore';
 import {ContentTreeListElement} from '../../../v6/features/views/browse/grid/ContentTreeListElement';
-import {ContentMovePromptEvent} from '../../move/ContentMovePromptEvent';
+import {openMoveDialog} from '../../../v6/features/store/dialogs/moveDialog.store';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 
@@ -15,8 +15,8 @@ export class MoveContentAction
     }
 
     protected handleExecuted() {
-        const contents = getSelectedItems().map(content => content.getContentSummary());
-        new ContentMovePromptEvent(contents).fire();
+        const contents = getSelectedItems();
+        openMoveDialog(contents);
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
