@@ -19,7 +19,7 @@
     "check:lint": "eslint **/*.ts --quiet --cache"
   },
   "dependencies": {
-    "@enonic/lib-admin-ui": "workspace:*",
+    "@enonic/lib-admin-ui": "file:.xp/dev/lib-admin-ui",
     "chart.js": "^4.5.1",
     "enonic-admin-artifacts": "^2.4.0",
     "jquery": "^3.7.1",

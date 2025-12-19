@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@enonic/lib-admin-ui':
-        specifier: workspace:*
+        specifier: file:.xp/dev/lib-admin-ui
         version: link:.xp/dev/lib-admin-ui
       chart.js:
         specifier: ^4.5.1

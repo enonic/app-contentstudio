@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@enonic/lib-admin-ui':
-        specifier: workspace:*
+        specifier: file:.xp/dev/lib-admin-ui
         version: link:.xp/dev/lib-admin-ui
       d3:
         specifier: ^7.9.0
