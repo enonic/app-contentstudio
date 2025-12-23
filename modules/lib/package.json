@@ -26,7 +26,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@enonic/ui": "~0.25.1",
+    "@enonic/ui": "~0.26.0",
     "@nanostores/preact": "^1.0.0",
     "class-variance-authority": "^0.7.1",
     "d3": "^7.9.0",
@@ -42,6 +42,7 @@
     "lucide-react": "^0.545.0",
     "nanoid": "~5.1.5",
     "nanostores": "^0.11.4",
+    "neverthrow": "^8.2.0",
     "preact": "^10.27.2",
     "q": "^1.5.1",
     "sortablejs": "^1.15.6",
