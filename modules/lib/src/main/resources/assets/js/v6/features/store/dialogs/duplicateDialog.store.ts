@@ -1,23 +1,21 @@
 import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import type {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {atom, computed, map} from 'nanostores';
 import {ContentId} from '../../../../app/content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../../../app/event/EditContentEvent';
-import {ContentSummaryAndCompareStatusFetcher} from '../../../../app/resource/ContentSummaryAndCompareStatusFetcher';
-import {ContentDuplicateParams} from '../../../../app/resource/ContentDuplicateParams';
-import {DuplicateContentRequest} from '../../../../app/resource/DuplicateContentRequest';
-import {GetDescendantsOfContentsRequest} from '../../../../app/resource/GetDescendantsOfContentsRequest';
+import {fetchContentSummariesWithStatus} from '../../api/content';
+import {duplicateContent, type DuplicateContentParams, getDescendantsOfContents} from '../../api/duplicate';
+import {cleanupTask, trackTask} from '../../services/task.service';
 import {hasContentIdInIds, isIdsEqual} from '../../utils/cms/content/ids';
 import {createDebounce} from '../../utils/timing/createDebounce';
 import {$isWizard} from '../app.store';
-import {$contentArchived, $contentCreated, $contentDeleted, $contentDuplicated, $contentUpdated} from '../socket.store';
 import {reload as reloadContentTree} from '../contentTreeLoadingStore';
-import {cleanupTask, trackTask} from '../../services/task.service';
+import {$contentArchived, $contentCreated, $contentDeleted, $contentDuplicated, $contentUpdated} from '../socket.store';
 
 //
-// * Store state
+// * Types
 //
 
 type DuplicateDialogStore = {
@@ -34,7 +32,11 @@ type DuplicateDialogStore = {
     taskId?: TaskId;
 };
 
-const initialState: DuplicateDialogStore = {
+//
+// * Store State
+//
+
+const initialDuplicateDialogState: DuplicateDialogStore = {
     open: false,
     loading: false,
     failed: false,
@@ -48,11 +50,16 @@ const initialState: DuplicateDialogStore = {
     taskId: undefined,
 };
 
-export const $duplicateDialog = map<DuplicateDialogStore>(structuredClone(initialState));
+export const $duplicateDialog = map<DuplicateDialogStore>(structuredClone(initialDuplicateDialogState));
 export const $duplicateDraftIncludeChildrenIds = atom<ContentId[]>([]);
 
+// ! ID of the current fetch operation
+// Used to cancel old ongoing fetch operations if the instanceId changes
+let instanceId = 0;
+let duplicateCompletionHandled = false;
+
 //
-// * Derived state
+// * Derived State
 //
 
 export const $duplicateItemsCount = computed($duplicateDialog, ({items, dependants}) => items.length + dependants.length);
@@ -66,22 +73,6 @@ export const $isDuplicateDialogReady = computed([$duplicateDialog, $isDuplicateS
 });
 
 export const $duplicateTaskId = computed($duplicateDialog, ({taskId}) => taskId);
-
-//
-// * Instance guard / timers
-//
-
-let instanceId = 0;
-let duplicateCompletionHandled = false;
-const OPEN_TAB_EXPIRY_MS = 5 * 60 * 1000;
-
-type PendingOpenTab = {
-    startedAt: number;
-    expiresAt: number;
-    parentPath?: string;
-};
-
-let pendingOpenTab: PendingOpenTab | null = null;
 
 //
 // * Public API
@@ -101,7 +92,7 @@ export const openDuplicateDialog = (items: ContentSummaryAndCompareStatus[]): vo
     $duplicateDraftIncludeChildrenIds.set(includeChildrenIds);
 
     $duplicateDialog.set({
-        ...structuredClone(initialState),
+        ...structuredClone(initialDuplicateDialogState),
         open: true,
         items,
         includeChildrenIds,
@@ -113,7 +104,6 @@ export const cancelDuplicateDialog = (): void => {
     if (submitting) {
         return;
     }
-    clearPendingOpenTab();
     resetDuplicateDialogContext();
 };
 
@@ -123,9 +113,8 @@ export const resetDuplicateDialogContext = (): void => {
     if (taskId) {
         cleanupTask(taskId);
     }
-    duplicateCompletionHandled = false;
     $duplicateDraftIncludeChildrenIds.set([]);
-    $duplicateDialog.set(structuredClone(initialState));
+    $duplicateDialog.set(structuredClone(initialDuplicateDialogState));
 };
 
 export const toggleDuplicateIncludeChildren = (id: ContentId, include: boolean): void => {
@@ -152,73 +141,19 @@ export const cancelDuplicateIncludeChildrenSelection = (): void => {
     $duplicateDraftIncludeChildrenIds.set([...includeChildrenIds]);
 };
 
-const clearPendingOpenTab = (): void => {
-    pendingOpenTab = null;
-};
-
-const setPendingOpenTab = (items: ContentSummaryAndCompareStatus[]): void => {
-    if (!$isWizard.get()) {
-        clearPendingOpenTab();
-        return;
-    }
-
-    const parentPath = items[0]?.getPath()?.getParentPath()?.toString();
-    const startedAt = Date.now();
-
-    const expiresAt = startedAt + OPEN_TAB_EXPIRY_MS;
-
-    pendingOpenTab = {
-        startedAt,
-        expiresAt,
-        parentPath,
-    };
-
-    setTimeout(() => {
-        if (pendingOpenTab?.expiresAt === expiresAt) {
-            clearPendingOpenTab();
-        }
-    }, OPEN_TAB_EXPIRY_MS);
-};
-
-const maybeOpenDuplicateInNewTab = (items: ContentSummaryAndCompareStatus[], timestamp: number): void => {
-    if (!$isWizard.get() || !pendingOpenTab) {
-        return;
-    }
-
-    if (timestamp < pendingOpenTab.startedAt || timestamp > pendingOpenTab.expiresAt) {
-        clearPendingOpenTab();
-        return;
-    }
-
-    if (!items || items.length === 0) {
-        clearPendingOpenTab();
-        return;
-    }
-
-    const parentPath = pendingOpenTab.parentPath;
-    const matchedItem = parentPath
-        ? items.find(item => item.getPath()?.getParentPath()?.toString() === parentPath)
-        : items[0];
-
-    if (matchedItem) {
-        new EditContentEvent([matchedItem]).fire();
-    }
-
-    clearPendingOpenTab();
-};
-
 export const executeDuplicateDialogAction = async (): Promise<boolean> => {
     const state = $duplicateDialog.get();
     if (state.loading || state.failed || state.submitting || state.items.length === 0) {
         return false;
     }
 
-    setPendingOpenTab(state.items);
+    const parentPath = state.items[0]?.getPath()?.getParentPath()?.toString();
+    const unsubscribeOpenTab = setupOpenTabListener(parentPath);
 
     const includeChildrenSet = new Set(state.includeChildrenIds.map(id => id.toString()));
-    const params = state.items.map(item => {
+    const params: DuplicateContentParams[] = state.items.map(item => {
         const includeChildren = includeChildrenSet.has(item.getContentId().toString());
-        return new ContentDuplicateParams(item.getContentId()).setIncludeChildren(includeChildren);
+        return {contentId: item.getContentId(), includeChildren};
     });
 
     const pendingIds = state.items.map(item => item.getContentId().toString());
@@ -226,10 +161,10 @@ export const executeDuplicateDialogAction = async (): Promise<boolean> => {
     const pendingTotal = state.items.length;
 
     try {
-        const taskId = await new DuplicateContentRequest(params).sendAndParse();
+        const taskId = await duplicateContent(params);
 
         $duplicateDialog.set({
-            ...state,
+            ...$duplicateDialog.get(),
             submitting: true,
             pendingIds,
             pendingTotal,
@@ -240,10 +175,10 @@ export const executeDuplicateDialogAction = async (): Promise<boolean> => {
         trackTask(taskId, {
             onComplete: (resultState, message) => {
                 if (resultState === 'SUCCESS') {
-                    handleDuplicateSuccess('task');
+                    handleDuplicateSuccess();
                 } else {
                     showError(message || i18n('notify.duplicate.failed'));
-                    clearPendingOpenTab();
+                    unsubscribeOpenTab();
                     resetDuplicateDialogContext();
                 }
             },
@@ -252,7 +187,7 @@ export const executeDuplicateDialogAction = async (): Promise<boolean> => {
         return true;
     } catch (error) {
         showError(error?.message ?? String(error));
-        clearPendingOpenTab();
+        unsubscribeOpenTab();
         $duplicateDialog.set({
             ...$duplicateDialog.get(),
             submitting: false,
@@ -266,69 +201,58 @@ export const executeDuplicateDialogAction = async (): Promise<boolean> => {
 };
 
 //
-// * Data loading
+// * Utilities
 //
 
-const reloadDuplicateDialogData = async (): Promise<void> => {
-    instanceId += 1;
-    const currentInstance = instanceId;
-    const {items, includeChildrenIds, open} = $duplicateDialog.get();
-    if (!open || items.length === 0) {
-        return;
+const OPEN_TAB_TIMEOUT_MS = 300_000; // 5 minutes max wait for socket event
+
+const setupOpenTabListener = (parentPath: string | undefined): (() => void) => {
+    if (!$isWizard.get() || !parentPath) {
+        return () => {};
     }
 
-    const includeSet = new Set(includeChildrenIds.map(id => id.toString()));
-    const rootsWithChildren = items.filter(item => includeSet.has(item.getContentId().toString()) && item.hasChildren());
+    const startedAt = Date.now();
 
-    if (rootsWithChildren.length === 0) {
-        $duplicateDialog.setKey('dependants', []);
-        return;
-    }
+    const cleanup = (): void => {
+        unsubscribe();
+        clearTimeout(timeoutId);
+    };
 
-    $duplicateDialog.setKey('loading', true);
-    $duplicateDialog.setKey('failed', false);
+    // Auto-cleanup after timeout to prevent orphaned listeners
+    const timeoutId = setTimeout(cleanup, OPEN_TAB_TIMEOUT_MS);
 
-    try {
-        const paths = rootsWithChildren.map(item => item.getContentSummary().getPath());
-        const ids = await new GetDescendantsOfContentsRequest().setContentPaths(paths).sendAndParse();
-        if (currentInstance !== instanceId) return;
+    const unsubscribe = $contentDuplicated.subscribe((event) => {
+        if (!event) return;
 
-        const dependants = ids.length > 0
-            ? await new ContentSummaryAndCompareStatusFetcher().fetchAndCompareStatus(ids)
-            : [];
-
-        if (currentInstance !== instanceId) return;
-
-        $duplicateDialog.set({
-            ...$duplicateDialog.get(),
-            dependants,
-            loading: false,
-            failed: false,
-        });
-    } catch (error) {
-        if (currentInstance !== instanceId) return;
-        $duplicateDialog.setKey('failed', true);
-        showError(error?.message ?? String(error));
-    } finally {
-        if (currentInstance === instanceId) {
-            $duplicateDialog.setKey('loading', false);
+        // Ignore events from before we started (prevents stale matches)
+        if (event.timestamp < startedAt) {
+            return;
         }
-    }
+
+        const matchedItem = event.data.find(
+            item => item.getPath()?.getParentPath()?.toString() === parentPath
+        );
+
+        if (matchedItem) {
+            new EditContentEvent([matchedItem]).fire();
+            cleanup();
+        }
+    });
+
+    return unsubscribe;
 };
 
-const reloadDuplicateDialogDataDebounced = createDebounce(() => {
-    void reloadDuplicateDialogData();
-}, 100);
-
 //
-// * Helpers
+// * Internal Helpers
 //
 
+/** Check if dialog is open and has items */
 const isDialogActive = (): boolean => {
     const {open, items} = $duplicateDialog.get();
     return open && items.length > 0;
 };
 
+/** Remove items by IDs from both main items and dependant items */
 const removeItemsByIds = (ids: Set<string>): {removedMain: boolean; removedDependant: boolean} => {
     const {items, dependants} = $duplicateDialog.get();
 
@@ -348,6 +272,7 @@ const removeItemsByIds = (ids: Set<string>): {removedMain: boolean; removedDepen
     return {removedMain, removedDependant};
 };
 
+/** Patch items with updated data, keeping items not in the update */
 const patchItemsWithUpdates = (updates: ContentSummaryAndCompareStatus[]): {patchedMain: boolean; patchedDependants: boolean} => {
     const {items, dependants} = $duplicateDialog.get();
     const updateMap = new Map(updates.map(update => [update.getId(), update]));
@@ -366,47 +291,10 @@ const patchItemsWithUpdates = (updates: ContentSummaryAndCompareStatus[]): {patc
 };
 
 //
-// * Completion handling
+// * Internal Subscriptions
 //
 
-const handleDuplicateSuccess = (source: 'socket' | 'timeout' | 'task'): void => {
-    if (duplicateCompletionHandled) {
-        return;
-    }
-    duplicateCompletionHandled = true;
-
-    const state = $duplicateDialog.get();
-    const total = state.pendingTotal || state.items.length || state.pendingIds.length;
-    const primaryName = state.pendingPrimaryName
-        || state.items[0]?.getDisplayName()
-        || state.items[0]?.getPath()?.toString()
-        || '';
-    const singleMessage = i18n('dialog.duplicate.success.multiple', total);
-    const multipleMessage = i18n('dialog.duplicate.success.single', primaryName);
-    const message = total > 1
-        ? singleMessage
-        : multipleMessage;
-
-    showSuccess(message);
-    reloadContentTree();
-    resetDuplicateDialogContext();
-};
-
-const handleDuplicateCompletionEvent = (items: ContentSummaryAndCompareStatus[], timestamp: number): void => {
-    maybeOpenDuplicateInNewTab(items, timestamp);
-
-    const state = $duplicateDialog.get();
-    if (!state.submitting) {
-        return;
-    }
-
-    handleDuplicateSuccess('socket');
-};
-
-//
-// * Subscriptions
-//
-
+// Reload data when dialog opens OR includeChildrenIds change
 $duplicateDialog.subscribe((state, oldState) => {
     const {open, includeChildrenIds} = state;
     const wasOpen = !!oldState?.open;
@@ -429,6 +317,11 @@ $duplicateDialog.subscribe((state, oldState) => {
     }
 });
 
+//
+// * Socket Event Handlers
+//
+
+// Handle content created: reload dependencies as new content might be a child
 $contentCreated.subscribe((event) => {
     if (!event || !isDialogActive()) {
         return;
@@ -436,6 +329,7 @@ $contentCreated.subscribe((event) => {
     reloadDuplicateDialogDataDebounced();
 });
 
+// Handle content updates: patch main items, reload if dependants affected
 $contentUpdated.subscribe((event) => {
     if (!event || !isDialogActive()) {
         return;
@@ -453,6 +347,7 @@ $contentUpdated.subscribe((event) => {
     }
 });
 
+// Handle content deletion: remove from lists, close if no items left, reload if needed
 $contentDeleted.subscribe((event) => {
     if (!event || !isDialogActive()) {
         return;
@@ -471,6 +366,7 @@ $contentDeleted.subscribe((event) => {
     }
 });
 
+// Handle content archived: same as delete
 $contentArchived.subscribe((event) => {
     if (!event || !isDialogActive()) {
         return;
@@ -489,9 +385,82 @@ $contentArchived.subscribe((event) => {
     }
 });
 
-$contentDuplicated.subscribe((event) => {
-    if (!event) {
+//
+// * Completion Handling
+//
+
+const handleDuplicateSuccess = (): void => {
+    if (duplicateCompletionHandled) return;
+
+    duplicateCompletionHandled = true;
+
+    const state = $duplicateDialog.get();
+    const total = state.pendingTotal || state.items.length || state.pendingIds.length;
+    const primaryName = state.pendingPrimaryName
+        || state.items[0]?.getDisplayName()
+        || state.items[0]?.getPath()?.toString()
+        || '';
+
+    const singleMessage = i18n('dialog.duplicate.success.single', primaryName);
+    const multipleMessage = i18n('dialog.duplicate.success.multiple', total);
+    const message = total > 1 ? multipleMessage : singleMessage;
+
+    showSuccess(message);
+
+    reloadContentTree();
+    resetDuplicateDialogContext();
+};
+
+//
+// * Requests
+//
+
+async function reloadDuplicateDialogData(): Promise<void> {
+    instanceId += 1;
+    const currentInstance = instanceId;
+    const {items, includeChildrenIds, open} = $duplicateDialog.get();
+    if (!open || items.length === 0) {
         return;
     }
-    handleDuplicateCompletionEvent(event.data, event.timestamp);
-});
+
+    const includeSet = new Set(includeChildrenIds.map(id => id.toString()));
+    const rootsWithChildren = items.filter(item => includeSet.has(item.getContentId().toString()) && item.hasChildren());
+
+    if (rootsWithChildren.length === 0) {
+        $duplicateDialog.setKey('dependants', []);
+        return;
+    }
+
+    $duplicateDialog.setKey('loading', true);
+    $duplicateDialog.setKey('failed', false);
+
+    try {
+        const paths = rootsWithChildren.map(item => item.getContentSummary().getPath());
+        const ids = await getDescendantsOfContents(paths);
+        if (currentInstance !== instanceId) return;
+
+        const dependants = ids.length > 0
+            ? await fetchContentSummariesWithStatus(ids)
+            : [];
+
+        if (currentInstance !== instanceId) return;
+
+        $duplicateDialog.set({
+            ...$duplicateDialog.get(),
+            dependants,
+            loading: false,
+            failed: false,
+        });
+    } catch (error) {
+        if (currentInstance !== instanceId) return;
+        $duplicateDialog.setKey('failed', true);
+        showError(error?.message ?? String(error));
+    } finally {
+        if (currentInstance === instanceId) {
+            $duplicateDialog.setKey('loading', false);
+        }
+    }
+}
+
+/** Debounced reload to batch rapid server events (100ms delay) */
+const reloadDuplicateDialogDataDebounced = createDebounce(reloadDuplicateDialogData, 100);

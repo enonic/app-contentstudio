@@ -5,10 +5,8 @@ import {computed, map} from 'nanostores';
 import {ContentId} from '../../../../app/content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import {ContentServerChangeItem} from '../../../../app/event/ContentServerChangeItem';
-import {ArchiveContentRequest} from '../../../../app/resource/ArchiveContentRequest';
-import {ContentSummaryAndCompareStatusFetcher} from '../../../../app/resource/ContentSummaryAndCompareStatusFetcher';
-import {DeleteContentRequest} from '../../../../app/resource/DeleteContentRequest';
-import {ResolveDeleteRequest} from '../../../../app/resource/ResolveDeleteRequest';
+import {fetchContentSummariesWithStatus} from '../../api/content';
+import {archiveContent, deleteContent, resolveForDelete} from '../../api/delete';
 import {trackTask, cleanupTask} from '../../services/task.service';
 import {hasContentIdInIds} from '../../utils/cms/content/ids';
 import {sortDependantsByInbound} from '../../utils/cms/content/sortDependants';
@@ -96,17 +94,12 @@ const getAllTargetIds = (): ContentId[] => {
     return [...items, ...dependants].map(item => item.getContentId());
 };
 
-const buildArchiveRequest = (items: ContentSummaryAndCompareStatus[], message: string): ArchiveContentRequest => {
-    const request = new ArchiveContentRequest();
-    items.forEach(item => request.addContentId(item.getContentId()));
-    request.setArchiveMessage(message);
-    return request;
+const getArchiveContentIds = (items: ContentSummaryAndCompareStatus[]): ContentId[] => {
+    return items.map(item => item.getContentId());
 };
 
-const buildDeleteRequest = (items: ContentSummaryAndCompareStatus[]): DeleteContentRequest => {
-    const request = new DeleteContentRequest();
-    items.forEach(item => request.addContentPath(item.getContentSummary().getPath()));
-    return request;
+const getDeleteContentPaths = (items: ContentSummaryAndCompareStatus[]) => {
+    return items.map(item => item.getContentSummary().getPath());
 };
 
 //
@@ -165,12 +158,10 @@ export const executeDeleteDialogAction = async (action: DeleteAction): Promise<b
     const pendingPrimaryName = state.items[0]?.getDisplayName() || state.items[0]?.getPath()?.toString();
     const pendingTotal = totalCount || state.items.length;
 
-    const request = action === 'archive'
-        ? buildArchiveRequest(state.items, state.archiveMessage)
-        : buildDeleteRequest(state.items);
-
     try {
-        const taskId = await request.sendAndParse();
+        const taskId = action === 'archive'
+            ? await archiveContent(getArchiveContentIds(state.items), state.archiveMessage)
+            : await deleteContent(getDeleteContentPaths(state.items));
 
         $deleteDialog.set({
             ...state,
@@ -235,13 +226,13 @@ const reloadDeleteDialogData = async (): Promise<void> => {
 
     try {
         const ids = items.map(item => item.getContentId());
-        const result = await new ResolveDeleteRequest(ids).sendAndParse();
+        const result = await resolveForDelete(ids);
 
         if (currentInstance !== instanceId) return;
 
         const dependantIds = result.getContentIds().filter(id => !hasContentIdInIds(id, ids));
         const dependants = dependantIds.length > 0
-            ? await new ContentSummaryAndCompareStatusFetcher().fetchAndCompareStatus(dependantIds)
+            ? await fetchContentSummariesWithStatus(dependantIds)
             : [];
 
         if (currentInstance !== instanceId) return;

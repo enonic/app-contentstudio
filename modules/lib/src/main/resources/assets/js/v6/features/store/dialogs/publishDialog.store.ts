@@ -4,12 +4,9 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {atom, computed, map} from 'nanostores';
 import {ContentId} from '../../../../app/content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
-import {ContentSummaryAndCompareStatusFetcher} from '../../../../app/resource/ContentSummaryAndCompareStatusFetcher';
-import {FindIdsByParentsRequest} from '../../../../app/resource/FindIdsByParentsRequest';
-import {MarkAsReadyRequest} from '../../../../app/resource/MarkAsReadyRequest';
-import {PublishContentRequest} from '../../../../app/resource/PublishContentRequest';
-import {ResolvePublishDependenciesRequest} from '../../../../app/resource/ResolvePublishDependenciesRequest';
+import {fetchContentSummariesWithStatus} from '../../api/content';
 import {hasUnpublishedChildren} from '../../api/hasUnpublishedChildren';
+import {findIdsByParents, markAsReady, publishContent, resolvePublishDependencies as resolvePublishDeps} from '../../api/publish';
 import {trackTask, cleanupTask} from '../../services/task.service';
 import {hasContentById, hasContentIdInIds, isIdsEqual, uniqueIds} from '../../utils/cms/content/ids';
 import {createDebounce} from '../../utils/timing/createDebounce';
@@ -733,9 +730,9 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
         return !hasContentIdInIds(item.getContentId(), allExcludedItemsWithChildrenIds);
     }).map(item => item.getContentId());
 
-    const childrenIds = itemsWithChildrenIds.length > 0 ? await new FindIdsByParentsRequest(itemsWithChildrenIds).sendAndParse() : [];
-    const maxResult = await createResolveDependenciesRequest(itemsIds, excludedItemsIds, allExcludedItemsWithChildrenIds).sendAndParse();
-    const minResult = await createResolveDependenciesRequest(itemsIds, initialExcludedIds, allExcludedItemsWithChildrenIds).sendAndParse();
+    const childrenIds = itemsWithChildrenIds.length > 0 ? await findIdsByParents(itemsWithChildrenIds) : [];
+    const maxResult = await resolvePublishDeps({ids: itemsIds, excludedIds: excludedItemsIds, excludeChildrenIds: allExcludedItemsWithChildrenIds});
+    const minResult = await resolvePublishDeps({ids: itemsIds, excludedIds: initialExcludedIds, excludeChildrenIds: allExcludedItemsWithChildrenIds});
 
     if (currentInstanceId !== instanceId) return;
 
@@ -773,7 +770,7 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
     const allDependantIds = maxResult.getDependants();
 
     // TODO: Cache dependant items
-    const dependantItems = await fetchContentSummaryAndCompareStatus(allDependantIds);
+    const dependantItems = await fetchContentSummariesWithStatus(allDependantIds);
 
     if (currentInstanceId !== instanceId) return;
 
@@ -825,24 +822,11 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
 // * Requests
 //
 
-function createResolveDependenciesRequest(ids: ContentId[], excludedIds: ContentId[] = [], excludedChildrenIds: ContentId[] = []): ResolvePublishDependenciesRequest {
-    return ResolvePublishDependenciesRequest.create()
-        .setIds(ids)
-        .setExcludedIds(excludedIds)
-        .setExcludeChildrenIds(excludedChildrenIds)
-        .build();
-}
-
-async function fetchContentSummaryAndCompareStatus(ids: ContentId[]): Promise<ContentSummaryAndCompareStatus[]> {
-    if (ids.length === 0) return [];
-    return await new ContentSummaryAndCompareStatusFetcher().fetchAndCompareStatus(ids);
-}
-
 // TODO: Add mechanism to prevent conflicting requests for reload, mark as ready, and server updates
 // Right now we just lock the dialog and pray. Amen
 async function markIdsReady(ids: ContentId[]): Promise<ContentId[]> {
     try {
-        await new MarkAsReadyRequest(ids).sendAndParse();
+        await markAsReady(ids);
         const count = ids.length;
         const msg = count > 1 ? i18n('notify.item.markedAsReady.multiple', count) : i18n('notify.item.markedAsReady', ids[0].toString());
         showFeedback(msg);
@@ -859,14 +843,13 @@ async function sendPublishRequest(): Promise<TaskId | undefined> {
     const allExcludedItemsWithChildrenIds = uniqueIds([...excludedItemsWithChildrenIds, ...excludedItemsIds]);
     const allExcludedItemsIds = uniqueIds([...excludedItemsIds, ...excludedDependantItemsIds, ...allExcludedItemsWithChildrenIds]);
 
-    const request = new PublishContentRequest()
-        .setIds(publishableIds)
-        .setMessage(message || undefined)
-        .setExcludedIds(allExcludedItemsIds)
-        .setExcludeChildrenIds(allExcludedItemsWithChildrenIds);
-
     try {
-        const taskId = await request.sendAndParse();
+        const taskId = await publishContent({
+            ids: publishableIds,
+            excludedIds: allExcludedItemsIds,
+            excludeChildrenIds: allExcludedItemsWithChildrenIds,
+            message: message || undefined,
+        });
         return taskId;
     } catch (e) {
         showError(i18n('dialog.publish.publishing.error'));

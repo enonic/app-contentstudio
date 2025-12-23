@@ -1,16 +1,86 @@
 import {computed, map} from 'nanostores';
 import {syncMapStore} from '../utils/storage/sync';
+import {isWizardUrl} from '../utils/url/app';
+
+//
+// * Types
+//
 
 export type Theme = 'light' | 'dark' | 'system';
 export type ResolvedTheme = 'light' | 'dark';
 export type AppPage = 'browse' | 'wizard';
 
-const SYNC_NAME = 'app';
-
 type AppStore = {
     theme: Theme;
     page: AppPage;
 };
+
+//
+// * Store State
+//
+
+const SYNC_NAME = 'app';
+
+export const $app = map<AppStore>({
+    theme: getInitialTheme(),
+    page: isWizardUrl() ? 'wizard' : 'browse',
+});
+
+// Sync theme to localStorage and across tabs
+syncMapStore($app, SYNC_NAME, {
+    keys: ['theme'],
+    loadInitial: true,
+    syncTabs: true,
+});
+
+//
+// * Derived State
+//
+
+export const $isWizard = computed($app, ({page}) => page === 'wizard');
+
+//
+// * Public API
+//
+
+export function setTheme(theme: Theme): void {
+    $app.setKey('theme', theme);
+}
+
+/**
+ * Cycles through theme options: Light → Dark → System → Light
+ */
+export function cycleTheme(): void {
+    const {theme} = $app.get();
+
+    switch (theme) {
+        case 'light':
+            setTheme('dark');
+            break;
+        case 'dark':
+            setTheme('system');
+            break;
+        case 'system':
+            setTheme('light');
+            break;
+    }
+}
+
+/**
+ * Returns the resolved theme (what's actually being displayed).
+ * Useful for components that need to know the actual theme value.
+ */
+export function getResolvedTheme(): ResolvedTheme {
+    return resolveTheme($app.get().theme);
+}
+
+export function setPage(page: AppPage): void {
+    $app.setKey('page', page);
+}
+
+//
+// * Utilities
+//
 
 function getSystemPreference(): ResolvedTheme {
     if (typeof window === 'undefined') return 'light';
@@ -48,18 +118,6 @@ function resolveTheme(theme: Theme): ResolvedTheme {
     return theme;
 }
 
-export const $app = map<AppStore>({
-    theme: getInitialTheme(),
-    page: 'browse',
-});
-
-// Sync theme to localStorage and across tabs
-syncMapStore($app, SYNC_NAME, {
-    keys: ['theme'],
-    loadInitial: true,
-    syncTabs: true,
-});
-
 /**
  * Applies the resolved theme to the document root.
  * Handles both explicit themes and system preference.
@@ -79,13 +137,14 @@ function applyTheme(theme: Theme): void {
     }
 }
 
-// Apply theme class to document root whenever theme changes
+//
+// * Internal Subscriptions
+//
+
+// Apply and listen for system theme changes to apply it to the document root
 $app.subscribe((state) => {
     applyTheme(state.theme);
 });
-
-// Apply initial theme immediately
-applyTheme($app.get().theme);
 
 // Watch for system theme changes when in system mode
 if (typeof window !== 'undefined') {
@@ -106,45 +165,4 @@ if (typeof window !== 'undefined') {
     else if (mediaQuery.addListener) {
         mediaQuery.addListener(handleSystemThemeChange);
     }
-}
-
-//
-// * Public API
-//
-
-export function setTheme(theme: Theme): void {
-    $app.setKey('theme', theme);
-}
-
-/**
- * Cycles through theme options: Light → Dark → System → Light
- */
-export function cycleTheme(): void {
-    const {theme} = $app.get();
-
-    switch (theme) {
-        case 'light':
-            setTheme('dark');
-            break;
-        case 'dark':
-            setTheme('system');
-            break;
-        case 'system':
-            setTheme('light');
-            break;
-    }
-}
-
-export const $isWizard = computed($app, ({page}) => page === 'wizard');
-
-/**
- * Returns the resolved theme (what's actually being displayed).
- * Useful for components that need to know the actual theme value.
- */
-export function getResolvedTheme(): ResolvedTheme {
-    return resolveTheme($app.get().theme);
-}
-
-export function setPage(page: AppPage): void {
-    $app.setKey('page', page);
 }

@@ -1,12 +1,12 @@
-import {UrlAction} from '../../../../app/UrlAction';
-import type {AppPage} from '../../store/app.store';
 
-const WIZARD_ACTION_PATTERN = new RegExp(`/(?:${UrlAction.EDIT}|${UrlAction.NEW})/`);
+type UrlAction = 'browse' | 'new' | 'edit' | 'issue' | 'outbound' | 'inbound' | 'custom';
 
-export const isWizardLocation = (): boolean => {
+const WIZARD_ACTIONS: UrlAction[] = ['edit', 'new'];
+
+const WIZARD_ACTION_PATTERN = new RegExp(`/(?:${WIZARD_ACTIONS.join('|')})/`);
+
+export const isWizardUrl = (): boolean => {
     if (typeof window === 'undefined') return false;
     return WIZARD_ACTION_PATTERN.test(window.location.pathname)
         || WIZARD_ACTION_PATTERN.test(window.location.hash);
 };
-
-export const getAppPageFromLocation = (): AppPage => (isWizardLocation() ? 'wizard' : 'browse');
