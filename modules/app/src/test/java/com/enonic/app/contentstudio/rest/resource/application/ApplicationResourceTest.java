@@ -33,7 +33,7 @@ import com.enonic.xp.inputtype.InputTypeName;
 import com.enonic.xp.schema.mixin.MixinService;
 import com.enonic.xp.site.SiteDescriptor;
 import com.enonic.xp.site.SiteService;
-import com.enonic.xp.util.Version;
+import org.osgi.framework.Version;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
