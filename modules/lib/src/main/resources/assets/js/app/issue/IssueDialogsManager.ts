@@ -3,12 +3,16 @@ import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentPublishDialog} from '../publish/ContentPublishDialog';
 import {RequestContentPublishDialog} from '../publish/RequestContentPublishDialog';
+import {openIssueDialog, openIssueDialogDetails} from '../../v6/features/store/dialogs/issueDialog.store';
 import {IssueServerEventsHandler} from './event/IssueServerEventsHandler';
 import {Issue} from './Issue';
 import {GetIssueRequest} from './resource/GetIssueRequest';
 import {CreateIssueDialog} from './view/CreateIssueDialog';
 import {IssueDetailsDialog} from './view/IssueDetailsDialog';
 import {IssueListDialog} from './view/IssueListDialog';
+
+// Toggle to compare legacy dialogs vs v6 IssueDialog.
+const USE_V6_ISSUE_DIALOG = true;
 
 export class IssueDialogsManager {
 
@@ -168,6 +172,11 @@ export class IssueDialogsManager {
     }
 
     openDetailsDialogWithListDialog(issue: Issue) {
+        if (USE_V6_ISSUE_DIALOG) {
+            openIssueDialogDetails(issue.getId());
+            return;
+        }
+
         if (!this.listDialog.isOpen()) {
             this.listDialog.open();
         }
@@ -177,11 +186,21 @@ export class IssueDialogsManager {
     }
 
     openDetailsDialog(issue: Issue) {
+        if (USE_V6_ISSUE_DIALOG) {
+            openIssueDialogDetails(issue.getId());
+            return;
+        }
+
         this.detailsDialog.hideBackButton();
         this.detailsDialog.setIssue(issue).open();
     }
 
     openListDialog(assignedToMe: boolean = false) {
+        if (USE_V6_ISSUE_DIALOG) {
+            openIssueDialog();
+            return;
+        }
+
         this.listDialog.open(assignedToMe);
     }
 
