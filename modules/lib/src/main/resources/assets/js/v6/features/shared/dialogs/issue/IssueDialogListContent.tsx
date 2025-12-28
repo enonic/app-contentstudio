@@ -114,15 +114,15 @@ export const IssueDialogListContent = (): ReactElement => {
 
     return (
         <Dialog.Content
-            className='w-full h-full gap-6 sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220'
+            className='sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-236 gap-7.5 px-5'
             data-component={ISSUE_DIALOG_LIST_CONTENT_NAME}
         >
-            <Dialog.DefaultHeader title={title} withClose/>
+            <Dialog.DefaultHeader className='px-5' title={title} withClose/>
             <Dialog.Body>
                 <Tab.Root value={tab} onValueChange={(next) => setIssueDialogListTab(next as IssueDialogTab)}>
-                    <div className='grid min-h-0 grid-cols-2 gap-x-8 gap-y-6 items-end'>
-                        <div className='flex flex-col gap-2.5'>
-                            <span className='text-xs text-subtle'>{filterLabel}</span>
+                    <div className='grid min-h-0 grid-cols-2 gap-x-15 gap-y-7.5 items-end px-2.5'>
+                        <div className='flex flex-col gap-2.5 px-2.5'>
+                            <span className='text-md font-semibold text-subtle'>{filterLabel}</span>
                             <Selector.Root value={filter} onValueChange={(next) => setIssueDialogListFilter(next as IssueDialogFilter)}>
                                 <Selector.Trigger>
                                     <Selector.Value placeholder={filterOptions[0]?.label}>
@@ -148,7 +148,7 @@ export const IssueDialogListContent = (): ReactElement => {
                             </Selector.Root>
                         </div>
 
-                        <Tab.List className='justify-end'>
+                        <Tab.List className='px-2.5 justify-end'>
                             <IssueDialogTabTrigger
                                 value='open'
                                 label={openLabel}
@@ -167,7 +167,7 @@ export const IssueDialogListContent = (): ReactElement => {
                             {issues.length === 0 && !loading && (
                                 <div className='text-sm text-subtle'>{emptyLabel}</div>
                             )}
-                            <div className='flex flex-col gap-1.5 min-h-0'>
+                            <div className='flex flex-col gap-1.25 min-h-0 max-h-100 overflow-y-auto'>
                                 {issues.map(issue => (
                                     <IssueListItem
                                         key={issue.getIssue().getId()}
@@ -181,7 +181,7 @@ export const IssueDialogListContent = (): ReactElement => {
                             {issues.length === 0 && !loading && (
                                 <div className='text-sm text-subtle'>{emptyLabel}</div>
                             )}
-                            <div className='flex flex-col gap-1.5 min-h-0'>
+                            <div className='flex flex-col gap-1.25 min-h-0 max-h-100 overflow-y-auto'>
                                 {issues.map(issue => (
                                     <IssueListItem
                                         key={issue.getIssue().getId()}
@@ -194,7 +194,7 @@ export const IssueDialogListContent = (): ReactElement => {
                     </div>
                 </Tab.Root>
             </Dialog.Body>
-            <Dialog.Footer>
+            <Dialog.Footer className='px-5'>
                 <Button
                     variant='solid'
                     size='lg'
