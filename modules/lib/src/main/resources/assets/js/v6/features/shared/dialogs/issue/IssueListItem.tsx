@@ -1,7 +1,7 @@
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {ListItem, cn} from '@enonic/ui';
 import {Globe, Hash} from 'lucide-react';
-import {type KeyboardEvent, type ReactElement} from 'react';
+import {type ReactElement} from 'react';
 
 import {IssueType} from '../../../../../app/issue/IssueType';
 import {IssueStatusInfoGenerator} from '../../../../../app/issue/view/IssueStatusInfoGenerator';
@@ -24,13 +24,14 @@ export const IssueListItem = ({issue, onSelect}: IssueListItemProps): ReactEleme
         .setIssueStatus(issueData.getIssueStatus())
         .setCurrentUser(currentUser)
         .generate();
-    const Icon = issueData.getType() === IssueType.PUBLISH_REQUEST ? Globe : Hash;
+    const isTask = issueData.getType() === IssueType.STANDARD;
+    const Icon = isTask ? Hash : Globe;
 
     const handleSelect = () => {
         onSelect?.(issue);
     };
 
-    const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
             handleSelect();
@@ -44,14 +45,14 @@ export const IssueListItem = ({issue, onSelect}: IssueListItemProps): ReactEleme
             onClick={handleSelect}
             onKeyDown={handleKeyDown}
             className={cn(
-                'cursor-pointer rounded-sm px-3 py-2.5 transition-highlight',
+                'cursor-pointer rounded-sm px-1 mx-1.5 py-1 my-1.5 transition-highlight',
                 'hover:bg-surface-neutral-hover focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring',
                 'focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
             )}
             data-component={ISSUE_LIST_ITEM_NAME}
         >
             <ListItem.Left className='text-subtle group-data-[tone=inverse]:text-alt'>
-                <Icon className='size-6'/>
+                <Icon className={cn('size-6', isTask && 'border-subtle border-solid rounded-sm p-0.25 border-2')}/>
             </ListItem.Left>
             <ListItem.Content className='min-w-0'>
                 <div className='min-w-0'>
