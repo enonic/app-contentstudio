@@ -17,10 +17,8 @@ import {ShowWarningLiveEditEvent} from '../../../page-editor/ShowWarningLiveEdit
 import {InitializeLiveEditEvent} from '../../../page-editor/InitializeLiveEditEvent';
 import {SkipLiveEditReloadConfirmationEvent} from '../../../page-editor/SkipLiveEditReloadConfirmationEvent';
 import {CreateHtmlAreaDialogEvent, HtmlAreaDialogConfig} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
-import {MinimizeWizardPanelEvent} from '@enonic/lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
 import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
 import {DragMask} from '@enonic/lib-admin-ui/ui/mask/DragMask';
-import {GLOBAL, GlobalLibAdmin, Store} from '@enonic/lib-admin-ui/store/Store';
 import {ContentId} from '../../content/ContentId';
 import {CreateHtmlAreaMacroDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaMacroDialogEvent';
 import {CreateHtmlAreaContentDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaContentDialogEvent';
@@ -89,6 +87,7 @@ import {PageReloadRequestedEvent} from '../../../page-editor/event/outgoing/mani
 import {WizardWidgetRenderingHandler} from '../WizardWidgetRenderingHandler';
 import {SessionStorageHelper} from '../../util/SessionStorageHelper';
 import {IframeEventBus} from '@enonic/lib-admin-ui/event/IframeEventBus';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy
@@ -98,11 +97,11 @@ export class LiveEditPageProxy
 
     private liveEditIFrame?: IFrameEl;
 
-    private liveEditWindow: Window;
+    // private liveEditWindow: Window;
 
     private isFrameLoaded: boolean = false;
 
-    private livejq: JQueryStatic;
+    // private livejq: JQueryStatic;
 
     private dragMask: DragMask;
 
@@ -115,9 +114,6 @@ export class LiveEditPageProxy
     constructor(model: LiveEditModel) {
 
         this.setModel(model);
-
-        // Initialize the live edit iframe event bus on the main window
-        IframeEventBus.init(window);
 
         this.initElements();
         this.initListeners();
@@ -137,6 +133,13 @@ export class LiveEditPageProxy
 
     private createLiveEditIFrame(): IFrameEl {
         let liveEditIFrame = new IFrameEl('live-edit-frame');
+
+        // Initialize the live edit iframe event bus with the ability to post message to child iframe
+
+        // TODO: need to register events thrown from iframe here, because these IframeEventBuses can't communicate
+        IframeEventBus.get().registerClass('IframeEvent', IframeEvent);
+        IframeEventBus.get().registerClass('SelectComponentEvent', SelectComponentEvent);
+
 
         IframeEventBus.get().onEvent('editor-iframe-loaded', (data) => {
             this.handleIFrameLoadedEvent();
@@ -169,19 +172,19 @@ export class LiveEditPageProxy
         return this.liveEditIFrame;
     }
 
-    public getJQuery(): JQueryStatic {
-        return this.livejq;
-    }
+    /*    public getJQuery(): JQueryStatic {
+            return this.livejq;
+        }*/
 
-    public createDraggable(item: JQuery) {
+    public createDraggable(hash: string | number) {
         if (this.isFrameLoaded) {
-            new CreateOrDestroyDraggableEvent(item, true).fire();
+            new CreateOrDestroyDraggableEvent(hash, true).fire();
         }
     }
 
-    public destroyDraggable(item: JQuery) {
+    public destroyDraggable(hash: string | number) {
         if (this.isFrameLoaded) {
-            new CreateOrDestroyDraggableEvent(item, false).fire();
+            new CreateOrDestroyDraggableEvent(hash, false).fire();
         }
     }
 
@@ -239,7 +242,6 @@ export class LiveEditPageProxy
         if (this.isFrameLoaded) {
             this.stopListening();
             this.isFrameLoaded = false;
-            this.liveEditWindow = null;
         }
     }
 
@@ -260,28 +262,36 @@ export class LiveEditPageProxy
             console.debug('LiveEditPageProxy.handleIframeLoadedEvent at ' + new Date().toISOString());
         }
 
-        let liveEditWindow: Window = this.liveEditIFrame.getHTMLElement()['contentWindow'];
+        const liveEditWindow = (this.liveEditIFrame.getHTMLElement() as HTMLIFrameElement).contentWindow;
 
-        console.info('LiveEditPageProxy.handleIFrameLoadedEvent: liveEditWindow', liveEditWindow);
+        // now that iframe is loaded, initialize its event bus to be able to post there
+        IframeEventBus.get().setReceiver(liveEditWindow);
+
+        // let liveEditWindow: Window = this.liveEditIFrame.getHTMLElement()['contentWindow'];
+
+        // console.info('LiveEditPageProxy.handleIFrameLoadedEvent: liveEditWindow', liveEditWindow);
 
         this.isFrameLoaded = true;
+
+        //TODO: fix no iframe access
 
         if (liveEditWindow) {
             this.isPageLocked = false;
 
             this.stopListening();
 
-            this.liveEditWindow = liveEditWindow;
 
-            const liveEditGlobal: GlobalLibAdmin = liveEditWindow[GLOBAL];
-            const liveEditStore: Store = liveEditGlobal ? liveEditGlobal.store : null;
-            const livejq = (liveEditStore && liveEditStore.has('$')) ? liveEditStore.get('$') : liveEditWindow['$'];
+            // const liveEditGlobal: GlobalLibAdmin = liveEditWindow[GLOBAL];
+            // const liveEditStore: Store = liveEditGlobal ? liveEditGlobal.store : null;
+            // const livejq = (liveEditStore && liveEditStore.has('$')) ? liveEditStore.get('$') : liveEditWindow['$'];
 
-            console.info('LiveEditPageProxy.handleIFrameLoadedEvent: livejq', livejq);
+            // console.info('LiveEditPageProxy.handleIFrameLoadedEvent: livejq', livejq);
 
+            //TODO: fix no iframe access
+            let livejq = true;
             if (livejq) {
 
-                this.livejq = livejq as JQueryStatic;
+                // this.livejq = livejq as JQueryStatic;
 
                 this.listenToLivePageEvents();
 
@@ -291,7 +301,15 @@ export class LiveEditPageProxy
 
                 if (this.isLiveEditAllowed()) {
 
-                    new InitializeLiveEditEvent(this.createLiveEditParams()).fire();
+                    new InitializeLiveEditEvent(this.createLiveEditParams())
+                        .setContent(this.liveEditModel.getContentSummaryAndCompareStatus())
+                        .setPrincipals()
+                        .setConfig()
+                        .setProjectJson()
+                        .setPageJson()
+                        .setUser()
+                        .setHostDomain(`${window.location.protocol}//${window.location.host}`)
+                        .fire();
 
                     console.info('LiveEditPageProxy.handleIFrameLoadedEvent: initialize live edit event fired!');
                 } else {
@@ -456,9 +474,9 @@ export class LiveEditPageProxy
     public listenToLivePageEvents() {
         const eventsManager: PageEventsManager = PageEventsManager.get();
 
-        MinimizeWizardPanelEvent.on(() => {
-            new MinimizeWizardPanelEvent().fire();
-        });
+        /*        MinimizeWizardPanelEvent.on(() => {
+                    new MinimizeWizardPanelEvent().fire(contextWindow);
+                });*/
 
         ComponentViewDragStartedEvent.on((event: ComponentViewDragStartedEvent) => {
             eventsManager.notifyComponentDragStarted(event.getPath());

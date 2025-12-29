@@ -11,6 +11,31 @@ import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {KEY_BINDINGS_KEY} from '@enonic/lib-admin-ui/ui/KeyBindings';
 import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
+import {InitializeLiveEditEvent} from 'lib-contentstudio/page-editor/InitializeLiveEditEvent';
+import {SkipLiveEditReloadConfirmationEvent} from 'lib-contentstudio/page-editor/SkipLiveEditReloadConfirmationEvent';
+import {ContentSummaryAndCompareStatus} from 'lib-contentstudio/app/content/ContentSummaryAndCompareStatus';
+import {ContentSummary} from 'lib-contentstudio/app/content/ContentSummary';
+import {ContentPath} from 'lib-contentstudio/app/content/ContentPath';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {IdProviderKey} from '@enonic/lib-admin-ui/security/IdProviderKey';
+import {ContentId} from 'lib-contentstudio/app/content/ContentId';
+import {ChildOrder} from 'lib-contentstudio/app/resource/order/ChildOrder';
+import {FieldOrderExpr} from '@enonic/lib-admin-ui/query/expr/FieldOrderExpr';
+import {Workflow} from 'lib-contentstudio/app/content/Workflow';
+import {ContentName} from 'lib-contentstudio/app/content/ContentName';
+import {AddComponentViewEvent} from 'lib-contentstudio/page-editor/event/incoming/manipulation/AddComponentViewEvent';
+import {RemoveComponentViewEvent} from 'lib-contentstudio/page-editor/event/incoming/manipulation/RemoveComponentViewEvent';
+import {PageStateEvent} from 'lib-contentstudio/page-editor/event/incoming/common/PageStateEvent';
+import {SelectComponentViewEvent} from 'lib-contentstudio/page-editor/event/incoming/navigation/SelectComponentViewEvent';
+import {DeselectComponentViewEvent} from 'lib-contentstudio/page-editor/event/incoming/navigation/DeselectComponentViewEvent';
+import {MoveComponentViewEvent} from 'lib-contentstudio/page-editor/event/incoming/manipulation/MoveComponentViewEvent';
+import {ComponentPath} from 'lib-contentstudio/app/page/region/ComponentPath';
+import {PartComponentType} from 'lib-contentstudio/app/page/region/PartComponentType';
+import {LayoutComponentType} from 'lib-contentstudio/app/page/region/LayoutComponentType';
+import {LoadComponentViewEvent} from 'lib-contentstudio/page-editor/event/incoming/manipulation/LoadComponentViewEvent';
+import {SetPageLockStateEvent} from 'lib-contentstudio/page-editor/event/incoming/manipulation/SetPageLockStateEvent';
 
 Store.instance().set('$', $);
 /*
@@ -19,9 +44,41 @@ Store.instance().set('$', $);
 StyleHelper.setCurrentPrefix(ItemViewPlaceholder.PAGE_EDITOR_PREFIX);
 
 // Initialize the live edit iframe event bus on the parent window
-IframeEventBus.init(parent);
+IframeEventBus.get().setReceiver(parent);
+// TODO: need to register events thrown from CS here, because these IframeEventBuses can't communicate
+IframeEventBus.get().registerClass('ContentSummaryAndCompareStatus', ContentSummaryAndCompareStatus);
+IframeEventBus.get().registerClass('ContentSummary', ContentSummary);
+IframeEventBus.get().registerClass('ContentPath', ContentPath);
+IframeEventBus.get().registerClass('ContentName', ContentName);
+IframeEventBus.get().registerClass('ContentTypeName', ContentTypeName);
+IframeEventBus.get().registerClass('ApplicationKey', ApplicationKey);
+IframeEventBus.get().registerClass('PrincipalKey', PrincipalKey);
+IframeEventBus.get().registerClass('IdProviderKey', IdProviderKey);
+IframeEventBus.get().registerClass('ContentId', ContentId);
+IframeEventBus.get().registerClass('ChildOrder', ChildOrder);
+IframeEventBus.get().registerClass('FieldOrderExpr', FieldOrderExpr);
+IframeEventBus.get().registerClass('Workflow', Workflow);
+
+IframeEventBus.get().registerClass('ComponentPath', ComponentPath);
+IframeEventBus.get().registerClass('PartComponentType', PartComponentType);
+IframeEventBus.get().registerClass('LayoutComponentType', LayoutComponentType);
+
+IframeEventBus.get().registerClass('InitializeLiveEditEvent', InitializeLiveEditEvent);
+IframeEventBus.get().registerClass('SkipLiveEditReloadConfirmationEvent', SkipLiveEditReloadConfirmationEvent);
+IframeEventBus.get().registerClass('AddComponentViewEvent', AddComponentViewEvent);
+IframeEventBus.get().registerClass('RemoveComponentViewEvent', RemoveComponentViewEvent);
+IframeEventBus.get().registerClass('MoveComponentViewEvent', MoveComponentViewEvent);
+IframeEventBus.get().registerClass('SelectComponentViewEvent', SelectComponentViewEvent);
+IframeEventBus.get().registerClass('DeselectComponentViewEvent', DeselectComponentViewEvent);
+IframeEventBus.get().registerClass('LoadComponentViewEvent ', LoadComponentViewEvent);
+IframeEventBus.get().registerClass('PageStateEvent', PageStateEvent);
+IframeEventBus.get().registerClass('SetPageLockStateEvent', SetPageLockStateEvent);
+
+console.info('Live edit iframe event bus initialized, receiver set to parent window');
 
 const liveEditPage = new LiveEditPage();
+
+console.info('Live edit page initialized', liveEditPage);
 
 const init = () => {
     const assetUrl: string = document.currentScript?.getAttribute('data-asset-url');

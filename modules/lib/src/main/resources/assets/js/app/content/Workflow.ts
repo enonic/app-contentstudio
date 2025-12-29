@@ -49,6 +49,14 @@ export class Workflow
     newBuilder(): WorkflowBuilder {
         return new WorkflowBuilder(this);
     }
+
+    public static fromObject(o: object): Workflow {
+        if (o instanceof Workflow) {
+            return o;
+        } else {
+            return new WorkflowBuilder().fromJson(o as WorkflowJson).build();
+        }
+    }
 }
 
 export class WorkflowBuilder {

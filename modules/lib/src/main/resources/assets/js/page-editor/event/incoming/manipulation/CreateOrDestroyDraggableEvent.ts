@@ -1,17 +1,17 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
 export class CreateOrDestroyDraggableEvent
-    extends Event {
+    extends IframeEvent {
 
-    private readonly item: JQuery;
+    private readonly hash: string | number;
 
     private readonly create: boolean;
 
-    constructor(item: JQuery, create: boolean) {
+    constructor(hash: string | number, create: boolean) {
         super();
 
-        this.item = item;
+        this.hash = hash;
         this.create = create;
     }
 
@@ -19,15 +19,15 @@ export class CreateOrDestroyDraggableEvent
         return this.create;
     }
 
-    getItem(): JQuery {
-        return this.item;
+    getHash(): string | number {
+        return this.hash;
     }
 
     static on(handler: (event: CreateOrDestroyDraggableEvent) => void, contextWindow: Window = window) {
-        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: CreateOrDestroyDraggableEvent) => void, contextWindow: Window = window) {
-        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }
