@@ -33,7 +33,7 @@ import com.enonic.xp.inputtype.InputTypeName;
 import com.enonic.xp.schema.mixin.MixinService;
 import com.enonic.xp.site.SiteDescriptor;
 import com.enonic.xp.site.SiteService;
-import org.osgi.framework.Version;
+import com.enonic.xp.util.Version;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -251,7 +251,7 @@ public class ApplicationResourceTest
     {
         final Form config = Form.create().
             addFormItem( Input.create().name( "some-name" ).label( "some-label" ).helpTextI18nKey( "site.config.helpText" ).labelI18nKey(
-                "site.config.label" ).inputType( InputTypeName.TEXT_LINE ).build() ).
+            "site.config.label" ).inputType( InputTypeName.TEXT_LINE ).build() ).
             build();
 
         return SiteDescriptor.create().form( config ).build();
@@ -261,7 +261,7 @@ public class ApplicationResourceTest
     {
         final Form config = Form.create().
             addFormItem( Input.create().name( "some-name" ).label( "some-label" ).labelI18nKey( "key.label" ).helpTextI18nKey(
-                "key.help-text" ).inputType( InputTypeName.TEXT_LINE ).build() ).
+            "key.help-text" ).inputType( InputTypeName.TEXT_LINE ).build() ).
             build();
         return IdProviderDescriptor.create().
             config( config ).
