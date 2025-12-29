@@ -9,7 +9,6 @@ import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationCon
 import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
-import {Property} from '@enonic/lib-admin-ui/data/Property';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PropertyTreeComparator} from '@enonic/lib-admin-ui/data/PropertyTreeComparator';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
@@ -2023,6 +2022,7 @@ export class ContentWizardPanel
     private initLiveEditModel(content: Content): LiveEditModel {
         return LiveEditModel.create()
             .setContent(content)
+            .setCompareStatus(this.currentCompareStatus)
             .setContentFormContext(this.formsContexts.get('live'))
             .setSiteModel(this.siteModel)
             .setDefaultTemplate(this.defaultModels)

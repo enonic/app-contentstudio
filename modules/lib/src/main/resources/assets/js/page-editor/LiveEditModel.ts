@@ -3,12 +3,17 @@ import {ContentFormContext} from '../app/ContentFormContext';
 import {Content} from '../app/content/Content';
 import {PageState} from '../app/wizard/page/PageState';
 import {DefaultModels} from '../app/wizard/page/DefaultModels';
+import {CompareStatus} from '../app/content/CompareStatus';
+import {ContentSummaryAndCompareStatus} from '../app/content/ContentSummaryAndCompareStatus';
+import {ContentSummaryBuilder} from '../app/content/ContentSummary';
 
 export class LiveEditModel {
 
     private readonly siteModel: SiteModel;
 
     private readonly content: Content;
+
+    private readonly compareStatus: CompareStatus;
 
     private readonly formContext: ContentFormContext;
 
@@ -19,6 +24,7 @@ export class LiveEditModel {
         this.content = builder.content;
         this.formContext = builder.formContext;
         this.defaultModels = builder.defaultModels;
+        this.compareStatus = builder.compareStatus;
     }
 
     getFormContext(): ContentFormContext {
@@ -27,6 +33,15 @@ export class LiveEditModel {
 
     getContent(): Content {
         return this.content;
+    }
+
+    getCompareStatus(): CompareStatus {
+        return this.compareStatus;
+    }
+
+    getContentSummaryAndCompareStatus() {
+        return ContentSummaryAndCompareStatus.fromContentAndCompareStatus(new ContentSummaryBuilder(this.content).build(),
+            this.compareStatus);
     }
 
     getSiteModel(): SiteModel {
@@ -69,6 +84,13 @@ export class LiveEditModelBuilder {
     formContext: ContentFormContext;
 
     defaultModels: DefaultModels;
+
+    compareStatus: CompareStatus;
+
+    setCompareStatus(value: CompareStatus): LiveEditModelBuilder {
+        this.compareStatus = value;
+        return this;
+    }
 
     setSiteModel(value: SiteModel): LiveEditModelBuilder {
         this.siteModel = value;
