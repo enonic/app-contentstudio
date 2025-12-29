@@ -43,8 +43,7 @@ class ValidationErrorJsonTest
     {
         final ValidationError error = ValidationError.generalError( ValidationErrorCode.parse( "app:code" ) )
             .message( "message" )
-            .i18n( "some.code" )
-            .args( "a", 1, null )
+            .i18n( "some.code" ).args( "a", 1 )
             .build();
         final LocaleMessageResolver messageResolver = mock( LocaleMessageResolver.class );
         final ValidationErrorJson validationErrorJson = new ValidationErrorJson( error, messageResolver );
