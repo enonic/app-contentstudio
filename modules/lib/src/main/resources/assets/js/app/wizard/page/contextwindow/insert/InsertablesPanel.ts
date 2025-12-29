@@ -33,7 +33,7 @@ export class InsertablesPanel
 
     private overIFrame: boolean = false;
 
-    private iFrameDraggable: JQuery<HTMLElement>;
+    private iFrameDraggable: HTMLElement;
 
     private contextWindowDraggable: JQuery<HTMLElement>;
 
@@ -152,9 +152,9 @@ export class InsertablesPanel
         this.contextWindowDraggable = null;
 
         if (this.iFrameDraggable) {
-            this.liveEditPageProxy.destroyDraggable(this.iFrameDraggable);
-            this.iFrameDraggable.simulate('mouseup');
-            this.iFrameDraggable.remove();
+            this.liveEditPageProxy.destroyDraggable(this.iFrameDraggable.getAttribute("data-draggable-hash"));
+            // this.iFrameDraggable.simulate('mouseup');
+
             this.iFrameDraggable = null;
         }
     }
@@ -170,10 +170,10 @@ export class InsertablesPanel
         this.liveEditPageProxy.getDragMask().show();
 
         if (this.iFrameDraggable) {
-            let livejq = this.liveEditPageProxy.getJQuery();
+            // let livejq = this.liveEditPageProxy.getJQuery();
             // hide the helper of the iframe draggable,
             // it's a function so call it to get element and wrap in jquery to hide
-            livejq(this.iFrameDraggable.draggable('option', 'helper')()).hide();
+            // livejq(this.iFrameDraggable.draggable('option', 'helper')()).hide();
         }
 
         // and show the one in the parent
@@ -185,7 +185,7 @@ export class InsertablesPanel
             console.log('InsertablesPanel.onEnterIFrame');
         }
         this.liveEditPageProxy.getDragMask().hide();
-        let livejq = this.liveEditPageProxy.getJQuery();
+        // let livejq = this.liveEditPageProxy.getJQuery();
 
         let iFrame = this.liveEditPageProxy.getIFrame().getHTMLElement() as HTMLIFrameElement;
         let hasBody = iFrame && iFrame.contentDocument && iFrame.contentDocument.body;
@@ -197,15 +197,22 @@ export class InsertablesPanel
         }
 
         if (!this.iFrameDraggable) {
-            this.iFrameDraggable = livejq(event.target).clone() as JQuery<HTMLElement>;
-            livejq('body').append(this.iFrameDraggable);
-            this.liveEditPageProxy.createDraggable(this.iFrameDraggable);
-            this.iFrameDraggable.simulate('mousedown').hide();
+            this.iFrameDraggable = event.target.cloneNode(true) as HTMLElement;
+            const hash = new Date().getTime();
+            this.iFrameDraggable.setAttribute('data-draggable-hash', hash.toString());
+
+            //TODO: is this allowed for cross-domain iframes?
+            // remove livejq reference!
+            // pass necessary data in event instead
+
+            // livejq('body').append(this.iFrameDraggable);
+            this.liveEditPageProxy.createDraggable(hash);
+            // this.iFrameDraggable.simulate('mousedown').hide();
         }
 
         // show the helper of the iframe draggable
         // it's a function so call it to get element and wrap in jquery to show
-        livejq(this.iFrameDraggable.draggable('option', 'helper')()).show();
+        // livejq(this.iFrameDraggable.draggable('option', 'helper')()).show();
 
         // and hide the one in the parent
         ui.helper.hide();

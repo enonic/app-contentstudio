@@ -36,7 +36,6 @@ import {RegionView} from './RegionView';
 import {ItemType} from './ItemType';
 import {RemoveComponentViewEvent} from './event/incoming/manipulation/RemoveComponentViewEvent';
 import {ComponentView} from './ComponentView';
-import Q from 'q';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {CreateItemViewConfig} from './CreateItemViewConfig';
@@ -47,13 +46,9 @@ import {HTMLAreaHelper} from '../app/inputtype/ui/text/HTMLAreaHelper';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {LoadComponentViewEvent} from './event/incoming/manipulation/LoadComponentViewEvent';
 import {LoadComponentFailedEvent} from './event/outgoing/manipulation/LoadComponentFailedEvent';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DuplicateComponentViewEvent} from './event/incoming/manipulation/DuplicateComponentViewEvent';
 import {MoveComponentViewEvent} from './event/incoming/manipulation/MoveComponentViewEvent';
 import {BeforeContentSavedEvent} from '../app/event/BeforeContentSavedEvent';
-import {ContentSummaryAndCompareStatusFetcher} from '../app/resource/ContentSummaryAndCompareStatusFetcher';
-import {ContentId} from '../app/content/ContentId';
-import {ContentSummaryAndCompareStatus} from '../app/content/ContentSummaryAndCompareStatus';
 import {ContentContext} from '../app/wizard/ContentContext';
 import {SetPageLockStateEvent} from './event/incoming/manipulation/SetPageLockStateEvent';
 import {SetModifyAllowedEvent} from './event/incoming/manipulation/SetModifyAllowedEvent';
@@ -71,6 +66,7 @@ import {DescriptorBasedComponent} from '../app/page/region/DescriptorBasedCompon
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {SessionStorageHelper} from '../app/util/SessionStorageHelper';
+import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 
 export class LiveEditPage {
 
@@ -142,6 +138,8 @@ export class LiveEditPage {
             console.debug('LiveEditPage: starting live edit initialization', event);
         }
 
+        UriHelper.setDomain(event.getHostDomain());
+
         CONFIG.setConfig(event.getConfig());
         Messages.addMessages(JSON.parse(CONFIG.getString('phrasesAsJson')) as object);
         AuthContext.init(Principal.fromJson(event.getUserJson()), event.getPrincipalsJson().map(Principal.fromJson));
@@ -149,50 +147,45 @@ export class LiveEditPage {
         ProjectContext.get().setProject(Project.fromJson(event.getProjectJson()));
         PageState.setState(event.getPageJson() ? new PageBuilder().fromJson(event.getPageJson()).build() : null);
 
-        // content is used for text components, but the best thing is to avoid extra server call to fetch entire content
-        // could be optimized by: a) Using content id in HtmlArea b) Sending state's Page.toJson() to live edit frame
-        const contentPromise: Q.Promise<void> = new ContentSummaryAndCompareStatusFetcher()
-            .fetch(new ContentId(event.getParams().contentId))
-            .then((content: ContentSummaryAndCompareStatus) => {
-                ContentContext.get().setContent(content);
-            });
+        ContentContext.get().setContent(event.getContent());
 
-        Q.all([contentPromise]).then(() => {
-            const body = Body.get().loadExistingChildren();
-            try {
-                this.pageView = new PageViewBuilder()
-                    .setItemViewIdProducer(new ItemViewIdProducer())
-                    .setItemViewFactory(new DefaultItemViewFactory())
-                    .setLiveEditParams(event.getParams())
-                    .setElement(body).build();
-            } catch (error) {
-                if (LiveEditPage.debug) {
-                    console.error('LiveEditPage: error initializing live edit in ' + (Date.now() - startTime) + 'ms');
-                }
-                if (ObjectHelper.iFrameSafeInstanceOf(error, Exception)) {
-                    new LiveEditPageInitializationErrorEvent('The Live edit page could not be initialized. ' +
-                                                             error.getMessage()).fire();
-                } else {
-                    new LiveEditPageInitializationErrorEvent('The Live edit page could not be initialized. ' +
-                                                             error).fire();
-                }
-                return;
-            }
+        console.info('LiveEditPage: ContentContext.setContent', event.getContent());
 
-            DragAndDrop.init(this.pageView);
-
-            Tooltip.allowMultipleInstances(false);
-
-            this.registerGlobalListeners();
-
-            this.restoreSelection(event.getParams().contentId);
-
+        const body = Body.get().loadExistingChildren();
+        try {
+            this.pageView = new PageViewBuilder()
+                .setItemViewIdProducer(new ItemViewIdProducer())
+                .setItemViewFactory(new DefaultItemViewFactory())
+                .setLiveEditParams(event.getParams())
+                .setElement(body).build();
+        } catch (error) {
             if (LiveEditPage.debug) {
-                console.debug('LiveEditPage: done live edit initializing in ' + (Date.now() - startTime) + 'ms');
+                console.error('LiveEditPage: error initializing live edit in ' + (Date.now() - startTime) + 'ms');
             }
+            if (ObjectHelper.iFrameSafeInstanceOf(error, Exception)) {
+                new LiveEditPageInitializationErrorEvent('The Live edit page could not be initialized. ' +
+                                                         error.getMessage()).fire();
+            } else {
+                new LiveEditPageInitializationErrorEvent('The Live edit page could not be initialized. ' +
+                                                         error).fire();
+            }
+            return;
+        }
 
-            new LiveEditPageViewReadyEvent().fire();
-        }).catch(DefaultErrorHandler.handle);
+        DragAndDrop.init(this.pageView);
+        console.info('LiveEditPage: DragAndDrop initialized');
+
+        Tooltip.allowMultipleInstances(false);
+
+        this.registerGlobalListeners();
+
+        this.restoreSelection(event.getParams().contentId);
+
+        if (LiveEditPage.debug) {
+            console.debug('LiveEditPage: done live edit initializing in ' + (Date.now() - startTime) + 'ms');
+        }
+
+        new LiveEditPageViewReadyEvent().fire();
     }
 
     private restoreSelection(contentId: string): void {
@@ -213,8 +206,7 @@ export class LiveEditPage {
 
         SkipLiveEditReloadConfirmationEvent.un(this.skipConfirmationListener, win);
 
-        // TODO: Refactor InitializeLiveEditEvent to IframeEvent
-        // InitializeLiveEditEvent.un(this.initializeListener, win);
+        InitializeLiveEditEvent.un(this.initializeListener, win);
 
         this.unregisterGlobalListeners();
     }
@@ -328,6 +320,7 @@ export class LiveEditPage {
         SetComponentStateEvent.on(this.setComponentStateEventListener);
 
         this.addItemViewRequestListener = (event: AddComponentViewEvent) => {
+            console.info('LiveEditPage: AddComponentViewEvent received', event);
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
             const type: ComponentType = ComponentType.byShortName(event.getComponentType().getShortName());
             const viewType: ItemType = ItemType.fromComponentType(type);
@@ -432,15 +425,23 @@ export class LiveEditPage {
         SetModifyAllowedEvent.on(this.setModifyAllowedListener);
 
         this.createOrDestroyDraggableListener = (event: CreateOrDestroyDraggableEvent): void => {
+            const item = jQuery(`[data-draggable-hash="${event.getHash()}"]`);
             if (event.isCreate()) {
-                this.pageView?.createDraggable(event.getItem());
+                this.pageView?.createDraggable(item);
+                // show the helper of the iframe draggable
+                // it's a function so call it to get element and wrap in jquery to show
+                item.simulate('mousedown').hide();
+                jQuery(item.draggable('option', 'helper')()).show();
             } else {
-                this.pageView?.destroyDraggable(event.getItem());
+                this.pageView?.destroyDraggable(item);
+                item.simulate('mouseup');
+                jQuery(item.draggable('option', 'helper')()).hide();
+                item.remove();
             }
         };
 
         // TODO refactor CreateOrDestroyDraggableEvent to IframeEvent: has jQuery dependency !!!
-        // CreateOrDestroyDraggableEvent.on(this.createOrDestroyDraggableListener);
+        CreateOrDestroyDraggableEvent.on(this.createOrDestroyDraggableListener);
 
         this.resetComponentViewRequestListener = (event: ResetComponentViewEvent): void => {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
@@ -458,7 +459,7 @@ export class LiveEditPage {
         };
 
         // TODO: Refactor PageStateEvent to IframeEvent
-        // PageStateEvent.on(this.pageStateListener);
+        PageStateEvent.on(this.pageStateListener);
 
         this.updateTextComponentViewListener = (event: UpdateTextComponentViewEvent): void => {
             if (event.getOrigin() === 'live') {

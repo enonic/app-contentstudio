@@ -79,6 +79,14 @@ export class ContentPath
 
         return ContentPath.ROOT;
     }
+
+    public static fromObject(o: object): ContentPath {
+        if (o instanceof ContentPath) {
+            return o;
+        } else {
+            return new ContentPathBuilder().fromString(o['refString']).setAbsolute(o['absolute']).build();
+        }
+    }
 }
 
 export class ContentPathBuilder extends NodePathBuilder {

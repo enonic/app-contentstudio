@@ -1,9 +1,9 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {PageJson} from '../../../../app/page/PageJson';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
 export class PageStateEvent
-    extends Event {
+    extends IframeEvent {
 
     private readonly pageJson: PageJson;
 
@@ -17,10 +17,10 @@ export class PageStateEvent
     }
 
     static on(handler: (event: PageStateEvent) => void, contextWindow: Window = window) {
-        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: PageStateEvent) => void, contextWindow: Window = window) {
-        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

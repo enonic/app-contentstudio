@@ -23,4 +23,14 @@ export class ComponentInspectedEvent
     static un(handler: (event: ComponentInspectedEvent) => void, contextWindow: Window = window) {
         IframeEvent.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
+
+    public static fromObject(o: object): ComponentInspectedEvent {
+        if (o instanceof ComponentInspectedEvent) {
+            return o;
+        } else {
+            return new ComponentInspectedEvent(
+                ComponentPath.fromString(o['path'])
+            );
+        }
+    }
 }

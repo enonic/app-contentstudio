@@ -8,30 +8,30 @@ import {PageState} from '../app/wizard/page/PageState';
 import {PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
+import {ContentSummaryAndCompareStatus} from '../app/content/ContentSummaryAndCompareStatus';
 
 export class InitializeLiveEditEvent
     extends IframeEvent {
 
-    private readonly projectJson: ProjectJson;
+    private projectJson: ProjectJson;
 
-    private readonly config: ConfigObject;
+    private config: ConfigObject;
 
     private readonly liveEditParams: LiveEditParams;
 
-    private readonly pageJson: PageJson;
+    private pageJson: PageJson;
 
-    private readonly user: PrincipalJson;
+    private user: PrincipalJson;
 
-    private readonly principals: PrincipalJson[];
+    private principals: PrincipalJson[];
+
+    private content: ContentSummaryAndCompareStatus;
+
+    private hostDomain: string;
 
     constructor(liveEditParams?: LiveEditParams) {
         super();
-        this.projectJson = ProjectContext.get().getProject().toJson();
-        this.config = CONFIG.getConfig();
         this.liveEditParams = liveEditParams;
-        this.pageJson = PageState.getState()?.toJson();
-        this.user = AuthContext.get().getUser().toJson();
-        this.principals = AuthContext.get().getPrincipals().map(principal => principal.toJson());
     }
 
     getProjectJson(): ProjectJson {
@@ -56,6 +56,49 @@ export class InitializeLiveEditEvent
 
     getPrincipalsJson(): PrincipalJson[] {
         return this.principals;
+    }
+
+    getContent(): ContentSummaryAndCompareStatus {
+        return this.content;
+    }
+
+    setProjectJson(value: ProjectJson = ProjectContext?.get().getProject()?.toJson()) {
+        this.projectJson = value;
+        return this;
+    }
+
+    setConfig(value: ConfigObject = CONFIG?.getConfig()) {
+        this.config = value;
+        return this;
+    }
+
+    setPageJson(value: PageJson = PageState?.getState()?.toJson()) {
+        this.pageJson = value;
+        return this;
+    }
+
+    setUser(value: PrincipalJson = AuthContext?.get().getUser()?.toJson()) {
+        this.user = value;
+        return this;
+    }
+
+    setContent(value: ContentSummaryAndCompareStatus) {
+        this.content = value;
+        return this;
+    }
+
+    setPrincipals(value: PrincipalJson[] = AuthContext?.get().getPrincipals().map(principal => principal.toJson())) {
+        this.principals = value;
+        return this;
+    }
+
+    setHostDomain(value: string) {
+        this.hostDomain = value;
+        return this;
+    }
+
+    getHostDomain(): string {
+        return this.hostDomain;
     }
 
     toMessage(): string {

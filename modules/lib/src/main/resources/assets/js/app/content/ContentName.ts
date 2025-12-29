@@ -26,4 +26,12 @@ export class ContentName
 
         return true;
     }
+
+    public static fromObject(o: object): ContentName {
+        if (o instanceof ContentName) {
+            return o;
+        } else {
+            return new ContentName(o['value']);
+        }
+    }
 }
