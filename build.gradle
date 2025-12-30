@@ -14,11 +14,8 @@ subprojects {
 
     java {
         toolchain {
-            languageVersion = JavaLanguageVersion.of(21)
+            languageVersion = JavaLanguageVersion.of(25)
         }
-
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = sourceCompatibility
     }
 
     dependencies {

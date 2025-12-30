@@ -4,7 +4,7 @@ junit = "5.12.2"
 mockito = "5.17.0"
 assertj = "3.23.1"
 enonicDefaults = "2.1.5"
-xpApp = "3.6.2"
+xpApp = "4.0.0-A1"
 
 nodeGradle = "7.1.0"
 
