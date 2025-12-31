@@ -17,7 +17,7 @@ export function IssueStatusBadge({status, className}: IssueStatusBadgeProps): Re
 
     // TODO: Replace bg-bdr-subtle once the closed status color is defined.
     return (
-        <span data-component={ISSUE_STATUS_BADGE_NAME} className={cn('inline-flex items-center gap-2', className)}>
+        <span data-component={ISSUE_STATUS_BADGE_NAME} className={cn('inline-flex items-center gap-3', className)}>
             <span className={cn('h-5 w-5 rounded-full bg-success', isClosed && 'bg-bdr-subtle')}/>
             <span className={cn('text-lg font-semibold capitalize', isClosed && 'text-subtle')}>
                 {label}
