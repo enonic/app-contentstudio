@@ -5,11 +5,16 @@ import {IssueStatus} from '../../../../app/issue/IssueStatus';
 import {IssueType} from '../../../../app/issue/IssueType';
 import {GetIssueStatsRequest} from '../../../../app/issue/resource/GetIssueStatsRequest';
 import {ListIssuesRequest} from '../../../../app/issue/resource/ListIssuesRequest';
+import type {IssueWithAssignees} from '../../../../app/issue/IssueWithAssignees';
 import {createDebounce} from '../../utils/timing/createDebounce';
 import {$activeProject} from '../projects.store';
 
-import type {IssueWithAssignees} from '../../../../app/issue/IssueWithAssignees';
-import type {IssueDialogFilter, IssueDialogListTotals, IssueDialogTab, IssueDialogView} from '../../shared/dialogs/issue/issueDialog.types';
+import type {
+    IssueDialogFilter,
+    IssueDialogListTotals,
+    IssueDialogTab,
+    IssueDialogView,
+} from '../../shared/dialogs/issue/issueDialog.types';
 
 //
 // * Store state
@@ -114,6 +119,16 @@ export const closeIssueDialog = (): void => {
 };
 
 export const setIssueDialogView = (view: IssueDialogView): void => {
+    if (view === 'list') {
+        const state = $issueDialog.get();
+        $issueDialog.set({
+            ...state,
+            view,
+            issueId: undefined,
+        });
+        return;
+    }
+
     $issueDialog.setKey('view', view);
 };
 

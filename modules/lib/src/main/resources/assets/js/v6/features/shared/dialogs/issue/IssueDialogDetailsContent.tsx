@@ -1,19 +1,292 @@
-import {Dialog} from '@enonic/ui';
-import {type ReactElement} from 'react';
+import {Button, Dialog, Selector, Tab, cn} from '@enonic/ui';
+import {useStore} from '@nanostores/preact';
+import {Globe, Hash} from 'lucide-react';
+import {useEffect, useMemo, useRef, type ComponentPropsWithoutRef, type ReactElement} from 'react';
+
+import {IssueStatus} from '../../../../../app/issue/IssueStatus';
+import {IssueType} from '../../../../../app/issue/IssueType';
+import {$issueDialog, loadIssueDialogList, setIssueDialogView} from '../../../store/dialogs/issueDialog.store';
+import {
+    $issueDialogDetails,
+    loadIssueDialogComments,
+    setIssueDialogCommentText,
+    setIssueDialogDetailsTab,
+    submitIssueDialogComment,
+    updateIssueDialogStatus,
+} from '../../../store/dialogs/issueDialogDetails.store';
 import {useI18n} from '../../../hooks/useI18n';
+import {stopPointerDownPropagation} from '../../../utils/dom/events/stopPointerDownPropagation';
+import {IssueStatusBadge} from '../../status/IssueStatusBadge';
+import {IssueCommentsList} from './IssueCommentsList';
+
+import type {Issue} from '../../../../../app/issue/Issue';
+import type {IssueWithAssignees} from '../../../../../app/issue/IssueWithAssignees';
+import type {IssueDialogDetailsTab} from './issueDialog.types';
+
+type StatusOption = 'open' | 'closed';
+
+type StatusOptionItem = {
+    value: StatusOption;
+    label: string;
+    status: IssueStatus;
+};
+
+type IssueDialogDetailsTabTriggerProps = {
+    value: IssueDialogDetailsTab;
+    label: string;
+    className?: string;
+};
+
+export type IssueDetailsItemProps = {
+    issue?: IssueWithAssignees;
+};
 
 const ISSUE_DIALOG_DETAILS_CONTENT_NAME = 'IssueDialogDetailsContent';
 
-export const IssueDialogDetailsContent = (): ReactElement => {
-    const title = useI18n('dialog.issue');
+const resizeTextarea = (element: HTMLTextAreaElement): void => {
+    element.style.height = 'auto';
+    element.style.height = `${element.scrollHeight}px`;
+};
+
+const getStatusOptions = (openLabel: string, closedLabel: string): StatusOptionItem[] => {
+    return [
+        {value: 'open', label: openLabel, status: IssueStatus.OPEN},
+        {value: 'closed', label: closedLabel, status: IssueStatus.CLOSED},
+    ];
+};
+
+const resolveStatusOption = (
+    options: StatusOptionItem[],
+    value: string | undefined,
+): StatusOptionItem | undefined => {
+    return options.find(option => option.value === value);
+};
+
+const renderIssueIcon = (issue: Issue | undefined): ReactElement | null => {
+    if (!issue) {
+        return null;
+    }
+
+    const isTask = issue.getType() === IssueType.STANDARD;
+    const IssueIcon = isTask ? Hash : Globe;
+
+    return (
+        <IssueIcon
+            className={cn(
+                'size-6 shrink-0',
+                isTask && 'border-subtle border-solid rounded-sm p-0.25 border-2',
+            )}
+        />
+    );
+};
+
+const STATUS_LOOKUP: Record<StatusOption, IssueStatus> = {
+    open: IssueStatus.OPEN,
+    closed: IssueStatus.CLOSED,
+};
+
+const IssueDialogDetailsTabTrigger = ({
+    value,
+    label,
+    className,
+}: IssueDialogDetailsTabTriggerProps): ReactElement => {
+    return (
+        <Tab.Trigger value={value} className={cn('cursor-pointer hover:text-main', className)}>
+            <span className='truncate'>{label}</span>
+        </Tab.Trigger>
+    );
+};
+
+export const IssueDialogDetailsContent = ({issue}: IssueDetailsItemProps): ReactElement => {
+    const fallbackTitle = useI18n('dialog.issue');
+    const backLabel = useI18n('dialog.issue.back');
+    const commentLabel = useI18n('action.commentIssue');
+    const openStatusLabel = useI18n('field.issue.status.open');
+    const closedStatusLabel = useI18n('field.issue.status.closed');
+    const commentsLabel = useI18n('field.comments');
+    const itemsLabel = useI18n('field.items');
+    const assigneesLabel = useI18n('field.assignees');
+    const noItemsLabel = useI18n('dialog.issue.noItems');
+    const inviteUsersLabel = useI18n('dialog.issue.inviteUsers');
+
+    const {issueId, issues} = useStore($issueDialog, {
+        keys: ['issueId', 'issues'],
+    });
+    const {
+        detailsTab,
+        commentText,
+        comments,
+        commentsLoading,
+        commentSubmitting,
+        statusUpdating,
+    } = useStore($issueDialogDetails, {
+        keys: [
+            'detailsTab',
+            'commentText',
+            'comments',
+            'commentsLoading',
+            'commentSubmitting',
+            'statusUpdating',
+        ],
+    });
+
+    const resolvedIssue = issue && issueId && issue.getIssue().getId() === issueId
+        ? issue
+        : issues.find(item => item.getIssue().getId() === issueId);
+    const issueData = resolvedIssue?.getIssue();
+    const title = issueData ? issueData.getTitleWithId() : fallbackTitle;
+    const currentStatus = issueData?.getIssueStatus() ?? IssueStatus.OPEN;
+    const statusValue: StatusOption = currentStatus === IssueStatus.CLOSED ? 'closed' : 'open';
+    const isStatusDisabled = !issueData || statusUpdating;
+
+    const commentTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+    useEffect(() => {
+        if (!issueId || issues.length > 0 || resolvedIssue) {
+            return;
+        }
+        void loadIssueDialogList();
+    }, [issueId, issues.length, resolvedIssue]);
+
+    useEffect(() => {
+        if (!issueId) {
+            return;
+        }
+        void loadIssueDialogComments(issueId);
+    }, [issueId]);
+
+    useEffect(() => {
+        const element = commentTextareaRef.current;
+        if (!element) {
+            return;
+        }
+        resizeTextarea(element);
+    }, [commentText]);
+
+    const handleStatusChange = (next: StatusOption): void => {
+        void updateIssueDialogStatus(STATUS_LOOKUP[next]);
+    };
+
+    const handleCommentInput: NonNullable<ComponentPropsWithoutRef<'textarea'>['onInput']> = (event) => {
+        const {value} = event.currentTarget;
+        setIssueDialogCommentText(value);
+        resizeTextarea(event.currentTarget);
+    };
+
+    const handleCommentSubmit = (): void => {
+        void submitIssueDialogComment();
+    };
+
+    const handleBack = (): void => {
+        setIssueDialogView('list');
+    };
+
+    const handleTabChange = (next: string): void => {
+        setIssueDialogDetailsTab(next as IssueDialogDetailsTab);
+    };
+
+    const canSubmitComment = commentText.trim().length > 0 && !commentSubmitting && !!issueId;
+    const statusOptions = useMemo(
+        () => getStatusOptions(openStatusLabel, closedStatusLabel),
+        [openStatusLabel, closedStatusLabel],
+    );
 
     return (
         <Dialog.Content
-            className="w-full h-full gap-6 sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220"
+            className='sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-236 gap-7.5 px-5'
             data-component={ISSUE_DIALOG_DETAILS_CONTENT_NAME}
         >
-            <Dialog.DefaultHeader title={title} withClose/>
-            <Dialog.Body/>
+            <Dialog.Header className='grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 px-5'>
+                <div className='flex min-w-0 items-center gap-2.5'>
+                    {renderIssueIcon(issueData)}
+                    <Dialog.Title className='min-w-0 truncate text-2xl font-semibold'>{title}</Dialog.Title>
+                </div>
+                <Dialog.DefaultClose className='self-start justify-self-end'/>
+            </Dialog.Header>
+            <Dialog.Body className='min-h-0'>
+                <Tab.Root value={detailsTab} onValueChange={handleTabChange}>
+                    <div className='grid min-h-0 grid-cols-4 gap-x-3.5 gap-y-7.5 items-end px-2.5'>
+                        <div className='flex flex-col gap-2.5 px-2.5 pt-1.5'>
+                            <Selector.Root
+                                value={statusValue}
+                                disabled={isStatusDisabled}
+                                onValueChange={handleStatusChange}
+                            >
+                                <Selector.Trigger>
+                                    <Selector.Value placeholder={openStatusLabel}>
+                                        {(value) => {
+                                            const option = resolveStatusOption(statusOptions, value);
+                                            return option ? <IssueStatusBadge status={option.status}/> : openStatusLabel;
+                                        }}
+                                    </Selector.Value>
+                                    <Selector.Icon/>
+                                </Selector.Trigger>
+                                <Selector.Content onPointerDownCapture={stopPointerDownPropagation}>
+                                    <Selector.Viewport>
+                                        {statusOptions.map(option => (
+                                            <Selector.Item key={option.value} value={option.value} textValue={option.label}>
+                                                <Selector.ItemText>
+                                                    <IssueStatusBadge status={option.status}/>
+                                                </Selector.ItemText>
+                                                <Selector.ItemIndicator/>
+                                            </Selector.Item>
+                                        ))}
+                                    </Selector.Viewport>
+                                </Selector.Content>
+                            </Selector.Root>
+                        </div>
+
+                        <Tab.List className='col-span-3 px-2.5 justify-end'>
+                            <IssueDialogDetailsTabTrigger value='comments' label={commentsLabel}/>
+                            <IssueDialogDetailsTabTrigger value='items' label={itemsLabel}/>
+                            <IssueDialogDetailsTabTrigger value='assignees' label={assigneesLabel}/>
+                        </Tab.List>
+
+                        <Tab.Content value='comments' className='col-span-4 mt-0 min-h-0 px-2.5'>
+                            <div className='flex min-h-0 flex-col gap-7.5'>
+                                <IssueCommentsList
+                                    issue={issueData}
+                                    comments={comments}
+                                    loading={commentsLoading}
+                                />
+                                <div className='min-w-0'>
+                                    <textarea
+                                        ref={commentTextareaRef}
+                                        value={commentText}
+                                        onInput={handleCommentInput}
+                                        rows={3}
+                                        disabled={commentSubmitting}
+                                        className={cn(
+                                            'w-full resize-none rounded-sm border border-bdr-soft bg-surface px-3 py-2 text-sm',
+                                            'transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring',
+                                            'focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
+                                            commentSubmitting && 'opacity-70',
+                                        )}
+                                    />
+                                </div>
+                            </div>
+                        </Tab.Content>
+
+                        <Tab.Content value='items' className='col-span-4 mt-0 px-2.5'>
+                            <div className='text-sm text-subtle'>{noItemsLabel}</div>
+                        </Tab.Content>
+
+                        <Tab.Content value='assignees' className='col-span-4 mt-0 px-2.5'>
+                            <div className='text-sm text-subtle'>{inviteUsersLabel}</div>
+                        </Tab.Content>
+                    </div>
+                </Tab.Root>
+            </Dialog.Body>
+            <Dialog.Footer className='px-5 justify-between'>
+                <Button variant='outline' size='lg' label={backLabel} onClick={handleBack}/>
+                <Button
+                    variant='solid'
+                    size='lg'
+                    label={commentLabel}
+                    onClick={handleCommentSubmit}
+                    disabled={!canSubmitComment}
+                />
+            </Dialog.Footer>
         </Dialog.Content>
     );
 };

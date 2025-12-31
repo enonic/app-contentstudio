@@ -4,6 +4,8 @@ export type IssueDialogFilter = 'all' | 'assignedToMe' | 'createdByMe' | 'publis
 
 export type IssueDialogTab = 'open' | 'closed';
 
+export type IssueDialogDetailsTab = 'comments' | 'items' | 'assignees';
+
 export type IssueDialogListCounts = {
     open: number;
     closed: number;
