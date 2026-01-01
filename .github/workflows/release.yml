@@ -66,7 +66,7 @@ jobs:
         run: ./gradlew publish -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=ci -PrepoPassword=${{ secrets.ARTIFACTORY_PASSWORD }}
 
       - name: Download changelog
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: changelog
 
