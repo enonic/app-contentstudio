@@ -14,7 +14,7 @@ import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 export interface GetTypesParams {
     contentId?: ContentId,
     allowedContentTypes?: string[],
-    project?: Project
+    project?: Project | Readonly<Project>
 }
 
 export class ContentTypesHelper {
@@ -33,7 +33,7 @@ export class ContentTypesHelper {
             .sendAndParse();
     }
 
-    private static filterContentTypes(contentTypes: ContentTypeSummary[], project?: Project): Q.Promise<ContentTypeSummary[]> {
+    private static filterContentTypes(contentTypes: ContentTypeSummary[], project?: Project | Readonly<Project>): Q.Promise<ContentTypeSummary[]> {
         const isContentAdmin: boolean = AuthHelper.isContentAdmin();
 
         return (isContentAdmin ? Q(true) : ProjectHelper.isUserProjectOwner(project)).then((hasAdminRights: boolean) => {
@@ -45,7 +45,7 @@ export class ContentTypesHelper {
         return contentTypes.filter((contentType: ContentTypeSummary) => !contentType.isSite());
     }
 
-    static getAggregatedTypesByContent(parent?: ContentSummary, project?: Project): Q.Promise<AggregateContentTypesResult> {
+    static getAggregatedTypesByContent(parent?: ContentSummary, project?: Project | Readonly<Project>): Q.Promise<AggregateContentTypesResult> {
         return new AggregateContentTypesByPathRequest(parent?.getPath() || ContentPath.getRoot(), project).sendAndParse();
     }
 

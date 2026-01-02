@@ -169,13 +169,13 @@ importers:
   .xp/dev/lib-admin-ui:
     dependencies:
       '@enonic/ui':
-        specifier: ~0.26.0
-        version: 0.26.0(@radix-ui/react-slot@1.2.3(@types/react@19.2.2)(react@19.2.0))(focus-trap-react@11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(lucide-react@0.540.0(react@19.2.0))(preact@10.27.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        specifier: ~0.22.1
+        version: 0.22.2(@radix-ui/react-slot@1.2.3(@types/react@19.2.2)(react@19.2.0))(focus-trap-react@11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(lucide-react@0.540.0(react@19.2.0))(preact@10.27.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-slot':
         specifier: ^1.2.0
         version: 1.2.3(@types/react@19.2.2)(react@19.2.0)
       dompurify:
-        specifier: ~3.3.1
+        specifier: ~3.3.0
         version: 3.3.1
       fine-uploader:
         specifier: ^5.16.2
@@ -212,7 +212,7 @@ importers:
         version: 1.5.1
     devDependencies:
       '@enonic/eslint-config':
-        specifier: ^2.2.1
+        specifier: ^2.1.0
         version: 2.2.1(@typescript-eslint/parser@8.50.1(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(typescript-eslint@8.50.1(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(typescript@5.9.3)
       '@rollup/plugin-inject':
         specifier: ^5.0.5
@@ -226,11 +226,14 @@ importers:
       '@types/mousetrap':
         specifier: ^1.6.15
         version: 1.6.15
+      '@types/postcss-normalize':
+        specifier: ~9.0.4
+        version: 9.0.4
       '@types/q':
         specifier: ^1.5.8
         version: 1.5.8
       autoprefixer:
-        specifier: ^10.4.23
+        specifier: ^10.4.22
         version: 10.4.23(postcss@8.5.6)
       browserslist-config-enonic:
         specifier: ^1.0.8
@@ -245,13 +248,13 @@ importers:
         specifier: ^2.4.0
         version: 2.4.0
       eslint:
-        specifier: ^9.39.2
+        specifier: ^9.39.1
         version: 9.39.2(jiti@2.6.1)
       jiti:
         specifier: ~2.6.1
         version: 2.6.1
       less:
-        specifier: ^4.5.1
+        specifier: ^4.4.2
         version: 4.5.1
       postcss-normalize:
         specifier: ^13.0.1
@@ -263,17 +266,17 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
       typescript-eslint:
-        specifier: ^8.50.1
+        specifier: ^8.47.0
         version: 8.50.1(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
       vite:
-        specifier: ^7.3.0
+        specifier: ^7.2.2
         version: 7.3.0(@types/node@24.7.2)(jiti@2.6.1)(less@4.5.1)(lightningcss@1.30.1)(terser@5.44.0)
 
   .xp/dev/lib-contentstudio:
     dependencies:
       '@enonic/ui':
-        specifier: ~0.25.1
-        version: 0.25.1(@radix-ui/react-slot@1.2.3(@types/react@19.2.2)(react@19.2.0))(focus-trap-react@11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(lucide-react@0.545.0(react@19.2.0))(preact@10.27.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        specifier: ~0.26.0
+        version: 0.26.0(@radix-ui/react-slot@1.2.3(@types/react@19.2.2)(react@19.2.0))(focus-trap-react@11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(lucide-react@0.545.0(react@19.2.0))(preact@10.27.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@nanostores/preact':
         specifier: ^1.0.0
         version: 1.0.0(nanostores@0.11.4)(preact@10.27.2)
@@ -319,6 +322,9 @@ importers:
       nanostores:
         specifier: ^0.11.4
         version: 0.11.4
+      neverthrow:
+        specifier: ^8.2.0
+        version: 8.2.0
       preact:
         specifier: ^10.27.2
         version: 10.27.2
@@ -508,9 +514,9 @@ packages:
       typescript: ^5.8.3
       typescript-eslint: ^8.39.0
 
-  '@enonic/ui@0.25.1':
-    resolution: {integrity: sha512-WXVuhVgI21NDWY8tOLsX1XgtsW7fd2eoaOSUgEVRm3ZOmTbKXdfwyRJpA0cy93gaVxSu68SBcGUgWoj5MQItUQ==}
-    engines: {node: '>=24.11.1', npm: '>=11.6.2', pnpm: '>=10.24.0'}
+  '@enonic/ui@0.22.2':
+    resolution: {integrity: sha512-ACqakQ/EL66O2gbyWyxCF1vRUnYnmQvPJfgl5oZZx/UGxsbmro3yzMMSCx/3Gmtax8aBKu5fGhwmWn4eiRGKrA==}
+    engines: {node: '>=22.19.5', npm: '>=10.9.3', pnpm: '>=10.17.0'}
     peerDependencies:
       '@radix-ui/react-slot': ^1.2.0
       focus-trap-react: ^11.0.0
@@ -1485,6 +1491,9 @@ packages:
 
   '@types/node@24.7.2':
     resolution: {integrity: sha512-/NbVmcGTP+lj5oa4yiYxxeBjRivKQ5Ns1eSZeB99ExsEQ6rX5XYU1Zy/gGxY/ilqtD4Etx9mKyrPxZRetiahhA==}
+
+  '@types/postcss-normalize@9.0.4':
+    resolution: {integrity: sha512-Xb7BJaeHPXAvUW8dTxNyeU7KdLuN9SCTnSY+RjxGuDeix7QR6URrHc0tJL5LVWa/dbjbM2fQk1H6AvaFekNvGA==}
 
   '@types/q@1.5.8':
     resolution: {integrity: sha512-hroOstUScF6zhIi+5+x0dzqrHA1EJi+Irri6b1fxolMTqqHIV/Cg77EtnQcZqZCu8hR3mX2BzIxN4/GzI68Kfw==}
@@ -3013,6 +3022,10 @@ packages:
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
 
+  neverthrow@8.2.0:
+    resolution: {integrity: sha512-kOCT/1MCPAxY5iUV3wytNFUMUolzuwd/VF/1KCx7kf6CutrOsTie+84zTGTpgQycjvfLdBBdvBvFLqFD2c0wkQ==}
+    engines: {node: '>=18'}
+
   node-releases@2.0.27:
     resolution: {integrity: sha512-nmh3lCkYZ3grZvqcCH+fjmQ7X+H0OeZgP40OierEaAptX4XofMh5kwNbWh7lBduUzCcV/8kZ+NDLCwm2iorIlA==}
 
@@ -3099,6 +3112,9 @@ packages:
 
   pend@1.2.0:
     resolution: {integrity: sha512-F3asv42UuXchdzt+xXqfW1OGlVBe+mxa2mqI0pg5yAHZPvFmY3Y6drSf/GQ1A86WgWEN9Kzh/WrgKa6iGcHXLg==}
+
+  picocolors@0.2.1:
+    resolution: {integrity: sha512-cMlDqaLEqfSaW8Z7N5Jw+lyIW869EzT73/F5lhtY9cLGoVxSXznfgfXMO0Z5K0o0Q2TkTXq+0KFsdnSe3jDViA==}
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -3347,6 +3363,10 @@ packages:
 
   postcss-value-parser@4.2.0:
     resolution: {integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==}
+
+  postcss@7.0.39:
+    resolution: {integrity: sha512-yioayjNbHn6z1/Bywyb2Y4s3yvDAeXGOyxqD+LnVOinq6Mdmd++SW2wUNVzavyyHxd6+DxzWGIuosg6P1Rj8uA==}
+    engines: {node: '>=6.0.0'}
 
   postcss@8.5.6:
     resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
@@ -4015,26 +4035,26 @@ snapshots:
       typescript: 5.9.3
       typescript-eslint: 8.50.1(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
 
-  '@enonic/ui@0.25.1(@radix-ui/react-slot@1.2.3(@types/react@19.2.2)(react@19.2.0))(focus-trap-react@11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(lucide-react@0.545.0(react@19.2.0))(preact@10.27.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
-    dependencies:
-      '@radix-ui/react-slot': 1.2.3(@types/react@19.2.2)(react@19.2.0)
-      class-variance-authority: 0.7.1
-      clsx: 2.1.1
-      focus-trap-react: 11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      lucide-react: 0.545.0(react@19.2.0)
-      tailwind-merge: 3.4.0
-    optionalDependencies:
-      preact: 10.27.2
-      react: 19.2.0
-      react-dom: 19.2.0(react@19.2.0)
-
-  '@enonic/ui@0.26.0(@radix-ui/react-slot@1.2.3(@types/react@19.2.2)(react@19.2.0))(focus-trap-react@11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(lucide-react@0.540.0(react@19.2.0))(preact@10.27.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+  '@enonic/ui@0.22.2(@radix-ui/react-slot@1.2.3(@types/react@19.2.2)(react@19.2.0))(focus-trap-react@11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(lucide-react@0.540.0(react@19.2.0))(preact@10.27.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@radix-ui/react-slot': 1.2.3(@types/react@19.2.2)(react@19.2.0)
       class-variance-authority: 0.7.1
       clsx: 2.1.1
       focus-trap-react: 11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       lucide-react: 0.540.0(react@19.2.0)
+      tailwind-merge: 3.4.0
+    optionalDependencies:
+      preact: 10.27.2
+      react: 19.2.0
+      react-dom: 19.2.0(react@19.2.0)
+
+  '@enonic/ui@0.26.0(@radix-ui/react-slot@1.2.3(@types/react@19.2.2)(react@19.2.0))(focus-trap-react@11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(lucide-react@0.545.0(react@19.2.0))(preact@10.27.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+    dependencies:
+      '@radix-ui/react-slot': 1.2.3(@types/react@19.2.2)(react@19.2.0)
+      class-variance-authority: 0.7.1
+      clsx: 2.1.1
+      focus-trap-react: 11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      lucide-react: 0.545.0(react@19.2.0)
       tailwind-merge: 3.4.0
     optionalDependencies:
       preact: 10.27.2
@@ -4688,6 +4708,10 @@ snapshots:
     dependencies:
       undici-types: 7.14.0
 
+  '@types/postcss-normalize@9.0.4':
+    dependencies:
+      postcss: 7.0.39
+
   '@types/q@1.5.8': {}
 
   '@types/react-dom@19.2.1(@types/react@19.2.2)':
@@ -4780,8 +4804,8 @@ snapshots:
 
   '@typescript-eslint/project-service@8.47.0(typescript@5.9.3)':
     dependencies:
-      '@typescript-eslint/tsconfig-utils': 8.47.0(typescript@5.9.3)
-      '@typescript-eslint/types': 8.47.0
+      '@typescript-eslint/tsconfig-utils': 8.50.1(typescript@5.9.3)
+      '@typescript-eslint/types': 8.50.1
       debug: 4.4.3
       typescript: 5.9.3
     transitivePeerDependencies:
@@ -5250,7 +5274,7 @@ snapshots:
   browserslist@4.28.0:
     dependencies:
       baseline-browser-mapping: 2.8.29
-      caniuse-lite: 1.0.30001755
+      caniuse-lite: 1.0.30001761
       electron-to-chromium: 1.5.255
       node-releases: 2.0.27
       update-browserslist-db: 1.1.4(browserslist@4.28.0)
@@ -5288,8 +5312,8 @@ snapshots:
 
   caniuse-api@3.0.0:
     dependencies:
-      browserslist: 4.28.0
-      caniuse-lite: 1.0.30001755
+      browserslist: 4.28.1
+      caniuse-lite: 1.0.30001761
       lodash.memoize: 4.1.2
       lodash.uniq: 4.5.0
 
@@ -6402,6 +6426,10 @@ snapshots:
 
   neo-async@2.6.2: {}
 
+  neverthrow@8.2.0:
+    optionalDependencies:
+      '@rollup/rollup-linux-x64-gnu': 4.52.4
+
   node-releases@2.0.27: {}
 
   normalize-path@3.0.0: {}
@@ -6476,6 +6504,8 @@ snapshots:
 
   pend@1.2.0: {}
 
+  picocolors@0.2.1: {}
+
   picocolors@1.1.1: {}
 
   picomatch@2.3.1: {}
@@ -6506,7 +6536,7 @@ snapshots:
 
   postcss-colormin@7.0.5(postcss@8.5.6):
     dependencies:
-      browserslist: 4.28.0
+      browserslist: 4.28.1
       caniuse-api: 3.0.0
       colord: 2.9.3
       postcss: 8.5.6
@@ -6514,7 +6544,7 @@ snapshots:
 
   postcss-convert-values@7.0.8(postcss@8.5.6):
     dependencies:
-      browserslist: 4.28.0
+      browserslist: 4.28.1
       postcss: 8.5.6
       postcss-value-parser: 4.2.0
 
@@ -6554,7 +6584,7 @@ snapshots:
 
   postcss-merge-rules@7.0.7(postcss@8.5.6):
     dependencies:
-      browserslist: 4.28.0
+      browserslist: 4.28.1
       caniuse-api: 3.0.0
       cssnano-utils: 5.0.1(postcss@8.5.6)
       postcss: 8.5.6
@@ -6574,7 +6604,7 @@ snapshots:
 
   postcss-minify-params@7.0.5(postcss@8.5.6):
     dependencies:
-      browserslist: 4.28.0
+      browserslist: 4.28.1
       cssnano-utils: 5.0.1(postcss@8.5.6)
       postcss: 8.5.6
       postcss-value-parser: 4.2.0
@@ -6637,7 +6667,7 @@ snapshots:
 
   postcss-normalize-unicode@7.0.5(postcss@8.5.6):
     dependencies:
-      browserslist: 4.28.0
+      browserslist: 4.28.1
       postcss: 8.5.6
       postcss-value-parser: 4.2.0
 
@@ -6667,7 +6697,7 @@ snapshots:
 
   postcss-reduce-initial@7.0.5(postcss@8.5.6):
     dependencies:
-      browserslist: 4.28.0
+      browserslist: 4.28.1
       caniuse-api: 3.0.0
       postcss: 8.5.6
 
@@ -6698,6 +6728,11 @@ snapshots:
       postcss-selector-parser: 7.1.0
 
   postcss-value-parser@4.2.0: {}
+
+  postcss@7.0.39:
+    dependencies:
+      picocolors: 0.2.1
+      source-map: 0.6.1
 
   postcss@8.5.6:
     dependencies:
@@ -6910,7 +6945,7 @@ snapshots:
 
   stylehacks@7.0.6(postcss@8.5.6):
     dependencies:
-      browserslist: 4.28.0
+      browserslist: 4.28.1
       postcss: 8.5.6
       postcss-selector-parser: 7.1.0
 
