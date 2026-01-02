@@ -6,14 +6,21 @@ import {$contextContent} from './contextContent.store';
 
 export type VisualTarget = 'edit' | 'restore' | 'compare';
 
+export type VersionsFilter = 'data' | 'none';
+
 export const $versions = atom<ContentVersion[]>([]);
 
 export const $visualFocus = atom<VisualTarget | null>(null);
 
-export const $versionsByDate = computed($versions, (versions) => {
+export const $versionsListFilter = atom<VersionsFilter>('data');
+
+export const $versionsByDate = computed([$versions, $versionsListFilter], (versions, filterMode) => {
     const versionsByDate: Record<string, ContentVersion[]> = {};
 
-    versions.forEach((version) => {
+    versions.filter(v => {
+        return filterMode === 'data' ? isDataVersion(v) : true;
+    })
+        .forEach((version) => {
         const timestamp = version.getTimestamp();
         // Format date as YYYY-MM-DD
         const dateKey = `${timestamp.getFullYear()}-${(timestamp.getMonth() + 1).toString().padStart(2,
@@ -94,9 +101,16 @@ export const setVisualFocus = (target: VisualTarget | null): void => {
 }
 
 export const getVisualTargets = (versionId: string): VisualTarget[] => {
-    if ($activeVersionId.get() === versionId) {
+    const isActive = $activeVersionId.get() === versionId;
+
+    if ($versionsListFilter.get() === 'none') {
+        return isActive ? ['edit'] : [];
+    }
+
+    if (isActive) {
         return ['edit', 'restore', 'compare'];
     }
+
     return ['restore', 'compare'];
 }
 
@@ -147,4 +161,12 @@ export const revertToVersion = (versionId: string): void => {
     }
 
     ContentVersionHelper.revert(content.getContentId(), version.getId(), version.getTimestamp());
+}
+
+export const isDataFilterOn = (): boolean => {
+    return $versionsListFilter.get() === 'data';
+}
+
+const isDataVersion = (version: ContentVersion): boolean => {
+    return true;
 }

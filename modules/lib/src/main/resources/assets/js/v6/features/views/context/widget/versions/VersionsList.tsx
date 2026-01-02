@@ -3,12 +3,13 @@ import {useStore} from '@nanostores/preact';
 import {ReactElement, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useI18n} from '../../../../hooks/useI18n';
 import {$contextContent} from '../../../../store/context/contextContent.store';
-import {$selectedVersions, $versionsByDate, setSelectedVersions} from '../../../../store/context/versionStore';
+import {$selectedVersions, $versionsByDate, isDataFilterOn, setSelectedVersions} from '../../../../store/context/versionStore';
 import {useInfiniteScroll} from '../../../../hooks/useInfiniteScroll';
 import {useVersionsData} from './hooks/useVersionsData';
 import {useVersionsKeyboard} from './hooks/useVersionsKeyboard';
 import {VersionsListContent} from './VersionsListContent';
 import {VersionSelectionToolbar} from './VersionSelectionToolbar';
+import {VersionsShowAllActivitiesSection} from './VersionsShowAllActivitiesSection';
 
 const INFINITE_SCROLL_CONFIG = {
     ROOT_MARGIN: '200px',
@@ -87,7 +88,10 @@ export const VersionsList = (): ReactElement => {
             data-component={COMPONENT_NAME}
             onFocus={handleFocus}
             onBlur={handleBlur}
+            className={'flex flex-col gap-5'}
         >
+            {selection.size === 0 && <VersionsShowAllActivitiesSection />}
+
             {selection.size > 0 && (
                 <VersionSelectionToolbar
                     selectionSize={selection.size}
@@ -95,32 +99,34 @@ export const VersionsList = (): ReactElement => {
                 />
             )}
 
-            <Listbox
-                selectionMode='multiple'
-                selection={selectionArray}
-                focusMode='activedescendant'
-                active={activeVersionId}
-                setActive={setActiveVersionId}
-                onSelectionChange={handleSelectionChange}
-            >
-                <VersionsListContent
-                    versionsByDate={versionsByDate}
-                    activeVersionId={activeVersionId}
-                    isFocused={isFocused}
-                    onKeyDown={handleKeyDown}
-                    listRef={listRef}
-                />
-            </Listbox>
+            <div>
+                <Listbox
+                    selectionMode='multiple'
+                    selection={selectionArray}
+                    focusMode='activedescendant'
+                    active={activeVersionId}
+                    setActive={setActiveVersionId}
+                    onSelectionChange={handleSelectionChange}
+                >
+                    <VersionsListContent
+                        versionsByDate={versionsByDate}
+                        activeVersionId={activeVersionId}
+                        isFocused={isFocused}
+                        onKeyDown={handleKeyDown}
+                        listRef={listRef}
+                    />
+                </Listbox>
 
-            {isLoading && (
-                <div className='flex items-center justify-center text-sm text-grey-600'>
-                    {loadingLabel}
-                </div>
-            )}
+                {isLoading && (
+                    <div className='flex items-center justify-center text-sm text-grey-600'>
+                        {loadingLabel}
+                    </div>
+                )}
 
-            {hasMore && !isLoading && (
-                <div ref={loadMoreRef} className='h-10 w-full opacity-0' />
-            )}
+                {hasMore && !isLoading && (
+                    <div ref={loadMoreRef} className='h-10 w-full opacity-0' />
+                )}
+            </div>
         </div>
     );
 };

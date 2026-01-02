@@ -2,6 +2,7 @@ import {useCallback, useEffect} from 'react';
 import {useStore} from '@nanostores/preact';
 import {openContextContentForEdit} from '../../../../../store/context/contextContent.store';
 import {
+    $versionsListFilter,
     $visualFocus,
     getVisualTargets,
     moveVisualFocus,
@@ -21,11 +22,12 @@ interface UseVersionsKeyboardOptions {
 
 export const useVersionsKeyboard = ({activeVersionId, isFocused}: UseVersionsKeyboardOptions) => {
     const visualFocus = useStore($visualFocus);
+    const filter = useStore($versionsListFilter);
 
     // Reset visual focus to 'compare' when active item or focus changes
     useEffect(() => {
         if (activeVersionId && isFocused) {
-            setVisualFocus('compare');
+            setVisualFocus(filter === 'none' ? 'edit' : 'compare');
         }
     }, [activeVersionId, isFocused]);
 
@@ -51,6 +53,8 @@ export const useVersionsKeyboard = ({activeVersionId, isFocused}: UseVersionsKey
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             e.stopPropagation();
+
+            if (!visualTargets.length) return;
 
             switch (visualFocus) {
                 case 'edit':

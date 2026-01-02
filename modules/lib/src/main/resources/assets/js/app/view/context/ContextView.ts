@@ -71,7 +71,7 @@ export class ContextView
 
         this.editorMode = editorMode;
 
-        this.contextContainer = new DivEl(cn('context-container p-5 pb-12'));
+        this.contextContainer = new DivEl(cn('context-container p-5 pb-7.5'));
 
         this.loadMask = new LoadMask(this);
         this.loadMask.addClass('context-panel-mask');

@@ -10,7 +10,7 @@ import {openContextContentForEdit} from '../../../../store/context/contextConten
 import {
     $activeVersionId,
     $selectedVersions,
-    $selectionModeOn,
+    $selectionModeOn, $versionsListFilter,
     $visualFocus,
     revertToVersion,
     toggleVersionSelection,
@@ -34,6 +34,7 @@ export const VersionsListItem = ({version, isFocused, ...props}: VersionsListIte
     const isSelectionModeOn = useStore($selectionModeOn);
     const latestVersionId = useStore($activeVersionId);
     const visualFocus = useStore($visualFocus);
+    const versionsListFilter = useStore($versionsListFilter);
 
     const {active, setActive} = useListbox();
 
@@ -41,7 +42,7 @@ export const VersionsListItem = ({version, isFocused, ...props}: VersionsListIte
     const isLatestVersion = latestVersionId === versionId;
     const isActiveListItem = active === versionId;
     const isSelected = useMemo(() => selectedVersions.has(versionId), [versionId, selectedVersions]);
-    const showActiveControls = isFocused && isActiveListItem;
+    const showActiveControls = isFocused && isActiveListItem && versionsListFilter === 'data';
     const showCheckboxInline = isSelectionModeOn && (!isActiveListItem || !isFocused);
 
     const modifierDisplayName = version.getModifierDisplayName() || version.getPublishInfo()?.getPublisherDisplayName();
