@@ -88,6 +88,10 @@ import {WizardWidgetRenderingHandler} from '../WizardWidgetRenderingHandler';
 import {SessionStorageHelper} from '../../util/SessionStorageHelper';
 import {IframeEventBus} from '@enonic/lib-admin-ui/event/IframeEventBus';
 import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
+import {CookieHelper} from '@enonic/lib-admin-ui/util/CookieHelper';
+import {PartComponentType} from '../../page/region/PartComponentType';
+import {LayoutComponentType} from '../../page/region/LayoutComponentType';
+import {TextComponentType} from '../../page/region/TextComponentType';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy
@@ -139,6 +143,13 @@ export class LiveEditPageProxy
         // TODO: need to register events thrown from iframe here, because these IframeEventBuses can't communicate
         IframeEventBus.get().registerClass('IframeEvent', IframeEvent);
         IframeEventBus.get().registerClass('SelectComponentEvent', SelectComponentEvent);
+        IframeEventBus.get().registerClass('AddComponentEvent', AddComponentEvent);
+        IframeEventBus.get().registerClass('RemoveComponentRequest', RemoveComponentRequest);
+        IframeEventBus.get().registerClass('DuplicateComponentEvent', DuplicateComponentEvent);
+        IframeEventBus.get().registerClass('PartComponentType', PartComponentType);
+        IframeEventBus.get().registerClass('LayoutComponentType', LayoutComponentType);
+        IframeEventBus.get().registerClass('TextComponentType', TextComponentType);
+        IframeEventBus.get().registerClass('ComponentPath', ComponentPath);
 
 
         IframeEventBus.get().onEvent('editor-iframe-loaded', (data) => {
@@ -257,7 +268,7 @@ export class LiveEditPageProxy
         }
     }
 
-    private handleIFrameLoadedEvent() {
+    private async handleIFrameLoadedEvent() {
         if (LiveEditPageProxy.debug) {
             console.debug('LiveEditPageProxy.handleIframeLoadedEvent at ' + new Date().toISOString());
         }
@@ -301,6 +312,10 @@ export class LiveEditPageProxy
 
                 if (this.isLiveEditAllowed()) {
 
+                    const jsessionid = CookieHelper.getCookie('JSESSIONID');
+                    if (LiveEditPageProxy.debug) {
+                        console.debug('LiveEditPageProxy.hanldeIframeLoadedEvent: JSESSIONID=' + jsessionid);
+                    }
                     new InitializeLiveEditEvent(this.createLiveEditParams())
                         .setContent(this.liveEditModel.getContentSummaryAndCompareStatus())
                         .setPrincipals()
@@ -308,6 +323,7 @@ export class LiveEditPageProxy
                         .setProjectJson()
                         .setPageJson()
                         .setUser()
+                        .setJsessionId(jsessionid)
                         .setHostDomain(`${window.location.protocol}//${window.location.host}`)
                         .fire();
 

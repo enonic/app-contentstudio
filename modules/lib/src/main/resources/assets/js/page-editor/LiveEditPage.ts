@@ -67,6 +67,7 @@ import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {SessionStorageHelper} from '../app/util/SessionStorageHelper';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
+import {Request} from '@enonic/lib-admin-ui/rest/Request';
 
 export class LiveEditPage {
 
@@ -137,8 +138,11 @@ export class LiveEditPage {
         if (LiveEditPage.debug) {
             console.debug('LiveEditPage: starting live edit initialization', event);
         }
-
+        // Setting up parent-like environment inside iframe
         UriHelper.setDomain(event.getHostDomain());
+        if (event.getJsessionId()?.length) {
+            Request.setHeader('Cookie', `JSESSIONID=${event.getJsessionId()}`);
+        }
 
         CONFIG.setConfig(event.getConfig());
         Messages.addMessages(JSON.parse(CONFIG.getString('phrasesAsJson')) as object);
