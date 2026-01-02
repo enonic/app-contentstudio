@@ -1,4 +1,4 @@
-import {Tab} from '@enonic/ui';
+import {cn, Tab} from '@enonic/ui';
 import {ReactElement} from 'react';
 import {
     $newContentDialog,
@@ -14,9 +14,13 @@ const NEW_CONTENT_DIALOG_MEDIA_TAB_NAME = 'NewContentDialogMediaTab';
 
 type NewContentDialogMediaTabProps = {
     tabName: string;
+    isDragging?: boolean;
 };
 
-export const NewContentDialogMediaTab = ({tabName}: NewContentDialogMediaTabProps): ReactElement => {
+export const NewContentDialogMediaTab = ({
+    tabName,
+    isDragging = false,
+}: NewContentDialogMediaTabProps): ReactElement => {
     const {parentContent} = useStore($newContentDialog);
     const hintLabel = useI18n('dialog.new.hint.upload');
 
@@ -40,7 +44,10 @@ export const NewContentDialogMediaTab = ({tabName}: NewContentDialogMediaTabProp
             <input id="file-upload" type="file" multiple onChange={handleChange} className="hidden" />
             <label
                 htmlFor="file-upload"
-                className="flex flex-col gap-2.5 size-full items-center justify-center border border-dashed border-info-rev p-7.5"
+                className={cn(
+                    'flex flex-col gap-2.5 size-full items-center justify-center border border-dashed border-info-rev p-7.5 hover:cursor-pointer transition-all duration-500',
+                    isDragging && 'border-solid scale-105'
+                )}
             >
                 <Image size={28} />
                 <p className="text-subtle font-lg">{hintLabel}</p>
