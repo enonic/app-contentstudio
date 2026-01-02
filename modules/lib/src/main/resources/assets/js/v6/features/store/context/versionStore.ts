@@ -29,7 +29,7 @@ export const $versionsByDate = computed($versions, (versions) => {
     return versionsByDate;
 });
 
-export const $latestVersionId = computed($versions, (versions) => {
+export const $activeVersionId = computed($versions, (versions) => {
     return versions[0]?.getId();
 });
 
@@ -94,7 +94,7 @@ export const setVisualFocus = (target: VisualTarget | null): void => {
 }
 
 export const getVisualTargets = (versionId: string): VisualTarget[] => {
-    if ($latestVersionId.get() === versionId) {
+    if ($activeVersionId.get() === versionId) {
         return ['edit', 'restore', 'compare'];
     }
     return ['restore', 'compare'];
