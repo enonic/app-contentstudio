@@ -1,22 +1,25 @@
-import {Tab} from '@enonic/ui';
-import {ReactElement} from 'react';
+import {cn, Tab} from '@enonic/ui';
+import {useStore} from '@nanostores/preact';
+import {Image} from 'lucide-react';
+import {ReactElement, TargetedEvent} from 'react';
+import {useI18n} from '../../../hooks/useI18n';
 import {
     $newContentDialog,
     closeNewContentDialog,
     uploadMediaFiles,
 } from '../../../store/dialogs/newContentDialog.store';
-import {useStore} from '@nanostores/preact';
-import {Image} from 'lucide-react';
-import {TargetedEvent} from 'react';
-import {useI18n} from '../../../hooks/useI18n';
 
 const NEW_CONTENT_DIALOG_MEDIA_TAB_NAME = 'NewContentDialogMediaTab';
 
 type NewContentDialogMediaTabProps = {
     tabName: string;
+    isDragging?: boolean;
 };
 
-export const NewContentDialogMediaTab = ({tabName}: NewContentDialogMediaTabProps): ReactElement => {
+export const NewContentDialogMediaTab = ({
+    tabName,
+    isDragging = false,
+}: NewContentDialogMediaTabProps): ReactElement => {
     const {parentContent} = useStore($newContentDialog);
     const hintLabel = useI18n('dialog.new.hint.upload');
 
@@ -36,11 +39,15 @@ export const NewContentDialogMediaTab = ({tabName}: NewContentDialogMediaTabProp
     };
 
     return (
-        <Tab.Content value={tabName} className="py-7.5 min-h-50 h-full">
+        <Tab.Content value={tabName} className="py-7.5 min-h-50 h-full overflow-visible">
             <input id="file-upload" type="file" multiple onChange={handleChange} className="hidden" />
             <label
                 htmlFor="file-upload"
-                className="flex flex-col gap-2.5 size-full items-center justify-center border border-dashed border-info-rev p-7.5"
+                className={cn(
+                    'relative flex flex-col gap-2.5 size-full items-center justify-center p-7.5 hover:cursor-pointer',
+                    'before:absolute before:border before:border-dashed before:border-info-rev before:transition-all before:duration-150',
+                    isDragging ? 'before:inset-0' : 'before:inset-2'
+                )}
             >
                 <Image size={28} />
                 <p className="text-subtle font-lg">{hintLabel}</p>
