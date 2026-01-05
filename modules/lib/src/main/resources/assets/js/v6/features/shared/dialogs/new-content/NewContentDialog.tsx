@@ -1,5 +1,8 @@
-import {Dialog, Tab} from '@enonic/ui';
+import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
+import {cn, Dialog, Tab} from '@enonic/ui';
+import {useStore} from '@nanostores/preact';
 import {ReactElement, useRef, useState} from 'react';
+import {useI18n} from '../../../hooks/useI18n';
 import {
     $newContentDialog,
     closeNewContentDialog,
@@ -8,12 +11,9 @@ import {
     uploadDragImages,
     uploadMediaFiles,
 } from '../../../store/dialogs/newContentDialog.store';
-import {useStore} from '@nanostores/preact';
-import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
-import {NewContentDialogMediaTab} from './NewContentDialogMediaTab';
 import {NewContentDialogContentTypesTab} from './NewContentDialogContentTypesTab';
+import {NewContentDialogMediaTab} from './NewContentDialogMediaTab';
 import {NewContentDialogSearch} from './NewContentDialogSearch';
-import {useI18n} from '../../../hooks/useI18n';
 
 const NEW_CONTENT_DIALOG_NAME = 'NewContentDialog';
 
@@ -21,6 +21,7 @@ export const NewContentDialog = (): ReactElement => {
     const [isInputVisible, setIsInputVisible] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const dialogContentRef = useRef<HTMLDivElement>(null);
+    const [isDragging, setIsDragging] = useState(false);
     const {open, selectedTab, parentContent, filteredBaseContentTypes, filteredSuggestedContentTypes} =
         useStore($newContentDialog);
 
@@ -62,8 +63,16 @@ export const NewContentDialog = (): ReactElement => {
         });
     };
 
-    const handleDragEnter = () => {
+    const handleDragEnter = (event: DragEvent) => {
+        setIsDragging(true);
         setSelectedTab('media');
+    };
+
+    const handleDragLeave = (event: DragEvent) => {
+        // Only set isDragging to false if we're leaving the container entirely
+        if (dialogContentRef.current && !dialogContentRef.current.contains(event.relatedTarget as Node)) {
+            setIsDragging(false);
+        }
     };
 
     const handleDragOver = (event: DragEvent) => {
@@ -72,6 +81,8 @@ export const NewContentDialog = (): ReactElement => {
 
     const handleDrop = async (event: DragEvent) => {
         event.preventDefault();
+
+        setIsDragging(false);
 
         if (selectedTab !== 'media') return;
 
@@ -101,10 +112,13 @@ export const NewContentDialog = (): ReactElement => {
                     className="h-160 w-200 max-w-auto gap-2.5"
                     onKeyDown={handleKeyDown}
                     onDragEnter={handleDragEnter}
+                    onDragLeave={handleDragLeave}
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
                 >
-                    <Dialog.Header className="flex justify-between">
+                    <Dialog.Header
+                        className={cn('flex justify-between transition-[filter] duration-150', isDragging && 'blur-xs')}
+                    >
                         <div className="space-y-2.5">
                             <h3 className="font-semibold">{titleLabel}</h3>
                             <p className="text-2xl font-semibold">{dialogDescriptionLabel}</p>
@@ -112,13 +126,13 @@ export const NewContentDialog = (): ReactElement => {
                         <Dialog.DefaultClose />
                     </Dialog.Header>
 
-                    <Dialog.Body>
+                    <Dialog.Body className={cn(isDragging && 'overflow-visible')}>
                         <Tab.Root
                             value={selectedTab}
                             onValueChange={setSelectedTab}
                             className="flex flex-col gap-2.5 p-1.5 h-full"
                         >
-                            <Tab.List>
+                            <Tab.List className={cn('transition-[filter] duration-150', isDragging && 'blur-xs')}>
                                 <Tab.Trigger value="all">{allTabLabel}</Tab.Trigger>
                                 <Tab.Trigger value="suggested">{suggestedTabLabel}</Tab.Trigger>
                                 <Tab.Trigger value="media">{mediaTabLabel}</Tab.Trigger>
@@ -144,7 +158,7 @@ export const NewContentDialog = (): ReactElement => {
                                 parentContent={parentContent}
                             />
 
-                            <NewContentDialogMediaTab tabName="media" />
+                            <NewContentDialogMediaTab tabName="media" isDragging={isDragging} />
                         </Tab.Root>
                     </Dialog.Body>
 
