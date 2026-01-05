@@ -1,6 +1,5 @@
 import {RepositoryEvent} from '@enonic/lib-admin-ui/content/event/RepositoryEvent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {MenuButtonDropdownPos} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {SelectableListBoxPanel} from '@enonic/lib-admin-ui/ui/panel/SelectableListBoxPanel';
@@ -11,21 +10,18 @@ import {ListBoxToolbar} from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolb
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
 import {TreeListBoxExpandedHolder} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
-import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
 import {removeContentTreeItem, updateContentTreeItem} from '../../v6/features/store/contentTreeData.store';
 import {hasSelectedItems} from '../../v6/features/store/contentTreeSelectionStore';
 import {toContentProps} from '../../v6/features/utils/cms/content/converter';
 import {ContentTreeListElement} from '../../v6/features/views/browse/grid/ContentTreeListElement';
 import {ContentId} from '../content/ContentId';
-import {ContentPath, ContentPathBuilder} from '../content/ContentPath';
+import {ContentPath} from '../content/ContentPath';
 import {ContentQuery} from '../content/ContentQuery';
-import {ContentSummary, ContentSummaryBuilder} from '../content/ContentSummary';
+import {ContentSummaryBuilder} from '../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentActionMenuButton} from '../ContentActionMenuButton';
-import {NewMediaUploadEvent} from '../create/NewMediaUploadEvent';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {EditContentEvent} from '../event/EditContentEvent';
@@ -321,10 +317,6 @@ export class ContentBrowsePanel
 
             this.showFilterPanel();
             this.filterPanel.searchItemById(contentId);
-        });
-
-        NewMediaUploadEvent.on((event) => {
-            this.handleNewMediaUpload(event);
         });
 
         this.subscribeOnContentEvents();
@@ -675,12 +667,6 @@ export class ContentBrowsePanel
         this.updateContextPanel(data);
     }
 
-    private handleNewMediaUpload(event: NewMediaUploadEvent) {
-        event.getUploadItems().forEach((item: UploadItem<ContentSummary>) => {
-            this.appendUploadNode(item, event.getParentContent());
-        });
-    }
-
     private updateContextPanel(data: ContentSummaryAndCompareStatus[]) {
         const itemInDetailPanel: ContentSummaryAndCompareStatus = this.contextView.getItem();
 
@@ -784,42 +770,6 @@ export class ContentBrowsePanel
             this.toolbar.disable();
             this.keyNavigator.disableKeys();
         }
-    }
-
-    appendUploadNode(item: UploadItem<ContentSummary>, parentContent?: ContentSummary): void {
-        const data: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromUploadItem(item);
-        const pLists = parentContent ? this.treeListBox.findParentLists(
-            new ContentPathBuilder().fromParent(parentContent.getPath(), data.getId()).build()) : [this.treeListBox];
-
-        const isAlreadyUploading = pLists.some(pList => pList.getItem(item.getId()));
-
-        if (isAlreadyUploading) {
-            return;
-        }
-
-        pLists.forEach(parent => {
-            parent.addNewItems([data]);
-        });
-
-        this.addUploadItemListeners(data, pLists);
-    }
-
-    private addUploadItemListeners(data: ContentSummaryAndCompareStatus, parentLists: ContentsTreeGridList[]) {
-        const uploadItem: UploadItem<ContentSummary> = data.getUploadItem();
-        const listElement = this.treeListBox.getItemView(data) as ContentsTreeGridListElement;
-
-        uploadItem.onProgress(() => {
-            listElement.setItem(data);
-        });
-
-        uploadItem.onUploaded(() => {
-            parentLists.forEach(parent => parent.removeItems(data));
-            showFeedback(i18n('notify.content.uploaded'));
-        });
-
-        uploadItem.onFailed(() => {
-            parentLists.forEach(parent => parent.removeItems(data));
-        });
     }
 
     // TODO: Enonic UI - Sync layer

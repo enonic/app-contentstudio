@@ -1,51 +1,64 @@
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {FlatTreeNode, TreeItems, TreeList} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {KeyboardEventHandler} from 'preact';
 import {useCallback} from 'react';
-import {
-    $contentTreeItems,
-} from '../../../store/contentTreeData.store';
+import {$contentTreeItems} from '../../../store/contentTreeData.store';
 import {
     $contentTreeActiveItem,
     $contentTreeSelection,
     $contentTreeSelectionMode,
-    addSelectedItem, hasSelectedItems, isItemSelected, isMultipleSelectionMode, isSingleSelectionMode, removeSelectedItem,
-    resetSelection, setActiveItem, setMultipleSelectionMode,
+    addSelectedItem,
+    hasSelectedItems,
+    isItemSelected,
+    isMultipleSelectionMode,
+    isSingleSelectionMode,
+    removeSelectedItem,
+    resetSelection,
+    setActiveItem,
+    setMultipleSelectionMode,
     setSelection,
-    setSingleSelectionMode
+    setSingleSelectionMode,
 } from '../../../store/contentTreeSelectionStore';
-import {ContentData} from './ContentData';
+import {ContentData, isFlatTreeItemContentData} from './ContentData';
 import {ContentDataFetcher} from './ContentDataFetcher';
 import {ContentTreeContextMenu, ContentTreeContextMenuProps} from './ContentTreeContextMenu';
 import {ContentTreeListRow} from './ContentTreeListRow';
+import {ContentTreeListUploadRow} from './ContentTreeListUploadRow';
+import {ContentUploadData, isFlatTreeItemContentUploadData} from './ContentUploadData';
+import {$contentTreeMergedItems} from '../../../store/contentTreeMergedItems.store';
 
-const renderItem = (item: FlatTreeNode<ContentData>): React.ReactElement => {
-    return (
-        <ContentTreeListRow item={item} />
-    );
-}
+const renderItem = (item: FlatTreeNode<ContentData | ContentUploadData>): React.ReactElement => {
+    if (isFlatTreeItemContentData(item)) {
+        return <ContentTreeListRow item={item} />;
+    }
+
+    if (isFlatTreeItemContentUploadData(item)) {
+        return <ContentTreeListUploadRow item={item} />;
+    }
+
+    return null;
+};
 
 export type ContentTreeListProps = {
     fetcher: ContentDataFetcher;
     contextMenuActions?: ContentTreeContextMenuProps['actions'];
-}
+};
 
 export const ContentTreeList = ({fetcher, contextMenuActions = {}}: ContentTreeListProps): React.ReactElement => {
-    const items = useStore($contentTreeItems);
+    const items = useStore($contentTreeMergedItems);
     const selection = useStore($contentTreeSelection);
     const active = useStore($contentTreeActiveItem);
 
     const handleSelection = (newSelection: ReadonlySet<string>) => {
         if (newSelection.size > selection.size) {
-            const added = Array.from(newSelection).find(x => !selection.has(x));
+            const added = Array.from(newSelection).find((x) => !selection.has(x));
 
             if (added) {
                 setSelection([added]);
             }
         } else {
             const isMultipleSelectionMode = $contentTreeSelectionMode.get() === 'multiple';
-            const removed = Array.from(selection).find(x => !newSelection.has(x));
+            const removed = Array.from(selection).find((x) => !newSelection.has(x));
 
             if (removed) {
                 if (isMultipleSelectionMode && selection.has(removed)) {
@@ -63,38 +76,40 @@ export const ContentTreeList = ({fetcher, contextMenuActions = {}}: ContentTreeL
         $contentTreeItems.set(newItems);
     }, []);
 
-    const handleKeyDownCapture: KeyboardEventHandler<HTMLElement> = useCallback((e) => {
-        if (e.key === ' ' && active) {
-            e.stopPropagation();
+    const handleKeyDownCapture: KeyboardEventHandler<HTMLElement> = useCallback(
+        (e) => {
+            if (e.key === ' ' && active) {
+                e.stopPropagation();
 
-            if (isItemSelected(active)) {
-                if (isSingleSelectionMode()) {
-                    setMultipleSelectionMode();
+                if (isItemSelected(active)) {
+                    if (isSingleSelectionMode()) {
+                        setMultipleSelectionMode();
+                    } else {
+                        removeSelectedItem(active);
+
+                        if (!hasSelectedItems()) {
+                            setSingleSelectionMode();
+                        }
+                    }
                 } else {
-                    removeSelectedItem(active);
-
-                    if (!hasSelectedItems()) {
-                        setSingleSelectionMode();
+                    if (isMultipleSelectionMode()) {
+                        addSelectedItem(active);
+                    } else {
+                        setSelection([active]);
                     }
                 }
-            } else {
-                if (isMultipleSelectionMode()) {
-                    addSelectedItem(active);
-                } else {
-                    setSelection([active]);
-                }
             }
-        }
-
-    }, [active]);
+        },
+        [active]
+    );
 
     const setActive = useCallback((id: string | null) => {
         setActiveItem(id);
     }, []);
 
     return (
-        <TreeList<ContentData>
-            className='w-full h-full bg-surface-neutral overflow-y-auto'
+        <TreeList<ContentData | ContentUploadData>
+            className="w-full h-full bg-surface-neutral overflow-y-auto"
             fetchChildren={fetcher.fetchChildren}
             items={items}
             onItemsChange={setItemsHandler}
@@ -106,7 +121,7 @@ export const ContentTreeList = ({fetcher, contextMenuActions = {}}: ContentTreeL
             setActive={setActive}
         >
             <ContentTreeContextMenu actions={contextMenuActions}>
-                <TreeList.Container className='px-5 py-2.5 bg-surface-neutral'>
+                <TreeList.Container className="px-5 py-2.5 bg-surface-neutral">
                     <TreeList.Content renderNode={renderItem} />
                 </TreeList.Container>
             </ContentTreeContextMenu>
