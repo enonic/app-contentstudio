@@ -26,7 +26,7 @@ export class AggregateContentTypesByPathRequest
 
     private request: ContentQueryRequest<ContentSummaryJson, ContentSummary>;
 
-    constructor(parentPath: ContentPath, project?: Project) {
+    constructor(parentPath: ContentPath, project?: Project | Readonly<Project>) {
         super();
 
         this.request =
