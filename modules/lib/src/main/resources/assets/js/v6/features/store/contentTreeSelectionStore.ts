@@ -1,12 +1,17 @@
 import {atom, computed} from 'nanostores';
 import {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
-import {getAllContentTreeItems} from './contentTreeData.store';
+import {$contentTreeItems, getAllContentTreeItems} from './contentTreeData.store';
 
 export const $contentTreeSelection = atom<ReadonlySet<string>>(new Set());
 
 export const $contentTreeActiveItem = atom<string | null>(null);
 
 export const $contentTreeSelectionMode = atom<'multiple' | 'single'>('single');
+
+export const $contentTreeSelectedItems = computed([$contentTreeItems, $contentTreeSelection], (items, selection) => {
+    const allItems = Object.values(items.nodes);
+    return allItems.filter((data) => selection.has(data.id)).map((data) => data.item);
+});
 
 export function setActiveItem(id: string | null): void {
     $contentTreeActiveItem.set(id);
