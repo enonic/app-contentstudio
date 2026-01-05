@@ -18,8 +18,8 @@ importers:
         specifier: ^9.23.0
         version: 9.23.0(@wdio/globals@9.23.0)(webdriverio@9.23.0)
       '@wdio/mocha-framework':
-        specifier: ^9.21.0
-        version: 9.21.0
+        specifier: ^9.23.0
+        version: 9.23.0
       '@wdio/spec-reporter':
         specifier: ^9.20.0
         version: 9.20.0
@@ -489,8 +489,8 @@ packages:
     resolution: {integrity: sha512-HdzDrRs+ywAqbXGKqe1i/bLtCv47plz4TvsHFH3j729OooT5VH38ctFn5aLXgECmiAKDkmH/A6kOq2Zh5DIxww==}
     engines: {node: '>=18.20.0'}
 
-  '@wdio/mocha-framework@9.21.0':
-    resolution: {integrity: sha512-HFCtUX3ooMIIBnMS4iwfpZijX1DqdVhVBTnUwwRghOGBXf8V2GBFBoeUrC4QxqHEfCqBDaUTkRZhjaYZggoSIw==}
+  '@wdio/mocha-framework@9.23.0':
+    resolution: {integrity: sha512-1Lg8MCLNvs4a1pwz6WzWDPS44mxdAJQCw19DqWuEI8b406HtdIcPoc6sBsqkXVW8aNxMkqvTf87aMeLBFFbaYA==}
     engines: {node: '>=18.20.0'}
 
   '@wdio/protocols@9.16.2':
@@ -533,6 +533,10 @@ packages:
 
   '@zip.js/zip.js@2.8.11':
     resolution: {integrity: sha512-0fztsk/0ryJ+2PPr9EyXS5/Co7OK8q3zY/xOoozEWaUsL5x+C0cyZ4YyMuUffOO2Dx/rAdq4JMPqW0VUtm+vzA==}
+    engines: {bun: '>=0.7.0', deno: '>=1.0.0', node: '>=18.0.0'}
+
+  '@zip.js/zip.js@2.8.13':
+    resolution: {integrity: sha512-UcWZ5i9Hlspgo+8q8PUPd9TmDYM62eqfb/0iZ5SF3bqfX/uFUmV660MC9Lsvon7/sidzesXLQlIf8/mbDUf6gQ==}
     engines: {bun: '>=0.7.0', deno: '>=1.0.0', node: '>=18.0.0'}
 
   abort-controller@3.0.0:
@@ -2398,13 +2402,13 @@ snapshots:
       safe-regex2: 5.0.0
       strip-ansi: 7.1.2
 
-  '@wdio/mocha-framework@9.21.0':
+  '@wdio/mocha-framework@9.23.0':
     dependencies:
       '@types/mocha': 10.0.10
-      '@types/node': 20.19.25
+      '@types/node': 20.19.27
       '@wdio/logger': 9.18.0
       '@wdio/types': 9.20.0
-      '@wdio/utils': 9.21.0
+      '@wdio/utils': 9.23.0
       mocha: 10.8.2
     transitivePeerDependencies:
       - bare-abort-controller
@@ -2508,6 +2512,8 @@ snapshots:
       '@wdio/logger': 9.18.0
 
   '@zip.js/zip.js@2.8.11': {}
+
+  '@zip.js/zip.js@2.8.13': {}
 
   abort-controller@3.0.0:
     dependencies:
@@ -2870,7 +2876,7 @@ snapshots:
   edgedriver@6.3.0:
     dependencies:
       '@wdio/logger': 9.18.0
-      '@zip.js/zip.js': 2.8.11
+      '@zip.js/zip.js': 2.8.13
       decamelize: 6.0.1
       edge-paths: 3.0.5
       fast-xml-parser: 5.3.3
@@ -3063,7 +3069,7 @@ snapshots:
   geckodriver@6.1.0:
     dependencies:
       '@wdio/logger': 9.18.0
-      '@zip.js/zip.js': 2.8.11
+      '@zip.js/zip.js': 2.8.13
       decamelize: 6.0.1
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
