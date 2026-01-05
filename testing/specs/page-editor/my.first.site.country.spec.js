@@ -17,6 +17,7 @@ const ContentPublishDialog = require('../../page_objects/content.publish.dialog'
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+const CityListPartInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/city.list.part.inspection.panel');
 
 describe('my.first.site.country.spec - Create a site with country content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -27,15 +28,15 @@ describe('my.first.site.country.spec - Create a site with country content', func
     let TEMPLATE;
     let USA_CONTENT_NAME;
     const USA_DESCRIPTION = 'USA country';
-    const SF_DISPLAY_NAME= 'San Francisco';
+    const SF_DISPLAY_NAME = 'San Francisco';
     const USA_POPULATION = '300 000 000';
     const PAGE_CONTROLLER_COUNTRY = 'Country Region';
     const COUNTRY_PART = 'Country';
     const SF_LOCATION = '37.7833,-122.4167';
     const SF_NAME = contentBuilder.generateRandomName('sf');
     const SF_POPULATION = '837,442';
-    const NEW_SF_POPULATION ='900,000';
-    const NEW_SF_POPULATION_WITH_LABEL ='Population: 900,000';
+    const NEW_SF_POPULATION = '900,000';
+    const NEW_SF_POPULATION_WITH_LABEL = 'Population: 900,000';
     const COUNTRY_TEMPLATE_NAME = contentBuilder.generateRandomName('template');
 
     it(`Precondition: new site and template with 'country-part' and 'city list' should be created`,
@@ -69,6 +70,34 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // the site should be  automatically saved:
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot('country_template_saved');
+        });
+
+    it(`WHEN required input is not filled in in the page template THEN the page template should be invalid in Grid`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            await studioUtils.findAndSelectItem(COUNTRY_TEMPLATE_NAME);
+            // Verify that the page template is invalid (required field in its config)
+            await contentBrowsePanel.waitForRedIconDisplayed(COUNTRY_TEMPLATE_NAME);
+        });
+
+    it(`WHEN required field has been filled in in the page template config THEN the page template gets valid in Grid`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
+            let cityListPartInspectionPanel = new CityListPartInspectionPanel();
+            // 1. Open the template
+            await studioUtils.selectAndOpenContentInWizard(COUNTRY_TEMPLATE_NAME);
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
+            await contentWizard.clickOnMinimizeLiveEditToggler();
+            // 3. Select the part in PCV
+            await pageComponentView.clickOnComponent('City list');
+            // 4. Inspect panel should be loaded
+            await cityListPartInspectionPanel.waitForLoaded();
+            // 5. Fill in the required field:
+            await cityListPartInspectionPanel.selectContentInSelector(appConst.TEST_IMAGES.MAN);
+            // 6. Save the template
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
         });
 
     it(`GIVEN new country-content is saved WHEN 'Automatic' is selected AND 'Preview' button has been clicked THEN expected population and description should be loaded in new browser tab`,

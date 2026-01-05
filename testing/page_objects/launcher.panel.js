@@ -39,29 +39,28 @@ class LauncherPanel extends Page {
     async clickOnUsersLink() {
         await this.waitForElementDisplayed(this.usersLink, appConst.mediumTimeout);
         await this.waitForElementEnabled(this.usersLink, appConst.longTimeout);
-        await this.pause(400);
+        await this.pause(200);
         await this.clickOnElement(this.usersLink);
-        return await this.pause(500);
+        return await this.pause(300);
     }
 
     async clickOnApplicationsLink() {
         await this.waitForElementDisplayed(this.applicationsLink, appConst.mediumTimeout);
         await this.waitForElementEnabled(this.applicationsLink, appConst.mediumTimeout);
-        await this.pause(400);
+
         await this.clickOnElement(this.applicationsLink);
-        return await this.pause(500);
+        return await this.pause(200);
     }
 
     async clickOnContentStudioLink() {
         try {
             await this.waitForElementDisplayed(this.contentStudioLink, appConst.longTimeout);
-            await this.waitForElementEnabled(this.contentStudioLink, appConst.longTimeout);
+            await this.waitForElementEnabled(this.contentStudioLink, appConst.mediumTimeout);
             await this.pause(300);
             await this.clickOnElement(this.contentStudioLink);
-            return await this.pause(1000);
+            return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_launcher_panel_content_studio_link');
-            throw new Error(`Error occurred in Launcher Panel screenshot: ${screenshot} ` + err);
+            await this.handleError('Launcher Panel: tried to click on Content Studio link', 'err_click_content_studio_link', err);
         }
     }
 
@@ -119,8 +118,7 @@ class LauncherPanel extends Page {
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getText(locator);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_launcher_panel_active_row');
-            throw new Error(`Error occurred in Launcher Panel screenshot: ${screenshot} ` + err);
+            await this.handleError('Launcher Panel: tried to get active row name', 'err_get_active_row_name', err);
         }
     }
 
@@ -130,8 +128,7 @@ class LauncherPanel extends Page {
             await this.clickOnElement(this.launcherToggler);
             return await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_launcher_panel_toggler');
-            throw new Error(`Error occurred in Launcher Panel screenshot: ${screenshot} ` + err);
+            await this.handleError('Launcher Panel: tried to click on Launcher Toggle', 'err_click_launcher_toggler', err);
         }
     }
 }

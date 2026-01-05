@@ -60,7 +60,7 @@ module.exports = {
         return await this.getBrowser().execute(script2);
     },
 
-    insertTextInCKE: function (id, text) {
+    insertTextInCKE (id, text) {
         let script = `CKEDITOR.instances['${id}'].insertText('${text}')`;
         return this.getBrowser().execute(script).then(() => {
             let script2 = `CKEDITOR.instances['${id}'].fire('change')`;
@@ -122,7 +122,17 @@ module.exports = {
         await insertLinkDialog.typeInLinkTextInput(text);
         await insertLinkDialogUrlPanel.typeUrl(url);
         await insertLinkDialog.clickOnInsertButtonAndWaitForClosed();
-        return await this.getBrowser().pause(500);
+        return await this.getBrowser().pause(200);
+    },
+    async insertTellLinkInCke(text, tel) {
+        let insertLinkDialog = new InsertLinkDialog();
+        let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
+        await insertLinkDialog.clickOnBarItem('URL');
+        await insertLinkDialog.typeInLinkTextInput(text);
+        await insertLinkDialogUrlPanel.clickOnUrlTypeMenuOption(appConst.URL_TYPE_OPTION.TEL);
+        await insertLinkDialogUrlPanel.typeUrl(tel);
+        await insertLinkDialog.clickOnInsertButtonAndWaitForClosed();
+        return await this.getBrowser().pause(200);
     },
     async insertEmailLinkInCke(text, email) {
         let insertLinkDialog = new InsertLinkDialog();
@@ -130,8 +140,8 @@ module.exports = {
         await insertLinkDialog.typeInLinkTextInput(text);
         await insertLinkDialog.typeTextInEmailInput(email);
         await this.saveScreenshot('email_link_dialog');
-        await insertLinkDialog.clickOnInsertButton();
-        return await insertLinkDialog.pause(700);
+        await insertLinkDialog.clickOnInsertButtonAndWaitForClosed();
+        return await insertLinkDialog.pause(200);
     },
 
     async insertContentLinkInCke(text, contentDisplayName, entireProject) {
@@ -345,7 +355,6 @@ module.exports = {
     async doAddSite(site, noControllers) {
         let contentWizardPanel = new ContentWizardPanel();
         let pageInspectionPanel = new PageInspectionPanel();
-        let liveFormPanel = new LiveFormPanel();
         // 1. Open new site-wizard:
         await this.openContentWizard(appConst.contentTypes.SITE);
         await contentWizardPanel.typeData(site);
@@ -670,7 +679,7 @@ module.exports = {
     },
     async clickOnContentStudioLink(userName, password) {
         let launcherPanel = new LauncherPanel();
-        let result = await launcherPanel.isDisplayed(2000);
+        let result = await launcherPanel.isDisplayed(1500);
         console.log('Launcher Panel is opened, click on the `Content Studio` link...');
         if (result) {
             await launcherPanel.clickOnContentStudioLink();
