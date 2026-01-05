@@ -251,7 +251,7 @@ public class ApplicationResourceTest
     {
         final Form config = Form.create().
             addFormItem( Input.create().name( "some-name" ).label( "some-label" ).helpTextI18nKey( "site.config.helpText" ).labelI18nKey(
-                "site.config.label" ).inputType( InputTypeName.TEXT_LINE ).build() ).
+            "site.config.label" ).inputType( InputTypeName.TEXT_LINE ).build() ).
             build();
 
         return SiteDescriptor.create().form( config ).build();
@@ -261,7 +261,7 @@ public class ApplicationResourceTest
     {
         final Form config = Form.create().
             addFormItem( Input.create().name( "some-name" ).label( "some-label" ).labelI18nKey( "key.label" ).helpTextI18nKey(
-                "key.help-text" ).inputType( InputTypeName.TEXT_LINE ).build() ).
+            "key.help-text" ).inputType( InputTypeName.TEXT_LINE ).build() ).
             build();
         return IdProviderDescriptor.create().
             config( config ).
