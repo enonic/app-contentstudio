@@ -140,7 +140,7 @@ tasks.register( 'waitForServer') {
 
         boolean ready = false
         while (!ready && System.nanoTime() < deadline) {
-            logger.lifecycle("Waiting for server server...")
+            logger.lifecycle("Waiting for server...")
 
             try {
                 HttpURLConnection conn = (HttpURLConnection) uri("http://localhost:2609/ready").toURL().openConnection()
