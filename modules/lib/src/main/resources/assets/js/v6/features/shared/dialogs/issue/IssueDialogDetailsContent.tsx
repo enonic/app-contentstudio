@@ -5,10 +5,11 @@ import {useEffect, useMemo, useRef, type ComponentPropsWithoutRef, type ReactEle
 
 import {IssueStatus} from '../../../../../app/issue/IssueStatus';
 import {IssueType} from '../../../../../app/issue/IssueType';
-import {$issueDialog, loadIssueDialogList, setIssueDialogView} from '../../../store/dialogs/issueDialog.store';
+import {$issueDialog, setIssueDialogView} from '../../../store/dialogs/issueDialog.store';
 import {
     $issueDialogDetails,
     loadIssueDialogComments,
+    loadIssueDialogIssue,
     setIssueDialogCommentText,
     setIssueDialogDetailsTab,
     submitIssueDialogComment,
@@ -37,8 +38,12 @@ type IssueDialogDetailsTabTriggerProps = {
     className?: string;
 };
 
-export type IssueDetailsItemProps = {
-    issue?: IssueWithAssignees;
+const isStatusOption = (value: string): value is StatusOption => {
+    return value === 'open' || value === 'closed';
+};
+
+const isDetailsTab = (value: string): value is IssueDialogDetailsTab => {
+    return value === 'comments' || value === 'items' || value === 'assignees';
 };
 
 const ISSUE_DIALOG_DETAILS_CONTENT_NAME = 'IssueDialogDetailsContent';
@@ -60,6 +65,19 @@ const resolveStatusOption = (
     value: string | undefined,
 ): StatusOptionItem | undefined => {
     return options.find(option => option.value === value);
+};
+
+const resolveIssueData = ({
+    issueId,
+    issues,
+    detailsIssue,
+}: {
+    issueId?: string;
+    issues: IssueWithAssignees[];
+    detailsIssue?: Issue;
+}): Issue | undefined => {
+    const resolvedIssue = issues.find(item => item.getIssue().getId() === issueId);
+    return resolvedIssue?.getIssue() ?? detailsIssue;
 };
 
 const renderIssueIcon = (issue: Issue | undefined): ReactElement | null => {
@@ -96,8 +114,9 @@ const IssueDialogDetailsTabTrigger = ({
         </Tab.Trigger>
     );
 };
+IssueDialogDetailsTabTrigger.displayName = 'IssueDialogDetailsTabTrigger';
 
-export const IssueDialogDetailsContent = ({issue}: IssueDetailsItemProps): ReactElement => {
+export const IssueDialogDetailsContent = (): ReactElement => {
     const fallbackTitle = useI18n('dialog.issue');
     const backLabel = useI18n('dialog.issue.back');
     const commentLabel = useI18n('action.commentIssue');
@@ -113,6 +132,7 @@ export const IssueDialogDetailsContent = ({issue}: IssueDetailsItemProps): React
         keys: ['issueId', 'issues'],
     });
     const {
+        issue: detailsIssue,
         detailsTab,
         commentText,
         comments,
@@ -121,6 +141,7 @@ export const IssueDialogDetailsContent = ({issue}: IssueDetailsItemProps): React
         statusUpdating,
     } = useStore($issueDialogDetails, {
         keys: [
+            'issue',
             'detailsTab',
             'commentText',
             'comments',
@@ -130,10 +151,11 @@ export const IssueDialogDetailsContent = ({issue}: IssueDetailsItemProps): React
         ],
     });
 
-    const resolvedIssue = issue && issueId && issue.getIssue().getId() === issueId
-        ? issue
-        : issues.find(item => item.getIssue().getId() === issueId);
-    const issueData = resolvedIssue?.getIssue();
+    const issueData = resolveIssueData({
+        issueId,
+        issues,
+        detailsIssue,
+    });
     const title = issueData ? issueData.getTitleWithId() : fallbackTitle;
     const currentStatus = issueData?.getIssueStatus() ?? IssueStatus.OPEN;
     const statusValue: StatusOption = currentStatus === IssueStatus.CLOSED ? 'closed' : 'open';
@@ -142,11 +164,11 @@ export const IssueDialogDetailsContent = ({issue}: IssueDetailsItemProps): React
     const commentTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
     useEffect(() => {
-        if (!issueId || issues.length > 0 || resolvedIssue) {
+        if (!issueId || issueData) {
             return;
         }
-        void loadIssueDialogList();
-    }, [issueId, issues.length, resolvedIssue]);
+        void loadIssueDialogIssue(issueId);
+    }, [issueId, issueData]);
 
     useEffect(() => {
         if (!issueId) {
@@ -163,7 +185,10 @@ export const IssueDialogDetailsContent = ({issue}: IssueDetailsItemProps): React
         resizeTextarea(element);
     }, [commentText]);
 
-    const handleStatusChange = (next: StatusOption): void => {
+    const handleStatusChange = (next: string): void => {
+        if (!isStatusOption(next)) {
+            return;
+        }
         void updateIssueDialogStatus(STATUS_LOOKUP[next]);
     };
 
@@ -171,6 +196,14 @@ export const IssueDialogDetailsContent = ({issue}: IssueDetailsItemProps): React
         const {value} = event.currentTarget;
         setIssueDialogCommentText(value);
         resizeTextarea(event.currentTarget);
+    };
+
+    const handleCommentKeyDown: NonNullable<ComponentPropsWithoutRef<'textarea'>['onKeyDown']> = (event) => {
+        if (event.key !== 'Enter' || event.shiftKey || !canSubmitComment) {
+            return;
+        }
+        event.preventDefault();
+        handleCommentSubmit();
     };
 
     const handleCommentSubmit = (): void => {
@@ -182,7 +215,10 @@ export const IssueDialogDetailsContent = ({issue}: IssueDetailsItemProps): React
     };
 
     const handleTabChange = (next: string): void => {
-        setIssueDialogDetailsTab(next as IssueDialogDetailsTab);
+        if (!isDetailsTab(next)) {
+            return;
+        }
+        setIssueDialogDetailsTab(next);
     };
 
     const canSubmitComment = commentText.trim().length > 0 && !commentSubmitting && !!issueId;
@@ -254,6 +290,7 @@ export const IssueDialogDetailsContent = ({issue}: IssueDetailsItemProps): React
                                         ref={commentTextareaRef}
                                         value={commentText}
                                         onInput={handleCommentInput}
+                                        onKeyDown={handleCommentKeyDown}
                                         rows={3}
                                         disabled={commentSubmitting}
                                         className={cn(

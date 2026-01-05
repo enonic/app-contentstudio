@@ -5,11 +5,13 @@ import {map} from 'nanostores';
 import {IssueStatus} from '../../../../app/issue/IssueStatus';
 import {IssueType} from '../../../../app/issue/IssueType';
 import {CreateIssueCommentRequest} from '../../../../app/issue/resource/CreateIssueCommentRequest';
+import {GetIssueRequest} from '../../../../app/issue/resource/GetIssueRequest';
 import {ListIssueCommentsRequest} from '../../../../app/issue/resource/ListIssueCommentsRequest';
 import {UpdateIssueRequest} from '../../../../app/issue/resource/UpdateIssueRequest';
 import {$issueDialog, loadIssueDialogList} from './issueDialog.store';
 
 import {IssueWithAssignees} from '../../../../app/issue/IssueWithAssignees';
+import type {Issue} from '../../../../app/issue/Issue';
 import type {IssueComment} from '../../../../app/issue/IssueComment';
 import type {IssueDialogDetailsTab} from '../../shared/dialogs/issue/issueDialog.types';
 
@@ -19,6 +21,9 @@ import type {IssueDialogDetailsTab} from '../../shared/dialogs/issue/issueDialog
 
 type IssueDialogDetailsStore = {
     issueId?: string;
+    issue?: Issue;
+    issueLoading: boolean;
+    issueError: boolean;
     detailsTab: IssueDialogDetailsTab;
     commentsLoading: boolean;
     commentsError: boolean;
@@ -31,6 +36,9 @@ type IssueDialogDetailsStore = {
 
 const initialState: IssueDialogDetailsStore = {
     issueId: undefined,
+    issue: undefined,
+    issueLoading: false,
+    issueError: false,
     detailsTab: 'comments',
     commentsLoading: false,
     commentsError: false,
@@ -53,6 +61,54 @@ export const setIssueDialogDetailsTab = (detailsTab: IssueDialogDetailsTab): voi
 
 export const setIssueDialogCommentText = (commentText: string): void => {
     $issueDialogDetails.setKey('commentText', commentText);
+};
+
+export const loadIssueDialogIssue = async (nextIssueId?: string): Promise<void> => {
+    const state = $issueDialogDetails.get();
+    const issueId = nextIssueId ?? state.issueId;
+
+    if (!issueId || state.issueLoading) {
+        return;
+    }
+
+    if (state.issue && state.issue.getId() === issueId) {
+        return;
+    }
+
+    $issueDialogDetails.set({
+        ...state,
+        issueLoading: true,
+        issueError: false,
+    });
+
+    try {
+        const issue = await new GetIssueRequest(issueId).sendAndParse();
+        const latestState = $issueDialogDetails.get();
+
+        if (latestState.issueId !== issueId) {
+            return;
+        }
+
+        $issueDialogDetails.set({
+            ...latestState,
+            issue,
+            issueLoading: false,
+            issueError: false,
+        });
+    } catch (error) {
+        console.error(error);
+        const latestState = $issueDialogDetails.get();
+
+        if (latestState.issueId !== issueId) {
+            return;
+        }
+
+        $issueDialogDetails.set({
+            ...latestState,
+            issueLoading: false,
+            issueError: true,
+        });
+    }
 };
 
 export const loadIssueDialogComments = async (nextIssueId?: string): Promise<void> => {
@@ -116,7 +172,7 @@ export const submitIssueDialogComment = async (): Promise<void> => {
     $issueDialogDetails.setKey('commentSubmitting', true);
 
     const dialogState = $issueDialog.get();
-    const issueType = resolveIssueType(issueId, dialogState.issues);
+    const issueType = resolveIssueType(issueId, dialogState.issues, state.issue);
 
     try {
         const comment = await new CreateIssueCommentRequest(issueId)
@@ -154,7 +210,7 @@ export const updateIssueDialogStatus = async (nextStatus: IssueStatus): Promise<
 
     const dialogState = $issueDialog.get();
     const issueWithAssignees = dialogState.issues.find(item => item.getIssue().getId() === issueId);
-    const issue = issueWithAssignees?.getIssue();
+    const issue = issueWithAssignees?.getIssue() ?? state.issue;
 
     if (!issue) {
         return;
@@ -173,21 +229,29 @@ export const updateIssueDialogStatus = async (nextStatus: IssueStatus): Promise<
             .setIssueStatus(nextStatus)
             .sendAndParse();
 
-        const updatedIssues = dialogState.issues.map((item) => {
-            if (item.getIssue().getId() !== updatedIssue.getId()) {
-                return item;
-            }
-            return new IssueWithAssignees(updatedIssue, item.getAssignees());
-        });
+        if (issueWithAssignees) {
+            const updatedIssues = dialogState.issues.map((item) => {
+                if (item.getIssue().getId() !== updatedIssue.getId()) {
+                    return item;
+                }
+                return new IssueWithAssignees(updatedIssue, item.getAssignees());
+            });
 
-        $issueDialog.set({
-            ...dialogState,
-            issues: updatedIssues,
+            $issueDialog.set({
+                ...dialogState,
+                issues: updatedIssues,
+            });
+        }
+
+        const latestState = $issueDialogDetails.get();
+        $issueDialogDetails.set({
+            ...latestState,
+            issue: updatedIssue,
+            statusUpdating: false,
         });
-        $issueDialogDetails.setKey('statusUpdating', false);
 
         void loadIssueDialogList();
-        showFeedback(i18n(getStatusMessageKey(issue.getType(), nextStatus)));
+        showFeedback(i18n(getStatusMessageKey(updatedIssue.getType(), nextStatus)));
     } catch (error) {
         console.error(error);
         $issueDialogDetails.setKey('statusUpdating', false);
@@ -215,14 +279,23 @@ const getCommentErrorMessageKey = (issueType: IssueType): string => {
     return `${prefix}commentError`;
 };
 
-const resolveIssueType = (issueId: string, issues: IssueWithAssignees[]): IssueType => {
+const resolveIssueType = (
+    issueId: string,
+    issues: IssueWithAssignees[],
+    issue?: Issue,
+): IssueType => {
+    if (issue && issue.getId() === issueId) {
+        return issue.getType();
+    }
+
     return issues.find(item => item.getIssue().getId() === issueId)?.getIssue().getType()
         ?? IssueType.STANDARD;
 };
 
 const resetIssueDialogDetails = (issueId?: string): void => {
+    const baseState = structuredClone(initialState);
     $issueDialogDetails.set({
-        ...structuredClone(initialState),
+        ...baseState,
         issueId,
     });
 };
@@ -230,7 +303,14 @@ const resetIssueDialogDetails = (issueId?: string): void => {
 $issueDialog.subscribe(({open, view, issueId}) => {
     if (!open || view !== 'details') {
         const state = $issueDialogDetails.get();
-        if (state.issueId || state.commentText || state.comments.length > 0) {
+        if (
+            state.issueId ||
+            state.issue ||
+            state.issueLoading ||
+            state.issueError ||
+            state.commentText ||
+            state.comments.length > 0
+        ) {
             resetIssueDialogDetails();
         }
         return;
