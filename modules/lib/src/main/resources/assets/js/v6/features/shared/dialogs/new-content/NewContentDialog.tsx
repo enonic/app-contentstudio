@@ -63,6 +63,12 @@ export const NewContentDialog = (): ReactElement => {
         });
     };
 
+    const handleInputEscape = () => {
+        setInputValue('');
+        setIsInputVisible(false);
+        dialogContentRef.current?.focus();
+    };
+
     const handleDragEnter = (event: DragEvent) => {
         setIsDragging(true);
         setSelectedTab('media');
@@ -109,38 +115,36 @@ export const NewContentDialog = (): ReactElement => {
                 <Dialog.Overlay />
                 <Dialog.Content
                     ref={dialogContentRef}
-                    className="h-160 w-200 max-w-auto gap-2.5"
+                    className="h-[710px] w-200 max-w-auto"
                     onKeyDown={handleKeyDown}
                     onDragEnter={handleDragEnter}
                     onDragLeave={handleDragLeave}
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
                 >
-                    <Dialog.Header
-                        className={cn('flex justify-between transition-[filter] duration-150', isDragging && 'blur-xs')}
-                    >
-                        <div className="space-y-2.5">
-                            <h3 className="font-semibold">{titleLabel}</h3>
-                            <p className="text-2xl font-semibold">{dialogDescriptionLabel}</p>
-                        </div>
-                        <Dialog.DefaultClose />
-                    </Dialog.Header>
+                    <Tab.Root value={selectedTab} onValueChange={setSelectedTab} className="flex flex-col h-full">
+                        <Dialog.Header className="flex flex-col gap-2.5">
+                            <div className="flex justify-between">
+                                <div className="space-y-2.5">
+                                    <h3 className="font-semibold">{titleLabel}</h3>
+                                    <p className="text-2xl font-semibold">{dialogDescriptionLabel}</p>
+                                </div>
 
-                    <Dialog.Body className={cn(isDragging && 'overflow-visible')}>
-                        <Tab.Root
-                            value={selectedTab}
-                            onValueChange={setSelectedTab}
-                            className="flex flex-col gap-2.5 p-1.5 h-full"
-                        >
-                            <Tab.List className={cn('transition-[filter] duration-150', isDragging && 'blur-xs')}>
+                                <Dialog.DefaultClose />
+                            </div>
+
+                            <Tab.List>
                                 <Tab.Trigger value="all">{allTabLabel}</Tab.Trigger>
                                 <Tab.Trigger value="suggested">{suggestedTabLabel}</Tab.Trigger>
                                 <Tab.Trigger value="media">{mediaTabLabel}</Tab.Trigger>
                             </Tab.List>
+                        </Dialog.Header>
 
+                        <Dialog.Body className="p-1.5 -mx-1.5">
                             {selectedTab !== 'media' && (
                                 <NewContentDialogSearch
                                     onChange={handleInputChange}
+                                    onEscape={handleInputEscape}
                                     inputRef={inputRef}
                                     hidden={!isInputVisible}
                                 />
@@ -159,14 +163,14 @@ export const NewContentDialog = (): ReactElement => {
                             />
 
                             <NewContentDialogMediaTab tabName="media" isDragging={isDragging} />
-                        </Tab.Root>
-                    </Dialog.Body>
+                        </Dialog.Body>
 
-                    {!isInputVisible && selectedTab !== 'media' && (
-                        <Dialog.Footer className="flex justify-center">
-                            <p className="text-sm text-subtle mt-7.5">{hintLabel}</p>
-                        </Dialog.Footer>
-                    )}
+                        {!isInputVisible && selectedTab !== 'media' && (
+                            <Dialog.Footer className="flex justify-center mt-10">
+                                <p className="text-sm text-subtle">{hintLabel}</p>
+                            </Dialog.Footer>
+                        )}
+                    </Tab.Root>
                 </Dialog.Content>
             </Dialog.Portal>
         </Dialog.Root>

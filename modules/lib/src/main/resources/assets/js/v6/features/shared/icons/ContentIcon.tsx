@@ -2,11 +2,30 @@ import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeNa
 import {useEffect, useState} from 'react';
 
 import {
-    Archive, Database, FileChartPie, FileCog, FileIcon, FileImage, FileMusic, FileQuestionMark,
-    FileSpreadsheet, FileTerminal, FileText, FileType, Film, FolderCog, FolderOpen, Globe,
-    ImageIcon, LucideIcon, Presentation,
+    Archive,
+    Database,
+    FileChartPie,
+    FileCog,
+    FileIcon,
+    FileImage,
+    FileMusic,
+    FileQuestionMark,
+    FileSpreadsheet,
+    FileTerminal,
+    FileText,
+    FileType,
+    Film,
+    FolderCog,
+    FolderOpen,
+    Globe,
+    ImageIcon,
+    LucideIcon,
+    Presentation,
     Shapes,
-    SplinePointer, SquareArrowOutUpRight, SquareCode, SquarePlay,
+    SplinePointer,
+    SquareArrowOutUpRight,
+    SquareCode,
+    SquarePlay,
 } from 'lucide-react';
 import {Image} from '../primitives/Image';
 import {createImageUrl} from '../../utils/url/images';
@@ -58,13 +77,7 @@ const BuiltInIcon = ({contentType, ...props}: BuiltInIconProps): React.ReactElem
     return <Icon {...props} />;
 };
 
-export const ContentIcon = ({
-    className,
-    contentType,
-    url,
-    imageSize = 64,
-    crop,
-}: Props): React.ReactElement => {
+export const ContentIcon = ({className, contentType, url, imageSize = 64, crop}: Props): React.ReactElement => {
     const src = url ? createImageUrl(url, {size: imageSize * 2, crop}) : undefined;
 
     const [isImageBroken, setImageBroken] = useState(false);
@@ -80,15 +93,21 @@ export const ContentIcon = ({
 
     if (canShowImage && src) {
         // 2x size for better quality
-        return <Image
-            className={cn('w-6 h-6 dark:invert-100 dark:brightness-75 dark:contrast-125', isImageType ? 'object-cover' : 'object-contain', className)}
-            alt={contentType}
-            src={src}
-            onError={() => setImageBroken(true)}
-        />;
+        return (
+            <Image
+                className={cn(
+                    'w-6 h-6 dark:invert-100 dark:brightness-75 dark:contrast-125 p-0.25',
+                    isImageType ? 'object-cover' : 'object-contain',
+                    className
+                )}
+                alt={contentType}
+                src={src}
+                onError={() => setImageBroken(true)}
+            />
+        );
     }
 
-    return <BuiltInIcon className={cn('w-6 h-6', className)} contentType={contentType} />;
+    return <BuiltInIcon className={cn('w-6 h-6', className)} contentType={contentType} strokeWidth={1.75} />;
 };
 
 ContentIcon.displayName = 'ContentIcon';
