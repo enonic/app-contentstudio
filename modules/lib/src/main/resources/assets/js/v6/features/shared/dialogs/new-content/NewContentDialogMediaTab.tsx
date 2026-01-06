@@ -39,14 +39,13 @@ export const NewContentDialogMediaTab = ({
     };
 
     return (
-        <Tab.Content value={tabName} className="py-7.5 min-h-50 h-full overflow-visible">
+        <Tab.Content value={tabName} className="h-full py-7.5 mt-0">
             <input id="file-upload" type="file" multiple onChange={handleChange} className="hidden" />
             <label
                 htmlFor="file-upload"
                 className={cn(
-                    'relative flex flex-col gap-2.5 size-full items-center justify-center p-7.5 hover:cursor-pointer',
-                    'before:absolute before:border before:border-dashed before:border-info-rev before:transition-all before:duration-150',
-                    isDragging ? 'before:inset-0' : 'before:inset-2'
+                    'relative flex flex-col gap-2.5 size-full items-center justify-center p-7.5 border border-dashed border-info-rev hover:cursor-pointer transition-all',
+                    isDragging && 'bg-info-rev/10 border-solid'
                 )}
             >
                 <Image size={28} />
