@@ -1,8 +1,10 @@
-import {Button, Dialog, Selector, Tab, cn} from '@enonic/ui';
+import {Button, Dialog, Selector, Tab} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Plus} from 'lucide-react';
 import {useEffect, type ReactElement} from 'react';
 
+import {IssueDialogsManager} from '../../../../../app/issue/IssueDialogsManager';
+import {useI18n} from '../../../hooks/useI18n';
 import {
     $issueDialog,
     $issueDialogListFilteredIssues,
@@ -12,8 +14,6 @@ import {
     setIssueDialogListFilter,
     setIssueDialogListTab,
 } from '../../../store/dialogs/issueDialog.store';
-import {IssueDialogsManager} from '../../../../../app/issue/IssueDialogsManager';
-import {useI18n} from '../../../hooks/useI18n';
 import {stopPointerDownPropagation} from '../../../utils/dom/events/stopPointerDownPropagation';
 import {IssueListItem} from './IssueListItem';
 
@@ -38,29 +38,13 @@ type IssueDialogTabTriggerProps = {
     className?: string;
 };
 
-function IssueDialogTabTrigger({
-                                   value,
-                                   label,
-                                   count,
-                                   disabled,
-                                   className,
-                               }: IssueDialogTabTriggerProps): ReactElement {
-    return (
-        <Tab.Trigger value={value} disabled={disabled} className={cn('cursor-pointer hover:text-main', className)}>
-            <span className='truncate'>{label}</span>
-            {count != null && (
-                <span className='shrink-0 text-xs font-medium'>{count}</span>
-            )}
-        </Tab.Trigger>
-    );
-}
-
 export const IssueDialogListContent = (): ReactElement => {
     const title = useI18n('field.issues');
     const filterLabel = useI18n('dialog.issue.filter.label');
     const openLabel = useI18n('field.issue.status.open');
     const closedLabel = useI18n('field.issue.status.closed');
     const emptyLabel = useI18n('dialog.issue.noIssuesAndPublishRequests');
+    const newIssueLabel = useI18n('text.newIssue');
 
     const {filter, tab, totals, loading} = useStore($issueDialog, {
         keys: ['filter', 'tab', 'totals', 'loading'],
@@ -117,7 +101,7 @@ export const IssueDialogListContent = (): ReactElement => {
             className='sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-236 gap-7.5 px-5'
             data-component={ISSUE_DIALOG_LIST_CONTENT_NAME}
         >
-            <Dialog.DefaultHeader className='px-5' title={title} withClose/>
+            <Dialog.DefaultHeader className='px-5' title={title} withClose />
             <Dialog.Body>
                 <Tab.Root value={tab} onValueChange={(next) => setIssueDialogListTab(next as IssueDialogTab)}>
                     <div className='grid min-h-0 grid-cols-2 gap-x-15 gap-y-7.5 items-end px-2.5'>
@@ -128,7 +112,7 @@ export const IssueDialogListContent = (): ReactElement => {
                                     <Selector.Value placeholder={filterOptions[0]?.label}>
                                         {(value) => filterOptions.find(option => option.value === value)?.label}
                                     </Selector.Value>
-                                    <Selector.Icon/>
+                                    <Selector.Icon />
                                 </Selector.Trigger>
                                 <Selector.Content onPointerDownCapture={stopPointerDownPropagation}>
                                     <Selector.Viewport>
@@ -140,7 +124,7 @@ export const IssueDialogListContent = (): ReactElement => {
                                                 disabled={option.disabled}
                                             >
                                                 <Selector.ItemText>{option.label}</Selector.ItemText>
-                                                <Selector.ItemIndicator/>
+                                                <Selector.ItemIndicator />
                                             </Selector.Item>
                                         ))}
                                     </Selector.Viewport>
@@ -149,18 +133,20 @@ export const IssueDialogListContent = (): ReactElement => {
                         </div>
 
                         <Tab.List className='px-2.5 justify-end'>
-                            <IssueDialogTabTrigger
+                            <Tab.DefaultTrigger
                                 value='open'
-                                label={openLabel}
                                 count={openTabCount}
                                 disabled={isOpenDisabled}
-                            />
-                            <IssueDialogTabTrigger
+                            >
+                                {openLabel}
+                            </Tab.DefaultTrigger>
+                            <Tab.DefaultTrigger
                                 value='closed'
-                                label={closedLabel}
                                 count={closedTabCount}
                                 disabled={isClosedDisabled}
-                            />
+                            >
+                                {closedLabel}
+                            </Tab.DefaultTrigger>
                         </Tab.List>
 
                         <Tab.Content value='open' className='col-span-2 mt-0 min-h-0'>
@@ -198,7 +184,7 @@ export const IssueDialogListContent = (): ReactElement => {
                 <Button
                     variant='solid'
                     size='lg'
-                    label={useI18n('text.newIssue')}
+                    label={newIssueLabel}
                     endIcon={Plus}
                     onClick={handleCreateIssue}
                 />

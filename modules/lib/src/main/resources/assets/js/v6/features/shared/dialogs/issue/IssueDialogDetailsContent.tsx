@@ -5,6 +5,7 @@ import {useEffect, useMemo, useRef, type ComponentPropsWithoutRef, type ReactEle
 
 import {IssueStatus} from '../../../../../app/issue/IssueStatus';
 import {IssueType} from '../../../../../app/issue/IssueType';
+import {useI18n} from '../../../hooks/useI18n';
 import {$issueDialog, setIssueDialogView} from '../../../store/dialogs/issueDialog.store';
 import {
     $issueDialogDetails,
@@ -15,7 +16,6 @@ import {
     submitIssueDialogComment,
     updateIssueDialogStatus,
 } from '../../../store/dialogs/issueDialogDetails.store';
-import {useI18n} from '../../../hooks/useI18n';
 import {stopPointerDownPropagation} from '../../../utils/dom/events/stopPointerDownPropagation';
 import {IssueStatusBadge} from '../../status/IssueStatusBadge';
 import {IssueCommentsList} from './IssueCommentsList';
@@ -102,19 +102,6 @@ const STATUS_LOOKUP: Record<StatusOption, IssueStatus> = {
     open: IssueStatus.OPEN,
     closed: IssueStatus.CLOSED,
 };
-
-const IssueDialogDetailsTabTrigger = ({
-    value,
-    label,
-    className,
-}: IssueDialogDetailsTabTriggerProps): ReactElement => {
-    return (
-        <Tab.Trigger value={value} className={cn('cursor-pointer hover:text-main', className)}>
-            <span className='truncate'>{label}</span>
-        </Tab.Trigger>
-    );
-};
-IssueDialogDetailsTabTrigger.displayName = 'IssueDialogDetailsTabTrigger';
 
 export const IssueDialogDetailsContent = (): ReactElement => {
     const fallbackTitle = useI18n('dialog.issue');
@@ -237,45 +224,43 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                     {renderIssueIcon(issueData)}
                     <Dialog.Title className='min-w-0 truncate text-2xl font-semibold'>{title}</Dialog.Title>
                 </div>
-                <Dialog.DefaultClose className='self-start justify-self-end'/>
+                <Dialog.DefaultClose className='self-start justify-self-end' />
             </Dialog.Header>
             <Dialog.Body className='min-h-0'>
                 <Tab.Root value={detailsTab} onValueChange={handleTabChange}>
                     <div className='grid min-h-0 grid-cols-4 gap-x-3.5 gap-y-7.5 items-end px-2.5'>
-                        <div className='flex flex-col gap-2.5 px-2.5 pt-1.5'>
-                            <Selector.Root
-                                value={statusValue}
-                                disabled={isStatusDisabled}
-                                onValueChange={handleStatusChange}
-                            >
-                                <Selector.Trigger>
-                                    <Selector.Value placeholder={openStatusLabel}>
-                                        {(value) => {
-                                            const option = resolveStatusOption(statusOptions, value);
-                                            return option ? <IssueStatusBadge status={option.status}/> : openStatusLabel;
-                                        }}
-                                    </Selector.Value>
-                                    <Selector.Icon/>
-                                </Selector.Trigger>
-                                <Selector.Content onPointerDownCapture={stopPointerDownPropagation}>
-                                    <Selector.Viewport>
-                                        {statusOptions.map(option => (
-                                            <Selector.Item key={option.value} value={option.value} textValue={option.label}>
-                                                <Selector.ItemText>
-                                                    <IssueStatusBadge status={option.status}/>
-                                                </Selector.ItemText>
-                                                <Selector.ItemIndicator/>
-                                            </Selector.Item>
-                                        ))}
-                                    </Selector.Viewport>
-                                </Selector.Content>
-                            </Selector.Root>
-                        </div>
+                        <Selector.Root
+                            value={statusValue}
+                            disabled={isStatusDisabled}
+                            onValueChange={handleStatusChange}
+                        >
+                            <Selector.Trigger>
+                                <Selector.Value placeholder={openStatusLabel}>
+                                    {(value) => {
+                                        const option = resolveStatusOption(statusOptions, value);
+                                        return option ? <IssueStatusBadge status={option.status} /> : openStatusLabel;
+                                    }}
+                                </Selector.Value>
+                                <Selector.Icon />
+                            </Selector.Trigger>
+                            <Selector.Content onPointerDownCapture={stopPointerDownPropagation}>
+                                <Selector.Viewport>
+                                    {statusOptions.map(option => (
+                                        <Selector.Item key={option.value} value={option.value} textValue={option.label}>
+                                            <Selector.ItemText>
+                                                <IssueStatusBadge status={option.status} />
+                                            </Selector.ItemText>
+                                            <Selector.ItemIndicator />
+                                        </Selector.Item>
+                                    ))}
+                                </Selector.Viewport>
+                            </Selector.Content>
+                        </Selector.Root>
 
                         <Tab.List className='col-span-3 px-2.5 justify-end'>
-                            <IssueDialogDetailsTabTrigger value='comments' label={commentsLabel}/>
-                            <IssueDialogDetailsTabTrigger value='items' label={itemsLabel}/>
-                            <IssueDialogDetailsTabTrigger value='assignees' label={assigneesLabel}/>
+                            <Tab.DefaultTrigger value='comments'>{commentsLabel}</Tab.DefaultTrigger>
+                            <Tab.DefaultTrigger value='items'>{itemsLabel}</Tab.DefaultTrigger>
+                            <Tab.DefaultTrigger value='assignees'>{assigneesLabel}</Tab.DefaultTrigger>
                         </Tab.List>
 
                         <Tab.Content value='comments' className='col-span-4 mt-0 min-h-0 px-2.5'>
@@ -315,7 +300,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                 </Tab.Root>
             </Dialog.Body>
             <Dialog.Footer className='px-5 justify-between'>
-                <Button variant='outline' size='lg' label={backLabel} onClick={handleBack}/>
+                <Button variant='outline' size='lg' label={backLabel} onClick={handleBack} />
                 <Button
                     variant='solid'
                     size='lg'
