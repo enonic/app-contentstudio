@@ -1,4 +1,4 @@
-import {Button, Dialog, Selector, Tab, cn} from '@enonic/ui';
+import {Button, Dialog, Tab, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Globe, Hash} from 'lucide-react';
 import {useEffect, useMemo, useRef, type ComponentPropsWithoutRef, type ReactElement} from 'react';
@@ -16,9 +16,9 @@ import {
     submitIssueDialogComment,
     updateIssueDialogStatus,
 } from '../../../store/dialogs/issueDialogDetails.store';
-import {stopPointerDownPropagation} from '../../../utils/dom/events/stopPointerDownPropagation';
 import {IssueStatusBadge} from '../../status/IssueStatusBadge';
 import {IssueCommentsList} from './IssueCommentsList';
+import {IssueDialogSelector} from './IssueDialogSelector';
 
 import type {Issue} from '../../../../../app/issue/Issue';
 import type {IssueWithAssignees} from '../../../../../app/issue/IssueWithAssignees';
@@ -30,12 +30,6 @@ type StatusOptionItem = {
     value: StatusOption;
     label: string;
     status: IssueStatus;
-};
-
-type IssueDialogDetailsTabTriggerProps = {
-    value: IssueDialogDetailsTab;
-    label: string;
-    className?: string;
 };
 
 const isStatusOption = (value: string): value is StatusOption => {
@@ -229,34 +223,20 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             <Dialog.Body className='min-h-0'>
                 <Tab.Root value={detailsTab} onValueChange={handleTabChange}>
                     <div className='grid min-h-0 grid-cols-4 gap-x-3.5 gap-y-7.5 items-end px-2.5'>
-                        <Selector.Root
+                        <div className='flex flex-col gap-2.5 px-2.5 pt-1.5'>
+                        <IssueDialogSelector
                             value={statusValue}
                             disabled={isStatusDisabled}
+                            options={statusOptions}
+                            placeholder={openStatusLabel}
                             onValueChange={handleStatusChange}
-                        >
-                            <Selector.Trigger>
-                                <Selector.Value placeholder={openStatusLabel}>
-                                    {(value) => {
-                                        const option = resolveStatusOption(statusOptions, value);
-                                        return option ? <IssueStatusBadge status={option.status} /> : openStatusLabel;
-                                    }}
-                                </Selector.Value>
-                                <Selector.Icon />
-                            </Selector.Trigger>
-                            <Selector.Content onPointerDownCapture={stopPointerDownPropagation}>
-                                <Selector.Viewport>
-                                    {statusOptions.map(option => (
-                                        <Selector.Item key={option.value} value={option.value} textValue={option.label}>
-                                            <Selector.ItemText>
-                                                <IssueStatusBadge status={option.status} />
-                                            </Selector.ItemText>
-                                            <Selector.ItemIndicator />
-                                        </Selector.Item>
-                                    ))}
-                                </Selector.Viewport>
-                            </Selector.Content>
-                        </Selector.Root>
-
+                            renderValue={(value) => {
+                                const option = resolveStatusOption(statusOptions, value);
+                                return option ? <IssueStatusBadge status={option.status} /> : openStatusLabel;
+                            }}
+                            renderItemText={(option) => <IssueStatusBadge status={option.status} />}
+                        />
+                            </div>
                         <Tab.List className='col-span-3 px-2.5 justify-end'>
                             <Tab.DefaultTrigger value='comments'>{commentsLabel}</Tab.DefaultTrigger>
                             <Tab.DefaultTrigger value='items'>{itemsLabel}</Tab.DefaultTrigger>
