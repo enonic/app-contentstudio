@@ -207,13 +207,9 @@ class ContentWizardPanel extends Page {
         let wizardContextWindow = new WizardContextPanel();
         try {
             let result = await wizardContextWindow.isOpened();
-            await wizardContextWindow.waitForOpened();
             if (!result) {
                 await this.clickOnContextWindowPanelToggleButton();
-                result = await wizardContextWindow.waitForOpened();
-                if (!result) {
-                    throw new Error('Context Window Panel was not opened after clicking on toggle button');
-                }
+                await wizardContextWindow.waitForOpened();
             } else {
                 console.log('Content wizard, Context Window is loaded');
             }
