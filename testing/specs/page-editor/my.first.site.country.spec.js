@@ -76,6 +76,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(COUNTRY_TEMPLATE_NAME);
+            await studioUtils.saveScreenshot('template_should_be_invalid');
             // Verify that the page template is invalid (required field in its config)
             await contentBrowsePanel.waitForRedIconDisplayed(COUNTRY_TEMPLATE_NAME);
         });
@@ -95,6 +96,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await cityListPartInspectionPanel.waitForLoaded();
             // 5. Fill in the required field:
             await cityListPartInspectionPanel.selectContentInSelector(appConst.TEST_IMAGES.MAN);
+            await studioUtils.saveScreenshot('template_gets_valid');
             // 6. Save the template
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
