@@ -294,7 +294,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForPublishButtonVisible();
             await this.waitForPublishButtonEnabled();
             return await this.clickOnElement(this.publishButton);
-        }catch(err){
+        } catch (err) {
             await this.handleError('Browse Panel - Clicked on Publish button', 'err_click_publish_button', err);
         }
     }
@@ -303,7 +303,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         try {
             await this.waitForElementEnabled(this.sortButton, appConst.mediumTimeout);
             await this.clickOnElement(this.sortButton);
-        }catch (err){
+        } catch (err) {
             await this.handleError('Browse Panel - Tried to click on Sort button', 'err_click_sort_button', err);
         }
     }
@@ -687,9 +687,13 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     // this method waits until 'invalid' appears in the @class
-    waitForRedIconDisplayed(contentName) {
-        let xpath = XPATH.contentSummaryListViewerByName(contentName);
-        return this.waitUntilInvalid(xpath);
+    async waitForRedIconDisplayed(contentName) {
+        try {
+            let xpath = XPATH.contentSummaryListViewerByName(contentName);
+            return await this.waitUntilInvalid(xpath);
+        } catch (err) {
+            await this.handleError(`Content Grid - Red icon should be displayed: ${contentName}`, 'err_red_icon_displayed', err);
+        }
     }
 
     async getContentStatus(name) {
