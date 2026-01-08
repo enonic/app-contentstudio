@@ -4,35 +4,55 @@ import {ContentVersion} from '../../../../../app/ContentVersion';
 import {ContentServerChangeItem} from '../../../../../app/event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../../../../../app/event/ContentServerEventsHandler';
 
-// TTL for cache entries (ms)
+// ============================================================================
+// Constants
+// ============================================================================
+
+/** TTL for cache entries in milliseconds */
 const CACHE_TTL_MS = 3 * 60 * 1000; // 3 minutes
 
+// ============================================================================
+// Types
+// ============================================================================
+
 type CachedVersionsEntry = {
-    versions: ContentVersion[];
-    totalHits: number;
-    expiresAt: number;
-};
+    readonly versions: ContentVersion[];
+    readonly totalHits: number;
+    readonly expiresAt: number;
+}
+
+export type ContentVersionsLoadResult = {
+    readonly versions: ContentVersion[];
+    readonly hasMore: boolean;
+}
+
+// ============================================================================
+// Cache Storage
+// ============================================================================
 
 const versionsCache = new Map<string, CachedVersionsEntry>();
 
-export type ContentVersionsLoadResult = {
-    versions: ContentVersion[];
-    hasMore: boolean;
-};
+// ============================================================================
+// Cache Operations
+// ============================================================================
+
+const isExpired = (entry: CachedVersionsEntry): boolean => Date.now() > entry.expiresAt;
+
+const createCacheKey = (contentId: ContentId): string => contentId.toString();
 
 export const getCachedVersions = (
     contentId: ContentId,
     from: number,
     size: number,
 ): ContentVersionsLoadResult | undefined => {
-    const key = contentId.toString();
+    const key = createCacheKey(contentId);
     const cached = versionsCache.get(key);
 
     if (!cached) {
         return undefined;
     }
 
-    if (Date.now() > cached.expiresAt) {
+    if (isExpired(cached)) {
         versionsCache.delete(key);
         return undefined;
     }
@@ -44,10 +64,7 @@ export const getCachedVersions = (
     const versions = cached.versions.slice(from, from + size);
     const hasMore = (from + versions.length) < cached.totalHits;
 
-    return {
-        versions,
-        hasMore,
-    };
+    return {versions, hasMore};
 };
 
 export const cacheVersions = (
@@ -56,21 +73,22 @@ export const cacheVersions = (
     versions: ContentVersion[],
     totalHits: number,
 ): void => {
-    const key = contentId.toString();
+    const key = createCacheKey(contentId);
     const cached = versionsCache.get(key);
     const expiresAt = Date.now() + CACHE_TTL_MS;
 
-    if (!cached || Date.now() > cached.expiresAt) {
+    // Create new cache entry if none exists or current is expired
+    if (!cached || isExpired(cached)) {
         versionsCache.set(key, {
-            versions: versions.slice(),
+            versions: [...versions],
             totalHits,
             expiresAt,
         });
         return;
     }
 
-    const mergedVersions = cached.versions.slice();
-
+    // Merge new versions into existing cache
+    const mergedVersions = [...cached.versions];
     versions.forEach((version, index) => {
         mergedVersions[from + index] = version;
     });
@@ -84,38 +102,49 @@ export const cacheVersions = (
 
 export const clearVersionsCache = (contentId?: ContentId): void => {
     if (contentId) {
-        versionsCache.delete(contentId.toString());
-        return;
+        versionsCache.delete(createCacheKey(contentId));
+    } else {
+        versionsCache.clear();
     }
-
-    versionsCache.clear();
 };
 
-const contentSummaryCacheHandler = (items: ContentSummaryAndCompareStatus[]) => {
-    items.forEach((item) => {
-        clearVersionsCache(item.getContentId());
-    });
+// ============================================================================
+// Event Handlers
+// ============================================================================
+
+const handleContentSummaryChange = (items: ContentSummaryAndCompareStatus[]): void => {
+    items.forEach((item) => clearVersionsCache(item.getContentId()));
 };
 
-ContentServerEventsHandler.getInstance().onContentUpdated(contentSummaryCacheHandler);
-ContentServerEventsHandler.getInstance().onContentPermissionsUpdated(contentSummaryCacheHandler);
-ContentServerEventsHandler.getInstance().onContentPublished(contentSummaryCacheHandler);
-ContentServerEventsHandler.getInstance().onContentUnpublished(contentSummaryCacheHandler);
-ContentServerEventsHandler.getInstance().onContentRenamed(contentSummaryCacheHandler);
-
-
-ContentServerEventsHandler.getInstance().onContentMoved((items) => {
-    items.forEach((item) => {
-        clearVersionsCache(item.item.getContentId());
-    });
-});
-
-const deleteCacheHandler = (items: ContentServerChangeItem[]) => {
-    items.forEach((item) => {
-        clearVersionsCache(item.getContentId());
-    });
+const handleContentMoved = (items: { item: ContentSummaryAndCompareStatus }[]): void => {
+    items.forEach((item) => clearVersionsCache(item.item.getContentId()));
 };
 
-ContentServerEventsHandler.getInstance().onContentDeleted(deleteCacheHandler);
-ContentServerEventsHandler.getInstance().onContentArchived(deleteCacheHandler);
+const handleContentDeleted = (items: ContentServerChangeItem[]): void => {
+    items.forEach((item) => clearVersionsCache(item.getContentId()));
+};
 
+// ============================================================================
+// Event Registration
+// ============================================================================
+
+const registerCacheInvalidationHandlers = (): void => {
+    const eventsHandler = ContentServerEventsHandler.getInstance();
+
+    // Content changes that create new versions
+    eventsHandler.onContentUpdated(handleContentSummaryChange);
+    eventsHandler.onContentPermissionsUpdated(handleContentSummaryChange);
+    eventsHandler.onContentPublished(handleContentSummaryChange);
+    eventsHandler.onContentUnpublished(handleContentSummaryChange);
+    eventsHandler.onContentRenamed(handleContentSummaryChange);
+
+    // Content moved
+    eventsHandler.onContentMoved(handleContentMoved);
+
+    // Content removed
+    eventsHandler.onContentDeleted(handleContentDeleted);
+    eventsHandler.onContentArchived(handleContentDeleted);
+};
+
+// Initialize event handlers
+registerCacheInvalidationHandlers();
