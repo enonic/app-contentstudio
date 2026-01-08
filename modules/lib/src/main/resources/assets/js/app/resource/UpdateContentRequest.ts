@@ -3,7 +3,6 @@ import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {ExtraData} from '../content/ExtraData';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ContentName} from '../content/ContentName';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
@@ -23,10 +22,6 @@ export class UpdateContentRequest
     private displayName: string;
 
     private requireValid: boolean;
-
-    private language: string;
-
-    private owner: PrincipalKey;
 
     private workflow: Workflow;
 
@@ -68,16 +63,6 @@ export class UpdateContentRequest
         return this;
     }
 
-    setLanguage(language: string): UpdateContentRequest {
-        this.language = language;
-        return this;
-    }
-
-    setOwner(owner: PrincipalKey): UpdateContentRequest {
-        this.owner = owner;
-        return this;
-    }
-
     setWorkflow(workflow: Workflow): UpdateContentRequest {
         this.workflow = workflow;
         return this;
@@ -89,8 +74,6 @@ export class UpdateContentRequest
             .setDisplayName(content.getDisplayName())
             .setData(content.getContentData())
             .setExtraData(content.getAllExtraData())
-            .setOwner(content.getOwner())
-            .setLanguage(content.getLanguage())
             .setWorkflow(content.getWorkflow());
     }
 
@@ -104,8 +87,6 @@ export class UpdateContentRequest
             data: this.data.toJson(),
             meta: (this.meta || []).map((extraData: ExtraData) => extraData.toJson()),
             displayName: !!this.displayName ? this.displayName.trim() : '',
-            language: this.language,
-            owner: this.owner ? this.owner.toString() : undefined,
             workflow: this.workflow.toJson()
         };
     }

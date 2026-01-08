@@ -41,7 +41,6 @@ export class UpdatePersistedContentRoutine
 
         const isPageChanged: boolean = this.hasPageChanged();
         const isContentChanged: boolean = this.hasContentChanged();
-
         if (isContentChanged || this.hasNamesChanged()) {
             promise = this.doHandleUpdateContent(context, isContentChanged);
         } else {
@@ -99,8 +98,6 @@ export class UpdatePersistedContentRoutine
         return this.isWorkflowChanged() ||
                !ContentDiffHelper.dataEquals(persisted.getContentData(), viewed.getContentData()) ||
                !ContentDiffHelper.extraDataEquals(persisted.getAllExtraData(), viewed.getAllExtraData()) ||
-               !ObjectHelper.equals(persisted.getOwner(), viewed.getOwner()) ||
-               persisted.getLanguage() !== viewed.getLanguage() ||
                !ObjectHelper.dateEquals(persisted.getPublishFromTime(), viewed.getPublishFromTime()) ||
                !ObjectHelper.dateEquals(persisted.getPublishToTime(), viewed.getPublishToTime()) ||
                !persisted.getPermissions().equals(viewed.getPermissions());
@@ -144,6 +141,7 @@ export class UpdatePersistedContentRoutine
 
         return UpdateContentRequest.create(viewedContent).setRequireValid(this.requireValid).setWorkflow(workflow);
     }
+
 
     setRequireValid(requireValid: boolean): UpdatePersistedContentRoutine {
         this.requireValid = requireValid;
