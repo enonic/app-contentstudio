@@ -1,9 +1,10 @@
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
-const lib = require('../libs/elements');
+const lib = require('../libs/elements-old');
 const path = require('path');
 const fs = require('fs');
 const {Key} = require('webdriverio');
+const {COMMON} = require('../libs/elements');
 
 class Page {
 
@@ -344,11 +345,11 @@ class Page {
 
     async waitForNotificationMessage() {
         try {
-            let notificationXpath = lib.NOTIFICATION_TEXT;
+            let notificationXpath = COMMON.NOTIFICATION_TEXT;
             await this.getBrowser().waitUntil(async () => {
                 return await this.isElementDisplayed(notificationXpath);
-            }, {timeout: appConst.longTimeout, timeoutMsg: 'Error when wait for the notification message'});
-            await this.pause(400);
+            }, {timeout: appConst.longTimeout, timeoutMsg: 'The notification message was not shown'});
+            await this.pause(100);
             return await this.getText(notificationXpath);
         } catch (err) {
             await this.handleError('Waited for the notification message', 'err_notif_msg', err);

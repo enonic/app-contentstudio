@@ -11,7 +11,7 @@ const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/
 const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
 const ProjectNotAvailableDialog = require('../../page_objects/project/project.not.available.dialog');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 
 describe("project.not.available.dialog.spec - clicking on 'Start Wizard' button", function () {
     this.timeout(appConst.SUITE_TIMEOUT);

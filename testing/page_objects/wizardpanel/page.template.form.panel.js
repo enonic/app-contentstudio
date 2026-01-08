@@ -2,7 +2,7 @@
  * Created on 09.03.2018
  */
 const Page = require('../page');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
 const ContentTypeFilterDropdown = require('../components/selectors/content.type.filter.dropdown');
 

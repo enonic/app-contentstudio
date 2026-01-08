@@ -2,7 +2,7 @@
  * Created on 03.06.2019.
  */
 const BaseSelectorForm = require('./base.selector.form');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
 const CustomSelectorComboBox = require('../components/selectors/custom.selector.combobox');
 

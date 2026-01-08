@@ -32,8 +32,8 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             // 3. Fill in the search input with the random text (non-existing content)
             await filterPanel.typeSearchText(RANDOM_TEXT);
             await studioUtils.saveScreenshot('export_btn_hidden1');
-            // 4. Verify that Export button gets disabled:
-            await filterPanel.waitForExportButtonDisabled();
+            // 4. Verify that Export button gets not visible:
+            await filterPanel.waitForExportButtonNotDisplayed();
         });
 
     it(`GIVEN 'Executable' checkbox has been clicked in Filter Panel WHEN 'Export' button has been clicked THEN expected number of items should be displayed in Confirmation dialog`,

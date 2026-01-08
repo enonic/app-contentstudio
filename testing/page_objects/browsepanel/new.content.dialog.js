@@ -2,19 +2,19 @@
  * Created on 1.12.2017.
  */
 const Page = require('../page');
-const lib = require('../../libs/elements');
+const {BUTTONS} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const XPATH = {
-    container: `//div[contains(@id,'NewContentDialog')]`,
-    dialogTitle: `//h2[contains(@class,'title') and text()='Create Content']`,
-    searchInput: `//div[contains(@id,'FileInput')]/input`,
+    container: `//div[@role='dialog' and @data-state='open']`,
+    dialogTitle: `//h3[contains(.,'Create content')]`,
+    searchInput: `//input[@aria-label='Search']`,
     uploaderButton: "//div[contains(@id,'NewContentUploader')]",
     header: `//div[contains(@id,'NewContentDialogHeader')]`,
     typesList: `//ul[contains(@id,'FilterableItemsList')]`,
     mostPopularBlock: "//div[contains(@id,'MostPopularItemsBlock')]",
     emptyViewDiv: "//div[contains(@class,'empty-view')]",
     contentTypeByName(name) {
-        return `//div[@class='content-types-content']//li[contains(@class,'content-types-list-item') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]`;
+        return `//button[descendant::span[contains(.,'${name}')]]`;
     },
 };
 
@@ -28,17 +28,51 @@ class NewContentDialog extends Page {
         return XPATH.container + XPATH.searchInput;
     }
 
-    get cancelButton() {
-        return XPATH.container + lib.CANCEL_BUTTON_TOP;
+    get allButton() {
+        return XPATH.container + BUTTONS.button('All');
     }
 
+    get suggestedButton() {
+        return XPATH.container + BUTTONS.button('Suggested');
+    }
 
-    async clickOnCancelButtonTop() {
+    get closeButton() {
+        return XPATH.container + BUTTONS.buttonAriaLabel('Close');
+    }
+
+    async clickOnMediaButton() {
         try {
-            await this.waitForElementDisplayed(this.cancelButton, appConst.mediumTimeout);
-            await this.clickOnElement(this.cancelButton);
+            let mediaButton = XPATH.container + BUTTONS.button('Media');
+            await this.waitForElementDisplayed(mediaButton, appConst.mediumTimeout);
+            await this.clickOnElement(mediaButton);
         } catch (err) {
-            await this.handleError(`New Content dialog, Cancel button:`, 'err_cancel_new_content_dlg', err);
+            await this.handleError(`New Content dialog, Media button:`, 'err_media_new_content_dlg', err);
+        }
+    }
+
+    async clickOnAllButton() {
+        try {
+            await this.waitForElementDisplayed(this.allButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.allButton);
+        } catch (err) {
+            await this.handleError(`New Content dialog, All button:`, 'err_all_new_content_dlg', err);
+        }
+    }
+    async clickOnSuggestedButton() {
+        try {
+            await this.waitForElementDisplayed(this.suggestedButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.suggestedButton);
+        } catch (err) {
+            await this.handleError(`New Content dialog, Suggested button:`, 'err_suggested_new_content_dlg', err);
+        }
+    }
+
+    async clickOnCloseButton() {
+        try {
+            await this.waitForElementDisplayed(this.closeButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.closeButton);
+        } catch (err) {
+            await this.handleError(`New Content dialog, Close button:`, 'err_close_new_content_dlg', err);
         }
     }
 
@@ -68,13 +102,19 @@ class NewContentDialog extends Page {
         return this.getText(this.title);
     }
 
-    // type Search Text In Hidden Input
+    // type Search Text in Hidden Input
     async typeSearchText(text) {
         try {
-            await this.getBrowser().keys(text)
+            const firstChar = text.charAt(0);
+            const remainingText = text.substring(1);
+            // Focus on the input
+            await this.getBrowser().keys([firstChar]);
+            await this.pause(100);
+            // Type the remaining text
+            await this.addTextInInput(this.searchInput, remainingText);
             return await this.pause(200);
         } catch (err) {
-            await this.handleError('New Content dialog, search input.', 'err_new_content_search',err);
+            await this.handleError('New Content dialog, search input.', 'err_new_content_search', err);
         }
     }
 

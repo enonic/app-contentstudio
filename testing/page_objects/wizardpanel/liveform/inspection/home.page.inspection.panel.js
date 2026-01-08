@@ -2,7 +2,7 @@
  * Created on 12.09.2019.
  */
 const PageInspectionPanel = require('./page.inspection.panel');
-const lib = require('../../../../libs/elements');
+const lib = require('../../../../libs/elements-old');
 const appConst = require('../../../../libs/app_const');
 
 const xpath = {

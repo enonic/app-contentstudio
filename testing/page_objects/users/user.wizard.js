@@ -3,7 +3,7 @@
  */
 const wizards = require('./wizard.panel');
 const wpXpath = require('./wizard.panel').XPATH;
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
 const UsersPrincipalCombobox = require('./selectors/users.principal.combobox');
 

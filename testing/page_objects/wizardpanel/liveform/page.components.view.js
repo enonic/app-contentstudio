@@ -1,7 +1,7 @@
 /**
  * Created on 28.03.2018.
  */
-const lib = require('../../../libs/elements');
+const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
 const BasePageComponentView = require('../base.page.components.view');
 
