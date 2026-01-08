@@ -5,6 +5,7 @@ import {UnpublishDialog} from '../../../shared/dialogs/unpublish/UnpublishDialog
 import {DeleteDialog} from '../../../shared/dialogs/delete/DeleteDialog';
 import {DuplicateDialog} from '../../../shared/dialogs/duplicate/DuplicateDialog';
 import {NewContentDialog} from '../../../shared/dialogs/new-content/NewContentDialog';
+import {CompareVersionsDialog} from '../../../shared/dialogs/compare-versions/CompareVersionsDialog';
 
 export const BrowseAppShell = (): ReactElement => {
     return (
@@ -16,6 +17,7 @@ export const BrowseAppShell = (): ReactElement => {
             <UnpublishDialog />
             <DeleteDialog />
             <DuplicateDialog />
+            <CompareVersionsDialog />
         </>
     );
 };
