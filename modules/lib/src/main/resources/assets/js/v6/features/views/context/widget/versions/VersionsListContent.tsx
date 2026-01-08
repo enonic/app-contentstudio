@@ -1,6 +1,7 @@
 import {Listbox} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import React from 'react';
+import {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
 import {ContentVersion} from '../../../../../../app/ContentVersion';
 import {$versionsDisplayMode} from '../../../../store/context/versionStore';
 import {VersionsListItem} from './VersionsListItem';
@@ -11,6 +12,7 @@ const COMPONENT_NAME = 'VersionsListContent';
  * Component for rendering versions list content grouped by dates
  */
 interface VersionsListContentProps {
+    content: ContentSummaryAndCompareStatus,
     versionsByDate: Record<string, ContentVersion[]>;
     activeVersionId: string | null;
     isFocused: boolean;
@@ -19,6 +21,7 @@ interface VersionsListContentProps {
 }
 
 export const VersionsListContent = ({
+    content,
     versionsByDate,
     activeVersionId,
     isFocused,
@@ -46,7 +49,7 @@ export const VersionsListContent = ({
                                 className='p-0 data-[active=true]:ring-1 data-[active=true]:ring-offset-0 rounded-sm'
                                 data-active={isFocused && activeVersionId === version.getId()}
                             >
-                                <VersionsListItem version={version} isFocused={isFocused} />
+                                <VersionsListItem contentId={content.getContentId()} version={version} isFocused={isFocused} />
                             </Listbox.Item>
                         ))}
                     </div>

@@ -1,3 +1,6 @@
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {ContentId} from '../../../../app/content/ContentId';
+import {RepositoryId} from '../../../../app/repository/RepositoryId';
 import {$projects} from '../../store/projects.store';
 
 const ADMIN_PATH = '/admin';

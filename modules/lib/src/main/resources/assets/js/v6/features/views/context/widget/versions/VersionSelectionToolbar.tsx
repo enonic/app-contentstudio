@@ -1,7 +1,9 @@
 import {Button} from '@enonic/ui';
 import React, {useCallback} from 'react';
+import type {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
 import {useI18n} from '../../../../hooks/useI18n';
 import {resetVersionsSelection} from '../../../../store/context/versionStore';
+import {openCompareVersionsDialog} from '../../../../store/dialogs/compareVersionsDialog.store';
 
 const COMPONENT_NAME = 'VersionSelectionToolbar';
 
@@ -11,12 +13,27 @@ const COMPONENT_NAME = 'VersionSelectionToolbar';
  */
 interface VersionSelectionToolbarProps {
     selectionSize: number;
+    selectedVersionIds: string[];
+    content?: ContentSummaryAndCompareStatus | null;
     onCancel?: () => void;
 }
 
-export const VersionSelectionToolbar = ({selectionSize, onCancel}: VersionSelectionToolbarProps): React.ReactElement => {
+export const VersionSelectionToolbar = ({
+    selectionSize,
+    selectedVersionIds,
+    content,
+    onCancel,
+}: VersionSelectionToolbarProps): React.ReactElement => {
     const showChangesButtonLabel = useI18n('text.versions.showChanges');
     const cancelButtonLabel = useI18n('action.cancel');
+
+    const handleShowChanges = useCallback(() => {
+        if (!content || selectedVersionIds.length !== 2) {
+            return;
+        }
+
+        openCompareVersionsDialog(content, selectedVersionIds);
+    }, [content, selectedVersionIds]);
 
     const handleCancel = useCallback(() => {
         resetVersionsSelection();
@@ -31,6 +48,7 @@ export const VersionSelectionToolbar = ({selectionSize, onCancel}: VersionSelect
             <Button
                 label={showChangesButtonLabel}
                 variant='filled'
+                onClick={handleShowChanges}
                 disabled={selectionSize !== 2}
             />
             <Button

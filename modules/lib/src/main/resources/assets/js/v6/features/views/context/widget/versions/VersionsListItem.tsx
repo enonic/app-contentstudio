@@ -2,21 +2,22 @@ import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {Button, Checkbox, cn, useListbox} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ComponentPropsWithoutRef, ReactElement, useCallback, useMemo} from 'react';
+import {ContentId} from '../../../../../../app/content/ContentId';
 import {ContentVersion} from '../../../../../../app/ContentVersion';
 import {useI18n} from '../../../../hooks/useI18n';
-import {OfflineIcon} from '../../../../shared/icons/OfflineIcon';
+import {VersionItemPublishStatus} from '../../../../shared/status/VersionItemPublishStatus';
 import {
+    $activeVersionId,
     $selectedVersions,
     $selectionModeOn,
+    $versions,
     $versionsDisplayMode,
     $visualFocus,
     getOperationLabel,
-    getVersionPublishStatus,
-    isVersionsComparable,
+    isVersionRevertable,
     revertToVersion,
     toggleVersionSelection,
-    VersionPublishStatus,
-    VisualTarget,
+    VisualTarget
 } from '../../../../store/context/versionStore';
 import {VersionsListItemIcon} from './VersionListItemIcon';
 
@@ -27,6 +28,7 @@ const COMPONENT_NAME = 'VersionsListItem';
 // ============================================================================
 
 type VersionsListItemProps = {
+    contentId: ContentId;
     version: ContentVersion;
     isFocused?: boolean;
 } & ComponentPropsWithoutRef<'div'>;
@@ -36,30 +38,32 @@ type VersionsListItemProps = {
 // ============================================================================
 
 const useVersionItemState = (version: ContentVersion, isFocused: boolean) => {
+    const versions = useStore($versions);
     const selectedVersions = useStore($selectedVersions);
     const isSelectionModeOn = useStore($selectionModeOn);
     const visualFocus = useStore($visualFocus);
     const displayMode = useStore($versionsDisplayMode);
+    const currentVersionId = useStore($activeVersionId);
     const {active, setActive} = useListbox();
 
+    const isStandardMode = displayMode === 'standard';
     const versionId = version.getId();
-    const isComparable = useMemo(() => isVersionsComparable(version), [version]);
     const isActive = active === versionId;
     const isSelected = useMemo(() => selectedVersions.has(versionId), [versionId, selectedVersions]);
+    const isRevertable = version.getId() !== currentVersionId && isVersionRevertable(version);
 
-    const showActiveControls = isFocused && isActive && displayMode === 'standard' && isComparable;
-    const showInlineCheckbox = isSelectionModeOn && isComparable && (!isActive || !isFocused);
-    const showIcon = displayMode === 'full';
+    const showActiveControls = isFocused && isActive && isStandardMode;
+    const showInlineCheckbox = isSelectionModeOn && isStandardMode && (!isActive || !isFocused);
 
     return {
+        versions,
         versionId,
         isActive,
         isSelected,
-        isComparable,
+        isRevertable,
         visualFocus,
         showActiveControls,
         showInlineCheckbox,
-        showIcon,
         setActive,
     };
 };
@@ -68,11 +72,11 @@ const useVersionItemState = (version: ContentVersion, isFocused: boolean) => {
 // Subcomponents
 // ============================================================================
 
-type VersionItemHeaderProps = {
+type VersionItemMainInfoProps = {
     version: ContentVersion;
 };
 
-const VersionItemHeader = ({version}: VersionItemHeaderProps): ReactElement => {
+const VersionItemMainInfo = ({version}: VersionItemMainInfoProps): ReactElement => {
     const modifierDisplayName = version.getModifierDisplayName() || version.getPublishInfo()?.getPublisherDisplayName();
     const modifierLabel = useI18n('field.version.by', modifierDisplayName ?? '');
 
@@ -92,61 +96,23 @@ const VersionItemHeader = ({version}: VersionItemHeaderProps): ReactElement => {
     );
 };
 
-type VersionItemPublishStatusProps = {
-    version: ContentVersion;
-};
-
-const VersionItemPublishStatus = ({version}: VersionItemPublishStatusProps): ReactElement | null => {
-    const publishStatus = getVersionPublishStatus(version);
-    const onlineLabel = useI18n('status.online');
-    const expiredLabel = useI18n('status.expired');
-    const scheduledLabel = useI18n('status.scheduled');
-
-    switch (publishStatus) {
-        case VersionPublishStatus.ONLINE:
-            return (
-                <div className='text-sm flex items-center text-success'>
-                    {onlineLabel}
-                </div>
-            );
-
-        case VersionPublishStatus.WAS_ONLINE:
-            return (
-                <OfflineIcon className='shrink-0 w-4 bg-transparent' />
-            );
-
-        case VersionPublishStatus.EXPIRED:
-            return (
-                <div className='text-sm flex items-center text-red-400'>
-                    {expiredLabel}
-                </div>
-            );
-
-        case VersionPublishStatus.SCHEDULED:
-            return (
-                <div className='text-sm flex items-center text-orange-400'>
-                    {scheduledLabel}
-                </div>
-            );
-
-        default:
-            return null;
-    }
-};
-
 type VersionItemActionsProps = {
+    contentId: ContentId;
     versionId: string;
     isActive: boolean;
     isSelected: boolean;
+    isRevertable: boolean;
     visualFocus: VisualTarget | null;
     preventFocusChange: (e: React.MouseEvent<HTMLElement>) => void;
     onCheckboxClick: (e: React.MouseEvent<HTMLLabelElement>) => void;
 };
 
 const VersionItemActions = ({
+    contentId,
     versionId,
     isActive,
     isSelected,
+    isRevertable,
     visualFocus,
     preventFocusChange,
     onCheckboxClick,
@@ -156,13 +122,13 @@ const VersionItemActions = ({
 
     const handleRestoreClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
-        revertToVersion(versionId);
+        revertToVersion(contentId, versionId);
     }, [versionId]);
 
     return (
         <div className='w-full flex flex-col gap-5'>
             <div className='flex'>
-                <Button
+                {isRevertable && <Button
                     label={revertLabel}
                     size='sm'
                     variant='solid'
@@ -173,7 +139,7 @@ const VersionItemActions = ({
                         isSelected && 'ring-1',
                         isActive && visualFocus === 'restore' && 'ring-2'
                     )}
-                />
+                />}
                 <div className='flex grow items-center justify-end'>
                     <Checkbox
                         className={cn(
@@ -201,15 +167,15 @@ const VersionItemActions = ({
  * Component for displaying a single version item in the versions list
  * Shows version info, actions (restore, compare) with keyboard navigation support
  */
-export const VersionsListItem = ({version, isFocused = false, ...props}: VersionsListItemProps): ReactElement => {
+export const VersionsListItem = ({contentId, version, isFocused = false, ...props}: VersionsListItemProps): ReactElement => {
     const {
         versionId,
         isActive,
         isSelected,
+        isRevertable,
         visualFocus,
         showActiveControls,
         showInlineCheckbox,
-        showIcon,
         setActive,
     } = useVersionItemState(version, isFocused);
 
@@ -224,11 +190,7 @@ export const VersionsListItem = ({version, isFocused = false, ...props}: Version
         e.stopPropagation();
         e.preventDefault();
         toggleVersionSelection(versionId);
-
-        if (!isActive) {
-            setActive(versionId);
-        }
-    }, [versionId, setActive, isActive]);
+    }, [versionId]);
 
     const preventFocusChange = useCallback((e: React.MouseEvent<HTMLElement>) => {
         e.preventDefault();
@@ -242,9 +204,9 @@ export const VersionsListItem = ({version, isFocused = false, ...props}: Version
             {...props}
         >
             <div className='w-full flex items-center gap-2'>
-                {showIcon && <VersionsListItemIcon version={version} />}
+                <VersionsListItemIcon version={version} />
 
-                <VersionItemHeader version={version} />
+                <VersionItemMainInfo version={version} />
 
                 <VersionItemPublishStatus version={version} />
 
@@ -262,9 +224,11 @@ export const VersionsListItem = ({version, isFocused = false, ...props}: Version
 
             {showActiveControls && (
                 <VersionItemActions
+                    contentId={contentId}
                     versionId={versionId}
                     isActive={isActive}
                     isSelected={isSelected}
+                    isRevertable={isRevertable}
                     visualFocus={visualFocus}
                     preventFocusChange={preventFocusChange}
                     onCheckboxClick={handleCheckboxClick}
