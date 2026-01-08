@@ -3,6 +3,7 @@ import {ContentSummary} from '../../../../content/ContentSummary';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {UpdateContentRequest} from '../../../../resource/UpdateContentRequest';
+import {UpdateContentMetadataRequest} from '../../../../resource/UpdateContentMetadataRequest';
 
 export class PropertiesWizardStepForm
     extends WizardStepForm {
@@ -52,7 +53,15 @@ export class PropertiesWizardStepForm
         return false;
     }
 
+    isMetadataChanged(): boolean {
+        return false;
+    }
+
     applyChange(request: UpdateContentRequest): UpdateContentRequest {
+        return request;
+    }
+
+    applyMetadataChange(request: UpdateContentMetadataRequest): UpdateContentMetadataRequest {
         return request;
     }
 }

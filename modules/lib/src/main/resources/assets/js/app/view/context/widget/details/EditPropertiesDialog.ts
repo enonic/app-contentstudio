@@ -6,11 +6,9 @@ import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {GetContentByIdRequest} from '../../../../resource/GetContentByIdRequest';
 import {Content} from '../../../../content/Content';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {UpdateContentRequest} from '../../../../resource/UpdateContentRequest';
+import {UpdateContentMetadataRequest} from '../../../../resource/UpdateContentMetadataRequest';
 import {PropertiesWizardStepForm} from './PropertiesWizardStepForm';
 import Q from 'q';
-import {Workflow} from '../../../../content/Workflow';
-import {WorkflowState} from '../../../../content/WorkflowState';
 import {ModalDialogWithConfirmation} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 
 export interface EditPropertiesDialogParams {
@@ -66,11 +64,10 @@ export class EditPropertiesDialog
         this.updateAction.setEnabled(false);
 
         return new GetContentByIdRequest(this.content.getContentId()).sendAndParse().then((content: Content) => {
-            const inProgressWorkflow: Workflow = Workflow.create().setState(WorkflowState.IN_PROGRESS).build();
-            const request: UpdateContentRequest = UpdateContentRequest.create(content).setWorkflow(inProgressWorkflow);
-            this.allowedForms.forEach((form: PropertiesWizardStepForm) => form.applyChange(request));
+            const metadataRequest: UpdateContentMetadataRequest = UpdateContentMetadataRequest.create(content);
+            this.allowedForms.forEach((form: PropertiesWizardStepForm) => form.applyMetadataChange(metadataRequest));
 
-            return request.sendAndParse().then((updatedContent: Content) => {
+            return metadataRequest.sendAndParse().then((updatedContent: Content) => {
                 this.updatedHandler?.(updatedContent);
                 this.close();
             });
@@ -97,7 +94,6 @@ export class EditPropertiesDialog
 
     open() {
         super.open();
-
         this.layout();
     }
 
@@ -115,11 +111,11 @@ export class EditPropertiesDialog
     }
 
     private handleChange(): void {
-        this.updateAction.setEnabled(this.isAnyFormChanged() && this.isEveryFormValid());
+        this.updateAction.setEnabled(this.isAnyFormMetadataChanged() && this.isEveryFormValid());
     }
 
-    private isAnyFormChanged(): boolean {
-        return this.allowedForms.some((form: PropertiesWizardStepForm) => form.isChanged());
+    private isAnyFormMetadataChanged(): boolean {
+        return this.allowedForms.some((form: PropertiesWizardStepForm) => form.isMetadataChanged());
     }
 
     private isEveryFormValid(): boolean {

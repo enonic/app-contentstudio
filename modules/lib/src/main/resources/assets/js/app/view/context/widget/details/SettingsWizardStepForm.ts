@@ -7,7 +7,7 @@ import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {LocaleComboBox, LocaleFormInputElWrapper} from '../../../../locale/LocaleComboBox';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {PropertiesWizardStepForm} from './PropertiesWizardStepForm';
-import {UpdateContentRequest} from '../../../../resource/UpdateContentRequest';
+import {UpdateContentMetadataRequest} from '../../../../resource/UpdateContentMetadataRequest';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {CSPrincipalCombobox} from '../../../../security/CSPrincipalCombobox';
@@ -99,7 +99,11 @@ export class SettingsWizardStepForm
             !ObjectHelper.equals(this.getSelectedOwner(), this.content.getOwner());
     }
 
-    applyChange(request: UpdateContentRequest): UpdateContentRequest {
+    isMetadataChanged(): boolean {
+        return this.isChanged();
+    }
+
+    applyMetadataChange(request: UpdateContentMetadataRequest): UpdateContentMetadataRequest {
         request.setLanguage(this.localeCombo.getSelectedLocate()?.getId());
         request.setOwner(this.getSelectedOwner());
 
