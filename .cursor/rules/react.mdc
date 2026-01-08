@@ -29,8 +29,7 @@ export function MyComponent({
   className,
   children,
 }: MyComponentProps) {
-  // ✅ Hoist store/ref hooks at the very top
-  const data = useStore(myStore);
+  // ✅ Hoist ref and store hooks at the very top (see stores.mdc for store patterns)
   const containerRef = useRef<HTMLDivElement>(null);
 
   // ✅ Other hooks next: state, memo, effects, etc.
@@ -389,7 +388,4 @@ useLayoutEffect(() => {
 // 5️⃣ Throttle / debounce high-frequency events (scroll, resize)
 // ✅ Check and apply to cases, where no fast/instant feedback is needed
 const throttledScroll = useCallback(throttle(handleScroll, 100), [handleScroll]);
-
-// 6️⃣ If store is a map, listen for the used keys only
-const { account } = useStore($application, {keys: ['account']});
 ```
