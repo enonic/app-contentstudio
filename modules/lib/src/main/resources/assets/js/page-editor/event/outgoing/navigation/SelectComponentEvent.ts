@@ -17,10 +17,10 @@ export class SelectComponentEvent
 
     private readonly position: ClickPosition;
 
-    constructor(config: ItemViewSelectedEventConfig) {
-        super(config.rightClicked);
-        this.path = config.path;
-        this.position = config.position;
+    constructor(config?: ItemViewSelectedEventConfig) {
+        super(config?.rightClicked);
+        this.path = config?.path;
+        this.position = config?.position;
     }
 
     getPath(): ComponentPath {
@@ -37,17 +37,5 @@ export class SelectComponentEvent
 
     static un(handler?: (event: SelectComponentEvent) => void, contextWindow: Window = window) {
         IframeEvent.unbind(ClassHelper.getFullName(this), handler, contextWindow);
-    }
-
-    public static fromObject(o: object): SelectComponentEvent {
-        if (o instanceof SelectComponentEvent) {
-            return o;
-        } else {
-            return new SelectComponentEvent({
-                path: ComponentPath.fromString(o['']),
-                rightClicked: o['rightClicked'],
-                position: o['position']
-            });
-        }
     }
 }
