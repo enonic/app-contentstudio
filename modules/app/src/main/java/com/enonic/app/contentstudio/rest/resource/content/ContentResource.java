@@ -159,6 +159,8 @@ import com.enonic.xp.content.ResolveRequiredDependenciesParams;
 import com.enonic.xp.content.SortContentParams;
 import com.enonic.xp.content.SortContentResult;
 import com.enonic.xp.content.SyncContentService;
+import com.enonic.xp.content.UpdateContentMetadataParams;
+import com.enonic.xp.content.UpdateContentMetadataResult;
 import com.enonic.xp.content.UpdateContentParams;
 import com.enonic.xp.content.UpdateMediaParams;
 import com.enonic.xp.content.WorkflowInfo;
@@ -169,7 +171,6 @@ import com.enonic.xp.extractor.ExtractedData;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.index.ChildOrder;
 import com.enonic.xp.jaxrs.JaxRsComponent;
-import com.enonic.xp.page.EditablePage;
 import com.enonic.xp.query.expr.CompareExpr;
 import com.enonic.xp.query.expr.FieldExpr;
 import com.enonic.xp.query.expr.FieldOrderExpr;
@@ -456,14 +457,10 @@ public final class ContentResource
 
     private Content localizeContent( final ContentId id, final Locale language )
     {
-        final UpdateContentParams updateContentParams = new UpdateContentParams().contentId( id ).editor( edit -> {
-            if ( language != null )
-            {
-                edit.language = language;
-            }
-        } );
-
-        return contentService.update( updateContentParams );
+        final UpdateContentMetadataParams params = UpdateContentMetadataParams.create().contentId( id ).editor( edit -> {
+            edit.language = language;
+        } ).build();
+        return contentService.updateMetadata( params ).getContent();
     }
 
     @POST
@@ -495,9 +492,15 @@ public final class ContentResource
 
         final Content updatedContent = ContextBuilder.copyOf(ContextAccessor.current()).branch(ContentConstants.BRANCH_DRAFT).build().callWith(() -> contentService.update( updateParams ));
 
-        if ( json.getContentName().equals( updatedContent.getName() ) )
+        final Content contentAfterMetadataUpdate = ContextBuilder.copyOf( ContextAccessor.current() )
+                .branch( ContentConstants.BRANCH_DRAFT )
+                .build()
+                .callWith( () -> contentService.updateMetadata( json.getUpdateContentMetadataParams() ) )
+                .getContent();
+
+        if ( json.getContentName().equals( contentAfterMetadataUpdate.getName() ) )
         {
-            return jsonObjectsFactory.createContentJson( updatedContent, request );
+            return jsonObjectsFactory.createContentJson( contentAfterMetadataUpdate, request );
         }
 
         // TODO split move and update operations in the REST API
@@ -1562,8 +1565,9 @@ public final class ContentResource
         }
 
         final Content currentContent = contentService.getById( ContentId.from( params.getContentId() ) );
-        final Content content = contentService.update( prepareUpdateContentParams( versionedContent, contentVersionId ) );
-        return jsonObjectsFactory.createContentJson( content, request );
+        contentService.update( prepareUpdateContentParams( versionedContent, contentVersionId ) );
+        final UpdateContentMetadataResult result = contentService.updateMetadata( prepareUpdateContentMetadataParams( versionedContent ) );
+        return jsonObjectsFactory.createContentJson( result.getContent(), request );
     }
 
     @POST
@@ -1579,15 +1583,21 @@ public final class ContentResource
             edit.data = versionedContent.getData();
             edit.displayName = versionedContent.getDisplayName();
             edit.extraDatas = versionedContent.getAllExtraData();
-            edit.page = versionedContent.getPage() != null ? new EditablePage(versionedContent.getPage()) : null;
-            edit.language = versionedContent.getLanguage();
-            edit.owner = versionedContent.getOwner();
             edit.workflowInfo = WorkflowInfo.inProgress();
+            edit.page(versionedContent.getPage() != null ? versionedContent.getPage() : null);
         } );
 
         updateAttachments( versionedContent, contentVersionId, updateParams );
 
         return updateParams;
+    }
+
+    private UpdateContentMetadataParams prepareUpdateContentMetadataParams( final Content versionedContent )
+    {
+        return UpdateContentMetadataParams.create().contentId( versionedContent.getId() ).editor( edit -> {
+            edit.language = versionedContent.getLanguage();
+            edit.owner = versionedContent.getOwner();
+        } ).build();
     }
 
     private void updateAttachments( final Content versionedContent, final ContentVersionId contentVersionId,

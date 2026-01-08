@@ -129,6 +129,8 @@ import com.enonic.xp.content.ResolveRequiredDependenciesParams;
 import com.enonic.xp.content.SortContentParams;
 import com.enonic.xp.content.SortContentResult;
 import com.enonic.xp.content.SyncContentService;
+import com.enonic.xp.content.UpdateContentMetadataParams;
+import com.enonic.xp.content.UpdateContentMetadataResult;
 import com.enonic.xp.content.UpdateContentParams;
 import com.enonic.xp.content.UpdateMediaParams;
 import com.enonic.xp.context.ContextAccessor;
@@ -743,6 +745,8 @@ public class ContentResourceTest
     {
         Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
         when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
+        when( contentService.updateMetadata( isA( UpdateContentMetadataParams.class ) ) ).thenReturn(
+            UpdateContentMetadataResult.create().content( content ).build() );
         when( contentService.getById( any() ) ).thenReturn( content );
         when( contentService.getById( content.getId() ) ).thenReturn( content );
         when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
@@ -762,6 +766,8 @@ public class ContentResourceTest
     {
         Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
         when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
+        when( contentService.updateMetadata( isA( UpdateContentMetadataParams.class ) ) ).thenReturn(
+            UpdateContentMetadataResult.create().content( content ).build() );
         when( contentService.getById( any() ) ).thenReturn( content );
         when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
 
@@ -781,6 +787,8 @@ public class ContentResourceTest
     {
         Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
         when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
+        when( contentService.updateMetadata( isA( UpdateContentMetadataParams.class ) ) ).thenReturn(
+            UpdateContentMetadataResult.create().content( content ).build() );
         when( contentService.getById( any() ) ).thenReturn( content );
         when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
         String jsonString = request().path( "content/update" )
@@ -799,6 +807,8 @@ public class ContentResourceTest
     {
         Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
         when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
+        when( contentService.updateMetadata( isA( UpdateContentMetadataParams.class ) ) ).thenReturn(
+            UpdateContentMetadataResult.create().content( content ).build() );
         when( contentService.getById( any() ) ).thenReturn( content );
         when( contentService.move( any() ) ).thenReturn( MoveContentsResult.create().addMoved( content.getId() ).build() );
         when( contentService.getByPath( any() ) ).thenThrow( ContentNotFoundException.class );
@@ -819,6 +829,8 @@ public class ContentResourceTest
     {
         Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
         when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
+        when( contentService.updateMetadata( isA( UpdateContentMetadataParams.class ) ) ).thenReturn(
+            UpdateContentMetadataResult.create().content( content ).build() );
         when( contentService.getById( any() ) ).thenReturn( content );
         when( contentService.move( any() ) ).thenReturn( MoveContentsResult.create().addMoved( content.getId() ).build() );
         when( contentService.getByPath( any() ) ).thenThrow( ContentNotFoundException.class );
@@ -931,6 +943,8 @@ public class ContentResourceTest
     {
         Content content = createContent( "content-id", "new-content-name", "myapplication:content-type" );
         when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
+        when( contentService.updateMetadata( isA( UpdateContentMetadataParams.class ) ) ).thenReturn(
+            UpdateContentMetadataResult.create().content( content ).build() );
         when( contentService.getById( any() ) ).thenReturn( content );
 
         when( contentService.move( any() ) ).thenThrow(
@@ -2367,14 +2381,15 @@ public class ContentResourceTest
         ids.add( contentId );
         final LocalizeContentsJson params = new LocalizeContentsJson( ids, "en" );
 
-        ArgumentCaptor<UpdateContentParams> argumentCaptor = ArgumentCaptor.forClass( UpdateContentParams.class );
+        ArgumentCaptor<UpdateContentMetadataParams> argumentCaptor = ArgumentCaptor.forClass( UpdateContentMetadataParams.class );
         Content content = createContent( contentId, "content-name", "myapplication:content-type" );
-        when( this.contentService.update( any( UpdateContentParams.class ) ) ).thenReturn( content );
+        when( contentService.updateMetadata( isA( UpdateContentMetadataParams.class ) ) ).thenReturn(
+            UpdateContentMetadataResult.create().content( content ).build() );
         when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
 
         instance.localize( params, request );
 
-        verify( this.contentService, times( 1 ) ).update( argumentCaptor.capture() );
+        verify( this.contentService, times( 1 ) ).updateMetadata( argumentCaptor.capture() );
         assertTrue( argumentCaptor.getValue().getContentId().equals( ContentId.from( contentId ) ) );
     }
 

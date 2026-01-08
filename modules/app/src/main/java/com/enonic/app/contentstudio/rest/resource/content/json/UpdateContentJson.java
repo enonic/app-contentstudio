@@ -14,6 +14,7 @@ import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentName;
 import com.enonic.xp.content.ExtraDatas;
 import com.enonic.xp.content.MoveContentParams;
+import com.enonic.xp.content.UpdateContentMetadataParams;
 import com.enonic.xp.content.UpdateContentParams;
 import com.enonic.xp.data.PropertyArrayJson;
 import com.enonic.xp.data.PropertyTree;
@@ -29,6 +30,8 @@ public final class UpdateContentJson
     final UpdateContentParams updateContentParams;
 
     final MoveContentParams renameContentParams;
+
+    final UpdateContentMetadataParams updateContentMetadataParams;
 
     @JsonCreator
     UpdateContentJson( @JsonProperty("contentId") final String contentId, @JsonProperty("contentName") final String contentName,
@@ -50,10 +53,16 @@ public final class UpdateContentJson
                 edit.data = contentData;
                 edit.extraDatas = extraDatas;
                 edit.displayName = displayName;
-                edit.owner = isNullOrEmpty( owner ) ? null : PrincipalKey.from( owner );
-                edit.language = isNullOrEmpty( language ) ? null : Locale.forLanguageTag( language );
                 edit.workflowInfo = workflowInfo == null ? null : workflowInfo.getWorkflowInfo();
             } );
+
+         this.updateContentMetadataParams = UpdateContentMetadataParams.create().
+            contentId( ContentId.from( contentId ) ).
+            editor( edit -> {
+                edit.owner = isNullOrEmpty( owner ) ? null : PrincipalKey.from( owner );
+                edit.language = isNullOrEmpty( language ) ? null : Locale.forLanguageTag( language );
+            } ).
+            build();
 
         this.renameContentParams = MoveContentParams.create().
             contentId( ContentId.from( contentId ) ).
@@ -71,6 +80,12 @@ public final class UpdateContentJson
     public MoveContentParams getRenameContentParams()
     {
         return renameContentParams;
+    }
+
+    @JsonIgnore
+    public UpdateContentMetadataParams getUpdateContentMetadataParams()
+    {
+        return updateContentMetadataParams;
     }
 
     @JsonIgnore

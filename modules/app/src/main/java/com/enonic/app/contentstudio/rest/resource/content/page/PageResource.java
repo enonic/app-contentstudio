@@ -44,8 +44,7 @@ public final class PageResource
     public ContentJson create( final CreatePageJson params, @Context HttpServletRequest request )
     {
         final Content updatedContent = this.contentService.update( new UpdateContentParams().contentId( params.getContentId() )
-                                                                       .editor( toBeUpdated -> toBeUpdated.page =
-                                                                           new EditablePage( params.getPage() ) ) );
+                                                                       .editor( toBeUpdated -> toBeUpdated.page( params.getPage() ) ) );
 
         return jsonObjectsFactory.createContentJson( updatedContent, request );
     }
@@ -55,9 +54,8 @@ public final class PageResource
     @Consumes(MediaType.APPLICATION_JSON)
     public ContentJson update( final CreatePageJson params, @Context HttpServletRequest request )
     {
-        final Content updatedContent = this.contentService.update( new UpdateContentParams().contentId( params.getContentId() )
-                                                                       .editor( toBeUpdated -> toBeUpdated.page =
-                                                                           new EditablePage( params.getPage() ) ) );
+        final Content updatedContent = this.contentService.update(
+            new UpdateContentParams().contentId( params.getContentId() ).editor( toBeUpdated -> toBeUpdated.page( params.getPage() ) ) );
 
         return jsonObjectsFactory.createContentJson( updatedContent, request );
     }
@@ -68,8 +66,8 @@ public final class PageResource
     public ContentJson delete( @QueryParam("contentId") final String contentIdAsString, @Context HttpServletRequest request )
     {
         final ContentId contentId = ContentId.from( contentIdAsString );
-        final Content updatedContent =
-            this.contentService.update( new UpdateContentParams().contentId( contentId ).editor( toBeUpdated -> toBeUpdated.page = null ) );
+        final Content updatedContent = this.contentService.update(
+            new UpdateContentParams().contentId( contentId ).editor( toBeUpdated -> toBeUpdated.page( null ) ) );
 
         return jsonObjectsFactory.createContentJson( updatedContent, request );
     }
