@@ -7,7 +7,7 @@ const LoginPage = require('../page_objects/login.page');
 const BrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const FilterPanel = require("../page_objects/browsepanel/content.filter.panel");
 const appConst = require("./app_const");
-const lib = require("./elements");
+const lib = require("./elements-old");
 const NewContentDialog = require('../page_objects/browsepanel/new.content.dialog');
 const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.panel');
 const webDriverHelper = require("./WebDriverHelper");
@@ -483,10 +483,8 @@ module.exports = {
             let browsePanel = new BrowsePanel();
             await this.typeNameInFilterPanel(name);
             await browsePanel.waitForRowByNameVisible(name);
-            await browsePanel.pause(200);
             await browsePanel.clickOnRowByName(name);
-            await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
-            return await browsePanel.pause(300);
+            await browsePanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_item');
             throw new Error(`Select the item in grid, screenshot:${screenshot} ` + err);
@@ -605,7 +603,7 @@ module.exports = {
             }
             await filterPanel.typeSearchText(name);
             await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
-            return await browsePanel.pause(800);
+            return await browsePanel.pause(500);
         } catch (err) {
             await this.saveScreenshotUniqueName('err_spinner');
             throw new Error('Filter Panel-  error : ' + err);

@@ -2,7 +2,7 @@
  * Created on 29.09.2023
  */
 const PartInspectionPanel = require('./part.inspection.panel');
-const lib = require('../../../../libs/elements');
+const lib = require('../../../../libs/elements-old');
 const appConst = require('../../../../libs/app_const');
 const ContentSelectorDropdown = require('../../../components/selectors/content.selector.dropdown');
 

@@ -2,16 +2,16 @@
  * Created on 24/03/2020.
  */
 const Page = require('../page');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
 const {Key} = require('webdriverio');
 
 const XPATH = {
-    container: `//div[contains(@id,'ProjectSelectionDialog')]`,
+    container: `//div[contains(@role,'dialog') and descendant::h2[text()='Select project']]`,
     title: "//h2[@class='title']",
-    projectList: "//ul[contains(@id,'ProjectList')]",
+    projectList: "//div[contains(@role,'listbox')]",
     projectListItemByDisplayName: (displayName) => {
-        return `//a[contains(@id,'ProjectListItem') and descendant::span[@class='display-name' and text()='${displayName}']]`;
+        return `//div[contains(@data-component,'ProjectLabel') and descendant::span[@class='flex-col' and text()='${displayName}']]`;
     }
 };
 
@@ -70,9 +70,13 @@ class ProjectSelectionDialog extends Page {
     }
 
     async selectContext(projectDisplayName) {
-        let selector = XPATH.container + XPATH.projectList + lib.projectItemByDisplayName(projectDisplayName);
-        await this.waitForElementDisplayed(selector, appConst.longTimeout);
-        await this.scrollAndClickOnElement(selector);
+        try {
+            let selector = XPATH.container + XPATH.projectList + lib.SELECT_PROJECT_DIALOG.projectItemByDisplayName(projectDisplayName);
+            await this.waitForElementDisplayed(selector, appConst.longTimeout);
+            await this.scrollAndClickOnElement(selector);
+        }catch (err){
+            await this.handleError('Project Selection Dialog, tried to select the item', 'err_select_project_context', err);
+        }
     }
 
     async getProjectsDisplayName() {

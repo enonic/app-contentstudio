@@ -3,7 +3,7 @@
  */
 const BaseDependenciesWidget = require('../../details_panel/base.dependencies.widget');
 const appConst = require('../../../libs/app_const');
-const lib = require('../../../libs/elements');
+const lib = require('../../../libs/elements-old');
 
 const xpath = {
     widget: "//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'DependenciesWidgetItemView')]",

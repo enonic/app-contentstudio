@@ -2,7 +2,7 @@
  * Created on 15.10.2021
  */
 const Page = require('../page');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const HtmlAreaForm = require('./htmlarea.form.panel');
 const TextLineForm = require('./textline.form.panel');
 const DoubleForm = require('./double.form.panel');

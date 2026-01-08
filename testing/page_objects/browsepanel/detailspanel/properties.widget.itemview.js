@@ -3,6 +3,7 @@
  */
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
+const {BUTTONS} = require('../../../libs/elements');
 
 const xpath = {
     container: `//div[contains(@id,'WidgetView')]//div[contains(@id,'PropertiesWidgetItemView')]`,
@@ -13,7 +14,6 @@ const xpath = {
     type: "//dd[contains(.,'Type')]/following-sibling::dt[1]",
     firstPublished: "//dd[contains(.,'First Published')]/following-sibling::dt[1]",
     modified: "//dd[contains(.,'Modified')]/following-sibling::dt[1]",
-    editSettingsButton: "//a[contains(@class,'edit-settings-link') and text()='Edit Settings']",
 };
 
 class PropertiesItemView extends Page {
@@ -23,7 +23,7 @@ class PropertiesItemView extends Page {
     }
 
     get editSettingsButton() {
-        return xpath.container + xpath.editSettingsButton;
+        return xpath.container + BUTTONS.buttonAriaLabel('Edit settings');
     }
 
     get typeProperty() {
@@ -62,7 +62,6 @@ class PropertiesItemView extends Page {
         try {
             await this.waitForEditSettingsButtonDisplayed();
             await this.clickOnElement(this.editSettingsButton);
-            await this.pause(300);
         } catch (err) {
             await this.handleError('Properties Widget, Edit button is not displayed','err_click_edit_settings', err, );
         }

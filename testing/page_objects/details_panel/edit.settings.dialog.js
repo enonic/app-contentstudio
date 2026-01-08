@@ -3,7 +3,7 @@
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const LocaleSelectorDropdown = require('../components/selectors/locale.selector.dropdown');
 const PrincipalComboBox = require('../components/selectors/principal.combobox.dropdown')
 

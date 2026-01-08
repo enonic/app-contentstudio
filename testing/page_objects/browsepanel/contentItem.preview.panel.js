@@ -2,12 +2,13 @@
  * Created on 20/06/2018.
  */
 const Page = require('../page');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
+const {BUTTONS} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const xpath = {
     container: "//div[contains(@id,'ContentItemPreviewPanel')]",
-    toolbar: `//div[contains(@id,'ContentItemPreviewToolbar')]`,
+    toolbar: `//div[contains(@id,'PreviewToolbar')]`,
     divPreviewWidgetDropdown: "//div[contains(@id,'PreviewWidgetDropdown')]",
     ulEmulatorListBox: "//ul[contains(@id,'EmulatorListBox')]",
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
@@ -25,15 +26,15 @@ class ContentItemPreviewPanel extends Page {
     }
 
     get previewButton() {
-        return xpath.toolbar + "//button[contains(@id, 'ActionButton') and contains(@class,'icon-newtab')]";
+        return xpath.toolbar + "//button[contains(@aria-label, 'Open in new tab')]"; //return xpath.toolbar + BUTTONS.buttonAriaLabel('Open in new tab');
     }
 
     get emulatorDropdown() {
-        return xpath.toolbar + lib.LIVE_VIEW.EMULATOR_DROPDOWN;
+        return xpath.toolbar + BUTTONS.buttonAriaLabel('Open emulator selector');
     }
 
     get previewWidgetDropdown() {
-        return xpath.toolbar + xpath.divPreviewWidgetDropdown;
+        return xpath.toolbar + BUTTONS.buttonAriaLabel('Open widget selector');
     }
 
     get contentStatus() {
@@ -225,7 +226,7 @@ class ContentItemPreviewPanel extends Page {
     // returns the selected option in the 'Emulator dropdown' '100%', '375px', etc.
     async getSelectedOptionInEmulatorDropdown() {
         try {
-            let locator = this.emulatorDropdown + lib.H6_DISPLAY_NAME;
+            let locator = this.emulatorDropdown +  '/span';
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getText(locator);
         } catch (err) {
@@ -250,7 +251,7 @@ class ContentItemPreviewPanel extends Page {
 
     // Gets the selected option in the 'Preview dropdown' Auto, Media, etc.
     async getSelectedOptionInPreviewWidget() {
-        let locator = this.previewWidgetDropdown + lib.H6_DISPLAY_NAME;
+        let locator = this.previewWidgetDropdown + '/span';
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }
