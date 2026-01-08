@@ -38,6 +38,7 @@ Detailed rules in `.cursor/rules/`:
 - `npm-scripts.mdc` - pnpm & Gradle commands
 - `preact.mdc` - Preact/React compatibility
 - `react.mdc` - Component patterns
+- `stores.mdc` - Nanostores reactivity & usage patterns
 - `typescript.mdc` - Type definitions
 - `tailwind.mdc` - Styling conventions
 - `testing.mdc` - Test patterns (Vitest)
