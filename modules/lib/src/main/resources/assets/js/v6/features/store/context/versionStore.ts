@@ -1,8 +1,11 @@
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {atom, computed} from 'nanostores';
+import {ContentId} from '../../../../app/content/ContentId';
 import {ContentVersion} from '../../../../app/ContentVersion';
-import {ContentVersionHelper} from '../../../../app/ContentVersionHelper';
-import {$contextContent} from './contextContent.store';
+import {revert} from '../../api/versions';
+
 import {
     Archive,
     ArchiveRestore,
@@ -14,7 +17,7 @@ import {
     ClockAlert,
     CloudCheck,
     CloudOff,
-    Copy,
+    Copy, FilePenLine,
     Import,
     LucideIcon,
     Pen,
@@ -41,6 +44,7 @@ export const ContentOperation = {
     RESTORE: 'content.restore',
     PUBLISH: 'content.publish',
     UNPUBLISH: 'content.unpublish',
+    METADATA: 'content.updateMetadata',
 } as const;
 
 export type ContentOperation = typeof ContentOperation[keyof typeof ContentOperation];
@@ -79,7 +83,6 @@ export const isRevertibleField = (field: string): boolean => REVERTIBLE_FIELDS.h
 export const VersionPublishStatus = {
     ONLINE: 'online',
     OFFLINE: 'offline',
-    WAS_ONLINE: 'was_online',
     SCHEDULED: 'scheduled',
     EXPIRED: 'expired',
 } as const;
@@ -104,7 +107,7 @@ export const $selectedVersions = atom<ReadonlySet<string>>(new Set());
 
 export const $activeVersionId = computed($versions, (versions) => versions[0]?.getId());
 
-export const $latestPublishedVersion = computed($versions, (versions) =>
+export const $latestPublishedVersion = computed($versions, (versions): ContentVersion | undefined =>
     versions.find((version) => hasPublishAction(version))
 );
 
@@ -114,7 +117,7 @@ export const $versionsByDate = computed(
     [$versions, $versionsDisplayMode],
     (versions, displayMode) => {
         const filteredVersions = displayMode === 'standard'
-                                 ? versions.filter(isVersionToBeDisplayedByDefault)
+                                 ? versions.filter((version) => isVersionToBeDisplayedByDefault(version, versions))
                                  : versions;
 
         return filteredVersions.reduce<Record<string, ContentVersion[]>>((acc, version) => {
@@ -158,7 +161,27 @@ export const getFormattedVersionDate = (version: ContentVersion): string => {
     return `${year}-${month}-${day}`;
 };
 
-export const isVersionsComparable = (version: ContentVersion): boolean => {
+export const isStandardModeVersion = (version: ContentVersion): boolean => {
+    const action = getFirstAction(version);
+
+    if (!action) {
+        return false;
+    }
+
+    const operation = action.getOperation();
+
+    if (operation === ContentOperation.CREATE || operation === ContentOperation.PUBLISH || operation === ContentOperation.UNPUBLISH) {
+        return true;
+    }
+
+    if (operation === ContentOperation.UPDATE) {
+        return action.getFields().some(isRevertibleField);
+    }
+
+    return false;
+};
+
+export const isVersionRevertable = (version: ContentVersion): boolean => {
     const action = getFirstAction(version);
 
     if (!action) {
@@ -178,30 +201,14 @@ export const isVersionsComparable = (version: ContentVersion): boolean => {
     return false;
 };
 
-const isVersionToBeDisplayedByDefault = (version: ContentVersion): boolean => {
-    if (isVersionsComparable(version)) {
+const isVersionToBeDisplayedByDefault = (version: ContentVersion, versions: ContentVersion[]): boolean => {
+    if (isStandardModeVersion(version)) {
         return true;
     }
 
-    if (getFirstAction(version)?.getOperation() === ContentOperation.PUBLISH) {
-        return true;
-    }
+    const firstAction = getFirstAction(version);
 
-    // Show unpublish marker versions
-    return version.getActions().length === 0 && hasUnpublishedVersionBefore(version);
-};
-
-export const hasUnpublishedVersionBefore = (version: ContentVersion): boolean => {
-    const versions = $versions.get();
-    const versionIndex = versions.findIndex((v) => v.getId() === version.getId());
-
-    if (versionIndex === -1) {
-        return false;
-    }
-
-    return versions
-        .slice(versionIndex + 1)
-        .some((v) => hasUnpublishAction(v));
+    return firstAction?.getOperation() === ContentOperation.PUBLISH || firstAction?.getOperation() === ContentOperation.UNPUBLISH;
 };
 
 // ============================================================================
@@ -209,17 +216,8 @@ export const hasUnpublishedVersionBefore = (version: ContentVersion): boolean =>
 // ============================================================================
 
 export const getVersionPublishStatus = (version: ContentVersion): VersionPublishStatus => {
-    if (!hasPublishAction(version)) {
+    if (!hasPublishAction(version) || hasUnpublishAction(version)) {
         return VersionPublishStatus.OFFLINE;
-    }
-
-    if (hasUnpublishAction(version)) {
-        return VersionPublishStatus.WAS_ONLINE;
-    }
-
-    const latestPublishedId = $latestPublishedVersion.get()?.getId();
-    if (version.getId() !== latestPublishedId) {
-        return VersionPublishStatus.WAS_ONLINE;
     }
 
     const now = new Date();
@@ -255,14 +253,21 @@ const OPERATION_ICON_MAP: Record<ContentOperation, LucideIcon> = {
     [ContentOperation.IMPORT]: Import,
     [ContentOperation.PATCH]: SquarePen,
     [ContentOperation.UNPUBLISH]: CloudOff,
+    [ContentOperation.METADATA]: FilePenLine,
 };
 
-type IconResolver = (version: ContentVersion) => LucideIcon | null;
+type IconResolverContext = {
+    version: ContentVersion;
+    versions: ContentVersion[];
+    latestPublishedVersion?: ContentVersion;
+}
 
-const resolveWorkflowIcon: IconResolver = (version) =>
+type IconResolver = (context: IconResolverContext) => LucideIcon | null;
+
+const resolveWorkflowIcon: IconResolver = ({version}) =>
     isWorkflowOnlyUpdate(version) ? CircleCheckBig : null;
 
-const resolvePublishStatusIcon: IconResolver = (version) => {
+const resolvePublishStatusIcon: IconResolver = ({version}) => {
     const action = getFirstAction(version);
     if (action?.getOperation() !== ContentOperation.PUBLISH) {
         return null;
@@ -281,12 +286,7 @@ const resolvePublishStatusIcon: IconResolver = (version) => {
     return null;
 };
 
-const resolveUnpublishIcon: IconResolver = (version) => {
-    const action = getFirstAction(version);
-    return !action && hasUnpublishedVersionBefore(version) ? CloudOff : null;
-};
-
-const resolveDefaultOperationIcon: IconResolver = (version) => {
+const resolveDefaultOperationIcon: IconResolver = ({version}) => {
     const operation = getFirstAction(version)?.getOperation();
     return operation && isContentOperation(operation)
         ? OPERATION_ICON_MAP[operation]
@@ -296,13 +296,18 @@ const resolveDefaultOperationIcon: IconResolver = (version) => {
 const ICON_RESOLVERS: IconResolver[] = [
     resolveWorkflowIcon,
     resolvePublishStatusIcon,
-    resolveUnpublishIcon,
     resolveDefaultOperationIcon,
 ];
 
-export const getIconForOperation = (version: ContentVersion): LucideIcon => {
+export const getIconForOperation = (
+    version: ContentVersion,
+    versions: ContentVersion[],
+    latestPublishedVersion?: ContentVersion
+): LucideIcon => {
+    const context: IconResolverContext = {version, versions, latestPublishedVersion};
+
     for (const resolver of ICON_RESOLVERS) {
-        const icon = resolver(version);
+        const icon = resolver(context);
         if (icon) {
             return icon;
         }
@@ -317,21 +322,22 @@ export const getIconForOperation = (version: ContentVersion): LucideIcon => {
 export const getOperationLabel = (version: ContentVersion): string => {
     const action = getFirstAction(version);
 
-    if (!action) {
-        return hasUnpublishedVersionBefore(version)
-            ? i18n(`operation.${ContentOperation.UNPUBLISH}`)
-            : i18n('operation.content.unknown');
-    }
-
     if (isWorkflowOnlyUpdate(version)) {
         return i18n('status.markedAsReady');
     }
 
-    const operation = action.getOperation();
+    const operation = action?.getOperation();
     return isContentOperation(operation)
         ? i18n(`operation.${operation}`)
         : i18n('operation.content.unknown');
 };
+
+export const getModifierLabel = (version: ContentVersion): string => {
+    const modifierName = version.getModifierDisplayName()
+        || version.getPublishInfo()?.getPublisherDisplayName();
+
+    return modifierName ? i18n('field.version.by', modifierName) : null;
+}
 
 // ============================================================================
 // Store Actions
@@ -396,20 +402,6 @@ export const setVisualFocus = (target: VisualTarget | null): void => {
     $visualFocus.set(target);
 };
 
-export const getVisualTargets = (activeVersionId: string): VisualTarget[] => {
-    if ($versionsDisplayMode.get() === 'full') {
-        return [];
-    }
-
-    const activeVersion = $versions.get().find((v) => v.getId() === activeVersionId);
-
-    if (activeVersion && isVersionsComparable(activeVersion)) {
-        return ['restore', 'compare'];
-    }
-
-    return [];
-};
-
 export const moveVisualFocus = (direction: -1 | 1, visualTargets: VisualTarget[]): void => {
     if (visualTargets.length === 0) {
         return;
@@ -429,21 +421,16 @@ export const moveVisualFocus = (direction: -1 | 1, visualTargets: VisualTarget[]
 // Content Actions
 // ============================================================================
 
-export const revertToVersion = (versionId: string): void => {
-    const content = $contextContent.get();
-    if (!content) {
-        return;
-    }
-
-    const version = $versions.get().find((v) => v.getId() === versionId);
-    if (!version) {
-        return;
-    }
-
-    ContentVersionHelper.revert(
-        content.getContentId(),
-        version.getId(),
-        version.getTimestamp()
-    );
+export const revertToVersion = (contentId: ContentId, versionId: string): void => {
+    revert(
+        contentId,
+        versionId
+    ).then((result) => {
+        if (result.isOk()) {
+            NotifyManager.get().showSuccess(i18n('notify.version.changed', versionId));
+        } else if (result.isErr()) {
+            DefaultErrorHandler.handle(result.error);
+        }
+    });
 };
 

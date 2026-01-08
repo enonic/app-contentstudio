@@ -44,7 +44,7 @@ export const VersionsList = (): ReactElement => {
 
     // Custom hooks for data loading and keyboard handling
     const {hasMore, isLoading, error, loadMore} = useVersionsData(content);
-    const {handleKeyDown} = useVersionsKeyboard({activeVersionId, isFocused});
+    const {handleKeyDown} = useVersionsKeyboard({contentId: content.getContentId(), activeListItemId: activeVersionId, isFocused});
 
     // Infinite scroll observer
     const loadMoreRef = useInfiniteScroll<HTMLDivElement>({
@@ -92,8 +92,6 @@ export const VersionsList = (): ReactElement => {
     return (
         <div
             data-component={COMPONENT_NAME}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
             className={'flex flex-col gap-5'}
         >
             {selection.size === 0 && <VersionsShowAllActivitiesSection />}
@@ -101,11 +99,13 @@ export const VersionsList = (): ReactElement => {
             {selection.size > 0 && (
                 <VersionSelectionToolbar
                     selectionSize={selection.size}
+                    selectedVersionIds={selectionArray}
+                    content={content}
                     onCancel={handleCancelSelection}
                 />
             )}
 
-            <div>
+            <div onFocus={handleFocus} onBlur={handleBlur}>
                 <Listbox
                     selectionMode='multiple'
                     selection={selectionArray}
@@ -115,6 +115,7 @@ export const VersionsList = (): ReactElement => {
                     onSelectionChange={handleSelectionChange}
                 >
                     <VersionsListContent
+                        content={content}
                         versionsByDate={versionsByDate}
                         activeVersionId={activeVersionId}
                         isFocused={isFocused}
