@@ -23,7 +23,7 @@ export const NewContentDialogMediaTab = ({
     const {parentContent} = useStore($newContentDialog);
     const hintLabel = useI18n('dialog.new.hint.upload');
 
-    const handleChange = async (event: TargetedEvent<HTMLInputElement>) => {
+    const handleChange = (event: TargetedEvent<HTMLInputElement>): void => {
         const {files} = event.currentTarget;
 
         const dataTransfer = new DataTransfer();
@@ -39,18 +39,28 @@ export const NewContentDialogMediaTab = ({
     };
 
     return (
-        <Tab.Content value={tabName} className="h-full py-7.5 mt-0">
-            <input id="file-upload" type="file" multiple onChange={handleChange} className="hidden" />
-            <label
-                htmlFor="file-upload"
-                className={cn(
-                    'relative flex flex-col gap-2.5 size-full items-center justify-center p-7.5 border border-dashed border-info-rev hover:cursor-pointer transition-all',
-                    isDragging && 'bg-info-rev/10 border-solid'
-                )}
-            >
-                <Image size={28} />
-                <p className="text-subtle font-lg">{hintLabel}</p>
-            </label>
+        <Tab.Content value={tabName} className="mt-0 h-full">
+            <div className="size-full">
+                <input
+                    id="file-upload"
+                    type="file"
+                    multiple
+                    onChange={handleChange}
+                    className="peer sr-only"
+                />
+                <label
+                    htmlFor="file-upload"
+                    className={cn(
+                        'relative flex flex-col gap-2.5 size-full items-center justify-center p-5',
+                        'border border-dashed border-info-rev hover:cursor-pointer transition-all',
+                        'peer-focus-visible:outline-none peer-focus-visible:ring-3 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-3 peer-focus-visible:ring-offset-ring-offset',
+                        isDragging && 'bg-info-rev/10 border-solid'
+                    )}
+                >
+                    <Image size={28} />
+                    <p className="text-subtle font-lg">{hintLabel}</p>
+                </label>
+            </div>
         </Tab.Content>
     );
 };

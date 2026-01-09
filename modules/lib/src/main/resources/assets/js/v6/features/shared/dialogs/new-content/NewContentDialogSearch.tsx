@@ -1,24 +1,22 @@
 import {cn, SearchField} from '@enonic/ui';
-import {ReactElement} from 'react';
-import {$newContentDialog, setInputValue} from '../../../store/dialogs/newContentDialog.store';
 import {useStore} from '@nanostores/preact';
-import {MutableRefObject} from 'react';
-import {TargetedKeyboardEvent} from 'preact';
+import {KeyboardEvent, MutableRefObject, ReactElement} from 'react';
+import {$newContentDialog, setInputValue} from '../../../store/dialogs/newContentDialog.store';
 
 const NEW_CONTENT_DIALOG_SEARCH = 'NewContentDialogSearch';
 
 type NewContentDialogSearchProps = {
+    className?: string;
     inputRef: MutableRefObject<HTMLInputElement>;
-    hidden: boolean;
     onChange?: (value: string) => void;
-    onEscape?: () => void;
+    onKeyDown?: (event: KeyboardEvent<HTMLDivElement>) => void;
 };
 
 export const NewContentDialogSearch = ({
+    className,
     inputRef,
-    hidden,
-    onChange = () => {},
-    onEscape = () => {},
+    onChange = () => { },
+    onKeyDown,
 }: NewContentDialogSearchProps): ReactElement => {
     const {inputValue} = useStore($newContentDialog);
 
@@ -27,18 +25,12 @@ export const NewContentDialogSearch = ({
         onChange(value);
     }
 
-    function handleKeyDown(event: TargetedKeyboardEvent<HTMLDivElement>) {
-        if (event.key !== 'Escape') return;
-        event.stopPropagation();
-        onEscape();
-    }
-
     return (
         <SearchField
-            className={cn('w-full p-1.5 mt-7.5 mb-1', hidden ? 'hidden' : 'flex items-center justify-center shrink-0')}
+            className={cn('w-full p-1.5 mt-7.5 mb-1 flex items-center justify-center shrink-0', className)}
             value={inputValue}
             onChange={onChangeHandler}
-            onKeyDown={handleKeyDown}
+            onKeyDown={onKeyDown}
         >
             <SearchField.Icon />
             <SearchField.Input ref={inputRef} />

@@ -1,11 +1,11 @@
+import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import {Button, Tab} from '@enonic/ui';
 import {ReactElement} from 'react';
+import {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
+import {NewContentEvent} from '../../../../../app/create/NewContentEvent';
+import {useI18n} from '../../../hooks/useI18n';
 import {ItemLabel} from '../../ItemLabel';
 import {ContentIcon} from '../../icons/ContentIcon';
-import {NewContentEvent} from '../../../../../app/create/NewContentEvent';
-import {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
-import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
-import {useI18n} from '../../../hooks/useI18n';
 
 const NEW_CONTENT_DIALOG_CONTENT_TYPES_TAB_NAME = 'NewContentDialogContentTypesTab';
 
@@ -27,15 +27,15 @@ export const NewContentDialogContentTypesTab = ({
     };
 
     return (
-        <Tab.Content value={tabName} className="mt-0 py-7.5">
+        <Tab.Content value={tabName}>
             {contentTypes.length > 0 && (
                 <ul className="grid grid-cols-2 gap-y-1.5 gap-x-7.5">
                     {contentTypes.map((contentType) => {
                         const key = contentType.getName();
-                        const displayName = contentType.getDisplayName().toString();
-                        const description = contentType.getDescription().toString();
+                        const displayName = contentType.getDisplayName();
+                        const description = contentType.getDescription() ?? '';
                         const iconUrl = contentType.getIconUrl();
-                        const contentTypeName = contentType.getContentTypeName().toString();
+                        const contentTypeName = String(contentType.getContentTypeName());
 
                         return (
                             <li key={key}>
