@@ -1,7 +1,6 @@
-import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {cn, Dialog, Tab} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {ReactElement, useRef, useState} from 'react';
+import {KeyboardEvent, ReactElement, useRef, useState} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {
     $newContentDialog,
@@ -11,6 +10,7 @@ import {
     uploadDragImages,
     uploadMediaFiles,
 } from '../../../store/dialogs/newContentDialog.store';
+import {isTypingCharacter} from '../../../utils/dom/keyboard';
 import {NewContentDialogContentTypesTab} from './NewContentDialogContentTypesTab';
 import {NewContentDialogMediaTab} from './NewContentDialogMediaTab';
 import {NewContentDialogSearch} from './NewContentDialogSearch';
@@ -18,12 +18,13 @@ import {NewContentDialogSearch} from './NewContentDialogSearch';
 const NEW_CONTENT_DIALOG_NAME = 'NewContentDialog';
 
 export const NewContentDialog = (): ReactElement => {
-    const [isInputVisible, setIsInputVisible] = useState(false);
+    const [isInputEmpty, setIsInputEmpty] = useState(true);
     const inputRef = useRef<HTMLInputElement>(null);
     const dialogContentRef = useRef<HTMLDivElement>(null);
     const [isDragging, setIsDragging] = useState(false);
-    const {open, selectedTab, parentContent, filteredBaseContentTypes, filteredSuggestedContentTypes} =
-        useStore($newContentDialog);
+    const {open, selectedTab, parentContent, filteredBaseContentTypes, filteredSuggestedContentTypes} = useStore($newContentDialog);
+    const isMediaTab = selectedTab === 'media';
+    const isInputHidden = isInputEmpty || isMediaTab;
 
     const titleLabel = useI18n('dialog.new.title');
     const allTabLabel = useI18n('dialog.new.tab.all');
@@ -37,36 +38,38 @@ export const NewContentDialog = (): ReactElement => {
         if (open) return;
 
         closeNewContentDialog();
-        setIsInputVisible(false);
+        setIsInputEmpty(true);
         setInputValue('');
     };
 
-    const handleKeyDown = (event: KeyboardEvent) => {
-        const isLetterOrNumber = !event.altKey && !event.ctrlKey && KeyHelper.isAlphaNumeric(event);
+    const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+        if (isMediaTab || !isTypingCharacter(event) || !isInputEmpty) return;
 
-        if (selectedTab === 'media' || !isLetterOrNumber || isInputVisible) return;
-
-        setIsInputVisible(true);
+        setIsInputEmpty(false);
         setInputValue(event.key);
-        setTimeout(() => {
+        requestAnimationFrame(() => {
             inputRef.current?.focus();
-        }, 1);
+        });
     };
 
     const handleInputChange = (newValue: string) => {
         if (newValue.length > 0) return;
 
-        setIsInputVisible(false);
+        setIsInputEmpty(true);
 
         requestAnimationFrame(() => {
             dialogContentRef.current?.focus();
         });
     };
 
-    const handleInputEscape = () => {
+    const handleSearchKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+        if (event.key !== 'Escape') return;
+        event.stopPropagation();
         setInputValue('');
-        setIsInputVisible(false);
-        dialogContentRef.current?.focus();
+        setIsInputEmpty(true);
+        requestAnimationFrame(() => {
+            dialogContentRef.current?.focus();
+        });
     };
 
     const handleDragEnter = (event: DragEvent) => {
@@ -85,12 +88,12 @@ export const NewContentDialog = (): ReactElement => {
         event.preventDefault();
     };
 
-    const handleDrop = async (event: DragEvent) => {
+    const handleDrop = (event: DragEvent): void => {
         event.preventDefault();
 
         setIsDragging(false);
 
-        if (selectedTab !== 'media') return;
+        if (!isMediaTab) return;
 
         const {dataTransfer} = event;
 
@@ -115,14 +118,14 @@ export const NewContentDialog = (): ReactElement => {
                 <Dialog.Overlay />
                 <Dialog.Content
                     ref={dialogContentRef}
-                    className="h-[710px] w-200 max-w-auto"
+                    className="h-178 w-200 max-w-auto"
                     onKeyDown={handleKeyDown}
                     onDragEnter={handleDragEnter}
                     onDragLeave={handleDragLeave}
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
                 >
-                    <Tab.Root value={selectedTab} onValueChange={setSelectedTab} className="flex flex-col h-full">
+                    <Tab.Root value={selectedTab} onValueChange={setSelectedTab} className="flex flex-col h-full gap-2.5">
                         <Dialog.Header className="flex flex-col gap-2.5">
                             <div className="flex justify-between">
                                 <div className="space-y-2.5">
@@ -140,33 +143,43 @@ export const NewContentDialog = (): ReactElement => {
                             </Tab.List>
                         </Dialog.Header>
 
-                        <Dialog.Body className="p-1.5 -mx-1.5">
-                            {selectedTab !== 'media' && (
+                        <Dialog.Body className="contents">
+                            <div className={cn(
+                                'h-20 p-1.5 -m-1.5 overflow-hidden',
+                                isMediaTab ? 'hidden' : 'transition-all ease-in-out duration-150',
+                                isInputHidden && 'h-0 p-0 pointer-events-none'
+                            )}>
                                 <NewContentDialogSearch
+                                    className={isInputHidden && 'hidden'}
                                     onChange={handleInputChange}
-                                    onEscape={handleInputEscape}
+                                    onKeyDown={handleSearchKeyDown}
                                     inputRef={inputRef}
-                                    hidden={!isInputVisible}
                                 />
-                            )}
+                            </div>
 
-                            <NewContentDialogContentTypesTab
-                                tabName="all"
-                                contentTypes={filteredBaseContentTypes}
-                                parentContent={parentContent}
-                            />
+                            <div className={cn(
+                                'min-h-0 flex-1 my-5',
+                                isMediaTab ? 'overflow-visible' : 'overflow-y-auto px-1.5 -mx-1.5'
+                            )}>
 
-                            <NewContentDialogContentTypesTab
-                                tabName="suggested"
-                                contentTypes={filteredSuggestedContentTypes}
-                                parentContent={parentContent}
-                            />
+                                <NewContentDialogContentTypesTab
+                                    tabName="all"
+                                    contentTypes={filteredBaseContentTypes}
+                                    parentContent={parentContent}
+                                />
 
-                            <NewContentDialogMediaTab tabName="media" isDragging={isDragging} />
+                                <NewContentDialogContentTypesTab
+                                    tabName="suggested"
+                                    contentTypes={filteredSuggestedContentTypes}
+                                    parentContent={parentContent}
+                                />
+
+                                <NewContentDialogMediaTab tabName="media" isDragging={isDragging} />
+                            </div>
                         </Dialog.Body>
 
-                        {!isInputVisible && selectedTab !== 'media' && (
-                            <Dialog.Footer className="flex justify-center mt-10">
+                        {isInputEmpty && !isMediaTab && (
+                            <Dialog.Footer className="flex justify-center mt-5">
                                 <p className="text-sm text-subtle">{hintLabel}</p>
                             </Dialog.Footer>
                         )}
