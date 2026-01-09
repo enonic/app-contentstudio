@@ -48,6 +48,7 @@ import {MediaUploaderEl, MediaUploaderElOperation} from '../../upload/MediaUploa
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
 import {OverrideNativeDialog} from './OverrideNativeDialog';
 import eventInfo = CKEDITOR.eventInfo;
+import {CompareStatus} from '../../../../content/CompareStatus';
 
 export interface LinkModalDialogConfig
     extends HtmlAreaModalDialogConfig {
@@ -1034,8 +1035,9 @@ export class LinkModalDialog
 
             const selectedOption: SelectedOption<ContentTreeSelectorItem> = contentSelector.getSelectedOptionsView().getById(item.getId());
             const option: Option<ContentTreeSelectorItem> = selectedOption.getOption();
-            const uploadedItem = MediaTreeSelectorItem.create().setContent(
-                ContentSummaryAndCompareStatus.fromContentSummary(createdContent)).build();
+            const uploadedItem = MediaTreeSelectorItem.create()
+                .setContent(ContentSummaryAndCompareStatus.fromContentAndCompareStatus(createdContent, CompareStatus.NEW))
+                .build();
 
             if (contentSelector.isSelected(item.getId())) {
                 contentSelector.deselect(selectedOption.getOption().getDisplayValue());
