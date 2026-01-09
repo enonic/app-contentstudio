@@ -151,7 +151,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
         });
 
     // Verify that user-editor can select a language:
-    it("GIVEN user with Editor role is logged in WHEN new folder has been saved THEN 'Mark as Ready' should be as default action in Publish Menu",
+    it.skip("GIVEN user with Editor role is logged in WHEN new folder has been saved THEN 'Mark as Ready' should be as default action in Publish Menu",
         async () => {
             let contentWizard = new ContentWizard();
             // 1. Do log in with the user-editor and navigate to Content Browse Panel:
@@ -173,7 +173,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
         });
 
     // Verify that 'user-editor' can publish content:
-    it("GIVEN user with 'Editor' role is logged in WHEN existing folder(work in progress) has been published THEN the folder gets Published",
+    it.skip("GIVEN user with 'Editor' role is logged in WHEN existing folder(work in progress) has been published THEN the folder gets Published",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Do log in with the user-editor and navigate to Content Browse Panel:

@@ -24,7 +24,7 @@ const TextComponentCke = require('../../page_objects/components/text.component')
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
-describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function () {
+describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();

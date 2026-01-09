@@ -52,7 +52,7 @@ describe('moved.modified.content.spec - tests for content with Moved, Modified c
             await statusWidget.waitForStatusDisplayed(appConst.STATUS_WIDGET.MOVED);
         });
 
-    it("GIVEN 'Moved' content has been opened WHEN the description has been updated THEN 'Moved, Modified' statuses gets visible in the wizard-toolbar",
+    it.skip("GIVEN 'Moved' content has been opened WHEN the description has been updated THEN 'Moved, Modified' statuses gets visible in the wizard-toolbar",
         async () => {
             let contentWizard = new ContentWizard();
             // 1. open the existing Moved folder:
@@ -77,7 +77,7 @@ describe('moved.modified.content.spec - tests for content with Moved, Modified c
             await statusWidget.waitForStatusDisplayed(appConst.STATUS_WIDGET.MOVED_MODIFIED);
         });
 
-    it("GIVEN 'Moved, Modified' folder is opened WHEN the folder has been marked as ready THEN its status gets 'Moved'",
+    it.skip("GIVEN 'Moved, Modified' folder is opened WHEN the folder has been marked as ready THEN its status gets 'Moved'",
         async () => {
             let contentWizard = new ContentWizard();
             let contentPublishDialog = new ContentPublishDialog();

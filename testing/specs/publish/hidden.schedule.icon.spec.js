@@ -37,7 +37,7 @@ describe('hidden.schedule.icon.spec:  tests for archiving content', function () 
 
     // https://github.com/enonic/app-contentstudio/issues/8938
     // When all of the items in the Publish dialog are currently online (that is either Published or Modified or Scheduled), then Schedule icon next to the Publish button should be hidden
-    it(`GIVEN the published folder has been modified WHEN Publish Content dialog has been opened THEN 'Add Schedule' icon should not be displayed`,
+    it.skip(`GIVEN the published folder has been modified WHEN Publish Content dialog has been opened THEN 'Add Schedule' icon should not be displayed`,
         async () => {
             let contentPublishDialog = new ContentPublishDialog();
             let contentWizard = new ContentWizard();

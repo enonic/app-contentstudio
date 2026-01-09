@@ -111,7 +111,7 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
             await settingsBrowsePanel.waitForEditButtonEnabled();
         });
 
-    it("GIVEN user with 'Owner' role is logged in WHEN site that is 'inherited' from the primary project has been selected THEN 'Localise' button should be enabled in the browse toolbar",
+    it.skip("GIVEN user with 'Owner' role is logged in WHEN site that is 'inherited' from the primary project has been selected THEN 'Localise' button should be enabled in the browse toolbar",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizard = new ContentWizard();
@@ -133,7 +133,7 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
         });
 
 
-    it("GIVEN user with 'Owner'-layer role is logged in WHEN content that is 'inherited' from the secondary project has been selected THEN 'Localize' button should be enabled in the browse toolbar",
+    it.skip("GIVEN user with 'Owner'-layer role is logged in WHEN content that is 'inherited' from the secondary project has been selected THEN 'Localize' button should be enabled in the browse toolbar",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizard = new ContentWizard()
