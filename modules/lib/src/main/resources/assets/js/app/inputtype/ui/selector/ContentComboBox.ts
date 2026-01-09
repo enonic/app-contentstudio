@@ -87,8 +87,8 @@ export class ContentSelectedOptionView
     }
 
     resolveTitle(content: ContentTreeSelectorItem): string {
-        if (!this.hasContent()) {
-            return content.getId();
+        if (!content.getContent()) {
+            return content.getDisplayName() || content.getId();
         }
 
         const isRoot = content.getPath().equals(ContentPath.getRoot());
@@ -96,6 +96,10 @@ export class ContentSelectedOptionView
     }
 
     resolveSubTitle(content: ContentTreeSelectorItem): string {
+        if (!content.getContent()) {
+            return;
+        }
+
         if (content.isNoAccess()) {
             return i18n('text.content.no.access');
         }
@@ -122,9 +126,10 @@ export class ContentSelectedOptionView
     }
 
     private setStatus(item: ContentTreeSelectorItem): void {
-        if (this.hasContent()) {
-            this.statusEl.addClass(item.getContent().getStatusClass());
-            this.statusEl.setHtml(item.getContent().getStatusText());
+        const content = item.getContent();
+        if (content) {
+            this.statusEl.addClass(content.getStatusClass());
+            this.statusEl.setHtml(content.getStatusText());
         }
     }
 
