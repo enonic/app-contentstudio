@@ -6,6 +6,7 @@ ignoredBuiltDependencies:
   - '@swc/core'
   - '@tailwindcss/oxide'
   - esbuild
+  - less
 
 minimumReleaseAge: 1440
 
