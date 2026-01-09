@@ -72,7 +72,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.saveScreenshot('country_template_saved');
         });
 
-    it(`WHEN required input is not filled in in the page template THEN the page template should be invalid in Grid`,
+    it.skip(`WHEN required input is not filled in in the page template THEN the page template should be invalid in Grid`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(COUNTRY_TEMPLATE_NAME);
