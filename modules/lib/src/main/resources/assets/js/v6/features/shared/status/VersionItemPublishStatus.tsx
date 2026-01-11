@@ -1,9 +1,10 @@
 import {cn} from '@enonic/ui';
+import {useStore} from '@nanostores/preact';
 import {ReactElement} from 'react';
 import {ContentVersion} from '../../../../app/ContentVersion';
 import {useI18n} from '../../hooks/useI18n';
 import {OfflineIcon} from '../icons/OfflineIcon';
-import {getVersionPublishStatus, VersionPublishStatus} from '../../store/context/versionStore';
+import {$latestPublishedVersion, getVersionPublishStatus, VersionPublishStatus} from '../../store/context/versionStore';
 
 type VersionItemPublishStatusProps = {
     version: ContentVersion | null;
@@ -11,14 +12,16 @@ type VersionItemPublishStatusProps = {
 };
 
 export const VersionItemPublishStatus = ({version, className}: VersionItemPublishStatusProps): ReactElement | null => {
+    const onlineLabel = useI18n('status.online');
+    const expiredLabel = useI18n('status.expired');
+    const scheduledLabel = useI18n('status.scheduled');
+    const latestPublishedVersion = useStore($latestPublishedVersion);
+
     if (!version) {
         return null;
     }
 
-    const publishStatus = getVersionPublishStatus(version);
-    const onlineLabel = useI18n('status.online');
-    const expiredLabel = useI18n('status.expired');
-    const scheduledLabel = useI18n('status.scheduled');
+    const publishStatus = getVersionPublishStatus(version, latestPublishedVersion);
 
     switch (publishStatus) {
     case VersionPublishStatus.ONLINE:

@@ -1,6 +1,6 @@
-import {useMemo} from 'react';
+import {useStore} from '@nanostores/preact';
 import {ContentVersion} from '../../../../../../app/ContentVersion';
-import {getIconForOperation} from '../../../../store/context/versionStore';
+import {$latestPublishedVersion, $versions, getIconForOperation} from '../../../../store/context/versionStore';
 
 const COMPONENT_NAME = 'VersionsListItemIcon';
 
@@ -9,7 +9,9 @@ export type VersionsListItemIconProps = {
 }
 
 export const VersionsListItemIcon = ({version}: VersionsListItemIconProps): React.ReactElement => {
-    const Icon = getIconForOperation(version);
+    const versions = useStore($versions);
+    const latestPublishedVersion = useStore($latestPublishedVersion);
+    const Icon = getIconForOperation(version, versions, latestPublishedVersion);
 
     return (
         <div className='w-7.5 h-full flex justify-center items-center' data-component={COMPONENT_NAME}>

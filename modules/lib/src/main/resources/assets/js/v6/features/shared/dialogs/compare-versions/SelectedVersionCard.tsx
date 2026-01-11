@@ -1,9 +1,9 @@
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
+import {useStore} from '@nanostores/preact';
 import {ReactElement} from 'react';
 import {ContentVersion} from '../../../../../app/ContentVersion';
-import {useI18n} from '../../../hooks/useI18n';
 import {VersionItemPublishStatus} from '../../status/VersionItemPublishStatus';
-import {getOperationLabel} from '../../../store/context/versionStore';
+import {$versions, getModifierLabel, getOperationLabel} from '../../../store/context/versionStore';
 
 type SelectedVersionCardProps = {
     label: string;
@@ -11,9 +11,9 @@ type SelectedVersionCardProps = {
 };
 
 export const SelectedVersionCard = ({label, version}: SelectedVersionCardProps): ReactElement => {
-    const modifierDisplayName = version.getModifierDisplayName() || version.getPublishInfo()?.getPublisherDisplayName();
-    const modifierLabel = modifierDisplayName ? useI18n('field.version.by', modifierDisplayName) : null;
-    const operationLabel = getOperationLabel(version);
+    const versions = useStore($versions);
+    const modifierLabel = getModifierLabel(version);
+    const operationLabel = getOperationLabel(version, versions);
     const timeLabel = DateHelper.getFormattedTimeFromDate(version.getTimestamp());
 
     return (

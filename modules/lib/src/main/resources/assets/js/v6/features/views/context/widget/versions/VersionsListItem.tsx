@@ -8,6 +8,7 @@ import {VersionItemPublishStatus} from '../../../../shared/status/VersionItemPub
 import {
     $selectedVersions,
     $selectionModeOn,
+    $versions,
     $versionsDisplayMode,
     $visualFocus,
     getOperationLabel,
@@ -34,6 +35,7 @@ interface VersionsListItemProps extends ComponentPropsWithoutRef<'div'> {
 // ============================================================================
 
 const useVersionItemState = (version: ContentVersion, isFocused: boolean) => {
+    const versions = useStore($versions);
     const selectedVersions = useStore($selectedVersions);
     const isSelectionModeOn = useStore($selectionModeOn);
     const visualFocus = useStore($visualFocus);
@@ -49,6 +51,7 @@ const useVersionItemState = (version: ContentVersion, isFocused: boolean) => {
     const showInlineCheckbox = isSelectionModeOn && isComparable && (!isActive || !isFocused);
 
     return {
+        versions,
         versionId,
         isActive,
         isSelected,
@@ -69,6 +72,7 @@ interface VersionItemHeaderProps {
 }
 
 const VersionItemHeader = ({version}: VersionItemHeaderProps): ReactElement => {
+    const versions = useStore($versions);
     const modifierDisplayName = version.getModifierDisplayName() || version.getPublishInfo()?.getPublisherDisplayName();
     const modifierLabel = useI18n('field.version.by', modifierDisplayName ?? '');
 
@@ -79,7 +83,7 @@ const VersionItemHeader = ({version}: VersionItemHeaderProps): ReactElement => {
                     {DateHelper.getFormattedTimeFromDate(version.getTimestamp())}
                 </span>
                 <span className='text-bdr-soft text-sm'>|</span>
-                <span className='text-sm'>{getOperationLabel(version)}</span>
+                <span className='text-sm'>{getOperationLabel(version, versions)}</span>
             </div>
             {modifierDisplayName && (
                 <div className='text-xs'>{modifierLabel}</div>

@@ -2,11 +2,8 @@ import {Dialog, Checkbox, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {DiffPatcher} from 'jsondiffpatch';
 import {format, showUnchanged} from 'jsondiffpatch/formatters/html';
-import {ReactElement, useEffect, useMemo, useRef, useState} from 'react';
-import {ContentJson} from '../../../../../app/content/ContentJson';
+import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
 import {ContentVersion} from '../../../../../app/ContentVersion';
-import {ContentVersionHelper} from '../../../../../app/ContentVersionHelper';
-import {GetContentVersionRequest} from '../../../../../app/resource/GetContentVersionRequest';
 import {useI18n} from '../../../hooks/useI18n';
 import {$versions} from '../../../store/context/versionStore';
 import {
@@ -14,17 +11,11 @@ import {
     closeCompareVersionsDialog,
     setCompareVersionsShowAll,
 } from '../../../store/dialogs/compareVersionsDialog.store';
+import {findById} from '../../../utils/array/find';
+import {useVersionsJson} from '../../../views/context/widget/versions/hooks/useVersionsJson';
 import {SelectedVersionCard} from './SelectedVersionCard';
 
 const COMPARE_VERSIONS_DIALOG_NAME = 'CompareVersionsDialog';
-
-const stripContentMetadata = (contentJson: ContentJson): ContentJson => {
-    const cleaned = {...contentJson};
-    ['_id', 'creator', 'createdTime', 'hasChildren'].forEach((key) => {
-        delete cleaned[key];
-    });
-    return cleaned;
-};
 
 type OrderedVersions = {
     older: ContentVersion;
@@ -55,19 +46,16 @@ export const CompareVersionsDialog = (): ReactElement => {
     const versionsIdenticalLabel = useI18n('dialog.compareVersions.versionsIdentical');
 
     const diffPatcher = useMemo(() => new DiffPatcher(), []);
-    const cacheRef = useRef<Map<string, ContentJson>>(new Map());
 
     const [diffHtml, setDiffHtml] = useState<string>('');
-    const [isLoading, setIsLoading] = useState(false);
     const [isEmpty, setIsEmpty] = useState(false);
-    const [error, setError] = useState<Error | null>(null);
 
     const leftVersion = useMemo(
-        () => (leftVersionId ? ContentVersionHelper.getVersionById(versions, leftVersionId) : null),
+        () => (leftVersionId ? findById(versions, leftVersionId) : null),
         [leftVersionId, versions]
     );
     const rightVersion = useMemo(
-        () => (rightVersionId ? ContentVersionHelper.getVersionById(versions, rightVersionId) : null),
+        () => (rightVersionId ? findById(versions, rightVersionId) : null),
         [rightVersionId, versions]
     );
     const orderedVersions = useMemo(() => {
@@ -80,121 +68,64 @@ export const CompareVersionsDialog = (): ReactElement => {
     const olderVersionId = orderedVersions?.older.getId();
     const newerVersionId = orderedVersions?.newer.getId();
 
-    const handleOpenChange = (nextOpen: boolean) => {
+    const {
+        olderVersionJson,
+        newerVersionJson,
+        isLoading,
+        error,
+    } = useVersionsJson(
+        open ? contentId : undefined,
+        open ? olderVersionId : undefined,
+        open ? newerVersionId : undefined
+    );
+
+    const handleOpenChange = useCallback((nextOpen: boolean) => {
         if (!nextOpen) {
             closeCompareVersionsDialog();
         }
-    };
+    }, []);
 
-    const handleShowAllChange = (checked: boolean) => {
+    const handleShowAllChange = useCallback((checked: boolean) => {
         setCompareVersionsShowAll(checked);
-    };
+    }, []);
 
     useEffect(() => {
         if (!open) {
-            cacheRef.current.clear();
             setDiffHtml('');
-            setError(null);
             setIsEmpty(false);
-            setIsLoading(false);
             showUnchanged(false, null, 0);
-            return;
         }
+    }, [open]);
 
-        showUnchanged(showAllContent, null, 0);
-    }, [open, showAllContent]);
+    const delta = useMemo(() => {
+        if (!olderVersionJson || !newerVersionJson) {
+            return null;
+        }
+        return diffPatcher.diff(olderVersionJson, newerVersionJson);
+    }, [olderVersionJson, newerVersionJson, diffPatcher]);
 
+
+    // Generate diff HTML when version JSONs are loaded
     useEffect(() => {
-        if (!open) {
+        if (!olderVersionJson || !newerVersionJson) {
             return;
         }
 
-        if (!leftVersionId || !rightVersionId || !leftVersion || !rightVersion) {
-            closeCompareVersionsDialog();
+        if (delta) {
+            setDiffHtml(format(delta, newerVersionJson));
+            setIsEmpty(false);
+        } else {
+            setDiffHtml(`<h3>${versionsIdenticalLabel}</h3>`);
+            setIsEmpty(true);
         }
-    }, [open, leftVersionId, rightVersionId, leftVersion, rightVersion]);
+    }, [olderVersionJson, newerVersionJson, delta, versionsIdenticalLabel]);
 
+    // Apply showUnchanged when diffHtml is updated or showAllContent changes
     useEffect(() => {
-        if (!open || !contentId || !olderVersionId || !newerVersionId) {
-            return;
+        if (open && diffHtml) {
+            showUnchanged(showAllContent, null, 0);
         }
-
-        let cancelled = false;
-
-        const fetchVersion = async (versionId: string): Promise<ContentJson> => {
-            const cached = cacheRef.current.get(versionId);
-            if (cached) {
-                return cached;
-            }
-
-            const content = await new GetContentVersionRequest(contentId)
-                .setVersion(versionId)
-                .sendRequest();
-
-            const cleaned = stripContentMetadata(content);
-            cacheRef.current.set(versionId, cleaned);
-            return cleaned;
-        };
-
-        const loadDiff = async () => {
-            try {
-                setIsLoading(true);
-                setError(null);
-                setDiffHtml('');
-
-                const leftJson = await fetchVersion(olderVersionId);
-                const rightJson = olderVersionId === newerVersionId
-                    ? leftJson
-                    : await fetchVersion(newerVersionId);
-
-                if (cancelled) {
-                    return;
-                }
-
-                const delta = diffPatcher.diff(leftJson, rightJson);
-                if (delta) {
-                    setDiffHtml(format(delta, rightJson));
-                    setIsEmpty(false);
-                } else {
-                    setDiffHtml(`<h3>${versionsIdenticalLabel}</h3>`);
-                    setIsEmpty(true);
-                }
-            } catch (err) {
-                if (!cancelled) {
-                    setError(err instanceof Error ? err : new Error('Failed to load versions diff'));
-                    setIsEmpty(false);
-                }
-            } finally {
-                if (!cancelled) {
-                    setIsLoading(false);
-                }
-            }
-        };
-
-        void loadDiff();
-
-        return () => {
-            cancelled = true;
-        };
-    }, [open, contentId, olderVersionId, newerVersionId, diffPatcher, versionsIdenticalLabel]);
-
-    useEffect(() => {
-        if (!open) {
-            return;
-        }
-
-        showUnchanged(showAllContent, null, 0);
     }, [open, showAllContent, diffHtml]);
-
-    if (open && !orderedVersions) {
-        return (
-            <Dialog.Root open={open} onOpenChange={handleOpenChange}>
-                <Dialog.Portal>
-                    <Dialog.Overlay />
-                </Dialog.Portal>
-            </Dialog.Root>
-        );
-    }
 
     return (
         <Dialog.Root open={open} onOpenChange={handleOpenChange}>
@@ -235,11 +166,13 @@ export const CompareVersionsDialog = (): ReactElement => {
                     </Dialog.Body>
 
                     <Dialog.Footer className="flex items-center justify-between">
-                        <Checkbox
-                            label={showEntireLabel}
-                            checked={showAllContent}
-                            onCheckedChange={handleShowAllChange}
-                        />
+                        {orderedVersions && !isLoading && (
+                            <Checkbox
+                                label={showEntireLabel}
+                                checked={showAllContent}
+                                onCheckedChange={handleShowAllChange}
+                            />
+                        )}
                     </Dialog.Footer>
                 </Dialog.Content>
             </Dialog.Portal>

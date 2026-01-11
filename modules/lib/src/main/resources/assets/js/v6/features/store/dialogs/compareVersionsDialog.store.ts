@@ -1,10 +1,9 @@
 import {map} from 'nanostores';
 import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
-import {ContentId} from '../../../../app/content/ContentId';
 
 type CompareVersionsDialogState = {
     open: boolean;
-    contentId: ContentId | null;
+    contentId: string | null;
     contentPath: string | null;
     leftVersionId: string | null;
     rightVersionId: string | null;
@@ -35,7 +34,7 @@ export const openCompareVersionsDialog = (content: ContentSummaryAndCompareStatu
     $compareVersionsDialog.set({
         ...structuredClone(initialState),
         open: true,
-        contentId,
+        contentId: contentId.toString(),
         contentPath: content.getPath()?.toString() ?? null,
         leftVersionId: versionIds[0],
         rightVersionId: versionIds[1],
