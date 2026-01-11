@@ -101,6 +101,8 @@ export const VersionsList = (): ReactElement => {
             {selection.size > 0 && (
                 <VersionSelectionToolbar
                     selectionSize={selection.size}
+                    selectedVersionIds={selectionArray}
+                    content={content}
                     onCancel={handleCancelSelection}
                 />
             )}

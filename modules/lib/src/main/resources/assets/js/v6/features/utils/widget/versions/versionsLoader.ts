@@ -1,7 +1,7 @@
 import {ContentId} from '../../../../../app/content/ContentId';
 import {GetContentVersionsRequest} from '../../../../../app/resource/GetContentVersionsRequest';
-import {cacheVersions, getCachedVersions} from './versionsCache';
 import type {ContentVersionsLoadResult} from './versionsCache';
+import {cacheVersions, getCachedVersions} from './versionsCache';
 
 const BATCH_SIZE = 10;
 
@@ -27,5 +27,3 @@ export const loadContentVersions = async (contentId: ContentId, from: number = 0
         hasMore: (from + metadata.hits) < metadata.totalHits,
     };
 };
-
-export type {ContentVersionsLoadResult} from './versionsCache';

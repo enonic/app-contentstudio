@@ -106,7 +106,6 @@ import {ContextPanelState} from '../view/context/ContextPanelState';
 import {ContextPanelMode} from '../view/context/ContextSplitPanel';
 import {ContextView} from '../view/context/ContextView';
 import {DockedContextPanel} from '../view/context/DockedContextPanel';
-import {VersionContext} from '../view/context/widget/version/VersionContext';
 import {ContentSaveAction} from './action/ContentSaveAction';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentContext} from './ContentContext';
@@ -1545,8 +1544,6 @@ export class ContentWizardPanel
             }
         };
 
-        VersionContext.onActiveVersionChanged(versionChangeHandler);
-
         serverEvents.onContentCreated(createdHandler);
         serverEvents.onContentMoved(movedHandler);
         serverEvents.onContentSorted(sortedHandler);
@@ -1560,8 +1557,6 @@ export class ContentWizardPanel
         serverEvents.onContentDeleted(deleteHandler);
 
         this.onClosed(() => {
-            VersionContext.unActiveVersionChanged(versionChangeHandler);
-
             serverEvents.unContentCreated(createdHandler);
             serverEvents.unContentMoved(movedHandler);
             serverEvents.unContentSorted(sortedHandler);

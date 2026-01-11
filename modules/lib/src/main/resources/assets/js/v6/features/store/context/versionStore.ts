@@ -1,7 +1,7 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {atom, computed} from 'nanostores';
 import {ContentVersion} from '../../../../app/ContentVersion';
-import {ContentVersionHelper} from '../../../../app/ContentVersionHelper';
+import {revert} from '../../api/versions';
 import {$contextContent} from './contextContent.store';
 import {
     Archive,
@@ -114,7 +114,7 @@ export const $versionsByDate = computed(
     [$versions, $versionsDisplayMode],
     (versions, displayMode) => {
         const filteredVersions = displayMode === 'standard'
-                                 ? versions.filter(isVersionToBeDisplayedByDefault)
+                                 ? versions.filter((version) => isVersionToBeDisplayedByDefault(version, versions))
                                  : versions;
 
         return filteredVersions.reduce<Record<string, ContentVersion[]>>((acc, version) => {
@@ -178,7 +178,7 @@ export const isVersionsComparable = (version: ContentVersion): boolean => {
     return false;
 };
 
-const isVersionToBeDisplayedByDefault = (version: ContentVersion): boolean => {
+const isVersionToBeDisplayedByDefault = (version: ContentVersion, versions: ContentVersion[]): boolean => {
     if (isVersionsComparable(version)) {
         return true;
     }
@@ -188,11 +188,10 @@ const isVersionToBeDisplayedByDefault = (version: ContentVersion): boolean => {
     }
 
     // Show unpublish marker versions
-    return version.getActions().length === 0 && hasUnpublishedVersionBefore(version);
+    return version.getActions().length === 0 && hasUnpublishedVersionBefore(version, versions);
 };
 
-export const hasUnpublishedVersionBefore = (version: ContentVersion): boolean => {
-    const versions = $versions.get();
+export const hasUnpublishedVersionBefore = (version: ContentVersion, versions: ContentVersion[]): boolean => {
     const versionIndex = versions.findIndex((v) => v.getId() === version.getId());
 
     if (versionIndex === -1) {
@@ -208,7 +207,7 @@ export const hasUnpublishedVersionBefore = (version: ContentVersion): boolean =>
 // Publish Status
 // ============================================================================
 
-export const getVersionPublishStatus = (version: ContentVersion): VersionPublishStatus => {
+export const getVersionPublishStatus = (version: ContentVersion, latestPublishedVersion?: ContentVersion): VersionPublishStatus => {
     if (!hasPublishAction(version)) {
         return VersionPublishStatus.OFFLINE;
     }
@@ -217,7 +216,7 @@ export const getVersionPublishStatus = (version: ContentVersion): VersionPublish
         return VersionPublishStatus.WAS_ONLINE;
     }
 
-    const latestPublishedId = $latestPublishedVersion.get()?.getId();
+    const latestPublishedId = latestPublishedVersion?.getId();
     if (version.getId() !== latestPublishedId) {
         return VersionPublishStatus.WAS_ONLINE;
     }
@@ -257,18 +256,24 @@ const OPERATION_ICON_MAP: Record<ContentOperation, LucideIcon> = {
     [ContentOperation.UNPUBLISH]: CloudOff,
 };
 
-type IconResolver = (version: ContentVersion) => LucideIcon | null;
+interface IconResolverContext {
+    version: ContentVersion;
+    versions: ContentVersion[];
+    latestPublishedVersion?: ContentVersion;
+}
 
-const resolveWorkflowIcon: IconResolver = (version) =>
+type IconResolver = (context: IconResolverContext) => LucideIcon | null;
+
+const resolveWorkflowIcon: IconResolver = ({version}) =>
     isWorkflowOnlyUpdate(version) ? CircleCheckBig : null;
 
-const resolvePublishStatusIcon: IconResolver = (version) => {
+const resolvePublishStatusIcon: IconResolver = ({version, latestPublishedVersion}) => {
     const action = getFirstAction(version);
     if (action?.getOperation() !== ContentOperation.PUBLISH) {
         return null;
     }
 
-    const status = getVersionPublishStatus(version);
+    const status = getVersionPublishStatus(version, latestPublishedVersion);
 
     if (status === VersionPublishStatus.SCHEDULED) {
         return Clock;
@@ -281,12 +286,12 @@ const resolvePublishStatusIcon: IconResolver = (version) => {
     return null;
 };
 
-const resolveUnpublishIcon: IconResolver = (version) => {
+const resolveUnpublishIcon: IconResolver = ({version, versions}) => {
     const action = getFirstAction(version);
-    return !action && hasUnpublishedVersionBefore(version) ? CloudOff : null;
+    return !action && hasUnpublishedVersionBefore(version, versions) ? CloudOff : null;
 };
 
-const resolveDefaultOperationIcon: IconResolver = (version) => {
+const resolveDefaultOperationIcon: IconResolver = ({version}) => {
     const operation = getFirstAction(version)?.getOperation();
     return operation && isContentOperation(operation)
         ? OPERATION_ICON_MAP[operation]
@@ -300,9 +305,15 @@ const ICON_RESOLVERS: IconResolver[] = [
     resolveDefaultOperationIcon,
 ];
 
-export const getIconForOperation = (version: ContentVersion): LucideIcon => {
+export const getIconForOperation = (
+    version: ContentVersion,
+    versions: ContentVersion[],
+    latestPublishedVersion?: ContentVersion
+): LucideIcon => {
+    const context: IconResolverContext = {version, versions, latestPublishedVersion};
+
     for (const resolver of ICON_RESOLVERS) {
-        const icon = resolver(version);
+        const icon = resolver(context);
         if (icon) {
             return icon;
         }
@@ -314,11 +325,11 @@ export const getIconForOperation = (version: ContentVersion): LucideIcon => {
 // Labels
 // ============================================================================
 
-export const getOperationLabel = (version: ContentVersion): string => {
+export const getOperationLabel = (version: ContentVersion, versions: ContentVersion[]): string => {
     const action = getFirstAction(version);
 
     if (!action) {
-        return hasUnpublishedVersionBefore(version)
+        return hasUnpublishedVersionBefore(version, versions)
             ? i18n(`operation.${ContentOperation.UNPUBLISH}`)
             : i18n('operation.content.unknown');
     }
@@ -332,6 +343,13 @@ export const getOperationLabel = (version: ContentVersion): string => {
         ? i18n(`operation.${operation}`)
         : i18n('operation.content.unknown');
 };
+
+export const getModifierLabel = (version: ContentVersion): string => {
+    const modifierName = version.getModifierDisplayName()
+        || version.getPublishInfo()?.getPublisherDisplayName();
+
+    return modifierName ? i18n('field.version.by', modifierName) : null;
+}
 
 // ============================================================================
 // Store Actions
@@ -440,10 +458,9 @@ export const revertToVersion = (versionId: string): void => {
         return;
     }
 
-    ContentVersionHelper.revert(
+    revert(
         content.getContentId(),
-        version.getId(),
-        version.getTimestamp()
+        version.getId()
     );
 };
 

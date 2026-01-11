@@ -4,18 +4,17 @@ import {useStore} from '@nanostores/preact';
 import {ComponentPropsWithoutRef, ReactElement, useCallback, useMemo} from 'react';
 import {ContentVersion} from '../../../../../../app/ContentVersion';
 import {useI18n} from '../../../../hooks/useI18n';
-import {OfflineIcon} from '../../../../shared/icons/OfflineIcon';
+import {VersionItemPublishStatus} from '../../../../shared/status/VersionItemPublishStatus';
 import {
     $selectedVersions,
     $selectionModeOn,
+    $versions,
     $versionsDisplayMode,
     $visualFocus,
     getOperationLabel,
-    getVersionPublishStatus,
     isVersionsComparable,
     revertToVersion,
     toggleVersionSelection,
-    VersionPublishStatus,
     VisualTarget,
 } from '../../../../store/context/versionStore';
 import {VersionsListItemIcon} from './VersionListItemIcon';
@@ -36,6 +35,7 @@ interface VersionsListItemProps extends ComponentPropsWithoutRef<'div'> {
 // ============================================================================
 
 const useVersionItemState = (version: ContentVersion, isFocused: boolean) => {
+    const versions = useStore($versions);
     const selectedVersions = useStore($selectedVersions);
     const isSelectionModeOn = useStore($selectionModeOn);
     const visualFocus = useStore($visualFocus);
@@ -49,9 +49,9 @@ const useVersionItemState = (version: ContentVersion, isFocused: boolean) => {
 
     const showActiveControls = isFocused && isActive && displayMode === 'standard' && isComparable;
     const showInlineCheckbox = isSelectionModeOn && isComparable && (!isActive || !isFocused);
-    const showIcon = displayMode === 'full';
 
     return {
+        versions,
         versionId,
         isActive,
         isSelected,
@@ -59,7 +59,6 @@ const useVersionItemState = (version: ContentVersion, isFocused: boolean) => {
         visualFocus,
         showActiveControls,
         showInlineCheckbox,
-        showIcon,
         setActive,
     };
 };
@@ -73,6 +72,7 @@ interface VersionItemHeaderProps {
 }
 
 const VersionItemHeader = ({version}: VersionItemHeaderProps): ReactElement => {
+    const versions = useStore($versions);
     const modifierDisplayName = version.getModifierDisplayName() || version.getPublishInfo()?.getPublisherDisplayName();
     const modifierLabel = useI18n('field.version.by', modifierDisplayName ?? '');
 
@@ -83,55 +83,13 @@ const VersionItemHeader = ({version}: VersionItemHeaderProps): ReactElement => {
                     {DateHelper.getFormattedTimeFromDate(version.getTimestamp())}
                 </span>
                 <span className='text-bdr-soft text-sm'>|</span>
-                <span className='text-sm'>{getOperationLabel(version)}</span>
+                <span className='text-sm'>{getOperationLabel(version, versions)}</span>
             </div>
             {modifierDisplayName && (
                 <div className='text-xs'>{modifierLabel}</div>
             )}
         </div>
     );
-};
-
-interface VersionItemPublishStatusProps {
-    version: ContentVersion;
-}
-
-const VersionItemPublishStatus = ({version}: VersionItemPublishStatusProps): ReactElement | null => {
-    const publishStatus = getVersionPublishStatus(version);
-    const onlineLabel = useI18n('status.online');
-    const expiredLabel = useI18n('status.expired');
-    const scheduledLabel = useI18n('status.scheduled');
-
-    switch (publishStatus) {
-        case VersionPublishStatus.ONLINE:
-            return (
-                <div className='text-sm flex items-center text-success'>
-                    {onlineLabel}
-                </div>
-            );
-
-        case VersionPublishStatus.WAS_ONLINE:
-            return (
-                <OfflineIcon className='shrink-0 w-4 bg-transparent' />
-            );
-
-        case VersionPublishStatus.EXPIRED:
-            return (
-                <div className='text-sm flex items-center text-red-400'>
-                    {expiredLabel}
-                </div>
-            );
-
-        case VersionPublishStatus.SCHEDULED:
-            return (
-                <div className='text-sm flex items-center text-orange-400'>
-                    {scheduledLabel}
-                </div>
-            );
-
-        default:
-            return null;
-    }
 };
 
 interface VersionItemActionsProps {
@@ -209,7 +167,6 @@ export const VersionsListItem = ({version, isFocused = false, ...props}: Version
         visualFocus,
         showActiveControls,
         showInlineCheckbox,
-        showIcon,
         setActive,
     } = useVersionItemState(version, isFocused);
 
@@ -224,11 +181,7 @@ export const VersionsListItem = ({version, isFocused = false, ...props}: Version
         e.stopPropagation();
         e.preventDefault();
         toggleVersionSelection(versionId);
-
-        if (!isActive) {
-            setActive(versionId);
-        }
-    }, [versionId, setActive, isActive]);
+    }, [versionId]);
 
     const preventFocusChange = useCallback((e: React.MouseEvent<HTMLElement>) => {
         e.preventDefault();
@@ -242,7 +195,7 @@ export const VersionsListItem = ({version, isFocused = false, ...props}: Version
             {...props}
         >
             <div className='w-full flex items-center gap-2'>
-                {showIcon && <VersionsListItemIcon version={version} />}
+                <VersionsListItemIcon version={version} />
 
                 <VersionItemHeader version={version} />
 
