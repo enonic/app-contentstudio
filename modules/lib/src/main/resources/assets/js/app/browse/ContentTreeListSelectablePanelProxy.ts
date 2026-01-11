@@ -4,8 +4,9 @@ import {SelectableListBoxWrapper, SelectionMode} from '@enonic/lib-admin-ui/ui/s
 import {DataChangedEvent} from '@enonic/lib-admin-ui/ui/treegrid/DataChangedEvent';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import Q from 'q';
-import {$contentTreeItems, getContentTreeItemsCount, getItemById} from '../../v6/features/store/contentTreeData.store';
-import {getSelectedItems} from '../../v6/features/store/contentTreeSelectionStore';
+import {getContent} from '../../v6/features/store/content.store';
+import {getCurrentItems} from '../../v6/features/store/contentTreeSelection.store';
+import {$treeState} from '../../v6/features/store/tree-list.store';
 import {ContentTreeListElement} from '../../v6/features/views/browse/grid/ContentTreeListElement';
 import {TreeListToolbarElement} from '../../v6/features/views/browse/tree/TreeListToolbar';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
@@ -33,11 +34,11 @@ export class ContentTreeListSelectablePanelProxy extends SelectableListBoxPanel<
     }
 
     getSelectedItems(): ContentSummaryAndCompareStatus[] {
-        return getSelectedItems();
+        return [...getCurrentItems()];
     }
 
     getLastSelectedItem(): ContentSummaryAndCompareStatus | undefined {
-        return this.getSelectedItems().pop();
+        return this.getSelectedItems().at(-1);
     }
 
     getSelectionMode(): SelectionMode {
@@ -53,8 +54,8 @@ export class ContentTreeListSelectablePanelProxy extends SelectableListBoxPanel<
         return Q(true);
     }
 
-    getItem(id: string): ContentSummaryAndCompareStatus {
-        return getItemById(id)?.item;
+    getItem(id: string): ContentSummaryAndCompareStatus | undefined {
+        return getContent(id);
     }
 
     getWrapper(): SelectableListBoxWrapper<ContentSummaryAndCompareStatus> {
@@ -66,6 +67,6 @@ export class ContentTreeListSelectablePanelProxy extends SelectableListBoxPanel<
     }
 
     getTotalItems(): number {
-        return getContentTreeItemsCount();
+        return $treeState.get().nodes.size;
     }
 }

@@ -5,6 +5,7 @@
 
 import type {CreateNodeOptions, TreeNode, TreeState} from './types';
 import {ROOT_LOADING_KEY} from './types';
+import {isDescendantOf} from './selectors';
 
 /**
  * Creates an empty tree state.
@@ -114,9 +115,11 @@ export function removeNode<T>(
 
     const nodes = new Map(state.nodes);
     const idsToRemove = [id];
+    let rootIds = [...state.rootIds];
+    const grandParentId = node.parentId;
 
-    // Collect descendant IDs if needed
     if (removeDescendants) {
+        // Collect descendant IDs to remove
         const stack = [...node.childIds];
         while (stack.length > 0) {
             const childId = stack.pop();
@@ -127,6 +130,26 @@ export function removeNode<T>(
                 stack.push(...child.childIds);
             }
         }
+    } else {
+        // Promote children to removed node's parent (grandparent)
+        for (const childId of node.childIds) {
+            const child = nodes.get(childId);
+            if (child) {
+                nodes.set(childId, {...child, parentId: grandParentId});
+            }
+        }
+
+        // Update grandparent's childIds to include promoted children
+        if (grandParentId !== null) {
+            const grandParent = nodes.get(grandParentId);
+            if (grandParent) {
+                const newChildIds = [
+                    ...grandParent.childIds.filter((cid) => cid !== id),
+                    ...node.childIds,
+                ];
+                nodes.set(grandParentId, {...grandParent, childIds: newChildIds});
+            }
+        }
     }
 
     // Remove all collected nodes
@@ -134,21 +157,24 @@ export function removeNode<T>(
         nodes.delete(removeId);
     }
 
-    // Update parent's childIds
-    if (node.parentId) {
-        const parent = nodes.get(node.parentId);
+    // Update parent's childIds (only when removeDescendants=true, otherwise handled above)
+    if (removeDescendants && grandParentId !== null) {
+        const parent = nodes.get(grandParentId);
         if (parent) {
-            nodes.set(node.parentId, {
+            nodes.set(grandParentId, {
                 ...parent,
-                childIds: parent.childIds.filter(cid => cid !== id),
+                childIds: parent.childIds.filter((cid) => cid !== id),
             });
         }
     }
 
     // Update rootIds if removed node was a root
-    let rootIds = state.rootIds;
     if (rootIds.includes(id)) {
-        rootIds = rootIds.filter(rid => rid !== id);
+        rootIds = rootIds.filter((rid) => rid !== id);
+        // If keeping children and node was root, promote children to root
+        if (!removeDescendants) {
+            rootIds = [...rootIds, ...node.childIds];
+        }
     }
 
     // Clean up expanded/loading states
@@ -173,18 +199,94 @@ export function removeNode<T>(
 }
 
 /**
- * Removes multiple nodes.
+ * Removes multiple nodes in a single batched operation.
+ * More efficient than calling removeNode multiple times - O(N+M) instead of O(N×M).
  */
 export function removeNodes<T>(
     state: TreeState<T>,
     ids: string[],
     removeDescendants = true
 ): TreeState<T> {
-    let result = state;
+    if (ids.length === 0) return state;
+
+    // Single pass: collect ALL IDs to remove
+    const idsToRemove = new Set<string>();
+
     for (const id of ids) {
-        result = removeNode(result, id, removeDescendants);
+        const node = state.nodes.get(id);
+        if (!node) continue;
+
+        idsToRemove.add(id);
+
+        if (removeDescendants) {
+            const stack = [...node.childIds];
+            while (stack.length > 0) {
+                const childId = stack.pop();
+                if (childId === undefined) break;
+                idsToRemove.add(childId);
+                const child = state.nodes.get(childId);
+                if (child) {
+                    stack.push(...child.childIds);
+                }
+            }
+        }
     }
-    return result;
+
+    if (idsToRemove.size === 0) return state;
+
+    // Single Map copy
+    const nodes = new Map(state.nodes);
+
+    // Collect parents that need childIds updated (parents not being removed)
+    const parentsToUpdate = new Map<string, string[]>();
+
+    for (const removeId of idsToRemove) {
+        const node = state.nodes.get(removeId);
+        if (node?.parentId && !idsToRemove.has(node.parentId)) {
+            const existing = parentsToUpdate.get(node.parentId) ?? [];
+            existing.push(removeId);
+            parentsToUpdate.set(node.parentId, existing);
+        }
+        nodes.delete(removeId);
+    }
+
+    // Update parents' childIds in single pass
+    for (const [parentId, removedChildIds] of parentsToUpdate) {
+        const parent = nodes.get(parentId);
+        if (parent) {
+            const removedSet = new Set(removedChildIds);
+            nodes.set(parentId, {
+                ...parent,
+                childIds: parent.childIds.filter((cid) => !removedSet.has(cid)),
+            });
+        }
+    }
+
+    // Update rootIds - filter out any removed root nodes
+    let rootIds = state.rootIds;
+    if (ids.some((id) => state.rootIds.includes(id))) {
+        rootIds = rootIds.filter((rid) => !idsToRemove.has(rid));
+    }
+
+    // Clean up sets
+    const expandedIds = new Set(state.expandedIds);
+    const loadingIds = new Set(state.loadingIds);
+    const loadingDataIds = new Set(state.loadingDataIds);
+
+    for (const removeId of idsToRemove) {
+        expandedIds.delete(removeId);
+        loadingIds.delete(removeId);
+        loadingDataIds.delete(removeId);
+    }
+
+    return {
+        ...state,
+        nodes,
+        rootIds,
+        expandedIds,
+        loadingIds,
+        loadingDataIds,
+    };
 }
 
 /**
@@ -403,6 +505,17 @@ export function moveNode<T>(
 ): TreeState<T> {
     const node = state.nodes.get(id);
     if (!node) return state;
+
+    // Prevent moving to same position
+    if (node.parentId === newParentId) return state;
+
+    // Prevent moving node to itself
+    if (newParentId === id) return state;
+
+    // Prevent cycle: newParentId must not be a descendant of id
+    if (newParentId !== null && isDescendantOf(state, newParentId, id)) {
+        return state;
+    }
 
     const nodes = new Map(state.nodes);
     let rootIds = [...state.rootIds];

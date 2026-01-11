@@ -1,12 +1,11 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentTreeListElement} from '../../../v6/features/views/browse/grid/ContentTreeListElement';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 import {PublishContentAction} from './PublishContentAction';
 
 export class PublishTreeContentAction extends PublishContentAction {
 
-    constructor(grid: ContentTreeListElement) {
-        super(grid, true, false);
+    constructor() {
+        super(true, false);
 
         this.setClass('publish-tree').setLabel(i18n('action.publishTree'));
     }

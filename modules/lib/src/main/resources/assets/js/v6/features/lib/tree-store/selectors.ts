@@ -6,23 +6,14 @@
 import type {TreeNode, TreeState} from './types';
 import {ROOT_LOADING_KEY} from './types';
 
-/**
- * Gets a single node by ID.
- */
 export function getNode<T>(state: TreeState<T>, id: string): TreeNode<T> | undefined {
     return state.nodes.get(id);
 }
 
-/**
- * Checks if a node exists.
- */
 export function hasNode<T>(state: TreeState<T>, id: string): boolean {
     return state.nodes.has(id);
 }
 
-/**
- * Checks if a node is expanded.
- */
 export function isExpanded<T>(state: TreeState<T>, id: string): boolean {
     return state.expandedIds.has(id);
 }
@@ -102,10 +93,11 @@ export function getSiblingIds<T>(state: TreeState<T>, id: string): string[] {
 }
 
 /**
- * Gets depth level of a node (0 = root level).
+ * Gets depth level of a node (1 = root level).
+ * Uses 1-based levels for VirtualizedTreeList compatibility.
  */
 export function getNodeLevel<T>(state: TreeState<T>, id: string): number {
-    return getAncestorIds(state, id).length;
+    return getAncestorIds(state, id).length + 1;
 }
 
 /**
@@ -131,18 +123,12 @@ export function isDescendantOf<T>(
     return isAncestorOf(state, ancestorId, descendantId);
 }
 
-/**
- * Gets the parent node of a node.
- */
 export function getParent<T>(state: TreeState<T>, id: string): TreeNode<T> | undefined {
     const node = state.nodes.get(id);
     if (!node || node.parentId === null) return undefined;
     return state.nodes.get(node.parentId);
 }
 
-/**
- * Gets child nodes of a node.
- */
 export function getChildren<T>(state: TreeState<T>, id: string): TreeNode<T>[] {
     const node = state.nodes.get(id);
     if (!node) return [];
@@ -152,9 +138,6 @@ export function getChildren<T>(state: TreeState<T>, id: string): TreeNode<T>[] {
         .filter((child): child is TreeNode<T> => child !== undefined);
 }
 
-/**
- * Gets root nodes.
- */
 export function getRootNodes<T>(state: TreeState<T>): TreeNode<T>[] {
     return state.rootIds
         .map(id => state.nodes.get(id))
@@ -225,23 +208,14 @@ export function getNodesWithData<T>(state: TreeState<T>): string[] {
     return loaded;
 }
 
-/**
- * Gets total node count.
- */
 export function getNodeCount<T>(state: TreeState<T>): number {
     return state.nodes.size;
 }
 
-/**
- * Gets expanded node count.
- */
 export function getExpandedCount<T>(state: TreeState<T>): number {
     return state.expandedIds.size;
 }
 
-/**
- * Checks if tree is empty.
- */
 export function isEmpty<T>(state: TreeState<T>): boolean {
     return state.nodes.size === 0;
 }

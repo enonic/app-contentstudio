@@ -1,37 +1,31 @@
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentQuery} from '../../../../../app/content/ContentQuery';
 import {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
-import {getItemById} from '../../../store/contentTreeData.store';
-import {reload} from '../../../store/contentTreeLoadingStore';
-import {$contentTreeSelection} from '../../../store/contentTreeSelectionStore';
-import {ContentDataFetcher} from './ContentDataFetcher';
-import {ContentTreeList, ContentTreeListProps} from './ContentTreeList';
+import {activateFilter, deactivateFilter} from '../../../api/content-fetcher';
+import {getContent} from '../../../store/content.store';
+import {$currentIds} from '../../../store/contentTreeSelection.store';
 import {ContentTreeContextMenuProps} from './ContentTreeContextMenu';
+import {ContentTreeList, ContentTreeListProps} from './ContentTreeList';
 
 export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList, ContentTreeListProps> {
-
-    private fetcher: ContentDataFetcher;
-    private selectionChangedListeners: ((selectionChange: SelectionChange<ContentSummaryAndCompareStatus>) => void)[] = [];
+    private selectionChangedListeners: ((selectionChange: SelectionChange<ContentSummaryAndCompareStatus>) => void)[] =
+        [];
 
     constructor() {
-        const fetcher = new ContentDataFetcher();
-
-        super({fetcher}, ContentTreeList);
-
-        this.fetcher = fetcher;
+        super({}, ContentTreeList);
 
         this.initListeners();
     }
 
     private initListeners(): void {
-        const unsubscribeSelection = $contentTreeSelection.listen((newSelection, oldSelection) => {
-            this.notifySelectionChanged(this.getSelectionChange(newSelection, oldSelection));
+        // Subscribe to selection changes
+        const unsubscribeCurrentIds = $currentIds.listen((currentIds, previousIds) => {
+            this.notifySelectionChanged(this.getSelectionChange(new Set(currentIds), new Set(previousIds)));
         });
 
         this.onRemoved(() => {
-            unsubscribeSelection();
+            unsubscribeCurrentIds();
         });
     }
 
@@ -39,34 +33,35 @@ export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList
         this.selectionChangedListeners.push(listener);
     }
 
-    unSelectionChanged(listener: (selectionChange: SelectionChange<ContentSummaryAndCompareStatus>) => void): void {
-        this.selectionChangedListeners = this.selectionChangedListeners
-            .filter((currentListener: (selectionChange: SelectionChange<ContentSummaryAndCompareStatus>) => void) => currentListener !== listener);
-    }
-
     protected notifySelectionChanged(selectionChange: SelectionChange<ContentSummaryAndCompareStatus>): void {
-        this.selectionChangedListeners.forEach((listener: (selectionChange: SelectionChange<ContentSummaryAndCompareStatus>) => void) => listener(selectionChange));
+        this.selectionChangedListeners.forEach(
+            (listener: (selectionChange: SelectionChange<ContentSummaryAndCompareStatus>) => void) =>
+                listener(selectionChange)
+        );
     }
 
-    private getSelectionChange(newSelection: ReadonlySet<string>, oldSelection: ReadonlySet<string>): SelectionChange<ContentSummaryAndCompareStatus> {
+    private getSelectionChange(
+        newSelection: ReadonlySet<string>,
+        oldSelection: ReadonlySet<string>
+    ): SelectionChange<ContentSummaryAndCompareStatus> {
         const selected: ContentSummaryAndCompareStatus[] = [];
 
-        newSelection.forEach((item) => {
-            if (!oldSelection.has(item)) {
-                const itemToSelect = getItemById(item);
-                if (itemToSelect) {
-                    selected.push(itemToSelect.item);
+        newSelection.forEach((id) => {
+            if (!oldSelection.has(id)) {
+                const content = getContent(id);
+                if (content) {
+                    selected.push(content);
                 }
             }
         });
 
         const deselected: ContentSummaryAndCompareStatus[] = [];
 
-        oldSelection.forEach((item) => {
-            if (!newSelection.has(item)) {
-                const itemToDeselect = getItemById(item);
-                if (itemToDeselect) {
-                    deselected.push(itemToDeselect.item);
+        oldSelection.forEach((id) => {
+            if (!newSelection.has(id)) {
+                const content = getContent(id);
+                if (content) {
+                    deselected.push(content);
                 }
             }
         });
@@ -74,12 +69,17 @@ export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList
         return {
             selected,
             deselected,
-        }
+        };
     }
 
     setFilterQuery(filterQuery: ContentQuery | null): void {
-        this.fetcher.setFilterQuery(filterQuery);
-        reload();
+        if (filterQuery) {
+            // Activate filter mode with the query
+            activateFilter(filterQuery);
+        } else {
+            // Deactivate filter mode, return to main tree
+            deactivateFilter();
+        }
     }
 
     setContextMenuActions(actions: ContentTreeContextMenuProps['actions']): void {

@@ -1,29 +1,14 @@
-import {computed} from 'nanostores';
 import {EditContentEvent} from '../../../../app/event/EditContentEvent';
-import {$contentTreeItems} from '../contentTreeData.store';
-import {$contentTreeActiveItem, $contentTreeSelection} from '../contentTreeSelectionStore';
+import {$currentItem} from '../contentTreeSelection.store';
 
-export const $contextContent = computed(
-    [$contentTreeActiveItem, $contentTreeSelection, $contentTreeItems],
-    (activeContentId, selectedContentIds, contents) => {
-        if (selectedContentIds.size >= 1) {
-            const lastSelectedContentId = Array.from(selectedContentIds).pop();
-
-            return contents.nodes[lastSelectedContentId]?.item;
-        }
-
-        if (activeContentId) {
-            return contents.nodes[activeContentId]?.item;
-        }
-
-        return null;
-    }
-);
+// Re-export for backwards compatibility
+export {$currentItem as $contextContent} from '../contentTreeSelection.store';
 
 export const openContextContentForEdit = (): void => {
-    if (!$contextContent.get()) {
+    const content = $currentItem.get();
+    if (!content) {
         return;
     }
 
-    new EditContentEvent([$contextContent.get()]).fire();
-}
+    new EditContentEvent([content]).fire();
+};

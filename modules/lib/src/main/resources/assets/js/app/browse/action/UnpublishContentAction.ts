@@ -1,22 +1,19 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {getSelectedItems} from '../../../v6/features/store/contentTreeSelectionStore';
-import {ContentTreeListElement} from '../../../v6/features/views/browse/grid/ContentTreeListElement';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {getCurrentItems} from '../../../v6/features/store/contentTreeSelection.store';
 import {openUnpublishDialog} from '../../../v6/features/store/dialogs/unpublishDialog.store';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 
 export class UnpublishContentAction extends ContentTreeGridAction {
 
-    constructor(grid: ContentTreeListElement) {
-        super(grid, i18n('action.unpublish'));
+    constructor() {
+        super(i18n('action.unpublish'));
 
         this.setEnabled(false).setClass('unpublish');
     }
 
     protected handleExecuted() {
-        const contents: ContentSummaryAndCompareStatus[] = getSelectedItems();
-        openUnpublishDialog(contents);
+        openUnpublishDialog([...getCurrentItems()]);
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {

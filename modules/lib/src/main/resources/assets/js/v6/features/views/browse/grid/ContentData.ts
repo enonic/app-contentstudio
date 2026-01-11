@@ -1,22 +1,24 @@
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {FlatTreeNode, TreeData} from '@enonic/ui';
 import {PublishStatus} from 'src/main/resources/assets/js/app/publish/PublishStatus';
 import {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {WorkflowStateStatus} from '../../../../../app/wizard/WorkflowStateManager';
+import type {FlatNode} from '../../../lib/tree-store';
 import {ContentUploadData} from './ContentUploadData';
 
 export type ContentData = {
+    id: string;
     displayName: string;
     name: string;
     publishStatus: PublishStatus;
     workflowStatus: WorkflowStateStatus | null;
     contentType: ContentTypeName;
     iconUrl: string | null;
-    item: ContentSummaryAndCompareStatus; // temporary, for backward compatibility
-} & TreeData;
+    hasChildren: boolean;
+    item: ContentSummaryAndCompareStatus; // Full content data from cache
+};
 
 export function isFlatTreeItemContentData(
-    item: FlatTreeNode<ContentData | ContentUploadData>
-): item is FlatTreeNode<ContentData> {
-    return 'displayName' in item.data;
+    item: FlatNode<ContentData | ContentUploadData>
+): item is FlatNode<ContentData> {
+    return item.data !== null && 'displayName' in item.data;
 }

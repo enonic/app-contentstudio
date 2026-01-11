@@ -8,11 +8,9 @@ import {
     ContentTypeAggregation,
 } from '../../../../app/resource/AggregateContentTypesResult';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {
-    addContentTreeUploadItem,
-    removeContentTreeUploadItem,
-    updateContentTreeUploadItemProgress,
-} from '../contentTreeUpload.store';
+import {addUpload, removeUpload, updateUploadProgress} from '../uploads.store';
+import {resetTree} from '../tree-list.store';
+import {fetchRootChildrenFiltered} from '../../api/content-fetcher';
 import {
     UploadDataUrlImageOptions,
     UploadMediaError,
@@ -21,7 +19,6 @@ import {
     uploadRemoteImage,
 } from '../../api/uploadMedia';
 import {generateUniqueName} from '../../utils/image/generateUniqueName';
-import {reload} from '../contentTreeLoadingStore';
 import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {errAsync} from 'neverthrow';
@@ -148,15 +145,15 @@ export async function uploadMediaFiles({dataTransfer, parentContent}: UploadOpti
     const tasks = files.map((file) => {
         const id = file.name;
         const name = file.name;
-        const parentId = parentContent?.getContentId()?.toString();
+        const parentId = parentContent?.getContentId()?.toString() ?? null;
 
-        addContentTreeUploadItem(id, name, parentId);
+        addUpload(id, name, parentId);
 
         return uploadMediaFile({
             id,
             file,
             parentContent,
-            onProgress: (id, progress) => updateContentTreeUploadItemProgress(id, progress),
+            onProgress: (id, progress) => updateUploadProgress(id, progress),
         });
     });
 
@@ -172,16 +169,16 @@ export async function uploadDragImages({dataTransfer, parentContent}: UploadOpti
     const tasks = imgSources.map((src) => {
         const id = src;
         const name = generateUniqueName(src);
-        const parentId = parentContent?.getContentId()?.toString();
+        const parentId = parentContent?.getContentId()?.toString() ?? null;
 
-        addContentTreeUploadItem(id, name, parentId);
+        addUpload(id, name, parentId);
 
         const params: UploadDataUrlImageOptions = {
             id,
             name,
             imageSource: src,
             parentContent,
-            onProgress: (id, progress) => updateContentTreeUploadItemProgress(id, progress),
+            onProgress: (id, progress) => updateUploadProgress(id, progress),
         };
 
         // Not allowed
@@ -242,13 +239,14 @@ function extractImageSources(htmlData: string): string[] {
 }
 
 function onEachSuccess(success: UploadMediaSuccess) {
-    removeContentTreeUploadItem(success.mediaIdentifier);
-    reload();
+    removeUpload(success.mediaIdentifier);
+    resetTree();
+    void fetchRootChildrenFiltered();
     showSuccess(i18n('dialog.new.upload.success', success.mediaIdentifier));
 }
 
 function onEachError(error: UploadMediaError) {
     console.error(error);
-    removeContentTreeUploadItem(error.mediaIdentifier);
+    removeUpload(error.mediaIdentifier);
     showError(i18n('dialog.new.upload.error', error.mediaIdentifier, error.message));
 }

@@ -12,10 +12,12 @@ import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selecto
 import {TreeListBoxExpandedHolder} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import Q from 'q';
-import {removeContentTreeItem, updateContentTreeItem} from '../../v6/features/store/contentTreeData.store';
-import {hasSelectedItems} from '../../v6/features/store/contentTreeSelectionStore';
-import {toContentProps} from '../../v6/features/utils/cms/content/converter';
+import {removeContent, setContent} from '../../v6/features/store/content.store';
+import {hasFilterSet, setContentFilterOpen} from '../../v6/features/store/contentFilter.store';
+import {hasSelectedItems} from '../../v6/features/store/contentTreeSelection.store';
+import {removeTreeNode} from '../../v6/features/store/tree-list.store';
 import {ContentTreeListElement} from '../../v6/features/views/browse/grid/ContentTreeListElement';
+import {BrowseToolbarElement} from '../../v6/features/views/browse/toolbar/BrowseToolbar';
 import {ContentId} from '../content/ContentId';
 import {ContentPath} from '../content/ContentPath';
 import {ContentQuery} from '../content/ContentQuery';
@@ -51,8 +53,6 @@ import {SearchAndExpandItemEvent} from './SearchAndExpandItemEvent';
 import {State} from './State';
 import {ToggleSearchPanelEvent} from './ToggleSearchPanelEvent';
 import {ToggleSearchPanelWithDependenciesEvent} from './ToggleSearchPanelWithDependenciesEvent';
-import {hasFilterSet, setContentFilterOpen} from '../../v6/features/store/contentFilter.store';
-import {BrowseToolbarElement} from '../../v6/features/views/browse/toolbar/BrowseToolbar';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -204,8 +204,8 @@ export class ContentBrowsePanel
         });
 
         this.contentTreeList = new ContentTreeListElement();
-        this.treeActions = new ContentTreeActions(this.contentTreeList);
-        
+        this.treeActions = new ContentTreeActions();
+
         const panel = new ContentTreeListSelectablePanelProxy(this.selectionWrapper, this.contentTreeList, this.toolbar);
         panel.addClass('content-selectable-list-box-panel');
 
@@ -539,7 +539,9 @@ export class ContentBrowsePanel
         this.deleteTreeItems(items);
 
         items.forEach(i => {
-            removeContentTreeItem(i.id.toString());
+            const id = i.id.toString();
+            removeContent(id);
+            removeTreeNode(id);
         });
 
         if (hasFilterSet()) {
@@ -640,7 +642,7 @@ export class ContentBrowsePanel
         this.updateContextPanel(data);
 
         data.forEach((newItem: ContentSummaryAndCompareStatus) => {
-            updateContentTreeItem(newItem.getId(), toContentProps(newItem));
+            setContent(newItem);
         });
 
         this.refreshFilterWithDelay();

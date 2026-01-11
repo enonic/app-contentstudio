@@ -21,7 +21,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {Branch} from './versioning/Branch';
 import {BrowseAppBarElement} from '../v6/features/views/browse/layout/BrowseAppBar';
-import {$contentTreeRootLoadingState} from '../v6/features/store/contentTreeLoadingStore';
+import {$rootLoadingState} from '../v6/features/store/tree-list.store';
 
 export class ContentAppContainer
     extends AppContainer {
@@ -123,7 +123,7 @@ export class ContentAppContainer
         const id = path.getElement(3);
         const type = path.getElement(4);
 
-        const unsubscribe = $contentTreeRootLoadingState.listen((state) => {
+        const unsubscribe = $rootLoadingState.listen((state) => {
             if (state !== 'ok') return;
             unsubscribe();
             this.doHandleDependencies(id, inbound, branch, type);

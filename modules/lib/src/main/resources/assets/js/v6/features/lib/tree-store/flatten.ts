@@ -40,9 +40,10 @@ export function flattenTree<T>(state: TreeState<T>): FlatNode<T>[] {
 
     // Initialize stack with root IDs in reverse order
     // (to maintain correct output order when popping)
+    // Level starts at 1 for VirtualizedTreeList compatibility
     const stack: StackItem[] = [];
     for (let i = rootIds.length - 1; i >= 0; i--) {
-        stack.push({id: rootIds[i], level: 0, parentId: null});
+        stack.push({id: rootIds[i], level: 1, parentId: null});
     }
 
     while (stack.length > 0) {
@@ -118,7 +119,7 @@ export function flattenTree<T>(state: TreeState<T>): FlatNode<T>[] {
         result.push({
             id: `${LOADING_NODE_PREFIX}root__0`,
             data: null,
-            level: 0,
+            level: 1,
             isExpanded: false,
             isLoading: true,
             isLoadingData: false,
@@ -131,9 +132,6 @@ export function flattenTree<T>(state: TreeState<T>): FlatNode<T>[] {
     return result;
 }
 
-/**
- * Checks if a flat node ID is a loading node.
- */
 export function isLoadingNodeId(id: string): boolean {
     return id.startsWith(LOADING_NODE_PREFIX);
 }
@@ -157,25 +155,14 @@ export function getLoadingNodeParentId(loadingNodeId: string): string | null {
     return parts[0] || null;
 }
 
-/**
- * Gets the visible node count from flat nodes.
- * Counts only actual nodes, not loading indicators.
- */
 export function getVisibleNodeCount<T>(flatNodes: FlatNode<T>[]): number {
     return flatNodes.filter(node => node.nodeType === 'node').length;
 }
 
-/**
- * Finds a flat node by ID.
- */
 export function findFlatNode<T>(flatNodes: FlatNode<T>[], id: string): FlatNode<T> | undefined {
     return flatNodes.find(node => node.id === id);
 }
 
-/**
- * Gets the index of a flat node by ID.
- * Returns -1 if not found.
- */
 export function getFlatNodeIndex<T>(flatNodes: FlatNode<T>[], id: string): number {
     return flatNodes.findIndex(node => node.id === id);
 }

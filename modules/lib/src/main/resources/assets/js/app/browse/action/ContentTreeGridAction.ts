@@ -1,17 +1,13 @@
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ContentTreeListElement} from '../../../v6/features/views/browse/grid/ContentTreeListElement';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 
 export class ContentTreeGridAction extends Action {
 
-    protected grid: ContentTreeListElement;
     protected stashedState: boolean;
     protected stashed: boolean;
 
-    constructor(grid: ContentTreeListElement, label?: string, shortcut?: string, global?: boolean) {
+    constructor(label?: string, shortcut?: string, global?: boolean) {
         super(label, shortcut, global);
-
-        this.grid = grid;
 
         this.onExecuted(() => {
             this.handleExecuted();

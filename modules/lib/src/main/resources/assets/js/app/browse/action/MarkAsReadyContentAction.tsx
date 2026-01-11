@@ -1,25 +1,23 @@
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {getSelectedItems} from '../../../v6/features/store/contentTreeSelectionStore';
-import {ContentTreeListElement} from '../../../v6/features/views/browse/grid/ContentTreeListElement';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DialogPresetConfirmElement} from '../../../v6/features/shared/dialogs/DialogPreset';
+import {getCurrentItems} from '../../../v6/features/store/contentTreeSelection.store';
+import {openPublishDialog} from '../../../v6/features/store/dialogs/publishDialog.store';
+import {ContentId} from '../../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {MarkAsReadyRequest} from '../../resource/MarkAsReadyRequest';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {ContentPublishPromptEvent} from '../ContentPublishPromptEvent';
-import {ContentId} from '../../content/ContentId';
-import {DialogPresetConfirmElement} from '../../../v6/features/shared/dialogs/DialogPreset';
-import {openPublishDialog} from '../../../v6/features/store/dialogs/publishDialog.store';
 
 export class MarkAsReadyContentAction
     extends ContentTreeGridAction {
 
     private canPublish: boolean;
 
-    constructor(grid: ContentTreeListElement) {
-        super(grid, i18n('action.markAsReady'));
+    constructor() {
+        super(i18n('action.markAsReady'));
 
         this.setEnabled(false).setClass('mark-as-ready');
 
@@ -28,8 +26,8 @@ export class MarkAsReadyContentAction
     }
 
     protected handleExecuted() {
-        const content: ContentSummaryAndCompareStatus[] = getSelectedItems();
-        const contentToMarkAsReady: ContentSummaryAndCompareStatus[] = getSelectedItems()
+        const content: ContentSummaryAndCompareStatus[] = [...getCurrentItems()];
+        const contentToMarkAsReady: ContentSummaryAndCompareStatus[] = [...getCurrentItems()]
             .filter((item: ContentSummaryAndCompareStatus) => item.canBeMarkedAsReady());
         const isSingleItem: boolean = contentToMarkAsReady.length === 1;
 

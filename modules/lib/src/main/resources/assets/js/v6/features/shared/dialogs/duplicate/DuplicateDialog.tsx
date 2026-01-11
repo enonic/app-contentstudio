@@ -9,7 +9,7 @@ import {
     cancelDuplicateDialog,
     executeDuplicateDialogAction
 } from '../../../store/dialogs/duplicateDialog.store';
-import {resetSelection} from '../../../store/contentTreeSelectionStore';
+import {resetSelection} from '../../../store/contentTreeSelection.store';
 import {DuplicateDialogMainContent} from './DuplicateDialogMainContent';
 import {DuplicateDialogProgressContent} from './DuplicateDialogProgressContent';
 

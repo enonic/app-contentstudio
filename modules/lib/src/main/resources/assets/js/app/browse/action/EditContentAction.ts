@@ -1,10 +1,9 @@
-import {getSelectedItems} from '../../../v6/features/store/contentTreeSelectionStore';
-import {ContentTreeListElement} from '../../../v6/features/views/browse/grid/ContentTreeListElement';
-import {EditContentEvent} from '../../event/EditContentEvent';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {getCurrentItems} from '../../../v6/features/store/contentTreeSelection.store';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {EditContentEvent} from '../../event/EditContentEvent';
 import {ContentLocalizer} from './ContentLocalizer';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
@@ -18,14 +17,14 @@ export class EditContentAction
 
     private contentLocalizer?: ContentLocalizer;
 
-    constructor(grid: ContentTreeListElement) {
-        super(grid, i18n('action.edit'), 'mod+e');
+    constructor() {
+        super(i18n('action.edit'), 'mod+e');
 
         this.setEnabled(false).setClass('edit');
     }
 
     protected handleExecuted() {
-        const contents: ContentSummaryAndCompareStatus[] = getSelectedItems();
+        const contents = [...getCurrentItems()];
 
         if (contents.length > EditContentAction.MAX_ITEMS_TO_EDIT) {
             showWarning(i18n('notify.edit.tooMuch'));

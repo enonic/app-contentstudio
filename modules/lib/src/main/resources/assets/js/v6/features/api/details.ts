@@ -144,6 +144,10 @@ export async function loadDefaultPageTemplate(
             throw new Error(response.statusText);
         }
 
+        if (response.status === 204) {
+            return undefined;
+        }
+
         const json: ContentJson | null = await response.json();
 
         if (!json) {

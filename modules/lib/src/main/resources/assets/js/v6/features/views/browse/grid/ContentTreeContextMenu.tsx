@@ -3,7 +3,7 @@ import {ContextMenu} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ReactElement, ReactNode} from 'react';
 import {useAction} from '../../../hooks/useAction';
-import {$contentTreeSelectedItems} from '../../../store/contentTreeSelectionStore';
+import {$currentItems} from '../../../store/contentTreeSelection.store';
 
 export type ContentTreeContextMenuProps = {
     actions: Record<string, Action>;
@@ -13,7 +13,7 @@ export type ContentTreeContextMenuProps = {
 const CONTENT_TREE_CONTEXT_MENU_NAME = 'ContentTreeContextMenu';
 
 export const ContentTreeContextMenu = ({children, actions = {}}: ContentTreeContextMenuProps): ReactElement => {
-    const item = useStore($contentTreeSelectedItems)[0];
+    const item = useStore($currentItems)[0];
 
     const hasActions = Object.keys(actions).length > 0;
     const publishAction = actions.publishAction;
@@ -27,7 +27,7 @@ export const ContentTreeContextMenu = ({children, actions = {}}: ContentTreeCont
 
     return (
         <ContextMenu data-component={CONTENT_TREE_CONTEXT_MENU_NAME}>
-            <ContextMenu.Trigger>{children}</ContextMenu.Trigger>
+            <ContextMenu.Trigger className="h-full">{children}</ContextMenu.Trigger>
             <ContextMenu.Portal>
                 <ContextMenu.Content className="min-w-36">
                     {otherActions.map(([actionName, action]) => (

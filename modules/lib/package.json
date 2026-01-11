@@ -26,7 +26,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@enonic/ui": "~0.26.0",
+    "@enonic/ui": "~0.31.0",
     "@nanostores/preact": "^1.0.0",
     "class-variance-authority": "^0.7.1",
     "d3": "^7.9.0",
@@ -45,6 +45,7 @@
     "neverthrow": "^8.2.0",
     "preact": "^10.27.2",
     "q": "^1.5.1",
+    "react-virtuoso": "^4.18.1",
     "sortablejs": "^1.15.6",
     "tw-animate-css": "^1.3.8"
   },
@@ -60,6 +61,8 @@
     "@swc/cli": "^0.7.9",
     "@swc/core": "^1.15.2",
     "@tailwindcss/vite": "^4.1.13",
+    "@testing-library/preact": "^3.2.4",
+    "@testing-library/react": "^16.3.1",
     "@types/ckeditor": "^4.9.10",
     "@types/core-js": "^2.5.8",
     "@types/hasher": "0.0.35",

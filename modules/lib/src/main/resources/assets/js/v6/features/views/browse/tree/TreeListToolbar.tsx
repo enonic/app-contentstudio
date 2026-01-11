@@ -1,60 +1,27 @@
 import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
-import {Checkbox, CheckboxChecked, cn, IconButton, Toggle} from '@enonic/ui';
+import {Checkbox, CheckboxChecked, IconButton} from '@enonic/ui';
 import {RefreshCcw} from 'lucide-react';
-import {ReactElement, useMemo, useState} from 'react';
+import {ReactElement, useMemo} from 'react';
 import {useStore} from '@nanostores/preact';
 import {useI18n} from '../../../hooks/useI18n';
-import {$contentTreeRootLoadingState, reload} from '../../../store/contentTreeLoadingStore';
-import {resetSelection, selectAllItems, setMultipleSelectionMode} from '../../../store/contentTreeSelectionStore';
-import {$isAllSelected, $isNoneSelected, $numberOfSelected} from '../../../store/contentTreeSelectionToolbarStore';
+import {resetTree, $rootLoadingState} from '../../../store/tree-list.store';
+import {fetchRootChildrenFiltered} from '../../../api/content-fetcher';
+import {$isAllLoadedSelected, $isNoneSelected, $selectionCount, clearSelection, selectAll} from '../../../store/contentTreeSelection.store';
 
 type TreeListToolbarProps = {
     enabled?: boolean;
-    handleToggleClick?: (pressed: boolean) => void;
 };
 
-type TogglerProps = Pick<TreeListToolbarProps, 'handleToggleClick'>;
-
-const Toggler = ({handleToggleClick}: TogglerProps): ReactElement => {
-    const selectedLabel = useI18n('field.treeListToolbar.selected');
-    const showSelectedLabel = useI18n('field.treeListToolbar.showSelected');
-    const showAllLabel = useI18n('field.treeListToolbar.showAll');
-
-    const [togglePressed, setTogglePressed] = useState(false);
-
-    const numberOfSelectedContents = useStore($numberOfSelected);
-
-    return (
-        <Toggle
-            className="flex items-center gap-2"
-            variant="filled"
-            aria-label={togglePressed ? showSelectedLabel : showAllLabel}
-            pressed={togglePressed}
-            onPressedChange={(pressed) => {
-                setTogglePressed(pressed);
-                handleToggleClick(pressed);
-            }}
-        >
-            <span
-                className={cn(
-                    'flex items-center justify-center rounded-full shrink-0 text-xs text-main bg-surface-neutral',
-                    numberOfSelectedContents < 10 ? 'size-6' : 'px-2',
-                    numberOfSelectedContents === 0 && 'hidden'
-                )}
-            >
-                {numberOfSelectedContents}
-            </span>
-
-            <span>{selectedLabel}</span>
-        </Toggle>
-    );
+const handleReload = (): void => {
+    resetTree();
+    void fetchRootChildrenFiltered();
 };
 
-const TreeListToolbar = ({enabled = true, handleToggleClick = () => { }}: TreeListToolbarProps): ReactElement => {
-    const loadingState = useStore($contentTreeRootLoadingState);
+const TreeListToolbar = ({enabled = true}: TreeListToolbarProps): ReactElement => {
+    const loadingState = useStore($rootLoadingState);
     const isLoading = loadingState === 'loading';
-    const isAllSelected = useStore($isAllSelected);
-    const totalSelected = useStore($numberOfSelected);
+    const isAllSelected = useStore($isAllLoadedSelected);
+    const totalSelected = useStore($selectionCount);
     const isNoneSelected = useStore($isNoneSelected);
     const selectAllLabel = isNoneSelected ? useI18n('field.treeListToolbar.selectAll') : useI18n('field.treeListToolbar.deselectAll',
         totalSelected);
@@ -67,12 +34,10 @@ const TreeListToolbar = ({enabled = true, handleToggleClick = () => { }}: TreeLi
 
     const handleCheckboxClick = () => {
         if (isNoneSelected) {
-            setMultipleSelectionMode();
-            selectAllItems();
-            return;
+            selectAll();
+        } else {
+            clearSelection();
         }
-
-        resetSelection();
     };
 
     return (
@@ -86,10 +51,9 @@ const TreeListToolbar = ({enabled = true, handleToggleClick = () => { }}: TreeLi
                     disabled={isLoading || !enabled}
                     onClick={handleCheckboxClick}
                 />
-                {/*{numberOfSelectedContents > 0 && <Toggler handleToggleClick={handleToggleClick} />}*/}
             </div>
 
-            <IconButton icon={RefreshCcw} disabled={isLoading || !enabled} onClick={reload} />
+            <IconButton icon={RefreshCcw} disabled={isLoading || !enabled} onClick={handleReload} />
         </div>
     );
 };
