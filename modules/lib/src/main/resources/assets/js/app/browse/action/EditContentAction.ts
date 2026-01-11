@@ -1,5 +1,5 @@
 import {getSelectedItems} from '../../../v6/features/store/contentTreeSelectionStore';
-import {ContentTreeListElement} from '../../../v6/features/views/browse/grid/ContentTreeListElement';
+import {ContentTreeListElement2} from '../../../v6/features/views/browse/grid/ContentTreeListElement2';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
@@ -18,7 +18,7 @@ export class EditContentAction
 
     private contentLocalizer?: ContentLocalizer;
 
-    constructor(grid: ContentTreeListElement) {
+    constructor(grid: ContentTreeListElement2) {
         super(grid, i18n('action.edit'), 'mod+e');
 
         this.setEnabled(false).setClass('edit');

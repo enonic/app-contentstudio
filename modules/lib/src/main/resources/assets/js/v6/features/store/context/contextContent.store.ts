@@ -1,19 +1,19 @@
 import {computed} from 'nanostores';
 import {EditContentEvent} from '../../../../app/event/EditContentEvent';
-import {$contentTreeItems} from '../contentTreeData.store';
+import {$contentCache} from '../content.store';
 import {$contentTreeActiveItem, $contentTreeSelection} from '../contentTreeSelectionStore';
 
 export const $contextContent = computed(
-    [$contentTreeActiveItem, $contentTreeSelection, $contentTreeItems],
-    (activeContentId, selectedContentIds, contents) => {
+    [$contentTreeActiveItem, $contentTreeSelection, $contentCache],
+    (activeContentId, selectedContentIds, cache) => {
         if (selectedContentIds.size >= 1) {
             const lastSelectedContentId = Array.from(selectedContentIds).pop();
 
-            return contents.nodes[lastSelectedContentId]?.item;
+            return cache[lastSelectedContentId];
         }
 
         if (activeContentId) {
-            return contents.nodes[activeContentId]?.item;
+            return cache[activeContentId];
         }
 
         return null;

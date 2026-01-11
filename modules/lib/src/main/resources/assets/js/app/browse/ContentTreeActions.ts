@@ -9,7 +9,7 @@ import {ManagedActionManager} from '@enonic/lib-admin-ui/managedaction/ManagedAc
 import {ManagedActionState} from '@enonic/lib-admin-ui/managedaction/ManagedActionState';
 import {ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {ContentTreeListElement} from '../../v6/features/views/browse/grid/ContentTreeListElement';
+import {ContentTreeListElement2} from '../../v6/features/views/browse/grid/ContentTreeListElement2';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentTreeGridAction} from './action/ContentTreeGridAction';
 import {ShowNewContentDialogAction} from './action/ShowNewContentDialogAction';
@@ -43,7 +43,7 @@ export enum ActionName {
 
 export class ContentTreeActions implements TreeGridActions<ContentSummaryAndCompareStatus> {
 
-    private readonly grid: ContentTreeListElement;
+    private readonly grid: ContentTreeListElement2;
 
     private actionsMap: Map<ActionName, ContentTreeGridAction> = new Map<ActionName, ContentTreeGridAction>();
 
@@ -53,7 +53,7 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
 
     private state: State = State.ENABLED;
 
-    constructor(grid: ContentTreeListElement) {
+    constructor(grid: ContentTreeListElement2) {
         this.grid = grid;
         this.initActions();
         this.initListeners();

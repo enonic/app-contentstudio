@@ -1,5 +1,5 @@
 import {batched} from 'nanostores';
-import {$contentTreeItems} from './contentTreeData.store';
+import {$treeState} from './tree-list.store';
 import {$contentTreeSelection, $contentTreeSelectionMode, isItemSelected} from './contentTreeSelectionStore';
 
 export const $numberOfSelected = batched([$contentTreeSelection, $contentTreeSelectionMode], (selection, mode) => {
@@ -10,12 +10,12 @@ export const $numberOfSelected = batched([$contentTreeSelection, $contentTreeSel
     return selection.size;
 });
 
-export const $isAllSelected = batched([$contentTreeItems, $contentTreeSelectionMode, $contentTreeSelection], (items, mode) => {
+export const $isAllSelected = batched([$treeState, $contentTreeSelectionMode, $contentTreeSelection], (treeState, mode) => {
     if (mode === 'single') {
         return false;
     }
 
-    return Object.keys(items).every((itemId) => isItemSelected(itemId));
+    return Array.from(treeState.nodes.keys()).every((itemId) => isItemSelected(itemId));
 });
 
 export const $isNoneSelected = batched([$contentTreeSelection, $contentTreeSelectionMode, $contentTreeSelection], (selection, mode) => {

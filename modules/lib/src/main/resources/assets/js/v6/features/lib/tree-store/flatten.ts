@@ -40,9 +40,10 @@ export function flattenTree<T>(state: TreeState<T>): FlatNode<T>[] {
 
     // Initialize stack with root IDs in reverse order
     // (to maintain correct output order when popping)
+    // Level starts at 1 for VirtualizedTreeList compatibility
     const stack: StackItem[] = [];
     for (let i = rootIds.length - 1; i >= 0; i--) {
-        stack.push({id: rootIds[i], level: 0, parentId: null});
+        stack.push({id: rootIds[i], level: 1, parentId: null});
     }
 
     while (stack.length > 0) {
@@ -118,7 +119,7 @@ export function flattenTree<T>(state: TreeState<T>): FlatNode<T>[] {
         result.push({
             id: `${LOADING_NODE_PREFIX}root__0`,
             data: null,
-            level: 0,
+            level: 1,
             isExpanded: false,
             isLoading: true,
             isLoadingData: false,

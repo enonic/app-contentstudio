@@ -1,6 +1,7 @@
 import {atom, computed} from 'nanostores';
-import {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
-import {$contentTreeItems, getAllContentTreeItems} from './contentTreeData.store';
+import type {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
+import {$contentCache, getContents} from './content.store';
+import {$treeState} from './tree-list.store';
 
 export const $contentTreeSelection = atom<ReadonlySet<string>>(new Set());
 
@@ -8,9 +9,10 @@ export const $contentTreeActiveItem = atom<string | null>(null);
 
 export const $contentTreeSelectionMode = atom<'multiple' | 'single'>('single');
 
-export const $contentTreeSelectedItems = computed([$contentTreeItems, $contentTreeSelection], (items, selection) => {
-    const allItems = Object.values(items.nodes);
-    return allItems.filter((data) => selection.has(data.id)).map((data) => data.item);
+export const $contentTreeSelectedItems = computed([$contentCache, $contentTreeSelection], (cache, selection) => {
+    return Array.from(selection)
+        .map((id) => cache[id])
+        .filter((item): item is ContentSummaryAndCompareStatus => item !== undefined);
 });
 
 export function setActiveItem(id: string | null): void {
@@ -22,7 +24,8 @@ export const setTreeSelectionMode = (mode: 'multiple' | 'single'): void => {
 }
 
 export function getSelectedItems(): ContentSummaryAndCompareStatus[] {
-    return getAllContentTreeItems().filter((data) => $contentTreeSelection.get().has(data.id)).map((data) => data.item);
+    const selection = $contentTreeSelection.get();
+    return getContents(Array.from(selection));
 }
 
 export function addSelectedItem(id: string): void {
@@ -58,7 +61,7 @@ export const isMultipleSelectionMode = (): boolean => {
 }
 
 export function selectAllItems(): void {
-    const allItemsIds = getAllContentTreeItems().map(item => item.id);
+    const allItemsIds = Array.from($treeState.get().nodes.keys());
     $contentTreeSelection.set(new Set(allItemsIds));
 }
 

@@ -11,7 +11,8 @@ import {cleanupTask, trackTask} from '../../services/task.service';
 import {hasContentIdInIds, isIdsEqual} from '../../utils/cms/content/ids';
 import {createDebounce} from '../../utils/timing/createDebounce';
 import {$isWizard} from '../app.store';
-import {reload as reloadContentTree} from '../contentTreeLoadingStore';
+import {resetTree} from '../tree-list.store';
+import {fetchRootChildrenFiltered} from '../../api/content-fetcher';
 import {$contentArchived, $contentCreated, $contentDeleted, $contentDuplicated, $contentUpdated} from '../socket.store';
 
 //
@@ -407,7 +408,8 @@ const handleDuplicateSuccess = (): void => {
 
     showSuccess(message);
 
-    reloadContentTree();
+    resetTree();
+    void fetchRootChildrenFiltered();
     resetDuplicateDialogContext();
 };
 

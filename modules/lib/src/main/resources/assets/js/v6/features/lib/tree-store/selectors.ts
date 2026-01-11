@@ -102,10 +102,11 @@ export function getSiblingIds<T>(state: TreeState<T>, id: string): string[] {
 }
 
 /**
- * Gets depth level of a node (0 = root level).
+ * Gets depth level of a node (1 = root level).
+ * Uses 1-based levels for VirtualizedTreeList compatibility.
  */
 export function getNodeLevel<T>(state: TreeState<T>, id: string): number {
-    return getAncestorIds(state, id).length;
+    return getAncestorIds(state, id).length + 1;
 }
 
 /**

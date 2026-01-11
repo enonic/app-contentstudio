@@ -4,7 +4,8 @@ import {RefreshCcw} from 'lucide-react';
 import {ReactElement, useMemo, useState} from 'react';
 import {useStore} from '@nanostores/preact';
 import {useI18n} from '../../../hooks/useI18n';
-import {$contentTreeRootLoadingState, reload} from '../../../store/contentTreeLoadingStore';
+import {resetTree, $rootLoadingState} from '../../../store/tree-list.store';
+import {fetchRootChildrenFiltered} from '../../../api/content-fetcher';
 import {resetSelection, selectAllItems, setMultipleSelectionMode} from '../../../store/contentTreeSelectionStore';
 import {$isAllSelected, $isNoneSelected, $numberOfSelected} from '../../../store/contentTreeSelectionToolbarStore';
 
@@ -50,8 +51,13 @@ const Toggler = ({handleToggleClick}: TogglerProps): ReactElement => {
     );
 };
 
+const handleReload = (): void => {
+    resetTree();
+    void fetchRootChildrenFiltered();
+};
+
 const TreeListToolbar = ({enabled = true, handleToggleClick = () => { }}: TreeListToolbarProps): ReactElement => {
-    const loadingState = useStore($contentTreeRootLoadingState);
+    const loadingState = useStore($rootLoadingState);
     const isLoading = loadingState === 'loading';
     const isAllSelected = useStore($isAllSelected);
     const totalSelected = useStore($numberOfSelected);
@@ -89,7 +95,7 @@ const TreeListToolbar = ({enabled = true, handleToggleClick = () => { }}: TreeLi
                 {/*{numberOfSelectedContents > 0 && <Toggler handleToggleClick={handleToggleClick} />}*/}
             </div>
 
-            <IconButton icon={RefreshCcw} disabled={isLoading || !enabled} onClick={reload} />
+            <IconButton icon={RefreshCcw} disabled={isLoading || !enabled} onClick={handleReload} />
         </div>
     );
 };

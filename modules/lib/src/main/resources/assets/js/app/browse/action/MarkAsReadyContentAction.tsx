@@ -1,6 +1,6 @@
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {getSelectedItems} from '../../../v6/features/store/contentTreeSelectionStore';
-import {ContentTreeListElement} from '../../../v6/features/views/browse/grid/ContentTreeListElement';
+import {ContentTreeListElement2} from '../../../v6/features/views/browse/grid/ContentTreeListElement2';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {MarkAsReadyRequest} from '../../resource/MarkAsReadyRequest';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
@@ -18,7 +18,7 @@ export class MarkAsReadyContentAction
 
     private canPublish: boolean;
 
-    constructor(grid: ContentTreeListElement) {
+    constructor(grid: ContentTreeListElement2) {
         super(grid, i18n('action.markAsReady'));
 
         this.setEnabled(false).setClass('mark-as-ready');

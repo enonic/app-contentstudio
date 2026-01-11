@@ -12,10 +12,10 @@ import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selecto
 import {TreeListBoxExpandedHolder} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import Q from 'q';
-import {removeContentTreeItem, updateContentTreeItem} from '../../v6/features/store/contentTreeData.store';
+import {removeContent, setContent} from '../../v6/features/store/content.store';
+import {removeTreeNode} from '../../v6/features/store/tree-list.store';
 import {hasSelectedItems} from '../../v6/features/store/contentTreeSelectionStore';
-import {toContentProps} from '../../v6/features/utils/cms/content/converter';
-import {ContentTreeListElement} from '../../v6/features/views/browse/grid/ContentTreeListElement';
+import {ContentTreeListElement2} from '../../v6/features/views/browse/grid/ContentTreeListElement2';
 import {ContentId} from '../content/ContentId';
 import {ContentPath} from '../content/ContentPath';
 import {ContentQuery} from '../content/ContentQuery';
@@ -77,7 +77,7 @@ export class ContentBrowsePanel
 
     protected expandedContext: TreeListBoxExpandedHolder;
 
-    private contentTreeList: ContentTreeListElement;
+    private contentTreeList: ContentTreeListElement2;
 
     protected initElements() {
         super.initElements();
@@ -203,7 +203,7 @@ export class ContentBrowsePanel
             refreshAction: () => this.treeListBox.reload(),
         });
 
-        this.contentTreeList = new ContentTreeListElement();
+        this.contentTreeList = new ContentTreeListElement2();
         this.treeActions = new ContentTreeActions(this.contentTreeList);
         
         const panel = new ContentTreeListSelectablePanelProxy(this.selectionWrapper, this.contentTreeList, this.toolbar);
@@ -539,7 +539,9 @@ export class ContentBrowsePanel
         this.deleteTreeItems(items);
 
         items.forEach(i => {
-            removeContentTreeItem(i.id.toString());
+            const id = i.id.toString();
+            removeContent(id);
+            removeTreeNode(id);
         });
 
         if (hasFilterSet()) {
@@ -640,7 +642,7 @@ export class ContentBrowsePanel
         this.updateContextPanel(data);
 
         data.forEach((newItem: ContentSummaryAndCompareStatus) => {
-            updateContentTreeItem(newItem.getId(), toContentProps(newItem));
+            setContent(newItem);
         });
 
         this.refreshFilterWithDelay();

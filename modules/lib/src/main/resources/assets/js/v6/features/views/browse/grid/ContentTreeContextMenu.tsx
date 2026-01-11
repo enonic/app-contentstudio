@@ -27,7 +27,7 @@ export const ContentTreeContextMenu = ({children, actions = {}}: ContentTreeCont
 
     return (
         <ContextMenu data-component={CONTENT_TREE_CONTEXT_MENU_NAME}>
-            <ContextMenu.Trigger>{children}</ContextMenu.Trigger>
+            <ContextMenu.Trigger className="h-full">{children}</ContextMenu.Trigger>
             <ContextMenu.Portal>
                 <ContextMenu.Content className="min-w-36">
                     {otherActions.map(([actionName, action]) => (

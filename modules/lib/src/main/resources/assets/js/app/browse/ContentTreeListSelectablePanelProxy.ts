@@ -4,19 +4,20 @@ import {SelectableListBoxWrapper, SelectionMode} from '@enonic/lib-admin-ui/ui/s
 import {DataChangedEvent} from '@enonic/lib-admin-ui/ui/treegrid/DataChangedEvent';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import Q from 'q';
-import {$contentTreeItems, getContentTreeItemsCount, getItemById} from '../../v6/features/store/contentTreeData.store';
+import {getContent} from '../../v6/features/store/content.store';
+import {$treeState} from '../../v6/features/store/tree-list.store';
 import {getSelectedItems} from '../../v6/features/store/contentTreeSelectionStore';
-import {ContentTreeListElement} from '../../v6/features/views/browse/grid/ContentTreeListElement';
+import {ContentTreeListElement2} from '../../v6/features/views/browse/grid/ContentTreeListElement2';
 import {TreeListToolbarElement} from '../../v6/features/views/browse/tree/TreeListToolbar';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class ContentTreeListSelectablePanelProxy extends SelectableListBoxPanel<ContentSummaryAndCompareStatus> {
 
-    private readonly contentTreeList: ContentTreeListElement;
+    private readonly contentTreeList: ContentTreeListElement2;
 
     private readonly toolbar: TreeListToolbarElement;
 
-    constructor(listBoxWrapper: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>, contentTreeList: ContentTreeListElement,
+    constructor(listBoxWrapper: SelectableListBoxWrapper<ContentSummaryAndCompareStatus>, contentTreeList: ContentTreeListElement2,
                 toolbar: ListBoxToolbar<ContentSummaryAndCompareStatus>) {
         super(listBoxWrapper, toolbar);
 
@@ -53,8 +54,8 @@ export class ContentTreeListSelectablePanelProxy extends SelectableListBoxPanel<
         return Q(true);
     }
 
-    getItem(id: string): ContentSummaryAndCompareStatus {
-        return getItemById(id)?.item;
+    getItem(id: string): ContentSummaryAndCompareStatus | undefined {
+        return getContent(id);
     }
 
     getWrapper(): SelectableListBoxWrapper<ContentSummaryAndCompareStatus> {
@@ -66,6 +67,6 @@ export class ContentTreeListSelectablePanelProxy extends SelectableListBoxPanel<
     }
 
     getTotalItems(): number {
-        return getContentTreeItemsCount();
+        return $treeState.get().nodes.size;
     }
 }

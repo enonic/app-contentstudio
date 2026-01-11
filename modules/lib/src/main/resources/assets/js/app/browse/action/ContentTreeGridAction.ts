@@ -1,14 +1,14 @@
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ContentTreeListElement} from '../../../v6/features/views/browse/grid/ContentTreeListElement';
+import {ContentTreeListElement2} from '../../../v6/features/views/browse/grid/ContentTreeListElement2';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 
 export class ContentTreeGridAction extends Action {
 
-    protected grid: ContentTreeListElement;
+    protected grid: ContentTreeListElement2;
     protected stashedState: boolean;
     protected stashed: boolean;
 
-    constructor(grid: ContentTreeListElement, label?: string, shortcut?: string, global?: boolean) {
+    constructor(grid: ContentTreeListElement2, label?: string, shortcut?: string, global?: boolean) {
         super(label, shortcut, global);
 
         this.grid = grid;

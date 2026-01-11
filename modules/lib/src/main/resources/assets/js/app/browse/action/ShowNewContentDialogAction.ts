@@ -1,6 +1,6 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {getSelectedItems} from '../../../v6/features/store/contentTreeSelectionStore';
-import {ContentTreeListElement} from '../../../v6/features/views/browse/grid/ContentTreeListElement';
+import {ContentTreeListElement2} from '../../../v6/features/views/browse/grid/ContentTreeListElement2';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
@@ -8,7 +8,7 @@ import {openNewContentDialog} from '../../../v6/features/store/dialogs/newConten
 
 export class ShowNewContentDialogAction extends ContentTreeGridAction {
 
-    constructor(grid: ContentTreeListElement) {
+    constructor(grid: ContentTreeListElement2) {
         super(grid, i18n('action.new'), 'alt+n');
 
         this.setEnabled(true).setClass('new');

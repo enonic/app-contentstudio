@@ -1,11 +1,11 @@
-import {ContentTreeListElement} from '../../../v6/features/views/browse/grid/ContentTreeListElement';
+import {ContentTreeListElement2} from '../../../v6/features/views/browse/grid/ContentTreeListElement2';
 import {ToggleSearchPanelEvent} from '../ToggleSearchPanelEvent';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 
 export class ToggleSearchPanelAction extends ContentTreeGridAction {
 
-    constructor(grid: ContentTreeListElement) {
+    constructor(grid: ContentTreeListElement2) {
         super(grid, '', 'shift+f', true);
 
         this.setIconClass('icon-search3').setClass('search');

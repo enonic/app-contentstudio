@@ -104,3 +104,6 @@ export {
     getPendingDataIds,
     getPendingDataIdsInRange,
 } from './flatten';
+
+// React hook (standalone usage without external store)
+export {useTreeStore, type UseTreeStoreOptions, type UseTreeStoreReturn} from './react';
