@@ -1,16 +1,12 @@
 import {Button, Dialog, Tab, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {Globe, Hash} from 'lucide-react';
 import {useEffect, useMemo, useRef, type ComponentPropsWithoutRef, type ReactElement} from 'react';
 
 import {IssueStatus} from '../../../../../app/issue/IssueStatus';
-import {IssueType} from '../../../../../app/issue/IssueType';
 import {useI18n} from '../../../hooks/useI18n';
 import {$issueDialog, setIssueDialogView} from '../../../store/dialogs/issueDialog.store';
 import {
     $issueDialogDetails,
-    loadIssueDialogComments,
-    loadIssueDialogIssue,
     setIssueDialogCommentText,
     setIssueDialogDetailsTab,
     submitIssueDialogComment,
@@ -18,7 +14,9 @@ import {
 } from '../../../store/dialogs/issueDialogDetails.store';
 import {IssueStatusBadge} from '../../status/IssueStatusBadge';
 import {IssueCommentsList} from './IssueCommentsList';
+import {IssueIcon} from './IssueIcon';
 import {IssueDialogSelector} from './IssueDialogSelector';
+import {useIssueDialogData} from './hooks/useIssueDialogData';
 
 import type {Issue} from '../../../../../app/issue/Issue';
 import type {IssueWithAssignees} from '../../../../../app/issue/IssueWithAssignees';
@@ -62,34 +60,16 @@ const resolveStatusOption = (
 };
 
 const resolveIssueData = ({
-    issueId,
-    issues,
-    detailsIssue,
-}: {
+                              issueId,
+                              issues,
+                              detailsIssue,
+                          }: {
     issueId?: string;
     issues: IssueWithAssignees[];
     detailsIssue?: Issue;
 }): Issue | undefined => {
     const resolvedIssue = issues.find(item => item.getIssue().getId() === issueId);
     return resolvedIssue?.getIssue() ?? detailsIssue;
-};
-
-const renderIssueIcon = (issue: Issue | undefined): ReactElement | null => {
-    if (!issue) {
-        return null;
-    }
-
-    const isTask = issue.getType() === IssueType.STANDARD;
-    const IssueIcon = isTask ? Hash : Globe;
-
-    return (
-        <IssueIcon
-            className={cn(
-                'size-6 shrink-0',
-                isTask && 'border-subtle border-solid rounded-sm p-0.25 border-2',
-            )}
-        />
-    );
 };
 
 const STATUS_LOOKUP: Record<StatusOption, IssueStatus> = {
@@ -119,6 +99,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         comments,
         commentsLoading,
         commentSubmitting,
+        issueError,
         statusUpdating,
     } = useStore($issueDialogDetails, {
         keys: [
@@ -128,6 +109,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             'comments',
             'commentsLoading',
             'commentSubmitting',
+            'issueError',
             'statusUpdating',
         ],
     });
@@ -144,19 +126,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
 
     const commentTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-    useEffect(() => {
-        if (!issueId || issueData) {
-            return;
-        }
-        void loadIssueDialogIssue(issueId);
-    }, [issueId, issueData]);
-
-    useEffect(() => {
-        if (!issueId) {
-            return;
-        }
-        void loadIssueDialogComments(issueId);
-    }, [issueId]);
+    useIssueDialogData(issueId, !!issueData);
 
     useEffect(() => {
         const element = commentTextareaRef.current;
@@ -202,7 +172,9 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         setIssueDialogDetailsTab(next);
     };
 
-    const canSubmitComment = commentText.trim().length > 0 && !commentSubmitting && !!issueId;
+    const canSubmitComment = useMemo(() => {
+        return commentText.trim().length > 0 && !commentSubmitting && !!issueId && !issueError;
+    }, [commentText, commentSubmitting, issueId, issueError]);
     const statusOptions = useMemo(
         () => getStatusOptions(openStatusLabel, closedStatusLabel),
         [openStatusLabel, closedStatusLabel],
@@ -210,33 +182,33 @@ export const IssueDialogDetailsContent = (): ReactElement => {
 
     return (
         <Dialog.Content
-            className='sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-236 gap-7.5 px-5'
             data-component={ISSUE_DIALOG_DETAILS_CONTENT_NAME}
+            className='sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-236 gap-7.5 px-5'
         >
             <Dialog.Header className='grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 px-5'>
                 <div className='flex min-w-0 items-center gap-2.5'>
-                    {renderIssueIcon(issueData)}
+                    <IssueIcon issue={issueData}/>
                     <Dialog.Title className='min-w-0 truncate text-2xl font-semibold'>{title}</Dialog.Title>
                 </div>
-                <Dialog.DefaultClose className='self-start justify-self-end' />
+                <Dialog.DefaultClose className='self-start justify-self-end'/>
             </Dialog.Header>
             <Dialog.Body className='min-h-0'>
                 <Tab.Root value={detailsTab} onValueChange={handleTabChange}>
                     <div className='grid min-h-0 grid-cols-4 gap-x-3.5 gap-y-7.5 items-end px-2.5'>
                         <div className='flex flex-col gap-2.5 px-2.5 pt-1.5'>
-                        <IssueDialogSelector
-                            value={statusValue}
-                            disabled={isStatusDisabled}
-                            options={statusOptions}
-                            placeholder={openStatusLabel}
-                            onValueChange={handleStatusChange}
-                            renderValue={(value) => {
-                                const option = resolveStatusOption(statusOptions, value);
-                                return option ? <IssueStatusBadge status={option.status} /> : openStatusLabel;
-                            }}
-                            renderItemText={(option) => <IssueStatusBadge status={option.status} />}
-                        />
-                            </div>
+                            <IssueDialogSelector
+                                value={statusValue}
+                                disabled={isStatusDisabled}
+                                options={statusOptions}
+                                placeholder={openStatusLabel}
+                                onValueChange={handleStatusChange}
+                                renderValue={(value) => {
+                                    const option = resolveStatusOption(statusOptions, value);
+                                    return option ? <IssueStatusBadge status={option.status}/> : openStatusLabel;
+                                }}
+                                renderItemText={(option) => <IssueStatusBadge status={option.status}/>}
+                            />
+                        </div>
                         <Tab.List className='col-span-3 px-2.5 justify-end'>
                             <Tab.DefaultTrigger value='comments'>{commentsLabel}</Tab.DefaultTrigger>
                             <Tab.DefaultTrigger value='items'>{itemsLabel}</Tab.DefaultTrigger>
@@ -249,6 +221,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                     issue={issueData}
                                     comments={comments}
                                     loading={commentsLoading}
+                                    aria-label={commentsLabel}
                                 />
                                 <div className='min-w-0'>
                                     <textarea
@@ -280,7 +253,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                 </Tab.Root>
             </Dialog.Body>
             <Dialog.Footer className='px-5 justify-between'>
-                <Button variant='outline' size='lg' label={backLabel} onClick={handleBack} />
+                <Button variant='outline' size='lg' label={backLabel} onClick={handleBack}/>
                 <Button
                     variant='solid'
                     size='lg'

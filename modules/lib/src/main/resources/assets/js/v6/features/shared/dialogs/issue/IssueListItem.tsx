@@ -1,11 +1,9 @@
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {ListItem, cn} from '@enonic/ui';
-import {Globe, Hash} from 'lucide-react';
 import {type ReactElement} from 'react';
-
-import {IssueType} from '../../../../../app/issue/IssueType';
 import {IssueStatusInfoGenerator} from '../../../../../app/issue/view/IssueStatusInfoGenerator';
 import {IssueStatusBadge} from '../../status/IssueStatusBadge';
+import {IssueIcon} from './IssueIcon';
 
 import type {IssueWithAssignees} from '../../../../../app/issue/IssueWithAssignees';
 
@@ -24,9 +22,6 @@ export const IssueListItem = ({issue, onSelect}: IssueListItemProps): ReactEleme
         .setIssueStatus(issueData.getIssueStatus())
         .setCurrentUser(currentUser)
         .generate();
-    const isTask = issueData.getType() === IssueType.STANDARD;
-    const Icon = isTask ? Hash : Globe;
-
     const handleSelect = () => {
         onSelect?.(issue);
     };
@@ -44,15 +39,15 @@ export const IssueListItem = ({issue, onSelect}: IssueListItemProps): ReactEleme
             tabIndex={0}
             onClick={handleSelect}
             onKeyDown={handleKeyDown}
+            data-component={ISSUE_LIST_ITEM_NAME}
             className={cn(
                 'cursor-pointer rounded-sm px-1 mx-1.5 py-1 my-1.5 transition-highlight',
                 'hover:bg-surface-neutral-hover focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring',
                 'focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
             )}
-            data-component={ISSUE_LIST_ITEM_NAME}
         >
             <ListItem.Left className='text-subtle group-data-[tone=inverse]:text-alt'>
-                <Icon className={cn('size-6', isTask && 'border-subtle border-solid rounded-sm p-0.25 border-2')}/>
+                <IssueIcon issue={issueData}/>
             </ListItem.Left>
             <ListItem.Content className='min-w-0'>
                 <div className='min-w-0'>

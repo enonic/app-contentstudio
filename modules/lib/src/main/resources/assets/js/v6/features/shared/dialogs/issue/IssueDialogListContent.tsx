@@ -1,7 +1,7 @@
 import {Button, Dialog, Tab} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Plus} from 'lucide-react';
-import {useEffect, type ReactElement} from 'react';
+import {useMemo, type ReactElement} from 'react';
 
 import {IssueDialogsManager} from '../../../../../app/issue/IssueDialogsManager';
 import {useI18n} from '../../../hooks/useI18n';
@@ -9,12 +9,11 @@ import {
     $issueDialog,
     $issueDialogListFilteredIssues,
     $issueDialogListTabCounts,
-    loadIssueDialogList,
     openIssueDialogDetails,
     setIssueDialogListFilter,
     setIssueDialogListTab,
 } from '../../../store/dialogs/issueDialog.store';
-import {IssueListItem} from './IssueListItem';
+import {IssueList} from './IssueList';
 import {IssueDialogSelector} from './IssueDialogSelector';
 
 import type {IssueWithAssignees} from '../../../../../app/issue/IssueWithAssignees';
@@ -37,6 +36,11 @@ export const IssueDialogListContent = (): ReactElement => {
     const closedLabel = useI18n('field.issue.status.closed');
     const emptyLabel = useI18n('dialog.issue.noIssuesAndPublishRequests');
     const newIssueLabel = useI18n('text.newIssue');
+    const allLabel = useI18n('field.all');
+    const assignedToMeLabel = useI18n('field.assignedToMe');
+    const createdByMeLabel = useI18n('field.createdByMe');
+    const publishRequestsLabel = useI18n('field.publishRequests');
+    const issuesLabel = useI18n('field.issues');
 
     const {filter, tab, totals, loading} = useStore($issueDialog, {
         keys: ['filter', 'tab', 'totals', 'loading'],
@@ -44,41 +48,40 @@ export const IssueDialogListContent = (): ReactElement => {
     const tabCounts = useStore($issueDialogListTabCounts);
     const issues = useStore($issueDialogListFilteredIssues);
 
-    useEffect(() => {
-        void loadIssueDialogList();
-    }, []);
+    const filterLabels = useMemo<Record<IssueDialogFilter, string>>(() => ({
+        all: allLabel,
+        assignedToMe: assignedToMeLabel,
+        createdByMe: createdByMeLabel,
+        publishRequests: publishRequestsLabel,
+        issues: issuesLabel,
+    }), [allLabel, assignedToMeLabel, createdByMeLabel, publishRequestsLabel, issuesLabel]);
 
-    const filterLabels = {
-        all: useI18n('field.all'),
-        assignedToMe: useI18n('field.assignedToMe'),
-        createdByMe: useI18n('field.createdByMe'),
-        publishRequests: useI18n('field.publishRequests'),
-        issues: useI18n('field.issues'),
-    } satisfies Record<IssueDialogFilter, string>;
+    const {openCount, closedCount, filterOptions} = useMemo(() => {
+        const openCount = tabCounts.open ?? 0;
+        const closedCount = tabCounts.closed ?? 0;
 
-    const openCount = tabCounts.open ?? 0;
-    const closedCount = tabCounts.closed ?? 0;
+        const getFilterCount = (value: IssueDialogFilter): number => {
+            const counts = totals[value] ?? {open: 0, closed: 0};
+            return tab === 'open' ? counts.open ?? 0 : counts.closed ?? 0;
+        };
+
+        const filterOptions = FILTER_ORDER.map(option => {
+            const count = getFilterCount(option);
+            const baseLabel = filterLabels[option];
+            return {
+                value: option,
+                label: count > 0 ? `${baseLabel} (${count})` : baseLabel,
+                disabled: count === 0,
+            };
+        });
+
+        return {openCount, closedCount, filterOptions};
+    }, [tabCounts, totals, tab, filterLabels]);
+
     const isOpenDisabled = openCount === 0;
     const isClosedDisabled = closedCount === 0;
     const openTabCount = openCount > 0 ? openCount : undefined;
     const closedTabCount = closedCount > 0 ? closedCount : undefined;
-
-    const getFilterCount = (value: IssueDialogFilter): number => {
-        const counts = totals[value] ?? {open: 0, closed: 0};
-        return tab === 'open' ? counts.open ?? 0 : counts.closed ?? 0;
-    };
-
-    const formatFilterLabel = (value: IssueDialogFilter): string => {
-        const baseLabel = filterLabels[value];
-        const count = getFilterCount(value);
-        return count > 0 ? `${baseLabel} (${count})` : baseLabel;
-    };
-
-    const filterOptions = FILTER_ORDER.map(option => ({
-        value: option,
-        label: formatFilterLabel(option),
-        disabled: getFilterCount(option) === 0,
-    }));
 
     const handleIssueSelect = (issue: IssueWithAssignees): void => {
         openIssueDialogDetails(issue.getIssue().getId());
@@ -90,8 +93,8 @@ export const IssueDialogListContent = (): ReactElement => {
 
     return (
         <Dialog.Content
-            className='sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-236 gap-7.5 px-5'
             data-component={ISSUE_DIALOG_LIST_CONTENT_NAME}
+            className='sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-236 gap-7.5 px-5'
         >
             <Dialog.DefaultHeader className='px-5' title={title} withClose />
             <Dialog.Body>
@@ -125,32 +128,20 @@ export const IssueDialogListContent = (): ReactElement => {
                         </Tab.List>
 
                         <Tab.Content value='open' className='col-span-2 mt-0 min-h-0'>
-                            {issues.length === 0 && !loading && (
-                                <div className='text-sm text-subtle'>{emptyLabel}</div>
-                            )}
-                            <div className='flex flex-col gap-1.25 min-h-0 max-h-100 overflow-y-auto'>
-                                {issues.map(issue => (
-                                    <IssueListItem
-                                        key={issue.getIssue().getId()}
-                                        issue={issue}
-                                        onSelect={handleIssueSelect}
-                                    />
-                                ))}
-                            </div>
+                            <IssueList
+                                issues={issues}
+                                emptyLabel={emptyLabel}
+                                loading={loading}
+                                onSelect={handleIssueSelect}
+                            />
                         </Tab.Content>
                         <Tab.Content value='closed' className='col-span-2 mt-0 min-h-0'>
-                            {issues.length === 0 && !loading && (
-                                <div className='text-sm text-subtle'>{emptyLabel}</div>
-                            )}
-                            <div className='flex flex-col gap-1.25 min-h-0 max-h-100 overflow-y-auto'>
-                                {issues.map(issue => (
-                                    <IssueListItem
-                                        key={issue.getIssue().getId()}
-                                        issue={issue}
-                                        onSelect={handleIssueSelect}
-                                    />
-                                ))}
-                            </div>
+                            <IssueList
+                                issues={issues}
+                                emptyLabel={emptyLabel}
+                                loading={loading}
+                                onSelect={handleIssueSelect}
+                            />
                         </Tab.Content>
                     </div>
                 </Tab.Root>

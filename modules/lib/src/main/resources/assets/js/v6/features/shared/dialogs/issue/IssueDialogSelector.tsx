@@ -17,6 +17,8 @@ export type IssueDialogSelectorProps<Option extends IssueDialogSelectorOption> =
     renderItemText?: (option: Option) => ReactNode;
 };
 
+const ISSUE_DIALOG_SELECTOR_NAME = 'IssueDialogSelector';
+
 export function IssueDialogSelector<Option extends IssueDialogSelectorOption>({
     value,
     disabled,
@@ -39,7 +41,7 @@ export function IssueDialogSelector<Option extends IssueDialogSelectorOption>({
     };
 
     return (
-        <Selector.Root value={value} disabled={disabled} onValueChange={onValueChange}>
+        <Selector.Root value={value} disabled={disabled} onValueChange={onValueChange} data-component={ISSUE_DIALOG_SELECTOR_NAME}>
             <Selector.Trigger>
                 <Selector.Value placeholder={placeholder}>{valueRenderer}</Selector.Value>
                 <Selector.Icon />
@@ -63,3 +65,5 @@ export function IssueDialogSelector<Option extends IssueDialogSelectorOption>({
         </Selector.Root>
     );
 }
+
+IssueDialogSelector.displayName = ISSUE_DIALOG_SELECTOR_NAME;

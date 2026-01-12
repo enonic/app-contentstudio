@@ -358,7 +358,7 @@ $activeProject.subscribe((activeProject) => {
 let wasOpen = $issueDialog.get().open;
 
 $issueDialog.subscribe(({open}) => {
-    if (!wasOpen && open && needsReload) {
+    if (!wasOpen && open) {
         void loadIssueDialogList();
     }
     wasOpen = open;

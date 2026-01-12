@@ -17,6 +17,7 @@
 @theme {
   /* Temporary alias until @enonic/ui exposes grey-500 */
   --color-surface-muted: #b2b2b2;
+  --color-avatar-red: #942B19;
 
   /* SIZINGS */
   --sizing-1\.25: calc(var(--spacing) * 1.25);

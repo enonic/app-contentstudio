@@ -17,7 +17,7 @@ export const IssueDialog = (): ReactElement => {
     };
 
     return (
-        <Dialog.Root open={open} onOpenChange={handleOpenChange}>
+        <Dialog.Root data-component={ISSUE_DIALOG_NAME} open={open} onOpenChange={handleOpenChange}>
             <Dialog.Portal>
                 <Dialog.Overlay/>
                 {view === 'list' && <IssueDialogListContent/>}
