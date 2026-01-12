@@ -153,8 +153,8 @@ module.exports = {
                 await insertLinkDialogContentPanel.clickOnShowContentFromEntireProjectCheckbox();
             }
             await insertLinkDialogContentPanel.typeTextInFilterInputInContentSelector(contentDisplayName);
-        // After inserting a search text the dropdown should be switched to 'Flat mode', click on the folder(don't need to click on 'Apply' button):
-        await insertLinkDialogContentPanel.clickOnOptionByDisplayName(contentDisplayName);
+            // After inserting a search text the dropdown should be switched to 'Flat mode', click on the folder(don't need to click on 'Apply' button):
+            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(contentDisplayName);
             await this.saveScreenshot('content_link_dialog');
             await insertLinkDialog.clickOnInsertButton();
             return await insertLinkDialog.pause(700);
@@ -485,7 +485,7 @@ module.exports = {
         await contentWizardPanel.waitAndClickOnSave();
         await this.doCloseCurrentBrowserTab();
         await this.doSwitchToContentBrowsePanel();
-        return await this.getBrowser().pause(1000);
+        return await this.getBrowser().pause(500);
     },
     async findAndSelectItem(name) {
         try {
@@ -495,7 +495,7 @@ module.exports = {
             await browsePanel.pause(200);
             await browsePanel.clickOnRowByName(name);
             await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
-            return await browsePanel.pause(300);
+            return await browsePanel.pause(200);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_item');
             throw new Error(`Select the item in grid, screenshot:${screenshot} ` + err);
@@ -557,7 +557,7 @@ module.exports = {
         await this.switchToContentTabWindow(displayName);
         await contentWizardPanel.waitForOpened();
         await contentWizardPanel.waitForDisplayNameInputFocused();
-        await contentWizardPanel.pause(300);
+        await contentWizardPanel.pause(100);
     },
     async findContentAndClickCheckBox(displayName) {
         let browsePanel = new BrowsePanel();
@@ -614,9 +614,9 @@ module.exports = {
             }
             await filterPanel.typeSearchText(name);
             await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
-            return await browsePanel.pause(800);
+            return await browsePanel.pause(300);
         } catch (err) {
-            await this.saveScreenshotUniqueName('err_spinner');
+            await this.saveScreenshotUniqueName('err_filter_panel');
             throw new Error('Filter Panel-  error : ' + err);
         }
     },
@@ -671,7 +671,7 @@ module.exports = {
             console.log('testUtils:switching to Content Browse panel...');
             let browsePanel = new BrowsePanel();
             await this.getBrowser().switchWindow("Content Studio - Enonic XP Admin");
-            return await browsePanel.pause(1500);
+            return await browsePanel.pause(1000);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_navigate_to_studio');
             throw new Error(`error when navigate to Content Studio, screenshot: ${screenshot} ` + err);
@@ -793,7 +793,7 @@ module.exports = {
             return await contentWizardPanel.waitForSpinnerNotVisible();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_switch_window');
-            await this.getBrowser().pause(1500);
+            await this.getBrowser().pause(1000);
             await this.getBrowser().switchWindow(contentDisplayName);
         }
     },
@@ -1054,7 +1054,7 @@ module.exports = {
         await userBrowsePanel.pause(400);
         await userBrowsePanel.waitForRowByNameVisible(name);
         await userBrowsePanel.clickOnRowByName(name);
-        return await userBrowsePanel.pause(800);
+        return await userBrowsePanel.pause(300);
     },
     // Click on 'Save' button and close the wizard:
     async saveAndCloseUserWizard(displayName) {
@@ -1092,19 +1092,9 @@ module.exports = {
         try {
             await this.getBrowser().pause(100);
             await this.clickOnElement(selector);
-            //let el = await this.getDisplayedElements(selector);
-            //await el[0].click();
             return await launcherPanel.waitForPanelDisplayed();
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_launcher_button'));
-            await this.getBrowser().refresh();
-            await this.getBrowser().pause(2000);
-            await this.closeProjectSelectionDialog();
-            await this.waitUntilDisplayed(selector, 2000);
-
-            let el = await this.getDisplayedElements(selector);
-            await el[0].click();
-            return await launcherPanel.waitForPanelDisplayed();
+            await this.handleError('Launcher Panel should be loaded!', 'err_launcher_panel', err);
         }
 
     },
@@ -1193,7 +1183,7 @@ module.exports = {
         await appBrowsePanel.waitForSpinnerNotVisible();
         return await appBrowsePanel.waitForGridLoaded(appConst.mediumTimeout);
     },
-    async saveScreen(name){
+    async saveScreen(name) {
         await this.getBrowser().saveScreen();
     }
 };

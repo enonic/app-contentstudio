@@ -179,7 +179,7 @@ class BaseBrowsePanel extends Page {
             let nameXpath = this.treeGrid + lib.itemByName(name);
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
             await this.clickOnElement(nameXpath);
-            return await this.pause(300);
+            return await this.pause(100);
         } catch (err) {
             await this.handleError('Browse Panel, click on row by name: ', 'err_click_on_row_by_name', err);
         }

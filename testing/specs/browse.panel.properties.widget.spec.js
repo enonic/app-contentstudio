@@ -148,7 +148,9 @@ describe('Browse panel, properties widget, language spec', function () {
             await studioUtils.waitForElementDisplayed(`//widget[text()='${TEST_WIDGET_TITLE}']`);
         });
 
-    it.skip(`GIVEN existing folder with language is opened WHEN the language has been removed in 'Edit Settings Dialog' THEN language should not be displayed in the widget`,
+    // Build fix: Separate metadata update from content update #9619
+    // Updating 'language' and 'owner' is now considered a metadata update and is being made via separate content service method.
+    it(`GIVEN existing folder with language is opened WHEN the language has been removed in 'Edit Settings Dialog' THEN language should not be displayed in the widget`,
         async () => {
             let propertiesWidget = new PropertiesWidget();
             let contentWizard = new ContentWizard();
@@ -168,9 +170,9 @@ describe('Browse panel, properties widget, language spec', function () {
             // 5. Language should not be present in the widget now :
             await studioUtils.saveScreenshot('details_panel_language_removed');
             await propertiesWidget.waitForLanguageNotVisible();
-            // 6. Status gets modified:
+            // 6. Status remains Published, due to metadata update:
             let statusWidget = new StatusWidget();
-            await statusWidget.waitForStatusDisplayed(appConst.STATUS_WIDGET.MODIFIED);
+            await statusWidget.waitForStatusDisplayed(appConst.STATUS_WIDGET.PUBLISHED);
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/1744
