@@ -68,7 +68,8 @@ const TREE_GRID = {
     SORT_DIALOG_TOGGLE: "//div[contains(@class,'sort-dialog-trigger')]",
     EXPANDER_ICON_DIV: "//div[contains(@class,'toggle icon-arrow_drop_up')]",
     P_CONTENT_NAME: "//p[contains(@class,'sub-name')]",
-    H6_CONTENT_DISPLAY_NAME: "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",
+    // Block that contains: name, displayName, icon...
+    CONTENT_LABEL_BLOCK: "//div[@data-component='ContentLabel']",
     itemContextMenuItemByName: (name) => {
         return `//div[@role='menu' and contains(@id,'content')]//div[contains(@id,'menu-item') and contains(.,'${name}')]`;
     },

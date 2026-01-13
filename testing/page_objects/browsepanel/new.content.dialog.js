@@ -110,6 +110,7 @@ class NewContentDialog extends Page {
             // Focus on the input
             await this.getBrowser().keys([firstChar]);
             await this.pause(100);
+            await this.clickOnElement(this.searchInput);
             // Type the remaining text
             await this.addTextInInput(this.searchInput, remainingText);
             return await this.pause(200);

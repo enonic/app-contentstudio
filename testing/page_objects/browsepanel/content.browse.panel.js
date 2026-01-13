@@ -164,11 +164,12 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get displayNames() {
-        return XPATH.contentsTreeGridRootUL + lib.TREE_GRID.H6_CONTENT_DISPLAY_NAME;
+        // div[1] contains the icon, div[2] contains the name
+        return TREE_GRID.TREE_LIST_DIV + TREE_GRID.TREE_LIST_ITEM_DIV + TREE_GRID.CONTENT_LABEL_BLOCK + "//div[2]//span";
     }
 
     get contentNames() {
-        return XPATH.contentsTreeGridRootUL + lib.TREE_GRID.P_CONTENT_NAME;
+        return TREE_GRID.TREE_LIST_DIV + TREE_GRID.TREE_LIST_ITEM_DIV + TREE_GRID.CONTENT_LABEL_BLOCK + "//div[2]//small";
     }
 
     get treeGrid() {
@@ -515,7 +516,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
                 throw new Error('The number of content-rows less than the index');
             }
             await rows[rowNumber].click();
-            return await this.pause(500);
+            return await this.pause(300);
         } catch (err) {
             await this.handleError(`Tried to click on row by number: ${rowNumber}`, 'err_click_on_row_in_grid');
         }
@@ -635,7 +636,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     // returns number of rows with selected checkbox:
     async getNumberOfCheckedRows() {
         try {
-            let locator = "//div[contains(@role,'treeitem')]" + `${TREE_GRID.TREE_LIST_ITEM_CHECKBOX_LABEL}${COMMON.INPUTS.CHECKBOX_INPUT_CHECKED}`;
+            let locator = "//div[contains(@role,'treeitem')]" +
+                          `${TREE_GRID.TREE_LIST_ITEM_CHECKBOX_LABEL}${COMMON.INPUTS.CHECKBOX_INPUT_CHECKED}`;
             let result = await this.findElements(locator);
             return result.length;
         } catch (err) {
