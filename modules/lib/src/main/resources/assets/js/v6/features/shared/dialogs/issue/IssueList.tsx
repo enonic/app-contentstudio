@@ -1,3 +1,4 @@
+import {LoaderCircle} from 'lucide-react';
 import {type ReactElement} from 'react';
 import {IssueListItem} from './IssueListItem';
 
@@ -13,15 +14,21 @@ export type IssueListProps = {
 const ISSUE_LIST_NAME = 'IssueList';
 
 export const IssueList = ({
-                              issues,
-                              emptyLabel,
-                              loading = false,
-                              onSelect,
-                          }: IssueListProps): ReactElement => {
+    issues,
+    emptyLabel,
+    loading = false,
+    onSelect,
+}: IssueListProps): ReactElement => {
+    const showLoading = loading && issues.length === 0;
     const showEmpty = issues.length === 0 && !loading && emptyLabel;
 
     return (
         <>
+            {showLoading && (
+                <div className='flex items-center justify-center py-10'>
+                    <LoaderCircle className='size-7 animate-spin text-subtle' />
+                </div>
+            )}
             {showEmpty && (
                 <div className='text-sm text-subtle'>{emptyLabel}</div>
             )}

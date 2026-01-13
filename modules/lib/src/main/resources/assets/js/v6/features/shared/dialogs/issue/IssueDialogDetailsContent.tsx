@@ -1,6 +1,6 @@
 import {Button, Dialog, Tab, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {useEffect, useMemo, useRef, type ComponentPropsWithoutRef, type ReactElement} from 'react';
+import {useEffect, useId, useMemo, useRef, type ComponentPropsWithoutRef, type ReactElement} from 'react';
 
 import {IssueStatus} from '../../../../../app/issue/IssueStatus';
 import {useI18n} from '../../../hooks/useI18n';
@@ -14,8 +14,8 @@ import {
 } from '../../../store/dialogs/issueDialogDetails.store';
 import {IssueStatusBadge} from '../../status/IssueStatusBadge';
 import {IssueCommentsList} from './IssueCommentsList';
-import {IssueIcon} from './IssueIcon';
 import {IssueDialogSelector} from './IssueDialogSelector';
+import {IssueIcon} from './IssueIcon';
 import {useIssueDialogData} from './hooks/useIssueDialogData';
 
 import type {Issue} from '../../../../../app/issue/Issue';
@@ -60,10 +60,10 @@ const resolveStatusOption = (
 };
 
 const resolveIssueData = ({
-                              issueId,
-                              issues,
-                              detailsIssue,
-                          }: {
+    issueId,
+    issues,
+    detailsIssue,
+}: {
     issueId?: string;
     issues: IssueWithAssignees[];
     detailsIssue?: Issue;
@@ -80,14 +80,17 @@ const STATUS_LOOKUP: Record<StatusOption, IssueStatus> = {
 export const IssueDialogDetailsContent = (): ReactElement => {
     const fallbackTitle = useI18n('dialog.issue');
     const backLabel = useI18n('dialog.issue.back');
-    const commentLabel = useI18n('action.commentIssue');
+    const commentActionLabel = useI18n('action.commentIssue');
+    const commentLabel = useI18n('field.comment.label');
     const openStatusLabel = useI18n('field.issue.status.open');
     const closedStatusLabel = useI18n('field.issue.status.closed');
     const commentsLabel = useI18n('field.comments');
+    const commentAriaLabel = useI18n('field.comment.aria.label');
     const itemsLabel = useI18n('field.items');
     const assigneesLabel = useI18n('field.assignees');
     const noItemsLabel = useI18n('dialog.issue.noItems');
     const inviteUsersLabel = useI18n('dialog.issue.inviteUsers');
+    const commentTextareaId = useId();
 
     const {issueId, issues} = useStore($issueDialog, {
         keys: ['issueId', 'issues'],
@@ -187,12 +190,12 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         >
             <Dialog.Header className='grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 px-5'>
                 <div className='flex min-w-0 items-center gap-2.5'>
-                    <IssueIcon issue={issueData}/>
+                    <IssueIcon issue={issueData} />
                     <Dialog.Title className='min-w-0 truncate text-2xl font-semibold'>{title}</Dialog.Title>
                 </div>
-                <Dialog.DefaultClose className='self-start justify-self-end'/>
+                <Dialog.DefaultClose className='self-start justify-self-end' />
             </Dialog.Header>
-            <Dialog.Body className='min-h-0'>
+            <Dialog.Body className='min-h-0 overflow-y-visible'>
                 <Tab.Root value={detailsTab} onValueChange={handleTabChange}>
                     <div className='grid min-h-0 grid-cols-4 gap-x-3.5 gap-y-7.5 items-end px-2.5'>
                         <div className='flex flex-col gap-2.5 px-2.5 pt-1.5'>
@@ -204,9 +207,9 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                 onValueChange={handleStatusChange}
                                 renderValue={(value) => {
                                     const option = resolveStatusOption(statusOptions, value);
-                                    return option ? <IssueStatusBadge status={option.status}/> : openStatusLabel;
+                                    return option ? <IssueStatusBadge status={option.status} /> : openStatusLabel;
                                 }}
-                                renderItemText={(option) => <IssueStatusBadge status={option.status}/>}
+                                renderItemText={(option) => <IssueStatusBadge status={option.status} />}
                             />
                         </div>
                         <Tab.List className='col-span-3 px-2.5 justify-end'>
@@ -223,16 +226,22 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                     loading={commentsLoading}
                                     aria-label={commentsLabel}
                                 />
-                                <div className='min-w-0'>
+                                <div className='flex flex-col gap-2'>
+                                    // TODO: Enonic UI - Replace with TextArea component
+                                    <label className='font-semibold' htmlFor={commentTextareaId}>{commentLabel}</label>
                                     <textarea
                                         ref={commentTextareaRef}
+                                        id={commentTextareaId}
+                                        name='comment'
                                         value={commentText}
                                         onInput={handleCommentInput}
                                         onKeyDown={handleCommentKeyDown}
                                         rows={3}
                                         disabled={commentSubmitting}
+                                        aria-label={commentAriaLabel}
+                                        placeholder={commentAriaLabel}
                                         className={cn(
-                                            'w-full resize-none rounded-sm border border-bdr-soft bg-surface px-3 py-2 text-sm',
+                                            'w-full resize-none rounded-sm border border-bdr-soft bg-surface px-4.5 py-3',
                                             'transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring',
                                             'focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
                                             commentSubmitting && 'opacity-70',
@@ -253,11 +262,11 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                 </Tab.Root>
             </Dialog.Body>
             <Dialog.Footer className='px-5 justify-between'>
-                <Button variant='outline' size='lg' label={backLabel} onClick={handleBack}/>
+                <Button variant='outline' size='lg' label={backLabel} onClick={handleBack} />
                 <Button
                     variant='solid'
                     size='lg'
-                    label={commentLabel}
+                    label={commentActionLabel}
                     onClick={handleCommentSubmit}
                     disabled={!canSubmitComment}
                 />

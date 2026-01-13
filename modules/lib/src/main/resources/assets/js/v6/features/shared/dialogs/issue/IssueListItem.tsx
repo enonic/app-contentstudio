@@ -26,7 +26,7 @@ export const IssueListItem = ({issue, onSelect}: IssueListItemProps): ReactEleme
         onSelect?.(issue);
     };
 
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
             handleSelect();
@@ -41,13 +41,13 @@ export const IssueListItem = ({issue, onSelect}: IssueListItemProps): ReactEleme
             onKeyDown={handleKeyDown}
             data-component={ISSUE_LIST_ITEM_NAME}
             className={cn(
-                'cursor-pointer rounded-sm px-1 mx-1.5 py-1 my-1.5 transition-highlight',
+                'cursor-pointer rounded-sm',
                 'hover:bg-surface-neutral-hover focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring',
                 'focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
             )}
         >
             <ListItem.Left className='text-subtle group-data-[tone=inverse]:text-alt'>
-                <IssueIcon issue={issueData}/>
+                <IssueIcon issue={issueData} />
             </ListItem.Left>
             <ListItem.Content className='min-w-0'>
                 <div className='min-w-0'>
@@ -58,7 +58,7 @@ export const IssueListItem = ({issue, onSelect}: IssueListItemProps): ReactEleme
                 </div>
             </ListItem.Content>
             <ListItem.Right>
-                <IssueStatusBadge status={issueData.getIssueStatus()}/>
+                <IssueStatusBadge className='px-4.5' status={issueData.getIssueStatus()} />
             </ListItem.Right>
         </ListItem>
     );

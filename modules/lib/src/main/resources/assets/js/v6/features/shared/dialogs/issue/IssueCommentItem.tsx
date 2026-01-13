@@ -29,26 +29,28 @@ export const IssueCommentItem = ({
     return (
         <div
             data-component={ISSUE_COMMENT_ITEM_NAME}
-            className='grid grid-cols-[auto_minmax(0,1fr)_auto] gap-x-3 items-center'>
-            <Avatar size='md' className='row-span-2'>
-                <Avatar.Fallback className='bg-avatar-red text-alt font-semibold'>{initials}</Avatar.Fallback>
+            className='grid grid-cols-[auto_minmax(0,1fr)_auto] gap-x-3 items-center py-2.5'>
+            <Avatar size='md' className='row-span-2 self-start mt-2.25'>
+                <Avatar.Fallback>{initials}</Avatar.Fallback>
             </Avatar>
-            <div className='min-w-0'>
+            <div className='flex flex-col gap-1.5 min-w-0 leading-5.5'>
                 {showMeta && (
                     <div className='flex min-w-0 flex-wrap items-baseline gap-2'>
                         <span className='truncate text-md font-semibold'>{name}</span>
                         {timeLabel && <span className='text-xs text-subtle'>{timeLabel}</span>}
                     </div>
                 )}
-                {label && <div className='text-md font-semibold text-subtle'>{label}</div>}
+                {label && <div className='text-md font-semibold'>{label}</div>}
                 <div className={cn('whitespace-pre-wrap text-md', textClassName)}>{text}</div>
             </div>
             <IconButton
                 icon={MoreVertical}
                 variant='text'
                 size='sm'
+                iconSize={20}
+                iconStrokeWidth={2}
                 aria-label={moreLabel}
-                className='row-span-2 justify-self-end self-start m-1.5'
+                className='row-span-2 justify-self-end self-start'
             />
         </div>
     );
