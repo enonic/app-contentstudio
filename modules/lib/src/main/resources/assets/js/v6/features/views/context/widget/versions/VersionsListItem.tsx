@@ -26,10 +26,10 @@ const COMPONENT_NAME = 'VersionsListItem';
 // Types
 // ============================================================================
 
-interface VersionsListItemProps extends ComponentPropsWithoutRef<'div'> {
+type VersionsListItemProps = {
     version: ContentVersion;
     isFocused?: boolean;
-}
+} & ComponentPropsWithoutRef<'div'>;
 
 // ============================================================================
 // Utility Hooks
@@ -68,9 +68,9 @@ const useVersionItemState = (version: ContentVersion, isFocused: boolean) => {
 // Subcomponents
 // ============================================================================
 
-interface VersionItemHeaderProps {
+type VersionItemHeaderProps = {
     version: ContentVersion;
-}
+};
 
 const VersionItemHeader = ({version}: VersionItemHeaderProps): ReactElement => {
     const modifierDisplayName = version.getModifierDisplayName() || version.getPublishInfo()?.getPublisherDisplayName();
@@ -92,9 +92,9 @@ const VersionItemHeader = ({version}: VersionItemHeaderProps): ReactElement => {
     );
 };
 
-interface VersionItemPublishStatusProps {
+type VersionItemPublishStatusProps = {
     version: ContentVersion;
-}
+};
 
 const VersionItemPublishStatus = ({version}: VersionItemPublishStatusProps): ReactElement | null => {
     const publishStatus = getVersionPublishStatus(version);
@@ -134,14 +134,14 @@ const VersionItemPublishStatus = ({version}: VersionItemPublishStatusProps): Rea
     }
 };
 
-interface VersionItemActionsProps {
+type VersionItemActionsProps = {
     versionId: string;
     isActive: boolean;
     isSelected: boolean;
     visualFocus: VisualTarget | null;
     preventFocusChange: (e: React.MouseEvent<HTMLElement>) => void;
     onCheckboxClick: (e: React.MouseEvent<HTMLLabelElement>) => void;
-}
+};
 
 const VersionItemActions = ({
     versionId,

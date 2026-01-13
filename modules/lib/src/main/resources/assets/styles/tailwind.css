@@ -15,8 +15,10 @@
 @source "../../../../../node_modules/@enonic/lib-admin-ui/ui2/";
 
 @theme {
+  /* Temporary alias until @enonic/ui exposes grey-500 */
+  --color-surface-muted: #b2b2b2;
+
   /* SIZINGS */
-  --sizing-1\.25: calc(var(--spacing) * 1.25);
   --sizing-19: calc(var(--spacing) * 19);
 }
 
