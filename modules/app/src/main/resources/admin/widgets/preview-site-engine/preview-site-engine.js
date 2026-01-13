@@ -4,9 +4,9 @@ const widgetLib = require('/lib/export/widget');
 const adminLib = require('/lib/xp/admin');
 const appLib = require('/lib/xp/app');
 const schemaLib = require('/lib/xp/schema');
+const contextLib = require('/lib/xp/context');
 
 const SHORTCUT_TYPE = 'base:shortcut';
-const TEMPLATE_TYPE = 'portal:page-template';
 
 exports.get = function (req) {
     let params;
@@ -91,11 +91,18 @@ function collectResponseData(req, params, url) {
 }
 
 function hasAvailableControllers(params, appKeys) {
+    const adminContext = {
+        principals: ["role:system.admin"],
+        repository: params.repository,
+        branch: params.branch
+    };
     return widgetLib.switchContext(params.repository, params.branch, params.archive, function () {
         return appKeys.some((key) => {
-            const appControllers = schemaLib.listComponents({
-                type: 'PAGE',
-                application: key
+            const appControllers = contextLib.run(adminContext, function () {
+                return schemaLib.listComponents({
+                    type: 'PAGE',
+                    application: key
+                });
             });
             //TODO: check app allowed content types
 
