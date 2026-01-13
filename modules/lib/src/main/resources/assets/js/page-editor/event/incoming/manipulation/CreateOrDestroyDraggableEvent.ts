@@ -4,14 +4,14 @@ import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 export class CreateOrDestroyDraggableEvent
     extends IframeEvent {
 
-    private readonly hash: string | number;
+    private readonly type: string;
 
     private readonly create: boolean;
 
-    constructor(hash: string | number, create: boolean) {
+    constructor(type: string, create: boolean) {
         super();
 
-        this.hash = hash;
+        this.type = type;
         this.create = create;
     }
 
@@ -19,8 +19,8 @@ export class CreateOrDestroyDraggableEvent
         return this.create;
     }
 
-    getHash(): string | number {
-        return this.hash;
+    getType(): string {
+        return this.type;
     }
 
     static on(handler: (event: CreateOrDestroyDraggableEvent) => void, contextWindow: Window = window) {

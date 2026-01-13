@@ -112,10 +112,6 @@ export class InitializeLiveEditEvent
         return this.jsessionId;
     }
 
-    toMessage(): string {
-        return 'Dummy message by InitializeLiveEditEvent';
-    }
-
     static on(handler: (event: InitializeLiveEditEvent) => void, contextWindow: Window = window) {
         IframeEvent.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }

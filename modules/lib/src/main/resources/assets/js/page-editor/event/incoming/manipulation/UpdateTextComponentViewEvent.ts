@@ -3,8 +3,6 @@ import {ComponentPath} from '../../../../app/page/region/ComponentPath';
 import {ComponentTextUpdatedOrigin} from '../../../../app/page/region/ComponentTextUpdatedOrigin';
 import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
-
-// TODO: will probably fail, because receiver expects UpdateTextComponentViewEvent, but will get an Object
 export class UpdateTextComponentViewEvent
     extends IframeEvent {
 

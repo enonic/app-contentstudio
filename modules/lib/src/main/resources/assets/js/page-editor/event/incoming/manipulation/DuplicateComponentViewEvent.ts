@@ -2,7 +2,6 @@ import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ComponentPath} from '../../../../app/page/region/ComponentPath';
 import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
-// TODO: will probably fail, because receiver expects DuplicateComponentViewEvent, but will get an Object
 export class DuplicateComponentViewEvent
     extends IframeEvent {
 

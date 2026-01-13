@@ -56,7 +56,6 @@ import {SetComponentDescriptorEvent} from '../../../page-editor/event/outgoing/m
 import {UpdateTextComponentEvent} from '../../../page-editor/event/outgoing/manipulation/UpdateTextComponentEvent';
 import {DuplicateComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/DuplicateComponentViewEvent';
 import {CustomizePageEvent} from '../../../page-editor/event/outgoing/manipulation/CustomizePageEvent';
-import {PageHelper} from '../../util/PageHelper';
 import {MoveComponentEvent} from '../../../page-editor/event/outgoing/manipulation/MoveComponentEvent';
 import {MoveComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/MoveComponentViewEvent';
 import {DetachFragmentEvent} from '../../../page-editor/event/outgoing/manipulation/DetachFragmentEvent';
@@ -64,7 +63,6 @@ import {ComponentDuplicatedEvent} from '../../page/region/ComponentDuplicatedEve
 import {ComponentMovedEvent} from '../../page/region/ComponentMovedEvent';
 import {ComponentRemovedOnMoveEvent} from '../../page/region/ComponentRemovedOnMoveEvent';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
-import {FragmentComponent} from '../../page/region/FragmentComponent';
 import {SetPageLockStateEvent} from '../../../page-editor/event/incoming/manipulation/SetPageLockStateEvent';
 import {SetModifyAllowedEvent} from '../../../page-editor/event/incoming/manipulation/SetModifyAllowedEvent';
 import {CreateOrDestroyDraggableEvent} from '../../../page-editor/event/incoming/manipulation/CreateOrDestroyDraggableEvent';
@@ -75,7 +73,6 @@ import {ResetComponentViewEvent} from '../../../page-editor/event/incoming/manip
 import {TextEditModeChangedEvent} from '../../../page-editor/event/outgoing/navigation/TextEditModeChangedEvent';
 import {EditContentFromComponentViewEvent} from '../../../page-editor/event/outgoing/manipulation/EditContentFromComponentViewEvent';
 import {ContentUrlHelper} from '../../util/ContentUrlHelper';
-import {TextComponent} from '../../page/region/TextComponent';
 import {ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
 import {PageStateEvent} from '../../../page-editor/event/incoming/common/PageStateEvent';
 import {ProjectContext} from '../../project/ProjectContext';
@@ -92,6 +89,7 @@ import {CookieHelper} from '@enonic/lib-admin-ui/util/CookieHelper';
 import {PartComponentType} from '../../page/region/PartComponentType';
 import {LayoutComponentType} from '../../page/region/LayoutComponentType';
 import {TextComponentType} from '../../page/region/TextComponentType';
+import {LoadComponentFailedEvent} from '../../../page-editor/event/outgoing/manipulation/LoadComponentFailedEvent';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy
@@ -138,10 +136,9 @@ export class LiveEditPageProxy
     private createLiveEditIFrame(): IFrameEl {
         let liveEditIFrame = new IFrameEl('live-edit-frame');
 
-        // Initialize the live edit iframe event bus with the ability to post message to child iframe
-
-        // TODO: need to register events thrown from iframe here, because these IframeEventBuses can't communicate
+        // Register events coming from iframe here to be able to revive them in CS
         IframeEventBus.get().registerClass('IframeEvent', IframeEvent);
+        IframeEventBus.get().registerClass('LiveEditPageViewReadyEvent', LiveEditPageViewReadyEvent);
         IframeEventBus.get().registerClass('SelectComponentEvent', SelectComponentEvent);
         IframeEventBus.get().registerClass('AddComponentEvent', AddComponentEvent);
         IframeEventBus.get().registerClass('RemoveComponentRequest', RemoveComponentRequest);
@@ -150,6 +147,15 @@ export class LiveEditPageProxy
         IframeEventBus.get().registerClass('LayoutComponentType', LayoutComponentType);
         IframeEventBus.get().registerClass('TextComponentType', TextComponentType);
         IframeEventBus.get().registerClass('ComponentPath', ComponentPath);
+        IframeEventBus.get().registerClass('ComponentViewDragStartedEvent', ComponentViewDragStartedEvent);
+        IframeEventBus.get().registerClass('ComponentViewDragStoppedEvent', ComponentViewDragStoppedEvent);
+        IframeEventBus.get().registerClass('ComponentViewDragDroppedEvent', ComponentViewDragDroppedEvent);
+        IframeEventBus.get().registerClass('SetComponentDescriptorEvent', SetComponentDescriptorEvent);
+        IframeEventBus.get().registerClass('LoadComponentFailedEvent', LoadComponentFailedEvent);
+        IframeEventBus.get().registerClass('TypeError', TypeError);
+        IframeEventBus.get().registerClass('DeselectComponentEvent', DeselectComponentEvent);
+        IframeEventBus.get().registerClass('MoveComponentEvent', MoveComponentEvent);
+        IframeEventBus.get().registerClass('TextEditModeChangedEvent', TextEditModeChangedEvent);
 
 
         IframeEventBus.get().onEvent('editor-iframe-loaded', (data) => {
@@ -187,15 +193,15 @@ export class LiveEditPageProxy
             return this.livejq;
         }*/
 
-    public createDraggable(hash: string | number) {
+    public createDraggable(data: { type: string }) {
         if (this.isFrameLoaded) {
-            new CreateOrDestroyDraggableEvent(hash, true).fire();
+            new CreateOrDestroyDraggableEvent(data.type, true).fire();
         }
     }
 
-    public destroyDraggable(hash: string | number) {
+    public destroyDraggable(data: { type: string }) {
         if (this.isFrameLoaded) {
-            new CreateOrDestroyDraggableEvent(hash, false).fire();
+            new CreateOrDestroyDraggableEvent(data.type, false).fire();
         }
     }
 
@@ -264,7 +270,10 @@ export class LiveEditPageProxy
 
     public propagateEvent(event: Event) {
         if (this.isFrameLoaded) {
-            event.fire();
+            //TODO: Why push to iframe? It's only ContentUpdatedEvent and ContentDeletedEvent
+            // if (this.liveEditWindow) {
+            //     event.fire(this.liveEditWindow);
+            // }
         }
     }
 
@@ -276,7 +285,7 @@ export class LiveEditPageProxy
         const liveEditWindow = (this.liveEditIFrame.getHTMLElement() as HTMLIFrameElement).contentWindow;
 
         // now that iframe is loaded, initialize its event bus to be able to post there
-        IframeEventBus.get().setReceiver(liveEditWindow);
+        IframeEventBus.get().setReceiver(liveEditWindow).setId('studio-bus');
 
         // let liveEditWindow: Window = this.liveEditIFrame.getHTMLElement()['contentWindow'];
 
@@ -347,64 +356,8 @@ export class LiveEditPageProxy
     }
 
     private createLiveEditParams(): LiveEditParams {
-        const isPageTemplate = this.liveEditModel.getContent().isPageTemplate();
-        const isFragment = this.liveEditModel.getContent().getType().isFragment();
-        const displayName = this.liveEditModel.getContent().getDisplayName();
-        const locked = !isPageTemplate && !PageState.getState()?.hasController() && !isFragment;
-        const isFragmentAllowed = this.liveEditModel.isFragmentAllowed();
-        const isResetEnabled = PageState.getState()?.hasController();
-        const pageName = displayName;
-        const pageIconClass = PageHelper.getPageIconClass(PageState.getState());
-        const isPageEmpty = isPageTemplate && !PageState.getState()?.hasController();
-        const applicationKeys = this.resolveApplicationKeys();
-        const contentId = this.liveEditModel.getContent().getId();
-        const language = this.liveEditModel.getContent()?.getLanguage();
-        const contentType = this.liveEditModel.getContent().getType()?.toString();
-        const sitePath: string = this.liveEditModel.getSiteModel()?.getSite().getPath().toString();
-        const modifyPermissions: boolean = this.modifyPermissions;
-        // two things that should work from live frame is to ask for fragment id by path to keep live frame clean
-        const getFragmentIdByPath = (path: string): string | undefined => {
-            const componentPath = ComponentPath.fromString(path);
-            const component = PageState.getComponentByPath(componentPath);
 
-            if (component instanceof FragmentComponent) {
-                return component.getFragment()?.toString();
-            }
-
-            return undefined;
-        };
-
-        // and to get text component data by path
-        const getTextComponentData = (path: string): string | undefined => {
-            const componentPath = ComponentPath.fromString(path);
-            const component = PageState.getComponentByPath(componentPath);
-
-            if (component instanceof TextComponent) {
-                return component.getText();
-            }
-
-            return undefined;
-        };
-
-        return {
-            isFragment,
-            isPageTemplate,
-            displayName,
-            locked,
-            isFragmentAllowed,
-            isResetEnabled,
-            pageName,
-            pageIconClass,
-            isPageEmpty,
-            applicationKeys,
-            contentId,
-            language,
-            contentType,
-            sitePath,
-            modifyPermissions,
-            getFragmentIdByPath,
-            getTextComponentData,
-        };
+        return LiveEditParams.fromLiveEditModel(this.liveEditModel, this.resolveApplicationKeys(), this.modifyPermissions);
     }
 
     private resolveApplicationKeys(): string[] {
@@ -620,12 +573,10 @@ export class LiveEditPageProxy
             PageEventsManager.get().notifyComponentRemoveRequested(path);
         });
 
-        // TODO: Uses EventBus! Refactor to use IframeEvent like other events
-        /*        LoadComponentFailedEvent.on((event: LoadComponentFailedEvent) => {
-                    const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
-
-                    PageEventsManager.get().notifyComponentLoadFailed(path, event.getError());
-                });*/
+        LoadComponentFailedEvent.on((event: LoadComponentFailedEvent) => {
+            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
+            PageEventsManager.get().notifyComponentLoadFailed(path, event.getError());
+        });
 
         DuplicateComponentEvent.on((event: DuplicateComponentEvent) => {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
