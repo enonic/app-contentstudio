@@ -3,7 +3,6 @@ import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ComponentView} from './ComponentView';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 
-// TODO: will probably fail, because receiver expects ComponentLoadedEvent, but will get an Object
 export class ComponentLoadedEvent
     extends IframeEvent {
 

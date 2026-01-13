@@ -2,7 +2,6 @@ import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ComponentPath} from '../../../../app/page/region/ComponentPath';
 import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
-// TODO: will probably fail, because receiver expects LoadComponentViewEvent, but will get an Object
 export class LoadComponentViewEvent
     extends IframeEvent {
 
@@ -12,7 +11,7 @@ export class LoadComponentViewEvent
 
     private readonly existing: boolean;
 
-    constructor(path: ComponentPath, uri: string, existing: boolean = false) {
+    constructor(path?: ComponentPath, uri?: string, existing: boolean = false) {
         super();
         this.path = path;
         this.uri = uri;

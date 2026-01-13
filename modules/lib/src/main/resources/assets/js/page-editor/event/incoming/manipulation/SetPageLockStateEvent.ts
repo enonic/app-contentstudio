@@ -1,7 +1,6 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
-// TODO: will probably fail, because receiver expects SetPageLockStateEvent, but will get an Object
 export class SetPageLockStateEvent
     extends IframeEvent {
 

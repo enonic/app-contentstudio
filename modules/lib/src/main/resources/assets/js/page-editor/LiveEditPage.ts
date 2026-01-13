@@ -358,6 +358,7 @@ export class LiveEditPage {
 
             if (view instanceof ComponentView) {
                 this.loadComponent(view, event.getURI(), event.isExisting()).catch((reason) => {
+                    console.warn(`LiveEditPage: loadComponent at [${path}] failed:`, reason);
                     new LoadComponentFailedEvent(path, reason).fire();
                 });
             }
@@ -429,7 +430,10 @@ export class LiveEditPage {
         SetModifyAllowedEvent.on(this.setModifyAllowedListener);
 
         this.createOrDestroyDraggableListener = (event: CreateOrDestroyDraggableEvent): void => {
-            const item = jQuery(`[data-draggable-hash="${event.getHash()}"]`);
+
+            console.debug(`CreateOrDestroyDraggableListener:`, event);
+
+            const item = jQuery(`<div ${'data-' + ItemType.ATTRIBUTE_TYPE}="${event.getType()}"></div>`).appendTo(jQuery('body'));
             if (event.isCreate()) {
                 this.pageView?.createDraggable(item);
                 // show the helper of the iframe draggable

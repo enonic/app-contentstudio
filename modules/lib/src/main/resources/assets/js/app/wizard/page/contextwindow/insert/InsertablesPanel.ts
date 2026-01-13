@@ -41,6 +41,8 @@ export class InsertablesPanel
 
     public static debug: boolean = false;
 
+    private iFrameDraggableData: { type: string };
+
     constructor(config: ComponentTypesPanelConfig) {
         super('insertables-panel');
         this.liveEditPageProxy = config.liveEditPage;
@@ -152,10 +154,11 @@ export class InsertablesPanel
         this.contextWindowDraggable = null;
 
         if (this.iFrameDraggable) {
-            this.liveEditPageProxy.destroyDraggable(this.iFrameDraggable.getAttribute("data-draggable-hash"));
+            this.liveEditPageProxy.destroyDraggable(this.iFrameDraggableData);
             // this.iFrameDraggable.simulate('mouseup');
 
             this.iFrameDraggable = null;
+            this.iFrameDraggableData = null;
         }
     }
 
@@ -182,31 +185,23 @@ export class InsertablesPanel
 
     private onEnterIFrame(event: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) {
         if (InsertablesPanel.debug) {
-            console.log('InsertablesPanel.onEnterIFrame');
+            console.log('InsertablesPanel.onEnterIFrame', event, ui);
         }
         this.liveEditPageProxy.getDragMask().hide();
         // let livejq = this.liveEditPageProxy.getJQuery();
 
-        let iFrame = this.liveEditPageProxy.getIFrame().getHTMLElement() as HTMLIFrameElement;
-        let hasBody = iFrame && iFrame.contentDocument && iFrame.contentDocument.body;
-        if (!hasBody) {
-            if (InsertablesPanel.debug) {
-                console.warn('InsertablesPanel.onEnterIFrame, skip due to missing body in document');
-            }
-            return;
-        }
-
         if (!this.iFrameDraggable) {
             this.iFrameDraggable = event.target.cloneNode(true) as HTMLElement;
-            const hash = new Date().getTime();
-            this.iFrameDraggable.setAttribute('data-draggable-hash', hash.toString());
+            this.iFrameDraggableData = {
+                type: event.target.getAttribute('data-portal-component-type')
+            }
 
             //TODO: is this allowed for cross-domain iframes?
             // remove livejq reference!
             // pass necessary data in event instead
 
             // livejq('body').append(this.iFrameDraggable);
-            this.liveEditPageProxy.createDraggable(hash);
+            this.liveEditPageProxy.createDraggable(this.iFrameDraggableData);
             // this.iFrameDraggable.simulate('mousedown').hide();
         }
 

@@ -13,8 +13,12 @@ export abstract class DescriptorBasedComponentView
 
     protected emptyDescriptorBlock?: DivEl;
 
+    protected inspectActionRequired: boolean;
+
     protected constructor(builder: ComponentViewBuilder) {
         super(builder);
+
+        this.inspectActionRequired = builder.inspectActionRequired;
 
         this.placeholder.setComponentView(this);
     }
@@ -47,6 +51,10 @@ export abstract class DescriptorBasedComponentView
 
     hasDescriptor(): boolean {
         return this.hasClass(DescriptorBasedComponentView.HAS_DESCRIPTOR_CLASS);
+    }
+
+    isEmpty(): boolean {
+        return !this.hasDescriptor();
     }
 
     protected showEmptyDescriptorBlock(component: DescriptorBasedComponent): void {
