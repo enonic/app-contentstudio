@@ -53,6 +53,7 @@ module.exports = {
         return {
             contentType: appConst.contentTypes.FOLDER,
             displayName: displayName,
+            name:displayName,
 
             settings: {
                 owner: owner,
