@@ -90,6 +90,7 @@ import {PartComponentType} from '../../page/region/PartComponentType';
 import {LayoutComponentType} from '../../page/region/LayoutComponentType';
 import {TextComponentType} from '../../page/region/TextComponentType';
 import {LoadComponentFailedEvent} from '../../../page-editor/event/outgoing/manipulation/LoadComponentFailedEvent';
+import {FragmentComponentType} from '../../page/region/FragmentComponentType';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy
@@ -146,6 +147,7 @@ export class LiveEditPageProxy
         IframeEventBus.get().registerClass('PartComponentType', PartComponentType);
         IframeEventBus.get().registerClass('LayoutComponentType', LayoutComponentType);
         IframeEventBus.get().registerClass('TextComponentType', TextComponentType);
+        IframeEventBus.get().registerClass('FragmentComponentType', FragmentComponentType);
         IframeEventBus.get().registerClass('ComponentPath', ComponentPath);
         IframeEventBus.get().registerClass('ComponentViewDragStartedEvent', ComponentViewDragStartedEvent);
         IframeEventBus.get().registerClass('ComponentViewDragStoppedEvent', ComponentViewDragStoppedEvent);

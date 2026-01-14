@@ -28,11 +28,13 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.io.ByteSource;
 
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.OPTIONS;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -1239,8 +1241,21 @@ public final class ContentResource
         return this.countContentsAndTheirChildren( ContentPaths.from( filteredPaths ) );
     }
 
+    @OPTIONS
+    @Path("{path : .*}")
+    @EnableCORS // <--- Ensures the CORS filter runs for this too!
+    @PermitAll
+    public Response options()
+    {
+        // We return 200 OK.
+        // The CORSFilter will intercept this response and add the headers.
+        return Response.ok().build();
+    }
+
     @POST
     @Path("query")
+    @EnableCORS
+    @RolesAllowed({"system.everyone"})
     @Consumes(MediaType.APPLICATION_JSON)
     public AbstractContentQueryResultJson query( final ContentQueryJson contentQueryJson, @Context HttpServletRequest request )
     {
