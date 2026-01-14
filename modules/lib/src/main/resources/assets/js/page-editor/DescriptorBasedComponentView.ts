@@ -53,10 +53,6 @@ export abstract class DescriptorBasedComponentView
         return this.hasClass(DescriptorBasedComponentView.HAS_DESCRIPTOR_CLASS);
     }
 
-    isEmpty(): boolean {
-        return !this.hasDescriptor();
-    }
-
     protected showEmptyDescriptorBlock(component: DescriptorBasedComponent): void {
         if (!this.emptyDescriptorBlock) {
             this.emptyDescriptorBlock = new DivEl('empty-descriptor-block');

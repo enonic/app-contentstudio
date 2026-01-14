@@ -156,6 +156,7 @@ export class LiveEditPageProxy
         IframeEventBus.get().registerClass('LoadComponentFailedEvent', LoadComponentFailedEvent);
         IframeEventBus.get().registerClass('TypeError', TypeError);
         IframeEventBus.get().registerClass('DeselectComponentEvent', DeselectComponentEvent);
+        IframeEventBus.get().registerClass('ResetComponentEvent', ResetComponentEvent);
         IframeEventBus.get().registerClass('MoveComponentEvent', MoveComponentEvent);
         IframeEventBus.get().registerClass('TextEditModeChangedEvent', TextEditModeChangedEvent);
 
@@ -274,7 +275,7 @@ export class LiveEditPageProxy
         if (this.isFrameLoaded) {
             //TODO: Why push to iframe?
             // It's only ContentUpdatedEvent and ContentDeletedEvent
-            
+
             // if (this.liveEditWindow) {
             //     event.fire(this.liveEditWindow);
             // }
