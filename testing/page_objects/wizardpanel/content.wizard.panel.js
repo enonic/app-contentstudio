@@ -697,7 +697,7 @@ class ContentWizardPanel extends Page {
             // 5. Short pause for UI stabilization
             await this.pause(300);
         } catch (err) {
-            await this.handleError('Content Wizard, error while filling in content data', 'err_type_content_data', err);
+            await this.handleError('Content Wizard, Failed to fill content data.', 'err_type_content_data', err);
         }
     }
 

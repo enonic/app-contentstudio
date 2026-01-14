@@ -3,7 +3,7 @@
  */
 const BaseStepPermissionsDialog = require('./base.step.edit.permissions.dialog');
 const appConst = require('../../libs/app_const');
-const lib = require('../../libs/elements');
+const {BUTTONS} = require('../../libs/elements');
 
 const xpath = {
     stepDescriptionP: "//p[contains(@class,'sub-name') and contains(.,'Summary')]",
@@ -43,7 +43,7 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
     }
 
     get applyChangesButton() {
-        return this.container + xpath.dialogButtonRow + lib.dialogButton('Apply Changes');
+        return this.container + xpath.dialogButtonRow + BUTTONS.buttonAriaLabel('Apply Changes');
     }
 
     get replaceAllPermissionsButton() {

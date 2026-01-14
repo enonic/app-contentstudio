@@ -4,6 +4,7 @@
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const lib = require('../../libs/elements-old');
+const {BUTTONS} = require('../../libs/elements');
 const LocaleSelectorDropdown = require('../components/selectors/locale.selector.dropdown');
 const PrincipalComboBox = require('../components/selectors/principal.combobox.dropdown')
 
@@ -27,11 +28,11 @@ class EditSettingDialog extends Page {
     }
 
     get cancelButton() {
-        return xpath.container + lib.dialogButton('Cancel');
+        return xpath.container + BUTTONS.buttonAriaLabel('Cancel');
     }
 
     get applyButton() {
-        return xpath.container + lib.dialogButton('Apply');
+        return xpath.container + BUTTONS.buttonAriaLabel('Apply');
     }
 
     get languageFilterInput() {
@@ -82,7 +83,7 @@ class EditSettingDialog extends Page {
         await this.waitForApplyButtonEnabled();
         await this.clickOnElement(this.applyButton);
         await this.waitForClosed();
-        return await this.pause(800);
+        return await this.pause(200);
     }
 
     async filterOptionsAndSelectLanguage(language) {

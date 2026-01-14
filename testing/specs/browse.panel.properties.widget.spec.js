@@ -16,7 +16,8 @@ const ContentBrowseContextWindow = require('../page_objects/browsepanel/detailsp
 const ContentWidgetView = require('../page_objects/browsepanel/detailspanel/content.widget.item.view');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.window.panel');
-const PropertiesWidgetItem = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
+const DetailsWidgetInfoSection = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
+const EditSettingDialog = require('../page_objects/details_panel/edit.settings.dialog');
 
 describe('Browse panel, properties widget, language spec', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -26,6 +27,26 @@ describe('Browse panel, properties widget, language spec', function () {
     let TEST_FOLDER;
     const TEST_WIDGET_TITLE = 'My first widget';
 
+    it(`WHEN existing image has been selected THEN expected properties should be displayed in the Widget Info Section`,
+        async () => {
+            let detailsWidgetInfoSection = new DetailsWidgetInfoSection();
+            let editSettingsDialog = new EditSettingDialog();
+            // 1. Select an image:
+            await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.WHALE);
+            await studioUtils.saveScreenshot('details_panel_media_content');
+            // 2. Application should be 'media'
+            let application = await detailsWidgetInfoSection.getApplication();
+            assert.equal(application, 'media', 'Incorrect application for image content. Application should be media');
+            let type = await detailsWidgetInfoSection.getType();
+            assert.equal(type, 'image', 'Incorrect type for image content. Type should be "image"');
+            await detailsWidgetInfoSection.getCreatedDate();
+            // await detailsWidgetInfoSection.clickOnEditSettingsButton();
+            // await editSettingsDialog.waitForLoaded();
+            // await editSettingsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
+            // await editSettingsDialog.clickOnApplyButton();
+            // await editSettingsDialog.waitForClosed();
+
+        });
     it(`GIVEN existing folder(English (en)) WHEN the folder has been selected THEN expected language should be displayed in Properties Widget`,
         async () => {
             let displayName = contentBuilder.generateRandomName('folder');
@@ -148,7 +169,8 @@ describe('Browse panel, properties widget, language spec', function () {
             await studioUtils.waitForElementDisplayed(`//widget[text()='${TEST_WIDGET_TITLE}']`);
         });
 
-    it.skip(`GIVEN existing folder with language is opened WHEN the language has been removed in 'Edit Settings Dialog' THEN language should not be displayed in the widget`,
+    it.skip(
+        `GIVEN existing folder with language is opened WHEN the language has been removed in 'Edit Settings Dialog' THEN language should not be displayed in the widget`,
         async () => {
             let propertiesWidget = new PropertiesWidget();
             let contentWizard = new ContentWizard();
