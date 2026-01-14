@@ -6,6 +6,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.OPTIONS;
@@ -25,13 +26,14 @@ import com.enonic.app.contentstudio.rest.resource.EnableCORS;
 import com.enonic.app.contentstudio.rest.resource.content.JsonObjectsFactory;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.jaxrs.JaxRsComponent;
+import com.enonic.xp.security.RoleKeys;
 
 import static com.enonic.app.contentstudio.rest.resource.ResourceConstants.CONTENT_CMS_PATH;
 import static com.enonic.app.contentstudio.rest.resource.ResourceConstants.REST_ROOT;
 
 @Path(REST_ROOT + "{content:(" + CONTENT_CMS_PATH + ")}/schema/filter")
 @Produces(MediaType.APPLICATION_JSON)
-//@RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
+@RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
 @Component(immediate = true, property = "group=v2cs")
 public class FilterByContentResource
     implements JaxRsComponent
@@ -42,7 +44,6 @@ public class FilterByContentResource
 
     @POST
     @Path("contentTypes")
-    @EnableCORS
     public ContentTypeSummaryListJson contentTypes( GetContentTypesJson json, @Context HttpServletRequest request )
     {
         return new ContentTypeSummaryListJson( filterByContentResolver.contentTypes( json.getContentId(), json.getAllowedContentTypes() )
@@ -53,6 +54,7 @@ public class FilterByContentResource
     @GET
     @Path("layouts")
     @EnableCORS
+    @RolesAllowed({"system.everyone"})
     public LayoutDescriptorsJson layouts( @QueryParam("contentId") final String contentId, @Context HttpServletRequest request )
     {
         return new LayoutDescriptorsJson( filterByContentResolver.layouts( ContentId.from( contentId ) )
@@ -63,6 +65,7 @@ public class FilterByContentResource
     @GET
     @Path("parts")
     @EnableCORS
+    @RolesAllowed({"system.everyone"})
     public PartDescriptorsJson parts( @QueryParam("contentId") final String contentId, @Context HttpServletRequest request )
     {
         return new PartDescriptorsJson( filterByContentResolver.parts( ContentId.from( contentId ) )
@@ -72,7 +75,6 @@ public class FilterByContentResource
 
     @GET
     @Path("pages")
-    @EnableCORS
     public PageDescriptorListJson pages( @QueryParam("contentId") final String contentId, @Context HttpServletRequest request )
     {
         return new PageDescriptorListJson( filterByContentResolver.pages( ContentId.from( contentId ) )
