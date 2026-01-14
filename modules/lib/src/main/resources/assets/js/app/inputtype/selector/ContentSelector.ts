@@ -209,6 +209,7 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
             this.initiallySelectedItems = this.getSelectedItemsIds();
                 this.contentSelectorDropdown = this.createSelectorDropdown(input);
             this.appendChild(this.contentSelectorDropdown);
+            this.contentSelectorDropdown.setAriaLabelledBy(this.getContext().labelEl);
             return this.addExtraElementsOnLayout(input, propertyArray).then(() => this.doLayout(propertyArray));
         });
     }

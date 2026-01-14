@@ -1,4 +1,5 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {LiveEditModel} from '../../../page-editor/LiveEditModel';
 import {ComponentViewDragStartedEvent} from '../../../page-editor/ComponentViewDragStartedEvent';
 import {ComponentViewDragStoppedEvent} from '../../../page-editor/ComponentViewDraggingStoppedEvent';
@@ -134,6 +135,7 @@ export class LiveEditPageProxy
 
     private createLiveEditIFrame(): IFrameEl {
         let liveEditIFrame = new IFrameEl('live-edit-frame');
+        liveEditIFrame.setTitle(i18n('action.preview'));
         liveEditIFrame.onLoaded(() => this.handleIFrameLoadedEvent());
 
         return liveEditIFrame;

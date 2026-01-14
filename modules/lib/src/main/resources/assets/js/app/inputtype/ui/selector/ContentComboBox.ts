@@ -91,8 +91,8 @@ export class ContentSelectedOptionView
             return content.getDisplayName() || content.getId();
         }
 
-        const isRoot = content.getPath().equals(ContentPath.getRoot());
-        return (isRoot ? '/ ' : '') + content.getDisplayName().toString();
+        const isRoot = content.getPath()?.equals(ContentPath.getRoot()) ?? false;
+        return (isRoot ? '/ ' : '') + (content.getDisplayName()?.toString() ?? content.getId());
     }
 
     resolveSubTitle(content: ContentTreeSelectorItem): string {

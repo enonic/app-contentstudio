@@ -32,6 +32,7 @@ module.exports = [
             'no-prototype-builtins': ['off'],
             'no-useless-escape': ['off'],
             'no-empty-pattern': ['off'],
+            'no-debugger': ['off'],
             '@typescript-eslint/no-unsafe-member-access': ['off'],
             '@typescript-eslint/no-inferrable-types': ['off'],
             '@typescript-eslint/ban-types': ['off'],

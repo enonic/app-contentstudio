@@ -68,6 +68,7 @@ export class Tag
             });
 
             this.tags = tagsBuilder.build();
+            this.tags.setAriaLabelledBy(this.getContext().labelEl);
             this.appendChild(this.tags);
 
             this.tags.onTagAdded((event: TagAddedEvent) => {
