@@ -64,6 +64,7 @@ import com.enonic.app.contentstudio.json.content.attachment.AttachmentListJson;
 import com.enonic.app.contentstudio.json.task.TaskResultJson;
 import com.enonic.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.app.contentstudio.rest.LimitingInputStream;
+import com.enonic.app.contentstudio.rest.resource.EnableCORS;
 import com.enonic.app.contentstudio.rest.resource.content.json.AbstractContentQueryResultJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.ApplyContentPermissionsJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.ChildOrderJson;
