@@ -1,6 +1,7 @@
 import {Application} from '@enonic/lib-admin-ui/application/Application';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
+import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
 import {FormContext, FormContextBuilder} from '@enonic/lib-admin-ui/form/FormContext';
 import {Input} from '@enonic/lib-admin-ui/form/Input';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
@@ -87,7 +88,7 @@ export class ContentFormContext
     }
 
     createInputTypeViewContext(inputTypeConfig: ContentInputTypeViewContext['inputConfig'], parentPropertyPath: PropertyPath,
-                               input: Input): ContentInputTypeViewContext {
+                               input: Input, labelEl?: LabelEl): ContentInputTypeViewContext {
         const viewContext = {
             formContext: this,
             input: input,
@@ -96,7 +97,8 @@ export class ContentFormContext
             site: this.getSite(),
             content: this.getPersistedContent(),
             project: this.getProject(),
-            applicationKey: this.applicationKey
+            applicationKey: this.applicationKey,
+            labelEl: labelEl
         } satisfies ContentInputTypeViewContext;
 
         this.contentUpdatedListeners.push(content => {

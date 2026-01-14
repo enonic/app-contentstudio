@@ -68,6 +68,7 @@ export class Tag
             });
 
             this.tags = tagsBuilder.build();
+            this.getContext().labelEl?.setForElement(this.tags.getTextInput());
             this.appendChild(this.tags);
 
             this.tags.onTagAdded((event: TagAddedEvent) => {

@@ -63,7 +63,7 @@ export class ThumbnailUploaderEl
     }
 
     createResultItem(value: string): Element {
-        return new ImgEl(value);
+        return new ImgEl(value).setDecorative();
     }
 
     setStatus(status: WorkflowStateStatus): void {

@@ -149,7 +149,6 @@ export class HtmlArea
             hasStickyToolbar: false
         };
         this.editors.push(editor);
-
         textAreaEl.onRendered(() => {
             this.initEditor(editorId, editor.savedValue, textAreaWrapper).catch(DefaultErrorHandler.handle);
         });
@@ -158,6 +157,7 @@ export class HtmlArea
             this.handleOccurrenceInputValueChanged(textAreaWrapper, event);
         });
 
+        this.getContext().labelEl?.setForElement(textAreaEl);
         textAreaWrapper.appendChildren(new DivEl('sticky-dock'), textAreaEl);
 
         this.setFocusOnEditorAfterCreate(textAreaWrapper, editorId);

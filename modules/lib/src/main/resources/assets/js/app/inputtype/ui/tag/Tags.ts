@@ -338,4 +338,7 @@ export class Tags
         });
     }
 
+    getTextInput(): TextInput {
+        return this.textInput;
+    }
 }

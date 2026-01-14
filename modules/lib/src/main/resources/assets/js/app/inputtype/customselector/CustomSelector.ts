@@ -123,6 +123,7 @@ export class CustomSelector
             this.mode = this.getSelectorMode();
             this.initiallySelectedItems = this.getSelectedItemsIds();
             this.comboBox = this.createComboBox(input);
+            this.getContext().labelEl?.setForElement(this.comboBox.getOptionFilterInput());
             this.appendChild(this.comboBox);
 
             this.setupSortable();

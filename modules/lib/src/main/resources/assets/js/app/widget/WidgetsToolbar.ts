@@ -28,8 +28,10 @@ export class WidgetsToolbar
 
     private createWidgetButton(widget: Widget, buttonClass?: string) {
         const sidebarButton: WidgetButton = new WidgetButton(widget);
-        sidebarButton.setLabel(widget.getDisplayName());
-        sidebarButton.setTitle(widget.getDisplayName());
+        const displayName = widget.getDisplayName();
+        sidebarButton.setLabel(displayName);
+        sidebarButton.setTitle(displayName);
+        sidebarButton.setAriaLabel(displayName)
 
         if (buttonClass) {
             sidebarButton.addClass(buttonClass);
@@ -37,6 +39,7 @@ export class WidgetsToolbar
 
         if (widget.getIconUrl()) {
             const imgEl: ImgEl = new ImgEl(widget.getIconUrl());
+            imgEl.setDecorative();
             sidebarButton.appendChild(imgEl);
         }
 

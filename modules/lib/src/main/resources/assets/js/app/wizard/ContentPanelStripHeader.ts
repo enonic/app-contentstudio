@@ -55,6 +55,7 @@ export class ContentPanelStripHeader extends PanelStripHeader {
         this.toggleClass('disabled', !enabled);
 
         this.tooltip.setText(i18n(enabled ? 'action.disable' : 'action.enable'));
+        this.toggler.setAriaLabel(enabled ? i18n('action.removeXdata') : i18n('action.addXdata'));
 
         if (changed && !silent) {
             this.notifyEnableChanged(enabled);
@@ -88,6 +89,7 @@ export class ContentPanelStripHeader extends PanelStripHeader {
 
             if (this.toggler) {
                 this.toggler.addClass('toggler-button icon-close');
+                this.toggler.setAriaLabel(i18n('action.removeXdata'));
                 this.appendChild(this.toggler);
             }
 

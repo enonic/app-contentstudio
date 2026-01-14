@@ -25,7 +25,9 @@ export class ModeTogglerButton
                 this.tooltip.hide();
             }
 
-            this.tooltip.setText(isActive ? i18n('tooltip.combobox.treemode.disable') : i18n('tooltip.combobox.treemode.enable'));
+            const label = isActive ? i18n('tooltip.combobox.treemode.disable') : i18n('tooltip.combobox.treemode.enable');
+            this.setAriaLabel(label)
+            this.tooltip.setText(label);
 
             if (isVisible) {
                 this.tooltip.show();

@@ -208,6 +208,7 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
         return super.layout(input, propertyArray).then(() => {
             this.initiallySelectedItems = this.getSelectedItemsIds();
                 this.contentSelectorDropdown = this.createSelectorDropdown(input);
+            this.getContext().labelEl?.setForElement(this.contentSelectorDropdown.getOptionFilterInput());
             this.appendChild(this.contentSelectorDropdown);
             return this.addExtraElementsOnLayout(input, propertyArray).then(() => this.doLayout(propertyArray));
         });
