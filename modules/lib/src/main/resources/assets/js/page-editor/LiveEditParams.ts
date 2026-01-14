@@ -37,7 +37,7 @@ export class LiveEditParams {
 
     readonly modifyPermissions?: boolean;
 
-    private constructor(builder: LiveEditParamsBuilder) {
+    constructor(builder: LiveEditParamsBuilder) {
         this.isFragment = builder.isFragment;
         this.isFragmentAllowed = builder.isFragmentAllowed;
         this.isPageTemplate = builder.isPageTemplate;
@@ -82,23 +82,23 @@ export class LiveEditParams {
             .build();
     }
 
-    static fromObject(obj: any): LiveEditParams {
+    static fromObject(obj: object): LiveEditParams {
         return LiveEditParams.create()
-            .setIsFragment(obj.isFragment)
-            .setIsFragmentAllowed(obj.isFragmentAllowed)
-            .setIsPageTemplate(obj.isPageTemplate)
-            .setDisplayName(obj.displayName)
-            .setLocked(obj.locked)
-            .setIsResetEnabled(obj.isResetEnabled)
-            .setPageName(obj.pageName)
-            .setPageIconClass(obj.pageIconClass)
-            .setIsPageEmpty(obj.isPageEmpty)
-            .setApplicationKeys(obj.applicationKeys)
-            .setContentId(obj.contentId)
-            .setLanguage(obj.language)
-            .setContentType(obj.contentType)
-            .setSitePath(obj.sitePath)
-            .setModifyPermissions(obj.modifyPermissions)
+            .setIsFragment(obj['isFragment'])
+            .setIsFragmentAllowed(obj['isFragmentAllowed'])
+            .setIsPageTemplate(obj['isPageTemplate'])
+            .setDisplayName(obj['displayName'])
+            .setLocked(obj['locked'])
+            .setIsResetEnabled(obj['isResetEnabled'])
+            .setPageName(obj['pageName'])
+            .setPageIconClass(obj['pageIconClass'])
+            .setIsPageEmpty(obj['isPageEmpty'])
+            .setApplicationKeys(obj['applicationKeys'])
+            .setContentId(obj['contentId'])
+            .setLanguage(obj['language'])
+            .setContentType(obj['contentType'])
+            .setSitePath(obj['sitePath'])
+            .setModifyPermissions(obj['modifyPermissions'])
             .build();
     }
 
@@ -233,6 +233,6 @@ export class LiveEditParamsBuilder {
     }
 
     build(): LiveEditParams {
-        return new (LiveEditParams as any)(this);
+        return new LiveEditParams(this);
     }
 }
