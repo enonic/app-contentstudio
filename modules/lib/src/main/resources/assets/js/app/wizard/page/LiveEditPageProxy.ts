@@ -272,14 +272,16 @@ export class LiveEditPageProxy
 
     public propagateEvent(event: Event) {
         if (this.isFrameLoaded) {
-            //TODO: Why push to iframe? It's only ContentUpdatedEvent and ContentDeletedEvent
+            //TODO: Why push to iframe?
+            // It's only ContentUpdatedEvent and ContentDeletedEvent
+            
             // if (this.liveEditWindow) {
             //     event.fire(this.liveEditWindow);
             // }
         }
     }
 
-    private async handleIFrameLoadedEvent() {
+    private handleIFrameLoadedEvent() {
         if (LiveEditPageProxy.debug) {
             console.debug('LiveEditPageProxy.handleIframeLoadedEvent at ' + new Date().toISOString());
         }
