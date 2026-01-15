@@ -13,6 +13,7 @@ import com.enonic.xp.content.ContentName;
 import com.enonic.xp.content.ExtraDatas;
 import com.enonic.xp.content.MoveContentParams;
 import com.enonic.xp.content.UpdateContentParams;
+import com.enonic.xp.content.UpdateWorkflowParams;
 import com.enonic.xp.data.PropertyArrayJson;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.data.PropertyTreeJson;
@@ -24,6 +25,8 @@ public final class UpdateContentJson
     final UpdateContentParams updateContentParams;
 
     final MoveContentParams renameContentParams;
+
+    final UpdateWorkflowParams updateWorkflowParams;
 
     @JsonCreator
     UpdateContentJson( @JsonProperty("contentId") final String contentId, @JsonProperty("contentName") final String contentName,
@@ -44,13 +47,17 @@ public final class UpdateContentJson
                 edit.data = contentData;
                 edit.extraDatas = extraDatas;
                 edit.displayName = displayName;
-                edit.workflowInfo = workflowInfo == null ? null : workflowInfo.getWorkflowInfo();
             } );
 
         this.renameContentParams = MoveContentParams.create().
             contentId( ContentId.from( contentId ) ).
             newName( this.contentName ).
             build();
+
+        this.updateWorkflowParams = workflowInfo != null ? UpdateWorkflowParams.create()
+            .contentId( ContentId.from( contentId ) )
+            .editor( edit -> edit.workflow = workflowInfo.getWorkflowInfo() )
+            .build() : null;
     }
 
     @JsonIgnore
@@ -63,6 +70,12 @@ public final class UpdateContentJson
     public MoveContentParams getRenameContentParams()
     {
         return renameContentParams;
+    }
+
+    @JsonIgnore
+    public UpdateWorkflowParams getUpdateWorkflowParams()
+    {
+        return updateWorkflowParams;
     }
 
     @JsonIgnore

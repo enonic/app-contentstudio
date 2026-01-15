@@ -14,20 +14,16 @@ public class ContentWorkflowInfoJson
 {
     private final WorkflowState state;
 
-    private final Map<String, WorkflowCheckState> checks;
-
     @JsonCreator
     public ContentWorkflowInfoJson( @JsonProperty("state") WorkflowState state,
                                     @JsonProperty("checks") Map<String, WorkflowCheckState> checks )
     {
         this.state = state;
-        this.checks = checks;
     }
 
     public ContentWorkflowInfoJson( final WorkflowInfo workflowInfo )
     {
         this.state = workflowInfo.getState();
-        this.checks = workflowInfo.getChecks();
     }
 
     public WorkflowState getState()
@@ -36,9 +32,9 @@ public class ContentWorkflowInfoJson
     }
 
     @SuppressWarnings("unused")
-    public Map<String, WorkflowCheckState> getChecks()
+   public Map<String, WorkflowCheckState> getChecks()
     {
-        return checks;
+        return Map.of();
     }
 
     @JsonIgnore
@@ -46,7 +42,6 @@ public class ContentWorkflowInfoJson
     {
         return WorkflowInfo.create().
             state( state ).
-            checks( checks ).
             build();
     }
 }

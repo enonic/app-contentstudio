@@ -164,6 +164,7 @@ import com.enonic.xp.content.UpdateContentMetadataParams;
 import com.enonic.xp.content.UpdateContentMetadataResult;
 import com.enonic.xp.content.UpdateContentParams;
 import com.enonic.xp.content.UpdateMediaParams;
+import com.enonic.xp.content.UpdateWorkflowParams;
 import com.enonic.xp.content.WorkflowInfo;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
@@ -493,6 +494,11 @@ public final class ContentResource
 
         final Content updatedContent = ContextBuilder.copyOf(ContextAccessor.current()).branch(ContentConstants.BRANCH_DRAFT).build().callWith(() -> contentService.update( updateParams ));
 
+        if ( json.getUpdateWorkflowParams() != null )
+        {
+            contentService.updateWorkflow( json.getUpdateWorkflowParams() );
+        }
+
         if ( json.getContentName().equals( updatedContent.getName() ) )
         {
             return jsonObjectsFactory.createContentJson( updatedContent, request );
@@ -623,10 +629,10 @@ public final class ContentResource
 
     private void markContentAsReady( final ContentId contentId )
     {
-        final UpdateContentParams updateParams =
-            new UpdateContentParams().contentId( contentId ).editor( edit -> edit.workflowInfo = WorkflowInfo.ready() );
+        final UpdateWorkflowParams updateParams =
+            UpdateWorkflowParams.create().contentId( contentId ).editor( edit -> edit.workflow = WorkflowInfo.ready() ).build();
 
-        contentService.update( updateParams );
+        contentService.updateWorkflow( updateParams );
     }
 
     @POST
@@ -1590,7 +1596,6 @@ public final class ContentResource
             edit.data = versionedContent.getData();
             edit.displayName = versionedContent.getDisplayName();
             edit.extraDatas = versionedContent.getAllExtraData();
-            edit.workflowInfo = WorkflowInfo.inProgress();
             edit.page(versionedContent.getPage() != null ? versionedContent.getPage() : null);
         } );
 
