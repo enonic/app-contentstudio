@@ -8,6 +8,8 @@ export class RoutineContext {
     dataUpdated: boolean = false;
 
     pageUpdated: boolean = false;
+
+    workflowUpdated: boolean = false;
 }
 
 export class Flow {

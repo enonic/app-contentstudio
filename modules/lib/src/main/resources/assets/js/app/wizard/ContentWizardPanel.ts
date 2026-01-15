@@ -2084,7 +2084,7 @@ export class ContentWizardPanel
                 this.notifyContentNamed(content);
             }
 
-            if (context.dataUpdated || context.pageUpdated) {
+            if (context.dataUpdated || context.pageUpdated || context.workflowUpdated) {
                 this.showFeedbackContentSaved(content, isInherited);
             }
 

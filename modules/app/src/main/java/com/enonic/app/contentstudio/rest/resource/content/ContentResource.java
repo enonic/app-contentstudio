@@ -103,6 +103,7 @@ import com.enonic.app.contentstudio.rest.resource.content.json.SetChildOrderJson
 import com.enonic.app.contentstudio.rest.resource.content.json.UnpublishContentJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.UpdateContentJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.UpdateContentMetadataJson;
+import com.enonic.app.contentstudio.rest.resource.content.json.UpdateWorkflowJson;
 import com.enonic.app.contentstudio.rest.resource.content.query.ContentQueryWithChildren;
 import com.enonic.app.contentstudio.rest.resource.content.task.ApplyPermissionsRunnableTask;
 import com.enonic.app.contentstudio.rest.resource.content.task.DeleteRunnableTask;
@@ -494,10 +495,6 @@ public final class ContentResource
 
         final Content updatedContent = ContextBuilder.copyOf(ContextAccessor.current()).branch(ContentConstants.BRANCH_DRAFT).build().callWith(() -> contentService.update( updateParams ));
 
-        if ( json.getUpdateWorkflowParams() != null )
-        {
-            contentService.updateWorkflow( json.getUpdateWorkflowParams() );
-        }
 
         if ( json.getContentName().equals( updatedContent.getName() ) )
         {
@@ -633,6 +630,25 @@ public final class ContentResource
             UpdateWorkflowParams.create().contentId( contentId ).editor( edit -> edit.workflow = WorkflowInfo.ready() ).build();
 
         contentService.updateWorkflow( updateParams );
+    }
+
+    @POST
+    @Path("updateWorkflow")
+    public ContentJson updateWorkflow( final UpdateWorkflowJson params, @Context HttpServletRequest request )
+    {
+        final ContentId contentId = ContentId.from( params.getContentId() );
+        final WorkflowInfo workflowInfo = params.getWorkflow().getWorkflowInfo();
+
+        final UpdateWorkflowParams updateParams = UpdateWorkflowParams.create()
+            .contentId( contentId )
+            .editor( edit -> edit.workflow = workflowInfo )
+            .build();
+
+        contentService.updateWorkflow( updateParams );
+
+        final Content updatedContent = contentService.getById( contentId );
+
+        return jsonObjectsFactory.createContentJson( updatedContent, request );
     }
 
     @POST

@@ -1,17 +1,17 @@
-import Q from 'q';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import Q from 'q';
+import {Content} from '../content/Content';
+import {WorkflowState} from '../content/WorkflowState';
+import {Page} from '../page/Page';
+import {PageCUDRequest} from '../resource/PageCUDRequest';
 import {UpdateContentRequest} from '../resource/UpdateContentRequest';
+import {UpdatePageRequest} from '../resource/UpdatePageRequest';
+import {UpdateWorkflowRequest} from '../resource/UpdateWorkflowRequest';
+import {ContentDiffHelper} from '../util/ContentDiffHelper';
+import {ContentWizardPanel} from './ContentWizardPanel';
 import {CreatePageRequest} from './CreatePageRequest';
 import {DeletePageRequest} from './DeletePageRequest';
-import {UpdatePageRequest} from '../resource/UpdatePageRequest';
-import {PageCUDRequest} from '../resource/PageCUDRequest';
 import {Flow, RoutineContext} from './Flow';
-import {Content} from '../content/Content';
-import {Page} from '../page/Page';
-import {WorkflowState} from '../content/WorkflowState';
-import {Workflow} from '../content/Workflow';
-import {ContentWizardPanel} from './ContentWizardPanel';
-import {ContentDiffHelper} from '../util/ContentDiffHelper';
 
 export class UpdatePersistedContentRoutine
     extends Flow {
@@ -41,6 +41,7 @@ export class UpdatePersistedContentRoutine
 
         const isPageChanged: boolean = this.hasPageChanged();
         const isContentChanged: boolean = this.hasContentChanged();
+
         if (isContentChanged || this.hasNamesChanged()) {
             promise = this.doHandleUpdateContent(context, isContentChanged);
         } else {
@@ -49,6 +50,10 @@ export class UpdatePersistedContentRoutine
 
         if (isPageChanged) {
             promise = promise.then(this.doHandlePage.bind(this, context));
+        }
+
+        if (this.workflowState === WorkflowState.READY) {
+            promise = promise.then(this.doHandleWorkflowChange.bind(this, context));
         }
 
         return promise.then(() => {
@@ -95,16 +100,11 @@ export class UpdatePersistedContentRoutine
         const persisted: Content = this.persistedContent;
         const viewed: Content = this.viewedContent;
 
-        return this.isWorkflowChanged() ||
-               !ContentDiffHelper.dataEquals(persisted.getContentData(), viewed.getContentData()) ||
+        return !ContentDiffHelper.dataEquals(persisted.getContentData(), viewed.getContentData()) ||
                !ContentDiffHelper.extraDataEquals(persisted.getAllExtraData(), viewed.getAllExtraData()) ||
                !ObjectHelper.dateEquals(persisted.getPublishFromTime(), viewed.getPublishFromTime()) ||
                !ObjectHelper.dateEquals(persisted.getPublishToTime(), viewed.getPublishToTime()) ||
                !persisted.getPermissions().equals(viewed.getPermissions());
-    }
-
-    private isWorkflowChanged(): boolean {
-        return this.workflowState !== this.persistedContent.getWorkflow().getState();
     }
 
     private hasPageChanged(): boolean {
@@ -137,9 +137,7 @@ export class UpdatePersistedContentRoutine
     }
 
     private produceUpdateContentRequest(viewedContent: Content): UpdateContentRequest {
-        const workflow: Workflow = viewedContent.getWorkflow().newBuilder().setState(this.workflowState).build();
-
-        return UpdateContentRequest.create(viewedContent).setRequireValid(this.requireValid).setWorkflow(workflow);
+        return UpdateContentRequest.create(viewedContent).setRequireValid(this.requireValid);
     }
 
 
@@ -151,5 +149,12 @@ export class UpdatePersistedContentRoutine
     setWorkflowState(state: WorkflowState): UpdatePersistedContentRoutine {
         this.workflowState = state;
         return this;
+    }
+
+    private doHandleWorkflowChange(context: RoutineContext): Q.Promise<void> {
+        return new UpdateWorkflowRequest(this.viewedContent.getContentId(), this.workflowState).sendAndParse().then((content) => {
+            context.content = content;
+            context.workflowUpdated = true;
+        });
     }
 }

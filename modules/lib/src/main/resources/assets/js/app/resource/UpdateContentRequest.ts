@@ -6,7 +6,6 @@ import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ContentName} from '../content/ContentName';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {Workflow} from '../content/Workflow';
 
 export class UpdateContentRequest
     extends CmsContentResourceRequest<Content> {
@@ -22,8 +21,6 @@ export class UpdateContentRequest
     private displayName: string;
 
     private requireValid: boolean;
-
-    private workflow: Workflow;
 
     constructor(id: string) {
         super();
@@ -63,18 +60,12 @@ export class UpdateContentRequest
         return this;
     }
 
-    setWorkflow(workflow: Workflow): UpdateContentRequest {
-        this.workflow = workflow;
-        return this;
-    }
-
     static create(content: Content): UpdateContentRequest {
         return new UpdateContentRequest(content.getId())
             .setContentName(content.getName())
             .setDisplayName(content.getDisplayName())
             .setData(content.getContentData())
-            .setExtraData(content.getAllExtraData())
-            .setWorkflow(content.getWorkflow());
+            .setExtraData(content.getAllExtraData());
     }
 
     getParams(): object {
@@ -87,7 +78,6 @@ export class UpdateContentRequest
             data: this.data.toJson(),
             meta: (this.meta || []).map((extraData: ExtraData) => extraData.toJson()),
             displayName: !!this.displayName ? this.displayName.trim() : '',
-            workflow: this.workflow.toJson()
         };
     }
 
