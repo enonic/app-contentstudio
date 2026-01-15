@@ -7,8 +7,8 @@ const lib = require('../../../libs/elements');
 const XPATH = {
     metadataWizardTabBarItem: `//li[contains(@id,'TabBarItem')]/a[text()='SEO Metadata']`,
     metadataStepForm: `//div[contains(@id,'XDataWizardStepForm')]`,
-    metadataTitleInputView: `//div[contains(@id,'InputView') and descendant::div[text()='Override "Title"']]`,
-    metadataDescriptionInputView: `//div[contains(@id,'InputView') and descendant::div[text()='Override "Description"']]`,
+    metadataTitleInputView: `//div[contains(@id,'InputView') and descendant::label[text()='Override "Title"']]`,
+    metadataDescriptionInputView: `//div[contains(@id,'InputView') and descendant::label[text()='Override "Description"']]`,
 };
 
 class TestMetadataStepForm extends Page {

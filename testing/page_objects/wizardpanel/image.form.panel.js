@@ -9,10 +9,10 @@ const xpath = {
     alternativeText: `//input[contains(@name,'altText')]`,
     imageEditor: "//div[contains(@id,'ImageEditor')]",
     copyrightInput: "//input[contains(@name,'copyright')]",
-    artistsTagInput: "//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Artist']]//input[@type='text']",
-    tagsInput: "//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Tags']]//input[@type='text']",
-    addedArtistTag: "//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Artist']]//ul/li[contains(@id,'Tag')]/span",
-    addedTags: "//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Tags']]//ul/li[contains(@id,'Tag')]/span"
+    artistsTagInput: "//div[contains(@id,'InputView') and descendant::label[text()='Artist']]//input[@type='text']",
+    tagsInput: "//div[contains(@id,'InputView') and descendant::label[text()='Tags']]//input[@type='text']",
+    addedArtistTag: "//div[contains(@id,'InputView') and descendant::label[text()='Artist']]//ul/li[contains(@id,'Tag')]/span",
+    addedTags: "//div[contains(@id,'InputView') and descendant::label[text()='Tags']]//ul/li[contains(@id,'Tag')]/span"
 };
 
 class ImageFormPanel extends Page {

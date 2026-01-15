@@ -39,7 +39,8 @@ class MultiSelectionOptionSet extends Page {
         try {
             let locator = xpath.optionLabelLocator(option);
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-            return await this.waitForElementEnabled(locator, appConst.mediumTimeout);
+            let elements = await this.getDisplayedElements(locator);
+            await elements[0].waitForEnabled({timeout: appConst.mediumTimeout});
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_multi_select_option"));
             throw new Error("Option Set multi selection: " + err);
