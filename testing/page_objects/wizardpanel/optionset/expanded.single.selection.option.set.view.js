@@ -8,8 +8,8 @@ const SingleSelectionOptionSet = require('./single.selection.option.set.view');
 const xpath = {
     container: "//div[contains(@id,'FormOptionSetOccurrenceViewSingleOption')]",
     dropDownDiv: "//div[contains(@id,'Dropdown')]",
-    option1_NameTextInput: "//div[contains(@id,'InputView') and descendant::div[text()='option-1-name']]" + lib.TEXT_INPUT,
-    option2_OptionsFilterInput: "//div[contains(@id,'InputView') and descendant::div[text()='option-2-image-selector']]" +
+    option1_NameTextInput: "//div[contains(@id,'InputView') and descendant::label[text()='option-1-name']]" + lib.TEXT_INPUT,
+    option2_OptionsFilterInput: "//div[contains(@id,'InputView') and descendant::label[text()='option-2-image-selector']]" +
                                 lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT,
     option1_NameTextInputLabel: "//div[contains(@id,'InputView')]//div[text()='option-1-name']]",
     option2_ImageSelectorLabel: "//div[contains(@id,'InputView')]//div[text()='option-2-image-selector']]",

@@ -7,7 +7,7 @@ const appConst = require('../../../../libs/app_const');
 const ContentSelectorDropdown = require('../../../components/selectors/content.selector.dropdown');
 
 const xpath = {
-    zoomLevelViewDiv: "//div[contains(@id,'InputView') and descendant::div[text()='Zoom level 1-15']]",
+    zoomLevelViewDiv: "//div[contains(@id,'InputView') and descendant::label[text()='Zoom level 1-15']]",
 };
 
 // Context Window, Inspect tab for City List Part Component

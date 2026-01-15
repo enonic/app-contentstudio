@@ -8,10 +8,10 @@ const ContentSelectorDropdown = require('../components/selectors/content.selecto
 const xpath = {
     stepForm: `//div[contains(@id,'ContentWizardStepForm')]`,
     parametersSet: "//div[contains(@id,'FormItemSetView') and descendant::h5[contains(.,'Parameters')]]",
-    targetFormView: `//div[contains(@id,'FormView') and descendant::div[text()='Target']]`,
+    targetFormView: `//div[contains(@id,'FormView') and descendant::label[text()='Target']]`,
     parametersFormOccurrence: `//div[contains(@id,'FormItemSetOccurrenceView')]`,
-    parameterNameInput: `//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Name']]//input`,
-    parameterValueInput: `//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Value']]//input`,
+    parameterNameInput: `//div[contains(@id,'InputView') and descendant::label[text()='Name']]//input`,
+    parameterValueInput: `//div[contains(@id,'InputView') and descendant::label[text()='Value']]//input`,
     addParametersButton: "//button[contains(@id,'Button') and child::span[contains(.,'Add')]]",
     expandButton: "//div[@class='bottom-button-row']//a[contains(@class,'collapse-button') and text()='Expand']",
     parameterOccurrenceMenuButton: "//div[contains(@id,'FormItemSetOccurrenceView')]" + lib.BUTTONS.MORE_BUTTON,

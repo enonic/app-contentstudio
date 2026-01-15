@@ -9,7 +9,7 @@ const xpath = {
     singleSelectionView: "//div[contains(@id,'FormOptionSetOccurrenceView') and contains(@class,'single-selection')]",
     dropDownDiv: "//div[contains(@id,'Dropdown')]",
     helpTextToggler: "//div[contains(@class,'help-text-toggler')]",
-    inputInOption: inputLabel => `//div[contains(@id,'FormOptionSetOptionView') and descendant::div[@class='label' and text()='${inputLabel}']]`
+    inputInOption: inputLabel => `//div[contains(@id,'FormOptionSetOptionView') and descendant::label[text()='${inputLabel}']]`
 };
 
 class OptionSetHelpFormView extends OptionSetFormView {

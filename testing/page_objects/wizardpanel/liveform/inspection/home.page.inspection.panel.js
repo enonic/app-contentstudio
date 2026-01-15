@@ -13,7 +13,7 @@ const xpath = {
 class HomePageInspectionPanel extends PageInspectionPanel {
 
     get titleTextInput() {
-        return xpath.container + "//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Title']]" + lib.TEXT_INPUT;
+        return xpath.container + "//div[contains(@id,'InputView') and descendant::label[text()='Title']]" + lib.TEXT_INPUT;
     }
 
     async typeTitle(text) {

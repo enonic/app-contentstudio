@@ -8,7 +8,7 @@ const FilterableListBox = require('../../components/selectors/filterable.list.bo
 
 const xpath = {
     container: "//div[contains(@id,'FormOptionSetOccurrenceView') and contains(@class,'single-selection')]",
-    nameTextInput: "//div[contains(@id,'InputView') and descendant::div[text()='Name']]" + lib.TEXT_INPUT,
+    nameTextInput: "//div[contains(@id,'InputView') and descendant::label[text()='Name']]" + lib.TEXT_INPUT,
     addItemSetButton: "//button[contains(@id,'Button') and @title='Add My Item-set']",
     itemSetOccurrenceMenuButton: "//div[contains(@id,'FormItemSetOccurrenceView')]" + lib.BUTTONS.MORE_BUTTON,
     optionSetMoreMenuButton: "//div[contains(@class,'single-selection-header selected')]" + lib.BUTTONS.MORE_BUTTON,

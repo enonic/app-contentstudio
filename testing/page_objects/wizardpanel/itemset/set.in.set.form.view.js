@@ -11,8 +11,8 @@ const xpath = {
     labelInput: "//input[contains(@id,'TextInput') and contains(@name,'label')]",
     streetInput: "//input[contains(@id,'TextInput') and contains(@name,'street')]",
     itemSetOccurrenceLabel: "//div[contains(@id,'FormOccurrenceDraggableLabel')]",
-    firstNameView: "//div[contains(@id,'InputView') and descendant::div[text()='First Name']]",
-    lastNameView: "//div[contains(@id,'InputView') and descendant::div[text()='Last Name']]"
+    firstNameView: "//div[contains(@id,'InputView') and descendant::label[text()='First Name']]",
+    lastNameView: "//div[contains(@id,'InputView') and descendant::label[text()='Last Name']]"
 
 };
 
