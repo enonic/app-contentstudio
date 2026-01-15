@@ -841,7 +841,7 @@ async function sendPublishRequest(): Promise<TaskId | undefined> {
     const publishableIds = $publishableIds.get();
     const {message, excludedItemsIds, excludedItemsWithChildrenIds, excludedDependantItemsIds} = $publishDialog.get();
     const allExcludedItemsWithChildrenIds = uniqueIds([...excludedItemsWithChildrenIds, ...excludedItemsIds]);
-    const allExcludedItemsIds = uniqueIds([...excludedItemsIds, ...excludedDependantItemsIds, ...allExcludedItemsWithChildrenIds]);
+    const allExcludedItemsIds = uniqueIds([...excludedItemsIds, ...excludedDependantItemsIds]);
 
     try {
         const taskId = await publishContent({
