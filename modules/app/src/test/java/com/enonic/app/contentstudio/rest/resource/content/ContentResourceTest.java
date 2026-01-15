@@ -133,6 +133,7 @@ import com.enonic.xp.content.UpdateContentMetadataParams;
 import com.enonic.xp.content.UpdateContentMetadataResult;
 import com.enonic.xp.content.UpdateContentParams;
 import com.enonic.xp.content.UpdateMediaParams;
+import com.enonic.xp.content.UpdateWorkflowParams;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.LocalScope;
 import com.enonic.xp.core.impl.schema.content.BuiltinContentTypesAccessor;
@@ -2565,4 +2566,23 @@ public class ContentResourceTest
         assertEquals( first.getPublishInfo().getMessage(), second.getPublishInfo().getMessage() );
         assertEquals( first.getPublishInfo().getPublisherDisplayName(), second.getPublishInfo().getPublisherDisplayName() );
     }
+
+    @Test
+    public void updateWorkflow_success()
+        throws Exception
+    {
+        final Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
+
+        when( contentService.getById( ContentId.from( "content-id" ) ) ).thenReturn( content );
+        when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
+
+        final String jsonString = request().path( "content/updateWorkflow" )
+            .entity( readFromFile( "update_workflow_params.json" ), MediaType.APPLICATION_JSON_TYPE )
+            .post()
+            .getAsString();
+
+        assertNotNull( jsonString );
+        verify( contentService, times( 1 ) ).updateWorkflow( isA( UpdateWorkflowParams.class ) );
+    }
+
 }
