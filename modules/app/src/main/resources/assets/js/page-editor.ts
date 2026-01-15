@@ -39,10 +39,10 @@ import {LoadComponentViewEvent} from 'lib-contentstudio/page-editor/event/incomi
 import {SetPageLockStateEvent} from 'lib-contentstudio/page-editor/event/incoming/manipulation/SetPageLockStateEvent';
 import {CreateOrDestroyDraggableEvent} from 'lib-contentstudio/page-editor/event/incoming/manipulation/CreateOrDestroyDraggableEvent';
 import {ResetComponentViewEvent} from 'lib-contentstudio/page-editor/event/incoming/manipulation/ResetComponentViewEvent';
-import {BeforeContentSavedEvent} from 'lib-contentstudio/app/event/BeforeContentSavedEvent';
 import {EditTextComponentViewEvent} from 'lib-contentstudio/page-editor/event/incoming/manipulation/EditTextComponentViewEvent';
 import {UpdateTextComponentViewEvent} from 'lib-contentstudio/page-editor/event/incoming/manipulation/UpdateTextComponentViewEvent';
 import {DuplicateComponentViewEvent} from 'lib-contentstudio/page-editor/event/incoming/manipulation/DuplicateComponentViewEvent';
+import {IframeBeforeContentSavedEvent} from 'lib-contentstudio/app/event/IframeBeforeContentSavedEvent';
 
 Store.instance().set('$', $);
 /*
@@ -50,8 +50,10 @@ Store.instance().set('$', $);
  */
 StyleHelper.setCurrentPrefix(ItemViewPlaceholder.PAGE_EDITOR_PREFIX);
 
-// Initialize the live edit iframe event bus on the parent window
-IframeEventBus.get().setReceiver(parent).setId('iframe-bus');
+// Initialize the live edit iframe event bus on this window
+// to receive my own events(like LiveEditPageViewReadyEvent)
+// and add the parent window as receiver too
+IframeEventBus.get().addReceiver(parent).setId('iframe-bus');
 
 // Register events coming from CS here to be able to revive them in the iframe
 IframeEventBus.get().registerClass('ContentSummaryAndCompareStatus', ContentSummaryAndCompareStatus);
@@ -86,7 +88,7 @@ IframeEventBus.get().registerClass('LiveEditParams', LiveEditParams);
 IframeEventBus.get().registerClass('InitializeLiveEditEvent', InitializeLiveEditEvent);
 IframeEventBus.get().registerClass('PageStateEvent', PageStateEvent);
 IframeEventBus.get().registerClass('SetPageLockStateEvent', SetPageLockStateEvent);
-IframeEventBus.get().registerClass('BeforeContentSavedEvent', BeforeContentSavedEvent);
+IframeEventBus.get().registerClass('IframeBeforeContentSavedEvent', IframeBeforeContentSavedEvent);
 IframeEventBus.get().registerClass('CreateOrDestroyDraggableEvent', CreateOrDestroyDraggableEvent);
 
 
@@ -118,22 +120,23 @@ const init = () => {
 
             stopBrowserShortcuts(event);
 
-            /* Cannot simulate events on parent document due to cross-origin restrictions
+            // Cannot simulate events on parent document due to cross-origin restrictions
+            // Use postMessage to notify parent about the modifier key event details
 
-            $(parent.document).simulate(event.type, {
-                bubbles: event.bubbles,
-                cancelable: event.cancelable,
-                view: parent,
-                ctrlKey: event.ctrlKey,
-                altKey: event.altKey,
-                shiftKey: event.shiftKey,
-                metaKey: event.metaKey,
-                keyCode: event.keyCode,
-                charCode: event.charCode
-            });*/
-
-            // TODO: Use postMessage to notify parent about the key event details
-            IframeEventBus.get().fireEvent(new IframeEvent('modifier-key-pressed'))
+            const modifierEvent = new IframeEvent('editor-modifier-pressed').setData({
+                type: event.type,
+                config: {
+                    bubbles: event.bubbles,
+                    cancelable: event.cancelable,
+                    ctrlKey: event.ctrlKey,
+                    altKey: event.altKey,
+                    shiftKey: event.shiftKey,
+                    metaKey: event.metaKey,
+                    keyCode: event.keyCode,
+                    charCode: event.charCode
+                }
+            });
+            IframeEventBus.get().fireEvent(modifierEvent);
         }
     });
 

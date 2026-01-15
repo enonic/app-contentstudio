@@ -138,6 +138,8 @@ export class LiveEditPageProxy
     private createLiveEditIFrame(): IFrameEl {
         let liveEditIFrame = new IFrameEl('live-edit-frame');
 
+        IframeEventBus.get().setId('studio-bus');
+
         // Register events coming from iframe here to be able to revive them in CS
         IframeEventBus.get().registerClass('IframeEvent', IframeEvent);
         IframeEventBus.get().registerClass('LiveEditPageViewReadyEvent', LiveEditPageViewReadyEvent);
@@ -160,10 +162,17 @@ export class LiveEditPageProxy
         IframeEventBus.get().registerClass('ResetComponentEvent', ResetComponentEvent);
         IframeEventBus.get().registerClass('MoveComponentEvent', MoveComponentEvent);
         IframeEventBus.get().registerClass('TextEditModeChangedEvent', TextEditModeChangedEvent);
+        IframeEventBus.get().registerClass('UpdateTextComponentEvent', UpdateTextComponentEvent);
 
 
-        IframeEventBus.get().onEvent('editor-iframe-loaded', (data) => {
+        IframeEventBus.get().onEvent('editor-iframe-loaded', (event) => {
             this.handleIFrameLoadedEvent();
+        });
+
+        IframeEventBus.get().onEvent('editor-modifier-pressed', (event) => {
+            const data = event.getData();
+            // Simulating iframe modifier event to allow shortcuts work when iframe is focused
+            $(document).simulate(data['type'] as string, data['config']);
         });
 
         return liveEditIFrame;
@@ -193,10 +202,6 @@ export class LiveEditPageProxy
         return this.liveEditIFrame;
     }
 
-    /*    public getJQuery(): JQueryStatic {
-            return this.livejq;
-        }*/
-
     public createDraggable(data: { type: string }) {
         if (this.isFrameLoaded) {
             new CreateOrDestroyDraggableEvent(data.type, true).fire();
@@ -217,43 +222,12 @@ export class LiveEditPageProxy
         this.dragMask.remove();
     }
 
-    private scrollIFrameToSavedPosition(scrollTop: number, timer?: number) {
-        if (!scrollTop) {
-            return;
-        }
-
-        if (!this.isFrameLoaded) {
-            timer = window.setTimeout(() => this.scrollIFrameToSavedPosition(scrollTop, timer), 10);
-            return;
-        }
-
-        //TODO: can't do that to iframes from other domains
-        // this.livejq(this.liveEditWindow.document).scrollTop(scrollTop);
-        clearTimeout(timer);
-    }
-
     public load(widgetRenderingHelper: WizardWidgetRenderingHandler, viewWidget: Widget): Promise<boolean> {
+
         PageEventsManager.get().notifyBeforeLoad();
 
-        let scrollTop: number | undefined;
-
-        /*        if (this.livejq && this.isFrameLoaded) {
-                    // Store vertical scroll position inside the iFrame
-                    // to be able to scroll to it after reload
-                    //TODO: can't do that to iframes from other domains
-                    // scrollTop = this.livejq(this.liveEditWindow).scrollTop();
-                }*/
-
         // load the page
-        return widgetRenderingHelper.render(this.liveEditModel.getContent(), viewWidget).then((loaded) => {
-
-            if (this.isFrameLoaded && scrollTop) {
-                //TODO: can't do that to iframes from other domains
-                // this.livejq(this.liveEditWindow.document).ready(() => this.scrollIFrameToSavedPosition(scrollTop));
-            }
-
-            return loaded;
-        });
+        return widgetRenderingHelper.render(this.liveEditModel.getContent(), viewWidget);
     }
 
     public unload(): void {
@@ -291,7 +265,7 @@ export class LiveEditPageProxy
         const liveEditWindow = (this.liveEditIFrame.getHTMLElement() as HTMLIFrameElement).contentWindow;
 
         // now that iframe is loaded, initialize its event bus to be able to post there
-        IframeEventBus.get().setReceiver(liveEditWindow).setId('studio-bus');
+        IframeEventBus.get().addReceiver(liveEditWindow);
 
         // let liveEditWindow: Window = this.liveEditIFrame.getHTMLElement()['contentWindow'];
 
@@ -449,10 +423,6 @@ export class LiveEditPageProxy
     public listenToLivePageEvents() {
         const eventsManager: PageEventsManager = PageEventsManager.get();
 
-        /*        MinimizeWizardPanelEvent.on(() => {
-                    new MinimizeWizardPanelEvent().fire(contextWindow);
-                });*/
-
         ComponentViewDragStartedEvent.on((event: ComponentViewDragStartedEvent) => {
             eventsManager.notifyComponentDragStarted(event.getPath());
         });
@@ -506,11 +476,6 @@ export class LiveEditPageProxy
             eventsManager.notifyShowWarning(event);
         });
 
-        // TODO: Uses EventBus! Refactor to use IframeEvent like other events
-        /*        EditContentEvent.on((event: EditContentEvent) => {
-                    eventsManager.notifyEditContent(event);
-                });*/
-
         ComponentLoadedEvent.on((event: ComponentLoadedEvent) => {
             const path: ComponentPath = ComponentPath.fromString(event.getPath().toString());
             eventsManager.notifyComponentLoaded(path);
@@ -539,11 +504,6 @@ export class LiveEditPageProxy
         SaveAsTemplateEvent.on(() => {
             eventsManager.notifyPageSaveAsTemplate();
         });
-
-        // TODO: Uses EventBus! Refactor to use IframeEvent like other events
-        /*        FragmentLoadErrorEvent.on((event: FragmentLoadErrorEvent) => {
-                    eventsManager.notifyFragmentLoadError(event.getFragmentComponentView().getPath());
-                });*/
 
         CreateFragmentEvent.on((event: CreateFragmentEvent) => {
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());

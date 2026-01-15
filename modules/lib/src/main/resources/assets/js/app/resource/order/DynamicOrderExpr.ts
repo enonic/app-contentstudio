@@ -20,6 +20,11 @@ export class DynamicOrderExpr
         return this.function + ' ' + super.getDirection();
     }
 
+    static fromString(s: string): DynamicOrderExpr {
+        const parts = s.trim().split(' ');
+        return new DynamicOrderExprBuilder().setFunction(parts[0]).setDirection(parts[1]).build() as DynamicOrderExpr;
+    }
+
     toJson(): OrderExprJson {
         return {
             function: this.function,
@@ -39,7 +44,7 @@ export class DynamicOrderExprBuilder
 
     function: string;
 
-    constructor(json: OrderExprJson) {
+    constructor(json?: OrderExprJson) {
         super(json);
         this.function = json.function;
     }
