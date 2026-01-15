@@ -33,6 +33,7 @@ import {PageNavigationMediator} from '../PageNavigationMediator';
 import {PageNavigationEventType} from '../PageNavigationEventType';
 import {PageNavigationEventData, PageNavigationEventSource} from '../PageNavigationEventData';
 import {BeforeContentSavedEvent} from '../../event/BeforeContentSavedEvent';
+import {IframeBeforeContentSavedEvent} from '../../event/IframeBeforeContentSavedEvent';
 import {LiveEditParams} from '../../../page-editor/LiveEditParams';
 import {CreateFragmentEvent} from '../../../page-editor/event/outgoing/manipulation/CreateFragmentEvent';
 import {PageResetEvent} from '../../../page-editor/event/outgoing/manipulation/PageResetEvent';
@@ -688,7 +689,7 @@ export class LiveEditPageProxy
 
         BeforeContentSavedEvent.on(() => {
             if (this.isFrameLoaded) {
-                new BeforeContentSavedEvent().fire();
+                new IframeBeforeContentSavedEvent().fire();
             }
         });
 

@@ -48,7 +48,7 @@ import {LoadComponentViewEvent} from './event/incoming/manipulation/LoadComponen
 import {LoadComponentFailedEvent} from './event/outgoing/manipulation/LoadComponentFailedEvent';
 import {DuplicateComponentViewEvent} from './event/incoming/manipulation/DuplicateComponentViewEvent';
 import {MoveComponentViewEvent} from './event/incoming/manipulation/MoveComponentViewEvent';
-import {BeforeContentSavedEvent} from '../app/event/BeforeContentSavedEvent';
+import {IframeBeforeContentSavedEvent} from '../app/event/IframeBeforeContentSavedEvent';
 import {ContentContext} from '../app/wizard/ContentContext';
 import {SetPageLockStateEvent} from './event/incoming/manipulation/SetPageLockStateEvent';
 import {SetModifyAllowedEvent} from './event/incoming/manipulation/SetModifyAllowedEvent';
@@ -415,7 +415,7 @@ export class LiveEditPage {
             }
         };
 
-        BeforeContentSavedEvent.on(this.beforeContentSavedListener);
+        IframeBeforeContentSavedEvent.on(this.beforeContentSavedListener);
 
         this.setPageLockStateListener = (event: SetPageLockStateEvent): void => {
             this.pageView?.setLocked(event.isToLock());
@@ -521,7 +521,7 @@ export class LiveEditPage {
 
         MoveComponentViewEvent.un(this.moveComponentViewRequestedListener);
 
-        BeforeContentSavedEvent.un(this.beforeContentSavedListener);
+        IframeBeforeContentSavedEvent.un(this.beforeContentSavedListener);
 
         SetPageLockStateEvent.un(this.setPageLockStateListener);
 
