@@ -33,7 +33,6 @@ import {CreateItemViewConfig} from './CreateItemViewConfig';
 import {DragAndDrop} from './DragAndDrop';
 import {ItemViewFactory} from './ItemViewFactory';
 import {PageViewController} from './PageViewController';
-import {LiveEditPageViewReadyEvent} from './LiveEditPageViewReadyEvent';
 import {ModalDialog} from '../app/inputtype/ui/text/dialog/ModalDialog';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
@@ -126,6 +125,9 @@ export class PageView
         this.addClassEx('page-view');
 
         this.initListeners();
+
+        // Needed for TextComponentView
+        this.appendContainerForTextToolbar();
 
         this.parseItemViews();
 
@@ -249,10 +251,6 @@ export class PageView
             if (PageViewController.get().isTextEditMode()) {
                 this.updateVerticalSpaceForEditorToolbar();
             }
-        });
-
-        LiveEditPageViewReadyEvent.on(() => {
-            this.appendContainerForTextToolbar();
         });
     }
 
