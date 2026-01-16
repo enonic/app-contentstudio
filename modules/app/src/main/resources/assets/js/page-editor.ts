@@ -43,6 +43,7 @@ import {EditTextComponentViewEvent} from 'lib-contentstudio/page-editor/event/in
 import {UpdateTextComponentViewEvent} from 'lib-contentstudio/page-editor/event/incoming/manipulation/UpdateTextComponentViewEvent';
 import {DuplicateComponentViewEvent} from 'lib-contentstudio/page-editor/event/incoming/manipulation/DuplicateComponentViewEvent';
 import {IframeBeforeContentSavedEvent} from 'lib-contentstudio/app/event/IframeBeforeContentSavedEvent';
+import {FragmentComponentType} from 'lib-contentstudio/app/page/region/FragmentComponentType';
 
 Store.instance().set('$', $);
 /*
@@ -71,6 +72,7 @@ IframeEventBus.get().registerClass('Workflow', Workflow);
 IframeEventBus.get().registerClass('ComponentPath', ComponentPath);
 IframeEventBus.get().registerClass('PartComponentType', PartComponentType);
 IframeEventBus.get().registerClass('LayoutComponentType', LayoutComponentType);
+IframeEventBus.get().registerClass('FragmentComponentType', FragmentComponentType);
 
 IframeEventBus.get().registerClass('AddComponentViewEvent', AddComponentViewEvent);
 IframeEventBus.get().registerClass('MoveComponentViewEvent', MoveComponentViewEvent);
