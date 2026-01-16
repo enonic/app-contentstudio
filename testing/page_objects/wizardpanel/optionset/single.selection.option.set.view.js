@@ -7,19 +7,18 @@ const appConst = require('../../../libs/app_const');
 const FilterableListBox = require('../../components/selectors/filterable.list.box');
 
 const xpath = {
-    container: "//div[contains(@id,'FormOptionSetOccurrenceView') and contains(@class,'single-selection')]",
+    container: "//div[contains(@id,'FormOptionSetOccurrenceViewSingleOption') and contains(@class,'single-selection')]",
     nameTextInput: "//div[contains(@id,'InputView') and descendant::label[text()='Name']]" + lib.TEXT_INPUT,
     addItemSetButton: "//button[contains(@id,'Button') and @title='Add My Item-set']",
     itemSetOccurrenceMenuButton: "//div[contains(@id,'FormItemSetOccurrenceView')]" + lib.BUTTONS.MORE_BUTTON,
-    optionSetMoreMenuButton: "//div[contains(@class,'single-selection-header selected')]" + lib.BUTTONS.MORE_BUTTON,
     labelInput: "//div[contains(@id,'FormItemSetOccurrenceView')]//input[contains(@name,'label')]",
     itemSetOccurrenceMenuItems: "//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem')]",
     itemSetOccurrenceDeleteMenuItem: "//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='Delete']",
     itemSetOccurrenceAddAboveMenuItem: "//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='Add above']",
     itemSetOccurrenceAddBelowMenuItem: "//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='Add below']",
-    singleSelectedOptionResetMenuItem: "//div[contains(@class,'single-selection-header selected')]//li[contains(@id,'MenuItem') and text()='Reset']",
-    singleSelectedOptionDeleteMenuItem: "//div[contains(@class,'single-selection-header selected')]//li[contains(@id,'MenuItem') and text()='Delete']",
-    singleSelectedOptionAddAboveMenuItem: "//div[contains(@class,'single-selection-header selected')]//li[contains(@id,'MenuItem') and text()='Add above']",
+    singleSelectedOptionResetMenuItem: "//li[contains(@id,'MenuItem') and text()='Reset']",
+    singleSelectedOptionDeleteMenuItem: "//li[contains(@id,'MenuItem') and text()='Delete']",
+    singleSelectedOptionAddAboveMenuItem: "//li[contains(@id,'MenuItem') and text()='Add above']",
     optionSetOccurrenceLabel: "//div[contains(@id,'FormOccurrenceDraggableLabel')]",
     singleOptionView: "//div[contains(@id,'FormOptionSetOccurrenceViewSingleOption')]",
 };
@@ -31,8 +30,12 @@ class SingleSelectionOptionSet extends Page {
         return xpath.container + xpath.nameTextInput;
     }
 
+    get moreButton() {
+        return xpath.container + lib.BUTTONS.MORE_BUTTON;
+    }
+
     get optionsFilterInput() {
-        return xpath.singleOptionView + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
+        return xpath.container + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
     }
 
     get dropDownHandle() {
@@ -73,11 +76,11 @@ class SingleSelectionOptionSet extends Page {
             await this.clickOnElement(this.addItemSetButton);
             return await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_add_button');
-            throw new Error(`Error occurred in Add Item screenshot:${screenshot}` + err);
+            await this.handleError('Single Selection Option Set - Add Item-set button', 'err_add_button', err);
         }
     }
 
+    // Clicks on 'More' button in Item Set in Single Selection then clicks on 'Delete' menu item
     async expandMenuClickOnDelete(index) {
         let locator = xpath.itemSetOccurrenceMenuButton;
         let menuButtons = await this.findElements(locator);
@@ -102,27 +105,33 @@ class SingleSelectionOptionSet extends Page {
     }
 
     async expandMoreMenuInSingleSelectionOptionSet(index) {
-        let menuLocator = xpath.optionSetMoreMenuButton;
-        await this.waitForElementDisplayed(menuLocator, appConst.mediumTimeout);
-        let items = await this.findElements(menuLocator);
-        await items[index].click();
-        await this.pause(400);
+        try {
+            await this.waitForElementDisplayed(this.moreButton, appConst.mediumTimeout);
+            let items = await this.findElements(this.moreButton);
+            await items[index].click();
+            await this.pause(400);
+        } catch (err) {
+            await this.handleError('Option Set , single selection, More button', 'err_more_button', err);
+        }
     }
 
     async isDeleteMenuItemInSingleSelectedOptionDisabled() {
-        let menuItemElements = await this.getDisplayedElements(xpath.singleSelectedOptionDeleteMenuItem);
+        let locator = xpath.container + xpath.singleSelectedOptionDeleteMenuItem;
+        let menuItemElements = await this.getDisplayedElements(locator);
         let res = await menuItemElements[0].getAttribute('class');
         return res.includes('disabled');
     }
 
     async isResetMenuItemInSingleSelectedOptionDisabled() {
-        let menuItemElements = await this.getDisplayedElements(xpath.singleSelectedOptionResetMenuItem);
+        let locator = xpath.container + xpath.singleSelectedOptionResetMenuItem;
+        let menuItemElements = await this.getDisplayedElements(locator);
         let res = await menuItemElements[0].getAttribute('class');
         return res.includes('disabled');
     }
 
     async isAddAboveMenuItemInSingleSelectedOptionDisabled() {
-        let menuItemElements = await this.getDisplayedElements(xpath.singleSelectedOptionAddAboveMenuItem);
+        let locator = xpath.container + xpath.singleSelectedOptionAddAboveMenuItem;
+        let menuItemElements = await this.getDisplayedElements(locator);
         let res = await menuItemElements[0].getAttribute('class');
         return res.includes('disabled');
     }
@@ -135,8 +144,7 @@ class SingleSelectionOptionSet extends Page {
             await filterableListBox.clickOnOptionByDisplayName(optionDisplayName);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_optionset');
-            throw new Error('Error,after selecting the option in single selection, screenshot:' + screenshot + "  " + err);
+            await this.handleError('Error after selecting the option in single selection', 'err_single_selection_select_option', err);
         }
     }
 
@@ -146,8 +154,7 @@ class SingleSelectionOptionSet extends Page {
             await filterableListBox.clickOnFilteredByDisplayNameItem(option);
             return await this.pause(100);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_optionset');
-            throw new Error('Error, during selecting the option in single selection, screenshot:' + screenshot + "  " + err);
+            await this.handleError('Error during filtering and selecting the option in single selection', 'err_filter_select_option', err);
         }
     }
 
@@ -159,8 +166,7 @@ class SingleSelectionOptionSet extends Page {
             await menuButtons[index].click();
             return await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_opt_set');
-            throw new Error("Option Set , error after expand option menu, screenshot:" + screenshot + " " + err);
+            await this.handleError('Option Set Single Selection , error after expand option menu', 'err_opt_set', err);
         }
     }
 
@@ -218,8 +224,7 @@ class SingleSelectionOptionSet extends Page {
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getText(locator);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_validation_recording');
-            throw new Error(`Validation recording, screenshot:${screenshot}` + err);
+            await this.handleError('Validation recording in Single Selection Option Set', 'err_get_validation_recording', err);
         }
     }
 

@@ -38,7 +38,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             // 2. Type the text 'option 1' in lower case and select the option in Single selection radio option set:
             await singleSelectionOptionSet.filterAndSelectOption('option 1');
             // 3. Verify the menu items in the selected option:
-            await singleSelectionOptionSet.expandMoreMenuInSingleSelectionOptionSet(0)
+            await singleSelectionOptionSet.expandMoreMenuInSingleSelectionOptionSet(0);
             let isDeleteDisabled = await singleSelectionOptionSet.isDeleteMenuItemInSingleSelectedOptionDisabled();
             assert.ok(isDeleteDisabled, "'Delete' menu item should be disabled");
             let isResetDisabled = await singleSelectionOptionSet.isResetMenuItemInSingleSelectedOptionDisabled();
