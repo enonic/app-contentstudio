@@ -13,7 +13,7 @@ const xpath = {
     typeTextInHtmlArea: (id, text) => {
         return `CKEDITOR.instances['${id}'].setData('${text}')`;
     },
-    occurrenceByText: (text) => `//div[contains(@id,'FormOccurrenceDraggableLabel') and contains(.,'${text}')]//div[contains(@class, 'drag-control')]`
+    occurrenceByText: (text) => `//div[contains(@id,'FormOccurrenceDraggableLabel') and contains(.,'${text}')]`
 };
 
 class ItemSetFormView extends Page {
@@ -85,15 +85,14 @@ class ItemSetFormView extends Page {
     async clickOnAddButton() {
         await this.waitForAddButtonDisplayed();
         await this.clickOnElement(this.addItemSetButton);
-        return await this.pause(500);
+        return await this.pause(300);
     }
 
     async waitForCollapseButtonDisplayed() {
         try {
             return await this.waitForElementDisplayed(this.collapseButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('item_set_collapse_button');
-            throw new Error(`Collapse button is not displayed! Screenshot: ${screenshot}`);
+            await this.handleError(`Collapse button is not displayed`, 'err_item_set_collapse_button_display', err);
         }
     }
 
@@ -101,8 +100,7 @@ class ItemSetFormView extends Page {
         try {
             return await this.waitForElementDisplayed(this.collapseAllButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('item_set_collapse_all_button');
-            throw new Error(`Collapse all button is not displayed! Screenshot: ${screenshot}`);
+            await this.handleError(`Collapse all button is not displayed`, 'err_item_set_collapse_all_button_display', err);
         }
     }
 
@@ -120,8 +118,7 @@ class ItemSetFormView extends Page {
         try {
             return await this.waitForElementNotDisplayed(lib.BUTTONS.COLLAPSE_BUTTON_BOTTOM, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('item_set_collapse_button');
-            throw new Error(`Collapse button should not be displayed! Screenshot: ${screenshot}`);
+            await this.handleError(`Collapse button should not be displayed`, 'err_item_set_collapse_button_not_display', err);
         }
     }
 
@@ -163,16 +160,21 @@ class ItemSetFormView extends Page {
             `//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='${menuItem}']`);
         await res[0].waitForEnabled({timeout: appConst.shortTimeout, timeoutMsg: "Option Set - Delete menu item should be enabled!"});
         await res[0].click();
-        return await this.pause(300);
+        return await this.pause(200);
     }
 
     async swapItems(sourceName, destinationName) {
-        let sourceElem = xpath.occurrenceByText(sourceName);
-        let destinationElem = xpath.occurrenceByText(destinationName);
-        let source = await this.findElement(sourceElem);
-        let destination = await this.findElement(destinationElem);
-        await source.dragAndDrop(destination);
-        return await this.pause(1000);
+        try {
+            let sourceElem = xpath.occurrenceByText(sourceName) + "/preceding-sibling::div[contains(@class,'drag-control')][1]";
+            let destinationElem = xpath.occurrenceByText(destinationName) + "/preceding-sibling::div[contains(@class,'drag-control')][1]";
+            let source = await this.findElement(sourceElem);
+            let destination = await this.findElement(destinationElem);
+            await source.dragAndDrop(destination);
+            return await this.pause(1000);
+        } catch (err) {
+            await this.handleError(`Item Set - tried to drag and drop ${sourceName} to ${destinationName}`, 'err_item_set_form_drag_drop',
+                err);
+        }
     }
 
     async getItemSetTitle(index) {
@@ -190,11 +192,16 @@ class ItemSetFormView extends Page {
         return attr.includes('invalid');
     }
 
+    // Click on the occurrence with specific label and collapse/expand it
     async clickOnFormOccurrence(label, index) {
-        let locator = xpath.occurrenceByText(label);
-        let element = await this.findElements(locator);
-        await element[index].click();
-        return await this.pause(300);
+        try {
+            let locator = xpath.occurrenceByText(label);
+            let element = await this.findElements(locator);
+            await element[index].click();
+            return await this.pause(100);
+        } catch (err) {
+            await this.handleError(`Item Set - tried to click on ${label}`, 'err_item_set_form_occurrence_click', err);
+        }
     }
 }
 
