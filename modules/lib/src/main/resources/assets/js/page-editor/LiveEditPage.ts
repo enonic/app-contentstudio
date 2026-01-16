@@ -9,7 +9,6 @@ import {ItemViewIdProducer} from './ItemViewIdProducer';
 import {LiveEditPageInitializationErrorEvent} from './LiveEditPageInitializationErrorEvent';
 import {DragAndDrop} from './DragAndDrop';
 import {LiveEditPageViewReadyEvent} from './LiveEditPageViewReadyEvent';
-import {LayoutItemType} from './layout/LayoutItemType';
 import {Highlighter} from './Highlighter';
 import {SelectedHighlighter} from './SelectedHighlighter';
 import {Shader} from './Shader';
@@ -80,8 +79,6 @@ export class LiveEditPage {
     private skipConfirmationListener: (event: SkipLiveEditReloadConfirmationEvent) => void;
 
     private unloadListener: (event: UIEvent) => void;
-
-    private componentLoadedListener: (event: ComponentLoadedEvent) => void;
 
     private dragStartedListener: () => void;
 
@@ -226,17 +223,6 @@ export class LiveEditPage {
         };
 
         WindowDOM.get().onUnload(this.unloadListener);
-
-        this.componentLoadedListener = (event: ComponentLoadedEvent) => {
-
-            if (LayoutItemType.get().equals(event.getNewComponentView().getType())) {
-                DragAndDrop.get().createSortableLayout(event.getNewComponentView());
-            } else {
-                DragAndDrop.get().refreshSortable();
-            }
-        };
-
-        ComponentLoadedEvent.on(this.componentLoadedListener);
 
         this.dragStartedListener = () => {
             Highlighter.get().hide();
@@ -497,8 +483,6 @@ export class LiveEditPage {
 
         WindowDOM.get().unUnload(this.unloadListener);
 
-        ComponentLoadedEvent.un(this.componentLoadedListener);
-
         ComponentViewDragStartedEvent.un(this.dragStartedListener);
 
         ComponentViewDragStoppedEvent.un(this.dragStoppedListener);
@@ -599,7 +583,7 @@ export class LiveEditPage {
             newComponentView.getParentItemView().registerComponentViewListeners(newComponentView);
         }
 
-        const event: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView);
+        const event: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView.getPath());
         event.fire();
     }
 

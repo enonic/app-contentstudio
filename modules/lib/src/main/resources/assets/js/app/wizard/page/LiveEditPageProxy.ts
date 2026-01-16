@@ -156,6 +156,7 @@ export class LiveEditPageProxy
         IframeEventBus.get().registerClass('ComponentViewDragStoppedEvent', ComponentViewDragStoppedEvent);
         IframeEventBus.get().registerClass('ComponentViewDragDroppedEvent', ComponentViewDragDroppedEvent);
         IframeEventBus.get().registerClass('SetComponentDescriptorEvent', SetComponentDescriptorEvent);
+        IframeEventBus.get().registerClass('ComponentLoadedEvent', ComponentLoadedEvent);
         IframeEventBus.get().registerClass('LoadComponentFailedEvent', LoadComponentFailedEvent);
         IframeEventBus.get().registerClass('TypeError', TypeError);
         IframeEventBus.get().registerClass('DeselectComponentEvent', DeselectComponentEvent);
@@ -477,8 +478,7 @@ export class LiveEditPageProxy
         });
 
         ComponentLoadedEvent.on((event: ComponentLoadedEvent) => {
-            const path: ComponentPath = ComponentPath.fromString(event.getPath().toString());
-            eventsManager.notifyComponentLoaded(path);
+            eventsManager.notifyComponentLoaded(event.getPath());
         });
 
         LiveEditPageViewReadyEvent.on((event: LiveEditPageViewReadyEvent) => {
