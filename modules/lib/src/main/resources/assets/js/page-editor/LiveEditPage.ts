@@ -452,7 +452,6 @@ export class LiveEditPage {
             PageState.setState(event.getPageJson() ? new PageBuilder().fromJson(event.getPageJson()).build() : null);
         };
 
-        // TODO: Refactor PageStateEvent to IframeEvent
         PageStateEvent.on(this.pageStateListener);
 
         this.updateTextComponentViewListener = (event: UpdateTextComponentViewEvent): void => {

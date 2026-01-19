@@ -608,8 +608,6 @@ export class LiveEditPageProxy
 
     private listenToMainFrameEvents() {
 
-        // TODO: refactor to use IframeEvent like other events
-
         PageEventsManager.get().onDialogCreated((modalDialog: ModalDialog, config: HtmlAreaDialogConfig) => {
             if (this.isFrameLoaded) {
                 new LiveEditPageDialogCreatedEvent(modalDialog, config).fire();
