@@ -7,14 +7,12 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {computed, map} from 'nanostores';
 import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import {ContentLanguageUpdatedEvent} from '../../../../app/event/ContentLanguageUpdatedEvent';
-import {LocaleViewer} from '../../../../app/locale/LocaleViewer';
 import {GetContentByIdRequest} from '../../../../app/resource/GetContentByIdRequest';
-import {GetLocalesRequest} from '../../../../app/resource/GetLocalesRequest';
 import {UpdateContentMetadataRequest} from '../../../../app/resource/UpdateContentMetadataRequest';
 import {CSPrincipalLoader} from '../../../../app/security/CSPrincipalLoader';
 import {GetPrincipalsByKeysRequest} from '../../../../app/security/GetPrincipalsByKeysRequest';
-import type {LanguageSelectorOption} from '../../shared/selectors/LanguageSelector';
 import type {OwnerSelectorOption} from '../../shared/selectors/OwnerSelector';
+import {loadLanguages} from '../languages.store';
 
 //
 // * Store state
@@ -23,7 +21,6 @@ import type {OwnerSelectorOption} from '../../shared/selectors/OwnerSelector';
 type EditPropertiesDialogStore = {
     open: boolean;
     content?: ContentSummaryAndCompareStatus;
-    localeOptions: LanguageSelectorOption[];
     ownerOptions: OwnerSelectorOption[];
     selectedOwnerOption?: OwnerSelectorOption;
     languageSelection: readonly string[];
@@ -34,7 +31,6 @@ type EditPropertiesDialogStore = {
 const initialState: EditPropertiesDialogStore = {
     open: false,
     content: undefined,
-    localeOptions: [],
     ownerOptions: [],
     selectedOwnerOption: undefined,
     languageSelection: [],
@@ -110,7 +106,7 @@ export const openEditPropertiesDialog = (content: ContentSummaryAndCompareStatus
         ownerSelection: ownerKey ? [ownerKey] : [],
     });
 
-    void loadEditPropertiesLocales(instanceId);
+    void loadLanguages();
     void loadEditPropertiesOwnerOption(contentSummary.getOwner(), instanceId);
 };
 
@@ -198,29 +194,6 @@ export const applyEditPropertiesDialog = async (): Promise<void> => {
 //
 // * Internal loaders
 //
-
-const loadEditPropertiesLocales = async (currentInstance: number): Promise<void> => {
-    const {open, localeOptions} = $editPropertiesDialog.get();
-    if (!open || localeOptions.length > 0) {
-        return;
-    }
-
-    try {
-        const locales = await new GetLocalesRequest().sendAndParse();
-        if (instanceId !== currentInstance) {
-            return;
-        }
-        $editPropertiesDialog.setKey(
-            'localeOptions',
-            locales.map((locale) => ({
-                id: locale.getId(),
-                label: LocaleViewer.makeDisplayName(locale),
-            })),
-        );
-    } catch (error) {
-        console.error(error);
-    }
-};
 
 const loadEditPropertiesOwnerOption = async (
     ownerKey: PrincipalKey | undefined,

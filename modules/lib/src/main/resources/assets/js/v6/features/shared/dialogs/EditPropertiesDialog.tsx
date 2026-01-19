@@ -13,6 +13,7 @@ import {
     setEditPropertiesDialogLanguageSelection,
     setEditPropertiesDialogOwnerSelection,
 } from '../../store/dialogs/editPropertiesDialog.store';
+import {$languages} from '../../store/languages.store';
 
 const EDIT_PROPERTIES_DIALOG_NAME = 'EditPropertiesDialog';
 
@@ -22,7 +23,6 @@ export const EditPropertiesDialog = (): ReactElement => {
         content,
         languageSelection,
         ownerSelection,
-        localeOptions,
         saving,
     } = useStore($editPropertiesDialog, {
         keys: [
@@ -30,11 +30,11 @@ export const EditPropertiesDialog = (): ReactElement => {
             'content',
             'languageSelection',
             'ownerSelection',
-            'localeOptions',
             'saving',
         ],
     });
     const ownerOptionsWithSelection = useStore($editPropertiesDialogOwnerOptions);
+    const languages = useStore($languages);
 
     const title = useI18n('widget.properties.edit.settings.text');
     const applyLabel = useI18n('action.apply');
@@ -87,7 +87,7 @@ export const EditPropertiesDialog = (): ReactElement => {
                     <Dialog.Body className='flex flex-col gap-7.5 overflow-visible'>
                         <LanguageSelector
                             label={languageLabel}
-                            options={localeOptions}
+                            options={languages}
                             selection={languageSelection}
                             onSelectionChange={setEditPropertiesDialogLanguageSelection}
                             placeholder={searchPlaceholder}
