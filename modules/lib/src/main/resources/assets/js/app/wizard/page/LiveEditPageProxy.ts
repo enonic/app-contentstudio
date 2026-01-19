@@ -109,7 +109,7 @@ export class LiveEditPageProxy
 
     private dragMask: DragMask;
 
-    private static debug: boolean = true;
+    private static debug: boolean = false;
 
     private modifyPermissions: boolean;
 
@@ -322,7 +322,6 @@ export class LiveEditPageProxy
                         .setHostDomain(`${window.location.protocol}//${window.location.host}`)
                         .fire();
 
-                    console.info('LiveEditPageProxy.handleIFrameLoadedEvent: initialize live edit event fired!');
                 } else {
                     PageEventsManager.get().notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
                 }

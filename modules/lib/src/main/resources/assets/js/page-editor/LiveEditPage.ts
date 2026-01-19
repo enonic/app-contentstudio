@@ -116,7 +116,7 @@ export class LiveEditPage {
 
     private updateTextComponentViewListener: (event: UpdateTextComponentViewEvent) => void;
 
-    private static debug: boolean = true;
+    private static debug: boolean = false;
 
     constructor() {
         this.skipConfirmationListener = (event: SkipLiveEditReloadConfirmationEvent) => {
@@ -150,7 +150,6 @@ export class LiveEditPage {
 
         ContentContext.get().setContent(event.getContent());
 
-        console.info('LiveEditPage: ContentContext.setContent', event.getContent());
 
         const body = Body.get().loadExistingChildren();
         try {
@@ -174,7 +173,6 @@ export class LiveEditPage {
         }
 
         DragAndDrop.init(this.pageView);
-        console.info('LiveEditPage: DragAndDrop initialized');
 
         Tooltip.allowMultipleInstances(false);
 
@@ -310,7 +308,6 @@ export class LiveEditPage {
         SetComponentStateEvent.on(this.setComponentStateEventListener);
 
         this.addItemViewRequestListener = (event: AddComponentViewEvent) => {
-            console.info('LiveEditPage: AddComponentViewEvent received', event);
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
             const type: ComponentType = ComponentType.byShortName(event.getComponentType().getShortName());
             const viewType: ItemType = ItemType.fromComponentType(type);

@@ -97,12 +97,7 @@ IframeEventBus.get().registerClass('CreateOrDestroyDraggableEvent', CreateOrDest
 IframeEventBus.get().registerClass('TextComponentType', TextComponentType);
 IframeEventBus.get().registerClass('MinimizeWizardPanelEvent', MinimizeWizardPanelEvent);
 
-
-console.info('Live edit iframe event bus initialized, receiver set to parent window');
-
 const liveEditPage = new LiveEditPage();
-
-console.info('Live edit page initialized', liveEditPage);
 
 const init = () => {
     const assetUrl: string = document.currentScript?.getAttribute('data-asset-url');
