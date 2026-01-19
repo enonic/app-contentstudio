@@ -12,6 +12,7 @@ const TextComponentCke = require('../../page_objects/components/text.component')
 const InsertLinkDialog = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.cke');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const InsertLinkDialogUrlPanel = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe('Text Component with CKE - insert link and table specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -53,6 +54,7 @@ describe('Text Component with CKE - insert link and table specification', functi
         async () => {
             let contentWizard = new ContentWizard();
             let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let pageComponentView = new PageComponentView();
             let insertLinkDialog = new InsertLinkDialog();
             let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
@@ -66,9 +68,9 @@ describe('Text Component with CKE - insert link and table specification', functi
             // 3. Insert a text component and type an invalid URL:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
-            await textComponentCke.switchToLiveEditFrame();
             // 4. Open Insert link modal dialog
-            await textComponentCke.clickOnInsertLinkButton();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.clickOnInsertLinkButton();
             // 6. go to url-tab
             await insertLinkDialog.clickOnBarItem('URL')
             await insertLinkDialog.typeInLinkTextInput('url_link');
@@ -88,6 +90,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle  expand Live Edit and show Page Component modal dialog:
@@ -95,14 +98,14 @@ describe('Text Component with CKE - insert link and table specification', functi
             // 3. Insert a text component:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
-            await textComponentCke.switchToLiveEditFrame();
             // 4. Open Insert Link dialog and add the link:
-            await textComponentCke.clickOnInsertLinkButton();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.clickOnInsertLinkButton();
             await studioUtils.insertUrlLinkInCke('test', 'http://google.com');
-            await textComponentCke.switchToLiveEditFrame();
+           // await textComponentCke.switchToLiveEditFrame();
             await studioUtils.saveScreenshot('url_link_inserted');
             // 5. Get and check the text in HtmlArea in LiveEdit:
-            let result = await textComponentCke.getTextFromEditor();
+            let result = await textComponentInspectionPanel.getTextFromEditor();
             assert.ok(result.includes(EXPECTED_URL), 'expected URL should appear in CKE');
             await textComponentCke.switchToParentFrame();
             await contentWizard.waitAndClickOnSave();

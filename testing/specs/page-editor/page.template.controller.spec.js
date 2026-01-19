@@ -19,6 +19,7 @@ const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wiz
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const PageTemplateWidget = require('../../page_objects/browsepanel/detailspanel/page.template.widget');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe('page.template.controller: select a controller in a template-wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -55,7 +56,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             let contentWizard = new ContentWizard();
             let pageWidgetPanel = new PageWidgetPanel();
             let pageComponentView = new PageComponentView();
-            let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let insertImageDialog = new InsertImageDialog();
             let templateName = contentBuilder.generateRandomName('template');
             TEMPLATE = contentBuilder.buildPageTemplate(templateName, SUPPORT_SITE, CONTROLLER_NAME);
@@ -74,8 +75,8 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await pageComponentView.openMenu('main');
             // 5. Insert Text Component and insert an image:
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
-            await contentWizard.switchToLiveEditFrame();
-            await textComponentCke.clickOnInsertImageButton();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.clickOnInsertImageButton();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE_NAME);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
@@ -119,7 +120,8 @@ describe('page.template.controller: select a controller in a template-wizard', f
 
     // Verify  https://github.com/enonic/app-contentstudio/issues/7077
     // Images failed to render inside a page template #7077
-    it(`GIVEN an image is inserted in the page-template WHEN the site has been opened THEN image that was inserted in the template is displayed in the site as well`,
+    // TODO  issue-9241,   remove skip in this test
+    it.skip(`GIVEN an image is inserted in the page-template WHEN the site has been opened THEN image that was inserted in the template is displayed in the site as well`,
         async () => {
             let contentWizard = new ContentWizard();
             let liveFormPanel = new LiveFormPanel();

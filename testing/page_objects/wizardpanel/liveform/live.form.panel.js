@@ -25,7 +25,7 @@ const xpath = {
     editableTextComponentByText: text => `//section[contains(@id,'TextComponentView') and @contenteditable='true']//p[contains(.,'${text}')]`,
     textComponentByText: text => `//section[contains(@id,'TextComponentView')]//p[contains(.,'${text}')]`,
     partComponentByName: name => `//div[contains(@id,'PartComponentView') and @data-portal-component-type='part']//h2[contains(text(),'${name}')]`,
-    captionByText: text => `//section[contains(@id,'TextComponentView') and @contenteditable='true']//figcaption[contains(.,'${text}')]`
+    captionByText: text => `//section[contains(@id,'TextComponentView') ]//figcaption[contains(.,'${text}')]`
 };
 
 class LiveFormPanel extends Page {

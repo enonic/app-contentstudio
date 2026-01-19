@@ -495,7 +495,6 @@ module.exports = {
             await browsePanel.pause(200);
             await browsePanel.clickOnRowByName(name);
             await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
-            return await browsePanel.pause(200);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_item');
             throw new Error(`Select the item in grid, screenshot:${screenshot} ` + err);

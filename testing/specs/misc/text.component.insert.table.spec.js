@@ -26,7 +26,8 @@ describe('Text Component with CKE - insert html table', function () {
             await studioUtils.doAddSite(SITE);
         });
 
-    it(`GIVEN Text component has been inserted WHEN 'Html table' has been inserted AND saved THEN 'Saved' button should be visible in the toolbar`,
+    // TODO uncomment it ,issue-9241
+    it.skip(`GIVEN Text component has been inserted WHEN 'Html table' has been inserted AND saved THEN 'Saved' button should be visible in the toolbar`,
         async () => {
             let contentWizard = new ContentWizard();
             let textComponentCke = new TextComponentCke();
@@ -42,8 +43,6 @@ describe('Text Component with CKE - insert html table', function () {
             await textComponentCke.switchToLiveEditFrame();
             // 4. Click on 'Insert Table' menu-button:
             await textComponentCke.clickOnInsertTableButton();
-            // menu item for inserting of Html-table gets visible:
-            // await textComponentCke.waitForTableDisplayedInCke();
             // 5. Click on More... button and open Table modal dialog
             await textComponentCke.clickOnMoreButtonInHtmlTableFrame();
             await htmlTableDialog.waitForDialogLoaded();

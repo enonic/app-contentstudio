@@ -17,6 +17,8 @@ const CompareContentVersionsDialog = require('../../page_objects/compare.content
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const InsertLinkDialogContentPanel = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.content.panel');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
+const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
 
 describe('Text Component with CKE - insert download-link specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -53,8 +55,10 @@ describe('Text Component with CKE - insert download-link specification', functio
     it(`GIVEN Text component is inserted AND 'Insert Link' dialog is opened WHEN 'download-link' has been inserted THEN correct data should be present in the CKE`,
         async () => {
             let contentWizard = new ContentWizard();
+            let liveFormPanel = new LiveFormPanel();
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let insertLinkDialog = new InsertLinkDialog();
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
             // 1. Open the existing site:
@@ -64,9 +68,10 @@ describe('Text Component with CKE - insert download-link specification', functio
             await pageComponentView.openMenu('main');
             // 3. Insert text component:
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
-            await textComponentCke.switchToLiveEditFrame();
+            //await textComponentCke.switchToLiveEditFrame();
             // 4. Open 'Insert Link' modal dialog:
-            await textComponentCke.clickOnInsertLinkButton();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.clickOnInsertLinkButton();
             // 5. Type a link-name and select a target:
             await insertLinkDialog.typeInLinkTextInput(LINK_TEXT);
             await insertLinkDialog.clickOnBarItem('Content');
@@ -81,13 +86,14 @@ describe('Text Component with CKE - insert download-link specification', functio
             await studioUtils.saveScreenshot('download_link_dialog');
             await insertLinkDialog.clickOnInsertButton();
             await insertLinkDialog.pause(700);
-            await textComponentCke.switchToLiveEditFrame();
+            //await textComponentCke.switchToLiveEditFrame();
             await studioUtils.saveScreenshot('download_link_inserted');
             // 10. Verify the text in CKE: 'media://download' should be present in the htmlarea
-            let actualText = await textComponentCke.getTextFromEditor();
+            let actualText = await textComponentInspectionPanel.getTextFromEditor();
+            //let actualText = await textComponentCke.getTextFromEditor();
             assert.ok(actualText.includes(EXPECTED_SRC), 'Expected text should be in the text component');
             // 11. Save the changes:
-            await textComponentCke.switchToParentFrame();
+            //await textComponentCke.switchToParentFrame();
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
         });

@@ -9,9 +9,9 @@ const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentFilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
-const TextComponentCke = require('../../page_objects/components/text.component');
 const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
 const appConst = require('../../libs/app_const');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe("text.component.image.outbound.spec: Inserts a text component with an image and checks Outbound dependencies", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -34,7 +34,7 @@ describe("text.component.image.outbound.spec: Inserts a text component with an i
         async () => {
             let pageComponentView = new PageComponentView();
             let contentWizard = new ContentWizard();
-            let textComponent = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let contentFilterPanel = new ContentFilterPanel();
             let insertImageDialog = new InsertImageDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -46,8 +46,8 @@ describe("text.component.image.outbound.spec: Inserts a text component with an i
             // 3. Insert new text component:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
-            await contentWizard.switchToLiveEditFrame();
-            await textComponent.clickOnInsertImageButton();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.clickOnInsertImageButton();
             // 4. Insert an image in the text component:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             await insertImageDialog.clickOnDecorativeImageRadioButton();

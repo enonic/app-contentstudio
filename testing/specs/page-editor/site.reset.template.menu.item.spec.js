@@ -12,6 +12,7 @@ const appConst = require('../../libs/app_const');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe('site.reset.template.menu.item.spec - resets a site to default template', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -28,7 +29,7 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
 
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConst.MY_FIRST_APP]);
@@ -48,7 +49,8 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             await pageComponentView.openMenu('country');
             // 4. Insert Text Component with 'test text' and save it:
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
-            await textComponentCke.typeTextInCkeEditor(TEST_TEXT);
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.typeTextInEditor(TEST_TEXT);
             await contentWizard.waitAndClickOnSave();
         });
 

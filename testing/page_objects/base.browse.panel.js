@@ -148,7 +148,7 @@ class BaseBrowsePanel extends Page {
     async waitForEditButtonEnabled() {
         try {
             await this.waitForElementEnabled(this.editButton, appConst.longTimeout);
-            return await this.pause(300);
+            return await this.pause(100);
         } catch (err) {
             await this.handleError('Browse Panel, Edit button should be enabled. ', 'err_edit_button_enabled', err);
         }
@@ -168,7 +168,7 @@ class BaseBrowsePanel extends Page {
         try {
             await this.waitForElementEnabled(this.editButton, appConst.mediumTimeout);
             await this.clickOnElement(this.editButton);
-            return await this.pause(1500);
+            return await this.pause(500);
         } catch (err) {
             await this.handleError('Browse Panel toolbar, click on Edit button: ', 'err_browse_panel_edit_button', err);
         }

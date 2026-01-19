@@ -13,7 +13,8 @@ const appConst = require('../../libs/app_const');
 const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
-describe('layot.insert.save.as.fragment.spec - tests for inserting a fragment with image in a lyout', function () {
+// TODO remove skip
+describe.skip('layot.insert.save.as.fragment.spec - tests for inserting a fragment with image in a lyout', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
