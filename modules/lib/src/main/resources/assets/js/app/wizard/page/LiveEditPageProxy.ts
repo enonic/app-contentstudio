@@ -164,6 +164,9 @@ export class LiveEditPageProxy
         IframeEventBus.get().registerClass('MoveComponentEvent', MoveComponentEvent);
         IframeEventBus.get().registerClass('TextEditModeChangedEvent', TextEditModeChangedEvent);
         IframeEventBus.get().registerClass('UpdateTextComponentEvent', UpdateTextComponentEvent);
+        IframeEventBus.get().registerClass('ComponentInspectedEvent', ComponentInspectedEvent);
+        IframeEventBus.get().registerClass('PageLockedEvent', PageLockedEvent);
+        IframeEventBus.get().registerClass('PageUnlockedEvent', PageUnlockedEvent);
 
 
         IframeEventBus.get().onEvent('editor-iframe-loaded', (event) => {
@@ -466,11 +469,10 @@ export class LiveEditPageProxy
         });
 
         ComponentInspectedEvent.on((event: ComponentInspectedEvent) => {
-            const pathAsString: string = event.getComponentPathAsString();
-            const path: ComponentPath = ComponentPath.fromString(pathAsString);
 
             PageNavigationMediator.get().notify(
-                new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(path)));
+                new PageNavigationEvent(PageNavigationEventType.INSPECT,
+                    new PageNavigationEventData(event.getComponentPath())));
         });
 
         ShowWarningLiveEditEvent.on((event: ShowWarningLiveEditEvent) => {

@@ -5,14 +5,14 @@ import {ComponentPath} from '../app/page/region/ComponentPath';
 export class ComponentInspectedEvent
     extends IframeEvent {
 
-    private readonly path: string;
+    private readonly path: ComponentPath;
 
     constructor(path: ComponentPath) {
         super();
-        this.path = path.toString();
+        this.path = path;
     }
 
-    getComponentPathAsString(): string {
+    getComponentPath(): ComponentPath {
         return this.path;
     }
 
@@ -22,15 +22,5 @@ export class ComponentInspectedEvent
 
     static un(handler: (event: ComponentInspectedEvent) => void, contextWindow: Window = window) {
         IframeEvent.unbind(ClassHelper.getFullName(this), handler, contextWindow);
-    }
-
-    public static fromObject(o: object): ComponentInspectedEvent {
-        if (o instanceof ComponentInspectedEvent) {
-            return o;
-        } else {
-            return new ComponentInspectedEvent(
-                ComponentPath.fromString(o['path'])
-            );
-        }
     }
 }
