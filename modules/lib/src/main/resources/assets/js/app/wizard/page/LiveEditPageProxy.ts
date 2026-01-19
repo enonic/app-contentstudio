@@ -167,6 +167,8 @@ export class LiveEditPageProxy
         IframeEventBus.get().registerClass('ComponentInspectedEvent', ComponentInspectedEvent);
         IframeEventBus.get().registerClass('PageLockedEvent', PageLockedEvent);
         IframeEventBus.get().registerClass('PageUnlockedEvent', PageUnlockedEvent);
+        IframeEventBus.get().registerClass('SetFragmentComponentEvent', SetFragmentComponentEvent);
+        IframeEventBus.get().registerClass('CreateFragmentEvent', CreateFragmentEvent);
 
 
         IframeEventBus.get().onEvent('editor-iframe-loaded', (event) => {
