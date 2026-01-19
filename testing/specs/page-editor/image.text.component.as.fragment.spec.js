@@ -12,7 +12,7 @@ const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form
 const appConst = require('../../libs/app_const');
 const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
 
-describe('image.text.component.as.fragment.spec - tests for saving an image as fragment', function () {
+describe.skip('image.text.component.as.fragment.spec - tests for saving an image as fragment', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();

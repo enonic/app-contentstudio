@@ -43,7 +43,8 @@ describe('Text Component - insert embed iframe and preview the site', function (
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
 
             // 4. Open Insert Macro modal dialog:
-            await textComponentCke.clickOnInsertMacroButton();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.clickOnInsertMacroButton();
             await insertMacroModalDialog.waitForDialogLoaded();
             // 5. Select the 'Embed IFrame' option:
             await insertMacroModalDialog.selectOption('Embed IFrame');
