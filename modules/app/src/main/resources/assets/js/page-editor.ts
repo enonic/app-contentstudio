@@ -44,6 +44,8 @@ import {UpdateTextComponentViewEvent} from 'lib-contentstudio/page-editor/event/
 import {DuplicateComponentViewEvent} from 'lib-contentstudio/page-editor/event/incoming/manipulation/DuplicateComponentViewEvent';
 import {IframeBeforeContentSavedEvent} from 'lib-contentstudio/app/event/IframeBeforeContentSavedEvent';
 import {FragmentComponentType} from 'lib-contentstudio/app/page/region/FragmentComponentType';
+import {TextComponentType} from 'lib-contentstudio/app/page/region/TextComponentType';
+import {MinimizeWizardPanelEvent} from '@enonic/lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
 
 Store.instance().set('$', $);
 /*
@@ -92,6 +94,8 @@ IframeEventBus.get().registerClass('PageStateEvent', PageStateEvent);
 IframeEventBus.get().registerClass('SetPageLockStateEvent', SetPageLockStateEvent);
 IframeEventBus.get().registerClass('IframeBeforeContentSavedEvent', IframeBeforeContentSavedEvent);
 IframeEventBus.get().registerClass('CreateOrDestroyDraggableEvent', CreateOrDestroyDraggableEvent);
+IframeEventBus.get().registerClass('TextComponentType', TextComponentType);
+IframeEventBus.get().registerClass('MinimizeWizardPanelEvent', MinimizeWizardPanelEvent);
 
 
 console.info('Live edit iframe event bus initialized, receiver set to parent window');
