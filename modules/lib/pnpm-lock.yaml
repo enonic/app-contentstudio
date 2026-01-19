@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@enonic/ui':
-        specifier: ~0.31.0
-        version: 0.31.0(@radix-ui/react-slot@1.2.3(@types/react@19.2.2)(react@19.2.0))(focus-trap-react@11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(lucide-react@0.545.0(react@19.2.0))(preact@10.27.2)(react-dom@19.2.0(react@19.2.0))(react-virtuoso@4.18.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
+        specifier: ~0.33.0
+        version: 0.33.0(@radix-ui/react-slot@1.2.3(@types/react@19.2.2)(react@19.2.0))(focus-trap-react@11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(lucide-react@0.545.0(react@19.2.0))(preact@10.27.2)(react-dom@19.2.0(react@19.2.0))(react-virtuoso@4.18.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       '@nanostores/preact':
         specifier: ^1.0.0
         version: 1.0.0(nanostores@0.11.4)(preact@10.27.2)
@@ -343,9 +343,9 @@ packages:
       react-dom:
         optional: true
 
-  '@enonic/ui@0.31.0':
-    resolution: {integrity: sha512-Po853SvUJcC80kodMLKl5SDB1KqLbfC1ahehE8RSWCIt+ppg61qq0mCwGhiN0GGjZeH20n09wUs5nLR5OKdQ6A==}
-    engines: {node: '>=24.11.1', npm: '>=11.6.2', pnpm: '>=10.24.0'}
+  '@enonic/ui@0.33.0':
+    resolution: {integrity: sha512-79b4q7Hoi53J4VqP7jIbl0i2M2lJ+z013knC7fwfGKXUrKEMPr0gdNtdwNOBOE9O1AbOs/DlD827tbIOCvxZMQ==}
+    engines: {node: '>=24.11.1', npm: '>=11.6.2', pnpm: '>=10.28.0'}
     peerDependencies:
       '@radix-ui/react-slot': ^1.2.0
       focus-trap-react: ^11.0.0
@@ -4073,7 +4073,7 @@ snapshots:
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
 
-  '@enonic/ui@0.31.0(@radix-ui/react-slot@1.2.3(@types/react@19.2.2)(react@19.2.0))(focus-trap-react@11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(lucide-react@0.545.0(react@19.2.0))(preact@10.27.2)(react-dom@19.2.0(react@19.2.0))(react-virtuoso@4.18.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)':
+  '@enonic/ui@0.33.0(@radix-ui/react-slot@1.2.3(@types/react@19.2.2)(react@19.2.0))(focus-trap-react@11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(lucide-react@0.545.0(react@19.2.0))(preact@10.27.2)(react-dom@19.2.0(react@19.2.0))(react-virtuoso@4.18.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@radix-ui/react-slot': 1.2.3(@types/react@19.2.2)(react@19.2.0)
       class-variance-authority: 0.7.1
