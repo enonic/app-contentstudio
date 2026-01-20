@@ -74,8 +74,8 @@
     "extends browserslist-config-enonic"
   ],
   "engines": {
-    "node": ">= 22.19.0",
+    "node": ">= 24.13.0",
     "pnpm": ">= 10.16.0",
-    "npm": ">= 10.9.3"
+    "npm": ">= 11.6.2"
   }
 }
