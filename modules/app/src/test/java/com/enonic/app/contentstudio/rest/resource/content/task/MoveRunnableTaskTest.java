@@ -140,7 +140,7 @@ public class MoveRunnableTaskTest
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) )
             .thenReturn( FindContentIdsByQueryResult.create().contents( ContentIds.empty() ).totalHits( 1 ).build() );
         Mockito.when( contentService.move( Mockito.isA( MoveContentParams.class ) ) )
-            .thenThrow( new ContentAccessException( null, User.ANONYMOUS, contents.get( 0 ).getPath(), Permission.MODIFY ) )
+            .thenThrow( new ContentAccessException( null, User.anonymous(), contents.get( 0 ).getPath(), Permission.MODIFY ) )
             .thenReturn( MoveContentsResult.create()
                              .addMoved( contents.get( 0 ).getId() )
                              .setContentName( contents.get( 1 ).getDisplayName() )
@@ -172,7 +172,7 @@ public class MoveRunnableTaskTest
             .thenReturn( FindContentIdsByQueryResult.create().contents( ContentIds.empty() ).totalHits( 2 ).build() );
         Mockito.when( contentService.move( Mockito.isA( MoveContentParams.class ) ) )
             .thenThrow( new ContentAlreadyMovedException( contents.get( 0 ).getDisplayName(), contents.get( 0 ).getPath() ) )
-            .thenThrow( new ContentAccessException( null, User.ANONYMOUS, contents.get( 1 ).getPath(), Permission.MODIFY ) );
+            .thenThrow( new ContentAccessException( null, User.anonymous(), contents.get( 1 ).getPath(), Permission.MODIFY ) );
 
         createAndRunTask();
 
@@ -202,14 +202,14 @@ public class MoveRunnableTaskTest
         Mockito.when( contentService.move( Mockito.isA( MoveContentParams.class ) ) )
             .thenThrow( new ContentAlreadyMovedException( "Content already moved", contents.get( 0 ).getPath() ) )
             .thenThrow( ContentNotFoundException.create().contentPath( contents.get( 1 ).getPath() ).build() )
-            .thenThrow( new ContentAccessException( null, User.ANONYMOUS, contents.get( 2 ).getPath(), Permission.MODIFY ) )
+            .thenThrow( new ContentAccessException( null, User.anonymous(), contents.get( 2 ).getPath(), Permission.MODIFY ) )
             .thenThrow( new ContentAlreadyMovedException( "Content already moved", ContentPath.from( "/id4" ) ) )
             .thenThrow(
                 new ContentAlreadyExistsException( ContentPath.from( "/id5" ), RepositoryId.from( "some.repo" ), Branch.from( "draft" ) ) )
             .thenThrow(
                 new ContentAlreadyExistsException( ContentPath.from( "/id6" ), RepositoryId.from( "some.repo" ), Branch.from( "draft" ) ) )
             .thenReturn( MoveContentsResult.create().addMoved( ContentId.from( "id7" ) ).setContentName( "content 7" ).build() )
-            .thenThrow( new ContentAccessException( null, User.ANONYMOUS, ContentPath.from( "/id8" ), Permission.READ ) )
+            .thenThrow( new ContentAccessException( null, User.anonymous(), ContentPath.from( "/id8" ), Permission.READ ) )
             .thenThrow( ContentNotFoundException.create().contentPath( ContentPath.from( "/id9" ) ).build() );
 
         createAndRunTask();

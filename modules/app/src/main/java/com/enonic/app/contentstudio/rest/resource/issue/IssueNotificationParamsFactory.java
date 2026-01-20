@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.enonic.xp.app.ApplicationKey;
 import com.enonic.app.contentstudio.rest.resource.schema.SchemaImageHelper;
 import com.enonic.app.contentstudio.rest.resource.schema.content.ContentTypeIconResolver;
 import com.enonic.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
+import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.content.CompareContentResults;
 import com.enonic.xp.content.CompareContentsParams;
 import com.enonic.xp.content.ContentId;
@@ -157,7 +157,7 @@ public class IssueNotificationParamsFactory
     private User getCurrentUser()
     {
         final Context context = ContextAccessor.current();
-        return context.getAuthInfo().getUser() != null ? context.getAuthInfo().getUser() : User.ANONYMOUS;
+        return context.getAuthInfo().getUser() != null ? context.getAuthInfo().getUser() : User.anonymous();
     }
 
 

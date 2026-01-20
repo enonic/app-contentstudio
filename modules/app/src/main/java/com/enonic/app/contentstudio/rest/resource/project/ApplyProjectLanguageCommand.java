@@ -1,13 +1,10 @@
 package com.enonic.app.contentstudio.rest.resource.project;
 
 import java.util.Locale;
-import java.util.Objects;
 
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.UpdateContentMetadataParams;
-import com.enonic.xp.context.ContextAccessor;
-import com.enonic.xp.security.User;
 
 public final class ApplyProjectLanguageCommand
     extends AbstractProjectRootCommand
@@ -41,11 +38,6 @@ public final class ApplyProjectLanguageCommand
 
             return this.contentService.updateMetadata( params ).getContent().getLanguage();
         } );
-    }
-
-    private User getCurrentUser()
-    {
-        return Objects.requireNonNullElse( ContextAccessor.current().getAuthInfo().getUser(), User.ANONYMOUS );
     }
 
     public static final class Builder

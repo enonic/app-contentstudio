@@ -321,7 +321,7 @@ public class IssueNotificationsSenderImplTest
     public void testNotifyIssueUpdatedByCreator()
         throws Exception
     {
-        final User creator = User.ANONYMOUS;
+        final User creator = User.anonymous();
         final Issue issue = createIssue( creator.getKey(), PrincipalKeys.empty() );
         final Content content = Content.create().
             id( ContentId.from( "aaa" ) ).
@@ -367,7 +367,7 @@ public class IssueNotificationsSenderImplTest
         throws Exception
     {
         final User creator = generateUser();
-        final List<User> approvers = Arrays.asList( User.ANONYMOUS, generateUser( "other@user.com" ), generateUser( "more@user.com" ) );
+        final List<User> approvers = Arrays.asList( User.anonymous(), generateUser( "other@user.com" ), generateUser( "more@user.com" ) );
         final PrincipalKeys approverIds =
             PrincipalKeys.from( approvers.stream().map( approver -> approver.getKey() ).collect( Collectors.toList() ) );
         final Issue issue = createIssue( creator.getKey(), approverIds );
@@ -446,8 +446,7 @@ public class IssueNotificationsSenderImplTest
                              .build() );
 
         IssueCommentedNotificationParams params = notificationFactoryBuilder.
-            issue( issue ).
-            comments( this.createComments( User.ANONYMOUS.getKey() ) ).
+            issue( issue ).comments( this.createComments( User.anonymous().getKey() ) ).
             url( "url" ).
             localeService( localeService ).
             locales( Collections.enumeration( Collections.singleton( Locale.US ) ) ).
@@ -470,7 +469,7 @@ public class IssueNotificationsSenderImplTest
         throws Exception
     {
         final User creator = generateUserNoEmail();
-        final User approver = User.ANONYMOUS;
+        final User approver = User.anonymous();
         final Issue issue = createIssue( creator.getKey(), PrincipalKeys.from( approver.getKey() ) );
         final Content content = Content.create().
             id( ContentId.from( "aaa" ) ).
@@ -496,8 +495,7 @@ public class IssueNotificationsSenderImplTest
                              .build() );
 
         IssueCommentedNotificationParams params = notificationFactoryBuilder.
-            issue( issue ).
-            comments( this.createComments( User.ANONYMOUS.getKey() ) ).
+            issue( issue ).comments( this.createComments( User.anonymous().getKey() ) ).
             url( "url" ).
             localeService( localeService ).
             locales( Collections.enumeration( Collections.singleton( Locale.US ) ) ).
@@ -517,7 +515,7 @@ public class IssueNotificationsSenderImplTest
         throws Exception
     {
         final User creator = generateUser();
-        final List<User> approvers = Arrays.asList( User.ANONYMOUS, generateUser( "other@user.com" ) );
+        final List<User> approvers = Arrays.asList( User.anonymous(), generateUser( "other@user.com" ) );
         final PrincipalKeys approverIds =
             PrincipalKeys.from( approvers.stream().map( approver -> approver.getKey() ).collect( Collectors.toList() ) );
         final Issue issue = createIssue( creator.getKey(), approverIds );
@@ -546,8 +544,7 @@ public class IssueNotificationsSenderImplTest
                              .build() );
 
         IssueCommentedNotificationParams params = notificationFactoryBuilder.
-            issue( issue ).
-            comments( this.createComments( User.ANONYMOUS.getKey() ) ).
+            issue( issue ).comments( this.createComments( User.anonymous().getKey() ) ).
             url( "url" ).
             localeService( localeService ).
             locales( Collections.enumeration( Collections.singleton( Locale.US ) ) ).
@@ -602,7 +599,7 @@ public class IssueNotificationsSenderImplTest
     public void testNotifyIssuePublishedByCreator()
         throws Exception
     {
-        final User creator = User.ANONYMOUS;
+        final User creator = User.anonymous();
         final User approver = generateUserNoEmail();
         final Issue issue = createIssue( creator.getKey(), PrincipalKeys.from( approver.getKey() ) );
         final Contents contents = Contents.empty();
@@ -633,7 +630,7 @@ public class IssueNotificationsSenderImplTest
         throws Exception
     {
         final User creator = generateUser();
-        final List<User> approvers = Arrays.asList( User.ANONYMOUS, generateUser( "other@user.com" ) );
+        final List<User> approvers = Arrays.asList( User.anonymous(), generateUser( "other@user.com" ) );
         final PrincipalKeys approverIds =
             PrincipalKeys.from( approvers.stream().map( approver -> approver.getKey() ).collect( Collectors.toList() ) );
         final Issue issue = createIssue( creator.getKey(), approverIds );
