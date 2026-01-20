@@ -128,9 +128,9 @@ export class ContentSummary {
             return o;
         } else {
             return new ContentSummaryBuilder()
-                .setContentId(ContentId.fromObject(o["contentId"]))
+                .setContentId(o["contentId"])
                 .setId(o["id"])
-                .setName(ContentName.fromObject(o["name"]))
+                .setName(o["name"])
                 .setDisplayName(o["displayName"])
                 .setPath(o["path"])
                 .setHasChildren(o["children"])

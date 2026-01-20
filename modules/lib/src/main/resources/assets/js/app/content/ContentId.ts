@@ -42,11 +42,7 @@ export class ContentId
         return true;
     }
 
-    public static fromObject(o: object): ContentId {
-        if (o instanceof ContentId) {
-            return o;
-        } else {
-            return new ContentId(o['value']);
-        }
+    public static fromString(str: string): ContentId {
+        return new ContentId(str);
     }
 }

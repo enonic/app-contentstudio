@@ -4,6 +4,7 @@ import {PageState} from '../app/wizard/page/PageState';
 import {FragmentComponent} from '../app/page/region/FragmentComponent';
 import {TextComponent} from '../app/page/region/TextComponent';
 import {PageHelper} from '../app/util/PageHelper';
+import {PageItem} from '../app/page/region/PageItem';
 
 export class LiveEditParams {
 
@@ -103,8 +104,7 @@ export class LiveEditParams {
     }
 
     getFragmentIdByPath(path: string): string | undefined {
-        const componentPath = ComponentPath.fromString(path);
-        const component = PageState.getComponentByPath(componentPath);
+        const component = this.getComponentByPath(path);
 
         if (component instanceof FragmentComponent) {
             return component.getFragment()?.toString();
@@ -114,14 +114,18 @@ export class LiveEditParams {
     }
 
     getTextComponentData(path: string): string | undefined {
-        const componentPath = ComponentPath.fromString(path);
-        const component = PageState.getComponentByPath(componentPath);
+        const component = this.getComponentByPath(path);
 
         if (component instanceof TextComponent) {
             return component.getText();
         }
 
         return undefined;
+    }
+
+    private getComponentByPath(path: string): PageItem | undefined {
+        const componentPath = ComponentPath.fromString(path);
+        return PageState.getComponentByPath(componentPath);
     }
 }
 

@@ -29,7 +29,9 @@ export class LoadComponentFailedEvent
 
     static fromString(value: string): LoadComponentFailedEvent {
         // doing from/toString to serialize Error manually, because of Error stack having circular structure
-        const [pathStr, errorMessage] = value.split(':');
+        const separatorIndex = value.indexOf(':');
+        const pathStr = separatorIndex === -1 ? value : value.substring(0, separatorIndex);
+        const errorMessage = separatorIndex === -1 ? undefined : value.substring(separatorIndex + 1);
         return new LoadComponentFailedEvent(ComponentPath.fromString(pathStr), new Error(errorMessage));
     }
 

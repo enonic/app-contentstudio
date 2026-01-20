@@ -155,7 +155,6 @@ export class InsertablesPanel
 
         if (this.iFrameDraggable) {
             this.liveEditPageProxy.destroyDraggable(this.iFrameDraggableData);
-            // this.iFrameDraggable.simulate('mouseup');
 
             this.iFrameDraggable = null;
             this.iFrameDraggableData = null;
@@ -172,13 +171,6 @@ export class InsertablesPanel
         }
         this.liveEditPageProxy.getDragMask().show();
 
-        if (this.iFrameDraggable) {
-            // let livejq = this.liveEditPageProxy.getJQuery();
-            // hide the helper of the iframe draggable,
-            // it's a function so call it to get element and wrap in jquery to hide
-            // livejq(this.iFrameDraggable.draggable('option', 'helper')()).hide();
-        }
-
         // and show the one in the parent
         ui.helper.show();
     }
@@ -188,7 +180,6 @@ export class InsertablesPanel
             console.log('InsertablesPanel.onEnterIFrame', event, ui);
         }
         this.liveEditPageProxy.getDragMask().hide();
-        // let livejq = this.liveEditPageProxy.getJQuery();
 
         if (!this.iFrameDraggable) {
             this.iFrameDraggable = event.target.cloneNode(true) as HTMLElement;
@@ -196,18 +187,8 @@ export class InsertablesPanel
                 type: event.target.getAttribute('data-portal-component-type')
             }
 
-            //TODO: is this allowed for cross-domain iframes?
-            // remove livejq reference!
-            // pass necessary data in event instead
-
-            // livejq('body').append(this.iFrameDraggable);
             this.liveEditPageProxy.createDraggable(this.iFrameDraggableData);
-            // this.iFrameDraggable.simulate('mousedown').hide();
         }
-
-        // show the helper of the iframe draggable
-        // it's a function so call it to get element and wrap in jquery to show
-        // livejq(this.iFrameDraggable.draggable('option', 'helper')()).show();
 
         // and hide the one in the parent
         ui.helper.hide();
