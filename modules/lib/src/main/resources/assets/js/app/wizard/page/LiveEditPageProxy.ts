@@ -1,4 +1,3 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {LiveEditModel} from '../../../page-editor/LiveEditModel';
 import {ComponentViewDragStartedEvent} from '../../../page-editor/ComponentViewDragStartedEvent';
 import {ComponentViewDragStoppedEvent} from '../../../page-editor/ComponentViewDraggingStoppedEvent';
@@ -252,17 +251,6 @@ export class LiveEditPageProxy
         }
     }
 
-    public propagateEvent(event: Event) {
-        if (this.isFrameLoaded) {
-            //TODO: Why push to iframe?
-            // It's only ContentUpdatedEvent and ContentDeletedEvent
-
-            // if (this.liveEditWindow) {
-            //     event.fire(this.liveEditWindow);
-            // }
-        }
-    }
-
     private handleIFrameLoadedEvent() {
         if (LiveEditPageProxy.debug) {
             console.debug('LiveEditPageProxy.handleIframeLoadedEvent at ' + new Date().toISOString());
@@ -270,69 +258,41 @@ export class LiveEditPageProxy
 
         const liveEditWindow = (this.liveEditIFrame.getHTMLElement() as HTMLIFrameElement).contentWindow;
 
-        // now that iframe is loaded, initialize its event bus to be able to post there
+        // now that iframe is loaded, add it as a receiver to the IframeEventBus
         IframeEventBus.get().addReceiver(liveEditWindow);
 
-        // let liveEditWindow: Window = this.liveEditIFrame.getHTMLElement()['contentWindow'];
-
-        // console.info('LiveEditPageProxy.handleIFrameLoadedEvent: liveEditWindow', liveEditWindow);
-
         this.isFrameLoaded = true;
-
-        //TODO: fix no iframe access
 
         if (liveEditWindow) {
             this.isPageLocked = false;
 
             this.stopListening();
 
+            this.listenToLivePageEvents();
 
-            // const liveEditGlobal: GlobalLibAdmin = liveEditWindow[GLOBAL];
-            // const liveEditStore: Store = liveEditGlobal ? liveEditGlobal.store : null;
-            // const livejq = (liveEditStore && liveEditStore.has('$')) ? liveEditStore.get('$') : liveEditWindow['$'];
-
-            // console.info('LiveEditPageProxy.handleIFrameLoadedEvent: livejq', livejq);
-
-            //TODO: fix no iframe access
-            let livejq = true;
-            if (livejq) {
-
-                // this.livejq = livejq as JQueryStatic;
-
-                this.listenToLivePageEvents();
-
+            if (this.isLiveEditAllowed()) {
                 if (LiveEditPageProxy.debug) {
                     console.debug('LiveEditPageProxy.hanldeIframeLoadedEvent: initialize live edit at ' + new Date().toISOString());
                 }
 
-                if (this.isLiveEditAllowed()) {
+                const jsessionid = CookieHelper.getCookie('JSESSIONID');
+                new InitializeLiveEditEvent(this.createLiveEditParams())
+                    .setContent(this.liveEditModel.getContentSummaryAndCompareStatus())
+                    .setPrincipals()
+                    .setConfig()
+                    .setProjectJson()
+                    .setPageJson()
+                    .setUser()
+                    .setJsessionId(jsessionid)
+                    .setHostDomain(`${window.location.protocol}//${window.location.host}`)
+                    .fire();
 
-                    const jsessionid = CookieHelper.getCookie('JSESSIONID');
-                    if (LiveEditPageProxy.debug) {
-                        console.debug('LiveEditPageProxy.hanldeIframeLoadedEvent: JSESSIONID=' + jsessionid);
-                    }
-                    new InitializeLiveEditEvent(this.createLiveEditParams())
-                        .setContent(this.liveEditModel.getContentSummaryAndCompareStatus())
-                        .setPrincipals()
-                        .setConfig()
-                        .setProjectJson()
-                        .setPageJson()
-                        .setUser()
-                        .setJsessionId(jsessionid)
-                        .setHostDomain(`${window.location.protocol}//${window.location.host}`)
-                        .fire();
-
-                } else {
-                    PageEventsManager.get().notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
-                }
             } else {
                 if (LiveEditPageProxy.debug) {
                     console.debug('LiveEditPageProxy.handleIframeLoadedEvent: notify live edit ready at ' + new Date().toISOString());
                 }
 
-                if (this.isLiveEditAllowed()) {
-                    PageEventsManager.get().notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
-                }
+                PageEventsManager.get().notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
             }
         }
 

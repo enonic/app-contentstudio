@@ -67,6 +67,7 @@ import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {SessionStorageHelper} from '../app/util/SessionStorageHelper';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {Request} from '@enonic/lib-admin-ui/rest/Request';
+import {LayoutItemType} from './layout/LayoutItemType';
 
 export class LiveEditPage {
 
@@ -79,6 +80,8 @@ export class LiveEditPage {
     private skipConfirmationListener: (event: SkipLiveEditReloadConfirmationEvent) => void;
 
     private unloadListener: (event: UIEvent) => void;
+
+    private componentLoadedListener: (event: ComponentLoadedEvent) => void;
 
     private dragStartedListener: () => void;
 
@@ -221,6 +224,19 @@ export class LiveEditPage {
         };
 
         WindowDOM.get().onUnload(this.unloadListener);
+
+        this.componentLoadedListener = (event: ComponentLoadedEvent) => {
+            const componentView: ComponentView = this.getItemViewByPath(event.getPath()) as ComponentView;
+            const componentType = componentView.getType();
+
+            if (LayoutItemType.get().equals(componentType)) {
+                DragAndDrop.get().createSortableLayout(componentView);
+            } else {
+                DragAndDrop.get().refreshSortable();
+            }
+        };
+
+        ComponentLoadedEvent.on(this.componentLoadedListener);
 
         this.dragStartedListener = () => {
             Highlighter.get().hide();
@@ -414,8 +430,6 @@ export class LiveEditPage {
 
         this.createOrDestroyDraggableListener = (event: CreateOrDestroyDraggableEvent): void => {
 
-            console.debug(`CreateOrDestroyDraggableListener:`, event);
-
             const item = jQuery(`<div ${'data-' + ItemType.ATTRIBUTE_TYPE}="${event.getType()}"></div>`).appendTo(jQuery('body'));
             if (event.isCreate()) {
                 this.pageView?.createDraggable(item);
@@ -431,7 +445,6 @@ export class LiveEditPage {
             }
         };
 
-        // TODO refactor CreateOrDestroyDraggableEvent to IframeEvent: has jQuery dependency !!!
         CreateOrDestroyDraggableEvent.on(this.createOrDestroyDraggableListener);
 
         this.resetComponentViewRequestListener = (event: ResetComponentViewEvent): void => {
@@ -507,11 +520,11 @@ export class LiveEditPage {
 
         SetModifyAllowedEvent.un(this.setModifyAllowedListener);
 
-        // CreateOrDestroyDraggableEvent.un(this.createOrDestroyDraggableListener);
+        CreateOrDestroyDraggableEvent.un(this.createOrDestroyDraggableListener);
 
         ResetComponentViewEvent.un(this.resetComponentViewRequestListener);
 
-        // PageStateEvent.un(this.pageStateListener);
+        PageStateEvent.un(this.pageStateListener);
 
         UpdateTextComponentViewEvent.un(this.updateTextComponentViewListener);
     }
