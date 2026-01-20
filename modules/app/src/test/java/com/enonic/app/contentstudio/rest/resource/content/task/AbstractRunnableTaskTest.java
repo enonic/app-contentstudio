@@ -6,13 +6,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import com.enonic.app.contentstudio.json.task.AbstractRunnableTask;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.security.User;
 import com.enonic.xp.security.auth.AuthenticationInfo;
 import com.enonic.xp.support.JsonTestHelper;
-import com.enonic.app.contentstudio.json.task.AbstractRunnableTask;
 import com.enonic.xp.task.ProgressReporter;
 import com.enonic.xp.task.TaskService;
 
@@ -36,7 +36,7 @@ public abstract class AbstractRunnableTaskTest
     void setUpAbstractRunnableTaskTest()
         throws Exception
     {
-        this.authInfo = AuthenticationInfo.create().user( User.ANONYMOUS ).build();
+        this.authInfo = AuthenticationInfo.create().user( User.anonymous() ).build();
         this.contents = List.of( Content.create()
                                      .id( ContentId.from( "id1" ) )
                                      .path( "/content/content1" )

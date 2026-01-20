@@ -129,7 +129,7 @@ public class IssueResourceTest
         projectService = mock( ProjectService.class );
         when( securityService.getAllMemberships( isA( PrincipalKey.class ) ) )
             .thenReturn( PrincipalKeys.from( "role:system:one" ) );
-        when( securityService.getUser( User.ANONYMOUS.getKey() ) ).thenReturn( Optional.of( User.ANONYMOUS ) );
+        when( securityService.getUser( User.anonymous().getKey() ) ).thenReturn( Optional.of( User.anonymous() ) );
         when( projectService.getPermissions( isA( ProjectName.class ) ) ).thenReturn( createProjectPermissions() );
 
         resource.setIssueService( issueService );
@@ -182,7 +182,7 @@ public class IssueResourceTest
     {
         createRepoContext().runWith( () -> {
             final CreateIssueJson params =
-                new CreateIssueJson( null, "title", "desc", Arrays.asList( User.ANONYMOUS.getKey().toString() ), createPublishRequest(),
+                new CreateIssueJson( null, "title", "desc", Arrays.asList( User.anonymous().getKey().toString() ), createPublishRequest(),
                                      null );
 
             final Issue issue = this.createIssue();
@@ -212,7 +212,8 @@ public class IssueResourceTest
     {
         createRepoContext().runWith( () -> {
             final CreateIssueJson params = new CreateIssueJson( IssueType.PUBLISH_REQUEST.toString(), "title", "desc",
-                                                                Arrays.asList( User.ANONYMOUS.getKey().toString() ), createPublishRequest(),
+                                                                Arrays.asList( User.anonymous().getKey().toString() ),
+                                                                createPublishRequest(),
                                                                 createPublishRequestSchedule() );
 
             final Issue issue = this.createPublishRequestIssue();
@@ -246,7 +247,7 @@ public class IssueResourceTest
     {
         createRepoContext().runWith( () -> {
             final CreateIssueJson params =
-                new CreateIssueJson( null, "title", null, Arrays.asList( User.ANONYMOUS.getKey().toString() ), createPublishRequest(),
+                new CreateIssueJson( null, "title", null, Arrays.asList( User.anonymous().getKey().toString() ), createPublishRequest(),
                                      null );
 
             final Issue issue = this.createIssue();
@@ -363,7 +364,7 @@ public class IssueResourceTest
 
     private void verifyValidAssigneeNotFiltered( final PrincipalKeys memberships )
     {
-        verifyValidAssigneeNotFiltered( User.ANONYMOUS.getKey(), memberships );
+        verifyValidAssigneeNotFiltered( User.anonymous().getKey(), memberships );
     }
 
     private void verifyValidAssigneeNotFiltered( final PrincipalKey user )
@@ -393,7 +394,8 @@ public class IssueResourceTest
     {
         createRepoContext().runWith( () -> {
             final CreateIssueJson params =
-                new CreateIssueJson( null, "title", "", Arrays.asList( User.ANONYMOUS.getKey().toString() ), createPublishRequest(), null );
+                new CreateIssueJson( null, "title", "", Arrays.asList( User.anonymous().getKey().toString() ), createPublishRequest(),
+                                     null );
 
             final IssueResource issueResource = getResourceInstance();
             ArgumentCaptor<CreateIssueParams> issueParamsArgumentCaptor = ArgumentCaptor.forClass( CreateIssueParams.class );
@@ -653,7 +655,7 @@ public class IssueResourceTest
     {
         final Issue issue = createIssue();
         final IssueComment comment = createIssueComment( Instant.now() );
-        final User creator = User.ANONYMOUS;
+        final User creator = User.anonymous();
 
         final CreateIssueCommentJson params =
             new CreateIssueCommentJson( issue.getId().toString(), comment.getText(), comment.getCreator().toString(), false );
@@ -699,7 +701,7 @@ public class IssueResourceTest
 
         IssueResource resource = getResourceInstance();
         when( issueService.getIssue( params.issueId ) ).thenThrow( new IssueNotFoundException( issue.getId() ) );
-        when( securityService.getUser( params.creator ) ).thenReturn( Optional.of( User.ANONYMOUS ) );
+        when( securityService.getUser( params.creator ) ).thenReturn( Optional.of( User.anonymous() ) );
 
         assertThrows( IssueNotFoundException.class, () -> resource.comment( params, mock( HttpServletRequest.class ) ) );
     }
@@ -781,8 +783,7 @@ public class IssueResourceTest
     {
         return IssueComment.create().
             id( NodeId.from( UUID.randomUUID() ) ).
-            text( "Comment text one" ).
-            creator( User.ANONYMOUS.getKey() ).
+            text( "Comment text one" ).creator( User.anonymous().getKey() ).
             creatorDisplayName( "Anonymous" ).
             created( createdTime ).
             build();
@@ -794,9 +795,7 @@ public class IssueResourceTest
         return Issue.create().
             addApproverId( PrincipalKey.from( "user:system:anonymous" ) ).
             title( "title" ).
-            description( "desc" ).
-            creator( User.ANONYMOUS.getKey() ).
-            modifier( User.ANONYMOUS.getKey() ).
+            description( "desc" ).creator( User.anonymous().getKey() ).modifier( User.anonymous().getKey() ).
             setPublishRequest( PublishRequest.create().
                 addExcludeId( ContentId.from( "exclude-id" ) ).
                 addItem( PublishRequestItem.create().
@@ -813,9 +812,7 @@ public class IssueResourceTest
         return PublishRequestIssue.create().
             addApproverId( PrincipalKey.from( "user:system:anonymous" ) ).
             title( "title" ).
-            description( "desc" ).
-            creator( User.ANONYMOUS.getKey() ).
-            modifier( User.ANONYMOUS.getKey() ).
+            description( "desc" ).creator( User.anonymous().getKey() ).modifier( User.anonymous().getKey() ).
             setPublishRequest( PublishRequest.create().
                 addExcludeId( ContentId.from( "exclude-id" ) ).
                 addItem( PublishRequestItem.create().

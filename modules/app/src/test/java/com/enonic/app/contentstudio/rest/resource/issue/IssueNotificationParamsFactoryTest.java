@@ -196,7 +196,7 @@ public class IssueNotificationParamsFactoryTest
             updatedParams();
 
         assertEquals( new ArrayList<>(), params.getApprovers() );
-        assertEquals( User.ANONYMOUS, params.getModifier() );
+        assertEquals( User.anonymous(), params.getModifier() );
         assertEquals( 0, params.getIcons().size() );
 
         verify( securityService, times( 1 ) ).getUser( any() );
@@ -227,7 +227,7 @@ public class IssueNotificationParamsFactoryTest
             build().
             publishedParams();
 
-        assertEquals( User.ANONYMOUS, params.getPublisher() );
+        assertEquals( User.anonymous(), params.getPublisher() );
 
         verify( securityService, times( 2 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
@@ -257,7 +257,7 @@ public class IssueNotificationParamsFactoryTest
             build().
             commentedParams();
 
-        assertEquals( User.ANONYMOUS, params.getModifier() );
+        assertEquals( User.anonymous(), params.getModifier() );
 
         verify( securityService, times( 2 ) ).getUser( any() );
         verify( contentService, times( 1 ) ).getByIds( any() );
