@@ -228,7 +228,10 @@ export class WidgetView
         }
 
         if (this.isExternal()) {
-            this.widgetItemViews.forEach((itemView: WidgetItemView) => itemView.removeChildren());
+            this.widgetItemViews.forEach((itemView: WidgetItemView) => {
+                itemView.cleanupWidget();
+                itemView.removeChildren();
+            });
         }
 
         this.contextView.resetActiveWidget();
