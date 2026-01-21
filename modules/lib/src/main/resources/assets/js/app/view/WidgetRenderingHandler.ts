@@ -246,7 +246,11 @@ export class WidgetRenderingHandler {
             data = this.extractWidgetData(response);
             if (data.redirect) {
                 // follow redirect manually to get data headers first
+                try {
                 response = await fetch(data.redirect, {method: 'HEAD'});
+                } catch (e) {
+                    response = this.createErrorResponse(e, data.redirect);
+                }
             }
 
             isOk = this.isResponseOk(response, isAuto);
@@ -264,6 +268,16 @@ export class WidgetRenderingHandler {
 
     private isResponseOk(response: Response, isAuto: boolean) {
         return response.ok || !isAuto && response.status !== StatusCode.I_AM_A_TEAPOT;
+    }
+
+    private createErrorResponse(error: Error, url: string): Response {
+        const resp = new Response(null, {
+            status: StatusCode.NOT_FOUND,
+            statusText: error.message || 'Endpoint not reachable'
+        });
+        // The url property cannot be set via the constructor, so we define it manually
+        Object.defineProperty(resp, 'url', {value: url, writable: false, enumerable: true, configurable: false})
+        return resp;
     }
 
     private applyImageStyles(frameWindow: Window) {
