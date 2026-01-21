@@ -6,9 +6,6 @@ import type {ContentId} from '../../../../../app/content/ContentId';
 import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {IssueStatus} from '../../../../../app/issue/IssueStatus';
 import {useI18n} from '../../../hooks/useI18n';
-import {createDebounce} from '../../../utils/timing/createDebounce';
-import {hasContentIdInIds, uniqueIds} from '../../../utils/cms/content/ids';
-import {useAssigneeSearch, useAssigneeSelection} from '../../selectors/assignee/hooks/useAssigneeSearch';
 import {$issueDialog, setIssueDialogView} from '../../../store/dialogs/issueDialog.store';
 import {
     $issueDialogDetails,
@@ -16,21 +13,24 @@ import {
     setIssueDialogCommentText,
     setIssueDialogDetailsTab,
     submitIssueDialogComment,
-    updateIssueDialogStatus,
     updateIssueDialogAssignees,
-    updateIssueDialogItems,
-    updateIssueDialogItemIncludeChildren,
     updateIssueDialogDependencyIncluded,
+    updateIssueDialogItemIncludeChildren,
+    updateIssueDialogItems,
+    updateIssueDialogStatus,
 } from '../../../store/dialogs/issueDialogDetails.store';
+import {hasContentIdInIds, uniqueIds} from '../../../utils/cms/content/ids';
+import {createDebounce} from '../../../utils/timing/createDebounce';
+import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
+import {useAssigneeSearch, useAssigneeSelection} from '../../selectors/assignee/hooks/useAssigneeSearch';
+import {IssueItemsSelector} from '../../selectors/items/IssueItemsSelector';
 import {IssueStatusBadge} from '../../status/IssueStatusBadge';
 import {IssueCommentsList} from './IssueCommentsList';
 import {IssueDialogSelector} from './IssueDialogSelector';
 import {IssueIcon} from './IssueIcon';
-import {useIssueDialogData} from './hooks/useIssueDialogData';
-import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
-import {IssueItemsSelector} from '../../selectors/items/IssueItemsSelector';
-import {IssueSelectedItems} from './IssueSelectedItems';
 import {IssueSelectedDependencies} from './IssueSelectedDependencies';
+import {IssueSelectedItems} from './IssueSelectedItems';
+import {useIssueDialogData} from './hooks/useIssueDialogData';
 
 import type {Issue} from '../../../../../app/issue/Issue';
 import type {IssueWithAssignees} from '../../../../../app/issue/IssueWithAssignees';
@@ -74,10 +74,10 @@ const resolveStatusOption = (
 };
 
 const resolveIssueData = ({
-                              issueId,
-                              issues,
-                              detailsIssue,
-                          }: {
+    issueId,
+    issues,
+    detailsIssue,
+}: {
     issueId?: string;
     issues: IssueWithAssignees[];
     detailsIssue?: Issue;
@@ -350,10 +350,10 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         >
             <Dialog.Header className='grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 px-5'>
                 <div className='flex min-w-0 items-center gap-2.5'>
-                    <IssueIcon issue={issueData}/>
+                    <IssueIcon issue={issueData} />
                     <Dialog.Title className='min-w-0 truncate text-2xl font-semibold'>{title}</Dialog.Title>
                 </div>
-                <Dialog.DefaultClose className='self-start justify-self-end'/>
+                <Dialog.DefaultClose className='self-start justify-self-end' />
             </Dialog.Header>
             <Dialog.Body className='flex min-h-0 flex-1 flex-col overflow-hidden'>
                 <Tab.Root value={detailsTab} onValueChange={handleTabChange} className='flex min-h-0 flex-1 flex-col gap-7.5'>
@@ -367,9 +367,9 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                 onValueChange={handleStatusChange}
                                 renderValue={(value) => {
                                     const option = resolveStatusOption(statusOptions, value);
-                                    return option ? <IssueStatusBadge status={option.status}/> : openStatusLabel;
+                                    return option ? <IssueStatusBadge status={option.status} /> : openStatusLabel;
                                 }}
-                                renderItemText={(option) => <IssueStatusBadge status={option.status}/>}
+                                renderItemText={(option) => <IssueStatusBadge status={option.status} />}
                             />
                         </div>
                         <Tab.List className='col-span-3 px-2.5 justify-end'>
@@ -472,7 +472,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                 </Tab.Root>
             </Dialog.Body>
             <Dialog.Footer className='px-5 justify-between'>
-                <Button variant='outline' size='lg' label={backLabel} onClick={handleBack}/>
+                <Button variant='outline' size='lg' label={backLabel} onClick={handleBack} />
                 <Button
                     variant='solid'
                     size='lg'

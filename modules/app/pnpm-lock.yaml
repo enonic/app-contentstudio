@@ -272,7 +272,7 @@ importers:
   .xp/dev/lib-contentstudio:
     dependencies:
       '@enonic/ui':
-        specifier: ~0.35.1
+        specifier: ~0.35.2
         version: 0.35.2(@radix-ui/react-slot@1.2.3(@types/react@19.2.2)(react@19.2.0))(focus-trap-react@11.0.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(lucide-react@0.545.0(react@19.2.0))(preact@10.27.2)(react-dom@19.2.0(react@19.2.0))(react-virtuoso@4.18.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       '@nanostores/preact':
         specifier: ^1.0.0
