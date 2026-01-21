@@ -371,11 +371,19 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
                                 if (hasDisplayNameData(data)) {
                                     const itemProps = getItemProps(index, node);
                                     const isSelected = selection.has(id);
+                                    const isActive = activeId === id;
+                                    // Active item with no selection should look like selected
+                                    const showAsSelected = isSelected || (isActive && selection.size === 0);
+
+                                    // When active-as-selected, disable active to avoid compound variant hover bg
+                                    const activeAsSelected = showAsSelected && !isSelected;
 
                                     return (
                                         <VirtualizedTreeList.Row
                                             {...itemProps}
-                                            data-tone={isSelected ? 'inverse' : undefined}
+                                            active={activeAsSelected ? false : itemProps.active}
+                                            selected={showAsSelected}
+                                            data-tone={showAsSelected ? 'inverse' : undefined}
                                             onClick={(e) => {
                                                 // Focus tree container for keyboard navigation
                                                 const tree = e.currentTarget.closest<HTMLElement>('[role="tree"]');
@@ -408,7 +416,7 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
                                                     onToggle={() =>
                                                         isExpanded ? handleCollapse(id) : handleExpand(id)
                                                     }
-                                                    selected={itemProps.selected}
+                                                    selected={showAsSelected}
                                                 />
                                             </VirtualizedTreeList.RowLeft>
                                             <VirtualizedTreeList.RowContent>
