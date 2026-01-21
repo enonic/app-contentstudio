@@ -557,6 +557,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         try {
             await this.clickOnCheckboxByName(name);
             await this.waitForRowCheckboxSelected(name);
+            await this.pause(200);
         } catch (err) {
             await this.handleError(`Row with the displayName ${name} was not checked`, 'err_check_item');
         }
