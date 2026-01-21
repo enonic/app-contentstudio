@@ -1,8 +1,8 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 
 export class ShowWarningLiveEditEvent
-    extends Event {
+    extends IframeEvent {
 
     private message: string;
 
@@ -17,11 +17,11 @@ export class ShowWarningLiveEditEvent
     }
 
     static on(handler: (event: ShowWarningLiveEditEvent) => void, contextWindow: Window = window) {
-        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: ShowWarningLiveEditEvent) => void, contextWindow: Window = window) {
-        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
 }

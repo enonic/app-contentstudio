@@ -35,6 +35,11 @@ export class FieldOrderExpr
         return this.fieldName + ' ' + super.getDirection();
     }
 
+    static fromString(s: string): FieldOrderExpr {
+        const parts = s.trim().split(' ');
+        return new FieldOrderExprBuilder().setFieldName(parts[0]).setDirection(parts[1]).build() as FieldOrderExpr;
+    }
+
     equals(o: Equitable): boolean {
         if (!super.equals(o)) {
             return false;

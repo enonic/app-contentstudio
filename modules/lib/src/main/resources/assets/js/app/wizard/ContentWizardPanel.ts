@@ -2038,6 +2038,7 @@ export class ContentWizardPanel
     private initLiveEditModel(content: Content): LiveEditModel {
         return LiveEditModel.create()
             .setContent(content)
+            .setCompareStatus(this.currentCompareStatus)
             .setContentFormContext(this.formsContexts.get('live'))
             .setSiteModel(this.siteModel)
             .setDefaultTemplate(this.defaultModels)

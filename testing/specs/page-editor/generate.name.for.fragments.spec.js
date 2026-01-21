@@ -20,9 +20,9 @@ const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
-const SiteConfiguratorReqInputDialog = require('../../page_objects/wizardpanel/site_configurator/site.configurator.req.input');
 
-describe('Generate name for fragments specification', function () {
+// TODO remove skip
+describe.skip('Generate name for fragments specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();

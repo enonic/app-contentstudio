@@ -2,7 +2,6 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
-import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {showError, showSuccess, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
@@ -19,9 +18,7 @@ import {Content, ContentBuilder} from '../../content/Content';
 import {ContentId} from '../../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {Site} from '../../content/Site';
-import {ContentDeletedEvent} from '../../event/ContentDeletedEvent';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
-import {ContentUpdatedEvent} from '../../event/ContentUpdatedEvent';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {InspectEvent} from '../../event/InspectEvent';
 import {ContentType} from '../../inputtype/schema/ContentType';
@@ -143,10 +140,6 @@ export class LiveFormPanel
 
     private liveEditPageProxy?: LiveEditPageProxy;
 
-    private contentEventListener: (event: ContentUpdatedEvent | ContentDeletedEvent) => void;
-
-    private hasContentEventListeners: boolean;
-
     private lastInspectedItemPath: ComponentPath;
 
     private saveAction: Action;
@@ -228,10 +221,6 @@ export class LiveFormPanel
         ShowContentFormEvent.on(this.hideLoadMaskHandler);
         ContentServerEventsHandler.getInstance().onContentUpdated(this.contentUpdatedHandler);
         ContentServerEventsHandler.getInstance().onContentPermissionsUpdated(this.contentPermissionsUpdatedHandler);
-
-        this.contentEventListener = (event) => {
-            this.propagateEvent(event);
-        };
 
         // showing apply button for page, part and layout with form items
         const formLayoutHandler = (panel: BaseInspectionPanel) => {
@@ -559,34 +548,15 @@ export class LiveFormPanel
 
         this.liveEditPageProxy.setModel(liveEditModel);
         this.availableInspectPanels.forEach((panel) => panel.setModel(liveEditModel));
-
-        this.handleContentUpdatedEvent();
     }
 
     public getModel(): LiveEditModel {
         return this.liveEditModel;
     }
 
-    private handleContentUpdatedEvent() {
-        if (this.hasContentEventListeners) {
-            return;
-        }
-
-        ContentDeletedEvent.on(this.contentEventListener);
-        ContentUpdatedEvent.on(this.contentEventListener);
-        this.hasContentEventListeners = true;
-
-        this.onRemoved(() => {
-            this.removeContentEventListeners();
-        });
-    }
 
     skipNextReloadConfirmation(skip: boolean) {
         this.liveEditPageProxy?.skipNextReloadConfirmation(skip);
-    }
-
-    propagateEvent(event: Event) {
-        this.liveEditPageProxy.propagateEvent(event);
     }
 
     onRenderableChanged(listener: (isRenderable: boolean, wasRenderable: boolean) => void) {
@@ -602,7 +572,7 @@ export class LiveFormPanel
             console.debug('LiveFormPanel.loadPage at ' + new Date().toISOString());
         }
 
-        if (this.pageSkipReload || this.pageLoading) {
+        if (this.pageSkipReload) {
             return Promise.resolve(false);
         }
 
@@ -897,14 +867,6 @@ export class LiveFormPanel
         this.availableInspectPanels.forEach(
             (panel) => panel instanceof DescriptorBasedComponentInspectionPanel && panel.unbindSiteModelListeners());
         this.liveEditModel = null;
-
-        this.removeContentEventListeners();
-    }
-
-    private removeContentEventListeners(): void {
-        ContentDeletedEvent.un(this.contentEventListener);
-        ContentUpdatedEvent.un(this.contentEventListener);
-        this.hasContentEventListeners = false;
     }
 
     getContextWindow(): ContextWindow {

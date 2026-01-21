@@ -15,6 +15,7 @@ const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog'
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const IssueDetailsDialogItemsTab = require('../../page_objects/issue/issue.details.items.tab');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe('publish.wizard.non.required.dependencies.spec - tests for config with excludeDependencies=true', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -41,6 +42,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
     it("GIVEN existing site with is opened WHEN content link has been inserted THEN new dependency item should appear for the site",
         async () => {
             let contentWizard = new ContentWizard();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
             // 1. Open existing site:
@@ -50,9 +52,9 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             // 3. Insert a text-component in PCV modal dialog:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
-            await textComponentCke.switchToLiveEditFrame();
             // 4. Open Insert Link dialog
-            await textComponentCke.clickOnInsertLinkButton();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.clickOnInsertLinkButton();
             // 5. Insert the content-link(link to a folder in the root directory):
             await studioUtils.insertContentLinkInCke(CONTENT_LINK_TITLE, TEST_FOLDER.displayName, true);
             await contentWizard.waitAndClickOnSave();

@@ -26,4 +26,8 @@ export class ContentName
 
         return true;
     }
+
+    public static fromString(str: string): ContentName {
+        return new ContentName(str);
+    }
 }

@@ -9,7 +9,6 @@ import {ItemViewIdProducer} from './ItemViewIdProducer';
 import {LiveEditPageInitializationErrorEvent} from './LiveEditPageInitializationErrorEvent';
 import {DragAndDrop} from './DragAndDrop';
 import {LiveEditPageViewReadyEvent} from './LiveEditPageViewReadyEvent';
-import {LayoutItemType} from './layout/LayoutItemType';
 import {Highlighter} from './Highlighter';
 import {SelectedHighlighter} from './SelectedHighlighter';
 import {Shader} from './Shader';
@@ -36,7 +35,6 @@ import {RegionView} from './RegionView';
 import {ItemType} from './ItemType';
 import {RemoveComponentViewEvent} from './event/incoming/manipulation/RemoveComponentViewEvent';
 import {ComponentView} from './ComponentView';
-import Q from 'q';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {CreateItemViewConfig} from './CreateItemViewConfig';
@@ -47,13 +45,9 @@ import {HTMLAreaHelper} from '../app/inputtype/ui/text/HTMLAreaHelper';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {LoadComponentViewEvent} from './event/incoming/manipulation/LoadComponentViewEvent';
 import {LoadComponentFailedEvent} from './event/outgoing/manipulation/LoadComponentFailedEvent';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DuplicateComponentViewEvent} from './event/incoming/manipulation/DuplicateComponentViewEvent';
 import {MoveComponentViewEvent} from './event/incoming/manipulation/MoveComponentViewEvent';
-import {BeforeContentSavedEvent} from '../app/event/BeforeContentSavedEvent';
-import {ContentSummaryAndCompareStatusFetcher} from '../app/resource/ContentSummaryAndCompareStatusFetcher';
-import {ContentId} from '../app/content/ContentId';
-import {ContentSummaryAndCompareStatus} from '../app/content/ContentSummaryAndCompareStatus';
+import {IframeBeforeContentSavedEvent} from '../app/event/IframeBeforeContentSavedEvent';
 import {ContentContext} from '../app/wizard/ContentContext';
 import {SetPageLockStateEvent} from './event/incoming/manipulation/SetPageLockStateEvent';
 import {SetModifyAllowedEvent} from './event/incoming/manipulation/SetModifyAllowedEvent';
@@ -71,6 +65,8 @@ import {DescriptorBasedComponent} from '../app/page/region/DescriptorBasedCompon
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {SessionStorageHelper} from '../app/util/SessionStorageHelper';
+import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
+import {LayoutItemType} from './layout/LayoutItemType';
 
 export class LiveEditPage {
 
@@ -139,8 +135,10 @@ export class LiveEditPage {
     private init(event: InitializeLiveEditEvent): void {
         let startTime = Date.now();
         if (LiveEditPage.debug) {
-            console.debug('LiveEditPage: starting live edit initialization');
+            console.debug('LiveEditPage: starting live edit initialization', event);
         }
+        // Setting up parent-like environment inside iframe
+        UriHelper.setDomain(event.getHostDomain());
 
         CONFIG.setConfig(event.getConfig());
         Messages.addMessages(JSON.parse(CONFIG.getString('phrasesAsJson')) as object);
@@ -149,50 +147,43 @@ export class LiveEditPage {
         ProjectContext.get().setProject(Project.fromJson(event.getProjectJson()));
         PageState.setState(event.getPageJson() ? new PageBuilder().fromJson(event.getPageJson()).build() : null);
 
-        // content is used for text components, but the best thing is to avoid extra server call to fetch entire content
-        // could be optimized by: a) Using content id in HtmlArea b) Sending state's Page.toJson() to live edit frame
-        const contentPromise: Q.Promise<void> = new ContentSummaryAndCompareStatusFetcher()
-            .fetch(new ContentId(event.getParams().contentId))
-            .then((content: ContentSummaryAndCompareStatus) => {
-                ContentContext.get().setContent(content);
-            });
+        ContentContext.get().setContent(event.getContent());
 
-        Q.all([contentPromise]).then(() => {
-            const body = Body.get().loadExistingChildren();
-            try {
-                this.pageView = new PageViewBuilder()
-                    .setItemViewIdProducer(new ItemViewIdProducer())
-                    .setItemViewFactory(new DefaultItemViewFactory())
-                    .setLiveEditParams(event.getParams())
-                    .setElement(body).build();
-            } catch (error) {
-                if (LiveEditPage.debug) {
-                    console.error('LiveEditPage: error initializing live edit in ' + (Date.now() - startTime) + 'ms');
-                }
-                if (ObjectHelper.iFrameSafeInstanceOf(error, Exception)) {
-                    new LiveEditPageInitializationErrorEvent('The Live edit page could not be initialized. ' +
-                                                             error.getMessage()).fire();
-                } else {
-                    new LiveEditPageInitializationErrorEvent('The Live edit page could not be initialized. ' +
-                                                             error).fire();
-                }
-                return;
-            }
 
-            DragAndDrop.init(this.pageView);
-
-            Tooltip.allowMultipleInstances(false);
-
-            this.registerGlobalListeners();
-
-            this.restoreSelection(event.getParams().contentId);
-
+        const body = Body.get().loadExistingChildren();
+        try {
+            this.pageView = new PageViewBuilder()
+                .setItemViewIdProducer(new ItemViewIdProducer())
+                .setItemViewFactory(new DefaultItemViewFactory())
+                .setLiveEditParams(event.getParams())
+                .setElement(body).build();
+        } catch (error) {
             if (LiveEditPage.debug) {
-                console.debug('LiveEditPage: done live edit initializing in ' + (Date.now() - startTime) + 'ms');
+                console.error('LiveEditPage: error initializing live edit in ' + (Date.now() - startTime) + 'ms');
             }
+            if (ObjectHelper.iFrameSafeInstanceOf(error, Exception)) {
+                new LiveEditPageInitializationErrorEvent('The Live edit page could not be initialized. ' +
+                                                         error.getMessage()).fire();
+            } else {
+                new LiveEditPageInitializationErrorEvent('The Live edit page could not be initialized. ' +
+                                                         error).fire();
+            }
+            return;
+        }
 
-            new LiveEditPageViewReadyEvent().fire();
-        }).catch(DefaultErrorHandler.handle);
+        DragAndDrop.init(this.pageView);
+
+        Tooltip.allowMultipleInstances(false);
+
+        this.registerGlobalListeners();
+
+        this.restoreSelection(event.getParams().contentId);
+
+        if (LiveEditPage.debug) {
+            console.debug('LiveEditPage: done live edit initializing in ' + (Date.now() - startTime) + 'ms');
+        }
+
+        new LiveEditPageViewReadyEvent().fire();
     }
 
     private restoreSelection(contentId: string): void {
@@ -231,9 +222,11 @@ export class LiveEditPage {
         WindowDOM.get().onUnload(this.unloadListener);
 
         this.componentLoadedListener = (event: ComponentLoadedEvent) => {
+            const componentView: ComponentView = this.getItemViewByPath(event.getPath()) as ComponentView;
+            const componentType = componentView.getType();
 
-            if (LayoutItemType.get().equals(event.getNewComponentView().getType())) {
-                DragAndDrop.get().createSortableLayout(event.getNewComponentView());
+            if (LayoutItemType.get().equals(componentType)) {
+                DragAndDrop.get().createSortableLayout(componentView);
             } else {
                 DragAndDrop.get().refreshSortable();
             }
@@ -360,6 +353,7 @@ export class LiveEditPage {
 
             if (view instanceof ComponentView) {
                 this.loadComponent(view, event.getURI(), event.isExisting()).catch((reason) => {
+                    console.warn(`LiveEditPage: loadComponent at [${path}] failed:`, reason);
                     new LoadComponentFailedEvent(path, reason).fire();
                 });
             }
@@ -416,7 +410,7 @@ export class LiveEditPage {
             }
         };
 
-        BeforeContentSavedEvent.on(this.beforeContentSavedListener);
+        IframeBeforeContentSavedEvent.on(this.beforeContentSavedListener);
 
         this.setPageLockStateListener = (event: SetPageLockStateEvent): void => {
             this.pageView?.setLocked(event.isToLock());
@@ -431,10 +425,19 @@ export class LiveEditPage {
         SetModifyAllowedEvent.on(this.setModifyAllowedListener);
 
         this.createOrDestroyDraggableListener = (event: CreateOrDestroyDraggableEvent): void => {
+
+            const item = jQuery(`<div ${'data-' + ItemType.ATTRIBUTE_TYPE}="${event.getType()}"></div>`).appendTo(jQuery('body'));
             if (event.isCreate()) {
-                this.pageView?.createDraggable(event.getItem());
+                this.pageView?.createDraggable(item);
+                // show the helper of the iframe draggable
+                // it's a function so call it to get element and wrap in jquery to show
+                item.simulate('mousedown').hide();
+                jQuery(item.draggable('option', 'helper')()).show();
             } else {
-                this.pageView?.destroyDraggable(event.getItem());
+                this.pageView?.destroyDraggable(item);
+                item.simulate('mouseup');
+                jQuery(item.draggable('option', 'helper')()).hide();
+                item.remove();
             }
         };
 
@@ -485,8 +488,6 @@ export class LiveEditPage {
 
         WindowDOM.get().unUnload(this.unloadListener);
 
-        ComponentLoadedEvent.un(this.componentLoadedListener);
-
         ComponentViewDragStartedEvent.un(this.dragStartedListener);
 
         ComponentViewDragStoppedEvent.un(this.dragStoppedListener);
@@ -509,7 +510,7 @@ export class LiveEditPage {
 
         MoveComponentViewEvent.un(this.moveComponentViewRequestedListener);
 
-        BeforeContentSavedEvent.un(this.beforeContentSavedListener);
+        IframeBeforeContentSavedEvent.un(this.beforeContentSavedListener);
 
         SetPageLockStateEvent.un(this.setPageLockStateListener);
 
@@ -587,7 +588,7 @@ export class LiveEditPage {
             newComponentView.getParentItemView().registerComponentViewListeners(newComponentView);
         }
 
-        const event: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView);
+        const event: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView.getPath());
         event.fire();
     }
 

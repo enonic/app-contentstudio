@@ -1,10 +1,10 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ComponentPath} from '../../../../app/page/region/ComponentPath';
 import {ComponentTextUpdatedOrigin} from '../../../../app/page/region/ComponentTextUpdatedOrigin';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
 export class UpdateTextComponentViewEvent
-    extends Event {
+    extends IframeEvent {
 
     private readonly path: ComponentPath;
 
@@ -32,10 +32,10 @@ export class UpdateTextComponentViewEvent
     }
 
     static on(handler: (event: UpdateTextComponentViewEvent) => void, contextWindow: Window = window) {
-        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: UpdateTextComponentViewEvent) => void, contextWindow: Window = window) {
-        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

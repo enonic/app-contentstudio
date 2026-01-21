@@ -13,8 +13,12 @@ export abstract class DescriptorBasedComponentView
 
     protected emptyDescriptorBlock?: DivEl;
 
+    protected inspectActionRequired: boolean;
+
     protected constructor(builder: ComponentViewBuilder) {
         super(builder);
+
+        this.inspectActionRequired = builder.inspectActionRequired;
 
         this.placeholder.setComponentView(this);
     }

@@ -182,7 +182,7 @@ export class ComponentView
             }));
         }
 
-        if (!this.empty) {
+        if (!this.isEmpty()) {
             actions.push(new Action(i18n('live.view.reset')).onExecuted(() => {
                 new ResetComponentEvent(this.getPath()).fire();
             }));

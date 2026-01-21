@@ -7,9 +7,9 @@ const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-const TextComponentCke = require('../../page_objects/components/text.component');
 const InsertMacroDialog = require('../../page_objects/wizardpanel/macro/insert.macro.dialog.cke');
 const appConst = require('../../libs/app_const');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe('Text Component - insert embed iframe and preview the site', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -31,7 +31,7 @@ describe('Text Component - insert embed iframe and preview the site', function (
     it(`GIVEN embed iframe has been inserted in a text component WHEN 'Preview' button has been pressed in the wizard toolbar THEN expected iframe should be loaded in the new browser tab`,
         async () => {
             let contentWizard = new ContentWizard();
-            let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let pageComponentView = new PageComponentView();
             let insertMacroModalDialog = new InsertMacroDialog();
             // 1. Open the site:
@@ -41,9 +41,10 @@ describe('Text Component - insert embed iframe and preview the site', function (
             // 3. Insert a text component and type the not valid URL:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
-            await textComponentCke.switchToLiveEditFrame();
+
             // 4. Open Insert Macro modal dialog:
-            await textComponentCke.clickOnInsertMacroButton();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.clickOnInsertMacroButton();
             await insertMacroModalDialog.waitForDialogLoaded();
             // 5. Select the 'Embed IFrame' option:
             await insertMacroModalDialog.selectOption('Embed IFrame');

@@ -33,13 +33,15 @@ export class InsertablesPanel
 
     private overIFrame: boolean = false;
 
-    private iFrameDraggable: JQuery<HTMLElement>;
+    private iFrameDraggable: HTMLElement;
 
     private contextWindowDraggable: JQuery<HTMLElement>;
 
     private modifyPermissions: boolean = false;
 
     public static debug: boolean = false;
+
+    private iFrameDraggableData: { type: string };
 
     constructor(config: ComponentTypesPanelConfig) {
         super('insertables-panel');
@@ -152,10 +154,10 @@ export class InsertablesPanel
         this.contextWindowDraggable = null;
 
         if (this.iFrameDraggable) {
-            this.liveEditPageProxy.destroyDraggable(this.iFrameDraggable);
-            this.iFrameDraggable.simulate('mouseup');
-            this.iFrameDraggable.remove();
+            this.liveEditPageProxy.destroyDraggable(this.iFrameDraggableData);
+
             this.iFrameDraggable = null;
+            this.iFrameDraggableData = null;
         }
     }
 
@@ -169,43 +171,24 @@ export class InsertablesPanel
         }
         this.liveEditPageProxy.getDragMask().show();
 
-        if (this.iFrameDraggable) {
-            let livejq = this.liveEditPageProxy.getJQuery();
-            // hide the helper of the iframe draggable,
-            // it's a function so call it to get element and wrap in jquery to hide
-            livejq(this.iFrameDraggable.draggable('option', 'helper')()).hide();
-        }
-
         // and show the one in the parent
         ui.helper.show();
     }
 
     private onEnterIFrame(event: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) {
         if (InsertablesPanel.debug) {
-            console.log('InsertablesPanel.onEnterIFrame');
+            console.log('InsertablesPanel.onEnterIFrame', event, ui);
         }
         this.liveEditPageProxy.getDragMask().hide();
-        let livejq = this.liveEditPageProxy.getJQuery();
-
-        let iFrame = this.liveEditPageProxy.getIFrame().getHTMLElement() as HTMLIFrameElement;
-        let hasBody = iFrame && iFrame.contentDocument && iFrame.contentDocument.body;
-        if (!hasBody) {
-            if (InsertablesPanel.debug) {
-                console.warn('InsertablesPanel.onEnterIFrame, skip due to missing body in document');
-            }
-            return;
-        }
 
         if (!this.iFrameDraggable) {
-            this.iFrameDraggable = livejq(event.target).clone() as JQuery<HTMLElement>;
-            livejq('body').append(this.iFrameDraggable);
-            this.liveEditPageProxy.createDraggable(this.iFrameDraggable);
-            this.iFrameDraggable.simulate('mousedown').hide();
-        }
+            this.iFrameDraggable = event.target.cloneNode(true) as HTMLElement;
+            this.iFrameDraggableData = {
+                type: event.target.getAttribute('data-portal-component-type')
+            }
 
-        // show the helper of the iframe draggable
-        // it's a function so call it to get element and wrap in jquery to show
-        livejq(this.iFrameDraggable.draggable('option', 'helper')()).show();
+            this.liveEditPageProxy.createDraggable(this.iFrameDraggableData);
+        }
 
         // and hide the one in the parent
         ui.helper.hide();

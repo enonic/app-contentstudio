@@ -1,12 +1,11 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ItemView} from '../../../ItemView';
 import {ClickPosition} from '../../../ClickPosition';
 import {SelectedByClickEvent} from '../../../SelectedByClickEvent';
 import {ComponentPath} from '../../../../app/page/region/ComponentPath';
 
 export interface ItemViewSelectedEventConfig {
-    itemView: ItemView;
+    path: ComponentPath;
     position: ClickPosition;
     rightClicked?: boolean;
 }
@@ -14,26 +13,18 @@ export interface ItemViewSelectedEventConfig {
 export class SelectComponentEvent
     extends SelectedByClickEvent {
 
-    private readonly pageItemView: ItemView;
+    private readonly path: ComponentPath;
 
     private readonly position: ClickPosition;
 
-    constructor(config: ItemViewSelectedEventConfig) {
-        super(config.rightClicked);
-        this.pageItemView = config.itemView;
-        this.position = config.position;
-    }
-
-    getItemView(): ItemView {
-        return this.pageItemView;
+    constructor(config?: ItemViewSelectedEventConfig) {
+        super(config?.rightClicked);
+        this.path = config?.path;
+        this.position = config?.position;
     }
 
     getPath(): ComponentPath {
-        return this.pageItemView.getPath();
-    }
-
-    getComponentPathAsString(): string {
-        return this.pageItemView.getPath().toString();
+        return this.path;
     }
 
     getPosition(): ClickPosition {
@@ -41,10 +32,10 @@ export class SelectComponentEvent
     }
 
     static on(handler: (event: SelectComponentEvent) => void, contextWindow: Window = window) {
-        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: SelectComponentEvent) => void, contextWindow: Window = window) {
-        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

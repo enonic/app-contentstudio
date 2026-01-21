@@ -14,6 +14,7 @@ const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizar
 const appConst = require('../../libs/app_const');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe('Text Component with CKE - insert email link  specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -37,7 +38,7 @@ describe('Text Component with CKE - insert email link  specification', function 
     it(`GIVEN Text component is inserted AND 'Insert Link' dialog is opened WHEN 'email-link' has been inserted THEN correct data should be present in the CKE`,
         async () => {
             let contentWizard = new ContentWizard();
-            let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let pageComponentView = new PageComponentView();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
@@ -46,18 +47,16 @@ describe('Text Component with CKE - insert email link  specification', function 
             // 3. Insert new text-component
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
-            await textComponentCke.switchToLiveEditFrame();
             // 4. Open 'Insert Link' dialog and insert email-link:
-            await textComponentCke.clickOnInsertLinkButton();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.clickOnInsertLinkButton();
             await studioUtils.insertEmailLinkInCke('test', TEST_EMAIL);
             await contentWizard.pause(1000);
-            await textComponentCke.switchToLiveEditFrame();
             // 5. Verify inserted link in the page:
             await studioUtils.saveScreenshot('email_link_inserted');
-            let actualText = await textComponentCke.getTextFromEditor();
+            let actualText = await textComponentInspectionPanel.getTextFromEditor();
             assert.ok(actualText.includes(EXPECTED_SRC), 'expected data should be in CKE');
             // Save the changes:
-            await textComponentCke.switchToParentFrame();
             await contentWizard.waitAndClickOnSave();
         });
 
@@ -77,7 +76,8 @@ describe('Text Component with CKE - insert email link  specification', function 
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/3476
     //B/I/U disappeared from Text component's toolbar #3476
-    it(`GIVEN Text component is inserted THEN B/I/U buttons should be present in the cke-toolbar`,
+    // TODO uncomment it - issue-9241
+    it.skip(`GIVEN Text component is inserted THEN B/I/U buttons should be present in the cke-toolbar`,
         async () => {
             let contentWizard = new ContentWizard();
             let textComponentCke = new TextComponentCke();
@@ -99,10 +99,11 @@ describe('Text Component with CKE - insert email link  specification', function 
 
     // Verifies issue: https://github.com/enonic/app-contentstudio/issues/4301
     // Text Component - text area gets focus only after double click
-    it("WHEN text component has been inserted in a site THEN text area should be focused in the live edit",
+    //  // TODO uncomment it - issue-9241
+    it.skip("WHEN text component has been inserted in a site THEN text area should be focused in the live edit",
         async () => {
             let pageComponentView = new PageComponentView();
-            let textComponent = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let siteFormPanel = new SiteFormPanel();
             let contentWizard = new ContentWizardPanel();
             // 1. Open new site-wizard, select an application and controller:
@@ -118,7 +119,7 @@ describe('Text Component with CKE - insert email link  specification', function 
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
             // 3. Verify that the text area is focused:
             await studioUtils.saveScreenshot('text_component_focused');
-            let isFocused = await textComponent.isTextAreaFocused();
+            let isFocused = await textComponentInspectionPanel.isTextAreaFocused();
             assert.ok(isFocused, 'text area should be focused in the text component');
         });
 

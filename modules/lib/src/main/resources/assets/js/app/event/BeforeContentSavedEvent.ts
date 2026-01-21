@@ -1,5 +1,5 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
 
 export class BeforeContentSavedEvent
     extends Event {

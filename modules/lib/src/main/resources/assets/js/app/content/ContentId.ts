@@ -41,4 +41,8 @@ export class ContentId
 
         return true;
     }
+
+    public static fromString(str: string): ContentId {
+        return new ContentId(str);
+    }
 }

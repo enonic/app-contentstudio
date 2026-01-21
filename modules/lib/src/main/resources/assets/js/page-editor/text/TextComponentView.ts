@@ -91,7 +91,9 @@ export class TextComponentView
         this.addClassEx('text-view');
         this.setContentEditable(true); // https://ckeditor.com/docs/ckeditor4/latest/guide/dev_inline.html#enabling-inline-editing
         this.setTextDir();
-        this.fetchStylesAndInitEditor();
+        this.initEditor();
+        // Can't make CORS request from iframe
+        // this.fetchStylesAndInitEditor();
     }
 
     protected initListeners() {
@@ -173,7 +175,7 @@ export class TextComponentView
             this.highlightSelected();
         }
 
-        new SelectComponentEvent({itemView: this, position: null}).fire();
+        new SelectComponentEvent({path: this.getPath(), position: null}).fire();
     }
 
     private bindWindowFocusEvents(): void {

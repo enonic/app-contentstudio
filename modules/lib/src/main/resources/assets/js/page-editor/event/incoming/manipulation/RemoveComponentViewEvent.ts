@@ -1,9 +1,9 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {ComponentPath} from '../../../../app/page/region/ComponentPath';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
 export class RemoveComponentViewEvent
-    extends Event {
+    extends IframeEvent {
 
     private readonly path: ComponentPath;
 
@@ -17,10 +17,10 @@ export class RemoveComponentViewEvent
     }
 
     static on(handler: (event: RemoveComponentViewEvent) => void, contextWindow: Window = window) {
-        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: RemoveComponentViewEvent) => void, contextWindow: Window = window) {
-        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

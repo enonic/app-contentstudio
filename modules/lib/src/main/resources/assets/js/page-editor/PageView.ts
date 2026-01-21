@@ -33,7 +33,6 @@ import {CreateItemViewConfig} from './CreateItemViewConfig';
 import {DragAndDrop} from './DragAndDrop';
 import {ItemViewFactory} from './ItemViewFactory';
 import {PageViewController} from './PageViewController';
-import {LiveEditPageViewReadyEvent} from './LiveEditPageViewReadyEvent';
 import {ModalDialog} from '../app/inputtype/ui/text/dialog/ModalDialog';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
@@ -127,6 +126,9 @@ export class PageView
 
         this.initListeners();
 
+        // Needed for TextComponentView
+        this.appendContainerForTextToolbar();
+
         this.parseItemViews();
 
         this.closeTextEditModeButton = this.createCloseTextEditModeEl();
@@ -215,7 +217,7 @@ export class PageView
             // adding anything except text should exit the text edit mode
             if (itemView.getType().equals(TextItemType.get())) {
                 if (event.isNewlyCreated()) {
-                    new SelectComponentEvent({itemView, position: null, rightClicked: true}).fire();
+                    new SelectComponentEvent({path: itemView.getPath(), position: null, rightClicked: true}).fire();
 
                     if (!PageViewController.get().isTextEditMode()) {
                         PageViewController.get().setTextEditMode(true);
@@ -230,7 +232,7 @@ export class PageView
                     PageViewController.get().setTextEditMode(false);
                 }
                 if (event.isNewlyCreated()) {
-                    const config = {itemView, position: null, newlyCreated: true} as ItemViewSelectedEventConfig;
+                    const config = {path: itemView.getPath(), position: null, newlyCreated: true} as ItemViewSelectedEventConfig;
                     itemView.select(config, ItemViewContextMenuPosition.NONE);
                     itemView.focusPlaceholderIfEmpty();
                 }
@@ -249,10 +251,6 @@ export class PageView
             if (PageViewController.get().isTextEditMode()) {
                 this.updateVerticalSpaceForEditorToolbar();
             }
-        });
-
-        LiveEditPageViewReadyEvent.on(() => {
-            this.appendContainerForTextToolbar();
         });
     }
 

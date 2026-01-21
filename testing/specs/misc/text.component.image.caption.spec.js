@@ -11,6 +11,7 @@ const TextComponentCke = require('../../page_objects/components/text.component')
 const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const appConst = require('../../libs/app_const');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe("text.component.image.caption.spec: Inserts a text component with an image and checks the caption", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -34,7 +35,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
         async () => {
             let pageComponentView = new PageComponentView();
             let contentWizard = new ContentWizard();
-            let textComponent = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let insertImageDialog = new InsertImageDialog();
             let liveFormPanel = new LiveFormPanel();
             // 1. Open existing site:
@@ -45,8 +46,8 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             // 3. Insert new text component:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
-            await contentWizard.switchToLiveEditFrame();
-            await textComponent.clickOnInsertImageButton();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.clickOnInsertImageButton();
             // 4. Insert an image in the text component:
             await insertImageDialog.filterAndSelectImage(appConst.TEST_IMAGES.SENG);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
@@ -74,7 +75,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
         async () => {
             let pageComponentView = new PageComponentView();
             let contentWizard = new ContentWizard();
-            let textComponent = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let insertImageDialog = new InsertImageDialog();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
@@ -83,9 +84,9 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             // 3. Insert new text component:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
-            await contentWizard.switchToLiveEditFrame();
             // 4. Open Insert Image modal dialog:
-            await textComponent.clickOnInsertImageButton();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.clickOnInsertImageButton();
             // 5. Verify that 'Upload' button is present in the dialog:
             await insertImageDialog.waitForUploadButtonDisplayed();
             await insertImageDialog.clickOnCancelButton();
@@ -96,7 +97,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
     it(`GIVEN an image has been inserted in text-component WHEN the component has been saved as fragment THEN image element should be with correct src-attribute`,
         async () => {
             let contentWizard = new ContentWizard();
-            let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let pageComponentView = new PageComponentView();
             let insertImageDialog = new InsertImageDialog();
             let liveFormPanel = new LiveFormPanel();
@@ -107,9 +108,9 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             // 3. Insert new text-component
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
-            await textComponentCke.switchToLiveEditFrame();
             // 4. Open 'Insert Image' dialog and insert an image in htmlArea:
-            await textComponentCke.clickOnInsertImageButton();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.clickOnInsertImageButton();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();

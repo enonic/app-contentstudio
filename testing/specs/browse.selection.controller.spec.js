@@ -53,7 +53,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_FOLDER_NAME);
             //3. Click on Selection Toggle (circle, Show Selection):
             await contentBrowsePanel.clickOnSelectionToggler();
-            await contentBrowsePanel.pause(1000);
+            await contentBrowsePanel.pause(700);
             await studioUtils.saveScreenshot('highlighted_row_checked_show_selection_clicked');
             //4. Verify that the grid is filtered:
             let displayNames = await contentBrowsePanel.getDisplayNamesInGrid();

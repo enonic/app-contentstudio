@@ -25,6 +25,7 @@ import {assertState} from '@enonic/lib-admin-ui/util/Assert';
 import {AddComponentEvent} from './event/outgoing/manipulation/AddComponentEvent';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {MoveComponentEvent} from './event/outgoing/manipulation/MoveComponentEvent';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
 
 export class DragAndDrop {
 
@@ -184,6 +185,8 @@ export class DragAndDrop {
             console.groupEnd();
         }
 
+        Body.get().appendChild(DragHelper.get());
+
         this.notifyDragStarted(this.draggedComponentView);
     }
 
@@ -197,6 +200,8 @@ export class DragAndDrop {
             console.log('Event', event, '\nUI', ui);
             console.groupEnd();
         }
+
+        Body.get().removeChild(DragHelper.get());
 
         if (!this.wasDropped) {
             this.notifyCanceled(this.draggedComponentView);

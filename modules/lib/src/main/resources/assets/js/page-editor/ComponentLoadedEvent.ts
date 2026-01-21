@@ -1,31 +1,26 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ComponentView} from './ComponentView';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 
 export class ComponentLoadedEvent
-    extends Event {
+    extends IframeEvent {
 
-    private readonly newComponentView: ComponentView;
+    private readonly newComponentPath: ComponentPath;
 
-    constructor(newComponentView: ComponentView) {
+    constructor(newComponentPath: ComponentPath) {
         super();
-        this.newComponentView = newComponentView;
-    }
-
-    getNewComponentView(): ComponentView {
-        return this.newComponentView;
+        this.newComponentPath = newComponentPath;
     }
 
     getPath(): ComponentPath {
-        return this.newComponentView.getPath();
+        return this.newComponentPath;
     }
 
     static on(handler: (event: ComponentLoadedEvent) => void, contextWindow: Window = window) {
-        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: ComponentLoadedEvent) => void, contextWindow: Window = window) {
-        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

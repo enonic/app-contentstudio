@@ -1,8 +1,8 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
 export class DeselectComponentViewEvent
-    extends Event {
+    extends IframeEvent {
 
     private readonly path?: string;
 
@@ -22,10 +22,10 @@ export class DeselectComponentViewEvent
     }
 
     static on(handler: (event: DeselectComponentViewEvent) => void, contextWindow: Window = window) {
-        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: DeselectComponentViewEvent) => void, contextWindow: Window = window) {
-        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

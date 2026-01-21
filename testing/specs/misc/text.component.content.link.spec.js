@@ -12,6 +12,7 @@ const TextComponentCke = require('../../page_objects/components/text.component')
 const InsertLinkDialog = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.cke');
 const appConst = require('../../libs/app_const');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe('Text Component with CKE - insert content-link specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -35,7 +36,7 @@ describe('Text Component with CKE - insert content-link specification', function
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
@@ -43,17 +44,17 @@ describe('Text Component with CKE - insert content-link specification', function
             // 3. Insert text-component:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
-            await textComponentCke.switchToLiveEditFrame();
+
             // 4. Open Insert Link dialog
-            await textComponentCke.clickOnInsertLinkButton();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.clickOnInsertLinkButton();
             // 5. Insert content-link:
             await studioUtils.insertContentLinkInCke(LINK_TITLE, SITE.displayName);
-            await textComponentCke.switchToLiveEditFrame();
+
             // 6. Verify the text in CKE html area:
             await studioUtils.saveScreenshot('content_link_inserted');
-            let actualText = await textComponentCke.getTextFromEditor();
+            let actualText = await textComponentInspectionPanel.getTextFromEditor();
             assert.ok(actualText.includes(EXPECTED_SRC), 'expected data should be present in CKE');
-            await textComponentCke.switchToParentFrame();
             await contentWizard.waitAndClickOnSave();
         });
 

@@ -10,6 +10,7 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const TextComponentCke = require('../../page_objects/components/text.component');
 const InsertAnchorDialog = require('../../page_objects/wizardpanel/html-area/insert.anchor.dialog.cke');
 const appConst = require('../../libs/app_const');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe('Text Component with CKE - insert Anchor specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -34,6 +35,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let insertAnchorDialog = new InsertAnchorDialog();
             // 1. Open existing site and open 'Page Component View':
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
@@ -42,16 +44,17 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             // 3. Insert new text-component:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
-            await textComponentCke.switchToLiveEditFrame();
+            //await textComponentCke.switchToLiveEditFrame();
             // 4. Open 'Insert Anchor' dialog and type the text:
-            await textComponentCke.clickOnInsertAnchorButton();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.clickOnInsertAnchorButton();
             await insertAnchorDialog.typeInTextInput(VALID_ANCHOR_TEXT);
             await studioUtils.saveScreenshot('anchor_text_typed');
             // 5. Click on 'Insert' button and close the dialog:
             await insertAnchorDialog.clickOnInsertButtonAndWaitForClosed();
-            await contentWizard.switchToLiveEditFrame();
+            //await contentWizard.switchToLiveEditFrame();
             // 6. Verify the text in CKE:
-            let actualText = await textComponentCke.getTextFromEditor();
+            let actualText = await textComponentInspectionPanel.getTextFromEditor();
             assert.ok(actualText.includes(EXPECTED_DATA_CKE), 'expected text should be in CKE');
         });
 
@@ -60,16 +63,16 @@ describe('Text Component with CKE - insert Anchor specification', function () {
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let insertAnchorDialog = new InsertAnchorDialog();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 1. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
-            await textComponentCke.switchToLiveEditFrame();
             // Open Insert Anchor modal dialog:
-            await textComponentCke.clickOnInsertAnchorButton();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.clickOnInsertAnchorButton();
             // Press 'Esc' key
             await contentWizard.pressEscKey();
             await insertAnchorDialog.waitForDialogClosed();
@@ -79,18 +82,18 @@ describe('Text Component with CKE - insert Anchor specification', function () {
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let insertAnchorDialog = new InsertAnchorDialog();
             // 1. Open the site
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // Insert a text component:
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
-            await textComponentCke.switchToLiveEditFrame();
             // Open Insert Anchor modal dialog and type not correct value:
-            await textComponentCke.clickOnInsertAnchorButton();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.clickOnInsertAnchorButton();
             await insertAnchorDialog.typeInTextInput('test anchor');
             // Click on the Insert button and insert the anchor:
             await insertAnchorDialog.clickOnInsertButton();
@@ -107,7 +110,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             // 1. Open existing site and open 'Page Component View':
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
@@ -116,7 +119,8 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
             // 4. Open 'Insert Anchor' dialog and type the text:
-            await textComponentCke.typeTextInCkeEditor(TEST_TEXT);
+            await textComponentInspectionPanel.typeTextInEditor(TEST_TEXT);
+            await contentWizard.waitAndClickOnSave();
             let actualComponents = await pageComponentView.getTextComponentsDisplayName();
             assert.equal(actualComponents.length, 1, "Two items should be present in the PCV tree");
             // 5. Open  menu in the text component:
@@ -124,8 +128,8 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             // 6. Click on 'Duplicate' menu item.
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.DUPLICATE);
             await contentWizard.waitForNotificationMessage();
-            // 7. Save button gets disabled:
-            await contentWizard.waitForSaveButtonDisabled();
+            // 7. Saved button gets visible:
+            await contentWizard.waitForSavedButtonVisible();
             // 8. Verify the text in both text-component items:
             actualComponents = await pageComponentView.getTextComponentsDisplayName();
             assert.equal(actualComponents.length, 2, "Four items should be present after the item has been duplicated");
@@ -158,7 +162,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             let pageComponentView = new PageComponentView();
             // 1. Open existing site and open 'Page Component View':
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Select an item:
             await pageComponentView.clickOnComponent('main region');

@@ -20,6 +20,7 @@ const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel
 const SourceCodeDialog = require('../../page_objects/wizardpanel/html.source.code.dialog');
 const TextComponentCke = require('../../page_objects/components/text.component');
 const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe("project.editor.spec - ui-tests for an user with 'Editor' role", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -218,6 +219,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizard = new ContentWizard();
             let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let pageComponentView = new PageComponentView();
             // 1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
@@ -232,10 +234,11 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await studioUtils.saveScreenshot('text_component_editor_role_source_button_2');
-            await textComponentCke.switchToLiveEditFrame();
             // 3. Verify that Source button is clickable on the component-toolbar:
-            await textComponentCke.clickOnSourceButton();
-            await textComponentCke.switchToParentFrame();
+            await textComponentInspectionPanel.waitForOpened();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.clickOnSourceButton();
+            //await textComponentCke.switchToParentFrame();
             await sourceCodeDialog.waitForDialogLoaded();
             await sourceCodeDialog.clickOnCancelButton();
         });

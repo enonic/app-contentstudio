@@ -11,6 +11,7 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const TextComponentCke = require('../../page_objects/components/text.component');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe("insert.component.workflow.spec - insert a component and click on 'Mark as ready button'", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -33,6 +34,7 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
         async () => {
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
@@ -44,7 +46,7 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
             // 3. Insert Text Component with test text and save it:
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
             await studioUtils.saveScreenshot('issue_text_component_inserted');
-            await textComponentCke.typeTextInCkeEditor('test text');
+            await textComponentInspectionPanel.typeTextInEditor('test text');
             // 4. Click on 'Mark as Ready' button:
             await contentWizard.clickOnMarkAsReadyButton();
             let expectedMessage = appConst.itemMarkedAsReadyMessage(SITE.displayName);
@@ -71,6 +73,7 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
         async () => {
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let contentWizard = new ContentWizard();
             // 1. Open an existing site and insert new text component:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
@@ -79,12 +82,12 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
             // 3. insert a text with spaces:
-            await textComponentCke.insertTextInCkeEditor(TEXT_WITH_SPACES);
-            await textComponentCke.insertTextInCkeEditor(TEXT_WITH_SPACES);
+            await textComponentInspectionPanel.typeTextInEditor(TEXT_WITH_SPACES);
+            await textComponentInspectionPanel.typeTextInEditor(TEXT_WITH_SPACES);
             // 4. Click on 'Save' button:
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
-            await contentWizard.pause(2000);
+            await contentWizard.pause(1000);
             await studioUtils.saveScreenshot('text_component_saved_button');
             // 5. Verify that Saved button gets visible in the toolbar:
             await contentWizard.waitForSavedButtonVisible();

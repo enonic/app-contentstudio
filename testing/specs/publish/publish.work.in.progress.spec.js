@@ -12,6 +12,7 @@ const ContentPublishDialog = require('../../page_objects/content.publish.dialog'
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const TextComponentCke = require('../../page_objects/components/text.component');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe('publish.work.in.progress.spec - publishes work in progress content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -109,6 +110,7 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
         async () => {
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Open an existing site (work in progress)
@@ -118,7 +120,7 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             await pageComponentView.openMenu('main');
             // 3. Insert Text Component with test text and save it:
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
-            await textComponentCke.typeTextInCkeEditor('test text');
+            await textComponentInspectionPanel.typeTextInEditor('test text');
             await contentWizard.waitAndClickOnSave();
             // minimize Live Edit, workflow icon gets visible:
             await contentWizard.clickOnMinimizeLiveEditToggler();
