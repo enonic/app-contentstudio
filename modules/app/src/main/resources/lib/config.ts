@@ -91,7 +91,7 @@ export function getConfig(locales: string[], aiEnabled: boolean): Record<string,
                 {service: 'ws', application: 'com.enonic.app.ai.translator', type: 'websocket'}),
         },
         theme,
-        widgetApiUrl: apiUrl({
+        extensionApiUrl: apiUrl({
             api: 'admin:extension'
         }),
         statusApiUrl: apiUrl({

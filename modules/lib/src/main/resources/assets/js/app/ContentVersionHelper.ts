@@ -6,7 +6,7 @@ import {type ContentId} from './content/ContentId';
 import {type ContentVersion} from './ContentVersion';
 import {GetActiveContentVersionsRequest} from './resource/GetActiveContentVersionsRequest';
 import {RevertVersionRequest} from './resource/RevertVersionRequest';
-import {VersionContext} from './view/context/widget/version/VersionContext';
+import {VersionContext} from './view/context/extension/version/VersionContext';
 import type Q from 'q';
 
 export class ContentVersionHelper {

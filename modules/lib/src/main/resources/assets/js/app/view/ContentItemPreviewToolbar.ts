@@ -1,6 +1,6 @@
 import type Q from 'q';
 import {ContentStatusToolbar} from '../ContentStatusToolbar';
-import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
+import {PreviewModeDropdown} from './toolbar/PreviewModeDropdown';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {EmulatorDropdown} from './toolbar/EmulatorDropdown';
@@ -16,7 +16,7 @@ export class ContentItemPreviewToolbar
 
     ariaLabel: string = i18n('wcag.preview.toolbar.label');
 
-    private widgetSelector: PreviewWidgetDropdown;
+    private modeSelector: PreviewModeDropdown;
     private emulatorSelector: EmulatorDropdown;
     private readonly mode: RenderingMode;
     private intervalMonitor: number | null = null;
@@ -33,7 +33,7 @@ export class ContentItemPreviewToolbar
     protected initElements(): void {
         super.initElements();
 
-        this.widgetSelector = new PreviewWidgetDropdown();
+        this.modeSelector = new PreviewModeDropdown();
         this.emulatorSelector = new EmulatorDropdown();
         this.refreshButton = new Button();
         this.refreshButton
@@ -51,11 +51,11 @@ export class ContentItemPreviewToolbar
 
         this.refreshButton.onClicked(() => this.refreshAction?.());
 
-        this.widgetSelector.onSelectionChanged(() => {
+        this.modeSelector.onSelectionChanged(() => {
             this.stopListeningToIFrameClick();
         });
 
-        this.widgetSelector.onDropdownVisibilityChanged((isVisible: boolean) => {
+        this.modeSelector.onDropdownVisibilityChanged((isVisible: boolean) => {
             if (!isVisible) {
                 this.stopListeningToIFrameClick();
                 return;
@@ -69,7 +69,7 @@ export class ContentItemPreviewToolbar
         return super.doRender().then(rendered => {
 
             this.addContainer(this.emulatorSelector, this.emulatorSelector.getChildControls());
-            this.addContainer(this.widgetSelector, this.widgetSelector.getChildControls());
+            this.addContainer(this.modeSelector, this.modeSelector.getChildControls());
 
             const refreshWrapper = new DivEl('refresh-button-wrapper');
             refreshWrapper.appendChild(this.refreshButton);
@@ -89,8 +89,8 @@ export class ContentItemPreviewToolbar
         super.setItem(item);
     }
 
-    public getWidgetSelector(): PreviewWidgetDropdown {
-        return this.widgetSelector;
+    public getModeSelector(): PreviewModeDropdown {
+        return this.modeSelector;
     }
 
     protected foldOrExpand(): void {

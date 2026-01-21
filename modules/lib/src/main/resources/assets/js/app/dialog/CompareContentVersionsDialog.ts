@@ -33,11 +33,11 @@ import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
 import {GetContentVersionsRequest} from '../resource/GetContentVersionsRequest';
 import {type GetContentVersionsResult} from '../resource/GetContentVersionsResult';
 import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
-import {ContentVersionViewer} from '../view/context/widget/version/ContentVersionViewer';
-import {NonBatchedContentVersionsConverter} from '../view/context/widget/version/NonBatchedContentVersionsConverter';
-import {VersionContext} from '../view/context/widget/version/VersionContext';
-import {VersionHistoryHelper} from '../view/context/widget/version/VersionHistoryHelper';
-import {AliasType, type VersionHistoryItem} from '../view/context/widget/version/VersionHistoryItem';
+import {ContentVersionViewer} from '../view/context/extension/version/ContentVersionViewer';
+import {NonBatchedContentVersionsConverter} from '../view/context/extension/version/NonBatchedContentVersionsConverter';
+import {VersionContext} from '../view/context/extension/version/VersionContext';
+import {VersionHistoryHelper} from '../view/context/extension/version/VersionHistoryHelper';
+import {AliasType, type VersionHistoryItem} from '../view/context/extension/version/VersionHistoryItem';
 
 export class CompareContentVersionsDialog
     extends ModalDialog {

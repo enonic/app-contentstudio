@@ -24,7 +24,7 @@ export interface ContextWindowConfig {
 
 export interface InspectParameters {
     panel: BaseInspectionPanel;
-    showWidget: boolean;
+    showExtension: boolean;
     showPanel: boolean;
     keepPanelSelection?: boolean;
     silent?: boolean;
@@ -198,7 +198,7 @@ export class ContextWindow
         if (canSelectPanel) {
             if (!params.silent) {
                 InspectEvent.create()
-                    .setShowWidget(params.showWidget)
+                    .setShowExtension(params.showExtension)
                     .setShowPanel(params.showPanel)
                     .setSource(params.source)
                     .build().fire();

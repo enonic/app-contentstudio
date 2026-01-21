@@ -136,7 +136,7 @@ describe('Browse panel, properties widget, language spec', function () {
             await propertiesWidgetItem.waitForEditSettingsButtonDisplayed();
         });
 
-    it("GIVEN existing folder is selected WHEN custom widget item has been selected in widget-selector THEN expected text gets visible in the widget-view",
+    it("GIVEN existing folder is selected WHEN custom widget item has been selected in extension-selector THEN expected text gets visible in the extension-view",
         async () => {
             let contentBrowseContextWindow = new ContentBrowseContextWindow();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
@@ -145,7 +145,8 @@ describe('Browse panel, properties widget, language spec', function () {
             await contentBrowseContextWindow.selectItemInWidgetSelector(TEST_WIDGET_TITLE);
             await studioUtils.saveScreenshot('test_widget_opened');
             // 2. Verify that expected text is displayed in the widget view:
-            await studioUtils.waitForElementDisplayed(`//widget[text()='${TEST_WIDGET_TITLE}']`);
+            let result = await studioUtils.getTextFromShadow('context-panel-extension', 'widget');
+            assert.equal(result, TEST_WIDGET_TITLE, 'Expected text should be displayed in the widget');
         });
 
     // Build fix: Separate metadata update from content update #9619

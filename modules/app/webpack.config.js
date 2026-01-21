@@ -24,7 +24,7 @@ module.exports = {
         'js/main': './js/main.ts',
         'js/settings': './js/settings.ts',
         'page-editor/js/editor': './js/page-editor.ts',
-        'styles/widgets/stats': './styles/widgets/stats.less'
+        'styles/extensions/stats': './styles/extensions/stats.less'
     },
     output: {
         path: path.join(__dirname, '/build/resources/main/assets'),

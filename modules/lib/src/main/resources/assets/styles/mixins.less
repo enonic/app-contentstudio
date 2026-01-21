@@ -60,11 +60,11 @@
 }
 
 .widget-selection-row(@height: @toolbar-height) {
-  .widgets-selection-row {
+  .extension-selection-row {
     position: relative;
     z-index: @z-index-mask - 1;
 
-    .widget-selector {
+    .extension-selector {
       height: @height;
       border: none;
 
@@ -94,13 +94,13 @@
           margin: 0;
           width: auto;
 
-          .widget-viewer {
+          .extension-viewer {
             padding-left: 10px;
           }
         }
       }
 
-      .widget-viewer {
+      .extension-viewer {
         font-size: 14px;
         cursor: default;
         .ellipsis();

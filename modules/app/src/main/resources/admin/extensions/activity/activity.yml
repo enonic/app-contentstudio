@@ -1,7 +1,0 @@
-displayName: "Content Studio: Activity"
-interfaces:
-  - "admin.dashboard.content-studio"
-config:
-  width: "medium"
-  height: "small"
-  order: "2"

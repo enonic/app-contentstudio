@@ -7,7 +7,7 @@ const BaseContextWindowPanel = require('../../details_panel/base.context.window.
 
 const xpath = {
     container: `//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'DockedContextPanel') or contains(@id,'FloatingContextPanel')]`,
-    widgetItem: `//div[contains(@id,'ContentWidgetItemView')]`
+    widgetItem: `//div[contains(@id,'ExtensionContentItemView')]`
 };
 
 class WizardContextWindowPanel extends BaseContextWindowPanel {

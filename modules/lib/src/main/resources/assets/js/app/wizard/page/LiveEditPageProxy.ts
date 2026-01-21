@@ -79,8 +79,8 @@ import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
 import {DragMask} from '@enonic/lib-admin-ui/ui/mask/DragMask';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {ContentUrlHelper} from '../../util/ContentUrlHelper';
-import {type Widget} from '@enonic/lib-admin-ui/content/Widget';
-import {type WizardWidgetRenderingHandler} from '../WizardWidgetRenderingHandler';
+import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
+import {type WizardExtensionRenderingHandler} from '../WizardExtensionRenderingHandler';
 import {IframeEventBus} from '@enonic/lib-admin-ui/event/IframeEventBus';
 import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 import {SetDraggableVisibleEvent} from '../../../page-editor/event/incoming/manipulation/SetDraggableVisibleEvent';
@@ -228,7 +228,7 @@ export class LiveEditPageProxy
         this.dragMask.remove();
     }
 
-    public load(widgetRenderingHelper: WizardWidgetRenderingHandler, viewWidget: Widget): Promise<boolean> {
+    public load(widgetRenderingHelper: WizardExtensionRenderingHandler, viewWidget: Extension): Promise<boolean> {
 
         PageEventsManager.get().notifyBeforeLoad();
 

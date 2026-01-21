@@ -5,7 +5,7 @@ const BaseDependenciesWidget = require('../../details_panel/base.dependencies.wi
 const appConst = require('../../../libs/app_const');
 
 const xpath = {
-    widget: `//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'DependenciesWidgetItemView')]`,
+    widget: `//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'ExtensionDependencyItemView')]`,
     showOutboundButton: `//button/span[contains(.,'Show Outbound')]`,
     showInboundButton: `//button/span[contains(.,'Show Inbound')]`
 };

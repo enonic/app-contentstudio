@@ -5,7 +5,7 @@ const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 
 const xpath = {
-    container: `//div[contains(@id,'WidgetView')]//div[contains(@id,'StatusWidgetItemView')]`,
+    container: `//div[contains(@id,'ExtensionView')]//div[contains(@id,'ExtensionStatusItemView')]`,
 };
 
 class StatusWidgetItemView extends Page {

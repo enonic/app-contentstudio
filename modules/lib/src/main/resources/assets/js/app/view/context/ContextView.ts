@@ -1,5 +1,5 @@
 import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
-import {type Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
@@ -12,22 +12,22 @@ import {CompareStatus} from '../../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {InspectEvent} from '../../event/InspectEvent';
-import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
-import {UserAccessWidgetItemView} from '../../security/UserAccessWidgetItemView';
+import {GetExtensionsByInterfaceRequest} from '../../resource/GetExtensionsByInterfaceRequest';
+import {ExtensionPermissionsItemView} from '../../security/ExtensionPermissionsItemView';
 import {type ContextWindow} from '../../wizard/page/contextwindow/ContextWindow';
-import {ReloadActiveWidgetEvent} from './ReloadActiveWidgetEvent';
-import {DependenciesWidgetItemView} from './widget/dependency/DependenciesWidgetItemView';
-import {AttachmentsWidgetItemView} from './widget/details/AttachmentsWidgetItemView';
-import {BasePropertiesWidgetItemView} from './widget/details/BasePropertiesWidgetItemView';
-import {ContentWidgetItemView} from './widget/details/ContentWidgetItemView';
-import {OnlinePropertiesWidgetItemView} from './widget/details/OnlinePropertiesWidgetItemView';
-import {PageTemplateWidgetItemView} from './widget/details/PageTemplateWidgetItemView';
-import {StatusWidgetItemView} from './widget/details/StatusWidgetItemView';
-import {PageEditorWidgetItemView} from './widget/pageeditor/PageEditorWidgetItemView';
-import {VersionHistoryView} from './widget/version/VersionHistoryView';
-import {type WidgetItemView} from './WidgetItemView';
-import {WidgetsSelectionRow} from './WidgetsSelectionRow';
-import {InternalWidgetType, WidgetView} from './WidgetView';
+import {ReloadActiveExtensionEvent} from './ReloadActiveExtensionEvent';
+import {ExtensionDependencyItemView} from './extension/dependency/ExtensionDependencyItemView';
+import {ExtensionAttachmentsItemView} from './extension/details/ExtensionAttachmentsItemView';
+import {ExtensionBasePropertiesItemView} from './extension/details/ExtensionBasePropertiesItemView';
+import {ExtensionContentItemView} from './extension/details/ExtensionContentItemView';
+import {ExtensionOnlinePropertiesItemView} from './extension/details/ExtensionOnlinePropertiesItemView';
+import {ExtensionPageTemplateItemView} from './extension/details/ExtensionPageTemplateItemView';
+import {ExtensionStatusItemView} from './extension/details/ExtensionStatusItemView';
+import {ExtensionPageEditorItemView} from './extension/pageeditor/ExtensionPageEditorItemView';
+import {VersionHistoryView} from './extension/version/VersionHistoryView';
+import {type ExtensionItemView} from './ExtensionItemView';
+import {ExtensionSelectionRow} from './ExtensionSelectionRow';
+import {InternalExtensionType, ExtensionView} from './ExtensionView';
 import {PageEventsManager} from '../../wizard/PageEventsManager';
 import {PageNavigationMediator} from '../../wizard/PageNavigationMediator';
 import {type PageNavigationEvent} from '../../wizard/PageNavigationEvent';
@@ -38,29 +38,29 @@ export class ContextView
     extends DivEl
     implements PageNavigationHandler {
 
-    protected widgetViews: WidgetView[] = [];
+    protected extensionViews: ExtensionView[] = [];
     protected contextContainer: DivEl;
-    protected widgetsSelectionRow: WidgetsSelectionRow;
+    protected extensionsSelectionRow: ExtensionSelectionRow;
 
     protected loadMask: LoadMask;
     protected divForNoSelection: DivEl;
 
     protected item: ContentSummaryAndCompareStatus;
 
-    protected activeWidget: WidgetView;
-    private defaultWidgetView: WidgetView;
+    protected activeExtension: ExtensionView;
+    private defaultExtension: ExtensionView;
 
-    protected pageEditorWidgetView?: WidgetView;
-    protected pageEditorWidgetItemView?: PageEditorWidgetItemView;
-    protected propertiesWidgetView: WidgetView;
-    protected versionsWidgetView: WidgetView;
+    protected extensionPageEditorView?: ExtensionView;
+    protected extensionPageEditorItemView?: ExtensionPageEditorItemView;
+    protected extensionPropertiesView: ExtensionView;
+    protected extensionVersionsView: ExtensionView;
 
     protected contextWindow?: ContextWindow;
-    protected alreadyFetchedCustomWidgets: boolean;
+    protected alreadyFetchedCustomExtensions: boolean;
 
     private sizeChangedListeners: (() => void)[] = [];
 
-    private widgetsUpdateList: Record<string, (key: string, type: ApplicationEventType) => void> = {};
+    private extensionsUpdateList: Record<string, (key: string, type: ApplicationEventType) => void> = {};
 
     private editorMode: boolean;
 
@@ -79,9 +79,9 @@ export class ContextView
         this.loadMask.addClass('context-panel-mask');
         this.appendChild(this.loadMask);
 
-        this.initCommonWidgetViews();
+        this.initCommonExtensionViews();
         this.initDivForNoSelection();
-        this.initWidgetsSelectionRow();
+        this.initExtensionsSelectionRow();
 
         this.appendChild(this.contextContainer);
         this.appendChild(this.divForNoSelection);
@@ -90,7 +90,7 @@ export class ContextView
 
         this.layout();
 
-        this.getCustomWidgetViewsAndUpdateDropdown();
+        this.getCustomExtensionViewsAndUpdateDropdown();
     }
 
     private subscribeToEvents() {
@@ -103,8 +103,8 @@ export class ContextView
             this.isPageRenderable = renderable;
 
             if (wasRenderable !== undefined && renderable !== wasRenderable) {
-                // only switch the widget when the page becomes renderable
-                this.updateSelectedWidget();
+                // only switch the extension when the page becomes renderable
+                this.updateSelectedExtension();
             }
         });
 
@@ -112,11 +112,11 @@ export class ContextView
 
         contentServerEventsHandler.onContentPermissionsUpdated((contents: ContentSummaryAndCompareStatus[]) => {
             const itemSelected: boolean = this.item != null;
-            const activeWidgetVisible: boolean = this.activeWidget != null && this.isVisible();
+            const activeExtensionVisible: boolean = this.activeExtension != null && this.isVisible();
 
-            if (activeWidgetVisible && this.activeWidget.isInternal() && itemSelected &&
+            if (activeExtensionVisible && this.activeExtension.isInternal() && itemSelected &&
                 ContentSummaryAndCompareStatus.isInArray(this.item.getContentId(), contents)) {
-                this.updateActiveWidget();
+                this.updateActiveExtension();
             }
         });
 
@@ -139,9 +139,9 @@ export class ContextView
                 });
         });
 
-        ReloadActiveWidgetEvent.on(() => {
-            if (this.activeWidget) {
-                this.activeWidget.updateWidgetItemViews().catch(DefaultErrorHandler.handle);
+        ReloadActiveExtensionEvent.on(() => {
+            if (this.activeExtension) {
+                this.activeExtension.updateExtensionItemViews().catch(DefaultErrorHandler.handle);
             }
         });
 
@@ -149,20 +149,20 @@ export class ContextView
     }
 
     handle(event: PageNavigationEvent): void {
-        /* Uncomment to switch to the Details widget on component deselect.
+        /* Uncomment to switch to the Details extension on component deselect.
         if (event.getType() === PageNavigationEventType.DESELECT) {
-            this.deactivatePageEditorWidget();
+            this.deactivatePageEditorExtension();
             return;
         }
          */
 
         if (event.getType() === PageNavigationEventType.SELECT) {
-            this.activatePageEditorWidget();
+            this.activatePageEditorExtension();
             return;
         }
 
         if (event.getType() === PageNavigationEventType.INSPECT) {
-            this.activatePageEditorWidget();
+            this.activatePageEditorExtension();
             return;
         }
     }
@@ -173,14 +173,14 @@ export class ContextView
         this.appendChild(this.divForNoSelection);
     }
 
-    private initWidgetsSelectionRow() {
-        this.widgetsSelectionRow = new WidgetsSelectionRow();
-        this.appendChild(this.widgetsSelectionRow);
-        this.widgetsSelectionRow.updateState(this.activeWidget);
+    private initExtensionsSelectionRow() {
+        this.extensionsSelectionRow = new ExtensionSelectionRow();
+        this.appendChild(this.extensionsSelectionRow);
+        this.extensionsSelectionRow.updateState(this.activeExtension);
     }
 
     private handleApplicationEvents(event: ApplicationEvent) {
-        const isWidgetUpdated = [
+        const isExtensionUpdated = [
                                     ApplicationEventType.INSTALLED,
                                     ApplicationEventType.UNINSTALLED,
                                     ApplicationEventType.STARTED,
@@ -188,86 +188,86 @@ export class ContextView
                                     ApplicationEventType.UPDATED
                                 ].indexOf(event.getEventType()) > -1;
 
-        if (isWidgetUpdated) {
+        if (isExtensionUpdated) {
             const key = event.getApplicationKey().getName();
 
-            if (!this.widgetsUpdateList[key]) {
-                this.widgetsUpdateList[key] = AppHelper.debounce((k, type) => this.handleWidgetUpdate(k, type), 1000);
+            if (!this.extensionsUpdateList[key]) {
+                this.extensionsUpdateList[key] = AppHelper.debounce((k, type) => this.handleExtensionUpdate(k, type), 1000);
             }
-            this.widgetsUpdateList[key](key, event.getEventType());
+            this.extensionsUpdateList[key](key, event.getEventType());
         }
     }
 
-    private handleWidgetUpdate(key: string, type: ApplicationEventType) {
-        if (this.isWidgetRemoveEvent(type)) {
-            this.handleWidgetRemoveEvent(key);
-        } else if (this.getWidgetByKey(key)) {
-            this.handleWidgetUpdateEvent(key);
+    private handleExtensionUpdate(key: string, type: ApplicationEventType) {
+        if (this.isExtensionRemoveEvent(type)) {
+            this.handleExtensionRemoveEvent(key);
+        } else if (this.getExtensionByKey(key)) {
+            this.handleExtensionUpdateEvent(key);
         } else {
-            this.handleWidgetAddedEvent(key);
+            this.handleExtensionAddedEvent(key);
         }
     }
 
-    private isWidgetRemoveEvent(type: ApplicationEventType): boolean {
+    private isExtensionRemoveEvent(type: ApplicationEventType): boolean {
         return [
                    ApplicationEventType.UNINSTALLED,
                    ApplicationEventType.STOPPED
                ].indexOf(type) > -1;
     }
 
-    private handleWidgetRemoveEvent(key: string) {
-        this.removeWidgetByKey(key);
+    private handleExtensionRemoveEvent(key: string) {
+        this.removeExtensionByKey(key);
 
-        if (this.isActiveWidget(key)) {
-            this.activateDefaultWidget();
+        if (this.isActiveExtension(key)) {
+            this.activateDefaultExtension();
         }
 
         this.updateView();
     }
 
-    private isActiveWidgetByType(view: WidgetView): boolean {
-        return view?.compareByType(this.activeWidget);
+    private isActiveExtensionByType(view: ExtensionView): boolean {
+        return view?.compareByType(this.activeExtension);
     }
 
-    private isActiveWidget(key: string): boolean {
-        return this.activeWidget && this.activeWidget.getWidgetKey() === key;
+    private isActiveExtension(key: string): boolean {
+        return this.activeExtension && this.activeExtension.getExtensionKey() === key;
     }
 
-    private handleWidgetUpdateEvent(key: string) {
-        this.fetchWidgetByKey(key).then((widget: Widget) => {
-            const widgetView: WidgetView =
-                WidgetView.create().setName(widget.getDisplayName()).setContextView(this).setWidget(widget).build();
-            this.updateWidget(widgetView);
+    private handleExtensionUpdateEvent(key: string) {
+        this.fetchExtensionByKey(key).then((extension: Extension) => {
+            const extensionView: ExtensionView =
+                ExtensionView.create().setName(extension.getDisplayName()).setContextView(this).setExtension(extension).build();
+            this.updateExtension(extensionView);
 
-            if (this.isActiveWidget(key)) {
-                this.resetActiveWidget();
-                widgetView.setActive();
+            if (this.isActiveExtension(key)) {
+                this.resetActiveExtension();
+                extensionView.setActive();
             }
 
             this.updateView();
         });
     }
 
-    private handleWidgetAddedEvent(key: string) {
-        this.fetchWidgetByKey(key).then((widget: Widget) => {
-            const widgetView: WidgetView =
-                WidgetView.create().setName(widget.getDisplayName()).setContextView(this).setWidget(widget).build();
-            this.addWidget(widgetView);
+    private handleExtensionAddedEvent(key: string) {
+        this.fetchExtensionByKey(key).then((extension: Extension) => {
+            const extensionView: ExtensionView =
+                ExtensionView.create().setName(extension.getDisplayName()).setContextView(this).setExtension(extension).build();
+            this.addExtension(extensionView);
             this.updateView();
         });
     }
 
     private updateView() {
-        this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews);
-        this.widgetsSelectionRow.updateState(this.activeWidget);
+        this.extensionsSelectionRow.updateExtensionDropdown(this.extensionViews);
+        this.extensionsSelectionRow.updateState(this.activeExtension);
     }
 
-    getCustomWidgetViewsAndUpdateDropdown(): Q.Promise<void> {
+    getCustomExtensionViewsAndUpdateDropdown(): Q.Promise<void> {
         const deferred = Q.defer<void>();
-        if (!this.alreadyFetchedCustomWidgets) {
-            this.fetchAndInitCustomWidgetViews().then(() => {
-                this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews);
-                this.alreadyFetchedCustomWidgets = true;
+        if (!this.alreadyFetchedCustomExtensions) {
+            this.fetchAndInitCustomExtensionViews().then(() => {
+                this.extensionsSelectionRow.updateExtensionDropdown(this.extensionViews);
+                this.alreadyFetchedCustomExtensions = true;
                 deferred.resolve(null);
             });
         } else {
@@ -276,36 +276,36 @@ export class ContextView
         return deferred.promise;
     }
 
-    setActiveWidget(widgetView: WidgetView) {
-        if (this.activeWidget) {
-            this.activeWidget.setInactive();
+    setActiveExtension(extensionView: ExtensionView) {
+        if (this.activeExtension) {
+            this.activeExtension.setInactive();
         }
 
-        this.activeWidget = widgetView;
-        this.activeWidget.addClass('active');
+        this.activeExtension = extensionView;
+        this.activeExtension.addClass('active');
 
-        this.toggleClass('default-widget', this.defaultWidgetView.isActive());
-        this.toggleClass('internal', widgetView.isInternal());
+        this.toggleClass('default-widget', this.defaultExtension.isActive());
+        this.toggleClass('internal', extensionView.isInternal());
 
-        if (this.widgetsSelectionRow) {
-            this.widgetsSelectionRow.updateState(this.activeWidget);
+        if (this.extensionsSelectionRow) {
+            this.extensionsSelectionRow.updateState(this.activeExtension);
         }
     }
 
-    getActiveWidget(): WidgetView {
-        return this.activeWidget;
+    getActiveExtension(): ExtensionView {
+        return this.activeExtension;
     }
 
-    resetActiveWidget() {
-        if (this.activeWidget) {
-            this.activeWidget.removeClass('active');
+    resetActiveExtension() {
+        if (this.activeExtension) {
+            this.activeExtension.removeClass('active');
         }
-        this.activeWidget = null;
+        this.activeExtension = null;
     }
 
-    activateDefaultWidget() {
-        if (this.defaultWidgetView) {
-            this.defaultWidgetView.setActive();
+    activateDefaultExtension() {
+        if (this.defaultExtension) {
+            this.defaultExtension.setActive();
         }
     }
 
@@ -318,11 +318,11 @@ export class ContextView
 
         this.item = item;
 
-        const activeWidgetVisible = this.activeWidget != null && this.isVisible();
+        const activeExtensionVisible = this.activeExtension != null && this.isVisible();
 
         this.layout(!itemSelected);
-        if (activeWidgetVisible && selectionChanged && (this.activeWidget.isExternal() || itemSelected)) {
-            return this.updateActiveWidget();
+        if (activeExtensionVisible && selectionChanged && (this.activeExtension.isExternal() || itemSelected)) {
+            return this.updateActiveExtension();
         }
 
         return Q();
@@ -332,17 +332,17 @@ export class ContextView
         return this.item;
     }
 
-    updateActiveWidget(): Q.Promise<void> {
+    updateActiveExtension(): Q.Promise<void> {
         if (ContextView.debug) {
-            console.debug('ContextView.updateWidgetsForItem');
+            console.debug('ContextView.updateExtensionsForItem');
         }
 
-        if (!this.activeWidget) {
+        if (!this.activeExtension) {
             return Q();
         }
 
-        return this.activeWidget.updateWidgetItemViews().then(() => {
-            this.activeWidget.slideIn();
+        return this.activeExtension.updateExtensionItemViews().then(() => {
+            this.activeExtension.slideIn();
         }).catch(DefaultErrorHandler.handle);
     }
 
@@ -354,103 +354,101 @@ export class ContextView
         this.loadMask.hide();
     }
 
-    private initCommonWidgetViews() {
-        this.propertiesWidgetView = WidgetView.create()
+    private initCommonExtensionViews() {
+        this.extensionPropertiesView = ExtensionView.create()
             .setName(i18n('field.contextPanel.details'))
             .setDescription(i18n('field.contextPanel.details.description'))
-            .setWidgetClass('properties-widget')
+            .setExtensionClass('extension-properties')
             .setIconClass('icon-list')
-            .setType(InternalWidgetType.INFO)
+            .setType(InternalExtensionType.INFO)
             .setContextView(this)
-            .setWidgetItemViews(this.getDetailsWidgetItemViews()).build();
+            .setExtensionItemViews(this.getExtensionDetailsItemViews()).build();
 
-        this.versionsWidgetView = this.createVersionsWidgetView();
+        this.extensionVersionsView = this.createExtensionVersionsView();
         if (this.editorMode) {
-            this.pageEditorWidgetView = this.createPageEditorWidgetView();
+            this.extensionPageEditorView = this.createExtensionPageEditorView();
         }
-        this.addWidgets(this.getInitialWidgets());
+        this.addExtensions(this.getInitialExtensions());
 
-        this.defaultWidgetView = this.propertiesWidgetView;
-        this.setActiveWidget(this.defaultWidgetView);
+        this.defaultExtension = this.extensionPropertiesView;
+        this.setActiveExtension(this.defaultExtension);
     }
 
-    protected getInitialWidgets(): WidgetView[] {
-        const result = [this.propertiesWidgetView, this.versionsWidgetView, this.createDependenciesWidgetView()];
-        if (this.pageEditorWidgetView) {
-            // add page editor widget as second item
-            result.splice(1, 0, this.pageEditorWidgetView);
+    protected getInitialExtensions(): ExtensionView[] {
+        const result = [this.extensionPropertiesView, this.extensionVersionsView, this.createExtensionDependenciesView()];
+        if (this.extensionPageEditorView) {
+            // add page editor extension as second item
+            result.splice(1, 0, this.extensionPageEditorView);
         }
         return result;
     }
 
-    private createPageEditorWidgetView(): WidgetView {
-        this.pageEditorWidgetItemView = new PageEditorWidgetItemView();
-        this.pageEditorWidgetItemView.appendContextWindow(this.contextWindow);
+    private createExtensionPageEditorView(): ExtensionView {
+        this.extensionPageEditorItemView = new ExtensionPageEditorItemView();
+        this.extensionPageEditorItemView.appendContextWindow(this.contextWindow);
 
-        const pageEditorWidgetView = WidgetView.create()
+        const pageEditorExtensionView = ExtensionView.create()
             .setName(i18n('field.contextPanel.pageEditor'))
             .setDescription(i18n('field.contextPanel.pageEditor.description'))
-            .setWidgetClass('page-editor-widget')
+            .setExtensionClass('page-editor-widget')
             .setIconClass('icon-puzzle')
-            .addWidgetItemView(this.pageEditorWidgetItemView)
+            .addExtensionItemView(this.extensionPageEditorItemView)
             .setContextView(this)
-            .setType(InternalWidgetType.COMPONENTS)
+            .setType(InternalExtensionType.COMPONENTS)
             .build();
 
         InspectEvent.on((event: InspectEvent) => {
-            if (event.isShowWidget() && this.activeWidget !== this.versionsWidgetView &&
-                this.pageEditorWidgetView.compareByType(this.defaultWidgetView)) {
-                this.activateDefaultWidget();
+            if (event.isShowExtension() && this.activeExtension !== this.extensionVersionsView &&
+                this.extensionPageEditorView.compareByType(this.defaultExtension)) {
+                this.activateDefaultExtension();
             }
         });
-        return pageEditorWidgetView;
+        return pageEditorExtensionView;
     }
 
-    protected createVersionsWidgetView(): WidgetView {
-        return WidgetView.create()
+    protected createExtensionVersionsView(): ExtensionView {
+        return ExtensionView.create()
             .setName(i18n('field.contextPanel.versionHistory'))
             .setDescription(i18n('field.contextPanel.versionHistory.description'))
-            .setWidgetClass('versions-widget')
+            .setExtensionClass('extension-versions')
             .setIconClass('icon-history')
-            .setType(InternalWidgetType.HISTORY)
+            .setType(InternalExtensionType.HISTORY)
             .setContextView(this)
-            .addWidgetItemView(new VersionHistoryView()).build();
+            .addExtensionItemView(new VersionHistoryView()).build();
     }
 
-    protected createDependenciesWidgetView(): WidgetView {
-        return WidgetView.create()
+    protected createExtensionDependenciesView(): ExtensionView {
+        return ExtensionView.create()
             .setName(i18n('field.contextPanel.dependencies'))
             .setDescription(i18n('field.contextPanel.dependencies.description'))
-            .setWidgetClass('dependency-widget')
+            .setExtensionClass('extension-dependency')
             .setIconClass('icon-link')
-            .setType(InternalWidgetType.DEPENDENCIES)
+            .setType(InternalExtensionType.DEPENDENCIES)
             .setContextView(this)
-            .addWidgetItemView(new DependenciesWidgetItemView()).build();
+            .addExtensionItemView(new ExtensionDependencyItemView()).build();
     }
 
-    protected getDetailsWidgetItemViews(): WidgetItemView[] {
+    protected getExtensionDetailsItemViews(): ExtensionItemView[] {
         return [
-            new ContentWidgetItemView(),
-            new StatusWidgetItemView(),
-            new UserAccessWidgetItemView(),
-            new BasePropertiesWidgetItemView(),
-            new OnlinePropertiesWidgetItemView(),
-            new PageTemplateWidgetItemView(),
-            new AttachmentsWidgetItemView()
+            new ExtensionContentItemView(),
+            new ExtensionStatusItemView(),
+            new ExtensionPermissionsItemView(),
+            new ExtensionBasePropertiesItemView(),
+            new ExtensionOnlinePropertiesItemView(),
+            new ExtensionPageTemplateItemView(),
+            new ExtensionAttachmentsItemView()
         ];
     }
 
-    protected fetchCustomWidgetViews(): Q.Promise<Widget[]> {
-        const getWidgetsByInterfaceRequest = new GetWidgetsByInterfaceRequest('contentstudio.contextpanel');
-
-        return getWidgetsByInterfaceRequest.sendAndParse();
+    protected fetchCustomExtensions(): Q.Promise<Extension[]> {
+        return new GetExtensionsByInterfaceRequest('contentstudio.contextpanel').sendAndParse();
     }
 
-    private fetchAndInitCustomWidgetViews(): Q.Promise<void> {
-        return this.fetchCustomWidgetViews().then((widgets: Widget[]) => {
-            widgets.forEach((widget) => {
-                const widgetView = WidgetView.create().setName(widget.getDisplayName()).setContextView(this).setWidget(widget).build();
-                this.addWidget(widgetView);
+    private fetchAndInitCustomExtensionViews(): Q.Promise<void> {
+        return this.fetchCustomExtensions().then((extensions: Extension[]) => {
+            extensions.forEach((extension) => {
+                const widgetView = ExtensionView.create().setName(extension.getDisplayName()).setContextView(this).setExtension(extension).build();
+                this.addExtension(widgetView);
             });
         }).catch((reason) => {
             const msg = reason ? reason.message : i18n('notify.widget.error');
@@ -458,11 +456,11 @@ export class ContextView
         });
     }
 
-    private fetchWidgetByKey(key: string): Q.Promise<Widget> {
-        return this.fetchCustomWidgetViews().then((widgets: Widget[]) => {
-            for (const widget of widgets) {
-                if (widget.getWidgetDescriptorKey().getApplicationKey().getName() === key) {
-                    return widget;
+    private fetchExtensionByKey(key: string): Q.Promise<Extension> {
+        return this.fetchCustomExtensions().then((extensions: Extension[]) => {
+            for (const extension of extensions) {
+                if (extension.getDescriptorKey().getApplicationKey().getName() === key) {
+                    return extension;
                 }
             }
             return null;
@@ -477,89 +475,68 @@ export class ContextView
         return this.contextContainer;
     }
 
-    private getWidgetByKey(key: string): WidgetView {
-        for (const widgetView of this.widgetViews) {
-            if (widgetView.getWidgetKey() === key) {
-                return widgetView;
+    private getExtensionByKey(key: string): ExtensionView {
+        for (const extensionView of this.extensionViews) {
+            if (extensionView.getExtensionKey() === key) {
+                return extensionView;
             }
         }
         return null;
     }
 
-    private addWidget(widget: WidgetView) {
-        this.widgetViews.push(widget);
-        this.contextContainer.appendChild(widget);
+    private addExtension(extension: ExtensionView) {
+        this.extensionViews.push(extension);
+        this.contextContainer.appendChild(extension);
     }
 
-    private insertWidget(widget: WidgetView, index: number) {
-        this.widgetViews.splice(index, 0, widget);
-        this.contextContainer.insertChild(widget, index);
-    }
-
-    private getIndexOfLastInternalWidget(): number {
-        for (let index = 0; index < this.widgetViews.length; index++) {
-            if (!this.widgetViews[index].isInternal()) {
-                return index - 1;
-            }
-        }
-        return this.widgetViews.length - 1;
-    }
-
-    private addWidgets(widgetViews: WidgetView[]) {
-        widgetViews.forEach((widget) => {
-            this.addWidget(widget);
+    private addExtensions(extensionViews: ExtensionView[]) {
+        extensionViews.forEach((extensionView) => {
+            this.addExtension(extensionView);
         });
     }
 
-    private removeWidget(widget: WidgetView) {
-        if (widget) {
-            this.widgetViews = this.widgetViews.filter(view => !widget.compareByType(view));
-            widget.remove();
+    private removeExtensionByKey(key: string) {
+        const extension = this.getExtensionByKey(key);
+        if (extension) {
+            this.extensionViews = this.extensionViews.filter((view) => view !== extension);
+            extension.remove();
         }
     }
 
-    private removeWidgetByKey(key: string) {
-        const widget = this.getWidgetByKey(key);
-        if (widget) {
-            this.widgetViews = this.widgetViews.filter((view) => view !== widget);
-            widget.remove();
-        }
-    }
-
-    private updateWidget(widget: WidgetView) {
-        for (let i = 0; i < this.widgetViews.length; i++) {
-            if (this.widgetViews[i].getWidgetName() === widget.getWidgetName()) {
-                this.widgetViews[i].replaceWith(widget);
-                this.widgetViews[i] = widget;
+    private updateExtension(extension: ExtensionView) {
+        for (let i = 0; i < this.extensionViews.length; i++) {
+            if (this.extensionViews[i].getExtensionName() === extension.getExtensionName()) {
+                this.extensionViews[i].replaceWith(extension);
+                this.extensionViews[i] = extension;
                 break;
             }
         }
     }
 
-    updateSelectedWidget() {
-        const shouldActivatePageWidget = this.editorMode &&
+    updateSelectedExtension() {
+        const shouldActivatePageExtension = this.editorMode &&
                                          (this.isPageRenderable && !this.item?.getType()?.isShortcut()
                                           || this.item?.getContentSummary()?.isPage());
-        if (shouldActivatePageWidget) {
-            this.activatePageEditorWidget();
+        if (shouldActivatePageExtension) {
+            this.activatePageEditorExtension();
         } else {
-            this.deactivatePageEditorWidget();
+            this.deactivatePageEditorExtension();
         }
     }
 
-    private activatePageEditorWidget(): void {
-        this.defaultWidgetView = this.pageEditorWidgetView;
+    private activatePageEditorExtension(): void {
+        this.defaultExtension = this.extensionPageEditorView;
 
-        this.activateDefaultWidget();
+        this.activateDefaultExtension();
     }
 
-    private deactivatePageEditorWidget(): void {
-        const isPageEditorWidgetActive: boolean = this.isActiveWidgetByType(this.pageEditorWidgetView);
+    private deactivatePageEditorExtension(): void {
+        const isPageEditorExtensionActive: boolean = this.isActiveExtensionByType(this.extensionPageEditorView);
 
-        this.defaultWidgetView = this.propertiesWidgetView;
+        this.defaultExtension = this.extensionPropertiesView;
 
-        if (isPageEditorWidgetActive) {
-            this.activateDefaultWidget();
+        if (isPageEditorExtensionActive) {
+            this.activateDefaultExtension();
         }
     }
 
@@ -577,7 +554,7 @@ export class ContextView
 
     appendContextWindow(contextWindow: ContextWindow) {
         this.contextWindow = contextWindow;
-        this.pageEditorWidgetItemView?.appendContextWindow(this.contextWindow);
+        this.extensionPageEditorItemView?.appendContextWindow(this.contextWindow);
     }
 
     isVisible(): boolean {

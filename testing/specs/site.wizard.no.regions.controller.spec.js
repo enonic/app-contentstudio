@@ -31,7 +31,7 @@ describe('site.wizard.no.regions.controller.spec: checks Save button after selec
             // 2. Select an application with controllers:
             await siteFormPanel.addApplications([appConst.TEST_APPS_NAME.APP_CONTENT_TYPES]);
             let wizardContextWindow = await contentWizard.openContextWindow();
-            // 3. Select 'Page' option in widget-selector:
+            // 3. Select 'Page' option in extension-selector:
             await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             // 4. site should be automatically saved after selecting the controller
             let pageInspectionPanel = new PageInspectionPanel();

@@ -1,4 +1,4 @@
-import {EmulatorDevice} from '../view/context/widget/emulator/EmulatorDevice';
+import {EmulatorDevice} from '../view/context/extension/emulator/EmulatorDevice';
 
 export class EmulatedEvent {
 

@@ -57,13 +57,13 @@ import {type ModalDialog} from '../../inputtype/ui/text/dialog/ModalDialog';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContextPanelState} from '../../view/context/ContextPanelState';
 import {ContextPanelMode} from '../../view/context/ContextSplitPanel';
-import {type PreviewWidgetDropdown} from '../../view/toolbar/PreviewWidgetDropdown';
-import {type WidgetRenderer} from '../../view/WidgetRenderingHandler';
+import {type PreviewModeDropdown} from '../../view/toolbar/PreviewModeDropdown';
+import {type ExtensionRenderer} from '../../view/ExtensionRenderingHandler';
 import {SaveAsTemplateAction} from '../action/SaveAsTemplateAction';
 import {type ContentWizardPanel} from '../ContentWizardPanel';
 import {ShowContentFormEvent} from '../ShowContentFormEvent';
 import {ShowLiveEditEvent} from '../ShowLiveEditEvent';
-import {WizardWidgetRenderingHandler} from '../WizardWidgetRenderingHandler';
+import {WizardExtensionRenderingHandler} from '../WizardExtensionRenderingHandler';
 import {ContextWindow, type ContextWindowConfig, getInspectParameters} from './contextwindow/ContextWindow';
 import {InsertablesPanel} from './contextwindow/insert/InsertablesPanel';
 import {type BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
@@ -95,14 +95,14 @@ export interface LiveFormPanelConfig {
 
 export interface InspectPageParams {
     showPanel: boolean,
-    showWidget: boolean,
+    showExtension: boolean,
     keepPanelSelection?: boolean,
     source?: PageNavigationEventSource,
 }
 
 export class LiveFormPanel
     extends Panel
-    implements PageNavigationHandler, WidgetRenderer {
+    implements PageNavigationHandler, ExtensionRenderer {
 
     public static debug: boolean = false;
 
@@ -144,7 +144,7 @@ export class LiveFormPanel
 
     private contextPanelToggleHandler?: () => void;
 
-    private widgetRenderingHandler: WizardWidgetRenderingHandler;
+    private widgetRenderingHandler: WizardExtensionRenderingHandler;
 
     private showLoadMaskHandler: () => void;
     private hideLoadMaskHandler: () => void;
@@ -152,13 +152,13 @@ export class LiveFormPanel
     private contentPermissionsUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
 
     constructor(config: LiveFormPanelConfig) {
-        super('live-form-panel widget-preview-panel');
+        super('live-form-panel extension-preview-panel');
 
         this.contentWizardPanel = config.contentWizardPanel;
         this.liveEditPageProxy = config.liveEditPage;
         this.content = config.liveEditModel.getContent();
 
-        this.widgetRenderingHandler = new WizardWidgetRenderingHandler(this);
+        this.widgetRenderingHandler = new WizardExtensionRenderingHandler(this);
 
         PageNavigationMediator.get().addPageNavigationHandler(this);
 
@@ -181,15 +181,15 @@ export class LiveFormPanel
     }
 
     private refresh(): void {
-        void this.widgetRenderingHandler.render(this.content, this.getWidgetSelector().getSelectedWidget());
+        void this.widgetRenderingHandler.render(this.content, this.getExtensionSelector().getSelectedMode());
     }
 
     getMask(): Mask {
         return this.contentWizardPanel.getLiveMask();
     }
 
-    getWidgetSelector(): PreviewWidgetDropdown {
-        return this.frameContainer.getWidgetSelector()
+    getExtensionSelector(): PreviewModeDropdown {
+        return this.frameContainer.getExtensionSelector()
     }
 
     protected initElements(): void {
@@ -585,7 +585,7 @@ export class LiveFormPanel
 
         this.pageLoading = true;
 
-        return this.liveEditPageProxy.load(this.widgetRenderingHandler, this.getWidgetSelector().getSelectedWidget())
+        return this.liveEditPageProxy.load(this.widgetRenderingHandler, this.getExtensionSelector().getSelectedMode())
             .then((loaded) => {
                 if (!loaded) {
                     // no widget was able to render it so there will be no page loaded eventt
@@ -626,7 +626,7 @@ export class LiveFormPanel
         const eventsManager = PageEventsManager.get();
 
         eventsManager.onPageLocked(() => {
-            this.inspectPage({showPanel: false, showWidget: true});
+            this.inspectPage({showPanel: false, showExtension: true});
         });
 
         eventsManager.onLiveEditPageViewReady(() => {
@@ -715,7 +715,7 @@ export class LiveFormPanel
         this.contextWindow?.showInspectionPanel(
             getInspectParameters({
                 panel: pagePanel,
-                showWidget: params.showWidget,
+                showExtension: params.showExtension,
                 showPanel: params.showPanel,
                 source: params.source,
                 keepPanelSelection: params.keepPanelSelection
@@ -740,11 +740,11 @@ export class LiveFormPanel
         return false;
     }
 
-    clearSelectionAndInspect(showPanel: boolean, showWidget: boolean) {
+    clearSelectionAndInspect(showPanel: boolean, showExtension: boolean) {
         const cleared = this.clearSelection(false);
         const params = cleared ?
-            {showPanel: showPanel, showWidget: showWidget, keepPanelSelection: true} :
-            {showPanel: false, showWidget: true, keepPanelSelection: true};
+            {showPanel: showPanel, showExtension: showExtension, keepPanelSelection: true} :
+            {showPanel: false, showExtension: true, keepPanelSelection: true};
 
         this.inspectPage(params);
     }
@@ -757,7 +757,7 @@ export class LiveFormPanel
         this.contextWindow.showInspectionPanel(
             getInspectParameters({
                 panel: regionInspectionPanel,
-                showWidget: true,
+                showExtension: true,
                 showPanel: true,
                 source: source,
             })
@@ -771,7 +771,7 @@ export class LiveFormPanel
             this.contextWindow.showInspectionPanel(
                 getInspectParameters({
                     panel,
-                    showWidget: true,
+                    showExtension: true,
                     showPanel,
                     keepPanelSelection: false,
                     silent: true
@@ -808,7 +808,7 @@ export class LiveFormPanel
             this.componentToInspectOnContextPanelExpand = component;
         }
 
-        InspectEvent.create().setShowWidget(true).setShowPanel(!isPanelToHide).setSource(source).build().fire();
+        InspectEvent.create().setShowExtension(true).setShowPanel(!isPanelToHide).setSource(source).build().fire();
 
         if (waitForContextPanel) {
             return;
@@ -824,7 +824,7 @@ export class LiveFormPanel
     private openComponentInspect(component: Component, source?: PageNavigationEventSource, focus?: boolean): void {
         assertNotNull(component, 'component cannot be null');
 
-        InspectEvent.create().setShowWidget(true).setShowPanel(true).setSource(source).build().fire();
+        InspectEvent.create().setShowExtension(true).setShowPanel(true).setSource(source).build().fire();
 
         this.doInspectComponent(component, true, focus);
     }
@@ -900,7 +900,7 @@ export class LiveFormPanel
         } else if (item instanceof Region) {
             this.inspectRegion(path, data.getSource());
         } else if (item instanceof Page || (!currentPage && path.isRoot())) {
-            this.inspectPage({showPanel: true, showWidget: true, source: data.getSource()});
+            this.inspectPage({showPanel: true, showExtension: true, source: data.getSource()});
         }
     }
 

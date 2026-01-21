@@ -3,20 +3,26 @@ import {ProjectContext} from './project/ProjectContext';
 import {Path} from '@enonic/lib-admin-ui/rest/Path';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {ShadowScriptExecutor} from '@enonic/lib-admin-ui/dom/shadow/ShadowScriptExecutor';
 
 export class Router {
 
     private prevHash: string;
 
     private constructor() {
-        ProjectContext.get().onProjectChanged(this.updateProjectInHash.bind(this));
+        ProjectContext.get().onProjectChanged(() => Router.onProjectChanged());
     }
 
-    private updateProjectInHash() {
+    static onProjectChanged() {
+        Router.updateProjectInHash();
+    }
+
+    static updateProjectInHash() {
         const project: string = ProjectContext.get().getProject().getName();
         const currentHash: string = hasher.getHash();
         const newHash: string = project + currentHash.substring(currentHash.indexOf('/'));
         hasher.setHash(newHash);
+        ShadowScriptExecutor.removeScripts();
     }
 
     static get(): Router {
@@ -39,6 +45,7 @@ export class Router {
     }
 
     setHash(path: string) {
+        ShadowScriptExecutor.removeScripts();
         const project: string = ProjectContext.get().getProject().getName();
         this.doSetHash(`${project}/${path}`);
     }

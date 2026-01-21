@@ -1,0 +1,107 @@
+.extension-selection-row {
+  .extension-filter-dropdown {
+    display: grid;
+    column-gap: 5px;
+    grid-template-columns: 1fr 36px;
+    grid-template-areas:
+      "selected-view dropdown";
+
+    > .selected-viewer {
+      padding: 3px 0 4px 10px;
+
+      .names-and-icon-view {
+        .@{_COMMON_PREFIX}wrapper {
+          .font-icon-default {
+            font-size: 22px;
+          }
+        }
+      }
+
+      .@{_COMMON_PREFIX}names-view {
+        .@{_COMMON_PREFIX}main-name {
+          font-size: 13px;
+        }
+
+        .@{_COMMON_PREFIX}sub-name {
+          font-size: 11px;
+        }
+      }
+    }
+
+    .filter-and-list-container {
+      grid-area: dropdown;
+
+      .option-filter-input {
+        border: none;
+        display: none;
+      }
+
+      .@{_COMMON_PREFIX}dropdown-handle {
+        width: 36px;
+        height: 36px;
+      }
+    }
+
+    .item-view-wrapper {
+      .extension-viewer {
+        .names-and-icon-view {
+          .@{_COMMON_PREFIX}wrapper {
+            .font-icon-default {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              font-size: 24px;
+            }
+          }
+
+          .@{_COMMON_PREFIX}names-view {
+            .@{_COMMON_PREFIX}main-name {
+              height: 16px;
+              line-height: 16px;
+              font-size: 13px;
+            }
+
+            .@{_COMMON_PREFIX}sub-name {
+              //
+            }
+          }
+        }
+      }
+
+      &.selected {
+        .extension-viewer {
+          .@{_COMMON_PREFIX}names-view * {
+            color: @admin-white;
+          }
+
+          .content-tree-grid-status {
+            span {
+              color: @admin-white;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  &.dropdown-visible {
+    .extension-filter-dropdown {
+      display: block;
+
+      > .selected-viewer {
+        display: none;
+      }
+
+      .filter-and-list-container {
+        .option-filter-input {
+          display: block;
+          height: 40px;
+        }
+
+        .extension-selector {
+          border: none;
+        }
+      }
+    }
+  }
+}

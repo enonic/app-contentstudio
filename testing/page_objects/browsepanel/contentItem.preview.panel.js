@@ -8,7 +8,7 @@ const appConst = require('../../libs/app_const');
 const xpath = {
     container: "//div[contains(@id,'ContentItemPreviewPanel')]",
     toolbar: `//div[contains(@id,'ContentItemPreviewToolbar')]`,
-    divPreviewWidgetDropdown: "//div[contains(@id,'PreviewWidgetDropdown')]",
+    divPreviewWidgetDropdown: "//div[contains(@id,'PreviewModeDropdown')]",
     ulEmulatorListBox: "//ul[contains(@id,'EmulatorListBox')]",
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     issueMenuButton: `//div[contains(@id,'MenuButton')]`,

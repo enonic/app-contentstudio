@@ -6,7 +6,7 @@ const appConst = require('../../../libs/app_const');
 const EditPermissionsGeneralStep = require('../../permissions/edit.permissions.general.step');
 
 const xpath = {
-    container: "//div[contains(@id,'WidgetView')]//div[contains(@id,'UserAccessWidgetItemView')]",
+    container: "//div[contains(@id,'ExtensionView')]//div[contains(@id,'ExtensionPermissionsItemView')]",
     headerString: "//span[contains(@class,'header-string')]",
     editPermissionsLink: "//a[@class='edit-permissions-link']",
     accessList: "//div[contains(@id,'UserAccessListItemView')]",

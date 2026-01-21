@@ -5,7 +5,7 @@ import {type PageNavigationEventSource} from '../wizard/PageNavigationEventData'
 export class InspectEvent
     extends Event {
 
-    private readonly showWidget: boolean;
+    private readonly showExtension: boolean;
 
     private readonly showPanel: boolean;
 
@@ -14,13 +14,13 @@ export class InspectEvent
     constructor(builder: InspectEventBuilder) {
         super();
 
-        this.showWidget = builder.showWidget;
+        this.showExtension = builder.showExtension;
         this.showPanel = builder.showPanel;
         this.source = builder.source;
     }
 
-    isShowWidget(): boolean {
-        return this.showWidget;
+    isShowExtension(): boolean {
+        return this.showExtension;
     }
 
     isShowPanel(): boolean {
@@ -47,14 +47,14 @@ export class InspectEvent
 
 export class InspectEventBuilder {
 
-    showWidget: boolean;
+    showExtension: boolean;
 
     showPanel: boolean;
 
     source: PageNavigationEventSource;
 
-    setShowWidget(value: boolean): InspectEventBuilder {
-        this.showWidget = value;
+    setShowExtension(value: boolean): InspectEventBuilder {
+        this.showExtension = value;
         return this;
     }
 

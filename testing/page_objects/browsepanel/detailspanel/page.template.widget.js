@@ -6,7 +6,7 @@ const appConst = require('../../../libs/app_const');
 const lib = require('../../../libs/elements');
 
 const xpath = {
-    container: `//div[contains(@id,'WidgetView')]//div[contains(@id,'PageTemplateWidgetItemView')]`,
+    container: `//div[contains(@id,'ExtensionView')]//div[contains(@id,'ExtensionPageTemplateItemView')]`,
 };
 
 class PageTemplateWidget extends Page {

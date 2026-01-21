@@ -6,7 +6,7 @@ import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {type Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
 import {WidgetsToolbar} from './WidgetsToolbar';
 
 export class WidgetsSidebar
@@ -38,7 +38,7 @@ export class WidgetsSidebar
         return this.fullscreenWidgetsToolbar.getButtons();
     }
 
-    addWidget(widget: Widget, buttonClass?: string): void {
+    addWidget(widget: Extension, buttonClass?: string): void {
         this.fullscreenWidgetsToolbar.addWidget(widget, buttonClass);
     }
 
@@ -46,7 +46,7 @@ export class WidgetsSidebar
         this.fullscreenWidgetsToolbar.toggleActiveButton();
     }
 
-    removeWidget(widget: Widget): void {
+    removeWidget(widget: Extension): void {
         this.fullscreenWidgetsToolbar.removeWidget(widget);
     }
 

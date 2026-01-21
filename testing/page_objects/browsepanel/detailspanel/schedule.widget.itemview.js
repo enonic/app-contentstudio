@@ -6,7 +6,7 @@ const appConst = require('../../../libs/app_const');
 const lib = require('../../../libs/elements');
 
 const xpath = {
-    container: `//div[contains(@id,'WidgetView')]//div[contains(@id,'OnlinePropertiesWidgetItemView')]`,
+    container: `//div[contains(@id,'ExtensionView')]//div[contains(@id,'ExtensionOnlinePropertiesItemView')]`,
     onlineFromDescriptionTerm: "//dd[contains(.,'Online from')]/following-sibling::dt[1]",//<dt>
     onlineToDescriptionTerm: "//dd[contains(.,'Online to')]/following-sibling::dt[1]",
     editScheduleButton: "//a[contains(@class,'edit-settings-link') and text()='Edit Schedule']",

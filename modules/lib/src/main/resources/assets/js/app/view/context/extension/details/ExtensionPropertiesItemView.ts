@@ -1,0 +1,165 @@
+import Q from 'q';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
+import {ExtensionItemView} from '../../ExtensionItemView';
+import {type ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {DlEl} from '@enonic/lib-admin-ui/dom/DlEl';
+import {DdDtEl} from '@enonic/lib-admin-ui/dom/DdDtEl';
+import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {type ExtensionPropertiesItemViewHelper} from './ExtensionPropertiesItemViewHelper';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {EditPropertiesDialog, type EditPropertiesDialogParams} from './EditPropertiesDialog';
+import {type ExtensionPropertiesItemViewValue} from './ExtensionPropertiesItemViewValue';
+import {type PropertiesWizardStepForm} from './PropertiesWizardStepForm';
+import {type PropertiesWizardStepFormType} from './PropertiesWizardStepFormFactory';
+
+export abstract class ExtensionPropertiesItemView
+    extends ExtensionItemView {
+
+    protected item: ContentSummaryAndCompareStatus;
+    protected list: DlEl;
+    protected editPropertiesLink?: AEl;
+    protected allowedForms: PropertiesWizardStepForm[];
+    protected helper: ExtensionPropertiesItemViewHelper;
+    protected detailsDialog?: EditPropertiesDialog;
+
+    public static debug: boolean = false;
+
+    constructor(className?: string) {
+        super('extension-properties-item-view ' + (className || ''));
+
+        this.helper = this.createHelper();
+        this.list = new DlEl();
+        this.appendChild(this.list);
+        this.initListeners();
+    }
+
+    protected abstract createHelper(): ExtensionPropertiesItemViewHelper;
+
+    protected initListeners(): void {
+        //
+    }
+
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
+        if (!item.getContentSummary().equals(this.item?.getContentSummary())) {
+            this.item = item;
+            this.helper.setItem(item);
+
+            if (this.isAllowedToBeShown()) {
+                this.show();
+                return this.layout();
+            }
+
+            this.hide();
+        }
+
+        return Q();
+    }
+
+    protected isAllowedToBeShown(): boolean {
+        return true;
+    }
+
+    public layout(): Q.Promise<void> {
+        if (ExtensionPropertiesItemView.debug) {
+            console.debug('PropertiesWidgetItemView.layout');
+        }
+
+        this.allowedForms = [];
+
+        return super.layout().then(() => {
+            if (this.item != null) {
+                return this.fetchExtraData().then(() => {
+                    return this.layoutProperties().then(() => {
+                        this.layoutEditLink();
+                    })
+                });
+            }
+        });
+    }
+
+    protected fetchExtraData(): Q.Promise<void> {
+        return Q();
+    }
+
+    protected layoutProperties(): Q.Promise<void> {
+        return this.helper.generateProps().then(props => {
+            this.list.removeChildren();
+
+            props.forEach((value: ExtensionPropertiesItemViewValue, key: string) => {
+                this.appendKeyValue(key, value);
+            });
+        });
+    }
+
+    protected appendKeyValue(key: string, value: ExtensionPropertiesItemViewValue) {
+        const keyValueRow = new DivEl('key-value-row');
+        keyValueRow.appendChildren(this.createKeyEl(key), this.createValueEl(value));
+        this.list.appendChild(keyValueRow);
+    }
+
+    protected createKeyEl(key: string): Element {
+        return new DdDtEl('dd').setHtml(key);
+    }
+
+    protected createValueEl(value: ExtensionPropertiesItemViewValue): Element {
+        return new DdDtEl('dt').setHtml(value.getDisplayName()).setTitle(value.getTitle() ? value.getTitle() : '');
+    }
+
+    protected insertKeyValue(key: string, value: ExtensionPropertiesItemViewValue, index: number) {
+        const keyEl: Element = this.createKeyEl(key);
+        const valueEl: Element = this.createValueEl(value);
+
+        this.list.insertChild(valueEl, index);
+        this.list.insertChild(keyEl, index);
+    }
+
+    protected layoutEditLink(): void {
+        this.helper.getAllowedForms(this.getFormsTypesToEdit()).then((forms: PropertiesWizardStepForm[]) => {
+            this.allowedForms = forms;
+            this.doLayoutEditLink();
+        }).catch((e: unknown) => {
+            this.editPropertiesLink?.getParentElement().remove();
+            DefaultErrorHandler.handle(e);
+        });
+    }
+
+    private doLayoutEditLink(): void {
+        if (this.allowedForms?.length > 0) {
+            if (!this.editPropertiesLink) {
+                this.initEditPropertiesLink();
+            } else {
+                this.appendChild(this.editPropertiesLink?.getParentElement());
+            }
+
+            // set params for dialog
+        } else {
+            this.editPropertiesLink?.getParentElement().remove();
+        }
+    }
+
+    private initEditPropertiesLink(): void {
+        this.editPropertiesLink = new AEl('edit-settings-link');
+        this.editPropertiesLink.setHtml(this.getEditLinkText());
+
+        this.editPropertiesLink.onClicked((event: MouseEvent) => {
+            if (!this.detailsDialog) {
+                this.detailsDialog = new EditPropertiesDialog(this.createEditPropertiesDialogParams());
+            }
+
+            this.detailsDialog.setFormsAllowed(this.allowedForms).setItem(this.item.getContentSummary()).open();
+
+            event.stopPropagation();
+            event.preventDefault();
+            return false;
+        });
+
+        this.appendChild(new DivEl('edit-settings-link-container').appendChild(this.editPropertiesLink));
+    }
+
+    protected abstract getEditLinkText(): string;
+
+    protected abstract createEditPropertiesDialogParams(): EditPropertiesDialogParams;
+
+    protected abstract getFormsTypesToEdit(): PropertiesWizardStepFormType[];
+}

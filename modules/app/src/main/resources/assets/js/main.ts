@@ -4,7 +4,7 @@ import {Application} from '@enonic/lib-admin-ui/app/Application';
 import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
-import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {Extension} from '@enonic/lib-admin-ui/extension/Extension';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
@@ -531,12 +531,12 @@ async function startContentBrowser() {
     if (isDefaultAppUrl(url)) {
         commonWrapper.selectDefaultWidget();
     } else {
-        commonWrapper.onItemAdded((item: Widget) => {
+        commonWrapper.onItemAdded((item: Extension) => {
             if (AppContext.get().getCurrentAppOrWidgetId()) {
                 return;
             }
 
-            if (url.endsWith(`/${item.getWidgetDescriptorKey().getName()}`)) {
+            if (url.endsWith(`/${item.getDescriptorKey().getName()}`)) {
                 commonWrapper.selectWidget(item);
             }
         });
