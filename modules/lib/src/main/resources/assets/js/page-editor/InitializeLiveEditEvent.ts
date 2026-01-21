@@ -29,8 +29,6 @@ export class InitializeLiveEditEvent
 
     private hostDomain: string;
 
-    private jsessionId: string;
-
     constructor(liveEditParams?: LiveEditParams) {
         super();
         this.liveEditParams = liveEditParams;
@@ -101,15 +99,6 @@ export class InitializeLiveEditEvent
 
     getHostDomain(): string {
         return this.hostDomain;
-    }
-
-    setJsessionId(value: string) {
-        this.jsessionId = value;
-        return this;
-    }
-
-    getJsessionId(): string {
-        return this.jsessionId;
     }
 
     static on(handler: (event: InitializeLiveEditEvent) => void, contextWindow: Window = window) {

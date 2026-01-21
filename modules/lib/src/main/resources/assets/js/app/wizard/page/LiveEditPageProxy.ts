@@ -85,7 +85,6 @@ import {WizardWidgetRenderingHandler} from '../WizardWidgetRenderingHandler';
 import {SessionStorageHelper} from '../../util/SessionStorageHelper';
 import {IframeEventBus} from '@enonic/lib-admin-ui/event/IframeEventBus';
 import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
-import {CookieHelper} from '@enonic/lib-admin-ui/util/CookieHelper';
 import {PartComponentType} from '../../page/region/PartComponentType';
 import {LayoutComponentType} from '../../page/region/LayoutComponentType';
 import {TextComponentType} from '../../page/region/TextComponentType';
@@ -275,7 +274,6 @@ export class LiveEditPageProxy
                     console.debug('LiveEditPageProxy.hanldeIframeLoadedEvent: initialize live edit at ' + new Date().toISOString());
                 }
 
-                const jsessionid = CookieHelper.getCookie('JSESSIONID');
                 new InitializeLiveEditEvent(this.createLiveEditParams())
                     .setContent(this.liveEditModel.getContentSummaryAndCompareStatus())
                     .setPrincipals()
@@ -283,7 +281,6 @@ export class LiveEditPageProxy
                     .setProjectJson()
                     .setPageJson()
                     .setUser()
-                    .setJsessionId(jsessionid)
                     .setHostDomain(`${window.location.protocol}//${window.location.host}`)
                     .fire();
 
