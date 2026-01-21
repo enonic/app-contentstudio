@@ -5,6 +5,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'happy-dom',
+    setupFiles: ['./vitest.setup.ts'],
     include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     exclude: ['**/node_modules/**', '**/build/**', '**/dist/**'],
     coverage: {
@@ -16,6 +17,12 @@ export default defineConfig({
         'src/**/*.spec.ts',
         'src/**/*.test.ts',
       ],
+    },
+    server: {
+      deps: {
+        // Inline @enonic/ui to avoid ESM/CJS interop issues with preact aliasing
+        inline: ['@enonic/ui'],
+      },
     },
   },
   resolve: {
