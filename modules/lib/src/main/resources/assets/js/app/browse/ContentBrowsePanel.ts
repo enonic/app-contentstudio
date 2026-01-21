@@ -85,7 +85,7 @@ export class ContentBrowsePanel
 
         const previewAction = this.getBrowseActions().getAction(ActionName.PREVIEW) as PreviewContentAction;
         this.getPreviewPanel().setPreviewAction(previewAction);
-        previewAction.setWidgetSelector(this.getPreviewPanel().getWidgetSelector());
+        previewAction.setModeSelector(this.getPreviewPanel().getExtensionSelector());
 
         this.debouncedFilterRefresh = AppHelper.debounce(this.refreshFilter.bind(this), 1000);
         this.debouncedBrowseActionsAndPreviewRefreshOnDemand = AppHelper.debounce(() => {

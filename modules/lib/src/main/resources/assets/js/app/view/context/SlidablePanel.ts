@@ -17,7 +17,7 @@ export class SlidablePanel
 
         this.setDoOffset(false);
         this.initSlideFunctions(builder.getSlideFrom());
-        this.onSlidedIn(() => this.getItem() ? void this.contextView.updateActiveWidget() : undefined);
+        this.onSlidedIn(() => this.getItem() ? void this.contextView.updateActiveExtension() : undefined);
     }
 
     public isVisibleOrAboutToBeVisible(): boolean {

@@ -1,7 +1,7 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {type Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {AppContext} from '../AppContext';
-import {type Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
 import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
 import {WidgetButton} from './WidgetButton';
 
@@ -22,11 +22,11 @@ export class WidgetsToolbar
         super('actions-block');
     }
 
-    addWidget(widget: Widget, buttonClass?: string): void {
+    addWidget(widget: Extension, buttonClass?: string): void {
         this.createWidgetButton(widget, buttonClass);
     }
 
-    private createWidgetButton(widget: Widget, buttonClass?: string) {
+    private createWidgetButton(widget: Extension, buttonClass?: string) {
         const sidebarButton: WidgetButton = new WidgetButton(widget);
         sidebarButton.setLabel(widget.getDisplayName());
         sidebarButton.setTitle(widget.getDisplayName());
@@ -133,8 +133,8 @@ export class WidgetsToolbar
         });
     }
 
-    removeWidget(widget: Widget): void {
-        this.removeButtonById(widget.getWidgetDescriptorKey().toString());
+    removeWidget(widget: Extension): void {
+        this.removeButtonById(widget.getDescriptorKey().toString());
     }
 
     private removeButtonById(itemId: string): void {

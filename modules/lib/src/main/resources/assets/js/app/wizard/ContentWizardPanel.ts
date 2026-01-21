@@ -106,7 +106,7 @@ import {ContextPanelState} from '../view/context/ContextPanelState';
 import {type ContextPanelMode} from '../view/context/ContextSplitPanel';
 import {ContextView} from '../view/context/ContextView';
 import {DockedContextPanel} from '../view/context/DockedContextPanel';
-import {VersionContext} from '../view/context/widget/version/VersionContext';
+import {VersionContext} from '../view/context/extension/version/VersionContext';
 import {type ContentSaveAction} from './action/ContentSaveAction';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentContext} from './ContentContext';
@@ -142,7 +142,7 @@ import {WorkflowStateManager, type WorkflowStateStatus} from './WorkflowStateMan
 import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
-import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
+import {ViewExtensionEvent} from '../event/ViewExtensionEvent';
 import {type ContentItemPreviewToolbar} from '../view/ContentItemPreviewToolbar';
 
 export class ContentWizardPanel
@@ -1220,7 +1220,7 @@ export class ContentWizardPanel
         });
 
         let firstLoad = true;
-        ViewWidgetEvent.on((event: ViewWidgetEvent) => {
+        ViewExtensionEvent.on((event: ViewExtensionEvent) => {
             this.getLivePanel()?.loadPage().then((renderable) => {
                 if (firstLoad) {
                     if (ContentWizardPanel.debug) {

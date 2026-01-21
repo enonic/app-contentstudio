@@ -4,8 +4,8 @@
 const BaseLayersWidget = require('../../details_panel/base.layers.widget');
 
 const xpath = {
-    widget: "//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'LayersWidgetItemView')]",
-    widgetItemView: "//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'LayersWidgetItemView')]",
+    widget: "//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'LayersExtensionItemView')]",
+    widgetItemView: "//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'LayersExtensionItemView')]",
 };
 
 class WizardLayersWidget extends BaseLayersWidget {

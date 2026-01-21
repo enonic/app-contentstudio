@@ -1,15 +1,15 @@
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {AppContext} from '../AppContext';
-import {type Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
 
 export class WidgetButton
     extends Button {
 
-    private readonly widget: Widget;
+    private readonly widget: Extension;
 
     static SELECTED_CLASS: string = 'selected';
 
-    constructor(widget: Widget) {
+    constructor(widget: Extension) {
         super();
 
         this.widget = widget;
@@ -17,7 +17,7 @@ export class WidgetButton
     }
 
     getWidgetId(): string {
-        return this.widget.getWidgetDescriptorKey().toString();
+        return this.widget.getDescriptorKey().toString();
     }
 
     getWidgetDisplayName(): string {

@@ -23,7 +23,7 @@ import {GetActiveContentVersionsRequest} from '../resource/GetActiveContentVersi
 import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
 import {GetContentVersionsRequest} from '../resource/GetContentVersionsRequest';
 import {type GetContentVersionsResult} from '../resource/GetContentVersionsResult';
-import {VersionContext} from '../view/context/widget/version/VersionContext';
+import {VersionContext} from '../view/context/extension/version/VersionContext';
 
 export class CompareWithPublishedVersionDialog
     extends ModalDialog {

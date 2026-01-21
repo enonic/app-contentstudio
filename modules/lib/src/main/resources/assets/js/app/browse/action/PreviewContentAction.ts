@@ -7,14 +7,14 @@ import {type ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {type ContentSummary} from '../../content/ContentSummary';
 import {type SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
-import {type PreviewWidgetDropdown} from '../../view/toolbar/PreviewWidgetDropdown';
+import {type PreviewModeDropdown} from '../../view/toolbar/PreviewModeDropdown';
 
 export class PreviewContentAction
     extends ContentTreeGridAction {
 
     private helper: PreviewActionHelper;
 
-    private widgetSelector: PreviewWidgetDropdown;
+    private modeSelector: PreviewModeDropdown;
 
     private totalSelected: number;
 
@@ -28,17 +28,17 @@ export class PreviewContentAction
         this.helper = new PreviewActionHelper();
     }
 
-    setWidgetSelector(widgetSelector: PreviewWidgetDropdown): void {
-        this.widgetSelector = widgetSelector;
+    setModeSelector(modeSelector: PreviewModeDropdown): void {
+        this.modeSelector = modeSelector;
     }
 
     protected handleExecuted() {
         if (this.totalSelected < PreviewContentAction.BLOCK_COUNT) {
-            const widget = this.widgetSelector?.getSelectedWidget();
+            const mode = this.modeSelector?.getSelectedMode();
             const contentSummaries: ContentSummary[] = this.grid.getSelectedItems()
                 .map((data: ContentSummaryAndCompareStatus) => data.getContentSummary());
 
-            this.helper.openWindows(contentSummaries, widget);
+            this.helper.openWindows(contentSummaries, mode);
         } else {
             showWarning(i18n('notify.preview.tooMuch', PreviewContentAction.BLOCK_COUNT));
         }

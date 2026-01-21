@@ -7,16 +7,16 @@ import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 import {type ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
 import {ContentSummaryAndCompareStatusHelper} from '../content/ContentSummaryAndCompareStatusHelper';
 import {type Action} from '@enonic/lib-admin-ui/ui/Action';
-import {WidgetRenderingHandler, type WidgetRenderer} from './WidgetRenderingHandler';
+import {ExtensionRenderingHandler, type ExtensionRenderer} from './ExtensionRenderingHandler';
 import {type IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
 import {type DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {type Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
-import {type PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
+import {type PreviewModeDropdown} from './toolbar/PreviewModeDropdown';
 
 
 export class ContentItemPreviewPanel
     extends ItemPreviewPanel<ViewItem>
-    implements WidgetRenderer {
+    implements ExtensionRenderer {
 
     protected item: ViewItem;
     protected skipNextSetItemCall: boolean = false;
@@ -24,24 +24,28 @@ export class ContentItemPreviewPanel
     protected debouncedSetItem: (item: ViewItem) => void;
     protected readonly contentRootPath: string;
 
-    private widgetRenderingHandler: WidgetRenderingHandler;
+    protected extensionRenderingHandler: ExtensionRenderingHandler;
 
     private previewAction: Action;
 
     constructor(contentRootPath?: string) {
-        super('content-item-preview-panel widget-preview-panel');
+        super('content-item-preview-panel extension-preview-panel');
 
         this.contentRootPath = contentRootPath || ContentResourceRequest.CONTENT_PATH;
         this.debouncedSetItem = AppHelper.runOnceAndDebounce(this.doSetItem.bind(this), 300);
 
-        this.widgetRenderingHandler = new WidgetRenderingHandler(this);
+        this.extensionRenderingHandler = this.createExtensionRenderingHandler();
 
         this.setupListeners();
     }
 
+    protected createExtensionRenderingHandler(): ExtensionRenderingHandler {
+        return new ExtensionRenderingHandler(this);
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            this.widgetRenderingHandler.layout();
+            this.extensionRenderingHandler.layout();
             this.mask.addClass('content-item-preview-panel-load-mask');
             this.getToolbar().setRefreshAction(() => this.refresh());
             return rendered;
@@ -99,18 +103,18 @@ export class ContentItemPreviewPanel
 
     protected async update(item: ContentSummaryAndCompareStatus) {
         const contentSummary = item.getContentSummary();
-        const widget = (this.toolbar as ContentItemPreviewToolbar).getWidgetSelector().getSelectedWidget();
+        const extension = (this.toolbar as ContentItemPreviewToolbar).getModeSelector().getSelectedMode();
 
-        return this.widgetRenderingHandler.render(contentSummary, widget);
+        return this.extensionRenderingHandler.render(contentSummary, extension);
     }
 
     public isItemRenderable(): Q.Promise<boolean> {
-        return this.widgetRenderingHandler.isItemRenderable();
+        return this.extensionRenderingHandler.isItemRenderable();
     }
 
     public clearItem() {
         (this.toolbar as ContentItemPreviewToolbar).clearItem();
-        this.widgetRenderingHandler.empty();
+        this.extensionRenderingHandler.empty();
         this.item = undefined;
     }
 
@@ -155,7 +159,7 @@ export class ContentItemPreviewPanel
         return this.previewAction;
     }
 
-    public getWidgetSelector(): PreviewWidgetDropdown {
-        return this.getToolbar().getWidgetSelector();
+    public getExtensionSelector(): PreviewModeDropdown {
+        return this.getToolbar().getModeSelector();
     }
 }

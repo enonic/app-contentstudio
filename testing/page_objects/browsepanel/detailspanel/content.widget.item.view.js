@@ -6,7 +6,7 @@ const appConst = require('../../../libs/app_const');
 const lib = require('../../../libs/elements');
 
 const xpath = {
-    container: `//div[contains(@id,'WidgetView')]//div[contains(@id,'ContentWidgetItemView')]`,
+    container: `//div[contains(@id,'ExtensionView')]//div[contains(@id,'ExtensionContentItemView')]`,
     contentSummary: "//div[contains(@id,'ContentSummaryAndCompareStatusViewer')]",
     languageProperty: `//dd[contains(.,'Language:')]/following-sibling::dt[1]`,
     workInProgressIcon: "//div[@class='xp-admin-common-wrapper' and @title='Work in progress']"

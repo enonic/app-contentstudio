@@ -6,7 +6,7 @@ const appConst = require('../../../libs/app_const');
 const lib = require('../../../libs/elements');
 
 const xpath = {
-    widget: "//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'DependenciesWidgetItemView')]",
+    widget: "//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'ExtensionDependencyItemView')]",
     showOutboundButton: "//button/span[contains(.,'Show Outbound')]",
     showInboundButton: "//button/span[contains(.,'Show Inbound')]"
 };

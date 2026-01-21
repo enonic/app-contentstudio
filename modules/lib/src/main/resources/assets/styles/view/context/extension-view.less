@@ -1,0 +1,52 @@
+.extension-view {
+  height: auto;
+  transition: all 0.1s ease-in-out;
+
+  &:not(.active) {
+    display: none;
+  }
+
+  &.external-extension {
+
+    &[style*="height: 0"] .error {
+      display: none;
+    }
+
+    .extension-item-view {
+      box-shadow: none;
+      height: 100%;
+      margin: 10px;
+
+      .error {
+        .watermark-text(@color: @admin-font-gray1);
+        top: 45%;
+      }
+    }
+  }
+
+  &.internal-extension {
+    .extension-item-view {
+      &.extension-content-item-view,
+      &.extension-attachments-item-view,
+      &.extension-page-template-item-view,
+      &.extension-properties-item-view,
+      &.extension-status-item-view,
+      &.extension-permissions-item-view {
+        margin: 10px;
+        padding: 10px;
+        background-color: @admin-white;
+        box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.1);
+        min-height: 24px;
+        font-size: @admin-font-size;
+      }
+    }
+
+    .extension-status-item-view {
+      .content-status-mixin();
+    }
+
+    .extension-dependency-item-view {
+      position: relative;
+    }
+  }
+}

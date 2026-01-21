@@ -5,7 +5,7 @@ const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 
 const xpath = {
-    container: `//div[contains(@id,'WidgetView')]//div[contains(@id,'PropertiesWidgetItemView')]`,
+    container: `//div[contains(@id,'ExtensionView')]//div[contains(@id,'ExtensionBasePropertiesItemView')]`,
     languageProperty: "//dd[contains(.,'Language')]/following-sibling::dt[1]",
     ownerProperty: "//dd[contains(.,'Owner')]/following-sibling::dt[1]",
     publishFromProperty: "//dd[contains(.,'Publish From')]/following-sibling::dt[1]",

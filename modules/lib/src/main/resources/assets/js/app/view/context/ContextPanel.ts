@@ -1,7 +1,7 @@
 import type Q from 'q';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {type ContextView} from './ContextView';
-import {type WidgetView} from './WidgetView';
+import {type ExtensionView} from './ExtensionView';
 import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 
@@ -36,8 +36,8 @@ export class ContextPanel
         throw new Error('Must be implemented by inheritors');
     }
 
-    public getActiveWidget(): WidgetView {
-        return this.contextView.getActiveWidget();
+    public getActiveExtension(): ExtensionView {
+        return this.contextView.getActiveExtension();
     }
 
     getItem(): ContentSummaryAndCompareStatus {

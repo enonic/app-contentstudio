@@ -66,7 +66,7 @@ export class ContextSplitPanel
 
         this.whenRendered(() => {
             setTimeout(() => {
-                if (!this.requiresCollapsedContextPanel() && this.dockedContextPanel.getActiveWidget()) {
+                if (!this.requiresCollapsedContextPanel() && this.dockedContextPanel.getActiveExtension()) {
                     this.showContextPanel();
                 }
             }, 100);
@@ -132,6 +132,9 @@ export class ContextSplitPanel
         this.showSecondPanel();
         this.setState(ContextPanelState.EXPANDED);
         this.resetToggleButtonActiveState();
+        if (this.dockedContextPanel.getItem()) {
+            this.contextView.updateActiveExtension();
+        }
     }
 
     private resetToggleButtonActiveState(): void {

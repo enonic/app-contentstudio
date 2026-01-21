@@ -11,9 +11,9 @@ import {TooltipHelper} from './TooltipHelper';
 import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {GetWidgetsByInterfaceRequest} from './resource/GetWidgetsByInterfaceRequest';
-import {Widget, WidgetConfig} from '@enonic/lib-admin-ui/content/Widget';
-import {type WidgetElement, WidgetHelper} from '@enonic/lib-admin-ui/widget/WidgetHelper';
+import {GetExtensionsByInterfaceRequest} from './resource/GetExtensionsByInterfaceRequest';
+import {Extension, ExtensionConfig} from '@enonic/lib-admin-ui/extension/Extension';
+import {type ExtensionElement, ExtensionHelper} from '@enonic/lib-admin-ui/extension/ExtensionHelper';
 import {ContentAppContainer} from './ContentAppContainer';
 import {Router} from './Router';
 import {UrlAction} from './UrlAction';
@@ -26,9 +26,9 @@ export class AppWrapper
 
     private sidebar: WidgetsSidebar;
 
-    private widgets: Widget[] = [];
+    private widgets: Extension[] = [];
 
-    private widgetElements: Map<string, WidgetElement> = new Map<string, WidgetElement>();
+    private widgetElements: Map<string, ExtensionElement> = new Map<string, ExtensionElement>();
 
     private activeWidgets: string[] = [];
 
@@ -72,7 +72,7 @@ export class AppWrapper
         this.handleTouchOutsideSidebar();
 
         this.sidebar.onItemSelected((widgetId: string) => {
-            const widget: Widget = this.widgets.find((w: Widget) => w.getWidgetDescriptorKey().toString() === widgetId);
+            const widget: Extension = this.widgets.find((w: Extension) => w.getDescriptorKey().toString() === widgetId);
 
             if (widget) {
                 this.selectWidget(widget);
@@ -83,17 +83,17 @@ export class AppWrapper
     }
 
     private addStudioWidget(): void {
-        const studioWidget: Widget = this.createStudioWidget();
+        const studioWidget: Extension = this.createStudioWidget();
         this.widgets.push(studioWidget);
         this.sidebar.addWidget(studioWidget, 'icon-version-modified');
     }
 
-    private createStudioWidget(): Widget {
-        return Widget.create()
-            .setWidgetDescriptorKey(`${CONFIG.getString('appId')}:main`)
+    private createStudioWidget(): Extension {
+        return Extension.create()
+            .setExtensionDescriptorKey(`${CONFIG.getString('appId')}:main`)
             .setDisplayName(i18n('app.admin.widget.main'))
             .setUrl(UrlAction.BROWSE)
-            .setConfig(new WidgetConfig().setProperty('context', 'project'))
+            .setConfig(new ExtensionConfig().setProperty('context', 'project'))
             .build();
     }
 
@@ -118,14 +118,14 @@ export class AppWrapper
         this.selectWidget(this.widgets[0]);
     }
 
-    selectWidget(widget: Widget) {
-        const widgetToSelectKey: string = widget.getWidgetDescriptorKey().toString();
-        this.widgetElements.forEach((widgetEl: WidgetElement, key: string) => {
+    selectWidget(widget: Extension) {
+        const widgetToSelectKey: string = widget.getDescriptorKey().toString();
+        this.widgetElements.forEach((widgetEl: ExtensionElement, key: string) => {
             if (key !== widgetToSelectKey) {
                 this.setWidgetActive(key, widgetEl, false);
             }
         });
-        AppContext.get().setWidget(widget);
+        AppContext.get().setExtension(widget);
         this.updateUrl(widget);
         this.updateTabName(widget);
 
@@ -148,25 +148,25 @@ export class AppWrapper
         this.sidebar.toggleActiveButton();
     }
 
-    private updateUrl(widget: Widget): void {
+    private updateUrl(widget: Extension): void {
         if (this.isDefaultWidget(widget)) {
             Router.get().setHash(UrlAction.BROWSE);
             return;
         }
 
-        const appKeyLastPart: string = widget.getWidgetDescriptorKey().getApplicationKey().getName().split('.').pop();
-        const widgetName: string = widget.getWidgetDescriptorKey().getName();
+        const appKeyLastPart: string = widget.getDescriptorKey().getApplicationKey().getName().split('.').pop();
+        const widgetName: string = widget.getDescriptorKey().getName();
         Router.get().setHash(`widget/${appKeyLastPart}/${widgetName}`);
     }
 
-    private updateTabName(widget: Widget): void {
+    private updateTabName(widget: Extension): void {
         const prefix: string = i18n('admin.tool.displayName');
         const postfix: string =
             (this.isDefaultWidget(widget) || !widget.getDisplayName()) ? i18n('app.admin.tool.title') : widget.getDisplayName();
         document.title = `${prefix} - ${postfix}`;
     }
 
-    private isDefaultWidget(widget: Widget): boolean {
+    private isDefaultWidget(widget: Extension): boolean {
         return widget === this.widgets[0];
     }
 
@@ -174,10 +174,10 @@ export class AppWrapper
         return !localStorage.getItem(AppWrapper.HIDE_SIDEBAR_BY_DEFAULT);
     }
 
-    private fetchAndAppendWidget(widget: Widget): void {
+    private fetchAndAppendWidget(widget: Extension): void {
         if (this.isDefaultWidget(widget)) { // default studio app
             const widgetEl: Element = this.createStudioWidgetEl();
-            this.widgetElements.set(widget.getWidgetDescriptorKey().toString(), {el: widgetEl});
+            this.widgetElements.set(widget.getDescriptorKey().toString(), {el: widgetEl});
             this.widgetsBlock.appendChild(widgetEl);
             return;
         }
@@ -185,9 +185,9 @@ export class AppWrapper
         fetch(widget.getFullUrl())
             .then(response => response.text())
             .then((html: string) => {
-                WidgetHelper.createFromHtmlAndAppend(html, this.widgetsBlock)
-                    .then((widgetEl: WidgetElement) => {
-                        const widgetKey = widget.getWidgetDescriptorKey().toString();
+                ExtensionHelper.createFromHtmlAndAppend(html, this.widgetsBlock)
+                    .then((widgetEl: ExtensionElement) => {
+                        const widgetKey = widget.getDescriptorKey().toString();
                         this.widgetElements.set(widgetKey, widgetEl);
                         this.activeWidgets.push(widgetKey);
                     });
@@ -255,16 +255,16 @@ export class AppWrapper
     }
 
     private updateSidebarWidgets() {
-        new GetWidgetsByInterfaceRequest('contentstudio.menuitem').sendAndParse().then((widgets: Widget[]) => {
+        new GetExtensionsByInterfaceRequest('contentstudio.menuitem').sendAndParse().then((widgets: Extension[]) => {
             widgets.push(this.widgets[0]); // default studio widget
             this.removeStaleWidgets(widgets);
             this.addMissingWidgets(widgets);
         }).catch(DefaultErrorHandler.handle);
     }
 
-    private removeStaleWidgets(widgets: Widget[]): void {
-        this.widgets = this.widgets.filter((currentWidget: Widget) => {
-            if (widgets.some((w: Widget) => w.getWidgetDescriptorKey().equals(currentWidget.getWidgetDescriptorKey()))) {
+    private removeStaleWidgets(widgets: Extension[]): void {
+        this.widgets = this.widgets.filter((currentWidget: Extension) => {
+            if (widgets.some((w: Extension) => w.getDescriptorKey().equals(currentWidget.getDescriptorKey()))) {
                 return true;
             }
 
@@ -274,12 +274,12 @@ export class AppWrapper
         });
     }
 
-    private hasWidget(widget: Widget): boolean {
-        return this.widgets.some((w: Widget) => w.getWidgetDescriptorKey().equals(widget.getWidgetDescriptorKey()));
+    private hasWidget(widget: Extension): boolean {
+        return this.widgets.some((w: Extension) => w.getDescriptorKey().equals(widget.getDescriptorKey()));
     }
 
-    private addMissingWidgets(widgets: Widget[]): void {
-        widgets.filter((widget: Widget) => !this.hasWidget(widget)).forEach((widget: Widget) => {
+    private addMissingWidgets(widgets: Extension[]): void {
+        widgets.filter((widget: Extension) => !this.hasWidget(widget)).forEach((widget: Extension) => {
             this.widgets.push(widget);
             this.sidebar.addWidget(widget);
             this.notifyItemAdded(widget);
@@ -315,23 +315,23 @@ export class AppWrapper
         });
     }
 
-    onItemAdded(handler: (item: Widget) => void) {
+    onItemAdded(handler: (item: Extension) => void) {
         this.widgetAddedListeners.push(handler);
     }
 
-    unItemAdded(handler: (item: Widget) => void) {
-        this.widgetAddedListeners = this.widgetAddedListeners.filter((curr: (widget: Widget) => void) => {
+    unItemAdded(handler: (item: Extension) => void) {
+        this.widgetAddedListeners = this.widgetAddedListeners.filter((curr: (widget: Extension) => void) => {
             return handler !== curr;
         });
     }
 
-    private notifyItemAdded(item: Widget) {
-        this.widgetAddedListeners.forEach((handler: (widget: Widget) => void) => {
+    private notifyItemAdded(item: Extension) {
+        this.widgetAddedListeners.forEach((handler: (widget: Extension) => void) => {
             handler(item);
         });
     }
 
-    private setWidgetActive(key: string, widgetEl: WidgetElement, active: boolean): void {
+    private setWidgetActive(key: string, widgetEl: ExtensionElement, active: boolean): void {
         widgetEl.el.setVisible(active);
         if (this.isInternalWidget(key)) {
             return;

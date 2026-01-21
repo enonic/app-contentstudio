@@ -5,7 +5,8 @@ const portalLib = require('/lib/xp/portal');
 const nodeLib = require('/lib/xp/node');
 const adminLib = require('/lib/xp/admin');
 const i18nLib = require('/lib/xp/i18n');
-const helper = require('/helpers/dashboard-helper');
+const projectLib = require('/lib/xp/project');
+const issueFetcher = __.newBean('com.enonic.app.contentstudio.widget.issues.IssueFetcher');
 
 function localise(locale, key) {
     return i18nLib.localize({
@@ -17,7 +18,7 @@ function localise(locale, key) {
 
 function handleGet(req) {
     const view = resolve('./stats.html');
-    const projects = helper.getProjects();
+    const projects = getProjects();
     const contentItemsCount = '' + countItemsInRepos(projects);
     const languagesCount = '' + countLanguagesInRepos(projects);
     const openIssuesCount = '' + countIssuesInRepos(projects);
@@ -29,7 +30,7 @@ function handleGet(req) {
         languagesCount,
         openIssuesCount,
         stylesUrl: portalLib.assetUrl({
-            path: 'styles/widgets/stats.css'
+            path: 'styles/extensions/stats.css'
         }),
         toolUrl: adminLib.getToolUrl(app.name, 'main'),
         contentItemsText: localise(locales, 'widget.dashboard.stats.contentItems'),
@@ -47,11 +48,21 @@ function handleGet(req) {
 const countIssuesInRepos = function (projects) {
     let totalIssueCount = 0;
     projects.forEach((project) => {
-        const issues = helper.getIssuesInRepo(`com.enonic.cms.${project.id}`).getIssues();
+        const issues = getIssuesInRepo(`com.enonic.cms.${project.id}`).getIssues();
         totalIssueCount += issues.length;
     });
 
     return totalIssueCount;
+}
+
+const getIssuesInRepo = (repositoryId, count, principalKey) => {
+    return contextLib.run(
+        {
+            repository: repositoryId,
+            branch: 'draft'
+        },
+        () => issueFetcher.list(count || -1, principalKey || null)
+    );
 }
 
 const countItemsInRepos = function (projects) {
@@ -117,4 +128,24 @@ const doCountItemsInRepo = function () {
         count: 0
     }).total;
 }
+
+const getProjects = () => {
+    const projects = projectLib.list();
+    const hideDefaultProjectAndSubprojects = app.config['settings.hideDefaultProject'] !== 'false';
+
+    if (hideDefaultProjectAndSubprojects) {
+        return projects.filter((p) => !isDefaultProjectOrSubproject(p, projects));
+    }
+
+    return projects;
+}
+
+const isDefaultProjectOrSubproject = (project, projects) => {
+    if (!project) {
+        return false;
+    }
+
+    return project.id === 'default' || isDefaultProjectOrSubproject(projects.filter((p) => p.id === project.parent)[0], projects);
+}
+
 exports.get = handleGet;

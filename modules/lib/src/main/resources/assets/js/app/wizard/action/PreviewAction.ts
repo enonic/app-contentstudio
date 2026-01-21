@@ -24,7 +24,7 @@ export class PreviewAction
     }
 
     protected handleExecuted() {
-        const widget = this.wizard.getLivePanel().getFrameContainer().getWidgetSelector().getSelectedWidget();
+        const widget = this.wizard.getLivePanel().getFrameContainer().getExtensionSelector().getSelectedMode();
         if (this.writePermissions && this.wizard.hasUnsavedChanges()) {
             this.wizard.setRequireValid(true);
             this.wizard.saveChanges().then(content => this.helper.openWindow(content, widget)).catch(

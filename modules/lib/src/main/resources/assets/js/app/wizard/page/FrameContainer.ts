@@ -3,7 +3,7 @@ import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ContentItemPreviewToolbar} from '../../view/ContentItemPreviewToolbar';
 import {type LiveEditPageProxy} from './LiveEditPageProxy';
 import {RenderingMode} from '../../rendering/RenderingMode';
-import {type PreviewWidgetDropdown} from '../../view/toolbar/PreviewWidgetDropdown';
+import {type PreviewModeDropdown} from '../../view/toolbar/PreviewModeDropdown';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 
 
@@ -40,7 +40,7 @@ export class FrameContainer
         return this.wrapper;
     }
 
-    public getWidgetSelector(): PreviewWidgetDropdown {
-        return this.toolbar.getWidgetSelector();
+    public getExtensionSelector(): PreviewModeDropdown {
+        return this.toolbar.getModeSelector();
     }
 }

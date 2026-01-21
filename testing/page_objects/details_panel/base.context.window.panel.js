@@ -8,7 +8,7 @@ const WidgetSelectorDropdown = require('../components/selectors/widget.selector.
 const PageWidgetContextWindowPanel = require('../wizardpanel/liveform/page.widget.context.window');
 
 const xpath = {
-    scheduleWidgetItem: "//div[contains(@id,'OnlinePropertiesWidgetItemView')]",
+    scheduleWidgetItem: "//div[contains(@id,'ExtensionOnlinePropertiesItemView')]",
 };
 
 class BaseContextWindowPanel extends Page {

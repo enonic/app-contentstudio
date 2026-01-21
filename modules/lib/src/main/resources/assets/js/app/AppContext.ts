@@ -1,10 +1,10 @@
-import {type Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
 
 export class AppContext {
 
     private static INSTANCE: AppContext;
 
-    private widget: Widget;
+    private extension: Extension;
 
     private constructor() {
         //
@@ -18,13 +18,12 @@ export class AppContext {
         return AppContext.INSTANCE;
     }
 
-
-    setWidget(widget: Widget): void {
-        this.widget = widget;
+    setExtension(extension: Extension): void {
+        this.extension = extension;
     }
 
     getCurrentAppOrWidgetId(): string {
-        return this.widget?.getWidgetDescriptorKey()?.toString();
+        return this.extension?.getDescriptorKey()?.toString();
     }
 
 }

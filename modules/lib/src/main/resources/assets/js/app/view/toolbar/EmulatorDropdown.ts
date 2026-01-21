@@ -1,11 +1,11 @@
 import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
 import type Q from 'q';
-import {EmulatorDevice} from '../context/widget/emulator/EmulatorDevice';
+import {EmulatorDevice} from '../context/extension/emulator/EmulatorDevice';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
-import {EmulatorContext} from '../context/widget/emulator/EmulatorContext';
+import {EmulatorContext} from '../context/extension/emulator/EmulatorContext';
 import {EmulatedEvent} from '../../event/EmulatedEvent';
 import {AriaHasPopup, AriaRole} from '@enonic/lib-admin-ui/ui/WCAG';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
