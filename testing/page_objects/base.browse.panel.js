@@ -84,8 +84,9 @@ class BaseBrowsePanel extends Page {
     //Clicks on 'circle' (Show Selection tooltip)with a number and filters items in the grid:
     async clickOnSelectionToggler() {
         await this.waitForSelectionTogglerVisible();
+        await this.waitForElementDisplayed(this.selectionPanelToggler + "/div[@data-label='selected']", appConst.mediumTimeout);
         await this.clickOnElement(this.selectionPanelToggler)
-            .catch(err => this.handleError('Try to click on Selection Toggle...', 'err_clicking_selection_toggle', err));
+            .catch(err => this.handleError('Tried to click on Selection Toggle...', 'err_clicking_selection_toggle', err));
         return await this.pause(400);
     }
 
