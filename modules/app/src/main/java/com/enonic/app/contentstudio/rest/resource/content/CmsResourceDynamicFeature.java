@@ -7,7 +7,6 @@ import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.FeatureContext;
 import jakarta.ws.rs.ext.Provider;
 
-import com.enonic.app.contentstudio.rest.resource.CORSResponseFilter;
 import com.enonic.app.contentstudio.rest.resource.archive.ArchiveResource;
 import com.enonic.app.contentstudio.rest.resource.content.page.PageResource;
 import com.enonic.app.contentstudio.rest.resource.content.page.PageTemplateResource;
@@ -39,7 +38,6 @@ public final class CmsResourceDynamicFeature
         {
             context.register( new CmsResourceFilter() );
             context.register( new CmsContentResourceFilter() );
-            context.register( new CORSResponseFilter() );
         }
     }
 }

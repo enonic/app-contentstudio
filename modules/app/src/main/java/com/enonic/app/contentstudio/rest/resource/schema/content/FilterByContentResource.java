@@ -5,24 +5,20 @@ import java.util.stream.Collectors;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.OPTIONS;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 
 import com.enonic.app.contentstudio.json.content.page.PageDescriptorListJson;
 import com.enonic.app.contentstudio.json.content.page.region.LayoutDescriptorsJson;
 import com.enonic.app.contentstudio.json.content.page.region.PartDescriptorsJson;
 import com.enonic.app.contentstudio.json.schema.content.ContentTypeSummaryListJson;
-import com.enonic.app.contentstudio.rest.resource.EnableCORS;
 import com.enonic.app.contentstudio.rest.resource.content.JsonObjectsFactory;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.jaxrs.JaxRsComponent;
@@ -53,8 +49,6 @@ public class FilterByContentResource
 
     @GET
     @Path("layouts")
-    @EnableCORS
-    @RolesAllowed({"system.everyone"})
     public LayoutDescriptorsJson layouts( @QueryParam("contentId") final String contentId, @Context HttpServletRequest request )
     {
         return new LayoutDescriptorsJson( filterByContentResolver.layouts( ContentId.from( contentId ) )
@@ -64,8 +58,6 @@ public class FilterByContentResource
 
     @GET
     @Path("parts")
-    @EnableCORS
-    @RolesAllowed({"system.everyone"})
     public PartDescriptorsJson parts( @QueryParam("contentId") final String contentId, @Context HttpServletRequest request )
     {
         return new PartDescriptorsJson( filterByContentResolver.parts( ContentId.from( contentId ) )
@@ -80,17 +72,6 @@ public class FilterByContentResource
         return new PageDescriptorListJson( filterByContentResolver.pages( ContentId.from( contentId ) )
                                                .map( p -> jsonObjectsFactory.createPageDescriptorJson(p, request.getLocales()) )
                                                .collect( Collectors.toUnmodifiableList() ) );
-    }
-
-    @OPTIONS
-    @Path("{path : .*}")
-    @EnableCORS // <--- Ensures the CORS filter runs for this too!
-    @PermitAll
-    public Response options()
-    {
-        // We return 200 OK.
-        // The CORSFilter will intercept this response and add the headers.
-        return Response.ok().build();
     }
 
     @Reference
