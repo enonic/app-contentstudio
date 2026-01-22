@@ -12,12 +12,14 @@ import {
     collapse,
     flattenTree,
     needsChildrenLoad,
+    removeNodes,
     type TreeState,
     type FlatNode,
     type CreateNodeOptions,
     ROOT_LOADING_KEY,
 } from '../lib/tree-store';
 import {$contentCache} from './content.store';
+import {$contentDeleted, $contentArchived, $contentCreated, $contentDuplicated} from './socket.store';
 import type {ContentData} from '../views/browse/grid/ContentData';
 import {convertToContentFlatNode} from './tree/utils';
 import type {ContentTreeNodeData, LoadingStateValue} from './tree/types';
@@ -167,4 +169,71 @@ export function filterRootHasMoreChildren(): boolean {
  */
 export const $filterLoadingState = computed($filterTreeState, (state): LoadingStateValue => {
     return state.loadingIds.has(ROOT_LOADING_KEY) ? 'loading' : 'ok';
+});
+
+//
+// * Socket Event Subscriptions (self-initializing at module load)
+//
+// Note on removal behavior asymmetry with main tree (tree-list.store.ts):
+// - Filter tree: Simple node removal without parent cleanup
+// - Main tree: Removes nodes AND updates parent hasChildren/collapse state
+//
+// This is intentional because filter results are a flat query result.
+// Parent-child relationships in filter tree are for display hierarchy only,
+// not for managing tree structure state like the main tree.
+//
+
+$contentDeleted.subscribe((event) => {
+    if (!event?.data) return;
+    const ids = event.data.map((item) => item.getContentId().toString());
+
+    updateFilterTreeState((state) => {
+        const idsToRemove = ids.filter((id) => state.nodes.has(id));
+        if (idsToRemove.length === 0) return state;
+        return removeNodes(state, idsToRemove, true);
+    });
+});
+
+$contentArchived.subscribe((event) => {
+    if (!event?.data) return;
+    const ids = event.data.map((item) => item.getContentId().toString());
+
+    updateFilterTreeState((state) => {
+        const idsToRemove = ids.filter((id) => state.nodes.has(id));
+        if (idsToRemove.length === 0) return state;
+        return removeNodes(state, idsToRemove, true);
+    });
+});
+
+//
+// * Filter Refresh Signal
+//
+// When content is created or duplicated, the filter results may be stale.
+// This atom signals that the filter should be refreshed. Components with
+// access to the current filter query can subscribe and call activateFilter().
+//
+// Note: We don't import $isFilterActive here to avoid circular dependency
+// with active-tree.store.ts. Consumers should check filter state themselves.
+//
+
+/** Timestamp of last content change that may affect filter results */
+export const $filterRefreshNeeded = atom<number>(0);
+
+/** Clears the filter refresh signal (call after refreshing) */
+export function clearFilterRefreshNeeded(): void {
+    $filterRefreshNeeded.set(0);
+}
+
+// Content created - filter may need refresh to include new item
+$contentCreated.subscribe((event) => {
+    if (event?.data) {
+        $filterRefreshNeeded.set(Date.now());
+    }
+});
+
+// Content duplicated - filter may need refresh to include duplicate
+$contentDuplicated.subscribe((event) => {
+    if (event?.data) {
+        $filterRefreshNeeded.set(Date.now());
+    }
 });

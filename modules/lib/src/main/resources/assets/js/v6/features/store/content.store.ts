@@ -27,12 +27,20 @@ type ContentCacheState = Record<string, ContentSummaryAndCompareStatus>;
 /** Global content cache - stores all loaded content by ID */
 export const $contentCache = map<ContentCacheState>({});
 
+/** Path string to content ID index for O(1) lookups */
+const $pathToId = map<Record<string, string>>({});
+
 //
 // * Actions
 //
 
 export function setContent(content: ContentSummaryAndCompareStatus): void {
-    $contentCache.setKey(content.getId(), content);
+    const id = content.getId();
+    const path = content.getPath?.()?.toString();
+    $contentCache.setKey(id, content);
+    if (path) {
+        $pathToId.setKey(path, id);
+    }
 }
 
 /**
@@ -42,35 +50,67 @@ export function setContent(content: ContentSummaryAndCompareStatus): void {
 export function setContents(contents: ContentSummaryAndCompareStatus[]): void {
     if (contents.length === 0) return;
 
-    const current = $contentCache.get();
-    const updates: ContentCacheState = {...current};
+    const currentCache = $contentCache.get();
+    const currentIndex = $pathToId.get();
+    const cacheUpdates: ContentCacheState = {...currentCache};
+    const indexUpdates: Record<string, string> = {...currentIndex};
 
     for (const content of contents) {
-        updates[content.getId()] = content;
+        const id = content.getId();
+        const path = content.getPath?.()?.toString();
+        cacheUpdates[id] = content;
+        if (path) {
+            indexUpdates[path] = id;
+        }
     }
 
-    $contentCache.set(updates);
+    $contentCache.set(cacheUpdates);
+    $pathToId.set(indexUpdates);
 }
 
 export function removeContent(id: string): void {
-    const current = $contentCache.get();
-    if (!(id in current)) return;
+    const currentCache = $contentCache.get();
+    if (!(id in currentCache)) return;
 
-    const {[id]: _, ...rest} = current;
-    $contentCache.set(rest);
+    const content = currentCache[id];
+    const path = content?.getPath?.()?.toString();
+
+    const {[id]: _, ...restCache} = currentCache;
+    $contentCache.set(restCache);
+
+    if (path) {
+        const currentIndex = $pathToId.get();
+        const {[path]: __, ...restIndex} = currentIndex;
+        $pathToId.set(restIndex);
+    }
 }
 
 export function removeContents(ids: string[]): void {
     if (ids.length === 0) return;
 
-    const current = $contentCache.get();
+    const currentCache = $contentCache.get();
+    const currentIndex = $pathToId.get();
     const idsSet = new Set(ids);
-    const filtered = Object.fromEntries(Object.entries(current).filter(([id]) => !idsSet.has(id)));
-    $contentCache.set(filtered);
+
+    // Collect paths to remove
+    const pathsToRemove: string[] = [];
+    for (const id of ids) {
+        const content = currentCache[id];
+        const path = content?.getPath?.()?.toString();
+        if (path) pathsToRemove.push(path);
+    }
+
+    const filteredCache = Object.fromEntries(Object.entries(currentCache).filter(([id]) => !idsSet.has(id)));
+    const pathsSet = new Set(pathsToRemove);
+    const filteredIndex = Object.fromEntries(Object.entries(currentIndex).filter(([path]) => !pathsSet.has(path)));
+
+    $contentCache.set(filteredCache);
+    $pathToId.set(filteredIndex);
 }
 
 export function clearContentCache(): void {
     $contentCache.set({});
+    $pathToId.set({});
 }
 
 //
@@ -96,6 +136,14 @@ export function getContents(ids: string[]): ContentSummaryAndCompareStatus[] {
 
 export function hasContent(id: string): boolean {
     return id in $contentCache.get();
+}
+
+/**
+ * Gets content ID by path from the path index (O(1) lookup).
+ * Returns undefined if path is not in index.
+ */
+export function getIdByPath(pathStr: string): string | undefined {
+    return $pathToId.get()[pathStr];
 }
 
 /**

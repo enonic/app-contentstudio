@@ -2,6 +2,7 @@ import type {FlatNode} from '../../lib/tree-store';
 import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import type {ContentTreeNodeData} from './types';
 import type {ContentData} from '../../views/browse/grid/ContentData';
+import {calcWorkflowStateStatus, resolveDisplayName} from '../../utils/cms/content/workflow';
 
 /**
  * Converts a tree FlatNode to ContentData format for rendering.
@@ -34,16 +35,18 @@ export function convertToContentFlatNode(
     const content = cache[node.id];
     const data = node.data;
 
+    // CACHE-FIRST: Use cache values when available, fallback to node data.
+    // This ensures fresh status values after socket events update the cache.
     return {
         ...node,
         data: {
             id: data.id,
-            displayName: data.displayName,
+            displayName: content ? resolveDisplayName(content) : data.displayName,
             name: data.name,
-            publishStatus: data.publishStatus,
-            workflowStatus: data.workflowStatus,
+            publishStatus: content?.getPublishStatus() ?? data.publishStatus,
+            workflowStatus: content ? calcWorkflowStateStatus(content.getContentSummary()) : data.workflowStatus,
             contentType: data.contentType,
-            iconUrl: data.iconUrl,
+            iconUrl: content?.getContentSummary()?.getIconUrl() ?? data.iconUrl,
             hasChildren: node.hasChildren,
             item: content, // Full ContentSummaryAndCompareStatus from cache
         },

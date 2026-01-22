@@ -12,9 +12,10 @@ import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selecto
 import {TreeListBoxExpandedHolder} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import Q from 'q';
+import {$actionsNeedRefresh, clearActionsRefreshSignal} from '../../v6/features/store/actions.store';
 import {removeContent, setContent} from '../../v6/features/store/content.store';
 import {hasFilterSet, setContentFilterOpen} from '../../v6/features/store/contentFilter.store';
-import {hasSelectedItems} from '../../v6/features/store/contentTreeSelection.store';
+import {hasCurrentItems} from '../../v6/features/store/contentTreeSelection.store';
 import {removeTreeNode} from '../../v6/features/store/tree-list.store';
 import {ContentTreeListElement} from '../../v6/features/views/browse/grid/ContentTreeListElement';
 import {BrowseToolbarElement} from '../../v6/features/views/browse/toolbar/BrowseToolbar';
@@ -320,6 +321,14 @@ export class ContentBrowsePanel
         });
 
         this.subscribeOnContentEvents();
+
+        // Subscribe to nanostores action refresh signal (v6 socket events)
+        // Triggered when selected content is updated via socket (publish, update, permissions)
+        $actionsNeedRefresh.subscribe((timestamp) => {
+            if (timestamp === 0) return;
+            clearActionsRefreshSignal();
+            this.handleCUD();
+        });
 
         ContentPreviewPathChangedEvent.on((event: ContentPreviewPathChangedEvent) => {
             this.selectInlinedContentInGrid(event.getPreviewPath());
@@ -742,7 +751,7 @@ export class ContentBrowsePanel
     }
 
     private handleCUD() {
-        if (hasSelectedItems()) {
+        if (hasCurrentItems()) {
             this.browseActionsAndPreviewUpdateRequired = true;
             this.debouncedBrowseActionsAndPreviewRefreshOnDemand();
         }
