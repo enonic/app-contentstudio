@@ -1,12 +1,11 @@
 /**
- * Handles script execution within Shadow DOM in a CSP-compliant way using nonces.
+ * Handles script execution within Shadow DOM.
  *
  * This executor:
- * 1. Gets the page's CSP nonce from existing scripts
- * 2. Creates script elements with that nonce
- * 3. Temporarily intercepts document query methods to redirect to shadow root
- * 4. Executes scripts by appending them to the shadow root
- * 5. Restores original document methods after execution
+ * 1. Creates script elements
+ * 2. Temporarily intercepts document query methods to redirect to shadow root
+ * 3. Executes scripts by appending them to the shadow root
+ * 4. Restores original document methods after execution
  *
  * This provides JavaScript isolation where widget scripts' document queries
  * are redirected to their shadow root container.
@@ -14,8 +13,6 @@
 export class WidgetScriptExecutor {
 
     private readonly shadowRoot: ShadowRoot;
-
-    private readonly nonce: string | null;
 
     private readonly scriptElements: HTMLScriptElement[] = [];
 
@@ -39,20 +36,6 @@ export class WidgetScriptExecutor {
 
     constructor(shadowRoot: ShadowRoot) {
         this.shadowRoot = shadowRoot;
-        this.nonce = this.detectNonce();
-    }
-
-    /**
-     * Detects the CSP nonce from existing script elements in the page.
-     */
-    private detectNonce(): string | null {
-        // Try to find a script with a nonce attribute
-        const scriptWithNonce = document.querySelector<HTMLScriptElement>('script[nonce]');
-        if (scriptWithNonce) {
-            // Access via property, not attribute, as browsers hide nonce from getAttribute
-            return scriptWithNonce.nonce || null;
-        }
-        return null;
     }
 
     /**
@@ -182,7 +165,7 @@ export class WidgetScriptExecutor {
     }
 
     /**
-     * Executes a script element using nonce-based CSP compliance.
+     * Executes a script element.
      * Scripts are appended to document.head for proper execution,
      * but DOM queries are intercepted to redirect to the shadow root.
      */
@@ -190,17 +173,10 @@ export class WidgetScriptExecutor {
         return new Promise((resolve) => {
             const newScript = document.createElement('script');
 
-            // Apply nonce if available
-            if (this.nonce) {
-                newScript.nonce = this.nonce;
-            }
-
             // Copy ALL attributes from original script (including data-* attributes)
             // This is important for widgets that use document.currentScript.getAttribute()
             for (const attr of Array.from(scriptEl.attributes)) {
-                if (attr.name !== 'nonce') { // Don't copy nonce, we set it from detected value
-                    newScript.setAttribute(attr.name, attr.value);
-                }
+                newScript.setAttribute(attr.name, attr.value);
             }
 
             // Mark as widget script for identification
@@ -328,5 +304,16 @@ export class WidgetScriptExecutor {
             }
         });
         this.scriptElements.length = 0;
+
+        WidgetScriptExecutor.removeScripts();
+    }
+
+    static removeScripts() {
+        // Ensure all widget scripts are removed from document.head (even those not tracked by this instance)
+        document.head.querySelectorAll('script[data-widget-script]').forEach(script => {
+            if (script.parentNode) {
+                script.parentNode.removeChild(script);
+            }
+        });
     }
 }
