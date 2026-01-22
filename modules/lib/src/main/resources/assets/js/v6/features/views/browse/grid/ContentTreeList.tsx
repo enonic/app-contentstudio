@@ -18,6 +18,7 @@ import type {FlatNode} from '../../../lib/tree-store';
 import {ItemLabel} from '../../../shared/ItemLabel';
 import {ProgressBar} from '../../../shared/primitives/ProgressBar';
 import {$activeFlatNodes, $isFilterActive} from '../../../store/active-tree.store';
+import {$activeProject} from '../../../store/projects.store';
 import {$activeId, $selection, clearSelection, setActive, setSelection} from '../../../store/contentTreeSelection.store';
 import {
     collapseFilterNode,
@@ -132,6 +133,7 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
     const selection = useStore($selection);
     const activeId = useStore($activeId);
     const isFilterActive = useStore($isFilterActive);
+    const activeProject = useStore($activeProject);
 
     // Track visible range for viewport-based loading
     const visibleRangeRef = useRef<ListRange>({startIndex: 0, endIndex: 20});
@@ -175,7 +177,7 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
         }
     }, VIEWPORT_LOAD_DEBOUNCE);
 
-    // Load root IDs on mount (lazy loading: IDs first, data on demand)
+    // Load root IDs on mount and when project changes (lazy loading: IDs first, data on demand)
     // Filter mode loads via activateFilter(), not here
     // Main tree uses caching - only load if empty
     useEffect(() => {
@@ -186,7 +188,7 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
                 fetchRootChildrenIdsOnly();
             }
         }
-    }, [isFilterActive]);
+    }, [isFilterActive, activeProject]);
 
     // Trigger data loading when flat nodes change (e.g., after expand)
     useEffect(() => {

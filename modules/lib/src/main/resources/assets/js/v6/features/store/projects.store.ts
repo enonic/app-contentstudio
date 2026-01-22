@@ -1,4 +1,4 @@
-import {computed, map} from 'nanostores';
+import {atom, computed, map} from 'nanostores';
 import {Project} from '../../../app/settings/data/project/Project';
 import {ProjectListRequest} from '../../../app/settings/resource/ProjectListRequest';
 import {ProjectUpdatedEvent} from '../../../app/settings/event/ProjectUpdatedEvent';
@@ -8,6 +8,10 @@ import {syncMapStore} from '../utils/storage/sync';
 import {$config} from './config.store';
 import {setProjectSelectionDialogOpen} from './dialogs.store';
 import {ProjectContext} from '../../../app/project/ProjectContext';
+import {resetTree} from './tree-list.store';
+import {clearSelection, setActive} from './contentTreeSelection.store';
+import {setContentFilterOpen, resetContentFilter} from './contentFilter.store';
+import {deactivateFilter} from '../api/content-fetcher';
 
 /*
 TODO: Enonic UI - Feature
@@ -168,5 +172,40 @@ ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
 $activeProject.subscribe((project) => {
     if (!project) return;
     ProjectContext.get().setProject(project as Project);
+});
+
+// Reset dependent stores when project changes
+function resetProjectDependentStores(): void {
+    // Reset filter state first (this also resets filter tree)
+    deactivateFilter();
+    resetContentFilter();
+    setContentFilterOpen(false);
+
+    // Reset selection
+    clearSelection();
+    setActive(null);
+
+    // Reset main tree (will be repopulated by ContentTreeListElement)
+    resetTree();
+}
+
+const $previousProjectId = atom<string | undefined>(undefined);
+$activeProject.subscribe((project) => {
+    const currentId = project?.getName();
+    const previousId = $previousProjectId.get();
+
+    // Skip on initial load (no previous project)
+    if (previousId === undefined) {
+        $previousProjectId.set(currentId);
+        return;
+    }
+
+    // Skip if project didn't actually change
+    if (currentId === previousId) {
+        return;
+    }
+
+    $previousProjectId.set(currentId);
+    resetProjectDependentStores();
 });
 

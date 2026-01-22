@@ -1,17 +1,17 @@
 import {map} from 'nanostores';
 import type {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
 import {
-    $contentUpdated,
+    $contentArchived,
     $contentCreated,
     $contentDeleted,
-    $contentRenamed,
-    $contentArchived,
-    $contentPublished,
-    $contentUnpublished,
     $contentDuplicated,
     $contentMoved,
-    $contentSorted,
     $contentPermissionsUpdated,
+    $contentPublished,
+    $contentRenamed,
+    $contentSorted,
+    $contentUnpublished,
+    $contentUpdated,
 } from './socket.store';
 
 //
