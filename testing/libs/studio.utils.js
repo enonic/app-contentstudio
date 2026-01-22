@@ -60,12 +60,22 @@ module.exports = {
         return await this.getBrowser().execute(script2);
     },
 
-    insertTextInCKE (id, text) {
+    insertTextInCKE(id, text) {
         let script = `CKEDITOR.instances['${id}'].insertText('${text}')`;
         return this.getBrowser().execute(script).then(() => {
             let script2 = `CKEDITOR.instances['${id}'].fire('change')`;
             return this.getBrowser().execute(script2);
         })
+    },
+    async getTextFromShadow(hostSelector, innerSelector) {
+        try {
+            return await this.getBrowser().$(hostSelector)
+                .shadow$(innerSelector)
+                .getText();
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_shadow_dom');
+            throw new Error(`Error when getting text from shadow DOM: ${screenshot} ` + err);
+        }
     },
     async waitForElementDisplayed(selector, ms) {
         let element = await this.getBrowser().$(selector);
@@ -360,7 +370,7 @@ module.exports = {
         await contentWizardPanel.typeData(site);
         // 2. Type the data and save:
         if (site.data.controller) {
-            let wizardContextWindow =  await contentWizardPanel.openContextWindow();
+            let wizardContextWindow = await contentWizardPanel.openContextWindow();
             await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(site.data.controller);
         }
@@ -412,7 +422,7 @@ module.exports = {
         await contentWizardPanel.typeData(template);
         // auto-saving of template should be after selecting a controller:
         let pageInspectionPanel = new PageInspectionPanel();
-        let wizardContextWindow =  await contentWizardPanel.openContextWindow();
+        let wizardContextWindow = await contentWizardPanel.openContextWindow();
         await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
         await pageInspectionPanel.selectPageTemplateOrController(template.data.controllerDisplayName);
         await contentWizardPanel.waitForNotificationMessage();
