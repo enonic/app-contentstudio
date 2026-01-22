@@ -15,7 +15,7 @@ import {FragmentComponentReloadRequiredEvent} from '../../../page-editor/Fragmen
 import {ShowWarningLiveEditEvent} from '../../../page-editor/ShowWarningLiveEditEvent';
 import {InitializeLiveEditEvent} from '../../../page-editor/InitializeLiveEditEvent';
 import {SkipLiveEditReloadConfirmationEvent} from '../../../page-editor/SkipLiveEditReloadConfirmationEvent';
-import {CreateHtmlAreaDialogEvent, HtmlAreaDialogConfig} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import {CreateHtmlAreaDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
 import {DragMask} from '@enonic/lib-admin-ui/ui/mask/DragMask';
 import {ContentId} from '../../content/ContentId';
@@ -23,8 +23,6 @@ import {CreateHtmlAreaMacroDialogEvent} from '../../inputtype/ui/text/CreateHtml
 import {CreateHtmlAreaContentDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaContentDialogEvent';
 import {ComponentPath} from '../../page/region/ComponentPath';
 import {PageEventsManager} from '../PageEventsManager';
-import {LiveEditPageDialogCreatedEvent} from '../../../page-editor/LiveEditPageDialogCreatedEvent';
-import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {SaveAsTemplateEvent} from '../../../page-editor/SaveAsTemplateEvent';
 import {PageNavigationHandler} from '../PageNavigationHandler';
 import {PageNavigationEvent} from '../PageNavigationEvent';
@@ -39,7 +37,6 @@ import {PageResetEvent} from '../../../page-editor/event/outgoing/manipulation/P
 import {SelectPageDescriptorEvent} from '../../../page-editor/event/outgoing/manipulation/SelectPageDescriptorEvent';
 import {SelectComponentViewEvent} from '../../../page-editor/event/incoming/navigation/SelectComponentViewEvent';
 import {DeselectComponentViewEvent} from '../../../page-editor/event/incoming/navigation/DeselectComponentViewEvent';
-import {EditTextComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/EditTextComponentViewEvent';
 import {PageState} from './PageState';
 import {ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
 import {AddComponentEvent} from '../../../page-editor/event/outgoing/manipulation/AddComponentEvent';
@@ -555,12 +552,6 @@ export class LiveEditPageProxy
 
     private listenToMainFrameEvents() {
 
-        PageEventsManager.get().onDialogCreated((modalDialog: ModalDialog, config: HtmlAreaDialogConfig) => {
-            if (this.isFrameLoaded) {
-                new LiveEditPageDialogCreatedEvent(modalDialog, config).fire();
-            }
-        });
-
         PageState.getEvents().onComponentAdded((event: ComponentAddedEvent): void => {
             if (this.isFrameLoaded) {
                 if (event instanceof ComponentDuplicatedEvent) {
@@ -599,12 +590,6 @@ export class LiveEditPageProxy
         BeforeContentSavedEvent.on(() => {
             if (this.isFrameLoaded) {
                 new IframeBeforeContentSavedEvent().fire();
-            }
-        });
-
-        PageEventsManager.get().onTextComponentEditRequested((path: ComponentPath) => {
-            if (this.isFrameLoaded) {
-                new EditTextComponentViewEvent(path.toString()).fire();
             }
         });
 

@@ -39,7 +39,6 @@ import {LoadComponentViewEvent} from 'lib-contentstudio/page-editor/event/incomi
 import {SetPageLockStateEvent} from 'lib-contentstudio/page-editor/event/incoming/manipulation/SetPageLockStateEvent';
 import {CreateOrDestroyDraggableEvent} from 'lib-contentstudio/page-editor/event/incoming/manipulation/CreateOrDestroyDraggableEvent';
 import {ResetComponentViewEvent} from 'lib-contentstudio/page-editor/event/incoming/manipulation/ResetComponentViewEvent';
-import {EditTextComponentViewEvent} from 'lib-contentstudio/page-editor/event/incoming/manipulation/EditTextComponentViewEvent';
 import {UpdateTextComponentViewEvent} from 'lib-contentstudio/page-editor/event/incoming/manipulation/UpdateTextComponentViewEvent';
 import {DuplicateComponentViewEvent} from 'lib-contentstudio/page-editor/event/incoming/manipulation/DuplicateComponentViewEvent';
 import {IframeBeforeContentSavedEvent} from 'lib-contentstudio/app/event/IframeBeforeContentSavedEvent';
@@ -84,7 +83,6 @@ IframeEventBus.get().registerClass('DeselectComponentViewEvent', DeselectCompone
 IframeEventBus.get().registerClass('DuplicateComponentViewEvent', DuplicateComponentViewEvent);
 IframeEventBus.get().registerClass('LoadComponentViewEvent', LoadComponentViewEvent);
 IframeEventBus.get().registerClass('ResetComponentViewEvent', ResetComponentViewEvent);
-IframeEventBus.get().registerClass('EditTextComponentViewEvent', EditTextComponentViewEvent);
 IframeEventBus.get().registerClass('UpdateTextComponentViewEvent', UpdateTextComponentViewEvent);
 
 IframeEventBus.get().registerClass('SkipLiveEditReloadConfirmationEvent', SkipLiveEditReloadConfirmationEvent);

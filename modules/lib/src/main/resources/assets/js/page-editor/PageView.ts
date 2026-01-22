@@ -1,9 +1,6 @@
-import * as $ from 'jquery';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ItemViewIdProducer} from './ItemViewIdProducer';
@@ -22,7 +19,6 @@ import {TextItemType} from './text/TextItemType';
 import {TextComponentView} from './text/TextComponentView';
 import {PageLockedEvent} from './event/outgoing/manipulation/PageLockedEvent';
 import {PageUnlockedEvent} from './event/outgoing/manipulation/PageUnlockedEvent';
-import {Highlighter} from './Highlighter';
 import {SelectedHighlighter} from './SelectedHighlighter';
 import {ClickPosition} from './ClickPosition';
 import {ItemViewId} from './ItemViewId';
@@ -33,11 +29,9 @@ import {CreateItemViewConfig} from './CreateItemViewConfig';
 import {DragAndDrop} from './DragAndDrop';
 import {ItemViewFactory} from './ItemViewFactory';
 import {PageViewController} from './PageViewController';
-import {ModalDialog} from '../app/inputtype/ui/text/dialog/ModalDialog';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
-import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 import {SaveAsTemplateEvent} from './SaveAsTemplateEvent';
 import {LiveEditParams} from './LiveEditParams';
 import {PageResetEvent} from './event/outgoing/manipulation/PageResetEvent';
@@ -93,15 +87,9 @@ export class PageView
 
     private itemViewRemovedListener: (event: ItemViewRemovedEvent) => void;
 
-    private scrolledListener: (event: WheelEvent) => void;
-
     public static debug: boolean;
 
     private lockedContextMenu: ItemViewContextMenu;
-
-    private closeTextEditModeButton: Element;
-
-    private editorToolbar: DivEl;
 
     private modifyPermissions: boolean;
 
@@ -116,7 +104,6 @@ export class PageView
 
         this.setPlaceholder(new PagePlaceholder(this));
         this.addPageContextMenuActions();
-        this.registerPageViewController();
 
         this.regionViews = [];
         this.viewsById = {};
@@ -126,30 +113,12 @@ export class PageView
 
         this.initListeners();
 
-        // Needed for TextComponentView
-        this.appendContainerForTextToolbar();
-
         this.parseItemViews();
-
-        this.closeTextEditModeButton = this.createCloseTextEditModeEl();
-
-        this.appendChild(this.closeTextEditModeButton);
 
         if (builder.liveEditParams.locked ||
             (ObjectHelper.isDefined(builder.liveEditParams.modifyPermissions) && !builder.liveEditParams.modifyPermissions)) {
             this.setLocked(true);
         }
-    }
-
-    private registerPageViewController() {
-        const ctrl = PageViewController.get();
-        const textEditModeListener = this.setTextEditMode.bind(this);
-
-        ctrl.onTextEditModeChanged(textEditModeListener);
-
-        this.onRemoved(event => {
-            ctrl.unTextEditModeChanged(textEditModeListener);
-        });
     }
 
     protected isDragging(): boolean {
@@ -203,10 +172,6 @@ export class PageView
 
     private initListeners() {
 
-        this.scrolledListener = (event: WheelEvent) => {
-            this.toggleStickyToolbar();
-        };
-
         this.itemViewAddedListener = (event: ItemViewAddedEvent) => {
             // register the view and all its child views (i.e layout with regions)
             const itemView = event.getView();
@@ -219,18 +184,11 @@ export class PageView
                 if (event.isNewlyCreated()) {
                     new SelectComponentEvent({path: itemView.getPath(), position: null, rightClicked: true}).fire();
 
-                    if (!PageViewController.get().isTextEditMode()) {
-                        PageViewController.get().setTextEditMode(true);
-                    }
-
                     itemView.giveFocus();
                 } else {
                     //
                 }
             } else {
-                if (PageViewController.get().isTextEditMode()) {
-                    PageViewController.get().setTextEditMode(false);
-                }
                 if (event.isNewlyCreated()) {
                     const config = {path: itemView.getPath(), position: null, newlyCreated: true} as ItemViewSelectedEventConfig;
                     itemView.select(config, ItemViewContextMenuPosition.NONE);
@@ -246,61 +204,16 @@ export class PageView
         };
 
         this.listenToMouseEvents();
-
-        ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
-            if (PageViewController.get().isTextEditMode()) {
-                this.updateVerticalSpaceForEditorToolbar();
-            }
-        });
-    }
-
-    private createCloseTextEditModeEl(): Element {
-        const closeButton: ButtonEl = new ButtonEl();
-        closeButton.addClass('close-edit-mode-button icon-close');
-
-        closeButton.onClicked((event: MouseEvent) => {
-            PageViewController.get().setTextEditMode(false);
-            event.stopPropagation();
-            return false;
-        });
-
-        return closeButton;
-    }
-
-    private isPageScrolled() {
-        return this.getEl().getScrollTop() > 0 || this.getEl().getParent().getScrollTop() > 0;
-    }
-
-    private toggleStickyToolbar() {
-        if (!this.isPageScrolled()) {
-            this.editorToolbar.removeClass('sticky-toolbar');
-        } else if (!this.editorToolbar.hasClass('sticky-toolbar')) {
-            this.editorToolbar.addClass('sticky-toolbar');
-        }
-    }
-
-    appendContainerForTextToolbar() {
-        if (!this.hasToolbarContainer()) {
-            this.editorToolbar = new DivEl('cke-toolbar-container').setId('cke-toolbar-container').setContentEditable(true);
-            this.editorToolbar.hide();
-            this.appendChild(this.editorToolbar);
-            this.addClass('has-toolbar-container');
-            PageViewController.get().setEditorToolbar(this.editorToolbar);
-        }
-    }
-
-    private hasToolbarContainer(): boolean {
-        return this.hasClass('has-toolbar-container');
     }
 
     highlightSelected() {
-        if (!PageViewController.get().isTextEditMode() && !this.isLocked() && !this.isDragging()) {
+        if (!this.isLocked() && !this.isDragging()) {
             super.highlightSelected();
         }
     }
 
     showCursor() {
-        if (!PageViewController.get().isTextEditMode() && !this.isLocked()) {
+        if (!this.isLocked()) {
             super.showCursor();
         }
     }
@@ -386,40 +299,6 @@ export class PageView
         }
     }
 
-    handleClick(event: MouseEvent) {
-        event.stopPropagation();
-
-        if (PageViewController.get().isTextEditMode()) {
-            if (!this.isTextEditorToolbarClicked(event) && !this.isTextEditorDialogClicked(event)) {
-                PageViewController.get().setTextEditMode(false);
-            }
-        } else {
-            super.handleClick(event);
-        }
-    }
-
-    private isTextEditorToolbarClicked(event: MouseEvent) {
-        const target = event.target as HTMLElement;
-        const prefix = 'cke';
-        if (!!target) {
-            const parent = target.parentElement;
-            return (target.id.indexOf(prefix) >= 0 || target.className.indexOf(prefix) >= 0 ||
-                    parent.id.indexOf(prefix) >= 0 || parent.className.indexOf(prefix) >= 0);
-        }
-        return false;
-    }
-
-    private isTextEditorDialogClicked(event: MouseEvent) {
-        let target = event.target as HTMLElement;
-        while (target) {
-            if (target.classList.contains(ModalDialog.CLASS_NAME)) {
-                return true;
-            }
-            target = target.parentElement;
-        }
-        return false;
-    }
-
     hideContextMenu() {
         this.lockedContextMenu?.hide();
 
@@ -457,24 +336,6 @@ export class PageView
         PageViewController.get().setLocked(locked);
     }
 
-    private setTextEditMode(editMode: boolean): void {
-        this.editorToolbar?.setVisible(editMode);
-        PageViewController.get().setHighlightingDisabled(editMode);
-        this.toggleClass('text-edit-mode', editMode);
-        this.closeTextEditModeButton.toggleClass('active', editMode);
-
-        if (editMode) {
-            this.addVerticalSpaceForEditorToolbar();
-            this.onScrolled(this.scrolledListener);
-        } else {
-            this.removeVerticalSpaceForEditorToolbar();
-            this.unScrolled(this.scrolledListener);
-
-            Highlighter.get().updateLastHighlightedItemView();
-            SelectedHighlighter.get().updateLastHighlightedItemView();
-        }
-    }
-
     getPageView(): PageView {
         return this;
     }
@@ -485,60 +346,6 @@ export class PageView
 
     getCurrentContextMenu(): ItemViewContextMenu {
         return this.lockedContextMenu || super.getCurrentContextMenu();
-    }
-
-    private updateVerticalSpaceForEditorToolbar() {
-        const result = this.getEditorToolbarWidth();
-
-        if (!!result) {
-            this.getEl().setTopPx(this.getEditorToolbarWidth()).setLeft('0');
-        } else {
-            this.waitUntilEditorToolbarShown();
-        }
-
-    }
-
-    private waitUntilEditorToolbarShown() {
-        let intervalId;
-        let toolbarHeight;
-        let attempts = 0;
-
-        intervalId = setInterval(() => {
-            attempts++;
-            toolbarHeight = this.getEditorToolbarWidth();
-            if (!!toolbarHeight) {
-                this.getEl().setTop(toolbarHeight + 'px');
-                clearInterval(intervalId);
-            } else if (attempts > 10) {
-                clearInterval(intervalId);
-            }
-        }, 50);
-
-    }
-
-    private addVerticalSpaceForEditorToolbar() {
-        this.getEl()
-            .setPosition('fixed')
-            .setHeight('calc(100% - ' + this.getEditorToolbarWidth() + 'px)')
-            .setMinHeight('unset');
-        this.getEl().getHTMLElement().style.overflow = 'auto';
-        this.updateVerticalSpaceForEditorToolbar();
-        this.toggleStickyToolbar();
-    }
-
-    private removeVerticalSpaceForEditorToolbar() {
-        this.getEl()
-            .setPosition('')
-            .setTop('')
-            .setLeft('')
-            .setHeight('')
-            .setMinHeight('');
-
-        this.getEl().getHTMLElement().style.overflow = '';
-    }
-
-    private getEditorToolbarWidth(): number {
-        return $('.cke-toolbar-container .cke_reset_all:not([style*=\'display: none\']) .cke_top').outerHeight();
     }
 
     hasTargetWithinTextComponent(target: HTMLElement) {

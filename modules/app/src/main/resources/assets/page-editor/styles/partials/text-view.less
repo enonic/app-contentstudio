@@ -88,11 +88,6 @@
       .figure-mixin();
     }
 
-    &.editor-focused {
-      box-shadow: 0 0 5px @admin-input-blue;
-      .input-border(@admin-input-blue);
-    }
-
     .input-border(@admin-medium-gray-border);
   }
 
@@ -114,12 +109,6 @@
     &.empty {
       padding: 0;
     }
-  }
-}
-
-.cke-toolbar-container {
-  .cke_combopanel {
-    z-index: @z-index-cke-toolbar !important;
   }
 }
 
@@ -158,29 +147,4 @@
 
 .docked-panel .tab-bar {
   margin: 0;
-}
-
-.close-edit-mode-button.icon-close {
-  position: fixed;
-  padding: 0;
-  top: 14px;
-  right: 10px;
-  line-height: 12px;
-  z-index: @z-index-cke-toolbar-close;
-  pointer-events: auto;
-  color: @admin-dark-gray;
-  display: none;
-  text-decoration: none;
-  border: none;
-  background-color: @admin-white;
-
-  .icon-small();
-
-  &.active {
-    display: inline;
-  }
-
-  &:hover {
-    cursor: pointer;
-  }
 }

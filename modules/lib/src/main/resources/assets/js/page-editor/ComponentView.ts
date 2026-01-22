@@ -17,7 +17,6 @@ import {CreateItemViewConfig} from './CreateItemViewConfig';
 import {ItemViewFactory} from './ItemViewFactory';
 import {PageItemType} from './PageItemType';
 import {RegionView} from './RegionView';
-import {PageView} from './PageView';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
@@ -129,6 +128,8 @@ export class ComponentView
 
     protected initOnAdd: boolean = true;
 
+    protected resetAction: Action;
+
     public static debug: boolean = false;
 
     private keyBinding: KeyBinding[];
@@ -161,7 +162,12 @@ export class ComponentView
     }
 
     protected initListeners() {
-     //
+        //
+    }
+
+    refreshEmptyState(): ItemView {
+        this.resetAction.setVisible(!this.isEmpty());
+        return super.refreshEmptyState();
     }
 
     protected addComponentContextMenuActions(inspectActionRequired: boolean) {
@@ -182,11 +188,10 @@ export class ComponentView
             }));
         }
 
-        if (!this.isEmpty()) {
-            actions.push(new Action(i18n('live.view.reset')).onExecuted(() => {
-                new ResetComponentEvent(this.getPath()).fire();
-            }));
-        }
+        this.resetAction = new Action(i18n('live.view.reset')).onExecuted(() => {
+            new ResetComponentEvent(this.getPath()).fire();
+        });
+        actions.push(this.resetAction);
 
         if (!isTopFragmentComponent) {
             actions.push(new Action(i18n('live.view.remove')).onExecuted(() => {
@@ -398,10 +403,6 @@ export class ComponentView
 
     addComponentView(componentView: ComponentView, index: number) {
         this.getParentItemView().addComponentView(componentView, index, true);
-    }
-
-    getPageView(): PageView {
-        return super.getPageView();
     }
 
     protected getRegionView(): RegionView {

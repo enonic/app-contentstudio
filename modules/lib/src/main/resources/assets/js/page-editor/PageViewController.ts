@@ -1,4 +1,3 @@
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {TextEditModeChangedEvent} from './event/outgoing/navigation/TextEditModeChangedEvent';
 
 /**
@@ -12,7 +11,6 @@ export class PageViewController {
     private contextMenuDisabled: boolean;
     private pageLocked: boolean;
     private textEditMode: boolean = false;
-    private editorToolbar: DivEl;
 
     private textEditModeListeners: ((flag: boolean) => void)[] = [];
 
@@ -23,10 +21,6 @@ export class PageViewController {
             this.INSTANCE = new PageViewController();
         }
         return this.INSTANCE;
-    }
-
-    setEditorToolbar(value: DivEl) {
-        this.editorToolbar = value;
     }
 
     setTextEditMode(value: boolean) {
@@ -86,13 +80,5 @@ export class PageViewController {
 
     isNextClickDisabled(): boolean {
         return this.nextClickDisabled;
-    }
-
-    getEditorToolbarContainerId(): string {
-        if (this.editorToolbar) {
-            return this.editorToolbar.getId();
-        }
-
-        return null;
     }
 }

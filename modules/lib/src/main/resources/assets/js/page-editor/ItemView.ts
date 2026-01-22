@@ -121,7 +121,8 @@ export class ItemViewBuilder {
 }
 
 export abstract class ItemView
-    extends Element implements IDentifiable {
+    extends Element
+    implements IDentifiable {
 
     protected placeholder?: ItemViewPlaceholder;
 
@@ -596,6 +597,11 @@ export abstract class ItemView
         this.toggleClass('empty', this.isEmpty());
         this.togglePlaceholder();
 
+        if (this.isSelected()) {
+            // refresh cursor position since my dimensions most likely changed
+            this.highlightSelected();
+        }
+
         return this;
     }
 
@@ -670,20 +676,15 @@ export abstract class ItemView
             if (!selectedView || selectedView === this || !isViewInsideSelectedContainer) {
                 let menuPosition = rightClicked ? null : ItemViewContextMenuPosition.NONE;
 
-                if (PageViewController.get().isTextEditMode()) { // if in text edit mode don't select on first click
-                    PageViewController.get().setTextEditMode(false);
-                    this.unhighlight();
-                } else {
-                    const config = {
-                        path: this.getPath(),
-                        position: clickPosition,
-                        newlyCreated: false,
-                        rightClicked
-                    } as ItemViewSelectedEventConfig;
+                const config = {
+                    path: this.getPath(),
+                    position: clickPosition,
+                    newlyCreated: false,
+                    rightClicked
+                } as ItemViewSelectedEventConfig;
 
-                    this.select(config, menuPosition);
-                    this.focusPlaceholderIfEmpty();
-                }
+                this.select(config, menuPosition);
+                this.focusPlaceholderIfEmpty();
 
             } else if (isViewInsideSelectedContainer && rightClicked) {
                 SelectedHighlighter.get().getSelectedView().showContextMenu(clickPosition);
@@ -856,14 +857,6 @@ export abstract class ItemView
             selectedView.deselect(true);
         }
 
-        // selecting anything should exit the text edit mode
-        // do this before highlighting as this might change text component dimensions
-        if (PageViewController.get().isTextEditMode()) {
-            if (!this.isText()) {
-                PageViewController.get().setTextEditMode(false);
-            }
-        }
-
         this.getEl().setData(ItemView.LIVE_EDIT_SELECTED, 'true');
 
         //this.shade();
@@ -876,7 +869,6 @@ export abstract class ItemView
         if (this.isEmpty()) {
             this.selectPlaceholder();
         }
-
     }
 
     deselect(silent?: boolean) {
