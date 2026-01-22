@@ -325,6 +325,7 @@ module.exports = {
         await this.openContentWizard(appConst.contentTypes.FOLDER);
         await contentWizardPanel.typeData(folder);
         await contentWizardPanel.clickOnMarkAsReadyButton();
+        await contentWizardPanel.waitForNotificationMessage();
         await this.doCloseWizardAndSwitchToGrid();
         return await this.getBrowser().pause(1000);
     },
@@ -566,7 +567,7 @@ module.exports = {
         await this.switchToContentTabWindow(displayName);
         await contentWizardPanel.waitForOpened();
         await contentWizardPanel.waitForDisplayNameInputFocused();
-        await contentWizardPanel.pause(100);
+        await contentWizardPanel.pause(200);
     },
     async findContentAndClickCheckBox(displayName) {
         let browsePanel = new BrowsePanel();
