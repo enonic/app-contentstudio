@@ -11,6 +11,7 @@ import {
     hasContent,
     getMissingIds,
     getAllContentIds,
+    getIdByPath,
 } from './content.store';
 import {
     emitContentUpdated,
@@ -26,6 +27,29 @@ function createMockContent(id: string, displayName?: string): ContentSummaryAndC
     return {
         getId: () => id,
         getDisplayName: () => displayName ?? `Content ${id}`,
+        getPath: () => null,
+    } as ContentSummaryAndCompareStatus;
+}
+
+// Mock ContentSummaryAndCompareStatus with path
+function createMockContentWithPath(id: string, pathStr: string, displayName?: string): ContentSummaryAndCompareStatus {
+    return {
+        getId: () => id,
+        getDisplayName: () => displayName ?? `Content ${id}`,
+        getPath: () => ({
+            toString: () => pathStr,
+            hasParentContent: () => pathStr.split('/').filter(Boolean).length > 1,
+            getParentPath: () => {
+                const parts = pathStr.split('/').filter(Boolean);
+                if (parts.length <= 1) return null;
+                return {
+                    toString: () => '/' + parts.slice(0, -1).join('/'),
+                    isRoot: () => parts.length === 2, // /content/xxx means parent is root
+                };
+            },
+            isRoot: () => false,
+            equals: (other: {toString: () => string}) => pathStr === other.toString(),
+        }),
     } as ContentSummaryAndCompareStatus;
 }
 
@@ -260,6 +284,106 @@ describe('content.store', () => {
             emitContentPublished([content] as ContentSummaryAndCompareStatus[]);
 
             expect(getContent('1')?.getDisplayName()).toBe('Published');
+        });
+    });
+
+    describe('path-to-ID index', () => {
+        describe('getIdByPath', () => {
+            it('returns content ID for path in index', () => {
+                const content = createMockContentWithPath('1', '/content/site');
+                setContent(content);
+
+                expect(getIdByPath('/content/site')).toBe('1');
+            });
+
+            it('returns undefined for path not in index', () => {
+                expect(getIdByPath('/non-existent')).toBeUndefined();
+            });
+        });
+
+        describe('setContent maintains path index', () => {
+            it('adds path to index when content has path', () => {
+                const content = createMockContentWithPath('1', '/content/site');
+                setContent(content);
+
+                expect(getIdByPath('/content/site')).toBe('1');
+            });
+
+            it('does not add to index when content has no path', () => {
+                const content = createMockContent('1');
+                setContent(content);
+
+                // No exception should occur and index should be empty
+                expect(getIdByPath('/content/site')).toBeUndefined();
+            });
+        });
+
+        describe('setContents maintains path index', () => {
+            it('adds paths to index for multiple contents', () => {
+                const contents = [
+                    createMockContentWithPath('1', '/content/site'),
+                    createMockContentWithPath('2', '/content/folder'),
+                    createMockContentWithPath('3', '/content/page'),
+                ];
+                setContents(contents);
+
+                expect(getIdByPath('/content/site')).toBe('1');
+                expect(getIdByPath('/content/folder')).toBe('2');
+                expect(getIdByPath('/content/page')).toBe('3');
+            });
+
+            it('handles mixed contents with and without paths', () => {
+                const contents = [
+                    createMockContentWithPath('1', '/content/site'),
+                    createMockContent('2'), // No path
+                ];
+                setContents(contents);
+
+                expect(getIdByPath('/content/site')).toBe('1');
+                expect(hasContent('2')).toBe(true);
+            });
+        });
+
+        describe('removeContent cleans path index', () => {
+            it('removes path from index when content is removed', () => {
+                const content = createMockContentWithPath('1', '/content/site');
+                setContent(content);
+                expect(getIdByPath('/content/site')).toBe('1');
+
+                removeContent('1');
+                expect(getIdByPath('/content/site')).toBeUndefined();
+            });
+        });
+
+        describe('removeContents cleans path index', () => {
+            it('removes paths from index when contents are removed', () => {
+                const contents = [
+                    createMockContentWithPath('1', '/content/site'),
+                    createMockContentWithPath('2', '/content/folder'),
+                    createMockContentWithPath('3', '/content/page'),
+                ];
+                setContents(contents);
+
+                removeContents(['1', '3']);
+
+                expect(getIdByPath('/content/site')).toBeUndefined();
+                expect(getIdByPath('/content/folder')).toBe('2');
+                expect(getIdByPath('/content/page')).toBeUndefined();
+            });
+        });
+
+        describe('clearContentCache clears path index', () => {
+            it('clears path index when cache is cleared', () => {
+                setContents([
+                    createMockContentWithPath('1', '/content/site'),
+                    createMockContentWithPath('2', '/content/folder'),
+                ]);
+
+                clearContentCache();
+
+                expect(getIdByPath('/content/site')).toBeUndefined();
+                expect(getIdByPath('/content/folder')).toBeUndefined();
+            });
         });
     });
 });

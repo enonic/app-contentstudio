@@ -1,5 +1,7 @@
 import {atom, computed} from 'nanostores';
-import {$contentDeleted, $contentArchived} from './socket.store';
+import {$contentDeleted, $contentArchived, $contentCreated, $contentDuplicated} from './socket.store';
+import type {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
+import {calcWorkflowStateStatus, resolveDisplayName, resolveSubName} from '../utils/cms/content/workflow';
 import {
     createEmptyState,
     setNode,
@@ -30,7 +32,7 @@ import {
     type CreateNodeOptions,
 } from '../lib/tree-store';
 import {$uploads, type UploadItem} from './uploads.store';
-import {$contentCache} from './content.store';
+import {$contentCache, getIdByPath} from './content.store';
 import type {ContentData} from '../views/browse/grid/ContentData';
 import type {ContentUploadData} from '../views/browse/grid/ContentUploadData';
 import {convertToContentFlatNode} from './tree/utils';
@@ -274,17 +276,133 @@ export const $rootLoadingState = computed($treeState, (state): LoadingStateValue
 // * Socket Event Subscriptions (self-initializing at module load)
 //
 
+// Helper: Remove content and update parents in single transaction
+function removeContentFromTree(ids: string[]): void {
+    updateTreeState((state) => {
+        // Collect parent IDs before removal
+        const parentIds = new Set<string>();
+        for (const id of ids) {
+            const node = state.nodes.get(id);
+            if (node?.parentId && !ids.includes(node.parentId)) {
+                parentIds.add(node.parentId);
+            }
+        }
+
+        // Remove nodes
+        let newState = removeNodes(state, ids, true);
+
+        // Update affected parents: set hasChildren=false and collapse if no children left
+        for (const parentId of parentIds) {
+            const parent = newState.nodes.get(parentId);
+            if (!parent || parent.childIds.length > 0) continue;
+
+            // Parent has no more children - update hasChildren and collapse
+            newState = setNode(newState, {id: parentId, hasChildren: false});
+            if (newState.expandedIds.has(parentId)) {
+                newState = collapse(newState, parentId);
+            }
+        }
+
+        return newState;
+    });
+}
+
 $contentDeleted.subscribe((event) => {
     if (event?.data) {
         const ids = event.data.map((item) => item.getContentId().toString());
-        removeTreeNodes(ids);
+        removeContentFromTree(ids);
     }
 });
 
 $contentArchived.subscribe((event) => {
     if (event?.data) {
         const ids = event.data.map((item) => item.getContentId().toString());
-        removeTreeNodes(ids);
+        removeContentFromTree(ids);
+    }
+});
+
+// Helper: Convert content to tree node data
+function toTreeNodeData(content: ContentSummaryAndCompareStatus): ContentTreeNodeData {
+    return {
+        id: content.getId(),
+        displayName: resolveDisplayName(content),
+        name: resolveSubName(content),
+        publishStatus: content.getPublishStatus(),
+        workflowStatus: calcWorkflowStateStatus(content.getContentSummary()),
+        contentType: content.getType(),
+        iconUrl: content.getContentSummary().getIconUrl(),
+    };
+}
+
+// Helper: Find parent ID by path (O(1) lookup via path index)
+function findParentIdByPath(content: ContentSummaryAndCompareStatus): string | null {
+    const path = content.getPath();
+    if (!path?.hasParentContent()) return null;
+
+    const parentPath = path.getParentPath();
+    if (!parentPath || parentPath.isRoot()) return null;
+
+    const parentId = getIdByPath(parentPath.toString());
+    if (!parentId) return null;
+
+    // Verify parent is in tree
+    return $treeState.get().nodes.has(parentId) ? parentId : null;
+}
+
+// Helper: Add newly created content to tree
+// Uses single state update to avoid stale state race conditions
+function addContentToTree(content: ContentSummaryAndCompareStatus): void {
+    const id = content.getId();
+    if (hasTreeNode(id)) return; // Already in tree
+
+    const parentId = findParentIdByPath(content);
+
+    updateTreeState((state) => {
+        // Only add if parent is in tree (or root level with items loaded)
+        const shouldAdd = parentId === null ? state.rootIds.length > 0 : state.nodes.has(parentId);
+        if (!shouldAdd) return state;
+
+        // Add node to tree
+        let newState = setNode(state, {
+            id,
+            data: toTreeNodeData(content),
+            parentId,
+            hasChildren: content.hasChildren(),
+        });
+
+        // Update parent's children list
+        if (parentId) {
+            const parent = newState.nodes.get(parentId);
+            if (parent && !parent.childIds.includes(id)) {
+                newState = appendChildren(newState, parentId, [id]);
+            }
+            // Update hasChildren if this is first child
+            if (!parent?.hasChildren) {
+                newState = setNode(newState, {id: parentId, hasChildren: true});
+            }
+        } else {
+            if (!newState.rootIds.includes(id)) {
+                newState = setRootIds(newState, [id, ...newState.rootIds]); // Prepend (newest first)
+            }
+        }
+
+        return newState;
+    });
+}
+
+// Socket: Content created
+$contentCreated.subscribe((event) => {
+    if (!event?.data) return;
+    for (const content of event.data) {
+        addContentToTree(content);
+    }
+});
+
+// Socket: Content duplicated
+$contentDuplicated.subscribe((event) => {
+    if (!event?.data) return;
+    for (const content of event.data) {
+        addContentToTree(content);
     }
 });
 

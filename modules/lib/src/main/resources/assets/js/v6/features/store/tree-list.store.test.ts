@@ -30,8 +30,10 @@ import {
     getTreeDescendantIds,
     type ContentTreeNodeData,
 } from './tree-list.store';
-import {clearContentCache, setContent} from './content.store';
+import {clearContentCache, setContent, setContents} from './content.store';
 import {addUpload, clearUploads} from './uploads.store';
+import {emitContentCreated, emitContentDeleted, emitContentDuplicated, emitContentArchived} from './socket.store';
+import type {ContentServerChangeItem} from '../../../app/event/ContentServerChangeItem';
 
 // Mock ContentTreeNodeData
 function createNodeData(id: string, displayName?: string): ContentTreeNodeData {
@@ -48,16 +50,109 @@ function createNodeData(id: string, displayName?: string): ContentTreeNodeData {
 
 // Mock ContentSummaryAndCompareStatus for cache
 function createMockContent(id: string, displayName?: string): ContentSummaryAndCompareStatus {
+    const mockName = {
+        isUnnamed: () => false,
+        toString: () => id,
+    };
+
+    const mockPath = {
+        hasParentContent: () => false,
+        getParentPath: () => null,
+        isRoot: () => true,
+        equals: () => false,
+        toString: () => `/${id}`,
+    };
+
+    const mockType = {
+        getLocalName: () => 'page',
+    };
+
     return {
         getId: () => id,
         getDisplayName: () => displayName ?? `Content ${id}`,
-        getType: () => null as unknown,
+        getType: () => mockType,
         getPublishStatus: () => PublishStatus.ONLINE,
         hasChildren: () => false,
+        hasContentSummary: () => true,
+        hasUploadItem: () => false,
+        getPath: () => mockPath,
         getContentSummary: () => ({
             getIconUrl: () => null,
+            getDisplayName: () => displayName ?? `Content ${id}`,
+            getName: () => mockName,
+            getType: () => mockType,
+            isValid: () => true,
+            isReady: () => false,
+            isInProgress: () => false,
         }),
-    } as ContentSummaryAndCompareStatus;
+    } as unknown as ContentSummaryAndCompareStatus;
+}
+
+// Mock ContentSummaryAndCompareStatus with parent path for socket events
+function createMockContentWithParent(
+    id: string,
+    parentPath: string,
+    hasChildrenValue = false,
+    displayName?: string
+): ContentSummaryAndCompareStatus {
+    const mockName = {
+        isUnnamed: () => false,
+        toString: () => id,
+    };
+
+    const pathStr = parentPath === '/' ? `/${id}` : `${parentPath}/${id}`;
+
+    const mockPath = {
+        hasParentContent: () => parentPath !== '/',
+        getParentPath: () =>
+            parentPath === '/'
+                ? {
+                      toString: () => '/',
+                      isRoot: () => true,
+                      equals: (other: {toString: () => string}) => other.toString() === '/',
+                  }
+                : {
+                      toString: () => parentPath,
+                      isRoot: () => false,
+                      equals: (other: {toString: () => string}) => other.toString() === parentPath,
+                  },
+        isRoot: () => false,
+        equals: (other: {toString: () => string}) => pathStr === other.toString(),
+        toString: () => pathStr,
+    };
+
+    const mockType = {
+        getLocalName: () => 'page',
+    };
+
+    return {
+        getId: () => id,
+        getDisplayName: () => displayName ?? `Content ${id}`,
+        getType: () => mockType,
+        getPublishStatus: () => PublishStatus.ONLINE,
+        hasChildren: () => hasChildrenValue,
+        hasContentSummary: () => true,
+        hasUploadItem: () => false,
+        getPath: () => mockPath,
+        getContentSummary: () => ({
+            getIconUrl: () => null,
+            getDisplayName: () => displayName ?? `Content ${id}`,
+            getName: () => mockName,
+            getType: () => mockType,
+            isValid: () => true,
+            isReady: () => false,
+            isInProgress: () => false,
+        }),
+    } as unknown as ContentSummaryAndCompareStatus;
+}
+
+// Mock ContentServerChangeItem for delete events
+function createMockChangeItem(id: string): ContentServerChangeItem {
+    return {
+        getContentId: () => ({
+            toString: () => id,
+        }),
+    } as unknown as ContentServerChangeItem;
 }
 
 describe('tree-list.store', () => {
@@ -419,6 +514,184 @@ describe('tree-list.store', () => {
 
             // Upload should not appear since parent is collapsed
             expect(merged.find((n) => n.id === 'upload-1')).toBeUndefined();
+        });
+    });
+
+    describe('socket event handling', () => {
+        describe('$contentCreated', () => {
+            it('adds new content to tree when parent is loaded', () => {
+                // Setup: parent node in tree with path in cache
+                const parentContent = createMockContentWithParent('parent', '/');
+                setContents([parentContent]);
+                addTreeNode({id: 'parent', data: createNodeData('parent'), hasChildren: true});
+                setTreeRootIds(['parent']);
+                expandNode('parent');
+
+                // Emit: child content created under parent
+                const childContent = createMockContentWithParent('child', '/parent', false, 'New Child');
+                emitContentCreated([childContent] as ContentSummaryAndCompareStatus[]);
+
+                // Assert: child appears in tree
+                expect(hasTreeNode('child')).toBe(true);
+                const parent = getTreeNode('parent');
+                expect(parent?.childIds).toContain('child');
+            });
+
+            it('does not add content when parent is not in tree', () => {
+                // Setup: empty tree (no parent loaded)
+                setTreeRootIds([]);
+
+                // Emit: content created with non-existent parent
+                const content = createMockContentWithParent('child', '/non-existent');
+                emitContentCreated([content] as ContentSummaryAndCompareStatus[]);
+
+                // Assert: content not added to tree
+                expect(hasTreeNode('child')).toBe(false);
+            });
+
+            it('adds root-level content when root is loaded', () => {
+                // Setup: tree with existing root items
+                addTreeNode({id: '1', data: createNodeData('1')});
+                setTreeRootIds(['1']);
+
+                // Emit: root-level content created (no parent or root parent)
+                const rootContent = createMockContentWithParent('new-root', '/');
+                emitContentCreated([rootContent] as ContentSummaryAndCompareStatus[]);
+
+                // Assert: new item prepended to rootIds
+                const state = $treeState.get();
+                expect(state.rootIds).toContain('new-root');
+                expect(state.rootIds[0]).toBe('new-root'); // Prepended
+            });
+
+            it('updates parent hasChildren when first child created', () => {
+                // Setup: parent with hasChildren=false
+                const parentContent = createMockContentWithParent('parent', '/');
+                setContents([parentContent]);
+                addTreeNode({id: 'parent', data: createNodeData('parent'), hasChildren: false});
+                setTreeRootIds(['parent']);
+
+                // Verify parent starts with hasChildren=false
+                expect(getTreeNode('parent')?.hasChildren).toBe(false);
+
+                // Emit: first child created
+                const childContent = createMockContentWithParent('child', '/parent');
+                emitContentCreated([childContent] as ContentSummaryAndCompareStatus[]);
+
+                // Assert: parent.hasChildren becomes true
+                expect(getTreeNode('parent')?.hasChildren).toBe(true);
+            });
+        });
+
+        describe('$contentDeleted', () => {
+            it('removes content from tree', () => {
+                // Setup: node in tree
+                addTreeNode({id: '1', data: createNodeData('1')});
+                setTreeRootIds(['1']);
+                expect(hasTreeNode('1')).toBe(true);
+
+                // Emit: content deleted
+                emitContentDeleted([createMockChangeItem('1')]);
+
+                // Assert: node removed
+                expect(hasTreeNode('1')).toBe(false);
+            });
+
+            it('updates parent hasChildren when last child deleted', () => {
+                // Setup: parent with single child, expanded
+                addTreeNodes([
+                    {id: 'parent', data: createNodeData('parent'), hasChildren: true, childIds: ['child']},
+                    {id: 'child', data: createNodeData('child'), parentId: 'parent'},
+                ]);
+                setTreeRootIds(['parent']);
+                expandNode('parent');
+
+                // Emit: delete child
+                emitContentDeleted([createMockChangeItem('child')]);
+
+                // Assert: parent.hasChildren=false and collapsed
+                expect(getTreeNode('parent')?.hasChildren).toBe(false);
+                expect(isNodeExpanded('parent')).toBe(false);
+            });
+
+            it('does not affect parent hasChildren when siblings remain', () => {
+                // Setup: parent with two children
+                addTreeNodes([
+                    {id: 'parent', data: createNodeData('parent'), hasChildren: true, childIds: ['child1', 'child2']},
+                    {id: 'child1', data: createNodeData('child1'), parentId: 'parent'},
+                    {id: 'child2', data: createNodeData('child2'), parentId: 'parent'},
+                ]);
+                setTreeRootIds(['parent']);
+
+                // Emit: delete one child
+                emitContentDeleted([createMockChangeItem('child1')]);
+
+                // Assert: parent still hasChildren=true
+                expect(getTreeNode('parent')?.hasChildren).toBe(true);
+                expect(getTreeNode('parent')?.childIds).toEqual(['child2']);
+            });
+        });
+
+        describe('$contentArchived', () => {
+            it('removes content from tree on archive', () => {
+                // Setup: node in tree
+                addTreeNode({id: '1', data: createNodeData('1')});
+                setTreeRootIds(['1']);
+                expect(hasTreeNode('1')).toBe(true);
+
+                // Emit: content archived
+                emitContentArchived([createMockChangeItem('1')]);
+
+                // Assert: node removed
+                expect(hasTreeNode('1')).toBe(false);
+            });
+
+            it('updates parent hasChildren when last child archived', () => {
+                // Setup: parent with single child
+                addTreeNodes([
+                    {id: 'parent', data: createNodeData('parent'), hasChildren: true, childIds: ['child']},
+                    {id: 'child', data: createNodeData('child'), parentId: 'parent'},
+                ]);
+                setTreeRootIds(['parent']);
+
+                // Emit: archive child
+                emitContentArchived([createMockChangeItem('child')]);
+
+                // Assert: parent.hasChildren=false
+                expect(getTreeNode('parent')?.hasChildren).toBe(false);
+            });
+        });
+
+        describe('$contentDuplicated', () => {
+            it('adds duplicated content to tree when parent is loaded', () => {
+                // Setup: parent node in tree with path in cache
+                const parentContent = createMockContentWithParent('parent', '/');
+                setContents([parentContent]);
+                addTreeNode({id: 'parent', data: createNodeData('parent'), hasChildren: true});
+                setTreeRootIds(['parent']);
+                expandNode('parent');
+
+                // Emit: duplicated content
+                const duplicatedContent = createMockContentWithParent('duplicate', '/parent', false, 'Duplicated');
+                emitContentDuplicated([duplicatedContent] as ContentSummaryAndCompareStatus[]);
+
+                // Assert: duplicate appears in tree
+                expect(hasTreeNode('duplicate')).toBe(true);
+                const parent = getTreeNode('parent');
+                expect(parent?.childIds).toContain('duplicate');
+            });
+
+            it('does not add duplicated content when parent is not in tree', () => {
+                // Setup: empty tree
+                setTreeRootIds([]);
+
+                // Emit: duplicated content with non-existent parent
+                const content = createMockContentWithParent('duplicate', '/non-existent');
+                emitContentDuplicated([content] as ContentSummaryAndCompareStatus[]);
+
+                // Assert: content not added
+                expect(hasTreeNode('duplicate')).toBe(false);
+            });
         });
     });
 });

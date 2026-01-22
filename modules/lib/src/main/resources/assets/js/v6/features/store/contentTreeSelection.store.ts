@@ -157,6 +157,11 @@ export function hasSelectedItems(): boolean {
     return $selection.get().size > 0;
 }
 
+/** Check if there are any current items (selected OR active) */
+export function hasCurrentItems(): boolean {
+    return $currentIds.get().length > 0;
+}
+
 /** @deprecated Use clearSelection() instead */
 export const resetSelection = clearSelection;
 
