@@ -52,7 +52,6 @@ import {LoadComponentViewEvent} from '../../../page-editor/event/incoming/manipu
 import {DuplicateComponentEvent} from '../../../page-editor/event/outgoing/manipulation/DuplicateComponentEvent';
 import {SetFragmentComponentEvent} from '../../../page-editor/event/outgoing/manipulation/SetFragmentComponentEvent';
 import {DescriptorKey} from '../../page/DescriptorKey';
-import {SetComponentDescriptorEvent} from '../../../page-editor/event/outgoing/manipulation/SetComponentDescriptorEvent';
 import {UpdateTextComponentEvent} from '../../../page-editor/event/outgoing/manipulation/UpdateTextComponentEvent';
 import {DuplicateComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/DuplicateComponentViewEvent';
 import {CustomizePageEvent} from '../../../page-editor/event/outgoing/manipulation/CustomizePageEvent';
@@ -153,7 +152,6 @@ export class LiveEditPageProxy
         IframeEventBus.get().registerClass('ComponentViewDragStartedEvent', ComponentViewDragStartedEvent);
         IframeEventBus.get().registerClass('ComponentViewDragStoppedEvent', ComponentViewDragStoppedEvent);
         IframeEventBus.get().registerClass('ComponentViewDragDroppedEvent', ComponentViewDragDroppedEvent);
-        IframeEventBus.get().registerClass('SetComponentDescriptorEvent', SetComponentDescriptorEvent);
         IframeEventBus.get().registerClass('ComponentLoadedEvent', ComponentLoadedEvent);
         IframeEventBus.get().registerClass('LoadComponentFailedEvent', LoadComponentFailedEvent);
         IframeEventBus.get().registerClass('TypeError', TypeError);
@@ -361,8 +359,6 @@ export class LiveEditPageProxy
 
         CustomizePageEvent.un(null);
 
-        SetComponentDescriptorEvent.un(null);
-
         AddComponentEvent.un(null);
 
         RemoveComponentRequest.un(null);
@@ -513,11 +509,6 @@ export class LiveEditPageProxy
             const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
 
             PageEventsManager.get().notifySetFragmentComponentRequested(path, event.getContentId());
-        });
-
-        SetComponentDescriptorEvent.on((event: SetComponentDescriptorEvent): void => {
-            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
-            PageEventsManager.get().notifyComponentDescriptorSetRequested(path, DescriptorKey.fromString(event.getDescriptor()));
         });
 
         UpdateTextComponentEvent.on((event: UpdateTextComponentEvent): void => {
