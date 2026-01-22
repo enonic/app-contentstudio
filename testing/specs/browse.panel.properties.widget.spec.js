@@ -145,7 +145,8 @@ describe('Browse panel, properties widget, language spec', function () {
             await contentBrowseContextWindow.selectItemInWidgetSelector(TEST_WIDGET_TITLE);
             await studioUtils.saveScreenshot('test_widget_opened');
             // 2. Verify that expected text is displayed in the widget view:
-            await studioUtils.waitForElementDisplayed(`//widget[text()='${TEST_WIDGET_TITLE}']`);
+            let result = await studioUtils.getTextFromShadow('external-widget', 'widget');
+            assert.equal(result, TEST_WIDGET_TITLE, 'Expected text should be displayed in the widget');
         });
 
     // Build fix: Separate metadata update from content update #9619
