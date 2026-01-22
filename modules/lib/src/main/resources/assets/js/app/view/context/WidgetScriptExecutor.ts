@@ -1,280 +1,318 @@
 /**
- * Handles script execution within Shadow DOM with a proxied document object
- * that redirects DOM queries to the shadow root. Tracks timers and intervals
- * for cleanup when the widget is deactivated.
+ * Handles script execution within Shadow DOM in a CSP-compliant way using nonces.
+ *
+ * This executor:
+ * 1. Gets the page's CSP nonce from existing scripts
+ * 2. Creates script elements with that nonce
+ * 3. Temporarily intercepts document query methods to redirect to shadow root
+ * 4. Executes scripts by appending them to the shadow root
+ * 5. Restores original document methods after execution
+ *
+ * This provides JavaScript isolation where widget scripts' document queries
+ * are redirected to their shadow root container.
  */
 export class WidgetScriptExecutor {
 
     private readonly shadowRoot: ShadowRoot;
 
-    private readonly documentProxy: Document;
+    private readonly nonce: string | null;
 
-    private readonly windowProxy: Window;
+    private readonly scriptElements: HTMLScriptElement[] = [];
 
     private readonly timeouts = new Set<number>();
 
     private readonly intervals = new Set<number>();
 
-    private readonly eventListeners: { target: EventTarget; type: string; listener: EventListener }[] = [];
+    private isExecuting = false;
+
+    // Store original document methods for restoration
+    private static originalMethods: {
+        querySelector: typeof document.querySelector;
+        querySelectorAll: typeof document.querySelectorAll;
+        getElementById: typeof document.getElementById;
+        getElementsByClassName: typeof document.getElementsByClassName;
+        getElementsByTagName: typeof document.getElementsByTagName;
+        bodyDescriptor: PropertyDescriptor | undefined;
+    } | null = null;
+
+    private static activeExecutor: WidgetScriptExecutor | null = null;
 
     constructor(shadowRoot: ShadowRoot) {
         this.shadowRoot = shadowRoot;
-        this.documentProxy = this.createDocumentProxy();
-        this.windowProxy = this.createWindowProxy();
+        this.nonce = this.detectNonce();
     }
 
-    private createDocumentProxy(): Document {
-        const shadowRoot = this.shadowRoot;
-        const eventListeners = this.eventListeners;
+    /**
+     * Detects the CSP nonce from existing script elements in the page.
+     */
+    private detectNonce(): string | null {
+        // Try to find a script with a nonce attribute
+        const scriptWithNonce = document.querySelector<HTMLScriptElement>('script[nonce]');
+        if (scriptWithNonce) {
+            // Access via property, not attribute, as browsers hide nonce from getAttribute
+            return scriptWithNonce.nonce || null;
+        }
+        return null;
+    }
 
-        return new Proxy<Document>(document, {
-            get(target: Document, prop: string | symbol): unknown {
-                // Redirect DOM queries to shadow root
-                if (prop === 'querySelector') {
-                    return (selector: string) => shadowRoot.querySelector(selector);
-                }
-                if (prop === 'querySelectorAll') {
-                    return (selector: string) => shadowRoot.querySelectorAll(selector);
-                }
-                if (prop === 'getElementById') {
-                    return (id: string) => shadowRoot.getElementById(id);
-                }
-                if (prop === 'getElementsByClassName') {
-                    return (classNames: string) => {
-                        const container = shadowRoot.host as HTMLElement;
-                        return container.getElementsByClassName(classNames);
-                    };
-                }
-                if (prop === 'getElementsByTagName') {
-                    return (tagName: string) => {
-                        const container = shadowRoot.host as HTMLElement;
-                        return container.getElementsByTagName(tagName);
-                    };
-                }
+    /**
+     * Installs document method interceptors that redirect queries to the shadow root.
+     */
+    private installInterceptors(): void {
+        if (WidgetScriptExecutor.originalMethods) {
+            // Already installed by another executor, update active executor
+            WidgetScriptExecutor.activeExecutor = this;
+            return;
+        }
 
-                // Return shadow root host for body/documentElement queries
-                if (prop === 'body' || prop === 'documentElement') {
-                    return shadowRoot.host;
-                }
+        // Store original methods and property descriptors
+        WidgetScriptExecutor.originalMethods = {
+            querySelector: document.querySelector.bind(document),
+            querySelectorAll: document.querySelectorAll.bind(document),
+            getElementById: document.getElementById.bind(document),
+            getElementsByClassName: document.getElementsByClassName.bind(document),
+            getElementsByTagName: document.getElementsByTagName.bind(document),
+            bodyDescriptor: Object.getOwnPropertyDescriptor(Document.prototype, 'body'),
+        };
 
-                // Prevent head manipulation
-                if (prop === 'head') {
-                    return null;
-                }
+        WidgetScriptExecutor.activeExecutor = this;
 
-                // Allow safe operations
-                if (prop === 'createElement' ||
-                    prop === 'createTextNode' ||
-                    prop === 'createDocumentFragment' ||
-                    prop === 'createComment' ||
-                    prop === 'createEvent' ||
-                    prop === 'createRange' ||
-                    prop === 'createTreeWalker') {
-                    const method = target[prop as keyof Document];
-                    if (typeof method === 'function') {
-                        return method.bind(target);
-                    }
-                }
+        const getActiveShadowRoot = () => WidgetScriptExecutor.activeExecutor?.shadowRoot;
 
-                // Wrap addEventListener to track listeners
-                if (prop === 'addEventListener') {
-                    return (type: string, listener: EventListener, options?: boolean | AddEventListenerOptions) => {
-                        eventListeners.push({target, type, listener});
-                        return target.addEventListener(type, listener, options);
-                    };
+        // Override document.body to return shadow root host (acts as body for the widget)
+        Object.defineProperty(document, 'body', {
+            get: function () {
+                const shadowRoot = getActiveShadowRoot();
+                if (shadowRoot) {
+                    return shadowRoot;
                 }
+                // Fall back to original body
+                return WidgetScriptExecutor.originalMethods?.bodyDescriptor?.get?.call(document);
+            },
+            configurable: true,
+        });
 
-                // Return value from target for other properties
-                const value = target[prop as keyof Document];
-                if (typeof value === 'function') {
-                    return value.bind(target);
+        // Helper to check if selector targets script elements
+        const isScriptSelector = (selectors: string): boolean => {
+            const lower = selectors.toLowerCase();
+            return lower.startsWith('script') || lower.includes(' script') || lower.includes('>script');
+        };
+
+        // Override querySelector
+        document.querySelector = function <K extends keyof HTMLElementTagNameMap> (selectors: K | string): HTMLElementTagNameMap[K] | Element | null {
+            const shadowRoot = getActiveShadowRoot();
+            // Don't intercept script queries - scripts are in document.head
+            if (shadowRoot && !isScriptSelector(String(selectors))) {
+                const result = shadowRoot.querySelector(selectors);
+                if (result) {
+                    return result;
                 }
-                return value;
+            }
+            return WidgetScriptExecutor.originalMethods.querySelector.call(document, selectors);
+        };
+
+        // Override querySelectorAll
+        document.querySelectorAll = function <K extends keyof HTMLElementTagNameMap> (selectors: K | string): NodeListOf<HTMLElementTagNameMap[K] | Element> {
+            const shadowRoot = getActiveShadowRoot();
+            // Don't intercept script queries - scripts are in document.head
+            if (shadowRoot && !isScriptSelector(String(selectors))) {
+                return shadowRoot.querySelectorAll(selectors);
+            }
+            return WidgetScriptExecutor.originalMethods.querySelectorAll.call(document, selectors);
+        };
+
+        // Override getElementById
+        document.getElementById = function (elementId: string): HTMLElement | null {
+            const shadowRoot = getActiveShadowRoot();
+            if (shadowRoot) {
+                const result = shadowRoot.getElementById(elementId);
+                if (result) {
+                    return result;
+                }
+            }
+            return WidgetScriptExecutor.originalMethods.getElementById.call(document, elementId);
+        };
+
+        // Override getElementsByClassName
+        document.getElementsByClassName = function (classNames: string): HTMLCollectionOf<Element> {
+            const shadowRoot = getActiveShadowRoot();
+            if (shadowRoot) {
+                // Shadow root doesn't have getElementsByClassName, use querySelectorAll
+                const selector = '.' + classNames.trim().split(/\s+/).join('.');
+                const elements = shadowRoot.querySelectorAll(selector);
+                // Convert NodeList to HTMLCollection-like object
+                return elements as unknown as HTMLCollectionOf<Element>;
+            }
+            return WidgetScriptExecutor.originalMethods.getElementsByClassName.call(document, classNames);
+        };
+
+        // Override getElementsByTagName
+        document.getElementsByTagName = function <K extends keyof HTMLElementTagNameMap> (qualifiedName: K | string): HTMLCollectionOf<HTMLElementTagNameMap[K] | Element> {
+            const shadowRoot = getActiveShadowRoot();
+            if (shadowRoot) {
+                return shadowRoot.querySelectorAll(qualifiedName) as unknown as HTMLCollectionOf<HTMLElementTagNameMap[K] | Element>;
+            }
+            return WidgetScriptExecutor.originalMethods.getElementsByTagName.call(document, qualifiedName) as HTMLCollectionOf<HTMLElementTagNameMap[K] | Element>;
+        };
+    }
+
+    /**
+     * Removes document method interceptors and restores original behavior.
+     */
+    private removeInterceptors(): void {
+        if (WidgetScriptExecutor.activeExecutor === this) {
+            WidgetScriptExecutor.activeExecutor = null;
+        }
+
+        // Only restore if no other executor is active
+        if (!WidgetScriptExecutor.activeExecutor && WidgetScriptExecutor.originalMethods) {
+            document.querySelector = WidgetScriptExecutor.originalMethods.querySelector;
+            document.querySelectorAll = WidgetScriptExecutor.originalMethods.querySelectorAll;
+            document.getElementById = WidgetScriptExecutor.originalMethods.getElementById;
+            document.getElementsByClassName = WidgetScriptExecutor.originalMethods.getElementsByClassName;
+            document.getElementsByTagName = WidgetScriptExecutor.originalMethods.getElementsByTagName;
+
+            // Restore document.body
+            if (WidgetScriptExecutor.originalMethods.bodyDescriptor) {
+                Object.defineProperty(document, 'body', WidgetScriptExecutor.originalMethods.bodyDescriptor);
+            }
+
+            WidgetScriptExecutor.originalMethods = null;
+        }
+    }
+
+    /**
+     * Executes a script element using nonce-based CSP compliance.
+     * Scripts are appended to document.head for proper execution,
+     * but DOM queries are intercepted to redirect to the shadow root.
+     */
+    executeScript(scriptEl: HTMLScriptElement): Promise<void> {
+        return new Promise((resolve) => {
+            const newScript = document.createElement('script');
+
+            // Apply nonce if available
+            if (this.nonce) {
+                newScript.nonce = this.nonce;
+            }
+
+            // Copy ALL attributes from original script (including data-* attributes)
+            // This is important for widgets that use document.currentScript.getAttribute()
+            for (const attr of Array.from(scriptEl.attributes)) {
+                if (attr.name !== 'nonce') { // Don't copy nonce, we set it from detected value
+                    newScript.setAttribute(attr.name, attr.value);
+                }
+            }
+
+            // Mark as widget script for identification
+            newScript.setAttribute('data-widget-script', 'true');
+
+            // Install interceptors before script execution
+            this.installInterceptors();
+            this.isExecuting = true;
+
+            if (scriptEl.src) {
+                // External script - add cache-busting for modules to ensure re-execution
+                let srcUrl = scriptEl.src;
+                if (scriptEl.type === 'module') {
+                    const separator = srcUrl.includes('?') ? '&' : '?';
+                    srcUrl = `${srcUrl}${separator}_cb=${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                }
+                newScript.src = srcUrl;
+
+                newScript.onload = () => {
+                    this.isExecuting = false;
+                    resolve();
+                };
+                newScript.onerror = () => {
+                    console.warn(`WidgetScriptExecutor: Failed to load script: ${scriptEl.src}`);
+                    this.isExecuting = false;
+                    resolve();
+                };
+            } else {
+                // Inline script - wrap to redirect document access
+                const originalCode = scriptEl.textContent || '';
+                newScript.textContent = this.wrapScriptCode(originalCode);
+            }
+
+            // Track for cleanup
+            this.scriptElements.push(newScript);
+
+            // Append to document.head for proper execution
+            // (scripts in shadow DOM don't execute reliably)
+            document.head.appendChild(newScript);
+
+            // For inline scripts, execution is synchronous (but modules are async)
+            if (!scriptEl.src && scriptEl.type !== 'module') {
+                this.isExecuting = false;
+                resolve();
+            }
+
+            // For module scripts without src, they're async so resolve after a tick
+            if (!scriptEl.src && scriptEl.type === 'module') {
+                setTimeout(() => {
+                    this.isExecuting = false;
+                    resolve();
+                }, 0);
             }
         });
     }
 
-    private createWindowProxy(): Window {
-        const trackTimeoutFn = this.trackTimeout.bind(this);
-        const trackIntervalFn = this.trackInterval.bind(this);
-        const clearTrackedTimeoutFn = this.clearTrackedTimeout.bind(this);
-        const clearTrackedIntervalFn = this.clearTrackedInterval.bind(this);
-        const eventListeners = this.eventListeners;
-
-        return new Proxy<Window>(window, {
-            get(target: Window, prop: string | symbol): unknown {
-                // Provide tracked timeout/interval functions
-                if (prop === 'setTimeout') {
-                    return trackTimeoutFn;
-                }
-                if (prop === 'setInterval') {
-                    return trackIntervalFn;
-                }
-                if (prop === 'clearTimeout') {
-                    return clearTrackedTimeoutFn;
-                }
-                if (prop === 'clearInterval') {
-                    return clearTrackedIntervalFn;
-                }
-
-                // Wrap addEventListener to track listeners
-                if (prop === 'addEventListener') {
-                    return (type: string, listener: EventListener, options?: boolean | AddEventListenerOptions) => {
-                        eventListeners.push({target, type, listener});
-                        return target.addEventListener(type, listener, options);
-                    };
-                }
-
-                // Pass through most window properties
-                const value = target[prop as keyof Window];
-                if (typeof value === 'function') {
-                    return value.bind(target);
-                }
-                return value;
-            }
-        });
+    /**
+     * Wraps script code to set up the execution context.
+     */
+    private wrapScriptCode(code: string): string {
+        // The interceptors are already installed globally, so the code will
+        // automatically have its document queries redirected to the shadow root.
+        // We wrap in an IIFE to provide a clean scope.
+        return `(function() {
+    ${code}
+})();`;
     }
 
-    private trackTimeout(fn: TimerHandler, delay?: number, ...args: unknown[]): number {
+    /**
+     * Creates tracked setTimeout that can be cleaned up.
+     */
+    trackTimeout(fn: TimerHandler, delay?: number, ...args: unknown[]): number {
         const id = window.setTimeout(() => {
             this.timeouts.delete(id);
-            if (typeof fn === 'function') {
-                fn(...args);
-            } else {
-                // eslint-disable-next-line no-eval
-                eval(fn);
+            this.installInterceptors(); // Re-install for async execution
+            try {
+                if (typeof fn === 'function') {
+                    fn(...args);
+                }
+            } finally {
+                this.removeInterceptors();
             }
         }, delay);
         this.timeouts.add(id);
         return id;
     }
 
-    private trackInterval(fn: TimerHandler, delay?: number, ...args: unknown[]): number {
+    /**
+     * Creates tracked setInterval that can be cleaned up.
+     */
+    trackInterval(fn: TimerHandler, delay?: number, ...args: unknown[]): number {
         const id = window.setInterval(() => {
-            if (typeof fn === 'function') {
-                fn(...args);
-            } else {
-                // eslint-disable-next-line no-eval
-                eval(fn);
+            this.installInterceptors(); // Re-install for async execution
+            try {
+                if (typeof fn === 'function') {
+                    fn(...args);
+                }
+            } finally {
+                this.removeInterceptors();
             }
         }, delay);
         this.intervals.add(id);
         return id;
     }
 
-    private clearTrackedTimeout(id: number): void {
-        this.timeouts.delete(id);
-        window.clearTimeout(id);
-    }
-
-    private clearTrackedInterval(id: number): void {
-        this.intervals.delete(id);
-        window.clearInterval(id);
-    }
-
     /**
-     * Executes a script element within the controlled scope.
-     * If the script has a src attribute, fetches and executes it.
-     * Otherwise, executes the inline script content.
-     */
-    async executeScript(scriptEl: HTMLScriptElement): Promise<void> {
-        let code: string;
-
-        if (scriptEl.src) {
-            try {
-                const response = await fetch(scriptEl.src);
-                if (!response.ok) {
-                    console.warn(`WidgetScriptExecutor: Failed to fetch script: ${scriptEl.src}`);
-                    return;
-                }
-                code = await response.text();
-            } catch (error) {
-                console.warn(`WidgetScriptExecutor: Error fetching script: ${scriptEl.src}`, error);
-                return;
-            }
-        } else {
-            code = scriptEl.textContent || '';
-        }
-
-        if (!code.trim()) {
-            return;
-        }
-
-        this.executeCode(code);
-    }
-
-    /**
-     * Executes JavaScript code within the controlled scope with proxied globals.
-     */
-    executeCode(code: string): void {
-        const context = {
-            document: this.documentProxy,
-            window: this.windowProxy,
-            console: console,
-            fetch: fetch.bind(window),
-            setTimeout: this.trackTimeout.bind(this),
-            setInterval: this.trackInterval.bind(this),
-            clearTimeout: this.clearTrackedTimeout.bind(this),
-            clearInterval: this.clearTrackedInterval.bind(this),
-            Promise: Promise,
-            JSON: JSON,
-            URL: URL,
-            URLSearchParams: URLSearchParams,
-            FormData: FormData,
-            Headers: Headers,
-            Request: Request,
-            Response: Response,
-            Event: Event,
-            CustomEvent: CustomEvent,
-            EventTarget: EventTarget,
-            Node: Node,
-            Element: Element,
-            HTMLElement: HTMLElement,
-            Text: Text,
-            DocumentFragment: DocumentFragment,
-            DOMParser: DOMParser,
-            XMLSerializer: XMLSerializer,
-            Array: Array,
-            Object: Object,
-            String: String,
-            Number: Number,
-            Boolean: Boolean,
-            Date: Date,
-            Math: Math,
-            RegExp: RegExp,
-            Error: Error,
-            Map: Map,
-            Set: Set,
-            WeakMap: WeakMap,
-            WeakSet: WeakSet,
-            Symbol: Symbol,
-            Proxy: Proxy,
-            Reflect: Reflect,
-            parseInt: parseInt,
-            parseFloat: parseFloat,
-            isNaN: isNaN,
-            isFinite: isFinite,
-            encodeURI: encodeURI,
-            decodeURI: decodeURI,
-            encodeURIComponent: encodeURIComponent,
-            decodeURIComponent: decodeURIComponent,
-            atob: atob,
-            btoa: btoa
-        };
-
-        try {
-            const fn = new Function(...Object.keys(context), `"use strict";\n${code}`);
-            fn.call(this.shadowRoot, ...Object.values(context));
-        } catch (error) {
-            console.error('WidgetScriptExecutor: Error executing script:', error);
-        }
-    }
-
-    /**
-     * Cleans up all tracked resources (timers, intervals, event listeners).
-     * Should be called when the widget is deactivated or removed.
+     * Cleans up all resources.
      */
     cleanup(): void {
+        // Remove interceptors
+        this.removeInterceptors();
+
         // Clear all tracked timeouts
         this.timeouts.forEach(id => window.clearTimeout(id));
         this.timeouts.clear();
@@ -283,14 +321,12 @@ export class WidgetScriptExecutor {
         this.intervals.forEach(id => window.clearInterval(id));
         this.intervals.clear();
 
-        // Remove all tracked event listeners
-        this.eventListeners.forEach(({target, type, listener}) => {
-            try {
-                target.removeEventListener(type, listener);
-            } catch (e) {
-                // Listener may already be removed
+        // Remove script elements
+        this.scriptElements.forEach(script => {
+            if (script.parentNode) {
+                script.parentNode.removeChild(script);
             }
         });
-        this.eventListeners.length = 0;
+        this.scriptElements.length = 0;
     }
 }

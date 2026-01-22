@@ -3,7 +3,12 @@ import {WidgetScriptExecutor} from './WidgetScriptExecutor';
 
 /**
  * Custom element that encapsulates external widget content in Shadow DOM,
- * providing CSS isolation and controlled script execution.
+ * providing CSS isolation and JavaScript isolation via document method interception.
+ *
+ * This implementation is CSP-compliant:
+ * - Uses the page's nonce for script execution (no 'unsafe-eval' required)
+ * - Scripts execute within the shadow root
+ * - Document query methods are intercepted to redirect to the shadow root
  *
  * Usage:
  *   const widget = document.createElement('external-widget') as ExternalWidgetElement;
@@ -29,7 +34,7 @@ export class ExternalWidgetElement extends HTMLElement {
 
     /**
      * Sets the widget content by parsing HTML, processing styles into Shadow DOM,
-     * and executing scripts in a controlled scope.
+     * and executing scripts with nonce-based CSP compliance.
      */
     async setWidgetContent(html: string): Promise<void> {
         // Clean up any previous content
@@ -42,12 +47,30 @@ export class ExternalWidgetElement extends HTMLElement {
         // Extract link elements for stylesheet processing
         const linkElements = Array.from(doc.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'));
 
-        // Extract script elements for later execution
-        const scriptElements = Array.from(doc.querySelectorAll<HTMLScriptElement>('script'));
+        // Extract only EXECUTABLE script elements (not data scripts like type="application/json")
+        // Data scripts need to stay in the shadow root so getElementById can find them
+        const allScripts = Array.from(doc.querySelectorAll<HTMLScriptElement>('script'));
+        const executableScripts: HTMLScriptElement[] = [];
+        const dataScripts: HTMLScriptElement[] = [];
 
-        // Remove link and script elements from the document before appending content
+        allScripts.forEach(script => {
+            const type = script.type?.toLowerCase() || '';
+            // Data scripts: application/json, application/ld+json, text/template, etc.
+            const isDataScript = type === 'application/json' ||
+                                 type === 'application/ld+json' ||
+                                 type === 'text/template' ||
+                                 type === 'text/html';
+            if (isDataScript) {
+                dataScripts.push(script);
+            } else {
+                executableScripts.push(script);
+            }
+        });
+
+        // Remove link elements and executable scripts from the document
+        // Keep data scripts in place so they end up in the shadow root
         linkElements.forEach(link => link.remove());
-        scriptElements.forEach(script => script.remove());
+        executableScripts.forEach(script => script.remove());
 
         // Clear shadow root
         while (this.shadowRoot.firstChild) {
@@ -67,18 +90,18 @@ export class ExternalWidgetElement extends HTMLElement {
             style.remove();
         });
 
-        // Append the remaining content (body content)
+        // Append the remaining content (body content, including data scripts)
         const contentFragment = document.createDocumentFragment();
         Array.from(doc.body.childNodes).forEach(node => {
             contentFragment.appendChild(document.importNode(node, true));
         });
         this.shadowRoot.appendChild(contentFragment);
 
-        // Create script executor and execute scripts
+        // Create script executor and execute only executable scripts
         this.scriptExecutor = new WidgetScriptExecutor(this.shadowRoot);
 
         // Execute scripts in order (respecting dependencies)
-        for (const scriptEl of scriptElements) {
+        for (const scriptEl of executableScripts) {
             await this.scriptExecutor.executeScript(scriptEl);
         }
     }

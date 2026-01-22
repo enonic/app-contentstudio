@@ -49,12 +49,16 @@ export class WidgetItemView
         fetch(fullUrl)
             .then(response => response.text())
             .then((html: string) => {
+                // Clean up previous widget element completely
+                if (this.widgetElement) {
+                    this.widgetElement.cleanup();
+                    this.widgetElement = null;
+                }
                 this.removeChildren();
 
-                if (!this.widgetElement) {
-                    this.widgetElement = document.createElement('external-widget') as ExternalWidgetElement;
-                    this.getHTMLElement().appendChild(this.widgetElement);
-                }
+                // Always create a fresh widget element to ensure scripts re-execute
+                this.widgetElement = document.createElement('external-widget') as ExternalWidgetElement;
+                this.getHTMLElement().appendChild(this.widgetElement);
 
                 return this.widgetElement.setWidgetContent(html);
             })
