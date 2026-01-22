@@ -427,24 +427,38 @@ const DATA_BATCH_SIZE = 20;
 export async function fetchVisibleContentData(ids: string[]): Promise<void> {
     const state = $treeState.get();
 
-    // Filter to only IDs that need loading:
+    // Filter to IDs that need tree node update:
     // - Node exists in tree
     // - Node has no data (data === null)
     // - Node is not already loading
-    const missingIds = ids.filter((id) => {
+    const idsNeedingUpdate = ids.filter((id) => {
         const node = state.nodes.get(id);
         return node && node.data === null && !state.loadingDataIds.has(id);
     });
 
-    if (missingIds.length === 0) return;
+    if (idsNeedingUpdate.length === 0) return;
 
-    // Mark as loading
-    setNodesLoadingData(missingIds, true);
+    // Check content cache - separate cached vs uncached
+    const cachedContents = getContents(idsNeedingUpdate);
+    const cachedIds = new Set(cachedContents.map((c) => c.getId()));
+
+    // Update tree nodes with cached content immediately (no fetch needed)
+    if (cachedContents.length > 0) {
+        updateTreeNodesWithData(cachedContents);
+    }
+
+    // Filter to IDs not in cache
+    const uncachedIds = idsNeedingUpdate.filter((id) => !cachedIds.has(id));
+
+    if (uncachedIds.length === 0) return;
+
+    // Mark uncached as loading
+    setNodesLoadingData(uncachedIds, true);
 
     try {
         // Fetch in batches to avoid overwhelming the server
-        for (let i = 0; i < missingIds.length; i += DATA_BATCH_SIZE) {
-            const batch = missingIds.slice(i, i + DATA_BATCH_SIZE);
+        for (let i = 0; i < uncachedIds.length; i += DATA_BATCH_SIZE) {
+            const batch = uncachedIds.slice(i, i + DATA_BATCH_SIZE);
             const contentIds = batch.map((id) => new ContentId(id));
             const contents = await fetcher.fetchAndCompareStatus(contentIds);
 
@@ -455,7 +469,7 @@ export async function fetchVisibleContentData(ids: string[]): Promise<void> {
             updateTreeNodesWithData(contents);
         }
     } finally {
-        setNodesLoadingData(missingIds, false);
+        setNodesLoadingData(uncachedIds, false);
     }
 }
 
@@ -633,24 +647,44 @@ export async function fetchMoreFilteredResults(
 export async function fetchVisibleFilterContentData(ids: string[]): Promise<void> {
     const state = $filterTreeState.get();
 
-    // Filter to only IDs that need loading:
+    // Filter to IDs that need tree node update:
     // - Node exists in filter tree
     // - Node has no data (data === null)
     // - Node is not already loading
-    const missingIds = ids.filter((id) => {
+    const idsNeedingUpdate = ids.filter((id) => {
         const node = state.nodes.get(id);
         return node && node.data === null && !state.loadingDataIds.has(id);
     });
 
-    if (missingIds.length === 0) return;
+    if (idsNeedingUpdate.length === 0) return;
 
-    // Mark as loading
-    setFilterNodesLoadingData(missingIds, true);
+    // Check content cache - separate cached vs uncached
+    const cachedContents = getContents(idsNeedingUpdate);
+    const cachedIds = new Set(cachedContents.map((c) => c.getId()));
+
+    // Update filter tree nodes with cached content immediately (no fetch needed)
+    if (cachedContents.length > 0) {
+        const updates: CreateNodeOptions<ContentTreeNodeData>[] = cachedContents.map((content) => ({
+            id: content.getId(),
+            data: toTreeNodeData(content),
+            hasChildren: content.hasChildren(),
+        }));
+
+        addFilterNodes(updates);
+    }
+
+    // Filter to IDs not in cache
+    const uncachedIds = idsNeedingUpdate.filter((id) => !cachedIds.has(id));
+
+    if (uncachedIds.length === 0) return;
+
+    // Mark uncached as loading
+    setFilterNodesLoadingData(uncachedIds, true);
 
     try {
         // Fetch in batches
-        for (let i = 0; i < missingIds.length; i += DATA_BATCH_SIZE) {
-            const batch = missingIds.slice(i, i + DATA_BATCH_SIZE);
+        for (let i = 0; i < uncachedIds.length; i += DATA_BATCH_SIZE) {
+            const batch = uncachedIds.slice(i, i + DATA_BATCH_SIZE);
             const contentIds = batch.map((id) => new ContentId(id));
             const contents = await fetcher.fetchAndCompareStatus(contentIds);
 
@@ -667,7 +701,7 @@ export async function fetchVisibleFilterContentData(ids: string[]): Promise<void
             addFilterNodes(updates);
         }
     } finally {
-        setFilterNodesLoadingData(missingIds, false);
+        setFilterNodesLoadingData(uncachedIds, false);
     }
 }
 
