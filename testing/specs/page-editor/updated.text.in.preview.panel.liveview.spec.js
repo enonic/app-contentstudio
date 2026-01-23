@@ -8,10 +8,8 @@ const contentBuilder = require("../../libs/content.builder");
 const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
-const TextComponentCke = require('../../page_objects/components/text.component');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
-const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
 const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe('updated.text.in.preview.panel.liveview.spec - verify that text is updated in preview panel in Live view', function () {
@@ -41,7 +39,7 @@ describe('updated.text.in.preview.panel.liveview.spec - verify that text is upda
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Open the existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
@@ -51,8 +49,9 @@ describe('updated.text.in.preview.panel.liveview.spec - verify that text is upda
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
             // 4. Insert a text in the text-component:
-            await textComponentCke.typeTextInCkeEditor(TEST_TEXT_1);
-            await contentWizard.switchToMainFrame();
+            await textComponentInspectionPanel.waitForOpened();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.typeTextInEditor(TEST_TEXT_1);
             // 5. Save the content:
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -67,7 +66,9 @@ describe('updated.text.in.preview.panel.liveview.spec - verify that text is upda
             // 9. Update the text in text-component:
             await pageComponentView.openMenu(TEST_TEXT_1);
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.EDIT]);
-            await textComponentCke.typeTextInCkeEditor(TEST_TEXT_2);
+            await textComponentInspectionPanel.waitForOpened();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.setTextInEditor(TEST_TEXT_2);
             // 10. Save the site:
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('issue_notification_msg_2');
@@ -85,7 +86,6 @@ describe('updated.text.in.preview.panel.liveview.spec - verify that text is upda
     it("GIVEN existing site(with a selected controller) is highlighted WHEN the site reselected in the second time THEN Preview button should be enabled",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            let textComponentCke = new TextComponentCke();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Click on the existing site(highlight it ):
             await studioUtils.findAndSelectItem(SITE.displayName);
@@ -98,33 +98,6 @@ describe('updated.text.in.preview.panel.liveview.spec - verify that text is upda
             await contentBrowsePanel.clickOnRowByName(SITE.displayName);
             // 5. Verify that Preview button is enabled:
             await contentItemPreviewPanel.waitForPreviewButtonEnabled();
-        });
-
-    it("WHEN 'Edit' menu item has been clicked for a text component THEN 'close edit mode' icon gets visible in LiveEdit",
-        async () => {
-            let contentWizard = new ContentWizard();
-            let liveFormPanel = new LiveFormPanel();
-            let pageComponentView = new PageComponentView();
-            let textComponentInspectionPanel = new TextComponentInspectionPanel();
-            // 1. Open the existing site:
-            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            await contentWizard.clickOnMinimizeLiveEditToggler();
-            // 2. Click on the text-component:
-            await pageComponentView.clickOnComponent(TEST_TEXT_2);
-            await textComponentInspectionPanel.waitForOpened();
-            // 3. Select 'Edit' menu item
-            await pageComponentView.openMenu(TEST_TEXT_2);
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.EDIT]);
-            // 4. Verify that close edit mode button is displayed:
-            await contentWizard.switchToLiveEditFrame();
-            await liveFormPanel.waitForCloseEditModeButtonDisplayed();
-            // 5. Click on 'Close edit mode' button:
-            await liveFormPanel.clickOnCloseEditModeButton();
-            await liveFormPanel.waitForCloseEditModeButtonNotDisplayed();
-            await contentWizard.switchToMainFrame();
-            // 6. Verify that 'Save' and 'Apply' button remain disabled
-            await contentWizard.waitForSaveButtonDisabled();
-            await textComponentInspectionPanel.waitForApplyButtonDisabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

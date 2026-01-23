@@ -67,6 +67,13 @@ module.exports = {
             return this.getBrowser().execute(script2);
         })
     },
+    setTextInCKE (id, text) {
+        let script = `CKEDITOR.instances['${id}'].setData('${text}')`;
+        return this.getBrowser().execute(script).then(() => {
+            let script2 = `CKEDITOR.instances['${id}'].fire('change')`;
+            return this.getBrowser().execute(script2);
+        })
+    },
     async waitForElementDisplayed(selector, ms) {
         let element = await this.getBrowser().$(selector);
         return await element.waitForDisplayed(ms);

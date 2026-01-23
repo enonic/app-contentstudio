@@ -9,13 +9,13 @@ const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
-const TextComponentCke = require('../../page_objects/components/text.component');
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const PartInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/part.inspection.panel');
 const InsertablesPanel = require('../../page_objects/wizardpanel/liveform/insertables.panel');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const WizardContextWindow = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -224,7 +224,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             // 1. Expand the site and add a template:
             let templateName = contentBuilder.generateRandomName('template');
             TEMPLATE = contentBuilder.buildPageTemplate(templateName, 'Site', CONTROLLER_NAME);
@@ -241,7 +241,9 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await pageComponentView.openMenu('main');
             // 4. Insert Text Component with test text and save it:
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
-            await textComponentCke.typeTextInCkeEditor('test text');
+            await textComponentInspectionPanel.waitForOpened();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.typeTextInEditor('test text');
             await contentWizard.waitAndClickOnSave();
             // 5. Open text-component context menu:
             await pageComponentView.openMenu('test text');

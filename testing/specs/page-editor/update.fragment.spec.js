@@ -7,11 +7,11 @@ const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-const TextComponentCke = require('../../page_objects/components/text.component');
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe('Test for updating text in fragment', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -27,7 +27,7 @@ describe('Test for updating text in fragment', function () {
     it(`GIVEN new fragment has been saved WHEN the text has been updated THEN text in the site's Live Form should be updated as well`,
         async () => {
             let contentWizard = new ContentWizard();
-            let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let pageComponentView = new PageComponentView();
             let liveFormPanel = new LiveFormPanel();
             let siteFormPanel = new SiteFormPanel();
@@ -45,7 +45,9 @@ describe('Test for updating text in fragment', function () {
             // 3. Insert new text-component
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
-            await textComponentCke.insertTextInCkeEditor(GENERATED_TEXT_1);
+            await textComponentInspectionPanel.waitForOpened();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.typeTextInEditor(GENERATED_TEXT_1);
             // 4.  Do not save the site, but save new fragment from the just inserted text:
             await pageComponentView.openMenu(GENERATED_TEXT_1);
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
@@ -55,9 +57,10 @@ describe('Test for updating text in fragment', function () {
             // 6. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu(GENERATED_TEXT_1);
-            // 7. Update the text in the fragment
+            // 7. Update the text in the fragment wizard
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.EDIT]);
-            await textComponentCke.insertTextInCkeEditorSection(GENERATED_TEXT_2);
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.setTextInEditor(GENERATED_TEXT_2);
             // 8. Save the fragment:
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('fragment_txt_updated');
@@ -101,7 +104,7 @@ describe('Test for updating text in fragment', function () {
             await contentWizard.switchToLiveEditFrame();
             // 2. Verify that expected text is present in the Live Edit:
             let actualText1 = await liveFormPanel.getTextInTextComponent();
-            assert.equal(actualText1, GENERATED_TEXT_2, 'Fragment wizard - Expected text should be present in Live Edit')
+            assert.equal(actualText1[0], GENERATED_TEXT_2, 'Fragment wizard - Expected text should be present in Live Edit')
             await contentWizard.switchToMainFrame();
             // 3. Expand the context menu in the Wizard Step form:
             await pageComponentsWizardStepForm.openMenu(GENERATED_TEXT_2);
@@ -109,7 +112,7 @@ describe('Test for updating text in fragment', function () {
             await pageComponentsWizardStepForm.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.RESET);
             await studioUtils.saveScreenshot('fragment_txt_reset');
             await contentWizard.switchToLiveEditFrame();
-            // 5. Verify that the text component is cleared
+            // 5. Verify that the text component is cleared in the fragment wizard
             await liveFormPanel.waitForTextComponentEmpty(0);
             await contentWizard.switchToMainFrame();
             await contentWizard.waitForSaveButtonEnabled();

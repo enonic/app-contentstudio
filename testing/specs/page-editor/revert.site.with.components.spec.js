@@ -47,12 +47,6 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             await textComponentCke.switchToLiveEditFrame();
             // Verify that text component in 'edit' mode is present:
             await liveFormPanel.waitForEditableTextComponentDisplayed(TEXT);
-            // 'close' edit  mode button should be displayed:
-            await liveFormPanel.waitForCloseEditModeButtonDisplayed();
-            // Click on 'close edit mode' button:
-            await liveFormPanel.clickOnCloseEditModeButton();
-            // Verify that the close-icon  gets not visible:
-            await liveFormPanel.waitForCloseEditModeButtonNotDisplayed();
         });
 
     it(`GIVEN existing site with text component is opened WHEN do right click on the text-component THEN component's context menu should appear`,
