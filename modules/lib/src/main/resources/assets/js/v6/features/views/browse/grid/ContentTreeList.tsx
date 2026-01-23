@@ -21,6 +21,7 @@ import {$activeFlatNodes, $isFilterActive} from '../../../store/active-tree.stor
 import {$activeProject} from '../../../store/projects.store';
 import {$activeId, $selection, clearSelection, setActive, setSelection} from '../../../store/contentTreeSelection.store';
 import {
+    $filterLoadingState,
     collapseFilterNode,
     expandFilterNode,
     filterNodeNeedsChildrenLoad,
@@ -292,15 +293,8 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
         prevVisibleSelectionRef.current = visibleSelection;
     }
 
-    // Handle end of list reached - load more filter results if available
-    const handleEndReached = useCallback(() => {
-        if (isFilterActive && filterRootHasMoreChildren()) {
-            const currentCount = flatNodes.filter((n) => n.nodeType === 'node').length;
-            fetchMoreFilteredResults(currentCount);
-        }
-    }, [isFilterActive, flatNodes]);
-
     // Handle viewport change - trigger data loading for newly visible items
+    // Also trigger pagination if loading node is visible (handles no-scroll case)
     const handleRangeChange = useCallback(
         (range: ListRange) => {
             const now = Date.now();
@@ -318,6 +312,19 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
             lastScrollPosRef.current = range.startIndex;
 
             loadVisibleContentData();
+
+            // Check for filter pagination: if loading node is visible and filter has more children
+            // This handles the case where endReached doesn't fire because list fits on screen
+            // Check loading state to prevent duplicate fetches
+            const isFilterLoading = $filterLoadingState.get() === 'loading';
+            if ($isFilterActive.get() && filterRootHasMoreChildren() && !isFilterLoading) {
+                const currentFlatNodes = $activeFlatNodes.get();
+                const loadMoreIndex = currentFlatNodes.findIndex((n) => n.id === '__filter_load_more__');
+                if (loadMoreIndex >= 0 && loadMoreIndex <= range.endIndex) {
+                    const currentCount = currentFlatNodes.filter((n) => n.nodeType === 'node').length;
+                    fetchMoreFilteredResults(currentCount);
+                }
+            }
         },
         [loadVisibleContentData]
     );
@@ -349,7 +356,6 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
                             className={cn('h-full px-5 py-2.5 bg-surface-neutral', containerClassName)}
                             components={virtuosoComponents}
                             rangeChanged={handleRangeChange}
-                            endReached={handleEndReached}
                             {...restContainerProps}
                             itemContent={(index, node) => {
                                 const {id, level, isExpanded, hasChildren, nodeType, data} = node;
