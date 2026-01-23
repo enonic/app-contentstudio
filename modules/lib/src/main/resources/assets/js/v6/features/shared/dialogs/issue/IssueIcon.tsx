@@ -7,17 +7,19 @@ import type {Issue} from '../../../../../app/issue/Issue';
 
 export type IssueIconProps = {
     issue?: Issue;
+    type?: IssueType;
     className?: string;
 };
 
 const ISSUE_ICON_NAME = 'IssueIcon';
 
-export const IssueIcon = ({issue, className}: IssueIconProps): ReactElement | null => {
-    if (!issue) {
+export const IssueIcon = ({issue, type, className}: IssueIconProps): ReactElement | null => {
+    const resolvedType = issue?.getType() ?? type;
+    if (resolvedType === undefined) {
         return null;
     }
 
-    const isTask = issue.getType() === IssueType.STANDARD;
+    const isTask = resolvedType === IssueType.STANDARD;
     const Icon = isTask ? Hash : Globe;
 
     return (

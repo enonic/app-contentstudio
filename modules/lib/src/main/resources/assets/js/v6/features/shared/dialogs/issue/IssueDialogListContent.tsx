@@ -3,7 +3,6 @@ import {useStore} from '@nanostores/preact';
 import {Plus} from 'lucide-react';
 import {useMemo, type ReactElement} from 'react';
 
-import {IssueDialogsManager} from '../../../../../app/issue/IssueDialogsManager';
 import {useI18n} from '../../../hooks/useI18n';
 import {
     $issueDialog,
@@ -13,6 +12,7 @@ import {
     setIssueDialogListFilter,
     setIssueDialogListTab,
 } from '../../../store/dialogs/issueDialog.store';
+import {openNewIssueDialog} from '../../../store/dialogs/newIssueDialog.store';
 import {IssueList} from './IssueList';
 import {IssueDialogSelector} from './IssueDialogSelector';
 
@@ -28,8 +28,26 @@ const FILTER_ORDER: IssueDialogFilter[] = [
     'publishRequests',
     'issues',
 ];
+const FILTER_VALUES = new Set<string>(FILTER_ORDER);
+
+const isIssueDialogFilter = (value: string): value is IssueDialogFilter => {
+    return FILTER_VALUES.has(value);
+};
+
+const ISSUE_DIALOG_TABS: IssueDialogTab[] = ['open', 'closed'];
+const TAB_VALUES = new Set<string>(ISSUE_DIALOG_TABS);
+
+const isIssueDialogTab = (value: string): value is IssueDialogTab => {
+    return TAB_VALUES.has(value);
+};
 
 export const IssueDialogListContent = (): ReactElement => {
+    const {filter, tab, totals, loading} = useStore($issueDialog, {
+        keys: ['filter', 'tab', 'totals', 'loading'],
+    });
+    const tabCounts = useStore($issueDialogListTabCounts);
+    const issues = useStore($issueDialogListFilteredIssues);
+
     const title = useI18n('field.issues');
     const filterLabel = useI18n('dialog.issue.filter.label');
     const openLabel = useI18n('field.issue.status.open');
@@ -41,12 +59,6 @@ export const IssueDialogListContent = (): ReactElement => {
     const createdByMeLabel = useI18n('field.createdByMe');
     const publishRequestsLabel = useI18n('field.publishRequests');
     const issuesLabel = useI18n('field.issues');
-
-    const {filter, tab, totals, loading} = useStore($issueDialog, {
-        keys: ['filter', 'tab', 'totals', 'loading'],
-    });
-    const tabCounts = useStore($issueDialogListTabCounts);
-    const issues = useStore($issueDialogListFilteredIssues);
 
     const filterLabels = useMemo<Record<IssueDialogFilter, string>>(() => ({
         all: allLabel,
@@ -88,7 +100,7 @@ export const IssueDialogListContent = (): ReactElement => {
     };
 
     const handleCreateIssue = (): void => {
-        IssueDialogsManager.get().openCreateDialog();
+        openNewIssueDialog();
     };
 
     return (
@@ -96,9 +108,17 @@ export const IssueDialogListContent = (): ReactElement => {
             data-component={ISSUE_DIALOG_LIST_CONTENT_NAME}
             className='sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-236 gap-7.5 px-5'
         >
-            <Dialog.DefaultHeader className='px-5' title={title} withClose />
+            <Dialog.DefaultHeader className='px-5' title={title} withClose/>
             <Dialog.Body>
-                <Tab.Root value={tab} onValueChange={(next) => setIssueDialogListTab(next as IssueDialogTab)}>
+                <Tab.Root
+                    value={tab}
+                    onValueChange={(next) => {
+                        if (!isIssueDialogTab(next)) {
+                            return;
+                        }
+                        setIssueDialogListTab(next);
+                    }}
+                >
                     <div className='grid min-h-0 grid-cols-2 gap-x-15 gap-y-7.5 items-end px-2.5'>
                         <div className='flex flex-col gap-2.5 px-2.5'>
                             <span className='text-md font-semibold text-subtle'>{filterLabel}</span>
@@ -106,7 +126,12 @@ export const IssueDialogListContent = (): ReactElement => {
                                 value={filter}
                                 options={filterOptions}
                                 placeholder={filterOptions[0]?.label}
-                                onValueChange={(next) => setIssueDialogListFilter(next as IssueDialogFilter)}
+                                onValueChange={(next) => {
+                                    if (!isIssueDialogFilter(next)) {
+                                        return;
+                                    }
+                                    setIssueDialogListFilter(next);
+                                }}
                             />
                         </div>
 

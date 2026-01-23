@@ -2,8 +2,10 @@ import {Dialog} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {type ReactElement} from 'react';
 import {closeIssueDialog, $issueDialog} from '../../../store/dialogs/issueDialog.store';
+import {resetNewIssueDialogContext} from '../../../store/dialogs/newIssueDialog.store';
 import {IssueDialogDetailsContent} from './IssueDialogDetailsContent';
 import {IssueDialogListContent} from './IssueDialogListContent';
+import {NewIssueDialogContent} from './NewIssueDialogContent';
 
 const ISSUE_DIALOG_NAME = 'IssueDialog';
 
@@ -13,6 +15,7 @@ export const IssueDialog = (): ReactElement => {
     const handleOpenChange = (next: boolean) => {
         if (!next) {
             closeIssueDialog();
+            resetNewIssueDialogContext();
         }
     };
 
@@ -22,6 +25,7 @@ export const IssueDialog = (): ReactElement => {
                 <Dialog.Overlay/>
                 {view === 'list' && <IssueDialogListContent/>}
                 {view === 'details' && <IssueDialogDetailsContent/>}
+                {view === 'new-issue' && <NewIssueDialogContent/>}
             </Dialog.Portal>
         </Dialog.Root>
     );

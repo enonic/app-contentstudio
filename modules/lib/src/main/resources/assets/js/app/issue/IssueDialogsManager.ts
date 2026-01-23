@@ -3,16 +3,18 @@ import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentPublishDialog} from '../publish/ContentPublishDialog';
 import {RequestContentPublishDialog} from '../publish/RequestContentPublishDialog';
-import {openIssueDialog, openIssueDialogDetails} from '../../v6/features/store/dialogs/issueDialog.store';
+import {
+    openIssueDialog,
+    openIssueDialogDetails,
+    setIssueDialogListFilter,
+} from '../../v6/features/store/dialogs/issueDialog.store';
+import {openNewIssueDialog} from '../../v6/features/store/dialogs/newIssueDialog.store';
 import {IssueServerEventsHandler} from './event/IssueServerEventsHandler';
 import {Issue} from './Issue';
 import {GetIssueRequest} from './resource/GetIssueRequest';
 import {CreateIssueDialog} from './view/CreateIssueDialog';
 import {IssueDetailsDialog} from './view/IssueDetailsDialog';
 import {IssueListDialog} from './view/IssueListDialog';
-
-// Toggle to compare legacy dialogs vs v6 IssueDialog.
-const USE_V6_ISSUE_DIALOG = true;
 
 export class IssueDialogsManager {
 
@@ -172,48 +174,20 @@ export class IssueDialogsManager {
     }
 
     openDetailsDialogWithListDialog(issue: Issue) {
-        if (USE_V6_ISSUE_DIALOG) {
-            openIssueDialogDetails(issue.getId());
-            return;
-        }
-
-        if (!this.listDialog.isOpen()) {
-            this.listDialog.open();
-        }
-
-        this.detailsDialog.showBackButton();
-        this.detailsDialog.setIssue(issue).open();
+        openIssueDialogDetails(issue.getId());
     }
 
     openDetailsDialog(issue: Issue) {
-        if (USE_V6_ISSUE_DIALOG) {
-            openIssueDialogDetails(issue.getId());
-            return;
-        }
-
-        this.detailsDialog.hideBackButton();
-        this.detailsDialog.setIssue(issue).open();
+        openIssueDialogDetails(issue.getId());
     }
 
     openListDialog(assignedToMe: boolean = false) {
-        if (USE_V6_ISSUE_DIALOG) {
-            openIssueDialog();
-            return;
-        }
-
-        this.listDialog.open(assignedToMe);
+        openIssueDialog();
+        setIssueDialogListFilter(assignedToMe ? 'assignedToMe' : 'all');
     }
 
     openCreateDialog(summaries?: ContentSummaryAndCompareStatus[]) {
-        this.createDialog.unlockPublishItems();
-        if (summaries) {
-            this.createDialog.setItems(summaries, true);
-        } else {
-            this.createDialog.reset();
-        }
-        this.createDialog
-            .forceResetOnClose(true)
-            .open();
+        openNewIssueDialog(summaries);
     }
 
     openCreateRequestDialog(summaries?: ContentSummaryAndCompareStatus[], isIncludeChildren?: boolean) {
