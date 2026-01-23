@@ -1171,6 +1171,10 @@ export class ContentWizardPanel
         return this.getPersistedItem() && id && this.getPersistedItem().getContentId().equals(id);
     }
 
+    private isCurrentTemplateId(id: ContentId): boolean {
+        return this.getPersistedItem() && id && this.getPersistedItem().getPage()?.getTemplate()?.toString() === id.toString();
+    }
+
     private persistedItemPathIsDescendantOrEqual(path: ContentPath): boolean {
         return this.getPersistedItem().getPath().isDescendantOf(path) || this.getPersistedItem().getPath().equals(path);
     }
@@ -1372,9 +1376,16 @@ export class ContentWizardPanel
         const serverEvents: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
         const deleteHandler = (items: ContentServerChangeItem[]) => {
-            if (items.some((item: ContentServerChangeItem) => item.getContentId().equals(this.getPersistedItem()?.getContentId()))) {
-                this.contentDeleted = true;
-                this.close();
+
+            for (const item of items) {
+                if (this.isCurrentContentId(item.getContentId())) {
+                    this.contentDeleted = true;
+                    this.close();
+                    break;
+                } else if (this.isCurrentTemplateId(item.getContentId())) {
+                    // if template is deleted, just reload the page
+                    this.debouncedEditorReload(false, true, false);
+                }
             }
         };
 
@@ -1665,10 +1676,8 @@ export class ContentWizardPanel
     }
 
     private handleTemplateUpdate(template: ContentSummaryAndCompareStatus): void {
-        const isCurrentTemplateUpdated: boolean =
-            this.getPersistedItem().getPage()?.getTemplate()?.toString() === template.getContentId().toString();
 
-        if (isCurrentTemplateUpdated) {
+        if (this.isCurrentTemplateId(template.getContentId())) {
             this.debouncedEditorReload(false, true, true);
             return;
         }
