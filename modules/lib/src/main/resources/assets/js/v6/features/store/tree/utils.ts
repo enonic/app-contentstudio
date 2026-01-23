@@ -2,7 +2,8 @@ import type {FlatNode} from '../../lib/tree-store';
 import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import type {ContentTreeNodeData} from './types';
 import type {ContentData} from '../../views/browse/grid/ContentData';
-import {calcWorkflowStateStatus, resolveDisplayName} from '../../utils/cms/content/workflow';
+import {calcWorkflowStateStatus} from '../../utils/cms/content/workflow';
+import {resolveDisplayName} from '../../utils/cms/content/prettify';
 
 /**
  * Converts a tree FlatNode to ContentData format for rendering.

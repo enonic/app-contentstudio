@@ -1,6 +1,7 @@
 import {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {ContentData} from '../../../views/browse/grid/ContentData';
-import {calcWorkflowStateStatus, resolveDisplayName, resolveSubName} from './workflow';
+import {calcWorkflowStateStatus} from './workflow';
+import {resolveDisplayName, resolveSubName} from './prettify';
 
 
 export function toContentData(item: ContentSummaryAndCompareStatus): ContentData {

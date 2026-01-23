@@ -22,7 +22,8 @@ import {
     type ContentTreeNodeData,
 } from '../store/tree-list.store';
 import type {CreateNodeOptions} from '../lib/tree-store';
-import {calcWorkflowStateStatus, resolveDisplayName, resolveSubName} from '../utils/cms/content/workflow';
+import {calcWorkflowStateStatus} from '../utils/cms/content/workflow';
+import {resolveDisplayName, resolveSubName} from '../utils/cms/content/prettify';
 
 //
 // * Constants
