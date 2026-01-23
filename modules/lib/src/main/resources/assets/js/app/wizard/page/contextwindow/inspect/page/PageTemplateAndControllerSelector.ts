@@ -8,7 +8,7 @@ import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {GetPageTemplatesByCanRenderRequest} from './GetPageTemplatesByCanRenderRequest';
 import {PageTemplateLoader} from './PageTemplateLoader';
 import {ContentServerEventsHandler} from '../../../../../event/ContentServerEventsHandler';
-import {PageTemplate} from '../../../../../content/PageTemplate';
+import {PageTemplate, PageTemplateBuilder} from '../../../../../content/PageTemplate';
 import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
 import {PageTemplateAndControllerOption, PageTemplateAndSelectorViewer} from './PageTemplateAndSelectorViewer';
 import {PageControllerOption} from './PageControllerOption';
@@ -28,6 +28,7 @@ import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/Fi
 import {PageOptionsList} from './PageOptionsList';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 
 export class PageTemplateAndControllerSelector
     extends FilterableListBoxWrapper<PageTemplateAndControllerOption> {
@@ -203,8 +204,9 @@ export class PageTemplateAndControllerSelector
     }
 
     private static isDescendantTemplate(summary: ContentSummaryAndCompareStatus, liveEditModel: LiveEditModel): boolean {
-        return summary.getType().isPageTemplate() && liveEditModel &&
-               summary.getPath().isDescendantOf(liveEditModel.getSiteModel().getSite().getPath());
+        // Beware of empty items created for missing options
+        return summary.getType()?.isPageTemplate() && liveEditModel &&
+               summary.getPath()?.isDescendantOf(liveEditModel.getSiteModel().getSite().getPath());
     }
 
     private reload(): Q.Promise<number> {
@@ -294,18 +296,32 @@ export class PageTemplateAndControllerSelector
                     // This can happen if the controller was deleted or the app stopped or removed from the site
                     const ctrKey = currentPageState.getController();
                     const missingControllerOption = new PageControllerOption(
-                        new DescriptorBuilder().setKey(ctrKey)
+                        new DescriptorBuilder()
+                            .setKey(ctrKey)
                             .setIconCls(PageComponentType.get().getIconCls())
-                            .setDisplayName(ctrKey.getName().toString())
+                            .setDisplayName(i18n('field.page.controller.invalid'))
                             .build()
                     );
                     this.listBox.addItems(missingControllerOption);
-                    this.selectOptionByValue(key);
                 }
                 this.selectOptionByValue(key);
             }
         } else if (currentPageState?.hasTemplate()) {
-            this.selectOptionByValue(currentPageState.getTemplate().toString());
+            const key = currentPageState.getTemplate();
+            const existingItem = this.getItemById(key?.toString());
+            if (!existingItem) {
+                // The template set in the page state is not in the list of available templates.
+                // This can happen if the template was deleted
+                const missingTemplateOption = new PageTemplateOption(
+                    new PageTemplateBuilder()
+                        .setData(new PropertyTree())
+                        .setContentId(key)
+                        .setDisplayName(i18n('field.page.template.invalid'))
+                        .build() as PageTemplate
+                );
+                this.listBox.addItems(missingTemplateOption);
+            }
+            this.selectOptionByValue(key?.toString());
         } else if (this.autoOption) {
             this.selectOptionByValue(this.autoOption.getKey());
         }

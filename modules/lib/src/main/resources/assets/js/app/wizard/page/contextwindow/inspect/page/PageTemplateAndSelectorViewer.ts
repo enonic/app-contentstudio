@@ -32,8 +32,18 @@ export class PageTemplateAndSelectorViewer
     resolveSubName(object: PageTemplateAndControllerOption, relativePath: boolean = false): string {
         if (!object.isAuto()) {
             if (ObjectHelper.iFrameSafeInstanceOf(object, PageTemplateOption)) {
-                return (object as PageTemplateOption).getData().getPath().toString();
+                const path = (object as PageTemplateOption).getData().getPath();
+                if (!path) {
+                    // for missing page templates path can be null so we show the key
+                    return object.getKey();
+                }
+                return path.toString();
             } else {
+                const name = (object as PageControllerOption).getData()?.getName();
+                if (!name) {
+                    // for missing controllers name can be null so we show the key
+                    return object.getKey();
+                }
                 return (object as PageControllerOption).getData().getDescription() || `<${i18n('text.noDescription')}>`;
             }
         }
