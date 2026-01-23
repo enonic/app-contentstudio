@@ -14,7 +14,6 @@ import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/Selected
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Reference} from '@enonic/lib-admin-ui/util/Reference';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import Q from 'q';
 import {MovedContentItem} from '../../browse/MovedContentItem';
 import {CompareStatus} from '../../content/CompareStatus';
@@ -59,6 +58,10 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
         super(config, 'content-selector');
 
         this.initEventsListeners();
+    }
+
+    createDefaultValue(rawValue: unknown): Value {
+        return this.getValueType().newNullValue();
     }
 
     protected initEventsListeners() {
@@ -163,13 +166,9 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
     }
 
     protected readInputConfig(): void {
-        const inputConfig: Record<string, Record<string, string>[]> = this.context.inputConfig;
-        const isTreeModeConfig = inputConfig['treeMode'] ? inputConfig['treeMode'][0] : {};
-        this.treeMode = !StringHelper.isBlank(isTreeModeConfig['value']) ? isTreeModeConfig['value'].toLowerCase() === 'true' : false;
-
-        const hideToggleIconConfig = inputConfig['hideToggleIcon'] ? inputConfig['hideToggleIcon'][0] : {};
-        this.hideToggleIcon =
-            !StringHelper.isBlank(hideToggleIconConfig['value']) ? hideToggleIconConfig['value'].toLowerCase() === 'true' : false;
+        const inputConfig: Record<string, Record<string, unknown>[]> = this.context.inputConfig;
+        this.treeMode = inputConfig['treeMode']?.[0]?.value as boolean || false;
+        this.hideToggleIcon = inputConfig['hideToggleIcon']?.[0]?.value as boolean || false;
 
         super.readInputConfig();
     }

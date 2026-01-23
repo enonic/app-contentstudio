@@ -20,20 +20,20 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 
-import com.enonic.xp.app.ApplicationKey;
 import com.enonic.app.contentstudio.json.content.page.PageDescriptorJson;
 import com.enonic.app.contentstudio.json.content.page.PageDescriptorListJson;
 import com.enonic.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.app.contentstudio.rest.resource.content.page.part.GetByApplicationsParams;
 import com.enonic.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
-import com.enonic.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.app.contentstudio.rest.resource.schema.mixin.CmsFormFragmentResolver;
+import com.enonic.xp.app.ApplicationKey;
+import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.jaxrs.JaxRsComponent;
-import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.page.PageDescriptor;
 import com.enonic.xp.page.PageDescriptorService;
 import com.enonic.xp.page.PageDescriptors;
-import com.enonic.xp.schema.mixin.MixinService;
+import com.enonic.xp.schema.content.CmsFormFragmentService;
 import com.enonic.xp.security.RoleKeys;
 
 @Path(ResourceConstants.REST_ROOT + "content/page/descriptor")
@@ -47,7 +47,7 @@ public final class PageDescriptorResource
 
     private LocaleService localeService;
 
-    private MixinService mixinService;
+    private CmsFormFragmentService cmsFormFragmentService;
 
     @GET
     public PageDescriptorJson getByKey( @QueryParam("key") final String pageDescriptorKey, @Context HttpServletRequest request )
@@ -57,7 +57,7 @@ public final class PageDescriptorResource
 
         final LocaleMessageResolver localeMessageResolver =
             new LocaleMessageResolver( this.localeService, key.getApplicationKey(), request.getLocales() );
-        final InlineMixinResolver inlineMixinResolver = new InlineMixinResolver( this.mixinService );
+        final CmsFormFragmentResolver inlineMixinResolver = new CmsFormFragmentResolver( this.cmsFormFragmentService );
         final PageDescriptorJson json = new PageDescriptorJson( descriptor, localeMessageResolver, inlineMixinResolver );
         return json;
     }
@@ -72,7 +72,7 @@ public final class PageDescriptorResource
         final LocaleMessageResolver localeMessageResolver =
             new LocaleMessageResolver( this.localeService, ApplicationKey.from( applicationKey ), request.getLocales() );
         return new PageDescriptorListJson( PageDescriptors.from( pageDescriptors ), localeMessageResolver,
-                                           new InlineMixinResolver( mixinService ) );
+                                           new CmsFormFragmentResolver( cmsFormFragmentService ) );
     }
 
     @POST
@@ -97,7 +97,7 @@ public final class PageDescriptorResource
 
     {
         return new PageDescriptorJson( pageDescriptor, new LocaleMessageResolver( localeService, applicationKey, locales ),
-                                       new InlineMixinResolver( mixinService ) );
+                                       new CmsFormFragmentResolver( cmsFormFragmentService ) );
     }
 
     @Reference
@@ -113,8 +113,8 @@ public final class PageDescriptorResource
     }
 
     @Reference
-    public void setMixinService( final MixinService mixinService )
+    public void setCmsFormFragmentService( final CmsFormFragmentService cmsFormFragmentService )
     {
-        this.mixinService = mixinService;
+        this.cmsFormFragmentService = cmsFormFragmentService;
     }
 }

@@ -13,7 +13,7 @@ export class GetContentXDataRequest
     constructor(contentId: ContentId) {
         super();
         this.contentId = contentId;
-        this.addRequestPathElements('getContentXData');
+        this.addRequestPathElements('getContentMixins');
     }
 
     getParams(): object {

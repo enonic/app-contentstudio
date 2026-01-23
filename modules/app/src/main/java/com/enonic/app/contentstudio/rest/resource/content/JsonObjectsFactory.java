@@ -22,7 +22,7 @@ import com.enonic.app.contentstudio.json.schema.content.ContentTypeSummaryJson;
 import com.enonic.app.contentstudio.rest.resource.schema.content.ContentTypeIconResolver;
 import com.enonic.app.contentstudio.rest.resource.schema.content.ContentTypeIconUrlResolver;
 import com.enonic.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
-import com.enonic.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.app.contentstudio.rest.resource.schema.mixin.CmsFormFragmentResolver;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.FindContentByParentParams;
@@ -31,9 +31,9 @@ import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.page.PageDescriptor;
 import com.enonic.xp.region.LayoutDescriptor;
 import com.enonic.xp.region.PartDescriptor;
+import com.enonic.xp.schema.content.CmsFormFragmentService;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeService;
-import com.enonic.xp.schema.mixin.MixinService;
 import com.enonic.xp.security.SecurityService;
 
 @Component(service = JsonObjectsFactory.class)
@@ -41,7 +41,7 @@ public class JsonObjectsFactory
 {
     private LocaleService localeService;
 
-    private MixinService mixinService;
+    private CmsFormFragmentService cmsFormFragmentService;
 
     private ContentTypeService contentTypeService;
 
@@ -60,20 +60,20 @@ public class JsonObjectsFactory
     {
         return new PartDescriptorJson( descriptor, new LocaleMessageResolver( this.localeService, descriptor.getApplicationKey(),
                                                                               request.getLocales() ),
-                                       new InlineMixinResolver( mixinService ), request );
+                                       new CmsFormFragmentResolver( cmsFormFragmentService ), request );
     }
 
     public PageDescriptorJson createPageDescriptorJson( final PageDescriptor descriptor, final Enumeration<Locale> locales )
     {
         return new PageDescriptorJson( descriptor, new LocaleMessageResolver( this.localeService, descriptor.getApplicationKey(), locales ),
-                                       new InlineMixinResolver( mixinService ) );
+                                       new CmsFormFragmentResolver( cmsFormFragmentService ) );
     }
 
     public LayoutDescriptorJson createLayoutDescriptorJson( final LayoutDescriptor descriptor, final Enumeration<Locale> locales )
     {
         return new LayoutDescriptorJson( descriptor,
                                          new LocaleMessageResolver( this.localeService, descriptor.getApplicationKey(), locales ),
-                                         new InlineMixinResolver( mixinService ) );
+                                         new CmsFormFragmentResolver( cmsFormFragmentService ) );
     }
 
     public ContentTypeSummaryJson createContentTypeSummaryJson( final ContentType contentType, final HttpServletRequest request )
@@ -121,9 +121,9 @@ public class JsonObjectsFactory
     }
 
     @Reference
-    public void setMixinService( final MixinService mixinService )
+    public void setCmsFormFragmentService( final CmsFormFragmentService cmsFormFragmentService )
     {
-        this.mixinService = mixinService;
+        this.cmsFormFragmentService = cmsFormFragmentService;
     }
 
     @Reference

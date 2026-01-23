@@ -39,6 +39,10 @@ export class MediaUploader
         this.config = config;
     }
 
+    createDefaultValue(rawValue: unknown): Value {
+        return this.getValueType().newNullValue();
+    }
+
     getContext(): ContentInputTypeViewContext {
         return super.getContext() as ContentInputTypeViewContext;
     }

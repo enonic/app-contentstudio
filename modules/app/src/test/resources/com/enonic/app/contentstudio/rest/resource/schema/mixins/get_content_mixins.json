@@ -1,5 +1,5 @@
 {
-    "xdatas": [
+    "mixins": [
         {
             "createdTime": "2013-01-01T12:00:00Z",
             "deletable": false,
@@ -11,11 +11,8 @@
                         "Input": {
                             "config": {},
                             "helpText": "Help text line 1",
-                            "immutable": false,
-                            "indexed": false,
                             "inputType": "TextLine",
                             "label": "Line Text 1",
-                            "maximizeUIInputWidth": true,
                             "name": "input_text_1",
                             "occurrences": {
                                 "maximum": 1,
@@ -39,11 +36,8 @@
                         "Input": {
                             "config": {},
                             "helpText": "Help text area",
-                            "immutable": false,
-                            "indexed": false,
                             "inputType": "TextArea",
                             "label": "Text Area",
-                            "maximizeUIInputWidth": true,
                             "name": "text_area_2",
                             "occurrences": {
                                 "maximum": 1,

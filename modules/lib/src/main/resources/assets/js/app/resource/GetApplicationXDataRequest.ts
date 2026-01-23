@@ -17,7 +17,7 @@ export class GetApplicationXDataRequest
         super();
         this.contentTypeName = contentTypeName;
         this.applicationKey = applicationKey;
-        this.addRequestPathElements('getApplicationXDataForContentType');
+        this.addRequestPathElements('getApplicationMixinsForContentType');
     }
 
     getParams(): object {

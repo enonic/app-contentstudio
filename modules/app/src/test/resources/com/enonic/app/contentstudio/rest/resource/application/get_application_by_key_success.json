@@ -4,11 +4,8 @@
       {
         "Input": {
           "config": {},
-          "immutable": false,
-          "indexed": false,
           "inputType": "TextLine",
           "label": "some-label",
-          "maximizeUIInputWidth": true,
           "name": "some-name",
           "occurrences": {
             "maximum": 1,
@@ -28,11 +25,8 @@
       {
         "Input": {
           "config": {},
-          "immutable": false,
-          "indexed": false,
           "inputType": "TextLine",
           "label": "some-label",
-          "maximizeUIInputWidth": true,
           "name": "some-name",
           "occurrences": {
             "maximum": 1,
