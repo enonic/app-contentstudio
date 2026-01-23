@@ -5,7 +5,7 @@ const Page = require('./page');
 const {BUTTONS} = require('../libs/elements');
 const appConst = require('../libs/app_const');
 const XPATH = {
-    container: `//div[@role='dialog' and descendant::h2[contains(.,'Confirm delete')]]`,
+    container: `//div[@role='dialog' and descendant::h2[contains(.,'Confirm delete')  or contains(., 'Confirm archive')]]`,
     confirmButton: `//button[contains(@id,'DialogButton') and child::span[text()='Confirm']]`,
     cancelButton: `//div[@class='dialog-buttons']//button/span[text()='Cancel']`,
     suggestedNumberToDelete: "//span[contains(@class,'confirm-value-data')]",

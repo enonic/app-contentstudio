@@ -75,7 +75,7 @@ describe('archive.confirm.content.dialog.spec:  tests for archiving content', fu
             await confirmValueDialog.waitForDialogOpened();
             // 5. Verify the title in the dialog
             let titleActual = await confirmValueDialog.getDialogTitle();
-            assert.equal(titleActual, DIALOG_TITLE, `'Confirm delete' title should be displayed in the dialog`);
+            assert.equal(titleActual, DIALOG_TITLE, `'Confirm archive' title should be displayed in the dialog`);
             // 6. Fill in the number input:
             await confirmValueDialog.typeNumberOrName(2);
             // 7. Verify that Confirm button gets enabled:

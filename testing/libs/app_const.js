@@ -484,6 +484,7 @@ module.exports = Object.freeze({
     },
     CONTENT_STATUS: {
         NEW: 'New',
+        OFFLINE: 'Offline',
         PUBLISHED: 'Published',
         UNPUBLISHED: 'Unpublished',
         MODIFIED: 'Modified',

@@ -146,7 +146,7 @@ describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', fun
             // 2. Select the site:
             await studioUtils.findAndSelectItem(SITE_NAME);
             // 3. Verify that 'Mark as Ready' is default action in Publish Menu
-            await contentBrowsePanel.waitForDefaultAction(appConst.PUBLISH_MENU.MARK_AS_READY);
+            await contentBrowsePanel.waitForMarkAsReadyButtonVisible();
         });
 
     it("GIVEN user with 'Owner'-layer role is logged in WHEN the user attempts to open existing site in draft THEN expected page should be loaded",

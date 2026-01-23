@@ -190,7 +190,7 @@ class BaseBrowsePanel extends Page {
             throw new Error(`Tree grid, The Checkbox was not found! ${name}`);
         }
         let listElement = result[result.length - 1];
-        let checkboxElement = await listElement.$('.' + `//label[descendant::input[@type='checkbox']]`);
+        let checkboxElement = await listElement.$('.' + TREE_GRID.TREE_LIST_ITEM_CHECKBOX_LABEL);
         // check only the last element:
         await checkboxElement.waitForDisplayed();
         await checkboxElement.click();
@@ -211,12 +211,12 @@ class BaseBrowsePanel extends Page {
         // get the last 'ContentsTreeGridListElement' element:
         let listElement = result[result.length - 1];
         // get the checkbox input for the last 'ContentsTreeGridListElement' element
-        let checkboxElement = await listElement.$('.' + `//input[@type='checkbox']`);
+        let checkboxElement = await listElement.$('.' + TREE_GRID.TREE_LIST_ITEM_CHECKBOX_LABEL);
 
         await this.getBrowser().waitUntil(async () => {
-            let isSelected = await checkboxElement.isSelected();
-            return isSelected;
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Checkbox is not selected"});
+            let isChecked =  await checkboxElement.getAttribute('aria-checked');
+            return isChecked;
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "The Checkbox was not selected"});
     }
 
 

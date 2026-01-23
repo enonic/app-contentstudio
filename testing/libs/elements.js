@@ -6,7 +6,7 @@ const COMMON = {
     TEXT_INPUT: "//input[@type='text']",
     CONTEXT_WINDOW_WIDGET_SELECTOR_ITEM: "//div[@data-component='WidgetsSelectorItem']//span",
     CONTEXT_WINDOW_TOGGLE_BUTTON: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`,
-
+    CONTENT_APP_BAR_DIV: "//div[contains(@id,'BrowseAppBarElement')]",
 
     INPUTS: {
         CHECKBOX_INPUT: "//input[@type='checkbox']",
@@ -63,11 +63,11 @@ const TREE_GRID = {
     TREE_LIST_ITEM_DIV: "//div[contains(@role,'listitem')]",
     CONTENT_ITEM_CONTEXT_MENU: "//div[@role='menu' and contains(@id,'content')]",
     TREE_ITEM_DIV: "//div[contains(@role,'treeitem') and descendant::small[contains(@class,'t-subtle')]]",
-    TREE_LIST_ITEM_CHECKBOX_LABEL: "//label[descendant::input[@type='checkbox']]",
-    CONTENT_STATUS: "//div[contains(@id,'StatusBlock')]/span",
+    TREE_LIST_ITEM_CHECKBOX_LABEL: "//div[@role='checkbox']",
+    CONTENT_STATUS: "//span[contains(@data-component,'StatusBadge')]",
     SORT_DIALOG_TOGGLE: "//div[contains(@class,'sort-dialog-trigger')]",
     EXPANDER_ICON_DIV: "//div[contains(@class,'toggle icon-arrow_drop_up')]",
-    P_CONTENT_NAME: "//p[contains(@class,'sub-name')]",
+
     // Block that contains: name, displayName, icon...
     CONTENT_LABEL_BLOCK: "//div[@data-component='ContentLabel']",
     itemContextMenuItemByName: (name) => {
@@ -79,45 +79,36 @@ const TREE_GRID = {
     itemByDisplayName: displayName => {
         return `//div[contains(@role,'treeitem') and descendant::span[contains(.,'${displayName}')]]`
     },
-    contentSummaryByDisplayName: (parent, displayName) => {
-
-    },
-    contentSummaryByName: name => {
-
-    },
-    itemTreeGridListElementByDisplayName: displayName => {//ContentTreeGridListViewer
-
-    },
     itemTreeGridListElementByName: name => {
-        return `//div[contains(@role,'treeitem') and descendant::small[contains(@class,'t-subtle') and contains(.,'${name}')]]`
+        return `//div[contains(@role,'treeitem') and descendant::small[contains(@class,'t-subtle') and contains(.,'${name}')]]`;
     },
 }
 const DROPDOWN = {
-        HANDLE: "//button[contains(@id,'DropdownHandle')]",
-        DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
-        OPTION_FILTER_INPUT: "//input[contains(@id,'OptionFilterInput') and contains(@class, 'option-filter-input')]",
-        DROPDOWN_DIV: "//div[contains(@id,'Dropdown')]",
-        DROPDOWN_LIST_ITEM: "//*[contains(@class,'item-view-wrapper')]",
-        DROPDOWN_DIV_ITEM: "//div[contains(@class,'item-view-wrapper')]",
-        WIDGET_COMBOBOX: "//button[contains(@id,'WidgetsSelector') and @role='combobox']",
-        SELECTOR_LISTBOX: "//div[contains(@role,'listbox')]",
-        dropdownSelectedOptionByName: (dataComponentValue, optionName) => {
-            return `//div[@data-component='${dataComponentValue}']//span[contains(.,'${optionName}')]`;
-        },
-        selectorListOptionByName: (optionName) => {
-            return `//div[@role='option']//span[contains(.,'${optionName}')]`;
-        },
-        FILTERABLE_LISTBOX: "//div[contains(@id,'FilterableListBoxWrapper')]",
-        IMAGE_CONTENT_COMBOBOX_DIV: "//div[contains(@id,'ImageContentComboBox')]",
-        MODE_TOGGLER_BUTTON: "//button[contains(@id,'ModeTogglerButton')]",
-        APPLY_SELECTION_BUTTON: "//button[contains(@class,'apply-selection-button')]",
-        flatModeDropdownImgItemByDisplayName: (container, displayName) => {
-            return container +
-                   `//*[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]//img`;
-        },
-        IMG_DROPDOWN_OPT_DISPLAY_NAME_FLAT_MODE: "//li[contains(@class,'item-view-wrapper')]" +
-                                                 "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",
-    };
+    HANDLE: "//button[contains(@id,'DropdownHandle')]",
+    DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
+    OPTION_FILTER_INPUT: "//input[contains(@id,'OptionFilterInput') and contains(@class, 'option-filter-input')]",
+    DROPDOWN_DIV: "//div[contains(@id,'Dropdown')]",
+    DROPDOWN_LIST_ITEM: "//*[contains(@class,'item-view-wrapper')]",
+    DROPDOWN_DIV_ITEM: "//div[contains(@class,'item-view-wrapper')]",
+    WIDGET_COMBOBOX: "//button[contains(@id,'WidgetsSelector') and @role='combobox']",
+    SELECTOR_LISTBOX: "//div[contains(@role,'listbox')]",
+    dropdownSelectedOptionByName: (dataComponentValue, optionName) => {
+        return `//div[@data-component='${dataComponentValue}']//span[contains(.,'${optionName}')]`;
+    },
+    selectorListOptionByName: (optionName) => {
+        return `//div[@role='option']//span[contains(.,'${optionName}')]`;
+    },
+    FILTERABLE_LISTBOX: "//div[contains(@id,'FilterableListBoxWrapper')]",
+    IMAGE_CONTENT_COMBOBOX_DIV: "//div[contains(@id,'ImageContentComboBox')]",
+    MODE_TOGGLER_BUTTON: "//button[contains(@id,'ModeTogglerButton')]",
+    APPLY_SELECTION_BUTTON: "//button[contains(@class,'apply-selection-button')]",
+    flatModeDropdownImgItemByDisplayName: (container, displayName) => {
+        return container +
+               `//*[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]//img`;
+    },
+    IMG_DROPDOWN_OPT_DISPLAY_NAME_FLAT_MODE: "//li[contains(@class,'item-view-wrapper')]" +
+                                             "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",
+};
 module.exports = Object.freeze({
     COMMON,
     DROPDOWN,
