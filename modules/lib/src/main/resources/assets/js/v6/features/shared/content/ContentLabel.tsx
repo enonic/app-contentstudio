@@ -1,5 +1,6 @@
 import {ReactElement} from 'react';
 import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import {resolveDisplayName, resolvePath} from '../../utils/cms/content/prettify';
 import {calcWorkflowStateStatus} from '../../utils/cms/content/workflow';
 import {ItemLabel, ItemLabelProps} from '../ItemLabel';
 import {WorkflowContentIcon} from '../icons/WorkflowContentIcon';
@@ -31,9 +32,6 @@ export const ContentLabel = ({
     const isCompact = variant === 'compact';
     const showFullPath = variant === 'compact' || variant === 'detailed';
 
-    const path = content.getPath();
-    const pathText = showFullPath ? path.toString() : path.getName();
-
     const status = hideStatus ? null : calcWorkflowStateStatus(content.getContentSummary());
     const Icon = (
         <WorkflowContentIcon
@@ -43,8 +41,13 @@ export const ContentLabel = ({
         />
     );
 
-    const primaryText = isCompact ? pathText : content.getDisplayName();
-    const secondaryText = isCompact ? undefined : pathText;
+    const primaryText = isCompact
+        // Don't prettify the path when it is used as title for better readability
+        ? resolvePath(content, showFullPath, false)
+        : resolveDisplayName(content);
+    const secondaryText = isCompact
+        ? undefined
+        : resolvePath(content, showFullPath);
 
     return (
         <ItemLabel

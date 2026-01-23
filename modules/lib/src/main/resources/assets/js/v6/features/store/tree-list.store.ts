@@ -1,7 +1,8 @@
 import {atom, computed} from 'nanostores';
 import {$contentDeleted, $contentArchived, $contentCreated, $contentDuplicated} from './socket.store';
 import type {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
-import {calcWorkflowStateStatus, resolveDisplayName, resolveSubName} from '../utils/cms/content/workflow';
+import {calcWorkflowStateStatus} from '../utils/cms/content/workflow';
+import {resolveDisplayName, resolveSubName} from '../utils/cms/content/prettify';
 import {
     createEmptyState,
     setNode,
