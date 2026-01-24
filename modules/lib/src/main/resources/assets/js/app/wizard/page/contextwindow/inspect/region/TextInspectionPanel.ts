@@ -69,9 +69,9 @@ export class TextInspectionPanel
         });
 
         BeforeContentSavedEvent.on(() => {
-           if (this.isFocused) {
+            if (this.isFocused) {
                 this.cursorPosition = this.htmlEditor.getCursorPosition();
-           }
+            }
         });
     }
 
@@ -79,6 +79,14 @@ export class TextInspectionPanel
         PageState.getEvents().onComponentUpdated((event: ComponentUpdatedEvent) => {
             if (event instanceof ComponentTextUpdatedEvent) {
                 this.handleTextComponentUpdated(event);
+            }
+        });
+
+        PageEventsManager.get().onTextComponentEditRequested((path) => {
+            if (path.equals(this.component?.getPath())) {
+                setTimeout(() => {
+                    this.htmlEditor.focus()
+                }, 100);
             }
         });
     }

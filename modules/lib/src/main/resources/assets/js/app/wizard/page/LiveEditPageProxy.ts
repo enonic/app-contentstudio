@@ -37,6 +37,7 @@ import {PageResetEvent} from '../../../page-editor/event/outgoing/manipulation/P
 import {SelectPageDescriptorEvent} from '../../../page-editor/event/outgoing/manipulation/SelectPageDescriptorEvent';
 import {SelectComponentViewEvent} from '../../../page-editor/event/incoming/navigation/SelectComponentViewEvent';
 import {DeselectComponentViewEvent} from '../../../page-editor/event/incoming/navigation/DeselectComponentViewEvent';
+import {EditTextComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/EditTextComponentViewEvent';
 import {PageState} from './PageState';
 import {ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
 import {AddComponentEvent} from '../../../page-editor/event/outgoing/manipulation/AddComponentEvent';
@@ -162,6 +163,7 @@ export class LiveEditPageProxy
         IframeEventBus.get().registerClass('PageUnlockedEvent', PageUnlockedEvent);
         IframeEventBus.get().registerClass('SetFragmentComponentEvent', SetFragmentComponentEvent);
         IframeEventBus.get().registerClass('CreateFragmentEvent', CreateFragmentEvent);
+        IframeEventBus.get().registerClass('EditTextComponentViewEvent', EditTextComponentViewEvent);
 
 
         IframeEventBus.get().onEvent('editor-iframe-loaded', (event) => {
@@ -513,6 +515,12 @@ export class LiveEditPageProxy
 
             PageEventsManager.get().notifyTextComponentUpdateRequested(path, event.getText(), event.getOrigin());
         });
+
+        EditTextComponentViewEvent.on((event: EditTextComponentViewEvent): void => {
+            const path: ComponentPath = ComponentPath.fromString(event.getPath());
+
+            PageEventsManager.get().notifyTextComponentEditRequested(path);
+        })
 
         CustomizePageEvent.on((event: CustomizePageEvent): void => {
             PageEventsManager.get().notifyCustomizePageRequested();

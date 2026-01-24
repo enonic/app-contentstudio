@@ -8,6 +8,7 @@ import {CreateTextComponentViewConfig} from '../CreateTextComponentViewConfig';
 import {TextItemType} from './TextItemType';
 import {TextPlaceholder} from './TextPlaceholder';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {EditTextComponentViewEvent} from '../event/incoming/manipulation/EditTextComponentViewEvent';
 
 export class TextComponentViewBuilder
     extends ComponentViewBuilder {
@@ -34,6 +35,11 @@ export class TextComponentView
     public static debug: boolean = false;
 
     private static DEFAULT_TEXT: string = '';
+
+    // special handling for click to allow dblclick event without triggering 2 clicks before it
+    public static DBL_CLICK_TIMEOUT: number = 250;
+    private singleClickTimer: number;
+    private lastClicked: number = 0;
 
     constructor(builder: TextComponentViewBuilder) {
         super(builder.setPlaceholder(new TextPlaceholder()));
@@ -123,5 +129,52 @@ export class TextComponentView
 
     makeDuplicateConfig(): CreateTextComponentViewConfig {
         return super.makeDuplicateConfig(new CreateTextComponentViewConfig().setText(this.getText())) as CreateTextComponentViewConfig;
+    }
+
+    private doHandleDbClick(event: MouseEvent): void {
+        if (!this.isSelected()) {
+            this.selectWithoutMenu();
+        }
+        new EditTextComponentViewEvent(this.getPath().toString()).fire();
+    }
+
+    private doHandleClick(event: MouseEvent): void {
+        super.handleClick(event);
+    }
+
+    handleClick(event: MouseEvent) {
+        if (TextComponentView.debug) {
+            console.group('Handling click [' + this.getId() + '] at ' + new Date().getTime());
+            console.log(event);
+        }
+
+        event.stopPropagation();
+        if (event.button === 2) { // right click
+            event.preventDefault();
+        }
+
+        let timeSinceLastClick = new Date().getTime() - this.lastClicked;
+
+        if (timeSinceLastClick > TextComponentView.DBL_CLICK_TIMEOUT) {
+            this.singleClickTimer = window.setTimeout(() => {
+                if (TextComponentView.debug) {
+                    console.log('no dblclick occured during ' + TextComponentView.DBL_CLICK_TIMEOUT + 'ms, notifying click', this);
+                    console.groupEnd();
+                }
+
+                this.doHandleClick(event);
+            }, TextComponentView.DBL_CLICK_TIMEOUT);
+
+        } else {
+
+            if (TextComponentView.debug) {
+                console.log('dblclick occured after ' + timeSinceLastClick + 'ms, notifying dbl click', this);
+                // end the group started by the first click first
+                console.groupEnd();
+            }
+            clearTimeout(this.singleClickTimer);
+            this.doHandleDbClick(event);
+        }
+        this.lastClicked = new Date().getTime();
     }
 }
