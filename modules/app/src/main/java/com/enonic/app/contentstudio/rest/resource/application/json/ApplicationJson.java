@@ -6,15 +6,15 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
 
-import com.enonic.xp.app.Application;
-import com.enonic.xp.app.ApplicationDescriptor;
 import com.enonic.app.contentstudio.json.ItemJson;
 import com.enonic.app.contentstudio.json.form.FormJson;
 import com.enonic.app.contentstudio.rest.resource.application.ApplicationIconUrlResolver;
 import com.enonic.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
-import com.enonic.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.app.contentstudio.rest.resource.schema.mixin.CmsFormFragmentResolver;
+import com.enonic.xp.app.Application;
+import com.enonic.xp.app.ApplicationDescriptor;
 import com.enonic.xp.idprovider.IdProviderDescriptor;
-import com.enonic.xp.site.SiteDescriptor;
+import com.enonic.xp.site.CmsDescriptor;
 
 public class ApplicationJson
     implements ItemJson
@@ -40,18 +40,18 @@ public class ApplicationJson
         this.local = builder.local;
 
         this.config =
-            builder.siteDescriptor != null && builder.siteDescriptor.getForm() != null ? new FormJson( builder.siteDescriptor.getForm(),
-                                                                                                       builder.localeMessageResolver,
-                                                                                                       builder.inlineMixinResolver ) : null;
+            builder.cmsDescriptor != null && builder.cmsDescriptor.getForm() != null ? new FormJson( builder.cmsDescriptor.getForm(),
+                                                                                                     builder.localeMessageResolver,
+                                                                                                     builder.formFragmentResolver ) : null;
 
         this.idProviderConfig = builder.idProviderDescriptor != null && builder.idProviderDescriptor.getConfig() != null ? new FormJson(
-            builder.idProviderDescriptor.getConfig(), builder.localeMessageResolver, builder.inlineMixinResolver ) : null;
+            builder.idProviderDescriptor.getConfig(), builder.localeMessageResolver, builder.formFragmentResolver ) : null;
 
-        if ( builder.siteDescriptor != null && builder.siteDescriptor.getXDataMappings() != null )
+        if ( builder.cmsDescriptor != null && builder.cmsDescriptor.getMixinMappings() != null )
         {
-            this.metaStepMixinNames = ImmutableList.copyOf( builder.siteDescriptor.getXDataMappings().
+            this.metaStepMixinNames = ImmutableList.copyOf( builder.cmsDescriptor.getMixinMappings().
                 stream().
-                map( xDataMapping -> xDataMapping.getXDataName().toString() ).
+                map( mapping -> mapping.getMixinName().toString() ).
                 distinct().
                 collect( Collectors.toList() ) );
         }
@@ -165,7 +165,7 @@ public class ApplicationJson
 
         private ApplicationDescriptor applicationDescriptor;
 
-        private SiteDescriptor siteDescriptor;
+        private CmsDescriptor cmsDescriptor;
 
         private IdProviderDescriptor idProviderDescriptor;
 
@@ -173,7 +173,7 @@ public class ApplicationJson
 
         private LocaleMessageResolver localeMessageResolver;
 
-        private InlineMixinResolver inlineMixinResolver;
+        private CmsFormFragmentResolver formFragmentResolver;
 
         private boolean local;
 
@@ -194,9 +194,9 @@ public class ApplicationJson
             return this;
         }
 
-        public Builder setSiteDescriptor( final SiteDescriptor siteDescriptor )
+        public Builder setCmsDescriptor( final CmsDescriptor cmsDescriptor )
         {
-            this.siteDescriptor = siteDescriptor;
+            this.cmsDescriptor = cmsDescriptor;
             return this;
         }
 
@@ -218,9 +218,9 @@ public class ApplicationJson
             return this;
         }
 
-        public Builder setInlineMixinResolver( final InlineMixinResolver inlineMixinResolver )
+        public Builder setFormFragmentResolver( final CmsFormFragmentResolver formFragmentResolver )
         {
-            this.inlineMixinResolver = inlineMixinResolver;
+            this.formFragmentResolver = formFragmentResolver;
             return this;
         }
 

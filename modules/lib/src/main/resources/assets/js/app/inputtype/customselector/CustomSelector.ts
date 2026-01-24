@@ -56,6 +56,10 @@ export class CustomSelector
         }
     }
 
+    createDefaultValue(raw: unknown): Value {
+        return this.getValueType().newNullValue();
+    }
+
     private subscribeToContentUpdates() {
         const handler = (data: ContentSummaryAndCompareStatus[]) => this.handleContentUpdated(data);
 
@@ -97,7 +101,7 @@ export class CustomSelector
         const serviceParams = cfg['param'] || [];
 
         const params = serviceParams.reduce((prev, curr) => {
-            prev[curr['@value']] = curr['value'];
+            prev[curr['@value'] as string] = curr['value'];
             return prev;
         }, {});
 

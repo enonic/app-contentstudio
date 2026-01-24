@@ -72,7 +72,6 @@ export class PublishScheduleForm
                 fromPlaceholder: i18n('text.now'),
                 optionalFrom: true
             })
-            .setMaximizeUIInputWidth(true)
             .build();
     }
 

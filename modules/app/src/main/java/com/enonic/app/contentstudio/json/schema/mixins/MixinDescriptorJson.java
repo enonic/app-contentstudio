@@ -1,4 +1,4 @@
-package com.enonic.app.contentstudio.json.schema.xdata;
+package com.enonic.app.contentstudio.json.schema.mixins;
 
 import java.time.Instant;
 
@@ -7,31 +7,31 @@ import com.google.common.base.Preconditions;
 import com.enonic.app.contentstudio.json.ItemJson;
 import com.enonic.app.contentstudio.json.form.FormJson;
 import com.enonic.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
-import com.enonic.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
-import com.enonic.xp.schema.xdata.XData;
+import com.enonic.app.contentstudio.rest.resource.schema.mixin.CmsFormFragmentResolver;
+import com.enonic.xp.schema.mixin.MixinDescriptor;
 
 import static com.google.common.base.Strings.nullToEmpty;
 
-public class XDataJson
+public class MixinDescriptorJson
     implements ItemJson
 {
-    private final XData xData;
+    private final MixinDescriptor mixinDescriptor;
 
     private final Boolean isOptional;
 
     private final LocaleMessageResolver localeMessageResolver;
 
-    private final InlineMixinResolver inlineMixinResolver;
+    private final CmsFormFragmentResolver formFragmentResolver;
 
-    public XDataJson( final Builder builder )
+    public MixinDescriptorJson( final Builder builder )
     {
         Preconditions.checkNotNull( builder.localeMessageResolver );
         Preconditions.checkNotNull( builder.inlineMixinResolver );
 
-        this.xData = builder.xData;
+        this.mixinDescriptor = builder.mixinDescriptor;
         this.isOptional = builder.isOptional;
         this.localeMessageResolver = builder.localeMessageResolver;
-        this.inlineMixinResolver = builder.inlineMixinResolver;
+        this.formFragmentResolver = builder.inlineMixinResolver;
     }
 
     public static Builder create()
@@ -41,56 +41,56 @@ public class XDataJson
 
     public String getName()
     {
-        return xData.getName() != null ? xData.getName().toString() : null;
+        return mixinDescriptor.getName() != null ? mixinDescriptor.getName().toString() : null;
     }
 
     public String getDisplayName()
     {
-        if ( !nullToEmpty( xData.getDisplayNameI18nKey() ).isBlank() )
+        if ( !nullToEmpty( mixinDescriptor.getDisplayNameI18nKey() ).isBlank() )
         {
-            return localeMessageResolver.localizeMessage( xData.getDisplayNameI18nKey(), xData.getDisplayName() );
+            return localeMessageResolver.localizeMessage( mixinDescriptor.getDisplayNameI18nKey(), mixinDescriptor.getDisplayName() );
         }
         else
         {
-            return xData.getDisplayName();
+            return mixinDescriptor.getDisplayName();
         }
     }
 
     public String getDescription()
     {
-        if ( !nullToEmpty( xData.getDescriptionI18nKey() ).isBlank() )
+        if ( !nullToEmpty( mixinDescriptor.getDescriptionI18nKey() ).isBlank() )
         {
-            return localeMessageResolver.localizeMessage( xData.getDescriptionI18nKey(), xData.getDescription() );
+            return localeMessageResolver.localizeMessage( mixinDescriptor.getDescriptionI18nKey(), mixinDescriptor.getDescription() );
         }
         else
         {
-            return xData.getDescription();
+            return mixinDescriptor.getDescription();
         }
     }
 
     public Instant getCreatedTime()
     {
-        return xData.getCreatedTime();
+        return mixinDescriptor.getCreatedTime();
     }
 
     public Instant getModifiedTime()
     {
-        return xData.getModifiedTime();
+        return mixinDescriptor.getModifiedTime();
     }
 
     public FormJson getForm()
     {
-        return new FormJson( xData.getForm(), this.localeMessageResolver, this.inlineMixinResolver );
+        return new FormJson( mixinDescriptor.getForm(), this.localeMessageResolver, this.formFragmentResolver );
     }
 
     public String getCreator()
     {
-        return xData.getCreator() != null ? xData.getCreator().toString() : null;
+        return mixinDescriptor.getCreator() != null ? mixinDescriptor.getCreator().toString() : null;
     }
 
     public String getModifier()
     {
-        return xData.getModifier() != null ? xData.getModifier().toString() : null;
+        return mixinDescriptor.getModifier() != null ? mixinDescriptor.getModifier().toString() : null;
     }
 
     public Boolean getIsOptional()
@@ -112,21 +112,21 @@ public class XDataJson
 
     public static final class Builder
     {
-        private XData xData;
+        private MixinDescriptor mixinDescriptor;
 
         private Boolean isOptional = false;
 
         private LocaleMessageResolver localeMessageResolver;
 
-        private InlineMixinResolver inlineMixinResolver;
+        private CmsFormFragmentResolver inlineMixinResolver;
 
         private Builder()
         {
         }
 
-        public Builder setXData( final XData xData )
+        public Builder setMixinDescriptor( final MixinDescriptor mixinDescriptor )
         {
-            this.xData = xData;
+            this.mixinDescriptor = mixinDescriptor;
             return this;
         }
 
@@ -142,7 +142,7 @@ public class XDataJson
             return this;
         }
 
-        public Builder setInlineMixinResolver( final InlineMixinResolver inlineMixinResolver )
+        public Builder setInlineMixinResolver( final CmsFormFragmentResolver inlineMixinResolver )
         {
             this.inlineMixinResolver = inlineMixinResolver;
             return this;
@@ -154,10 +154,10 @@ public class XDataJson
             Preconditions.checkNotNull( inlineMixinResolver );
         }
 
-        public XDataJson build()
+        public MixinDescriptorJson build()
         {
             validate();
-            return new XDataJson( this );
+            return new MixinDescriptorJson( this );
         }
     }
 

@@ -17,7 +17,7 @@ import com.enonic.app.contentstudio.rest.resource.macro.MacroResource;
 import com.enonic.app.contentstudio.rest.resource.schema.content.ContentTypeContextResource;
 import com.enonic.app.contentstudio.rest.resource.schema.content.ContentTypeResource;
 import com.enonic.app.contentstudio.rest.resource.schema.content.FilterByContentResource;
-import com.enonic.app.contentstudio.rest.resource.schema.xdata.XDataContextResource;
+import com.enonic.app.contentstudio.rest.resource.schema.mixins.MixinsContextResource;
 import com.enonic.xp.jaxrs.JaxRsComponent;
 
 
@@ -28,7 +28,7 @@ public final class CmsResourceDynamicFeature
     private final Set<Class<? extends JaxRsComponent>> supportedResources =
         Set.of( ContentResource.class, ContentImageResource.class, ContentIconResource.class, ContentMediaResource.class,
                 IssueResource.class, FilterByContentResource.class, ContentTypeResource.class, PageResource.class,
-                PageTemplateResource.class, FragmentResource.class, XDataContextResource.class,
+                PageTemplateResource.class, FragmentResource.class, MixinsContextResource.class,
                 ArchiveResource.class, ContentTypeContextResource.class, MacroResource.class );
 
 

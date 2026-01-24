@@ -34,12 +34,16 @@ export class Tag
             .build();
     }
 
+    createDefaultValue(rawValue: unknown): Value {
+        return this.getValueType().newNullValue();
+    }
+
     protected readInputConfig(): void {
-        const allowContentPathConfig: Record<string, string>[] = this.context.inputConfig['allowPath'] || [];
+        const allowContentPathConfig: Record<string, unknown>[] = this.context.inputConfig['allowPath'] || [];
 
         this.allowedContentPaths =
             allowContentPathConfig.length > 0
-            ? allowContentPathConfig.map((cfg) => cfg['value']).filter((val) => !!val)
+            ? allowContentPathConfig.map((cfg) => cfg['value'] as string).filter((val) => !!val)
             : [ContentTagSuggester.SITE_PATH];
     }
 

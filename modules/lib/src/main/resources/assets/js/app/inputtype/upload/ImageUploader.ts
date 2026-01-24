@@ -41,6 +41,10 @@ export class ImageUploader
         this.addClass('image-uploader-input');
     }
 
+    createDefaultValue(rawValue: unknown): Value {
+        return this.getValueType().newNullValue();
+    }
+
     private initUploader(config: ContentInputTypeViewContext) {
         this.imageUploader = new ImageUploaderEl({
             imageEditorCreatedCallback: this.handleImageEditorCreated.bind(this),

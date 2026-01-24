@@ -6,25 +6,25 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.enonic.xp.content.ExtraData;
+import com.enonic.xp.content.Mixin;
 import com.enonic.xp.data.PropertyArrayJson;
 import com.enonic.xp.data.PropertyTreeJson;
-import com.enonic.xp.schema.xdata.XDataName;
+import com.enonic.xp.schema.mixin.MixinName;
 
-public class ExtraDataJson
+public class MixinJson
 {
     private final String name;
 
     private final List<PropertyArrayJson> data;
 
-    public ExtraDataJson( final ExtraData extraData )
+    public MixinJson( final Mixin mixin )
     {
-        this.name = extraData.getName().toString();
-        this.data = PropertyTreeJson.toJson( extraData.getData() );
+        this.name = mixin.getName().toString();
+        this.data = PropertyTreeJson.toJson( mixin.getData() );
     }
 
     @JsonCreator
-    public ExtraDataJson( @JsonProperty("name") final String name, @JsonProperty("data") final List<PropertyArrayJson> dataJsonList )
+    public MixinJson( @JsonProperty("name") final String name, @JsonProperty("data") final List<PropertyArrayJson> dataJsonList )
     {
         this.name = name;
         this.data = dataJsonList;
@@ -41,8 +41,8 @@ public class ExtraDataJson
     }
 
     @JsonIgnore
-    public ExtraData getExtraData()
+    public Mixin getMixin()
     {
-        return new ExtraData( XDataName.from( name ), PropertyTreeJson.fromJson( data ) );
+        return new Mixin( MixinName.from( name ), PropertyTreeJson.fromJson( data ) );
     }
 }

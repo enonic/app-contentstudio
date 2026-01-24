@@ -35,11 +35,12 @@ export class ContentTypeFilter
         super(context, 'content-type-filter');
     }
 
+    createDefaultValue(rawValue: unknown): Value {
+        throw new Error('Method not implemented.');
+    }
+
     protected readInputConfig(): void {
-        const contextDependentProp: Record<string, string> =
-            this.context.inputConfig['context'] ? this.context.inputConfig['context'][0] : {};
-        const value: string = contextDependentProp['value'] || '';
-        this.isContextDependent = value.toLowerCase() === 'true';
+        this.isContextDependent = this.context.inputConfig['context']?.[0]?.value as boolean || false;
     }
 
     getValueType(): ValueType {

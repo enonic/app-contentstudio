@@ -11,12 +11,12 @@ import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentPublishInfo;
-import com.enonic.xp.content.ExtraData;
-import com.enonic.xp.content.ExtraDatas;
+import com.enonic.xp.content.Mixin;
+import com.enonic.xp.content.Mixins;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.resource.ResourceKey;
 import com.enonic.xp.schema.content.ContentTypeName;
-import com.enonic.xp.schema.xdata.XDataName;
+import com.enonic.xp.schema.mixin.MixinName;
 import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
@@ -51,7 +51,8 @@ public class ControllerMappingsResolverTest
             controller( ResourceKey.from( "myapplication:/some/path" ) ).
             build();
         final SiteDescriptor siteDescriptor =
-            SiteDescriptor.create().mappingDescriptors( ControllerMappingDescriptors.from( mapingDescriptor ) ).build();
+            SiteDescriptor.create().applicationKey( ApplicationKey.from( "myapplication" ) ).mappingDescriptors(
+                ControllerMappingDescriptors.from( mapingDescriptor ) ).build();
 
         Mockito.when( siteService.getDescriptor( Mockito.isA( ApplicationKey.class ) ) ).thenReturn( siteDescriptor );
 
@@ -73,7 +74,9 @@ public class ControllerMappingsResolverTest
             SiteConfig.create().application( ApplicationKey.from( "myapplication" ) ).config( new PropertyTree() ).build();
         final Site site = createSite( SiteConfigs.from( siteConfig ) );
 
-        final SiteDescriptor siteDescriptor = SiteDescriptor.create().mappingDescriptors( ControllerMappingDescriptors.empty() ).build();
+        final SiteDescriptor siteDescriptor =
+            SiteDescriptor.create().applicationKey( ApplicationKey.from( "myapplication" ) ).mappingDescriptors(
+                ControllerMappingDescriptors.empty() ).build();
 
         Mockito.when( siteService.getDescriptor( Mockito.isA( ApplicationKey.class ) ) ).thenReturn( siteDescriptor );
 
@@ -100,7 +103,8 @@ public class ControllerMappingsResolverTest
             controller( ResourceKey.from( "myapplication:/some/path" ) ).
             build();
         final SiteDescriptor siteDescriptor =
-            SiteDescriptor.create().mappingDescriptors( ControllerMappingDescriptors.from( mapingDescriptor ) ).build();
+            SiteDescriptor.create().applicationKey( ApplicationKey.from( "myapplication" ) ).mappingDescriptors(
+                ControllerMappingDescriptors.from( mapingDescriptor ) ).build();
 
         Mockito.when( siteService.getDescriptor( Mockito.isA( ApplicationKey.class ) ) ).thenReturn( siteDescriptor );
 
@@ -128,7 +132,7 @@ public class ControllerMappingsResolverTest
             modifiedTime( Instant.parse( this.currentTime ) ).
             modifier( PrincipalKey.from( "user:system:admin" ) ).
             type( ContentTypeName.from( "myapplication:content-type" ) ).
-            extraDatas( ExtraDatas.create().add( new ExtraData( XDataName.from( "myApplication:myField" ), metadata ) ).build() ).
+            mixins( Mixins.create().add( new Mixin( MixinName.from( "myApplication:myField" ), metadata ) ).build() ).
             publishInfo( ContentPublishInfo.create().
                 from( Instant.parse( "2016-11-02T10:36:00Z" ) ).
                 to( Instant.parse( "2016-11-22T10:36:00Z" ) ).

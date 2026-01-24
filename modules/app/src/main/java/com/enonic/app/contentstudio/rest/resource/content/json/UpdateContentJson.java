@@ -6,10 +6,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.enonic.app.contentstudio.json.content.ExtraDataJson;
+import com.enonic.app.contentstudio.json.content.MixinJson;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentName;
-import com.enonic.xp.content.ExtraDatas;
+import com.enonic.xp.content.Mixins;
 import com.enonic.xp.content.MoveContentParams;
 import com.enonic.xp.content.UpdateContentParams;
 import com.enonic.xp.data.PropertyArrayJson;
@@ -27,20 +27,20 @@ public final class UpdateContentJson
     @JsonCreator
     UpdateContentJson( @JsonProperty("contentId") final String contentId, @JsonProperty("contentName") final String contentName,
                        @JsonProperty("data") final List<PropertyArrayJson> propertyArrayJsonList,
-                       @JsonProperty("meta") final List<ExtraDataJson> extraDataJsonList,
+                       @JsonProperty("meta") final List<MixinJson> extraDataJsonList,
                        @JsonProperty("displayName") final String displayName, @JsonProperty("requireValid") final String requireValid )
     {
         this.contentName = ContentName.from( contentName );
 
         final PropertyTree contentData = PropertyTreeJson.fromJson( propertyArrayJsonList );
-        final ExtraDatas extraDatas = parseExtradata( extraDataJsonList );
+        final Mixins mixins = parseMixins( extraDataJsonList );
 
         this.updateContentParams = new UpdateContentParams().
             requireValid( Boolean.parseBoolean( requireValid ) ).
             contentId( ContentId.from( contentId ) ).
             editor( edit -> {
                 edit.data = contentData;
-                edit.extraDatas = extraDatas;
+                edit.mixins = mixins;
                 edit.displayName = displayName;
             } );
 
@@ -69,12 +69,12 @@ public final class UpdateContentJson
         return contentName;
     }
 
-    private ExtraDatas parseExtradata( final List<ExtraDataJson> extraDataJsonList )
+    private Mixins parseMixins( final List<MixinJson> mixinJsons )
     {
-        final ExtraDatas.Builder extradatasBuilder = ExtraDatas.create();
-        for ( ExtraDataJson extraDataJson : extraDataJsonList )
+        final Mixins.Builder extradatasBuilder = Mixins.create();
+        for ( MixinJson mixinJson : mixinJsons )
         {
-            extradatasBuilder.add( extraDataJson.getExtraData() );
+            extradatasBuilder.add( mixinJson.getMixin() );
         }
         return extradatasBuilder.build();
     }
