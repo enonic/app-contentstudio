@@ -6,7 +6,7 @@ import {ContentId} from '../../../../app/content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import {ContentServerChangeItem} from '../../../../app/event/ContentServerChangeItem';
 import {fetchContentSummariesWithStatus} from '../../api/content';
-import {archiveContent, deleteContent, resolveForDelete} from '../../api/delete';
+import {archiveContent, resolveForDelete} from '../../api/delete';
 import {trackTask, cleanupTask} from '../../services/task.service';
 import {hasContentIdInIds} from '../../utils/cms/content/ids';
 import {sortDependantsByInbound} from '../../utils/cms/content/sortDependants';
@@ -16,8 +16,6 @@ import {$contentArchived, $contentCreated, $contentDeleted, $contentUpdated} fro
 //
 // * Types
 //
-
-export type DeleteAction = 'archive' | 'delete';
 
 //
 // * Store State
@@ -37,7 +35,6 @@ type DeleteDialogStore = {
     inboundIgnored: boolean;
     // Pending operation (after dialog closes)
     submitting: boolean;
-    pendingAction?: DeleteAction;
     pendingIds: string[];
     pendingTotal: number;
     pendingPrimaryName?: string;
@@ -98,10 +95,6 @@ const getArchiveContentIds = (items: ContentSummaryAndCompareStatus[]): ContentI
     return items.map(item => item.getContentId());
 };
 
-const getDeleteContentPaths = (items: ContentSummaryAndCompareStatus[]) => {
-    return items.map(item => item.getContentSummary().getPath());
-};
-
 //
 // * Public API
 //
@@ -119,8 +112,8 @@ export const openDeleteDialog = (items: ContentSummaryAndCompareStatus[]): void 
 };
 
 export const cancelDeleteDialog = (): void => {
-    const {pendingAction} = $deleteDialog.get();
-    if (pendingAction) {
+    const {submitting} = $deleteDialog.get();
+    if (submitting) {
         return;
     }
 
@@ -147,7 +140,7 @@ export const ignoreDeleteInboundDependencies = (): void => {
 
 export const $deleteTaskId = computed($deleteDialog, ({taskId}) => taskId);
 
-export const executeDeleteDialogAction = async (action: DeleteAction): Promise<boolean> => {
+export const executeDeleteDialogAction = async (): Promise<boolean> => {
     const state = $deleteDialog.get();
     if (state.loading || state.failed || state.submitting || state.items.length === 0) {
         return false;
@@ -159,14 +152,11 @@ export const executeDeleteDialogAction = async (action: DeleteAction): Promise<b
     const pendingTotal = totalCount || state.items.length;
 
     try {
-        const taskId = action === 'archive'
-            ? await archiveContent(getArchiveContentIds(state.items), state.archiveMessage)
-            : await deleteContent(getDeleteContentPaths(state.items));
+        const taskId = await archiveContent(getArchiveContentIds(state.items), state.archiveMessage);
 
         $deleteDialog.set({
             ...state,
             submitting: true,
-            pendingAction: action,
             pendingIds,
             pendingTotal,
             pendingPrimaryName,
@@ -177,17 +167,10 @@ export const executeDeleteDialogAction = async (action: DeleteAction): Promise<b
             onComplete: (resultState, message) => {
                 if (resultState === 'SUCCESS') {
                     const total = pendingTotal || pendingIds.length;
-                    if (action === 'archive') {
-                        const successMessage = total > 1
-                            ? i18n('dialog.archive.success.multiple', total)
-                            : i18n('dialog.archive.success.single', pendingPrimaryName ?? '');
-                        showSuccess(successMessage);
-                    } else {
-                        const successMessage = total > 1
-                            ? i18n('notify.deleted.success.multiple', total)
-                            : i18n('notify.deleted.success.single', pendingPrimaryName ?? '');
-                        showSuccess(successMessage);
-                    }
+                    const successMessage = total > 1
+                        ? i18n('dialog.archive.success.multiple', total)
+                        : i18n('dialog.archive.success.single', pendingPrimaryName ?? '');
+                    showSuccess(successMessage);
                 } else {
                     showError(message);
                 }
@@ -201,7 +184,6 @@ export const executeDeleteDialogAction = async (action: DeleteAction): Promise<b
         $deleteDialog.set({
             ...$deleteDialog.get(),
             submitting: false,
-            pendingAction: undefined,
             pendingIds: [],
             pendingTotal: 0,
             taskId: undefined,

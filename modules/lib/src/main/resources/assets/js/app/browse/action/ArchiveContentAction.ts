@@ -7,7 +7,7 @@ import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 export class ArchiveContentAction extends ContentTreeGridAction {
 
     constructor() {
-        super(i18n('action.archive'), 'mod+del');
+        super(i18n('action.delete'), 'mod+del');
 
         this.setEnabled(false).setClass('archive');
     }
