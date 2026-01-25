@@ -10,7 +10,6 @@ import {
     $isDeleteTargetSite,
     cancelDeleteDialog,
     executeDeleteDialogAction,
-    type DeleteAction
 } from '../../../store/dialogs/deleteDialog.store';
 import {DialogPresetGatedConfirmContent} from '../DialogPreset';
 import {DeleteDialogMainContent} from './DeleteDialogMainContent';
@@ -23,30 +22,21 @@ const DELETE_DIALOG_NAME = 'DeleteDialog';
 export const DeleteDialog = (): ReactElement => {
     const {
         open,
-        pendingAction,
         pendingTotal,
-    } = useStore($deleteDialog, {keys: ['open', 'pendingAction', 'pendingTotal']});
+    } = useStore($deleteDialog, {keys: ['open', 'pendingTotal']});
     const total = useStore($deleteItemsCount);
     const hasSite = useStore($isDeleteTargetSite);
     const taskId = useStore($deleteTaskId);
     const {progress} = useTaskProgress(taskId);
 
-    const [confirmAction, setConfirmAction] = useState<DeleteAction>('delete');
     const [view, setView] = useState<View>('main');
 
     const confirmDeleteTitle = useI18n('dialog.confirmDelete');
     const confirmDeleteDescription = useI18n('dialog.confirmDelete.subname');
-    const confirmArchiveTitle = useI18n('dialog.confirmArchive');
-    const confirmArchiveDescription = useI18n('dialog.confirmArchive.subname');
 
-    const confirmTitle = confirmAction === 'archive' ? confirmArchiveTitle : confirmDeleteTitle;
-    const confirmDescription = confirmAction === 'archive' ? confirmArchiveDescription : confirmDeleteDescription;
-
-    const progressAction = pendingAction ?? confirmAction;
     const progressTotal = Math.max(1, pendingTotal || total || 1);
 
     const resetView = () => {
-        setConfirmAction('delete');
         setView('main');
     };
 
@@ -57,30 +47,17 @@ export const DeleteDialog = (): ReactElement => {
         }
     };
 
-    const openConfirm = (action: DeleteAction) => {
-        setConfirmAction(action);
+    const openConfirm = () => {
         setView('confirmation');
-    };
-
-    const handleDelete = async () => {
-        if (total > 1 || hasSite) {
-            openConfirm('delete');
-            return;
-        }
-        setView('progress');
-        const started = await executeDeleteDialogAction('delete');
-        if (!started) {
-            setView('main');
-        }
     };
 
     const handleArchive = async () => {
         if (total > 1 || hasSite) {
-            openConfirm('archive');
+            openConfirm();
             return;
         }
         setView('progress');
-        const started = await executeDeleteDialogAction('archive');
+        const started = await executeDeleteDialogAction();
         if (!started) {
             setView('main');
         }
@@ -88,7 +65,7 @@ export const DeleteDialog = (): ReactElement => {
 
     const handleConfirm = async () => {
         setView('progress');
-        const started = await executeDeleteDialogAction(confirmAction);
+        const started = await executeDeleteDialogAction();
         if (!started) {
             setView('main');
         }
@@ -107,21 +84,19 @@ export const DeleteDialog = (): ReactElement => {
                 <Dialog.Overlay />
                 {view === 'main' &&
                     <DeleteDialogMainContent
-                        onDelete={() => void handleDelete()}
                         onArchive={() => void handleArchive()}
                     />
                 }
                 {view === 'confirmation' && <DialogPresetGatedConfirmContent
                     className="sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220"
-                    title={confirmTitle}
-                    description={confirmDescription}
+                    title={confirmDeleteTitle}
+                    description={confirmDeleteDescription}
                     expected={total}
                     onConfirm={() => void handleConfirm()}
                     onCancel={resetView}
                 />}
                 {view === 'progress' && (
                     <DeleteDialogProgressContent
-                        action={progressAction}
                         total={progressTotal}
                         progress={progress}
                     />

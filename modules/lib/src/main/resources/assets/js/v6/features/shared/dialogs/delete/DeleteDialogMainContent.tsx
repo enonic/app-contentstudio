@@ -16,7 +16,6 @@ import {ContentListItemWithReference} from '../../items/ContentListItemWithRefer
 import {InboundStatusBar} from '../status-bar/InboundStatusBar';
 
 type DeleteDialogMainContentProps = {
-    onDelete: () => void;
     onArchive: () => void;
     'data-component'?: string;
 };
@@ -24,7 +23,6 @@ type DeleteDialogMainContentProps = {
 const DELETE_DIALOG_MAIN_CONTENT_NAME = 'DeleteDialogMainContent';
 
 export const DeleteDialogMainContent = ({
-    onDelete,
     onArchive,
     'data-component': componentName = DELETE_DIALOG_MAIN_CONTENT_NAME,
 }: DeleteDialogMainContentProps): ReactElement => {
@@ -36,22 +34,22 @@ export const DeleteDialogMainContent = ({
     const inboundSet = useMemo(() => new Set(inboundIds), [inboundIds]);
     const isInbound = (content: ContentSummaryAndCompareStatus) => inboundSet.has(content.getContentId().toString());
 
-    const title = useI18n('dialog.archive');
-    const dependantsLabel = useI18n('dialog.archive.dependants');
-    const archiveLabel = useI18n('dialog.archive.action');
+    const single = useI18n('dialog.delete.single');
+    const multiple = useI18n('dialog.delete.multiple');
+    const title = total > 1 ? multiple : single;
+    const dependantsLabel = useI18n('dialog.delete.dependants');
     const deleteLabel = useI18n('action.delete');
-    const archiveButtonLabel = total > 1 ? `${archiveLabel} (${total})` : archiveLabel;
     const deleteButtonLabel = total > 1 ? `${deleteLabel} (${total})` : deleteLabel;
 
-    const archiveButtonRef = useRef<HTMLButtonElement>(null);
+    const actionButtonRef = useRef<HTMLButtonElement>(null);
 
     useOnceWhen(() => {
-        archiveButtonRef.current?.focus({focusVisible: true});
+        actionButtonRef.current?.focus({focusVisible: true});
     }, ready);
 
     const handleOpenAutoFocus = (event: FocusEvent) => {
         event.preventDefault();
-        archiveButtonRef.current?.focus({focusVisible: true});
+        actionButtonRef.current?.focus({focusVisible: true});
     };
 
     const inboundCount = useMemo(() => {
@@ -68,7 +66,7 @@ export const DeleteDialogMainContent = ({
             onOpenAutoFocus={handleOpenAutoFocus}
             data-component={componentName}
         >
-            <Dialog.DefaultHeader title={title} description={useI18n('dialog.archive.subname')} withClose />
+            <Dialog.DefaultHeader title={title} description={useI18n('dialog.delete.subname')} withClose />
 
             <InboundStatusBar
                 loading={loading}
@@ -111,8 +109,7 @@ export const DeleteDialogMainContent = ({
             </Dialog.Body>
 
             <Dialog.Footer className="flex items-center gap-2.5">
-                <Button variant="text" size="lg" className="text-error" label={deleteButtonLabel} disabled={!ready} onClick={onDelete} />
-                <Button variant="solid" size="lg" label={archiveButtonLabel} disabled={!ready} onClick={onArchive} ref={archiveButtonRef} />
+                <Button variant="solid" size="lg" label={deleteButtonLabel} disabled={!ready} onClick={onArchive} ref={actionButtonRef} />
             </Dialog.Footer>
         </Dialog.Content>
     );
