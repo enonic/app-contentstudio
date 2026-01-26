@@ -13,9 +13,10 @@ const xpath = {
     fragmentComponentView: "//div[contains(@id,'FragmentComponentView')]",
     itemViewContextMenu: "//div[contains(@id,'ItemViewContextMenu')]",
     layoutComponentView: "//div[contains(@id,'LayoutComponentView')]",
+    layoutPlaceholderDiv: `//div[contains(@id,'LayoutPlaceholder')]`,
     fragmentPlaceHolderDiv: `//div[contains(@id,'FragmentPlaceholder')]`,
     sectionTextComponentView: "//section[contains(@id,'TextComponentView')]",
-    editableTextComponentView: "//*[contains(@id,'TextComponentView') and @contenteditable='true']",
+    editableTextComponentView: "//*[contains(@id,'TextComponentView')]",
     textComponentType: "//*[@data-portal-component-type='text']",
     previewNotAvailableSpan: "//p[@class='no-preview-message']/span[1]",
     imageInComponent: "//figure/img",
@@ -333,6 +334,14 @@ class LiveFormPanel extends Page {
             return await this.waitForElementNotDisplayed(xpath.layoutComponentView, appConst.mediumTimeout);
         } catch (err) {
             await this.handleError(`Live Editor - layout component should not be displayed`, 'err_live_edit_layout', err);
+        }
+    }
+
+    async waitForLayoutPlaceHolderDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(xpath.layoutPlaceholderDiv, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(`Live Editor - layout placeholder should be displayed`, 'err_live_edit_layout_placeholder', err);
         }
     }
 

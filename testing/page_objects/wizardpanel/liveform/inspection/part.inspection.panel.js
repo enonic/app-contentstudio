@@ -4,6 +4,7 @@
 const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
+const ComponentDescriptorsDropdown = require('../../../components/selectors/component.descriptors.dropdown');
 
 const xpath = {
     container: "//div[contains(@id,'PartInspectionPanel')]",
@@ -19,6 +20,16 @@ class PartInspectionPanel extends BaseComponentInspectionPanel {
 
     get partDropdownOptionsFilterInput() {
         return this.container + lib.DROPDOWN_OPTION_FILTER_INPUT;
+    }
+
+    async typeNameAndSelectPart(displayName) {
+        try {
+            let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
+            await componentDescriptorsDropdown.selectFilteredComponent(displayName, xpath.container);
+            return await this.pause(500);
+        } catch (err) {
+            await this.handleError('Part Inspection Panel', 'err_part_inspect_panel_dropdown', err);
+        }
     }
 
     async getDropdownSelectedOption() {

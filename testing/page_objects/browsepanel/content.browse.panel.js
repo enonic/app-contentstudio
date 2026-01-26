@@ -681,9 +681,13 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     // this method waits until 'invalid' appears in the @class
-    waitForRedIconDisplayed(contentName) {
-        let xpath = XPATH.contentSummaryListViewerByName(contentName);
-        return this.waitUntilInvalid(xpath);
+    async waitForRedIconDisplayed(contentName) {
+        try {
+            let xpath = XPATH.contentSummaryListViewerByName(contentName);
+            return await this.waitUntilInvalid(xpath);
+        }catch (err){
+            await this.handleError(`Red icon should be displayed for content: ${contentName}`, 'err_red_icon_displayed', err);
+        }
     }
 
     async getContentStatus(name) {

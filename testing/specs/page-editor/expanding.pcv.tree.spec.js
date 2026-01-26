@@ -7,10 +7,11 @@ const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-const TextComponentCke = require('../../page_objects/components/text.component');
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
+const LayoutInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/layout.inspection.panel');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item selected in Live Edit', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -37,20 +38,22 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
-            let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let liveFormPanel = new LiveFormPanel();
             // 1. Open the existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Insert the first text component:
             await pageComponentsWizardStepForm.openMenu('main');
             await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Text']);
-            await textComponentCke.typeTextInCkeEditor(TEXT_COMPONENT_1);
-            await contentWizard.switchToMainFrame();
+            await textComponentInspectionPanel.waitForOpened();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.typeTextInEditor(TEXT_COMPONENT_1);
             // 3. Insert the second text component:
             await pageComponentsWizardStepForm.openMenu('main');
             await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Text']);
-            await textComponentCke.typeTextInCkeEditor(TEXT_COMPONENT_2);
-            await contentWizard.switchToMainFrame();
+            await textComponentInspectionPanel.waitForOpened();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.typeTextInEditor(TEXT_COMPONENT_2);
             await contentWizard.hotKeySave();
             await contentWizard.pause(1200);
             await contentWizard.switchToLiveEditFrame();
@@ -77,8 +80,8 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            let textComponentCke = new TextComponentCke();
-            let liveFormPanel = new LiveFormPanel();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
+            let layoutInspectionPanel = new LayoutInspectionPanel();
             // 1. Open the existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Maximize the Live Edit:
@@ -86,13 +89,15 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             // 3. Insert the first text component:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
-            await liveFormPanel.selectLayoutByDisplayName(LAYOUT_3_COL);
+            await layoutInspectionPanel.waitForOpened();
+            await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_3_COL);
             await contentWizard.waitForNotificationMessage();
             // 4. Insert text component in the left layout's region (Verify that layout item is expanded in PCV)
             await pageComponentView.openMenu('left');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
-            await textComponentCke.typeTextInCkeEditor(TEXT_LEFT_REGION);
-            await contentWizard.switchToMainFrame();
+            await textComponentInspectionPanel.waitForOpened();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.typeTextInEditor(TEXT_LEFT_REGION);
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('issue_notification_msg_3');
             //await contentWizard.waitForNotificationMessage();

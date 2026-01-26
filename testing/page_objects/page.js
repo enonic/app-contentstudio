@@ -292,18 +292,18 @@ class Page {
         return await element.waitForDisplayed({timeout: ms});
     }
 
-    async waitForSpinnerNotVisible(ms) {
+    async waitForSpinnerNotVisible(ms = appConst.longTimeout, spinnerSelector = "//div[@class='spinner']") {
         try {
-            let timeout1;
-            timeout1 = ms === undefined ? appConst.longTimeout : ms;
-            let message = 'Spinner still displayed! timeout is ' + timeout1;
-            return await this.browser.waitUntil(async () => {
-                let res = await this.isElementNotDisplayed("//div[@class='spinner']");
-                return res;
-            }, {timeout: timeout1, timeoutMsg: message});
+            const timeoutMsg = `Spinner still displayed! Timeout is ${ms}`;
+            await this.browser.waitUntil(
+                async () => {
+                    const isNotDisplayed = await this.isElementNotDisplayed(spinnerSelector);
+                    return isNotDisplayed;
+                },
+                {timeout: ms, timeoutMsg:timeoutMsg}
+            );
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_spinner');
-            throw new Error(` Spinner error, screenshot :${screenshot}  ` + err);
+            await this.handleError('Spinner should not be visible!', 'err_spinner', err);
         }
     }
 
@@ -480,7 +480,7 @@ class Page {
             type: 'key',
             id: 'keyboard',
             actions: [
-                { type: 'keyDown', value: Key.Shift }
+                {type: 'keyDown', value: Key.Shift}
             ]
         }]);
 
@@ -490,8 +490,8 @@ class Page {
                 type: 'key',
                 id: 'keyboard',
                 actions: [
-                    { type: 'keyDown', value: Key.ArrowDown },
-                    { type: 'keyUp', value: Key.ArrowDown  }
+                    {type: 'keyDown', value: Key.ArrowDown},
+                    {type: 'keyUp', value: Key.ArrowDown}
                 ]
             }]);
             await this.getBrowser().pause(400);
@@ -501,7 +501,7 @@ class Page {
             type: 'key',
             id: 'keyboard',
             actions: [
-                { type: 'keyUp', value: Key.Shift } // Shift
+                {type: 'keyUp', value: Key.Shift} // Shift
             ]
         }]);
     }

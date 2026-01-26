@@ -38,11 +38,12 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
         });
 
     // verifies - Page Editor is not updated after content is saved #1096
-    it(`GIVEN html-area content is opened AND part with html-example has been inserted WHEN text has been typed in the html-area THEN the text should appear in the Page Editor`,
+    it(`GIVEN a part with html-example has been inserted WHEN text has been typed in the html-area THEN the text should appear in the Page Editor`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             let liveFormPanel = new LiveFormPanel();
+            let partInspectionPanel = new PartInspectionPanel();
             let htmlAreaForm = new HtmlAreaForm();
             CONTENT_NAME = contentBuilder.generateRandomName('content');
             // Open new html-area wizard, type the name and type the initial text in the html-area :
@@ -60,9 +61,9 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await pageComponentsWizardStepForm.openMenu('main');
             // 4 click on the 'Insert Part' menu item:
             await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Part']);
+            await partInspectionPanel.waitForOpened();
             // 5 Type the name and select the filtered option(select the part):
-            await liveFormPanel.selectPartByDisplayName(HTML_AREA_PART_NAME);
-            await contentWizard.switchToMainFrame();
+            await partInspectionPanel.typeNameAndSelectPart(HTML_AREA_PART_NAME);
             // 6. Type a text in the html-area
             await htmlAreaForm.typeTextInHtmlArea(TEST_TEXT);
             // 7. Save the content:
@@ -154,7 +155,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
 
     // Verify issue 7543
     // need to preselect layout/part/text of the fragment when nothing is selected in the Page Component view of a fragment. If it's selected and then unselected, then controller stays correctly selected in the Inspect panel.
-    it(`GIVEN html-area content is opened AND part with html-example has been inserted WHEN text has been typed in the html-area THEN the text should appear in the Page Editor`,
+    it(`GIVEN a part with html-example has been inserted WHEN text has been typed in the html-area THEN the text should appear in the Page Editor`,
         async () => {
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             let partInspectionPanel = new PartInspectionPanel();
