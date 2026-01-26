@@ -37,7 +37,8 @@ export const DeleteDialogMainContent = ({
     const single = useI18n('dialog.delete.single');
     const multiple = useI18n('dialog.delete.multiple');
     const title = total > 1 ? multiple : single;
-    const dependantsLabel = useI18n('dialog.delete.dependants');
+    const description = useI18n('dialog.archive.subname');
+    const dependantsLabel = useI18n('dialog.archive.dependants');
     const deleteLabel = useI18n('action.delete');
     const deleteButtonLabel = total > 1 ? `${deleteLabel} (${total})` : deleteLabel;
 
@@ -66,7 +67,7 @@ export const DeleteDialogMainContent = ({
             onOpenAutoFocus={handleOpenAutoFocus}
             data-component={componentName}
         >
-            <Dialog.DefaultHeader title={title} description={useI18n('dialog.delete.subname')} withClose />
+            <Dialog.DefaultHeader title={title} description={description} withClose />
 
             <InboundStatusBar
                 loading={loading}
