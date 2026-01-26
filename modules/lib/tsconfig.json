@@ -37,8 +37,7 @@
     },
     "include": [
         "./src/main/resources/assets/js/types.d.ts",
-        "./src/main/resources/assets/js/**/*",
-        "./vitest.setup.ts"
+        "./src/main/resources/assets/js/**/*"
     ],
     "exclude": [
         "build/**/*",

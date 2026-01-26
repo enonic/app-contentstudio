@@ -70,6 +70,7 @@ tasks.register( 'devJar', Jar ) {
     archiveClassifier = 'dev-resources'
     from sourceSets.main.output
     include 'dev/**'
+    exclude 'dev/lib-contentstudio/tsconfig.tsbuildinfo'
     includeEmptyDirs = false
     dependsOn tasks.named( 'pnpmBuild' )
     dependsOn tasks.named( 'copyPackage' )
