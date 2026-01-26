@@ -32,7 +32,7 @@ export const DeleteDialog = (): ReactElement => {
     const [view, setView] = useState<View>('main');
 
     const confirmDeleteTitle = useI18n('dialog.confirmDelete');
-    const confirmDeleteDescription = useI18n('dialog.confirmDelete.subname');
+    const confirmDeleteDescription = useI18n('dialog.confirmArchive.subname');
 
     const progressTotal = Math.max(1, pendingTotal || total || 1);
 
