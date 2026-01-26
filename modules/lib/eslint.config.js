@@ -77,6 +77,7 @@ module.exports = [
     {
         ignores: [
             "vite.config.css.ts",
+            "vitest.setup.ts",
             "**/node_modules/",
             "**/build/",
             "**/dist/",
