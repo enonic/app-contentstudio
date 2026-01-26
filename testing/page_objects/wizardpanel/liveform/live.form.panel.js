@@ -99,7 +99,7 @@ class LiveFormPanel extends Page {
     // get text from 'section' element:
     async getTextInTextComponent() {
         try {
-            let selector = xpath.sectionTextComponentView + '/p';
+            let selector = xpath.textComponentView + '/p';
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getTextInDisplayedElements(selector);
         } catch (err) {

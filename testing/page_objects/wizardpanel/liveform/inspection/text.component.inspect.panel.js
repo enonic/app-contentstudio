@@ -104,9 +104,13 @@ class TextComponentInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     async clickInTextArea() {
-        await this.waitForElementDisplayed(this.textArea, appConst.mediumTimeout);
-        await this.clickOnElement(this.textArea);
-        await this.pause(100);
+        try {
+            await this.waitForElementDisplayed(this.textArea, appConst.mediumTimeout);
+            await this.clickOnElement(this.textArea);
+            await this.pause(100);
+        }catch(err){
+            await this.handleError('Inspect Panel, Text Component - tried to click in text area: ', 'err_click_text_area', err);
+        }
     }
 
     async getTextFromEditor() {

@@ -119,8 +119,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
 
     // Verify  https://github.com/enonic/app-contentstudio/issues/7077
     // Images failed to render inside a page template #7077
-    // TODO  issue-9241,   remove skip in this test
-    it.skip(`GIVEN an image is inserted in the page-template WHEN the site has been opened THEN image that was inserted in the template is displayed in the site as well`,
+    it(`GIVEN an image is inserted in the page-template WHEN the site has been opened THEN image that was inserted in the template is displayed in the site as well`,
         async () => {
             let contentWizard = new ContentWizard();
             let liveFormPanel = new LiveFormPanel();
@@ -215,7 +214,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await contentWizard.switchToLiveEditFrame();
             let result = await liveFormPanel.getTextInTextComponent();
             // 8. Verify that the text expected text is displayed in the text component:
-            assert.equal(result[0], TEST_TEXT_INSERTED, "Expected text should be displayed in the text component");
+            assert.ok(result.includes(TEST_TEXT_INSERTED), 'Expected text should be displayed in the text component');
         });
 
     // xp-apps#738 Live Editor is not updated after a page template was added or removed
