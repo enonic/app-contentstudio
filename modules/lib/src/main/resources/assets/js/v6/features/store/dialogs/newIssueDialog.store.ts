@@ -5,10 +5,10 @@ import {computed, map} from 'nanostores';
 import {ContentId} from '../../../../app/content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import {PublishRequest} from '../../../../app/issue/PublishRequest';
-import {PublishRequestItem} from '../../../../app/issue/PublishRequestItem';
 import {CreateIssueRequest} from '../../../../app/issue/resource/CreateIssueRequest';
 import {fetchContentSummariesWithStatus} from '../../api/content';
 import {resolvePublishDependencies} from '../../api/publish';
+import {buildItems, dedupeItems, getItemIds} from '../../utils/cms/content/buildItems';
 import {hasContentIdInIds, uniqueIds} from '../../utils/cms/content/ids';
 import {createDebounce} from '../../utils/timing/createDebounce';
 import {openIssueDialog, openIssueDialogDetails, setIssueDialogView, $issueDialog} from './issueDialog.store';
@@ -59,29 +59,6 @@ let instanceId = 0;
 const reloadDependenciesDebounced = createDebounce(() => {
     void reloadNewIssueDependencies();
 }, DEPENDENCY_RELOAD_DELAY_MS);
-
-const getItemIds = (items: ContentSummaryAndCompareStatus[]): ContentId[] => {
-    return items.map(item => item.getContentId());
-};
-
-const dedupeItems = (items: ContentSummaryAndCompareStatus[]): ContentSummaryAndCompareStatus[] => {
-    const deduped = new Map<string, ContentSummaryAndCompareStatus>();
-    items.forEach(item => deduped.set(item.getContentId().toString(), item));
-    return Array.from(deduped.values());
-};
-
-const buildPublishRequestItems = (
-    items: ContentSummaryAndCompareStatus[],
-    excludedChildrenIds: ContentId[],
-): PublishRequestItem[] => {
-    return items.map(item =>
-        PublishRequestItem
-            .create()
-            .setId(item.getContentId())
-            .setIncludeChildren(!hasContentIdInIds(item.getContentId(), excludedChildrenIds))
-            .build()
-    );
-};
 
 const resetDependenciesState = (state: NewIssueDialogStore): NewIssueDialogStore => {
     return {
@@ -251,7 +228,7 @@ export const submitNewIssueDialog = async (): Promise<void> => {
     const publishRequest = PublishRequest
         .create()
         .addExcludeIds(state.excludedDependantIds)
-        .addPublishRequestItems(buildPublishRequestItems(state.items, state.excludedChildrenIds))
+        .addPublishRequestItems(buildItems(state.items, state.excludedChildrenIds))
         .build();
 
     try {

@@ -2,13 +2,13 @@ import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentPublishDialog} from '../publish/ContentPublishDialog';
-import {RequestContentPublishDialog} from '../publish/RequestContentPublishDialog';
 import {
     openIssueDialog,
     openIssueDialogDetails,
     setIssueDialogListFilter,
 } from '../../v6/features/store/dialogs/issueDialog.store';
 import {openNewIssueDialog} from '../../v6/features/store/dialogs/newIssueDialog.store';
+import {openRequestPublishDialog} from '../../v6/features/store/dialogs/requestPublishDialog.store';
 import {IssueServerEventsHandler} from './event/IssueServerEventsHandler';
 import {Issue} from './Issue';
 import {GetIssueRequest} from './resource/GetIssueRequest';
@@ -24,7 +24,6 @@ export class IssueDialogsManager {
     private listDialog: IssueListDialog;
     private createDialog: CreateIssueDialog;
     private publishDialog: ContentPublishDialog;
-    private requestPublishDialog: RequestContentPublishDialog;
     private getIssueRequest: GetIssueRequest;
 
     private issue: Issue;
@@ -40,7 +39,6 @@ export class IssueDialogsManager {
         this.listDialog = IssueListDialog.get();
         this.createDialog = CreateIssueDialog.get();
         this.publishDialog = ContentPublishDialog.get();
-        this.requestPublishDialog = RequestContentPublishDialog.get();
 
         this.initHandlers();
         this.initListeners();
@@ -99,7 +97,6 @@ export class IssueDialogsManager {
         this.listenListDialog();
         this.listenDetailsDialog();
         this.listenPublishDialog();
-        this.listenRequestPublishDialog();
     }
 
     private listenCreateDialog() {
@@ -157,15 +154,6 @@ export class IssueDialogsManager {
         });
     }
 
-    private listenRequestPublishDialog() {
-        this.requestPublishDialog.onIssueCreated(issue => {
-            if (this.requestPublishDialog.isOpen()) {
-                if (this.requestPublishDialog.isIssueCreatedByCurrentUser(issue)) {
-                    this.requestPublishDialog.close();
-                }
-            }
-        });
-    }
 
     private static closeDialog(dialog: ModalDialog) {
         if (dialog.isOpen()) {
@@ -191,10 +179,7 @@ export class IssueDialogsManager {
     }
 
     openCreateRequestDialog(summaries?: ContentSummaryAndCompareStatus[], isIncludeChildren?: boolean) {
-        this.requestPublishDialog
-            .setContentToPublish(summaries)
-            .setIncludeChildItems(isIncludeChildren)
-            .open();
+        openRequestPublishDialog(summaries, isIncludeChildren);
     }
 
 }
