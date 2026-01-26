@@ -20,6 +20,7 @@ const WIDGETS_SELECTOR_NAME = 'WidgetsSelector';
 const WidgetsSelector = ({widgetViews = [], externalSelectedWidgetView = undefined}: WidgetsSelectorProps) => {
     const selectorPlaceholder = useI18n('field.contextPanel.selector.placeholder');
     const [value, setValue] = useState<string | undefined>();
+    const [open, setOpen] = useState<boolean>(false);
 
     // TODO: Enonic UI - backwards compatibility due to the active widget being handled by ContextView
     useEffect(() => {
@@ -34,12 +35,22 @@ const WidgetsSelector = ({widgetViews = [], externalSelectedWidgetView = undefin
 
     return (
         <div className="flex shrink-0 border-b border-bdr-soft p-1.5 h-15">
-            <Selector.Root value={value} onValueChange={onValueChange}>
+            <Selector.Root value={value} onValueChange={onValueChange} open={open} onOpenChange={setOpen}>
                 <Selector.Trigger className="h-full border-0">
                     <Selector.Value placeholder={selectorPlaceholder}>
-                        <WidgetsSelectorItem
-                            widgetView={widgetViews.find((widgetView) => getWidgetKeyForSelector(widgetView) === value)}
-                        />
+                        {open ? (
+                            <span className="text-subtle">
+                                {selectorPlaceholder}
+                            </span>
+                        ) : (
+                            <WidgetsSelectorItem
+                                widgetView={widgetViews.find(
+                                    (widgetView) =>
+                                        getWidgetKeyForSelector(widgetView) ===
+                                        value,
+                                )}
+                            />
+                        )}
                     </Selector.Value>
                     <Selector.Icon />
                 </Selector.Trigger>
