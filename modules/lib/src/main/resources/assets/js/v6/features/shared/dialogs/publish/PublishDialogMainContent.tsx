@@ -143,7 +143,7 @@ export const PublishDialogMainContent = ({
                                         <GridList.Row
                                             id={`${item.id}-children`}
                                             disabled={item.required || loading || !item.included}
-                                            className="gap-3 px-2.5"
+                                            className="gap-3 px-2.5 -mt-1"
                                         >
                                             <GridList.Cell className="pl-2.5 flex items-center gap-2.5">
                                                 <CornerDownRight className="size-4 shrink-0" />
