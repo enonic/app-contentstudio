@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {fireEvent, render, screen} from '@testing-library/preact';
-import type {ContentComboboxFlatNode} from '../../hooks/useContentComboboxData';
+import type {ContentComboboxFlatNode} from '../../../../hooks/useContentComboboxData';
 
 // Mock @enonic/ui
 vi.mock('@enonic/ui', () => {
@@ -82,14 +82,14 @@ vi.mock('lucide-react', () => ({
 }));
 
 // Mock ContentLabel
-vi.mock('../content/ContentLabel', () => ({
+vi.mock('../../../content/ContentLabel', () => ({
     ContentLabel: ({content, variant, className}: {content: unknown; variant?: string; className?: string}) => (
         <span data-testid='content-label' className={className}>Content Label</span>
     ),
 }));
 
 // Mock StatusBadge
-vi.mock('../status/StatusBadge', () => ({
+vi.mock('../../../status/StatusBadge', () => ({
     StatusBadge: ({status}: {status?: string}) => (
         <span data-testid='status-badge' data-status={status}>Status</span>
     ),

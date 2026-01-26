@@ -119,7 +119,7 @@ vi.mock('react-virtuoso', () => ({
 }));
 
 // Mock useI18n hook
-vi.mock('../../hooks/useI18n', () => ({
+vi.mock('../../../../hooks/useI18n', () => ({
     useI18n: vi.fn((key: string) => {
         const translations: Record<string, string> = {
             'field.search.placeholder': 'Type to search...',

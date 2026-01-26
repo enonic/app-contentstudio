@@ -1,9 +1,9 @@
 import {ListItem, VirtualizedTreeList, type VirtualizedTreeListItemProps} from '@enonic/ui';
 import {Loader2} from 'lucide-react';
 import type {ReactElement} from 'react';
-import {ContentLabel} from '../content/ContentLabel';
-import {StatusBadge} from '../status/StatusBadge';
-import type {ContentComboboxFlatNode} from '../../hooks/useContentComboboxData';
+import {ContentLabel} from '../../../content/ContentLabel';
+import {StatusBadge} from '../../../status/StatusBadge';
+import type {ContentComboboxFlatNode} from '../../../../hooks/useContentComboboxData';
 
 //
 // * Types

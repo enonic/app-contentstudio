@@ -2,9 +2,9 @@ import type {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationK
 import {Button, Combobox, Toggle, Tooltip, cn} from '@enonic/ui';
 import {AlertCircle, ListTree, RefreshCw} from 'lucide-react';
 import {useId, useMemo, type ReactElement} from 'react';
-import type {ContentSummary} from '../../../../app/content/ContentSummary';
-import type {ContentFilterOptions} from '../../hooks/useContentComboboxData';
-import {useI18n} from '../../hooks/useI18n';
+import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
+import type {ContentFilterOptions} from '../../../../hooks/useContentComboboxData';
+import {useI18n} from '../../../../hooks/useI18n';
 import {ContentComboboxList} from './ContentComboboxList';
 import {useContentComboboxController} from './useContentComboboxController';
 
