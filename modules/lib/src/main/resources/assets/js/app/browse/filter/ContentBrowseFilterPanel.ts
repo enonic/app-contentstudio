@@ -69,7 +69,7 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
             exportOptions: this.getExportOptions(),
         });
 
-        this.appendChild(this.dependenciesSection);
+        super.appendChild(this.dependenciesSection);
         this.appendChild(this.filterComponent);
 
         this.handleEvents();
