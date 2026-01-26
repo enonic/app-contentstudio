@@ -658,10 +658,6 @@ export class PageComponentsView
 
         if (item instanceof Component) {
             this.tree.fetchComponentItem(item).then((updatedComponent: TreeComponent) => {
-
-                if (item.getType().getShortName() === LayoutComponentType.get().getShortName()) {
-                    console.info('updateItemByPath updatedComponent', updatedComponent);
-                }
                 const oldItem = listElement.getItem();
                 const updatedItem = new ComponentsTreeItem(updatedComponent, +oldItem.getId());
                 listElement.getParentList().replaceItems(updatedItem);

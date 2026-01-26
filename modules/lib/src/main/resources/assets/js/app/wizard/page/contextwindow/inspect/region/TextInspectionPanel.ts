@@ -81,14 +81,10 @@ export class TextInspectionPanel
                 this.handleTextComponentUpdated(event);
             }
         });
+    }
 
-        PageEventsManager.get().onTextComponentEditRequested((path) => {
-            if (path.equals(this.component?.getPath())) {
-                setTimeout(() => {
-                    this.htmlEditor.focus()
-                }, 100);
-            }
-        });
+    focus(): void {
+        this.htmlEditor?.focus();
     }
 
     private handleTextComponentUpdated(event: ComponentTextUpdatedEvent): void {

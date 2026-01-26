@@ -164,6 +164,7 @@ export class LiveEditPageProxy
         IframeEventBus.get().registerClass('SetFragmentComponentEvent', SetFragmentComponentEvent);
         IframeEventBus.get().registerClass('CreateFragmentEvent', CreateFragmentEvent);
         IframeEventBus.get().registerClass('EditTextComponentViewEvent', EditTextComponentViewEvent);
+        IframeEventBus.get().registerClass('LiveEditPageInitializationErrorEvent', LiveEditPageInitializationErrorEvent);
 
 
         IframeEventBus.get().onEvent('editor-iframe-loaded', (event) => {
@@ -517,9 +518,7 @@ export class LiveEditPageProxy
         });
 
         EditTextComponentViewEvent.on((event: EditTextComponentViewEvent): void => {
-            const path: ComponentPath = ComponentPath.fromString(event.getPath());
-
-            PageEventsManager.get().notifyTextComponentEditRequested(path);
+            PageEventsManager.get().notifyTextComponentEditRequested(event.getPath());
         })
 
         CustomizePageEvent.on((event: CustomizePageEvent): void => {

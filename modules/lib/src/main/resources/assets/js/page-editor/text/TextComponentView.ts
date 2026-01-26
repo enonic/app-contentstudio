@@ -9,6 +9,9 @@ import {TextItemType} from './TextItemType';
 import {TextPlaceholder} from './TextPlaceholder';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {EditTextComponentViewEvent} from '../event/incoming/manipulation/EditTextComponentViewEvent';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ItemView} from '../ItemView';
 
 export class TextComponentViewBuilder
     extends ComponentViewBuilder {
@@ -36,6 +39,8 @@ export class TextComponentView
 
     private static DEFAULT_TEXT: string = '';
 
+    private editAction: Action;
+
     // special handling for click to allow dblclick event without triggering 2 clicks before it
     public static DBL_CLICK_TIMEOUT: number = 250;
     private singleClickTimer: number;
@@ -52,8 +57,19 @@ export class TextComponentView
 
         this.setText(normalizedValue);
 
+        this.editAction = new Action(i18n('action.edit')).onExecuted(() => {
+            new EditTextComponentViewEvent(this.getPath()).fire();
+        });
+
         this.addClassEx('text-view');
         this.setTextDir();
+        this.addEditActionToMenu(this.editAction);
+    }
+
+    private addEditActionToMenu(editAction: Action) {
+        if (!this.isEmpty()) {
+            this.addContextMenuActions([editAction]);
+        }
     }
 
     private normalizeInitialValue(initialText?: string): string {
@@ -77,6 +93,11 @@ export class TextComponentView
         if (contentsLangDirection === LangDirection.RTL) {
             this.setDir(LangDirection.RTL);
         }
+    }
+
+    refreshEmptyState(): ItemView {
+        this.editAction?.setVisible(!this.isEmpty());
+        return super.refreshEmptyState();
     }
 
     highlight() {
@@ -135,7 +156,7 @@ export class TextComponentView
         if (!this.isSelected()) {
             this.selectWithoutMenu();
         }
-        new EditTextComponentViewEvent(this.getPath().toString()).fire();
+        new EditTextComponentViewEvent(this.getPath()).fire();
     }
 
     private doHandleClick(event: MouseEvent): void {

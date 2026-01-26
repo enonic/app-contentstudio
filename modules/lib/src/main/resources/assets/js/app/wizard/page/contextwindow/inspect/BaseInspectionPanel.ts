@@ -17,6 +17,10 @@ export abstract class BaseInspectionPanel
         this.liveEditModel = liveEditModel;
     }
 
+    focus(): void {
+        // Override in subclasses
+    }
+
     isNotFoundError(reason): boolean {
         return reason instanceof RequestError && (reason).isNotFound();
     }

@@ -28,6 +28,7 @@ export interface InspectParameters {
     showPanel: boolean;
     keepPanelSelection?: boolean;
     silent?: boolean;
+    focus?: boolean;
     source?: PageNavigationEventSource;
 }
 
