@@ -209,6 +209,8 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.typeTextInEditor(TEST_TEXT);
+            // wait for the update event to reach text component inside iframe
+            await contentWizard.pause(300);
             // 7. Switches to 'live-edit' iframe and gets the just inserted text:
             await studioUtils.saveScreenshot('site_customised_text_inserted');
             await contentWizard.switchToLiveEditFrame();
