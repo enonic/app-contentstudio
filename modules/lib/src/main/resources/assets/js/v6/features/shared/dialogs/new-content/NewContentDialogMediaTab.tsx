@@ -39,17 +39,17 @@ export const NewContentDialogMediaTab = ({
     };
 
     return (
-        <Tab.Content value={tabName} className="mt-0 h-full">
-            <div className="size-full">
+        <Tab.Content value={tabName} className='mt-0 h-full' data-component={NEW_CONTENT_DIALOG_MEDIA_TAB_NAME}>
+            <div className='size-full'>
                 <input
-                    id="file-upload"
-                    type="file"
+                    id='file-upload'
+                    type='file'
                     multiple
                     onChange={handleChange}
-                    className="peer sr-only"
+                    className='peer sr-only'
                 />
                 <label
-                    htmlFor="file-upload"
+                    htmlFor='file-upload'
                     className={cn(
                         'relative flex flex-col gap-2.5 size-full items-center justify-center p-5',
                         'border border-dashed border-info-rev hover:cursor-pointer transition-all',
@@ -58,7 +58,7 @@ export const NewContentDialogMediaTab = ({
                     )}
                 >
                     <Image size={28} />
-                    <p className="text-subtle font-lg">{hintLabel}</p>
+                    <p className='text-subtle font-lg'>{hintLabel}</p>
                 </label>
             </div>
         </Tab.Content>
