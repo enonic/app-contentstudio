@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {fireEvent, render, screen} from '@testing-library/preact';
-import type {ContentComboboxFlatNode} from '../../hooks/useContentComboboxData';
+import type {ContentComboboxFlatNode} from '../../../../hooks/useContentComboboxData';
 
 // Mock state - can be changed in tests
 let mockUseComboboxReturn = {

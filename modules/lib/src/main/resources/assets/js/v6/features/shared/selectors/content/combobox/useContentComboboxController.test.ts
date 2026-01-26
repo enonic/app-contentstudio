@@ -25,7 +25,7 @@ let mockError: Error | null = null;
 let mockIsFlatLoading = false;
 let mockIsTreeLoading = false;
 
-vi.mock('../../hooks/useContentComboboxData', () => ({
+vi.mock('../../../../hooks/useContentComboboxData', () => ({
     useContentComboboxData: () => ({
         tree: mockTreeStore,
         treeItems: mockTreeItems,
@@ -46,7 +46,7 @@ vi.mock('../../hooks/useContentComboboxData', () => ({
     }),
 }));
 
-vi.mock('../../utils/hooks/useDebouncedValue', () => ({
+vi.mock('../../../../utils/hooks/useDebouncedValue', () => ({
     useDebouncedValue: <T>(value: T, _delay: number) => value,
 }));
 

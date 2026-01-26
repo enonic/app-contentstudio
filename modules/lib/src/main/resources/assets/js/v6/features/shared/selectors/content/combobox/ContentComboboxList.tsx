@@ -3,8 +3,8 @@ import {Loader2} from 'lucide-react';
 import {forwardRef, useCallback, type HTMLAttributes, type ReactElement} from 'react';
 import type {ListRange, VirtuosoHandle} from 'react-virtuoso';
 import {Virtuoso} from 'react-virtuoso';
-import type {ContentComboboxFlatNode} from '../../hooks/useContentComboboxData';
-import {getLoadingNodeParentId} from '../../hooks/useContentComboboxData';
+import type {ContentComboboxFlatNode} from '../../../../hooks/useContentComboboxData';
+import {getLoadingNodeParentId} from '../../../../hooks/useContentComboboxData';
 import {ContentComboboxRow} from './ContentComboboxRow';
 
 //
