@@ -12,7 +12,6 @@ import {markAsReady, resolvePublishDependencies} from '../../api/publish';
 import {buildItems, dedupeItems, getItemIds} from '../../utils/cms/content/buildItems';
 import {hasContentIdInIds, uniqueIds} from '../../utils/cms/content/ids';
 import {createDebounce} from '../../utils/timing/createDebounce';
-import {openIssueDialogDetails} from './issueDialog.store';
 
 const DEPENDENCY_RELOAD_DELAY_MS = 150;
 
@@ -303,13 +302,25 @@ export const excludeNotPublishableRequestPublishItems = (): void => {
 };
 
 export const markAllAsReadyInProgressRequestPublishItems = async (): Promise<void> => {
+    const currentState = $requestPublishDialog.get();
+    if (currentState.loading) {
+        return;
+    }
+
     const {inProgressIds} = $requestPublishChecks.get();
     if (inProgressIds.length === 0) {
         return;
     }
 
+    $requestPublishDialog.set({
+        ...currentState,
+        loading: true,
+        failed: false,
+    });
+
     const ids = await markIdsReady(inProgressIds);
     if (ids.length === 0) {
+        $requestPublishDialog.setKey('loading', false);
         return;
     }
 
@@ -363,7 +374,6 @@ export const submitRequestPublishDialog = async (): Promise<void> => {
         }
 
         resetRequestPublishDialogContext();
-        openIssueDialogDetails(issue.getId());
     } catch (error) {
         console.error(error);
         showError(error?.message ?? String(error));

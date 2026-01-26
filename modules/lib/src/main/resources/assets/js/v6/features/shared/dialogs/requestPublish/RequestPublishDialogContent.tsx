@@ -70,8 +70,8 @@ export const RequestPublishDialogContent = (): ReactElement => {
     const {allowContentUpdate} = useStore($config, {keys: ['allowContentUpdate']});
 
     const dialogTitle = useI18n('dialog.requestPublish');
-    const changesLabel = useI18n('dialog.requestPublish.changes');
-    const otherDetailsLabel = useI18n('dialog.requestPublish.otherDetails');
+    const titleLabel = useI18n('field.title');
+    const addCommentLabel = useI18n('field.comment.aria.label');
     const assigneesLabel = useI18n('dialog.requestPublish.assignees');
     const itemsLabel = useI18n('field.items');
     const dependenciesLabel = useI18n('dialog.dependencies');
@@ -218,7 +218,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
                 <div className='flex min-h-0 flex-col gap-7.5 px-5'>
                     <div className='flex flex-col gap-2'>
                         <label className='text-md font-semibold' htmlFor={changesInputId}>
-                            {changesLabel}
+                            {titleLabel}
                         </label>
                         <Input
                             id={changesInputId}
@@ -230,7 +230,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
 
                     <div className='flex flex-col gap-2'>
                         <label className='text-md font-semibold' htmlFor={otherDetailsInputId}>
-                            {otherDetailsLabel}
+                            {addCommentLabel}
                         </label>
                         <textarea
                             id={otherDetailsInputId}
