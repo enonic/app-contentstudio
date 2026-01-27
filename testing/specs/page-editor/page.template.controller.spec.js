@@ -216,7 +216,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await contentWizard.switchToLiveEditFrame();
             let result = await liveFormPanel.getTextInTextComponent();
             // 8. Verify that the text expected text is displayed in the text component:
-            assert.ok(result.includes(TEST_TEXT_INSERTED), 'Expected text should be displayed in the text component');
+            assert.ok(result.includes(TEST_TEXT), 'Expected text should be displayed in the text component');
         });
 
     // xp-apps#738 Live Editor is not updated after a page template was added or removed
