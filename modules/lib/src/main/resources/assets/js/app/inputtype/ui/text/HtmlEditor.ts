@@ -110,8 +110,14 @@ export class HtmlEditor {
         const newUpcastFunction = function (el: CKEDITOR.htmlParser.element, data) {
             const result: CKEDITOR.htmlParser.element = originalUpcastFunction(el, data);
 
-            if (el.name === 'figure' && el.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS)) {
-                data.align = 'center';
+            if (el.name === 'figure') {
+                if (el.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS)) {
+                    data.align = 'center';
+                } else if (el.hasClass(StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS)) {
+                    data.align = 'left';
+                } else if (el.hasClass(StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS)) {
+                    data.align = 'right';
+                }
             }
 
             if (result && result.name === 'img') { // standalone image
@@ -135,7 +141,9 @@ export class HtmlEditor {
 
         const originalDowncastFunction: (el: CKEDITOR.htmlParser.element) => CKEDITOR.htmlParser.element = e.data.downcast;
         const newDowncastFunction = function (el: CKEDITOR.htmlParser.element) {
-            if (el.name === 'figure' && el.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS)) {
+            if (el.name === 'figure' && (el.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS) ||
+                el.hasClass(StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS) ||
+                el.hasClass(StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS))) {
                 return el;
             }
 
