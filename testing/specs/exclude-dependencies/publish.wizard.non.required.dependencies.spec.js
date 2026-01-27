@@ -10,7 +10,6 @@ const ContentPublishDialog = require('../../page_objects/content.publish.dialog'
 const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
-const TextComponentCke = require('../../page_objects/components/text.component');
 const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
@@ -44,7 +43,6 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             let contentWizard = new ContentWizard();
             let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let pageComponentView = new PageComponentView();
-            let textComponentCke = new TextComponentCke();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:

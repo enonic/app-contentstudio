@@ -7,13 +7,13 @@ const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const CountryFormPanel = require('../../page_objects/wizardpanel/country.form.panel');
 const CityCreationPage = require('../../page_objects/wizardpanel/city.creation.page');
 const LauncherPanel = require('../../page_objects/launcher.panel');
 const CityFormPanel = require('../../page_objects/wizardpanel/city.form.panel');
 const appConst = require('../../libs/app_const');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
+const PartInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/part.inspection.panel');
 
 describe('portal.content.creating.spec - tests for portal creating', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -34,7 +34,8 @@ describe('portal.content.creating.spec - tests for portal creating', function ()
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            let liveFormPanel = new LiveFormPanel();
+            let partInspectionPanel = new PartInspectionPanel();
+            let pageInspectionPanel = new PageInspectionPanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'My first Site', [appConst.MY_FIRST_APP]);
             // add new site:
@@ -44,7 +45,7 @@ describe('portal.content.creating.spec - tests for portal creating', function ()
             // 1. Expand the site and open wizard for new page-template:
             await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
             await contentWizard.typeData(TEMPLATE);
-            let pageInspectionPanel = new PageInspectionPanel();
+
             let wizardContextWindow = await contentWizard.openContextWindow();
             await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE.data.controllerDisplayName);
@@ -53,9 +54,9 @@ describe('portal.content.creating.spec - tests for portal creating', function ()
             // 3.Click on the country item and open Context Menu:
             await pageComponentView.openMenu('country');
             await pageComponentView.selectMenuItem(['Insert', 'Part']);
-            await liveFormPanel.selectPartByDisplayName(appConst.PART_NAME.MY_FIRST_APP_CITY_CREATION);
+            await partInspectionPanel.waitForOpened();
+            await partInspectionPanel.typeNameAndSelectPart(appConst.PART_NAME.MY_FIRST_APP_CITY_CREATION);
             await studioUtils.saveScreenshot('template_city_creation_part');
-            await contentWizard.switchToMainFrame();
             // The content should be automatically saved after selecting a part
             await contentWizard.waitForSaveButtonDisabled();
         });

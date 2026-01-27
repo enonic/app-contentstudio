@@ -8,7 +8,8 @@ const contentBuilder = require("../../libs/content.builder");
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
-const TextComponentCke = require('../../page_objects/components/text.component');
+const LayoutInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/layout.inspection.panel');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe('page.template.insert.layout.spec: tests for inserting a layout in page templates', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -41,14 +42,15 @@ describe('page.template.insert.layout.spec: tests for inserting a layout in page
         async () => {
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             let contentWizard = new ContentWizard();
-            let liveFormPanel = new LiveFormPanel();
-            let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
+            let layoutInspectionPanel = new LayoutInspectionPanel();
             // 1. Open the existing page template:
             await studioUtils.selectAndOpenContentInWizard(TEMPLATE.displayName);
             // 2. Insert 3-column layout:
             await pageComponentsWizardStepForm.openMenu('main');
             await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Layout']);
-            await liveFormPanel.selectLayoutByDisplayName(LAYOUT_NAME);
+            await layoutInspectionPanel.waitForOpened();
+            await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_NAME);
             // Verify that the site saved automatically(layout was selected):
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot('template_layout_saved');
@@ -61,7 +63,9 @@ describe('page.template.insert.layout.spec: tests for inserting a layout in page
             // 5. Insert a text component in the left layout's region(Verify that regions are visible):
             await pageComponentsWizardStepForm.openMenu('left');
             await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Text']);
-            await textComponentCke.typeTextInCkeEditor(TEST_TEXT);
+            await textComponentInspectionPanel.waitForOpened();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.typeTextInEditor(TEST_TEXT);
             // 6. Save the template
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();

@@ -7,7 +7,6 @@ const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-const TextComponentCke = require('../../page_objects/components/text.component');
 const InsertAnchorDialog = require('../../page_objects/wizardpanel/html-area/insert.anchor.dialog.cke');
 const appConst = require('../../libs/app_const');
 const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
@@ -34,7 +33,6 @@ describe('Text Component with CKE - insert Anchor specification', function () {
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            let textComponentCke = new TextComponentCke();
             let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let insertAnchorDialog = new InsertAnchorDialog();
             // 1. Open existing site and open 'Page Component View':
@@ -66,7 +64,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let insertAnchorDialog = new InsertAnchorDialog();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 1. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 1. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
@@ -143,7 +141,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             let pageComponentView = new PageComponentView();
             // 1. Open existing site and open 'Page Component View':
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.waitForItemNotSelected('main');
             // 3. Open  menu in the text component:
