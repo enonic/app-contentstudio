@@ -1,6 +1,6 @@
 import {Button, Dialog, Input, Separator, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {useEffect, useId, useMemo, useRef, useState, type ReactElement} from 'react';
+import {useEffect, useId, useMemo, useRef, type ReactElement} from 'react';
 import {IssueType} from '../../../../../app/issue/IssueType';
 import {useI18n} from '../../../hooks/useI18n';
 import {$config} from '../../../store/config.store';
@@ -20,8 +20,8 @@ import {
     setRequestPublishTitle,
     submitRequestPublishDialog,
 } from '../../../store/dialogs/requestPublishDialog.store';
-import {hasUnpublishedChildren} from '../../../api/hasUnpublishedChildren';
 import {uniqueIds} from '../../../utils/cms/content/ids';
+import {useItemsWithUnpublishedChildren} from '../../../utils/cms/content/useItemsWithUnpublishedChildren';
 import {IssueIcon} from '../issue/IssueIcon';
 import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
 import {useAssigneeSearch, useAssigneeSelection} from '../../selectors/assignee/hooks/useAssigneeSearch';
@@ -118,43 +118,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
         resizeTextarea(element);
     }, [description]);
 
-    const [itemsWithUnpublishedChildren, setItemsWithUnpublishedChildren] = useState<Set<string> | null>(null);
-    const requestIdRef = useRef(0);
-    const itemsWithChildren = useMemo(
-        () => items.filter(item => item.hasChildren()),
-        [items],
-    );
-
-    useEffect(() => {
-        const requestId = ++requestIdRef.current;
-
-        if (itemsWithChildren.length === 0) {
-            setItemsWithUnpublishedChildren(new Set());
-            return;
-        }
-
-        setItemsWithUnpublishedChildren(null);
-
-        hasUnpublishedChildren(itemsWithChildren.map(item => item.getContentId()))
-            .then((result) => {
-                if (requestId !== requestIdRef.current) {
-                    return;
-                }
-                const set = new Set<string>();
-                for (const [id, hasChildren] of result) {
-                    if (hasChildren) {
-                        set.add(id);
-                    }
-                }
-                setItemsWithUnpublishedChildren(set);
-            })
-            .catch((error) => {
-                console.error(error);
-                if (requestId === requestIdRef.current) {
-                    setItemsWithUnpublishedChildren(null);
-                }
-            });
-    }, [itemsWithChildren]);
+    const itemsWithUnpublishedChildren = useItemsWithUnpublishedChildren(items);
 
     const createButtonLabel = createCount > 1
                               ? `${createLabel} (${createCount})`
