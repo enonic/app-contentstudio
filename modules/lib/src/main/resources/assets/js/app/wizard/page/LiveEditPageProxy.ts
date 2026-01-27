@@ -394,8 +394,7 @@ export class LiveEditPageProxy
         });
 
         ComponentViewDragDroppedEvent.on((event: ComponentViewDragDroppedEvent) => {
-            const path: ComponentPath = ComponentPath.fromString(event.getComponentPath().toString());
-            eventsManager.notifyComponentViewDragDropped(path);
+            eventsManager.notifyComponentViewDragDropped(event.getFromPath(), event.getToPath());
         });
 
         PageLockedEvent.on((event: PageLockedEvent) => {

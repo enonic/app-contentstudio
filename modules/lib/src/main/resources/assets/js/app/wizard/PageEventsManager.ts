@@ -31,7 +31,7 @@ export class PageEventsManager {
 
     private componentViewDragCanceledListeners: ((event: ComponentViewDragCanceledEvent) => void)[] = [];
 
-    private componentDragDroppedListeners: ((path: ComponentPath) => void)[] = [];
+    private componentDragDroppedListeners: ((from: ComponentPath, to: ComponentPath) => void)[] = [];
 
     // Page events
 
@@ -158,16 +158,16 @@ export class PageEventsManager {
         this.componentViewDragCanceledListeners.forEach((listener) => listener(event));
     }
 
-    onComponentDragDropped(listener: ((path: ComponentPath) => void)): void {
+    onComponentDragDropped(listener: ((from: ComponentPath, to: ComponentPath) => void)): void {
         this.componentDragDroppedListeners.push(listener);
     }
 
-    unComponentViewDragDropped(listener: ((path: ComponentPath) => void)): void {
+    unComponentViewDragDropped(listener: ((from: ComponentPath, to: ComponentPath) => void)): void {
         this.componentDragDroppedListeners = this.componentDragDroppedListeners.filter((curr) => (curr !== listener));
     }
 
-    notifyComponentViewDragDropped(path: ComponentPath) {
-        this.componentDragDroppedListeners.forEach((listener) => listener(path));
+    notifyComponentViewDragDropped(from: ComponentPath, to: ComponentPath) {
+        this.componentDragDroppedListeners.forEach((listener) => listener(from, to));
     }
 
     onPageLocked(listener: (event: PageLockedEvent) => void) {

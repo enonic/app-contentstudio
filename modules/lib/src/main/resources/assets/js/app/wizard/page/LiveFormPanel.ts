@@ -648,8 +648,8 @@ export class LiveFormPanel
             SaveAsTemplateAction.get().execute();
         });
 
-        eventsManager.onComponentDragDropped((path: ComponentPath) => {
-            this.inspectPageItemByPath(new PageNavigationEventData(path));
+        eventsManager.onComponentDragDropped((from: ComponentPath, to: ComponentPath) => {
+            this.inspectPageItemByPath(new PageNavigationEventData(to));
         });
 
         eventsManager.onShowWarning((event: ShowWarningLiveEditEvent) => {
