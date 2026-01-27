@@ -66,6 +66,8 @@ import {UrlAction} from 'lib-contentstudio/app/UrlAction';
 import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
 import {ContentWizardPanelParams} from 'lib-contentstudio/app/wizard/ContentWizardPanelParams';
 import {VersionHelper} from 'lib-contentstudio/app/util/VersionHelper';
+// Import ExternalWidgetElement to register the custom element before any widgets are loaded
+import 'lib-contentstudio/app/view/context/ExternalWidgetElement';
 import Q from 'q';
 
 // Dynamically import and execute all input types, since they are used

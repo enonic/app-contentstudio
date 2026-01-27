@@ -4,9 +4,9 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {RepositoryId} from '../../repository/RepositoryId';
 import {ProjectContext} from '../../project/ProjectContext';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {WidgetHelper} from '@enonic/lib-admin-ui/widget/WidgetHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import {ExternalWidgetElement} from './ExternalWidgetElement';
 
 export class WidgetItemView
     extends DivEl {
@@ -14,6 +14,8 @@ export class WidgetItemView
     public static debug: boolean = false;
 
     private loadMask?: LoadMask;
+
+    private widgetElement: ExternalWidgetElement | null = null;
 
     constructor(className?: string) {
         super('widget-item-view' + (className ? ' ' + className : ''));
@@ -47,15 +49,32 @@ export class WidgetItemView
         fetch(fullUrl)
             .then(response => response.text())
             .then((html: string) => {
+                // Clean up previous widget element completely
+                if (this.widgetElement) {
+                    this.widgetElement.cleanup();
+                    this.widgetElement = null;
+                }
                 this.removeChildren();
-                WidgetHelper.createFromHtmlAndAppend(html, this).then(() => deferred.resolve());
+
+                // Always create a fresh widget element to ensure scripts re-execute
+                this.widgetElement = document.createElement('external-widget') as ExternalWidgetElement;
+                this.getHTMLElement().appendChild(this.widgetElement);
+
+                return this.widgetElement.setWidgetContent(html);
             })
+            .then(() => deferred.resolve())
             .catch(() => {
                 deferred.reject();
                 this.handleWidgetRenderError();
             });
 
         return deferred.promise;
+    }
+
+    public cleanupWidget(): void {
+        if (this.widgetElement) {
+            this.widgetElement.cleanup();
+        }
     }
 
     private handleWidgetRenderError(): void {
