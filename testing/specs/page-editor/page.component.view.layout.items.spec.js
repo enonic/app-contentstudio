@@ -7,7 +7,6 @@ const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
-const TextComponentCke = require('../../page_objects/components/text.component');
 const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
 const appConst = require('../../libs/app_const');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -17,6 +16,7 @@ const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wiz
 const PageWidgetContextPanel = require('../../page_objects/wizardpanel/liveform/page.widget.context.window');
 const LayoutInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/layout.inspection.panel');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe('page.component.view.layout.items.spec - tests for page component view items', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -39,8 +39,8 @@ describe('page.component.view.layout.items.spec - tests for page component view 
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            let liveFormPanel = new LiveFormPanel();
-            let textComponentCke = new TextComponentCke();
+            let layoutInspectionPanel = new LayoutInspectionPanel();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             // 1. reopen the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Maximize the Live Edit:
@@ -48,12 +48,15 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             // 3. Insert the Layout component (3-column):
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
-            await liveFormPanel.selectLayoutByDisplayName(LAYOUT_NAME);
+            await layoutInspectionPanel.waitForOpened();
+            await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_NAME);
             await contentWizard.waitForNotificationMessage();
             // 4. Insert text component in the left layout's region
             await pageComponentView.openMenu('left');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
-            await textComponentCke.typeTextInCkeEditor('text left');
+            await textComponentInspectionPanel.waitForOpened();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.typeTextInEditor('text left');
             // 5. Save the site: (layout get collapsed after the saving )
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('page_component_updated_1');
@@ -61,12 +64,12 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             // 7. Insert 'text component' in the left layout's region
             await pageComponentView.openMenu('center');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
-            await textComponentCke.typeTextInCkeEditor('text center');
+            await textComponentInspectionPanel.waitForOpened();
+            await textComponentInspectionPanel.typeTextInEditor('text center');
             // 8. Save the site:
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('page_component_updated_2');
             // 10. Verify that 'right region' item is displayed in Page Component View
-            // verifies bug -
             await pageComponentView.waitForItemDisplayed('right');
         });
 

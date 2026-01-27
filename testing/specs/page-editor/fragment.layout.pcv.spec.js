@@ -10,6 +10,7 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
+const LayoutInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/layout.inspection.panel');
 
 describe('fragment.layout.pcv.spec - Select a layout in fragment and verify regions', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -32,7 +33,7 @@ describe('fragment.layout.pcv.spec - Select a layout in fragment and verify regi
 
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            let liveFormPanel = new LiveFormPanel();
+            let layoutInspectionPanel = new LayoutInspectionPanel();
             // 1. Open the existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
@@ -47,7 +48,8 @@ describe('fragment.layout.pcv.spec - Select a layout in fragment and verify regi
             // 5. Switch to the new wizard and select the '3-col' layout:
             await studioUtils.doSwitchToNewWizard();
             await pageComponentsWizardStepForm.clickOnComponent('Layout');
-            await liveFormPanel.selectLayoutByDisplayName(LAYOUT_3_COL);
+            await layoutInspectionPanel.waitForOpened();
+            await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_3_COL);
             // 6. Verify that 3 regions are present in the PCV:
             await pageComponentsWizardStepForm.waitForItemDisplayed('left');
             await pageComponentsWizardStepForm.waitForItemDisplayed('center');

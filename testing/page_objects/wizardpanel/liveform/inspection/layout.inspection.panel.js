@@ -67,6 +67,11 @@ class LayoutInspectionPanel extends BaseComponentInspectionPanel {
         let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
         return await componentDescriptorsDropdown.getOptionsDisplayName(xpath.container);
     }
+
+    async waitForLayoutOptionsFilterInputDisplayed() {
+        let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
+        return await componentDescriptorsDropdown.waitForOptionFilterInputDisplayed(xpath.container);
+    }
 }
 
 module.exports = LayoutInspectionPanel;

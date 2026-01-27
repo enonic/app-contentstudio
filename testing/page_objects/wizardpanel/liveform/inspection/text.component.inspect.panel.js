@@ -24,6 +24,33 @@ class TextComponentInspectionPanel extends BaseComponentInspectionPanel {
         return XPATH.container + lib.CKE.insertMacroButton;
     }
 
+    get boldButton() {
+        return XPATH.container + lib.CKE.boldButton;
+    }
+
+    get italicButton() {
+        return XPATH.container + lib.CKE.italicButton;
+    }
+
+    get underlineButton() {
+        return XPATH.container + lib.CKE.underlineButton;
+    }
+
+    get justifyButton() {
+        return XPATH.container + lib.CKE.justifyButton;
+    }
+
+    get alignLeftButton() {
+        return XPATH.container + lib.CKE.alignLeftButton;
+    }
+
+    get alignRightButton() {
+        return XPATH.container + lib.CKE.alignRightButton;
+    }
+
+    get centerButton() {
+        return XPATH.container + lib.CKE.centerButton;
+    }
 
     get insertLinkButton() {
         return XPATH.container + lib.CKE.insertLinkButton;
@@ -129,6 +156,29 @@ class TextComponentInspectionPanel extends BaseComponentInspectionPanel {
         } catch (err) {
             await this.handleError('Inspect Panel, Text Component - tried to click on Source button: ', 'err_source_btn', err);
         }
+    }
+    async waitForBoldButtonDisplayed() {
+        await this.getBrowser().waitUntil(async () => {
+            let result = await this.getDisplayedElements(this.boldButton);
+            return result.length > 0;
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Bold button should be displayed"});
+    }
+
+    async waitForItalicButtonDisplayed() {
+        await this.getBrowser().waitUntil(async () => {
+            let result = await this.getDisplayedElements(this.italicButton);
+            return result.length > 0;
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Italic button should be displayed"});
+    }
+    async waitForUnderlineButtonDisplayed() {
+        await this.getBrowser().waitUntil(async () => {
+            let result = await this.getDisplayedElements(this.underlineButton);
+            return result.length > 0;
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Underline button should be displayed"});
+    }
+
+    waitForJustifyButtonButtonDisplayed() {
+        return this.waitForElementDisplayed(this.justifyButton, appConst.mediumTimeout);
     }
 }
 

@@ -19,8 +19,6 @@ export abstract class DescriptorBasedComponentView
         super(builder);
 
         this.inspectActionRequired = builder.inspectActionRequired;
-
-        this.placeholder.setComponentView(this);
     }
 
     refreshEmptyState(): this {

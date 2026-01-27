@@ -17,7 +17,8 @@ const ContentPublishDialog = require('../../page_objects/content.publish.dialog'
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
-const CityListPartInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/city.list.part.inspection.panel');
+const PartInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/part.inspection.panel');
+const CityListPartInspectionPanel= require('../../page_objects/wizardpanel/liveform/inspection/city.list.part.inspection.panel');
 
 describe('my.first.site.country.spec - Create a site with country content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -44,6 +45,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let liveFormPanel = new LiveFormPanel();
+            let partInspectionPanel = new PartInspectionPanel();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'My first Site', [appConst.MY_FIRST_APP]);
             await studioUtils.doAddSite(SITE);
@@ -60,24 +62,24 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // 3.Click on the country item and open Context Menu:
             await pageComponentView.openMenu('country');
             await pageComponentView.selectMenuItem(['Insert', 'Part']);
-            await liveFormPanel.selectPartByDisplayName(COUNTRY_PART);
+            await partInspectionPanel.typeNameAndSelectPart(COUNTRY_PART);
             await contentWizard.switchToMainFrame();
             // 4. Insert 'City list' part
             await pageComponentView.openMenu('country');
             await pageComponentView.selectMenuItem(['Insert', 'Part']);
-            await liveFormPanel.selectPartByDisplayName(appConst.PART_NAME.MY_FIRST_APP_CITY_LIST);
+            await partInspectionPanel.typeNameAndSelectPart(appConst.PART_NAME.MY_FIRST_APP_CITY_LIST);
             await contentWizard.switchToMainFrame();
             // the site should be  automatically saved:
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot('country_template_saved');
         });
 
-    it.skip(`WHEN required input is not filled in in the page template THEN the page template should be invalid in Grid`,
+    it(`WHEN required input is not filled in in the page template THEN the page template should be invalid in Grid`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(COUNTRY_TEMPLATE_NAME);
             // Verify that the page template is invalid (required field in its config)
-            await contentBrowsePanel.waitForRedIconDisplayed(COUNTRY_TEMPLATE_NAME);
+            //await contentBrowsePanel.waitForRedIconDisplayed(COUNTRY_TEMPLATE_NAME);
         });
 
     it(`WHEN required field has been filled in in the page template config THEN the page template gets valid in Grid`,

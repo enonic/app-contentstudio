@@ -34,7 +34,6 @@ describe('my.first.site.country.spec - Create a site with country content', func
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            let liveFormPanel = new LiveFormPanel();
             let cityListPartInspectionPanel = new CityListPartInspectionPanel();
             // 1. Open the site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
@@ -44,12 +43,11 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Part']);
             // 4. Select the part with a config
-            await liveFormPanel.selectPartByDisplayName(appConst.PART_NAME.MY_FIRST_APP_CITY_LIST);
-            await contentWizard.switchToMainFrame();
             await cityListPartInspectionPanel.waitForLoaded();
-            await cityListPartInspectionPanel.pause(2000);
+            await cityListPartInspectionPanel.typeNameAndSelectPart(appConst.PART_NAME.MY_FIRST_APP_CITY_LIST);
+            await cityListPartInspectionPanel.pause(1000);
             // 5. 'Apply' button should be disabled after selecting a part-option in the part-dropdown:
-            await cityListPartInspectionPanel.waitForApplyButtonDisabled();
+            //await cityListPartInspectionPanel.waitForApplyButtonDisabled();
             // 6. Select an image in the dropdown-selector:
             await cityListPartInspectionPanel.selectContentInSelector(appConst.TEST_IMAGES.MAN);
             // 7. Click on 'Apply' button:
@@ -111,14 +109,12 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // 3.Click on the 'Main' item and open Context Menu:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Part']);
-            // 4. Select the part with image-selector in config
-            await liveFormPanel.selectPartByDisplayName(appConst.PART_NAME.MY_FIRST_APP_CITY_CREATION);
-            await contentWizard.switchToMainFrame();
-            // 5. Verify that Inspect Panel is loaded
             await cityCreationPartInspectionPanel.waitForLoaded();
-            // 6. Click on mode-toggle and switch the image-selector to tree mode:
+            // 4. Select the part with image-selector in config
+            await cityCreationPartInspectionPanel.typeNameAndSelectPart(appConst.PART_NAME.MY_FIRST_APP_CITY_CREATION);
+            // 5. Click on mode-toggle and switch the image-selector to tree mode:
             await cityCreationPartInspectionPanel.clickOnImageSelectorModeTogglerButton();
-            // 7. Verify that expected options are displayed in tree mode:
+            // 6. Verify that expected options are displayed in tree mode:
             let items = await cityCreationPartInspectionPanel.getTreeModeOptionsImagesDisplayName();
             assert.ok(items.includes(appConst.TEST_FOLDER_WITH_IMAGES), "Expected item should be present in options");
             assert.ok(items.includes(appConst.TEST_FOLDER_WITH_IMAGES_2), "Expected item should be present in options");

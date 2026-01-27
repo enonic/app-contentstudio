@@ -76,11 +76,10 @@ describe('Text Component with CKE - insert email link  specification', function 
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/3476
     //B/I/U disappeared from Text component's toolbar #3476
-    // TODO uncomment it - issue-9241
-    it.skip(`GIVEN Text component is inserted THEN B/I/U buttons should be present in the cke-toolbar`,
+    it(`GIVEN Text component is inserted THEN B/I/U buttons should be present in the cke-toolbar`,
         async () => {
             let contentWizard = new ContentWizard();
-            let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let pageComponentView = new PageComponentView();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
@@ -89,12 +88,13 @@ describe('Text Component with CKE - insert email link  specification', function 
             // 3. Insert new text-component
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
-            await textComponentCke.switchToLiveEditFrame();
+            await textComponentInspectionPanel.waitForOpened();
+            await textComponentInspectionPanel.clickInTextArea();
             // 4. Verify B/I/U buttons
             await studioUtils.saveScreenshot('bold_italic_buttons_text_component');
-            await textComponentCke.waitForBoldButtonDisplayed();
-            await textComponentCke.waitForItalicButtonDisplayed();
-            await textComponentCke.waitForUnderlineButtonDisplayed();
+            await textComponentInspectionPanel.waitForBoldButtonDisplayed();
+            await textComponentInspectionPanel.waitForItalicButtonDisplayed();
+            await textComponentInspectionPanel.waitForUnderlineButtonDisplayed();
         });
 
     // Verifies issue: https://github.com/enonic/app-contentstudio/issues/4301

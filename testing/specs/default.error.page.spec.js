@@ -7,10 +7,11 @@ const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.p
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const PageComponentView = require("../page_objects/wizardpanel/liveform/page.components.view");
-const LiveFormPanel = require("../page_objects/wizardpanel/liveform/live.form.panel");
 const appConst = require('../libs/app_const');
 const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.window.panel');
 const ConfirmationDialog = require('../page_objects/confirmation.dialog');
+const PartInspectionPanel = require('../page_objects/wizardpanel/liveform/inspection/part.inspection.panel');
+const LayoutInspectionPanel = require('../page_objects/wizardpanel/liveform/inspection/layout.inspection.panel');
 
 describe('default.error.page.spec tests for Default error page', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -31,9 +32,9 @@ describe('default.error.page.spec tests for Default error page', function () {
 
     it("WHEN part with errors has been inserted WHEN 'Preview' button has been pressed THEN default error page should be loaded",
         async () => {
-            let liveFormPanel = new LiveFormPanel();
             let contentWizard = new ContentWizardPanel();
             let pageComponentView = new PageComponentView();
+            let partInspectionPanel = new PartInspectionPanel();
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 1. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
@@ -42,8 +43,8 @@ describe('default.error.page.spec tests for Default error page', function () {
             // 3. click on the 'Insert Part' menu item:
             await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.INSERT, appConst.PCV_MENU_ITEM.PART]);
             // 4. Select the part with errors:
-            await liveFormPanel.selectPartByDisplayName(ERROR_PART_NAME);
-            await contentWizard.switchToMainFrame();
+            await partInspectionPanel.waitForOpened();
+            await partInspectionPanel.typeNameAndSelectPart(ERROR_PART_NAME);
             // 5. Click on 'Preview' button:
             await contentWizard.clickOnPreviewButton();
             await studioUtils.doSwitchToNextTab();
@@ -56,11 +57,11 @@ describe('default.error.page.spec tests for Default error page', function () {
 
     it("WHEN part with errors has been removed THEN new inserted component should be displayed without the red icon",
         async () => {
-            let liveFormPanel = new LiveFormPanel();
             let contentWizard = new ContentWizardPanel();
             let pageComponentView = new PageComponentView();
+            let layoutInspectionPanel = new LayoutInspectionPanel();
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            // 1. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
+            // 1. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. open the context menu for part with errors
             await pageComponentView.openMenu(ERROR_PART_NAME);
@@ -69,7 +70,8 @@ describe('default.error.page.spec tests for Default error page', function () {
             await pageComponentView.openMenu('main');
             // 4. click on the 'Insert Part' menu item:
             await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.INSERT, appConst.PCV_MENU_ITEM.LAYOUT]);
-            await liveFormPanel.selectLayoutByDisplayName(appConst.LAYOUT_NAME.CENTERED);
+            await layoutInspectionPanel.waitForOpened();
+            await layoutInspectionPanel.typeNameAndSelectLayout(appConst.LAYOUT_NAME.CENTERED);
             await contentWizard.waitForNotificationMessage();
             // 5. Verify that red icon is not displayed beside the layout-component in the PCV:
             let isInvalid = await pageComponentView.isComponentItemInvalid(appConst.LAYOUT_NAME.CENTERED);
@@ -78,7 +80,7 @@ describe('default.error.page.spec tests for Default error page', function () {
 
     it("WHEN Controller has been reset THEN Details widget should be loaded in the wizard page",
         async () => {
-            let liveFormPanel = new LiveFormPanel();
+            let partInspectionPanel = new PartInspectionPanel();
             let contentWizard = new ContentWizardPanel();
             let pageComponentView = new PageComponentView();
             let wizardContextPanel = new WizardContextPanel();
@@ -91,7 +93,8 @@ describe('default.error.page.spec tests for Default error page', function () {
             // 3. click on the 'Insert Part' menu item:
             await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.INSERT, appConst.PCV_MENU_ITEM.PART]);
             // 4. Select a  part:
-            await liveFormPanel.selectPartByDisplayName(PART_CITIES_DISTANCE_FACET);
+            await partInspectionPanel.waitForOpened();
+            await partInspectionPanel.typeNameAndSelectPart(PART_CITIES_DISTANCE_FACET);
             await contentWizard.switchToMainFrame();
             // 5. Reset the controller in PCV
             await pageComponentView.openMenu('main region');

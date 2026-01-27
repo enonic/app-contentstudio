@@ -43,9 +43,8 @@ describe('changing.part.inside.fragment.spec - Tests for changing a part inside 
             await pageComponentsWizardStepForm.openMenu('main');
             await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Part']);
             // 3. Select the part with a config
-            await liveFormPanel.selectPartByDisplayName(PART_DISPLAY_NAME);
-            await contentWizard.switchToMainFrame();
             await cityListPartInspectionPanel.waitForLoaded();
+            await cityListPartInspectionPanel.typeNameAndSelectPart(PART_DISPLAY_NAME);
             // 4. Open Context Menu for the part:
             await pageComponentsWizardStepForm.openMenu(PART_DISPLAY_NAME);
             // 5. Save the part as fragment:

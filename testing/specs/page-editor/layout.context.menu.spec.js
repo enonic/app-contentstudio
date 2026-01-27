@@ -12,6 +12,7 @@ const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
+const LayoutInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/layout.inspection.panel');
 
 describe('layout.context.menu.spec: tests for layout-fragment with config', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -24,14 +25,15 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
 
     // Verifies Layout dropdown should appear in Live Edit after resetting the layout-component #6713
     // https://github.com/enonic/app-contentstudio/issues/6713
-    it("GIVEN layer component has been inserted WHEN 'Reset' menu item has been clicked for the layout component THEN layout combobox should appear in Live Edit",
+    it("WHEN 'Reset' menu item has been clicked for the layout component THEN layout options filter should appear in Inspect Panel",
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let liveFormPanel = new LiveFormPanel();
+            let layoutInspectionPanel = new LayoutInspectionPanel();
             let name = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(name, ' ', [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
-            // 1. Open site-wizard and save:
+            // 1. create new site:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeData(SITE);
             await contentWizard.waitForNotificationMessage();
@@ -47,7 +49,8 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             await pageComponentView.openMenu(MAIN_REGION);
             // 4. Insert the layout:
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
-            await liveFormPanel.selectLayoutByDisplayName(appConst.LAYOUT_NAME.COL_3);
+            await layoutInspectionPanel.waitForOpened();
+            await layoutInspectionPanel.typeNameAndSelectLayout(appConst.LAYOUT_NAME.COL_3);
             // 5. Site should be saved automatically:
             await contentWizard.waitForNotificationMessage();
             // 6. Expand the context menu for layout-component:
@@ -55,20 +58,21 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             // 7. Click on 'Reset' menu item.
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.RESET);
             await studioUtils.saveScreenshot('layout_reset');
-            // 8. Verify that layout-combobox gets visible in the page:
+            await layoutInspectionPanel.waitForLayoutOptionsFilterInputDisplayed();
+            // 8. Verify that layout placeholder gets visible in LiveView:
             await contentWizard.switchToLiveEditFrame();
-            await liveFormPanel.waitForLayoutComboBoxOptionFilterDisplayed();
+            await liveFormPanel.waitForLayoutPlaceHolderDisplayed();
         });
 
-    it("GIVEN layer component has been saved as fragment WHEN context menu for the layout fragment has been opened THEN 2 items should be displayed in the menu",
+    it("WHEN context menu for the layout fragment has been opened THEN 2 items should be displayed in the menu",
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
-            // 1. Open the existing site-wizard and save:
+            // 1. Open the existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            // 2. Expand the context menu for layout-component then click on Save as Fragment  menu item:
+            // 2. Expand the context menu for layout-component then click on 'Save as Fragment'  menu item:
             await pageComponentView.openMenu(appConst.LAYOUT_NAME.COL_3);
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await studioUtils.doSwitchToNextTab();
@@ -86,25 +90,28 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
 
     // Verifies: Layout fragment - Reset menu item should not be displayed if there is no selected option #6717
     // https://github.com/enonic/app-contentstudio/issues/6717
-    it("GIVEN fragment-layout has been selected and 'Edit' button has been pressed WHEN 'Reset' menu item has been clicked in the fragment wizard THEN only 'Inspect' menu item remains in the context menu",
+    it("WHEN 'Reset' menu item has been clicked in the fragment layout wizard THEN only 'Inspect' menu item remains in the context menu",
         async () => {
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
             let liveFormPanel = new LiveFormPanel();
+            let layoutInspectionPanel = new LayoutInspectionPanel();
             // 1. Expand the site:
             await studioUtils.typeNameInFilterPanel(SITE.displayName);
             await contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
             await contentBrowsePanel.pause(300);
             await contentBrowsePanel.clickOnExpanderIcon(SITE.displayName);
             // 2. Select the fragment:
-            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConst.LAYOUT_NAME.COL_3);
+            const fragmentName = appConst.LAYOUT_NAME.COL_3;
+            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(fragmentName);
             // 3. Click on 'Edit' button
             await contentBrowsePanel.clickOnEditButton();
             // 4. Switch to the next browser tab
             await studioUtils.doSwitchToNewWizard();
             await contentWizard.waitForOpened();
             // 5. Open the context menu for '3-col' component:
+            await pageComponentsWizardStepForm.clickOnComponent(fragmentName);
             await pageComponentsWizardStepForm.openMenu(appConst.LAYOUT_NAME.COL_3);
             // 6. Click on 'Reset' menu item:
             await pageComponentsWizardStepForm.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.RESET);
@@ -119,9 +126,10 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             assert.equal(menuItems.length, 1, "The only one menu item should be present in the context menu");
             // 9. Verify that 'Save' button should be enabled after clicking on Reset menu item:
             await contentWizard.waitForSaveButtonEnabled();
-            // 10. Verify that layout-combobox gets visible in Live Edit:
+            await layoutInspectionPanel.waitForLayoutOptionsFilterInputDisplayed();
+            // 10. Verify that layout placeholder gets visible in LiveView:
             await contentWizard.switchToLiveEditFrame();
-            await liveFormPanel.waitForLayoutComboBoxOptionFilterDisplayed();
+            await liveFormPanel.waitForLayoutPlaceHolderDisplayed();
         });
 
     // Verify X-data is not shown for fragments #7284
@@ -142,7 +150,7 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             // 4. Switch to the next browser tab:
             await studioUtils.doSwitchToNewWizard();
             await contentWizard.waitForOpened();
-            // 5. Verify that x-data toggler is displayed in the wizard:
+            // 5. Verify that x-data toggle is displayed in the wizard:
             await contentWizard.waitForXdataTogglerVisible(TEXT_AREA_X_DATA_NAME);
             // 6. Verify the title of x-data :
             let result = await contentWizard.getXdataTitles();
