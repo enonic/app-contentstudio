@@ -3,6 +3,7 @@ import {cn} from '@enonic/ui';
 import {type ReactElement, useMemo} from 'react';
 import {useI18n} from '../../../../hooks/useI18n';
 import {IssueCommentItem} from './IssueCommentItem';
+import {IssueDescriptionItem} from './IssueDescriptionItem';
 
 import type {Issue} from '../../../../../../app/issue/Issue';
 import type {IssueComment} from '../../../../../../app/issue/IssueComment';
@@ -12,7 +13,7 @@ export type IssueCommentsListProps = {
     comments: IssueComment[];
     loading?: boolean;
     onUpdateComment?: (commentId: string, text: string) => Promise<boolean> | boolean;
-    onDeleteComment?: (commentId: string) => Promise<boolean> | boolean;
+    onDeleteComment?: (commentId: string) => void;
     portalContainer?: HTMLElement | null;
     className?: string;
     'aria-label'?: string;
@@ -30,44 +31,44 @@ export const IssueCommentsList = ({
     className,
     'aria-label': ariaLabel,
 }: IssueCommentsListProps): ReactElement => {
-    const descriptionLabel = useI18n('field.description');
     const noCommentsText = useI18n('field.issue.noComments');
-    const description = issue?.getDescription() ?? '';
-    const normalizedDescription = description.trim();
-    const descriptionIndex = useMemo(() => {
-        if (normalizedDescription.length === 0) {
-            return -1;
+    const creatorName = issue?.getCreator() ?? '';
+    const description = issue?.getDescription()?.trim() ?? '';
+    const hasDescription = description.length > 0;
+
+    // Filter out the description comment from regular comments
+    const regularComments = useMemo(() => {
+        if (description.length === 0) {
+            return comments;
         }
-        return comments.findIndex((comment) => comment.getText().trim() === normalizedDescription);
-    }, [comments, normalizedDescription]);
+        return comments.filter((comment) => comment.getText().trim() !== description);
+    }, [comments, description]);
+
+    const hasNoContent = regularComments.length === 0 && !loading && !hasDescription;
 
     return (
         <div
             data-component={ISSUE_COMMENTS_LIST_NAME}
             aria-label={ariaLabel}
-            className={cn('flex min-h-0 max-h-80 flex-col gap-2.5 overflow-y-auto', className)}
+            className={cn('flex min-h-0 max-h-80 flex-col gap-2.5 overflow-y-auto px-2 -mx-2', className)}
         >
-            {comments.length === 0 && !loading && normalizedDescription.length === 0 && (
+            {hasNoContent && (
                 <div className='text-sm text-subtle'>{noCommentsText}</div>
             )}
-            {comments.map((comment, index) => {
-                const text = comment.getText();
-                const isDescription = index === descriptionIndex;
-
-                return (
-                    <IssueCommentItem
-                        key={comment.getId()}
-                        name={comment.getCreatorDisplayName()}
-                        timeLabel={comment.getCreatedTime() ? DateHelper.getModifiedString(comment.getCreatedTime()) : undefined}
-                        text={text}
-                        label={isDescription ? descriptionLabel : undefined}
-                        showMeta={!isDescription}
-                        onUpdate={onUpdateComment ? (nextText) => onUpdateComment(comment.getId(), nextText) : undefined}
-                        onDelete={onDeleteComment ? () => onDeleteComment(comment.getId()) : undefined}
-                        portalContainer={portalContainer}
-                    />
-                );
-            })}
+            {hasDescription && (
+                <IssueDescriptionItem name={creatorName} text={description} />
+            )}
+            {regularComments.map((comment) => (
+                <IssueCommentItem
+                    key={comment.getId()}
+                    name={comment.getCreatorDisplayName()}
+                    timeLabel={comment.getCreatedTime() ? DateHelper.getModifiedString(comment.getCreatedTime()) : undefined}
+                    text={comment.getText()}
+                    onUpdate={onUpdateComment ? (nextText) => onUpdateComment(comment.getId(), nextText) : undefined}
+                    onDelete={onDeleteComment ? () => onDeleteComment(comment.getId()) : undefined}
+                    portalContainer={portalContainer}
+                />
+            ))}
         </div>
     );
 };

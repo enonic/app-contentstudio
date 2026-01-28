@@ -1,9 +1,8 @@
 import {IconButton, Menu} from '@enonic/ui';
 import {MoreVertical} from 'lucide-react';
 import {type ReactElement} from 'react';
-import {IssueCommentActionsMenuItem} from './IssueCommentActionsMenuItem';
 
-export type IssueCommentActionsMenuProps = {
+export type IssueCommentMenuProps = {
     onEdit?: () => void;
     onDelete?: () => void;
     moreLabel: string;
@@ -13,9 +12,9 @@ export type IssueCommentActionsMenuProps = {
     className?: string;
 };
 
-const ISSUE_COMMENT_ACTIONS_MENU_NAME = 'IssueCommentActionsMenu';
+const ISSUE_COMMENT_MENU_NAME = 'IssueCommentMenu';
 
-export const IssueCommentActionsMenu = ({
+export const IssueCommentMenu = ({
     onEdit,
     onDelete,
     moreLabel,
@@ -23,7 +22,7 @@ export const IssueCommentActionsMenu = ({
     deleteLabel,
     portalContainer,
     className,
-}: IssueCommentActionsMenuProps): ReactElement | null => {
+}: IssueCommentMenuProps): ReactElement | null => {
     const hasActions = onEdit || onDelete;
 
     if (!hasActions) {
@@ -46,14 +45,15 @@ export const IssueCommentActionsMenu = ({
             <Menu.Portal container={portalContainer ?? undefined}>
                 <Menu.Content className='min-w-36'>
                     {onEdit && (
-                        <IssueCommentActionsMenuItem onSelect={onEdit} label={editLabel} />
+                        <Menu.Item onSelect={onEdit}>{editLabel}</Menu.Item>
                     )}
                     {onDelete && (
-                        <IssueCommentActionsMenuItem
+                        <Menu.Item
                             onSelect={onDelete}
-                            label={deleteLabel}
                             className='text-error data-[active=true]:not-dark:text-error-rev'
-                        />
+                        >
+                            {deleteLabel}
+                        </Menu.Item>
                     )}
                 </Menu.Content>
             </Menu.Portal>
@@ -61,4 +61,4 @@ export const IssueCommentActionsMenu = ({
     );
 };
 
-IssueCommentActionsMenu.displayName = ISSUE_COMMENT_ACTIONS_MENU_NAME;
+IssueCommentMenu.displayName = ISSUE_COMMENT_MENU_NAME;

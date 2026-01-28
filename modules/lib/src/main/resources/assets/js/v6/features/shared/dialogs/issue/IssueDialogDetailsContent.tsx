@@ -18,8 +18,8 @@ import {useI18n} from '../../../hooks/useI18n';
 import {$issueDialog, setIssueDialogView} from '../../../store/dialogs/issueDialog.store';
 import {
     $issueDialogDetails,
-    deleteIssueDialogComment,
     loadIssueDialogItems,
+    openDeleteCommentConfirmation,
     setIssueDialogCommentText,
     setIssueDialogDetailsTab,
     submitIssueDialogComment,
@@ -351,13 +351,6 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         [],
     );
 
-    const handleCommentDelete = useCallback(
-        async (commentId: string): Promise<boolean> => {
-            return await deleteIssueDialogComment(commentId);
-        },
-        [],
-    );
-
     const isAssigneesDisabled = !issueData || issueError || assigneesUpdating || statusUpdating;
     const isItemsDisabled = !issueData || issueError || itemsUpdating || statusUpdating;
     const statusOptions = useMemo(
@@ -409,7 +402,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                     comments={comments}
                                     loading={commentsLoading}
                                     onUpdateComment={handleCommentUpdate}
-                                    onDeleteComment={handleCommentDelete}
+                                    onDeleteComment={openDeleteCommentConfirmation}
                                     portalContainer={portalContainer}
                                     aria-label={commentsLabel}
                                 />
