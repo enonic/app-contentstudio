@@ -10,11 +10,11 @@ const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const MoveContentDialog = require('../../page_objects/browsepanel/move.content.dialog');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
-const TextComponent = require('../../page_objects/components/text.component');
 const appConst = require('../../libs/app_const');
 const DeleteContentDialog = require('../../page_objects/delete.content.dialog');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe('Move Fragment specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -42,14 +42,16 @@ describe('Move Fragment specification', function () {
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
-            let textComponent = new TextComponent();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             // 1. Open existing site and insert new text component with the text:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Text']);
-            await textComponent.typeTextInCkeEditor(TEST_TEXT_FRAGMENT);
+            await textComponentInspectionPanel.waitForOpened();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.typeTextInEditor(TEST_TEXT_FRAGMENT);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1500);
             // 2. wait for (1500) the page is rendered and open the menu
@@ -58,7 +60,7 @@ describe('Move Fragment specification', function () {
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await studioUtils.saveScreenshot('text_saved_as_fragment2');
             // 4. Wait for the description is refreshing:
-            await contentWizard.pause(5500);
+            await contentWizard.pause(4500);
             // 5. Go to the site-wizard and verify description of the new created fragment
             let actualDescription = await pageComponentView.getComponentDescription(TEST_TEXT_FRAGMENT);
             assert.equal(actualDescription, FRAGMENT_TEXT_DESCRIPTION, 'Expected description should be in the text-fragment');

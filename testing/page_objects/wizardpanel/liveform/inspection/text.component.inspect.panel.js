@@ -20,6 +20,11 @@ class TextComponentInspectionPanel extends BaseComponentInspectionPanel {
     get insertImageButton() {
         return XPATH.container + lib.CKE.insertImageButton;
     }
+
+    get insertTableButton() {
+        return XPATH.container + lib.CKE.insertTableButton;
+    }
+
     get insertMacroButton() {
         return XPATH.container + lib.CKE.insertMacroButton;
     }
@@ -82,6 +87,16 @@ class TextComponentInspectionPanel extends BaseComponentInspectionPanel {
         }
     }
 
+    async setTextInEditor(text) {
+        try {
+            let id = await this.getIdOfTextEditor();
+            await utils.setTextInCKE(id, text);
+            return await this.pause(700);
+        } catch (err) {
+            await this.handleError('Inspect Panel with text area: ', 'err_text_component_inspect_panel', err);
+        }
+    }
+
     async getIdOfTextEditor() {
         let locator = XPATH.container + lib.TEXT_AREA;
         let elems = await this.findElements(locator);
@@ -89,9 +104,13 @@ class TextComponentInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     async clickInTextArea() {
-        await this.waitForElementDisplayed(this.textArea, appConst.mediumTimeout);
-        await this.clickOnElement(this.textArea);
-        await this.pause(100);
+        try {
+            await this.waitForElementDisplayed(this.textArea, appConst.mediumTimeout);
+            await this.clickOnElement(this.textArea);
+            await this.pause(100);
+        }catch(err){
+            await this.handleError('Inspect Panel, Text Component - tried to click in text area: ', 'err_click_text_area', err);
+        }
     }
 
     async getTextFromEditor() {
@@ -108,6 +127,25 @@ class TextComponentInspectionPanel extends BaseComponentInspectionPanel {
         } catch (err) {
             await this.handleError('Inspect Panel, Text Component - tried to click on Insert Link button: ', 'err_insert_link_button', err);
         }
+    }
+
+    async clickOnInsertTableButton() {
+        try {
+            await this.waitForElementDisplayed(this.insertTableButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.insertTableButton);
+            return await this.pause(300);
+        }catch (err) {
+            await this.handleError('Inspect Panel, Text Component - tried to click on Insert Table button: ', 'err_insert_table_btn', err);
+        }
+    }
+
+    async waitForTableDisplayedInEditorFrame() {
+        await this.waitForElementDisplayed("//iframe[contains(@class,'cke_panel_frame')]", appConst.mediumTimeout);
+        await this.switchToFrame("//iframe[contains(@class,'cke_panel_frame')]");
+        let table = "//table";
+        let result = await this.waitForElementDisplayed(table, appConst.shortTimeout);
+        await this.getBrowser().switchToParentFrame();
+        return result;
     }
 
     async clickOnInsertImageButton() {

@@ -35,7 +35,7 @@ describe('Text Component with CKE - insert link and table specification', functi
     it(`GIVEN Text component has been inserted WHEN 'Insert table' button has been clicked THEN menu item for inserting of Html-table gets visible`,
         async () => {
             let contentWizard = new ContentWizard();
-            let textComponentCke = new TextComponentCke();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let pageComponentView = new PageComponentView();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 1. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
@@ -43,11 +43,11 @@ describe('Text Component with CKE - insert link and table specification', functi
             // 2. Insert a text-component:
             await pageComponentView.openMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
-            await textComponentCke.switchToLiveEditFrame();
             // 2. Click on 'Insert Table' menu-button:
-            await textComponentCke.clickOnInsertTableButton();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.clickOnInsertTableButton();
             // menu item for inserting of Html-table gets visible:
-            await textComponentCke.waitForTableDisplayedInCke();
+            await textComponentInspectionPanel.waitForTableDisplayedInEditorFrame();
         });
 
     it(`GIVEN 'Insert Link' dialog is opened WHEN invalid 'url' has been typed AND 'Insert' button pressed THEN validation message should appear`,

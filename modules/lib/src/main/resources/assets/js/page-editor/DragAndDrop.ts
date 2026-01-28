@@ -300,12 +300,12 @@ export class DragAndDrop {
                 const componentType: ComponentItemType = this.newItemItemType as ComponentItemType;
                 const path = new ComponentPath(componentIndex, regionView.getPath());
                 new AddComponentEvent(path, componentType.toComponentType()).fire();
-                this.notifyDropped(path, regionView);
+                this.notifyDropped(null, path, regionView);
             } else {
                 const from: ComponentPath = this.draggedComponentView.getPath();
                 const to: ComponentPath = new ComponentPath(componentIndex, regionView.getPath());
                 new MoveComponentEvent(from, to).fire();
-                this.notifyDropped(this.draggedComponentView.getPath(), regionView);
+                this.notifyDropped(from, to, regionView);
             }
         }
 
@@ -523,13 +523,13 @@ export class DragAndDrop {
         });
     }
 
-    private notifyDropped(componentPath: ComponentPath, regionView: RegionView) {
+    private notifyDropped(from: ComponentPath, to: ComponentPath, regionView: RegionView) {
         if (DragAndDrop.debug) {
-            console.log('DragAndDrop.notifyDropped', componentPath, regionView);
+            console.log('DragAndDrop.notifyDropped', from, to, regionView);
         }
 
         this.wasDropped = true;
-        new ComponentViewDragDroppedEvent(componentPath).fire();
+        new ComponentViewDragDroppedEvent(from, to).fire();
     }
 
     onCanceled(listener: (componentView: ComponentView) => void) {

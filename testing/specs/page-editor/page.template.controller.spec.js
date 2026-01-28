@@ -12,7 +12,6 @@ const PageTemplateForm = require('../../page_objects/wizardpanel/page.template.f
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 const appConst = require('../../libs/app_const');
 const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
-const TextComponentCke = require('../../page_objects/components/text.component');
 const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
 const LiveFormPanel = require('../../page_objects/wizardpanel/liveform/live.form.panel');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
@@ -120,8 +119,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
 
     // Verify  https://github.com/enonic/app-contentstudio/issues/7077
     // Images failed to render inside a page template #7077
-    // TODO  issue-9241,   remove skip in this test
-    it.skip(`GIVEN an image is inserted in the page-template WHEN the site has been opened THEN image that was inserted in the template is displayed in the site as well`,
+    it(`GIVEN an image is inserted in the page-template WHEN the site has been opened THEN image that was inserted in the template is displayed in the site as well`,
         async () => {
             let contentWizard = new ContentWizard();
             let liveFormPanel = new LiveFormPanel();
@@ -182,17 +180,18 @@ describe('page.template.controller: select a controller in a template-wizard', f
 
     // A new text component is incorrectly rendered after page is customised #8325
     // https://github.com/enonic/app-contentstudio/issues/8325
-    it(`GIVEN site is opened and 'Customise' menu item has been clicked WHEN new text component with a text has been inserted THEN the expected text should be displayed in the Live Edit`,
+    it(`GIVEN site is opened and 'Customise page' button has been clicked WHEN new text component with a text has been inserted THEN the expected text should be displayed in the Live Edit`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageInspectionPanel = new PageInspectionPanel();
+            let liveFormPanel = new LiveFormPanel();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let TEST_TEXT = 'test text';
             let TEST_TEXT_INSERTED = "<p>test text</p>";
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
-            let textComponentCke = new TextComponentCke();
             // 1. Open the site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            // 2. Switches to 'live-edit' iframe and unlock the LiveEdit(Click on Customize menu item)
+            // 2. Switch to 'live-edit' iframe and click on Page Settings
             await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             // 3. Switch to the parent frame:
             await contentWizard.switchToParentFrame();
@@ -207,13 +206,17 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Text']);
             await studioUtils.saveScreenshot('site_customised_component_inserted');
             // 6. Switches to 'live-edit' iframe and insert a text:
-            await textComponentCke.typeTextInCkeEditor(TEST_TEXT);
+            await textComponentInspectionPanel.waitForOpened();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.typeTextInEditor(TEST_TEXT);
+            // wait for the update event to reach text component inside iframe
+            await contentWizard.pause(300);
             // 7. Switches to 'live-edit' iframe and gets the just inserted text:
-            await textComponentCke.switchToLiveEditFrame();
             await studioUtils.saveScreenshot('site_customised_text_inserted');
-            let result = await textComponentCke.getTextFromEditor();
+            await contentWizard.switchToLiveEditFrame();
+            let result = await liveFormPanel.getTextInTextComponent();
             // 8. Verify that the text expected text is displayed in the text component:
-            assert.equal(result, TEST_TEXT_INSERTED, "Expected text should be displayed in the text component");
+            assert.ok(result.includes(TEST_TEXT), 'Expected text should be displayed in the text component');
         });
 
     // xp-apps#738 Live Editor is not updated after a page template was added or removed

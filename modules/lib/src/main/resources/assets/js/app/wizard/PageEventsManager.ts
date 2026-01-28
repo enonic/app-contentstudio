@@ -14,6 +14,10 @@ import {PageControllerSetHandler, PageResetHandler, PageTemplateSetHandler} from
 import {DescriptorKey} from '../page/DescriptorKey';
 import {PageTemplate} from '../content/PageTemplate';
 import {ComponentTextUpdatedOrigin} from '../page/region/ComponentTextUpdatedOrigin';
+import {PageNavigationEvent} from './PageNavigationEvent';
+import {PageNavigationMediator} from './PageNavigationMediator';
+import {PageNavigationEventType} from './PageNavigationEventType';
+import {PageNavigationEventData, PageNavigationEventSource} from './PageNavigationEventData';
 
 
 export class PageEventsManager {
@@ -27,7 +31,7 @@ export class PageEventsManager {
 
     private componentViewDragCanceledListeners: ((event: ComponentViewDragCanceledEvent) => void)[] = [];
 
-    private componentDragDroppedListeners: ((path: ComponentPath) => void)[] = [];
+    private componentDragDroppedListeners: ((from: ComponentPath, to: ComponentPath) => void)[] = [];
 
     // Page events
 
@@ -97,7 +101,8 @@ export class PageEventsManager {
 
     private setFragmentComponentRequestedListeners: ((path: ComponentPath, id: string) => void)[] = [];
 
-    private textComponentUpdateRequestedListeners: ((path: ComponentPath, value: string, origin?: ComponentTextUpdatedOrigin) => void)[] = [];
+    private textComponentUpdateRequestedListeners: ((path: ComponentPath, value: string,
+                                                     origin?: ComponentTextUpdatedOrigin) => void)[] = [];
 
     private textComponentEditRequestedListeners: ((path: ComponentPath) => void)[] = [];
 
@@ -153,16 +158,16 @@ export class PageEventsManager {
         this.componentViewDragCanceledListeners.forEach((listener) => listener(event));
     }
 
-    onComponentDragDropped(listener: ((path: ComponentPath) => void)): void {
+    onComponentDragDropped(listener: ((from: ComponentPath, to: ComponentPath) => void)): void {
         this.componentDragDroppedListeners.push(listener);
     }
 
-    unComponentViewDragDropped(listener: ((path: ComponentPath) => void)): void {
+    unComponentViewDragDropped(listener: ((from: ComponentPath, to: ComponentPath) => void)): void {
         this.componentDragDroppedListeners = this.componentDragDroppedListeners.filter((curr) => (curr !== listener));
     }
 
-    notifyComponentViewDragDropped(path: ComponentPath) {
-        this.componentDragDroppedListeners.forEach((listener) => listener(path));
+    notifyComponentViewDragDropped(from: ComponentPath, to: ComponentPath) {
+        this.componentDragDroppedListeners.forEach((listener) => listener(from, to));
     }
 
     onPageLocked(listener: (event: PageLockedEvent) => void) {
@@ -277,7 +282,7 @@ export class PageEventsManager {
         this.dialogCreatedListeners.push(listener);
     }
 
-    unDialogCreated(listener:  ((modalDialog: ModalDialog, config: HtmlAreaDialogConfig) => void)) {
+    unDialogCreated(listener: ((modalDialog: ModalDialog, config: HtmlAreaDialogConfig) => void)) {
         this.dialogCreatedListeners = this.dialogCreatedListeners.filter((curr) => (curr !== listener));
     }
 
@@ -408,7 +413,8 @@ export class PageEventsManager {
     }
 
     unComponentCreateFragmentRequested(listener: ((path: ComponentPath) => void)): void {
-        this.componentCreateFragmentRequestedListeners = this.componentCreateFragmentRequestedListeners.filter((curr) => (curr !== listener));
+        this.componentCreateFragmentRequestedListeners =
+            this.componentCreateFragmentRequestedListeners.filter((curr) => (curr !== listener));
     }
 
     notifyComponentCreateFragmentRequested(path: ComponentPath) {
@@ -420,7 +426,8 @@ export class PageEventsManager {
     }
 
     unComponentDetachFragmentRequested(listener: ((path: ComponentPath) => void)): void {
-        this.componentDetachFragmentRequestedListeners = this.componentDetachFragmentRequestedListeners.filter((curr) => (curr !== listener));
+        this.componentDetachFragmentRequestedListeners =
+            this.componentDetachFragmentRequestedListeners.filter((curr) => (curr !== listener));
     }
 
     notifyComponentDetachFragmentRequested(path: ComponentPath) {
@@ -520,6 +527,9 @@ export class PageEventsManager {
     }
 
     notifyTextComponentEditRequested(path: ComponentPath): void {
+        PageNavigationMediator.get().notify(
+            new PageNavigationEvent(PageNavigationEventType.INSPECT,
+                new PageNavigationEventData(path, PageNavigationEventSource.FORM, true)));
         this.textComponentEditRequestedListeners.forEach((listener) => listener(path));
     }
 

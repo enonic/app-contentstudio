@@ -10,9 +10,12 @@ export class PageNavigationEventData {
 
     private readonly source?: PageNavigationEventSource;
 
-    constructor(path?: ComponentPath, source?: PageNavigationEventSource) {
+    private readonly focus?: boolean;
+
+    constructor(path?: ComponentPath, source?: PageNavigationEventSource, focus?: boolean) {
         this.path = path;
         this.source = source;
+        this.focus = focus;
     }
 
     getPath(): ComponentPath {
@@ -21,5 +24,9 @@ export class PageNavigationEventData {
 
     getSource(): PageNavigationEventSource {
         return this.source;
+    }
+
+    isFocus(): boolean {
+        return this.focus;
     }
 }

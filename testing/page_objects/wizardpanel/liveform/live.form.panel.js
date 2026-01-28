@@ -16,7 +16,7 @@ const xpath = {
     layoutPlaceholderDiv: `//div[contains(@id,'LayoutPlaceholder')]`,
     fragmentPlaceHolderDiv: `//div[contains(@id,'FragmentPlaceholder')]`,
     sectionTextComponentView: "//section[contains(@id,'TextComponentView')]",
-    editableTextComponentView: "//*[contains(@id,'TextComponentView')]",
+    textComponentView: "//*[contains(@id,'TextComponentView')]",
     textComponentType: "//*[@data-portal-component-type='text']",
     previewNotAvailableSpan: "//p[@class='no-preview-message']/span[1]",
     imageInComponent: "//figure/img",
@@ -99,7 +99,7 @@ class LiveFormPanel extends Page {
     // get text from 'section' element:
     async getTextInTextComponent() {
         try {
-            let selector = xpath.sectionTextComponentView + '/p';
+            let selector = xpath.textComponentView + '/p';
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getTextInDisplayedElements(selector);
         } catch (err) {
@@ -160,9 +160,9 @@ class LiveFormPanel extends Page {
         return result;
     }
 
-    async getTextInEditableLayoutComponent() {
+    async getTextInLayoutComponent() {
         try {
-            let selector = xpath.layoutComponentView + xpath.editableTextComponentView + '/p';
+            let selector = xpath.layoutComponentView + xpath.textComponentView + '/p';
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getTextInDisplayedElements(selector);
         } catch (err) {
@@ -197,15 +197,6 @@ class LiveFormPanel extends Page {
         }
     }
 
-    //Close edit-mode icon for text-component
-    async waitForCloseEditModeButtonDisplayed() {
-        try {
-            let locator = xpath.closeEditModeButton;
-            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        } catch (err) {
-            await this.handleError(`Close 'Edit mode' button should be displayed in Live Editor!`, 'err_close_edit_mode_btn', err);
-        }
-    }
 
     // Close edit-mode icon for text-component
     async waitForCloseEditModeButtonNotDisplayed() {
@@ -215,12 +206,6 @@ class LiveFormPanel extends Page {
         } catch (err) {
             await this.handleError(`Close 'Edit mode' button should not be displayed in Live Editor!`, 'err_close_edit_mode_btn', err);
         }
-    }
-
-    // Click on lose edit-mode icon for text-component
-    async clickOnCloseEditModeButton() {
-        await this.waitForCloseEditModeButtonDisplayed();
-        await this.clickOnElement(xpath.closeEditModeButton);
     }
 
     async doRightClickOnTextComponent(text, liveFrameX, liveFrameY) {

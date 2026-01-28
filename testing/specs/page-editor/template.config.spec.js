@@ -10,13 +10,13 @@ const HomePageInspectionPanel = require('../../page_objects/wizardpanel/liveform
 const WizardContextWindowPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const appConst = require('../../libs/app_const');
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
-const TextComponent = require('../../page_objects/components/text.component');
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const PageComponentView = require('../../page_objects/wizardpanel/liveform/page.components.view');
 const PageWidgetPanel = require('../../page_objects/wizardpanel/liveform/page.widget.context.window');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const PageTemplateForm = require('../../page_objects/wizardpanel/page.template.form.panel');
+const TextComponentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/text.component.inspect.panel');
 
 describe('template.config.spec: template config should be displayed in the Inspection Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -149,10 +149,10 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await contentWizard.waitForSaveButtonEnabled();
         });
 
-    it(`GIVEN 'Customize' menu item has been clicked in article wizard WHEN text component has been inserted in 'Page Component wizard' step THEN the text should appear in the LiveEdit frame`,
+    it(`GIVEN 'Customize Page' button has been clicked in article wizard WHEN text component has been inserted in 'Page Component wizard' step THEN the text should appear in the LiveEdit frame`,
         async () => {
             let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
-            let textComponent = new TextComponent();
+            let textComponentInspectionPanel = new TextComponentInspectionPanel();
             let contentWizard = new ContentWizard();
             let liveFormPanel = new LiveFormPanel();
             let pageInspectionPanel = new PageInspectionPanel();
@@ -160,7 +160,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 1. Open new wizard for Article content:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
             await contentWizard.typeDisplayName(ARTICLE_NAME);
-            // 2. Click on 'Customize' menu item:
+            // 2. Click on 'Page Settings' menu item:
             await contentWizard.openLockedSiteContextMenuClickOnPageSettings();
             await contentWizard.switchToMainFrame();
             // 3. Click on 'Customize Page' button in the Page Inspection panel:
@@ -173,7 +173,9 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 4. Insert text component in Page Component wizard step
             await pageComponentsWizardStepForm.openMenu('main');
             await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Text']);
-            await textComponent.typeTextInCkeEditor(TEST_TEXT);
+            await textComponentInspectionPanel.waitForOpened();
+            await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.typeTextInEditor(TEST_TEXT);
             await studioUtils.saveScreenshot('article_content_customized');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1500);

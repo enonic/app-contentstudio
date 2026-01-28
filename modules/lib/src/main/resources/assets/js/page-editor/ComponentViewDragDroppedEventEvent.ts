@@ -5,16 +5,22 @@ import {ComponentPath} from '../app/page/region/ComponentPath';
 export class ComponentViewDragDroppedEvent
     extends IframeEvent {
 
-    private readonly path: ComponentPath;
+    private readonly from: ComponentPath;
+    private readonly to: ComponentPath;
 
-    constructor(path: ComponentPath) {
+    constructor(from: ComponentPath, to: ComponentPath) {
         super();
 
-        this.path = path;
+        this.from = from;
+        this.to = to;
     }
 
-    getComponentPath(): ComponentPath {
-        return this.path;
+    getFromPath(): ComponentPath {
+        return this.from;
+    }
+
+    getToPath(): ComponentPath {
+        return this.to;
     }
 
     static on(handler: (event: ComponentViewDragDroppedEvent) => void, contextWindow: Window = window) {

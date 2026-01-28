@@ -66,7 +66,7 @@ describe('site.with.layout.component.spec - specification', function () {
             await textComponentInspectionPanel.typeTextInEditor('text left');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.switchToLiveEditFrame();
-            let result = await liveFormPanel.getTextInEditableLayoutComponent()
+            let result = await liveFormPanel.getTextInLayoutComponent()
             assert.equal(result[0], 'text left', 'Expected text should be present in the layout component');
         });
 
@@ -92,7 +92,7 @@ describe('site.with.layout.component.spec - specification', function () {
             await contentWizard.waitAndClickOnSave();
             // 5. Verify that expected text is displayed in Live Edit panel:
             await contentWizard.switchToLiveEditFrame();
-            let result = await liveFormPanel.getTextInEditableLayoutComponent();
+            let result = await liveFormPanel.getTextInLayoutComponent();
             assert.equal(result[1], 'text center', 'Expected text should be present in the layout component');
         });
 
@@ -116,7 +116,7 @@ describe('site.with.layout.component.spec - specification', function () {
             await textComponentInspectionPanel.typeTextInEditor('text right');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.switchToLiveEditFrame();
-            let result = await liveFormPanel.getTextInEditableLayoutComponent();
+            let result = await liveFormPanel.getTextInLayoutComponent();
             assert.equal(result[2], 'text right', 'Expected text should be present in the layout component');
         });
 

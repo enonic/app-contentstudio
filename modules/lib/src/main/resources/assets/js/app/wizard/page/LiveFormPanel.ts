@@ -341,7 +341,7 @@ export class LiveFormPanel
 
         if (fragmentComponent) {
             const isCreateEvent = fragment.getContentSummary().getModifiedTime().getTime() -
-                                     fragment.getContentSummary().getCreatedTime().getTime() < 500;
+                                  fragment.getContentSummary().getCreatedTime().getTime() < 500;
             if (!isCreateEvent) {
                 this.loadComponent(fragmentComponent.getPath());
             }
@@ -648,8 +648,8 @@ export class LiveFormPanel
             SaveAsTemplateAction.get().execute();
         });
 
-        eventsManager.onComponentDragDropped((path: ComponentPath) => {
-            this.inspectPageItemByPath(new PageNavigationEventData(path));
+        eventsManager.onComponentDragDropped((from: ComponentPath, to: ComponentPath) => {
+            this.inspectPageItemByPath(new PageNavigationEventData(to));
         });
 
         eventsManager.onShowWarning((event: ShowWarningLiveEditEvent) => {
@@ -769,7 +769,7 @@ export class LiveFormPanel
         this.inspectionsPanel.setButtonContainerVisible(false);
     }
 
-    private doInspectComponent(component: Component, showPanel: boolean) {
+    private doInspectComponent(component: Component, showPanel: boolean, focus?: boolean): void {
         const showInspectionPanel = (panel: BaseInspectionPanel) =>
             this.contextWindow.showInspectionPanel(
                 getInspectParameters({
@@ -785,6 +785,9 @@ export class LiveFormPanel
 
         if (inspectionPanel instanceof ComponentInspectionPanel) {
             showInspectionPanel(inspectionPanel);
+            if (focus) {
+                setTimeout(() => inspectionPanel.focus(), 200);
+            }
             inspectionPanel.setComponent(component);
 
             // show apply for text comp, page, part and layout will handle it themselves when selected descriptor is set
@@ -794,7 +797,7 @@ export class LiveFormPanel
         }
     }
 
-    private inspectComponentOnDemand(component: Component, source?: PageNavigationEventSource): void {
+    private inspectComponentOnDemand(component: Component, source?: PageNavigationEventSource, focus?: boolean): void {
         assertNotNull(component, 'component cannot be null');
 
         // not showing/hiding inspection panel if component has no descriptor or if is in text edit mode
@@ -816,7 +819,7 @@ export class LiveFormPanel
             return;
         }
 
-        this.doInspectComponent(component, !isPanelToHide);
+        this.doInspectComponent(component, !isPanelToHide, focus);
     }
 
     private isInspectComponentToHide(component: Component): boolean {
@@ -827,12 +830,12 @@ export class LiveFormPanel
         return component instanceof DescriptorBasedComponent && !component.hasDescriptor() && this.isShown();
     }
 
-    private openComponentInspect(component: Component, source?: PageNavigationEventSource): void {
+    private openComponentInspect(component: Component, source?: PageNavigationEventSource, focus?: boolean): void {
         assertNotNull(component, 'component cannot be null');
 
         InspectEvent.create().setShowWidget(true).setShowPanel(true).setSource(source).build().fire();
 
-        this.doInspectComponent(component, true);
+        this.doInspectComponent(component, true, focus);
     }
 
     isShown(): boolean {
@@ -892,15 +895,16 @@ export class LiveFormPanel
 
     private inspectPageItemByPath(data: PageNavigationEventData, force?: boolean): void {
         const path: ComponentPath = data.getPath();
+        const focusEditor = data.isFocus();
         this.lastInspectedItemPath = path;
         const currentPage: Page = PageState.getState();
         const item: PageItem = currentPage?.getComponentByPath(path);
 
         if (item instanceof Component) {
             if (force) { // force inspecting component
-                this.openComponentInspect(item, data.getSource());
+                this.openComponentInspect(item, data.getSource(), focusEditor);
             } else { // inspect component only if inspection panel is open, close if no descriptor
-                this.inspectComponentOnDemand(item, data.getSource());
+                this.inspectComponentOnDemand(item, data.getSource(), focusEditor);
             }
         } else if (item instanceof Region) {
             this.inspectRegion(path, data.getSource());

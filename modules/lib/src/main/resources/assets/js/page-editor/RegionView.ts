@@ -234,18 +234,6 @@ export class RegionView
         }
     }
 
-    handleClick(event: MouseEvent) {
-        const pageView = this.getPageView();
-        if (PageViewController.get().isTextEditMode()) {
-            event.stopPropagation();
-            if (!pageView.hasTargetWithinTextComponent(this.mouseDownLastTarget)) {
-                PageViewController.get().setTextEditMode(false);
-            }
-        } else {
-            super.handleClick(event);
-        }
-    }
-
     select(config?: ItemViewSelectedEventConfig, menuPosition?: ItemViewContextMenuPosition) {
         if (config) {
             config.rightClicked = false;

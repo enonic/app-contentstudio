@@ -69,9 +69,9 @@ export class TextInspectionPanel
         });
 
         BeforeContentSavedEvent.on(() => {
-           if (this.isFocused) {
+            if (this.isFocused) {
                 this.cursorPosition = this.htmlEditor.getCursorPosition();
-           }
+            }
         });
     }
 
@@ -81,6 +81,10 @@ export class TextInspectionPanel
                 this.handleTextComponentUpdated(event);
             }
         });
+    }
+
+    focus(): void {
+        this.htmlEditor?.focus();
     }
 
     private handleTextComponentUpdated(event: ComponentTextUpdatedEvent): void {

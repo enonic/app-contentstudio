@@ -2,7 +2,6 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {PageView, PageViewBuilder} from './PageView';
 import {InitializeLiveEditEvent} from './InitializeLiveEditEvent';
-import {PageViewController} from './PageViewController';
 import {SkipLiveEditReloadConfirmationEvent} from './SkipLiveEditReloadConfirmationEvent';
 import {ComponentLoadedEvent} from './ComponentLoadedEvent';
 import {ItemViewIdProducer} from './ItemViewIdProducer';
@@ -27,7 +26,6 @@ import {SelectComponentViewEvent} from './event/incoming/navigation/SelectCompon
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {ItemView} from './ItemView';
 import {DeselectComponentViewEvent} from './event/incoming/navigation/DeselectComponentViewEvent';
-import {EditTextComponentViewEvent} from './event/incoming/manipulation/EditTextComponentViewEvent';
 import {TextComponentView} from './text/TextComponentView';
 import {AddComponentViewEvent} from './event/incoming/manipulation/AddComponentViewEvent';
 import {ComponentType} from '../app/page/region/ComponentType';
@@ -89,8 +87,6 @@ export class LiveEditPage {
     private selectComponentRequestedListener: (event: SelectComponentViewEvent) => void;
 
     private deselectComponentRequestedListener: (event: DeselectComponentViewEvent) => void;
-
-    private editTextComponentRequestedListener: (event: EditTextComponentViewEvent) => void;
 
     private setComponentStateEventListener: (event: SetComponentStateEvent) => void;
 
@@ -289,21 +285,6 @@ export class LiveEditPage {
 
         DeselectComponentViewEvent.on(this.deselectComponentRequestedListener);
 
-        this.editTextComponentRequestedListener = (event: EditTextComponentViewEvent): void => {
-            const path: ComponentPath = event.getPath() ? ComponentPath.fromString(event.getPath()) : null;
-
-            if (path) {
-                const itemView: ItemView = this.getItemViewByPath(path);
-
-                if (itemView?.isText()) {
-                    (itemView as TextComponentView).setEditMode(true);
-                    itemView.giveFocus();
-                }
-            }
-        };
-
-        EditTextComponentViewEvent.on(this.editTextComponentRequestedListener);
-
         this.setComponentStateEventListener = (event: SetComponentStateEvent): void => {
             const path: ComponentPath = event.getPath() ? ComponentPath.fromString(event.getPath()) : null;
             const itemView: ItemView = path ? this.getItemViewByPath(path) : null;
@@ -402,9 +383,6 @@ export class LiveEditPage {
             if (selected instanceof ComponentView) {
                 SessionStorageHelper.updateSelectedPathInStorage(contentId, selected.getPath());
 
-                if (PageViewController.get().isTextEditMode() && selected instanceof TextComponentView) {
-                    SessionStorageHelper.updateSelectedTextCursorPosInStorage(contentId, selected.getCursorPosition());
-                }
             } else if (selected instanceof RegionView) {
                 SessionStorageHelper.updateSelectedPathInStorage(contentId, selected.getPath());
             }
@@ -495,8 +473,6 @@ export class LiveEditPage {
         SelectComponentViewEvent.un(this.selectComponentRequestedListener);
 
         DeselectComponentViewEvent.un(this.deselectComponentRequestedListener);
-
-        EditTextComponentViewEvent.un(this.editTextComponentRequestedListener);
 
         SetComponentStateEvent.un(this.setComponentStateEventListener);
 
