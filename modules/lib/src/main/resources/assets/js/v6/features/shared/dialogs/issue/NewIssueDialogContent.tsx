@@ -1,6 +1,6 @@
 import {Button, Dialog, Input, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {useEffect, useId, useMemo, useRef, type ReactElement} from 'react';
+import {useEffect, useId, useRef, type ReactElement} from 'react';
 
 import {IssueType} from '../../../../../app/issue/IssueType';
 import {useI18n} from '../../../hooks/useI18n';
@@ -22,7 +22,7 @@ import {
     submitNewIssueDialog,
 } from '../../../store/dialogs/newIssueDialog.store';
 import {IssueIcon} from './IssueIcon';
-import {hasContentIdInIds, uniqueIds} from '../../../utils/cms/content/ids';
+import {useIssuePublishTargetIds} from './hooks/useIssuePublishTargetIds';
 
 const NEW_ISSUE_DIALOG_CONTENT_NAME = 'NewIssueDialogContent';
 
@@ -71,13 +71,7 @@ export const NewIssueDialogContent = (): ReactElement => {
     const inviteUsersLabel = useI18n('dialog.issue.inviteUsers');
     const noResultsLabel = useI18n('dialog.search.result.noResults');
 
-    const publishTargetIds = useMemo(() => {
-        const itemIds = items.map(item => item.getContentId());
-        const includedDependants = dependants
-            .filter(item => !hasContentIdInIds(item.getContentId(), excludedDependantIds));
-        const dependantIds = includedDependants.map(item => item.getContentId());
-        return uniqueIds([...itemIds, ...dependantIds]);
-    }, [items, dependants, excludedDependantIds]);
+    const publishTargetIds = useIssuePublishTargetIds(items, dependants, excludedDependantIds);
 
     const {options: assigneeOptions, handleSearchChange} = useAssigneeSearch({
         publishableContentIds: publishTargetIds,
