@@ -1,6 +1,15 @@
 import {Button, Dialog, Tab, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {useCallback, useEffect, useId, useMemo, useRef, type ComponentPropsWithoutRef, type ReactElement} from 'react';
+import {
+    useCallback,
+    useEffect,
+    useId,
+    useMemo,
+    useRef,
+    useState,
+    type ComponentPropsWithoutRef,
+    type ReactElement,
+} from 'react';
 
 import type {ContentId} from '../../../../../app/content/ContentId';
 import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
@@ -9,28 +18,31 @@ import {useI18n} from '../../../hooks/useI18n';
 import {$issueDialog, setIssueDialogView} from '../../../store/dialogs/issueDialog.store';
 import {
     $issueDialogDetails,
+    deleteIssueDialogComment,
     loadIssueDialogItems,
     setIssueDialogCommentText,
     setIssueDialogDetailsTab,
     submitIssueDialogComment,
     updateIssueDialogAssignees,
+    updateIssueDialogComment,
     updateIssueDialogDependencyIncluded,
     updateIssueDialogItemIncludeChildren,
     updateIssueDialogItems,
-    updateIssueDialogStatus,
+    updateIssueDialogStatus
 } from '../../../store/dialogs/issueDialogDetails.store';
-import {hasContentIdInIds, uniqueIds} from '../../../utils/cms/content/ids';
+import {uniqueIds} from '../../../utils/cms/content/ids';
 import {createDebounce} from '../../../utils/timing/createDebounce';
 import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
 import {useAssigneeSearch, useAssigneeSelection} from '../../selectors/assignee/hooks/useAssigneeSearch';
 import {IssueItemsSelector} from '../../selectors/issue-items/IssueItemsSelector';
 import {IssueStatusBadge} from '../../status/IssueStatusBadge';
-import {IssueCommentsList} from './IssueCommentsList';
 import {IssueDialogSelector} from './IssueDialogSelector';
 import {IssueIcon} from './IssueIcon';
 import {IssueSelectedDependencies} from './IssueSelectedDependencies';
 import {IssueSelectedItems} from './IssueSelectedItems';
+import {IssueCommentsList} from './comment/IssueCommentsList';
 import {useIssueDialogData} from './hooks/useIssueDialogData';
+import {useIssuePublishTargetIds} from './hooks/useIssuePublishTargetIds';
 
 import type {Issue} from '../../../../../app/issue/Issue';
 import type {IssueWithAssignees} from '../../../../../app/issue/IssueWithAssignees';
@@ -167,14 +179,9 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const isStatusDisabled = !issueData || statusUpdating;
 
     const commentTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+    const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(null);
     const pendingItemIdsRef = useRef<ContentId[] | null>(null);
-    const publishTargetIds = useMemo(() => {
-        const itemIds = items.map(item => item.getContentId());
-        const includedDependants = dependants
-            .filter(item => !hasContentIdInIds(item.getContentId(), excludedDependantIds));
-        const dependantIds = includedDependants.map(item => item.getContentId());
-        return uniqueIds([...itemIds, ...dependantIds]);
-    }, [items, dependants, excludedDependantIds]);
+    const publishTargetIds = useIssuePublishTargetIds(items, dependants, excludedDependantIds);
 
     const {options: assigneeOptions, handleSearchChange} = useAssigneeSearch({
         publishableContentIds: publishTargetIds,
@@ -336,6 +343,21 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const canSubmitComment = useMemo(() => {
         return commentText.trim().length > 0 && !commentSubmitting && !!issueId && !issueError;
     }, [commentText, commentSubmitting, issueId, issueError]);
+
+    const handleCommentUpdate = useCallback(
+        async (commentId: string, text: string): Promise<boolean> => {
+            return await updateIssueDialogComment(commentId, text);
+        },
+        [],
+    );
+
+    const handleCommentDelete = useCallback(
+        async (commentId: string): Promise<boolean> => {
+            return await deleteIssueDialogComment(commentId);
+        },
+        [],
+    );
+
     const isAssigneesDisabled = !issueData || issueError || assigneesUpdating || statusUpdating;
     const isItemsDisabled = !issueData || issueError || itemsUpdating || statusUpdating;
     const statusOptions = useMemo(
@@ -386,6 +408,9 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                     issue={issueData}
                                     comments={comments}
                                     loading={commentsLoading}
+                                    onUpdateComment={handleCommentUpdate}
+                                    onDeleteComment={handleCommentDelete}
+                                    portalContainer={portalContainer}
                                     aria-label={commentsLabel}
                                 />
                                 <div className='flex flex-col gap-2'>
@@ -470,6 +495,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                         </Tab.Content>
                     </div>
                 </Tab.Root>
+                <div ref={setPortalContainer} />
             </Dialog.Body>
             <Dialog.Footer className='px-5 justify-between'>
                 <Button variant='outline' size='lg' label={backLabel} onClick={handleBack} />
