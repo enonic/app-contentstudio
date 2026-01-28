@@ -1,8 +1,9 @@
-import {Button, cn, Dialog, Separator, Toggle} from '@enonic/ui';
+import {Button, Checkbox, Dialog, GridList} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {Calendar} from 'lucide-react';
+import {Calendar, CornerDownRight} from 'lucide-react';
 import {useEffect, useId, useState, type ReactElement} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
+import {ContentRow} from '../../lists';
 import {$config} from '../../../store/config.store';
 import {
     $dependantPublishItems,
@@ -21,10 +22,9 @@ import {
     markAllAsReadyInProgressPublishItems,
     setPublishDialogDependantItemSelected,
     setPublishDialogItemSelected,
-    setPublishDialogItemWithChildrenSelected
+    setPublishDialogItemWithChildrenSelected,
 } from '../../../store/dialogs/publishDialog.store';
-import {ContentListItemSelectable} from '../../items/ContentListItemSelectable';
-import {ContentListItemSelectableWithChildren} from '../../items/ContentListItemSelectableWithChildren';
+import {SplitList} from '../../lists/split-list';
 import {SelectionStatusBar} from '../status-bar/SelectionStatusBar';
 
 type PublishDialogMainContentProps = {
@@ -59,7 +59,6 @@ export const PublishDialogMainContent = ({
         ? dependantItems
         : dependantItems.filter(item => !item.excludedByDefault);
     const hasAnyExcludedDependantItems = dependantItems.some(item => item.excludedByDefault);
-    const hasVisibleDependantItems = visibleDependantItems.length > 0;
     const showExcludedLabel = useI18n('dialog.publish.excluded.show');
     const hideExcludedLabel = useI18n('dialog.publish.excluded.hide');
     const toggleExcludedLabel = showExcluded ? hideExcludedLabel : showExcludedLabel;
@@ -72,10 +71,12 @@ export const PublishDialogMainContent = ({
 
     const title = useI18n('dialog.publish');
     const separatorLabel = useI18n('dialog.publish.dependants');
+    const emptyDependenciesMessage = useI18n('field.publish.dependencies.empty');
     const scheduleLabel = useI18n('action.schedule');
     const publishLabelSingle = useI18n('action.publishNow');
     const publishLabelMultiple = useI18n('action.publishNowCount', publishCount);
     const publishLabel = publishCount > 1 ? publishLabelMultiple : publishLabelSingle;
+    const includeChildrenLabel = useI18n('field.content.includeChildren');
 
     const handleSchedule = () => {
         // TODO: Add schedule support
@@ -114,41 +115,87 @@ export const PublishDialogMainContent = ({
                     },
                 }} />
 
-            <Dialog.Body className="flex flex-col gap-y-10">
-                <ul className='flex flex-col gap-y-2.5'>
-                    {mainItems.map(({id, content, included, childrenIncluded, required, hasUnpublishedChildren}) => {
-                        return <ContentListItemSelectableWithChildren
-                            key={id}
-                            id={`main-${id}`}
-                            content={content}
-                            checked={included}
-                            onCheckedChange={(enabled) => setPublishDialogItemSelected(content.getContentId(), enabled)}
-                            defaultIncludeChildren={childrenIncluded}
-                            onIncludeChildrenChange={(enabled) => setPublishDialogItemWithChildrenSelected(content.getContentId(), enabled)}
-                            readOnly={required || loading}
-                            showIncludeChildren={hasUnpublishedChildren}
-                        />;
-                    })}
-                </ul>
-                <div className={cn("flex flex-col gap-y-7.5", !hasDependantItems && 'hidden')}>
-                    <div className="flex items-center gap-2.5 -my-2.5 pr-1">
-                        <Separator className="text-sm flex-1" label={separatorLabel} />
-                        <Toggle size="sm" label={toggleExcludedLabel} pressed={showExcluded} onPressedChange={setShowExcluded} disabled={!hasAnyExcludedDependantItems} />
-                    </div>
-                    <ul className='flex flex-col gap-y-1.5'>
-                        {visibleDependantItems.map(({id, content, included, required}) => {
-                            return <ContentListItemSelectable
-                                key={id}
-                                id={`dependant-${id}`}
-                                content={content}
-                                checked={included}
-                                onCheckedChange={(enabled) => setPublishDialogDependantItemSelected(content.getContentId(), enabled)}
-                                readOnly={required || loading}
-                            />;
-                        })}
-                        {!hasVisibleDependantItems && <li className="text-sm text-subtle italic">{useI18n('field.publish.dependencies.empty')}</li>}
-                    </ul>
-                </div>
+            <Dialog.Body className="flex flex-col gap-y-10" tabIndex={-1}>
+                <SplitList>
+                    <SplitList.Primary
+                        items={mainItems}
+                        getItemId={(item) => item.id}
+                        disabled={loading}
+                        renderRow={(item) => {
+                            const showChildrenCheckbox = item.hasUnpublishedChildren && item.content.hasChildren();
+                            return (
+                                <>
+                                    <ContentRow
+                                        key={item.id}
+                                        content={item.content}
+                                        id={item.id}
+                                        disabled={item.required || loading}
+                                    >
+                                        <ContentRow.Checkbox
+                                            checked={item.included}
+                                            onCheckedChange={(checked) => setPublishDialogItemSelected(item.content.getContentId(), checked)}
+                                        />
+                                        <ContentRow.Label action="edit" />
+                                        <ContentRow.Status variant="diff" />
+                                    </ContentRow>
+
+                                    {showChildrenCheckbox && (
+                                        <GridList.Row
+                                            id={`${item.id}-children`}
+                                            disabled={item.required || loading || !item.included}
+                                            className="gap-3 px-2.5"
+                                        >
+                                            <GridList.Cell className="pl-2.5 flex items-center gap-2.5">
+                                                <CornerDownRight className="size-4 shrink-0" />
+                                                <GridList.Action>
+                                                    <Checkbox
+                                                        className="font-semibold"
+                                                        checked={item.childrenIncluded}
+                                                        onCheckedChange={(enabled) => setPublishDialogItemWithChildrenSelected(item.content.getContentId(), enabled === true)}
+                                                        disabled={item.required || loading || !item.included}
+                                                        label={includeChildrenLabel}
+                                                    />
+                                                </GridList.Action>
+                                            </GridList.Cell>
+                                        </GridList.Row>
+                                    )}
+                                </>
+                            );
+                        }}
+                    />
+
+                    <SplitList.Separator hidden={!hasDependantItems}>
+                        <SplitList.SeparatorLabel>{separatorLabel}</SplitList.SeparatorLabel>
+                        <SplitList.SeparatorToggle
+                            label={toggleExcludedLabel}
+                            pressed={showExcluded}
+                            onPressedChange={setShowExcluded}
+                            disabled={!hasAnyExcludedDependantItems}
+                        />
+                    </SplitList.Separator>
+
+                    <SplitList.Secondary
+                        items={visibleDependantItems}
+                        getItemId={(item) => item.id}
+                        emptyMessage={hasDependantItems ? emptyDependenciesMessage : undefined}
+                        disabled={loading}
+                        renderRow={(item) => (
+                            <ContentRow
+                                key={item.id}
+                                content={item.content}
+                                id={item.id}
+                                disabled={item.required || loading}
+                            >
+                                <ContentRow.Checkbox
+                                    checked={item.included}
+                                    onCheckedChange={(checked) => setPublishDialogDependantItemSelected(item.content.getContentId(), checked)}
+                                />
+                                <ContentRow.Label action="edit" />
+                                <ContentRow.Status variant="diff" />
+                            </ContentRow>
+                        )}
+                    />
+                </SplitList>
             </Dialog.Body>
             <Dialog.Footer>
                 <Button className="hidden" label={scheduleLabel} variant="outline" onClick={handleSchedule} endIcon={Calendar} disabled={loading} />

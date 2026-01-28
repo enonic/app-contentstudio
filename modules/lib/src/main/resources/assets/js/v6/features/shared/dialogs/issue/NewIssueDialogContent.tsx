@@ -6,7 +6,7 @@ import {IssueType} from '../../../../../app/issue/IssueType';
 import {useI18n} from '../../../hooks/useI18n';
 import {useAssigneeSearch, useAssigneeSelection} from '../../selectors/assignee/hooks/useAssigneeSearch';
 import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
-import {IssueItemsSelector} from '../../selectors/items/IssueItemsSelector';
+import {IssueItemsSelector} from '../../selectors/issue-items/IssueItemsSelector';
 import {IssueSelectedItems} from './IssueSelectedItems';
 import {IssueSelectedDependencies} from './IssueSelectedDependencies';
 import {

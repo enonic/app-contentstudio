@@ -96,10 +96,10 @@ export const SelectionStatusBar = ({className, onApply, onCancel, ...props}: Pro
             {status === 'editing' && <StatusBarEntry className="bg-surface-info">
                 <StatusIcon className="w-6 h-6" status='info' />
                 <span className="text-sm font-semibold">{editingText}</span>
-                <StatusBarEntryButton onClick={onApply}>
+                <StatusBarEntryButton onClick={onApply} className='[--color-ring-offset:var(--color-surface-info)]'>
                     {applyText}
                 </StatusBarEntryButton>
-                <StatusBarEntryButton onClick={onCancel}>
+                <StatusBarEntryButton onClick={onCancel} className='[--color-ring-offset:var(--color-surface-info)]'>
                     {cancelText}
                 </StatusBarEntryButton>
             </StatusBarEntry>}
@@ -113,19 +113,19 @@ export const SelectionStatusBar = ({className, onApply, onCancel, ...props}: Pro
                 {!inProgress.disabled && <StatusBarEntryButton onClick={inProgress.onExclude}>
                     {excludeText}
                 </StatusBarEntryButton>}
-                {inProgress.onMarkAsReady && <StatusBarEntryButton onClick={inProgress.onMarkAsReady}>
+                {inProgress.onMarkAsReady && <StatusBarEntryButton onClick={inProgress.onMarkAsReady} className='[--color-ring-offset:var(--color-surface-warn)]'>
                     {markAsReadyText}
                 </StatusBarEntryButton>}
             </StatusBarErrorEntry>}
 
             {status === 'errors' && invalid.count > 0 && <StatusBarErrorEntry status='invalid' label={`${invalidText} (${invalid.count})`} disabled={invalid.disabled}>
-                <StatusBarEntryButton onClick={invalid.onExclude}>
+                <StatusBarEntryButton onClick={invalid.onExclude} className='[--color-ring-offset:var(--color-surface-error)]'>
                     {excludeText}
                 </StatusBarEntryButton>
             </StatusBarErrorEntry>}
 
             {status === 'errors' && noPermissions.count > 0 && <StatusBarErrorEntry status='invalid' label={`${noPermissionsText} (${noPermissions.count})`} disabled={noPermissions.disabled}>
-                <StatusBarEntryButton onClick={noPermissions.onExclude}>
+                <StatusBarEntryButton onClick={noPermissions.onExclude} className='[--color-ring-offset:var(--color-surface-error)]'>
                     {excludeText}
                 </StatusBarEntryButton>
             </StatusBarErrorEntry>}
