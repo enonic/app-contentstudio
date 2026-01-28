@@ -23,7 +23,7 @@ import {hasContentIdInIds, uniqueIds} from '../../../utils/cms/content/ids';
 import {createDebounce} from '../../../utils/timing/createDebounce';
 import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
 import {useAssigneeSearch, useAssigneeSelection} from '../../selectors/assignee/hooks/useAssigneeSearch';
-import {IssueItemsSelector} from '../../selectors/items/IssueItemsSelector';
+import {IssueItemsSelector} from '../../selectors/issue-items/IssueItemsSelector';
 import {IssueStatusBadge} from '../../status/IssueStatusBadge';
 import {IssueCommentsList} from './IssueCommentsList';
 import {IssueDialogSelector} from './IssueDialogSelector';

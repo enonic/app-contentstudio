@@ -6,16 +6,14 @@ import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRo
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import Q from 'q';
-import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
+import {PublishItemsListElement} from '../../v6/features/shared/dialogs/publish/PublishItemsList';
+import {openPublishDialog} from '../../v6/features/store/dialogs/publishDialog.store';
 import {ContentId} from '../content/ContentId';
 import {BasePublishDialog} from '../dialog/BasePublishDialog';
 import {ContentDialogSubTitle} from '../dialog/ContentDialogSubTitle';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {PublishContentRequest} from '../resource/PublishContentRequest';
 import {ContentPublishDialogAction} from './ContentPublishDialogAction';
-import {PublishItemsListElement} from '../../v6/features/shared/dialogs/publish/PublishItemsList';
-import {PublishDialogItemList} from './PublishDialogItemList';
-import {openPublishDialog} from '../../v6/features/store/dialogs/publishDialog.store';
 
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.

@@ -50,7 +50,7 @@ export const PublishDialog = (): ReactElement => {
     };
 
     return (
-        <Dialog.Root open={open} onOpenChange={handleOpenChange}>
+        <Dialog.Root open={open} onOpenChange={handleOpenChange} data-component={PUBLISH_DIALOG_NAME}>
             <Dialog.Portal>
                 <Dialog.Overlay />
                 {view === 'main' && (

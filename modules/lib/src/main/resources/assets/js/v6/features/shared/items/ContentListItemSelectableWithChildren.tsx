@@ -10,6 +10,11 @@ export type ContentListItemSelectableWithChildrenProps = {
     defaultIncludeChildren?: boolean;
     onIncludeChildrenChange?: (checked: boolean) => void;
     showIncludeChildren?: boolean;
+    /**
+     * TabIndex for interactive elements.
+     * Set to -1 when used inside TreeList to enable F2 action mode navigation.
+     */
+    tabIndex?: number;
 } & ContentItemCheckableProps;
 
 const CONTENT_LIST_ITEM_SELECTABLE_WITH_CHILDREN_NAME = 'ContentListItemSelectableWithChildren';
@@ -26,6 +31,7 @@ export const ContentListItemSelectableWithChildren = ({
     defaultIncludeChildren,
     showIncludeChildren = true,
     className,
+    tabIndex,
 }: ContentListItemSelectableWithChildrenProps): ReactElement => {
     const includeChildrenLabel = useI18n('field.content.includeChildren');
     const hasChildren = content.hasChildren();
@@ -44,6 +50,7 @@ export const ContentListItemSelectableWithChildren = ({
                 defaultChecked={defaultChecked}
                 onCheckedChange={onCheckedChange}
                 readOnly={readOnly}
+                tabIndex={tabIndex}
             />
             {showIncludeChildrenCheckbox && (
                 <div className="flex items-center gap-2.5 h-8 pl-5">
@@ -57,6 +64,7 @@ export const ContentListItemSelectableWithChildren = ({
                         readOnly={readOnly || !(defaultChecked || checked)}
                         disabled={!(defaultChecked || checked)}
                         label={includeChildrenLabel}
+                        tabIndex={tabIndex}
                     />
                 </div>
             )}

@@ -10,6 +10,11 @@ export type ContentListItemSelectableProps = {
     content: ContentSummaryAndCompareStatus;
     id?: string;
     status?: boolean;
+    /**
+     * TabIndex for interactive elements.
+     * Set to -1 when used inside TreeList to enable F2 action mode navigation.
+     */
+    tabIndex?: number;
 } & Pick<CheckboxProps, 'className' | 'readOnly' | 'checked' | 'defaultChecked' | 'onCheckedChange'> & {
     checked?: boolean;
     defaultChecked?: boolean;
@@ -27,6 +32,7 @@ export const ContentListItemSelectable = ({
     defaultChecked,
     onCheckedChange,
     readOnly,
+    tabIndex,
     ...props
 }: ContentListItemSelectableProps): React.ReactElement => {
     const checkboxId = `${CONTENT_LIST_ITEM_SELECTABLE_NAME}-${id || content.getId()}-checkbox`;
@@ -49,10 +55,11 @@ export const ContentListItemSelectable = ({
                     defaultChecked={defaultChecked}
                     onCheckedChange={onCheckedChange}
                     readOnly={readOnly}
+                    tabIndex={tabIndex}
                 />
             </ListItem.Left>
             <ListItem.Content className='flex'>
-                <Button onClick={handleClick} className='box-content justify-start flex-1 h-6 px-1.25 -ml-1.25 py-1'>
+                <Button onClick={handleClick} tabIndex={tabIndex} className='box-content justify-start flex-1 h-6 px-1.25 -ml-1.25 py-1'>
                     <ContentLabel content={content} variant='compact' />
                 </Button>
             </ListItem.Content>
