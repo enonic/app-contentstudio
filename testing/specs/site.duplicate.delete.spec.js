@@ -107,8 +107,8 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             // 1. Select the site and open Duplicate dialog:
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
-            // 2. Click on the toggler and exclude child items:
-            await contentDuplicateDialog.clickOnIncludeChildToggler();
+            // 2. Click on the checkbox and exclude child items:
+            await contentDuplicateDialog.clickOnIncludeChildCheckbox(SITE.displayName);
             await studioUtils.saveScreenshot('issue_duplicate_dlg');
             await contentDuplicateDialog.clickOnDuplicateButton();
             await contentDuplicateDialog.waitForDialogClosed();

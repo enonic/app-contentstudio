@@ -1,10 +1,15 @@
 const Page = require('./page');
 const appConst = require('../libs/app_const');
-const lib = require('../libs/elements-old');
+const {BUTTONS} = require('../libs/elements');
+
 const XPATH = {
-    container: `//div[contains(@id,'ContentDuplicateDialog')]`,
-    includeChildToggler: `//div[contains(@id,'IncludeChildrenToggler')]`,
-    dependantsHeader: "//div[@class='dependants-header']/span[@class='dependants-title']",
+    container: `//div[@role='dialog' and @data-component='DuplicateDialogMainContent']`,
+    listItemByDisplayName: displayName => `//div[@role='listitem' and (descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]])]`,
+    mainListItemsDisplayName:`//div[@role='separator']/preceding::div[@role='listitem'][ancestor::div[@role='dialog' and @data-component='DuplicateDialogMainContent']]//div[@data-component='ContentLabel']//span[following-sibling::small]`,
+    dependantListItemDisplayName:`//div[@role='separator']/following::div[@role='listitem'][ancestor::div[@role='dialog' and @data-component='DuplicateDialogMainContent']]//div[@data-component='ContentLabel']//span[not(*)]`,
+    includeChildCheckboxByDisplayName: displayName => XPATH.listItemByDisplayName(displayName) + "/following-sibling::div//label",
+    dependantsHeader: "//div[@role='separator']/span",
+    separatorDiv:"//div[@role='separator']",
 };
 
 class ContentDuplicateDialog extends Page {
@@ -13,38 +18,35 @@ class ContentDuplicateDialog extends Page {
         return XPATH.container + XPATH.dependantsHeader;
     }
 
-    get allDependantsCheckbox() {
-        return XPATH.container + lib.checkBoxDiv('All');
-    }
-
     get duplicateButton() {
-        return XPATH.container + lib.dialogButton('Duplicate');
+        return XPATH.container + BUTTONS.buttonAriaLabel('Duplicate');
     }
 
-    get includeChildToggler() {
-        return XPATH.container + XPATH.includeChildToggler;
+    get closeButton() {
+        return XPATH.container + BUTTONS.buttonAriaLabel('Close');
     }
 
-    get cancelButton() {
-        return XPATH.container + lib.dialogButton('Cancel');
+    async waitForDuplicateButtonDisplayed() {
+        await this.waitForElementDisplayed(this.duplicateButton, appConst.mediumTimeout);
+    }
+    async waitForDuplicateButtonEnabled(){
+        await this.waitForElementEnabled(this.duplicateButton, appConst.mediumTimeout);
     }
 
-    isIncludeChildTogglerDisplayed() {
-        return this.isElementDisplayed(this.includeChildToggler);
+    async waitForIncludeChildCheckboxDisplayed(displayName) {
+        let locator = XPATH.container + XPATH.includeChildCheckboxByDisplayName(displayName);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
-    isDuplicateButtonDisplayed() {
-        return this.isElementDisplayed(this.duplicateButton);
+    async waitForCloseButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.closeButton, appConst.mediumTimeout);
     }
 
-    isCancelButtonDisplayed() {
-        return this.isElementDisplayed(this.cancelButton);
-    }
-
-    async clickOnIncludeChildToggler() {
+    async clickOnIncludeChildCheckbox(displayName) {
         try {
-            await this.clickOnElement(this.includeChildToggler);
-            return await this.pause(1000);
+            let locator = XPATH.container + XPATH.includeChildCheckboxByDisplayName(displayName);
+            await this.clickOnElement(locator);
+            return await this.pause(500);
         } catch (err) {
             await this.handleError('Content Duplicate dialog', 'err_duplicate_dlg_child_toggle', err);
         }
@@ -66,7 +68,7 @@ class ContentDuplicateDialog extends Page {
 
     async getDependantsHeader() {
         await this.waitForDependantsHeaderDisplayed();
-        return await this.getText(XPATH.dependantsHeader);
+        return await this.getText(this.dependentsHeader);
     }
 
     async waitForDependantsHeaderNotDisplayed() {
@@ -76,7 +78,7 @@ class ContentDuplicateDialog extends Page {
     async waitForDialogOpened() {
         try {
             await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
-            await this.pause(400);
+            await this.pause(200);
         } catch (err) {
             await this.handleError('Content Duplicate dialog', 'err_duplicate_dlg', err);
         }
@@ -106,9 +108,9 @@ class ContentDuplicateDialog extends Page {
         }
     }
 
-    async getDisplayNamesToDuplicate() {
+    async getMainItemsDisplayName() {
         try {
-            let selector = XPATH.container + `//ul[contains(@id,'DialogTogglableItemList')]` + lib.H6_DISPLAY_NAME;
+            let selector = XPATH.container + XPATH.mainListItemsDisplayName;
             return await this.getTextInElements(selector);
         } catch (err) {
             await this.handleError('Content Duplicate dialog', 'err_duplicate_dlg_display_names', err);
@@ -117,15 +119,11 @@ class ContentDuplicateDialog extends Page {
 
     async getDependentsName() {
         try {
-            let locator = XPATH.container + lib.DEPENDANTS.DEPENDENT_ITEM_LIST_UL + lib.H6_DISPLAY_NAME;
+            let locator = XPATH.container + XPATH.dependantListItemDisplayName;
             return await this.getTextInElements(locator);
         } catch (err) {
             await this.handleError('Content Duplicate dialog', 'err_duplicate_dlg_dependents_name', err);
         }
-    }
-
-    waitForAllCheckboxNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.allDependantsCheckbox, appConst.mediumTimeout);
     }
 }
 

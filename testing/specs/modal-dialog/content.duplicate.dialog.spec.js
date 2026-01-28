@@ -20,29 +20,24 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentDuplicateDialog = new ContentDuplicateDialog();
             // 1. Select the folder(13 child items)
-            await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_NAME);
-            // 2. Open Duplicate dialog:
+            await studioUtils.findContentAndClickCheckBox(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME);
+            // 2. Open Duplicate Content dialog:
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
-            let result = await contentDuplicateDialog.isIncludeChildTogglerDisplayed();
-            assert.ok(result, 'Include Child toggler should be displayed');
+            await contentDuplicateDialog.waitForIncludeChildCheckboxDisplayed(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME);
             let header = await contentDuplicateDialog.getDependantsHeader();
-            assert.equal(header, DEPENDANTS_HEADER, 'Expected header should be displayed');
-            result = await contentDuplicateDialog.isDuplicateButtonDisplayed();
-            assert.ok(result, 'Duplicate button should be displayed');
-            result = await contentDuplicateDialog.isCancelButtonDisplayed();
-            assert.ok(result, 'Cancel button should be displayed');
+            assert.equal(header.toLowerCase(), DEPENDANTS_HEADER.toLowerCase(), 'Expected header should be displayed');
+            await contentDuplicateDialog.waitForDuplicateButtonEnabled();
+            await contentDuplicateDialog.waitForCloseButtonDisplayed();
 
             // 3. Verify the Number in 'Duplicate' button
             let totalNumber = await contentDuplicateDialog.getNumberItemsInDuplicateButton();
             assert.equal(totalNumber, '14', "Expected number in the Duplicate button should be displayed");
             // 4. Verify the main item to duplicate
-            let names = await contentDuplicateDialog.getDisplayNamesToDuplicate();
+            let names = await contentDuplicateDialog.getMainItemsDisplayName();
             assert.equal(names[0], appConst.TEST_FOLDER_WITH_IMAGES, `expected parent's display name should be present`);
             // 5. Verify the list of dependant items
             let dependants = await contentDuplicateDialog.getDependentsName();
             assert.equal(dependants.length, 13, '13 dependants item should be displayed');
-            // Checkbox 'All' should not be displayed in Duplicate modal dialog:
-            await contentDuplicateDialog.waitForAllCheckboxNotDisplayed();
         });
 
     it(`GIVEN 2 folders with children are selected WHEN 'Duplicate...' button has been clicked THEN expected display names should be present on the dialog`,
@@ -56,7 +51,7 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
             await studioUtils.saveScreenshot('duplicate_dialog_2_items');
             // 3. Verify that 2 main items are displayed
-            let names = await contentDuplicateDialog.getDisplayNamesToDuplicate();
+            let names = await contentDuplicateDialog.getMainItemsDisplayName();
             assert.equal(names.length, 2, '2 items to duplicate should be displayed');
             assert.equal(names[0], appConst.TEST_FOLDER_WITH_IMAGES, 'expected parent\'s display name should be present');
             assert.equal(names[1], appConst.TEST_FOLDER_2_DISPLAY_NAME, 'expected parent\'s display name should be present');
@@ -74,8 +69,8 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
             // 1. Select the folder(12 children) :
             await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_NAME);
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
-            // 2. Click on the 'Include child toggler' and exclude children items
-            await contentDuplicateDialog.clickOnIncludeChildToggler();
+            // 2. Click on the checkbox and exclude child items
+            await contentDuplicateDialog.clickOnIncludeChildCheckbox();
             let isDisplayed = await contentDuplicateDialog.isIncludeChildTogglerDisplayed();
             assert.ok(isDisplayed, 'Include Child toggler should be displayed');
             await studioUtils.saveScreenshot("duplicate_dialog_child_excluded");
