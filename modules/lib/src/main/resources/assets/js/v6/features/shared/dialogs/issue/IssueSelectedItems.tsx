@@ -1,9 +1,9 @@
 import {IconButton} from '@enonic/ui';
 import {X} from 'lucide-react';
-import {useEffect, useMemo, useRef, useState, type ReactElement} from 'react';
+import {useMemo, type ReactElement} from 'react';
 import type {ContentId} from '../../../../../app/content/ContentId';
 import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
-import {hasUnpublishedChildren} from '../../../api/hasUnpublishedChildren';
+import {useItemsWithUnpublishedChildren} from '../../../utils/cms/content/useItemsWithUnpublishedChildren';
 import {ContentListItemWithChildren} from '../../items/ContentListItemWithChildren';
 
 export type IssueSelectedItemsProps = {
@@ -30,44 +30,7 @@ export const IssueSelectedItems = ({
         [excludedChildrenIds],
     );
     const isReadOnly = disabled || loading;
-    const [itemsWithUnpublishedChildren, setItemsWithUnpublishedChildren] = useState<Set<string> | null>(null);
-    const requestIdRef = useRef(0);
-
-    const itemsWithChildren = useMemo(
-        () => items.filter(item => item.hasChildren()),
-        [items],
-    );
-
-    useEffect(() => {
-        const requestId = ++requestIdRef.current;
-
-        if (itemsWithChildren.length === 0) {
-            setItemsWithUnpublishedChildren(new Set());
-            return;
-        }
-
-        setItemsWithUnpublishedChildren(null);
-
-        hasUnpublishedChildren(itemsWithChildren.map(item => item.getContentId()))
-            .then((result) => {
-                if (requestId !== requestIdRef.current) {
-                    return;
-                }
-                const set = new Set<string>();
-                for (const [id, hasChildren] of result) {
-                    if (hasChildren) {
-                        set.add(id);
-                    }
-                }
-                setItemsWithUnpublishedChildren(set);
-            })
-            .catch((error) => {
-                console.error(error);
-                if (requestId === requestIdRef.current) {
-                    setItemsWithUnpublishedChildren(null);
-                }
-            });
-    }, [itemsWithChildren]);
+    const itemsWithUnpublishedChildren = useItemsWithUnpublishedChildren(items);
 
     return (
         <ul className='flex flex-col gap-2.5'>

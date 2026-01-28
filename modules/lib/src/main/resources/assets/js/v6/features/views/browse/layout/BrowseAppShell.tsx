@@ -6,6 +6,7 @@ import {DuplicateDialog} from '../../../shared/dialogs/duplicate/DuplicateDialog
 import {IssueDialog} from '../../../shared/dialogs/issue/IssueDialog';
 import {NewContentDialog} from '../../../shared/dialogs/new-content/NewContentDialog';
 import {PublishDialog} from '../../../shared/dialogs/publish/PublishDialog';
+import {RequestPublishDialog} from '../../../shared/dialogs/requestPublish/RequestPublishDialog';
 import {UnpublishDialog} from '../../../shared/dialogs/unpublish/UnpublishDialog';
 
 export const BrowseAppShell = (): ReactElement => {
@@ -15,6 +16,7 @@ export const BrowseAppShell = (): ReactElement => {
             <NewContentDialog />
             <ProjectSelectionDialog />
             <PublishDialog />
+            <RequestPublishDialog />
             <UnpublishDialog />
             <DeleteDialog />
             <DuplicateDialog />
