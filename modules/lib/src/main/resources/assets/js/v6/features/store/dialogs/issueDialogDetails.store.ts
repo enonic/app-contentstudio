@@ -16,14 +16,14 @@ import {ListIssueCommentsRequest} from '../../../../app/issue/resource/ListIssue
 import {UpdateIssueCommentRequest} from '../../../../app/issue/resource/UpdateIssueCommentRequest';
 import {UpdateIssueRequest} from '../../../../app/issue/resource/UpdateIssueRequest';
 import {GetPrincipalsByKeysRequest} from '../../../../app/security/GetPrincipalsByKeysRequest';
-import {$issueDialog, loadIssueDialogList} from './issueDialog.store';
 import {fetchContentSummariesWithStatus} from '../../api/content';
 import {resolvePublishDependencies} from '../../api/publish';
 import {hasContentIdInIds, isIdsEqual, uniqueIds} from '../../utils/cms/content/ids';
+import {$issueDialog, loadIssueDialogList} from './issueDialog.store';
 
-import {IssueWithAssignees} from '../../../../app/issue/IssueWithAssignees';
 import type {Issue} from '../../../../app/issue/Issue';
 import type {IssueComment} from '../../../../app/issue/IssueComment';
+import {IssueWithAssignees} from '../../../../app/issue/IssueWithAssignees';
 import type {IssueDialogDetailsTab} from '../../shared/dialogs/issue/issueDialog.types';
 
 //
@@ -54,6 +54,15 @@ type IssueDialogDetailsStore = {
     requiredDependantIds: ContentId[];
 };
 
+type DeleteCommentConfirmation = {
+    open: boolean;
+    commentId: string | undefined;
+};
+
+type ContentIdProvider = {
+    getContentId(): ContentId;
+};
+
 const initialState: IssueDialogDetailsStore = {
     issueId: undefined,
     issue: undefined,
@@ -80,40 +89,10 @@ const initialState: IssueDialogDetailsStore = {
 
 export const $issueDialogDetails = map<IssueDialogDetailsStore>(structuredClone(initialState));
 
-let dependenciesRequestId = 0;
-
-type ContentIdProvider = {
-    getContentId(): ContentId;
-};
-
-const sortByIdOrder = <T extends ContentIdProvider>(items: T[], order: ContentId[]): T[] => {
-    if (items.length === 0 || order.length === 0) {
-        return items;
-    }
-
-    const orderMap = new Map(order.map((id, index) => [id.toString(), index]));
-    return items
-        .map((item, index) => ({
-            item,
-            index,
-            orderIndex: orderMap.get(item.getContentId().toString()),
-        }))
-        .sort((a, b) => {
-            const aOrder = a.orderIndex;
-            const bOrder = b.orderIndex;
-            if (aOrder == null && bOrder == null) {
-                return a.index - b.index;
-            }
-            if (aOrder == null) {
-                return 1;
-            }
-            if (bOrder == null) {
-                return -1;
-            }
-            return aOrder - bOrder;
-        })
-        .map(entry => entry.item);
-};
+export const $deleteCommentConfirmation = map<DeleteCommentConfirmation>({
+    open: false,
+    commentId: undefined,
+});
 
 //
 // * Public API
@@ -657,6 +636,18 @@ export const updateIssueDialogDependencyIncluded = async (
     });
 };
 
+export const openDeleteCommentConfirmation = (commentId: string): void => {
+    $deleteCommentConfirmation.set({open: true, commentId});
+};
+
+export const closeDeleteCommentConfirmation = (): void => {
+    $deleteCommentConfirmation.set({open: false, commentId: undefined});
+};
+
+export const isDeleteCommentConfirmationOpen = (): boolean => {
+    return $deleteCommentConfirmation.get().open;
+};
+
 //
 // * Internal
 //
@@ -673,6 +664,37 @@ type IssueContext = {
 };
 
 type IssueAssignees = ReturnType<IssueWithAssignees['getAssignees']>;
+
+let dependenciesRequestId = 0;
+
+function sortByIdOrder<T extends ContentIdProvider>(items: T[], order: ContentId[]): T[] {
+    if (items.length === 0 || order.length === 0) {
+        return items;
+    }
+
+    const orderMap = new Map(order.map((id, index) => [id.toString(), index]));
+    return items
+        .map((item, index) => ({
+            item,
+            index,
+            orderIndex: orderMap.get(item.getContentId().toString()),
+        }))
+        .sort((a, b) => {
+            const aOrder = a.orderIndex;
+            const bOrder = b.orderIndex;
+            if (aOrder == null && bOrder == null) {
+                return a.index - b.index;
+            }
+            if (aOrder == null) {
+                return 1;
+            }
+            if (bOrder == null) {
+                return -1;
+            }
+            return aOrder - bOrder;
+        })
+        .map(entry => entry.item);
+};
 
 const getIssueContext = (updatingKey?: IssueDetailsUpdatingKey): IssueContext | null => {
     const state = $issueDialogDetails.get();
@@ -810,6 +832,7 @@ const resetIssueDialogDetails = (issueId?: string): void => {
         ...baseState,
         issueId,
     });
+    $deleteCommentConfirmation.set({open: false, commentId: undefined});
 };
 
 $issueDialog.subscribe(({open, view, issueId}) => {
