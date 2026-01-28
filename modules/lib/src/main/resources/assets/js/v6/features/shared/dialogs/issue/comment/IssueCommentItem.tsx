@@ -2,17 +2,15 @@ import {Avatar, cn} from '@enonic/ui';
 import {type ComponentPropsWithoutRef, type ReactElement, useCallback, useEffect, useRef, useState} from 'react';
 import {useI18n} from '../../../../hooks/useI18n';
 import {getInitials} from '../../../../utils/format/initials';
-import {IssueCommentActionsMenu} from './IssueCommentActionsMenu';
-import {IssueCommentEditor} from './IssueCommentEditor';
 import {IssueCommentDeleteDialog} from './IssueCommentDeleteDialog';
+import {IssueCommentEditor} from './IssueCommentEditor';
+import {IssueCommentMenu} from './IssueCommentMenu';
 
 export type IssueCommentItemProps = {
     name: string;
     timeLabel?: string;
-    label?: string;
     text: string;
     textClassName?: string;
-    showMeta?: boolean;
     onUpdate?: (nextText: string) => Promise<boolean> | boolean;
     onDelete?: () => Promise<boolean> | boolean;
     portalContainer?: HTMLElement | null;
@@ -23,24 +21,20 @@ const ISSUE_COMMENT_ITEM_NAME = 'IssueCommentItem';
 export const IssueCommentItem = ({
     name,
     timeLabel,
-    label,
     text,
     textClassName,
-    showMeta = true,
     onUpdate,
     onDelete,
     portalContainer,
 }: IssueCommentItemProps): ReactElement => {
-    const labels = {
-        more: useI18n('tooltip.moreActions'),
-        edit: useI18n('action.edit'),
-        delete: useI18n('action.delete'),
-        save: useI18n('action.save'),
-        cancel: useI18n('action.cancel'),
-        comment: useI18n('field.comment.label'),
-        confirmDeleteTitle: useI18n('dialog.confirmDelete'),
-        confirmDeleteDescription: useI18n('dialog.issue.confirmCommentDelete'),
-    };
+    const moreLabel = useI18n('tooltip.moreActions');
+    const editLabel = useI18n('action.edit');
+    const deleteLabel = useI18n('action.delete');
+    const saveLabel = useI18n('action.save');
+    const cancelLabel = useI18n('action.cancel');
+    const commentLabel = useI18n('field.comment.label');
+    const confirmDeleteTitle = useI18n('dialog.confirmDelete');
+    const confirmDeleteDescription = useI18n('dialog.issue.confirmCommentDelete');
     const canEdit = !!onUpdate;
     const canDelete = !!onDelete;
     const [editMode, setEditMode] = useState(false);
@@ -70,6 +64,7 @@ export const IssueCommentItem = ({
             return;
         }
         textAreaRef.current.focus();
+        textAreaRef.current.scrollIntoView({behavior: 'smooth', block: 'center'});
         textAreaRef.current.select();
     }, [editMode]);
 
@@ -119,8 +114,10 @@ export const IssueCommentItem = ({
         if (!onDelete) {
             return;
         }
-        await onDelete();
-        setConfirmDeleteOpen(false);
+        const result = await onDelete();
+        if (result !== false) {
+            setConfirmDeleteOpen(false);
+        }
     }, [onDelete]);
 
     const handleDraftKeyDown: NonNullable<ComponentPropsWithoutRef<'textarea'>['onKeyDown']> = useCallback((event) => {
@@ -138,12 +135,6 @@ export const IssueCommentItem = ({
 
     const hasActions = canEdit || canDelete;
     const initials = getInitials(name);
-    const meta = showMeta ? (
-        <div className='flex min-w-0 flex-wrap items-baseline gap-2'>
-            <span className='truncate text-md font-semibold'>{name}</span>
-            {timeLabel && <span className='text-xs text-subtle'>{timeLabel}</span>}
-        </div>
-    ) : null;
 
     return (
         <>
@@ -155,14 +146,16 @@ export const IssueCommentItem = ({
                     <Avatar.Fallback>{initials}</Avatar.Fallback>
                 </Avatar>
                 <div className='flex flex-col gap-1.5 min-w-0 leading-5.5'>
-                    {meta}
-                    {label && <div className='text-md font-semibold'>{label}</div>}
+                    <div className='flex min-w-0 flex-wrap items-baseline gap-2'>
+                        <span className='truncate text-md font-semibold'>{name}</span>
+                        {timeLabel && <span className='text-xs text-subtle'>{timeLabel}</span>}
+                    </div>
                     {editMode ? (
                         <IssueCommentEditor
                             value={draftText}
-                            commentLabel={labels.comment}
-                            cancelLabel={labels.cancel}
-                            saveLabel={labels.save}
+                            commentLabel={commentLabel}
+                            cancelLabel={cancelLabel}
+                            saveLabel={saveLabel}
                             canSave={canSave}
                             saving={saving}
                             textAreaRef={textAreaRef}
@@ -176,12 +169,12 @@ export const IssueCommentItem = ({
                     )}
                 </div>
                 {hasActions && !editMode && (
-                    <IssueCommentActionsMenu
+                    <IssueCommentMenu
                         onEdit={canEdit ? handleEdit : undefined}
                         onDelete={canDelete ? handleDelete : undefined}
-                        moreLabel={labels.more}
-                        editLabel={labels.edit}
-                        deleteLabel={labels.delete}
+                        moreLabel={moreLabel}
+                        editLabel={editLabel}
+                        deleteLabel={deleteLabel}
                         portalContainer={portalContainer}
                         className='row-span-2 justify-self-end self-start'
                     />
@@ -193,8 +186,8 @@ export const IssueCommentItem = ({
                     onOpenChange={setConfirmDeleteOpen}
                     onConfirm={() => void handleConfirmDelete()}
                     portalContainer={portalContainer}
-                    title={labels.confirmDeleteTitle}
-                    description={labels.confirmDeleteDescription}
+                    title={confirmDeleteTitle}
+                    description={confirmDeleteDescription}
                 />
             )}
         </>

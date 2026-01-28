@@ -1,4 +1,4 @@
-import {type ReactElement, type RefObject, useCallback, useRef} from 'react';
+import {type ReactElement, type RefObject, useCallback} from 'react';
 import {ConfirmationDialog} from '../../ConfirmationDialog';
 
 export type IssueCommentDeleteDialogProps = {
@@ -22,16 +22,6 @@ export const IssueCommentDeleteDialog = ({
     onOpenChange,
     onConfirm,
 }: IssueCommentDeleteDialogProps): ReactElement => {
-    const cancelButtonRef = useRef<HTMLButtonElement>(null);
-
-    const handleOpenAutoFocus = useCallback((event: Event): void => {
-        if (!cancelButtonRef.current) {
-            return;
-        }
-        event.preventDefault();
-        cancelButtonRef.current.focus();
-    }, []);
-
     const handleCloseAutoFocus = useCallback((event: Event): void => {
         if (!returnFocusRef?.current) {
             return;
@@ -44,10 +34,7 @@ export const IssueCommentDeleteDialog = ({
         <ConfirmationDialog.Root open={open} onOpenChange={onOpenChange}>
             <ConfirmationDialog.Portal container={portalContainer ?? undefined}>
                 <ConfirmationDialog.Overlay />
-                <ConfirmationDialog.Content
-                    onOpenAutoFocus={handleOpenAutoFocus}
-                    onCloseAutoFocus={handleCloseAutoFocus}
-                >
+                <ConfirmationDialog.Content onCloseAutoFocus={handleCloseAutoFocus}>
                     <ConfirmationDialog.DefaultHeader title={title} />
                     <ConfirmationDialog.Body>{description}</ConfirmationDialog.Body>
                     <ConfirmationDialog.Footer
