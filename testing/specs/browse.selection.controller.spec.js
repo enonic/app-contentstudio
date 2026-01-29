@@ -73,7 +73,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             await contentBrowsePanel.pause(1000);
             // 3. Verify that  Edit  and Archive buttons are disabled:
             await contentBrowsePanel.waitForEditButtonDisabled();
-            await contentBrowsePanel.waitForArchiveButtonDisabled();
+            await contentBrowsePanel.waitForDeleteButtonDisabled();
             // 4. New... button should be enabled
             await contentBrowsePanel.waitForNewButtonEnabled();
             // 5. Verify that 'Preview Panel'  toolbar should not be displayed:

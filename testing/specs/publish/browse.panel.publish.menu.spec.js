@@ -62,7 +62,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             await studioUtils.openDialogAndPublishSelectedContent();
             // 5. Verify the status in the browse panel:
             let status = await contentBrowsePanel.getContentStatus(FOLDER.displayName);
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, 'The folder should be Published');
+            assert.equal(status, appConst.CONTENT_STATUS.ONLINE, 'The folder should be Online');
         });
 
     it(`GIVEN existing 'published' folder WHEN publish menu has been expanded THEN 'Unpublish' and 'Create Task...' menu items should be enabled`,

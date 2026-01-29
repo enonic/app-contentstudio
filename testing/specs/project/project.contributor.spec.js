@@ -167,9 +167,9 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             // 2. Select existing folder(ready to publish):
             await studioUtils.findAndSelectItem(FOLDER_READY_TO_PUBLISH.displayName);
-            // 3. Verify that Edit, New, Archive... buttons are disabled:
+            // 3. Verify that Edit, New, Delete... buttons are disabled:
             await contentBrowsePanel.waitForOpenButtonEnabled();
-            await contentBrowsePanel.waitForArchiveButtonDisabled();
+            await contentBrowsePanel.waitForDeleteButtonDisabled();
             await contentBrowsePanel.waitForNewButtonDisabled();
             // 4. Open Publish Menu:
             await contentBrowsePanel.openPublishMenu();
@@ -192,7 +192,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await studioUtils.findAndSelectItem(FOLDER_WORK_IN_PROGRESS.displayName);
             // 3. Verify that New, Archive buttons are disabled:
             await contentBrowsePanel.waitForOpenButtonEnabled();
-            await contentBrowsePanel.waitForArchiveButtonDisabled();
+            await contentBrowsePanel.waitForDeleteButtonDisabled();
             await contentBrowsePanel.waitForNewButtonDisabled();
             // 4. Open Publish Menu:
             await contentBrowsePanel.openPublishMenu();
@@ -217,8 +217,8 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             // 2. Do a Double click on existing folder(ready to publish):
             await contentBrowsePanel.doubleClickOnRowByDisplayName(FOLDER_READY_TO_PUBLISH.displayName);
             await studioUtils.doSwitchToNewWizard();
-            // 3. Verify that Archive..., Duplicate.. buttons are disabled:
-            await contentWizardPanel.waitForArchiveButtonDisabled();
+            // 3. Verify that Delete..., Duplicate.. buttons are disabled:
+            await contentWizardPanel.waitForDeleteButtonDisabled();
             await contentWizardPanel.waitForDuplicateButtonDisabled();
             // 4. Verify that display name input is not clickable:
             let isClickable = await contentWizardPanel.isDisplayNameInputClickable();

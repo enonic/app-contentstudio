@@ -145,7 +145,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             await commentsTab.clickOnDeleteCommentMenuItem(newText);
             // 3. Confirm the deleting:
             await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             // 4. Verify that comment is not displayed
             let result = await commentsTab.isCommentPresent(newText);

@@ -195,7 +195,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             await moveContentDialog.typeTextAndClickOnOption(appConst.TEST_FOLDER_2_DISPLAY_NAME);
             await moveContentDialog.clickOnMoveButton();
             await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             await moveContentDialog.waitForClosed();
         });

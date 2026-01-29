@@ -478,14 +478,15 @@ module.exports = Object.freeze({
     STATUS_WIDGET: {
         NEW: 'NEW',
         PUBLISHED: 'PUBLISHED',
+        ONLINE: 'ONLINE',
+        OFFLINE:'OFFLINE',
         MODIFIED: 'MODIFIED',
         MOVED: 'MOVED',
         MOVED_MODIFIED: 'MOVED, MODIFIED',
     },
     CONTENT_STATUS: {
-        NEW: 'New',
         OFFLINE: 'Offline',
-        PUBLISHED: 'Published',
+        ONLINE:'Online',
         UNPUBLISHED: 'Unpublished',
         MODIFIED: 'Modified',
         MOVED: 'Moved',

@@ -258,7 +258,7 @@ describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', fun
             await contentWizard.clickOnResetButton();
             let confirmationDialog = new ConfirmationDialog();
             await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             // 6. Verify that 'Preview' button is enabled in the ItemPreview toolbar:
             await contentWizard.waitForPreviewButtonEnabled();
             // 7. Click on Localize button in the wizard-toolbar:

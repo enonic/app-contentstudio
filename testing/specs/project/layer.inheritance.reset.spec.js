@@ -96,7 +96,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             // 2. Click on 'Reset' button:
             let confirmationDialog = await contentWizard.clickOnResetAndWaitForConfirmationDialog();
             // 3. Click on 'Yes' button in confirmation dialog:
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             await contentWizard.pause(3000);
             // 4. Open 'Edit Settings' modal dialog:
@@ -127,7 +127,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             // 3. Click on 'Reset' button:
             let confirmationDialog = await contentWizard.clickOnResetAndWaitForConfirmationDialog();
             // 4. Click on 'Yes' button in confirmation dialog:
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await contentWizard.pause(1500);
             await studioUtils.saveScreenshot('reset_confirmed_w_status');
             let actualStatus = await contentWizard.getContentWorkflowState();
@@ -154,7 +154,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             // 4. Click on 'Reset' button in the wizard toolbar:
             let confirmationDialog = await contentWizard.clickOnResetAndWaitForConfirmationDialog();
             // 5. Click on 'Yes' button in confirmation dialog:
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             // Verify that 'Localize' button get visible and enabled again:
             await contentWizard.waitForLocalizeButtonEnabled();
             await contentWizard.waitForSaveButtonDisabled();

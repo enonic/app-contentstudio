@@ -16,6 +16,9 @@ const xpath = {
     showChangesButtonToolbar: "//button[contains(@class,'show-changes') and @title='Show changes']",
     previewNotAvailableSpan: "//div[@class='no-preview-message']//span[text()='Preview not available']",
     noPreviewMessageSpan: "//div[@class='no-preview-message']//span",
+    previewToolbarMenuItem: (optionName) => {
+        return `//div[contains(@id,'PreviewToolbar') and @role='menu']//div[@role='menuitemradio' and descendant::span[text()='${optionName}']]`
+    }
 };
 
 // Browse Panel -> Content Item Preview Panel
@@ -226,7 +229,7 @@ class ContentItemPreviewPanel extends Page {
     // returns the selected option in the 'Emulator dropdown' '100%', '375px', etc.
     async getSelectedOptionInEmulatorDropdown() {
         try {
-            let locator = this.emulatorDropdown +  '/span';
+            let locator = this.emulatorDropdown + '/span';
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getText(locator);
         } catch (err) {
@@ -261,7 +264,7 @@ class ContentItemPreviewPanel extends Page {
         try {
             await this.waitForPreviewWidgetDropdownDisplayed();
             await this.clickOnElement(this.previewWidgetDropdown);
-            let optionSelector = this.previewWidgetDropdown + lib.DROPDOWN_SELECTOR.listItemByDisplayName(optionName);
+            let optionSelector = xpath.previewToolbarMenuItem(optionName);
             await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
             await this.clickOnElement(optionSelector);
             await this.pause(200);

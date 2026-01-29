@@ -205,7 +205,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await studioUtils.saveScreenshot('updated_population_published2');
             await contentBrowsePanel.pause(500);
             // wait for Published status:
-            await contentBrowsePanel.waitForStatus(SF_NAME, appConst.CONTENT_STATUS.PUBLISHED);
+            await contentBrowsePanel.waitForStatus(SF_NAME, appConst.CONTENT_STATUS.ONLINE);
             // 2. Open USA country in master branch:
             await studioUtils.openResourceInMaster(SITE.displayName + '/' + USA_CONTENT_NAME);
             await studioUtils.saveScreenshot('master_population_updated');
@@ -248,7 +248,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // 4. Click on 'Customize Page' button and click 'Yes' in confirmation dialog:
             await pageInspectionPanel.clickOnCustomizePageButton();
             let confirmationDialog = new ConfirmationDialog();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             // 5. Verify that Page Component View modal dialog loads automatically after clicking on 'customize'
             await pageComponentView.waitForLoaded();
@@ -273,7 +273,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // 4. Click on 'Customize Page' button and click 'No' in confirmation dialog:
             await pageInspectionPanel.clickOnCustomizePageButton();
             let confirmationDialog = new ConfirmationDialog();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             // 4. Verify that 'Page Component View' wizard step is displayed:
             let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();

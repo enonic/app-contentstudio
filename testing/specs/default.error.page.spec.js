@@ -98,7 +98,7 @@ describe('default.error.page.spec tests for Default error page', function () {
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
             // 6. Click on 'Yes' button in the confirmation dialog:
             let confirmationDialog = new ConfirmationDialog();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('site_controller_has_been_reset');
             // 7. Verify that Details widget should be loaded in Context Window

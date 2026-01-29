@@ -32,11 +32,11 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select existing site and open 'Delete Content Dialog':
             await studioUtils.findAndSelectItem(SITE.displayName);
-            await contentBrowsePanel.clickOnArchiveButton();
+            await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
             await deleteContentDialog.waitForSpinnerNotVisible();
             // 2. Click on 'Delete' menu item:
-            await deleteContentDialog.clickOnDeleteMenuItem();
+            await deleteContentDialog.clickOnDeleteButton();
             // 3. Verify that Confirm Value dialog appears:
             await confirmValueDialog.waitForDialogOpened();
             // 4. Verify that Message "Enter 2 in the field and click Confirm:" is displayed in the dialog
@@ -53,11 +53,11 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select existing site and open 'Delete Content Dialog':
             await studioUtils.findAndSelectItem(SITE.displayName);
-            await contentBrowsePanel.clickOnArchiveButton();
+            await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
             await deleteContentDialog.waitForSpinnerNotVisible();
             // 2. Click on 'Delete' menu item:
-            await deleteContentDialog.clickOnDeleteMenuItem();
+            await deleteContentDialog.clickOnDeleteButton();
             await confirmValueDialog.waitForDialogOpened();
             // 3. Type not correct number to delete:
             await confirmValueDialog.typeNumberOrName(7);
@@ -127,11 +127,11 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the existing site and open Delete Content Dialog:
             await studioUtils.findAndSelectItem(SITE.displayName);
-            await contentBrowsePanel.clickOnArchiveButton();
+            await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
             await deleteContentDialog.waitForSpinnerNotVisible();
-            // 2. Click on 'Delete' menu item:
-            await deleteContentDialog.clickOnDeleteMenuItem();
+            // 2. Click on 'Delete' button:
+            await deleteContentDialog.clickOnDeleteButton();
             await confirmValueDialog.waitForDialogOpened();
             // 3. Insert the required number of content:
             await confirmValueDialog.typeNumberOrName(3);

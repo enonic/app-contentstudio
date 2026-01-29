@@ -7,6 +7,7 @@ const COMMON = {
     CONTEXT_WINDOW_WIDGET_SELECTOR_ITEM: "//div[@data-component='WidgetsSelectorItem']//span",
     CONTEXT_WINDOW_TOGGLE_BUTTON: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`,
     CONTENT_APP_BAR_DIV: "//div[contains(@id,'BrowseAppBarElement')]",
+    SELECT_ALL_CHECKBOX_LABEL: "//label[descendant::input[@type='checkbox' and @aria-label='Select all']]",
 
     INPUTS: {
         CHECKBOX_INPUT: "//input[@type='checkbox']",
@@ -32,6 +33,7 @@ const BUTTONS = {
     UPLOAD_BUTTON: "//button[contains(@class,'upload-button')]",
     button: (label) => `//button[contains(@type,'button') and contains(.,'${label}')]`,
     buttonAriaLabel: (ariaLabel) => `//button[contains(@type,'button') and contains(@aria-label,'${ariaLabel}')]`,
+    buttonStatusBar: (label) => `//button[@data-component='StatusBarEntryButton' and contains(.,'${label}')]`,
     actionButton: (label) => `//div[contains(@id,'ActionButton')]/button[contains(.,'${label}')]`,
     actionButtonStrict: (label) => `//div[contains(@id,'ActionButton')]/button[text()='${label}']`,
     dialogButton: label => `//button[contains(@id,'DialogButton') and child::span[contains(.,'${label}')]]`,
@@ -67,7 +69,9 @@ const TREE_GRID = {
     CONTENT_STATUS: "//span[contains(@data-component,'StatusBadge')]",
     SORT_DIALOG_TOGGLE: "//div[contains(@class,'sort-dialog-trigger')]",
     EXPANDER_ICON_DIV: "//div[contains(@class,'toggle icon-arrow_drop_up')]",
-
+    listItemByDisplayName: displayName => `//div[@role='listitem' and @data-component='ContentListItemWithReference' and (descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]])]`,
+    listItemByDisplayNameAndDataComponent: (dataComponent,
+                                            displayName) => `//div[@role='listitem' and @data-component='${dataComponent}' and (descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]])]`,
     // Block that contains: name, displayName, icon...
     CONTENT_LABEL_BLOCK: "//div[@data-component='ContentLabel']",
     itemContextMenuItemByName: (name) => {

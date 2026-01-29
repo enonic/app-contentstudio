@@ -65,8 +65,8 @@ describe('archive.confirm.content.dialog.spec:  tests for archiving content', fu
             // 1. Select 2 folders
             await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
             await studioUtils.findContentAndClickCheckBox(FOLDER2.displayName);
-            // 2. Click on 'Archive...' button in the toolbar:
-            await contentBrowsePanel.clickOnArchiveButton();
+            // 2. Click on 'Delete...' button in the toolbar:
+            await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot('2_folders_to_archive');
             // 3. Click on Archive button in the modal dialog:

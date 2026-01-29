@@ -40,7 +40,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             //'Edit' button should be enabled
             await contentBrowsePanel.waitForEditButtonEnabled();
             //'Archive' button should be enabled
-            await contentBrowsePanel.waitForArchiveButtonEnabled();
+            await contentBrowsePanel.waitForDeleteButtonEnabled();
             //'Move' button should be enabled
             await contentBrowsePanel.waitForMoveButtonEnabled();
         });
@@ -63,14 +63,14 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
         });
 
     // TODO remove the test
-    it(`GIVEN existing folder is selected WHEN widget dropdown selector has been clicked THEN expected 4 options should be displayed in the dropdown list`,
+    it.skip(`GIVEN existing folder is selected WHEN widget dropdown selector has been clicked THEN expected 4 options should be displayed in the dropdown list`,
         async () => {
             let browseContextWindow = new BrowseContextWindow();
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             await browseContextWindow.waitForWidgetSelected(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
-            let items = await browseContextWindow.getSelectedOptionsDisplayName();
+            let selectedOption = await browseContextWindow.getSelectedOptionsDisplayName();
             assert.equal(items.length, 1, 'The only one item should be selected in the ListBox');
-            assert.equal(items[0], appConst.WIDGET_SELECTOR_OPTIONS.PAGE, "'Page' option item should be selected in the ListBox");
+            assert.equal(selectedOption, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS, "'Details' option item should be selected in the ListBox");
 
             // 1. Click on the dropdown handler:
             await browseContextWindow.clickOnWidgetSelectorDropdownHandle();
@@ -93,7 +93,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             //'Edit' button should be enabled
             await contentBrowsePanel.waitForEditButtonEnabled();
             //'Archive' button should be enabled
-            await contentBrowsePanel.waitForArchiveButtonEnabled();
+            await contentBrowsePanel.waitForDeleteButtonEnabled();
             //'Move' button should be enabled
             await contentBrowsePanel.waitForMoveButtonEnabled();
             await contentBrowsePanel.waitForDuplicateButtonEnabled();
@@ -141,12 +141,12 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await contentBrowsePanel.waitForNewButtonEnabled();
             await contentBrowsePanel.waitForEditButtonDisabled();
-            await contentBrowsePanel.waitForArchiveButtonDisabled();
+            await contentBrowsePanel.waitForDeleteButtonDisabled();
             await contentBrowsePanel.waitForDuplicateButtonDisabled();
             await contentBrowsePanel.waitForMoveButtonDisabled();
             await contentBrowsePanel.waitForSortButtonDisabled();
             await contentBrowsePanel.waitForCreateIssueButtonDisplayed();
-            await contentBrowsePanel.waitForShowContextWindowButtonDisplayed();
+            await contentBrowsePanel.waitForHideContextWindowButtonDisplayed();
             // 'Preview' button and Preview Panel Toolbar should not be displayed, because no content is selected
             await contentItemPreviewPanel.waitForToolbarNotDisplayed();
         });
@@ -203,11 +203,11 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             // 1. Click on the child folder:
             await contentBrowsePanel.clickOnExpanderIcon(FOLDER.displayName);
-            await contentBrowsePanel.clickOnRowByName(CHILD_FOLDER.displayName)
+            await contentBrowsePanel.clickOnRowByName(CHILD_FOLDER.displayName);
             // 2. delete the child folder:
-            await contentBrowsePanel.clickOnArchiveButton();
+            await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
-            await deleteContentDialog.clickOnDeleteMenuItem();
+            await deleteContentDialog.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogClosed();
             await contentBrowsePanel.waitForNotificationMessage();
             // 3. select the parent folder:

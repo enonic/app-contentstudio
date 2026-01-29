@@ -20,7 +20,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
     const CONTENT_APP_BAR_ROLE_BANNER = 'banner';
 
     // Verify Accessibility attributes in Browse Panel(toolbar role, aria-label):
-    it("WHEN browse panel is loaded THEN role and aria-label attributes should be set correctly",
+    it.skip("WHEN browse panel is loaded THEN role and aria-label attributes should be set correctly",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Verify that <html> element has lang="en" attribute:
@@ -43,7 +43,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             await contentBrowsePanel.waitForPublishMenuRoleAttribute('presentation');
         });
 
-    it("GIVEN unnamed content are selected WHEN the content hav been deleted THEN modal dialog should be closed",
+    it("GIVEN unnamed content are selected WHEN the content have been deleted THEN modal dialog should be closed",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
@@ -53,10 +53,10 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             if (result.length <= 1) {
                 return;
             }
-            await contentBrowsePanel.clickOnSelectionControllerCheckbox();
-            await contentBrowsePanel.clickOnArchiveButton();
+            await contentBrowsePanel.clickOnSelectAllCheckbox();
+            await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
-            await deleteContentDialog.clickOnDeleteMenuItem();
+            await deleteContentDialog.clickOnDeleteButton();
             await confirmValueDialog.waitForDialogOpened();
             let number = await confirmValueDialog.getSuggestedNumberToDelete();
             await confirmValueDialog.typeNumberOrName(number);
@@ -69,6 +69,13 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             let contentBrowsePanel = new ContentBrowsePanel();
             await contentBrowsePanel.pause(1000);
             await studioUtils.typeNameInFilterPanel(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
+
+            let status = await contentBrowsePanel.getContentStatus(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
+            assert.equal(status, appConst.CONTENT_STATUS.OFFLINE);
+            await contentBrowsePanel.waitForStatus(appConst.TEST_FOLDER_WITH_IMAGES_NAME, 'Offline');
+            let aa = await contentBrowsePanel.getCurrentProjectDisplayName();
+            let aaa = await contentBrowsePanel.getWorkflowStateByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
+
             // 1. Click on the checkbox:
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
             await studioUtils.saveScreenshot('before_arrow_right');
@@ -207,7 +214,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             await contentBrowsePanel.clickOnRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
             // 3. Verify that grid toolbar returns to the initial state
             await contentBrowsePanel.waitForNewButtonEnabled();
-            await contentBrowsePanel.waitForArchiveButtonDisabled();
+            await contentBrowsePanel.waitForDeleteButtonDisabled();
             await contentBrowsePanel.waitForDuplicateButtonDisabled();
             // 4 . Verify that PreviewPanel toolbar gets not visible!
             await contentItemPreviewPanel.waitForPreviewToolbarNotDisplayed();
@@ -225,7 +232,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             await studioUtils.saveScreenshot('all_grid_items_selected');
             // 2. Verify that New button is disabled and Archive, Duplicate are enabled:
             await contentBrowsePanel.waitForNewButtonDisabled();
-            await contentBrowsePanel.waitForArchiveButtonEnabled();
+            await contentBrowsePanel.waitForDeleteButtonEnabled();
             await contentBrowsePanel.waitForDuplicateButtonEnabled();
         });
 

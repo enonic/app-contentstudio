@@ -18,6 +18,7 @@ class BaseBrowsePanel extends Page {
         return this.treeGridToolbar + lib.BUTTONS.REFRESH_BUTTON;
     }
 
+
     //refresh the grid:
     async clickOnRefreshButton() {
         await this.clickOnElement(this.refreshButton);
@@ -56,6 +57,14 @@ class BaseBrowsePanel extends Page {
             return await this.pause(300);
         } catch (err) {
             await this.handleError('Browse Panel, click on Selection Controller checkbox. ', 'err_click_on_selection_controller', err);
+        }
+    }
+    async clickOnSelectAllCheckbox() {
+        try {
+            await this.clickOnElement(this.selectAllCheckboxLabel);
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError('Browse Panel, tried to click on Select all checkbox. ', 'err_click_on_select_all', err);
         }
     }
 

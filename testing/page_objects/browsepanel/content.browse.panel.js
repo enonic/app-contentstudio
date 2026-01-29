@@ -50,13 +50,17 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return XPATH.toolbarDiv;
     }
 
+    get selectAllCheckboxLabel() {
+        return XPATH.container + COMMON.SELECT_ALL_CHECKBOX_LABEL;
+    }
+
     // expander icon in parent items
     get expanderButton() {
         return "//button[contains(@type,'button') and contains(@aria-label,'Expand') or contains (@aria-label,'Collapse')]";
     }
 
-    get archiveButton() {
-        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Archive');
+    get deleteButton() {
+        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Delete');
     }
 
     get moreButton() {
@@ -269,7 +273,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         await this.clickOnElement(this.markAsReadyButton);
         let confirmationDialog = new ConfirmationDialog();
         await confirmationDialog.waitForDialogOpened();
-        return await confirmationDialog.clickOnYesButton();
+        return await confirmationDialog.clickOnConfirmButton();
     }
 
     // When single content is selected, confirmation is no needed
@@ -298,7 +302,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         await this.waitForElementEnabled(this.sortButton, appConst.mediumTimeout);
         await this.pause(200);
         await this.clickOnElement(this.sortButton);
-        return await this.pause(200);
     }
 
     async clickOnDuplicateButton() {
@@ -395,7 +398,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    async waitForHideContextWindowToggleButtonDisplayed() {
+    async waitForHideContextWindowButtonDisplayed() {
         try {
             return await this.waitForElementDisplayed(this.hideContextWindowButton, appConst.mediumTimeout)
         } catch (err) {
@@ -829,7 +832,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         try {
             // 1. Build XPath for the content summary element by display name
             const xpath = XPATH.contentsTreeListDiv + TREE_GRID.itemByDisplayName(displayName) + "//svg[@aria-label]";
-
             // 2. Wait for the element to be displayed
             await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
 
@@ -952,27 +954,33 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    waitForArchiveButtonDisplayed() {
-        return this.waitForElementDisplayed(this.archiveButton, appConst.mediumTimeout);
+    waitForDeleteButtonDisplayed() {
+        return this.waitForElementDisplayed(this.deleteButton, appConst.mediumTimeout);
     }
 
-    async waitForArchiveButtonEnabled() {
+    async waitForDeleteButtonEnabled() {
         try {
-            await this.waitForArchiveButtonDisplayed();
-            await this.waitForElementEnabled(this.archiveButton, appConst.mediumTimeout);
+            await this.waitForDeleteButtonDisplayed();
+            await this.waitForElementEnabled(this.deleteButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError('Archive button should be enabled', 'err_archive_btn', err);
+            await this.handleError('Delete button should be enabled', 'err_delete_btn', err);
         }
     }
 
-    async waitForArchiveButtonDisabled() {
-        await this.waitForArchiveButtonDisplayed();
-        return await this.waitForElementDisabled(this.archiveButton, appConst.mediumTimeout)
+    async waitForDeleteButtonDisabled() {
+        await this.waitForDeleteButtonDisplayed();
+        return await this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout)
     }
 
-    async clickOnArchiveButton() {
-        await this.waitForArchiveButtonEnabled();
-        await this.clickOnElement(this.archiveButton);
+    async clickOnDeleteButton() {
+        await this.waitForDeleteButtonEnabled();
+        await this.clickOnElement(this.deleteButton);
+        return await this.pause(500);
+    }
+
+    async clickOnDeleteButton() {
+        await this.waitForDeleteButtonEnabled();
+        await this.clickOnElement(this.deleteButton);
         return await this.pause(500);
     }
 

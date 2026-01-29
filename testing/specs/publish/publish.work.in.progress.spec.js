@@ -102,7 +102,7 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             await contentPublishDialog.waitForDialogClosed();
             let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
             // 4. Verify that the status gets 'Published'
-            await contentBrowsePanel.waitForStatus(SITE.displayName, appConst.CONTENT_STATUS.PUBLISHED);
+            await contentBrowsePanel.waitForStatus(SITE.displayName, appConst.CONTENT_STATUS.ONLINE);
             assert.equal(actualMessage, appConst.NOTIFICATION_MESSAGES.TWO_ITEMS_PUBLISHED, "'2 items are published.' should appear");
         });
 

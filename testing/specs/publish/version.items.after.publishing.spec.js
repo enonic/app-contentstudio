@@ -76,7 +76,7 @@ describe.skip('version.items.after.publishing.spec tests for version items', fun
             await editPermissionsSummaryStep.waitForDialogClosed();
             // 5. Verify that status remains  'Published' (Page editor is opened by default)
             let actualStatus = await contentWizard.getContentStatus();
-            assert.equal(actualStatus, appConst.CONTENT_STATUS.PUBLISHED, `The folder should remain 'Published'`);
+            assert.equal(actualStatus, appConst.CONTENT_STATUS.ONLINE, `The folder should remain 'Online'`);
         });
 
     it(`WHEN existing folder with updated permissions is selected THEN the folder remains 'Published' after updating its permissions`,
@@ -86,7 +86,7 @@ describe.skip('version.items.after.publishing.spec tests for version items', fun
             await studioUtils.typeNameInFilterPanel(FOLDER_NAME);
             let state = await contentBrowsePanel.getWorkflowStateByName(FOLDER_NAME);
             // 2. Verify -  folder with updated permissions remains 'Published':
-            assert.equal(state, appConst.WORKFLOW_STATE.PUBLISHED, `The content should be 'Published'`);
+            assert.equal(state, appConst.WORKFLOW_STATE.ONLINE, `The content should be 'Online'`);
         });
 
     it.skip("GIVEN modified folder with updated permissions is opened WHEN 'Show changes' button has been clicked THEN 'inheritPermissions' should be present in 'Compare With Published Version'",

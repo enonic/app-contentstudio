@@ -52,7 +52,7 @@ describe('contentItem.preview.toolbar.spec: tests for preview toolbar', function
             await contentPublishDialog.waitForDialogClosed();
             // 3. 'Published' status should be displayed in the item preview toolbar:
             let status = await contentItemPreviewPanel.getContentStatus();
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "The folder should be 'Published'");
+            assert.equal(status, appConst.CONTENT_STATUS.ONLINE, "The folder should be 'ONLINE'");
         });
 
     it(`WHEN existing folder has been unselected THEN Preview toolbar gets not visible`,

@@ -91,7 +91,7 @@ describe('publish.tree.check.child.spec - Publish Tree action - publish a conten
             // 8. Select the folder, verify the status
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
             let status = await contentBrowsePanel.getContentStatus(CHILD_FOLDER.displayName);
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "Content's status should be 'published'");
+            assert.equal(status, appConst.CONTENT_STATUS.ONLINE, "Content's status should be 'Online'");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

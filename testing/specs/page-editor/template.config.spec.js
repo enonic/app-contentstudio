@@ -66,7 +66,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await pageInspectionPanel.clickOnCustomizePageButton();
             await confirmationDialog.waitForDialogOpened();
             // 5. Confirm the action in the Confirmation dialog:
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             await pageComponentsWizardStepForm.openMenu('Page');
             await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_TEMPLATE]);
@@ -97,7 +97,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await pageInspectionPanel.clickOnCustomizePageButton();
             await confirmationDialog.waitForDialogOpened();
             // 5. Confirm the action in the Confirmation dialog:
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('article_details_panel');
             // 4. Verify that the 'title' text input is displayed in the Page Inspection panel(config):
@@ -141,7 +141,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 3. Click on 'Customize Page' button in the Page Inspection panel:
             await pageInspectionPanel.clickOnCustomizePageButton();
             await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             await contentWizard.switchToParentFrame();
             // 4. Verify that Insert tab is displayed in the Context Window:
@@ -166,7 +166,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 3. Click on 'Customize Page' button in the Page Inspection panel:
             await pageInspectionPanel.clickOnCustomizePageButton();
             await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             // 3. Verify that Page item is displayed in the WizardStepNavigator
             await contentWizard.waitForWizardStepDisplayed('Page');
@@ -218,7 +218,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await pageComponentsWizardStepForm.openMenu('Page');
             await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
             await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('component_step_form_reset');
             // 3. The content should be saved automatically:

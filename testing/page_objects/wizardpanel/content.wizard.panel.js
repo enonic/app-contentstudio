@@ -143,8 +143,8 @@ class ContentWizardPanel extends Page {
         return this.thumbnailUploader + `//div[contains(@class, 'workflow-status')]`;
     }
 
-    get archiveButton() {
-        return XPATH.container + XPATH.toolbar + BUTTONS.actionButtonStrict('Archive');
+    get deleteButton() {
+        return XPATH.container + XPATH.toolbar + BUTTONS.actionButtonStrict('Delete');
     }
 
     get duplicateButton() {
@@ -486,13 +486,13 @@ class ContentWizardPanel extends Page {
         return this.waitForElementNotDisplayed(this.savingButton, appConst.longTimeout);
     }
 
-    async clickOnArchiveButton() {
+    async clickOnDeleteButton() {
         try {
-            await this.waitForArchiveButtonEnabled();
-            return await this.clickOnElement(this.archiveButton);
+            await this.waitForDeleteButtonEnabled();
+            return await this.clickOnElement(this.deleteButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_archive_btn_wizard');
-            throw new Error(`Error when clicking on Archive button, screenshot:${screenshot}  ` + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_delete_btn_wizard');
+            throw new Error(`Error when clicking on Delete button, screenshot:${screenshot}  ` + err);
         }
     }
 
@@ -980,13 +980,13 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    async waitForArchiveButtonDisabled() {
-        await this.waitForElementDisplayed(this.archiveButton, appConst.mediumTimeout);
-        return await this.waitForElementDisabled(this.archiveButton, appConst.mediumTimeout);
+    async waitForDeleteButtonDisabled() {
+        await this.waitForElementDisplayed(this.deleteButton, appConst.mediumTimeout);
+        return await this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout);
     }
 
-    waitForArchiveButtonEnabled() {
-        return this.waitForElementEnabled(this.archiveButton, appConst.mediumTimeout);
+    waitForDeleteButtonEnabled() {
+        return this.waitForElementEnabled(this.deleteButton, appConst.mediumTimeout);
     }
 
     async clickOnPreviewButton() {

@@ -117,7 +117,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
             let confirmationDialog = new ConfirmationDialog();
             // 4. Click on 'Yes' button in the confirmation dialog:
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             await contentWizard.waitForSaveButtonDisabled();
             // 5. Verify that 'Preview' button gets disabled in the Preview wizard toolbar:

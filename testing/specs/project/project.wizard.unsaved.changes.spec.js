@@ -78,7 +78,7 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
             await studioUtils.saveScreenshot('project_wizard_unsaved_changes_1');
             await confirmationDialog.waitForDialogOpened();
             // 4. Click on 'Yes' button:
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await projectWizard.waitForWizardClosed();
             await settingsBrowsePanel.pause(200);
             // 5. Verify that new project is not created:

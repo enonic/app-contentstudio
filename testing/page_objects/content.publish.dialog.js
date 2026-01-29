@@ -499,8 +499,9 @@ class ContentPublishDialog extends Page {
         }
     }
 
+    // TODO epic-enonic-ui
     async getNumberItemsToPublish() {
-        let selector = XPATH.container + `//button[contains(@id,'ActionButton')]/span[contains(.,'Publish Now')]`;
+        let selector = this.publishNowButton;
         let number = await this.getText(selector);
         let startIndex = number.indexOf('(');
         if (startIndex === -1) {
