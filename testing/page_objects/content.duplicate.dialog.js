@@ -38,6 +38,12 @@ class ContentDuplicateDialog extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
+    async isIncludeCheckboxSelected(displayName) {
+        let locator = XPATH.container + XPATH.includeChildCheckboxByDisplayName(displayName) + "/input[@type='checkbox']";
+        let checkboxEl = await this.findElements(locator);
+        return checkboxEl[0].isSelected(locator);
+    }
+
     async waitForCloseButtonDisplayed() {
         return await this.waitForElementDisplayed(this.closeButton, appConst.mediumTimeout);
     }
@@ -123,6 +129,16 @@ class ContentDuplicateDialog extends Page {
             return await this.getTextInElements(locator);
         } catch (err) {
             await this.handleError('Content Duplicate dialog', 'err_duplicate_dlg_dependents_name', err);
+        }
+    }
+    async clickOnApplyButton() {
+        try {
+            let applyButton = XPATH.container + BUTTONS.buttonStatusBar('Apply');
+            await this.waitForElementEnabled(applyButton, appConst.mediumTimeout);
+            await this.clickOnElement(applyButton);
+            return await this.pause(100);
+        } catch (err) {
+            await this.handleError('Content Duplicate dialog', 'err_duplicate_dlg_apply_btn', err);
         }
     }
 }
