@@ -1,116 +1,120 @@
-import {useEffect, useState} from 'react';
+import {Combobox, Listbox} from '@enonic/ui';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {WidgetView} from '../../../../../app/view/context/WidgetView';
-import {LegacyElement} from '../../../shared/LegacyElement';
-import {cn, Selector} from '@enonic/ui';
-import {WidgetIcon} from '../../../shared/icons/WidgetIcon';
 import {useI18n} from '../../../hooks/useI18n';
+import {WidgetIcon} from '../../../shared/icons/WidgetIcon';
+import {LegacyElement} from '../../../shared/LegacyElement';
 
 type WidgetsSelectorProps = {
     widgetViews?: WidgetView[];
     externalSelectedWidgetView?: WidgetView;
 };
 
-type WidgetsSelectorItemProps = {
-    widgetView?: WidgetView;
-    secondary?: boolean;
-};
-
 const WIDGETS_SELECTOR_NAME = 'WidgetsSelector';
 
 const WidgetsSelector = ({widgetViews = [], externalSelectedWidgetView = undefined}: WidgetsSelectorProps) => {
-    const selectorPlaceholder = useI18n('field.contextPanel.selector.placeholder');
-    const [value, setValue] = useState<string | undefined>();
+    const placeholder = useI18n('field.option.placeholder');
+    const notFoundLabel = useI18n('field.contextPanel.selector.notfound');
+    const [searchValue, setSearchValue] = useState<string | undefined>();
+    const [selectedWidgetKey, setSelectedWidgetKey] = useState<readonly string[]>([]);
+
+    const filteredWidgetViews = useMemo(() => {
+        if (!searchValue) return widgetViews;
+
+        return widgetViews.filter((widgetView) => widgetView.getWidgetName().toLowerCase().includes(searchValue.toLowerCase()));
+    }, [searchValue, widgetViews]);
+
+    const selectedWidgetView = useMemo(() => getWidgetViewFromKey(widgetViews, selectedWidgetKey?.[0]), [widgetViews, selectedWidgetKey]);
 
     // TODO: Enonic UI - backwards compatibility due to the active widget being handled by ContextView
     useEffect(() => {
-        setValue(getWidgetKeyForSelector(externalSelectedWidgetView));
+        if (!externalSelectedWidgetView) return;
+
+        const key = getWidgetKeyForSelector(externalSelectedWidgetView);
+
+        handleSelectionChange([key]);
     }, [externalSelectedWidgetView]);
 
-    useEffect(() => {}, [widgetViews]);
+    const handleSelectionChange = useCallback(
+        (selectedWidgetKey: readonly string[]) => {
+            // Unable to deselect a widget
+            if (selectedWidgetKey.length === 0) return;
 
-    const onValueChange = (newValue: string) => {
-        widgetViews.find((widgetView) => getWidgetKeyForSelector(widgetView) === newValue)?.setActive();
-    };
+            const key = selectedWidgetKey[0];
+
+            setSelectedWidgetKey([key]);
+            setSearchValue(undefined);
+            getWidgetViewFromKey(widgetViews, key)?.setActive();
+        },
+        [widgetViews]
+    );
 
     return (
-        <div className="flex shrink-0 border-b border-bdr-soft p-1.5 h-15">
-            <Selector.Root value={value} onValueChange={onValueChange}>
-                <Selector.Trigger className="h-full border-0">
-                    <Selector.Value placeholder={selectorPlaceholder}>
-                        <WidgetsSelectorItem
-                            widgetView={widgetViews.find((widgetView) => getWidgetKeyForSelector(widgetView) === value)}
-                        />
-                    </Selector.Value>
-                    <Selector.Icon />
-                </Selector.Trigger>
-                <Selector.Content>
-                    <Selector.Viewport>
-                        {widgetViews.map((widgetView) => {
-                            const key = getWidgetKeyForSelector(widgetView);
-                            const name = widgetView.getWidgetName();
+        <div
+            data-component={WIDGETS_SELECTOR_NAME}
+            className="h-15 p-1.5 border-b border-bdr-soft">
+            <Combobox.Root
+                value={searchValue}
+                onChange={setSearchValue}
+                selection={selectedWidgetKey}
+                onSelectionChange={handleSelectionChange}
+                closeOnBlur={false}
+            >
+                <Combobox.Content className="h-12 w-full">
+                    <Combobox.Control className="border-none">
+                        <Combobox.Search>
+                            {selectedWidgetView && (
+                                <Combobox.Value className="gap-2.5 w-full">
+                                    <WidgetIcon widgetView={selectedWidgetView} className="size-6 shrink-0" />
+                                    <span className="text-sm font-semibold truncate">{selectedWidgetView.getWidgetName()}</span>
+                                </Combobox.Value>
+                            )}
+                            <Combobox.Input placeholder={placeholder} />
+                            <Combobox.Toggle />
+                        </Combobox.Search>
+                    </Combobox.Control>
+                    <Combobox.Popup>
+                        <Listbox.Content className="max-h-60 rounded-sm">
+                            {filteredWidgetViews.length > 0 ? (
+                                filteredWidgetViews.map((widgetView) => {
+                                    const key = getWidgetKeyForSelector(widgetView);
+                                    const name = widgetView.getWidgetName();
+                                    const description = widgetView.getWidgetDescription();
 
-                            return (
-                                <Selector.Item key={key} value={key} textValue={name}>
-                                    <WidgetsSelectorItem widgetView={widgetView} secondary />
-                                    <Selector.ItemIndicator />
-                                </Selector.Item>
-                            );
-                        })}
-                    </Selector.Viewport>
-                </Selector.Content>
-            </Selector.Root>
+                                    return (
+                                        <Listbox.Item key={key} value={key}>
+                                            <WidgetIcon widgetView={widgetView} className="size-6 shrink-0" />
+                                            <div className="flex flex-col overflow-hidden text-xs">
+                                                <span className='font-semibold truncate group-data-[tone=inverse]:text-alt'>{name}</span>
+                                                <small className="text-subtle truncate group-data-[tone=inverse]:text-alt">{description}</small>
+                                            </div>
+                                        </Listbox.Item>
+                                    );
+                                })
+                            ) : (
+                                <div className="px-4 py-3 text-sm text-subtle">{notFoundLabel}</div>
+                            )}
+                        </Listbox.Content>
+                    </Combobox.Popup>
+                </Combobox.Content>
+            </Combobox.Root>
         </div>
     );
 };
 
 WidgetsSelector.displayName = WIDGETS_SELECTOR_NAME;
 
-const WIDGETS_SELECTOR_ITEM_NAME = 'WidgetsSelectorItem';
-
-const WidgetsSelectorItem = ({widgetView, secondary = false}: WidgetsSelectorItemProps) => {
-    if (!widgetView) {
-        return null;
-    }
-
-    const name = widgetView.getWidgetName();
-    const description = widgetView.getWidgetDescription();
-
-    return (
-        <div
-            data-component={WIDGETS_SELECTOR_ITEM_NAME}
-            className="grid grid-cols-[auto_1fr] gap-2.5 items-center w-full"
-        >
-            <WidgetIcon widgetView={widgetView} className="size-6" />
-
-            <div className="flex flex-col text-left overflow-hidden">
-                <span
-                    className={cn(
-                        secondary ? 'text-xs' : 'text-sm',
-                        'font-semibold truncate w-full group-data-[tone=inverse]:text-alt'
-                    )}
-                >
-                    {name}
-                </span>
-
-                {secondary && (
-                    <small className="text-xs text-subtle truncate w-full group-data-[tone=inverse]:text-alt">
-                        {description}
-                    </small>
-                )}
-            </div>
-        </div>
-    );
-};
-
-WidgetsSelectorItem.displayName = WIDGETS_SELECTOR_ITEM_NAME;
-
-// enonic-ui selector.item set its id based on the value, so we need to convert the widget key to a string that is an valid id.
-function getWidgetKeyForSelector(widgetView?: WidgetView): string {
+// We need to convert the widget key to a string that is an valid id.
+function getWidgetKeyForSelector(widgetView?: WidgetView): string | undefined {
     if (!widgetView) {
         return undefined;
     }
 
     return widgetView.getWidgetKey().replace(/[.:]/g, '-');
+}
+
+function getWidgetViewFromKey(widgetViews: WidgetView[], key: string): WidgetView | undefined {
+    return widgetViews.find((wv) => getWidgetKeyForSelector(wv) === key);
 }
 
 export default class WidgetsSelectorElement extends LegacyElement<typeof WidgetsSelector, WidgetsSelectorProps> {
