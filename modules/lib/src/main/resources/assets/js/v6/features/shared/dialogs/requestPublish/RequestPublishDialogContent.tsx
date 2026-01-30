@@ -73,6 +73,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
     const titleLabel = useI18n('field.title');
     const addCommentLabel = useI18n('field.comment.aria.label');
     const assigneesLabel = useI18n('dialog.requestPublish.assignees');
+    const itemsLabel = useI18n('field.items');
     const dependenciesLabel = useI18n('dialog.dependencies');
     const createLabel = useI18n('action.createRequest');
     const applyLabel = useI18n('action.apply');
@@ -230,7 +231,10 @@ export const RequestPublishDialogContent = (): ReactElement => {
                         />
                     </div>
 
+
                     <SplitList>
+                        <div className='flex flex-col gap-2.5'>
+                            <span className='text-md font-semibold'>{itemsLabel}</span>
                         <SplitList.Primary
                             items={items}
                             getItemId={(item) => item.getId()}
@@ -281,7 +285,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
                                 );
                             }}
                         />
-
+                        </div>
                         <SplitList.Separator hidden={dependants.length === 0}>
                             <SplitList.SeparatorLabel>{dependenciesLabel}</SplitList.SeparatorLabel>
                         </SplitList.Separator>

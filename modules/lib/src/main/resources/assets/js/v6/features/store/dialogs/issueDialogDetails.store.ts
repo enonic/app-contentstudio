@@ -42,6 +42,7 @@ type IssueDialogDetailsStore = {
     comments: IssueComment[];
     commentText: string;
     commentSubmitting: boolean;
+    titleUpdating: boolean;
     statusUpdating: boolean;
     assigneesUpdating: boolean;
     itemsUpdating: boolean;
@@ -75,6 +76,7 @@ const initialState: IssueDialogDetailsStore = {
     comments: [],
     commentText: '',
     commentSubmitting: false,
+    titleUpdating: false,
     statusUpdating: false,
     assigneesUpdating: false,
     itemsUpdating: false,
@@ -234,11 +236,17 @@ export const loadIssueDialogIssue = async (nextIssueId?: string): Promise<void> 
             return;
         }
 
+        const defaultTab = resolveDefaultDetailsTab(issueId, issue);
+        const nextTab = latestState.detailsTab === initialState.detailsTab
+            ? defaultTab
+            : latestState.detailsTab;
+
         $issueDialogDetails.set({
             ...latestState,
             issue,
             issueLoading: false,
             issueError: false,
+            detailsTab: nextTab,
         });
     } catch (error) {
         console.error(error);
@@ -453,6 +461,43 @@ export const updateIssueDialogStatus = async (nextStatus: IssueStatus): Promise<
     }
 };
 
+export const updateIssueDialogTitle = async (nextTitle: string): Promise<void> => {
+    const context = getIssueContext('titleUpdating');
+    if (!context) {
+        return;
+    }
+
+    const {issueId, dialogState, issueWithAssignees, issue} = context;
+    const trimmedTitle = nextTitle.trim();
+
+    if (!trimmedTitle || issue.getTitle() === trimmedTitle) {
+        return;
+    }
+
+    $issueDialogDetails.setKey('titleUpdating', true);
+
+    try {
+        const updatedIssue = await new UpdateIssueRequest(issueId)
+            .setTitle(trimmedTitle)
+            .setDescription(issue.getDescription())
+            .setIssueStatus(issue.getIssueStatus())
+            .setApprovers(issue.getApprovers())
+            .sendAndParse();
+
+        applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, {titleUpdating: false});
+
+        const prefix = updatedIssue.getType() === IssueType.PUBLISH_REQUEST
+                       ? 'notify.publishRequest.'
+                       : 'notify.issue.';
+        showFeedback(i18n(`${prefix}updated`));
+        void loadIssueDialogList();
+    } catch (error) {
+        console.error(error);
+        $issueDialogDetails.setKey('titleUpdating', false);
+        showError(error?.message ?? String(error));
+    }
+};
+
 export const updateIssueDialogAssignees = async (nextAssigneeIds: readonly string[]): Promise<void> => {
     const context = getIssueContext('assigneesUpdating');
     if (!context) {
@@ -652,7 +697,7 @@ export const isDeleteCommentConfirmationOpen = (): boolean => {
 // * Internal
 //
 
-type IssueDetailsUpdatingKey = 'statusUpdating' | 'assigneesUpdating' | 'itemsUpdating';
+type IssueDetailsUpdatingKey = 'statusUpdating' | 'assigneesUpdating' | 'itemsUpdating' | 'titleUpdating';
 
 type IssueDialogState = ReturnType<typeof $issueDialog.get>;
 
@@ -666,6 +711,16 @@ type IssueContext = {
 type IssueAssignees = ReturnType<IssueWithAssignees['getAssignees']>;
 
 let dependenciesRequestId = 0;
+
+const resolveDefaultDetailsTab = (issueId?: string, issue?: Issue): IssueDialogDetailsTab => {
+    if (!issueId) {
+        return initialState.detailsTab;
+    }
+
+    const dialogState = $issueDialog.get();
+    const issueType = resolveIssueType(issueId, dialogState.issues, issue);
+    return issueType === IssueType.PUBLISH_REQUEST ? 'items' : 'comments';
+};
 
 function sortByIdOrder<T extends ContentIdProvider>(items: T[], order: ContentId[]): T[] {
     if (items.length === 0 || order.length === 0) {
@@ -694,7 +749,7 @@ function sortByIdOrder<T extends ContentIdProvider>(items: T[], order: ContentId
             return aOrder - bOrder;
         })
         .map(entry => entry.item);
-};
+}
 
 const getIssueContext = (updatingKey?: IssueDetailsUpdatingKey): IssueContext | null => {
     const state = $issueDialogDetails.get();
@@ -831,6 +886,7 @@ const resetIssueDialogDetails = (issueId?: string): void => {
     $issueDialogDetails.set({
         ...baseState,
         issueId,
+        detailsTab: resolveDefaultDetailsTab(issueId),
     });
     $deleteCommentConfirmation.set({open: false, commentId: undefined});
 };

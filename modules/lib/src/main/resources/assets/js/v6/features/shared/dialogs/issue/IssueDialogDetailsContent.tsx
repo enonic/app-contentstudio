@@ -29,7 +29,8 @@ import {
     updateIssueDialogDependencyIncluded,
     updateIssueDialogItemIncludeChildren,
     updateIssueDialogItems,
-    updateIssueDialogStatus
+    updateIssueDialogStatus,
+    updateIssueDialogTitle,
 } from '../../../store/dialogs/issueDialogDetails.store';
 import {
     $isPublishChecking,
@@ -53,6 +54,7 @@ import {IssueSelectedItems} from './IssueSelectedItems';
 import {IssueCommentsList} from './comment/IssueCommentsList';
 import {useIssueDialogData} from './hooks/useIssueDialogData';
 import {useIssuePublishTargetIds} from './hooks/useIssuePublishTargetIds';
+import {IssueTitle} from './IssueTitle';
 
 import type {Issue} from '../../../../../app/issue/Issue';
 import type {IssueWithAssignees} from '../../../../../app/issue/IssueWithAssignees';
@@ -128,6 +130,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         commentsLoading,
         commentSubmitting,
         issueError,
+        titleUpdating,
         statusUpdating,
         assigneesUpdating,
         itemsUpdating,
@@ -146,6 +149,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             'commentsLoading',
             'commentSubmitting',
             'issueError',
+            'titleUpdating',
             'statusUpdating',
             'assigneesUpdating',
             'itemsUpdating',
@@ -173,6 +177,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const commentAriaLabel = useI18n('field.comment.aria.label');
     const itemsLabel = useI18n('field.items');
     const assigneesLabel = useI18n('field.assignees');
+    const titleLabel = useI18n('field.title');
     const dependenciesLabel = useI18n('dialog.dependencies');
     const inviteUsersLabel = useI18n('dialog.issue.inviteUsers');
     const applyLabel = useI18n('action.apply');
@@ -190,8 +195,13 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         () => issues.find(item => item.getIssue().getId() === issueId),
         [issues, issueId],
     );
-    const title = issueData ? issueData.getTitleWithId() : fallbackTitle;
+
     const isPublishRequest = issueData?.getType() === IssueType.PUBLISH_REQUEST;
+    const title = issueData ? issueData.getTitle() : fallbackTitle;
+    const index = issueData ? issueData.getIndex() : '';
+    const fullTitle = issueData ? `${title} #${index}` : fallbackTitle;
+    const [isTitleEditing, setIsTitleEditing] = useState(false);
+    const [titleDraft, setTitleDraft] = useState(issueData?.getTitle() ?? '');
     const currentStatus = issueData?.getIssueStatus() ?? IssueStatus.OPEN;
     const statusValue: StatusOption = currentStatus === IssueStatus.CLOSED ? 'closed' : 'open';
     const isStatusDisabled = !issueData || statusUpdating;
@@ -210,6 +220,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             {value: 'items', label: itemsTabLabel},
             {value: 'assignees', label: assigneesLabel},
         ];
+    const isTitleDisabled = !issueData || issueError || titleUpdating || statusUpdating;
+    const titleInputRef = useRef<HTMLInputElement | null>(null);
 
     const commentTextareaRef = useRef<HTMLTextAreaElement | null>(null);
     const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(null);
@@ -233,6 +245,23 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             excludedDependantIds,
         });
     }, [excludedChildrenIds, excludedDependantIds, issueData, items, syncPublishDialogContext]);
+
+    useEffect(() => {
+        if (isTitleEditing) {
+            return;
+        }
+        setTitleDraft(issueData?.getTitle() ?? '');
+    }, [issueData, isTitleEditing]);
+
+    useEffect(() => {
+        if (!isTitleEditing) {
+            return;
+        }
+        requestAnimationFrame(() => {
+            titleInputRef.current?.focus();
+            titleInputRef.current?.select();
+        });
+    }, [isTitleEditing]);
 
     const assigneeIds = useMemo(
         () => issueData?.getApprovers().map(approver => approver.toString()) ?? [],
@@ -285,6 +314,34 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         }
         void updateIssueDialogStatus(STATUS_LOOKUP[next]);
     };
+
+    const handleTitleStartEdit = (): void => {
+        if (!issueData || isTitleDisabled || isTitleEditing) {
+            return;
+        }
+        setTitleDraft(issueData.getTitle());
+        setIsTitleEditing(true);
+    };
+
+    const handleTitleCommit = useCallback((): void => {
+        if (!isTitleEditing) {
+            return;
+        }
+        if (!issueData) {
+            setIsTitleEditing(false);
+            return;
+        }
+        const nextTitle = titleDraft.trim();
+        if (!nextTitle) {
+            setTitleDraft(issueData.getTitle());
+            setIsTitleEditing(false);
+            return;
+        }
+        if (nextTitle !== issueData.getTitle()) {
+            void updateIssueDialogTitle(nextTitle);
+        }
+        setIsTitleEditing(false);
+    }, [issueData, isTitleEditing, titleDraft]);
 
     const debouncedUpdateAssignees = useMemo(
         () => createDebounce((next: readonly string[]) => {
@@ -418,9 +475,21 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             className='sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-236 flex min-h-0 flex-col gap-7.5 overflow-hidden px-5'
         >
             <Dialog.Header className='grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 px-5'>
-                <div className='flex min-w-0 items-center gap-2.5'>
+                <div className='flex min-w-0 items-center gap-1.5'>
                     <IssueIcon issue={issueData} />
-                    <Dialog.Title className='min-w-0 truncate text-2xl font-semibold'>{title}</Dialog.Title>
+                    <Dialog.Title asChild>
+                        <IssueTitle
+                            ref={titleInputRef}
+                            editing={isTitleEditing}
+                            value={titleDraft}
+                            displayValue={fullTitle}
+                            onStartEdit={handleTitleStartEdit}
+                            onCommit={handleTitleCommit}
+                            onChange={(event) => setTitleDraft(event.currentTarget.value)}
+                            disabled={isTitleDisabled}
+                            aria-label={titleLabel}
+                        />
+                    </Dialog.Title>
                 </div>
                 <Dialog.DefaultClose className='self-start justify-self-end' />
             </Dialog.Header>
