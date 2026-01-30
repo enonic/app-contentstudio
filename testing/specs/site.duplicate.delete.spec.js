@@ -66,7 +66,7 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             // 5. Verify that 'Confirm' button is disabled
             await confirmValueDialog.waitForConfirmButtonDisabled();
             // 6. Close the dialog:
-            await confirmValueDialog.clickOnCancelButton();
+            await confirmValueDialog.clickOnCloseButton();
             await confirmValueDialog.waitForDialogClosed();
             await deleteContentDialog.waitForDialogClosed();
         });

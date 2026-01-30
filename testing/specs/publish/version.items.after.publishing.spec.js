@@ -89,6 +89,7 @@ describe.skip('version.items.after.publishing.spec tests for version items', fun
             assert.equal(state, appConst.WORKFLOW_STATE.ONLINE, `The content should be 'Online'`);
         });
 
+    // TODO epic-enonic-ui new tests:
     it.skip("GIVEN modified folder with updated permissions is opened WHEN 'Show changes' button has been clicked THEN 'inheritPermissions' should be present in 'Compare With Published Version'",
         async () => {
             let contentWizard = new ContentWizard();
@@ -96,7 +97,8 @@ describe.skip('version.items.after.publishing.spec tests for version items', fun
             // 1. Open the modified folder(permissions updated):
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
             // 2. Open 'Compare With Published Version' modal dialog
-            await contentWizard.clickOnShowChangesToolbarButton();
+            await contentWizard.clickOnVersionHistoryButton();
+            // TODO
             await compareWithPublishedVersionDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot('compare_dlg_inherit_perm')
             // 3. Verify that inheritPermissions property is false now:

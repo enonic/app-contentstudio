@@ -18,7 +18,7 @@ describe('archive.confirm.content.dialog.spec:  tests for archiving content', fu
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    const DIALOG_TITLE = 'Confirm archive';
+    const DIALOG_TITLE = 'Confirm delete';
 
     let FOLDER1;
     let FOLDER2;
@@ -50,8 +50,8 @@ describe('archive.confirm.content.dialog.spec:  tests for archiving content', fu
             // 2.Click on 'Archive...' menu item in grid context menu:
             await contentBrowsePanel.rightClickOnItemByDisplayName(FOLDER1.displayName);//(FOLDER1.displayName);
             await studioUtils.saveScreenshot('archive-context-menu');
-            await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.ARCHIVE);
-            await contentBrowsePanel.clickOnMenuItem(appConst.GRID_CONTEXT_MENU.ARCHIVE);
+            await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.DELETE);
+            await contentBrowsePanel.clickOnMenuItem(appConst.GRID_CONTEXT_MENU.DELETE);
             await studioUtils.saveScreenshot('single_folder_archive');
             // 3. Verify that the modal dialog is loaded:
             await deleteContentDialog.waitForDialogOpened();
@@ -70,12 +70,12 @@ describe('archive.confirm.content.dialog.spec:  tests for archiving content', fu
             await deleteContentDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot('2_folders_to_archive');
             // 3. Click on Archive button in the modal dialog:
-            await deleteContentDialog.clickOnArchiveButton();
+            await deleteContentDialog.clickOnDeleteButton();
             // 4. 'Confirm Value' dialog should be loaded:
             await confirmValueDialog.waitForDialogOpened();
             // 5. Verify the title in the dialog
             let titleActual = await confirmValueDialog.getDialogTitle();
-            assert.equal(titleActual, DIALOG_TITLE, `'Confirm archive' title should be displayed in the dialog`);
+            assert.equal(titleActual, DIALOG_TITLE, `'Confirm delete' title should be displayed in the dialog`);
             // 6. Fill in the number input:
             await confirmValueDialog.typeNumberOrName(2);
             // 7. Verify that Confirm button gets enabled:

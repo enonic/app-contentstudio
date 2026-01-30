@@ -31,7 +31,7 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
             await contentBrowsePanel.rightClickOnItemByDisplayName(TEST_FOLDER_1.displayName);
             // 3.Verify that New, Archive, Edit, Move, Publish, Duplicate  menu items are enabled in the context menu:
             await studioUtils.saveScreenshot('folder-context-menu-1');
-            await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.ARCHIVE);
+            await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.DELETE);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.NEW);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.EDIT);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.MOVE);
@@ -56,7 +56,7 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
             await contentBrowsePanel.rightClickOnItemByDisplayName(TEST_FOLDER_1.displayName);
             // 3. Verify that Archive, Edit, Move, Publish, Duplicate  menu items are enabled in the context menu:
             await studioUtils.saveScreenshot('folder-context-menu-2');
-            await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.ARCHIVE);
+            await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.DELETE);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.EDIT);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.MOVE);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.PUBLISH);

@@ -28,7 +28,8 @@ describe.skip("compare.with.published.version.dialog.spec tests for 'Show change
             await studioUtils.doPublish();
         });
 
-    it(`GIVEN language has been selected in the wizard WHEN Compare With Published Version Dialog has been opened THEN 'modifiedTime', 'workflow' and 'language' properties should be visible in the dialog`,
+    // TODO epic-enonic-ui new tests:
+    it.skip(`GIVEN language has been selected in the wizard WHEN Compare With Published Version Dialog has been opened THEN 'modifiedTime', 'workflow' and 'language' properties should be visible in the dialog`,
         async () => {
             let contentWizard = new ContentWizard();
             let compareWithPublishedVersionDialog = new CompareWithPublishedVersionDialog();
@@ -45,7 +46,9 @@ describe.skip("compare.with.published.version.dialog.spec tests for 'Show change
             await contentWizard.waitForSaveButtonDisabled();
             // preview toolbar should be shown by default:
             // 3. Open 'Compare With Published Version' modal dialog
-            await contentWizard.clickOnShowChangesToolbarButton();
+            await contentWizard.clickOnVersionHistoryButton();
+            ///TODO
+
             await compareWithPublishedVersionDialog.waitForDialogOpened();
             // 4. Verify that language property is displayed now :
             await compareWithPublishedVersionDialog.waitForAddedPropertyDisplayed(appConst.COMPARE_VERSIONS_DLG_PROP.LANGUAGE);
@@ -58,6 +61,7 @@ describe.skip("compare.with.published.version.dialog.spec tests for 'Show change
             await compareWithPublishedVersionDialog.waitForModifiedPropertyDisplayed(appConst.COMPARE_VERSIONS_DLG_PROP.MODIFIED_TIME);
         });
 
+    // TODO epic-enonic-ui new tests:
     it(`GIVEN language has been removed in the wizard WHEN Compare With Published Version Dialog has been opened THEN 'language' property should not be present in the modal dialog`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -73,7 +77,8 @@ describe.skip("compare.with.published.version.dialog.spec tests for 'Show change
             await contentWizard.waitForNotificationMessage();
             // preview toolbar should be shown by default:
             // 3. Open 'Compare With Published Version' modal dialog
-            await contentWizard.clickOnShowChangesToolbarButton();
+            // TODO
+            await contentWizard.clickOnVersionHistoryButton();
             await compareWithPublishedVersionDialog.waitForDialogOpened();
             // 4. Verify that language property is not displayed now :
             await compareWithPublishedVersionDialog.waitForAddedPropertyNotDisplayed(appConst.COMPARE_VERSIONS_DLG_PROP.LANGUAGE);

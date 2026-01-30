@@ -26,14 +26,12 @@ const XPATH = {
     showPageEditorTogglerButton: "//button[contains(@id,'ContentActionCycleButton') and @title='Show Page Editor']",
     displayNameInput: "//input[@name='displayName']",
     toolbar: `//div[contains(@id,'ContentWizardToolbar')]`,
-    contentItemPreviewToolbar: `//div[contains(@id,'ContentItemPreviewToolbar')]`,
+    contentItemPreviewToolbar: `//div[contains(@id,'PreviewToolbar')]`,
     toolbarStateIcon: `//div[contains(@class,'toolbar-state-icon')]`,
     publishMenuButton: "//div[contains(@id,'ContentWizardPublishMenuButton')]",
     toolbarPublish: "//div[contains(@id,'ContentWizardToolbarPublishControls')]",
     createIssueButton: "//button[contains(@id,'ActionButton') and child::span[text()='Create Issue...']]",
-    markAsReadyButton: "//button[contains(@id,'ActionButton') and child::span[text()='Mark as ready']]",
     openRequestButton: "//button[contains(@id,'ActionButton') and child::span[text()='Open Request...']]",
-    unpublishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Unpublish...']]",
     unpublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Unpublish...']",
     inspectionPanelToggler: "//button[contains(@id, 'TogglerButton') and contains(@class,'icon-cog')]",
     thumbnailUploader: "//div[contains(@id,'ThumbnailUploaderEl')]",
@@ -45,11 +43,9 @@ const XPATH = {
     wizardStepNavigatorAndToolbar: "//div[contains(@id,'WizardStepNavigatorAndToolbar')]",
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
-
     shaderPage: "//div[@class='xp-page-editor-shader xp-page-editor-page']",
     goToGridButton: "//div[contains(@class,'font-icon-default icon-tree-2')]",
     pagePlaceholderInfoBlock1: "//div[contains(@id,'PagePlaceholderInfoBlock')]//div[contains(@class,'page-placeholder-info-line1')]",
-    showChangesButtonToolbar: "//button[contains(@class,'show-changes') and @title='Show changes']",
     wizardStepByName:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
@@ -58,6 +54,9 @@ const XPATH = {
         name => `//div[contains(@id,'WizardStepsPanel')]//div[contains(@id,'ContentPanelStripHeader') and child::span[contains(.,'${name}')]]//button[contains(@class,'toggler-button')]`,
     publishMenuItemByName(name) {
         return `//div[contains(@id,'ContentWizardToolbar')]//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
+    },
+    previewToolbarMenuItem: (optionName) => {
+        return `//div[contains(@id,'PreviewToolbar') and @role='menu']//div[@role='menuitemradio' and descendant::span[text()='${optionName}']]`
     },
 };
 
@@ -72,12 +71,13 @@ class ContentWizardPanel extends Page {
     }
 
     get emulatorDropdown() {
-        return this.previewItemToolbar + LIVE_VIEW.EMULATOR_DROPDOWN;
+        return this.previewItemToolbar + BUTTONS.buttonAriaLabel('Open emulator selector');
     }
 
     get previewWidgetDropdown() {
-        return this.previewItemToolbar + LIVE_VIEW.DIV_DROPDOWN;
+        return this.previewItemToolbar + BUTTONS.buttonAriaLabel('Open widget selector');
     }
+
 
     get displayNameInput() {
         return XPATH.container + WIZARD.DISPLAY_NAME_INPUT;
@@ -104,23 +104,23 @@ class ContentWizardPanel extends Page {
     }
 
     get saveButton() {
-        return XPATH.container + XPATH.toolbar + BUTTONS.actionButtonStrict('Save');
+        return XPATH.container + XPATH.toolbar + BUTTONS.buttonAriaLabel('Save');
     }
 
     get resetButton() {
-        return XPATH.container + XPATH.toolbar + BUTTONS.actionButtonStrict('Reset');
+        return XPATH.container + XPATH.toolbar + BUTTONS.buttonAriaLabel('Reset');
     }
 
     get savedButton() {
-        return XPATH.container + XPATH.toolbar + BUTTONS.actionButtonStrict('Saved');
+        return XPATH.container + XPATH.toolbar + BUTTONS.buttonAriaLabel('Saved');
     }
 
     get savingButton() {
-        return XPATH.container + XPATH.toolbar + BUTTONS.actionButtonStrict('Saving...');
+        return XPATH.container + XPATH.toolbar + BUTTONS.buttonAriaLabel('Saving...');
     }
 
     get publishButton() {
-        return XPATH.container + XPATH.toolbar + BUTTONS.actionButtonStrict('Publish...');
+        return XPATH.container + XPATH.toolbar + BUTTONS.buttonAriaLabel('Publish...');
     }
 
     get publishDropDownHandle() {
@@ -135,6 +135,10 @@ class ContentWizardPanel extends Page {
         return XPATH.container + XPATH.thumbnailUploader;
     }
 
+    get unpublishButton() {
+        return XPATH.container + BUTTONS.buttonAriaLabel('Unpublish');
+    }
+
     get showChangesToolbarButton() {
         return this.previewItemToolbar + XPATH.showChangesButtonToolbar;
     }
@@ -144,24 +148,20 @@ class ContentWizardPanel extends Page {
     }
 
     get deleteButton() {
-        return XPATH.container + XPATH.toolbar + BUTTONS.actionButtonStrict('Delete');
+        return XPATH.container + XPATH.toolbar + BUTTONS.buttonAriaLabel('Delete');
     }
 
     get duplicateButton() {
-        return XPATH.container + XPATH.toolbar + BUTTONS.actionButtonStrict('Duplicate');
+        return XPATH.container + XPATH.toolbar + BUTTONS.buttonAriaLabel('Duplicate');
     }
 
     get localizeButton() {
-        return XPATH.container + XPATH.toolbar + BUTTONS.actionButtonStrict('Localize');
+        return XPATH.container + XPATH.toolbar + BUTTONS.buttonAriaLabel('Localize');
     }
 
     // Preview button on the previewItemToolbar
     get previewButton() {
-        return this.previewItemToolbar + BUTTONS.actionButtonStrict('Preview');
-    }
-
-    get controllerOptionFilterInput() {
-        return `//div[contains(@id,'PageDescriptorDropdown')]` + lib.OPTION_FILTER_INPUT;
+        return this.previewItemToolbar + BUTTONS.buttonAriaLabel('Preview');
     }
 
     get wizardToolbarHelpButton() {
@@ -170,6 +170,10 @@ class ContentWizardPanel extends Page {
 
     get goToGridButton() {
         return XPATH.toolbar + XPATH.goToGridButton;
+    }
+
+    get versionHistoryButton() {
+        return this.previewItemToolbar + BUTTONS.buttonAriaLabel('Open version history');
     }
 
     async waitForHelpTextsButtonTogglerDisplayed() {
@@ -251,12 +255,14 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    isWizardStepPresent(stepName) {
-        let stepXpath = XPATH.wizardStepByName(stepName);
-        return this.waitForElementDisplayed(stepXpath, appConst.shortTimeout).catch(err => {
-            console.log("Wizard step is not visible: " + err);
+    async isWizardStepPresent(stepName) {
+        try {
+            let stepXpath = XPATH.wizardStepByName(stepName);
+            await this.waitForElementDisplayed(stepXpath, appConst.shortTimeout)
+        } catch (err) {
+            console.log(`Wizard step is not visible:${stepName} `);
             return false;
-        })
+        }
     }
 
     async waitForWizardStepDisplayed(stepName) {
@@ -646,9 +652,6 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    isPageControllerFilterInputClickable() {
-        return this.isClickable(this.controllerOptionFilterInput);
-    }
 
     // Select a page descriptor and wait for Context Window is loaded
     // // TODO 8607
@@ -892,17 +895,19 @@ class ContentWizardPanel extends Page {
     }
 
     async clickOnUnpublishButton() {
-        let selector = XPATH.container + XPATH.unpublishButton;
-        await this.waitForUnpublishButtonDisplayed();
-        await this.clickOnElement(selector);
-        let unpublishDialog = new ContentUnpublishDialog();
-        await unpublishDialog.waitForDialogOpened();
-        return unpublishDialog;
+        try {
+            await this.waitForUnpublishButtonDisplayed();
+            await this.clickOnElement(this.unpublishButton);
+            let unpublishDialog = new ContentUnpublishDialog();
+            await unpublishDialog.waitForDialogOpened();
+            return unpublishDialog;
+        } catch (err) {
+            await this.handleError(`Tried to click on 'Unpublish' button`, 'err_unpublish_button', err);
+        }
     }
 
-    waitForUnpublishButtonDisplayed() {
-        let selector = XPATH.container + XPATH.unpublishButton;
-        return this.waitForElementDisplayed(selector, appConst.longTimeout);
+    async waitForUnpublishButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.unpublishButton, appConst.longTimeout);
     }
 
     async waitForPublishButtonDisplayed() {
@@ -1000,8 +1005,8 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    waitForPreviewButtonDisplayed() {
-        return this.waitForElementDisplayed(this.previewButton, appConst.mediumTimeout);
+    async waitForPreviewButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.previewButton, appConst.mediumTimeout);
     }
 
     // previewItemToolbar
@@ -1147,16 +1152,12 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    waitForShowChangesButtonDisplayed() {
-        return this.waitForElementDisplayed(this.showChangesToolbarButton, appConst.mediumTimeout);
-    }
-
-    async clickOnShowChangesToolbarButton() {
+    async clickOnVersionHistoryButton() {
         try {
-            await this.waitForShowChangesButtonDisplayed();
-            await this.clickOnElement(this.showChangesToolbarButton);
+            await this.waitForVersionHistoryButtonDisplayed();
+            await this.clickOnElement(this.versionHistoryButton);
         } catch (err) {
-            await this.handleError('Tried to click on Show Changes in wizard preview toolbar button', 'err_show_changes_button', err);
+            await this.handleError('Tried to click on Version history in wizard preview toolbar button', 'err_version_history_btn', err);
         }
     }
 
@@ -1188,7 +1189,7 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForPreviewWidgetDropdownDisplayed();
             await this.clickOnElement(this.previewWidgetDropdown);
-            let optionSelector = this.previewWidgetDropdown + lib.DROPDOWN_SELECTOR.listItemByDisplayName(optionName);
+            let optionSelector = XPATH.previewToolbarMenuItem(optionName);
             await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
             await this.clickOnElement(optionSelector);
             await this.pause(200);
@@ -1200,7 +1201,7 @@ class ContentWizardPanel extends Page {
     // Gets the selected option in the 'Preview dropdown' Auto, Media, etc.
     // Wizard ContentItemPreviewToolbar
     async getSelectedOptionInPreviewWidget() {
-        let locator = this.previewWidgetDropdown + lib.H6_DISPLAY_NAME;
+        let locator = this.previewWidgetDropdown;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }
@@ -1218,7 +1219,7 @@ class ContentWizardPanel extends Page {
     // Wizard ContentItemPreviewToolbar
     async getSelectedOptionInEmulatorDropdown() {
         try {
-            let locator = this.emulatorDropdown + lib.H6_DISPLAY_NAME;
+            let locator = this.emulatorDropdown;
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getText(locator);
         } catch (err) {

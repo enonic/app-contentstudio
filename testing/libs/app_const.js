@@ -505,7 +505,7 @@ module.exports = Object.freeze({
     GRID_CONTEXT_MENU: {
         NEW: 'New',
         EDIT: 'Edit',
-        ARCHIVE: 'Archive',
+        DELETE: 'Delete',
         DUPLICATE: 'Duplicate',
         MOVE: 'Move',
         SORT: 'Sort',

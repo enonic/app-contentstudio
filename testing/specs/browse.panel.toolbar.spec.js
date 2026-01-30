@@ -80,8 +80,6 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             assert.ok(true);
         });
 
-    ///
-
     // Verify "Move" action is disabled in the search view #4035
     it(`WHEN a folder has been selected THEN Move button should be enabled`,
         async () => {
