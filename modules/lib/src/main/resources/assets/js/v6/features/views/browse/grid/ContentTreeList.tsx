@@ -59,7 +59,7 @@ function hasDisplayNameData(data: unknown): data is ContentData {
 
 const virtuosoComponents = {
     Scroller: forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({style, children, ...props}, ref) => (
-        <div ref={ref} {...props} style={style} className="*:p-1">
+        <div ref={ref} {...props} style={style} className="*:px-5 *:py-2.5">
             {children}
         </div>
     )),
