@@ -14,6 +14,7 @@ import {
 import type {ContentId} from '../../../../../app/content/ContentId';
 import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {IssueStatus} from '../../../../../app/issue/IssueStatus';
+import {IssueType} from '../../../../../app/issue/IssueType';
 import {useI18n} from '../../../hooks/useI18n';
 import {$issueDialog, setIssueDialogView} from '../../../store/dialogs/issueDialog.store';
 import {
@@ -30,6 +31,15 @@ import {
     updateIssueDialogItems,
     updateIssueDialogStatus
 } from '../../../store/dialogs/issueDialogDetails.store';
+import {
+    $isPublishChecking,
+    $isPublishReady,
+    $publishDialog,
+    $publishDialogPending,
+    $totalPublishableItems,
+    publishItems,
+    syncPublishDialogContext,
+} from '../../../store/dialogs/publishDialog.store';
 import {uniqueIds} from '../../../utils/cms/content/ids';
 import {createDebounce} from '../../../utils/timing/createDebounce';
 import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
@@ -147,6 +157,11 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             'requiredDependantIds',
         ],
     });
+    const publishCount = useStore($totalPublishableItems);
+    const isPublishReady = useStore($isPublishReady);
+    const isPublishChecking = useStore($isPublishChecking);
+    const {open: publishDialogOpen} = useStore($publishDialog, {keys: ['open']});
+    const {submitting: publishSubmitting} = useStore($publishDialogPending, {keys: ['submitting']});
 
     const fallbackTitle = useI18n('dialog.issue');
     const backLabel = useI18n('dialog.issue.back');
@@ -161,6 +176,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const dependenciesLabel = useI18n('dialog.dependencies');
     const inviteUsersLabel = useI18n('dialog.issue.inviteUsers');
     const applyLabel = useI18n('action.apply');
+    const publishLabelSingle = useI18n('action.publishNow');
+    const publishLabelMultiple = useI18n('action.publishNowCount', publishCount);
     const noResultsLabel = useI18n('dialog.search.result.noResults');
     const commentTextareaId = useId();
 
@@ -174,9 +191,25 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         [issues, issueId],
     );
     const title = issueData ? issueData.getTitleWithId() : fallbackTitle;
+    const isPublishRequest = issueData?.getType() === IssueType.PUBLISH_REQUEST;
     const currentStatus = issueData?.getIssueStatus() ?? IssueStatus.OPEN;
     const statusValue: StatusOption = currentStatus === IssueStatus.CLOSED ? 'closed' : 'open';
     const isStatusDisabled = !issueData || statusUpdating;
+    const isCommentsTab = detailsTab === 'comments';
+    const isItemsTab = detailsTab === 'items';
+    const publishLabel = publishCount > 1 ? publishLabelMultiple : publishLabelSingle;
+    const itemsTabLabel = publishCount > 1 ? `${itemsLabel} (${publishCount})` : itemsLabel;
+    const tabs = isPublishRequest
+        ? [
+            {value: 'items', label: itemsTabLabel},
+            {value: 'comments', label: commentsLabel},
+            {value: 'assignees', label: assigneesLabel},
+        ]
+        : [
+            {value: 'comments', label: commentsLabel},
+            {value: 'items', label: itemsTabLabel},
+            {value: 'assignees', label: assigneesLabel},
+        ];
 
     const commentTextareaRef = useRef<HTMLTextAreaElement | null>(null);
     const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(null);
@@ -189,6 +222,17 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     });
 
     useIssueDialogData(issueId, !!issueData);
+
+    useEffect(() => {
+        if (!issueData) {
+            return;
+        }
+        void syncPublishDialogContext({
+            items,
+            excludedChildrenIds,
+            excludedDependantIds,
+        });
+    }, [excludedChildrenIds, excludedDependantIds, issueData, items, syncPublishDialogContext]);
 
     const assigneeIds = useMemo(
         () => issueData?.getApprovers().map(approver => approver.toString()) ?? [],
@@ -329,6 +373,10 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         void submitIssueDialogComment();
     };
 
+    const handlePublish = (): void => {
+        void publishItems();
+    };
+
     const handleBack = (): void => {
         setIssueDialogView('list');
     };
@@ -353,6 +401,12 @@ export const IssueDialogDetailsContent = (): ReactElement => {
 
     const isAssigneesDisabled = !issueData || issueError || assigneesUpdating || statusUpdating;
     const isItemsDisabled = !issueData || issueError || itemsUpdating || statusUpdating;
+    const isPublishDisabled = !isPublishReady ||
+        isPublishChecking ||
+        publishSubmitting ||
+        publishDialogOpen ||
+        isItemsDisabled ||
+        itemsLoading;
     const statusOptions = useMemo(
         () => getStatusOptions(openStatusLabel, closedStatusLabel),
         [openStatusLabel, closedStatusLabel],
@@ -388,9 +442,11 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                             />
                         </div>
                         <Tab.List className='col-span-3 px-2.5 justify-end'>
-                            <Tab.DefaultTrigger value='comments'>{commentsLabel}</Tab.DefaultTrigger>
-                            <Tab.DefaultTrigger value='items'>{itemsLabel}</Tab.DefaultTrigger>
-                            <Tab.DefaultTrigger value='assignees'>{assigneesLabel}</Tab.DefaultTrigger>
+                            {tabs.map((tab) => (
+                                <Tab.DefaultTrigger key={tab.value} value={tab.value}>
+                                    {tab.label}
+                                </Tab.DefaultTrigger>
+                            ))}
                         </Tab.List>
                     </div>
 
@@ -492,13 +548,24 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             </Dialog.Body>
             <Dialog.Footer className='px-5 justify-between'>
                 <Button variant='outline' size='lg' label={backLabel} onClick={handleBack} />
-                <Button
-                    variant='solid'
-                    size='lg'
-                    label={commentActionLabel}
-                    onClick={handleCommentSubmit}
-                    disabled={!canSubmitComment}
-                />
+                {isCommentsTab && (
+                    <Button
+                        variant='solid'
+                        size='lg'
+                        label={commentActionLabel}
+                        onClick={handleCommentSubmit}
+                        disabled={!canSubmitComment}
+                    />
+                )}
+                {isItemsTab && (
+                    <Button
+                        variant='solid'
+                        size='lg'
+                        label={publishLabel}
+                        onClick={handlePublish}
+                        disabled={isPublishDisabled}
+                    />
+                )}
             </Dialog.Footer>
         </Dialog.Content>
     );

@@ -243,6 +243,48 @@ export const setPublishDialogState = (state: Partial<Omit<PublishDialogStore, 'o
     });
 }
 
+// SYNC
+
+export const syncPublishDialogContext = async ({
+    items,
+    excludedChildrenIds = [],
+    excludedDependantIds = [],
+    message,
+}: {
+    items: ContentSummaryAndCompareStatus[];
+    excludedChildrenIds?: ContentId[];
+    excludedDependantIds?: ContentId[];
+    message?: string;
+}): Promise<void> => {
+    const {open} = $publishDialog.get();
+    const {submitting} = $publishDialogPending.get();
+    if (open || submitting) return;
+
+    resetPublishDialogContext();
+
+    if (items.length === 0) {
+        return;
+    }
+
+    $publishDialog.set({
+        open: false,
+        failed: false,
+        items,
+        excludedItemsIds: [],
+        excludedItemsWithChildrenIds: [...excludedChildrenIds],
+        excludedDependantItemsIds: [...excludedDependantIds],
+        message,
+    });
+
+    $draftPublishDialogSelection.set({
+        excludedItemsIds: [],
+        excludedItemsWithChildrenIds: [...excludedChildrenIds],
+        excludedDependantItemsIds: [...excludedDependantIds],
+    });
+
+    await reloadPublishDialogData();
+};
+
 // OPEN & RESET
 
 export const openPublishDialog = (items: ContentSummaryAndCompareStatus[], includeChildItems = false, excludedIds: ContentId[] = []) => {
