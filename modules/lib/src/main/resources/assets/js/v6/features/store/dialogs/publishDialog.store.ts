@@ -39,6 +39,23 @@ type PublishDialogSelectionStore = {
     excludedDependantItemsIds: ContentId[];
 }
 
+type PublishSchedule = {
+    from?: Date;
+    to?: Date;
+};
+
+type PublishScheduleErrors = {
+    from?: string;
+    to?: string;
+    range?: string;
+};
+
+type ScheduleValidationResult = {
+    valid: boolean;
+    toError?: string;
+    rangeError?: string;
+};
+
 type PublishDialogStore = {
     // State
     open: boolean;
@@ -47,6 +64,7 @@ type PublishDialogStore = {
     items: ContentSummaryAndCompareStatus[];
     // dependantItems moved to $publishDialogDependants
     message?: string;
+    schedule?: PublishSchedule;
 } & PublishDialogSelectionStore;
 
 type PublishChecksStore = {
@@ -130,6 +148,9 @@ export const $publishDialogPending = map<PublishDialogPendingStore>(initialPendi
 
 // Store for IDs of items that have unpublished children
 const $hasUnpublishedChildrenIds = atom<Set<string>>(new Set());
+
+// Store for schedule field errors
+const $publishScheduleErrors = map<PublishScheduleErrors>({});
 
 //
 // * Derived State
@@ -215,8 +236,23 @@ export const $isPublishChecking = computed([$publishChecks], ({loading}): boolea
     return loading;
 });
 
-export const $isPublishReady = computed([$publishChecks, $isPublishSelectionSynced, $totalPublishableItems], ({loading, invalidIds, inProgressIds, notPublishableIds}, synced, totalPublishableItems): boolean => {
-    return synced && !loading && invalidIds.length === 0 && inProgressIds.length === 0 && notPublishableIds.length === 0 && totalPublishableItems > 0;
+export const $isScheduleValid = computed([$publishDialog, $publishScheduleErrors], ({schedule}, errors): boolean => {
+    if (errors.from || errors.to || errors.range) {
+        return false;
+    }
+    return validateSchedule(schedule).valid;
+});
+
+export const $scheduleFromError = computed($publishScheduleErrors, ({from, range}): string | undefined => {
+    return from ?? range;
+});
+
+export const $scheduleToError = computed($publishScheduleErrors, ({to}): string | undefined => {
+    return to;
+});
+
+export const $isPublishReady = computed([$publishChecks, $isPublishSelectionSynced, $totalPublishableItems, $isScheduleValid], ({loading, invalidIds, inProgressIds, notPublishableIds}, synced, totalPublishableItems, scheduleValid): boolean => {
+    return synced && !loading && invalidIds.length === 0 && inProgressIds.length === 0 && notPublishableIds.length === 0 && totalPublishableItems > 0 && scheduleValid;
 });
 
 export const $publishTaskId = computed($publishDialogPending, ({taskId}) => taskId);
@@ -333,6 +369,7 @@ export const resetPublishDialogContext = () => {
     $publishDialogDependants.set([]);
     $publishDialogPending.set(initialPendingState);
     $hasUnpublishedChildrenIds.set(new Set());
+    $publishScheduleErrors.set({});
 };
 
 // SELECTION
@@ -416,6 +453,67 @@ export const setPublishDialogDependantItemSelected = (id: ContentId, selected: b
 export const setPublishDialogMessage = (message: string | undefined) => {
     $publishDialog.setKey('message', message);
 }
+
+// SCHEDULE
+
+export const setPublishSchedule = (schedule: PublishSchedule | undefined) => {
+    $publishDialog.setKey('schedule', schedule);
+};
+
+export const setPublishScheduleFrom = (from: Date | undefined) => {
+    const current = $publishDialog.get().schedule ?? {};
+    $publishDialog.setKey('schedule', {...current, from});
+    $publishScheduleErrors.setKey('from', undefined);
+    updateScheduleRangeError();
+};
+
+export const setPublishScheduleTo = (to: Date | undefined) => {
+    const current = $publishDialog.get().schedule ?? {};
+    $publishDialog.setKey('schedule', {...current, to});
+    $publishScheduleErrors.setKey('to', undefined);
+    updateScheduleRangeError();
+};
+
+export const setPublishScheduleFromError = (error: string | undefined) => {
+    $publishScheduleErrors.setKey('from', error);
+};
+
+export const setPublishScheduleToError = (error: string | undefined) => {
+    $publishScheduleErrors.setKey('to', error);
+};
+
+export const clearPublishSchedule = () => {
+    $publishDialog.setKey('schedule', undefined);
+    $publishScheduleErrors.set({});
+};
+
+const updateScheduleRangeError = () => {
+    const {schedule} = $publishDialog.get();
+    const {toError, rangeError} = validateSchedule(schedule);
+    $publishScheduleErrors.setKey('to', toError);
+    $publishScheduleErrors.setKey('range', rangeError);
+};
+
+const validateSchedule = (schedule: PublishSchedule | undefined): ScheduleValidationResult => {
+    if (!schedule) {
+        return {valid: true};
+    }
+    if (!schedule.from && !schedule.to) {
+        return {valid: true};
+    }
+    if (!schedule.to) {
+        return {valid: true};
+    }
+    const now = new Date();
+    if (schedule.to <= now) {
+        return {valid: false, toError: i18n('field.schedule.invalid.past')};
+    }
+    const fromDate = schedule.from ?? now;
+    if (schedule.to <= fromDate) {
+        return {valid: false, rangeError: i18n('field.schedule.invalid')};
+    }
+    return {valid: true};
+};
 
 // DATA
 
@@ -885,9 +983,17 @@ async function markIdsReady(ids: ContentId[]): Promise<ContentId[]> {
 
 async function sendPublishRequest(): Promise<TaskId | undefined> {
     const publishableIds = $publishableIds.get();
-    const {message, excludedItemsIds, excludedItemsWithChildrenIds, excludedDependantItemsIds} = $publishDialog.get();
+    const {message, excludedItemsIds, excludedItemsWithChildrenIds, excludedDependantItemsIds, schedule} = $publishDialog.get();
     const allExcludedItemsWithChildrenIds = uniqueIds([...excludedItemsWithChildrenIds, ...excludedItemsIds]);
     const allExcludedItemsIds = uniqueIds([...excludedItemsIds, ...excludedDependantItemsIds]);
+
+    const hasScheduleValues = schedule?.from || schedule?.to;
+    const resolvedSchedule = hasScheduleValues
+        ? {
+            from: schedule.from ?? new Date(),
+            to: schedule.to,
+        }
+        : undefined;
 
     try {
         const taskId = await publishContent({
@@ -895,6 +1001,7 @@ async function sendPublishRequest(): Promise<TaskId | undefined> {
             excludedIds: allExcludedItemsIds,
             excludeChildrenIds: allExcludedItemsWithChildrenIds,
             message: message || undefined,
+            schedule: resolvedSchedule,
         });
         return taskId;
     } catch (e) {
