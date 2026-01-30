@@ -15,19 +15,21 @@ import {
     $totalPublishableItems,
     applyDraftPublishDialogSelection,
     cancelDraftPublishDialogSelection,
+    clearPublishSchedule,
     excludeInProgressPublishItems,
     excludeInvalidPublishItems,
     excludeNotPublishablePublishItems,
     markAllAsReadyInProgressPublishItems,
-    resetPublishDialogContext,
     setPublishDialogDependantItemSelected,
     setPublishDialogItemSelected,
     setPublishDialogItemWithChildrenSelected,
+    setPublishSchedule,
     setPublishDialogMessage,
 } from '../../../store/dialogs/publishDialog.store';
 import {ContentRow} from '../../lists';
 import {SplitList} from '../../lists/split-list';
 import {SelectionStatusBar} from '../status-bar/SelectionStatusBar';
+import {PublishScheduleForm} from './PublishScheduleForm';
 
 type PublishDialogMainContentProps = {
     onPublish: () => void;
@@ -43,8 +45,7 @@ export const PublishDialogMainContent = ({
     const {failed, message} = useStore($publishDialog, {keys: ['failed', 'message']});
     const loading = useStore($isPublishChecking);
     const isPublishReady = useStore($isPublishReady);
-    const {allowContentUpdate} = useStore($config, {keys: ['allowContentUpdate']});
-
+    const {allowContentUpdate, defaultPublishFromTime} = useStore($config, {keys: ['allowContentUpdate', 'defaultPublishFromTime']});
     const mainItems = useStore($mainPublishItems);
     const dependantItems = useStore($dependantPublishItems);
     const publishCount = useStore($totalPublishableItems);
@@ -54,8 +55,13 @@ export const PublishDialogMainContent = ({
     const isSelectionSynced = useStore($isPublishSelectionSynced);
 
     const {invalid, inProgress, noPermissions} = useStore($publishCheckErrors);
+    const {schedule} = useStore($publishDialog, {keys: ['schedule']});
+    const scheduleMode = schedule !== undefined;
+    const firstScheduleInputRef = useRef<HTMLInputElement>(null);
+    const wasScheduleMode = useRef(scheduleMode);
 
     const [showExcluded, setShowExcluded] = useState(false);
+    const scheduleKeyboardActivation = useRef(false);
     const [showComment, setShowComment] = useState(false);
     const commentTextareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -74,6 +80,14 @@ export const PublishDialogMainContent = ({
     }, [hasAnyExcludedDependantItems]);
 
     useEffect(() => {
+        if (scheduleMode && !wasScheduleMode.current && scheduleKeyboardActivation.current) {
+            requestAnimationFrame(() => firstScheduleInputRef.current?.focus());
+        }
+        scheduleKeyboardActivation.current = false;
+        wasScheduleMode.current = scheduleMode;
+    }, [scheduleMode]);
+
+    useEffect(() => {
         if (showComment && commentTextareaRef.current) {
             commentTextareaRef.current.focus();
             commentTextareaRef.current.scrollIntoView({behavior: 'smooth', block: 'nearest'});
@@ -90,8 +104,9 @@ export const PublishDialogMainContent = ({
     const title = useI18n('dialog.publish');
     const separatorLabel = useI18n('dialog.publish.dependants');
     const emptyDependenciesMessage = useI18n('field.publish.dependencies.empty');
-    const cancelLabel = useI18n('action.cancel');
     const scheduleLabel = useI18n('action.schedule');
+    const confirmScheduleLabel = useI18n('action.schedule.confirm');
+    const cancelScheduleLabel = useI18n('action.schedule.cancel');
     const publishLabelSingle = useI18n('action.publishNow');
     const publishLabelMultiple = useI18n('action.publishNowCount', publishCount);
     const publishLabel = publishCount > 1 ? publishLabelMultiple : publishLabelSingle;
@@ -103,7 +118,11 @@ export const PublishDialogMainContent = ({
     const commentToggleLabel = showComment ? removeCommentLabel : addCommentLabel;
 
     const handleSchedule = () => {
-        // TODO: Add schedule support
+        if (scheduleMode) {
+            clearPublishSchedule();
+        } else {
+            setPublishSchedule({});
+        }
     };
 
     const baseId = useId();
@@ -240,6 +259,7 @@ export const PublishDialogMainContent = ({
                         />
                     </div>
                 )}
+                {scheduleMode && <PublishScheduleForm firstInputRef={firstScheduleInputRef} defaultTimeValue={defaultPublishFromTime} />}
             </Dialog.Body>
             <Dialog.Footer>
                 <Button
@@ -248,9 +268,23 @@ export const PublishDialogMainContent = ({
                     variant="outline"
                     onClick={handleToggleComment}
                 />
-                <Button className="ml-auto" label={cancelLabel} variant="outline" onClick={resetPublishDialogContext} />
-                <Button className="hidden" label={scheduleLabel} variant="outline" onClick={handleSchedule} endIcon={Calendar} disabled={loading} />
-                <Button label={publishLabel} variant="solid" onClick={onPublish} disabled={!isPublishReady} />
+                <Button
+                    className={'ml-auto'}
+                    label={scheduleMode ? cancelScheduleLabel : scheduleLabel}
+                    variant="outline"
+                    onClick={handleSchedule}
+                    onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            scheduleKeyboardActivation.current = true;
+                        }
+                    }}
+                    onPointerDown={() => {
+                        scheduleKeyboardActivation.current = false;
+                    }}
+                    endIcon={!scheduleMode && Calendar}
+                    disabled={!scheduleMode && !isPublishReady}
+                />
+                <Button label={scheduleMode ? confirmScheduleLabel : publishLabel} variant="solid" onClick={onPublish} disabled={!isPublishReady} />
             </Dialog.Footer>
 
         </Dialog.Content>
