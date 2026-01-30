@@ -5,12 +5,14 @@ type ConfigStore = {
     appId: string;
     excludeDependencies: boolean;
     allowContentUpdate: boolean;
+    defaultPublishFromTime?: string;
 };
 
 type ConfigJson = {
     appId: unknown;
     excludeDependencies?: unknown;
     allowContentUpdate?: unknown;
+    defaultPublishFromTime?: unknown;
 };
 
 export const $config = map<ConfigStore>(loadConfig());
@@ -52,6 +54,7 @@ function parseConfig(content: string): ConfigStore | undefined {
             appId: parseString(config.appId),
             excludeDependencies: parseBoolean(config.excludeDependencies),
             allowContentUpdate: parseBoolean(config.allowContentUpdate),
+            defaultPublishFromTime: parseString(config.defaultPublishFromTime),
         } satisfies ConfigStore;
     } catch (error) {
         console.error('Unable to parse config script content.', error);

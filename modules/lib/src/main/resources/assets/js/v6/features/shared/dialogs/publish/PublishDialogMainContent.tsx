@@ -1,7 +1,7 @@
 import {Button, Checkbox, Dialog, GridList} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Calendar, CornerDownRight} from 'lucide-react';
-import {useEffect, useId, useState, type ReactElement} from 'react';
+import {useEffect, useId, useRef, useState, type ReactElement} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {ContentRow} from '../../lists';
 import {$config} from '../../../store/config.store';
@@ -16,6 +16,7 @@ import {
     $totalPublishableItems,
     applyDraftPublishDialogSelection,
     cancelDraftPublishDialogSelection,
+    clearPublishSchedule,
     excludeInProgressPublishItems,
     excludeInvalidPublishItems,
     excludeNotPublishablePublishItems,
@@ -23,9 +24,11 @@ import {
     setPublishDialogDependantItemSelected,
     setPublishDialogItemSelected,
     setPublishDialogItemWithChildrenSelected,
+    setPublishSchedule,
 } from '../../../store/dialogs/publishDialog.store';
 import {SplitList} from '../../lists/split-list';
 import {SelectionStatusBar} from '../status-bar/SelectionStatusBar';
+import {PublishScheduleForm} from './PublishScheduleForm';
 
 type PublishDialogMainContentProps = {
     onPublish: () => void;
@@ -41,8 +44,7 @@ export const PublishDialogMainContent = ({
     const {failed} = useStore($publishDialog, {keys: ['failed']});
     const loading = useStore($isPublishChecking);
     const isPublishReady = useStore($isPublishReady);
-    const {allowContentUpdate} = useStore($config, {keys: ['allowContentUpdate']});
-
+    const {allowContentUpdate, defaultPublishFromTime} = useStore($config, {keys: ['allowContentUpdate', 'defaultPublishFromTime']});
     const mainItems = useStore($mainPublishItems);
     const dependantItems = useStore($dependantPublishItems);
     const publishCount = useStore($totalPublishableItems);
@@ -52,8 +54,13 @@ export const PublishDialogMainContent = ({
     const isSelectionSynced = useStore($isPublishSelectionSynced);
 
     const {invalid, inProgress, noPermissions} = useStore($publishCheckErrors);
+    const {schedule} = useStore($publishDialog, {keys: ['schedule']});
+    const scheduleMode = schedule !== undefined;
+    const firstScheduleInputRef = useRef<HTMLInputElement>(null);
+    const wasScheduleMode = useRef(scheduleMode);
 
     const [showExcluded, setShowExcluded] = useState(false);
+    const scheduleKeyboardActivation = useRef(false);
 
     const visibleDependantItems = showExcluded
         ? dependantItems
@@ -69,17 +76,31 @@ export const PublishDialogMainContent = ({
         }
     }, [hasAnyExcludedDependantItems]);
 
+    useEffect(() => {
+        if (scheduleMode && !wasScheduleMode.current && scheduleKeyboardActivation.current) {
+            requestAnimationFrame(() => firstScheduleInputRef.current?.focus());
+        }
+        scheduleKeyboardActivation.current = false;
+        wasScheduleMode.current = scheduleMode;
+    }, [scheduleMode]);
+
     const title = useI18n('dialog.publish');
     const separatorLabel = useI18n('dialog.publish.dependants');
     const emptyDependenciesMessage = useI18n('field.publish.dependencies.empty');
     const scheduleLabel = useI18n('action.schedule');
+    const confirmScheduleLabel = useI18n('action.schedule.confirm');
+    const cancelScheduleLabel = useI18n('action.schedule.cancel');
     const publishLabelSingle = useI18n('action.publishNow');
     const publishLabelMultiple = useI18n('action.publishNowCount', publishCount);
     const publishLabel = publishCount > 1 ? publishLabelMultiple : publishLabelSingle;
     const includeChildrenLabel = useI18n('field.content.includeChildren');
 
     const handleSchedule = () => {
-        // TODO: Add schedule support
+        if (scheduleMode) {
+            clearPublishSchedule();
+        } else {
+            setPublishSchedule({});
+        }
     };
 
     const baseId = useId();
@@ -196,10 +217,25 @@ export const PublishDialogMainContent = ({
                         )}
                     />
                 </SplitList>
+                {scheduleMode && <PublishScheduleForm firstInputRef={firstScheduleInputRef} defaultTimeValue={defaultPublishFromTime} />}
             </Dialog.Body>
             <Dialog.Footer>
-                <Button className="hidden" label={scheduleLabel} variant="outline" onClick={handleSchedule} endIcon={Calendar} disabled={loading} />
-                <Button label={publishLabel} variant="solid" onClick={onPublish} disabled={!isPublishReady} />
+                <Button
+                    label={scheduleMode ? cancelScheduleLabel : scheduleLabel}
+                    variant="outline"
+                    onClick={handleSchedule}
+                    onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            scheduleKeyboardActivation.current = true;
+                        }
+                    }}
+                    onPointerDown={() => {
+                        scheduleKeyboardActivation.current = false;
+                    }}
+                    endIcon={!scheduleMode && Calendar}
+                    disabled={!scheduleMode && !isPublishReady}
+                />
+                <Button label={scheduleMode ? confirmScheduleLabel : publishLabel} variant="solid" onClick={onPublish} disabled={!isPublishReady} />
             </Dialog.Footer>
 
         </Dialog.Content>
