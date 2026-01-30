@@ -54,7 +54,7 @@ import {IssueSelectedItems} from './IssueSelectedItems';
 import {IssueCommentsList} from './comment/IssueCommentsList';
 import {useIssueDialogData} from './hooks/useIssueDialogData';
 import {useIssuePublishTargetIds} from './hooks/useIssuePublishTargetIds';
-import {IssueTitle} from './IssueTitle';
+import {EditableText} from '../../primitives/EditableText';
 
 import type {Issue} from '../../../../../app/issue/Issue';
 import type {IssueWithAssignees} from '../../../../../app/issue/IssueWithAssignees';
@@ -197,11 +197,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     );
 
     const isPublishRequest = issueData?.getType() === IssueType.PUBLISH_REQUEST;
-    const title = issueData ? issueData.getTitle() : fallbackTitle;
-    const index = issueData ? issueData.getIndex() : '';
-    const fullTitle = issueData ? `${title} #${index}` : fallbackTitle;
-    const [isTitleEditing, setIsTitleEditing] = useState(false);
-    const [titleDraft, setTitleDraft] = useState(issueData?.getTitle() ?? '');
+    const issueIndex = issueData?.getIndex();
     const currentStatus = issueData?.getIssueStatus() ?? IssueStatus.OPEN;
     const statusValue: StatusOption = currentStatus === IssueStatus.CLOSED ? 'closed' : 'open';
     const isStatusDisabled = !issueData || statusUpdating;
@@ -221,10 +217,9 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             {value: 'assignees', label: assigneesLabel},
         ];
     const isTitleDisabled = !issueData || issueError || titleUpdating || statusUpdating;
-    const titleInputRef = useRef<HTMLInputElement | null>(null);
-
     const commentTextareaRef = useRef<HTMLTextAreaElement | null>(null);
     const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(null);
+    const [isEditingTitle, setIsEditingTitle] = useState(false);
     const pendingItemIdsRef = useRef<ContentId[] | null>(null);
     const publishTargetIds = useIssuePublishTargetIds(items, dependants, excludedDependantIds);
 
@@ -245,23 +240,6 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             excludedDependantIds,
         });
     }, [excludedChildrenIds, excludedDependantIds, issueData, items, syncPublishDialogContext]);
-
-    useEffect(() => {
-        if (isTitleEditing) {
-            return;
-        }
-        setTitleDraft(issueData?.getTitle() ?? '');
-    }, [issueData, isTitleEditing]);
-
-    useEffect(() => {
-        if (!isTitleEditing) {
-            return;
-        }
-        requestAnimationFrame(() => {
-            titleInputRef.current?.focus();
-            titleInputRef.current?.select();
-        });
-    }, [isTitleEditing]);
 
     const assigneeIds = useMemo(
         () => issueData?.getApprovers().map(approver => approver.toString()) ?? [],
@@ -315,33 +293,9 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         void updateIssueDialogStatus(STATUS_LOOKUP[next]);
     };
 
-    const handleTitleStartEdit = (): void => {
-        if (!issueData || isTitleDisabled || isTitleEditing) {
-            return;
-        }
-        setTitleDraft(issueData.getTitle());
-        setIsTitleEditing(true);
+    const handleTitleCommit = (value: string): void => {
+        void updateIssueDialogTitle(value);
     };
-
-    const handleTitleCommit = useCallback((): void => {
-        if (!isTitleEditing) {
-            return;
-        }
-        if (!issueData) {
-            setIsTitleEditing(false);
-            return;
-        }
-        const nextTitle = titleDraft.trim();
-        if (!nextTitle) {
-            setTitleDraft(issueData.getTitle());
-            setIsTitleEditing(false);
-            return;
-        }
-        if (nextTitle !== issueData.getTitle()) {
-            void updateIssueDialogTitle(nextTitle);
-        }
-        setIsTitleEditing(false);
-    }, [issueData, isTitleEditing, titleDraft]);
 
     const debouncedUpdateAssignees = useMemo(
         () => createDebounce((next: readonly string[]) => {
@@ -478,17 +432,22 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                 <div className='flex min-w-0 items-center gap-1.5'>
                     <IssueIcon issue={issueData} />
                     <Dialog.Title asChild>
-                        <IssueTitle
-                            ref={titleInputRef}
-                            editing={isTitleEditing}
-                            value={titleDraft}
-                            displayValue={fullTitle}
-                            onStartEdit={handleTitleStartEdit}
-                            onCommit={handleTitleCommit}
-                            onChange={(event) => setTitleDraft(event.currentTarget.value)}
-                            disabled={isTitleDisabled}
-                            aria-label={titleLabel}
-                        />
+                        <span className="inline-flex min-w-0 max-w-full items-baseline gap-1">
+                            <EditableText
+                                value={issueData?.getTitle()}
+                                placeholder={fallbackTitle}
+                                onCommit={handleTitleCommit}
+                                onEditingChange={setIsEditingTitle}
+                                disabled={isTitleDisabled}
+                                variant="heading"
+                                aria-label={titleLabel}
+                            />
+                            {!isEditingTitle && issueIndex != null && (
+                                <span className="text-2xl font-semibold whitespace-nowrap">
+                                    #{issueIndex}
+                                </span>
+                            )}
+                        </span>
                     </Dialog.Title>
                 </div>
                 <Dialog.DefaultClose className='self-start justify-self-end' />
