@@ -1,19 +1,13 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {Combobox, Listbox} from '@enonic/ui';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {WidgetView} from '../../../../../app/view/context/WidgetView';
-import {LegacyElement} from '../../../shared/LegacyElement';
-import {Button, cn, Combobox, IconButton, Listbox} from '@enonic/ui';
-import {WidgetIcon} from '../../../shared/icons/WidgetIcon';
 import {useI18n} from '../../../hooks/useI18n';
-import {ChevronDown} from 'lucide-react';
+import {WidgetIcon} from '../../../shared/icons/WidgetIcon';
+import {LegacyElement} from '../../../shared/LegacyElement';
 
 type WidgetsSelectorProps = {
     widgetViews?: WidgetView[];
     externalSelectedWidgetView?: WidgetView;
-};
-
-type WidgetsSelectorItemProps = {
-    widgetView?: WidgetView;
-    secondary?: boolean;
 };
 
 const WIDGETS_SELECTOR_NAME = 'WidgetsSelector';
@@ -23,8 +17,6 @@ const WidgetsSelector = ({widgetViews = [], externalSelectedWidgetView = undefin
     const notFoundLabel = useI18n('field.contextPanel.selector.notfound');
     const [searchValue, setSearchValue] = useState<string | undefined>();
     const [selectedWidgetKey, setSelectedWidgetKey] = useState<readonly string[]>([]);
-    const [isComboboxOpen, setIsComboboxOpen] = useState<boolean>(false);
-    const buttonRef = useRef<HTMLButtonElement>(null);
 
     const filteredWidgetViews = useMemo(() => {
         if (!searchValue) return widgetViews;
@@ -52,30 +44,31 @@ const WidgetsSelector = ({widgetViews = [], externalSelectedWidgetView = undefin
 
             setSelectedWidgetKey([key]);
             setSearchValue(undefined);
-            setIsComboboxOpen(false);
             getWidgetViewFromKey(widgetViews, key)?.setActive();
-
-            requestAnimationFrame(() => {
-                buttonRef.current?.focus();
-            });
         },
         [widgetViews]
     );
 
     return (
-        <div className="h-15 p-1.5 border-b border-bdr-soft">
+        <div
+            data-component={WIDGETS_SELECTOR_NAME}
+            className="h-15 p-1.5 border-b border-bdr-soft">
             <Combobox.Root
                 value={searchValue}
                 onChange={setSearchValue}
                 selection={selectedWidgetKey}
                 onSelectionChange={handleSelectionChange}
-                open={isComboboxOpen}
-                onOpenChange={setIsComboboxOpen}
-                closeOnBlur
+                closeOnBlur={false}
             >
-                <Combobox.Content className="h-12 w-full" hidden={!isComboboxOpen}>
+                <Combobox.Content className="h-12 w-full">
                     <Combobox.Control className="border-none">
                         <Combobox.Search>
+                            {selectedWidgetView && (
+                                <Combobox.Value className="gap-2.5 w-full">
+                                    <WidgetIcon widgetView={selectedWidgetView} className="size-6 shrink-0" />
+                                    <span className="text-sm font-semibold truncate">{selectedWidgetView.getWidgetName()}</span>
+                                </Combobox.Value>
+                            )}
                             <Combobox.Input placeholder={placeholder} />
                             <Combobox.Toggle />
                         </Combobox.Search>
@@ -85,10 +78,16 @@ const WidgetsSelector = ({widgetViews = [], externalSelectedWidgetView = undefin
                             {filteredWidgetViews.length > 0 ? (
                                 filteredWidgetViews.map((widgetView) => {
                                     const key = getWidgetKeyForSelector(widgetView);
+                                    const name = widgetView.getWidgetName();
+                                    const description = widgetView.getWidgetDescription();
 
                                     return (
                                         <Listbox.Item key={key} value={key}>
-                                            <WidgetsSelectorItem widgetView={widgetView} secondary />
+                                            <WidgetIcon widgetView={widgetView} className="size-6 shrink-0" />
+                                            <div className="flex flex-col overflow-hidden text-xs">
+                                                <span className='font-semibold truncate group-data-[tone=inverse]:text-alt'>{name}</span>
+                                                <small className="text-subtle truncate group-data-[tone=inverse]:text-alt">{description}</small>
+                                            </div>
                                         </Listbox.Item>
                                     );
                                 })
@@ -99,60 +98,11 @@ const WidgetsSelector = ({widgetViews = [], externalSelectedWidgetView = undefin
                     </Combobox.Popup>
                 </Combobox.Content>
             </Combobox.Root>
-
-            {!isComboboxOpen && (
-                <Button
-                    ref={buttonRef}
-                    className="h-12 flex items-center gap-3 justify-between w-full cursor-pointer py-2.25 pl-5 pr-0 group"
-                    onClick={() => setIsComboboxOpen(true)}
-                >
-                    <WidgetsSelectorItem widgetView={selectedWidgetView} />
-
-                    <IconButton
-                        type="button"
-                        variant="text"
-                        size="sm"
-                        iconSize="lg"
-                        icon={ChevronDown}
-                        tabIndex={-1}
-                        className={cn('mr-1.25 shrink-0 text-subtle bg-transparent hover:bg-transparent group-hover:text-main')}
-                    />
-                </Button>
-            )}
         </div>
     );
 };
 
 WidgetsSelector.displayName = WIDGETS_SELECTOR_NAME;
-
-const WIDGETS_SELECTOR_ITEM_NAME = 'WidgetsSelectorItem';
-
-const WidgetsSelectorItem = ({widgetView, secondary = false}: WidgetsSelectorItemProps) => {
-    if (!widgetView) {
-        return null;
-    }
-
-    const name = widgetView.getWidgetName();
-    const description = widgetView.getWidgetDescription();
-
-    return (
-        <div data-component={WIDGETS_SELECTOR_ITEM_NAME} className="grid grid-cols-[auto_1fr] gap-2.5 items-center w-full">
-            <WidgetIcon widgetView={widgetView} className="size-6" />
-
-            <div className="flex flex-col text-left overflow-hidden">
-                <span className={cn(secondary ? 'text-xs' : 'text-sm', 'font-semibold truncate w-full group-data-[tone=inverse]:text-alt')}>
-                    {name}
-                </span>
-
-                {secondary && (
-                    <small className="text-xs text-subtle truncate w-full group-data-[tone=inverse]:text-alt">{description}</small>
-                )}
-            </div>
-        </div>
-    );
-};
-
-WidgetsSelectorItem.displayName = WIDGETS_SELECTOR_ITEM_NAME;
 
 // We need to convert the widget key to a string that is an valid id.
 function getWidgetKeyForSelector(widgetView?: WidgetView): string | undefined {
