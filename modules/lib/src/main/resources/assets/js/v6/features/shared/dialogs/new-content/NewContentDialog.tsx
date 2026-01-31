@@ -1,6 +1,6 @@
 import {cn, Dialog, Tab} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {KeyboardEvent, ReactElement, useRef, useState} from 'react';
+import {KeyboardEvent, ReactElement, useEffect, useRef, useState} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {
     $newContentDialog,
@@ -18,12 +18,13 @@ import {NewContentDialogSearch} from './NewContentDialogSearch';
 const NEW_CONTENT_DIALOG_NAME = 'NewContentDialog';
 
 export const NewContentDialog = (): ReactElement => {
-    const [isInputEmpty, setIsInputEmpty] = useState(true);
     const inputRef = useRef<HTMLInputElement>(null);
     const dialogContentRef = useRef<HTMLDivElement>(null);
+    const shouldFocusInput = useRef(false);
     const [isDragging, setIsDragging] = useState(false);
-    const {open, selectedTab, parentContent, filteredBaseContentTypes, filteredSuggestedContentTypes} = useStore($newContentDialog);
+    const {open, selectedTab, inputValue, parentContent, filteredBaseContentTypes, filteredSuggestedContentTypes} = useStore($newContentDialog);
     const isMediaTab = selectedTab === 'media';
+    const isInputEmpty = inputValue.length === 0;
     const isInputHidden = isInputEmpty || isMediaTab;
 
     const titleLabel = useI18n('dialog.new.title');
@@ -38,24 +39,35 @@ export const NewContentDialog = (): ReactElement => {
         if (open) return;
 
         closeNewContentDialog();
-        setIsInputEmpty(true);
         setInputValue('');
     };
 
     const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-        if (isMediaTab || !isTypingCharacter(event) || !isInputEmpty) return;
+        if (isMediaTab || !isTypingCharacter(event)) return;
 
-        setIsInputEmpty(false);
+        // If input has content but lost focus, refocus and append character
+        if (!isInputEmpty) {
+            if (document.activeElement !== inputRef.current) {
+                inputRef.current?.focus();
+                setInputValue(inputValue + event.key);
+            }
+            return;
+        }
+
+        // Input is empty - show it and set first character
+        shouldFocusInput.current = true;
         setInputValue(event.key);
-        requestAnimationFrame(() => {
-            inputRef.current?.focus();
-        });
     };
+
+    useEffect(() => {
+        if (!isInputHidden && shouldFocusInput.current) {
+            shouldFocusInput.current = false;
+            inputRef.current?.focus();
+        }
+    }, [isInputHidden]);
 
     const handleInputChange = (newValue: string) => {
         if (newValue.length > 0) return;
-
-        setIsInputEmpty(true);
 
         requestAnimationFrame(() => {
             dialogContentRef.current?.focus();
@@ -66,13 +78,12 @@ export const NewContentDialog = (): ReactElement => {
         if (event.key !== 'Escape') return;
         event.stopPropagation();
         setInputValue('');
-        setIsInputEmpty(true);
         requestAnimationFrame(() => {
             dialogContentRef.current?.focus();
         });
     };
 
-    const handleDragEnter = (event: DragEvent) => {
+    const handleDragEnter = () => {
         setIsDragging(true);
         setSelectedTab('media');
     };
@@ -145,9 +156,9 @@ export const NewContentDialog = (): ReactElement => {
 
                         <Dialog.Body className="contents">
                             <div className={cn(
-                                'h-20 p-1.5 -m-1.5 overflow-hidden',
+                                'h-22 px-1.5 -mx-1.5 -mb-2 overflow-hidden',
                                 isMediaTab ? 'hidden' : 'transition-all ease-in-out duration-150',
-                                isInputHidden && 'h-0 p-0 pointer-events-none'
+                                isInputHidden && 'h-0 pointer-events-none'
                             )}>
                                 <NewContentDialogSearch
                                     className={isInputHidden && 'hidden'}
