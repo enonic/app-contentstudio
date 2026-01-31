@@ -57,4 +57,11 @@
   .load-mask {
     @apply !bg-overlay;
   }
+
+  .datetime-selector-input {
+    input + div {
+      @apply !bg-surface-neutral;
+      @apply !px-2;
+    }
+  }
 }
