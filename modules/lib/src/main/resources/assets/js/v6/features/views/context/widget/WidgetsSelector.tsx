@@ -58,15 +58,14 @@ const WidgetsSelector = ({widgetViews = [], externalSelectedWidgetView = undefin
                 onChange={setSearchValue}
                 selection={selectedWidgetKey}
                 onSelectionChange={handleSelectionChange}
-                closeOnBlur={false}
             >
                 <Combobox.Content className="h-12 w-full">
                     <Combobox.Control className="border-none">
                         <Combobox.Search>
                             {selectedWidgetView && (
-                                <Combobox.Value className="gap-2.5 w-full">
-                                    <WidgetIcon widgetView={selectedWidgetView} className="size-6 shrink-0" />
-                                    <span className="text-sm font-semibold truncate">{selectedWidgetView.getWidgetName()}</span>
+                                <Combobox.Value className="gap-2 w-full">
+                                    <WidgetIcon widgetView={selectedWidgetView} className="size-4 shrink-0" />
+                                    <span className="h-6 leading-5.5 font-semibold truncate">{selectedWidgetView.getWidgetName()}</span>
                                 </Combobox.Value>
                             )}
                             <Combobox.Input placeholder={placeholder} />
@@ -84,9 +83,9 @@ const WidgetsSelector = ({widgetViews = [], externalSelectedWidgetView = undefin
                                     return (
                                         <Listbox.Item key={key} value={key}>
                                             <WidgetIcon widgetView={widgetView} className="size-6 shrink-0" />
-                                            <div className="flex flex-col overflow-hidden text-xs">
-                                                <span className='font-semibold truncate group-data-[tone=inverse]:text-alt'>{name}</span>
-                                                <small className="text-subtle truncate group-data-[tone=inverse]:text-alt">{description}</small>
+                                            <div className="flex flex-col overflow-hidden">
+                                                <span className='leading-5.5 font-semibold truncate group-data-[tone=inverse]:text-alt'>{name}</span>
+                                                <small className="leading-4.5 text-sm text-subtle truncate group-data-[tone=inverse]:text-alt">{description}</small>
                                             </div>
                                         </Listbox.Item>
                                     );
