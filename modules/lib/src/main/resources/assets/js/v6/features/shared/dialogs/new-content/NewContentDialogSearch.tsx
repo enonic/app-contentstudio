@@ -27,7 +27,7 @@ export const NewContentDialogSearch = ({
 
     return (
         <SearchField
-            className={cn('w-full p-1.5 mt-7.5 mb-1 flex items-center justify-center shrink-0', className)}
+            className={cn('w-full p-1.5 mt-7.5 flex items-center justify-center shrink-0', className)}
             value={inputValue}
             onChange={onChangeHandler}
             onKeyDown={onKeyDown}
