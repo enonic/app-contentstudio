@@ -413,6 +413,10 @@ export const setPublishDialogDependantItemSelected = (id: ContentId, selected: b
     });
 }
 
+export const setPublishDialogMessage = (message: string | undefined) => {
+    $publishDialog.setKey('message', message);
+}
+
 // DATA
 
 async function reloadPublishDialogData(): Promise<void> {

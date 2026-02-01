@@ -1,9 +1,8 @@
-import {Button, Checkbox, Dialog, GridList} from '@enonic/ui';
+import {Button, Checkbox, cn, Dialog, GridList} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {Calendar, CornerDownRight} from 'lucide-react';
-import {useEffect, useId, useState, type ReactElement} from 'react';
+import {Calendar, CornerDownRight, Plus, X} from 'lucide-react';
+import {useEffect, useId, useRef, useState, type ReactElement} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
-import {ContentRow} from '../../lists';
 import {$config} from '../../../store/config.store';
 import {
     $dependantPublishItems,
@@ -20,10 +19,13 @@ import {
     excludeInvalidPublishItems,
     excludeNotPublishablePublishItems,
     markAllAsReadyInProgressPublishItems,
+    resetPublishDialogContext,
     setPublishDialogDependantItemSelected,
     setPublishDialogItemSelected,
     setPublishDialogItemWithChildrenSelected,
+    setPublishDialogMessage,
 } from '../../../store/dialogs/publishDialog.store';
+import {ContentRow} from '../../lists';
 import {SplitList} from '../../lists/split-list';
 import {SelectionStatusBar} from '../status-bar/SelectionStatusBar';
 
@@ -38,7 +40,7 @@ export const PublishDialogMainContent = ({
     onPublish,
     'data-component': componentName = PUBLISH_DIALOG_MAIN_CONTENT_NAME,
 }: PublishDialogMainContentProps): ReactElement => {
-    const {failed} = useStore($publishDialog, {keys: ['failed']});
+    const {failed, message} = useStore($publishDialog, {keys: ['failed', 'message']});
     const loading = useStore($isPublishChecking);
     const isPublishReady = useStore($isPublishReady);
     const {allowContentUpdate} = useStore($config, {keys: ['allowContentUpdate']});
@@ -54,6 +56,8 @@ export const PublishDialogMainContent = ({
     const {invalid, inProgress, noPermissions} = useStore($publishCheckErrors);
 
     const [showExcluded, setShowExcluded] = useState(false);
+    const [showComment, setShowComment] = useState(false);
+    const commentTextareaRef = useRef<HTMLTextAreaElement>(null);
 
     const visibleDependantItems = showExcluded
         ? dependantItems
@@ -69,14 +73,34 @@ export const PublishDialogMainContent = ({
         }
     }, [hasAnyExcludedDependantItems]);
 
+    useEffect(() => {
+        if (showComment && commentTextareaRef.current) {
+            commentTextareaRef.current.focus();
+            commentTextareaRef.current.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+        }
+    }, [showComment]);
+
+    const handleToggleComment = () => {
+        if (showComment) {
+            setPublishDialogMessage(undefined);
+        }
+        setShowComment(prev => !prev);
+    };
+
     const title = useI18n('dialog.publish');
     const separatorLabel = useI18n('dialog.publish.dependants');
     const emptyDependenciesMessage = useI18n('field.publish.dependencies.empty');
+    const cancelLabel = useI18n('action.cancel');
     const scheduleLabel = useI18n('action.schedule');
     const publishLabelSingle = useI18n('action.publishNow');
     const publishLabelMultiple = useI18n('action.publishNowCount', publishCount);
     const publishLabel = publishCount > 1 ? publishLabelMultiple : publishLabelSingle;
     const includeChildrenLabel = useI18n('field.content.includeChildren');
+    const commentLabel = useI18n('field.comment.label');
+    const commentPlaceholder = useI18n('field.comment.placeholder');
+    const addCommentLabel = useI18n('action.comment.add');
+    const removeCommentLabel = useI18n('action.comment.remove');
+    const commentToggleLabel = showComment ? removeCommentLabel : addCommentLabel;
 
     const handleSchedule = () => {
         // TODO: Add schedule support
@@ -115,7 +139,7 @@ export const PublishDialogMainContent = ({
                     },
                 }} />
 
-            <Dialog.Body className="flex flex-col gap-y-10" tabIndex={-1}>
+            <Dialog.Body className="flex flex-col gap-y-10 px-1.5 -mx-1.5" tabIndex={-1}>
                 <SplitList>
                     <SplitList.Primary
                         items={mainItems}
@@ -196,8 +220,35 @@ export const PublishDialogMainContent = ({
                         )}
                     />
                 </SplitList>
+
+                {showComment && (
+                    <div className='flex flex-col gap-2 pb-1.5'>
+                        <label className='font-semibold' htmlFor={commentTextareaRef.current?.id}>{commentLabel}</label>
+                        <textarea
+                            id={`${PUBLISH_DIALOG_MAIN_CONTENT_NAME}-${baseId}-comment`}
+                            ref={commentTextareaRef}
+                            value={message ?? ''}
+                            onInput={(e) => setPublishDialogMessage((e.target as HTMLTextAreaElement).value)}
+                            placeholder={commentPlaceholder}
+                            rows={2}
+                            className={cn(
+                                'w-full resize-none rounded-sm border px-4.5 py-3',
+                                'border-bdr-subtle bg-surface-neutral text-main placeholder:text-subtle',
+                                'focus-visible:border-bdr-strong focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring',
+                                'focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
+                            )}
+                        />
+                    </div>
+                )}
             </Dialog.Body>
             <Dialog.Footer>
+                <Button
+                    label={commentToggleLabel}
+                    endIcon={showComment ? X : Plus}
+                    variant="outline"
+                    onClick={handleToggleComment}
+                />
+                <Button className="ml-auto" label={cancelLabel} variant="outline" onClick={resetPublishDialogContext} />
                 <Button className="hidden" label={scheduleLabel} variant="outline" onClick={handleSchedule} endIcon={Calendar} disabled={loading} />
                 <Button label={publishLabel} variant="solid" onClick={onPublish} disabled={!isPublishReady} />
             </Dialog.Footer>

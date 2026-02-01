@@ -1,7 +1,7 @@
 import type {ReactElement} from 'react';
-import {ContentCombobox, type ContentComboboxProps} from './combobox';
-import {ContentSelection} from './selection';
+import {ContentCombobox} from './combobox';
 import type {ContentSelectorFilterOptions, ContentSelectorMode} from './content-selector.types';
+import {ContentSelection} from './selection';
 
 //
 // * Types
