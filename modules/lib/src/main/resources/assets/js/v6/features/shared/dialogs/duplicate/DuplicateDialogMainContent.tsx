@@ -14,8 +14,8 @@ import {
     cancelDuplicateIncludeChildrenSelection,
     toggleDuplicateIncludeChildren
 } from '../../../store/dialogs/duplicateDialog.store';
-import {ContentListItem} from '../../items/ContentListItem';
-import {ContentListItemWithChildren} from '../../items/ContentListItemWithChildren';
+import {ContentListItem} from '../../items';
+import {ContentListItemWithChildren} from '../../items';
 import {SelectionStatusBar} from '../status-bar/SelectionStatusBar';
 
 type DuplicateDialogMainContentProps = {
