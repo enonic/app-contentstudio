@@ -1,0 +1,24 @@
+displayName:
+  text: "Content Studio"
+  i18n: "admin.tool.displayName"
+description:
+  text: "Manage content and sites"
+  i18n: "admin.tool.description"
+allow:
+  - "role:system.authenticated"
+apis:
+  - "chartdata"
+  - "content"
+  - "dismiss-notification"
+  - "events"
+  - "export"
+  - "styles"
+  - "admin:extension"
+  - "admin:status"
+  - "admin:event"
+  - "com.enonic.app.contentstudio.plus:license"
+  - "com.enonic.app.contentstudio.plus:layers"
+interfaces:
+  - "contentstudio.menuitem"
+  - "contentstudio.contextpanel"
+  - "contentstudio.liveview"

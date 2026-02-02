@@ -1,0 +1,11 @@
+displayName:
+  text: "Media"
+  i18n: "widget.liveview.media.name"
+description:
+  text: "Display media content"
+  i18n: "widget.liveview.media.description"
+interfaces:
+  - "contentstudio.liveview"
+config:
+  auto: "true"
+  order: "50"
