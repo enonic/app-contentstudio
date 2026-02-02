@@ -14,6 +14,7 @@ import {
     excludeInvalidRequestPublishItems,
     excludeNotPublishableRequestPublishItems,
     markAllAsReadyInProgressRequestPublishItems,
+    removeRequestPublishItem,
     setRequestPublishAssignees,
     setRequestPublishDependantIncluded,
     setRequestPublishDescription,
@@ -257,6 +258,10 @@ export const RequestPublishDialogContent = (): ReactElement => {
                                         >
                                             <ContentRow.Label action="edit" />
                                             <ContentRow.Status variant="diff" />
+                                            <ContentRow.RemoveButton
+                                                onRemove={() => removeRequestPublishItem(item.getContentId())}
+                                                disabled={isItemsDisabled || items.length === 1}
+                                            />
                                         </ContentRow>
 
                                         {showChildrenCheckbox && (

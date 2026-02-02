@@ -5,4 +5,5 @@ export {
     type ContentRowLabelProps,
     type ContentRowStatusProps,
     type ContentRowCellProps,
+    type ContentRowRemoveButtonProps,
 } from './ContentRow';

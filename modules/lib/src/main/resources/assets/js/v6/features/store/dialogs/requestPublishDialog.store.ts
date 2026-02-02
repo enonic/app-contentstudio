@@ -227,6 +227,24 @@ export const setRequestPublishItemIncludeChildren = (id: ContentId, includeChild
     }
 };
 
+export const removeRequestPublishItem = (id: ContentId): void => {
+    const {items, excludedChildrenIds} = $requestPublishDialog.get();
+    const newItems = items.filter(item => !item.getContentId().equals(id));
+
+    if (newItems.length === 0) {
+        resetRequestPublishDialogContext();
+        return;
+    }
+
+    $requestPublishDialog.set({
+        ...$requestPublishDialog.get(),
+        items: newItems,
+        excludedChildrenIds: excludedChildrenIds.filter(i => !i.equals(id)),
+    });
+
+    reloadDependenciesDebounced();
+};
+
 export const setRequestPublishDependantIncluded = (id: ContentId, included: boolean): void => {
     const state = $requestPublishDialog.get();
     if (hasContentIdInIds(id, state.requiredDependantIds)) {

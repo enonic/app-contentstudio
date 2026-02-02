@@ -5,12 +5,14 @@ import {ContentRowCell} from './ContentRowCell';
 import {ContentRowCheckbox} from './ContentRowCheckbox';
 import {ContentRowContext} from './ContentRowContext';
 import {ContentRowLabel} from './ContentRowLabel';
+import {ContentRowRemoveButton} from './ContentRowRemoveButton';
 import {ContentRowStatus} from './ContentRowStatus';
 import type {
     ContentRowCellProps,
     ContentRowCheckboxProps,
     ContentRowLabelProps,
     ContentRowProps,
+    ContentRowRemoveButtonProps,
     ContentRowStatusProps,
 } from './types';
 
@@ -43,6 +45,7 @@ export const ContentRow = Object.assign(ContentRowRoot, {
     Label: ContentRowLabel,
     Status: ContentRowStatus,
     Cell: ContentRowCell,
+    RemoveButton: ContentRowRemoveButton,
 });
 
 export type {
@@ -51,4 +54,5 @@ export type {
     ContentRowLabelProps,
     ContentRowStatusProps,
     ContentRowCellProps,
+    ContentRowRemoveButtonProps,
 };
