@@ -1,3 +1,4 @@
+import {cn} from '@enonic/ui';
 import type {ReactElement} from 'react';
 import {ContentCombobox} from './combobox';
 import type {ContentSelectorFilterOptions, ContentSelectorMode} from './content-selector.types';
@@ -43,6 +44,11 @@ const CONTENT_SELECTOR_NAME = 'ContentSelector';
  * Provides a complete content selection experience with search, tree/list view,
  * and display of selected items.
  *
+ * For single selection mode: hides combobox when an item is selected,
+ * showing only the selected item with a remove button.
+ *
+ * For multiple selection mode: uses staged selection in the combobox.
+ *
  * Use this component when you need both the combobox picker and the selected
  * items display. For just the picker, use ContentCombobox directly.
  */
@@ -61,25 +67,31 @@ export const ContentSelector = ({
     contextContent,
     applicationKey,
 }: ContentSelectorProps): ReactElement => {
+    const isSingleMode = selectionMode === 'single';
+    const hasSelection = selection.length > 0;
+    const hideCombobox = isSingleMode && hasSelection;
+
     return (
         <div
             data-component={CONTENT_SELECTOR_NAME}
-            className={className}
+            className={cn('flex flex-col gap-2.5', className)}
         >
-            <ContentCombobox
-                selection={selection}
-                onSelectionChange={onSelectionChange}
-                selectionMode={selectionMode}
-                disabled={disabled}
-                label={label}
-                placeholder={placeholder}
-                emptyLabel={emptyLabel}
-                aria-label={ariaLabel}
-                contentTypeNames={contentTypeNames}
-                allowedContentPaths={allowedContentPaths}
-                contextContent={contextContent}
-                applicationKey={applicationKey}
-            />
+            {!hideCombobox && (
+                <ContentCombobox
+                    selection={selection}
+                    onSelectionChange={onSelectionChange}
+                    selectionMode={selectionMode}
+                    disabled={disabled}
+                    label={label}
+                    placeholder={placeholder}
+                    emptyLabel={emptyLabel}
+                    aria-label={ariaLabel}
+                    contentTypeNames={contentTypeNames}
+                    allowedContentPaths={allowedContentPaths}
+                    contextContent={contextContent}
+                    applicationKey={applicationKey}
+                />
+            )}
             <ContentSelection
                 selection={selection}
                 onSelectionChange={onSelectionChange}

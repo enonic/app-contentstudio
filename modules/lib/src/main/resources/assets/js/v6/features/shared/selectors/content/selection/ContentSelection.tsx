@@ -1,7 +1,8 @@
-import {cn} from '@enonic/ui';
+import {cn, GridList} from '@enonic/ui';
 import {useCallback, useEffect, useRef, useState, type ReactElement} from 'react';
 import type {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
 import {fetchContentByIds} from '../../../../api/content-fetcher';
+import {useI18n} from '../../../../hooks/useI18n';
 import {ContentSelectionItem} from './ContentSelectionItem';
 
 //
@@ -29,16 +30,28 @@ const CONTENT_SELECTION_NAME = 'ContentSelection';
 // * Skeleton Component
 //
 
-const ContentSelectionItemSkeleton = (): ReactElement => (
-    <li className='flex items-center gap-2.5 px-2.5 py-1 animate-pulse'>
-        <div className='size-6 rounded-full bg-surface-neutral-hover' />
-        <div className='flex-1 flex flex-col gap-1'>
-            <div className='h-4 w-32 rounded bg-surface-neutral-hover' />
-            <div className='h-3 w-24 rounded bg-surface-neutral-hover' />
-        </div>
-        <div className='h-5 w-12 rounded bg-surface-neutral-hover' />
-        <div className='size-7' />
-    </li>
+type ContentSelectionItemSkeletonProps = {
+    id: string;
+};
+
+const ContentSelectionItemSkeleton = ({id}: ContentSelectionItemSkeletonProps): ReactElement => (
+    <GridList.Row id={id} disabled className='gap-3 px-2.5 animate-pulse'>
+        <GridList.Cell className='flex-1 min-w-0'>
+            <div className='flex items-center gap-2.5'>
+                <div className='size-6 rounded-full bg-surface-neutral-hover' />
+                <div className='flex flex-col gap-1 flex-1'>
+                    <div className='h-4 w-32 rounded bg-surface-neutral-hover' />
+                    <div className='h-3 w-24 rounded bg-surface-neutral-hover' />
+                </div>
+            </div>
+        </GridList.Cell>
+        <GridList.Cell>
+            <div className='h-5 w-12 rounded bg-surface-neutral-hover' />
+        </GridList.Cell>
+        <GridList.Cell>
+            <div className='size-7' />
+        </GridList.Cell>
+    </GridList.Row>
 );
 
 //
@@ -47,7 +60,7 @@ const ContentSelectionItemSkeleton = (): ReactElement => (
 
 /**
  * Container component for displaying selected content items.
- * Shows a list of ContentSelectionItem components for each selected item.
+ * Uses GridList with ContentSelectionItem rows for each selected item.
  * Fetches content data for selected IDs and handles race conditions.
  */
 export const ContentSelection = ({
@@ -59,6 +72,7 @@ export const ContentSelection = ({
     const [loadedItems, setLoadedItems] = useState<ContentSummaryAndCompareStatus[]>([]);
     const [loading, setLoading] = useState(false);
     const requestIdRef = useRef(0);
+    const selectedItemsLabel = useI18n('field.treeListToolbar.selected');
 
     useEffect(() => {
         const requestId = ++requestIdRef.current;
@@ -88,18 +102,19 @@ export const ContentSelection = ({
         onSelectionChange(selection.filter(itemId => itemId !== id));
     }, [selection, onSelectionChange]);
 
-    // Don't render if no selection
     if (selection.length === 0) {
         return null;
     }
 
     return (
-        <ul
+        <GridList
             data-component={CONTENT_SELECTION_NAME}
-            className={cn('flex flex-col gap-2.5', className)}
+            className={cn('flex flex-col gap-y-1.5', className)}
+            label={selectedItemsLabel || 'Selected'}
+            disabled={disabled}
         >
             {loading
-                ? selection.map((id) => <ContentSelectionItemSkeleton key={id} />)
+                ? selection.map((id) => <ContentSelectionItemSkeleton key={id} id={id} />)
                 : loadedItems.map((item) => (
                     <ContentSelectionItem
                         key={item.getId()}
@@ -109,7 +124,7 @@ export const ContentSelection = ({
                     />
                 ))
             }
-        </ul>
+        </GridList>
     );
 };
 
