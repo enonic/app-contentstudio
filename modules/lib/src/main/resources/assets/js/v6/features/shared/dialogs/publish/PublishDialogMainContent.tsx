@@ -20,11 +20,11 @@ import {
     excludeInvalidPublishItems,
     excludeNotPublishablePublishItems,
     markAllAsReadyInProgressPublishItems,
+    removePublishDialogItem,
     setPublishDialogDependantItemSelected,
-    setPublishDialogItemSelected,
     setPublishDialogItemWithChildrenSelected,
-    setPublishSchedule,
     setPublishDialogMessage,
+    setPublishSchedule,
 } from '../../../store/dialogs/publishDialog.store';
 import {ContentRow} from '../../lists';
 import {SplitList} from '../../lists/split-list';
@@ -174,12 +174,12 @@ export const PublishDialogMainContent = ({
                                         id={item.id}
                                         disabled={item.required || loading}
                                     >
-                                        <ContentRow.Checkbox
-                                            checked={item.included}
-                                            onCheckedChange={(checked) => setPublishDialogItemSelected(item.content.getContentId(), checked)}
-                                        />
                                         <ContentRow.Label action="edit" />
                                         <ContentRow.Status variant="diff" />
+                                        <ContentRow.RemoveButton
+                                            onRemove={() => removePublishDialogItem(item.content.getContentId())}
+                                            disabled={item.required || loading || mainItems.length === 1}
+                                        />
                                     </ContentRow>
 
                                     {showChildrenCheckbox && (

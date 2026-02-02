@@ -7,7 +7,7 @@ import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSum
 import {fetchContentSummariesWithStatus} from '../../api/content';
 import {hasUnpublishedChildren} from '../../api/hasUnpublishedChildren';
 import {findIdsByParents, markAsReady, publishContent, resolvePublishDependencies as resolvePublishDeps} from '../../api/publish';
-import {trackTask, cleanupTask} from '../../services/task.service';
+import {cleanupTask, trackTask} from '../../services/task.service';
 import {hasContentById, hasContentIdInIds, isIdsEqual, uniqueIds} from '../../utils/cms/content/ids';
 import {createDebounce} from '../../utils/timing/createDebounce';
 import {$contentArchived, $contentCreated, $contentDeleted, $contentPublished, $contentUpdated} from '../socket.store';
@@ -513,6 +513,35 @@ const validateSchedule = (schedule: PublishSchedule | undefined): ScheduleValida
         return {valid: false, rangeError: i18n('field.schedule.invalid')};
     }
     return {valid: true};
+};
+
+export const removePublishDialogItem = (id: ContentId): void => {
+    const {items} = $publishDialog.get();
+    const newItems = items.filter(item => !item.getContentId().equals(id));
+
+    if (newItems.length === 0) {
+        resetPublishDialogContext();
+        return;
+    }
+
+    // Remove from draft exclusions if present
+    const draft = $draftPublishDialogSelection.get();
+    $draftPublishDialogSelection.set({
+        ...draft,
+        excludedItemsIds: draft.excludedItemsIds.filter(i => !i.equals(id)),
+        excludedItemsWithChildrenIds: draft.excludedItemsWithChildrenIds.filter(i => !i.equals(id)),
+    });
+
+    // Remove from applied exclusions and items
+    const current = $publishDialog.get();
+    $publishDialog.set({
+        ...current,
+        items: newItems,
+        excludedItemsIds: current.excludedItemsIds.filter(i => !i.equals(id)),
+        excludedItemsWithChildrenIds: current.excludedItemsWithChildrenIds.filter(i => !i.equals(id)),
+    });
+
+    reloadPublishDialogDataDebounced();
 };
 
 // DATA

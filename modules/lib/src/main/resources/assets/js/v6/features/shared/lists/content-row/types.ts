@@ -37,3 +37,10 @@ export type ContentRowCellProps = {
     interactive?: boolean;
     className?: string;
 };
+
+export type ContentRowRemoveButtonProps = {
+    onRemove: () => void;
+    disabled?: boolean;
+    title?: string;
+    className?: string;
+};
