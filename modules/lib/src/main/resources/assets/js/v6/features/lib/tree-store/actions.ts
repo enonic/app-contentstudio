@@ -255,9 +255,15 @@ export function removeNodes<T>(
         const parent = nodes.get(parentId);
         if (parent) {
             const removedSet = new Set(removedChildIds);
+            const nextTotalChildren = parent.totalChildren == null
+                ? parent.totalChildren
+                : Math.max(0, parent.totalChildren - removedSet.size);
+            const nextChildIds = parent.childIds.filter((cid) => !removedSet.has(cid));
             nodes.set(parentId, {
                 ...parent,
-                childIds: parent.childIds.filter((cid) => !removedSet.has(cid)),
+                childIds: nextChildIds,
+                totalChildren: nextTotalChildren,
+                hasChildren: nextChildIds.length > 0 || (nextTotalChildren ?? 0) > 0,
             });
         }
     }
