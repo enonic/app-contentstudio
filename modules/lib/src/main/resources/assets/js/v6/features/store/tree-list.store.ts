@@ -292,14 +292,10 @@ function removeContentFromTree(ids: string[]): void {
         // Remove nodes
         let newState = removeNodes(state, ids, true);
 
-        // Update affected parents: set hasChildren=false and collapse if no children left
+        // Collapse parents that have no children left (hasChildren already updated by removeNodes)
         for (const parentId of parentIds) {
             const parent = newState.nodes.get(parentId);
-            if (!parent || parent.childIds.length > 0) continue;
-
-            // Parent has no more children - update hasChildren and collapse
-            newState = setNode(newState, {id: parentId, hasChildren: false});
-            if (newState.expandedIds.has(parentId)) {
+            if (parent?.childIds.length === 0 && newState.expandedIds.has(parentId)) {
                 newState = collapse(newState, parentId);
             }
         }

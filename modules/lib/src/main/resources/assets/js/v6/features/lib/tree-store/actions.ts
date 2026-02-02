@@ -161,9 +161,15 @@ export function removeNode<T>(
     if (removeDescendants && grandParentId !== null) {
         const parent = nodes.get(grandParentId);
         if (parent) {
+            const nextTotalChildren = parent.totalChildren == null
+                ? parent.totalChildren
+                : Math.max(0, parent.totalChildren - 1);
+            const nextChildIds = parent.childIds.filter((cid) => cid !== id);
             nodes.set(grandParentId, {
                 ...parent,
-                childIds: parent.childIds.filter((cid) => cid !== id),
+                childIds: nextChildIds,
+                totalChildren: nextTotalChildren,
+                hasChildren: nextChildIds.length > 0 || (nextTotalChildren ?? 0) > 0,
             });
         }
     }
@@ -254,10 +260,11 @@ export function removeNodes<T>(
     for (const [parentId, removedChildIds] of parentsToUpdate) {
         const parent = nodes.get(parentId);
         if (parent) {
+            const removedCount = removedChildIds.length;
             const removedSet = new Set(removedChildIds);
             const nextTotalChildren = parent.totalChildren == null
                 ? parent.totalChildren
-                : Math.max(0, parent.totalChildren - removedSet.size);
+                : Math.max(0, parent.totalChildren - removedCount);
             const nextChildIds = parent.childIds.filter((cid) => !removedSet.has(cid));
             nodes.set(parentId, {
                 ...parent,
