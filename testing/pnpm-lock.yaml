@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@wdio/allure-reporter':
-        specifier: 9.23.2
-        version: 9.23.2
+        specifier: 9.23.3
+        version: 9.23.3
       '@wdio/cli':
         specifier: ^9.23.2
         version: 9.23.2(@types/node@25.2.0)(expect-webdriverio@5.6.3)
@@ -448,8 +448,8 @@ packages:
   '@vitest/snapshot@4.0.17':
     resolution: {integrity: sha512-npPelD7oyL+YQM2gbIYvlavlMVWUfNNGZPcu0aEUQXt7FXTuqhmgiYupPnAanhKvyP6Srs2pIbWo30K0RbDtRQ==}
 
-  '@wdio/allure-reporter@9.23.2':
-    resolution: {integrity: sha512-y7op5pCVTptouzVt5LlAI2CZ42gujvodt5cgEdnvWKBbSAfyz8gyCuA5xESVVi2cFBHoxZbjUAsQRoulBVykAA==}
+  '@wdio/allure-reporter@9.23.3':
+    resolution: {integrity: sha512-jEvXxAJOl3cPhdgBkKUZpLPyB76JmuvKocXI23WVx7KoCU2y1aUwCfLT9BcWi+8NXK1lBgD3A1uD/ZoqTADKmw==}
     engines: {node: '>=18.20.0'}
 
   '@wdio/cli@9.23.2':
@@ -2288,11 +2288,11 @@ snapshots:
       magic-string: 0.30.21
       pathe: 2.0.3
 
-  '@wdio/allure-reporter@9.23.2':
+  '@wdio/allure-reporter@9.23.3':
     dependencies:
       '@types/node': 20.19.30
-      '@wdio/reporter': 9.23.2
-      '@wdio/types': 9.23.2
+      '@wdio/reporter': 9.23.3
+      '@wdio/types': 9.23.3
       allure-js-commons: 3.4.5
       csv-stringify: 6.6.0
       html-entities: 2.6.0
