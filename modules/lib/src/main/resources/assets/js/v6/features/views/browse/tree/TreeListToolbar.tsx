@@ -1,20 +1,28 @@
 import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {Checkbox, CheckboxChecked, IconButton} from '@enonic/ui';
+import {useStore} from '@nanostores/preact';
 import {RefreshCcw} from 'lucide-react';
 import {ReactElement, useMemo} from 'react';
-import {useStore} from '@nanostores/preact';
+import {activateFilter, fetchRootChildrenIdsOnly, getFilterQuery} from '../../../api/content-fetcher';
 import {useI18n} from '../../../hooks/useI18n';
-import {resetTree, $rootLoadingState} from '../../../store/tree-list.store';
-import {fetchRootChildrenFiltered} from '../../../api/content-fetcher';
+import {$isFilterActive} from '../../../store/active-tree.store';
+import {clearContentCache} from '../../../store/content.store';
 import {$isAllLoadedSelected, $isNoneSelected, $selectionCount, clearSelection, selectAll} from '../../../store/contentTreeSelection.store';
+import {$rootLoadingState, resetTree} from '../../../store/tree-list.store';
 
 type TreeListToolbarProps = {
     enabled?: boolean;
 };
 
 const handleReload = (): void => {
-    resetTree();
-    void fetchRootChildrenFiltered();
+    if ($isFilterActive.get()) {
+        const query = getFilterQuery();
+        if (query) void activateFilter(query);
+    } else {
+        resetTree();
+        clearContentCache();
+        void fetchRootChildrenIdsOnly();
+    }
 };
 
 const TreeListToolbar = ({enabled = true}: TreeListToolbarProps): ReactElement => {
