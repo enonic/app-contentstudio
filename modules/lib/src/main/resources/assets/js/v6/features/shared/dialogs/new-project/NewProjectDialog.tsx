@@ -22,11 +22,13 @@ export const NewProjectDialog = (): ReactElement => {
         <Dialog.Root defaultStep={'step-parent'} data-component={NEW_PROJECT_DIALOG_NAME} open={open} onOpenChange={handleOpenChange}>
             <Dialog.Portal>
                 <Dialog.Overlay />
-                <Dialog.Content className="w-full h-full gap-10 sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220">
+                <Dialog.Content className="w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220">
                     <NewProjectDialogSteps.ParentStep.Header />
+                    <NewProjectDialogSteps.LanguageStep.Header />
 
                     <Dialog.Body className="p-1.5">
                         <NewProjectDialogSteps.ParentStep.Content />
+                        <NewProjectDialogSteps.LanguageStep.Content />
                     </Dialog.Body>
 
                     <Dialog.Footer className="flex flex-col">

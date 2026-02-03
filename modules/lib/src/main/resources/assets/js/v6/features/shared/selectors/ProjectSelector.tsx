@@ -81,7 +81,7 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
     );
 };
 
-ProjectSelector.DisplayName = PROJECT_SELECTOR_NAME;
+ProjectSelector.displayName = PROJECT_SELECTOR_NAME;
 
 type ProjectSelectorTreeContentProps = {
     items: FlatNode<Readonly<Project>>[];

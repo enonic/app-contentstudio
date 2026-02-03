@@ -2,7 +2,7 @@ import {Layers} from 'lucide-react';
 import type {ReactElement, ReactNode} from 'react';
 import {DefaultProjectIcon} from '../icons/DefaultProjectIcon';
 import {resolveProjectIconUrl} from '../../utils/url/projects';
-import {Flag} from '../../../../app/locale/Flag';
+import {FlagIcon} from './FlagIcon';
 import {cn} from '@enonic/ui';
 
 export type ProjectIconProps = {
@@ -44,24 +44,7 @@ export const ProjectIcon = ({
         );
     }
 
-    const lang = language.toLowerCase();
-    const flag = new Flag(lang);
-    const countryClass = flag.getCountryClass();
-    const flagElement = flag.getEl().getHTMLElement();
-    const dataCode = flagElement.getAttribute('data-code') ?? lang.slice(0, 2);
-    const initials = lang.slice(0, 2);
-
-    return (
-        <div className={cn('relative size-6', className)} aria-hidden="true">
-            <div className="absolute inset-0 flex items-center justify-center rounded-full border-1 border-bdr-subtle text-xs font-semibold lowercase text-subtle">
-                {initials}
-            </div>
-            <div
-                className={cn('absolute inset-0 rounded-full flag bg-center', countryClass)}
-                data-code={dataCode}
-            />
-        </div>
-    );
+    return <FlagIcon language={language} className={className} />;
 };
 
 ProjectIcon.displayName = 'ProjectIcon';

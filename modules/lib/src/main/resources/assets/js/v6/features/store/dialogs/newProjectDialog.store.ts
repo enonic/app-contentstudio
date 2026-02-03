@@ -1,6 +1,7 @@
 import {deepMap} from 'nanostores';
 import {Project} from '../../../../app/settings/data/project/Project';
 import {ProjectConfigContext} from '../../../../app/settings/data/project/ProjectConfigContext';
+import {loadLanguages} from '../languages.store';
 
 //
 // * Store State
@@ -14,16 +15,18 @@ type NewProjectDialogStore = {
 
     // data
     parentProjects?: Readonly<Project>[];
+    defaultLanguage?: string;
 };
 
 const initialState: NewProjectDialogStore = {
-    //config
+    // config
     open: false,
     isMultiInheritance: false,
     selectedProjects: [],
 
-    //data
+    // data
     parentProjects: [],
+    defaultLanguage: '',
 };
 
 export const $newProjectDialog = deepMap<NewProjectDialogStore>(structuredClone(initialState));
@@ -50,3 +53,13 @@ export const closeNewProjectDialog = (): void => {
 export const setNewProjectDialogParentProjects = (parentProjects: Readonly<Project>[]): void => {
     $newProjectDialog.setKey('parentProjects', parentProjects);
 };
+
+export const setNewProjectDialogDefaultLanguage = (defaultLanguage: string): void => {
+    $newProjectDialog.setKey('defaultLanguage', defaultLanguage);
+};
+
+//
+// * Initialization
+//
+
+void loadLanguages();

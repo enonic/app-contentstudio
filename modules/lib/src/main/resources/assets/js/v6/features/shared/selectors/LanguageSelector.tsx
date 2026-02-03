@@ -1,5 +1,5 @@
 import {Combobox, VirtualizedTreeList, cn} from '@enonic/ui';
-import {forwardRef, useEffect, useMemo, useRef, useState, type HTMLAttributes, type ReactElement} from 'react';
+import {forwardRef, Fragment, ReactNode, useEffect, useMemo, useRef, useState, type HTMLAttributes, type ReactElement} from 'react';
 import type {VirtuosoHandle} from 'react-virtuoso';
 import {Virtuoso} from 'react-virtuoso';
 import {buildKey} from '../../utils/format/keys';
@@ -15,14 +15,15 @@ export type LanguageSelectorOption = {
 };
 
 export type LanguageSelectorProps = {
-    label: string;
     options: LanguageSelectorOption[];
     selection: readonly string[];
     onSelectionChange: (selection: readonly string[]) => void;
+    label?: string;
     disabled?: boolean;
     placeholder?: string;
     searchPlaceholder?: string;
     emptyLabel?: string;
+    usePortal?: boolean;
     className?: string;
 };
 
@@ -90,6 +91,7 @@ export const LanguageSelector = ({
     placeholder,
     searchPlaceholder,
     emptyLabel,
+    usePortal = false,
     className,
 }: LanguageSelectorProps): ReactElement => {
     const virtuosoRef = useRef<VirtuosoHandle>(null);
@@ -100,9 +102,9 @@ export const LanguageSelector = ({
     const selectedIds = selection ?? [];
     const safeSelection = useMemo(() => new Set(selectedIds.map(toOptionKey)), [selectedIds]);
 
-    const optionMap = useMemo(() => new Map(options.map(option => [option.id, option])), [options]);
+    const optionMap = useMemo(() => new Map(options.map((option) => [option.id, option])), [options]);
     const optionKeyMap = useMemo(() => {
-        return new Map(options.map(option => [toOptionKey(option.id), option.id]));
+        return new Map(options.map((option) => [toOptionKey(option.id), option.id]));
     }, [options]);
     const selectionDisplay = useMemo(() => {
         const selectedId = selectedIds[0];
@@ -120,21 +122,23 @@ export const LanguageSelector = ({
             return options;
         }
         const normalizedQuery = inputValue.trim().toLowerCase();
-        return options.filter(option => matchesQuery(option, normalizedQuery));
+        return options.filter((option) => matchesQuery(option, normalizedQuery));
     }, [open, options, inputValue]);
 
     // Convert options to flat nodes for VirtualizedTreeList
-    const flatNodes = useMemo((): LanguageFlatNode[] =>
-        visibleOptions.map(option => ({
-            id: toOptionKey(option.id),
-            data: option,
-            level: 1,
-            parentId: null,
-            hasChildren: false,
-            isExpanded: false,
-            nodeType: 'node' as const,
-        })),
-    [visibleOptions]);
+    const flatNodes = useMemo(
+        (): LanguageFlatNode[] =>
+            visibleOptions.map((option) => ({
+                id: toOptionKey(option.id),
+                data: option,
+                level: 1,
+                parentId: null,
+                hasChildren: false,
+                isExpanded: false,
+                nodeType: 'node' as const,
+            })),
+        [visibleOptions]
+    );
 
     // Calculate dynamic height
     const treeHeight = useMemo(() => {
@@ -148,7 +152,7 @@ export const LanguageSelector = ({
         if (open) {
             const firstNode = flatNodes[0];
             if (firstNode) {
-                const activeInList = activeId && flatNodes.some(node => node.id === activeId);
+                const activeInList = activeId && flatNodes.some((node) => node.id === activeId);
                 if (!activeInList) {
                     setActiveId(firstNode.id);
                 }
@@ -183,74 +187,70 @@ export const LanguageSelector = ({
     };
 
     return (
-        <div
-            data-component={LANGUAGE_SELECTOR_NAME}
-            className={cn('flex flex-col gap-2.5', className)}>
-            <span className='text-md font-semibold text-subtle'>{label}</span>
+        <div data-component={LANGUAGE_SELECTOR_NAME} className={cn('flex flex-col gap-2.5', className)}>
+            {label && <span className="text-md font-semibold text-subtle">{label}</span>}
             <Combobox.Root
                 open={open}
                 onOpenChange={handleOpenChange}
                 value={inputValue}
                 onChange={setInputValue}
-                contentType='tree'
+                contentType="tree"
                 closeOnBlur={false}
                 disabled={disabled}
             >
-                <Combobox.Content className='relative'>
+                <Combobox.Content className="relative">
                     <Combobox.Control>
                         <Combobox.Search>
                             <Combobox.SearchIcon />
-                            <Combobox.Input
-                                placeholder={searchPlaceholder ?? placeholder}
-                                aria-label={label}
-                            />
+                            <Combobox.Input placeholder={searchPlaceholder ?? placeholder} aria-label={label} />
                             <Combobox.Toggle />
                         </Combobox.Search>
                     </Combobox.Control>
-
-                    <Combobox.Popup>
-                        {flatNodes.length === 0 && emptyLabel ? (
-                            <div className='px-4.5 py-2 text-sm text-subtle'>{emptyLabel}</div>
-                        ) : (
-                            <Combobox.TreeContent style={{height: treeHeight}}>
-                                <VirtualizedTreeList
-                                    items={flatNodes}
-                                    preserveFilteredSelection
-                                    clearSelectionOnEscape={false}
-                                    selection={safeSelection}
-                                    onSelectionChange={handleSelectionChange}
-                                    selectionMode='single'
-                                    active={activeId}
-                                    onActiveChange={setActiveId}
-                                    virtuosoRef={virtuosoRef}
-                                    aria-label={label}
-                                    className='h-full'
-                                >
-                                    {({items, getItemProps, containerProps}) => (
-                                        <Virtuoso<LanguageFlatNode>
-                                            ref={virtuosoRef}
-                                            data={items as LanguageFlatNode[]}
-                                            components={virtuosoComponents}
-                                            {...containerProps}
-                                            className={cn('h-full', containerProps.className)}
-                                            itemContent={(index, node) => {
-                                                const itemProps = getItemProps(index, node);
-                                                return (
-                                                    <VirtualizedTreeList.Row {...itemProps}>
-                                                        <VirtualizedTreeList.RowContent>
-                                                            <span className='text-sm font-medium group-data-[tone=inverse]:text-alt'>
-                                                                {node.data.label}
-                                                            </span>
-                                                        </VirtualizedTreeList.RowContent>
-                                                    </VirtualizedTreeList.Row>
-                                                );
-                                            }}
-                                        />
-                                    )}
-                                </VirtualizedTreeList>
-                            </Combobox.TreeContent>
-                        )}
-                    </Combobox.Popup>
+                    <ConditionalPortal usePortal={usePortal}>
+                        <Combobox.Popup>
+                            {flatNodes.length === 0 && emptyLabel ? (
+                                <div className="px-4.5 py-2 text-sm text-subtle">{emptyLabel}</div>
+                            ) : (
+                                <Combobox.TreeContent style={{height: treeHeight}}>
+                                    <VirtualizedTreeList
+                                        items={flatNodes}
+                                        preserveFilteredSelection
+                                        clearSelectionOnEscape={false}
+                                        selection={safeSelection}
+                                        onSelectionChange={handleSelectionChange}
+                                        selectionMode="single"
+                                        active={activeId}
+                                        onActiveChange={setActiveId}
+                                        virtuosoRef={virtuosoRef}
+                                        aria-label={label}
+                                        className="h-full"
+                                    >
+                                        {({items, getItemProps, containerProps}) => (
+                                            <Virtuoso<LanguageFlatNode>
+                                                ref={virtuosoRef}
+                                                data={items as LanguageFlatNode[]}
+                                                components={virtuosoComponents}
+                                                {...containerProps}
+                                                className={cn('h-full', containerProps.className)}
+                                                itemContent={(index, node) => {
+                                                    const itemProps = getItemProps(index, node);
+                                                    return (
+                                                        <VirtualizedTreeList.Row {...itemProps}>
+                                                            <VirtualizedTreeList.RowContent>
+                                                                <span className="text-sm font-medium group-data-[tone=inverse]:text-alt">
+                                                                    {node.data.label}
+                                                                </span>
+                                                            </VirtualizedTreeList.RowContent>
+                                                        </VirtualizedTreeList.Row>
+                                                    );
+                                                }}
+                                            />
+                                        )}
+                                    </VirtualizedTreeList>
+                                </Combobox.TreeContent>
+                            )}
+                        </Combobox.Popup>
+                    </ConditionalPortal>
                 </Combobox.Content>
             </Combobox.Root>
         </div>
@@ -258,3 +258,14 @@ export const LanguageSelector = ({
 };
 
 LanguageSelector.displayName = LANGUAGE_SELECTOR_NAME;
+
+//
+// * Utility
+//
+
+const ConditionalPortal = ({usePortal, children}: {usePortal: boolean; children: ReactNode}): ReactElement => {
+    if (usePortal) {
+        return <Combobox.Portal>{children}</Combobox.Portal>;
+    }
+    return <Fragment>{children}</Fragment>;
+};
