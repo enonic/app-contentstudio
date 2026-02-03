@@ -180,33 +180,36 @@ export function useTreeStore<T>(options: UseTreeStoreOptions<T> = {}): UseTreeSt
         [setState]
     );
 
-    // Create bound selector functions
+    // Create bound selector functions (stable references using stateRef)
     const selectors = useMemo(
         () => ({
-            getNode: (id: string) => getNode(state, id),
-            hasNode: (id: string) => hasNode(state, id),
-            isExpanded: (id: string) => isExpanded(state, id),
-            isLoading: (id: string | null) => isLoading(state, id),
-            isLoadingData: (id: string) => isLoadingData(state, id),
-            getAncestorIds: (id: string) => getAncestorIds(state, id),
-            getDescendantIds: (id: string) => getDescendantIds(state, id),
-            getSiblingIds: (id: string) => getSiblingIds(state, id),
-            getNodeLevel: (id: string) => getNodeLevel(state, id),
-            getParent: (id: string) => getParent(state, id),
-            getChildren: (id: string) => getChildren(state, id),
-            getRootNodes: () => getRootNodes(state),
-            needsChildrenLoad: (id: string) => needsChildrenLoad(state, id),
-            hasMoreChildren: (id: string) => hasMoreChildren(state, id),
-            areAncestorsExpanded: (id: string) => areAncestorsExpanded(state, id),
-            getPathToNode: (id: string) => getPathToNode(state, id),
+            getNode: (id: string) => getNode(stateRef.current, id),
+            hasNode: (id: string) => hasNode(stateRef.current, id),
+            isExpanded: (id: string) => isExpanded(stateRef.current, id),
+            isLoading: (id: string | null) => isLoading(stateRef.current, id),
+            isLoadingData: (id: string) => isLoadingData(stateRef.current, id),
+            getAncestorIds: (id: string) => getAncestorIds(stateRef.current, id),
+            getDescendantIds: (id: string) => getDescendantIds(stateRef.current, id),
+            getSiblingIds: (id: string) => getSiblingIds(stateRef.current, id),
+            getNodeLevel: (id: string) => getNodeLevel(stateRef.current, id),
+            getParent: (id: string) => getParent(stateRef.current, id),
+            getChildren: (id: string) => getChildren(stateRef.current, id),
+            getRootNodes: () => getRootNodes(stateRef.current),
+            needsChildrenLoad: (id: string) => needsChildrenLoad(stateRef.current, id),
+            hasMoreChildren: (id: string) => hasMoreChildren(stateRef.current, id),
+            areAncestorsExpanded: (id: string) => areAncestorsExpanded(stateRef.current, id),
+            getPathToNode: (id: string) => getPathToNode(stateRef.current, id),
         }),
-        [state]
+        [] // Empty deps - selectors are stable, read from ref
     );
 
-    return {
-        state,
-        flatNodes,
-        ...boundActions,
-        ...selectors,
-    };
+    return useMemo(
+        () => ({
+            state,
+            flatNodes,
+            ...boundActions,
+            ...selectors,
+        }),
+        [state, flatNodes, boundActions, selectors]
+    );
 }

@@ -1,18 +1,19 @@
 import {Button, Dialog, Input, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {useEffect, useId, useRef, type ReactElement} from 'react';
+import {useCallback, useEffect, useId, useMemo, useRef, type ReactElement} from 'react';
 
+import {ContentId} from '../../../../../app/content/ContentId';
 import {IssueType} from '../../../../../app/issue/IssueType';
 import {useI18n} from '../../../hooks/useI18n';
 import {useAssigneeSearch, useAssigneeSelection} from '../../selectors/assignee/hooks/useAssigneeSearch';
 import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
-import {IssueItemsSelector} from '../../selectors/issue-items/IssueItemsSelector';
+import {ContentCombobox} from '../../selectors/content/combobox/ContentCombobox';
 import {IssueSelectedItems} from './IssueSelectedItems';
 import {IssueSelectedDependencies} from './IssueSelectedDependencies';
 import {
     $newIssueDialog,
     $newIssueDialogCreateCount,
-    addNewIssueItems,
+    addNewIssueItemsByIds,
     removeNewIssueItemsByIds,
     setNewIssueAssignees,
     setNewIssueDescription,
@@ -97,6 +98,26 @@ export const NewIssueDialogContent = (): ReactElement => {
                               : createLabel;
     const isCreateDisabled = submitting || loading || title.trim().length === 0;
 
+    const selectedIds = useMemo(
+        () => items.map(item => item.getContentId().toString()),
+        [items],
+    );
+
+    const handleSelectionChange = useCallback((nextSelection: readonly string[]) => {
+        const prevSet = new Set(selectedIds);
+        const nextSet = new Set(nextSelection);
+
+        const addedIds = nextSelection.filter(id => !prevSet.has(id));
+        const removedIds = selectedIds.filter(id => !nextSet.has(id));
+
+        if (addedIds.length > 0) {
+            void addNewIssueItemsByIds([...addedIds]);
+        }
+        if (removedIds.length > 0) {
+            removeNewIssueItemsByIds(removedIds.map(id => new ContentId(id)));
+        }
+    }, [selectedIds]);
+
     const handleAssigneesChange = (next: readonly string[]) => {
         setNewIssueAssignees([...next]);
     };
@@ -173,16 +194,12 @@ export const NewIssueDialogContent = (): ReactElement => {
                     />
                 </div>
 
-                    <div className='flex flex-col gap-2.5'>
-                        <span className='text-md font-semibold'>{itemsLabel}</span>
-                        <IssueItemsSelector
-                            label={itemsLabel}
-                            selectedIds={items.map(item => item.getContentId())}
-                            disabled={submitting}
-                            onItemsAdded={addNewIssueItems}
-                            onItemsRemoved={removeNewIssueItemsByIds}
-                        />
-                    </div>
+                    <ContentCombobox
+                        label={itemsLabel}
+                        selection={selectedIds}
+                        onSelectionChange={handleSelectionChange}
+                        disabled={submitting}
+                    />
 
                     {items.length > 0 && (
                         <IssueSelectedItems
