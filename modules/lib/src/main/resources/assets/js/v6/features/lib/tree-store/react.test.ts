@@ -702,4 +702,70 @@ describe('useTreeStore', () => {
             expect(result.current.isExpanded('1')).toBe(true);
         });
     });
+
+    describe('reference stability', () => {
+        it('returns stable action references across renders', () => {
+            const {result, rerender} = renderHook(() => useTreeStore<TestData>());
+
+            const firstSetNode = result.current.setNode;
+            const firstSetNodes = result.current.setNodes;
+            const firstSetLoading = result.current.setLoading;
+            const firstClear = result.current.clear;
+
+            rerender();
+
+            expect(result.current.setNode).toBe(firstSetNode);
+            expect(result.current.setNodes).toBe(firstSetNodes);
+            expect(result.current.setLoading).toBe(firstSetLoading);
+            expect(result.current.clear).toBe(firstClear);
+        });
+
+        it('returns stable selector references across renders', () => {
+            const {result, rerender} = renderHook(() => useTreeStore<TestData>());
+
+            const firstGetNode = result.current.getNode;
+            const firstIsLoading = result.current.isLoading;
+            const firstHasNode = result.current.hasNode;
+
+            rerender();
+
+            expect(result.current.getNode).toBe(firstGetNode);
+            expect(result.current.isLoading).toBe(firstIsLoading);
+            expect(result.current.hasNode).toBe(firstHasNode);
+        });
+
+        it('returns stable action references after state changes', () => {
+            const {result} = renderHook(() => useTreeStore<TestData>());
+
+            const firstSetNode = result.current.setNode;
+            const firstSetLoading = result.current.setLoading;
+
+            // Modify state
+            act(() => {
+                result.current.setNode({id: '1', data: {name: 'Test'}});
+                result.current.setRootIds(['1']);
+            });
+
+            // Actions should still be the same reference
+            expect(result.current.setNode).toBe(firstSetNode);
+            expect(result.current.setLoading).toBe(firstSetLoading);
+        });
+
+        it('returns stable selector references after state changes', () => {
+            const {result} = renderHook(() => useTreeStore<TestData>());
+
+            const firstGetNode = result.current.getNode;
+            const firstIsLoading = result.current.isLoading;
+
+            // Modify state
+            act(() => {
+                result.current.setNode({id: '1', data: {name: 'Test'}});
+                result.current.setRootIds(['1']);
+            });
+
+            // Selectors should still be the same reference
+            expect(result.current.getNode).toBe(firstGetNode);
+            expect(result.current.isLoading).toBe(firstIsLoading);
+        });
+    });
 });

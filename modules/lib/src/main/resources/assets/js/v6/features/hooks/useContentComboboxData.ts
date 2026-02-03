@@ -180,10 +180,30 @@ export function useContentComboboxData(
     // Create stable filter key for dependency tracking
     const filterKey = useMemo(() => createFilterKey(filters), [filters]);
 
+    // Ref to access current filters without adding to callback dependencies.
+    // The filter reset effect handles filter changes by resetting treeInitialized,
+    // which triggers re-initialization with the new filters.
+    const filtersRef = useRef(filters);
+    filtersRef.current = filters;
+
     // Tree state
     const tree = useTreeStore<ContentComboboxNodeData>();
     const [treeInitialized, setTreeInitialized] = useState(false);
     const [totalRootChildren, setTotalRootChildren] = useState<number | undefined>(undefined);
+
+    // Destructure stable action/selector references from tree to use in callbacks
+    const {
+        setLoading: treeSetLoading,
+        setNodes: treeSetNodes,
+        setRootIds: treeSetRootIds,
+        setChildren: treeSetChildren,
+        appendChildren: treeAppendChildren,
+        setNode: treeSetNode,
+        clear: treeClear,
+        getNode: treeGetNode,
+        hasMoreChildren: treeHasMoreChildren,
+        isLoading: treeIsLoading,
+    } = tree;
 
     // Flat list state
     const [flatItems, setFlatItems] = useState<ContentComboboxFlatNode[]>([]);
@@ -226,7 +246,7 @@ export function useContentComboboxData(
                 parentId: null,
                 hasChildren: false,
                 isExpanded: false,
-                isLoading: tree.isLoading(null),
+                isLoading: treeIsLoading(null),
                 isLoadingData: false,
                 nodeType: 'loading',
             };
@@ -234,9 +254,9 @@ export function useContentComboboxData(
         }
 
         return nodes;
-    }, [tree.flatNodes, tree.state.rootIds.length, treeHasMore, tree]);
+    }, [tree.flatNodes, tree.state.rootIds.length, treeHasMore, treeIsLoading]);
 
-    const isTreeLoading = tree.isLoading(null);
+    const isTreeLoading = treeIsLoading(null);
 
     // Reset state when filters change
     useEffect(() => {
@@ -245,7 +265,7 @@ export function useContentComboboxData(
         flatRequestIdRef.current++;
 
         // Reset tree state using clear() to properly clear expandedIds
-        tree.clear();
+        treeClear();
         setTotalRootChildren(undefined);
         setTreeInitialized(false);
 
@@ -257,12 +277,12 @@ export function useContentComboboxData(
 
         // Reset error
         setError(null);
-    }, [filterKey, tree]);
+    }, [filterKey, treeClear]);
 
     // Load root content for tree view
     const loadTree = useCallback(async (): Promise<void> => {
         const currentRequestId = ++treeRequestIdRef.current;
-        tree.setLoading(null, true);
+        treeSetLoading(null, true);
         setError(null);
 
         try {
@@ -272,7 +292,7 @@ export function useContentComboboxData(
             request.setExpand(Expand.SUMMARY);
             request.setParentPath(null);
             request.setChildOrder(createDefaultChildOrder());
-            applyContentFilters(request, filters);
+            applyContentFilters(request, filtersRef.current);
 
             const items = await request.sendAndParse();
             const metadata = request.getMetadata();
@@ -286,8 +306,8 @@ export function useContentComboboxData(
 
             // Update local tree state
             const nodeOptions = items.map((item) => toNodeOptionsFromTreeItem(item, null));
-            tree.setNodes(nodeOptions);
-            tree.setRootIds(items.map((item) => item.getId()));
+            treeSetNodes(nodeOptions);
+            treeSetRootIds(items.map((item) => item.getId()));
             setTotalRootChildren(metadata.getTotalHits());
             setTreeInitialized(true);
         } catch (err) {
@@ -297,17 +317,17 @@ export function useContentComboboxData(
             }
         } finally {
             if (currentRequestId === treeRequestIdRef.current) {
-                tree.setLoading(null, false);
+                treeSetLoading(null, false);
             }
         }
-    }, [tree, filters]);
+    }, [treeSetLoading, treeSetNodes, treeSetRootIds]);
 
     // Load more root items for tree pagination
     const loadMoreRoot = useCallback(async (): Promise<void> => {
-        if (!treeHasMore || tree.isLoading(null)) return;
+        if (!treeHasMore || treeIsLoading(null)) return;
 
         const currentRequestId = ++treeRequestIdRef.current;
-        tree.setLoading(null, true);
+        treeSetLoading(null, true);
         setError(null);
 
         try {
@@ -319,7 +339,7 @@ export function useContentComboboxData(
             request.setExpand(Expand.SUMMARY);
             request.setParentPath(null);
             request.setChildOrder(createDefaultChildOrder());
-            applyContentFilters(request, filters);
+            applyContentFilters(request, filtersRef.current);
 
             const items = await request.sendAndParse();
 
@@ -332,9 +352,9 @@ export function useContentComboboxData(
 
             // Append to tree state
             const nodeOptions = items.map((item) => toNodeOptionsFromTreeItem(item, null));
-            tree.setNodes(nodeOptions);
+            treeSetNodes(nodeOptions);
             const newRootIds = [...tree.state.rootIds, ...items.map((item) => item.getId())];
-            tree.setRootIds(newRootIds);
+            treeSetRootIds(newRootIds);
         } catch (err) {
             if (currentRequestId === treeRequestIdRef.current) {
                 setError(err instanceof Error ? err : new Error('Failed to load more content'));
@@ -342,19 +362,19 @@ export function useContentComboboxData(
             }
         } finally {
             if (currentRequestId === treeRequestIdRef.current) {
-                tree.setLoading(null, false);
+                treeSetLoading(null, false);
             }
         }
-    }, [tree, filters, treeHasMore]);
+    }, [tree.state.rootIds, treeHasMore, treeIsLoading, treeSetLoading, treeSetNodes, treeSetRootIds]);
 
     // Load children for a parent node
     const loadChildren = useCallback(async (parentId: string): Promise<void> => {
         const currentRequestId = ++treeRequestIdRef.current;
-        tree.setLoading(parentId, true);
+        treeSetLoading(parentId, true);
         setError(null);
 
         try {
-            const parentNode = tree.getNode(parentId);
+            const parentNode = treeGetNode(parentId);
             const parentContent = parentNode?.data?.item?.getContentSummary();
 
             const request = new ContentTreeSelectorQueryRequest<ContentTreeSelectorItem>();
@@ -367,7 +387,7 @@ export function useContentComboboxData(
                 request.setChildOrder(parentContent.getChildOrder());
             }
 
-            applyContentFilters(request, filters);
+            applyContentFilters(request, filtersRef.current);
 
             const items = await request.sendAndParse();
             const metadata = request.getMetadata();
@@ -382,9 +402,9 @@ export function useContentComboboxData(
 
             // Update tree state
             const nodeOptions = items.map((item) => toNodeOptionsFromTreeItem(item, parentId));
-            tree.setNodes(nodeOptions);
-            tree.setChildren(parentId, items.map((item) => item.getId()));
-            tree.setNode({id: parentId, totalChildren});
+            treeSetNodes(nodeOptions);
+            treeSetChildren(parentId, items.map((item) => item.getId()));
+            treeSetNode({id: parentId, totalChildren});
         } catch (err) {
             if (currentRequestId === treeRequestIdRef.current) {
                 setError(err instanceof Error ? err : new Error('Failed to load children'));
@@ -392,20 +412,20 @@ export function useContentComboboxData(
             }
         } finally {
             if (currentRequestId === treeRequestIdRef.current) {
-                tree.setLoading(parentId, false);
+                treeSetLoading(parentId, false);
             }
         }
-    }, [tree, filters]);
+    }, [treeSetLoading, treeGetNode, treeSetNodes, treeSetChildren, treeSetNode]);
 
     // Load more children for pagination
     const loadMoreChildren = useCallback(async (parentId: string): Promise<void> => {
-        if (!tree.hasMoreChildren(parentId) || tree.isLoading(parentId)) return;
+        if (!treeHasMoreChildren(parentId) || treeIsLoading(parentId)) return;
 
-        const node = tree.getNode(parentId);
+        const node = treeGetNode(parentId);
         if (!node) return;
 
         const currentRequestId = ++treeRequestIdRef.current;
-        tree.setLoading(parentId, true);
+        treeSetLoading(parentId, true);
         setError(null);
 
         try {
@@ -422,7 +442,7 @@ export function useContentComboboxData(
                 request.setChildOrder(parentContent.getChildOrder());
             }
 
-            applyContentFilters(request, filters);
+            applyContentFilters(request, filtersRef.current);
 
             const items = await request.sendAndParse();
 
@@ -435,8 +455,8 @@ export function useContentComboboxData(
 
             // Append to tree state
             const nodeOptions = items.map((item) => toNodeOptionsFromTreeItem(item, parentId));
-            tree.setNodes(nodeOptions);
-            tree.appendChildren(parentId, items.map((item) => item.getId()));
+            treeSetNodes(nodeOptions);
+            treeAppendChildren(parentId, items.map((item) => item.getId()));
         } catch (err) {
             if (currentRequestId === treeRequestIdRef.current) {
                 setError(err instanceof Error ? err : new Error('Failed to load more children'));
@@ -444,10 +464,10 @@ export function useContentComboboxData(
             }
         } finally {
             if (currentRequestId === treeRequestIdRef.current) {
-                tree.setLoading(parentId, false);
+                treeSetLoading(parentId, false);
             }
         }
-    }, [tree, filters]);
+    }, [treeHasMoreChildren, treeIsLoading, treeGetNode, treeSetLoading, treeSetNodes, treeAppendChildren]);
 
     // Search / load flat list content
     const search = useCallback(async (query: string): Promise<void> => {
@@ -465,7 +485,7 @@ export function useContentComboboxData(
             request.setExpand(Expand.SUMMARY);
             request.setSearchString(query);
             request.setAppendLoadResults(false);
-            applyContentFilters(request, filters);
+            applyContentFilters(request, filtersRef.current);
 
             const contents = await request.sendAndParse();
             const metadata = request.getMetadata();
@@ -506,7 +526,7 @@ export function useContentComboboxData(
                 setIsFlatLoading(false);
             }
         }
-    }, [filters]);
+    }, []);
 
     // Load more flat list items
     const loadMoreFlat = useCallback(async (): Promise<void> => {
@@ -525,7 +545,7 @@ export function useContentComboboxData(
             request.setExpand(Expand.SUMMARY);
             request.setSearchString(query);
             request.setAppendLoadResults(false);
-            applyContentFilters(request, filters);
+            applyContentFilters(request, filtersRef.current);
 
             const contents = await request.sendAndParse();
             const metadata = request.getMetadata();
@@ -565,14 +585,14 @@ export function useContentComboboxData(
                 setIsFlatLoadingMore(false);
             }
         }
-    }, [filters, flatHasMore, isFlatLoading, isFlatLoadingMore]);
+    }, [flatHasMore, isFlatLoading, isFlatLoadingMore]);
 
     // Reset all state
     const reset = useCallback(() => {
         treeRequestIdRef.current++;
         flatRequestIdRef.current++;
 
-        tree.clear();
+        treeClear();
         setTotalRootChildren(undefined);
         setTreeInitialized(false);
 
@@ -582,7 +602,7 @@ export function useContentComboboxData(
         currentSearchQueryRef.current = '';
 
         setError(null);
-    }, [tree]);
+    }, [treeClear]);
 
     // Retry last failed action
     const retry = useCallback(() => {

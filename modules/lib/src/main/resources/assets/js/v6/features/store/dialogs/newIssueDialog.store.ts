@@ -146,6 +146,23 @@ export const addNewIssueItems = (items: ContentSummaryAndCompareStatus[]): void 
     reloadDependenciesDebounced();
 };
 
+export const addNewIssueItemsByIds = async (ids: string[]): Promise<void> => {
+    if (ids.length === 0) {
+        return;
+    }
+
+    const state = $newIssueDialog.get();
+    const existingIds = new Set(state.items.map(item => item.getContentId().toString()));
+    const newIds = ids.filter(id => !existingIds.has(id)).map(id => new ContentId(id));
+
+    if (newIds.length === 0) {
+        return;
+    }
+
+    const items = await fetchContentSummariesWithStatus(newIds);
+    addNewIssueItems(items);
+};
+
 export const removeNewIssueItemsByIds = (ids: ContentId[]): void => {
     if (ids.length === 0) {
         return;

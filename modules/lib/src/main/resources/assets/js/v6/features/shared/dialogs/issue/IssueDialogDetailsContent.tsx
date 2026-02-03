@@ -11,8 +11,7 @@ import {
     type ReactElement,
 } from 'react';
 
-import type {ContentId} from '../../../../../app/content/ContentId';
-import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
+import {ContentId} from '../../../../../app/content/ContentId';
 import {IssueStatus} from '../../../../../app/issue/IssueStatus';
 import {IssueType} from '../../../../../app/issue/IssueType';
 import {useI18n} from '../../../hooks/useI18n';
@@ -41,11 +40,10 @@ import {
     publishItems,
     syncPublishDialogContext,
 } from '../../../store/dialogs/publishDialog.store';
-import {uniqueIds} from '../../../utils/cms/content/ids';
 import {createDebounce} from '../../../utils/timing/createDebounce';
 import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
 import {useAssigneeSearch, useAssigneeSelection} from '../../selectors/assignee/hooks/useAssigneeSearch';
-import {IssueItemsSelector} from '../../selectors/issue-items/IssueItemsSelector';
+import {ContentCombobox} from '../../selectors/content/combobox/ContentCombobox';
 import {IssueStatusBadge} from '../../status/IssueStatusBadge';
 import {IssueDialogSelector} from './IssueDialogSelector';
 import {IssueIcon} from './IssueIcon';
@@ -249,6 +247,10 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         () => issueData?.getPublishRequest()?.getItemsIds() ?? [],
         [issueData],
     );
+    const selectedItemIdStrings = useMemo(
+        () => selectedItemIds.map(id => id.toString()),
+        [selectedItemIds],
+    );
     const selectedItemKey = useMemo(
         () => selectedItemIds.map(id => id.toString()).join('|'),
         [selectedItemIds],
@@ -331,32 +333,24 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         debouncedUpdateAssignees([...next]);
     };
 
-    const scheduleItemsUpdate = useCallback((nextIds: ContentId[]): void => {
+    const handleSelectionChange = useCallback((nextSelection: readonly string[]): void => {
+        if (!issueData) {
+            return;
+        }
+        const nextIds = nextSelection.map(id => new ContentId(id));
         pendingItemIdsRef.current = nextIds;
         debouncedUpdateItems(nextIds);
-    }, [debouncedUpdateItems]);
+    }, [issueData, debouncedUpdateItems]);
 
-    const handleItemsAdded = useCallback((items: ContentSummaryAndCompareStatus[]): void => {
+    const handleItemRemoved = useCallback((id: ContentId): void => {
         if (!issueData) {
             return;
         }
-
         const baseIds = pendingItemIdsRef.current ?? selectedItemIds;
-        const addedIds = items.map(item => item.getContentId());
-        const nextIds = uniqueIds([...baseIds, ...addedIds]);
-        scheduleItemsUpdate(nextIds);
-    }, [issueData, scheduleItemsUpdate, selectedItemIds]);
-
-    const handleItemsRemoved = useCallback((ids: ContentId[]): void => {
-        if (!issueData) {
-            return;
-        }
-
-        const baseIds = pendingItemIdsRef.current ?? selectedItemIds;
-        const removeSet = new Set(ids.map(id => id.toString()));
-        const nextIds = baseIds.filter(id => !removeSet.has(id.toString()));
-        scheduleItemsUpdate(nextIds);
-    }, [issueData, scheduleItemsUpdate, selectedItemIds]);
+        const nextIds = baseIds.filter(baseId => !baseId.equals(id));
+        pendingItemIdsRef.current = nextIds;
+        debouncedUpdateItems(nextIds);
+    }, [issueData, debouncedUpdateItems, selectedItemIds]);
 
     const handleIncludeChildrenChange = useCallback((id: ContentId, includeChildren: boolean): void => {
         void updateIssueDialogItemIncludeChildren(id, includeChildren);
@@ -515,16 +509,12 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                         </Tab.Content>
 
                         <Tab.Content value='items' className='mt-0 min-h-0 flex flex-1 flex-col'>
-                            <div className='flex flex-col gap-2.5'>
-                                <span className='text-md font-semibold text-subtle'>{itemsLabel}</span>
-                                <IssueItemsSelector
-                                    label={itemsLabel}
-                                    selectedIds={selectedItemIds}
-                                    disabled={isItemsDisabled}
-                                    onItemsAdded={handleItemsAdded}
-                                    onItemsRemoved={handleItemsRemoved}
-                                />
-                            </div>
+                            <ContentCombobox
+                                label={itemsLabel}
+                                selection={selectedItemIdStrings}
+                                onSelectionChange={handleSelectionChange}
+                                disabled={isItemsDisabled}
+                            />
                             <div className='mt-2.5 min-h-0 flex-1 overflow-y-auto'>
                                 <div className='flex flex-col gap-7.5'>
                                     {items.length > 0 && (
@@ -534,7 +524,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                             disabled={isItemsDisabled}
                                             loading={itemsLoading}
                                             onIncludeChildrenChange={handleIncludeChildrenChange}
-                                            onRemoveItem={(id) => handleItemsRemoved([id])}
+                                            onRemoveItem={handleItemRemoved}
                                         />
                                     )}
                                     {dependants.length > 0 && (

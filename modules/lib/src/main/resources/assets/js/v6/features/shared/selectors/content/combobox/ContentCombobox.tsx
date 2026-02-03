@@ -9,6 +9,12 @@ import {ContentComboboxList} from './ContentComboboxList';
 import {useContentComboboxController} from './useContentComboboxController';
 
 //
+// * Constants
+//
+
+const EMPTY_STRING_ARRAY: string[] = [];
+
+//
 // * Types
 //
 
@@ -54,14 +60,13 @@ export const ContentCombobox = ({
     emptyLabel,
     className,
     'aria-label': ariaLabel,
-    contentTypeNames = [],
-    allowedContentPaths = [],
+    contentTypeNames = EMPTY_STRING_ARRAY,
+    allowedContentPaths = EMPTY_STRING_ARRAY,
     contextContent,
     applicationKey,
 }: ContentComboboxProps): ReactElement => {
     // Accessibility IDs
     const labelId = useId();
-    const inputId = useId();
 
     // i18n
     const defaultPlaceholder = useI18n('field.search.placeholder');
@@ -82,6 +87,7 @@ export const ContentCombobox = ({
     // Controller hook handles all state and logic
     const {
         virtuosoRef,
+        inputRef,
         open,
         isTreeView,
         inputValue,
@@ -123,7 +129,6 @@ export const ContentCombobox = ({
             {label && (
                 <label
                     id={labelId}
-                    htmlFor={inputId}
                     className='text-md font-semibold text-subtle'
                 >
                     {label}
@@ -160,7 +165,7 @@ export const ContentCombobox = ({
                                 />
                             </Tooltip>
                             <Combobox.Input
-                                id={inputId}
+                                ref={inputRef}
                                 placeholder={resolvedSearchPlaceholder}
                                 aria-labelledby={label ? labelId : undefined}
                                 aria-label={!label ? resolvedAriaLabel : undefined}
