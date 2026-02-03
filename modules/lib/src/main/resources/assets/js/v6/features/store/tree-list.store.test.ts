@@ -523,7 +523,7 @@ describe('tree-list.store', () => {
                 // Setup: parent node in tree with path in cache
                 const parentContent = createMockContentWithParent('parent', '/');
                 setContents([parentContent]);
-                addTreeNode({id: 'parent', data: createNodeData('parent'), hasChildren: true});
+                addTreeNode({id: 'parent', data: createNodeData('parent'), hasChildren: true, childIds: ['child1']});
                 setTreeRootIds(['parent']);
                 expandNode('parent');
 
@@ -535,6 +535,24 @@ describe('tree-list.store', () => {
                 expect(hasTreeNode('child')).toBe(true);
                 const parent = getTreeNode('parent');
                 expect(parent?.childIds).toContain('child');
+            });
+
+            it('does not add a new content to the tree if the parent did not have children loaded yet ', () => {
+                // Setup: parent node in tree with path in cache
+                const parentContent = createMockContentWithParent('parent', '/');
+                setContents([parentContent]);
+                addTreeNode({id: 'parent', data: createNodeData('parent'), hasChildren: true});
+                setTreeRootIds(['parent']);
+                expandNode('parent');
+
+                // Emit: child content created under parent
+                const childContent = createMockContentWithParent('child', '/parent', false, 'New Child');
+                emitContentCreated([childContent] as ContentSummaryAndCompareStatus[]);
+
+                // Assert: child appears in tree
+                expect(!hasTreeNode('child')).toBe(true);
+                const parent = getTreeNode('parent');
+                expect(parent?.childIds).not.toContain('child');
             });
 
             it('does not add content when parent is not in tree', () => {
@@ -667,7 +685,7 @@ describe('tree-list.store', () => {
                 // Setup: parent node in tree with path in cache
                 const parentContent = createMockContentWithParent('parent', '/');
                 setContents([parentContent]);
-                addTreeNode({id: 'parent', data: createNodeData('parent'), hasChildren: true});
+                addTreeNode({id: 'parent', data: createNodeData('parent'), hasChildren: true, childIds: ['child1']});
                 setTreeRootIds(['parent']);
                 expandNode('parent');
 
@@ -679,6 +697,24 @@ describe('tree-list.store', () => {
                 expect(hasTreeNode('duplicate')).toBe(true);
                 const parent = getTreeNode('parent');
                 expect(parent?.childIds).toContain('duplicate');
+            });
+
+            it('does not add a duplicated content to the tree when parent children are not loaded yet', () => {
+                // Setup: parent node in tree with path in cache
+                const parentContent = createMockContentWithParent('parent', '/');
+                setContents([parentContent]);
+                addTreeNode({id: 'parent', data: createNodeData('parent'), hasChildren: true});
+                setTreeRootIds(['parent']);
+                expandNode('parent');
+
+                // Emit: duplicated content
+                const duplicatedContent = createMockContentWithParent('duplicate', '/parent', false, 'Duplicated');
+                emitContentDuplicated([duplicatedContent] as ContentSummaryAndCompareStatus[]);
+
+                // Assert: duplicate appears in tree
+                expect(hasTreeNode('duplicate')).not.toBe(true);
+                const parent = getTreeNode('parent');
+                expect(parent?.childIds).not.toContain('duplicate');
             });
 
             it('does not add duplicated content when parent is not in tree', () => {
