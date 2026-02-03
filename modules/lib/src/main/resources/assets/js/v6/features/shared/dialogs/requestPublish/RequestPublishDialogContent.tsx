@@ -142,7 +142,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
     return (
         <Dialog.Content
             data-component={REQUEST_PUBLISH_DIALOG_CONTENT_NAME}
-            className='sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-236 gap-7.5 px-5'
+            className='sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 gap-7.5 px-5'
         >
             <Dialog.Header className='grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 px-5'>
                 <div className='flex min-w-0 items-center gap-2.5'>
