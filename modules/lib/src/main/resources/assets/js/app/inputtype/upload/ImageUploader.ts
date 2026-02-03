@@ -379,7 +379,7 @@ export class ImageUploader
     }
 
     private getMetaProperty(content: Content, propertyName: string): Property {
-        const extraDatas = content.getAllExtraData();
+        const extraDatas = content.getMixins();
         for (const extraData of extraDatas) {
             const metaProperty = extraData.getData().getProperty(propertyName);
             if (metaProperty) {

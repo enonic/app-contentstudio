@@ -1,14 +1,14 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {XDataJson} from '../resource/json/XDataJson';
-import {XDataName} from './XDataName';
+import {MixinDescriptorJson} from '../resource/json/MixinDescriptorJson';
+import {MixinName} from './MixinName';
 import {Schema, SchemaBuilder} from '@enonic/lib-admin-ui/schema/Schema';
 import {FormItem} from '@enonic/lib-admin-ui/form/FormItem';
 import {Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
 import {FormItemFactoryImpl} from '@enonic/lib-admin-ui/form/FormItemFactoryImpl';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 
-export class XData
+export class MixinDescriptor
     extends Schema
     implements Equitable {
 
@@ -18,19 +18,19 @@ export class XData
 
     private optional: boolean;
 
-    constructor(builder: XDataBuilder) {
+    constructor(builder: MixinDescriptorBuilder) {
         super(builder);
         this.formItems = builder.formItems;
         this.schemaKey = builder.schemaKey;
         this.optional = builder.optional;
     }
 
-    static fromJson(json: XDataJson): XData {
-        return new XDataBuilder().fromXDataJson(json).build();
+    static fromJson(json: MixinDescriptorJson): MixinDescriptor {
+        return new MixinDescriptorBuilder().fromMixinDescriptorJson(json).build();
     }
 
-    getXDataName(): XDataName {
-        return new XDataName(this.getName());
+    getMixinName(): MixinName {
+        return new MixinName(this.getName());
     }
 
     getFormItems(): FormItem[] {
@@ -47,7 +47,7 @@ export class XData
 
     equals(o: Equitable): boolean {
 
-        if (!ObjectHelper.iFrameSafeInstanceOf(o, XData)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, MixinDescriptor)) {
             return false;
         }
 
@@ -55,7 +55,7 @@ export class XData
             return false;
         }
 
-        let other = o as XData;
+        let other = o as MixinDescriptor;
 
         if (!ObjectHelper.stringEquals(this.schemaKey, other.schemaKey)) {
             return false;
@@ -77,7 +77,7 @@ export class XData
 
 }
 
-export class XDataBuilder
+export class MixinDescriptorBuilder
     extends SchemaBuilder {
 
     schemaKey: string;
@@ -86,7 +86,7 @@ export class XDataBuilder
 
     optional: boolean;
 
-    constructor(source?: XData) {
+    constructor(source?: MixinDescriptor) {
         super(source);
         if (source) {
             this.schemaKey = source.getSchemaKey();
@@ -95,27 +95,27 @@ export class XDataBuilder
         }
     }
 
-    fromXDataJson(xDataJson: XDataJson): XDataBuilder {
+    fromMixinDescriptorJson(mixinDescriptorJson: MixinDescriptorJson): MixinDescriptorBuilder {
 
-        super.fromSchemaJson(xDataJson);
+        super.fromSchemaJson(mixinDescriptorJson);
 
         this.formItems = [];
-        if (xDataJson.form && xDataJson.form.formItems) {
-            const applicationKey: ApplicationKey = new XDataName(this.name).getApplicationKey();
-            xDataJson.form.formItems.forEach((formItemJson) => {
+        if (mixinDescriptorJson.form && mixinDescriptorJson.form.formItems) {
+            const applicationKey: ApplicationKey = new MixinName(this.name).getApplicationKey();
+            mixinDescriptorJson.form.formItems.forEach((formItemJson) => {
                 const formItem: FormItem = FormItemFactoryImpl.get().createFormItem(formItemJson, applicationKey);
                 if (formItem) {
                     this.formItems.push(formItem);
                 }
             });
         }
-        this.schemaKey = 'x-data:' + this.name;
-        this.optional = xDataJson.isOptional;
+        this.schemaKey = 'mixin:' + this.name;
+        this.optional = mixinDescriptorJson.isOptional;
         return this;
     }
 
-    build(): XData {
-        return new XData(this);
+    build(): MixinDescriptor {
+        return new MixinDescriptor(this);
     }
 
 }

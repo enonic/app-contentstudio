@@ -1,12 +1,12 @@
 import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {XDataListJson} from './json/XDataListJson';
-import {XData} from '../content/XData';
-import {XDataJson} from './json/XDataJson';
+import {MixinDescriptorListJson} from './json/MixinDescriptorListJson';
+import {MixinDescriptor} from '../content/MixinDescriptor';
+import {MixinDescriptorJson} from './json/MixinDescriptorJson';
 import {ContentId} from '../content/ContentId';
 import {XDataContextResourceRequest} from './XDataContextResourceRequest';
 
 export class GetContentXDataRequest
-    extends XDataContextResourceRequest<XData[]> {
+    extends XDataContextResourceRequest<MixinDescriptor[]> {
 
     private contentId: ContentId;
 
@@ -22,8 +22,8 @@ export class GetContentXDataRequest
         };
     }
 
-    protected parseResponse(response: JsonResponse<XDataListJson>): XData[] {
-        return response.getResult().xdatas.map((xDataJson: XDataJson) => {
+    protected parseResponse(response: JsonResponse<MixinDescriptorListJson>): MixinDescriptor[] {
+        return response.getResult().mixins.map((xDataJson: MixinDescriptorJson) => {
             return this.fromJsonToXData(xDataJson);
         });
     }

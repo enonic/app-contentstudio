@@ -1,7 +1,7 @@
 import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
-import {ExtraData} from '../content/ExtraData';
+import {Mixin} from '../content/Mixin';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ContentName} from '../content/ContentName';
@@ -16,7 +16,7 @@ export class UpdateContentRequest
 
     private data: PropertyTree;
 
-    private meta: ExtraData[];
+    private meta: Mixin[];
 
     private displayName: string;
 
@@ -45,7 +45,7 @@ export class UpdateContentRequest
         return this;
     }
 
-    setExtraData(extraData: ExtraData[]): UpdateContentRequest {
+    setExtraData(extraData: Mixin[]): UpdateContentRequest {
         this.meta = extraData;
         return this;
     }
@@ -65,7 +65,7 @@ export class UpdateContentRequest
             .setContentName(content.getName())
             .setDisplayName(content.getDisplayName())
             .setData(content.getContentData())
-            .setExtraData(content.getAllExtraData());
+            .setExtraData(content.getMixins());
     }
 
     getParams(): object {
@@ -76,7 +76,7 @@ export class UpdateContentRequest
             requireValid: this.requireValid,
             contentName: !!contentName ? contentName.trim() : '',
             data: this.data.toJson(),
-            meta: (this.meta || []).map((extraData: ExtraData) => extraData.toJson()),
+            meta: (this.meta || []).map((extraData: Mixin) => extraData.toJson()),
             displayName: !!this.displayName ? this.displayName.trim() : '',
         };
     }

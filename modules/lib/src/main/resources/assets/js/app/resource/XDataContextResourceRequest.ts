@@ -1,5 +1,5 @@
-import {XData} from '../content/XData';
-import {XDataJson} from './json/XDataJson';
+import {MixinDescriptor} from '../content/MixinDescriptor';
+import {MixinDescriptorJson} from './json/MixinDescriptorJson';
 import {CmsProjectBasedResourceRequest} from '../wizard/CmsProjectBasedResourceRequest';
 import {ContentPath} from '../content/ContentPath';
 
@@ -8,11 +8,11 @@ export abstract class XDataContextResourceRequest<PARSED_TYPE>
 
     protected constructor() {
         super();
-        this.addRequestPathElements('schema', 'xdata');
+        this.addRequestPathElements('schema', 'mixins');
         this.setContentRootPath(ContentPath.CONTENT_ROOT);
     }
 
-    fromJsonToXData(json: XDataJson) {
-        return XData.fromJson(json);
+    fromJsonToXData(json: MixinDescriptorJson) {
+        return MixinDescriptor.fromJson(json);
     }
 }

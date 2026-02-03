@@ -59,12 +59,12 @@ import {ContentPath} from '../content/ContentPath';
 import {ContentPathPrettifier} from '../content/ContentPathPrettifier';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentUnnamed} from '../content/ContentUnnamed';
-import {ExtraData} from '../content/ExtraData';
+import {Mixin} from '../content/Mixin';
 import {PageTemplate} from '../content/PageTemplate';
 import {Site} from '../content/Site';
 import {WorkflowState} from '../content/WorkflowState';
-import {XData} from '../content/XData';
-import {XDataName} from '../content/XDataName';
+import {MixinDescriptor} from '../content/MixinDescriptor';
+import {MixinName} from '../content/MixinName';
 import {ContentFormContext} from '../ContentFormContext';
 import {BeforeContentSavedEvent} from '../event/BeforeContentSavedEvent';
 import {ContentLanguageUpdatedEvent} from '../event/ContentLanguageUpdatedEvent';
@@ -528,7 +528,7 @@ export class ContentWizardPanel
         return wizardActions;
     }
 
-    fetchContentXData(): Q.Promise<XData[]> {
+    fetchContentXData(): Q.Promise<MixinDescriptor[]> {
         return new GetContentXDataRequest(this.getPersistedItem().getContentId()).sendAndParse();
     }
 
@@ -1089,7 +1089,7 @@ export class ContentWizardPanel
                                 viewedContent.getPage().getConfig());
                         }
                     }
-                    if (!ObjectHelper.arrayEquals(viewedContent.getAllExtraData(), persistedContent.getAllExtraData())) {
+                    if (!ObjectHelper.arrayEquals(viewedContent.getMixins(), persistedContent.getMixins())) {
                         console.warn(' inequality found in Content.meta');
                     }
                     if (!ObjectHelper.equals(viewedContent.getAttachments(), persistedContent.getAttachments())) {
@@ -1287,7 +1287,7 @@ export class ContentWizardPanel
         this.resetLastFocusedElement();
     }
 
-    private removeXDataSteps(xDatas: XData[]) {
+    private removeXDataSteps(xDatas: MixinDescriptor[]) {
         xDatas.forEach(xData => {
             const xDataName = xData.getName();
 
@@ -1749,7 +1749,7 @@ export class ContentWizardPanel
             const viewedContent: Content = this.assembleViewedContent(new ContentBuilder(this.getPersistedItem()), true).build();
 
             return this.generateDataAndXDataAfterLayout(content).then((data) => {
-                this.contentAfterLayout = content.newBuilder().setData(data.data).setExtraData(data.xData).build();
+                this.contentAfterLayout = content.newBuilder().setData(data.data).setMixins(data.xData).build();
 
                 if (!viewedContent.equals(this.contentAfterLayout)) {
                     this.updateWithContent(content);
@@ -1910,10 +1910,10 @@ export class ContentWizardPanel
         return AuthHelper.isContentAdmin() ? Q(true) :  ProjectHelper.isUserProjectOwner();
     }
 
-    private createXDataWizardStepForms(xDatas: XData[]): XDataWizardStepForm[] {
+    private createXDataWizardStepForms(xDatas: MixinDescriptor[]): XDataWizardStepForm[] {
         const added: XDataWizardStepForm[] = [];
 
-        xDatas.forEach((xData: XData) => {
+        xDatas.forEach((xData: MixinDescriptor) => {
             const stepForm: XDataWizardStepForm = new XDataWizardStepForm(xData);
             stepForm.onEnableChanged(this.dataChangedHandler);
             stepForm.onEnableChanged(() => this.getStepNavigatorContainer().checkAndMinimize());
@@ -1965,7 +1965,7 @@ export class ContentWizardPanel
 
         if (this.contentType) {
             const handler = AppHelper.debounce(() => {
-                return this.fetchContentXData().then((xDatas: XData[]) => {
+                return this.fetchContentXData().then((xDatas: MixinDescriptor[]) => {
                     this.removeXDataSteps(this.getXDatasToRemove(xDatas));
                     return this.addXDataSteps(this.getXDatasToAdd(xDatas)).then(() => {
                         this.notifyDataChanged();
@@ -1988,9 +1988,9 @@ export class ContentWizardPanel
         return this.siteModel;
     }
 
-    private getXDatasToRemove(xDatas: XData[]): XData[] {
+    private getXDatasToRemove(xDatas: MixinDescriptor[]): MixinDescriptor[] {
         return this.getXDataWizardSteps().filter(
-            (step: XDataWizardStep) => !xDatas.some((xData: XData) => xData.getXDataName().equals(step.getXDataName()))).map(
+            (step: XDataWizardStep) => !xDatas.some((xData: MixinDescriptor) => xData.getMixinName().equals(step.getXDataName()))).map(
             (step: XDataWizardStep) => step.getStepForm().getXData());
     }
 
@@ -2004,11 +2004,11 @@ export class ContentWizardPanel
         }) as XDataWizardStep[];
     }
 
-    private getXDatasToAdd(xDatas: XData[]): XData[] {
-        return xDatas.filter((xData: XData) => !this.xDataWizardStepForms.contains(xData.getName()));
+    private getXDatasToAdd(xDatas: MixinDescriptor[]): MixinDescriptor[] {
+        return xDatas.filter((xData: MixinDescriptor) => !this.xDataWizardStepForms.contains(xData.getName()));
     }
 
-    private addXDataSteps(xDatas: XData[]): Q.Promise<void> {
+    private addXDataSteps(xDatas: MixinDescriptor[]): Q.Promise<void> {
         const content: Content = this.getCurrentItem();
         const formViewLayoutPromises: Q.Promise<void>[] = [];
 
@@ -2026,7 +2026,7 @@ export class ContentWizardPanel
     }
 
     private layoutXDataWizardStepForm(content: Content, xDataStepForm: XDataWizardStepForm): Q.Promise<void> {
-        const extraData = content.getExtraDataByName(xDataStepForm.getXData().getXDataName());
+        const extraData = content.getMixinByName(xDataStepForm.getXData().getMixinName());
         const data: PropertyTree = extraData ? extraData.getData() : new PropertyTree();
 
         const xDataForm: Form = new FormBuilder().addFormItems(xDataStepForm.getXData().getFormItems()).build();
@@ -2115,7 +2115,7 @@ export class ContentWizardPanel
         this.displayValidationErrors(!this.isValid());
 
         return this.generateDataAndXDataAfterLayout(persistedItem).then((data) => {
-            this.contentAfterLayout = persistedItem.newBuilder().setData(data.data).setExtraData(data.xData).build();
+            this.contentAfterLayout = persistedItem.newBuilder().setData(data.data).setMixins(data.xData).build();
             return Q.resolve(persistedItem);
         });
 
@@ -2172,8 +2172,8 @@ export class ContentWizardPanel
         this.formMask.show();
 
         return new GetApplicationXDataRequest(this.getPersistedItem().getType(), applicationKey).sendAndParse().then(
-            (xDatas: XData[]) => {
-                const xDatasToAdd: XData[] = xDatas.filter((xData: XData) => !this.xDataWizardStepForms.contains(xData.getName()));
+            (xDatas: MixinDescriptor[]) => {
+                const xDatasToAdd: MixinDescriptor[] = xDatas.filter((xData: MixinDescriptor) => !this.xDataWizardStepForms.contains(xData.getName()));
 
                 const layoutPromises = [];
 
@@ -2218,7 +2218,7 @@ export class ContentWizardPanel
         this.formMask.show();
 
         return new GetApplicationXDataRequest(this.getPersistedItem().getType(), applicationKey).sendAndParse().then(
-            (xDatasToRemove: XData[]) => {
+            (xDatasToRemove: MixinDescriptor[]) => {
                 this.formMask.show();
                 this.removeXDataSteps(xDatasToRemove);
                 return xDatasToRemove.length;
@@ -2304,15 +2304,15 @@ export class ContentWizardPanel
             }
         }
 
-        const extraData: ExtraData[] = [];
+        const extraData: Mixin[] = [];
 
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
             if (!form.isOptional() || form.isEnabled()) {
-                extraData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), form.getData().copy()));
+                extraData.push(new Mixin(new MixinName(form.getXDataNameAsString()), form.getData().copy()));
             }
         });
 
-        viewedContentBuilder.setExtraData(extraData);
+        viewedContentBuilder.setMixins(extraData);
 
         viewedContentBuilder.setPage(this.assembleViewedPage()?.clone());
 
@@ -2408,8 +2408,8 @@ export class ContentWizardPanel
      */
     private updateXDataStepForms(content: Content, unchangedOnly: boolean = true) {
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
-            const xDataName: XDataName = new XDataName(form.getXDataNameAsString());
-            const extraData: ExtraData = content.getExtraDataByName(xDataName);
+            const xDataName: MixinName = new MixinName(form.getXDataNameAsString());
+            const extraData: Mixin = content.getMixinByName(xDataName);
 
             form.getData().unChanged(this.dataChangedHandler);
 
@@ -2801,14 +2801,14 @@ export class ContentWizardPanel
         });
     }
 
-    private makeXDataFormContext(xData: XData): ContentFormContext {
-        const formContext = this.formsContexts.get('xdata').cloneBuilder().setName(`__${xData.getXDataName()}__`).build();
+    private makeXDataFormContext(xData: MixinDescriptor): ContentFormContext {
+        const formContext = this.formsContexts.get('xdata').cloneBuilder().setName(`__${xData.getMixinName()}__`).build();
         this.formsContexts.set(xData.getName(), formContext);
 
         return formContext;
     }
 
-    private generateDataAndXDataAfterLayout(content: Content): Q.Promise<{data: PropertyTree, xData:  ExtraData[]}> {
+    private generateDataAndXDataAfterLayout(content: Content): Q.Promise<{data: PropertyTree, xData:  Mixin[]}> {
         const contentForm = this.createEmptyStepForm();
 
         return this.createEmptyXDataWizardStepForms().then((xDataForms) => {
@@ -2828,11 +2828,11 @@ export class ContentWizardPanel
 
             return Q.all(formViewLayoutPromises).then(() => {
 
-                const extraData: ExtraData[] = [];
+                const extraData: Mixin[] = [];
 
                 xDataForms.forEach((form: XDataWizardStepForm) => {
                     if (!form.isOptional() || form.isEnabled()) {
-                        extraData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), form.getData().copy()));
+                        extraData.push(new Mixin(new MixinName(form.getXDataNameAsString()), form.getData().copy()));
                     }
                 });
 
@@ -2850,8 +2850,8 @@ export class ContentWizardPanel
     private createEmptyXDataWizardStepForms(): Q.Promise<XDataWizardStepForm[]> {
         const result: XDataWizardStepForm[] = [];
 
-        return this.fetchContentXData().then((xDatas: XData[]) => {
-            xDatas.forEach((xData: XData) => {
+        return this.fetchContentXData().then((xDatas: MixinDescriptor[]) => {
+            xDatas.forEach((xData: MixinDescriptor) => {
                 result.push(new XDataWizardStepForm(xData));
             });
 

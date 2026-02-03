@@ -1,6 +1,6 @@
 import {ContentWizardStep} from './ContentWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
-import {XDataName} from '../content/XDataName';
+import {MixinName} from '../content/MixinName';
 
 export class XDataWizardStep
     extends ContentWizardStep {
@@ -13,7 +13,7 @@ export class XDataWizardStep
         return this.stepForm as XDataWizardStepForm;
     }
 
-    getXDataName(): XDataName {
+    getXDataName(): MixinName {
         return (this.stepForm as XDataWizardStepForm).getXDataName();
     }
 }

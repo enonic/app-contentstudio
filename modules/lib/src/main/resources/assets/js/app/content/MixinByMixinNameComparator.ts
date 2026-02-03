@@ -1,10 +1,10 @@
-import {ExtraData} from './ExtraData';
+import {Mixin} from './Mixin';
 import {Comparator} from '@enonic/lib-admin-ui/Comparator';
 
-export class ExtraDataByMixinNameComparator
-    implements Comparator<ExtraData> {
+export class MixinByMixinNameComparator
+    implements Comparator<Mixin> {
 
-    compare(a: ExtraData, b: ExtraData): number {
+    compare(a: Mixin, b: Mixin): number {
         let firstName: string;
         let secondName: string;
 
