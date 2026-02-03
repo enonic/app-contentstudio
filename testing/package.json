@@ -25,7 +25,7 @@
     "@wdio/spec-reporter": "^9.23.2",
     "allure-commandline": "^2.36.0",
     "properties-reader": "2.3.0",
-    "webdriverio": "9.23.2"
+    "webdriverio": "9.23.3"
   },
   "engines": {
     "node": ">=22.18.0",
