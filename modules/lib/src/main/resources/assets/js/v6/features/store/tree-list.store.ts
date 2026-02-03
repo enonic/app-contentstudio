@@ -355,9 +355,14 @@ function addContentToTree(content: ContentSummaryAndCompareStatus): void {
     const parentId = findParentIdByPath(content);
 
     updateTreeState((state) => {
-        // Only add if parent is in tree (or root level with items loaded)
-        const shouldAdd = parentId === null ? state.rootIds.length > 0 : state.nodes.has(parentId);
-        if (!shouldAdd) return state;
+        if (parentId === null) {
+            if (state.rootIds.length === 0) return state;
+        } else {
+            const parent = state.nodes.get(parentId);
+            if (!parent) return state;
+            const hasUnloadedChildren = parent.childIds.length === 0 && (parent.hasChildren || (parent.totalChildren ?? 0) > 0);
+            if (hasUnloadedChildren || state.loadingIds.has(parentId)) return state;
+        }
 
         // Add node to tree
         let newState = setNode(state, {
