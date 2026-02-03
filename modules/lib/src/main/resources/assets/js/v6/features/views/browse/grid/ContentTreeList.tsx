@@ -410,6 +410,15 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
                                                     setActive(id);
                                                 }
                                             }}
+                                            onContextMenu={() => {
+                                                if (!isSelected && !isActive) {
+                                                    // Clear selection and make right-clicked item active
+                                                    if (selection.size > 0) {
+                                                        clearSelection();
+                                                    }
+                                                    setActive(id);
+                                                }
+                                            }}
                                         >
                                             <VirtualizedTreeList.RowLeft>
                                                 <VirtualizedTreeList.RowSelectionControl
