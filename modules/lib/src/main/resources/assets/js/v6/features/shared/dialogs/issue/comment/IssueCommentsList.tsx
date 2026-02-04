@@ -1,9 +1,8 @@
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {cn} from '@enonic/ui';
-import {type ReactElement, useMemo} from 'react';
+import {type ReactElement} from 'react';
 import {useI18n} from '../../../../hooks/useI18n';
 import {IssueCommentItem} from './IssueCommentItem';
-import {IssueDescriptionItem} from './IssueDescriptionItem';
 
 import type {Issue} from '../../../../../../app/issue/Issue';
 import type {IssueComment} from '../../../../../../app/issue/IssueComment';
@@ -22,7 +21,7 @@ export type IssueCommentsListProps = {
 const ISSUE_COMMENTS_LIST_NAME = 'IssueCommentsList';
 
 export const IssueCommentsList = ({
-    issue,
+    issue: _issue,
     comments,
     loading,
     onUpdateComment,
@@ -32,19 +31,7 @@ export const IssueCommentsList = ({
     'aria-label': ariaLabel,
 }: IssueCommentsListProps): ReactElement => {
     const noCommentsText = useI18n('field.issue.noComments');
-    const creatorName = issue?.getCreator() ?? '';
-    const description = issue?.getDescription()?.trim() ?? '';
-    const hasDescription = description.length > 0;
-
-    // Filter out the description comment from regular comments
-    const regularComments = useMemo(() => {
-        if (description.length === 0) {
-            return comments;
-        }
-        return comments.filter((comment) => comment.getText().trim() !== description);
-    }, [comments, description]);
-
-    const hasNoContent = regularComments.length === 0 && !loading && !hasDescription;
+    const hasNoContent = comments.length === 0 && !loading;
 
     return (
         <div
@@ -55,10 +42,7 @@ export const IssueCommentsList = ({
             {hasNoContent && (
                 <div className='text-sm text-subtle'>{noCommentsText}</div>
             )}
-            {hasDescription && (
-                <IssueDescriptionItem name={creatorName} text={description} />
-            )}
-            {regularComments.map((comment) => (
+            {comments.map((comment) => (
                 <IssueCommentItem
                     key={comment.getId()}
                     name={comment.getCreatorDisplayName()}
