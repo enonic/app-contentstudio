@@ -683,6 +683,40 @@ export const updateIssueDialogDependencyIncluded = async (
     });
 };
 
+export const updateIssueDialogExcludedDependants = async (nextExcludedIds: ContentId[]): Promise<void> => {
+    const context = getIssueContext('itemsUpdating');
+    if (!context) {
+        return;
+    }
+    const {issueId, dialogState, issueWithAssignees, issue} = context;
+
+    const publishRequest = issue.getPublishRequest();
+    if (!publishRequest) {
+        return;
+    }
+
+    const nextUniqueIds = uniqueIds(nextExcludedIds);
+    const currentExcludeIds = publishRequest.getExcludeIds();
+    if (isIdsEqual(currentExcludeIds, nextUniqueIds)) {
+        return;
+    }
+
+    $issueDialogDetails.setKey('itemsUpdating', true);
+
+    const nextPublishRequest = PublishRequest
+        .create(publishRequest)
+        .setExcludeIds(nextUniqueIds)
+        .build();
+
+    await updateIssueWithPublishRequest({
+        issueId,
+        issue,
+        dialogState,
+        issueWithAssignees,
+        nextPublishRequest,
+    });
+};
+
 export const openDeleteCommentConfirmation = (commentId: string): void => {
     $deleteCommentConfirmation.set({open: true, commentId});
 };

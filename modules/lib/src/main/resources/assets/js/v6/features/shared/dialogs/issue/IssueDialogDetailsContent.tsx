@@ -27,6 +27,7 @@ import {
     updateIssueDialogAssignees,
     updateIssueDialogComment,
     updateIssueDialogDependencyIncluded,
+    updateIssueDialogExcludedDependants,
     updateIssueDialogItemIncludeChildren,
     updateIssueDialogItems,
     updateIssueDialogStatus,
@@ -35,10 +36,15 @@ import {
 import {
     $isPublishChecking,
     $isPublishReady,
+    $publishCheckErrors,
     $publishDialog,
     $publishDialogPending,
     $publishTaskId,
     $totalPublishableItems,
+    excludeInProgressPublishItems,
+    excludeInvalidPublishItems,
+    excludeNotPublishablePublishItems,
+    markAllAsReadyInProgressPublishItems,
     publishItems,
     syncPublishDialogContext,
 } from '../../../store/dialogs/publishDialog.store';
@@ -56,6 +62,7 @@ import {useIssueDialogData} from './hooks/useIssueDialogData';
 import {useIssuePublishTargetIds} from './hooks/useIssuePublishTargetIds';
 import {EditableText} from '../../primitives/EditableText';
 import {PublishDialogProgressContent} from '../publish/PublishDialogProgressContent';
+import {SelectionStatusBar} from '../status-bar/SelectionStatusBar';
 
 import type {Issue} from '../../../../../app/issue/Issue';
 import type {IssueWithAssignees} from '../../../../../app/issue/IssueWithAssignees';
@@ -167,10 +174,13 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const publishCount = useStore($totalPublishableItems);
     const isPublishReady = useStore($isPublishReady);
     const isPublishChecking = useStore($isPublishChecking);
-    const {open: publishDialogOpen} = useStore($publishDialog, {keys: ['open']});
+    const {open: publishDialogOpen, failed: publishDialogFailed} = useStore($publishDialog, {
+        keys: ['open', 'failed'],
+    });
     const {submitting: publishSubmitting} = useStore($publishDialogPending, {keys: ['submitting']});
     const publishTaskId = useStore($publishTaskId);
     const {progress: publishProgress} = useTaskProgress(publishTaskId);
+    const {invalid, inProgress, noPermissions} = useStore($publishCheckErrors);
 
     const fallbackTitle = useI18n('dialog.issue');
     const backLabel = useI18n('dialog.issue.back');
@@ -413,6 +423,23 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         })();
     };
 
+    const handleExcludeDependants = useCallback((exclude: () => void): void => {
+        exclude();
+        void updateIssueDialogExcludedDependants($publishDialog.get().excludedDependantItemsIds);
+    }, [updateIssueDialogExcludedDependants]);
+
+    const handleExcludeInProgress = useCallback((): void => {
+        handleExcludeDependants(excludeInProgressPublishItems);
+    }, [handleExcludeDependants]);
+
+    const handleExcludeInvalid = useCallback((): void => {
+        handleExcludeDependants(excludeInvalidPublishItems);
+    }, [handleExcludeDependants]);
+
+    const handleExcludeNotPublishable = useCallback((): void => {
+        handleExcludeDependants(excludeNotPublishablePublishItems);
+    }, [handleExcludeDependants]);
+
     const handleBack = (): void => {
         setIssueDialogView('list');
     };
@@ -549,6 +576,32 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                         </Tab.Content>
 
                         <Tab.Content value='items' className='mt-0 min-h-0 flex flex-1 flex-col'>
+                            {isPublishRequest && (
+                                <SelectionStatusBar
+                                    className='mb-5'
+                                    loading={isPublishChecking}
+                                    failed={publishDialogFailed}
+                                    editing={false}
+                                    showReady={isPublishReady}
+                                    onApply={() => {}}
+                                    onCancel={() => {}}
+                                    errors={{
+                                        inProgress: {
+                                            ...inProgress,
+                                            onExclude: handleExcludeInProgress,
+                                            onMarkAsReady: () => void markAllAsReadyInProgressPublishItems(),
+                                        },
+                                        invalid: {
+                                            ...invalid,
+                                            onExclude: handleExcludeInvalid,
+                                        },
+                                        noPermissions: {
+                                            ...noPermissions,
+                                            onExclude: handleExcludeNotPublishable,
+                                        },
+                                    }}
+                                />
+                            )}
                             <ContentCombobox
                                 label={itemsLabel}
                                 selection={selectedItemIdStrings}
