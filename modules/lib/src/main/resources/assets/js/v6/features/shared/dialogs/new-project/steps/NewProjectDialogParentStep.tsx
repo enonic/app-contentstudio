@@ -51,7 +51,7 @@ export const NewProjectDialogParentStepContent = (): ReactElement => {
                 onSelectionChange={setSelection}
                 selectionMode={isMultiInheritance ? 'staged' : 'single'}
                 placeholder={typeToSearchLabel}
-                noResults={noProjectsFoundLabel}
+                emptyLabel={noProjectsFoundLabel}
                 className="mb-2.5"
             />
             {selection.length > 0 && (

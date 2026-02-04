@@ -12,14 +12,14 @@ type ProjectSelectorProps = {
     onSelectionChange: (selection: readonly string[]) => void;
     selectionMode?: ComboboxRootProps['selectionMode'];
     placeholder?: string;
-    noResults?: string;
+    emptyLabel?: string;
     className?: string;
 };
 
 const PROJECT_SELECTOR_NAME = 'ProjectSelector';
 
 export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
-    const {selection, onSelectionChange, selectionMode = 'single', placeholder, noResults, className} = props;
+    const {selection, onSelectionChange, selectionMode = 'single', placeholder, emptyLabel, className} = props;
 
     // Hooks
     const {projects} = useStore($projects);
@@ -70,7 +70,7 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
                             handleExpand={handleExpand}
                             handleCollapse={handleCollapse}
                             selectionMode={selectionMode}
-                            noResults={noResults}
+                            emptyLabel={emptyLabel}
                             virtuosoRef={virtuosoRef}
                         />
                     </Combobox.Popup>
@@ -88,10 +88,10 @@ type ProjectSelectorTreeContentProps = {
     handleCollapse: (id: string) => void;
     selectionMode: ComboboxRootProps['selectionMode'];
     virtuosoRef: React.RefObject<VirtuosoHandle>;
-    noResults?: string;
+    emptyLabel?: string;
 };
 const ProjectSelectorTreeContent = (props: ProjectSelectorTreeContentProps): ReactElement => {
-    const {items, handleExpand, handleCollapse, selectionMode, virtuosoRef, noResults} = props;
+    const {items, handleExpand, handleCollapse, selectionMode, virtuosoRef, emptyLabel} = props;
 
     const {selection, onSelectionChange} = useCombobox();
 
@@ -164,7 +164,7 @@ const ProjectSelectorTreeContent = (props: ProjectSelectorTreeContentProps): Rea
                             }}
                         />
                     ) : (
-                        <div className="p-4 text-sm text-subtle">{noResults}</div>
+                        <div className="p-4 text-sm text-subtle">{emptyLabel}</div>
                     )
                 }
             </VirtualizedTreeList>
