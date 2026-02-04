@@ -72,7 +72,7 @@ export const UnpublishDialog = (): ReactElement => {
                     <UnpublishDialogMainContent onUnpublish={() => void handleUnpublish()} />
                 }
                 {view === 'confirmation' && <DialogPresetGatedConfirmContent
-                    className="sm:h-fit md:min-w-184 md:max-w-180 md:max-h-[85vh] lg:max-w-220"
+                    className="sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220"
                     title={confirmTitle}
                     description={confirmDescription}
                     expected={total}
