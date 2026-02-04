@@ -3,6 +3,7 @@ import {Project} from '../../../../app/settings/data/project/Project';
 import {ProjectConfigContext} from '../../../../app/settings/data/project/ProjectConfigContext';
 import {loadLanguages} from '../languages.store';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {ProjectAccess} from '../../../../app/settings/access/ProjectAccess';
 
 //
 // * Store State
@@ -19,6 +20,7 @@ type NewProjectDialogStore = {
     defaultLanguage?: string;
     accessMode: string;
     permissions: Principal[];
+    roles?: Map<string, ProjectAccess>; // Principal key as string, ProjectAccess as value
 };
 
 const initialState: NewProjectDialogStore = {
@@ -32,6 +34,7 @@ const initialState: NewProjectDialogStore = {
     defaultLanguage: '',
     accessMode: '',
     permissions: [],
+    roles: new Map(),
 };
 
 export const $newProjectDialog = deepMap<NewProjectDialogStore>(structuredClone(initialState));
@@ -69,6 +72,10 @@ export const setNewProjectDialogAccessMode = (accessMode: string): void => {
 
 export const setNewProjectDialogPermissions = (permissions: Principal[]): void => {
     $newProjectDialog.setKey('permissions', permissions);
+};
+
+export const setNewProjectDialogRoles = (roles: Map<string, ProjectAccess>): void => {
+    $newProjectDialog.setKey('roles', roles);
 };
 
 //
