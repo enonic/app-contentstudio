@@ -28,7 +28,7 @@ export const NewProjectDialogAccessStepContent = (): ReactElement => {
     // Hooks
     const {principals} = useStore($principals);
     const {parentProjects} = useStore($newProjectDialog);
-    const [selection, setSelection] = useState<string[]>([]);
+    const [selection, setSelection] = useState<readonly string[]>([]);
     const [accessModeValue, setAccessModeValue] = useState('');
     const [selectedPrincipals, setSelectedPrincipals] = useState<Principal[]>([]);
 
