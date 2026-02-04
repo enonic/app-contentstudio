@@ -1,4 +1,4 @@
-import {Combobox, Dialog, GridList, IconButton, Listbox} from '@enonic/ui';
+import {Dialog, GridList, IconButton} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
 import {X} from 'lucide-react';
@@ -28,11 +28,10 @@ export const NewProjectDialogLanguageStepContent = (): ReactElement => {
         return languages.find((language) => language.id === selection[0]);
     }, [selection, languages]);
 
+    // Sync with the store
     useEffect(() => {
         setNewProjectDialogDefaultLanguage(selection?.[0] || '');
     }, [selection]);
-
-    // Items
 
     // Constants
     const label = useI18n('dialog.project.wizard.language.defaultLanguage');
@@ -76,8 +75,8 @@ export const NewProjectDialogLanguageStepContent = (): ReactElement => {
             />
 
             {selectedLanguage && (
-                <GridList className="rounded-md space-y-2.5 mb-2.5 p-1.5 px-5">
-                    <GridList.Row key={selectedLanguage.id} id={selectedLanguage.id}>
+                <GridList className="rounded-md space-y-2.5 mb-2.5 py-1.5 px-5">
+                    <GridList.Row key={selectedLanguage.id} id={selectedLanguage.id} className="p-1.5 gap-1.5">
                         <GridList.Cell interactive={false} className="flex-1 self-stretch">
                             <div className="flex gap-2">
                                 <FlagIcon language={selectedLanguage.id} />
@@ -86,7 +85,7 @@ export const NewProjectDialogLanguageStepContent = (): ReactElement => {
                         </GridList.Cell>
                         <GridList.Cell>
                             <GridList.Action>
-                                <IconButton variant="text" icon={X} size="lg" onClick={handleUnselect} />
+                                <IconButton variant="text" icon={X} onClick={handleUnselect} />
                             </GridList.Action>
                         </GridList.Cell>
                     </GridList.Row>
