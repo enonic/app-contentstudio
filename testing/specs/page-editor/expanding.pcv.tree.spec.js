@@ -44,7 +44,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Insert the first text component:
             await pageComponentsWizardStepForm.openMenu('main');
-            await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Text']);
+            await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
 
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
@@ -53,7 +53,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
 
             // 3. Insert the second text component:
             await pageComponentsWizardStepForm.openMenu('main');
-            await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Text']);
+            await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.typeTextInEditor(TEXT_COMPONENT_2);
@@ -97,7 +97,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             await contentWizard.waitForNotificationMessage();
             // 4. Insert text component in the left layout's region (Verify that layout item is expanded in PCV)
             await pageComponentView.openMenu('left');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
 
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();

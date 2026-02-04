@@ -53,7 +53,7 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             await contentWizard.waitForNotificationMessage();
             // 4. Insert text component in the left layout's region
             await pageComponentView.openMenu('left');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.typeTextInEditor('text left');
@@ -63,7 +63,7 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             // 6. Do not need to expand the layouts items, because the text component is selected in Live Edit now:
             // 7. Insert 'text component' in the left layout's region
             await pageComponentView.openMenu('center');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.typeTextInEditor('text center');
             // 8. Save the site:

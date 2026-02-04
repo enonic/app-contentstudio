@@ -43,7 +43,7 @@ describe('Text Component with CKE - insert content-link specification', function
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert text-component:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
 
             // 4. Open Insert Link dialog
             await textComponentInspectionPanel.clickInTextArea();

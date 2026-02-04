@@ -60,7 +60,7 @@ describe('site.with.layout.component.spec - specification', function () {
             await pageComponentView.expandItem(LAYOUT_NAME);
             // 4. Insert the first text component:
             await pageComponentView.openMenu('left');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.typeTextInEditor('text left');
@@ -84,7 +84,7 @@ describe('site.with.layout.component.spec - specification', function () {
             await pageComponentView.expandItem(LAYOUT_NAME);
             // 4. Insert the text component in 'center' region:
             await pageComponentView.openMenu('center');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.typeTextInEditor('text center');
@@ -110,7 +110,7 @@ describe('site.with.layout.component.spec - specification', function () {
             await pageComponentView.expandItem(LAYOUT_NAME);
             // 4. Insert the text component in 'right' region
             await pageComponentView.openMenu('right');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.typeTextInEditor('text right');

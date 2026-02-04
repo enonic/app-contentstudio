@@ -45,7 +45,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text component:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.clickOnInsertImageButton();
             // 4. Insert an image in the text component:
@@ -83,7 +83,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text component:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 4. Open Insert Image modal dialog:
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.clickOnInsertImageButton();
@@ -107,7 +107,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text-component
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 4. Open 'Insert Image' dialog and insert an image in htmlArea:
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.clickOnInsertImageButton();

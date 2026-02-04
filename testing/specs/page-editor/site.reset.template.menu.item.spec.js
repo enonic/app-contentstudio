@@ -48,7 +48,7 @@ describe('site.reset.template.menu.item.spec - resets a site to default template
             // 3.Click on the item and open Context Menu:
             await pageComponentView.openMenu('country');
             // 4. Insert Text Component with 'test text' and save it:
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.typeTextInEditor(TEST_TEXT);
             await contentWizard.waitAndClickOnSave();
