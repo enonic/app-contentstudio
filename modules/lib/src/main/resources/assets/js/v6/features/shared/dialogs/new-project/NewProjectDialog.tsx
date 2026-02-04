@@ -8,7 +8,7 @@ import {useI18n} from '../../../hooks/useI18n';
 const NEW_PROJECT_DIALOG_NAME = 'NewProjectDialog';
 
 export const NewProjectDialog = (): ReactElement => {
-    const {open} = useStore($newProjectDialog);
+    const {open, accessMode} = useStore($newProjectDialog);
     const previousLabel = useI18n('dialog.project.wizard.previous');
     const nextLabel = useI18n('dialog.project.wizard.next');
 
@@ -26,11 +26,13 @@ export const NewProjectDialog = (): ReactElement => {
                     <NewProjectDialogSteps.ParentStep.Header />
                     <NewProjectDialogSteps.LanguageStep.Header />
                     <NewProjectDialogSteps.AccessStep.Header />
+                    <NewProjectDialogSteps.RoleStep.Header />
 
                     <Dialog.Body className="p-1.5">
                         <NewProjectDialogSteps.ParentStep.Content />
                         <NewProjectDialogSteps.LanguageStep.Content />
                         <NewProjectDialogSteps.AccessStep.Content />
+                        <NewProjectDialogSteps.RoleStep.Content locked={!accessMode} />
                     </Dialog.Body>
 
                     <Dialog.Footer className="flex flex-col">
