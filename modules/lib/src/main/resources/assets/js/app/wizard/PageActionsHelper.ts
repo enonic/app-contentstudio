@@ -175,7 +175,7 @@ export class PageActionsHelper {
     }
 
     private static createInsertSubAction(component: PageItem, type: ComponentType): Action {
-        const action = new Action(i18n('action.component.insert.' + type.getShortName())).onExecuted(() => {
+        const action = new Action(i18n('field.' + type.getShortName())).onExecuted(() => {
             const path: ComponentPath = component instanceof Region ?
                                         new ComponentPath(component.getComponents().length, component.getPath()) :
                                         new ComponentPath((component as Component).getIndex() + 1, component.getParent().getPath());

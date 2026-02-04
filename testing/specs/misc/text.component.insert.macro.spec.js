@@ -40,7 +40,7 @@ describe('Text Component - insert embed iframe and preview the site', function (
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert a text component and type the not valid URL:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
 
             // 4. Open Insert Macro modal dialog:
             await textComponentInspectionPanel.clickInTextArea();

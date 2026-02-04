@@ -232,7 +232,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. Insert a text component:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await studioUtils.saveScreenshot('text_component_editor_role_source_button_2');
             // 3. Verify that Source button is clickable on the component-toolbar:
             await textComponentInspectionPanel.waitForOpened();

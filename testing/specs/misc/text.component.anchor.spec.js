@@ -41,7 +41,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text-component:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             //await textComponentCke.switchToLiveEditFrame();
             // 4. Open 'Insert Anchor' dialog and type the text:
             await textComponentInspectionPanel.clickInTextArea();
@@ -67,7 +67,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             // 1. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // Open Insert Anchor modal dialog:
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.clickOnInsertAnchorButton();
@@ -88,7 +88,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // Open Insert Anchor modal dialog and type not correct value:
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.clickOnInsertAnchorButton();
@@ -115,7 +115,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text-component:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 4. Open 'Insert Anchor' dialog and type the text:
             await textComponentInspectionPanel.typeTextInEditor(TEST_TEXT);
             await contentWizard.waitAndClickOnSave();

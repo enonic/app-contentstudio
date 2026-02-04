@@ -51,7 +51,7 @@ describe.skip('layot.insert.save.as.fragment.spec - tests for inserting a fragme
             await contentWizard.waitForNotificationMessage();
             // 4. Insert a text component in the left layout's region
             await pageComponentView.openMenu('left');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await contentWizard.switchToLiveEditFrame();
             // 5. Insert an image in the left region
             await textComponentCke.clickOnInsertImageButton();
@@ -89,7 +89,7 @@ describe.skip('layot.insert.save.as.fragment.spec - tests for inserting a fragme
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 4. Insert a text component in 'center' region:
             await pageComponentView.openMenu('center');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 5. Insert an image in the layout-fragment:
             await contentWizard.switchToLiveEditFrame();
             await textComponentCke.clickOnInsertImageButton();

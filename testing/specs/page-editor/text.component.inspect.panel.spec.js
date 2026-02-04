@@ -41,7 +41,7 @@ describe('Tests for text-component and htmlArea in Inspect Panel', function () {
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text component:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 4. Insert a text in htmlArea in Inspect Panel:
             await textComponentInspectionPanel.typeTextInEditor(TEXT_COMPONENT_TEXT);
             // 5. Verify that Apply button gets enabled in Inspect Panel:
@@ -87,7 +87,7 @@ describe('Tests for text-component and htmlArea in Inspect Panel', function () {
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text component:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 4. Insert a text in htmlArea in Inspect Panel:
             await textComponentInspectionPanel.typeTextInEditor(TEXT_COMPONENT_TEXT);
             // 6. Press CTRL(Command) + S :

@@ -47,7 +47,7 @@ describe('updated.text.in.preview.panel.liveview.spec - verify that text is upda
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert a text-component in PCV modal dialog:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 4. Insert a text in the text-component:
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();

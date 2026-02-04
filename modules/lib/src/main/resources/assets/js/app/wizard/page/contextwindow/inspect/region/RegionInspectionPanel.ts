@@ -31,8 +31,4 @@ export class RegionInspectionPanel
         }
     }
 
-    getName(): string {
-        return i18n('widget.components.insert.region');
-    }
-
 }

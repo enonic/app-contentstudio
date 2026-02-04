@@ -240,8 +240,4 @@ export class FragmentInspectionPanel
         this.component = null;
     }
 
-    getName(): string {
-        return i18n('widget.components.insert.fragment');
-    }
-
 }

@@ -42,7 +42,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. Insert a text-component:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 2. Click on 'Insert Table' menu-button:
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.clickOnInsertTableButton();
@@ -67,7 +67,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert a text component and type an invalid URL:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 4. Open Insert link modal dialog
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.clickOnInsertLinkButton();
@@ -97,7 +97,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert a text component:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 4. Open Insert Link dialog and add the link:
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.clickOnInsertLinkButton();

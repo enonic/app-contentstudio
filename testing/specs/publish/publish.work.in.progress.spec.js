@@ -119,7 +119,7 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu('main');
             // 3. Insert Text Component with test text and save it:
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.typeTextInEditor('test text');
             await contentWizard.waitAndClickOnSave();
             // minimize Live Edit, workflow icon gets visible:

@@ -45,7 +45,7 @@ describe("text.component.image.outbound.spec: Inserts a text component with an i
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text component:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.clickOnInsertImageButton();
             // 4. Insert an image in the text component:
