@@ -1,4 +1,4 @@
-import {Checkbox, cn, Combobox, ComboboxRootProps, Listbox, Skeleton, useCombobox} from '@enonic/ui';
+import {Checkbox, Combobox, ComboboxRootProps, Listbox, useCombobox} from '@enonic/ui';
 import {useState, ReactElement, useEffect, useMemo, useCallback} from 'react';
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
@@ -12,7 +12,7 @@ const PRINCIPAL_SELECTOR_NAME = 'PrincipalSelector';
 const DEFAULT_DEBOUNCE = 500;
 
 type PrincipalSelectorProps = {
-    selection: string[];
+    selection: readonly string[];
     onSelectionChange: (selection: string[]) => void;
     selectionMode: ComboboxRootProps['selectionMode'];
     allowedTypes: PrincipalType[];

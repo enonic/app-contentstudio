@@ -4,6 +4,7 @@ import {ProjectConfigContext} from '../../../../app/settings/data/project/Projec
 import {loadLanguages} from '../languages.store';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {ProjectAccess} from '../../../../app/settings/access/ProjectAccess';
+import {Application} from '@enonic/lib-admin-ui/application/Application';
 
 //
 // * Store State
@@ -14,6 +15,7 @@ type NewProjectDialogStore = {
     open: boolean;
     isMultiInheritance: boolean;
     selectedProjects: Project[];
+    step: string;
 
     // data
     parentProjects?: Readonly<Project>[];
@@ -21,6 +23,7 @@ type NewProjectDialogStore = {
     accessMode: string;
     permissions: Principal[];
     roles?: Map<string, ProjectAccess>; // Principal key as string, ProjectAccess as value
+    applications?: Application[];
 };
 
 const initialState: NewProjectDialogStore = {
@@ -28,6 +31,7 @@ const initialState: NewProjectDialogStore = {
     open: false,
     isMultiInheritance: false,
     selectedProjects: [],
+    step: 'step-parent',
 
     // data
     parentProjects: [],
@@ -35,6 +39,7 @@ const initialState: NewProjectDialogStore = {
     accessMode: '',
     permissions: [],
     roles: new Map(),
+    applications: [],
 };
 
 export const $newProjectDialog = deepMap<NewProjectDialogStore>(structuredClone(initialState));
@@ -58,6 +63,10 @@ export const closeNewProjectDialog = (): void => {
     $newProjectDialog.set(structuredClone(initialState));
 };
 
+export const setNewProjectDialogStep = (step: string): void => {
+    $newProjectDialog.setKey('step', step);
+};
+
 export const setNewProjectDialogParentProjects = (parentProjects: Readonly<Project>[]): void => {
     $newProjectDialog.setKey('parentProjects', parentProjects);
 };
@@ -76,6 +85,10 @@ export const setNewProjectDialogPermissions = (permissions: Principal[]): void =
 
 export const setNewProjectDialogRoles = (roles: Map<string, ProjectAccess>): void => {
     $newProjectDialog.setKey('roles', roles);
+};
+
+export const setNewProjectDialogApplications = (applications: Application[]): void => {
+    $newProjectDialog.setKey('applications', applications);
 };
 
 //
