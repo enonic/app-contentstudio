@@ -2,7 +2,7 @@ import {Separator} from '@enonic/ui';
 import {useMemo, type ReactElement} from 'react';
 import type {ContentId} from '../../../../../app/content/ContentId';
 import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
-import {ContentListItemSelectable} from '../../items/ContentListItemSelectable';
+import {ContentListItemSelectable} from '../../items';
 
 export type IssueSelectedDependenciesProps = {
     label: string;
@@ -12,6 +12,7 @@ export type IssueSelectedDependenciesProps = {
     disabled?: boolean;
     loading?: boolean;
     onDependencyChange?: (id: ContentId, included: boolean) => void;
+    isPublishRequest?: boolean;
 };
 
 const ISSUE_SELECTED_DEPENDENCIES_NAME = 'IssueSelectedDependencies';
@@ -24,6 +25,7 @@ export const IssueSelectedDependencies = ({
                                               disabled = false,
                                               loading = false,
                                               onDependencyChange,
+                                              isPublishRequest = false,
                                           }: IssueSelectedDependenciesProps): ReactElement => {
     const excludedSet = useMemo(
         () => new Set(excludedDependantIds.map(id => id.toString())),
@@ -51,6 +53,7 @@ export const IssueSelectedDependencies = ({
                             checked={isIncluded}
                             readOnly={isRequired || isReadOnly}
                             onCheckedChange={(checked: boolean) => onDependencyChange?.(id, checked)}
+                            isPublishRequest={isPublishRequest}
                         />
                     );
                 })}
