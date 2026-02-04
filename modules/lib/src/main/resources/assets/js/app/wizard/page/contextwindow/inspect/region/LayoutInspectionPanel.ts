@@ -20,8 +20,4 @@ export class LayoutInspectionPanel
     protected getFormName(): string {
         return i18n('field.layout');
     }
-
-    getName(): string {
-        return i18n('widget.components.insert.layout');
-    }
 }

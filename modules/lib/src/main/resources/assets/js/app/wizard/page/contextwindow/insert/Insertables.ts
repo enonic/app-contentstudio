@@ -9,8 +9,8 @@ export class Insertables {
     private static LAYOUT: Insertable = new Insertable().setName('layout').setDisplayName(i18n('field.layout')).setDescription(
         i18n('field.layout.help')).setIconCls('layout');
 
-    private static TEXT: Insertable = new Insertable().setName('text').setDisplayName(i18n('field.rich.text')).setDescription(
-        i18n('field.rich.text.help')).setIconCls('text');
+    private static TEXT: Insertable = new Insertable().setName('text').setDisplayName(i18n('field.text')).setDescription(
+        i18n('field.text.help')).setIconCls('text');
 
     private static FRAGMENT: Insertable = new Insertable().setName('fragment').setDisplayName(i18n('field.fragment')).setDescription(
         i18n('field.fragment.help')).setIconCls('fragment');
