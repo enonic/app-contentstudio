@@ -15,7 +15,8 @@ import {ContentId} from '../../../../../app/content/ContentId';
 import {IssueStatus} from '../../../../../app/issue/IssueStatus';
 import {IssueType} from '../../../../../app/issue/IssueType';
 import {useI18n} from '../../../hooks/useI18n';
-import {$issueDialog, setIssueDialogView} from '../../../store/dialogs/issueDialog.store';
+import {useTaskProgress} from '../../../hooks/useTaskProgress';
+import {$issueDialog, closeIssueDialog, setIssueDialogView} from '../../../store/dialogs/issueDialog.store';
 import {
     $issueDialogDetails,
     loadIssueDialogItems,
@@ -36,6 +37,7 @@ import {
     $isPublishReady,
     $publishDialog,
     $publishDialogPending,
+    $publishTaskId,
     $totalPublishableItems,
     publishItems,
     syncPublishDialogContext,
@@ -43,7 +45,7 @@ import {
 import {createDebounce} from '../../../utils/timing/createDebounce';
 import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
 import {useAssigneeSearch, useAssigneeSelection} from '../../selectors/assignee/hooks/useAssigneeSearch';
-import {ContentCombobox} from '../../selectors/content/combobox/ContentCombobox';
+import {ContentCombobox} from '../../selectors/content';
 import {IssueStatusBadge} from '../../status/IssueStatusBadge';
 import {IssueDialogSelector} from './IssueDialogSelector';
 import {IssueIcon} from './IssueIcon';
@@ -53,6 +55,7 @@ import {IssueCommentsList} from './comment/IssueCommentsList';
 import {useIssueDialogData} from './hooks/useIssueDialogData';
 import {useIssuePublishTargetIds} from './hooks/useIssuePublishTargetIds';
 import {EditableText} from '../../primitives/EditableText';
+import {PublishDialogProgressContent} from '../publish/PublishDialogProgressContent';
 
 import type {Issue} from '../../../../../app/issue/Issue';
 import type {IssueWithAssignees} from '../../../../../app/issue/IssueWithAssignees';
@@ -65,6 +68,8 @@ type StatusOptionItem = {
     label: string;
     status: IssueStatus;
 };
+
+type PublishView = 'main' | 'progress';
 
 const isStatusOption = (value: string): value is StatusOption => {
     return value === 'open' || value === 'closed';
@@ -164,6 +169,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const isPublishChecking = useStore($isPublishChecking);
     const {open: publishDialogOpen} = useStore($publishDialog, {keys: ['open']});
     const {submitting: publishSubmitting} = useStore($publishDialogPending, {keys: ['submitting']});
+    const publishTaskId = useStore($publishTaskId);
+    const {progress: publishProgress} = useTaskProgress(publishTaskId);
 
     const fallbackTitle = useI18n('dialog.issue');
     const backLabel = useI18n('dialog.issue.back');
@@ -174,6 +181,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const commentsLabel = useI18n('field.comments');
     const commentAriaLabel = useI18n('field.comment.aria.label');
     const itemsLabel = useI18n('field.items');
+    const publishRequestLabel = useI18n('field.publishRequest');
     const assigneesLabel = useI18n('field.assignees');
     const titleLabel = useI18n('field.title');
     const dependenciesLabel = useI18n('dialog.dependencies');
@@ -202,24 +210,27 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const isCommentsTab = detailsTab === 'comments';
     const isItemsTab = detailsTab === 'items';
     const publishLabel = publishCount > 1 ? publishLabelMultiple : publishLabelSingle;
-    const itemsTabLabel = publishCount > 1 ? `${itemsLabel} (${publishCount})` : itemsLabel;
+    const commentCount = comments.length;
+    const assigneeCount = issueData?.getApprovers().length ?? 0;
     const tabs = isPublishRequest
         ? [
-            {value: 'items', label: itemsTabLabel},
-            {value: 'comments', label: commentsLabel},
-            {value: 'assignees', label: assigneesLabel},
+            {value: 'items', label: publishRequestLabel, count: publishCount},
+            {value: 'comments', label: commentsLabel, count: commentCount},
+            {value: 'assignees', label: assigneesLabel, count: assigneeCount},
         ]
         : [
-            {value: 'comments', label: commentsLabel},
-            {value: 'items', label: itemsTabLabel},
-            {value: 'assignees', label: assigneesLabel},
+            {value: 'comments', label: commentsLabel, count: commentCount},
+            {value: 'items', label: itemsLabel, count: publishCount},
+            {value: 'assignees', label: assigneesLabel, count: assigneeCount},
         ];
     const isTitleDisabled = !issueData || issueError || titleUpdating || statusUpdating;
     const commentTextareaRef = useRef<HTMLTextAreaElement | null>(null);
     const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(null);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
+    const [publishView, setPublishView] = useState<PublishView>('main');
     const pendingItemIdsRef = useRef<ContentId[] | null>(null);
     const publishTargetIds = useIssuePublishTargetIds(items, dependants, excludedDependantIds);
+    const publishProgressTotal = Math.max(1, publishCount || items.length || 1);
 
     const {options: assigneeOptions, handleSearchChange} = useAssigneeSearch({
         publishableContentIds: publishTargetIds,
@@ -287,6 +298,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         }
         void loadIssueDialogItems(issueData);
     }, [issueDataId, selectedItemConfigKey, excludedDependantKey, loadIssueDialogItems]);
+
 
     const handleStatusChange = (next: string): void => {
         if (!isStatusOption(next)) {
@@ -378,8 +390,27 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         void submitIssueDialogComment();
     };
 
+    const handlePublishComplete = useCallback((resultState: string): void => {
+        void (async () => {
+            if (resultState === 'SUCCESS') {
+                const updated = await updateIssueDialogStatus(IssueStatus.CLOSED);
+                if (updated) {
+                    closeIssueDialog();
+                    return;
+                }
+            }
+            setPublishView('main');
+        })();
+    }, [closeIssueDialog, updateIssueDialogStatus]);
+
     const handlePublish = (): void => {
-        void publishItems();
+        setPublishView('progress');
+        void (async () => {
+            const started = await publishItems(handlePublishComplete);
+            if (!started) {
+                setPublishView('main');
+            }
+        })();
     };
 
     const handleBack = (): void => {
@@ -416,6 +447,15 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         () => getStatusOptions(openStatusLabel, closedStatusLabel),
         [openStatusLabel, closedStatusLabel],
     );
+
+    if (publishView === 'progress') {
+        return (
+            <PublishDialogProgressContent
+                total={publishProgressTotal}
+                progress={publishProgress}
+            />
+        );
+    }
 
     return (
         <Dialog.Content
@@ -464,9 +504,9 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                             />
                         </div>
                         <Tab.List className='col-span-3 px-2.5 justify-end'>
-                            {tabs.map((tab) => (
-                                <Tab.DefaultTrigger key={tab.value} value={tab.value}>
-                                    {tab.label}
+                            {tabs.map(({value, label, count}) => (
+                                <Tab.DefaultTrigger key={value} value={value} count={count || undefined}>
+                                    {label}
                                 </Tab.DefaultTrigger>
                             ))}
                         </Tab.List>
@@ -575,7 +615,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                         disabled={!canSubmitComment}
                     />
                 )}
-                {isItemsTab && (
+                {isPublishRequest && isItemsTab && (
                     <Button
                         variant='solid'
                         size='lg'

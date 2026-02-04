@@ -430,15 +430,15 @@ export const deleteIssueDialogComment = async (commentId: string): Promise<boole
     }
 };
 
-export const updateIssueDialogStatus = async (nextStatus: IssueStatus): Promise<void> => {
+export const updateIssueDialogStatus = async (nextStatus: IssueStatus): Promise<boolean> => {
     const context = getIssueContext('statusUpdating');
     if (!context) {
-        return;
+        return false;
     }
     const {issueId, dialogState, issueWithAssignees, issue} = context;
 
     if (issue.getIssueStatus() === nextStatus) {
-        return;
+        return true;
     }
 
     $issueDialogDetails.setKey('statusUpdating', true);
@@ -454,10 +454,12 @@ export const updateIssueDialogStatus = async (nextStatus: IssueStatus): Promise<
 
         void loadIssueDialogList();
         showFeedback(i18n(getStatusMessageKey(updatedIssue.getType(), nextStatus)));
+        return true;
     } catch (error) {
         console.error(error);
         $issueDialogDetails.setKey('statusUpdating', false);
         showError(error?.message ?? String(error));
+        return false;
     }
 };
 
