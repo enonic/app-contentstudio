@@ -23,6 +23,7 @@ export const NewProjectDialogParentStepContent = (): ReactElement => {
     const {projects} = useStore($projects);
     const [selection, setSelection] = useState<readonly string[]>(selectedProjects.map((p) => p.getName()));
 
+    // Sync with the store
     useEffect(() => {
         const parentProjects = Array.from(selection).map((id) => projects.find((p) => p.getName() === id));
         setNewProjectDialogParentProjects(parentProjects);
@@ -55,15 +56,15 @@ export const NewProjectDialogParentStepContent = (): ReactElement => {
             />
             {selection.length > 0 && (
                 <>
-                    <GridList className="rounded-md space-y-2.5 mb-2.5 p-1.5 px-5">
+                    <GridList className="rounded-md space-y-2.5 mb-2.5 py-1.5 px-5">
                         {Array.from(selection).map((projectName) => (
-                            <GridList.Row key={projectName} id={projectName}>
+                            <GridList.Row key={projectName} id={projectName} className="p-1.5 gap-1.5">
                                 <GridList.Cell interactive={false} className="flex-1 self-stretch">
                                     <ProjectLabel project={projects.find((p) => p.getName() === projectName)} />
                                 </GridList.Cell>
                                 <GridList.Cell>
                                     <GridList.Action>
-                                        <IconButton variant="text" icon={X} size="lg" onClick={() => handleUnselect(projectName)} />
+                                        <IconButton variant="text" icon={X} onClick={() => handleUnselect(projectName)} />
                                     </GridList.Action>
                                 </GridList.Cell>
                             </GridList.Row>

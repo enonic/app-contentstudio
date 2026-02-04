@@ -2,6 +2,7 @@ import {deepMap} from 'nanostores';
 import {Project} from '../../../../app/settings/data/project/Project';
 import {ProjectConfigContext} from '../../../../app/settings/data/project/ProjectConfigContext';
 import {loadLanguages} from '../languages.store';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 
 //
 // * Store State
@@ -16,6 +17,8 @@ type NewProjectDialogStore = {
     // data
     parentProjects?: Readonly<Project>[];
     defaultLanguage?: string;
+    accessMode: string;
+    permissions: Principal[];
 };
 
 const initialState: NewProjectDialogStore = {
@@ -27,6 +30,8 @@ const initialState: NewProjectDialogStore = {
     // data
     parentProjects: [],
     defaultLanguage: '',
+    accessMode: '',
+    permissions: [],
 };
 
 export const $newProjectDialog = deepMap<NewProjectDialogStore>(structuredClone(initialState));
@@ -56,6 +61,14 @@ export const setNewProjectDialogParentProjects = (parentProjects: Readonly<Proje
 
 export const setNewProjectDialogDefaultLanguage = (defaultLanguage: string): void => {
     $newProjectDialog.setKey('defaultLanguage', defaultLanguage);
+};
+
+export const setNewProjectDialogAccessMode = (accessMode: string): void => {
+    $newProjectDialog.setKey('accessMode', accessMode);
+};
+
+export const setNewProjectDialogPermissions = (permissions: Principal[]): void => {
+    $newProjectDialog.setKey('permissions', permissions);
 };
 
 //

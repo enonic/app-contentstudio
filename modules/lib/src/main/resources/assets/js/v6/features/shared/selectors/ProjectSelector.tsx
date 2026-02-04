@@ -69,7 +69,6 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
                             items={filteredItems}
                             handleExpand={handleExpand}
                             handleCollapse={handleCollapse}
-                            selection={selection}
                             selectionMode={selectionMode}
                             noResults={noResults}
                             virtuosoRef={virtuosoRef}
@@ -88,7 +87,6 @@ type ProjectSelectorTreeContentProps = {
     handleExpand: (id: string) => void;
     handleCollapse: (id: string) => void;
     selectionMode: ComboboxRootProps['selectionMode'];
-    selection: readonly string[];
     virtuosoRef: React.RefObject<VirtuosoHandle>;
     noResults?: string;
 };
