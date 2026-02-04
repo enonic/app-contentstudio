@@ -44,7 +44,7 @@ describe('Test for updating text in fragment', function () {
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text-component
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentCke.insertTextInCkeEditor(GENERATED_TEXT_1);
             // 4.  Do not save the site, but save new fragment from the just inserted text:
             await pageComponentView.openMenu(GENERATED_TEXT_1);

@@ -63,7 +63,7 @@ describe('publish.dialog.dependant.items.spec: tests for dependant items', funct
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert the text component:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentCke.switchToLiveEditFrame();
             // 4. Open 'Insert Image' dialog and insert an image in htmlArea:
             await textComponentCke.clickOnInsertImageButton();

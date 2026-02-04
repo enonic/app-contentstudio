@@ -60,7 +60,7 @@ describe('page.template.insert.layout.spec: tests for inserting a layout in page
             await pageComponentsWizardStepForm.expandItem(LAYOUT_NAME);
             // 5. Insert a text component in the left layout's region(Verify that regions are visible):
             await pageComponentsWizardStepForm.openMenu('left');
-            await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Text']);
+            await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentCke.typeTextInCkeEditor(TEST_TEXT);
             // 6. Save the template
             await contentWizard.waitAndClickOnSave();

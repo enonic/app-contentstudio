@@ -44,7 +44,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text component:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await contentWizard.switchToLiveEditFrame();
             await textComponent.clickOnInsertImageButton();
             // 4. Insert an image in the text component:
@@ -82,7 +82,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text component:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await contentWizard.switchToLiveEditFrame();
             // 4. Open Insert Image modal dialog:
             await textComponent.clickOnInsertImageButton();
@@ -106,7 +106,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text-component
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentCke.switchToLiveEditFrame();
             // 4. Open 'Insert Image' dialog and insert an image in htmlArea:
             await textComponentCke.clickOnInsertImageButton();

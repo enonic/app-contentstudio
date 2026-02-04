@@ -1091,7 +1091,7 @@ export abstract class ItemView
     }
 
     private createInsertSubAction(label: string, componentItemType: ItemType): Action {
-        const action = new Action(i18n('widget.components.insert.' + label)).onExecuted(() => {
+        const action = new Action(i18n('field.' + label)).onExecuted(() => {
             new AddComponentEvent(this.makeInsertPathForNewItem(), componentItemType.toComponentType()).fire();
         });
 

@@ -44,7 +44,7 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             // 2. Open the context menu:
             await pageComponentView.openMenu('main');
             // 3. Click on the 'Insert Text' menu item:
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentCke.typeTextInCkeEditor(TEXT);
             await contentWizard.waitAndClickOnSave();
             await textComponentCke.switchToLiveEditFrame();

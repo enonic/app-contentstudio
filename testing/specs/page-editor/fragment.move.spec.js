@@ -48,7 +48,7 @@ describe('Move Fragment specification', function () {
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponent.typeTextInCkeEditor(TEST_TEXT_FRAGMENT);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1500);

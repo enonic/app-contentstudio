@@ -49,7 +49,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert a text-component in PCV modal dialog:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentCke.switchToLiveEditFrame();
             // 4. Open Insert Link dialog
             await textComponentCke.clickOnInsertLinkButton();

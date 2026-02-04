@@ -19,8 +19,4 @@ export class PartInspectionPanel
     protected getFormName(): string {
         return i18n('field.part');
     }
-
-    getName(): string {
-        return i18n('widget.components.insert.part');
-    }
 }

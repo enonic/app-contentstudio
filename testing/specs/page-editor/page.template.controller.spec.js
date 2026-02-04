@@ -73,7 +73,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             // 4. Click on the item and open Context Menu:
             await pageComponentView.openMenu('main');
             // 5. Insert Text Component and insert an image:
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await contentWizard.switchToLiveEditFrame();
             await textComponentCke.clickOnInsertImageButton();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE_NAME);
@@ -202,7 +202,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await studioUtils.saveScreenshot('site_customised');
             // 5. Open the Page Components modal dialog and insert a text component:
             await pageComponentsWizardStepForm.openMenu('main');
-            await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Text']);
+            await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await studioUtils.saveScreenshot('site_customised_component_inserted');
             // 6. Switches to 'live-edit' iframe and insert a text:
             await textComponentCke.typeTextInCkeEditor(TEST_TEXT);

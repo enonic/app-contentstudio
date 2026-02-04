@@ -58,7 +58,7 @@ describe('site.with.layout.component.spec - specification', function () {
             await pageComponentView.expandItem(LAYOUT_NAME);
             // 4. Insert the first text component:
             await pageComponentView.openMenu('left');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentCke.typeTextInCkeEditor('text left');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.switchToLiveEditFrame();
@@ -80,7 +80,7 @@ describe('site.with.layout.component.spec - specification', function () {
             await pageComponentView.expandItem(LAYOUT_NAME);
             // 4. Insert the first text component:
             await pageComponentView.openMenu('center');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentCke.typeTextInCkeEditor('text center');
             // 5. Save the site:
             await contentWizard.waitAndClickOnSave();
@@ -104,7 +104,7 @@ describe('site.with.layout.component.spec - specification', function () {
             await pageComponentView.expandItem(LAYOUT_NAME);
             // 4. Insert the first text component:
             await pageComponentView.openMenu('right');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentCke.typeTextInCkeEditor('text right');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.switchToLiveEditFrame();

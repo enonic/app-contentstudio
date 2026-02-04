@@ -268,7 +268,8 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             // 3. Insert a text component
             await pageComponentView.openMenu('main');
             // 4. Insert new text component:
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+
             await textComponentCke.switchToLiveEditFrame();
             // 5. Verify that Source button is clickable on the toolbar:
             await textComponentCke.clickOnSourceButton();

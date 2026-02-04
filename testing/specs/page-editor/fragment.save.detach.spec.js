@@ -112,7 +112,7 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
             // 3. Open the context menu:
             await pageComponentView.openMenu('main');
             // 4. Select "Insert>Text"
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 5. Open text-component's context menu:
             await pageComponentView.openMenu('Text');
             // 6. Click on 'Save as Fragment' menu item:

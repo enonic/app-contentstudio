@@ -250,7 +250,7 @@ module.exports = Object.freeze({
         INSERT: 'Insert',
         REMOVE: 'Remove',
         PART: 'Part',
-        TEXT: 'Text',
+        TEXT: 'Rich Text',
         SELECT_PARENT: 'Select parent',
         RESET: 'Reset',
         INSPECT: 'Inspect',

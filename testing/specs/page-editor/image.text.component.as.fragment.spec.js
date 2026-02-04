@@ -42,7 +42,7 @@ describe('image.text.component.as.fragment.spec - tests for saving an image as f
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert a text component:
             await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await contentWizard.switchToLiveEditFrame();
             // 4. Insert an image in the text component
             await textComponentCke.clickOnInsertImageButton();

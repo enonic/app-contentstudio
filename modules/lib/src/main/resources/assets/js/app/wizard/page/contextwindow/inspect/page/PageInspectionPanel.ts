@@ -63,10 +63,6 @@ export class PageInspectionPanel
         });
     }
 
-    getName(): string {
-        return i18n('widget.components.insert.page');
-    }
-
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.insertChild(this.pageTemplateAndControllerForm, 0);

@@ -42,7 +42,7 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.openMenu("main");
             // 3. Insert Text Component with test text and save it:
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentCke.typeTextInCkeEditor("test text");
             // 4. Click on 'Mark as Ready' button:
             await contentWizard.clickOnMarkAsReadyButton();
@@ -75,8 +75,8 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            await pageComponentView.openMenu("main");
-            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await pageComponentView.openMenu('main');
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 3. insert a text with spaces:
             await textComponentCke.insertTextInCkeEditor(TEXT_WITH_SPACES);
             await textComponentCke.insertTextInCkeEditor(TEXT_WITH_SPACES);

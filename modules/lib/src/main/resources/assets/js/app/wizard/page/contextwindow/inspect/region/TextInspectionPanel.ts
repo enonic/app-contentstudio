@@ -184,10 +184,6 @@ export class TextInspectionPanel
         this.namesAndIcon.setIconClass(StyleHelper.getCommonIconCls(TextComponentType.get().getShortName()));
     }
 
-    getName(): string {
-        return i18n('widget.components.insert.text');
-    }
-
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.addClass('text-inspection-panel');

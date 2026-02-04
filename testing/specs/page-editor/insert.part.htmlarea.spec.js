@@ -239,7 +239,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             // 3.Click on the item and open Context Menu:
             await pageComponentView.openMenu('main');
             // 4. Insert Text Component with test text and save it:
-            await pageComponentView.selectMenuItem(['Insert', 'Text']);
+            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentCke.typeTextInCkeEditor('test text');
             await contentWizard.waitAndClickOnSave();
             // 5. Open text-component context menu:

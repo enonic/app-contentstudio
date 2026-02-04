@@ -91,7 +91,7 @@ describe('context.window.insert.panel: tests for Insert tab in Page widget', fun
             assert.equal(items.length, 4, 'Four items should be present in the panel');
             assert.ok(items.includes('Part'), "'Part' item should be displayed");
             assert.ok(items.includes('Layout'), "'Layout' item should be displayed");
-            assert.ok(items.includes('Rich Text Editor'), "'Rich Text Editor' item should be displayed");
+            assert.ok(items.includes('Rich Text'), "'Rich Text' item should be displayed");
             assert.ok(items.includes('Fragment'), "'Fragment' item should be displayed");
         });
 

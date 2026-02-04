@@ -174,7 +174,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await contentWizard.waitForWizardStepDisplayed('Page');
             // 4. Insert text component in Page Component wizard step
             await pageComponentsWizardStepForm.openMenu('main');
-            await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Text']);
+            await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponent.typeTextInCkeEditor(TEST_TEXT);
             await studioUtils.saveScreenshot('article_content_customized');
             await contentWizard.waitAndClickOnSave();
