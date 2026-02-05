@@ -77,6 +77,9 @@ export class WidgetRenderingHandler {
         }
 
         this.summary = summary;
+        
+        // Clear previous iframe reference when rendering new content
+        this.clearImageFrameReference();
 
         this.showMask();
         this.renderer.getPreviewAction()?.setEnabled(false);
@@ -124,6 +127,7 @@ export class WidgetRenderingHandler {
 
     public empty() {
         this.setPreviewType(PREVIEW_TYPE.EMPTY);
+        this.clearImageFrameReference();
     }
 
     protected createEmptyView(): DivEl {
@@ -331,6 +335,18 @@ export class WidgetRenderingHandler {
 
         const isDarkTheme = document.documentElement.classList.contains('dark');
         this.imageFrameWindow.document.body.style.backgroundColor = isDarkTheme ? '#000000' : '#ffffff';
+    }
+
+    private clearImageFrameReference() {
+        this.imageFrameWindow = null;
+    }
+
+    public cleanup() {
+        if (this.themeObserver) {
+            this.themeObserver.disconnect();
+            this.themeObserver = null;
+        }
+        this.clearImageFrameReference();
     }
 
     protected handleWidgetEvent(event: ViewWidgetEvent) {
