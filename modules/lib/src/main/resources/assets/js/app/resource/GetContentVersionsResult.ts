@@ -1,5 +1,4 @@
 import {ContentVersion} from '../ContentVersion';
-import {GetContentVersionsMetadata} from './GetContentVersionsMetadata';
 import {ContentVersionViewJson} from './json/ContentVersionViewJson';
 import {GetContentVersionsResultsJson} from './json/GetContentVersionsResultsJson';
 
@@ -7,19 +6,26 @@ export class GetContentVersionsResult {
 
     private readonly contentVersions: ContentVersion[];
 
-    private readonly metadata: GetContentVersionsMetadata;
+    private readonly cursor?: string;
 
-    private constructor(contentVersions: ContentVersion[], metadata: GetContentVersionsMetadata) {
+    private readonly onlineVersionId?: string;
+
+    private constructor(contentVersions: ContentVersion[], cursor?: string, onlineVersionId?: string) {
         this.contentVersions = contentVersions;
-        this.metadata = metadata;
+        this.cursor = cursor;
+        this.onlineVersionId = onlineVersionId;
     }
 
     getContentVersions(): ContentVersion[] {
         return this.contentVersions.slice();
     }
 
-    getMetadata(): GetContentVersionsMetadata {
-        return this.metadata;
+    getCursor(): string | undefined {
+        return this.cursor;
+    }
+
+    getOnlineVersionId(): string | undefined {
+        return this.onlineVersionId;
     }
 
     static fromJson(json: GetContentVersionsResultsJson): GetContentVersionsResult {
@@ -28,6 +34,6 @@ export class GetContentVersionsResult {
                 return ContentVersion.fromJson(contentVersionViewJson, contentVersionViewJson.workspaces);
             });
 
-        return new GetContentVersionsResult(contentVersions, {cursor: json.cursor || undefined});
+        return new GetContentVersionsResult(contentVersions, json.cursor ?? undefined, json.onlineVersionId ?? undefined);
     }
 }

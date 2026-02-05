@@ -10,15 +10,15 @@ import {
     Archive,
     ArchiveRestore,
     ArrowDownNarrowWide,
-    ArrowLeftRight,
+    ArrowLeftRight, CaseSensitive,
     CircleCheckBig,
     CircleUserRound,
     Clock,
     ClockAlert,
     CloudCheck,
     CloudOff,
-    Copy, FilePenLine,
-    Import,
+    Copy,
+    FilePenLine, FolderInput,
     LucideIcon,
     Pen,
     PenLine,
@@ -34,7 +34,6 @@ const MAX_SELECTED_VERSIONS = 2;
 export const ContentOperation = {
     CREATE: 'content.create',
     DUPLICATE: 'content.duplicate',
-    IMPORT: 'content.import',
     UPDATE: 'content.update',
     PERMISSIONS: 'content.permissions',
     MOVE: 'content.move',
@@ -45,6 +44,7 @@ export const ContentOperation = {
     PUBLISH: 'content.publish',
     UNPUBLISH: 'content.unpublish',
     METADATA: 'content.updateMetadata',
+    WORKFLOW: 'content.updateWorkflow',
 } as const;
 
 export type ContentOperation = typeof ContentOperation[keyof typeof ContentOperation];
@@ -67,6 +67,7 @@ export const ContentField = {
     ATTACHMENTS: 'attachments',
     NAME: 'name',
     PARENT_PATH: 'parentPath',
+    MANUAL_ORDER: 'manualOrderValue',
 } as const;
 
 const REVERTIBLE_FIELDS = new Set<string>([
@@ -89,8 +90,6 @@ export const VersionPublishStatus = {
 
 export type VersionPublishStatus = typeof VersionPublishStatus[keyof typeof VersionPublishStatus];
 
-export type VisualTarget = 'restore' | 'compare';
-
 export type VersionsDisplayModeType = 'standard' | 'full';
 
 // ============================================================================
@@ -99,17 +98,11 @@ export type VersionsDisplayModeType = 'standard' | 'full';
 
 export const $versions = atom<ContentVersion[]>([]);
 
-export const $visualFocus = atom<VisualTarget | null>(null);
-
 export const $versionsDisplayMode = atom<VersionsDisplayModeType>('standard');
 
 export const $selectedVersions = atom<ReadonlySet<string>>(new Set());
 
 export const $activeVersionId = computed($versions, (versions) => versions[0]?.getId());
-
-export const $latestPublishedVersion = computed($versions, (versions): ContentVersion | undefined =>
-    versions.find((version) => hasPublishAction(version))
-);
 
 export const $selectionModeOn = computed($selectedVersions, (selected) => selected.size > 0);
 
@@ -117,8 +110,8 @@ export const $versionsByDate = computed(
     [$versions, $versionsDisplayMode],
     (versions, displayMode) => {
         const filteredVersions = displayMode === 'standard'
-                                 ? versions.filter((version) => isVersionToBeDisplayedByDefault(version, versions))
-                                 : versions;
+                                 ? versions.filter((version) => isVersionToBeDisplayedByDefault(version))
+                                 : versions.filter((version) => isVersionToBeDisplayedInFullMode(version));
 
         return filteredVersions.reduce<Record<string, ContentVersion[]>>((acc, version) => {
             const dateKey = getFormattedVersionDate(version);
@@ -131,6 +124,8 @@ export const $versionsByDate = computed(
     }
 );
 
+export const $onlineVersionId = atom<string | null>(null);
+
 // ============================================================================
 // Version Helpers
 // ============================================================================
@@ -142,15 +137,6 @@ const hasPublishAction = (version: ContentVersion): boolean =>
 
 const hasUnpublishAction = (version: ContentVersion): boolean =>
     version.getActions().some((action) => action.getOperation() === ContentOperation.UNPUBLISH);
-
-const isWorkflowOnlyUpdate = (version: ContentVersion): boolean => {
-    const action = getFirstAction(version);
-    if (action?.getOperation() !== ContentOperation.UPDATE) {
-        return false;
-    }
-    const fields = action.getFields();
-    return fields.length === 1 && fields[0] === ContentField.WORKFLOW;
-};
 
 /** Formats version date as YYYY-MM-DD */
 export const getFormattedVersionDate = (version: ContentVersion): string => {
@@ -201,7 +187,7 @@ export const isVersionRevertable = (version: ContentVersion): boolean => {
     return false;
 };
 
-const isVersionToBeDisplayedByDefault = (version: ContentVersion, versions: ContentVersion[]): boolean => {
+const isVersionToBeDisplayedByDefault = (version: ContentVersion): boolean => {
     if (isStandardModeVersion(version)) {
         return true;
     }
@@ -211,11 +197,26 @@ const isVersionToBeDisplayedByDefault = (version: ContentVersion, versions: Cont
     return firstAction?.getOperation() === ContentOperation.PUBLISH || firstAction?.getOperation() === ContentOperation.UNPUBLISH;
 };
 
+const isVersionToBeDisplayedInFullMode = (version: ContentVersion): boolean => {
+    const firstAction = getFirstAction(version);
+
+    // Don't display versions where 'manualOrderValue' was changed (These versions are created for children of manually sorted parents)
+    if (firstAction.getOperation() === ContentOperation.SORT && firstAction.getFields().some(f => f === ContentField.MANUAL_ORDER)) {
+        return false;
+    }
+
+    return true;
+}
+
 // ============================================================================
 // Publish Status
 // ============================================================================
 
-export const getVersionPublishStatus = (version: ContentVersion): VersionPublishStatus => {
+export const getVersionPublishStatus = (version: ContentVersion, onlineVersionId?: string): VersionPublishStatus => {
+    if (onlineVersionId && version.getId() === onlineVersionId) {
+        return VersionPublishStatus.ONLINE;
+    }
+
     if (!hasPublishAction(version) || hasUnpublishAction(version)) {
         return VersionPublishStatus.OFFLINE;
     }
@@ -233,7 +234,7 @@ export const getVersionPublishStatus = (version: ContentVersion): VersionPublish
         return VersionPublishStatus.EXPIRED;
     }
 
-    return VersionPublishStatus.ONLINE;
+    return VersionPublishStatus.OFFLINE;
 };
 
 // ============================================================================
@@ -250,22 +251,18 @@ const OPERATION_ICON_MAP: Record<ContentOperation, LucideIcon> = {
     [ContentOperation.RESTORE]: ArchiveRestore,
     [ContentOperation.UPDATE]: Pen,
     [ContentOperation.DUPLICATE]: Copy,
-    [ContentOperation.IMPORT]: Import,
     [ContentOperation.PATCH]: SquarePen,
     [ContentOperation.UNPUBLISH]: CloudOff,
     [ContentOperation.METADATA]: FilePenLine,
+    [ContentOperation.WORKFLOW]: CircleCheckBig,
 };
 
 type IconResolverContext = {
     version: ContentVersion;
     versions: ContentVersion[];
-    latestPublishedVersion?: ContentVersion;
 }
 
 type IconResolver = (context: IconResolverContext) => LucideIcon | null;
-
-const resolveWorkflowIcon: IconResolver = ({version}) =>
-    isWorkflowOnlyUpdate(version) ? CircleCheckBig : null;
 
 const resolvePublishStatusIcon: IconResolver = ({version}) => {
     const action = getFirstAction(version);
@@ -286,6 +283,20 @@ const resolvePublishStatusIcon: IconResolver = ({version}) => {
     return null;
 };
 
+const resolveMoveOperationIcon: IconResolver = ({version}) => {
+    const action = getFirstAction(version);
+    if (action?.getOperation() !== ContentOperation.MOVE) {
+        return null;
+    }
+
+    const fields = action.getFields();
+    const isRenameOnly = fields.length === 1 && fields[0] === ContentField.NAME;
+
+    return isRenameOnly
+        ? CaseSensitive
+        : FolderInput;
+};
+
 const resolveDefaultOperationIcon: IconResolver = ({version}) => {
     const operation = getFirstAction(version)?.getOperation();
     return operation && isContentOperation(operation)
@@ -294,17 +305,16 @@ const resolveDefaultOperationIcon: IconResolver = ({version}) => {
 };
 
 const ICON_RESOLVERS: IconResolver[] = [
-    resolveWorkflowIcon,
     resolvePublishStatusIcon,
+    resolveMoveOperationIcon,
     resolveDefaultOperationIcon,
 ];
 
 export const getIconForOperation = (
     version: ContentVersion,
     versions: ContentVersion[],
-    latestPublishedVersion?: ContentVersion
 ): LucideIcon => {
-    const context: IconResolverContext = {version, versions, latestPublishedVersion};
+    const context: IconResolverContext = {version, versions};
 
     for (const resolver of ICON_RESOLVERS) {
         const icon = resolver(context);
@@ -322,11 +332,18 @@ export const getIconForOperation = (
 export const getOperationLabel = (version: ContentVersion): string => {
     const action = getFirstAction(version);
 
-    if (isWorkflowOnlyUpdate(version)) {
-        return i18n('status.markedAsReady');
+    const operation = action?.getOperation();
+
+    // Separate Rename from Move
+    if (operation === ContentOperation.MOVE) {
+        const fields = action.getFields();
+        const isRenameOnly = fields.length === 1 && fields[0] === ContentField.NAME;
+
+        if (isRenameOnly) {
+            return i18n('operation.content.name');
+        }
     }
 
-    const operation = action?.getOperation();
     return isContentOperation(operation)
         ? i18n(`operation.${operation}`)
         : i18n('operation.content.unknown');
@@ -356,10 +373,6 @@ export const appendVersions = (versions: ContentVersion[]): void => {
 };
 
 export const setSelectedVersions = (currentSelection: string[]): void => {
-    if ($versionsDisplayMode.get() === 'full') {
-        return;
-    }
-
     const selection = currentSelection.length > MAX_SELECTED_VERSIONS
         ? currentSelection.slice(-MAX_SELECTED_VERSIONS)
         : currentSelection;
@@ -394,28 +407,9 @@ export const resetVersionsSelection = (): void => {
     $selectedVersions.set(new Set());
 };
 
-// ============================================================================
-// Visual Focus
-// ============================================================================
-
-export const setVisualFocus = (target: VisualTarget | null): void => {
-    $visualFocus.set(target);
-};
-
-export const moveVisualFocus = (direction: -1 | 1, visualTargets: VisualTarget[]): void => {
-    if (visualTargets.length === 0) {
-        return;
-    }
-
-    const currentFocus = $visualFocus.get();
-    const currentIndex = currentFocus ? visualTargets.indexOf(currentFocus) : -1;
-
-    const nextIndex = currentIndex === -1
-        ? 0
-        : (currentIndex + direction + visualTargets.length) % visualTargets.length;
-
-    setVisualFocus(visualTargets[nextIndex]);
-};
+export const setOnlineVersionId = (versionId: string | undefined): void => {
+    $onlineVersionId.set(versionId);
+}
 
 // ============================================================================
 // Content Actions
@@ -433,4 +427,3 @@ export const revertToVersion = (contentId: ContentId, versionId: string): void =
         }
     });
 };
-

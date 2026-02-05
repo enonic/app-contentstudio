@@ -2,7 +2,7 @@ import {useCallback, useEffect, useState} from 'react';
 import {ContentSummaryAndCompareStatus} from '../../../../../../../app/content/ContentSummaryAndCompareStatus';
 import {
     appendVersions,
-    resetVersionsSelection,
+    resetVersionsSelection, setOnlineVersionId,
     setVersions
 } from '../../../../../store/context/versionStore';
 import {loadContentVersions} from '../../../../../utils/widget/versions/versionsLoader';
@@ -29,6 +29,7 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
         let cancelled = false;
         if (!content) {
             setVersions([]);
+            setOnlineVersionId(undefined);
             resetVersionsSelection();
             setHasMore(false);
             setCursor(undefined);
@@ -43,6 +44,7 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
             .then((result) => {
                 if (cancelled) return;
                 setVersions(result.versions);
+                setOnlineVersionId(result.onlineVersionId); // Set online version ID on initial load
                 resetVersionsSelection();
                 setHasMore(result.hasMore);
                 setCursor(result.cursor);
@@ -67,7 +69,7 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
             const result = await loadContentVersions(content.getContentId(), cursor);
             appendVersions(result.versions);
             setHasMore(result.hasMore);
-            setCursor(result.cursor);
+            setCursor(result.cursor); // No need to update onlineVersionId on pagination
         } catch (err) {
             setError(err instanceof Error ? err : new Error('Failed to load more versions'));
         } finally {

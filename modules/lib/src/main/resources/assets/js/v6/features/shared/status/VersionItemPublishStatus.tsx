@@ -3,7 +3,7 @@ import {useStore} from '@nanostores/preact';
 import {ReactElement} from 'react';
 import {ContentVersion} from '../../../../app/ContentVersion';
 import {useI18n} from '../../hooks/useI18n';
-import {$latestPublishedVersion, getVersionPublishStatus, VersionPublishStatus} from '../../store/context/versionStore';
+import {$onlineVersionId, getVersionPublishStatus, VersionPublishStatus} from '../../store/context/versionStore';
 
 type VersionItemPublishStatusProps = {
     version: ContentVersion | null;
@@ -14,22 +14,22 @@ export const VersionItemPublishStatus = ({version, className}: VersionItemPublis
     const onlineLabel = useI18n('status.online');
     const expiredLabel = useI18n('status.expired');
     const scheduledLabel = useI18n('status.scheduled');
-    const latestPublishedVersion = useStore($latestPublishedVersion);
+    const onlineVersionId = useStore($onlineVersionId);
     const commonClassName = 'text-sm flex items-center truncate inline-block';
 
     if (!version) {
         return null;
     }
 
-    const publishStatus = getVersionPublishStatus(version);
+    const publishStatus = getVersionPublishStatus(version, onlineVersionId ?? undefined);
 
     switch (publishStatus) {
         case VersionPublishStatus.ONLINE:
-            return (latestPublishedVersion?.getId() === version.getId() ?
+            return (
                 <div className={cn(commonClassName, 'text-success', className)}>
                     {onlineLabel}
                 </div>
-                : null);
+            );
 
         case VersionPublishStatus.EXPIRED:
             return (

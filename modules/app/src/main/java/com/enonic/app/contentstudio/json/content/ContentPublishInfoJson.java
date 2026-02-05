@@ -19,7 +19,7 @@ public class ContentPublishInfoJson
         this.from = publishInfo.from();
         this.to = publishInfo.to();
         this.first = publishInfo.first();
-        this.published = publishInfo.published();
+        this.published = publishInfo.time();
     }
 
     @SuppressWarnings("unused")

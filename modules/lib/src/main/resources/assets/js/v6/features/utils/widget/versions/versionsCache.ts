@@ -18,6 +18,7 @@ const CACHE_TTL_MS = 3 * 60 * 1000; // 3 minutes
 type CachedVersionsEntry = {
     readonly versions: ContentVersion[];
     readonly cursor?: string;
+    readonly onlineVersionId?: string;
     readonly hasMore: boolean;
     readonly expiresAt: number;
 }
@@ -26,6 +27,7 @@ export type ContentVersionsLoadResult = {
     readonly versions: ContentVersion[];
     readonly hasMore: boolean;
     readonly cursor?: string;
+    readonly onlineVersionId?: string;
 }
 
 // ============================================================================
@@ -64,6 +66,7 @@ export const getCachedVersions = (
         versions: cached.versions.slice(),
         hasMore: cached.hasMore,
         cursor: cached.cursor,
+        onlineVersionId: cached.onlineVersionId,
     };
 };
 
@@ -78,6 +81,7 @@ export const cacheVersions = (
     versionsCache.set(key, {
         versions: [...result.versions],
         cursor: result.cursor,
+        onlineVersionId: result.onlineVersionId,
         hasMore: result.hasMore,
         expiresAt,
     });

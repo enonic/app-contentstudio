@@ -20,12 +20,14 @@ export const loadContentVersions = async (contentId: ContentId, cursor?: string)
 
     const response = await request.sendAndParse();
 
-    const metadata = response.getMetadata();
+    const nextCursor = response.getCursor() ?? undefined;
     const versions = response.getContentVersions();
+    const onlineVersionId = response.getOnlineVersionId();
     const result = {
         versions,
-        hasMore: metadata.cursor !== undefined,
-        cursor: metadata.cursor,
+        hasMore: nextCursor !== undefined,
+        cursor: nextCursor,
+        onlineVersionId,
     };
 
     cacheVersions(contentId, cursor, result);
