@@ -48,7 +48,6 @@ export const PathSelectorTreeRow = ({
             {...itemProps}
             selectable={selectable}
             onClick={onClick}
-            className={cn(isDisabled && '')}
         >
             <VirtualizedTreeList.RowLeft>
                 <VirtualizedTreeList.RowLevelSpacer level={node.level} />

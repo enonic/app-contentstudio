@@ -52,6 +52,7 @@ export const $moveDialog = map<MoveDialogStore>(structuredClone(initialState));
 //
 
 export const $moveItemsCount = computed($moveDialog, ({itemsCount}) => itemsCount);
+export const $moveCurrentItems = computed($moveDialog, ({open}) => (open ? getCurrentItems() : []));
 export const $isMoveDialogReady = computed($moveDialog, ({open, submitting, itemsCount, destinationId}) => {
     return open && !submitting && itemsCount > 0 && !!destinationId;
 });
