@@ -5,7 +5,7 @@ import {$moveItemsCount} from '../../../store/dialogs/moveDialog.store';
 import {ProgressDialogContent} from '../ProgressDialogContent';
 
 type MoveDialogProgressContentProps = {
-    destinationPath?: string | null;
+    destinationPath?: string;
     progress: number;
     'data-component'?: string;
 };

@@ -59,6 +59,7 @@ export const PathSelector = ({
     const searchPlaceholder = useI18n('field.search.placeholder');
     const emptyLabel = useI18n('field.search.noItems');
     const showMoreLabel = useI18n('action.show.more');
+    const removeLabel = useI18n('action.remove');
 
     const [open, setOpen] = useState(false);
     const [inputValue, setInputValue] = useState('');
@@ -428,7 +429,7 @@ export const PathSelector = ({
                                 onSelectionChange(null);
                             }}
                             disabled={disabled}
-                            aria-label='Remove'
+                            aria-label={removeLabel}
                         />
                     </div>
             )}
