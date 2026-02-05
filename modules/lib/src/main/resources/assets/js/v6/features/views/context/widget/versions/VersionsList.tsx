@@ -4,6 +4,7 @@ import {ReactElement, useCallback, useEffect, useMemo, useRef, useState} from 'r
 import {useI18n} from '../../../../hooks/useI18n';
 import {$contextContent} from '../../../../store/context/contextContent.store';
 import {
+    $pendingRevert,
     $selectedVersions,
     $versions,
     $versionsByDate,
@@ -12,6 +13,7 @@ import {
 import {useInfiniteScroll} from '../../../../hooks/useInfiniteScroll';
 import {useVersionsData} from './hooks/useVersionsData';
 import {useVersionsKeyboard} from './hooks/useVersionsKeyboard';
+import {RevertPatchConfirmationDialog} from './RevertPatchConfirmationDialog';
 import {VersionsListContent} from './VersionsListContent';
 import {VersionSelectionToolbar} from './VersionSelectionToolbar';
 import {VersionsShowAllActivitiesSection} from './VersionsShowAllActivitiesSection';
@@ -33,6 +35,7 @@ export const VersionsList = (): ReactElement => {
     const selection = useStore($selectedVersions);
     const selectionArray = useMemo(() => Array.from(selection), [selection]);
     const content = useStore($contextContent);
+    const pendingRevert = useStore($pendingRevert);
 
     const [activeVersionId, setActiveVersionId] = useState<string | null>(null);
     const [expandedVersionId, setExpandedVersionId] = useState<string | null>(null);
@@ -185,6 +188,8 @@ export const VersionsList = (): ReactElement => {
                     <div ref={loadMoreRef} className='h-10 w-full opacity-0' />
                 )}
             </div>
+
+            {pendingRevert && <RevertPatchConfirmationDialog />}
         </div>
     );
 };

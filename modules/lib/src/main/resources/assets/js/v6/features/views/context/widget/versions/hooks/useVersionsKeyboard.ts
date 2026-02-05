@@ -5,7 +5,7 @@ import {
     $activeVersionId,
     $versions,
     isVersionRevertable,
-    revertToVersion,
+    requestRevert,
     toggleVersionSelection,
 } from '../../../../../store/context/versionStore';
 
@@ -101,7 +101,7 @@ export const useVersionsKeyboard = ({
             if (restoreFocusVersionId === activeListItemId && hasRestoreButton()) {
                 e.preventDefault();
                 e.stopPropagation();
-                revertToVersion(contentId, activeListItemId);
+                requestRevert(contentId, activeListItemId);
             }
         }
     }, [
