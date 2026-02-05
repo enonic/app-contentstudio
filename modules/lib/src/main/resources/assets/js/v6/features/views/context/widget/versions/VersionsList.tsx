@@ -35,6 +35,8 @@ export const VersionsList = (): ReactElement => {
     const content = useStore($contextContent);
 
     const [activeVersionId, setActiveVersionId] = useState<string | null>(null);
+    const [expandedVersionId, setExpandedVersionId] = useState<string | null>(null);
+    const [restoreFocusVersionId, setRestoreFocusVersionId] = useState<string | null>(null);
     const [isFocused, setIsFocused] = useState(false);
 
     const listRef = useRef<HTMLDivElement | null>(null);
@@ -44,7 +46,28 @@ export const VersionsList = (): ReactElement => {
 
     // Custom hooks for data loading and keyboard handling
     const {hasMore, isLoading, error, loadMore} = useVersionsData(content);
-    const {handleKeyDown} = useVersionsKeyboard({contentId: content.getContentId(), activeListItemId: activeVersionId, isFocused});
+
+    const expandVersion = useCallback((versionId: string) => {
+        setExpandedVersionId((current) => current === versionId ? current : versionId);
+    }, []);
+
+    const collapseExpanded = useCallback(() => {
+        setExpandedVersionId(null);
+    }, []);
+
+    const toggleExpanded = useCallback((versionId: string) => {
+        setExpandedVersionId((current) => current === versionId ? null : versionId);
+    }, []);
+
+    const {handleKeyDown} = useVersionsKeyboard({
+        contentId: content.getContentId(),
+        activeListItemId: activeVersionId,
+        expandedVersionId,
+        restoreFocusVersionId,
+        onExpand: expandVersion,
+        onCollapse: collapseExpanded,
+        onSetRestoreFocus: setRestoreFocusVersionId,
+    });
 
     // Infinite scroll observer
     const loadMoreRef = useInfiniteScroll<HTMLDivElement>({
@@ -55,10 +78,35 @@ export const VersionsList = (): ReactElement => {
         threshold: INFINITE_SCROLL_CONFIG.THRESHOLD
     });
 
-    // Reset active version when content changes
+    // Reset active version and collapse when content changes
     useEffect(() => {
         setActiveVersionId(null);
+        setExpandedVersionId(null);
+        setRestoreFocusVersionId(null);
     }, [content]);
+
+    // Collapse expanded item when active item changes
+    useEffect(() => {
+        if (expandedVersionId && expandedVersionId !== activeVersionId) {
+            setExpandedVersionId(null);
+        }
+        setRestoreFocusVersionId(null);
+    }, [activeVersionId, expandedVersionId]);
+
+    // Clear restore focus when nothing is expanded
+    useEffect(() => {
+        if (!expandedVersionId) {
+            setRestoreFocusVersionId(null);
+        }
+    }, [expandedVersionId]);
+
+    // Collapse when list loses focus
+    useEffect(() => {
+        if (!isFocused) {
+            setExpandedVersionId(null);
+            setRestoreFocusVersionId(null);
+        }
+    }, [isFocused]);
 
     const handleSelectionChange = useCallback((newSelection: string[]) => {
         setSelectedVersions(newSelection);
@@ -118,8 +166,11 @@ export const VersionsList = (): ReactElement => {
                         content={content}
                         versionsByDate={versionsByDate}
                         activeVersionId={activeVersionId}
+                        expandedVersionId={expandedVersionId}
+                        restoreFocusVersionId={restoreFocusVersionId}
                         isFocused={isFocused}
                         onKeyDown={handleKeyDown}
+                        onToggleExpanded={toggleExpanded}
                         listRef={listRef}
                     />
                 </Listbox>

@@ -1,96 +1,119 @@
 import {useStore} from '@nanostores/preact';
-import {useCallback, useEffect} from 'react';
+import {useCallback} from 'react';
 import {ContentId} from '../../../../../../../app/content/ContentId';
 import {
     $activeVersionId,
     $versions,
-    $versionsDisplayMode,
-    $visualFocus,
     isVersionRevertable,
-    moveVisualFocus,
     revertToVersion,
-    setVisualFocus,
-    toggleVersionSelection, VisualTarget
+    toggleVersionSelection,
 } from '../../../../../store/context/versionStore';
 
 /**
  * Hook for keyboard navigation within versions list
- * Handles arrow keys for focus movement and Enter/Space for actions
+ * Space toggles selection, ArrowRight expands, ArrowLeft collapses
+ * ArrowRight on expanded item focuses restore when available
  */
 type UseVersionsKeyboardOptions = {
     contentId: ContentId;
     activeListItemId: string | null;
-    isFocused: boolean;
+    expandedVersionId: string | null;
+    restoreFocusVersionId: string | null;
+    onExpand: (versionId: string) => void;
+    onCollapse: () => void;
+    onSetRestoreFocus: (versionId: string | null) => void;
 }
 
-export const useVersionsKeyboard = ({contentId, activeListItemId, isFocused}: UseVersionsKeyboardOptions) => {
-    const visualFocus = useStore($visualFocus);
-    const displayMode = useStore($versionsDisplayMode)
+export const useVersionsKeyboard = ({
+    contentId,
+    activeListItemId,
+    expandedVersionId,
+    restoreFocusVersionId,
+    onExpand,
+    onCollapse,
+    onSetRestoreFocus,
+}: UseVersionsKeyboardOptions) => {
     const versions = useStore($versions);
     const latestContentVersionId = useStore($activeVersionId);
 
-    // Reset visual focus to 'compare' when active item or focus changes
-    useEffect(() => {
-        if (activeListItemId && isFocused) {
-            setVisualFocus(displayMode === 'full' ? null : 'compare');
+    const hasRestoreButton = useCallback((): boolean => {
+        if (!activeListItemId || expandedVersionId !== activeListItemId) {
+            return false;
         }
-    }, [activeListItemId, isFocused, displayMode]);
-
-    // Get available actions/buttons to set visual focus on based on active version and display mode
-    const getVisualTargets = useCallback((): VisualTarget[] => {
-        if (displayMode === 'full') {
-            return [];
-        }
-
-        const versionWithVisualFocusOn = versions.find((v) => v.getId() === activeListItemId);
-
-        if (versionWithVisualFocusOn) {
-            if (latestContentVersionId !== versionWithVisualFocusOn.getId() && isVersionRevertable(versionWithVisualFocusOn)) {
-                return ['restore', 'compare'];
-            }
-
-            return ['compare'];
-        }
-
-        return [];
-    }, [activeListItemId, versions, displayMode, latestContentVersionId]);
+        const version = versions.find((item) => item.getId() === activeListItemId);
+        return version != null && latestContentVersionId !== version.getId() && isVersionRevertable(version);
+    }, [activeListItemId, expandedVersionId, versions, latestContentVersionId]);
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
         if (!activeListItemId) return;
 
-        const visualTargets = getVisualTargets();
+        // Don't intercept events when focus is on an interactive element (e.g. restore button)
+        if (e.target instanceof HTMLButtonElement) return;
+
+        // Collapse when navigating to another item with arrow keys
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+            if (expandedVersionId) {
+                onCollapse();
+            }
+            onSetRestoreFocus(null);
+            // Let the event propagate to Listbox for navigation
+            return;
+        }
 
         if (e.key === 'ArrowRight') {
             e.preventDefault();
             e.stopPropagation();
-            moveVisualFocus(1, visualTargets);
+
+            if (expandedVersionId !== activeListItemId) {
+                onExpand(activeListItemId);
+                onSetRestoreFocus(null);
+                return;
+            }
+
+            if (hasRestoreButton()) {
+                onSetRestoreFocus(activeListItemId);
+            } else {
+                onSetRestoreFocus(null);
+            }
             return;
         }
 
         if (e.key === 'ArrowLeft') {
-            e.preventDefault();
-            e.stopPropagation();
-            moveVisualFocus(-1, visualTargets);
+            if (expandedVersionId === activeListItemId) {
+                e.preventDefault();
+                e.stopPropagation();
+                onCollapse();
+                onSetRestoreFocus(null);
+            }
             return;
         }
 
-        if (e.key === 'Enter' || e.key === ' ') {
+        // Space: toggle version selection
+        if (e.key === ' ') {
             e.preventDefault();
             e.stopPropagation();
+            toggleVersionSelection(activeListItemId);
+            return;
+        }
 
-            if (!visualTargets.length) return;
-
-            switch (visualFocus) {
-                case 'restore':
-                    revertToVersion(contentId, activeListItemId);
-                    break;
-                case 'compare':
-                    toggleVersionSelection(activeListItemId);
-                    break;
+        // Enter: activate restore when focused
+        if (e.key === 'Enter') {
+            if (restoreFocusVersionId === activeListItemId && hasRestoreButton()) {
+                e.preventDefault();
+                e.stopPropagation();
+                revertToVersion(contentId, activeListItemId);
             }
         }
-    }, [activeListItemId, visualFocus, getVisualTargets]);
+    }, [
+        activeListItemId,
+        expandedVersionId,
+        restoreFocusVersionId,
+        hasRestoreButton,
+        contentId,
+        onExpand,
+        onCollapse,
+        onSetRestoreFocus,
+    ]);
 
     return {handleKeyDown};
 };
-

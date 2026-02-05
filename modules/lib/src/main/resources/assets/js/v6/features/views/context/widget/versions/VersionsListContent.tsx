@@ -15,8 +15,11 @@ interface VersionsListContentProps {
     content: ContentSummaryAndCompareStatus,
     versionsByDate: Record<string, ContentVersion[]>;
     activeVersionId: string | null;
+    expandedVersionId: string | null;
+    restoreFocusVersionId: string | null;
     isFocused: boolean;
     onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+    onToggleExpanded: (versionId: string) => void;
     listRef: React.RefObject<HTMLDivElement>;
 }
 
@@ -24,8 +27,11 @@ export const VersionsListContent = ({
     content,
     versionsByDate,
     activeVersionId,
+    expandedVersionId,
+    restoreFocusVersionId,
     isFocused,
     onKeyDown,
+    onToggleExpanded,
     listRef
 }: VersionsListContentProps): React.ReactElement => {
     const displayMode = useStore($versionsDisplayMode);
@@ -46,10 +52,17 @@ export const VersionsListContent = ({
                             <Listbox.Item
                                 key={`${version.getId()}-${displayMode}`}
                                 value={version.getId()}
-                                className='p-0 data-[active=true]:ring-1 data-[active=true]:ring-offset-0 rounded-sm'
+                                className='p-0 rounded-sm'
                                 data-active={isFocused && activeVersionId === version.getId()}
                             >
-                                <VersionsListItem contentId={content.getContentId()} version={version} isFocused={isFocused} />
+                                <VersionsListItem
+                                    contentId={content.getContentId()}
+                                    version={version}
+                                    isFocused={isFocused}
+                                    isExpanded={expandedVersionId === version.getId()}
+                                    isRestoreFocused={restoreFocusVersionId === version.getId()}
+                                    onToggleExpanded={onToggleExpanded}
+                                />
                             </Listbox.Item>
                         ))}
                     </div>
