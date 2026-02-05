@@ -56,8 +56,8 @@ export class CustomSelector
         }
     }
 
-    createDefaultValue(raw: unknown): Value {
-        return this.getValueType().newNullValue();
+    createDefaultValue(rawValue: unknown): Value {
+        return this.getValueType().fromJsonValue(rawValue);
     }
 
     private subscribeToContentUpdates() {

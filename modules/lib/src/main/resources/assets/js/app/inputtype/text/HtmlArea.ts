@@ -73,7 +73,7 @@ export class HtmlArea
     }
 
     createDefaultValue(rawValue: unknown): Value {
-        return this.getValueType().newNullValue();
+        return this.getValueType().fromJsonValue(rawValue);
     }
 
     private resolveApplicationKeys(): ApplicationKey[] {

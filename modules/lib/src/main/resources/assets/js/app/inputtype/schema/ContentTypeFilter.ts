@@ -36,11 +36,11 @@ export class ContentTypeFilter
     }
 
     createDefaultValue(rawValue: unknown): Value {
-        throw new Error('Method not implemented.');
+        return this.getValueType().newNullValue();
     }
 
     protected readInputConfig(): void {
-        this.isContextDependent = this.context.inputConfig['context']?.[0]?.value as boolean || false;
+        this.isContextDependent = !!this.context.inputConfig['context']?.[0]?.value;
     }
 
     getValueType(): ValueType {

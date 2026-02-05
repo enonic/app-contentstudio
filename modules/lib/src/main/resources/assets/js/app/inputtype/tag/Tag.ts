@@ -35,7 +35,7 @@ export class Tag
     }
 
     createDefaultValue(rawValue: unknown): Value {
-        return this.getValueType().newNullValue();
+        return this.getValueType().fromJsonValue(rawValue);
     }
 
     protected readInputConfig(): void {
