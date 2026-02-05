@@ -313,12 +313,9 @@ export class WidgetRenderingHandler {
         }
 
         // Observe changes to the html element's class attribute
-        this.themeObserver = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                    this.updateImageFrameBackground();
-                }
-            });
+        this.themeObserver = new MutationObserver(() => {
+            // Update once per batch of mutations to avoid redundant updates
+            this.updateImageFrameBackground();
         });
 
         // Start observing
