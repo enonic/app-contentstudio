@@ -276,6 +276,12 @@ export class WidgetRenderingHandler {
             body.style.display = 'flex';
             body.style.justifyContent = 'center';
             body.style.alignItems = 'center';
+            
+            // Apply dark background if dark theme is active
+            const isDarkTheme = document.documentElement.classList.contains('dark');
+            if (isDarkTheme) {
+                body.style.backgroundColor = '#000000';
+            }
         }
 
         let img: HTMLImageElement | SVGElement = frameWindow.document.querySelector('svg');
