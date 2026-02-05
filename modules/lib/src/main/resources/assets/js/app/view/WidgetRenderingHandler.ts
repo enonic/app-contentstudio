@@ -341,6 +341,11 @@ export class WidgetRenderingHandler {
         this.imageFrameWindow = null;
     }
 
+    /**
+     * Cleans up resources used by this handler.
+     * Should be called when the handler instance is being destroyed or is no longer needed.
+     * Disconnects the MutationObserver to prevent memory leaks and clears iframe references.
+     */
     public cleanup() {
         if (this.themeObserver) {
             this.themeObserver.disconnect();
