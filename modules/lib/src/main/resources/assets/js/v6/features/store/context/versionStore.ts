@@ -412,6 +412,59 @@ export const setOnlineVersionId = (versionId: string | undefined): void => {
 }
 
 // ============================================================================
+// Patch Detection
+// ============================================================================
+
+const hasPatchOperation = (version: ContentVersion): boolean =>
+    version.getActions().some((action) => action.getOperation() === ContentOperation.PATCH);
+
+/**
+ * Checks if any versions that happened after the given version (earlier in the list)
+ * have a content.patch operation.
+ */
+export const hasPatchVersionsBefore = (versionId: string): boolean => {
+    const versions = $versions.get();
+    const targetIndex = versions.findIndex((v) => v.getId() === versionId);
+
+    if (targetIndex <= 0) {
+        return false;
+    }
+
+    return versions.slice(0, targetIndex).some(hasPatchOperation);
+};
+
+// ============================================================================
+// Pending Revert Confirmation
+// ============================================================================
+
+type PendingRevert = {
+    contentId: ContentId;
+    versionId: string;
+};
+
+export const $pendingRevert = atom<PendingRevert | null>(null);
+
+export const requestRevert = (contentId: ContentId, versionId: string): void => {
+    if (hasPatchVersionsBefore(versionId)) {
+        $pendingRevert.set({contentId, versionId});
+    } else {
+        revertToVersion(contentId, versionId);
+    }
+};
+
+export const confirmRevert = (): void => {
+    const pending = $pendingRevert.get();
+    if (pending) {
+        $pendingRevert.set(null);
+        revertToVersion(pending.contentId, pending.versionId);
+    }
+};
+
+export const cancelRevert = (): void => {
+    $pendingRevert.set(null);
+};
+
+// ============================================================================
 // Content Actions
 // ============================================================================
 

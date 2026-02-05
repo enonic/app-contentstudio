@@ -12,7 +12,7 @@ import {
     $selectionModeOn,
     getOperationLabel,
     isVersionRevertable,
-    revertToVersion,
+    requestRevert,
     toggleVersionSelection,
 } from '../../../../store/context/versionStore';
 import {VersionsListItemIcon} from './VersionListItemIcon';
@@ -132,7 +132,7 @@ export const VersionsListItem = ({
 
     const handleRestoreClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
-        revertToVersion(contentId, versionId);
+        requestRevert(contentId, versionId);
     }, [contentId, versionId]);
 
     const preventFocusChange = useCallback((e: React.MouseEvent<HTMLElement>) => {
