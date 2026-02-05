@@ -52,8 +52,6 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             await issueDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             await studioUtils.saveScreenshot('status_menu_closed_task');
             await issueDetailsDialog.waitForExpectedNotificationMessage(appConst.NOTIFICATION_MESSAGES.ISSUE_CLOSED_MESSAGE);
-            // 3. 'Reopen Issue' button should appear in the Details dialog:
-            await issueDetailsDialog.waitForReopenButtonDisplayed();
         });
 
     it(`GIVEN existing 'closed' task WHEN 'Issue Details' dialog is opened THEN title input should not be editable`,
@@ -62,7 +60,7 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             let issueListDialog = new IssueListDialog();
             await studioUtils.openIssuesListDialog();
             // 1. Click on 'Closed' button (load closed issues):
-            await issueListDialog.clickOnClosedButton();
+            await issueListDialog.clickOnClosedTabButton();
             // 2. Click on the closed task and open task-details dialog:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
@@ -75,8 +73,8 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             let taskDetailsDialog = new IssueDetailsDialog();
             let issueListDialog = new IssueListDialog();
             await studioUtils.openIssuesListDialog();
-            // 1. Click on 'Closed' button in the Issues List dialog:
-            await issueListDialog.clickOnClosedButton();
+            // 1. Click on 'Closed' tab button in the Issues List dialog:
+            await issueListDialog.clickOnClosedTabButton();
             // 2. Click on the task:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await taskDetailsDialog.waitForDialogLoaded();

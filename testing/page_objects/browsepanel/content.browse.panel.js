@@ -38,6 +38,9 @@ const XPATH = {
     },
     defaultActionByName: name => `//button[contains(@id, 'ActionButton') and child::span[contains(.,'${name}')]]`,
     foldButtonByName: name => `//div[contains(@id,'ContentBrowseToolbar')]//span[text()='${name}']`,
+    browseToolbarMenuItem: (optionName) => {
+        return `//div[contains(@id,'BrowseToolbar') and @role='menu']//div[@role='menuitem' and child::span[text()='${optionName}']]`
+    },
 };
 
 class ContentBrowsePanel extends BaseBrowsePanel {
@@ -108,7 +111,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get showPublishMenuButton() {
-        return XPATH.toolbarDiv + this.publishButton + "/following-sibling::button[@aria-label='More actions']";
+        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('More actions');
     }
 
     get markAsReadyMenuItem() {
@@ -120,7 +123,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get showIssuesListButton() {
-        return XPATH.appBar + XPATH.showIssuesListButton;
+        return "//div[contains(@class,'header-widgets-block')]" + BUTTONS.buttonAriaLabel('View project issues');
     }
 
     get selectionControllerCheckBox() {
@@ -791,9 +794,9 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         try {
             await this.waitForShowPublishMenuDropDownVisible();
             await this.clickOnElement(this.showPublishMenuButton);
-            let selector = XPATH.toolbarDiv + XPATH.publishMenuItemByName(menuItem);
-            await this.waitForPublishMenuItemEnabled(menuItem);
-            await this.clickOnElement(selector);
+            let menuItemLocator =  XPATH.browseToolbarMenuItem(menuItem);
+            await this.waitForElementEnabled(menuItemLocator);
+            await this.clickOnElement(menuItemLocator);
             return await this.pause(300);
         } catch (err) {
             await this.handleError(`tried to click on publish menu item: ${menuItem}`, 'err_click_issue_menuItem', err);
@@ -912,9 +915,12 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    waitForAssignedToMeButtonDisplayed() {
-        let locator = this.showIssuesListButton + "//span[text()='Assigned to Me']";
-        return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    async waitForAssignedToMeButtonDisplayed() {
+        let locator = this.showIssuesListButton ;
+        await this.getBrowser().waitUntil(async () => {
+            let actualText = await this.getText(locator);
+            return actualText.includes('Assigned to me');
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Expected status should be "});
     }
 
     // TODO

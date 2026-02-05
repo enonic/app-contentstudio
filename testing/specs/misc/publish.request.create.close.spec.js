@@ -96,7 +96,7 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
             await studioUtils.openIssuesListDialog();
             // 1. Click on the request and open Request Details dialog:
-            await issueListDialog.clickOnClosedButton();
+            await issueListDialog.clickOnClosedTabButton();
             await issueListDialog.clickOnIssue(REQ_TITLE);
             await publishRequestDetailsDialog.waitForTabLoaded();
             // 2. Click on 'Reopen Request' button:
@@ -119,6 +119,7 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
             await studioUtils.openIssuesListDialog();
             // 1. Click on the request and open 'Request Details' dialog:
+            // TODO epic-enonic-ui Open button
             await issueListDialog.clickOnOpenButton();
             await issueListDialog.clickOnIssue(REQ_TITLE);
             await publishRequestDetailsDialog.waitForTabLoaded();

@@ -96,7 +96,7 @@ describe('publish.issue.by.user.spec: an user publishes assigned to him issue', 
             // 2. SU opens 'Issues List' dialog:
             await studioUtils.openIssuesListDialog();
             // 3. Open 'Closed' issues tab:
-            await issueListDialog.clickOnClosedButton();
+            await issueListDialog.clickOnClosedTabButton();
             // 4. Click on the task:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             // 5. Verify the status info:

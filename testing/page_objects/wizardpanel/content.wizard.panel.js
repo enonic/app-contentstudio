@@ -1201,9 +1201,13 @@ class ContentWizardPanel extends Page {
     // Gets the selected option in the 'Preview dropdown' Auto, Media, etc.
     // Wizard ContentItemPreviewToolbar
     async getSelectedOptionInPreviewWidget() {
-        let locator = this.previewWidgetDropdown;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getText(locator);
+        try {
+            let locator = this.previewWidgetDropdown;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            await this.handleError(`Content Wizard, Tried to get the selected option in Preview Widget`, 'err_prev_widget_dropdown', err);
+        }
     }
 
     async waitForPreviewButtonDisabled() {

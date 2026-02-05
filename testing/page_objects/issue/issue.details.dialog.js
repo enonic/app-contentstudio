@@ -1,30 +1,31 @@
 const BaseDetailsDialog = require('./base.details.dialog');
 const appConst = require('../../libs/app_const');
 const XPATH = {
-    container: `//div[contains(@id,'IssueDetailsDialog')]`,
+    container: `//div[@role='dialog' and contains(@data-component,'IssueDialogDetailsContent')]`,
     issueNameInPlaceInput: `//div[contains(@id,'IssueDetailsInPlaceTextInput')]`,
     editIssueTitleToggle: `//h2[@class='inplace-text' and @title='Click to  edit']`,
-    reopenIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Issue']]`,
-    itemsTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Items')]]",
-    issueStatusSelectorDiv: `//div[contains(@id,'IssueStatusSelector')]`,
+    itemsTabItem: "//button[contains(@role,'tab') and child::span[contains(.,'Items')]]",
+    commentsTabItem: "//button[contains(@role,'tab') and child::span[contains(.,'Comments')]]",
+    assigneesTabItem: "//button[contains(@role,'tab') and child::span[contains(.,'Assignees')]]",
     issueCommentTextArea: `//div[contains(@id,'IssueCommentTextArea')]`,
     issueCommentsListItem: `//div[contains(@id,'IssueCommentsListItem')]`,
     noActionLabel: `//div[@class='no-action-message']`,
-    closeTabMenuItem: "//li[contains(@id,'TabMenuItem') and child::a[text()='Closed']]",
+    closedMenuOption: "//span[@data-component='IssueStatusBadge' and child::span[text()='Closed']]",
+    openMenuOption: "//span[@data-component='IssueStatusBadge' and child::span[text()='Open']]",
 };
 
 class IssueDetailsDialog extends BaseDetailsDialog {
 
-    get reopenIssueButton() {
-        return XPATH.container + XPATH.reopenIssueButton;
+    get itemsTabItem() {
+        return XPATH.container + XPATH.itemsTabItem;
     }
 
-    get issueStatusSelector() {
-        return XPATH.container + XPATH.issueStatusSelectorDiv;
+    get commentsTabItem() {
+        return XPATH.container + XPATH.commentsTabItem;
     }
 
-    get itemsTabBarItem() {
-        return XPATH.container + XPATH.itemsTabBarItem;
+    get assigneesTabItem() {
+        return XPATH.container + XPATH.assigneesTabItem;
     }
 
     async waitForDialogLoaded() {
@@ -32,16 +33,16 @@ class IssueDetailsDialog extends BaseDetailsDialog {
             await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
             return await this.pause(300);
         } catch (err) {
-            await this.saveScreenshot('err_load_issue_details_dialog');
-            throw new Error('Issue Details dialog is not loaded ' + err)
+            await this.handleError('Issue Details dialog was not loaded', 'err_load_issue_details_dialog', err);
         }
     }
 
-    waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_close_issue_det_dialog');
-            throw new Error('Issue Details Dialog must be closed! ' + err)
-        })
+    async waitForDialogClosed() {
+        try {
+            return await this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout)
+        } catch (err) {
+            await this.handleError('Issue Details Dialog was not closed', 'err_wait_close_issue_det_dialog', err);
+        }
     }
 
     async getNumberOfItems() {
@@ -59,19 +60,6 @@ class IssueDetailsDialog extends BaseDetailsDialog {
         return this.isElementDisplayed(XPATH.container);
     }
 
-    async waitForReopenButtonDisplayed() {
-        try {
-            await this.waitForElementDisplayed(XPATH.reopenIssueButton, appConst.mediumTimeout)
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_reopen_issue_btn');
-            throw new Error(`Issue Details dialog 'Reopen issue' was not loaded! screenshot:  ${screenshot}  ` + err);
-        }
-    }
-
-    async clickOnReopenIssueButton() {
-        await this.clickOnElement(this.reopenIssueButton);
-        await this.pause(800);
-    }
 
     async getIssueTitle() {
         let result = await this.getText(XPATH.issueNameInPlaceInput + '/h2');
@@ -109,10 +97,14 @@ class IssueDetailsDialog extends BaseDetailsDialog {
         }
     }
 
-    async clickOncloseTabMenuItem() {
-        await this.waitForElementDisplayed(XPATH.closeTabMenuItem, appConst.mediumTimeout);
-        await this.pause(200);
-        await this.clickOnElement(XPATH.closeTabMenuItem);
+    async clickOncloseMenuOptionItem() {
+        try {
+            await this.waitForElementDisplayed(XPATH.closedMenuOption, appConst.mediumTimeout);
+            await this.pause(200);
+            await this.clickOnElement(XPATH.closedMenuOption);
+        }catch (err){
+            await this.handleError('Issue Details Dialog: error during clicking on Close Issue menu item', 'err_click_close_issue_menu_item', err);
+        }
     }
 
     // gets text in title attribute:

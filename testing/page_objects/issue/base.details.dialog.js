@@ -1,8 +1,9 @@
 const Page = require('../page');
 const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
+
 const XPATH = {
-    container: `//div[contains(@id,'IssueDetailsDialog')]`,
+    container: `//div[@data-component='IssueDialogDetailsContent' and @role='dialog']`,
     toIssueList: "//a[@title='To the Issue List']",
     issueNameInPlaceInput: `//div[contains(@id,'IssueDetailsInPlaceTextInput')]`,
     editIssueTitleToggle: `//h2[@class='inplace-text' and @title='Click to  edit']`,
@@ -11,7 +12,7 @@ const XPATH = {
     itemsTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Items')]]",
     assigneesTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Assignees')]]",
     commentsTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Comments')]]",
-    issueStatusSelectorDiv: `//div[contains(@id,'IssueStatusSelector')]`,
+    issueStatusSelectorButton: `//button[@role='combobox' and contains(@id,'trigger')]`,
     issueCommentTextArea: `//div[contains(@id,'IssueCommentTextArea')]`,
     issueCommentsListItem: `//div[contains(@id,'IssueCommentsListItem')]`,
     noActionLabel: `//div[@class='no-action-message']`,
@@ -34,7 +35,7 @@ class BaseDetailsDialog extends Page {
     }
 
     get issueStatusSelector() {
-        return XPATH.container + XPATH.issueStatusSelectorDiv;
+        return XPATH.container + XPATH.issueStatusSelectorButton;
     }
 
     get issueCommentTextArea() {
@@ -111,10 +112,10 @@ class BaseDetailsDialog extends Page {
     }
 
     async clickOnStatusSelectorMenu() {
-        let statusSelectorButton = this.issueStatusSelector + "//div[contains(@id,'TabMenuButton')]";
+        let statusSelectorButton = this.issueStatusSelector;
         await this.waitForElementDisplayed(statusSelectorButton, appConst.mediumTimeout);
         await this.clickOnElement(statusSelectorButton);
-        return await this.pause(300);
+        return await this.pause(100);
     }
 
     async clickOnIssueStatusSelectorAndCloseIssue() {

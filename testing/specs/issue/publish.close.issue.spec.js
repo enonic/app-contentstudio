@@ -73,7 +73,7 @@ describe('publish.close.issue.spec: publish a content and close the issue.', fun
             await studioUtils.openIssuesListDialog();
             await studioUtils.saveScreenshot('verify_issue_246');
             // 2. Go to closed issues:
-            await issueListDialog.clickOnClosedButton();
+            await issueListDialog.clickOnClosedTabButton();
             await studioUtils.saveScreenshot('navigate_closed_issues');
             let result = await issueListDialog.isIssuePresent(ISSUE_TITLE);
             assert.ok(result, 'required issue should be present in `closed issues`');

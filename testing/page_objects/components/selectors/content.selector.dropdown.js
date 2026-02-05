@@ -15,6 +15,9 @@ class ContentSelectorDropdown extends BaseDropdown {
     get container() {
         return XPATH.container;
     }
+    get dataComponent() {
+        return "//div[contains(@data-component,'AssigneeSelector')]";
+    }
 
     async selectFilteredByDisplayNameContent(displayName, parent) {
         try {

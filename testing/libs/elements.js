@@ -13,6 +13,7 @@ const COMMON = {
         CHECKBOX_INPUT: "//input[@type='checkbox']",
         CHECKBOX_INPUT_CHECKED: "//input[@type='checkbox' and @aria-checked='true']",
         TEXT: "//input[@type='text']",
+        inputByAriaLabel: (ariaLabel) => `//input[@aria-label='${ariaLabel}']`,
     }
 
 
@@ -31,7 +32,7 @@ const BUTTONS = {
     SELECTION_PANEL_TOGGLER: `//button[contains(@id,'SelectionPanelToggler')]`,
     SELECTOR_MODE_TOGGLER: "//button[contains(@id,'ModeTogglerButton')]",
     UPLOAD_BUTTON: "//button[contains(@class,'upload-button')]",
-    button: (label) => `//button[contains(@type,'button') and contains(.,'${label}')]`,
+    buttonByLabel: (label) => `//button[contains(@type,'button') and contains(.,'${label}')]`,
     buttonAriaLabel: (ariaLabel) => `//button[contains(@type,'button') and contains(@aria-label,'${ariaLabel}')]`,
     buttonStatusBar: (label) => `//button[@data-component='StatusBarEntryButton' and contains(.,'${label}')]`,
     actionButton: (label) => `//div[contains(@id,'ActionButton')]/button[contains(.,'${label}')]`,
@@ -87,6 +88,12 @@ const TREE_GRID = {
         return `//div[contains(@role,'treeitem') and descendant::small[contains(@class,'t-subtle') and contains(.,'${name}')]]`;
     },
 }
+const NEW_DROPDOWN = {
+    DROPDOWN_LIST_ITEM_DISPLAY_NAME: `//div[contains(@id,'listbox-option') and @role='option']//div[1]//span[1]`,
+    optionByDisplayName: (displayName) => `//div[contains(@id,'listbox-option')  and descendant::span[contains(.,'${displayName}')]]`,
+    treeItemByDisplayName: (displayName) => `//div[@role='treeitem']//div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]]`,
+    treeItemByName: (name) => `//div[@role='treeitem']//div[@data-component='ContentLabel' and descendant::small[contains(.,'${name}')]]`,
+};
 const DROPDOWN = {
     HANDLE: "//button[contains(@id,'DropdownHandle')]",
     DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
@@ -120,4 +127,5 @@ module.exports = Object.freeze({
     LIVE_VIEW,
     WIZARD,
     TREE_GRID,
+    NEW_DROPDOWN,
 });

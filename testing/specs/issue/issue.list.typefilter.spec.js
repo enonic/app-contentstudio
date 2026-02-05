@@ -133,7 +133,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             let issueDetailsDialog = new IssueDetailsDialog();
             // 1. Open 'Issue List' dialog:
             await studioUtils.openIssuesListDialog();
-            await issueListDialog.clickOnClosedButton();
+            await issueListDialog.clickOnClosedTabButton();
             let closedNumberBeforeReopen = await issueListDialog.getNumberInClosedButton();
             let openNumberBeforeReopen = await issueListDialog.getNumberInOpenButton();
             let filterInputNumberBeforeReopen = await issueListDialog.getNumberInSelectedOption();

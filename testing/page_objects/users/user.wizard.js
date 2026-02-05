@@ -168,7 +168,7 @@ class UserWizard extends wizards.WizardPanel {
 
     async clickOnRolesAndGroupsLink() {
         await this.clickOnElement(this.rolesGroupsLink);
-        await this.pause(300);
+        await this.pause(1000);
     }
 
     getUserName() {

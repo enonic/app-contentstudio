@@ -500,7 +500,7 @@ module.exports = Object.freeze({
         PUBLISH_TREE: 'Publish Tree...',
         MARK_AS_READY: 'Mark as ready',
         UNPUBLISH: 'Unpublish...',
-        CREATE_ISSUE: 'Create Issue...'
+        CREATE_ISSUE: 'Create issue'
     },
     GRID_CONTEXT_MENU: {
         NEW: 'New',

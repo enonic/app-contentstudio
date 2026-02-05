@@ -677,7 +677,7 @@ module.exports = {
     },
     async clickOnContentStudioLink(userName, password) {
         let launcherPanel = new LauncherPanel();
-        let result = await launcherPanel.isDisplayed(1500);
+        let result = await launcherPanel.isDisplayed(500);
         console.log('Launcher Panel is opened, click on the `Content Studio` link...');
         if (result) {
             await launcherPanel.clickOnContentStudioLink();
