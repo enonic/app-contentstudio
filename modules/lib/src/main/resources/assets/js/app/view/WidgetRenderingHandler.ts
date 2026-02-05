@@ -48,6 +48,10 @@ export class WidgetRenderingHandler {
 
     protected renderableChangedListeners: ((isRenderable: boolean, wasRenderable: boolean) => void)[] = [];
 
+    private imageFrameWindow: Window | null = null;
+
+    private themeObserver: MutationObserver | null = null;
+
 
     constructor(renderer: WidgetRenderer, previewHelper?: PreviewActionHelper) {
         this.renderer = renderer;
@@ -55,6 +59,7 @@ export class WidgetRenderingHandler {
         this.previewHelper = previewHelper || new PreviewActionHelper();
         this.emptyView = this.createEmptyView();
         this.messageView = this.createErrorView();
+        this.setupThemeObserver();
     }
 
 
@@ -277,11 +282,9 @@ export class WidgetRenderingHandler {
             body.style.justifyContent = 'center';
             body.style.alignItems = 'center';
             
-            // Apply dark background if dark theme is active
+            // Apply background color based on theme
             const isDarkTheme = document.documentElement.classList.contains('dark');
-            if (isDarkTheme) {
-                body.style.backgroundColor = '#000000';
-            }
+            body.style.backgroundColor = isDarkTheme ? '#000000' : '#ffffff';
         }
 
         let img: HTMLImageElement | SVGElement = frameWindow.document.querySelector('svg');
@@ -295,6 +298,39 @@ export class WidgetRenderingHandler {
             img.style.maxWidth = '100%';
             img.style.maxHeight = '100%';
         }
+
+        // Store reference to update on theme changes
+        this.imageFrameWindow = frameWindow;
+    }
+
+    private setupThemeObserver() {
+        if (typeof document === 'undefined' || typeof MutationObserver === 'undefined') {
+            return;
+        }
+
+        // Observe changes to the html element's class attribute
+        this.themeObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    this.updateImageFrameBackground();
+                }
+            });
+        });
+
+        // Start observing
+        this.themeObserver.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    }
+
+    private updateImageFrameBackground() {
+        if (!this.imageFrameWindow || !this.imageFrameWindow.document.body) {
+            return;
+        }
+
+        const isDarkTheme = document.documentElement.classList.contains('dark');
+        this.imageFrameWindow.document.body.style.backgroundColor = isDarkTheme ? '#000000' : '#ffffff';
     }
 
     protected handleWidgetEvent(event: ViewWidgetEvent) {
