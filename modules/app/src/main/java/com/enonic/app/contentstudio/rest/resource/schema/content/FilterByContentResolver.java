@@ -14,16 +14,17 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 
+import com.google.common.collect.ImmutableList;
+
+import com.enonic.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationKeys;
 import com.enonic.xp.app.ApplicationWildcardMatcher;
-import com.enonic.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.data.PropertyTree;
-import com.enonic.xp.inputtype.InputTypeProperty;
 import com.enonic.xp.page.PageDescriptor;
 import com.enonic.xp.page.PageDescriptorService;
 import com.enonic.xp.project.ProjectName;
@@ -42,6 +43,7 @@ import com.enonic.xp.schema.content.GetContentTypeParams;
 import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.site.SiteConfigs;
 import com.enonic.xp.site.SiteConfigsDataSerializer;
+import com.enonic.xp.util.GenericValue;
 
 @Component(service = FilterByContentResolver.class)
 public class FilterByContentResolver
@@ -159,7 +161,9 @@ public class FilterByContentResolver
                 .map( this.contentTypeService::getByApplication )
                 .flatMap( ContentTypes::stream )
                 .filter( Predicate.not( ContentType::isAbstract ) )
-                .filter( type -> type.getSchemaConfig().getValue( "allowNewContent", Boolean.class, Boolean.TRUE ) ) )
+                .filter(type ->
+                            type.getSchemaConfig().optional( "allowNewContent" ).
+                                map( GenericValue::asBoolean ).orElse( Boolean.TRUE ) ) )
             .orElseGet( Stream::of );
     }
 
@@ -171,7 +175,7 @@ public class FilterByContentResolver
             .map( contentTypeService::getByApplication )
             .flatMap( ContentTypes::stream )
             .filter( Predicate.not( ContentType::isAbstract ) )
-            .filter( type -> type.getSchemaConfig().getValue( "allowNewContent", Boolean.class, Boolean.TRUE ) );
+            .filter( type -> type.getSchemaConfig().optional( "allowNewContent" ).map( GenericValue::asBoolean ).orElse( Boolean.TRUE ) );
     }
 
     public Stream<LayoutDescriptor> layouts( final ContentId contentId )
@@ -225,7 +229,8 @@ public class FilterByContentResolver
 
     private boolean isAllowedOnContentType( final ComponentDescriptor descriptor, ContentTypeName contentTypeName )
     {
-        final List<String> allowOnContentType = readConfigValues( descriptor.getSchemaConfig().getProperties( "allowOnContentType" ) );
+        final List<String> allowOnContentType =
+            descriptor.getSchemaConfig().optional( "allowOnContentType" ).map( GenericValue::toStringList ).orElse( ImmutableList.of() );
 
         return allowContentTypeFilter( descriptor.getKey().getApplicationKey(), allowOnContentType ).test( contentTypeName );
     }
@@ -236,11 +241,6 @@ public class FilterByContentResolver
             new ApplicationWildcardMatcher<>( applicationKey, ContentTypeName::toString, mode );
 
         return wildcards.stream().map( wildcardMatcher::createPredicate ).reduce( Predicate::or ).orElse( s -> true );
-    }
-
-    private static List<String> readConfigValues( final Set<InputTypeProperty> config )
-    {
-        return config.stream().map( InputTypeProperty::getValue ).collect( Collectors.toList() );
     }
 
     @Reference

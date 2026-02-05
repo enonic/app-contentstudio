@@ -2,9 +2,9 @@ import {Property} from '@enonic/lib-admin-ui/data/Property';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {Attachments, AttachmentsBuilder} from '../attachment/Attachments';
 import {ContentJson} from './ContentJson';
-import {ExtraData} from './ExtraData';
-import {ExtraDataJson} from '../resource/json/ExtraDataJson';
-import {XDataName} from './XDataName';
+import {Mixin} from './Mixin';
+import {MixinJson} from '../resource/json/MixinJson';
+import {MixinName} from './MixinName';
 import {Page, PageBuilder} from '../page/Page';
 import {AccessControlList} from '../access/AccessControlList';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
@@ -25,7 +25,7 @@ export class Content
 
     private readonly attachments: Attachments;
 
-    private readonly extraData: ExtraData[] = [];
+    private readonly mixins: Mixin[] = [];
 
     private readonly pageObj: Page;
 
@@ -39,7 +39,7 @@ export class Content
         assertNotNull(builder.data, 'data is required for Content');
         this.data = builder.data;
         this.attachments = builder.attachments;
-        this.extraData = builder.extraData || [];
+        this.mixins = builder.mixins || [];
         this.pageObj = builder.pageObj;
         this.permissions = builder.permissions || new AccessControlList();
         this.validationErrors = builder.validationErrors || [];
@@ -53,12 +53,12 @@ export class Content
         return this.attachments;
     }
 
-    getExtraDataByName(name: XDataName): ExtraData {
-        return this.extraData.filter((item: ExtraData) => item.getName().equals(name))[0];
+    getMixinByName(name: MixinName): Mixin {
+        return this.mixins.filter((item: Mixin) => item.getName().equals(name))[0];
     }
 
-    getAllExtraData(): ExtraData[] {
-        return this.extraData;
+    getMixins(): Mixin[] {
+        return this.mixins;
     }
 
     getProperty(propertyName: string): Property {
@@ -106,7 +106,7 @@ export class ContentBuilder
 
     attachments: Attachments;
 
-    extraData: ExtraData[];
+    mixins: Mixin[];
 
     pageObj: Page;
 
@@ -120,7 +120,7 @@ export class ContentBuilder
         if (source) {
             if (cloneProperties) {
                 this.data = source.getContentData() ? source.getContentData().copy() : null;
-                this.extraData = source.getAllExtraData() ? source.getAllExtraData().map((extraData: ExtraData) => extraData.clone()) : [];
+                this.mixins = source.getMixins() ? source.getMixins().map((extraData: Mixin) => extraData.clone()) : [];
                 this.pageObj = source.getPage() ? source.getPage().clone() : null;
             }
             this.attachments = source.getAttachments();
@@ -135,9 +135,9 @@ export class ContentBuilder
 
         this.data = PropertyTree.fromJson(json.data);
         this.attachments = new AttachmentsBuilder().fromJson(json.attachments).build();
-        this.extraData = [];
-        json.meta.forEach((extraDataJson: ExtraDataJson) => {
-            this.extraData.push(ExtraData.fromJson(extraDataJson));
+        this.mixins = [];
+        json.meta.forEach((extraDataJson: MixinJson) => {
+            this.mixins.push(Mixin.fromJson(extraDataJson));
         });
 
         if (this.page) {
@@ -172,8 +172,8 @@ export class ContentBuilder
         return this;
     }
 
-    setExtraData(extraData: ExtraData[]): ContentBuilder {
-        this.extraData = extraData;
+    setMixins(mixins: Mixin[]): ContentBuilder {
+        this.mixins = mixins;
         return this;
     }
 

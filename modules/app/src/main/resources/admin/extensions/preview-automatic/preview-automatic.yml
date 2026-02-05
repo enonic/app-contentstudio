@@ -1,0 +1,11 @@
+displayName:
+  text: "Automatic"
+  i18n: "widget.liveview.automatic.name"
+description:
+  text: "Use best preview widget"
+  i18n: "widget.liveview.automatic.description"
+interfaces:
+  - "contentstudio.liveview"
+config:
+  auto: "false"
+  order: "0"

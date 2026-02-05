@@ -1,0 +1,13 @@
+displayName:
+  text: "Site engine"
+  i18n: "widget.liveview.site.name"
+description:
+  text: "Render using site engine"
+  i18n: "widget.liveview.site.description"
+interfaces:
+  - "contentstudio.liveview"
+config:
+  auto: "true"
+  allowPath: "${site}/*"
+  allowContentType: "*"
+  order: "90"

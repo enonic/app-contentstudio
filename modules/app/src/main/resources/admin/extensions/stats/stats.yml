@@ -1,0 +1,8 @@
+displayName: "Content Studio"
+interfaces:
+  - "admin.dashboard"
+config:
+  width: "small"
+  style: "custom"
+  height: "small"
+  order: "1"

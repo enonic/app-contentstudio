@@ -90,7 +90,7 @@ export function getConfig(locales: string[], aiEnabled: boolean): Record<string,
         },
         theme,
         widgetApiUrl: apiUrl({
-            api: 'admin:widget'
+            api: 'admin:extension'
         }),
         statusApiUrl: apiUrl({
             api: 'admin:status'

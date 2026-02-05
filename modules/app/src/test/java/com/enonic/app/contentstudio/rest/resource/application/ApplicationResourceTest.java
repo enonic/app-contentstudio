@@ -15,13 +15,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import com.enonic.app.contentstudio.rest.resource.AdminResourceTestSupport;
 import com.enonic.xp.app.Application;
 import com.enonic.xp.app.ApplicationDescriptor;
 import com.enonic.xp.app.ApplicationDescriptorService;
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationService;
 import com.enonic.xp.app.Applications;
-import com.enonic.app.contentstudio.rest.resource.AdminResourceTestSupport;
 import com.enonic.xp.form.Form;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.i18n.LocaleService;
@@ -30,9 +30,9 @@ import com.enonic.xp.icon.Icon;
 import com.enonic.xp.idprovider.IdProviderDescriptor;
 import com.enonic.xp.idprovider.IdProviderDescriptorService;
 import com.enonic.xp.inputtype.InputTypeName;
-import com.enonic.xp.schema.mixin.MixinService;
-import com.enonic.xp.site.SiteDescriptor;
-import com.enonic.xp.site.SiteService;
+import com.enonic.xp.schema.content.CmsFormFragmentService;
+import com.enonic.xp.site.CmsDescriptor;
+import com.enonic.xp.site.CmsService;
 import com.enonic.xp.util.Version;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -48,13 +48,13 @@ public class ApplicationResourceTest
 
     private ApplicationDescriptorService applicationDescriptorService;
 
-    private SiteService siteService;
+    private CmsService cmsService;
 
     private IdProviderDescriptorService idProviderDescriptorService;
 
     private LocaleService localeService;
 
-    private MixinService mixinService;
+    private CmsFormFragmentService formFragmentService;
 
     @BeforeEach
     public void setup()
@@ -73,14 +73,14 @@ public class ApplicationResourceTest
     {
         final Application application = createApplication();
         when( this.applicationService.getInstalledApplication( isA( ApplicationKey.class ) ) ).thenReturn( application );
-        final SiteDescriptor siteDescriptor = createSiteDescriptor();
-        when( this.siteService.getDescriptor( isA( ApplicationKey.class ) ) ).thenReturn( siteDescriptor );
+        final CmsDescriptor cmsDescriptor = createCmsDescriptor();
+        when( this.cmsService.getDescriptor( isA( ApplicationKey.class ) ) ).thenReturn( cmsDescriptor );
         final IdProviderDescriptor idProviderDescriptor = createIdProviderDescriptor();
         when( this.idProviderDescriptorService.getDescriptor( isA( ApplicationKey.class ) ) ).thenReturn( idProviderDescriptor );
         final ApplicationDescriptor appDescriptor = createApplicationDescriptor();
         when( this.applicationDescriptorService.get( isA( ApplicationKey.class ) ) ).thenReturn( appDescriptor );
 
-        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( formFragmentService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         String response = request().
             path( "application" ).
@@ -95,14 +95,14 @@ public class ApplicationResourceTest
     {
         final Application application = createApplication();
         when( this.applicationService.get( isA( ApplicationKey.class ) ) ).thenReturn( application );
-        final SiteDescriptor siteDescriptor = createSiteDescriptor();
-        when( this.siteService.getDescriptor( isA( ApplicationKey.class ) ) ).thenReturn( siteDescriptor );
+        final CmsDescriptor cmsDescriptor = createCmsDescriptor();
+        when( this.cmsService.getDescriptor( isA( ApplicationKey.class ) ) ).thenReturn( cmsDescriptor );
         final IdProviderDescriptor idProviderDescriptor = createIdProviderDescriptor();
         when( this.idProviderDescriptorService.getDescriptor( isA( ApplicationKey.class ) ) ).thenReturn( idProviderDescriptor );
         final ApplicationDescriptor appDescriptor = createApplicationDescriptor();
         when( this.applicationDescriptorService.get( isA( ApplicationKey.class ) ) ).thenReturn( appDescriptor );
 
-        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( formFragmentService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         String response = request().path( "application/getApplicationsByKeys" )
             .entity( "{\"applicationKeys\":[\"project1\"]}", MediaType.APPLICATION_JSON_TYPE )
@@ -118,8 +118,8 @@ public class ApplicationResourceTest
     {
         final Application application = createApplication();
         when( this.applicationService.getInstalledApplication( isA( ApplicationKey.class ) ) ).thenReturn( application );
-        final SiteDescriptor siteDescriptor = createSiteDescriptor();
-        when( this.siteService.getDescriptor( isA( ApplicationKey.class ) ) ).thenReturn( siteDescriptor );
+        final CmsDescriptor cmsDescriptor = createCmsDescriptor();
+        when( this.cmsService.getDescriptor( isA( ApplicationKey.class ) ) ).thenReturn( cmsDescriptor );
         final IdProviderDescriptor idProviderDescriptor = createIdProviderDescriptor();
         when( this.idProviderDescriptorService.getDescriptor( isA( ApplicationKey.class ) ) ).thenReturn( idProviderDescriptor );
         final ApplicationDescriptor appDescriptor = createApplicationDescriptor();
@@ -134,7 +134,7 @@ public class ApplicationResourceTest
 
         when( this.localeService.getBundle( any(), any() ) ).thenReturn( messageBundle );
 
-        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( formFragmentService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         String response = request().
             path( "application" ).
@@ -151,13 +151,13 @@ public class ApplicationResourceTest
         final Applications applications = Applications.from( application );
         when( this.applicationService.list() ).thenReturn( applications );
 
-        final SiteDescriptor siteDescriptor = createSiteDescriptor();
-        when( this.siteService.getDescriptor( isA( ApplicationKey.class ) ) ).thenReturn( siteDescriptor );
+        final CmsDescriptor cmsDescriptor = createCmsDescriptor();
+        when( this.cmsService.getDescriptor( isA( ApplicationKey.class ) ) ).thenReturn( cmsDescriptor );
 
         final ApplicationDescriptor appDescriptor = createApplicationDescriptor();
         when( this.applicationDescriptorService.get( isA( ApplicationKey.class ) ) ).thenReturn( appDescriptor );
 
-        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( formFragmentService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         String response = request().
             path( "application/getSiteApplications" ).
@@ -247,14 +247,14 @@ public class ApplicationResourceTest
             build();
     }
 
-    private SiteDescriptor createSiteDescriptor()
+    private CmsDescriptor createCmsDescriptor()
     {
         final Form config = Form.create().
             addFormItem( Input.create().name( "some-name" ).label( "some-label" ).helpTextI18nKey( "site.config.helpText" ).labelI18nKey(
                 "site.config.label" ).inputType( InputTypeName.TEXT_LINE ).build() ).
             build();
 
-        return SiteDescriptor.create().form( config ).build();
+        return CmsDescriptor.create().applicationKey( ApplicationKey.from( "testapplication" ) ).form( config ).build();
     }
 
     private IdProviderDescriptor createIdProviderDescriptor()
@@ -273,18 +273,18 @@ public class ApplicationResourceTest
     {
         this.applicationService = mock( ApplicationService.class );
         this.applicationDescriptorService = mock( ApplicationDescriptorService.class );
-        this.siteService = mock( SiteService.class );
+        this.cmsService = mock( CmsService.class );
         this.idProviderDescriptorService = mock( IdProviderDescriptorService.class );
         this.localeService = mock( LocaleService.class );
-        this.mixinService = mock( MixinService.class );
+        this.formFragmentService = mock( CmsFormFragmentService.class );
 
         final ApplicationResource resource = new ApplicationResource();
         resource.setApplicationService( this.applicationService );
-        resource.setSiteService( this.siteService );
+        resource.setCmsService( this.cmsService );
         resource.setIdProviderDescriptorService( this.idProviderDescriptorService );
         resource.setApplicationDescriptorService( this.applicationDescriptorService );
         resource.setLocaleService( this.localeService );
-        resource.setMixinService( this.mixinService );
+        resource.setFormFragmentService( this.formFragmentService );
 
         return resource;
     }

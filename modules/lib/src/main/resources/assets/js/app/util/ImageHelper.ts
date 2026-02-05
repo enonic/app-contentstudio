@@ -1,6 +1,5 @@
 import {Content} from '../content/Content';
-import {XDataName} from '../content/XDataName';
-import {Attachments} from '../attachment/Attachments';
+import {MixinName} from '../content/MixinName';
 import {Property} from '@enonic/lib-admin-ui/data/Property';
 
 export class ImageHelper {
@@ -20,8 +19,8 @@ export class ImageHelper {
     }
 
     static getImageDescription(imageContent: Content): string {
-        const imageInfoMixin = new XDataName('media:imageInfo');
-        const imageInfoData = imageContent.getExtraDataByName(imageInfoMixin);
+        const imageInfoMixin = new MixinName('media:imageInfo');
+        const imageInfoData = imageContent.getMixinByName(imageInfoMixin);
 
         if (!imageInfoData || !imageInfoData.getData()) {
             return null;
