@@ -34,6 +34,7 @@ export const NewProjectDialog = (): ReactElement => {
                     <NewProjectDialogSteps.AccessStep.Header />
                     <NewProjectDialogSteps.RoleStep.Header />
                     <NewProjectDialogSteps.ApplicationStep.Header />
+                    <NewProjectDialogSteps.NameStep.Header />
 
                     <Dialog.Body className="p-1.5">
                         <NewProjectDialogSteps.ParentStep.Content />
@@ -41,6 +42,7 @@ export const NewProjectDialog = (): ReactElement => {
                         <NewProjectDialogSteps.AccessStep.Content />
                         <NewProjectDialogSteps.RoleStep.Content locked={!accessMode} />
                         <NewProjectDialogSteps.ApplicationStep.Content locked={!accessMode} />
+                        <NewProjectDialogSteps.NameStep.Content locked={!accessMode} />
                     </Dialog.Body>
 
                     <Dialog.Footer className="flex flex-col">

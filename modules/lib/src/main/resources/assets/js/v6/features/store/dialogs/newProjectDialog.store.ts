@@ -10,6 +10,13 @@ import {Application} from '@enonic/lib-admin-ui/application/Application';
 // * Store State
 //
 
+type NewProjectNameData = {
+    name: string;
+    identifier: string;
+    description: string;
+    hasError: boolean;
+};
+
 type NewProjectDialogStore = {
     // config
     open: boolean;
@@ -24,6 +31,7 @@ type NewProjectDialogStore = {
     permissions: Principal[];
     roles?: Map<string, ProjectAccess>; // Principal key as string, ProjectAccess as value
     applications?: Application[];
+    nameData: NewProjectNameData;
 };
 
 const initialState: NewProjectDialogStore = {
@@ -40,6 +48,12 @@ const initialState: NewProjectDialogStore = {
     permissions: [],
     roles: new Map(),
     applications: [],
+    nameData: {
+        name: '',
+        identifier: '',
+        description: '',
+        hasError: false,
+    },
 };
 
 export const $newProjectDialog = deepMap<NewProjectDialogStore>(structuredClone(initialState));
@@ -89,6 +103,10 @@ export const setNewProjectDialogRoles = (roles: Map<string, ProjectAccess>): voi
 
 export const setNewProjectDialogApplications = (applications: Application[]): void => {
     $newProjectDialog.setKey('applications', applications);
+};
+
+export const setNewProjectDialogName = (data: NewProjectNameData): void => {
+    $newProjectDialog.setKey('nameData', data);
 };
 
 //
