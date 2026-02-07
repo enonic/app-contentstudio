@@ -26,6 +26,7 @@ export const NewProjectDialogNameStepContent = ({locked = false}: {locked?: bool
     const [identifierError, setIdentifierError] = useState<string>();
     const [descriptionError, setDescriptionError] = useState<string>();
     const isInitialRender = useRef(true);
+    const lastAutoIdentifierRef = useRef('');
 
     const projectNameLabel = useI18n('dialog.project.wizard.name.projectName');
     const projectIdentifierLabel = useI18n('dialog.project.wizard.name.projectIdentifier');
@@ -115,8 +116,13 @@ export const NewProjectDialogNameStepContent = ({locked = false}: {locked?: bool
             return;
         }
 
-        updateIdentifier(name, false);
-    }, [name, updateIdentifier]);
+        const shouldSync = identifier === lastAutoIdentifierRef.current;
+        lastAutoIdentifierRef.current = prettifyProjectIdentifier(name, false);
+
+        if (shouldSync) {
+            updateIdentifier(name, false);
+        }
+    }, [name, identifier, updateIdentifier]);
 
     return (
         <Dialog.StepContent step="step-name" locked={locked}>
