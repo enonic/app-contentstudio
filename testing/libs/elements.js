@@ -1,5 +1,6 @@
 const COMMON = {
     DISPLAY_NAME_INPUT: "//input[@name='displayName']",
+    FOOTER_ELEMENT: `//footer`,
     NOTIFICATION_TEXT: "//div[@class='notification-wrapper']//p",
     FORM_VIEW: `//div[contains(@id,'FormView')]`,
     FORM_ITEM: "//div[contains(@id,'FormItem')]",
@@ -8,11 +9,14 @@ const COMMON = {
     CONTEXT_WINDOW_TOGGLE_BUTTON: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`,
     CONTENT_APP_BAR_DIV: "//div[contains(@id,'BrowseAppBarElement')]",
     SELECT_ALL_CHECKBOX_LABEL: "//label[descendant::input[@type='checkbox' and @aria-label='Select all']]",
+    menuItemByText: (text) => `//div[@role,'menuitem') and text()='${text}']`,
+
 
     INPUTS: {
         CHECKBOX_INPUT: "//input[@type='checkbox']",
         CHECKBOX_INPUT_CHECKED: "//input[@type='checkbox' and @aria-checked='true']",
         TEXT: "//input[@type='text']",
+        textAreaByName: (name) => `//textarea[@name='${name}']`,
         inputByAriaLabel: (ariaLabel) => `//input[@aria-label='${ariaLabel}']`,
     }
 
@@ -33,6 +37,7 @@ const BUTTONS = {
     SELECTOR_MODE_TOGGLER: "//button[contains(@id,'ModeTogglerButton')]",
     UPLOAD_BUTTON: "//button[contains(@class,'upload-button')]",
     buttonByLabel: (label) => `//button[contains(@type,'button') and contains(.,'${label}')]`,
+    BUTTON_MENU_POPUP:"//button[@aria-haspopup='menu']",
     buttonAriaLabel: (ariaLabel) => `//button[contains(@type,'button') and contains(@aria-label,'${ariaLabel}')]`,
     buttonStatusBar: (label) => `//button[@data-component='StatusBarEntryButton' and contains(.,'${label}')]`,
     actionButton: (label) => `//div[contains(@id,'ActionButton')]/button[contains(.,'${label}')]`,
@@ -89,10 +94,14 @@ const TREE_GRID = {
     },
 }
 const NEW_DROPDOWN = {
-    DROPDOWN_LIST_ITEM_DISPLAY_NAME: `//div[contains(@id,'listbox-option') and @role='option']//div[1]//span[1]`,
+    DROPDOWN_LIST_ITEM_DISPLAY_NAME: `//div[@role='option']//div[1]//span[1]`,
+    CONTENT_COMBOBOX: "//div[@data-component='ContentCombobox')]",
+    DROPDOWN_HANDLE: "//button[@aria-label='Toggle']",
     optionByDisplayName: (displayName) => `//div[contains(@id,'listbox-option')  and descendant::span[contains(.,'${displayName}')]]`,
     treeItemByDisplayName: (displayName) => `//div[@role='treeitem']//div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]]`,
     treeItemByName: (name) => `//div[@role='treeitem']//div[@data-component='ContentLabel' and descendant::small[contains(.,'${name}')]]`,
+    LIST_BOX_DIV: "//div[contains(@role,'listbox')]",
+    optionByText: (text) => `//div[contains(@role,'option')  and descendant::span[text()='${text}']]`,
 };
 const DROPDOWN = {
     HANDLE: "//button[contains(@id,'DropdownHandle')]",

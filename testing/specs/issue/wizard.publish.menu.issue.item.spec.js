@@ -38,7 +38,7 @@ describe('wizard.publish.menu.issue.item.spec - tests for Publish menu in wizard
             await createIssueDialog.typeTitle(ISSUE_TITLE);
             await createIssueDialog.clickOnCreateIssueButton();
             // Close Issue Details dialog and Issue List dialog:
-            await issueDetailsDialog.clickOnCancelTopButton();
+            await issueDetailsDialog.clickOnCloseButton();
             await issueDetailsDialog.waitForDialogClosed();
             await issueListDialog.waitForDialogClosed();
             // New menu item should appear in the Wizard Publish Menu:
@@ -67,7 +67,7 @@ describe('wizard.publish.menu.issue.item.spec - tests for Publish menu in wizard
             let isActive = await taskDetailsDialog.isItemsTabBarItemActive();
             assert.ok(isActive, 'Items tab remains active');
             // 5. Close the modal dialog:
-            await taskDetailsDialog.clickOnCancelTopButton();
+            await taskDetailsDialog.clickOnCloseButton();
             await studioUtils.saveScreenshot('publish_menu_item_hidden');
             // 6. Expand Publish Menu in wizard and verify that task-name is not present in the menu:
             let result = await contentWizard.isPublishMenuItemPresent(ISSUE_TITLE);

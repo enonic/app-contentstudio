@@ -40,8 +40,8 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
             // 1. Verify that Comments tab is active by default
-            let isActive = await issueDetailsDialog.isCommentsTabBarItemActive();
-            assert.ok(isActive, 'Comments Tab should be active');
+            let isActive = await issueDetailsDialog.isTabActive('Comments');
+            assert.ok(isActive, 'Comments Tab should be active by default');
             // 2. Verify that status of the task is 'Open'
             let actualStatus = await issueDetailsDialog.getCurrentStatusInStatusSelector();
             assert.equal(actualStatus, 'Open', "'Open' status should be displayed in status selector button");

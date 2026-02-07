@@ -94,7 +94,7 @@ describe('close.issue.without.items.spec: create an issue without items, close t
             await issueListDialog.clickOnIssue(issueTitle);
             await issueDetailsDialog.waitForDialogLoaded();
             // 3. Click on Back button:
-            await issueDetailsDialog.clickOnBackButton();
+            await issueDetailsDialog.clickOnBackToIssuesButton();
             await studioUtils.saveScreenshot('issue_details_back_clicked');
             // issues list dialog should be loaded:
             await issueListDialog.waitForDialogOpened();

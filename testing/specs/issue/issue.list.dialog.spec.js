@@ -21,7 +21,7 @@ describe('issue.list.dialog.spec: Issue List modal Dialog specification', functi
             let title = await issueListDialog.getTitle();
             assert.strictEqual(title, 'Issues', 'Expected dialog hider should be displayed');
             // 'Open' button should be displayed
-            await issueListDialog.waitForOpenButtonDisplayed();
+            await issueListDialog.waitForOpenTabButtonDisplayed();
             // 'Closed' tab button should be displayed
             await issueListDialog.waitForClosedTabButtonDisplayed();
 

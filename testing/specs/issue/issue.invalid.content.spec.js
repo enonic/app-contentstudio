@@ -49,7 +49,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             // 6. Verify that 'All' checkbox is displayed in the dialog:
             await issueDetailsDialogItemsTab.waitForAllDependantsCheckboxDisplayed();
             // 7. Verify that expected number of items is displayed in the Items tab-link:
-            let result = await issueDetailsDialog.getNumberOfItems();
+            let result = await issueDetailsDialog.getNumberInItemsTab();
             assert.equal(result, '25', "25 items should be displayed in the 'Items' link");
             // 8. Publish button should be enabled, because all items are valid
             await issueDetailsDialogItemsTab.waitForPublishButtonEnabled();
@@ -77,7 +77,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await issueDetailsDialog.waitForDialogLoaded();
             await issueDetailsDialog.pause(1000);
             // 4. 12 items should be in the issue-details dialog:
-            let result = await issueDetailsDialog.getNumberOfItems();
+            let result = await issueDetailsDialog.getNumberInItemsTab();
             assert.equal(result, '12', "12 items should be displayed in the 'Items' link");
         });
 

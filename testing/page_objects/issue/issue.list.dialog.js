@@ -6,7 +6,6 @@ const xpath = {
     container: `//div[@role='dialog' and contains(@data-component,'IssueDialogListContent')]`,
     closedTabButton: "//button[@role='tab' and child::span[contains(.,'Closed')]]",
     openTabButton: "//button[@role='tab' and child::span[contains(.,'Open')]]",
-    hideClosedIssuesButton: "//button[contains(@id,'OnOffButton') and child::span[contains(.,'Hide closed issues')]]",
     issueItemByName(name) {
         return `//div[@data-component='IssueList']//div[@data-component='IssueListItem' and descendant::div[contains(.,'${name}')]]`
     },
@@ -16,7 +15,6 @@ const xpath = {
     publishRequestsMenuItem: "//li[contains(@id,'MenuItem')and contains(.,'Publish requests']]",
     createdByMeMenuItem: "//li[contains(@id,'MenuItem')and contains(.,'Created by Me']]",
     assignedToMeMenuItem: "//li[contains(@id,'MenuItem')and contains(.,'Assigned to Me']]",
-    tasksMenuItem: "//li[contains(@id,'MenuItem')and contains(.,'Tasks']]",
     allMenuItem: "//li[contains(@id,'MenuItem')and contains(.,'All']]",
     typeFilterSelectedOption: "//button[@role='combobox' and contains(@id,'trigger')]//span[1]",
     assignedSelectedOption: "//div[contains(@class,'selected-options')]"
@@ -96,26 +94,23 @@ class IssuesListDialog extends Page {
         try {
             await this.waitForElementDisabled(this.closedTabButton, appConst.shortTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_closed_button_should_be_disabled');
-            throw new Error(`Issues List Dialog-  Closed button should be disabled , screenshot: ${screenshot} ` + err);
+            await this.handleError("Issues List Dialog,  'Closed' tab button should be disabled", 'err_closed_tab', err);
         }
     }
 
-    async waitForOpenButtonDisabled() {
+    async waitForOpenTabButtonDisabled() {
         try {
-            await this.waitForElementDisabled(this.openButton, appConst.shortTimeout);
+            await this.waitForElementDisabled(this.openTabButton, appConst.shortTimeout);
         } catch (err) {
-            await this.saveScreenshot("err_open_button_should_be_disabled");
-            throw new Error("Issues List Dialog-  'Open' button should be disabled " + err);
+            await this.handleError("Issues List Dialog,  'Open' tab button should be disabled", 'err_open_tab_button', err);
         }
     }
 
-    async waitForOpenButtonDisplayed() {
+    async waitForOpenTabButtonDisplayed() {
         try {
-            await this.waitForElementDisplayed(this.openButton, appConst.shortTimeout);
+            await this.waitForElementDisplayed(this.openTabButton, appConst.shortTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_open_button_should_be_displayed');
-            throw new Error(`Issues List Dialog-  'Open' button should be displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError("Issues List Dialog,  'Open' tab button should be disabled", 'err_open_tab_button', err);
         }
     }
 
@@ -123,12 +118,10 @@ class IssuesListDialog extends Page {
         try {
             let el = await this.getDisplayedElements(this.closedTabButton);
             await el[0].waitForEnabled({timeout: appConst.shortTimeout});
-            //await this.waitForElementEnabled(this.showClosedIssuesButton,appConst.shortTimeout);
-            await this.clickOnElement(this.closedButton);
-            return await this.pause(700);
+            await this.clickOnElement(this.closedTabButton);
+            return await this.pause(300);
         } catch (err) {
-            await this.saveScreenshotUniqueName('err_show_closed_issues_list');
-            throw new Error("Issues List dialog - Error when clicking on 'Closed' button  " + err);
+            await this.handleError(`Issues List Dialog - error when clicking on 'Closed' button`, 'err_click_closed_button', err);
         }
     }
 
@@ -251,53 +244,42 @@ class IssuesListDialog extends Page {
     }
 
     async isOpenButtonActive() {
-        await this.waitForOpenButtonDisplayed();
+        await this.waitForOpenTabButtonDisplayed();
         let result = await this.getAttribute(this.openButton, 'class');
         return result.includes('active');
     }
 
     async isClosedButtonActive() {
-        await this.waitForOpenButtonDisplayed();
-        let result = await this.getAttribute(this.closedButton, 'class');
+        await this.waitForClosedTabButtonDisplayed();
+        let result = await this.getAttribute(this.closedTabButton, 'class');
         return result.includes('active');
     }
 
     async getNumberInClosedButton() {
         try {
-            let buttonText = await this.getText(this.closedButton);
-            let startIndex = buttonText.indexOf('(');
-            if (startIndex === -1) {
-                return '0'
-            }
-            let endIndex = buttonText.indexOf(')');
-            if (endIndex === -1) {
-                throw new Error("Issue List Dialog, Closed button - incorrect text in the label, ')' was not found");
-            }
-            return buttonText.substring(startIndex + 1, endIndex);
+            let locator = this.closedTabButton + "/span[2]";
+            await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+            let closedIssuesNumber = await this.getText(locator);
+            return closedIssuesNumber;
         } catch (err) {
-            throw new Error("Issue List Dialog : error when getting the number in Closed button: " + err);
+            await this.handleError(`Issue List Dialog : error when getting the number of issues in 'Closed' tab button`,
+                'err_closed_issues_number', err);
         }
     }
 
     async getNumberInOpenButton() {
         try {
-            let buttonText = await this.getText(this.openButton);
-            let startIndex = buttonText.indexOf('(');
-            if (startIndex === -1) {
-                return '0';
-            }
-            let endIndex = buttonText.indexOf(')');
-            if (endIndex === -1) {
-                throw new Error("Issue List Dialog, Open button - incorrect text in the label, '}' was not found");
-            }
-            return buttonText.substring(startIndex + 1, endIndex);
+            let locator = this.openTabButton + "/span[2]";
+            await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+            let openIssuesNumber = await this.getText(locator);
+            return openIssuesNumber;
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_issue_list');
-            throw new Error(`Issue List Dialog : error when getting the number in Open button, screenshot:${screenshot} ` + err);
+            await this.handleError(`Issue List Dialog : error when getting the number of issues in 'Open' tab button`,
+                'err_open_issues_number', err);
         }
     }
 
-    async getNumberInSelectedOption() {
+    async getNumberItemsInFilterCombobox() {
         try {
             let selector = xpath.container + xpath.typeFilter + "//button/span";
             let textInSelectedOption = await this.getText(selector);

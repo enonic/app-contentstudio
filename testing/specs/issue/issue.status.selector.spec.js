@@ -103,7 +103,7 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             await issueDetailsDialog.updateTitle(newTitle);
 
             //just for closing edit mode in title-input:
-            await issueDetailsDialog.clickOnCommentsTabBarItem();
+            await issueDetailsDialog.clickOnCommentsTabItem();
             let result = await issueDetailsDialog.waitForNotificationMessage();
             await studioUtils.saveScreenshot('issue_title_updated');
             assert.equal(result, 'Issue has been updated.', 'Expected notification should appear');

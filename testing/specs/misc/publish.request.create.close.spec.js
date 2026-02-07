@@ -124,7 +124,7 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             await issueListDialog.clickOnIssue(REQ_TITLE);
             await publishRequestDetailsDialog.waitForTabLoaded();
             // 2. Click on 'Comments' tab:
-            await publishRequestDetailsDialog.clickOnCommentsTabBarItem();
+            await publishRequestDetailsDialog.clickOnCommentsTabItem();
             await issueDetailsDialogCommentsTab.typeComment('my comment');
             // 3. Comment & Close button should appear:
             await studioUtils.saveScreenshot('request_commented');

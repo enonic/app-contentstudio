@@ -1,5 +1,5 @@
 const Page = require('../page');
-const lib = require('../../libs/elements-old');
+const {BUTTONS} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const XPATH = {
@@ -9,21 +9,22 @@ const XPATH = {
     editIssueTitleToggle: `//h2[@class='inplace-text' and @title='Click to  edit']`,
     reopenIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Issue']]`,
     reopenRequestButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Request']]`,
-    itemsTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Items')]]",
-    assigneesTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Assignees')]]",
-    commentsTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Comments')]]",
+    itemsTabBarItem: "//button[@role='tab') and child::span[contains(.,'Items')]]",
+    assigneesTabItem: "//button[@role='tab') and child::span[contains(.,'Assignees')]]",
+    commentsTabItem: "//button[@role='tab') and child::span[contains(.,'Comments')]]",
     issueStatusSelectorButton: `//button[@role='combobox' and contains(@id,'trigger')]`,
     issueCommentTextArea: `//div[contains(@id,'IssueCommentTextArea')]`,
     issueCommentsListItem: `//div[contains(@id,'IssueCommentsListItem')]`,
     noActionLabel: `//div[@class='no-action-message']`,
+    tabByLabel: label => `//button[contains(@role,'tab') and child::span[contains(.,'${label}')]]`,
     issueStatusMenuItem:
         menuItem => `//ul[contains(@class,'menu')]/li[contains(@id,'TabMenuItem') and child::a[text()='${menuItem}']]`,
 };
 
-class BaseDetailsDialog extends Page {
+class BaseIssueDetailsDialog extends Page {
 
     get backButton() {
-        return XPATH.container + XPATH.toIssueList;
+        return XPATH.container + BUTTONS.buttonByLabel('Back to issues');
     }
 
     get titleInput() {
@@ -42,41 +43,39 @@ class BaseDetailsDialog extends Page {
         return XPATH.container + XPATH.issueCommentTextArea + lib.TEXT_AREA;
     }
 
-    get commentsTabBarItem() {
-        return XPATH.container + XPATH.commentsTabBarItem;
+    get commentsTabItem() {
+        return XPATH.container + XPATH.commentsTabItem;
     }
 
     get assigneesTabBarItem() {
-        return XPATH.container + XPATH.assigneesTabBarItem;
+        return XPATH.container + XPATH.assigneesTabItem;
     }
 
-    get cancelTopButton() {
-        return XPATH.container + lib.CANCEL_BUTTON_TOP;
+    get closeButton() {
+        return XPATH.container + BUTTONS.buttonByLabel('Close');
     }
 
     isNoActionLabelPresent() {
         return this.isElementDisplayed(XPATH.noActionLabel);
     }
 
-    async clickOnCancelTopButton() {
+    async clickOnCloseButton() {
         try {
-            await this.waitForElementDisplayed(this.cancelTopButton, appConst.mediumTimeout);
-            await this.pause(500);
-            await this.clickOnElement(this.cancelTopButton);
+            await this.waitForElementDisplayed(this.closeButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.closeButton);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_cancel_top');
-            throw new Error('Error after clicking on Cancel Top button, screenshot:  ' + screenshot + ' ' + err);
+            await this.handleError('Issue Details Dialog, click on Close button', 'err_click_close_btn', err);
         }
     }
 
     // Click on "To Issues list"
-    async clickOnBackButton() {
+    async clickOnBackToIssuesButton() {
         try {
             await this.waitForElementDisplayed(this.backButton, appConst.mediumTimeout);
             return this.clickOnElement(this.backButton);
         } catch (err) {
-            throw new Error("Issue Details Dialog-  button back(To issues list) is not present!" + err);
+            await this.handleError('Issue Details Dialog, tried to click on Back to Issues button', 'err_click_back_to_issues_btn', err);
         }
     }
 
@@ -153,17 +152,20 @@ class BaseDetailsDialog extends Page {
         return result.substring(0, endIndex).trim();
     }
 
-    isCommentsTabBarItemActive() {
-        return this.getAttribute(this.commentsTabBarItem, 'class').then(result => {
-            return result.includes('active');
-        }).catch(err => {
-            throw new Error('Issue Details Dialog  ' + err);
-        })
+    async isTabActive(tabName) {
+        try {
+            let tabLocator = XPATH.tabByLabel(tabName);
+            await this.waitForElementDisplayed(tabLocator, appConst.shortTimeout);
+            let value = await this.getAttribute(tabLocator, 'data-state');
+            return value === 'active';
+        } catch (err) {
+            await this.handleError(`Issue Details Dialog, is ${tabName} tab active`, 'err_is_tab_active', err);
+        }
     }
 
-    async clickOnCommentsTabBarItem() {
-        await this.clickOnElement(this.commentsTabBarItem);
-        return await this.pause(400);
+    async clickOnCommentsTabItem() {
+        await this.clickOnElement(this.commentsTabItem);
+        return await this.pause(200);
     }
 
     async clickOnAssigneesTabBarItem() {
@@ -171,10 +173,15 @@ class BaseDetailsDialog extends Page {
         return await this.pause(800);
     }
 
-    getCurrentStatusInStatusSelector() {
-        let locator = this.issueStatusSelector + "//div[contains(@id,'TabMenuButton')]/a";
-        return this.getText(locator);
+    async getCurrentStatusInStatusSelector() {
+        try {
+            let locator = this.issueStatusSelector + "//span[2]";
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        }catch (err){
+            await this.handleError('Issue Details Dialog, get current status in status selector', 'err_get_current_status_in_status_selector', err);
+        }
     }
 }
 
-module.exports = BaseDetailsDialog;
+module.exports = BaseIssueDetailsDialog;
