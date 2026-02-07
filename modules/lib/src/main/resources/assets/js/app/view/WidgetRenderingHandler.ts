@@ -48,6 +48,10 @@ export class WidgetRenderingHandler {
 
     protected renderableChangedListeners: ((isRenderable: boolean, wasRenderable: boolean) => void)[] = [];
 
+    private imageFrameWindow: Window | null = null;
+
+    private themeObserver: MutationObserver | null = null;
+
 
     constructor(renderer: WidgetRenderer, previewHelper?: PreviewActionHelper) {
         this.renderer = renderer;
@@ -55,6 +59,7 @@ export class WidgetRenderingHandler {
         this.previewHelper = previewHelper || new PreviewActionHelper();
         this.emptyView = this.createEmptyView();
         this.messageView = this.createErrorView();
+        this.setupThemeObserver();
     }
 
 
@@ -72,6 +77,9 @@ export class WidgetRenderingHandler {
         }
 
         this.summary = summary;
+        
+        // Clear previous iframe reference when rendering new content
+        this.clearImageFrameReference();
 
         this.showMask();
         this.renderer.getPreviewAction()?.setEnabled(false);
@@ -119,6 +127,7 @@ export class WidgetRenderingHandler {
 
     public empty() {
         this.setPreviewType(PREVIEW_TYPE.EMPTY);
+        this.clearImageFrameReference();
     }
 
     protected createEmptyView(): DivEl {
@@ -276,6 +285,10 @@ export class WidgetRenderingHandler {
             body.style.display = 'flex';
             body.style.justifyContent = 'center';
             body.style.alignItems = 'center';
+            
+            // Apply background color based on theme
+            const isDarkTheme = document.documentElement.classList.contains('dark');
+            body.style.backgroundColor = isDarkTheme ? '#000000' : '#ffffff';
         }
 
         let img: HTMLImageElement | SVGElement = frameWindow.document.querySelector('svg');
@@ -289,6 +302,53 @@ export class WidgetRenderingHandler {
             img.style.maxWidth = '100%';
             img.style.maxHeight = '100%';
         }
+
+        // Store reference to update on theme changes
+        this.imageFrameWindow = frameWindow;
+    }
+
+    private setupThemeObserver() {
+        if (typeof document === 'undefined' || typeof MutationObserver === 'undefined') {
+            return;
+        }
+
+        // Observe changes to the html element's class attribute
+        this.themeObserver = new MutationObserver(() => {
+            // Update once per batch of mutations to avoid redundant updates
+            this.updateImageFrameBackground();
+        });
+
+        // Start observing
+        this.themeObserver.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    }
+
+    private updateImageFrameBackground() {
+        if (!this.imageFrameWindow || !this.imageFrameWindow.document.body) {
+            return;
+        }
+
+        const isDarkTheme = document.documentElement.classList.contains('dark');
+        this.imageFrameWindow.document.body.style.backgroundColor = isDarkTheme ? '#000000' : '#ffffff';
+    }
+
+    private clearImageFrameReference() {
+        this.imageFrameWindow = null;
+    }
+
+    /**
+     * Cleans up resources used by this handler.
+     * Should be called when the handler instance is being destroyed or is no longer needed.
+     * Disconnects the MutationObserver to prevent memory leaks and clears iframe references.
+     */
+    public cleanup() {
+        if (this.themeObserver) {
+            this.themeObserver.disconnect();
+            this.themeObserver = null;
+        }
+        this.clearImageFrameReference();
     }
 
     protected handleWidgetEvent(event: ViewWidgetEvent) {
