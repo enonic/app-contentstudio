@@ -1,11 +1,10 @@
 import {Dialog, Input} from '@enonic/ui';
-import {ReactElement, useCallback, useEffect, useRef, useState} from 'react';
-import {useI18n} from '../../../../hooks/useI18n';
-import {TargetedEvent} from 'preact';
 import {useStore} from '@nanostores/preact';
-import {$projects} from '../../../../store/projects.store';
-import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
+import {ChangeEvent, ReactElement, useCallback, useEffect, useRef, useState} from 'react';
+import {useI18n} from '../../../../hooks/useI18n';
 import {setNewProjectDialogName} from '../../../../store/dialogs/newProjectDialog.store';
+import {$projects} from '../../../../store/projects.store';
+import {prettifyProjectIdentifier, validateProjectIdentifier} from '../../../../utils/cms/projects/identifier';
 
 export const NewProjectDialogNameStepHeader = (): ReactElement => {
     const helperLabel = useI18n('dialog.project.wizard.title');
@@ -19,18 +18,25 @@ NewProjectDialogNameStepHeader.displayName = 'NewProjectDialogNameStepHeader';
 
 export const NewProjectDialogNameStepContent = ({locked = false}: {locked?: boolean}): ReactElement => {
     const {projects} = useStore($projects);
-    const [name, setName] = useState<string>();
+    const [name, setName] = useState('');
     const identifierRef = useRef<HTMLInputElement>(null);
-    const [identifier, setIdentifier] = useState<string>();
-    const [description, setDescription] = useState<string>();
+    const [identifier, setIdentifier] = useState('');
+    const [description, setDescription] = useState('');
     const [nameError, setNameError] = useState<string>();
     const [identifierError, setIdentifierError] = useState<string>();
     const [descriptionError, setDescriptionError] = useState<string>();
+    const isInitialRender = useRef(true);
 
-    // Logic to update the identifier
+    const projectNameLabel = useI18n('dialog.project.wizard.name.projectName');
+    const projectIdentifierLabel = useI18n('dialog.project.wizard.name.projectIdentifier');
+    const projectDescriptionLabel = useI18n('dialog.project.wizard.name.projectDescription');
+    const projectErrorIdentifierAlreadyExists = useI18n('dialog.project.wizard.name.idAlreadyExists');
+    const errorRequiredField = useI18n('field.value.required');
+    const errorInvalidField = useI18n('field.value.invalid');
+
     const updateIdentifier = useCallback(
         (value: string, isUserInput?: boolean) => {
-            const prettifiedIdentifier = prettify(value, isUserInput);
+            const prettifiedIdentifier = prettifyProjectIdentifier(value, isUserInput);
 
             setIdentifier(prettifiedIdentifier);
             if (identifierRef.current) identifierRef.current.value = prettifiedIdentifier;
@@ -51,42 +57,12 @@ export const NewProjectDialogNameStepContent = ({locked = false}: {locked?: bool
 
             setIdentifierError(alreadyExists ? projectErrorIdentifierAlreadyExists : '');
         },
-        [setIdentifier, setIdentifierError, validateProjectIdentifier, projects]
+        [projects, errorRequiredField, errorInvalidField, projectErrorIdentifierAlreadyExists]
     );
-
-    // Sync with the store
-    useEffect(() => {
-        const hasErrors = Boolean(nameError) || Boolean(identifierError) || Boolean(descriptionError);
-
-        const data = {
-            name: name?.trim(),
-            identifier: identifier?.trim(),
-            description: description?.trim(),
-            hasError: hasErrors,
-        };
-
-        setNewProjectDialogName(data);
-    }, [name, identifier, description, nameError, identifierError, descriptionError]);
-
-    // Map name to identifier
-    useEffect(() => {
-        // On first call, we don't call update the identifier to avoid initial input validation error
-        if (name === undefined) return;
-
-        updateIdentifier(name, false);
-    }, [name, updateIdentifier]);
-
-    // Constants
-    const projectNameLabel = useI18n('dialog.project.wizard.name.projectName');
-    const projectIdentifierLabel = useI18n('dialog.project.wizard.name.projectIdentifier');
-    const projectDescriptionLabel = useI18n('dialog.project.wizard.name.projectDescription');
-    const projectErrorIdentifierAlreadyExists = useI18n('dialog.project.wizard.name.idAlreadyExists');
-    const errorRequiredField = useI18n('field.value.required');
-    const errorInvalidField = useI18n('field.value.invalid');
 
     // Handlers
     const handleDisplayNameChange = useCallback(
-        (e: TargetedEvent<HTMLInputElement>): void => {
+        (e: ChangeEvent<HTMLInputElement>): void => {
             const value = e.currentTarget.value;
 
             setName(value);
@@ -97,10 +73,10 @@ export const NewProjectDialogNameStepContent = ({locked = false}: {locked?: bool
                 return;
             }
         },
-        [setName, setNameError]
+        [errorRequiredField]
     );
     const handleIdentifierChange = useCallback(
-        (e: TargetedEvent<HTMLInputElement>): void => {
+        (e: ChangeEvent<HTMLInputElement>): void => {
             const value = e.currentTarget.value;
 
             updateIdentifier(value, true);
@@ -108,14 +84,39 @@ export const NewProjectDialogNameStepContent = ({locked = false}: {locked?: bool
         [updateIdentifier]
     );
     const handleDescriptionChange = useCallback(
-        (e: TargetedEvent<HTMLInputElement>): void => {
+        (e: ChangeEvent<HTMLInputElement>): void => {
             const value = e.currentTarget.value;
 
             setDescription(value);
             setDescriptionError('');
         },
-        [setDescription, setDescriptionError]
+        []
     );
+
+    // Sync with the store
+    useEffect(() => {
+        const hasErrors = Boolean(nameError) || Boolean(identifierError) || Boolean(descriptionError);
+        const isIncomplete = name.trim().length === 0 || identifier.trim().length === 0;
+
+        const data = {
+            name: name.trim(),
+            identifier: identifier.trim(),
+            description: description.trim(),
+            hasError: hasErrors || isIncomplete,
+        };
+
+        setNewProjectDialogName(data);
+    }, [name, identifier, description, nameError, identifierError, descriptionError]);
+
+    // Map name to identifier on user input, skip initial render
+    useEffect(() => {
+        if (isInitialRender.current) {
+            isInitialRender.current = false;
+            return;
+        }
+
+        updateIdentifier(name, false);
+    }, [name, updateIdentifier]);
 
     return (
         <Dialog.StepContent step="step-name" locked={locked}>
@@ -135,22 +136,3 @@ export const NewProjectDialogNameStepContent = ({locked = false}: {locked?: bool
 };
 
 NewProjectDialogNameStepContent.displayName = 'NewProjectDialogNameStepContent';
-
-//
-// * Utilities
-//
-
-function validateProjectIdentifier(value: string): boolean {
-    const regExp = /^([a-z0-9])([a-z0-9-])*$/;
-
-    return regExp.test(value) && !value.endsWith('-');
-}
-
-function prettify(value: string, isUserInput?: boolean): string {
-    const prettified = NamePrettyfier.prettify(value).replace(/\./g, '');
-
-    if (isUserInput && value.endsWith('-') && !prettified.endsWith('-')) {
-        return prettified + '-';
-    }
-    return prettified;
-}
