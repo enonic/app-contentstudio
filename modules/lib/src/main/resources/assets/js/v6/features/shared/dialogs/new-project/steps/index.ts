@@ -3,6 +3,7 @@ import {NewProjectDialogLanguageStepHeader, NewProjectDialogLanguageStepContent}
 import {NewProjectDialogAccessStepHeader, NewProjectDialogAccessStepContent} from './NewProjectDialogAccessStep';
 import {NewProjectDialogRoleStepHeader, NewProjectDialogRoleStepContent} from './NewProjectDialogRoleStep';
 import {NewProjectDialogApplicationStepHeader, NewProjectDialogApplicationStepContent} from './NewProjectDialogApplicationStep';
+import {NewProjectDialogNameStepHeader, NewProjectDialogNameStepContent} from './NewProjectDialogNameStep';
 
 export const NewProjectDialogSteps = {
     ParentStep: {
@@ -24,5 +25,9 @@ export const NewProjectDialogSteps = {
     ApplicationStep: {
         Header: NewProjectDialogApplicationStepHeader,
         Content: NewProjectDialogApplicationStepContent,
+    },
+    NameStep: {
+        Header: NewProjectDialogNameStepHeader,
+        Content: NewProjectDialogNameStepContent,
     },
 };
