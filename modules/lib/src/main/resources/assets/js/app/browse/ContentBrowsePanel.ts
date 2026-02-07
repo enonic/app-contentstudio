@@ -451,8 +451,6 @@ export class ContentBrowsePanel
                 this.handleContentRenamed(renamedItems.map(renamedItem => renamedItem.item));
             }
         });
-
-        handler.onContentSorted((data: ContentSummaryAndCompareStatus[]) => this.handleContentSorted(data));
     }
 
     private handleContentCreated(data: ContentSummaryAndCompareStatus[]) {
@@ -655,27 +653,6 @@ export class ContentBrowsePanel
         });
 
         this.refreshFilterWithDelay();
-    }
-
-    private handleContentSorted(data: ContentSummaryAndCompareStatus[]) {
-        if (ContentBrowsePanel.debug) {
-            console.debug('ContentBrowsePanel: sorted', data);
-        }
-
-        data.forEach((item: ContentSummaryAndCompareStatus) => {
-            this.treeListBox.findParentLists(item).forEach(list => {
-                list.replaceItems(item);
-
-                const itemElement = list.getItemView(item) as ContentsTreeGridListElement;
-                const itemList = itemElement.getList();
-
-                if (itemList.wasAlreadyShownAndLoaded()) {
-                    itemList.reload();
-                }
-            });
-        });
-
-        this.updateContextPanel(data);
     }
 
     private updateContextPanel(data: ContentSummaryAndCompareStatus[]) {
