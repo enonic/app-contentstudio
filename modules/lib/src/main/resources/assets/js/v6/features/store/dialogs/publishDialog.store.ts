@@ -11,6 +11,7 @@ import {cleanupTask, trackTask} from '../../services/task.service';
 import {hasContentById, hasContentIdInIds, isIdsEqual, uniqueIds} from '../../utils/cms/content/ids';
 import {createDebounce} from '../../utils/timing/createDebounce';
 import {$contentArchived, $contentCreated, $contentDeleted, $contentPublished, $contentUpdated} from '../socket.store';
+import type {TaskResultState} from '../task.store';
 
 //
 // * Types
@@ -639,7 +640,9 @@ export const excludeNotPublishablePublishItems = (): void => {
 
 // PUBLISH
 
-export const publishItems = async (): Promise<boolean> => {
+export const publishItems = async (
+    onComplete?: (state: TaskResultState, message: string) => void,
+): Promise<boolean> => {
     const ready = $isPublishReady.get();
     if (!ready) return false;
 
@@ -675,6 +678,7 @@ export const publishItems = async (): Promise<boolean> => {
                     showError(message);
                 }
                 resetPublishDialogContext();
+                onComplete?.(resultState, message);
             },
         });
 
@@ -1025,14 +1029,13 @@ async function sendPublishRequest(): Promise<TaskId | undefined> {
         : undefined;
 
     try {
-        const taskId = await publishContent({
+        return await publishContent({
             ids: publishableIds,
             excludedIds: allExcludedItemsIds,
             excludeChildrenIds: allExcludedItemsWithChildrenIds,
             message: message || undefined,
             schedule: resolvedSchedule,
         });
-        return taskId;
     } catch (e) {
         showError(i18n('dialog.publish.publishing.error'));
         return undefined;

@@ -4,7 +4,7 @@ import {useMemo, type ReactElement} from 'react';
 import type {ContentId} from '../../../../../app/content/ContentId';
 import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {useItemsWithUnpublishedChildren} from '../../../utils/cms/content/useItemsWithUnpublishedChildren';
-import {ContentListItemWithChildren} from '../../items/ContentListItemWithChildren';
+import {ContentListItemWithChildren} from '../../items';
 
 export type IssueSelectedItemsProps = {
     items: ContentSummaryAndCompareStatus[];
@@ -46,6 +46,7 @@ export const IssueSelectedItems = ({
                         id={item.getId()}
                         key={item.getId()}
                         content={item}
+                        variant='detailed'
                         includeChildren={includeChildren}
                         onIncludeChildrenChange={(checked) => onIncludeChildrenChange?.(id, checked)}
                         readOnly={isReadOnly}
@@ -62,7 +63,7 @@ export const IssueSelectedItems = ({
                                 event.stopPropagation();
                                 onRemoveItem?.(id);
                             }}
-                            disabled={isReadOnly}
+                            disabled={isReadOnly || items.length === 1}
                         />
                     </ContentListItemWithChildren>
                 );

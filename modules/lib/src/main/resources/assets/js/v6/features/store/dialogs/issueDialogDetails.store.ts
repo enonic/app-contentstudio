@@ -108,7 +108,15 @@ export const setIssueDialogCommentText = (commentText: string): void => {
     $issueDialogDetails.setKey('commentText', commentText);
 };
 
-export const loadIssueDialogItems = async (issue?: Issue): Promise<void> => {
+type IssueDialogItemsOptions = {
+    forceReload?: boolean;
+};
+
+export const loadIssueDialogItems = async (
+    issue?: Issue,
+    options: IssueDialogItemsOptions = {},
+): Promise<void> => {
+    const {forceReload = false} = options;
     const state = $issueDialogDetails.get();
     const targetIssue = issue ?? state.issue;
 
@@ -142,6 +150,7 @@ export const loadIssueDialogItems = async (issue?: Issue): Promise<void> => {
     const canReuseItems = isSameIssue
                           && existingItemIds.length > 0
                           && isIdsEqual(existingItemIds, itemIds);
+    const shouldFetchItems = !canReuseItems || forceReload;
 
     $issueDialogDetails.set({
         ...currentState,
@@ -155,9 +164,9 @@ export const loadIssueDialogItems = async (issue?: Issue): Promise<void> => {
     });
 
     try {
-        const items = canReuseItems
-                      ? currentState.items
-                      : await fetchContentSummariesWithStatus(itemIds);
+        const items = shouldFetchItems
+                      ? await fetchContentSummariesWithStatus(itemIds)
+                      : currentState.items;
         if (requestId !== dependenciesRequestId) {
             return;
         }
@@ -430,15 +439,15 @@ export const deleteIssueDialogComment = async (commentId: string): Promise<boole
     }
 };
 
-export const updateIssueDialogStatus = async (nextStatus: IssueStatus): Promise<void> => {
+export const updateIssueDialogStatus = async (nextStatus: IssueStatus): Promise<boolean> => {
     const context = getIssueContext('statusUpdating');
     if (!context) {
-        return;
+        return false;
     }
     const {issueId, dialogState, issueWithAssignees, issue} = context;
 
     if (issue.getIssueStatus() === nextStatus) {
-        return;
+        return true;
     }
 
     $issueDialogDetails.setKey('statusUpdating', true);
@@ -454,10 +463,12 @@ export const updateIssueDialogStatus = async (nextStatus: IssueStatus): Promise<
 
         void loadIssueDialogList();
         showFeedback(i18n(getStatusMessageKey(updatedIssue.getType(), nextStatus)));
+        return true;
     } catch (error) {
         console.error(error);
         $issueDialogDetails.setKey('statusUpdating', false);
         showError(error?.message ?? String(error));
+        return false;
     }
 };
 
@@ -670,6 +681,40 @@ export const updateIssueDialogDependencyIncluded = async (
     const nextPublishRequest = PublishRequest
         .create(publishRequest)
         .setExcludeIds(nextExcludeIds)
+        .build();
+
+    await updateIssueWithPublishRequest({
+        issueId,
+        issue,
+        dialogState,
+        issueWithAssignees,
+        nextPublishRequest,
+    });
+};
+
+export const updateIssueDialogExcludedDependants = async (nextExcludedIds: ContentId[]): Promise<void> => {
+    const context = getIssueContext('itemsUpdating');
+    if (!context) {
+        return;
+    }
+    const {issueId, dialogState, issueWithAssignees, issue} = context;
+
+    const publishRequest = issue.getPublishRequest();
+    if (!publishRequest) {
+        return;
+    }
+
+    const nextUniqueIds = uniqueIds(nextExcludedIds);
+    const currentExcludeIds = publishRequest.getExcludeIds();
+    if (isIdsEqual(currentExcludeIds, nextUniqueIds)) {
+        return;
+    }
+
+    $issueDialogDetails.setKey('itemsUpdating', true);
+
+    const nextPublishRequest = PublishRequest
+        .create(publishRequest)
+        .setExcludeIds(nextUniqueIds)
         .build();
 
     await updateIssueWithPublishRequest({
