@@ -1,4 +1,4 @@
-import {deepMap} from 'nanostores';
+import {map} from 'nanostores';
 import {ResultAsync} from 'neverthrow';
 import {Project} from '../../../../app/settings/data/project/Project';
 import {ProjectConfigContext} from '../../../../app/settings/data/project/ProjectConfigContext';
@@ -33,13 +33,15 @@ type NewProjectDialogStore = {
     isMultiInheritance: boolean;
     selectedProjects: Project[];
     step: string;
+    submitting: boolean;
 
     // data
     parentProjects: Readonly<Project>[];
     defaultLanguage: string;
     accessMode: string;
     permissions: Principal[];
-    roles: Map<string, ProjectAccess>; // Principal key as string, ProjectAccess as value
+    roles: Record<string, ProjectAccess>;
+    rolePrincipals: Principal[];
     applications: Application[];
     nameData: NewProjectNameData;
 };
@@ -50,13 +52,15 @@ const initialState: NewProjectDialogStore = {
     isMultiInheritance: false,
     selectedProjects: [],
     step: 'step-parent',
+    submitting: false,
 
     // data
     parentProjects: [],
     defaultLanguage: '',
     accessMode: '',
     permissions: [],
-    roles: new Map(),
+    roles: {},
+    rolePrincipals: [],
     applications: [],
     nameData: {
         name: '',
@@ -66,7 +70,7 @@ const initialState: NewProjectDialogStore = {
     },
 };
 
-export const $newProjectDialog = deepMap<NewProjectDialogStore>(structuredClone(initialState));
+export const $newProjectDialog = map<NewProjectDialogStore>(structuredClone(initialState));
 
 //
 // * Public API
@@ -107,8 +111,12 @@ export const setNewProjectDialogPermissions = (permissions: Principal[]): void =
     $newProjectDialog.setKey('permissions', permissions);
 };
 
-export const setNewProjectDialogRoles = (roles: Map<string, ProjectAccess>): void => {
+export const setNewProjectDialogRoles = (roles: Record<string, ProjectAccess>): void => {
     $newProjectDialog.setKey('roles', roles);
+};
+
+export const setNewProjectDialogRolePrincipals = (rolePrincipals: Principal[]): void => {
+    $newProjectDialog.setKey('rolePrincipals', rolePrincipals);
 };
 
 export const setNewProjectDialogApplications = (applications: Application[]): void => {
@@ -127,8 +135,10 @@ export const createProject = (): ResultAsync<
     },
     Error
 > => {
+    $newProjectDialog.setKey('submitting', true);
+
     const {
-        parentProjects: parents,
+        parentProjects,
         nameData: {name, identifier, description},
         defaultLanguage,
         accessMode,
@@ -136,9 +146,6 @@ export const createProject = (): ResultAsync<
         roles,
         applications,
     } = $newProjectDialog.get();
-
-    // Data
-    const parentProjects = parents as Project[];
 
     const readAccess = new ProjectReadAccess(
         accessMode as ProjectReadAccessType,
@@ -149,21 +156,21 @@ export const createProject = (): ResultAsync<
         ApplicationConfig.create().setApplicationKey(app.getApplicationKey()).setConfig(new PropertySet()).build()
     );
 
-    const rolesEntriesArray = Array.from(roles.entries());
+    const rolesEntries = Object.entries(roles);
 
-    const owners = rolesEntriesArray.filter(([_, value]) => value === ProjectAccess.OWNER).map(([key, _]) => PrincipalKey.fromString(key));
+    const owners = rolesEntries.filter(([_, value]) => value === ProjectAccess.OWNER).map(([key]) => PrincipalKey.fromString(key));
 
-    const contributors = rolesEntriesArray
+    const contributors = rolesEntries
         .filter(([_, value]) => value === ProjectAccess.CONTRIBUTOR)
-        .map(([key, _]) => PrincipalKey.fromString(key));
+        .map(([key]) => PrincipalKey.fromString(key));
 
-    const editors = rolesEntriesArray
+    const editors = rolesEntries
         .filter(([_, value]) => value === ProjectAccess.EDITOR)
-        .map(([key, _]) => PrincipalKey.fromString(key));
+        .map(([key]) => PrincipalKey.fromString(key));
 
-    const authors = rolesEntriesArray
+    const authors = rolesEntries
         .filter(([_, value]) => value === ProjectAccess.AUTHOR)
-        .map(([key, _]) => PrincipalKey.fromString(key));
+        .map(([key]) => PrincipalKey.fromString(key));
 
     const projectRoles = new ProjectItemPermissionsBuilder()
         .setOwners(owners)
@@ -191,21 +198,30 @@ export const createProject = (): ResultAsync<
     // Project creation
     return ResultAsync.fromPromise(projectCreateRequest.sendAndParse(), (error) =>
         error instanceof Error ? error : new Error(String(error))
-    ).andThen((project) => {
-        const updateLanguageResult = ResultAsync.fromPromise(updateProjectLanguageRequest.sendAndParse(), (error) =>
-            error instanceof Error ? error : new Error(String(error))
-        );
+    )
+        .andThen((project) => {
+            const updateLanguageResult = ResultAsync.fromPromise(updateProjectLanguageRequest.sendAndParse(), (error) =>
+                error instanceof Error ? error : new Error(String(error))
+            );
 
-        const updatePermissionsResult = ResultAsync.fromPromise(updateProjectPermissionsRequest.sendAndParse(), (error) =>
-            error instanceof Error ? error : new Error(String(error))
-        );
+            const updatePermissionsResult = ResultAsync.fromPromise(updateProjectPermissionsRequest.sendAndParse(), (error) =>
+                error instanceof Error ? error : new Error(String(error))
+            );
 
-        return ResultAsync.combine([updateLanguageResult, updatePermissionsResult]).map(([languageId, permissions]) => ({
-            project,
-            languageId,
-            permissions,
-        }));
-    });
+            return ResultAsync.combine([updateLanguageResult, updatePermissionsResult]).map(([languageId, permissions]) => ({
+                project,
+                languageId,
+                permissions,
+            }));
+        })
+        .map((result) => {
+            $newProjectDialog.setKey('submitting', false);
+            return result;
+        })
+        .mapErr((error) => {
+            $newProjectDialog.setKey('submitting', false);
+            return error;
+        });
 };
 
 //

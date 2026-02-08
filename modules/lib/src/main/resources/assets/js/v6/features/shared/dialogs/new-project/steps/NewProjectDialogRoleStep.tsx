@@ -1,7 +1,7 @@
 import {Dialog, GridList, IconButton, Selector} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
-import {$newProjectDialog, setNewProjectDialogRoles} from '../../../../store/dialogs/newProjectDialog.store';
+import {$newProjectDialog, setNewProjectDialogRolePrincipals, setNewProjectDialogRoles} from '../../../../store/dialogs/newProjectDialog.store';
 import {useI18n} from '../../../../hooks/useI18n';
 import {PrincipalSelector} from '../../../selectors/PrincipalSelector';
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
@@ -27,7 +27,7 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
     const {parentProjects} = useStore($newProjectDialog);
     const [selection, setSelection] = useState<string[]>([]);
     const [selectedPrincipals, setSelectedPrincipals] = useState<Principal[]>([]);
-    const [selectedRoles, setSelectedRoles] = useState<Map<string, ProjectAccess>>(new Map());
+    const [selectedRoles, setSelectedRoles] = useState<Record<string, ProjectAccess>>({});
 
     // Set selected principals based on the selection of principal ids
     useEffect(() => {
@@ -37,15 +37,14 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
     // Set contributor role of the selected principals.
     // If not set, fallback to contributor role.
     useEffect(() => {
-        setSelectedRoles(
-            (prevRoles) =>
-                new Map(
-                    selectedPrincipals.map((principal) => {
-                        const principalKey = principal.getKey().toString();
-                        const role = prevRoles.get(principalKey) || ProjectAccess.CONTRIBUTOR;
-                        return [principalKey, role];
-                    })
-                )
+        setSelectedRoles((prevRoles) =>
+            Object.fromEntries(
+                selectedPrincipals.map((principal) => {
+                    const principalKey = principal.getKey().toString();
+                    const role = prevRoles[principalKey] || ProjectAccess.CONTRIBUTOR;
+                    return [principalKey, role];
+                })
+            )
         );
     }, [selectedPrincipals]);
 
@@ -53,6 +52,10 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
     useEffect(() => {
         setNewProjectDialogRoles(selectedRoles);
     }, [selectedRoles]);
+
+    useEffect(() => {
+        setNewProjectDialogRolePrincipals(selectedPrincipals);
+    }, [selectedPrincipals]);
 
     // Constants
     const label = useI18n('dialog.project.wizard.role.roles');
@@ -90,11 +93,12 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
 
         const selection = [...owners, ...editors, ...contributors, ...authors].map((principalKey) => principalKey.toString());
 
-        const updatedRoles = new Map<string, ProjectAccess>();
-        owners.forEach((owner) => updatedRoles.set(owner.toString(), ProjectAccess.OWNER));
-        editors.forEach((editor) => updatedRoles.set(editor.toString(), ProjectAccess.EDITOR));
-        contributors.forEach((contributor) => updatedRoles.set(contributor.toString(), ProjectAccess.CONTRIBUTOR));
-        authors.forEach((author) => updatedRoles.set(author.toString(), ProjectAccess.AUTHOR));
+        const updatedRoles: Record<string, ProjectAccess> = Object.fromEntries([
+            ...owners.map((owner) => [owner.toString(), ProjectAccess.OWNER]),
+            ...editors.map((editor) => [editor.toString(), ProjectAccess.EDITOR]),
+            ...contributors.map((contributor) => [contributor.toString(), ProjectAccess.CONTRIBUTOR]),
+            ...authors.map((author) => [author.toString(), ProjectAccess.AUTHOR]),
+        ]);
 
         setSelection(selection);
         setSelectedRoles(updatedRoles);
@@ -110,9 +114,7 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
     const handleSelectRole = useCallback(
         (principal: Principal, role: ProjectAccess): void => {
             const key = principal.getKey().toString();
-            const updatedRoles = new Map(selectedRoles);
-            updatedRoles.set(key, role);
-            setSelectedRoles(updatedRoles);
+            setSelectedRoles({...selectedRoles, [key]: role});
         },
         [setSelectedRoles, selectedRoles]
     );
@@ -146,7 +148,7 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
                             const key = principal.getKey().toString();
                             const principalDisplayName = principal.getDisplayName();
                             const principalPath = principal.getKey().toPath();
-                            const principalRole = selectedRoles.get(principal.getKey().toString());
+                            const principalRole = selectedRoles[principal.getKey().toString()];
                             const principalRoleLabel = roleOptions.find((role) => role.role === principalRole)?.label;
 
                             return (

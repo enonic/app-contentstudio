@@ -1,4 +1,4 @@
-import {Button, cn, Dialog, Stepper} from '@enonic/ui';
+import {cn, Dialog} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ReactElement} from 'react';
 import {
@@ -20,7 +20,8 @@ export const NewProjectDialog = (): ReactElement => {
         step,
         accessMode,
         nameData: {hasError},
-    } = useStore($newProjectDialog);
+        submitting,
+    } = useStore($newProjectDialog, {keys: ['open', 'step', 'accessMode', 'nameData', 'submitting']});
 
     const previousLabel = useI18n('dialog.project.wizard.previous');
     const nextLabel = useI18n('dialog.project.wizard.next');
@@ -36,7 +37,7 @@ export const NewProjectDialog = (): ReactElement => {
         createProject()
             .map(({project}) => {
                 closeNewProjectDialog();
-                showSuccess(i18n('notify.settings.project.created', project.getName()));
+                showSuccess(i18n('notify.settings.project.created', project.getDisplayName()));
             })
             .mapErr((error) => {
                 console.error(error);
@@ -74,17 +75,14 @@ export const NewProjectDialog = (): ReactElement => {
                     </Dialog.Body>
 
                     <Dialog.Footer className="flex flex-col">
-                        {step !== 'step-summary' ? (
-                            <Dialog.StepIndicator previousLabel={previousLabel} nextLabel={nextLabel} dots />
-                        ) : (
-                            <div className="flex items-center justify-between">
-                                <Stepper.Previous asChild>
-                                    <Button variant="outline" label={previousLabel} />
-                                </Stepper.Previous>
-                                <Stepper.Dots />
-                                <Button variant="outline" label={submitLabel} onClick={handleSubmit} />
-                            </div>
-                        )}
+                        <Dialog.StepIndicator
+                            previousLabel={previousLabel}
+                            nextLabel={nextLabel}
+                            lastStepLabel={submitLabel}
+                            onLastStep={handleSubmit}
+                            pending={submitting}
+                            dots
+                        />
                     </Dialog.Footer>
                 </Dialog.Content>
             </Dialog.Portal>
