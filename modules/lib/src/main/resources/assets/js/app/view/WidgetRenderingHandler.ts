@@ -18,6 +18,8 @@ import {EmulatedDeviceEvent} from '../../v6/features/utils/dom/events/registry';
 import {EmulatorDevice} from './context/widget/emulator/EmulatorDevice';
 import {$autoModeWidgets, WIDGET_AUTO_DESCRIPTOR} from '../../v6/features/store/liveViewWidgets.store';
 import {$isWidgetRenderable} from '../../v6/features/store/contextWidgets.store';
+import {$app, getResolvedTheme} from '../../v6/features/store/app.store';
+import {listenKeys} from 'nanostores';
 
 export enum PREVIEW_TYPE {
     WIDGET,
@@ -276,6 +278,9 @@ export class WidgetRenderingHandler {
             body.style.display = 'flex';
             body.style.justifyContent = 'center';
             body.style.alignItems = 'center';
+            // Apply theme-aware background color
+            const isDark = getResolvedTheme() === 'dark';
+            body.style.backgroundColor = isDark ? '#242829' : '#ffffff';
         }
 
         let img: HTMLImageElement | SVGElement = frameWindow.document.querySelector('svg');
@@ -327,10 +332,20 @@ export class WidgetRenderingHandler {
         EmulatedDeviceEvent.listen(this.handleEmulatorEvent.bind(this));
 
         const iframe = this.renderer.getIFrameEl();
+        let unsubscribeTheme: () => void;
         iframe.onLoaded((event: UIEvent) => {
             if (this.previewType === PREVIEW_TYPE.EMPTY) {
                 return;
             }
+            // Subscribe to theme changes to update image background
+            unsubscribeTheme = listenKeys($app, ['theme'], () => {
+                if (iframe.getClass() === 'image') {
+                    const frameWindow = iframe.getHTMLElement()['contentWindow'];
+                    if (frameWindow) {
+                        this.applyImageStyles(frameWindow);
+                    }
+                }
+            });
 
             this.hideMask();
 
@@ -349,6 +364,7 @@ export class WidgetRenderingHandler {
                     break;
             }
         });
+        iframe.unLoaded(() => unsubscribeTheme?.());
     }
 
     private frameClickHandler(frameWindow: Window, event: MouseEvent) {
