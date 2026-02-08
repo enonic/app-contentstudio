@@ -84,15 +84,12 @@ export const NewProjectDialogNameStepContent = ({locked = false}: {locked?: bool
         },
         [updateIdentifier]
     );
-    const handleDescriptionChange = useCallback(
-        (e: ChangeEvent<HTMLInputElement>): void => {
-            const value = e.currentTarget.value;
+    const handleDescriptionChange = useCallback((e: ChangeEvent<HTMLInputElement>): void => {
+        const value = e.currentTarget.value;
 
-            setDescription(value);
-            setDescriptionError('');
-        },
-        []
-    );
+        setDescription(value);
+        setDescriptionError('');
+    }, []);
 
     // Sync with the store
     useEffect(() => {

@@ -1,4 +1,4 @@
-import {AppWindow} from 'lucide-react';
+import {Box} from 'lucide-react';
 import type {ReactElement} from 'react';
 import {cn} from '@enonic/ui';
 import {Application} from '@enonic/lib-admin-ui/application/Application';
@@ -13,10 +13,10 @@ export const ApplicationIcon = ({application, className}: ApplicationIconProps):
     const url = application.getIconUrl();
 
     if (url) {
-        return <img src={url} alt={name} draggable={false} className={cn('size-8 rounded-full bg-center object-cover', className)} />;
+        return <img src={url} alt={name} draggable={false} className={cn('size-6 rounded-full bg-center object-cover', className)} />;
     }
 
-    return <AppWindow className={cn('rounded-full bg-center object-cover', className)} />;
+    return <Box className={cn('rounded-full bg-center object-cover', className)} />;
 };
 
 ApplicationIcon.displayName = 'ApplicationIcon';

@@ -24,6 +24,7 @@ export type LanguageSelectorProps = {
     searchPlaceholder?: string;
     emptyLabel?: string;
     usePortal?: boolean;
+    closeOnBlur?: boolean;
     className?: string;
 };
 
@@ -92,6 +93,7 @@ export const LanguageSelector = ({
     searchPlaceholder,
     emptyLabel,
     usePortal = false,
+    closeOnBlur,
     className,
 }: LanguageSelectorProps): ReactElement => {
     const virtuosoRef = useRef<VirtuosoHandle>(null);
@@ -195,8 +197,8 @@ export const LanguageSelector = ({
                 value={inputValue}
                 onChange={setInputValue}
                 contentType="tree"
-                closeOnBlur={false}
                 disabled={disabled}
+                closeOnBlur={closeOnBlur}
             >
                 <Combobox.Content className="relative">
                     <Combobox.Control>

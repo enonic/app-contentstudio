@@ -71,11 +71,12 @@ export const NewProjectDialogLanguageStepContent = (): ReactElement => {
                 searchPlaceholder={typeToSearchLabel}
                 emptyLabel={noLanguagesFoundLabel}
                 className="mb-2.5"
+                closeOnBlur
                 usePortal
             />
 
             {selectedLanguage && (
-                <GridList className="rounded-md space-y-2.5 mb-2.5 py-1.5 px-5">
+                <GridList className="rounded-md space-y-2.5 mb-2.5 py-1.5 pl-5 pr-1">
                     <GridList.Row key={selectedLanguage.id} id={selectedLanguage.id} className="p-1.5 gap-1.5">
                         <GridList.Cell interactive={false} className="flex-1 self-stretch">
                             <div className="flex gap-2">

@@ -37,8 +37,8 @@ export const NewProjectDialogParentStepContent = (): ReactElement => {
     const label = isMultiInheritance ? parentProjectsLabel : parentProjectLabel;
 
     const handleUnselect = useCallback(
-        (id: string): void => {
-            setSelection(selection.filter((idd) => idd !== id));
+        (projectName: string): void => {
+            setSelection(selection.filter((id) => id !== projectName));
         },
         [setSelection, selection]
     );
@@ -52,11 +52,12 @@ export const NewProjectDialogParentStepContent = (): ReactElement => {
                 selectionMode={isMultiInheritance ? 'staged' : 'single'}
                 placeholder={typeToSearchLabel}
                 emptyLabel={noProjectsFoundLabel}
+                closeOnBlur
                 className="mb-2.5"
             />
             {selection.length > 0 && (
                 <>
-                    <GridList className="rounded-md space-y-2.5 mb-2.5 py-1.5 px-5">
+                    <GridList className="rounded-md space-y-2.5 mb-2.5 py-1.5 pl-5 pr-1">
                         {Array.from(selection).map((projectName) => (
                             <GridList.Row key={projectName} id={projectName} className="p-1.5 gap-1.5">
                                 <GridList.Cell interactive={false} className="flex-1 self-stretch">
