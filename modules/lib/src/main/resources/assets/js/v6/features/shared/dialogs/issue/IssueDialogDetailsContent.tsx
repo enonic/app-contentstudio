@@ -1,5 +1,6 @@
 import {Button, Dialog, Tab, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
+import {Calendar} from 'lucide-react';
 import {
     useCallback,
     useEffect,
@@ -11,10 +12,12 @@ import {
     type ReactElement,
 } from 'react';
 
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentId} from '../../../../../app/content/ContentId';
 import {IssueStatus} from '../../../../../app/issue/IssueStatus';
 import {IssueType} from '../../../../../app/issue/IssueType';
 import {useI18n} from '../../../hooks/useI18n';
+import {$config} from '../../../store/config.store';
 import {$issueDialog, setIssueDialogView} from '../../../store/dialogs/issueDialog.store';
 import {
     $issueDialogDetails,
@@ -28,6 +31,7 @@ import {
     updateIssueDialogDependencyIncluded,
     updateIssueDialogItemIncludeChildren,
     updateIssueDialogItems,
+    updateIssueDialogSchedule,
     updateIssueDialogStatus,
     updateIssueDialogTitle,
 } from '../../../store/dialogs/issueDialogDetails.store';
@@ -47,6 +51,7 @@ import {ContentCombobox} from '../../selectors/content/combobox/ContentCombobox'
 import {IssueStatusBadge} from '../../status/IssueStatusBadge';
 import {IssueDialogSelector} from './IssueDialogSelector';
 import {IssueIcon} from './IssueIcon';
+import {IssueScheduleForm} from './IssueScheduleForm';
 import {IssueSelectedDependencies} from './IssueSelectedDependencies';
 import {IssueSelectedItems} from './IssueSelectedItems';
 import {IssueCommentsList} from './comment/IssueCommentsList';
@@ -111,6 +116,34 @@ const resolveIssueData = ({
     return resolvedIssue?.getIssue();
 };
 
+const validateSchedule = (from: Date | undefined, to: Date | undefined): {fromError?: string; toError?: string} => {
+    const now = new Date();
+    if (from && from <= now) {
+        return {fromError: i18n('field.schedule.invalid.from.past')};
+    }
+    if (!to) {
+        return {};
+    }
+    if (to <= now) {
+        return {toError: i18n('field.schedule.invalid.past')};
+    }
+    const fromDate = from ?? now;
+    if (to <= fromDate) {
+        return {toError: i18n('field.schedule.invalid')};
+    }
+    return {};
+};
+
+const isSameDateValue = (left: Date | undefined, right: Date | undefined): boolean => {
+    if (!left && !right) {
+        return true;
+    }
+    if (!left || !right) {
+        return false;
+    }
+    return left.getTime() === right.getTime();
+};
+
 const STATUS_LOOKUP: Record<StatusOption, IssueStatus> = {
     open: IssueStatus.OPEN,
     closed: IssueStatus.CLOSED,
@@ -131,6 +164,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         titleUpdating,
         statusUpdating,
         assigneesUpdating,
+        scheduleUpdating,
         itemsUpdating,
         itemsLoading,
         items,
@@ -150,6 +184,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             'titleUpdating',
             'statusUpdating',
             'assigneesUpdating',
+            'scheduleUpdating',
             'itemsUpdating',
             'itemsLoading',
             'items',
@@ -164,6 +199,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const isPublishChecking = useStore($isPublishChecking);
     const {open: publishDialogOpen} = useStore($publishDialog, {keys: ['open']});
     const {submitting: publishSubmitting} = useStore($publishDialogPending, {keys: ['submitting']});
+
+    const {defaultPublishFromTime} = useStore($config, {keys: ['defaultPublishFromTime']});
 
     const fallbackTitle = useI18n('dialog.issue');
     const backLabel = useI18n('dialog.issue.back');
@@ -182,6 +219,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const publishLabelSingle = useI18n('action.publishNow');
     const publishLabelMultiple = useI18n('action.publishNowCount', publishCount);
     const noResultsLabel = useI18n('dialog.search.result.noResults');
+    const scheduleLabelText = useI18n('action.schedule');
+    const cancelScheduleLabel = useI18n('action.schedule.cancel');
     const commentTextareaId = useId();
 
     const issueData = resolveIssueData({
@@ -221,6 +260,21 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const pendingItemIdsRef = useRef<ContentId[] | null>(null);
     const publishTargetIds = useIssuePublishTargetIds(items, dependants, excludedDependantIds);
 
+    // Schedule state
+    const issuePublishFrom = issueData?.getPublishFrom();
+    const issuePublishTo = issueData?.getPublishTo();
+    const hasIssueSchedule = !!issuePublishFrom || !!issuePublishTo;
+    const [scheduleMode, setScheduleMode] = useState(false);
+    const [scheduleFromInputError, setScheduleFromInputError] = useState<string | undefined>();
+    const [scheduleToInputError, setScheduleToInputError] = useState<string | undefined>();
+    const [scheduleFromRangeError, setScheduleFromRangeError] = useState<string | undefined>();
+    const [scheduleToRangeError, setScheduleToRangeError] = useState<string | undefined>();
+    const firstScheduleInputRef = useRef<HTMLInputElement>(null);
+    const scheduleKeyboardActivation = useRef(false);
+    const wasScheduleMode = useRef(scheduleMode);
+    const scheduleFromRef = useRef<Date | undefined>(issuePublishFrom);
+    const scheduleToRef = useRef<Date | undefined>(issuePublishTo);
+
     const {options: assigneeOptions, handleSearchChange} = useAssigneeSearch({
         publishableContentIds: publishTargetIds,
         useRootFallback: true,
@@ -228,16 +282,43 @@ export const IssueDialogDetailsContent = (): ReactElement => {
 
     useIssueDialogData(issueId, !!issueData);
 
+    // Auto-open schedule form when issue has schedule dates
+    useEffect(() => {
+        if (hasIssueSchedule) {
+            setScheduleMode(true);
+        }
+    }, [hasIssueSchedule]);
+
+    // Sync local schedule refs when issue data changes
+    useEffect(() => {
+        scheduleFromRef.current = issuePublishFrom;
+        scheduleToRef.current = issuePublishTo;
+    }, [issuePublishFrom, issuePublishTo]);
+
+    // Keyboard focus for schedule form
+    useEffect(() => {
+        if (scheduleMode && !wasScheduleMode.current && scheduleKeyboardActivation.current) {
+            requestAnimationFrame(() => firstScheduleInputRef.current?.focus());
+        }
+        scheduleKeyboardActivation.current = false;
+        wasScheduleMode.current = scheduleMode;
+    }, [scheduleMode]);
+
+    // Sync publish dialog context with schedule data
     useEffect(() => {
         if (!issueData) {
             return;
         }
+        const schedule = (issuePublishFrom || issuePublishTo)
+            ? {from: issuePublishFrom, to: issuePublishTo}
+            : undefined;
         void syncPublishDialogContext({
             items,
             excludedChildrenIds,
             excludedDependantIds,
+            schedule,
         });
-    }, [excludedChildrenIds, excludedDependantIds, issueData, items, syncPublishDialogContext]);
+    }, [excludedChildrenIds, excludedDependantIds, issueData, issuePublishFrom, issuePublishTo, items, syncPublishDialogContext]);
 
     const assigneeIds = useMemo(
         () => issueData?.getApprovers().map(approver => approver.toString()) ?? [],
@@ -312,6 +393,19 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         };
     }, [debouncedUpdateAssignees]);
 
+    const debouncedUpdateSchedule = useMemo(
+        () => createDebounce((from: Date | undefined, to: Date | undefined) => {
+            void updateIssueDialogSchedule(from, to);
+        }, 600),
+        [],
+    );
+
+    useEffect(() => {
+        return () => {
+            debouncedUpdateSchedule.cancel();
+        };
+    }, [debouncedUpdateSchedule]);
+
     const debouncedUpdateItems = useMemo(
         () => createDebounce((nextIds: ContentId[]) => {
             void updateIssueDialogItems(nextIds);
@@ -360,6 +454,49 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         void updateIssueDialogDependencyIncluded(id, included);
     }, []);
 
+    const handleScheduleFromChange = useCallback((value: Date | undefined): void => {
+        scheduleFromRef.current = value;
+        const {fromError, toError} = validateSchedule(value, scheduleToRef.current);
+        setScheduleFromRangeError(fromError);
+        setScheduleToRangeError(toError);
+        if (!fromError && !toError) {
+            debouncedUpdateSchedule(value, scheduleToRef.current);
+        }
+    }, [debouncedUpdateSchedule, issuePublishFrom, issuePublishTo]);
+
+    const handleScheduleToChange = useCallback((value: Date | undefined): void => {
+        scheduleToRef.current = value;
+        const {fromError, toError} = validateSchedule(scheduleFromRef.current, value);
+        setScheduleFromRangeError(fromError);
+        setScheduleToRangeError(toError);
+        if (!fromError && !toError) {
+            debouncedUpdateSchedule(scheduleFromRef.current, value);
+        }
+    }, [debouncedUpdateSchedule, issuePublishFrom, issuePublishTo]);
+
+    useEffect(() => {
+        const {fromError, toError} = validateSchedule(issuePublishFrom, issuePublishTo);
+        setScheduleFromRangeError(fromError);
+        setScheduleToRangeError(toError);
+    }, [issuePublishFrom, issuePublishTo]);
+
+    const handleScheduleToggle = (): void => {
+        if (scheduleMode) {
+            // Cancel: clear dates from issue immediately
+            setScheduleMode(false);
+            setScheduleFromInputError(undefined);
+            setScheduleToInputError(undefined);
+            setScheduleFromRangeError(undefined);
+            setScheduleToRangeError(undefined);
+            scheduleFromRef.current = undefined;
+            scheduleToRef.current = undefined;
+            debouncedUpdateSchedule.cancel();
+            void updateIssueDialogSchedule(undefined, undefined);
+        } else {
+            setScheduleMode(true);
+        }
+    };
+
     const handleCommentInput: NonNullable<ComponentPropsWithoutRef<'textarea'>['onInput']> = (event) => {
         const {value} = event.currentTarget;
         setIssueDialogCommentText(value);
@@ -379,6 +516,20 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     };
 
     const handlePublish = (): void => {
+        debouncedUpdateSchedule.flush();
+        if (scheduleMode) {
+            const schedule = (scheduleFromRef.current || scheduleToRef.current)
+                ? {from: scheduleFromRef.current, to: scheduleToRef.current}
+                : undefined;
+            if (schedule) {
+                void syncPublishDialogContext({
+                    items,
+                    excludedChildrenIds,
+                    excludedDependantIds,
+                    schedule,
+                });
+            }
+        }
         void publishItems();
     };
 
@@ -404,14 +555,20 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         [],
     );
 
+    const scheduleFromError = scheduleFromInputError ?? scheduleFromRangeError;
+    const scheduleToError = scheduleToInputError ?? scheduleToRangeError;
+
     const isAssigneesDisabled = !issueData || issueError || assigneesUpdating || statusUpdating;
     const isItemsDisabled = !issueData || issueError || itemsUpdating || statusUpdating;
+    const hasScheduleErrors = !!scheduleFromError || !!scheduleToError;
     const isPublishDisabled = !isPublishReady ||
         isPublishChecking ||
         publishSubmitting ||
         publishDialogOpen ||
         isItemsDisabled ||
-        itemsLoading;
+        itemsLoading ||
+        scheduleUpdating ||
+        hasScheduleErrors;
     const statusOptions = useMemo(
         () => getStatusOptions(openStatusLabel, closedStatusLabel),
         [openStatusLabel, closedStatusLabel],
@@ -538,7 +695,20 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                             onDependencyChange={handleDependencyChange}
                                         />
                                     )}
-
+                                    {isPublishRequest && scheduleMode && (
+                                        <IssueScheduleForm
+                                            publishFrom={issuePublishFrom}
+                                            publishTo={issuePublishTo}
+                                            fromError={scheduleFromError}
+                                            toError={scheduleToError}
+                                            onFromChange={handleScheduleFromChange}
+                                            onToChange={handleScheduleToChange}
+                                            onFromError={setScheduleFromInputError}
+                                            onToError={setScheduleToInputError}
+                                            firstInputRef={firstScheduleInputRef}
+                                            defaultTimeValue={defaultPublishFromTime}
+                                        />
+                                    )}
                                 </div>
                             </div>
                         </Tab.Content>
@@ -575,7 +745,35 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                         disabled={!canSubmitComment}
                     />
                 )}
-                {isItemsTab && (
+                {isItemsTab && isPublishRequest && (
+                    <>
+                        <Button
+                            className='ml-auto'
+                            size='lg'
+                            label={scheduleMode ? cancelScheduleLabel : scheduleLabelText}
+                            variant='outline'
+                            onClick={handleScheduleToggle}
+                            onKeyDown={(event) => {
+                                if (event.key === 'Enter' || event.key === ' ') {
+                                    scheduleKeyboardActivation.current = true;
+                                }
+                            }}
+                            onPointerDown={() => {
+                                scheduleKeyboardActivation.current = false;
+                            }}
+                            endIcon={!scheduleMode ? Calendar : undefined}
+                            disabled={!scheduleMode && isPublishDisabled}
+                        />
+                        <Button
+                            variant='solid'
+                            size='lg'
+                            label={scheduleMode && hasIssueSchedule ? scheduleLabelText : publishLabel}
+                            onClick={handlePublish}
+                            disabled={isPublishDisabled}
+                        />
+                    </>
+                )}
+                {isItemsTab && !isPublishRequest && (
                     <Button
                         variant='solid'
                         size='lg'
