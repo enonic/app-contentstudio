@@ -222,15 +222,16 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const publishLabel = publishCount > 1 ? publishLabelMultiple : publishLabelSingle;
     const commentCount = comments.length;
     const assigneeCount = issueData?.getApprovers().length ?? 0;
+    const itemsCount = items.length + dependants.length;
     const tabs = isPublishRequest
         ? [
-            {value: 'items', label: publishRequestLabel, count: publishCount},
+            {value: 'items', label: publishRequestLabel, count: itemsCount},
             {value: 'comments', label: commentsLabel, count: commentCount},
             {value: 'assignees', label: assigneesLabel, count: assigneeCount},
         ]
         : [
             {value: 'comments', label: commentsLabel, count: commentCount},
-            {value: 'items', label: itemsLabel, count: publishCount},
+            {value: 'items', label: itemsLabel, count: itemsCount},
             {value: 'assignees', label: assigneesLabel, count: assigneeCount},
         ];
     const isTitleDisabled = !issueData || issueError || titleUpdating || statusUpdating;
@@ -440,6 +441,15 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         handleExcludeDependants(excludeNotPublishablePublishItems);
     }, [handleExcludeDependants]);
 
+    const handleMarkAllAsReady = useCallback((): void => {
+        void (async () => {
+            await markAllAsReadyInProgressPublishItems();
+            if (issueData) {
+                await loadIssueDialogItems(issueData, {forceReload: true});
+            }
+        })();
+    }, [issueData, loadIssueDialogItems]);
+
     const handleBack = (): void => {
         setIssueDialogView('list');
     };
@@ -589,7 +599,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                         inProgress: {
                                             ...inProgress,
                                             onExclude: handleExcludeInProgress,
-                                            onMarkAsReady: () => void markAllAsReadyInProgressPublishItems(),
+                                            onMarkAsReady: handleMarkAllAsReady,
                                         },
                                         invalid: {
                                             ...invalid,
@@ -614,7 +624,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                         <IssueSelectedItems
                                             items={items}
                                             excludedChildrenIds={excludedChildrenIds}
-                                            disabled={isItemsDisabled}
+                                            disabled={isItemsDisabled || items.length === 1}
                                             loading={itemsLoading}
                                             onIncludeChildrenChange={handleIncludeChildrenChange}
                                             onRemoveItem={handleItemRemoved}
@@ -629,6 +639,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                             disabled={isItemsDisabled}
                                             loading={itemsLoading}
                                             onDependencyChange={handleDependencyChange}
+                                            isPublishRequest={isPublishRequest}
                                         />
                                     )}
 

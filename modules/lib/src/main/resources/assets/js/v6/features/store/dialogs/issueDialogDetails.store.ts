@@ -108,7 +108,15 @@ export const setIssueDialogCommentText = (commentText: string): void => {
     $issueDialogDetails.setKey('commentText', commentText);
 };
 
-export const loadIssueDialogItems = async (issue?: Issue): Promise<void> => {
+type IssueDialogItemsOptions = {
+    forceReload?: boolean;
+};
+
+export const loadIssueDialogItems = async (
+    issue?: Issue,
+    options: IssueDialogItemsOptions = {},
+): Promise<void> => {
+    const {forceReload = false} = options;
     const state = $issueDialogDetails.get();
     const targetIssue = issue ?? state.issue;
 
@@ -142,6 +150,7 @@ export const loadIssueDialogItems = async (issue?: Issue): Promise<void> => {
     const canReuseItems = isSameIssue
                           && existingItemIds.length > 0
                           && isIdsEqual(existingItemIds, itemIds);
+    const shouldFetchItems = !canReuseItems || forceReload;
 
     $issueDialogDetails.set({
         ...currentState,
@@ -155,9 +164,9 @@ export const loadIssueDialogItems = async (issue?: Issue): Promise<void> => {
     });
 
     try {
-        const items = canReuseItems
-                      ? currentState.items
-                      : await fetchContentSummariesWithStatus(itemIds);
+        const items = shouldFetchItems
+                      ? await fetchContentSummariesWithStatus(itemIds)
+                      : currentState.items;
         if (requestId !== dependenciesRequestId) {
             return;
         }
