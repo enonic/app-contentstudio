@@ -45,6 +45,7 @@ type IssueDialogDetailsStore = {
     titleUpdating: boolean;
     statusUpdating: boolean;
     assigneesUpdating: boolean;
+    scheduleUpdating: boolean;
     itemsUpdating: boolean;
     itemsLoading: boolean;
     itemsError: boolean;
@@ -79,6 +80,7 @@ const initialState: IssueDialogDetailsStore = {
     titleUpdating: false,
     statusUpdating: false,
     assigneesUpdating: false,
+    scheduleUpdating: false,
     itemsUpdating: false,
     itemsLoading: false,
     itemsError: false,
@@ -482,11 +484,12 @@ export const updateIssueDialogStatus = async (nextStatus: IssueStatus): Promise<
     $issueDialogDetails.setKey('statusUpdating', true);
 
     try {
-        const updatedIssue = await new UpdateIssueRequest(issueId)
+        const request = new UpdateIssueRequest(issueId)
             .setTitle(issue.getTitle())
             .setDescription(issue.getDescription())
-            .setIssueStatus(nextStatus)
-            .sendAndParse();
+            .setIssueStatus(nextStatus);
+        populateSchedule(request, issue);
+        const updatedIssue = await request.sendAndParse();
 
         applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, {statusUpdating: false});
 
@@ -517,12 +520,13 @@ export const updateIssueDialogTitle = async (nextTitle: string): Promise<void> =
     $issueDialogDetails.setKey('titleUpdating', true);
 
     try {
-        const updatedIssue = await new UpdateIssueRequest(issueId)
+        const request = new UpdateIssueRequest(issueId)
             .setTitle(trimmedTitle)
             .setDescription(issue.getDescription())
             .setIssueStatus(issue.getIssueStatus())
-            .setApprovers(issue.getApprovers())
-            .sendAndParse();
+            .setApprovers(issue.getApprovers());
+        populateSchedule(request, issue);
+        const updatedIssue = await request.sendAndParse();
 
         applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, {titleUpdating: false});
 
@@ -557,12 +561,13 @@ export const updateIssueDialogAssignees = async (nextAssigneeIds: readonly strin
 
     try {
         const approvers = nextAssigneeIds.map(id => PrincipalKey.fromString(id));
-        const updatedIssue = await new UpdateIssueRequest(issueId)
+        const request = new UpdateIssueRequest(issueId)
             .setTitle(issue.getTitle())
             .setDescription(issue.getDescription())
             .setIssueStatus(issue.getIssueStatus())
-            .setApprovers(approvers)
-            .sendAndParse();
+            .setApprovers(approvers);
+        populateSchedule(request, issue);
+        const updatedIssue = await request.sendAndParse();
 
         let assignees = issueWithAssignees?.getAssignees() ?? [];
         if (approvers.length > 0) {
@@ -585,6 +590,50 @@ export const updateIssueDialogAssignees = async (nextAssigneeIds: readonly strin
     } catch (error) {
         console.error(error);
         $issueDialogDetails.setKey('assigneesUpdating', false);
+        showError(error?.message ?? String(error));
+    }
+};
+
+export const updateIssueDialogSchedule = async (
+    publishFrom: Date | undefined,
+    publishTo: Date | undefined,
+): Promise<void> => {
+    const context = getIssueContext('scheduleUpdating');
+    if (!context) {
+        return;
+    }
+    const {issueId, dialogState, issueWithAssignees, issue} = context;
+
+    $issueDialogDetails.setKey('scheduleUpdating', true);
+
+    try {
+        const request = new UpdateIssueRequest(issueId)
+            .setTitle(issue.getTitle())
+            .setDescription(issue.getDescription())
+            .setIssueStatus(issue.getIssueStatus())
+            .setApprovers(issue.getApprovers());
+
+        if (issue.getPublishRequest()) {
+            request.setPublishRequest(issue.getPublishRequest());
+        }
+        if (publishFrom) {
+            request.setPublishFrom(publishFrom);
+        }
+        if (publishTo) {
+            request.setPublishTo(publishTo);
+        }
+
+        const updatedIssue = await request.sendAndParse();
+        applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, {scheduleUpdating: false});
+
+        void loadIssueDialogList();
+        const prefix = updatedIssue.getType() === IssueType.PUBLISH_REQUEST
+                       ? 'notify.publishRequest.'
+                       : 'notify.issue.';
+        showFeedback(i18n(`${prefix}updated`));
+    } catch (error) {
+        console.error(error);
+        $issueDialogDetails.setKey('scheduleUpdating', false);
         showError(error?.message ?? String(error));
     }
 };
@@ -771,7 +820,7 @@ export const isDeleteCommentConfirmationOpen = (): boolean => {
 // * Internal
 //
 
-type IssueDetailsUpdatingKey = 'statusUpdating' | 'assigneesUpdating' | 'itemsUpdating' | 'titleUpdating';
+type IssueDetailsUpdatingKey = 'statusUpdating' | 'assigneesUpdating' | 'itemsUpdating' | 'titleUpdating' | 'scheduleUpdating';
 
 type IssueDialogState = ReturnType<typeof $issueDialog.get>;
 
@@ -849,6 +898,18 @@ const getIssueContext = (updatingKey?: IssueDetailsUpdatingKey): IssueContext | 
     };
 };
 
+const populateSchedule = (request: UpdateIssueRequest, issue: Issue): void => {
+    const publishFrom = issue.getPublishFrom();
+    const publishTo = issue.getPublishTo();
+
+    if (publishFrom) {
+        request.setPublishFrom(publishFrom);
+    }
+    if (publishTo) {
+        request.setPublishTo(publishTo);
+    }
+};
+
 const applyUpdatedIssue = (
     updatedIssue: Issue,
     dialogState: IssueDialogState,
@@ -893,13 +954,14 @@ const updateIssueWithPublishRequest = async ({
     nextPublishRequest: PublishRequest;
 }): Promise<void> => {
     try {
-        const updatedIssue = await new UpdateIssueRequest(issueId)
+        const request = new UpdateIssueRequest(issueId)
             .setTitle(issue.getTitle())
             .setDescription(issue.getDescription())
             .setIssueStatus(issue.getIssueStatus())
             .setApprovers(issue.getApprovers())
-            .setPublishRequest(nextPublishRequest)
-            .sendAndParse();
+            .setPublishRequest(nextPublishRequest);
+        populateSchedule(request, issue);
+        const updatedIssue = await request.sendAndParse();
 
         applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, {itemsUpdating: false});
 

@@ -40,7 +40,7 @@ type PublishDialogSelectionStore = {
     excludedDependantItemsIds: ContentId[];
 }
 
-type PublishSchedule = {
+export type PublishSchedule = {
     from?: Date;
     to?: Date;
 };
@@ -287,11 +287,13 @@ export const syncPublishDialogContext = async ({
     excludedChildrenIds = [],
     excludedDependantIds = [],
     message,
+    schedule,
 }: {
     items: ContentSummaryAndCompareStatus[];
     excludedChildrenIds?: ContentId[];
     excludedDependantIds?: ContentId[];
     message?: string;
+    schedule?: PublishSchedule;
 }): Promise<void> => {
     const {open} = $publishDialog.get();
     const {submitting} = $publishDialogPending.get();
@@ -311,6 +313,7 @@ export const syncPublishDialogContext = async ({
         excludedItemsWithChildrenIds: [...excludedChildrenIds],
         excludedDependantItemsIds: [...excludedDependantIds],
         message,
+        schedule,
     });
 
     $draftPublishDialogSelection.set({
