@@ -18,6 +18,7 @@ import {EmulatedDeviceEvent} from '../../v6/features/utils/dom/events/registry';
 import {EmulatorDevice} from './context/widget/emulator/EmulatorDevice';
 import {$autoModeWidgets, WIDGET_AUTO_DESCRIPTOR} from '../../v6/features/store/liveViewWidgets.store';
 import {$isWidgetRenderable} from '../../v6/features/store/contextWidgets.store';
+import {$app, getResolvedTheme} from '../../v6/features/store/app.store';
 
 export enum PREVIEW_TYPE {
     WIDGET,
@@ -276,6 +277,9 @@ export class WidgetRenderingHandler {
             body.style.display = 'flex';
             body.style.justifyContent = 'center';
             body.style.alignItems = 'center';
+            // Apply theme-aware background color
+            const isDark = getResolvedTheme() === 'dark';
+            body.style.backgroundColor = isDark ? '#242829' : '#ffffff';
         }
 
         let img: HTMLImageElement | SVGElement = frameWindow.document.querySelector('svg');
@@ -347,6 +351,16 @@ export class WidgetRenderingHandler {
                     break;
                 default:
                     break;
+            }
+        });
+
+        // Subscribe to theme changes to update image background
+        $app.subscribe(() => {
+            if (iframe.getClass() === 'image') {
+                const frameWindow = iframe.getHTMLElement()['contentWindow'];
+                if (frameWindow) {
+                    this.applyImageStyles(frameWindow);
+                }
             }
         });
     }
