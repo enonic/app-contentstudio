@@ -18,13 +18,14 @@ type PrincipalSelectorProps = {
     allowedTypes: PrincipalType[];
     placeholder?: string;
     emptyLabel?: string;
+    closeOnBlur?: boolean;
     className?: string;
 };
 
 export const PrincipalSelector = (props: PrincipalSelectorProps): ReactElement => {
     const {principals} = useStore($principals);
     const [searchValue, setSearchValue] = useState('');
-    const {selection, onSelectionChange, selectionMode, allowedTypes, placeholder, emptyLabel, className} = props;
+    const {selection, onSelectionChange, selectionMode, allowedTypes, placeholder, emptyLabel, closeOnBlur, className} = props;
     const allowedTypesKey = allowedTypes.join(','); // Serialize array for stable comparison in useEffect dependencies
 
     const allowedPrincipals = useMemo(() => {
@@ -58,7 +59,7 @@ export const PrincipalSelector = (props: PrincipalSelectorProps): ReactElement =
             selection={selection}
             onSelectionChange={handleOnSelectionChange}
             selectionMode={selectionMode}
-            closeOnBlur={false}
+            closeOnBlur={closeOnBlur}
         >
             <Combobox.Content className={className}>
                 <Combobox.Control>
@@ -115,7 +116,7 @@ const PrincipalSelectorList = (props: PrincipalSelectorListProps): ReactElement 
                         <Listbox.Item key={key} value={key}>
                             <div className="flex-1">
                                 <ItemLabel
-                                    icon={<CircleUserRound />}
+                                    icon={<CircleUserRound strokeWidth={1.5} />}
                                     primary={principal.getDisplayName()}
                                     secondary={principal.getKey().toPath()}
                                 />

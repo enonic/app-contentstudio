@@ -40,8 +40,8 @@ export const NewProjectDialogApplicationStepContent = ({locked = false}: {locked
 
     // Handlers
     const handleUnselect = useCallback(
-        (id: string): void => {
-            setSelection(selection.filter((idd) => idd !== id));
+        (applicationKey: string): void => {
+            setSelection(selection.filter((id) => id !== applicationKey));
         },
         [setSelection, selection]
     );
@@ -55,11 +55,12 @@ export const NewProjectDialogApplicationStepContent = ({locked = false}: {locked
                 selectionMode="staged"
                 placeholder={typeToSearchLabel}
                 emptyLabel={noApplicationsFoundLabel}
+                closeOnBlur
                 className="mb-2.5"
             />
             {selection.length > 0 && (
                 <>
-                    <GridList className="rounded-md space-y-2.5 mb-2.5 py-1.5 px-5">
+                    <GridList className="rounded-md space-y-2.5 mb-2.5 py-1.5 pl-5 pr-1">
                         {selectedApplications.map((application) => {
                             const key = application.getApplicationKey().toString();
                             const name = application.getDisplayName();

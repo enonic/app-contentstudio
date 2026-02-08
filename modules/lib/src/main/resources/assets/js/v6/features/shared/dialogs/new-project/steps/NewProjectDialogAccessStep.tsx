@@ -48,7 +48,7 @@ export const NewProjectDialogAccessStepContent = (): ReactElement => {
     }, [selectedPrincipals]);
 
     // Constants
-    const accessModelabel = useI18n('dialog.project.wizard.access.accessMode');
+    const accessModeLabel = useI18n('dialog.project.wizard.access.accessMode');
     const publicLabel = useI18n('dialog.project.wizard.access.public');
     const privateLabel = useI18n('dialog.project.wizard.access.private');
     const customLabel = useI18n('dialog.project.wizard.access.custom');
@@ -92,8 +92,8 @@ export const NewProjectDialogAccessStepContent = (): ReactElement => {
     }, [parentProjects, canCopyFromParentProject]);
 
     const handleUnselect = useCallback(
-        (id: string): void => {
-            setSelection(selection.filter((idd) => idd !== id));
+        (principalKey: string): void => {
+            setSelection(selection.filter((id) => id !== principalKey));
         },
         [setSelection, selection]
     );
@@ -101,7 +101,7 @@ export const NewProjectDialogAccessStepContent = (): ReactElement => {
     return (
         <Dialog.StepContent step="step-access">
             <div className="flex justify-between gap-3 mb-2">
-                <h3 className="font-semibold">{accessModelabel}</h3>
+                <h3 className="font-semibold">{accessModeLabel}</h3>
                 {canCopyFromParentProject && (
                     <button className="text-sm underline cursor-pointer" onClick={handleCopyFromParentProject}>
                         {copyFromParentLabel}
@@ -137,12 +137,13 @@ export const NewProjectDialogAccessStepContent = (): ReactElement => {
                         allowedTypes={[PrincipalType.USER, PrincipalType.GROUP]}
                         placeholder={typeToSearchLabel}
                         emptyLabel={noPrincipalsFoundLabel}
+                        closeOnBlur
                         className="mb-2.5"
                     />
 
                     {selection.length > 0 && (
                         <>
-                            <GridList className="rounded-md space-y-2.5 mb-2.5 py-1.5 px-5">
+                            <GridList className="rounded-md space-y-2.5 mb-2.5 py-1.5 pl-5 pr-1">
                                 {selectedPrincipals.map((principal) => {
                                     const key = principal.getKey().toString();
                                     const principalDisplayName = principal.getDisplayName();

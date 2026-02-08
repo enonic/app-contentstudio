@@ -13,13 +13,14 @@ type ProjectSelectorProps = {
     selectionMode?: ComboboxRootProps['selectionMode'];
     placeholder?: string;
     emptyLabel?: string;
+    closeOnBlur?: boolean;
     className?: string;
 };
 
 const PROJECT_SELECTOR_NAME = 'ProjectSelector';
 
 export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
-    const {selection, onSelectionChange, selectionMode = 'single', placeholder, emptyLabel, className} = props;
+    const {selection, onSelectionChange, selectionMode = 'single', placeholder, emptyLabel, closeOnBlur, className} = props;
 
     // Hooks
     const {projects} = useStore($projects);
@@ -52,7 +53,7 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
             onSelectionChange={onSelectionChange}
             contentType="tree"
             selectionMode={selectionMode}
-            closeOnBlur={false}
+            closeOnBlur={closeOnBlur}
         >
             <Combobox.Content className={className}>
                 <Combobox.Control>

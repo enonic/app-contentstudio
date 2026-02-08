@@ -1,4 +1,4 @@
-import {cn, Dialog, GridList, IconButton, Menu} from '@enonic/ui';
+import {Dialog, GridList, IconButton, Selector} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
 import {$newProjectDialog, setNewProjectDialogRoles} from '../../../../store/dialogs/newProjectDialog.store';
@@ -10,7 +10,6 @@ import {$principals} from '../../../../store/principals.store';
 import {ItemLabel} from '../../../ItemLabel';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {ProjectAccess} from '../../../../../../app/settings/access/ProjectAccess';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 
 export const NewProjectDialogRoleStepHeader = (): ReactElement => {
     const helperLabel = useI18n('dialog.project.wizard.title');
@@ -64,12 +63,15 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
     const editorLabel = useI18n('settings.projects.access.editor');
     const contributorLabel = useI18n('settings.projects.access.contributor');
     const authorLabel = useI18n('settings.projects.access.author');
-    const roles = [
-        {role: ProjectAccess.OWNER, label: ownerLabel},
-        {role: ProjectAccess.EDITOR, label: editorLabel},
-        {role: ProjectAccess.CONTRIBUTOR, label: contributorLabel},
-        {role: ProjectAccess.AUTHOR, label: authorLabel},
-    ];
+    const roleOptions = useMemo(
+        () => [
+            {role: ProjectAccess.OWNER, label: ownerLabel},
+            {role: ProjectAccess.EDITOR, label: editorLabel},
+            {role: ProjectAccess.CONTRIBUTOR, label: contributorLabel},
+            {role: ProjectAccess.AUTHOR, label: authorLabel},
+        ],
+        [ownerLabel, editorLabel, contributorLabel, authorLabel]
+    );
 
     // Handlers
     const canCopyFromParentProject = useMemo(
@@ -96,11 +98,11 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
 
         setSelection(selection);
         setSelectedRoles(updatedRoles);
-    }, [parentProjects, selection, setSelection, setSelectedRoles, canCopyFromParentProject]);
+    }, [parentProjects, setSelection, setSelectedRoles, canCopyFromParentProject]);
 
     const handleUnselect = useCallback(
-        (id: string): void => {
-            setSelection(selection.filter((idd) => idd !== id));
+        (principalKey: string): void => {
+            setSelection(selection.filter((id) => id !== principalKey));
         },
         [setSelection, selection]
     );
@@ -133,18 +135,19 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
                 allowedTypes={[PrincipalType.USER, PrincipalType.GROUP]}
                 placeholder={typeToSearchLabel}
                 emptyLabel={noRolesFoundLabel}
+                closeOnBlur
                 className="mb-2.5"
             />
 
             {selection.length > 0 && (
                 <>
-                    <GridList className="rounded-md space-y-2.5 mb-2.5 py-1.5 px-5">
+                    <GridList className="rounded-md space-y-2.5 mb-2.5 py-1.5 pl-5 pr-1">
                         {selectedPrincipals.map((principal) => {
                             const key = principal.getKey().toString();
                             const principalDisplayName = principal.getDisplayName();
                             const principalPath = principal.getKey().toPath();
                             const principalRole = selectedRoles.get(principal.getKey().toString());
-                            const principalRoleLabel = roles.find((role) => role.role === principalRole)?.label;
+                            const principalRoleLabel = roleOptions.find((role) => role.role === principalRole)?.label;
 
                             return (
                                 <GridList.Row key={key} id={key} className="p-1.5 gap-1.5">
@@ -161,24 +164,24 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
                                     {/* Manage selected principal role */}
                                     <GridList.Cell>
                                         <GridList.Action>
-                                            <Menu>
-                                                <Menu.Trigger>
-                                                    <button className="text-sm hover:underline cursor-pointer">{principalRoleLabel}</button>
-                                                </Menu.Trigger>
-                                                <Menu.Portal>
-                                                    <Menu.Content>
-                                                        {roles.map((role) => (
-                                                            <Menu.Item
-                                                                key={role.label}
-                                                                onClick={() => handleSelectRole(principal, role.role)}
-                                                                className={cn(role.role === principalRole && 'bg-surface-selected')}
-                                                            >
-                                                                {role.label}
-                                                            </Menu.Item>
+                                            <Selector.Root
+                                                value={principalRole}
+                                                onValueChange={(value) => handleSelectRole(principal, value as ProjectAccess)}
+                                            >
+                                                <Selector.Trigger className="border-none text-sm">
+                                                    <Selector.Value>{principalRoleLabel}</Selector.Value>
+                                                    <Selector.Icon />
+                                                </Selector.Trigger>
+                                                <Selector.Content portal={false}>
+                                                    <Selector.Viewport>
+                                                        {roleOptions.map(({role, label}) => (
+                                                            <Selector.Item key={label} value={role} textValue={label}>
+                                                                <Selector.ItemText>{label}</Selector.ItemText>
+                                                            </Selector.Item>
                                                         ))}
-                                                    </Menu.Content>
-                                                </Menu.Portal>
-                                            </Menu>
+                                                    </Selector.Viewport>
+                                                </Selector.Content>
+                                            </Selector.Root>
                                         </GridList.Action>
                                     </GridList.Cell>
 

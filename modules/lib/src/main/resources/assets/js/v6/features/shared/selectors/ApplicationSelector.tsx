@@ -14,13 +14,14 @@ type ApplicationSelectorProps = {
     selectionMode: ComboboxRootProps['selectionMode'];
     placeholder?: string;
     emptyLabel?: string;
+    closeOnBlur?: boolean;
     className?: string;
 };
 
 export const ApplicationSelector = (props: ApplicationSelectorProps): ReactElement => {
     const {applications} = useStore($applications);
     const [searchValue, setSearchValue] = useState('');
-    const {selection, onSelectionChange, selectionMode, placeholder, emptyLabel, className} = props;
+    const {selection, onSelectionChange, selectionMode, placeholder, emptyLabel, closeOnBlur, className} = props;
 
     const filtered = useMemo(() => {
         if (!searchValue) return applications;
@@ -36,7 +37,7 @@ export const ApplicationSelector = (props: ApplicationSelectorProps): ReactEleme
             selection={selection}
             onSelectionChange={onSelectionChange}
             selectionMode={selectionMode}
-            closeOnBlur={false}
+            closeOnBlur={closeOnBlur}
         >
             <Combobox.Content className={className}>
                 <Combobox.Control>
