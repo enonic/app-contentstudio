@@ -21,7 +21,7 @@ import {ProjectGetRequest} from './resource/ProjectGetRequest';
 import {ContentAppBar} from '../bar/ContentAppBar';
 import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ProjectsUtil} from './resource/ProjectsUtil';
-import {Projects} from './resource/Projects';
+import {removeProject, upsertProject} from '../../v6/features/store/projects.store';
 
 export class SettingsAppPanel
     extends NavigatedAppPanel {
@@ -143,7 +143,7 @@ export class SettingsAppPanel
     }
 
     private addNewProject(project: Project) {
-        Projects.get().setProjects([...Projects.get().getProjects().filter(p => p.getName() !== project.getName()), project]);
+        upsertProject(project);
 
         const item: ProjectViewItem = ProjectViewItem.create()
             .setData(project)
@@ -158,7 +158,7 @@ export class SettingsAppPanel
     }
 
     private updateExistingProject(project: Project) {
-        Projects.get().setProjects([...Projects.get().getProjects().filter(p => p.getName() !== project.getName()), project]);
+        upsertProject(project);
 
         const item: ProjectViewItem = ProjectViewItem.create()
             .setData(project)
@@ -206,7 +206,7 @@ export class SettingsAppPanel
     }
 
     private handleItemDeleted(itemId: string): void {
-        Projects.get().setProjects(Projects.get().getProjects().filter((project: Project) => project.getName() !== itemId));
+        removeProject(itemId);
         this.deletedIds.push(itemId);
         this.browsePanel.deleteSettingsItem(itemId);
 

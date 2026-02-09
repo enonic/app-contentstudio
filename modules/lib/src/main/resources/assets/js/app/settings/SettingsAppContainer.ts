@@ -1,7 +1,7 @@
 import {SettingsAppShellElement} from '../../v6/features/views/settings/SettingsAppShell';
 import {AppContainer} from '../AppContainer';
 import {SettingsAppPanel} from './SettingsAppPanel';
-import {Projects} from './resource/Projects';
+import {reloadProjects} from '../../v6/features/store/projects.store';
 
 export class SettingsAppContainer extends AppContainer {
     constructor() {
@@ -12,7 +12,7 @@ export class SettingsAppContainer extends AppContainer {
     protected initElements(): void {
         super.initElements();
 
-        Projects.get().reloadProjects();
+        reloadProjects();
     }
 
     protected createAppPanel(): SettingsAppPanel {

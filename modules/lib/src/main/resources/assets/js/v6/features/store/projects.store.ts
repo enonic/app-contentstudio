@@ -57,10 +57,6 @@ export const $activeProjectName = computed($activeProject, (activeProject) => {
     return `${projectDisplayName} (${projectLanguage})`;
 });
 
-export const $isInitialized = computed($projects, (store) => {
-    return store.activeProjectId === undefined || store.projects.length > 0;
-});
-
 export function setActiveProject(project: Readonly<Project> | undefined): void {
     const existsInStore = $projects.get().projects.some((p) => getProjectId(p) === getProjectId(project));
     if (!existsInStore) return;
@@ -164,6 +160,27 @@ ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
     updateActiveProject();
 });
 
+//
+// * Public API
+//
+export function reloadProjects(): void {
+    void loadProjects();
+}
+
+export function upsertProject(project: Readonly<Project>): void {
+    const {projects} = $projects.get();
+    const updatedProjects = [...projects.filter((p) => getProjectId(p) !== getProjectId(project)), project as Project];
+    $projects.setKey('projects', updatedProjects);
+    updateActiveProject();
+}
+
+export function removeProject(projectName: string): void {
+    const {projects} = $projects.get();
+    const updatedProjects = projects.filter((p) => getProjectId(p) !== projectName);
+    $projects.setKey('projects', updatedProjects);
+    updateActiveProject();
+}
+
 
 //
 // * Legacy
@@ -208,4 +225,3 @@ $activeProject.subscribe((project) => {
     $previousProjectId.set(currentId);
     resetProjectDependentStores();
 });
-
