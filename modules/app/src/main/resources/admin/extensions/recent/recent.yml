@@ -1,0 +1,7 @@
+displayName: "Content Studio: Recent items"
+interfaces:
+  - "admin.dashboard.content-studio"
+config:
+  width: "medium"
+  height: "medium"
+  order: "100"

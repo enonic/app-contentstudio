@@ -42,6 +42,10 @@ export class SiteConfigurator
         this.readOnlyPromise = this.isReadOnly();
     }
 
+    createDefaultValue(rawValue: unknown): Value {
+        return this.getValueType().newNullValue();
+    }
+
     private isReadOnly(): Q.Promise<boolean> {
         if (AuthHelper.isContentAdmin()) {
             return Q(false);

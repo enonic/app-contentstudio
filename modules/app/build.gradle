@@ -65,6 +65,7 @@ dependencies {
     testImplementation( testFixtures( "com.enonic.xp:core-app:${xpVersion}" ) )
     testImplementation( testFixtures( "com.enonic.xp:core-schema:${xpVersion}" ) )
     testImplementation( testFixtures( "com.enonic.xp:web-api:${xpVersion}" ) )
+    testImplementation( testFixtures( "com.enonic.xp:core-content:${xpVersion}" ) )
 }
 
 // Use task configuration avoidance

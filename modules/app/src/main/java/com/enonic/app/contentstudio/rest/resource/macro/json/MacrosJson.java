@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import com.enonic.app.contentstudio.rest.resource.macro.MacroIconUrlResolver;
 import com.enonic.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
-import com.enonic.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.app.contentstudio.rest.resource.schema.mixin.CmsFormFragmentResolver;
 import com.enonic.xp.macro.MacroDescriptor;
 import com.enonic.xp.macro.MacroDescriptors;
 
@@ -65,7 +65,7 @@ public class MacrosJson
 
         private LocaleMessageResolver localeMessageResolver;
 
-        private InlineMixinResolver inlineMixinResolver;
+        private CmsFormFragmentResolver inlineMixinResolver;
 
         public Builder setMacroDescriptors( final MacroDescriptors macroDescriptors )
         {
@@ -85,7 +85,7 @@ public class MacrosJson
             return this;
         }
 
-        public Builder setInlineMixinResolver( final InlineMixinResolver inlineMixinResolver )
+        public Builder setInlineMixinResolver( final CmsFormFragmentResolver inlineMixinResolver )
         {
             this.inlineMixinResolver = inlineMixinResolver;
             return this;

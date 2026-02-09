@@ -6,11 +6,8 @@
         "Input": {
           "config": {},
           "helpText": "translated.helpText",
-          "immutable": false,
-          "indexed": false,
           "inputType": "Double",
           "label": "translated.label",
-          "maximizeUIInputWidth": true,
           "name": "columns",
           "occurrences": {
             "maximum": 1,

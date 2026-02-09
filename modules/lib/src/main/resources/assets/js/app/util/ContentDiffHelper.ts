@@ -1,7 +1,7 @@
 import {ContentDiff} from '../content/ContentDiff';
 import {PropertyTreeHelper} from '@enonic/lib-admin-ui/util/PropertyTreeHelper';
-import {ExtraData} from '../content/ExtraData';
-import {ExtraDataByMixinNameComparator} from '../content/ExtraDataByMixinNameComparator';
+import {Mixin} from '../content/Mixin';
+import {MixinByMixinNameComparator} from '../content/MixinByMixinNameComparator';
 import {ContentSummaryHelper} from '../content/ContentSummaryHelper';
 import {Content} from '../content/Content';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
@@ -15,7 +15,7 @@ export class ContentDiffHelper {
             diff.data = true;
         }
 
-        if (!ContentDiffHelper.extraDataEquals(item.getAllExtraData(), other.getAllExtraData(), ignoreEmptyDataValues)) {
+        if (!ContentDiffHelper.extraDataEquals(item.getMixins(), other.getMixins(), ignoreEmptyDataValues)) {
             diff.extraData = true;
         }
 
@@ -38,7 +38,7 @@ export class ContentDiffHelper {
         return PropertyTreeHelper.propertyTreesEqual(data, other, ignoreEmptyValues);
     }
 
-    public static extraDataEquals(extraData: ExtraData[], other: ExtraData[], ignoreEmptyValues: boolean = false): boolean {
+    public static extraDataEquals(extraData: Mixin[], other: Mixin[], ignoreEmptyValues: boolean = false): boolean {
         if (ignoreEmptyValues) {
             const isOtherArrayEmpty: boolean = !other || other.length === 0 || other.every(ed => !ed.getData() || ed.getData().isEmpty());
             const isThisArrayEmpty: boolean =
@@ -49,7 +49,7 @@ export class ContentDiffHelper {
             }
         }
 
-        const comparator = new ExtraDataByMixinNameComparator();
+        const comparator = new MixinByMixinNameComparator();
 
         const arrayA = extraData.sort(comparator.compare);
         const arrayB = other.sort(comparator.compare);

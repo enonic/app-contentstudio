@@ -46,6 +46,10 @@ export class AttachmentUploader
         this.addClass('attachment-uploader');
     }
 
+    createDefaultValue(rawValue: unknown): Value {
+        return this.getValueType().newNullValue();
+    }
+
     getValueType(): ValueType {
         return ValueTypes.STRING;
     }

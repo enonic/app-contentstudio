@@ -41,6 +41,10 @@ export class ImageUploader
         this.addClass('image-uploader-input');
     }
 
+    createDefaultValue(rawValue: unknown): Value {
+        return this.getValueType().newNullValue();
+    }
+
     private initUploader(config: ContentInputTypeViewContext) {
         this.imageUploader = new ImageUploaderEl({
             imageEditorCreatedCallback: this.handleImageEditorCreated.bind(this),
@@ -375,7 +379,7 @@ export class ImageUploader
     }
 
     private getMetaProperty(content: Content, propertyName: string): Property {
-        const extraDatas = content.getAllExtraData();
+        const extraDatas = content.getMixins();
         for (const extraData of extraDatas) {
             const metaProperty = extraData.getData().getProperty(propertyName);
             if (metaProperty) {

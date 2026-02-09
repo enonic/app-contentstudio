@@ -1,0 +1,8 @@
+displayName:
+  text: "Settings"
+  i18n: "admin.tool.settings.displayName"
+description:
+  text: "Configure Projects, Layers"
+  i18n: "admin.tool.settings.description"
+interfaces:
+  - "contentstudio.menuitem"

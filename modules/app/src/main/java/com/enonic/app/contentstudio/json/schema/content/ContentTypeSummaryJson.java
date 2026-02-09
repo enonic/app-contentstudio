@@ -9,8 +9,9 @@ import com.enonic.app.contentstudio.json.ChangeTraceableJson;
 import com.enonic.app.contentstudio.json.ItemJson;
 import com.enonic.app.contentstudio.rest.resource.schema.content.ContentTypeIconUrlResolver;
 import com.enonic.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
+import com.enonic.xp.schema.LocalizedText;
 import com.enonic.xp.schema.content.ContentType;
-import com.enonic.xp.schema.xdata.XDataName;
+import com.enonic.xp.util.GenericValue;
 
 import static com.google.common.base.Strings.nullToEmpty;
 
@@ -63,13 +64,22 @@ public class ContentTypeSummaryJson
 
     public String getDisplayNameLabel()
     {
-        if ( !nullToEmpty( contentType.getDisplayNameLabelI18nKey() ).isBlank() )
+        final GenericValue displayNamePlaceholder = contentType.getSchemaConfig().optional( "displayNamePlaceholder" ).orElse( null );
+
+        if ( displayNamePlaceholder == null )
         {
-            return localeMessageResolver.localizeMessage( contentType.getDisplayNameLabelI18nKey(), contentType.getDisplayNameLabel() );
+            return null;
+        }
+
+        final LocalizedText localizedText = LocalizedText.from( displayNamePlaceholder );
+
+        if ( localizedText.i18n() != null )
+        {
+            return localeMessageResolver.localizeMessage( localizedText.i18n(), localizedText.text() );
         }
         else
         {
-            return contentType.getDisplayNameLabel();
+            return localizedText.text();
         }
     }
 
@@ -92,7 +102,7 @@ public class ContentTypeSummaryJson
 
     public String getDisplayNameExpression()
     {
-        return contentType.getDisplayNameExpression();
+        return contentType.getSchemaConfig().optional( "displayNameExpression" ).map( GenericValue::asString ).orElse( null );
     }
 
     public String getSuperType()

@@ -1,20 +1,19 @@
 package com.enonic.app.contentstudio.json.form;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 import com.enonic.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
-import com.enonic.xp.data.Value;
 import com.enonic.xp.form.Input;
-import com.enonic.xp.inputtype.InputTypeConfig;
 import com.enonic.xp.inputtype.InputTypeName;
-import com.enonic.xp.inputtype.InputTypeProperty;
+import com.enonic.xp.schema.LocalizedText;
+import com.enonic.xp.util.GenericValue;
 
 import static com.google.common.base.Strings.nullToEmpty;
 
@@ -28,8 +27,6 @@ public class InputJson
     private final String inputType;
 
     private final LocaleMessageResolver localeMessageResolver;
-
-    private Value defaultValue;
 
     public InputJson( final Input input, final LocaleMessageResolver localeMessageResolver )
     {
@@ -65,26 +62,6 @@ public class InputJson
         }
     }
 
-    public boolean isImmutable()
-    {
-        return input.isImmutable();
-    }
-
-    public boolean isIndexed()
-    {
-        return input.isIndexed();
-    }
-
-    public boolean isMaximizeUIInputWidth()
-    {
-        return input.isMaximizeUIInputWidth();
-    }
-
-    public String getCustomText()
-    {
-        return input.getCustomText();
-    }
-
     public String getHelpText()
     {
         if ( localeMessageResolver != null && !nullToEmpty( input.getHelpTextI18nKey() ).isBlank() )
@@ -97,11 +74,6 @@ public class InputJson
         }
     }
 
-    public String getValidationRegexp()
-    {
-        return input.getValidationRegexp();
-    }
-
     public OccurrencesJson getOccurrences()
     {
         return occurrences;
@@ -112,59 +84,70 @@ public class InputJson
         return this.inputType;
     }
 
-    public Map<String, List<Map<String, String>>> getConfig()
+    public Map<String, List<Map<String, Object>>> getConfig()
     {
-        final InputTypeConfig config = this.input.getInputTypeConfig();
+        final GenericValue config = this.input.getInputTypeConfig();
 
-        final Map<String, List<Map<String, String>>> json = new LinkedHashMap<>();
-        for ( final String name : config.getNames() )
-        {
+        final Map<String, List<Map<String, Object>>> json = new LinkedHashMap<>();
 
-            json.put( name, toJson( config.getProperties( name ) ) );
-        }
+        config.properties().forEach( configEntry -> {
+            final String name = configEntry.getKey();
+            final GenericValue value = configEntry.getValue();
 
-        return json;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public PropertyValueJson getDefaultValue()
-    {
-        return defaultValue != null ? new PropertyValueJson( defaultValue ) : null;
-    }
-
-    public void setDefaultValue( final Value defaultValue )
-    {
-        this.defaultValue = defaultValue;
-    }
-
-    private List<Map<String, String>> toJson( final Collection<InputTypeProperty> properties )
-    {
-        final List<Map<String, String>> json = new ArrayList<>( );
-        for ( final InputTypeProperty property : properties )
-        {
-            json.add( toJson( property ) );
-        }
-
-        return json;
-    }
-
-    private Map<String, String> toJson( final InputTypeProperty property )
-    {
-        final Map<String, String> json = new LinkedHashMap<>();
-
-        String propertyValue = property.getValue();
-
-        for ( final Map.Entry<String, String> attribute : property.getAttributes().entrySet() )
-        {
-            if ( InputTypeName.RADIO_BUTTON.equals( this.input.getInputType() ) && "i18n".equals( attribute.getKey() ) )
+            if ( "options".equals( configEntry.getKey() ) && ( InputTypeName.RADIO_BUTTON.equals( this.input.getInputType() ) ||
+                InputTypeName.COMBO_BOX.equals( this.input.getInputType() ) ) )
             {
-                propertyValue = this.localeMessageResolver.localizeMessage( attribute.getValue(), propertyValue );
+                json.put( name, doHandleRadioButtonOrComboBox( value ) );
             }
-            json.put( "@" + attribute.getKey(), attribute.getValue() );
-        }
-
-        json.put( "value", propertyValue );
+            else
+            {
+                json.put( name, toJsonAsList( value ) );
+            }
+        } );
 
         return json;
+    }
+
+    private List<Map<String, Object>> doHandleRadioButtonOrComboBox( final GenericValue value )
+    {
+        final List<Map<String, Object>> result = new ArrayList<>();
+
+        value.values().forEach( item -> {
+            final Map<String, Object> json = new LinkedHashMap<>();
+
+            final String optionValue = item.optional( "value" ).map( GenericValue::asString ).orElse( null );
+
+            json.put( "@value", optionValue );
+
+            final Optional<GenericValue> label = item.optional( "label" );
+            if ( label.isPresent() )
+            {
+                final LocalizedText localizedText = LocalizedText.from( label.get() );
+
+                String labelText = localizedText.text();
+
+                if ( localizedText.i18n() != null )
+                {
+                    final String i18nKey = localizedText.i18n();
+                    json.put( "@i18n", i18nKey );
+
+                    if ( InputTypeName.RADIO_BUTTON.equals( this.input.getInputType() ) )
+                    {
+                        labelText = this.localeMessageResolver.localizeMessage( i18nKey, labelText );
+                    }
+                }
+
+                json.put( "value", labelText );
+            }
+
+            result.add( json );
+        } );
+
+        return result;
+    }
+
+    private List<Map<String, Object>> toJsonAsList( final GenericValue value )
+    {
+        return value.values().stream().map( property -> Map.of( "value", property.toRawJs() ) ).collect( Collectors.toList() );
     }
 }

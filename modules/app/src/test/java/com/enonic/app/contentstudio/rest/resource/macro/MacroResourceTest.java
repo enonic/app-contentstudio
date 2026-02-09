@@ -10,8 +10,8 @@ import org.mockito.AdditionalAnswers;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.core.MediaType;
 
-import com.enonic.xp.app.ApplicationKey;
 import com.enonic.app.contentstudio.rest.resource.AdminResourceTestSupport;
+import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
@@ -31,7 +31,7 @@ import com.enonic.xp.portal.macro.MacroProcessor;
 import com.enonic.xp.portal.macro.MacroProcessorFactory;
 import com.enonic.xp.portal.postprocess.HtmlTag;
 import com.enonic.xp.portal.url.PortalUrlService;
-import com.enonic.xp.schema.mixin.MixinService;
+import com.enonic.xp.schema.content.CmsFormFragmentService;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.site.SiteConfigs;
@@ -56,7 +56,7 @@ public class MacroResourceTest
 
     private LocaleService localeService;
 
-    private MixinService mixinService;
+    private CmsFormFragmentService cmsFormFragmentService;
 
     private static final String DEFAULT_URI_PREFIX = "cms/default/";
 
@@ -68,7 +68,7 @@ public class MacroResourceTest
         this.portalUrlService = mock( PortalUrlService.class );
         this.contentService = mock( ContentService.class );
         this.localeService = mock( LocaleService.class );
-        this.mixinService = mock( MixinService.class );
+        this.cmsFormFragmentService = mock( CmsFormFragmentService.class );
 
         MacroResource macroResource = new MacroResource();
         macroResource.setMacroDescriptorService( this.macroDescriptorService );
@@ -76,7 +76,7 @@ public class MacroResourceTest
         macroResource.setPortalUrlService( this.portalUrlService );
         macroResource.setContentService( this.contentService );
         macroResource.setLocaleService( this.localeService );
-        macroResource.setMixinService( this.mixinService );
+        macroResource.setCmsFormFragmentService( this.cmsFormFragmentService );
 
         final HttpServletRequest mockRequest = mock( HttpServletRequest.class );
         when( mockRequest.getServerName() ).thenReturn( "localhost" );
@@ -103,7 +103,7 @@ public class MacroResourceTest
         when( this.macroDescriptorService.getByApplication( ApplicationKey.from( "appKey2" ) ) )
             .thenReturn( MacroDescriptors.from( macroDescriptor3 ) );
 
-        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( cmsFormFragmentService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         String response = request().
             path( DEFAULT_URI_PREFIX + "macro/getByApps" ).
@@ -120,7 +120,6 @@ public class MacroResourceTest
         final Form descriptorForm = Form.create().
             addFormItem( Input.create().
                 name( "columns" ).
-                maximizeUIInputWidth( true ).
                 label( "Columns" ).
                 labelI18nKey( "key.label" ).
                 helpTextI18nKey( "key.help-text" ).
@@ -148,7 +147,7 @@ public class MacroResourceTest
         when( messageBundle.localize( "key.c.display-name" ) ).thenReturn( "translated.C.displayName" );
 
         when( this.localeService.getBundle( any(), any() ) ).thenReturn( messageBundle );
-        when( mixinService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
+        when( cmsFormFragmentService.inlineFormItems( isA( Form.class ) ) ).then( AdditionalAnswers.returnsFirstArg() );
 
         String response = request().
             path( DEFAULT_URI_PREFIX + "macro/getByApps" ).

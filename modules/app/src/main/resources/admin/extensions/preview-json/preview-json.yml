@@ -1,0 +1,11 @@
+displayName:
+  text: "JSON"
+  i18n: "widget.liveview.json.name"
+description:
+  text: "Display in JSON format"
+  i18n: "widget.liveview.json.description"
+interfaces:
+  - "contentstudio.liveview"
+config:
+  auto: "false"
+  order: "100"

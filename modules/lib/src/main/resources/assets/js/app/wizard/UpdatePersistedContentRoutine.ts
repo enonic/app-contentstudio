@@ -101,7 +101,7 @@ export class UpdatePersistedContentRoutine
         const viewed: Content = this.viewedContent;
 
         return !ContentDiffHelper.dataEquals(persisted.getContentData(), viewed.getContentData()) ||
-               !ContentDiffHelper.extraDataEquals(persisted.getAllExtraData(), viewed.getAllExtraData()) ||
+               !ContentDiffHelper.extraDataEquals(persisted.getMixins(), viewed.getMixins()) ||
                !ObjectHelper.dateEquals(persisted.getPublishFromTime(), viewed.getPublishFromTime()) ||
                !ObjectHelper.dateEquals(persisted.getPublishToTime(), viewed.getPublishToTime()) ||
                !persisted.getPermissions().equals(viewed.getPermissions());
