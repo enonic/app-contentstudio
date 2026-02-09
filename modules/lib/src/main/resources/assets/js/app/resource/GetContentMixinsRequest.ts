@@ -3,10 +3,10 @@ import {MixinDescriptorListJson} from './json/MixinDescriptorListJson';
 import {MixinDescriptor} from '../content/MixinDescriptor';
 import {MixinDescriptorJson} from './json/MixinDescriptorJson';
 import {ContentId} from '../content/ContentId';
-import {XDataContextResourceRequest} from './XDataContextResourceRequest';
+import {MixinContextResourceRequest} from './MixinContextResourceRequest';
 
-export class GetContentXDataRequest
-    extends XDataContextResourceRequest<MixinDescriptor[]> {
+export class GetContentMixinsRequest
+    extends MixinContextResourceRequest<MixinDescriptor[]> {
 
     private contentId: ContentId;
 
@@ -23,8 +23,8 @@ export class GetContentXDataRequest
     }
 
     protected parseResponse(response: JsonResponse<MixinDescriptorListJson>): MixinDescriptor[] {
-        return response.getResult().mixins.map((xDataJson: MixinDescriptorJson) => {
-            return this.fromJsonToXData(xDataJson);
+        return response.getResult().mixins.map((mixinDescriptorJson: MixinDescriptorJson) => {
+            return this.fromJsonToMixin(mixinDescriptorJson);
         });
     }
 }

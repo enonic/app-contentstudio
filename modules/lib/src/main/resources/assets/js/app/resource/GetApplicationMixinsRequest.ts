@@ -1,13 +1,13 @@
 import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {XDataContextResourceRequest} from './XDataContextResourceRequest';
+import {MixinContextResourceRequest} from './MixinContextResourceRequest';
 import {MixinDescriptorListJson} from './json/MixinDescriptorListJson';
 import {MixinDescriptor} from '../content/MixinDescriptor';
 import {MixinDescriptorJson} from './json/MixinDescriptorJson';
 
-export class GetApplicationXDataRequest
-    extends XDataContextResourceRequest<MixinDescriptor[]> {
+export class GetApplicationMixinsRequest
+    extends MixinContextResourceRequest<MixinDescriptor[]> {
 
     private contentTypeName: ContentTypeName;
 
@@ -29,7 +29,7 @@ export class GetApplicationXDataRequest
 
     protected parseResponse(response: JsonResponse<MixinDescriptorListJson>): MixinDescriptor[] {
         return response.getResult().mixins.map((xDataJson: MixinDescriptorJson) => {
-            return this.fromJsonToXData(xDataJson);
+            return this.fromJsonToMixin(xDataJson);
         });
     }
 }

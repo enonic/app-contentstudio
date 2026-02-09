@@ -88,9 +88,9 @@ import {ContentsExistResult} from '../resource/ContentsExistResult';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {CreateContentRequest} from '../resource/CreateContentRequest';
 import {GetApplicationRequest} from '../resource/GetApplicationRequest';
-import {GetApplicationXDataRequest} from '../resource/GetApplicationXDataRequest';
+import {GetApplicationMixinsRequest} from '../resource/GetApplicationMixinsRequest';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
-import {GetContentXDataRequest} from '../resource/GetContentXDataRequest';
+import {GetContentMixinsRequest} from '../resource/GetContentMixinsRequest';
 import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyRequest';
 import {Router} from '../Router';
 import {ProjectHelper} from '../settings/data/project/ProjectHelper';
@@ -529,7 +529,7 @@ export class ContentWizardPanel
     }
 
     fetchContentXData(): Q.Promise<MixinDescriptor[]> {
-        return new GetContentXDataRequest(this.getPersistedItem().getContentId()).sendAndParse();
+        return new GetContentMixinsRequest(this.getPersistedItem().getContentId()).sendAndParse();
     }
 
     protected doLoadData(): Q.Promise<Content> {
@@ -2171,7 +2171,7 @@ export class ContentWizardPanel
         this.applicationLoadCount++;
         this.formMask.show();
 
-        return new GetApplicationXDataRequest(this.getPersistedItem().getType(), applicationKey).sendAndParse().then(
+        return new GetApplicationMixinsRequest(this.getPersistedItem().getType(), applicationKey).sendAndParse().then(
             (xDatas: MixinDescriptor[]) => {
                 const xDatasToAdd: MixinDescriptor[] = xDatas.filter((xData: MixinDescriptor) => !this.xDataWizardStepForms.contains(xData.getName()));
 
@@ -2217,7 +2217,7 @@ export class ContentWizardPanel
         this.applicationLoadCount++;
         this.formMask.show();
 
-        return new GetApplicationXDataRequest(this.getPersistedItem().getType(), applicationKey).sendAndParse().then(
+        return new GetApplicationMixinsRequest(this.getPersistedItem().getType(), applicationKey).sendAndParse().then(
             (xDatasToRemove: MixinDescriptor[]) => {
                 this.formMask.show();
                 this.removeXDataSteps(xDatasToRemove);
