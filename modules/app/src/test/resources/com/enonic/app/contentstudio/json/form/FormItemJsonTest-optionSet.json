@@ -20,11 +20,8 @@
           {
             "Input": {
               "config": {},
-              "immutable": false,
-              "indexed": false,
               "inputType": "TextLine",
               "label": "myTextLine1",
-              "maximizeUIInputWidth": true,
               "name": "myTextLine1",
               "occurrences": {
                 "maximum": 1,
@@ -43,11 +40,8 @@
           {
             "Input": {
               "config": {},
-              "immutable": false,
-              "indexed": false,
               "inputType": "TextLine",
               "label": "myTextLine2",
-              "maximizeUIInputWidth": true,
               "name": "myTextLine2",
               "occurrences": {
                 "maximum": 1,
@@ -66,11 +60,8 @@
           {
             "Input": {
               "config": {},
-              "immutable": false,
-              "indexed": false,
               "inputType": "TextLine",
               "label": "myTextLine2",
-              "maximizeUIInputWidth": true,
               "name": "myTextLine2",
               "occurrences": {
                 "maximum": 1,

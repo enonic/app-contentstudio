@@ -17,7 +17,7 @@ export class GetWidgetsByInterfaceRequest
 
     getParams(): object {
         return {
-            widgetInterface: this.widgetInterface,
+            interface: this.widgetInterface,
         };
     }
 

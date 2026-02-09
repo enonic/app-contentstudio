@@ -23,8 +23,6 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import com.enonic.xp.app.ApplicationKey;
-import com.enonic.xp.app.ApplicationKeys;
 import com.enonic.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.app.contentstudio.rest.resource.macro.json.ApplicationKeysParam;
 import com.enonic.app.contentstudio.rest.resource.macro.json.MacroDescriptorJson;
@@ -34,7 +32,9 @@ import com.enonic.app.contentstudio.rest.resource.macro.json.PreviewMacroResultJ
 import com.enonic.app.contentstudio.rest.resource.macro.json.PreviewMacroStringResultJson;
 import com.enonic.app.contentstudio.rest.resource.macro.json.PreviewStringMacroJson;
 import com.enonic.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
-import com.enonic.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.app.contentstudio.rest.resource.schema.mixin.CmsFormFragmentResolver;
+import com.enonic.xp.app.ApplicationKey;
+import com.enonic.xp.app.ApplicationKeys;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.content.ContentNotFoundException;
@@ -60,7 +60,7 @@ import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.portal.url.UrlTypeConstants;
 import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.repository.RepositoryId;
-import com.enonic.xp.schema.mixin.MixinService;
+import com.enonic.xp.schema.content.CmsFormFragmentService;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.site.Site;
 import com.enonic.xp.web.HttpMethod;
@@ -85,7 +85,7 @@ public final class MacroResource
 
     private LocaleService localeService;
 
-    private MixinService mixinService;
+    private CmsFormFragmentService cmsFormFragmentService;
 
     @POST
     @Path("getByApps")
@@ -107,7 +107,7 @@ public final class MacroResource
                                                  .setMacroIconUrlResolver( macroIconUrlResolver )
                                                  .setLocaleMessageResolver(
                                                      new LocaleMessageResolver( localeService, applicationKey, request.getLocales() ) )
-                                                 .setInlineMixinResolver( new InlineMixinResolver( mixinService ) )
+                                                 .setInlineMixinResolver( new CmsFormFragmentResolver( cmsFormFragmentService ) )
                                                  .build() )
                                              .collect( Collectors.toList() ) );
         } );
@@ -320,8 +320,8 @@ public final class MacroResource
     }
 
     @Reference
-    public void setMixinService( final MixinService mixinService )
+    public void setCmsFormFragmentService( final CmsFormFragmentService cmsFormFragmentService )
     {
-        this.mixinService = mixinService;
+        this.cmsFormFragmentService = cmsFormFragmentService;
     }
 }

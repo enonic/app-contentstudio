@@ -1,5 +1,5 @@
 import {type AttachmentJson} from '../attachment/AttachmentJson';
-import {type ExtraDataJson} from '../resource/json/ExtraDataJson';
+import {type MixinJson} from '../resource/json/MixinJson';
 import {type PageJson} from '../page/PageJson';
 import {type AccessControlEntryJson} from '../access/AccessControlEntryJson';
 import {type PropertyArrayJson} from '@enonic/lib-admin-ui/data/PropertyArrayJson';
@@ -13,7 +13,7 @@ export interface ContentJson
 
     attachments: AttachmentJson[];
 
-    meta: ExtraDataJson[];
+    meta: MixinJson[];
 
     page: PageJson;
 

@@ -8,12 +8,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.enonic.app.contentstudio.json.content.ContentWorkflowInfoJson;
-import com.enonic.app.contentstudio.json.content.ExtraDataJson;
+import com.enonic.app.contentstudio.json.content.MixinJson;
 import com.enonic.app.contentstudio.json.content.attachment.AttachmentJson;
 import com.enonic.xp.content.ContentName;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.CreateContentParams;
-import com.enonic.xp.content.ExtraDatas;
+import com.enonic.xp.content.Mixins;
 import com.enonic.xp.data.PropertyArrayJson;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.data.PropertyTreeJson;
@@ -30,7 +30,7 @@ public final class CreateContentJson
                        @JsonProperty("name") final String name, @JsonProperty("displayName") final String displayName,
                        @JsonProperty("parent") final String parent, @JsonProperty("contentType") final String contentType,
                        @JsonProperty("data") final List<PropertyArrayJson> dataJsonList,
-                       @JsonProperty("meta") final List<ExtraDataJson> extraDataJsonList,
+                       @JsonProperty("meta") final List<MixinJson> extraDataJsonList,
                        @JsonProperty("workflow") final ContentWorkflowInfoJson workflowInfoJson )
     {
 
@@ -44,12 +44,12 @@ public final class CreateContentJson
         final PropertyTree contentData = PropertyTreeJson.fromJson( dataJsonList );
         paramsBuilder.contentData( contentData );
 
-        final ExtraDatas.Builder extradatasBuilder = ExtraDatas.create();
-        for ( ExtraDataJson extraDataJson : extraDataJsonList )
+        final Mixins.Builder mixinsBuilder = Mixins.create();
+        for ( MixinJson mixinJson : extraDataJsonList )
         {
-            extradatasBuilder.add( extraDataJson.getExtraData() );
+            mixinsBuilder.add( mixinJson.getMixin() );
         }
-        paramsBuilder.extraDatas( extradatasBuilder.build() );
+        paramsBuilder.mixins( mixinsBuilder.build() );
         paramsBuilder.inheritPermissions( true );
         paramsBuilder.workflowInfo( workflowInfoJson == null ? null : workflowInfoJson.getWorkflowInfo() );
 

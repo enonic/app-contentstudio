@@ -33,11 +33,8 @@
                   "Input": {
                     "config": {},
                     "helpText": "translated.helpText",
-                    "immutable": false,
-                    "indexed": false,
                     "inputType": "TextLine",
                     "label": "translated.label",
-                    "maximizeUIInputWidth": true,
                     "name": "myTextLine",
                     "occurrences": {
                       "maximum": 1,
