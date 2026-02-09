@@ -33,6 +33,7 @@ export function getConfig(locales: string[], aiEnabled: boolean): Record<string,
     const enableCollaboration = app.config['contentWizard.enableCollaboration'] !== 'false';
     const checkLatestVersion = app.config['settings.checkLatestVersion'] !== 'false';
     const defaultPublishFromTime = parseTime(app.config['publishingWizard.defaultPublishFromTime'] || '12:00');
+    const requiredPublishFrom = app.config['publishingWizard.requiredPublishFrom'] === 'true' || false;
     const toolUri = getToolUrl(
         app.name,
         'main'
@@ -65,6 +66,7 @@ export function getConfig(locales: string[], aiEnabled: boolean): Record<string,
         branch: 'draft',
         enableCollaboration,
         defaultPublishFromTime,
+        requiredPublishFrom,
         locale: locales[0],
         marketApi: exports.getMarketApi(),
         services: {
