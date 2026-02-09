@@ -16,6 +16,7 @@ function handleGet(request) {
     const hideDefaultProject = app.config['settings.hideDefaultProject'] !== 'false';
     const checkLatestVersion = app.config['settings.checkLatestVersion'] !== 'false';
     const defaultPublishFromTime = parseTime(app.config['publishingWizard.defaultPublishFromTime']);
+    const requiredPublishFrom = app.config['publishingWizard.requiredPublishFrom'] === 'true' || false;
 
     const isBrowseMode = request.path === admin.getToolUrl(app.name, 'main');
     const aiEnabled = !isBrowseMode && (aiLib.aiContentOperatorRunning || aiLib.aiTranslatorRunning);
@@ -48,6 +49,7 @@ function handleGet(request) {
             hideDefaultProject,
             enableCollaboration,
             defaultPublishFromTime,
+            requiredPublishFrom,
             locale: admin.getLocale(),
             marketApi: exports.getMarketApi(),
             lastDismissedVersion,
