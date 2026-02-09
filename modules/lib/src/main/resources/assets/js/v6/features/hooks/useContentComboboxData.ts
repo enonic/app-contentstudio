@@ -14,7 +14,7 @@ import {ChildOrder} from '../../../app/resource/order/ChildOrder';
 import type {WorkflowStateStatus} from '../../../app/wizard/WorkflowStateManager';
 import type {CreateNodeOptions, FlatNode, UseTreeStoreReturn} from '../lib/tree-store';
 import {getLoadingNodeParentId, LOADING_NODE_PREFIX, useTreeStore} from '../lib/tree-store';
-import {setContents} from '../store/content.store';
+import {getContent, setContents} from '../store/content.store';
 import {applyContentFilters, type ContentFilterOptions} from '../utils/cms/content/applyContentFilters';
 import {resolveDisplayName, resolveSubName} from '../utils/cms/content/prettify';
 import {calcWorkflowStateStatus} from '../utils/cms/content/workflow';
@@ -121,16 +121,17 @@ function toNodeData(content: ContentSummaryAndCompareStatus, selectable = true):
 }
 
 function toNodeDataFromTreeItem(item: ContentTreeSelectorItem): ContentComboboxNodeData {
-    const content = item.getContent();
+    const cachedContent = getContent(item.getId());
+    const content = cachedContent ?? item.getContent();
     return {
         id: item.getId(),
         displayName: item.getDisplayName(),
         name: item.getName()?.toString() ?? '',
-        publishStatus: item.getPublishStatus(),
-        workflowStatus: calcWorkflowStateStatus(item.getContentSummary()),
-        contentType: item.getType(),
-        iconUrl: item.getIconUrl(),
-        item: content,
+        publishStatus: content?.getPublishStatus() ?? item.getPublishStatus(),
+        workflowStatus: calcWorkflowStateStatus(content?.getContentSummary() ?? item.getContentSummary()),
+        contentType: content?.getType() ?? item.getType(),
+        iconUrl: content?.getContentSummary()?.getIconUrl() ?? item.getIconUrl(),
+        item: content ?? item.getContent(),
         selectable: item.isSelectable(),
     };
 }
@@ -216,6 +217,46 @@ export function useContentComboboxData(
     // Request tracking for stale request handling
     const treeRequestIdRef = useRef(0);
     const flatRequestIdRef = useRef(0);
+    const enrichTreeContents = useCallback(async (
+        contents: ContentSummaryAndCompareStatus[],
+        requestId: number,
+    ): Promise<ContentSummaryAndCompareStatus[]> => {
+        if (contents.length === 0) {
+            return contents;
+        }
+
+        const summaries = contents
+            .map((content) => content?.getContentSummary())
+            .filter((summary): summary is ContentSummary => !!summary);
+
+        if (summaries.length === 0) {
+            return contents;
+        }
+
+        try {
+            const enriched = await fetcher.updateReadonlyAndCompareStatus(summaries);
+            if (requestId !== treeRequestIdRef.current) {
+                return contents;
+            }
+            return enriched;
+        } catch (error) {
+            console.error(error);
+            return contents;
+        }
+    }, []);
+
+    const enrichAndCache = useCallback(async (
+        items: ContentTreeSelectorItem[],
+        requestId: number,
+    ): Promise<boolean> => {
+        const contents = items
+            .map((item) => item.getContent())
+            .filter((content): content is ContentSummaryAndCompareStatus => !!content);
+        const contentsWithStatus = await enrichTreeContents(contents, requestId);
+        if (requestId !== treeRequestIdRef.current) return false;
+        setContents(contentsWithStatus);
+        return true;
+    }, [enrichTreeContents]);
 
     // Error state
     const [error, setError] = useState<Error | null>(null);
@@ -300,9 +341,7 @@ export function useContentComboboxData(
             // Stale request check
             if (currentRequestId !== treeRequestIdRef.current) return;
 
-            // Update global cache
-            const contents = items.map((item) => item.getContent());
-            setContents(contents);
+            if (!await enrichAndCache(items, currentRequestId)) return;
 
             // Update local tree state
             const nodeOptions = items.map((item) => toNodeOptionsFromTreeItem(item, null));
@@ -320,7 +359,7 @@ export function useContentComboboxData(
                 treeSetLoading(null, false);
             }
         }
-    }, [treeSetLoading, treeSetNodes, treeSetRootIds]);
+    }, [enrichAndCache, treeSetLoading, treeSetNodes, treeSetRootIds]);
 
     // Load more root items for tree pagination
     const loadMoreRoot = useCallback(async (): Promise<void> => {
@@ -346,9 +385,7 @@ export function useContentComboboxData(
             // Stale request check
             if (currentRequestId !== treeRequestIdRef.current) return;
 
-            // Update global cache
-            const contents = items.map((item) => item.getContent());
-            setContents(contents);
+            if (!await enrichAndCache(items, currentRequestId)) return;
 
             // Append to tree state
             const nodeOptions = items.map((item) => toNodeOptionsFromTreeItem(item, null));
@@ -365,7 +402,7 @@ export function useContentComboboxData(
                 treeSetLoading(null, false);
             }
         }
-    }, [tree.state.rootIds, treeHasMore, treeIsLoading, treeSetLoading, treeSetNodes, treeSetRootIds]);
+    }, [enrichAndCache, tree.state.rootIds, treeHasMore, treeIsLoading, treeSetLoading, treeSetNodes, treeSetRootIds]);
 
     // Load children for a parent node
     const loadChildren = useCallback(async (parentId: string): Promise<void> => {
@@ -396,9 +433,7 @@ export function useContentComboboxData(
             // Stale request check
             if (currentRequestId !== treeRequestIdRef.current) return;
 
-            // Update global cache
-            const contents = items.map((item) => item.getContent());
-            setContents(contents);
+            if (!await enrichAndCache(items, currentRequestId)) return;
 
             // Update tree state
             const nodeOptions = items.map((item) => toNodeOptionsFromTreeItem(item, parentId));
@@ -415,7 +450,7 @@ export function useContentComboboxData(
                 treeSetLoading(parentId, false);
             }
         }
-    }, [treeSetLoading, treeGetNode, treeSetNodes, treeSetChildren, treeSetNode]);
+    }, [enrichAndCache, treeSetLoading, treeGetNode, treeSetNodes, treeSetChildren, treeSetNode]);
 
     // Load more children for pagination
     const loadMoreChildren = useCallback(async (parentId: string): Promise<void> => {
@@ -449,9 +484,7 @@ export function useContentComboboxData(
             // Stale request check
             if (currentRequestId !== treeRequestIdRef.current) return;
 
-            // Update global cache
-            const contents = items.map((item) => item.getContent());
-            setContents(contents);
+            if (!await enrichAndCache(items, currentRequestId)) return;
 
             // Append to tree state
             const nodeOptions = items.map((item) => toNodeOptionsFromTreeItem(item, parentId));
@@ -467,7 +500,7 @@ export function useContentComboboxData(
                 treeSetLoading(parentId, false);
             }
         }
-    }, [treeHasMoreChildren, treeIsLoading, treeGetNode, treeSetLoading, treeSetNodes, treeAppendChildren]);
+    }, [enrichAndCache, treeHasMoreChildren, treeIsLoading, treeGetNode, treeSetLoading, treeSetNodes, treeAppendChildren]);
 
     // Search / load flat list content
     const search = useCallback(async (query: string): Promise<void> => {

@@ -1,9 +1,8 @@
-import {Button, Dialog, Tab, cn} from '@enonic/ui';
+import {Button, Dialog, Tab, TextArea} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {
     useCallback,
     useEffect,
-    useId,
     useMemo,
     useRef,
     useState,
@@ -13,11 +12,14 @@ import {
 
 import {ContentId} from '../../../../../app/content/ContentId';
 import {IssueStatus} from '../../../../../app/issue/IssueStatus';
-import {IssueType} from '../../../../../app/issue/IssueType';
 import {useI18n} from '../../../hooks/useI18n';
-import {$issueDialog, setIssueDialogView} from '../../../store/dialogs/issueDialog.store';
+import {useTaskProgress} from '../../../hooks/useTaskProgress';
+import {$issueDialog, closeIssueDialog, setIssueDialogView} from '../../../store/dialogs/issueDialog.store';
 import {
+    $canIssueDialogDetailsPublish,
+    $canIssueDialogDetailsShowSelectionStatusBar,
     $issueDialogDetails,
+    $isIssueDialogDetailsPublishRequest,
     loadIssueDialogItems,
     openDeleteCommentConfirmation,
     setIssueDialogCommentText,
@@ -26,6 +28,7 @@ import {
     updateIssueDialogAssignees,
     updateIssueDialogComment,
     updateIssueDialogDependencyIncluded,
+    updateIssueDialogExcludedDependants,
     updateIssueDialogItemIncludeChildren,
     updateIssueDialogItems,
     updateIssueDialogStatus,
@@ -34,16 +37,22 @@ import {
 import {
     $isPublishChecking,
     $isPublishReady,
+    $publishCheckErrors,
     $publishDialog,
     $publishDialogPending,
+    $publishTaskId,
     $totalPublishableItems,
+    excludeInProgressPublishItems,
+    excludeInvalidPublishItems,
+    excludeNotPublishablePublishItems,
+    markAllAsReadyInProgressPublishItems,
     publishItems,
     syncPublishDialogContext,
 } from '../../../store/dialogs/publishDialog.store';
 import {createDebounce} from '../../../utils/timing/createDebounce';
 import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
 import {useAssigneeSearch, useAssigneeSelection} from '../../selectors/assignee/hooks/useAssigneeSearch';
-import {ContentCombobox} from '../../selectors/content/combobox/ContentCombobox';
+import {ContentCombobox} from '../../selectors/content';
 import {IssueStatusBadge} from '../../status/IssueStatusBadge';
 import {IssueDialogSelector} from './IssueDialogSelector';
 import {IssueIcon} from './IssueIcon';
@@ -53,6 +62,8 @@ import {IssueCommentsList} from './comment/IssueCommentsList';
 import {useIssueDialogData} from './hooks/useIssueDialogData';
 import {useIssuePublishTargetIds} from './hooks/useIssuePublishTargetIds';
 import {EditableText} from '../../primitives/EditableText';
+import {PublishDialogProgressContent} from '../publish/PublishDialogProgressContent';
+import {SelectionStatusBar} from '../status-bar/SelectionStatusBar';
 
 import type {Issue} from '../../../../../app/issue/Issue';
 import type {IssueWithAssignees} from '../../../../../app/issue/IssueWithAssignees';
@@ -66,6 +77,8 @@ type StatusOptionItem = {
     status: IssueStatus;
 };
 
+type PublishView = 'main' | 'progress';
+
 const isStatusOption = (value: string): value is StatusOption => {
     return value === 'open' || value === 'closed';
 };
@@ -75,11 +88,6 @@ const isDetailsTab = (value: string): value is IssueDialogDetailsTab => {
 };
 
 const ISSUE_DIALOG_DETAILS_CONTENT_NAME = 'IssueDialogDetailsContent';
-
-const resizeTextarea = (element: HTMLTextAreaElement): void => {
-    element.style.height = 'auto';
-    element.style.height = `${element.scrollHeight}px`;
-};
 
 const getStatusOptions = (openLabel: string, closedLabel: string): StatusOptionItem[] => {
     return [
@@ -159,11 +167,19 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             'requiredDependantIds',
         ],
     });
+    const isPublishRequest = useStore($isIssueDialogDetailsPublishRequest);
+    const canShowSelectionStatusBar = useStore($canIssueDialogDetailsShowSelectionStatusBar);
+    const canPublish = useStore($canIssueDialogDetailsPublish);
     const publishCount = useStore($totalPublishableItems);
     const isPublishReady = useStore($isPublishReady);
     const isPublishChecking = useStore($isPublishChecking);
-    const {open: publishDialogOpen} = useStore($publishDialog, {keys: ['open']});
+    const {open: publishDialogOpen, failed: publishDialogFailed} = useStore($publishDialog, {
+        keys: ['open', 'failed'],
+    });
     const {submitting: publishSubmitting} = useStore($publishDialogPending, {keys: ['submitting']});
+    const publishTaskId = useStore($publishTaskId);
+    const {progress: publishProgress} = useTaskProgress(publishTaskId);
+    const {invalid, inProgress, noPermissions} = useStore($publishCheckErrors);
 
     const fallbackTitle = useI18n('dialog.issue');
     const backLabel = useI18n('dialog.issue.back');
@@ -174,6 +190,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const commentsLabel = useI18n('field.comments');
     const commentAriaLabel = useI18n('field.comment.aria.label');
     const itemsLabel = useI18n('field.items');
+    const publishRequestLabel = useI18n('field.publishRequest');
     const assigneesLabel = useI18n('field.assignees');
     const titleLabel = useI18n('field.title');
     const dependenciesLabel = useI18n('dialog.dependencies');
@@ -182,8 +199,6 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const publishLabelSingle = useI18n('action.publishNow');
     const publishLabelMultiple = useI18n('action.publishNowCount', publishCount);
     const noResultsLabel = useI18n('dialog.search.result.noResults');
-    const commentTextareaId = useId();
-
     const issueData = resolveIssueData({
         issueId,
         issues,
@@ -194,7 +209,6 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         [issues, issueId],
     );
 
-    const isPublishRequest = issueData?.getType() === IssueType.PUBLISH_REQUEST;
     const issueIndex = issueData?.getIndex();
     const currentStatus = issueData?.getIssueStatus() ?? IssueStatus.OPEN;
     const statusValue: StatusOption = currentStatus === IssueStatus.CLOSED ? 'closed' : 'open';
@@ -202,24 +216,27 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const isCommentsTab = detailsTab === 'comments';
     const isItemsTab = detailsTab === 'items';
     const publishLabel = publishCount > 1 ? publishLabelMultiple : publishLabelSingle;
-    const itemsTabLabel = publishCount > 1 ? `${itemsLabel} (${publishCount})` : itemsLabel;
+    const commentCount = comments.length;
+    const assigneeCount = issueData?.getApprovers().length ?? 0;
+    const itemsCount = items.length + dependants.length;
     const tabs = isPublishRequest
         ? [
-            {value: 'items', label: itemsTabLabel},
-            {value: 'comments', label: commentsLabel},
-            {value: 'assignees', label: assigneesLabel},
+            {value: 'items', label: publishRequestLabel, count: itemsCount},
+            {value: 'comments', label: commentsLabel, count: commentCount},
+            {value: 'assignees', label: assigneesLabel, count: assigneeCount},
         ]
         : [
-            {value: 'comments', label: commentsLabel},
-            {value: 'items', label: itemsTabLabel},
-            {value: 'assignees', label: assigneesLabel},
+            {value: 'comments', label: commentsLabel, count: commentCount},
+            {value: 'items', label: itemsLabel, count: itemsCount},
+            {value: 'assignees', label: assigneesLabel, count: assigneeCount},
         ];
     const isTitleDisabled = !issueData || issueError || titleUpdating || statusUpdating;
-    const commentTextareaRef = useRef<HTMLTextAreaElement | null>(null);
     const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(null);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
+    const [publishView, setPublishView] = useState<PublishView>('main');
     const pendingItemIdsRef = useRef<ContentId[] | null>(null);
     const publishTargetIds = useIssuePublishTargetIds(items, dependants, excludedDependantIds);
+    const publishProgressTotal = Math.max(1, publishCount || items.length || 1);
 
     const {options: assigneeOptions, handleSearchChange} = useAssigneeSearch({
         publishableContentIds: publishTargetIds,
@@ -270,14 +287,6 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         assignees: issueWithAssignees?.getAssignees(),
         filterSystem: true,
     });
-
-    useEffect(() => {
-        const element = commentTextareaRef.current;
-        if (!element) {
-            return;
-        }
-        resizeTextarea(element);
-    }, [commentText]);
 
     const issueDataId = useMemo(() => issueData?.getId(), [issueData]);
 
@@ -363,7 +372,6 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const handleCommentInput: NonNullable<ComponentPropsWithoutRef<'textarea'>['onInput']> = (event) => {
         const {value} = event.currentTarget;
         setIssueDialogCommentText(value);
-        resizeTextarea(event.currentTarget);
     };
 
     const handleCommentKeyDown: NonNullable<ComponentPropsWithoutRef<'textarea'>['onKeyDown']> = (event) => {
@@ -378,9 +386,54 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         void submitIssueDialogComment();
     };
 
+    const handlePublishComplete = useCallback((resultState: string): void => {
+        void (async () => {
+            if (resultState === 'SUCCESS') {
+                const updated = await updateIssueDialogStatus(IssueStatus.CLOSED);
+                if (updated) {
+                    closeIssueDialog();
+                    return;
+                }
+            }
+            setPublishView('main');
+        })();
+    }, []);
+
     const handlePublish = (): void => {
-        void publishItems();
+        setPublishView('progress');
+        void (async () => {
+            const started = await publishItems(handlePublishComplete);
+            if (!started) {
+                setPublishView('main');
+            }
+        })();
     };
+
+    const handleExcludeDependants = useCallback((exclude: () => ContentId[]): void => {
+        const excludedIds = exclude();
+        void updateIssueDialogExcludedDependants(excludedIds);
+    }, []);
+
+    const handleExcludeInProgress = useCallback((): void => {
+        handleExcludeDependants(excludeInProgressPublishItems);
+    }, [handleExcludeDependants]);
+
+    const handleExcludeInvalid = useCallback((): void => {
+        handleExcludeDependants(excludeInvalidPublishItems);
+    }, [handleExcludeDependants]);
+
+    const handleExcludeNotPublishable = useCallback((): void => {
+        handleExcludeDependants(excludeNotPublishablePublishItems);
+    }, [handleExcludeDependants]);
+
+    const handleMarkAllAsReady = useCallback((): void => {
+        void (async () => {
+            await markAllAsReadyInProgressPublishItems();
+            if (issueData) {
+                await loadIssueDialogItems(issueData, {forceReload: true});
+            }
+        })();
+    }, [issueData, loadIssueDialogItems]);
 
     const handleBack = (): void => {
         setIssueDialogView('list');
@@ -406,7 +459,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
 
     const isAssigneesDisabled = !issueData || issueError || assigneesUpdating || statusUpdating;
     const isItemsDisabled = !issueData || issueError || itemsUpdating || statusUpdating;
-    const isPublishDisabled = !isPublishReady ||
+    const isPublishDisabled = !canPublish ||
+        !isPublishReady ||
         isPublishChecking ||
         publishSubmitting ||
         publishDialogOpen ||
@@ -417,10 +471,19 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         [openStatusLabel, closedStatusLabel],
     );
 
+    if (publishView === 'progress') {
+        return (
+            <PublishDialogProgressContent
+                total={publishProgressTotal}
+                progress={publishProgress}
+            />
+        );
+    }
+
     return (
         <Dialog.Content
             data-component={ISSUE_DIALOG_DETAILS_CONTENT_NAME}
-            className='sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 flex min-h-0 flex-col gap-7.5 overflow-hidden px-5'
+            className='sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 flex min-h-0 flex-col gap-7.5 overflow-hidden px-5 pb-1.5'
         >
             <Dialog.Header className='grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 px-5'>
                 <div className='flex min-w-0 items-center gap-1.5'>
@@ -464,9 +527,9 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                             />
                         </div>
                         <Tab.List className='col-span-3 px-2.5 justify-end'>
-                            {tabs.map((tab) => (
-                                <Tab.DefaultTrigger key={tab.value} value={tab.value}>
-                                    {tab.label}
+                            {tabs.map(({value, label, count}) => (
+                                <Tab.DefaultTrigger key={value} value={value} count={count || undefined}>
+                                    {label}
                                 </Tab.DefaultTrigger>
                             ))}
                         </Tab.List>
@@ -476,7 +539,6 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                         <Tab.Content value='comments' className='mt-0 flex min-h-0 flex-1 flex-col'>
                             <div className='flex min-h-0 flex-1 flex-col gap-7.5'>
                                 <IssueCommentsList
-                                    issue={issueData}
                                     comments={comments}
                                     loading={commentsLoading}
                                     onUpdateComment={handleCommentUpdate}
@@ -484,31 +546,48 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                     portalContainer={portalContainer}
                                     aria-label={commentsLabel}
                                 />
-                                <div className='flex flex-col gap-2'>
-                                    {/* // TODO: Enonic UI - Replace with TextArea component */}
-                                    <label className='font-semibold' htmlFor={commentTextareaId}>{commentLabel}</label>
-                                    <textarea
-                                        ref={commentTextareaRef}
-                                        id={commentTextareaId}
-                                        name='comment'
-                                        value={commentText}
-                                        onInput={handleCommentInput}
-                                        onKeyDown={handleCommentKeyDown}
-                                        rows={3}
-                                        disabled={commentSubmitting}
-                                        aria-label={commentAriaLabel}
-                                        placeholder={commentAriaLabel}
-                                        className={cn(
-                                            'w-full resize-none rounded-sm border border-bdr-soft bg-surface px-4.5 py-3',
-                                            'transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-ring',
-                                            commentSubmitting && 'opacity-70',
-                                        )}
-                                    />
-                                </div>
+                                <TextArea
+                                    label={commentLabel}
+                                    name='comment'
+                                    value={commentText}
+                                    onInput={handleCommentInput}
+                                    onKeyDown={handleCommentKeyDown}
+                                    rows={3}
+                                    autoSize
+                                    disabled={commentSubmitting}
+                                    aria-label={commentAriaLabel}
+                                    placeholder={commentAriaLabel}
+                                />
                             </div>
                         </Tab.Content>
 
                         <Tab.Content value='items' className='mt-0 min-h-0 flex flex-1 flex-col'>
+                            {canShowSelectionStatusBar && (
+                                <SelectionStatusBar
+                                    className='mb-5'
+                                    loading={isPublishChecking}
+                                    failed={publishDialogFailed}
+                                    editing={false}
+                                    showReady={isPublishReady}
+                                    onApply={() => { }}
+                                    onCancel={() => { }}
+                                    errors={{
+                                        inProgress: {
+                                            ...inProgress,
+                                            onExclude: handleExcludeInProgress,
+                                            onMarkAsReady: handleMarkAllAsReady,
+                                        },
+                                        invalid: {
+                                            ...invalid,
+                                            onExclude: handleExcludeInvalid,
+                                        },
+                                        noPermissions: {
+                                            ...noPermissions,
+                                            onExclude: handleExcludeNotPublishable,
+                                        },
+                                    }}
+                                />
+                            )}
                             <ContentCombobox
                                 label={itemsLabel}
                                 selection={selectedItemIdStrings}
@@ -575,7 +654,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                         disabled={!canSubmitComment}
                     />
                 )}
-                {isItemsTab && (
+                {isPublishRequest && isItemsTab && (
                     <Button
                         variant='solid'
                         size='lg'

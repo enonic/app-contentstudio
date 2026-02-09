@@ -11,6 +11,7 @@ import {cleanupTask, trackTask} from '../../services/task.service';
 import {hasContentById, hasContentIdInIds, isIdsEqual, uniqueIds} from '../../utils/cms/content/ids';
 import {createDebounce} from '../../utils/timing/createDebounce';
 import {$contentArchived, $contentCreated, $contentDeleted, $contentPublished, $contentUpdated} from '../socket.store';
+import type {TaskResultState} from '../task.store';
 
 //
 // * Types
@@ -604,7 +605,7 @@ export const markAllAsReadyInProgressPublishItems = async (): Promise<void> => {
     $publishChecks.setKey('inProgressIds', newInProgressIds);
 };
 
-export const excludeInProgressPublishItems = (): void => {
+export const excludeInProgressPublishItems = (): ContentId[] => {
     const {excludedDependantItemsIds} = $publishDialog.get();
     const dependantItems = $publishDialogDependants.get();
     const dependantItemsIds = dependantItems.map(item => item.getContentId());
@@ -613,9 +614,11 @@ export const excludeInProgressPublishItems = (): void => {
 
     $draftPublishDialogSelection.setKey('excludedDependantItemsIds', newExcludedDependantItemsIds);
     $publishDialog.setKey('excludedDependantItemsIds', newExcludedDependantItemsIds);
+
+    return newExcludedDependantItemsIds;
 };
 
-export const excludeInvalidPublishItems = (): void => {
+export const excludeInvalidPublishItems = (): ContentId[] => {
     const {excludedDependantItemsIds} = $publishDialog.get();
     const dependantItems = $publishDialogDependants.get();
     const dependantItemsIds = dependantItems.map(item => item.getContentId());
@@ -624,9 +627,11 @@ export const excludeInvalidPublishItems = (): void => {
 
     $draftPublishDialogSelection.setKey('excludedDependantItemsIds', newExcludedDependantItemsIds);
     $publishDialog.setKey('excludedDependantItemsIds', newExcludedDependantItemsIds);
+
+    return newExcludedDependantItemsIds;
 };
 
-export const excludeNotPublishablePublishItems = (): void => {
+export const excludeNotPublishablePublishItems = (): ContentId[] => {
     const {excludedDependantItemsIds} = $publishDialog.get();
     const dependantItems = $publishDialogDependants.get();
     const dependantItemsIds = dependantItems.map(item => item.getContentId());
@@ -635,11 +640,15 @@ export const excludeNotPublishablePublishItems = (): void => {
 
     $draftPublishDialogSelection.setKey('excludedDependantItemsIds', newExcludedDependantItemsIds);
     $publishDialog.setKey('excludedDependantItemsIds', newExcludedDependantItemsIds);
+
+    return newExcludedDependantItemsIds;
 };
 
 // PUBLISH
 
-export const publishItems = async (): Promise<boolean> => {
+export const publishItems = async (
+    onComplete?: (state: TaskResultState, message: string) => void,
+): Promise<boolean> => {
     const ready = $isPublishReady.get();
     if (!ready) return false;
 
@@ -675,6 +684,7 @@ export const publishItems = async (): Promise<boolean> => {
                     showError(message);
                 }
                 resetPublishDialogContext();
+                onComplete?.(resultState, message);
             },
         });
 
@@ -1025,14 +1035,13 @@ async function sendPublishRequest(): Promise<TaskId | undefined> {
         : undefined;
 
     try {
-        const taskId = await publishContent({
+        return await publishContent({
             ids: publishableIds,
             excludedIds: allExcludedItemsIds,
             excludeChildrenIds: allExcludedItemsWithChildrenIds,
             message: message || undefined,
             schedule: resolvedSchedule,
         });
-        return taskId;
     } catch (e) {
         showError(i18n('dialog.publish.publishing.error'));
         return undefined;

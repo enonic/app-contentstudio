@@ -1,6 +1,6 @@
 import {Combobox, IconButton, ListItem, Listbox, cn} from '@enonic/ui';
-import {useEffect, useMemo, useRef, useState, type ReactElement} from 'react';
 import {X} from 'lucide-react';
+import {useEffect, useMemo, useRef, useState, type ReactElement} from 'react';
 import {createDebounce} from '../../../utils/timing/createDebounce';
 import {AssigneeOptionItem} from './AssigneeOptionItem';
 import {AssigneeOptionRow} from './AssigneeOptionRow';
@@ -49,26 +49,26 @@ const matchesQuery = (option: AssigneeSelectorOption, normalizedQuery: string): 
     }
 
     return option.label.toLowerCase().includes(normalizedQuery) ||
-           option.description?.toLowerCase().includes(normalizedQuery) === true;
+        option.description?.toLowerCase().includes(normalizedQuery) === true;
 };
 
 export const AssigneeSelector = ({
-                                     label,
-                                     options,
-                                     selection,
-                                     onSelectionChange,
-                                     selectedOptions,
-                                     selectedListClassName,
-                                     applyLabel,
-                                     disabled = false,
-                                     placeholder,
-                                     searchPlaceholder,
-                                     emptyLabel,
-                                     filterOptions,
-                                     onSearchChange,
-                                     debounceMs = DEFAULT_DEBOUNCE_MS,
-                                     className,
-                                 }: AssigneeSelectorProps): ReactElement => {
+    label,
+    options,
+    selection,
+    onSelectionChange,
+    selectedOptions,
+    selectedListClassName,
+    applyLabel,
+    disabled = false,
+    placeholder,
+    searchPlaceholder,
+    emptyLabel,
+    filterOptions,
+    onSearchChange,
+    debounceMs = DEFAULT_DEBOUNCE_MS,
+    className,
+}: AssigneeSelectorProps): ReactElement => {
     const [open, setOpen] = useState(false);
     const [inputValue, setInputValue] = useState('');
     const [activeItem, setActiveItem] = useState<string | null>(null);
@@ -218,19 +218,19 @@ export const AssigneeSelector = ({
                 <Combobox.Content className='relative'>
                     <Combobox.Control>
                         <Combobox.Search>
-                            <Combobox.SearchIcon/>
+                            <Combobox.SearchIcon />
                             <Combobox.Input
                                 ref={inputRef}
                                 placeholder={searchPlaceholder ?? placeholder}
                                 aria-label={label}
                             />
-                            <Combobox.Apply label={applyLabel} onPointerDown={requestFocusRestore}/>
-                            <Combobox.Toggle/>
+                            <Combobox.Apply label={applyLabel} onPointerDown={requestFocusRestore} />
+                            <Combobox.Toggle />
                         </Combobox.Search>
                     </Combobox.Control>
 
                     <Combobox.Portal>
-                        <Combobox.Popup className='overflow-y-auto rounded-sm shadow-bdr-subtle'>
+                        <Combobox.Popup>
                             <AssigneeOptionsContent
                                 label={label}
                                 emptyLabel={emptyLabel}
@@ -245,7 +245,7 @@ export const AssigneeSelector = ({
                                             value={safeValue}
                                             disabled={option.disabled}
                                         >
-                                            <AssigneeOptionItem option={option} value={safeValue}/>
+                                            <AssigneeOptionItem option={option} value={safeValue} />
                                         </Listbox.Item>
                                     );
                                 })}
@@ -263,7 +263,7 @@ export const AssigneeSelector = ({
                         >
                             <ListItem.Content className='flex'>
                                 <div className='flex flex-1 items-center gap-x-2.5'>
-                                    <AssigneeOptionRow option={option}/>
+                                    <AssigneeOptionRow option={option} />
                                 </div>
                             </ListItem.Content>
                             <ListItem.Right className='flex items-center gap-2.5'>
