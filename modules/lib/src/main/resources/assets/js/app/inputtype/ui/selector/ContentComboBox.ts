@@ -87,7 +87,7 @@ export class ContentSelectedOptionView
     }
 
     resolveTitle(content: ContentTreeSelectorItem): string {
-        if (!content.getContent()) {
+        if (!content.getContent() || !this.hasContent()) {
             return content.getDisplayName() || content.getId();
         }
 

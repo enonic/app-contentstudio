@@ -70,7 +70,7 @@ export class PublishScheduleForm
                 toLabel: i18n('field.onlineTo'),
                 defaultFromTime: fromTime,
                 fromPlaceholder: i18n('text.now'),
-                optionalFrom: true
+                optionalFrom: !CONFIG.isTrue('requiredPublishFrom')
             })
             .setMaximizeUIInputWidth(true)
             .build();
