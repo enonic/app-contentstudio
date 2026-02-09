@@ -1,5 +1,6 @@
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {Button, IconButton} from '@enonic/ui';
+import {atom} from 'nanostores';
 import {useStore} from '@nanostores/preact';
 import {ArrowLeftRight, BellDotIcon, BellIcon, LayoutGrid} from 'lucide-react';
 import {ReactElement} from 'react';
@@ -11,6 +12,9 @@ import {$issuesStats} from '../../../store/issuesStats.store';
 import {IssueStatsJson} from '../../../../../app/issue/json/IssueStatsJson';
 import {LegacyElement} from '../../../shared/LegacyElement';
 import {ThemeSwitcher} from '../../../shared/ThemeSwitcher';
+
+const $isProjectSelectorVisible = atom<boolean>(true);
+const $appName = atom<string>('');
 
 function createIssuesLabelKeys(stats: Readonly<IssueStatsJson> | undefined): [`field.${string}`, ...string[]] {
     if (stats?.openAssignedToMe > 0) {
@@ -26,19 +30,25 @@ function createIssuesLabelKeys(stats: Readonly<IssueStatsJson> | undefined): [`f
 
 export const BrowseAppBar = (): ReactElement => {
     const activeProjectName = useStore($activeProjectName);
+    const isProjectSelectorVisible = useStore($isProjectSelectorVisible);
+    const appName = useStore($appName);
     const {stats} = useStore($issuesStats);
     const issuesStatsLabel = useI18n(...createIssuesLabelKeys(stats));
 
     return (
         <header className="bg-surface-neutral h-15 px-5 py-2 flex items-center gap-2.5 border-b border-bdr-soft">
-            <Button
-                className="mr-auto"
-                size="sm"
-                endIcon={ArrowLeftRight}
-                onClick={() => setProjectSelectionDialogOpen(true)}
-                aria-label={useI18n('wcag.appbar.project.label')}
-                label={activeProjectName}
-            />
+            {isProjectSelectorVisible ? (
+                <Button
+                    className="mr-auto"
+                    size="sm"
+                    endIcon={ArrowLeftRight}
+                    onClick={() => setProjectSelectionDialogOpen(true)}
+                    aria-label={useI18n('wcag.appbar.project.label')}
+                    label={activeProjectName}
+                />
+            ) : (
+                <h1 className="mr-auto text-lg font-semibold">{appName}</h1>
+            )}
 
             <Button
                 className="max-sm:hidden"
@@ -87,7 +97,9 @@ export class BrowseAppBarElement extends LegacyElement<typeof BrowseAppBar> {
         return instance;
     }
 
-    setAppName(name: string) { }
+    setAppName(name: string) {
+        $appName.set(name);
+    }
 
     disable() { }
 
@@ -95,7 +107,11 @@ export class BrowseAppBarElement extends LegacyElement<typeof BrowseAppBar> {
 
     hideIssuesButton() { }
 
-    showProjectSelector() { }
+    showProjectSelector() {
+        $isProjectSelectorVisible.set(true);
+    }
 
-    hideProjectSelector() { }
+    hideProjectSelector() {
+        $isProjectSelectorVisible.set(false);
+    }
 }

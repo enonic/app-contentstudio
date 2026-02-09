@@ -50,7 +50,11 @@ export const ContentTreeContextMenu = ({children, actions = {}}: ContentTreeCont
 ContentTreeContextMenu.displayName = CONTENT_TREE_CONTEXT_MENU_NAME;
 
 const ContentTreeContextMenuAction = ({action}: {action: Action}): ReactElement => {
-    const {label, enabled, execute} = useAction(action);
+    const {label, enabled, visible, execute} = useAction(action);
+
+    if (!visible) {
+        return null;
+    }
 
     return (
         <ContextMenu.Item disabled={!enabled} onSelect={execute}>

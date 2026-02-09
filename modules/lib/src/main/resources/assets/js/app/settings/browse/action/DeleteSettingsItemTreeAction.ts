@@ -8,20 +8,16 @@ import {SettingsViewItem} from '../../view/SettingsViewItem';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {ConfirmValueDialog} from '../../../remove/ConfirmValueDialog';
 import {TextInputSize} from '@enonic/lib-admin-ui/ui/text/TextInput';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import {getSelectedItems} from '../../../../v6/features/store/settingsTreeSelection.store';
 
 export class DeleteSettingsItemTreeAction
     extends Action {
 
-    private tree: SelectableListBoxWrapper<SettingsViewItem>;
-
     private deleteConfirmationDialog?: ConfirmValueDialog;
 
-    constructor(tree: SelectableListBoxWrapper<SettingsViewItem>) {
+    constructor() {
         super(i18n('action.delete'), 'mod+del');
         this.setEnabled(false);
-
-        this.tree = tree;
         this.onExecuted(this.handleExecuted.bind(this));
     }
 
@@ -30,7 +26,7 @@ export class DeleteSettingsItemTreeAction
             this.initConfirmationDialog();
         }
 
-        const selectedItems: SettingsViewItem[] = this.tree.getSelectedItems();
+        const selectedItems: SettingsViewItem[] = [...getSelectedItems()];
 
         this.deleteConfirmationDialog.setValueToCheck(selectedItems[0].getId()).open();
     }
@@ -44,7 +40,7 @@ export class DeleteSettingsItemTreeAction
     }
 
     private deleteSelectedItems() {
-        const selectedItems: SettingsViewItem[] = this.tree.getSelectedItems();
+        const selectedItems: SettingsViewItem[] = [...getSelectedItems()];
 
         const projectItems: ProjectViewItem[] = selectedItems.filter((item: SettingsViewItem) => {
             return ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem);

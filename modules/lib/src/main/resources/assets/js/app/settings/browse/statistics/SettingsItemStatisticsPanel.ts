@@ -3,7 +3,7 @@ import {SettingsViewItem} from '../../view/SettingsViewItem';
 import {SettingsStatisticsView} from './view/SettingsStatisticsView';
 import {StatisticsViewFactory} from './StatisticsViewFactory';
 import {ProjectDAGVisualization} from './view/project/ProjectDAGVisualization';
-import {SettingsTreeList} from '../../SettingsTreeList';
+import {SETTINGS_PROJECTS_FOLDER_ID} from '../../../../v6/features/store/settings-tree.store';
 
 export class SettingsItemStatisticsPanel
     extends ItemStatisticsPanel {
@@ -54,7 +54,7 @@ export class SettingsItemStatisticsPanel
     }
 
     private showProjectGraph(item: SettingsViewItem) {
-        if (item.getId() !== SettingsTreeList.PROJECTS_FOLDER_ID) {
+        if (item.getId() !== SETTINGS_PROJECTS_FOLDER_ID) {
             return;
         }
         this.projectDAGVisualization = new ProjectDAGVisualization(item.getId());

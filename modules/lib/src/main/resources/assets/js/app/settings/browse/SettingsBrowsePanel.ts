@@ -7,25 +7,24 @@ import {ListBoxToolbar} from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolb
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {SettingsTreeList} from '../SettingsTreeList';
 import {SettingsTreeActions} from '../tree/SettingsTreeActions';
-import {TreeGridContextMenu} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridContextMenu';
 import Q from 'q';
-import {Projects} from '../resource/Projects';
 import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
-import {EditSettingsItemEvent} from '../event/EditSettingsItemEvent';
 import {ProjectViewItem} from '../view/ProjectViewItem';
-import {SettingsDataViewItem} from '../view/SettingsDataViewItem';
 import {SettingsBrowseToolbarElement} from '../../../v6/features/views/browse/toolbar/SettingsBrowseToolbar';
+import {SettingsTreeListElement} from '../../../v6/features/views/browse/settings/SettingsTreeListElement';
+import {SettingsTreeListSelectablePanelProxy} from './SettingsTreeListSelectablePanelProxy';
+import {getSettingsItem, hasSettingsItem} from '../../../v6/features/store/settings-tree.store';
+import {removeProject, upsertProject, reloadProjects} from '../../../v6/features/store/projects.store';
 
 export class SettingsBrowsePanel
     extends BrowsePanel {
 
     protected treeListBox: SettingsTreeList;
+    private settingsTreeList: SettingsTreeListElement;
 
     protected toolbar: ListBoxToolbar<SettingsViewItem>;
 
     declare protected treeActions: SettingsTreeActions;
-
-    protected contextMenu: TreeGridContextMenu;
 
     protected selectionWrapper: SelectableListBoxWrapper<SettingsViewItem>;
 
@@ -33,48 +32,15 @@ export class SettingsBrowsePanel
 
     protected initElements(): void {
         super.initElements();
-        
+
         this.prependChild(new SettingsBrowseToolbarElement(this.treeActions));
+        this.settingsTreeList.setContextMenuActions(this.treeActions.getAllActions());
     }
 
     protected initListeners(): void {
         super.initListeners();
 
-        this.treeListBox.onItemsAdded((items: SettingsViewItem[]) => {
-            items.forEach((item: SettingsViewItem) => {
-                const listElement = this.treeListBox.getDataView(item);
-
-                listElement?.onDblClicked(() => {
-                    const actualItem  = this.treeListBox.getItem(item.getId());
-
-                    if (actualItem instanceof SettingsDataViewItem) {
-                        new EditSettingsItemEvent([actualItem]).fire();
-                    }
-                });
-
-                listElement?.onContextMenu((event: MouseEvent) => {
-                    event.preventDefault();
-                    this.contextMenu.showAt(event.clientX, event.clientY);
-                });
-            });
-        });
-
-        let updateTriggered = false;
-        // load tree after projects are loaded
-        const projectsUpdatedListener = () => {
-            if (!updateTriggered) {
-                updateTriggered = true;
-
-                this.treeListBox.whenRendered(() => {
-                    updateTriggered = false;
-                    this.treeListBox.load();
-                });
-            }
-
-            Projects.get().unProjectsUpdated(projectsUpdatedListener);
-        };
-
-        Projects.get().onProjectsUpdated(projectsUpdatedListener);
+        // no-op: React tree list handles row events and context menu
     }
 
     protected createListBoxPanel(): SelectableListBoxPanel<SettingsViewItem> {
@@ -88,15 +54,15 @@ export class SettingsBrowsePanel
         });
 
 
-        this.treeActions = new SettingsTreeActions(this.selectionWrapper);
-        this.contextMenu = new TreeGridContextMenu(this.treeActions);
+        this.treeActions = new SettingsTreeActions();
         this.toolbar = new ListBoxToolbar<SettingsViewItem>(this.selectionWrapper, {
-            refreshAction: () => this.treeListBox.load(),
+            refreshAction: () => reloadProjects(),
         });
 
-        this.toolbar.getSelectionPanelToggler().hide();
+        this.toolbar.hideAndDisableSelectionToggler();
 
-        return new SelectableListBoxPanel(this.selectionWrapper, this.toolbar);
+        this.settingsTreeList = new SettingsTreeListElement();
+        return new SettingsTreeListSelectablePanelProxy(this.selectionWrapper, this.settingsTreeList, this.toolbar);
     }
 
     protected createKeyNavigator(): SelectableTreeListBoxKeyNavigator<SettingsViewItem> {
@@ -115,34 +81,24 @@ export class SettingsBrowsePanel
         return this.treeActions;
     }
 
-
-
     hasItemWithId(id: string) {
-        return !!this.treeListBox.getItem(id);
+        return hasSettingsItem(id);
     }
 
     addSettingsItem(item: ProjectViewItem) {
-        this.treeListBox.findParentList(item)?.addItems(item);
+        upsertProject(item.getData());
     }
 
     updateSettingsItem(item: ProjectViewItem) {
-        this.treeListBox.findParentList(item)?.replaceItems(item);
+        upsertProject(item.getData());
     }
 
     deleteSettingsItem(id: string) {
-        const item = this.treeListBox.getItem(id) as ProjectViewItem;
-
-        if (item) {
-            if (this.selectionWrapper.isItemSelected(item)) {
-                this.selectionWrapper.deselect(item);
-            }
-
-            this.treeListBox.findParentList(item)?.removeItems(item);
-        }
+        removeProject(id);
     }
 
-    getItemById(id: string): SettingsViewItem {
-        return this.selectableListBoxPanel.getItem(id);
+    getItemById(id: string): SettingsViewItem | undefined {
+        return getSettingsItem(id);
     }
 
     doRender(): Q.Promise<boolean> {

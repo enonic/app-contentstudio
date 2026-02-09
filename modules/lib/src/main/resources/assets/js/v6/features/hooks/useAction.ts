@@ -4,12 +4,14 @@ import {useState, useEffect, useCallback} from 'react';
 type UseActionResult = {
     label: string;
     enabled: boolean;
+    visible: boolean;
     execute: () => void;
 };
 
 export function useAction(action: Action): UseActionResult {
     const [label, setLabel] = useState(action.getLabel());
     const [enabled, setEnabled] = useState(action.isEnabled());
+    const [visible, setVisible] = useState(action.isVisible());
 
     const execute = useCallback(() => {
         action.execute();
@@ -20,6 +22,7 @@ export function useAction(action: Action): UseActionResult {
             // Always update state - React will handle optimization if values haven't changed
             setLabel(action.getLabel());
             setEnabled(action.isEnabled());
+            setVisible(action.isVisible());
         };
 
         // Subscribe to action property changes
@@ -31,5 +34,5 @@ export function useAction(action: Action): UseActionResult {
         return () => action.unPropertyChanged(updateProps);
     }, [action]);
 
-    return {label, enabled, execute};
+    return {label, enabled, visible, execute};
 }
