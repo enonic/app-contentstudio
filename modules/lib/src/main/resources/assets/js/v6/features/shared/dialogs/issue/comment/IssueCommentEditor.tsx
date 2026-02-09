@@ -1,4 +1,4 @@
-import {Button, cn} from '@enonic/ui';
+import {Button, TextArea} from '@enonic/ui';
 import React, {type ComponentPropsWithoutRef, type ReactElement} from 'react';
 
 export type IssueCommentEditorProps = {
@@ -30,16 +30,9 @@ export const IssueCommentEditor = ({
     onSave,
     onKeyDown,
 }: IssueCommentEditorProps): ReactElement => {
-    const textAreaClassName = cn(
-        'w-full resize-none rounded-sm border border-bdr-soft bg-surface px-4.5 py-3',
-        'transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-ring',
-        saving && 'opacity-70',
-    );
-
     return (
         <div className='flex flex-col gap-2'>
-            {/* // TODO: Enonic UI - Replace with TextArea component */}
-            <textarea
+            <TextArea
                 ref={textAreaRef}
                 value={value}
                 onInput={(event) => onChange(event.currentTarget.value)}
@@ -47,7 +40,6 @@ export const IssueCommentEditor = ({
                 rows={3}
                 disabled={saving}
                 aria-label={commentLabel}
-                className={textAreaClassName}
             />
             <div className='flex items-center gap-2'>
                 <Button

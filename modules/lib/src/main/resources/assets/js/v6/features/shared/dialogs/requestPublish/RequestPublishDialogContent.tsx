@@ -1,7 +1,7 @@
-import {Button, Checkbox, Dialog, GridList, Input, cn} from '@enonic/ui';
+import {Button, Checkbox, Dialog, GridList, Input, TextArea} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {CornerDownRight} from 'lucide-react';
-import {useEffect, useId, useMemo, useRef, type ReactElement} from 'react';
+import {useMemo, type ReactElement} from 'react';
 import {IssueType} from '../../../../../app/issue/IssueType';
 import {useI18n} from '../../../hooks/useI18n';
 import {$config} from '../../../store/config.store';
@@ -31,11 +31,6 @@ import {IssueIcon} from '../issue/IssueIcon';
 import {SelectionStatusBar} from '../status-bar/SelectionStatusBar';
 
 const REQUEST_PUBLISH_DIALOG_CONTENT_NAME = 'RequestPublishDialogContent';
-
-const resizeTextarea = (element: HTMLTextAreaElement): void => {
-    element.style.height = 'auto';
-    element.style.height = `${element.scrollHeight}px`;
-};
 
 export const RequestPublishDialogContent = (): ReactElement => {
     const {
@@ -108,18 +103,6 @@ export const RequestPublishDialogContent = (): ReactElement => {
     });
     const selectedAssigneeOptions = useAssigneeSelection({assigneeIds});
 
-    const changesInputId = useId();
-    const otherDetailsInputId = useId();
-    const otherDetailsTextareaRef = useRef<HTMLTextAreaElement | null>(null);
-
-    useEffect(() => {
-        const element = otherDetailsTextareaRef.current;
-        if (!element) {
-            return;
-        }
-        resizeTextarea(element);
-    }, [description]);
-
     const itemsWithUnpublishedChildren = useItemsWithUnpublishedChildren(items);
 
     const createButtonLabel = createCount > 1
@@ -182,40 +165,21 @@ export const RequestPublishDialogContent = (): ReactElement => {
 
             <Dialog.Body tabIndex={-1} className='min-h-0 overflow-y-auto'>
                 <div className='flex min-h-0 flex-col gap-7.5 px-5'>
-                    <div className='flex flex-col gap-2'>
-                        <label className='text-md font-semibold' htmlFor={changesInputId}>
-                            {titleLabel}
-                        </label>
-                        <Input
-                            id={changesInputId}
-                            value={title}
-                            onChange={(event) => setRequestPublishTitle(event.currentTarget.value)}
-                            disabled={submitting}
-                        />
-                    </div>
+                    <Input
+                        label={titleLabel}
+                        value={title}
+                        onInput={(event) => setRequestPublishTitle(event.currentTarget.value)}
+                        disabled={submitting}
+                    />
 
-                    <div className='flex flex-col gap-2'>
-                        <label className='text-md font-semibold' htmlFor={otherDetailsInputId}>
-                            {addCommentLabel}
-                        </label>
-                        <textarea
-                            id={otherDetailsInputId}
-                            ref={otherDetailsTextareaRef}
-                            value={description}
-                            onInput={(event) => {
-                                setRequestPublishDescription(event.currentTarget.value);
-                                resizeTextarea(event.currentTarget);
-                            }}
-                            rows={2}
-                            disabled={submitting}
-                            className={cn(
-                                'w-full resize-none overflow-hidden rounded-sm border border-bdr-soft bg-surface px-4.5 py-3',
-                                'transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring',
-                                'focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
-                                submitting && 'opacity-70',
-                            )}
-                        />
-                    </div>
+                    <TextArea
+                        label={addCommentLabel}
+                        value={description}
+                        onInput={(event) => setRequestPublishDescription(event.currentTarget.value)}
+                        rows={2}
+                        autoSize
+                        disabled={submitting}
+                    />
 
                     <div className='flex flex-col gap-2.5'>
                         <span className='text-md font-semibold'>{assigneesLabel}</span>
@@ -236,60 +200,60 @@ export const RequestPublishDialogContent = (): ReactElement => {
                     <SplitList>
                         <div className='flex flex-col gap-2.5'>
                             <span className='text-md font-semibold'>{itemsLabel}</span>
-                        <SplitList.Primary
-                            items={items}
-                            getItemId={(item) => item.getId()}
-                            disabled={isItemsDisabled}
-                            renderRow={(item) => {
-                                const id = item.getContentId();
-                                const includeChildren = !excludedChildrenSet.has(id.toString());
-                                const hasUnpublishedChildrenForItem = itemsWithUnpublishedChildren
-                                    ? itemsWithUnpublishedChildren.has(id.toString())
-                                    : true;
-                                const showChildrenCheckbox = hasUnpublishedChildrenForItem && item.hasChildren();
+                            <SplitList.Primary
+                                items={items}
+                                getItemId={(item) => item.getId()}
+                                disabled={isItemsDisabled}
+                                renderRow={(item) => {
+                                    const id = item.getContentId();
+                                    const includeChildren = !excludedChildrenSet.has(id.toString());
+                                    const hasUnpublishedChildrenForItem = itemsWithUnpublishedChildren
+                                        ? itemsWithUnpublishedChildren.has(id.toString())
+                                        : true;
+                                    const showChildrenCheckbox = hasUnpublishedChildrenForItem && item.hasChildren();
 
-                                return (
-                                    <>
-                                        <ContentRow
-                                            key={item.getId()}
-                                            content={item}
-                                            id={`main-${item.getId()}`}
-                                            disabled={isItemsDisabled}
-                                        >
-                                            <ContentRow.Label action="edit" />
-                                            <ContentRow.Status variant="diff" />
-                                            <ContentRow.RemoveButton
-                                                onRemove={() => removeRequestPublishItem(item.getContentId())}
-                                                disabled={isItemsDisabled || items.length === 1}
-                                            />
-                                        </ContentRow>
-
-                                        {showChildrenCheckbox && (
-                                            <GridList.Row
-                                                id={`${item.getId()}-children`}
+                                    return (
+                                        <>
+                                            <ContentRow
+                                                key={item.getId()}
+                                                content={item}
+                                                id={`main-${item.getId()}`}
                                                 disabled={isItemsDisabled}
-                                                className="gap-3 px-2.5 -mt-1"
                                             >
-                                                <GridList.Cell className="pl-2.5 flex items-center gap-2.5">
-                                                    <CornerDownRight className="size-4 shrink-0" />
-                                                    <GridList.Action>
-                                                        <Checkbox
-                                                            className="font-semibold"
-                                                            checked={includeChildren}
-                                                            onCheckedChange={(enabled) =>
-                                                                setRequestPublishItemIncludeChildren(id, enabled === true)
-                                                            }
-                                                            disabled={isItemsDisabled}
-                                                            label={includeChildrenLabel}
-                                                        />
-                                                    </GridList.Action>
-                                                </GridList.Cell>
-                                            </GridList.Row>
-                                        )}
-                                    </>
-                                );
-                            }}
-                        />
+                                                <ContentRow.Label action="edit" />
+                                                <ContentRow.Status variant="diff" />
+                                                <ContentRow.RemoveButton
+                                                    onRemove={() => removeRequestPublishItem(item.getContentId())}
+                                                    disabled={isItemsDisabled || items.length === 1}
+                                                />
+                                            </ContentRow>
+
+                                            {showChildrenCheckbox && (
+                                                <GridList.Row
+                                                    id={`${item.getId()}-children`}
+                                                    disabled={isItemsDisabled}
+                                                    className="gap-3 px-2.5 -mt-1"
+                                                >
+                                                    <GridList.Cell className="pl-2.5 flex items-center gap-2.5">
+                                                        <CornerDownRight className="size-4 shrink-0" />
+                                                        <GridList.Action>
+                                                            <Checkbox
+                                                                className="font-semibold"
+                                                                checked={includeChildren}
+                                                                onCheckedChange={(enabled) =>
+                                                                    setRequestPublishItemIncludeChildren(id, enabled === true)
+                                                                }
+                                                                disabled={isItemsDisabled}
+                                                                label={includeChildrenLabel}
+                                                            />
+                                                        </GridList.Action>
+                                                    </GridList.Cell>
+                                                </GridList.Row>
+                                            )}
+                                        </>
+                                    );
+                                }}
+                            />
                         </div>
                         <SplitList.Separator hidden={dependants.length === 0}>
                             <SplitList.SeparatorLabel>{dependenciesLabel}</SplitList.SeparatorLabel>

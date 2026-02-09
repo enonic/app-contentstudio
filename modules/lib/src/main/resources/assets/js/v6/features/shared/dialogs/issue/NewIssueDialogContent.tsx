@@ -1,6 +1,6 @@
-import {Button, Dialog, Input, cn} from '@enonic/ui';
+import {Button, Dialog, Input, TextArea} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {useCallback, useEffect, useId, useMemo, useRef, type ReactElement} from 'react';
+import {useCallback, useId, useMemo, type ReactElement} from 'react';
 
 import {ContentId} from '../../../../../app/content/ContentId';
 import {IssueType} from '../../../../../app/issue/IssueType';
@@ -26,11 +26,6 @@ import {IssueIcon} from './IssueIcon';
 import {useIssuePublishTargetIds} from './hooks/useIssuePublishTargetIds';
 
 const NEW_ISSUE_DIALOG_CONTENT_NAME = 'NewIssueDialogContent';
-
-const resizeTextarea = (element: HTMLTextAreaElement): void => {
-    element.style.height = 'auto';
-    element.style.height = `${element.scrollHeight}px`;
-};
 
 export const NewIssueDialogContent = (): ReactElement => {
     const {
@@ -80,16 +75,6 @@ export const NewIssueDialogContent = (): ReactElement => {
     });
     const selectedAssigneeOptions = useAssigneeSelection({assigneeIds});
     const titleInputId = useId();
-    const descriptionInputId = useId();
-    const descriptionTextareaRef = useRef<HTMLTextAreaElement | null>(null);
-
-    useEffect(() => {
-        const element = descriptionTextareaRef.current;
-        if (!element) {
-            return;
-        }
-        resizeTextarea(element);
-    }, [description]);
 
     const isItemsDisabled = submitting || loading;
 
@@ -155,28 +140,14 @@ export const NewIssueDialogContent = (): ReactElement => {
                         />
                     </div>
 
-                    <div className='flex flex-col gap-2'>
-                        <label className='text-md font-semibold' htmlFor={descriptionInputId}>
-                            {descriptionLabel}
-                        </label>
-                        <textarea
-                            id={descriptionInputId}
-                            ref={descriptionTextareaRef}
-                            value={description}
-                            onInput={(event) => {
-                                setNewIssueDescription(event.currentTarget.value);
-                                resizeTextarea(event.currentTarget);
-                            }}
-                            rows={2}
-                            disabled={submitting}
-                            className={cn(
-                                'w-full resize-none overflow-hidden rounded-sm border border-bdr-soft bg-surface px-4.5 py-3',
-                                'transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring',
-                                'focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
-                                submitting && 'opacity-70',
-                            )}
-                        />
-                    </div>
+                    <TextArea
+                        label={descriptionLabel}
+                        value={description}
+                        onInput={(event) => setNewIssueDescription(event.currentTarget.value)}
+                        rows={2}
+                        autoSize
+                        disabled={submitting}
+                    />
                 <div className='flex flex-col gap-2.5'>
                     <span className='text-md font-semibold'>{assigneesLabel}</span>
                     <AssigneeSelector

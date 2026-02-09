@@ -129,7 +129,7 @@ export const ContentCombobox = ({
             {label && (
                 <label
                     id={labelId}
-                    className='text-md font-semibold text-subtle'
+                    className='text-md font-semibold'
                 >
                     {label}
                 </label>
@@ -159,7 +159,7 @@ export const ContentCombobox = ({
                                     aria-label={isTreeView ? treeViewLabel : listViewLabel}
                                     tabIndex={-1}
                                     className={cn(
-                                        'ml-1.25 size-9 shrink-0 rounded-[0.1875rem] p-0 text-subtle hover:bg-surface-neutral-hover',
+                                        'ml-1.25 size-9 shrink-0 rounded-[0.1875rem] p-0 hover:bg-surface-neutral-hover',
                                         'after:-inset-1.25 after:-z-10 relative z-0 overflow-visible after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
                                     )}
                                 />

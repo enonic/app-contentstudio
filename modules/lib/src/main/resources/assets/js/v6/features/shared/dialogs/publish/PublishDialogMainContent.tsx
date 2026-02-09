@@ -1,4 +1,4 @@
-import {Button, Checkbox, cn, Dialog, GridList} from '@enonic/ui';
+import {Button, Checkbox, Dialog, GridList, TextArea} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Calendar, CornerDownRight, Plus, X} from 'lucide-react';
 import {useEffect, useId, useRef, useState, type ReactElement} from 'react';
@@ -241,23 +241,14 @@ export const PublishDialogMainContent = ({
                 </SplitList>
 
                 {showComment && (
-                    <div className='flex flex-col gap-2 pb-1.5'>
-                        <label className='font-semibold' htmlFor={commentTextareaRef.current?.id}>{commentLabel}</label>
-                        <textarea
-                            id={`${PUBLISH_DIALOG_MAIN_CONTENT_NAME}-${baseId}-comment`}
-                            ref={commentTextareaRef}
-                            value={message ?? ''}
-                            onInput={(e) => setPublishDialogMessage((e.target as HTMLTextAreaElement).value)}
-                            placeholder={commentPlaceholder}
-                            rows={2}
-                            className={cn(
-                                'w-full resize-none rounded-sm border px-4.5 py-3',
-                                'border-bdr-subtle bg-surface-neutral text-main placeholder:text-subtle',
-                                'focus-visible:border-bdr-strong focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring',
-                                'focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
-                            )}
-                        />
-                    </div>
+                    <TextArea
+                        ref={commentTextareaRef}
+                        label={commentLabel}
+                        value={message ?? ''}
+                        onInput={(e) => setPublishDialogMessage(e.currentTarget.value)}
+                        placeholder={commentPlaceholder}
+                        rows={2}
+                    />
                 )}
                 {scheduleMode && <PublishScheduleForm firstInputRef={firstScheduleInputRef} defaultTimeValue={defaultPublishFromTime} />}
             </Dialog.Body>
