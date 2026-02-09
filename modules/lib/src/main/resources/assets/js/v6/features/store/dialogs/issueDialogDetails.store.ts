@@ -2,7 +2,7 @@ import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {showError, showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {map} from 'nanostores';
+import {computed, map} from 'nanostores';
 import {ContentId} from '../../../../app/content/ContentId';
 import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import {IssueStatus} from '../../../../app/issue/IssueStatus';
@@ -95,6 +95,35 @@ export const $deleteCommentConfirmation = map<DeleteCommentConfirmation>({
     open: false,
     commentId: undefined,
 });
+
+//
+// * Derived state
+//
+
+export const $issueDialogDetailsIssue = computed([$issueDialog, $issueDialogDetails], ({issueId, issues}, {issue}) => {
+    if (issue) {
+        return issue;
+    }
+    return issues.find(item => item.getIssue().getId() === issueId)?.getIssue();
+});
+
+export const $isIssueDialogDetailsPublishRequest = computed($issueDialogDetailsIssue, (issue) => {
+    return issue?.getType() === IssueType.PUBLISH_REQUEST;
+});
+
+export const $isIssueDialogDetailsClosed = computed($issueDialogDetailsIssue, (issue) => {
+    return issue?.getIssueStatus() === IssueStatus.CLOSED;
+});
+
+export const $canIssueDialogDetailsShowSelectionStatusBar = computed(
+    [$isIssueDialogDetailsPublishRequest, $isIssueDialogDetailsClosed],
+    (isPublishRequest, isClosed) => isPublishRequest && !isClosed,
+);
+
+export const $canIssueDialogDetailsPublish = computed(
+    [$isIssueDialogDetailsPublishRequest, $isIssueDialogDetailsClosed],
+    (isPublishRequest, isClosed) => isPublishRequest && !isClosed,
+);
 
 //
 // * Public API

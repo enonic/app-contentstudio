@@ -13,12 +13,14 @@ import {
 
 import {ContentId} from '../../../../../app/content/ContentId';
 import {IssueStatus} from '../../../../../app/issue/IssueStatus';
-import {IssueType} from '../../../../../app/issue/IssueType';
 import {useI18n} from '../../../hooks/useI18n';
 import {useTaskProgress} from '../../../hooks/useTaskProgress';
 import {$issueDialog, closeIssueDialog, setIssueDialogView} from '../../../store/dialogs/issueDialog.store';
 import {
+    $canIssueDialogDetailsPublish,
+    $canIssueDialogDetailsShowSelectionStatusBar,
     $issueDialogDetails,
+    $isIssueDialogDetailsPublishRequest,
     loadIssueDialogItems,
     openDeleteCommentConfirmation,
     setIssueDialogCommentText,
@@ -171,6 +173,9 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             'requiredDependantIds',
         ],
     });
+    const isPublishRequest = useStore($isIssueDialogDetailsPublishRequest);
+    const canShowSelectionStatusBar = useStore($canIssueDialogDetailsShowSelectionStatusBar);
+    const canPublish = useStore($canIssueDialogDetailsPublish);
     const publishCount = useStore($totalPublishableItems);
     const isPublishReady = useStore($isPublishReady);
     const isPublishChecking = useStore($isPublishChecking);
@@ -212,7 +217,6 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         [issues, issueId],
     );
 
-    const isPublishRequest = issueData?.getType() === IssueType.PUBLISH_REQUEST;
     const issueIndex = issueData?.getIndex();
     const currentStatus = issueData?.getIssueStatus() ?? IssueStatus.OPEN;
     const statusValue: StatusOption = currentStatus === IssueStatus.CLOSED ? 'closed' : 'open';
@@ -474,7 +478,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
 
     const isAssigneesDisabled = !issueData || issueError || assigneesUpdating || statusUpdating;
     const isItemsDisabled = !issueData || issueError || itemsUpdating || statusUpdating;
-    const isPublishDisabled = !isPublishReady ||
+    const isPublishDisabled = !canPublish ||
+        !isPublishReady ||
         isPublishChecking ||
         publishSubmitting ||
         publishDialogOpen ||
@@ -586,7 +591,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                         </Tab.Content>
 
                         <Tab.Content value='items' className='mt-0 min-h-0 flex flex-1 flex-col'>
-                            {isPublishRequest && (
+                            {canShowSelectionStatusBar && (
                                 <SelectionStatusBar
                                     className='mb-5'
                                     loading={isPublishChecking}
