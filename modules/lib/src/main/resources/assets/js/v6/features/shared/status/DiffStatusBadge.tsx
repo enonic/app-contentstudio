@@ -11,13 +11,12 @@ type Props = {
     compareStatus: CompareStatus;
     workflowStatus?: WorkflowStateStatus;
     wasPublished: boolean;
-    isPublishRequest?: boolean;
     className?: string;
 }
 
 const DIFF_STATUS_BADGE_NAME = 'DiffStatusBadge';
 
-export const DiffStatusBadge = ({publishStatus, compareStatus, workflowStatus, wasPublished, isPublishRequest, className}: Props) => {
+export const DiffStatusBadge = ({publishStatus, compareStatus, workflowStatus, wasPublished, className}: Props) => {
     const isOnline = publishStatus === PublishStatus.ONLINE;
     const isMoved = compareStatus === CompareStatus.MOVED;
     const hasDiff = compareStatus !== CompareStatus.EQUAL;
@@ -33,7 +32,7 @@ export const DiffStatusBadge = ({publishStatus, compareStatus, workflowStatus, w
             <span className={cn('capitalize group-data-[tone=inverse]:text-alt', isOnline && 'text-success', className)}>
                 {publishStatusLabel}
             </span>
-            {hasDiff && isPublishRequest && (
+            {hasDiff && (
                 <span className='text-subtle group-data-[tone=inverse]:text-alt italic capitalize border-l-1 border-bdr-subtle pl-2'>{compareStatusLabels}</span>
             )}
             {workflowStatus && !(isOnline && workflowStatus === WorkflowStateStatus.READY) && (

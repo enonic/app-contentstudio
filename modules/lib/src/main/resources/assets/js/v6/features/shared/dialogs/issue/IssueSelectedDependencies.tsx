@@ -12,21 +12,19 @@ export type IssueSelectedDependenciesProps = {
     disabled?: boolean;
     loading?: boolean;
     onDependencyChange?: (id: ContentId, included: boolean) => void;
-    isPublishRequest?: boolean;
 };
 
 const ISSUE_SELECTED_DEPENDENCIES_NAME = 'IssueSelectedDependencies';
 
 export const IssueSelectedDependencies = ({
-                                              label,
-                                              dependants,
-                                              excludedDependantIds,
-                                              requiredDependantIds,
-                                              disabled = false,
-                                              loading = false,
-                                              onDependencyChange,
-                                              isPublishRequest = false,
-                                          }: IssueSelectedDependenciesProps): ReactElement => {
+    label,
+    dependants,
+    excludedDependantIds,
+    requiredDependantIds,
+    disabled = false,
+    loading = false,
+    onDependencyChange,
+}: IssueSelectedDependenciesProps): ReactElement => {
     const excludedSet = useMemo(
         () => new Set(excludedDependantIds.map(id => id.toString())),
         [excludedDependantIds],
@@ -39,13 +37,14 @@ export const IssueSelectedDependencies = ({
 
     return (
         <div className='flex flex-col gap-7.5'>
-            <Separator className='pr-1' label={label}/>
+            <Separator className='pr-1' label={label} />
             <ul className='flex flex-col gap-1.5'>
                 {dependants.map(item => {
                     const id = item.getContentId();
                     const isRequired = requiredSet.has(id.toString());
                     const isIncluded = !excludedSet.has(id.toString());
 
+                    // ! It's okay to use Diff status here, since it will be replaced with SplitList in the future
                     return (
                         <ContentListItemSelectable
                             key={item.getId()}
@@ -53,7 +52,6 @@ export const IssueSelectedDependencies = ({
                             checked={isIncluded}
                             readOnly={isRequired || isReadOnly}
                             onCheckedChange={(checked: boolean) => onDependencyChange?.(id, checked)}
-                            isPublishRequest={isPublishRequest}
                         />
                     );
                 })}

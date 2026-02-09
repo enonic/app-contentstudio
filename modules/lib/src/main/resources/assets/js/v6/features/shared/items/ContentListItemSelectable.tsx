@@ -19,7 +19,6 @@ export type ContentListItemSelectableProps = {
     checked?: boolean;
     defaultChecked?: boolean;
     onCheckedChange?: (checked: boolean) => void;
-    isPublishRequest?: boolean;
 } & ComponentPropsWithoutRef<'div'>;
 
 const CONTENT_LIST_ITEM_SELECTABLE_NAME = 'ContentListItemSelectable';
@@ -28,7 +27,6 @@ export const ContentListItemSelectable = ({
     id,
     className,
     content,
-    isPublishRequest = false,
     status = true,
     checked,
     defaultChecked,
@@ -67,7 +65,6 @@ export const ContentListItemSelectable = ({
             </ListItem.Content>
             <ListItem.Right>
                 {status && <DiffStatusBadge
-                    isPublishRequest={isPublishRequest}
                     publishStatus={content.getPublishStatus()}
                     compareStatus={content.getCompareStatus()}
                     wasPublished={!!content.getContentSummary().getPublishFirstTime()} />}

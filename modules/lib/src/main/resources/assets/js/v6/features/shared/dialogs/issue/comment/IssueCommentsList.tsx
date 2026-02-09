@@ -4,11 +4,9 @@ import {type ReactElement} from 'react';
 import {useI18n} from '../../../../hooks/useI18n';
 import {IssueCommentItem} from './IssueCommentItem';
 
-import type {Issue} from '../../../../../../app/issue/Issue';
 import type {IssueComment} from '../../../../../../app/issue/IssueComment';
 
 export type IssueCommentsListProps = {
-    issue?: Issue;
     comments: IssueComment[];
     loading?: boolean;
     onUpdateComment?: (commentId: string, text: string) => Promise<boolean> | boolean;
@@ -21,7 +19,6 @@ export type IssueCommentsListProps = {
 const ISSUE_COMMENTS_LIST_NAME = 'IssueCommentsList';
 
 export const IssueCommentsList = ({
-    issue: _issue,
     comments,
     loading,
     onUpdateComment,

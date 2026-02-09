@@ -1,9 +1,8 @@
-import {Button, Dialog, Tab, cn} from '@enonic/ui';
+import {Button, Dialog, Tab, TextArea} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {
     useCallback,
     useEffect,
-    useId,
     useMemo,
     useRef,
     useState,
@@ -89,11 +88,6 @@ const isDetailsTab = (value: string): value is IssueDialogDetailsTab => {
 };
 
 const ISSUE_DIALOG_DETAILS_CONTENT_NAME = 'IssueDialogDetailsContent';
-
-const resizeTextarea = (element: HTMLTextAreaElement): void => {
-    element.style.height = 'auto';
-    element.style.height = `${element.scrollHeight}px`;
-};
 
 const getStatusOptions = (openLabel: string, closedLabel: string): StatusOptionItem[] => {
     return [
@@ -205,8 +199,6 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const publishLabelSingle = useI18n('action.publishNow');
     const publishLabelMultiple = useI18n('action.publishNowCount', publishCount);
     const noResultsLabel = useI18n('dialog.search.result.noResults');
-    const commentTextareaId = useId();
-
     const issueData = resolveIssueData({
         issueId,
         issues,
@@ -239,7 +231,6 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             {value: 'assignees', label: assigneesLabel, count: assigneeCount},
         ];
     const isTitleDisabled = !issueData || issueError || titleUpdating || statusUpdating;
-    const commentTextareaRef = useRef<HTMLTextAreaElement | null>(null);
     const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(null);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [publishView, setPublishView] = useState<PublishView>('main');
@@ -297,14 +288,6 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         filterSystem: true,
     });
 
-    useEffect(() => {
-        const element = commentTextareaRef.current;
-        if (!element) {
-            return;
-        }
-        resizeTextarea(element);
-    }, [commentText]);
-
     const issueDataId = useMemo(() => issueData?.getId(), [issueData]);
 
     useEffect(() => {
@@ -313,7 +296,6 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         }
         void loadIssueDialogItems(issueData);
     }, [issueDataId, selectedItemConfigKey, excludedDependantKey, loadIssueDialogItems]);
-
 
     const handleStatusChange = (next: string): void => {
         if (!isStatusOption(next)) {
@@ -390,7 +372,6 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const handleCommentInput: NonNullable<ComponentPropsWithoutRef<'textarea'>['onInput']> = (event) => {
         const {value} = event.currentTarget;
         setIssueDialogCommentText(value);
-        resizeTextarea(event.currentTarget);
     };
 
     const handleCommentKeyDown: NonNullable<ComponentPropsWithoutRef<'textarea'>['onKeyDown']> = (event) => {
@@ -416,7 +397,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             }
             setPublishView('main');
         })();
-    }, [closeIssueDialog, updateIssueDialogStatus]);
+    }, []);
 
     const handlePublish = (): void => {
         setPublishView('progress');
@@ -428,10 +409,10 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         })();
     };
 
-    const handleExcludeDependants = useCallback((exclude: () => void): void => {
-        exclude();
-        void updateIssueDialogExcludedDependants($publishDialog.get().excludedDependantItemsIds);
-    }, [updateIssueDialogExcludedDependants]);
+    const handleExcludeDependants = useCallback((exclude: () => ContentId[]): void => {
+        const excludedIds = exclude();
+        void updateIssueDialogExcludedDependants(excludedIds);
+    }, []);
 
     const handleExcludeInProgress = useCallback((): void => {
         handleExcludeDependants(excludeInProgressPublishItems);
@@ -502,7 +483,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     return (
         <Dialog.Content
             data-component={ISSUE_DIALOG_DETAILS_CONTENT_NAME}
-            className='sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 flex min-h-0 flex-col gap-7.5 overflow-hidden px-5'
+            className='sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 flex min-h-0 flex-col gap-7.5 overflow-hidden px-5 pb-1.5'
         >
             <Dialog.Header className='grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 px-5'>
                 <div className='flex min-w-0 items-center gap-1.5'>
@@ -558,7 +539,6 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                         <Tab.Content value='comments' className='mt-0 flex min-h-0 flex-1 flex-col'>
                             <div className='flex min-h-0 flex-1 flex-col gap-7.5'>
                                 <IssueCommentsList
-                                    issue={issueData}
                                     comments={comments}
                                     loading={commentsLoading}
                                     onUpdateComment={handleCommentUpdate}
@@ -566,27 +546,18 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                     portalContainer={portalContainer}
                                     aria-label={commentsLabel}
                                 />
-                                <div className='flex flex-col gap-2'>
-                                    {/* // TODO: Enonic UI - Replace with TextArea component */}
-                                    <label className='font-semibold' htmlFor={commentTextareaId}>{commentLabel}</label>
-                                    <textarea
-                                        ref={commentTextareaRef}
-                                        id={commentTextareaId}
-                                        name='comment'
-                                        value={commentText}
-                                        onInput={handleCommentInput}
-                                        onKeyDown={handleCommentKeyDown}
-                                        rows={3}
-                                        disabled={commentSubmitting}
-                                        aria-label={commentAriaLabel}
-                                        placeholder={commentAriaLabel}
-                                        className={cn(
-                                            'w-full resize-none rounded-sm border border-bdr-soft bg-surface px-4.5 py-3',
-                                            'transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-ring',
-                                            commentSubmitting && 'opacity-70',
-                                        )}
-                                    />
-                                </div>
+                                <TextArea
+                                    label={commentLabel}
+                                    name='comment'
+                                    value={commentText}
+                                    onInput={handleCommentInput}
+                                    onKeyDown={handleCommentKeyDown}
+                                    rows={3}
+                                    autoSize
+                                    disabled={commentSubmitting}
+                                    aria-label={commentAriaLabel}
+                                    placeholder={commentAriaLabel}
+                                />
                             </div>
                         </Tab.Content>
 
@@ -598,8 +569,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                     failed={publishDialogFailed}
                                     editing={false}
                                     showReady={isPublishReady}
-                                    onApply={() => {}}
-                                    onCancel={() => {}}
+                                    onApply={() => { }}
+                                    onCancel={() => { }}
                                     errors={{
                                         inProgress: {
                                             ...inProgress,
@@ -629,7 +600,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                         <IssueSelectedItems
                                             items={items}
                                             excludedChildrenIds={excludedChildrenIds}
-                                            disabled={isItemsDisabled || items.length === 1}
+                                            disabled={isItemsDisabled}
                                             loading={itemsLoading}
                                             onIncludeChildrenChange={handleIncludeChildrenChange}
                                             onRemoveItem={handleItemRemoved}
@@ -644,7 +615,6 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                             disabled={isItemsDisabled}
                                             loading={itemsLoading}
                                             onDependencyChange={handleDependencyChange}
-                                            isPublishRequest={isPublishRequest}
                                         />
                                     )}
 

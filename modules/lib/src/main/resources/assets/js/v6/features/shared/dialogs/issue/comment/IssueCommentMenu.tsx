@@ -43,7 +43,7 @@ export const IssueCommentMenu = ({
                 />
             </Menu.Trigger>
             <Menu.Portal container={portalContainer ?? undefined}>
-                <Menu.Content className='min-w-36'>
+                <Menu.Content className='min-w-36' align='end'>
                     {onEdit && (
                         <Menu.Item onSelect={onEdit}>{editLabel}</Menu.Item>
                     )}
