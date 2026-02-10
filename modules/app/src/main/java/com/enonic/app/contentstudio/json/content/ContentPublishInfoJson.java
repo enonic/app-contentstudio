@@ -12,11 +12,14 @@ public class ContentPublishInfoJson
 
     private final Instant first;
 
+    private final Instant published;
+
     public ContentPublishInfoJson( final ContentPublishInfo publishInfo )
     {
-        this.from = publishInfo.getFrom();
-        this.to = publishInfo.getTo();
-        this.first = publishInfo.getFirst();
+        this.from = publishInfo.from();
+        this.to = publishInfo.to();
+        this.first = publishInfo.first();
+        this.published = publishInfo.published();
     }
 
     @SuppressWarnings("unused")
@@ -35,5 +38,11 @@ public class ContentPublishInfoJson
     public Instant getFirst()
     {
         return first;
+    }
+
+    @SuppressWarnings("unused")
+    public Instant getPublished()
+    {
+        return published;
     }
 }

@@ -20,7 +20,7 @@ type UseVersionsDataResult = {
 
 export const useVersionsData = (content: ContentSummaryAndCompareStatus | null): UseVersionsDataResult => {
     const [hasMore, setHasMore] = useState(true);
-    const [offset, setOffset] = useState(0);
+    const [cursor, setCursor] = useState<string | undefined>();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
@@ -31,7 +31,7 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
             setVersions([]);
             resetVersionsSelection();
             setHasMore(false);
-            setOffset(0);
+            setCursor(undefined);
             setError(null);
             return;
         }
@@ -39,13 +39,13 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
         setIsLoading(true);
         setError(null);
 
-        loadContentVersions(content.getContentId(), 0)
+        loadContentVersions(content.getContentId())
             .then((result) => {
                 if (cancelled) return;
                 setVersions(result.versions);
                 resetVersionsSelection();
                 setHasMore(result.hasMore);
-                setOffset(result.versions.length);
+                setCursor(result.cursor);
             })
             .catch((err) => {
                 if (cancelled) return;
@@ -64,16 +64,16 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
         setError(null);
 
         try {
-            const result = await loadContentVersions(content.getContentId(), offset);
+            const result = await loadContentVersions(content.getContentId(), cursor);
             appendVersions(result.versions);
             setHasMore(result.hasMore);
-            setOffset((prev) => prev + result.versions.length);
+            setCursor(result.cursor);
         } catch (err) {
             setError(err instanceof Error ? err : new Error('Failed to load more versions'));
         } finally {
             setIsLoading(false);
         }
-    }, [content, offset, hasMore, isLoading]);
+    }, [content, cursor, hasMore, isLoading]);
 
     return {
         hasMore,
@@ -82,4 +82,3 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
         loadMore
     };
 };
-
