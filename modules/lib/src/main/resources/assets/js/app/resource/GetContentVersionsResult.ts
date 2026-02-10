@@ -28,7 +28,6 @@ export class GetContentVersionsResult {
                 return ContentVersion.fromJson(contentVersionViewJson, contentVersionViewJson.workspaces);
             });
 
-        return new GetContentVersionsResult(contentVersions,
-            {from: json.from, size: json.size, hits: json.hits, totalHits: json.totalHits});
+        return new GetContentVersionsResult(contentVersions, {cursor: json.cursor});
     }
 }

@@ -9,8 +9,8 @@ export class GetContentVersionsRequest
     extends CmsContentResourceRequest<GetContentVersionsResult> {
 
     private contentId: ContentId;
-    private from: number;
     private size: number;
+    private cursor: string;
 
     constructor(contentId: ContentId) {
         super();
@@ -19,8 +19,8 @@ export class GetContentVersionsRequest
         this.addRequestPathElements('getVersions');
     }
 
-    setFrom(from: number): GetContentVersionsRequest {
-        this.from = from;
+    setCursor(cursor: string): GetContentVersionsRequest {
+        this.cursor = cursor;
         return this;
     }
 
@@ -32,7 +32,7 @@ export class GetContentVersionsRequest
     getParams(): object {
         return {
             contentId: this.contentId.toString(),
-            from: this.from,
+            cursor: this.cursor,
             size: this.size || -1
         };
     }

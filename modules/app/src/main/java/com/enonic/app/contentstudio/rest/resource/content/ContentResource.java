@@ -147,9 +147,9 @@ import com.enonic.xp.content.FindContentByParentParams;
 import com.enonic.xp.content.FindContentByParentResult;
 import com.enonic.xp.content.FindContentIdsByParentResult;
 import com.enonic.xp.content.FindContentIdsByQueryResult;
-import com.enonic.xp.content.FindContentVersionsParams;
-import com.enonic.xp.content.FindContentVersionsResult;
 import com.enonic.xp.content.GetContentByIdsParams;
+import com.enonic.xp.content.GetContentVersionsParams;
+import com.enonic.xp.content.GetContentVersionsResult;
 import com.enonic.xp.content.GetPublishStatusesParams;
 import com.enonic.xp.content.GetPublishStatusesResult;
 import com.enonic.xp.content.HasUnpublishedChildrenParams;
@@ -1426,27 +1426,26 @@ public final class ContentResource
     public GetContentVersionsResultJson getContentVersions( final GetContentVersionsJson params )
     {
         final ContentId contentId = ContentId.from( params.getContentId() );
-        final int from = params.getFrom() != null ? params.getFrom() : 0;
         final int size = params.getSize() != null ? params.getSize() : 50;
 
-        final FindContentVersionsResult result =
-            contentService.getVersions( FindContentVersionsParams.create().contentId( contentId ).from( from ).size( size ).build() );
+        final GetContentVersionsResult result = contentService.getVersions(
+            GetContentVersionsParams.create().cursor( params.getCursor() ).contentId( contentId ).size( size ).build() );
 
-        return new GetContentVersionsResultJson( result, from, this.principalsResolver, this.contentPublishInfoResolver );
+        return new GetContentVersionsResultJson( result, this.principalsResolver, this.contentPublishInfoResolver );
     }
 
     @GET
     @Path("getActiveVersions")
     public GetActiveContentVersionsResultJson getActiveVersions( @QueryParam("id") final String id )
     {
-        final FindContentVersionsParams findParam = FindContentVersionsParams.create().contentId( ContentId.from( id ) ).size( 1 ).build();
+        final GetContentVersionsParams findParam = GetContentVersionsParams.create().contentId( ContentId.from( id ) ).size( 1 ).build();
 
         final ContentVersion draft = getActiveVersion( findParam );
 
         return new GetActiveContentVersionsResultJson();
     }
 
-    private ContentVersion getActiveVersion( final FindContentVersionsParams findParam )
+    private ContentVersion getActiveVersion( final GetContentVersionsParams findParam )
     {
         return ContextBuilder.copyOf( ContextAccessor.current() )
             .branch( ContentConstants.BRANCH_DRAFT )
