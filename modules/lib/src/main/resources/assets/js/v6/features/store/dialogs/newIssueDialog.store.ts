@@ -11,11 +11,12 @@ import {resolvePublishDependencies} from '../../api/publish';
 import {buildItems, dedupeItems, getItemIds} from '../../utils/cms/content/buildItems';
 import {hasContentIdInIds, uniqueIds} from '../../utils/cms/content/ids';
 import {createDebounce} from '../../utils/timing/createDebounce';
-import {openIssueDialog, openIssueDialogDetails, setIssueDialogView, $issueDialog} from './issueDialog.store';
+import {closeIssueDialog, openIssueDialogDetails} from './issueDialog.store';
 
 const DEPENDENCY_RELOAD_DELAY_MS = 150;
 
 type NewIssueDialogStore = {
+    open: boolean;
     title: string;
     description: string;
     assigneeIds: string[];
@@ -30,6 +31,7 @@ type NewIssueDialogStore = {
 };
 
 const initialState: NewIssueDialogStore = {
+    open: false,
     title: '',
     description: '',
     assigneeIds: [],
@@ -82,12 +84,12 @@ export const openNewIssueDialog = (items?: ContentSummaryAndCompareStatus[]): vo
     if (items && items.length > 0) {
         setNewIssueItems(items);
     }
+    closeIssueDialog();
+    $newIssueDialog.setKey('open', true);
+};
 
-    const dialogState = $issueDialog.get();
-    if (!dialogState.open) {
-        openIssueDialog();
-    }
-    setIssueDialogView('new-issue');
+export const closeNewIssueDialog = (): void => {
+    resetNewIssueDialogContext();
 };
 
 export const setNewIssueTitle = (title: string): void => {

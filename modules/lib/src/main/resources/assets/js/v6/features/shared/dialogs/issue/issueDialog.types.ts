@@ -1,4 +1,4 @@
-export type IssueDialogView = 'list' | 'details' | 'new-issue';
+export type IssueDialogView = 'list' | 'details';
 
 export type IssueDialogFilter = 'all' | 'assignedToMe' | 'createdByMe' | 'publishRequests' | 'issues';
 
