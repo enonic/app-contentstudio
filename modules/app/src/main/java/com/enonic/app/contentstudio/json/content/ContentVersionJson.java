@@ -37,12 +37,12 @@ public class ContentVersionJson
     public ContentVersionJson( final ContentVersion version, final ContentPrincipalsResolver principalsResolver,
                                final ContentPublishInfoResolver contentPublishInfoResolver )
     {
-        this.timestamp = version.getTimestamp();
-        this.comment = version.getComment();
-        this.contentPath = version.getPath().toString(); // TODO not essential
-        this.id = version.getVersionId().toString();
+        this.timestamp = version.timestamp();
+        this.comment = version.comment();
+        this.contentPath = version.path().toString();
+        this.id = version.versionId().toString();
 
-        final Optional<ContentVersion.Action> modChange = version.getActions()
+        final Optional<ContentVersion.Action> modChange = version.actions()
             .reversed()
             .stream()
             .filter( c -> ContentVersionHelper.CHANGE_OPERATIONS.contains( c.operation() ) )
@@ -60,31 +60,31 @@ public class ContentVersionJson
         {
             this.modifier = null;
             this.modifierDisplayName = "";
-            this.modified = version.getTimestamp(); // TODO just to make old UI happy
+            this.modified = version.timestamp(); // TODO just to make old UI happy
         }
 
         // TODO just an example. In reality one version can have multiple attributes
 
-        ContentVersionPublishInfoJson info = version.getActions()
+        ContentVersionPublishInfoJson info = version.actions()
             .stream()
             .filter( c -> c.operation().equals( ContentVersionHelper.PUBLISH_KEY ) )
             .findFirst()
             .map( c -> {
-                return new ContentVersionPublishInfoJson( c.user(), c.opTime(), version.getComment(), "PUBLISHED",
+                return new ContentVersionPublishInfoJson( c.user(), c.opTime(), version.comment(), "PUBLISHED",
                                                           new ContentPublishInfoJson(
-                                                              contentPublishInfoResolver.resolvePublishInfo( version.getContentId(),
-                                                                                                             version.getVersionId() ) ),
+                                                              contentPublishInfoResolver.resolvePublishInfo( version.contentId(),
+                                                                                                             version.versionId() ) ),
                                                           principalsResolver );
             } )
             .orElse( null );
 
         // TODO This is just an example to make old UI work. unpublishing happens on the same version as publishing
-        info = version.getActions()
+        info = version.actions()
             .stream()
             .filter( c -> c.operation().equals( ContentVersionHelper.UNPUBLISH_KEY ) )
             .findFirst()
             .map( c -> {
-                return new ContentVersionPublishInfoJson( c.user(), c.opTime(), version.getComment(), "UNPUBLISHED",
+                return new ContentVersionPublishInfoJson( c.user(), c.opTime(), version.comment(), "UNPUBLISHED",
                                                           new ContentPublishInfoJson( ContentPublishInfo.create().build() ),
                                                           principalsResolver );
             } ).orElse(  info );
@@ -101,19 +101,19 @@ public class ContentVersionJson
                     };
                     return commitType == null
                         ? null
-                        : new ContentVersionPublishInfoJson( c.user(), c.opTime(), version.getComment(),
+                        : new ContentVersionPublishInfoJson( c.user(), c.opTime(), version.comment(),
                                                              commitType, null, principalsResolver );
                 } )).orElse( null );
         }
 
         this.publishInfo = info;
 
-        this.changes = version.getActions()
+        this.changes = version.actions()
             .stream()
             .map( c -> new ActionJson( c.operation(), c.fields(), c.user().toString(), c.opTime() ) )
             .toList();
 
-        this.permissionsChanged = version.getActions()
+        this.permissionsChanged = version.actions()
             .stream()
             .map( ContentVersion.Action::operation )
             .anyMatch( c -> c.equals( ContentVersionHelper.PERMISSIONS_KEY ) );

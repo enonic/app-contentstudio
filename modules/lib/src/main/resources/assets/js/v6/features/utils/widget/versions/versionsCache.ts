@@ -17,13 +17,15 @@ const CACHE_TTL_MS = 3 * 60 * 1000; // 3 minutes
 
 type CachedVersionsEntry = {
     readonly versions: ContentVersion[];
-    readonly totalHits: number;
+    readonly cursor?: string;
+    readonly hasMore: boolean;
     readonly expiresAt: number;
 }
 
 export type ContentVersionsLoadResult = {
     readonly versions: ContentVersion[];
     readonly hasMore: boolean;
+    readonly cursor?: string;
 }
 
 // ============================================================================
@@ -38,14 +40,15 @@ const versionsCache = new Map<string, CachedVersionsEntry>();
 
 const isExpired = (entry: CachedVersionsEntry): boolean => Date.now() > entry.expiresAt;
 
-const createCacheKey = (contentId: ContentId): string => contentId.toString();
+const INITIAL_CURSOR_CACHE_KEY = '__initial__';
+const createCacheKey = (contentId: ContentId, cursor?: string): string =>
+    `${contentId.toString()}::${cursor || INITIAL_CURSOR_CACHE_KEY}`;
 
 export const getCachedVersions = (
     contentId: ContentId,
-    from: number,
-    size: number,
+    cursor?: string,
 ): ContentVersionsLoadResult | undefined => {
-    const key = createCacheKey(contentId);
+    const key = createCacheKey(contentId, cursor);
     const cached = versionsCache.get(key);
 
     if (!cached) {
@@ -57,52 +60,35 @@ export const getCachedVersions = (
         return undefined;
     }
 
-    if (from >= cached.versions.length) {
-        return undefined;
-    }
-
-    const versions = cached.versions.slice(from, from + size);
-    const hasMore = (from + versions.length) < cached.totalHits;
-
-    return {versions, hasMore};
+    return {
+        versions: cached.versions.slice(),
+        hasMore: cached.hasMore,
+        cursor: cached.cursor,
+    };
 };
 
 export const cacheVersions = (
     contentId: ContentId,
-    from: number,
-    versions: ContentVersion[],
-    totalHits: number,
+    requestCursor: string | undefined,
+    result: ContentVersionsLoadResult,
 ): void => {
-    const key = createCacheKey(contentId);
-    const cached = versionsCache.get(key);
+    const key = createCacheKey(contentId, requestCursor);
     const expiresAt = Date.now() + CACHE_TTL_MS;
 
-    // Create new cache entry if none exists or current is expired
-    if (!cached || isExpired(cached)) {
-        versionsCache.set(key, {
-            versions: [...versions],
-            totalHits,
-            expiresAt,
-        });
-        return;
-    }
-
-    // Merge new versions into existing cache
-    const mergedVersions = [...cached.versions];
-    versions.forEach((version, index) => {
-        mergedVersions[from + index] = version;
-    });
-
     versionsCache.set(key, {
-        versions: mergedVersions,
-        totalHits,
+        versions: [...result.versions],
+        cursor: result.cursor,
+        hasMore: result.hasMore,
         expiresAt,
     });
 };
 
 export const clearVersionsCache = (contentId?: ContentId): void => {
     if (contentId) {
-        versionsCache.delete(createCacheKey(contentId));
+        const contentIdPrefix = `${contentId.toString()}::`;
+        Array.from(versionsCache.keys())
+            .filter((key) => key.startsWith(contentIdPrefix))
+            .forEach((key) => versionsCache.delete(key));
     } else {
         versionsCache.clear();
     }
