@@ -16,9 +16,7 @@ export class VersionHistoryList
 
     private content: ContentSummaryAndCompareStatus;
 
-    private totalCount: number = -1;
-
-    private loadedCount: number = 0;
+    private cursor: string;
 
     private pendingLoadContent: ContentSummaryAndCompareStatus;
 
@@ -42,7 +40,7 @@ export class VersionHistoryList
 
         this.content = content;
         this.creatorDisplayName = null;
-        this.loadedCount = 0;
+        this.cursor = undefined;
         this.clearItems();
         this.versionsConverter = null;
         this.load();
@@ -78,7 +76,7 @@ export class VersionHistoryList
 
         super.handleLazyLoad();
 
-        if (this.loadedCount !== this.totalCount) {
+        if (this.cursor != null) {
             this.load();
         }
     }
@@ -89,12 +87,10 @@ export class VersionHistoryList
         this.doLoad().then((result: GetContentVersionsResult) => {
             if (!this.versionsConverter) {
                 this.versionsConverter = new BatchedContentVersionsConverter(this.content, this.creatorDisplayName);
-                this.totalCount = result.getMetadata().totalHits;
             }
 
-            this.loadedCount += result.getMetadata().hits;
-
-            const versionHistoryItems = this.versionsConverter.append(result.getContentVersions(), this.loadedCount < this.totalCount);
+            this.cursor = result.getMetadata().cursor;
+            const versionHistoryItems = this.versionsConverter.append(result.getContentVersions(), this.cursor != null);
 
             this.addItems(versionHistoryItems.slice(this.getItemCount(), versionHistoryItems.length));
         }).catch(DefaultErrorHandler.handle).finally(() => {
@@ -111,7 +107,7 @@ export class VersionHistoryList
     private doLoad(): Q.Promise<GetContentVersionsResult> {
         return this.fetchCreatorDisplayNameOnDemand().then(() => {
             return new GetContentVersionsRequest(this.content.getContentId())
-                .setFrom(this.loadedCount)
+                .setCursor(this.cursor)
                 .setSize(VersionHistoryList.LOAD_SIZE)
                 .sendAndParse();
         });
