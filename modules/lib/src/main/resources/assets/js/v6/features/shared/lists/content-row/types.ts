@@ -28,7 +28,7 @@ export type ContentRowLabelProps = {
 };
 
 export type ContentRowStatusProps = {
-    variant?: 'diff' | 'publish' | 'none';
+    variant?: 'diff' | 'simple' | 'none';
     className?: string;
 };
 

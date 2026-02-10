@@ -119,7 +119,7 @@ export const closeIssueDialog = (): void => {
 };
 
 export const setIssueDialogView = (view: IssueDialogView): void => {
-    if (view === 'list' || view === 'new-issue') {
+    if (view === 'list') {
         const state = $issueDialog.get();
         $issueDialog.set({
             ...state,

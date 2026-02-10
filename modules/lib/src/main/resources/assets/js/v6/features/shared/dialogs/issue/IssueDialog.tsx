@@ -9,11 +9,9 @@ import {
     deleteIssueDialogComment,
     isDeleteCommentConfirmationOpen,
 } from '../../../store/dialogs/issueDialogDetails.store';
-import {resetNewIssueDialogContext} from '../../../store/dialogs/newIssueDialog.store';
 import {IssueCommentDeleteDialog} from './comment/IssueCommentDeleteDialog';
 import {IssueDialogDetailsContent} from './IssueDialogDetailsContent';
 import {IssueDialogListContent} from './IssueDialogListContent';
-import {NewIssueDialogContent} from './NewIssueDialogContent';
 
 const ISSUE_DIALOG_NAME = 'IssueDialog';
 
@@ -32,7 +30,6 @@ export const IssueDialog = (): ReactElement => {
             return;
         }
         closeIssueDialog();
-        resetNewIssueDialogContext();
     };
 
     const handleConfirmDelete = useCallback(async (): Promise<void> => {
@@ -58,7 +55,6 @@ export const IssueDialog = (): ReactElement => {
                     <Dialog.Overlay/>
                     {view === 'list' && <IssueDialogListContent/>}
                     {view === 'details' && <IssueDialogDetailsContent/>}
-                    {view === 'new-issue' && <NewIssueDialogContent/>}
                 </Dialog.Portal>
             </Dialog.Root>
 
