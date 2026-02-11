@@ -1,10 +1,9 @@
-import {Button, Dialog, Tab, TextArea} from '@enonic/ui';
+import {Button, Checkbox, Dialog, GridList, Tab, TextArea} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {Calendar} from 'lucide-react';
+import {Calendar, CornerDownRight} from 'lucide-react';
 import {
     useCallback,
     useEffect,
-    useId,
     useMemo,
     useRef,
     useState,
@@ -55,6 +54,8 @@ import {
     syncPublishDialogContext,
 } from '../../../store/dialogs/publishDialog.store';
 import {createDebounce} from '../../../utils/timing/createDebounce';
+import {useItemsWithUnpublishedChildren} from '../../../utils/cms/content/useItemsWithUnpublishedChildren';
+import {ContentRow, SplitList} from '../../lists';
 import {EditableText} from '../../primitives/EditableText';
 import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
 import {useAssigneeSearch, useAssigneeSelection} from '../../selectors/assignee/hooks/useAssigneeSearch';
@@ -65,8 +66,6 @@ import {SelectionStatusBar} from '../status-bar/SelectionStatusBar';
 import {IssueDialogSelector} from './IssueDialogSelector';
 import {IssueIcon} from './IssueIcon';
 import {IssueScheduleForm} from './IssueScheduleForm';
-import {IssueSelectedDependencies} from './IssueSelectedDependencies';
-import {IssueSelectedItems} from './IssueSelectedItems';
 import {IssueCommentsList} from './comment/IssueCommentsList';
 import {useIssueDialogData} from './hooks/useIssueDialogData';
 import {useIssuePublishTargetIds} from './hooks/useIssuePublishTargetIds';
@@ -239,7 +238,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const noResultsLabel = useI18n('dialog.search.result.noResults');
     const scheduleLabelText = useI18n('action.schedule');
     const cancelScheduleLabel = useI18n('action.schedule.cancel');
-    const commentTextareaId = useId();
+    const includeChildrenLabel = useI18n('field.content.includeChildren');
 
     const issueData = resolveIssueData({
         issueId,
@@ -352,6 +351,19 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         () => selectedItemIds.map(id => id.toString()),
         [selectedItemIds],
     );
+    const excludedChildrenSet = useMemo(
+        () => new Set(excludedChildrenIds.map(id => id.toString())),
+        [excludedChildrenIds],
+    );
+    const excludedDependantSet = useMemo(
+        () => new Set(excludedDependantIds.map(id => id.toString())),
+        [excludedDependantIds],
+    );
+    const requiredDependantSet = useMemo(
+        () => new Set(requiredDependantIds.map(id => id.toString())),
+        [requiredDependantIds],
+    );
+    const itemsWithUnpublishedChildren = useItemsWithUnpublishedChildren(items);
     const selectedItemKey = useMemo(
         () => selectedItemIds.map(id => id.toString()).join('|'),
         [selectedItemIds],
@@ -757,27 +769,94 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                     disabled={isItemsDisabled}
                                 />
                                 <div className='pb-1.5 mt-2.5 flex flex-col gap-7.5'>
-                                    {items.length > 0 && (
-                                        <IssueSelectedItems
+                                    <SplitList>
+                                        <SplitList.Primary
                                             items={items}
-                                            excludedChildrenIds={excludedChildrenIds}
-                                            disabled={isItemsDisabled}
-                                            loading={itemsLoading}
-                                            onIncludeChildrenChange={handleIncludeChildrenChange}
-                                            onRemoveItem={handleItemRemoved}
+                                            getItemId={(item) => item.getId()}
+                                            disabled={isItemsDisabled || itemsLoading}
+                                            renderRow={(item) => {
+                                                const id = item.getContentId();
+                                                const includeChildren = !excludedChildrenSet.has(id.toString());
+                                                const hasUnpublishedChildrenForItem = itemsWithUnpublishedChildren
+                                                    ? itemsWithUnpublishedChildren.has(id.toString())
+                                                    : true;
+                                                const showChildrenCheckbox = hasUnpublishedChildrenForItem && item.hasChildren();
+
+                                                return (
+                                                    <>
+                                                        <ContentRow
+                                                            key={item.getId()}
+                                                            content={item}
+                                                            id={`main-${item.getId()}`}
+                                                            disabled={isItemsDisabled || itemsLoading}
+                                                        >
+                                                            <ContentRow.Label action="edit"/>
+                                                            <ContentRow.Status variant="simple"/>
+                                                            <ContentRow.RemoveButton
+                                                                onRemove={() => handleItemRemoved(item.getContentId())}
+                                                                disabled={isItemsDisabled || itemsLoading || items.length === 1}
+                                                            />
+                                                        </ContentRow>
+
+                                                        {showChildrenCheckbox && (
+                                                            <GridList.Row
+                                                                id={`${item.getId()}-children`}
+                                                                disabled={isItemsDisabled || itemsLoading}
+                                                                className="gap-3 px-2.5 -mt-1"
+                                                            >
+                                                                <GridList.Cell className="pl-2.5 flex items-center gap-2.5">
+                                                                    <CornerDownRight className="size-4 shrink-0"/>
+                                                                    <GridList.Action>
+                                                                        <Checkbox
+                                                                            className="font-semibold"
+                                                                            checked={includeChildren}
+                                                                            onCheckedChange={(enabled) =>
+                                                                                handleIncludeChildrenChange(id, enabled === true)
+                                                                            }
+                                                                            disabled={isItemsDisabled || itemsLoading}
+                                                                            label={includeChildrenLabel}
+                                                                        />
+                                                                    </GridList.Action>
+                                                                </GridList.Cell>
+                                                            </GridList.Row>
+                                                        )}
+                                                    </>
+                                                );
+                                            }}
                                         />
-                                    )}
-                                    {dependants.length > 0 && (
-                                        <IssueSelectedDependencies
-                                            label={dependenciesLabel}
-                                            dependants={dependants}
-                                            excludedDependantIds={excludedDependantIds}
-                                            requiredDependantIds={requiredDependantIds}
-                                            disabled={isItemsDisabled}
-                                            loading={itemsLoading}
-                                            onDependencyChange={handleDependencyChange}
+                                        <SplitList.Separator hidden={dependants.length === 0}>
+                                            <SplitList.SeparatorLabel>{dependenciesLabel}</SplitList.SeparatorLabel>
+                                        </SplitList.Separator>
+
+                                        <SplitList.Secondary
+                                            items={dependants}
+                                            getItemId={(item) => item.getId()}
+                                            disabled={isItemsDisabled || itemsLoading}
+                                            renderRow={(item) => {
+                                                const id = item.getContentId();
+                                                const isRequired = requiredDependantSet.has(id.toString());
+                                                const included = !excludedDependantSet.has(id.toString());
+
+                                                return (
+                                                    <ContentRow
+                                                        key={item.getId()}
+                                                        content={item}
+                                                        id={item.getId()}
+                                                        disabled={isRequired || isItemsDisabled || itemsLoading}
+                                                    >
+                                                        <ContentRow.Checkbox
+                                                            checked={included}
+                                                            onCheckedChange={(checked) =>
+                                                                handleDependencyChange(id, checked)
+                                                            }
+                                                        />
+                                                        <ContentRow.Label action="edit"/>
+                                                        <ContentRow.Status variant={isPublishRequest ? "diff" : "simple"}/>
+                                                    </ContentRow>
+                                                );
+                                            }}
                                         />
-                                    )}
+                                    </SplitList>
                                 </div>
                                 {isPublishRequest && scheduleMode && (
                                     <IssueScheduleForm
