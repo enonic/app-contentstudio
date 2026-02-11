@@ -158,7 +158,7 @@ export const PublishDialogMainContent = ({
                     },
                 }} />
 
-            <Dialog.Body className="flex flex-col gap-y-10 px-1.5 -mx-1.5" tabIndex={-1}>
+            <Dialog.Body className="flex flex-col gap-y-10 px-1.5 -mx-1.5 rounded-sm outline-none focus:ring-2 focus:ring-ring/10 focus:ring-inset">
                 <SplitList>
                     <SplitList.Primary
                         items={mainItems}

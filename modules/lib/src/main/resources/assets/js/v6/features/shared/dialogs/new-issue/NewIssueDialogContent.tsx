@@ -142,7 +142,7 @@ export const NewIssueDialogContent = (): ReactElement => {
                 </div>
                 <Dialog.DefaultClose className='self-start justify-self-end'/>
             </Dialog.Header>
-            <Dialog.Body tabIndex={-1} className='min-h-0 overflow-y-auto'>
+            <Dialog.Body className='min-h-0 overflow-y-auto rounded-sm outline-none focus:ring-2 focus:ring-ring/10 focus:ring-inset'>
                 <div className='flex min-h-0 flex-col gap-7.5 px-5'>
                     <Input
                         label={titleLabel}
