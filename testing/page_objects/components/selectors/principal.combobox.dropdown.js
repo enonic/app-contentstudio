@@ -1,5 +1,5 @@
 /**
- * Created on 12.02.2024
+ * Created on 12.02.2024  updated on 12.02.2026
  */
 const BasDropdown = require('./base.dropdown');
 const lib = require('../../../libs/elements-old');
@@ -24,7 +24,7 @@ class PrincipalSelector extends BasDropdown {
         return this._container;
     }
 
-    get dataComponent() {
+    get dataComponentDiv() {
         return "//div[contains(@data-component,'AssigneeSelector')]";
     }
 
@@ -38,6 +38,7 @@ class PrincipalSelector extends BasDropdown {
         }
     }
 
+    // TODO: Refactor this method for epic-enonic-ui
     async getPrincipalsDisplayNameInOptions(parentXpath) {
         if (parentXpath === undefined) {
             parentXpath = '';

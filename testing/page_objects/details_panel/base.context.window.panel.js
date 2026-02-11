@@ -22,9 +22,13 @@ class BaseContextWindowPanel extends Page {
     }
 
     async getSelectedOptionInWidgetSelectorDropdown() {
-        let selector = this.container + COMMON.CONTEXT_WINDOW_WIDGET_SELECTOR_ITEM;
-        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
-        return await this.getText(selector);
+        try {
+            let selector = this.container + COMMON.CONTEXT_WINDOW_WIDGET_SELECTOR_ITEM;
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            return await this.getText(selector);
+        }catch (err){
+            await this.handleError('Cannot get selected option in widget selector dropdown', 'err_get_selected_option_widget_selector', err);
+        }
     }
 
     //drop down menu for switching to Components, Details, Version History, Dependencies

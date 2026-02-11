@@ -78,7 +78,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             await issueListDialog.selectTypeFilterOption(csConst.ISSUE_LIST_TYPE_FILTER.ISSUES);
             // 3. Selected option should be 'Issues':
             await studioUtils.saveScreenshot('issue_list_issues_filtered');
-            let result = await issueListDialog.getTypeFilterSelectedOption();
+            let result = await issueListDialog.getSelectedOptionInFilterDropdown();
             assert.ok(result.includes(csConst.ISSUE_LIST_TYPE_FILTER.ISSUES), "'Issues' option should be selected in 'Type Filter'");
         });
 
@@ -180,7 +180,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             await studioUtils.openIssuesListDialog();
             // 2. Select 'Publish Requests' in the filter:
             await issueListDialog.selectTypeFilterOption(csConst.ISSUE_LIST_TYPE_FILTER.PUBLISH_REQUESTS);
-            await studioUtils.saveScreenshot('typefilter_requests');
+            await studioUtils.saveScreenshot('type_filter_requests');
             // 3. Publish request should be present:
             await issueListDialog.waitForIssuePresent(PUBLISH_REQUEST_TITLE);
             // But the task should not be present:

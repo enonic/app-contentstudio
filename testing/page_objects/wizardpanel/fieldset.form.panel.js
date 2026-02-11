@@ -2,7 +2,7 @@
  * Created on 15.10.2021
  */
 const Page = require('../page');
-const lib = require('../../libs/elements-old');
+const lib = require('../../libs/elements');
 const HtmlAreaForm = require('./htmlarea.form.panel');
 const TextLineForm = require('./textline.form.panel');
 const DoubleForm = require('./double.form.panel');
@@ -23,7 +23,7 @@ class FieldSetForm extends Page {
     }
 
     async typeTextInHtmlArea(text, index) {
-        let htmlAreaForm = new HtmlAreaForm();
+        let htmlAreaForm = new HtmlAreaForm(XPATH.container);
         return await htmlAreaForm.insertTextInHtmlArea(index, text)
     }
 

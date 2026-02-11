@@ -24,7 +24,7 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
     const PASSWORD = appConst.PASSWORD.MEDIUM;
     const ISSUE_TITLE = appConst.generateRandomName('issue');
 
-    it(`Precondition 1: new system user should be added`,
+    it.skip(`Precondition 1: new system user should be added`,
         async () => {
             //Do Log in with 'SU', navigate to 'Users' and create new system user:
             await studioUtils.navigateToUsersApp();

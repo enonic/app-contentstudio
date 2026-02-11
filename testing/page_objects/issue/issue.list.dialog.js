@@ -1,5 +1,5 @@
 const Page = require('../page');
-const {BUTTONS} = require('../../libs/elements');
+const {BUTTONS, NEW_DROPDOWN} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const xpath = {
@@ -27,7 +27,7 @@ class IssuesListDialog extends Page {
     }
 
     get typeFilterDropDownHandle() {
-        return xpath.container + xpath.typeFilter + lib.DROP_DOWN_HANDLE;
+        return xpath.container + NEW_DROPDOWN.buttonComboboxByLabel('Filter');
     }
 
     get closedTabButton() {
@@ -44,6 +44,11 @@ class IssuesListDialog extends Page {
 
     get closeButton() {
         return xpath.container + BUTTONS.buttonAriaLabel('Close');
+    }
+    async getSelectedOptionInFilterDropdown(){
+        await this.waitForElementDisplayed(this.typeFilterDropDownHandle, appConst.shortTimeout);
+        let selector = this.typeFilterDropDownHandle + "/span[1]";
+        return await this.getText(selector);
     }
 
     async waitForDialogOpened() {

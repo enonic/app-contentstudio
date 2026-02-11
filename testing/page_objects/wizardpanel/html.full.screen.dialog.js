@@ -1,7 +1,8 @@
 const Page = require('../page');
 const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
-const HtmlArea = require('../../page_objects/components/htmlarea');
+const HtmlAreaForm = require('./htmlarea.form.panel');
+
 
 const xpath = {
     container: `//div[contains(@id,'FullscreenDialog')]`,
@@ -121,13 +122,13 @@ class HtmlFullScreenDialog extends Page {
     }
 
     typeTextInHtmlArea(text) {
-        let htmlArea = new HtmlArea();
-        return htmlArea.typeTextInHtmlArea(xpath.container, text);
+        let htmlAreaForm = new HtmlAreaForm(xpath.container);
+        return htmlAreaForm.typeTextInHtmlArea(text);
     }
 
     getTextFromHtmlArea() {
-        let htmlArea = new HtmlArea();
-        return htmlArea.getTextFromHtmlArea(xpath.container);
+        let htmlArea = new HtmlAreaForm(xpath.container);
+        return htmlArea.getTextFromHtmlArea();
     }
 
     async waitForDecreaseIndentButtonDisplayed() {

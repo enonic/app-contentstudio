@@ -1,5 +1,5 @@
 /**
- * Created on 08.01.2024
+ * Created on 08.01.2024 updated on 11.02.2026
  */
 const lib = require('../../../libs/elements-old');
 const {COMMON, BUTTONS, NEW_DROPDOWN} = require('../../../libs/elements');
@@ -26,14 +26,18 @@ class BaseDropdown extends Page {
     }
 
     get applySelectionButton() {
-        return this.container + this.dataComponent + BUTTONS.buttonAriaLabel('Apply');
+        return this.container + this.dataComponentDiv + BUTTONS.buttonAriaLabel('Apply');
     }
 
-    optionsFilterInput(ariaLabel = '') {
-        return this.dataComponent + COMMON.INPUTS.inputByAriaLabel(ariaLabel);
+    optionsFilterInput() {
+        return this.dataComponentDiv + COMMON.INPUTS.INPUT;
     }
 
-    waitForOptionFilterInputDisplayed(parentLocator = '') {
+    optionsFilterInputByAriaLabel(ariaLabel = '') {
+        return this.dataComponentDiv + COMMON.INPUTS.inputByAriaLabel(ariaLabel);
+    }
+
+    waitForOptionFilterInputDisplayed() {
         return this.waitForElementDisplayed(this.optionsFilterInput(), appConst.mediumTimeout);
     }
 
@@ -159,6 +163,17 @@ class BaseDropdown extends Page {
                 'err_click_filtered_option', err);
         }
     }
+    async clickOnFilteredByDisplayNameTreeOption(optionDisplayName) {
+        try {
+            let optionLocator = NEW_DROPDOWN.treeItemByDisplayName(optionDisplayName);
+            await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
+            await this.clickOnElement(optionLocator);
+        } catch (err) {
+            await this.handleError(`Dropdown Selector, tried to click on filtered by display name option: ${optionDisplayName}`,
+                'err_click_filtered_option', err);
+        }
+    }
+
 
     // Do filter by a display name then Click on the item
     async clickOnFilteredByDisplayNameItem(optionDisplayName, parentLocator) {

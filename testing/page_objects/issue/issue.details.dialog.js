@@ -56,10 +56,6 @@ class IssueDetailsDialog extends BaseDetailsDialog {
         return result.substring(startIndex + 1, endIndex);
     }
 
-    isDialogOpened() {
-        return this.isElementDisplayed(XPATH.container);
-    }
-
 
     async getIssueTitle() {
         let result = await this.getText(XPATH.issueNameInPlaceInput + '/h2');

@@ -5,8 +5,8 @@ const ContentSelectorDropdown = require('./content.selector.dropdown');
 const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
 const {NEW_DROPDOWN} = require('../../../libs/elements');
-const XPATH = {
 
+const XPATH = {
     principalViewerDiv: "//div[contains(@id,'PrincipalViewer')]",
 };
 
@@ -17,15 +17,11 @@ class IssueItemsSelector extends ContentSelectorDropdown {
         this._container = parentElementXpath;
     }
 
-    optionsFilterInput(ariaLabel = 'Items') {
-        return super.optionsFilterInput(ariaLabel);
-    }
-
     get container() {
         return this._container;
     }
 
-    get dataComponent() {
+    get dataComponentDiv() {
         return "//div[contains(@data-component,'IssueItemsSelector')]";
     }
 
@@ -44,7 +40,7 @@ class IssueItemsSelector extends ContentSelectorDropdown {
     async clickOnFilteredByDisplayNameTreeItem(optionDisplayName) {
         try {
             const popupLocator = "//div[@data-combobox-popup='' or @data-combobox-popup]";
-            let optionLocator =  NEW_DROPDOWN.treeItemByDisplayName(optionDisplayName);
+            let optionLocator = NEW_DROPDOWN.treeItemByDisplayName(optionDisplayName);
             await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
             await this.clickOnElement(optionLocator);
         } catch (err) {

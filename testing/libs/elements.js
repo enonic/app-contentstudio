@@ -5,7 +5,7 @@ const COMMON = {
     FORM_VIEW: `//div[contains(@id,'FormView')]`,
     FORM_ITEM: "//div[contains(@id,'FormItem')]",
     TEXT_INPUT: "//input[@type='text']",
-    CONTEXT_WINDOW_WIDGET_SELECTOR_ITEM: "//div[@data-component='WidgetsSelectorItem']//span",
+    CONTEXT_WINDOW_WIDGET_SELECTOR_ITEM: "//div[@data-component='WidgetsSelector']//button//span",
     CONTEXT_WINDOW_TOGGLE_BUTTON: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`,
     CONTENT_APP_BAR_DIV: "//div[contains(@id,'BrowseAppBarElement')]",
     SELECT_ALL_CHECKBOX_LABEL: "//label[descendant::input[@type='checkbox' and @aria-label='Select all']]",
@@ -16,6 +16,7 @@ const COMMON = {
         CHECKBOX_INPUT: "//input[@type='checkbox']",
         CHECKBOX_INPUT_CHECKED: "//input[@type='checkbox' and @aria-checked='true']",
         TEXT: "//input[@type='text']",
+        INPUT:"//input",
         textAreaByName: (name) => `//textarea[@name='${name}']`,
         inputByAriaLabel: (ariaLabel) => `//input[@aria-label='${ariaLabel}']`,
     }
@@ -95,6 +96,7 @@ const TREE_GRID = {
 }
 const NEW_DROPDOWN = {
     DROPDOWN_LIST_ITEM_DISPLAY_NAME: `//div[@role='option']//div[1]//span[1]`,
+    buttonComboboxByLabel: (label)=> `//span[contains(.,'${label}')]/following-sibling::button[@role='combobox']`,
     CONTENT_COMBOBOX: "//div[@data-component='ContentCombobox')]",
     DROPDOWN_HANDLE: "//button[@aria-label='Toggle']",
     optionByDisplayName: (displayName) => `//div[contains(@id,'listbox-option')  and descendant::span[contains(.,'${displayName}')]]`,

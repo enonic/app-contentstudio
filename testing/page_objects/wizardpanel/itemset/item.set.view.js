@@ -1,10 +1,10 @@
 /**
- * Created on 12.04.2019.
+ * Created on 12.04.2019. updated on 11.02.2026
  */
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 const lib = require('../../../libs/elements-old');
-const studioUtils = require('../../../libs/studio.utils.js');
+const HtmlAreaForm = require('../htmlarea.form.panel');
 
 const xpath = {
     itemSet: "//div[contains(@id,'FormItemSetView')]",
@@ -61,8 +61,8 @@ class ItemSetFormView extends Page {
 
     //Types the required text in the option filter input and select an option:
     async typeTextInHtmlArea(index, text) {
-        let locator = xpath.itemSet + lib.TEXT_AREA;
-        let ids = await studioUtils.getIdOfHtmlAreas();
+        let htmlAreaForm = new HtmlAreaForm(xpath.itemSet);
+        let ids = await htmlAreaForm.getIdOfHtmlAreas();
         await this.execute(xpath.typeTextInHtmlArea([].concat(ids)[index], text));
         return await this.pause(200);
     }
@@ -101,8 +101,7 @@ class ItemSetFormView extends Page {
         try {
             return await this.waitForElementDisplayed(this.collapseAllButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('item_set_collapse_all_button');
-            throw new Error(`Collapse all button is not displayed! Screenshot: ${screenshot}`);
+            await this.handleError(`Collapse all button is not displayed!`, 'item_set_collapse_all_button');
         }
     }
 
@@ -120,8 +119,7 @@ class ItemSetFormView extends Page {
         try {
             return await this.waitForElementNotDisplayed(lib.BUTTONS.COLLAPSE_BUTTON_BOTTOM, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('item_set_collapse_button');
-            throw new Error(`Collapse button should not be displayed! Screenshot: ${screenshot}`);
+            await this.handleError(`Collapse button should not be displayed!`, 'item_set_collapse_button');
         }
     }
 
