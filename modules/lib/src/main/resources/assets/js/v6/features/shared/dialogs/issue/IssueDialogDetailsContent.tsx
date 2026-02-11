@@ -53,8 +53,8 @@ import {
     publishItems,
     syncPublishDialogContext,
 } from '../../../store/dialogs/publishDialog.store';
-import {createDebounce} from '../../../utils/timing/createDebounce';
 import {useItemsWithUnpublishedChildren} from '../../../utils/cms/content/useItemsWithUnpublishedChildren';
+import {createDebounce} from '../../../utils/timing/createDebounce';
 import {ContentRow, SplitList} from '../../lists';
 import {EditableText} from '../../primitives/EditableText';
 import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
@@ -140,16 +140,6 @@ const validateSchedule = (from: Date | undefined, to: Date | undefined): {fromEr
         return {toError: i18n('field.schedule.invalid')};
     }
     return {};
-};
-
-const isSameDateValue = (left: Date | undefined, right: Date | undefined): boolean => {
-    if (!left && !right) {
-        return true;
-    }
-    if (!left || !right) {
-        return false;
-    }
-    return left.getTime() === right.getTime();
 };
 
 const STATUS_LOOKUP: Record<StatusOption, IssueStatus> = {
@@ -761,7 +751,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                     }}
                                 />
                             )}
-                            <div className='min-h-0 flex-1 overflow-y-auto px-1.5 -mx-1.5'>
+                            <div className='min-h-0 flex-1 overflow-y-auto px-1.5 -mx-1.5 rounded-sm outline-none focus:ring-2 focus:ring-ring/10 focus:ring-inset'>
                                 <ContentCombobox
                                     label={itemsLabel}
                                     selection={selectedItemIdStrings}
@@ -790,8 +780,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                                             id={`main-${item.getId()}`}
                                                             disabled={isItemsDisabled || itemsLoading}
                                                         >
-                                                            <ContentRow.Label action="edit"/>
-                                                            <ContentRow.Status variant="simple"/>
+                                                            <ContentRow.Label action="edit" />
+                                                            <ContentRow.Status variant="simple" />
                                                             <ContentRow.RemoveButton
                                                                 onRemove={() => handleItemRemoved(item.getContentId())}
                                                                 disabled={isItemsDisabled || itemsLoading || items.length === 1}
@@ -805,7 +795,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                                                 className="gap-3 px-2.5 -mt-1"
                                                             >
                                                                 <GridList.Cell className="pl-2.5 flex items-center gap-2.5">
-                                                                    <CornerDownRight className="size-4 shrink-0"/>
+                                                                    <CornerDownRight className="size-4 shrink-0" />
                                                                     <GridList.Action>
                                                                         <Checkbox
                                                                             className="font-semibold"
@@ -850,8 +840,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                                                 handleDependencyChange(id, checked)
                                                             }
                                                         />
-                                                        <ContentRow.Label action="edit"/>
-                                                        <ContentRow.Status variant={isPublishRequest ? "diff" : "simple"}/>
+                                                        <ContentRow.Label action="edit" />
+                                                        <ContentRow.Status variant={isPublishRequest ? "diff" : "simple"} />
                                                     </ContentRow>
                                                 );
                                             }}
