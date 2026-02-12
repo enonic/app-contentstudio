@@ -454,6 +454,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#disable_mark_as_ready_action">Disable "Mark as Ready" action</a></li>
 <li><a href="#default_publish_from_time">Default publish from time</a></li>
+<li><a href="#mandatory_online_from_field">Mandatory "Online from" field</a></li>
 <li><a href="#exclude_optional_dependencies">Exclude optional dependencies</a></li>
 </ul>
 </li>
@@ -617,6 +618,17 @@ can be disabled by adding the parameter above to the config file.</p>
 </div>
 </div>
 <div class="sect2">
+<h3 id="mandatory_online_from_field"><a class="link" href="#mandatory_online_from_field">Mandatory "Online from" field</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-properties" data-lang="properties">publishingWizard.requiredPublishFrom = true</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When you schedule publishing, the "Online from" field is by default optional and preset to "Now", which means that content will go online immediately once published. You can change this behaviour and require the "Online from" field to be filled out by adding the parameter above to the config file.</p>
+</div>
+</div>
+<div class="sect2">
 <h3 id="exclude_optional_dependencies"><a class="link" href="#exclude_optional_dependencies">Exclude optional dependencies</a></h3>
 <div class="listingblock">
 <div class="content">
@@ -655,7 +667,7 @@ references will appear online. Some of these (for example, all the ascendants of
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-Use this flag with caution. It makes it very simple to publish a content without its outgoing dependencies which may result in broken references, missing images etc.
+Use this flag with caution. It makes it very simple to publish a content without its outgoing dependencies, which may result in broken references, missing images etc.
 </td>
 </tr>
 </table>
@@ -697,7 +709,7 @@ he/she will be asked to create a new content project using <a href="settings.aht
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-12-16 12:32:16 UTC
+Last updated 2026-02-12 13:39:51 UTC
 </div>
 </div>
 </body>
