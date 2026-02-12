@@ -1,6 +1,5 @@
 import {BrowsePanel} from '@enonic/lib-admin-ui/app/browse/BrowsePanel';
 import {SettingsBrowseToolbar} from './SettingsBrowseToolbar';
-import {SettingsBrowseItemPanel} from './SettingsBrowseItemPanel';
 import {SettingsViewItem} from '../view/SettingsViewItem';
 import {SelectableListBoxPanel} from '@enonic/lib-admin-ui/ui/panel/SelectableListBoxPanel';
 import {ListBoxToolbar} from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolbar';
@@ -15,6 +14,8 @@ import {SettingsTreeListElement} from '../../../v6/features/views/browse/setting
 import {SettingsTreeListSelectablePanelProxy} from './SettingsTreeListSelectablePanelProxy';
 import {getSettingsItem, hasSettingsItem} from '../../../v6/features/store/settings-tree.store';
 import {removeProject, upsertProject, reloadProjects} from '../../../v6/features/store/projects.store';
+import {SettingsItemPanelElement} from '../../../v6/features/views/browse/settings/item-panel/SettingsItemPanelElement';
+import {$currentItems} from '../../../v6/features/store/settingsTreeSelection.store';
 
 export class SettingsBrowsePanel
     extends BrowsePanel {
@@ -40,7 +41,10 @@ export class SettingsBrowsePanel
     protected initListeners(): void {
         super.initListeners();
 
-        // no-op: React tree list handles row events and context menu
+        // Subscribe to store selection changes to update toolbar actions
+        $currentItems.subscribe((items) => {
+            this.treeActions.updateActionsEnabledState([...items]);
+        });
     }
 
     protected createListBoxPanel(): SelectableListBoxPanel<SettingsViewItem> {
@@ -73,8 +77,8 @@ export class SettingsBrowsePanel
         return new SettingsBrowseToolbar(this.treeActions);
     }
 
-    protected createBrowseItemPanel(): SettingsBrowseItemPanel {
-        return new SettingsBrowseItemPanel();
+    protected createBrowseItemPanel(): SettingsItemPanelElement {
+        return new SettingsItemPanelElement();
     }
 
     protected getBrowseActions(): SettingsTreeActions {
