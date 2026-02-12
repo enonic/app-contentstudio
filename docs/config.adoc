@@ -104,6 +104,14 @@ The default value can be changed by setting the `publishingWizard.defaultPublish
 
 image::pubwiz-online-from.png[Default Online From time in the Publishing Wizard, 754w]
 
+=== Mandatory "Online from" field
+
+[source,properties]
+----
+publishingWizard.requiredPublishFrom = true
+----
+
+When you schedule publishing, the "Online from" field is by default optional and preset to "Now", which means that content will go online immediately once published. You can change this behaviour and require the "Online from" field to be filled out by adding the parameter above to the config file.
 
 === Exclude optional dependencies
 
@@ -125,8 +133,7 @@ image::pubwiz-dependencies-mandatory.png[Publishing Wizard - mandatory dependenc
 
 image::pubwiz-dependencies-optional.png[Publishing Wizard - optional dependencies, 821w]
 
-IMPORTANT: Use this flag with caution. It makes it very simple to publish a content without its outgoing dependencies which may result in broken references, missing images etc.
-
+IMPORTANT: Use this flag with caution. It makes it very simple to publish a content without its outgoing dependencies, which may result in broken references, missing images etc.
 
 == Enable Default Content Project
 
