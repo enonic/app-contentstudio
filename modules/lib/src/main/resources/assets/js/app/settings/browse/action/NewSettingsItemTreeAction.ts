@@ -5,7 +5,7 @@ import {SettingsViewItem} from '../../view/SettingsViewItem';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {ProjectConfigContext} from '../../data/project/ProjectConfigContext';
-import {getSelectedItems} from '../../../../v6/features/store/settingsTreeSelection.store';
+import {getCurrentItems} from '../../../../v6/features/store/settingsTreeSelection.store';
 import {openNewProjectDialog} from '../../../../v6/features/store/dialogs/newProjectDialog.store';
 
 export class NewSettingsItemTreeAction extends Action {
@@ -19,7 +19,7 @@ export class NewSettingsItemTreeAction extends Action {
 
     private getSelectedProjects(): Project[] {
         const isMultiInheritance: boolean = ProjectConfigContext.get().getProjectConfig()?.isMultiInheritance();
-        const selectedItems: SettingsViewItem[] = [...getSelectedItems()];
+        const selectedItems: SettingsViewItem[] = [...getCurrentItems()];
         const selectedProjects = selectedItems
             .filter((item: SettingsViewItem) => ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem))
             .map((item: ProjectViewItem) => item.getData());

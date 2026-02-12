@@ -47,7 +47,7 @@ export const BrowseAppBar = (): ReactElement => {
                     label={activeProjectName}
                 />
             ) : (
-                <h1 className="mr-auto text-lg font-semibold">{appName}</h1>
+                <h1 className="mr-auto text-2xl font-semibold">{appName}</h1>
             )}
 
             <Button

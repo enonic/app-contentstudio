@@ -8,7 +8,7 @@ import {SettingsViewItem} from '../../view/SettingsViewItem';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {ConfirmValueDialog} from '../../../remove/ConfirmValueDialog';
 import {TextInputSize} from '@enonic/lib-admin-ui/ui/text/TextInput';
-import {getSelectedItems} from '../../../../v6/features/store/settingsTreeSelection.store';
+import {getCurrentItems} from '../../../../v6/features/store/settingsTreeSelection.store';
 
 export class DeleteSettingsItemTreeAction
     extends Action {
@@ -26,7 +26,7 @@ export class DeleteSettingsItemTreeAction
             this.initConfirmationDialog();
         }
 
-        const selectedItems: SettingsViewItem[] = [...getSelectedItems()];
+        const selectedItems: SettingsViewItem[] = [...getCurrentItems()];
 
         this.deleteConfirmationDialog.setValueToCheck(selectedItems[0].getId()).open();
     }
@@ -40,7 +40,7 @@ export class DeleteSettingsItemTreeAction
     }
 
     private deleteSelectedItems() {
-        const selectedItems: SettingsViewItem[] = [...getSelectedItems()];
+        const selectedItems: SettingsViewItem[] = [...getCurrentItems()];
 
         const projectItems: ProjectViewItem[] = selectedItems.filter((item: SettingsViewItem) => {
             return ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem);
