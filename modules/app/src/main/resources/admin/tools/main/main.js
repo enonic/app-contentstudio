@@ -37,8 +37,8 @@ exports.renderTemplate = function (params) {
 exports.getParams = function (path) {
     const isBrowseMode = path === admin.getToolUrl(app.name, 'main');
 
-    const isAiContentOperatorEnabled = aiLib.aiContentOperatorRunning && !isBrowseMode;
-    const isAiTranslatorEnabled = aiLib.aiTranslatorRunning && !isBrowseMode;
+    const isAiContentOperatorEnabled = !isBrowseMode && aiLib.aiContentOperatorRunning();
+    const isAiTranslatorEnabled = !isBrowseMode && aiLib.aiTranslatorRunning();
 
     const locales = admin.getLocales();
 

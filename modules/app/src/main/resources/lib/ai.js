@@ -3,8 +3,15 @@ const appLib = require('/lib/xp/app');
 const AI_CONTENT_OPERATOR_APP_KEY = 'com.enonic.app.ai.contentoperator';
 const AI_TRANSLATOR_APP_KEY = 'com.enonic.app.ai.translator';
 
-const aiContentOperatorApp = appLib.get({key: AI_CONTENT_OPERATOR_APP_KEY});
-const aiTranslatorApp = appLib.get({key: AI_TRANSLATOR_APP_KEY});
+const appIsRunning = (appKey) => {
+    const app = appLib.get({key: appKey});
 
-exports.aiContentOperatorRunning = aiContentOperatorApp != null && aiContentOperatorApp.started;
-exports.aiTranslatorRunning = aiTranslatorApp != null && aiTranslatorApp.started;
+    if (!app) {
+        return false;
+    }
+
+    return app.started;
+}
+
+exports.aiContentOperatorRunning = () => appIsRunning(AI_CONTENT_OPERATOR_APP_KEY);
+exports.aiTranslatorRunning = () => appIsRunning(AI_TRANSLATOR_APP_KEY);
