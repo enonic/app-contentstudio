@@ -1,15 +1,15 @@
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {type Action} from '@enonic/lib-admin-ui/ui/Action';
+import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {MarkAsReadyRequest} from '../../resource/MarkAsReadyRequest';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
-import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
+import {type ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 import {ContentPublishPromptEvent} from '../ContentPublishPromptEvent';
-import {ContentId} from '../../content/ContentId';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import {type ContentId} from '../../content/ContentId';
+import {type SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class MarkAsReadyContentAction
     extends ContentTreeGridAction {

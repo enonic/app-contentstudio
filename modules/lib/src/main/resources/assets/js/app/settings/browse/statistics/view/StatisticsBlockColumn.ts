@@ -2,8 +2,8 @@
 
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {type ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
 
 export class StatisticsBlockColumn extends DivEl {
 

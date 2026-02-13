@@ -1,5 +1,5 @@
-import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
-import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
+import {type ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
+import {type MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 
 export class ImageSelectorViewer

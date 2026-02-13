@@ -1,9 +1,9 @@
 import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
-import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import {GetContentTypesByContentRequest} from '../../resource/GetContentTypesByContentRequest';
 import {GetAllContentTypesRequest} from '../../resource/GetAllContentTypesRequest';
-import {ContentId} from '../../content/ContentId';
-import {Project} from '../../settings/data/project/Project';
+import {type ContentId} from '../../content/ContentId';
+import {type Project} from '../../settings/data/project/Project';
 
 export class ContentTypeSummaryLoader
     extends BaseLoader<ContentTypeSummary> {

@@ -1,5 +1,5 @@
-import {CreateHtmlAreaDialogEvent, CreateHtmlAreaDialogEventBuilder, HtmlAreaDialogType} from './CreateHtmlAreaDialogEvent';
-import {ContentSummary} from '../../../content/ContentSummary';
+import {CreateHtmlAreaDialogEvent, CreateHtmlAreaDialogEventBuilder} from './CreateHtmlAreaDialogEvent';
+import {type ContentSummary} from '../../../content/ContentSummary';
 
 export class CreateHtmlAreaContentDialogEvent extends CreateHtmlAreaDialogEvent {
 

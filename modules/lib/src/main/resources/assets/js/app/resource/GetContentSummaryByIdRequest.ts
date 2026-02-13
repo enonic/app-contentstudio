@@ -1,8 +1,8 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
-import {ContentSummary} from '../content/ContentSummary';
-import {ContentSummaryJson} from '../content/ContentSummaryJson';
-import {ContentId} from '../content/ContentId';
+import {type ContentSummary} from '../content/ContentSummary';
+import {type ContentSummaryJson} from '../content/ContentSummaryJson';
+import {type ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class GetContentSummaryByIdRequest

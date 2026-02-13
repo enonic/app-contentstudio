@@ -1,10 +1,10 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {XDataContextResourceRequest} from './XDataContextResourceRequest';
-import {XDataListJson} from './json/XDataListJson';
-import {XData} from '../content/XData';
-import {XDataJson} from './json/XDataJson';
+import {type XDataListJson} from './json/XDataListJson';
+import {type XData} from '../content/XData';
+import {type XDataJson} from './json/XDataJson';
 
 export class GetApplicationXDataRequest
     extends XDataContextResourceRequest<XData[]> {

@@ -1,14 +1,16 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ProjectContext} from '../app/project/ProjectContext';
-import {CONFIG, ConfigObject} from '@enonic/lib-admin-ui/util/Config';
-import {ProjectJson} from '../app/settings/resource/json/ProjectJson';
-import {LiveEditParams} from './LiveEditParams';
-import {PageJson} from '../app/page/PageJson';
-import {PageState} from '../app/wizard/page/PageState';
-import {PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';
+import type {PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
-import {ContentSummaryAndCompareStatus} from '../app/content/ContentSummaryAndCompareStatus';
+import {CONFIG, type ConfigObject} from '@enonic/lib-admin-ui/util/Config';
+
+import {type LiveEditParams} from '../LiveEditParams';
+
+import {type ProjectJson} from '../../app/settings/resource/json/ProjectJson';
+import {type ContentSummaryAndCompareStatus} from '../../app/content/ContentSummaryAndCompareStatus';
+import {PageState} from '../../app/wizard/page/PageState';
+import {ProjectContext} from '../../app/project/ProjectContext';
+import {type PageJson} from '../../app/page/PageJson';
 
 export class InitializeLiveEditEvent
     extends IframeEvent {

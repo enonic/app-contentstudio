@@ -1,20 +1,20 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {Regions} from './Regions';
-import {Region} from './Region';
-import {ComponentPath} from './ComponentPath';
-import {LayoutComponentJson} from './LayoutComponentJson';
-import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
+import {type Region} from './Region';
+import {type ComponentPath} from './ComponentPath';
+import {type LayoutComponentJson} from './LayoutComponentJson';
+import {type ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {LayoutComponentType} from './LayoutComponentType';
 import {LayoutRegionsMerger} from './LayoutRegionsMerger';
 import {DescriptorBasedComponent, DescriptorBasedComponentBuilder} from './DescriptorBasedComponent';
-import {Descriptor} from '../Descriptor';
-import {PageItem} from './PageItem';
-import {ComponentAddedEvent} from './ComponentAddedEvent';
-import {ComponentRemovedEvent} from './ComponentRemovedEvent';
-import {ComponentUpdatedEvent} from './ComponentUpdatedEvent';
-import {ComponentAddedEventHandler, ComponentRemovedEventHandler, ComponentUpdatedEventHandler} from './Component';
-import Q from 'q';
+import {type Descriptor} from '../Descriptor';
+import {type PageItem} from './PageItem';
+import {type ComponentAddedEvent} from './ComponentAddedEvent';
+import {type ComponentRemovedEvent} from './ComponentRemovedEvent';
+import {type ComponentUpdatedEvent} from './ComponentUpdatedEvent';
+import {type ComponentAddedEventHandler, type ComponentRemovedEventHandler, type ComponentUpdatedEventHandler} from './Component';
+import type Q from 'q';
 
 export class LayoutComponent
     extends DescriptorBasedComponent {

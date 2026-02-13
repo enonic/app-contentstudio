@@ -1,17 +1,17 @@
-import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
+import {type UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {CompareStatus, CompareStatusChecker, CompareStatusFormatter} from './CompareStatus';
-import {PublishStatus, PublishStatusChecker} from '../publish/PublishStatus';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {type PublishStatus, PublishStatusChecker} from '../publish/PublishStatus';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
+import {type ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
 import {ContentIconUrlResolver} from './ContentIconUrlResolver';
-import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {type Cloneable} from '@enonic/lib-admin-ui/Cloneable';
 import {ContentSummary, ContentSummaryBuilder} from './ContentSummary';
 import {ContentInheritType} from './ContentInheritType';
 import {ContentId} from './ContentId';
-import {ContentPath} from './ContentPath';
+import {type ContentPath} from './ContentPath';
 import {ContentSummaryAndCompareStatusHelper} from './ContentSummaryAndCompareStatusHelper';
 import {isEqual} from '../Diff';
 
@@ -156,7 +156,7 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     }
 
     hasChildren(): boolean {
-        return !!this.contentSummary ? this.contentSummary.hasChildren() : false;
+        return this.contentSummary ? this.contentSummary.hasChildren() : false;
     }
 
     hasOriginProject(): boolean {
@@ -164,11 +164,11 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     }
 
     getOriginProject(): string {
-        return !!this.contentSummary ? this.contentSummary.getOriginProject() : null;
+        return this.contentSummary ? this.contentSummary.getOriginProject() : null;
     }
 
     isInherited(): boolean {
-        return !!this.contentSummary ? this.contentSummary.isInherited() : false;
+        return this.contentSummary ? this.contentSummary.isInherited() : false;
     }
 
     isFullyInherited(): boolean {
@@ -184,27 +184,27 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     }
 
     isSortInherited(): boolean {
-        return !!this.contentSummary ? this.contentSummary.isSortInherited() : false;
+        return this.contentSummary ? this.contentSummary.isSortInherited() : false;
     }
 
     isParentInherited(): boolean {
-        return !!this.contentSummary ? this.contentSummary.isParentInherited() : false;
+        return this.contentSummary ? this.contentSummary.isParentInherited() : false;
     }
 
     isNameInherited(): boolean {
-        return !!this.contentSummary ? this.contentSummary.isNameInherited() : false;
+        return this.contentSummary ? this.contentSummary.isNameInherited() : false;
     }
 
     isValid(): boolean {
-        return !!this.contentSummary ? this.contentSummary.isValid() : false;
+        return this.contentSummary ? this.contentSummary.isValid() : false;
     }
 
     isDeletable(): boolean {
-        return !!this.contentSummary ? this.contentSummary.isDeletable() : false;
+        return this.contentSummary ? this.contentSummary.isDeletable() : false;
     }
 
     isEditable(): boolean {
-        return !!this.contentSummary ? this.contentSummary.isEditable() : false;
+        return this.contentSummary ? this.contentSummary.isEditable() : false;
     }
 
     isVariant(): boolean {
@@ -281,7 +281,7 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     }
 
     isReadOnly(): boolean {
-        return !!this.contentSummary ? this.contentSummary.isReadOnly() : false;
+        return this.contentSummary ? this.contentSummary.isReadOnly() : false;
     }
 
     isPublished(): boolean {

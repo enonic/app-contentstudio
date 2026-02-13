@@ -1,6 +1,6 @@
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {IssueStatus} from '../IssueStatus';
-import {FilterType} from './FilterType';
+import {type FilterType} from './FilterType';
 
 export class IssuePanelFilterAction
     extends Action {

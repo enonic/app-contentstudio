@@ -5,7 +5,7 @@ import {IssueStatus, IssueStatusFormatter} from '../IssueStatus';
 import {TabMenuItem} from '@enonic/lib-admin-ui/ui/tab/TabMenuItem';
 import {TabMenu} from '@enonic/lib-admin-ui/ui/tab/TabMenu';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
-import {NavigatorEvent} from '@enonic/lib-admin-ui/ui/NavigatorEvent';
+import {type NavigatorEvent} from '@enonic/lib-admin-ui/ui/NavigatorEvent';
 import {DropdownHandle} from '@enonic/lib-admin-ui/ui/button/DropdownHandle';
 
 export class IssueStatusSelector
@@ -104,12 +104,12 @@ export class IssueStatusSelector
             this.getSelectedNavigationItem().setVisibleInMenu(false);
         }
 
-        let menu = this.getMenuEl();
-        let entry = menu.getParentElement().getParentElement();
-        let list = entry.getParentElement();
-        let offset = entry.getEl().getOffsetTopRelativeToParent() -
+        const menu = this.getMenuEl();
+        const entry = menu.getParentElement().getParentElement();
+        const list = entry.getParentElement();
+        const offset = entry.getEl().getOffsetTopRelativeToParent() -
                      (list.getEl().getOffsetTopRelativeToParent() + list.getEl().getPaddingTop() + list.getEl().getScrollTop());
-        let height = menu.getEl().getHeightWithoutPadding();
+        const height = menu.getEl().getHeightWithoutPadding();
 
         if (offset > height) {
             menu.addClass('upward');

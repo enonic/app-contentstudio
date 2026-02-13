@@ -1,4 +1,4 @@
-import {StyleJson} from './StylesDescriptor';
+import {type StyleJson} from './StylesDescriptor';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export enum StyleType {

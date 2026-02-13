@@ -1,5 +1,5 @@
-import {IssueJson} from './IssueJson';
-import {PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';
+import {type IssueJson} from './IssueJson';
+import {type PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';
 
 export interface IssueWithAssigneesJson {
 

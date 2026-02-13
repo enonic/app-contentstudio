@@ -1,6 +1,6 @@
 import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ComponentView} from './ComponentView';
+import type {ComponentView} from '../../page-editor-types';
 
 export class ComponentViewDragCanceledEvent
     extends IframeEvent {

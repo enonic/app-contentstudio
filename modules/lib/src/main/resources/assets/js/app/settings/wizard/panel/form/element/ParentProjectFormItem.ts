@@ -1,7 +1,7 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectFormItem, ProjectFormItemBuilder} from './ProjectFormItem';
 import {ParentProjectFormInputWrapper, ProjectsSelector} from './ProjectsSelector';
-import {Project} from '../../../../data/project/Project';
+import {type Project} from '../../../../data/project/Project';
 import {ProjectConfigContext} from '../../../../data/project/ProjectConfigContext';
 
 export class ParentProjectFormItem

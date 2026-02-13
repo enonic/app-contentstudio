@@ -1,7 +1,7 @@
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {ContentVersion} from '../../../../ContentVersion';
+import {type ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {type ContentVersion} from '../../../../ContentVersion';
 import {ContentVersionsConverter} from './ContentVersionsConverter';
-import {VersionHistoryItem} from './VersionHistoryItem';
+import {type VersionHistoryItem} from './VersionHistoryItem';
 
 export class BatchedContentVersionsConverter extends ContentVersionsConverter {
 

@@ -1,15 +1,15 @@
-import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
-import {Component} from './Component';
+import {type ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
+import {type Component} from './Component';
 import {Region} from './Region';
 import {PartComponentBuilder} from './PartComponent';
 import {ImageComponentBuilder} from './ImageComponent';
-import {LayoutComponent, LayoutComponentBuilder} from './LayoutComponent';
+import {type LayoutComponent, LayoutComponentBuilder} from './LayoutComponent';
 import {TextComponentBuilder} from './TextComponent';
 import {FragmentComponentBuilder} from './FragmentComponent';
-import {RegionJson} from './RegionJson';
+import {type RegionJson} from './RegionJson';
 import {Regions} from './Regions';
-import {Page} from '../Page';
-import {ComponentType} from './ComponentType';
+import {type Page} from '../Page';
+import {type ComponentType} from './ComponentType';
 import {FragmentComponentType} from './FragmentComponentType';
 import {LayoutComponentType} from './LayoutComponentType';
 import {PartComponentType} from './PartComponentType';
@@ -46,7 +46,7 @@ export class ComponentFactory {
             const region = Region.create().setName(regionJson.name).setParent(parent).build();
 
             regionJson.components.forEach((componentJson: ComponentTypeWrapperJson, componentIndex: number) => {
-                let component: Component = ComponentFactory.createFromJson(componentJson, componentIndex, region);
+                const component: Component = ComponentFactory.createFromJson(componentJson, componentIndex, region);
                 region.addComponent(component);
             });
 

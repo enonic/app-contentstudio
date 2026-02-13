@@ -1,7 +1,7 @@
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {MacroResourceRequest} from './MacroResourceRequest';
-import {MacrosJson} from '@enonic/lib-admin-ui/macro/MacrosJson';
+import {type MacrosJson} from '@enonic/lib-admin-ui/macro/MacrosJson';
 import {MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 

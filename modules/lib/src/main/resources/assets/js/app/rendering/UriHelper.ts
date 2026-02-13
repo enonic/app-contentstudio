@@ -1,6 +1,6 @@
 import {RenderingMode} from './RenderingMode';
 import {Branch} from '../versioning/Branch';
-import {ComponentPath} from '../page/region/ComponentPath';
+import {type ComponentPath} from '../page/region/ComponentPath';
 import {UriHelper as UIUriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {ProjectContext} from '../project/ProjectContext';
 import {Path} from '@enonic/lib-admin-ui/rest/Path';

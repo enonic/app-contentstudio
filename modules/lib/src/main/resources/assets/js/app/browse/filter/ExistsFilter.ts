@@ -1,5 +1,5 @@
 import {Filter} from '@enonic/lib-admin-ui/query/filter/Filter';
-import {ExistsFilterWrapperJson} from './ExistsFilterWrapperJson';
+import {type ExistsFilterWrapperJson} from './ExistsFilterWrapperJson';
 
 export class ExistsFilter
     extends Filter {

@@ -1,11 +1,11 @@
 import {ContentsTreeGridList, ContentsTreeGridListContext} from './ContentsTreeGridList';
 import {ContentQuery} from '../content/ContentQuery';
 import {Branch} from '../versioning/Branch';
-import Q from 'q';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentQueryResult} from '../resource/ContentQueryResult';
-import {ContentSummary} from '../content/ContentSummary';
-import {ContentSummaryJson} from '../content/ContentSummaryJson';
+import type Q from 'q';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ContentQueryResult} from '../resource/ContentQueryResult';
+import {type ContentSummary} from '../content/ContentSummary';
+import {type ContentSummaryJson} from '../content/ContentSummaryJson';
 import {ContentQueryRequest} from '../resource/ContentQueryRequest';
 import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
 import {ContentTreeGridLoadedEvent} from './ContentTreeGridLoadedEvent';

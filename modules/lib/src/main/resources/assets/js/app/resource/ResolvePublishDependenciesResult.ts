@@ -1,5 +1,5 @@
 import {ContentId} from '../content/ContentId';
-import {ResolvePublishContentResultJson} from './json/ResolvePublishContentResultJson';
+import {type ResolvePublishContentResultJson} from './json/ResolvePublishContentResultJson';
 
 export class ResolvePublishDependenciesResult {
 

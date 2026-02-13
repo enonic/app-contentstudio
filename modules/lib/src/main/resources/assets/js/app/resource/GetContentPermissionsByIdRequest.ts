@@ -1,7 +1,7 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {PermissionsJson} from '../access/PermissionsJson';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type PermissionsJson} from '../access/PermissionsJson';
 import {AccessControlList} from '../access/AccessControlList';
-import {ContentId} from '../content/ContentId';
+import {type ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class GetContentPermissionsByIdRequest

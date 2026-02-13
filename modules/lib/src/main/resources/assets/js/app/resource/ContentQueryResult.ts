@@ -1,7 +1,7 @@
-import {ResultMetadata} from './ResultMetadata';
-import {Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
-import {ContentSummary} from '../content/ContentSummary';
-import {ContentSummaryJson} from '../content/ContentSummaryJson';
+import {type ResultMetadata} from './ResultMetadata';
+import {type Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
+import {type ContentSummary} from '../content/ContentSummary';
+import {type ContentSummaryJson} from '../content/ContentSummaryJson';
 
 export class ContentQueryResult<CONTENT extends ContentSummary, CONTENT_JSON extends ContentSummaryJson> {
 

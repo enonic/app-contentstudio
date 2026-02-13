@@ -1,9 +1,9 @@
-import {Descriptor} from '../../../../../page/Descriptor';
+import {type Descriptor} from '../../../../../page/Descriptor';
 import {DescriptorByDisplayNameComparator} from '../DescriptorByDisplayNameComparator';
 import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
 import {GetComponentDescriptorsRequest} from '../../../../../resource/GetComponentDescriptorsRequest';
-import {ComponentType} from '../../../../../page/region/ComponentType';
-import {ContentId} from '../../../../../content/ContentId';
+import {type ComponentType} from '../../../../../page/region/ComponentType';
+import {type ContentId} from '../../../../../content/ContentId';
 
 export class ComponentDescriptorsLoader
     extends BaseLoader<Descriptor> {

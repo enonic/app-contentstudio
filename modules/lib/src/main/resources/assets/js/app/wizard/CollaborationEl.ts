@@ -1,14 +1,14 @@
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {PrincipalViewerCompact} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import Q from 'q';
-import {ContentId} from '../content/ContentId';
+import {type ContentId} from '../content/ContentId';
 import {ProjectContext} from '../project/ProjectContext';
 import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
 import {subscribe as subscribeToCollaborators} from '../stores/collaboration';

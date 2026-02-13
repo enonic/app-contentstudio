@@ -1,9 +1,9 @@
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {CreateHtmlAreaDialogEvent} from './CreateHtmlAreaDialogEvent';
-import {ContentSummary} from '../../../content/ContentSummary';
+import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {type CreateHtmlAreaDialogEvent} from './CreateHtmlAreaDialogEvent';
+import {type ContentSummary} from '../../../content/ContentSummary';
 import {LangDirection} from '@enonic/lib-admin-ui/dom/Element';
-import {Project} from '../../../settings/data/project/Project';
+import {type Project} from '../../../settings/data/project/Project';
 
 export class HtmlEditorParams {
 

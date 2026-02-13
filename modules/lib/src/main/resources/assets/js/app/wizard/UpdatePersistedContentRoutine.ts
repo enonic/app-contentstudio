@@ -1,14 +1,14 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import Q from 'q';
-import {Content} from '../content/Content';
+import {type Content} from '../content/Content';
 import {WorkflowState} from '../content/WorkflowState';
-import {Page} from '../page/Page';
-import {PageCUDRequest} from '../resource/PageCUDRequest';
+import {type Page} from '../page/Page';
+import {type PageCUDRequest} from '../resource/PageCUDRequest';
 import {UpdateContentRequest} from '../resource/UpdateContentRequest';
 import {UpdatePageRequest} from '../resource/UpdatePageRequest';
 import {UpdateWorkflowRequest} from '../resource/UpdateWorkflowRequest';
 import {ContentDiffHelper} from '../util/ContentDiffHelper';
-import {ContentWizardPanel} from './ContentWizardPanel';
+import {type ContentWizardPanel} from './ContentWizardPanel';
 import {CreatePageRequest} from './CreatePageRequest';
 import {DeletePageRequest} from './DeletePageRequest';
 import {Flow, RoutineContext} from './Flow';
@@ -31,7 +31,7 @@ export class UpdatePersistedContentRoutine
     }
 
     public execute(): Q.Promise<RoutineContext> {
-        let context: RoutineContext = new RoutineContext();
+        const context: RoutineContext = new RoutineContext();
         context.content = this.persistedContent;
         return this.doExecute(context);
     }

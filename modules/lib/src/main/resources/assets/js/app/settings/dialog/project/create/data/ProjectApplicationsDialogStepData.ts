@@ -1,5 +1,5 @@
 import {ProjectDialogStepData} from './ProjectDialogStepData';
-import {ProjectApplication} from '../../../../wizard/panel/form/element/ProjectApplication';
+import {type ProjectApplication} from '../../../../wizard/panel/form/element/ProjectApplication';
 
 export class ProjectApplicationsDialogStepData extends ProjectDialogStepData {
 

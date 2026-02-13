@@ -1,9 +1,9 @@
 import {
     DescriptorBasedComponentInspectionPanel,
-    DescriptorBasedComponentInspectionPanelConfig
+    type DescriptorBasedComponentInspectionPanelConfig
 } from './DescriptorBasedComponentInspectionPanel';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
-import {LayoutComponent} from '../../../../../page/region/LayoutComponent';
+import {type LayoutComponent} from '../../../../../page/region/LayoutComponent';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {LayoutComponentType} from '../../../../../page/region/LayoutComponentType';
 

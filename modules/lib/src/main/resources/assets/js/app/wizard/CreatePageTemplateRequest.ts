@@ -1,15 +1,15 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {PageCUDRequest} from '../resource/PageCUDRequest';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {type PageCUDRequest} from '../resource/PageCUDRequest';
 import {PageTemplateResourceRequest} from '../resource/PageTemplateResourceRequest';
-import {Content} from '../content/Content';
-import {ContentJson} from '../content/ContentJson';
-import {Regions} from '../page/region/Regions';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {type Content} from '../content/Content';
+import {type ContentJson} from '../content/ContentJson';
+import {type Regions} from '../page/region/Regions';
+import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {DescriptorKey} from '../page/DescriptorKey';
-import {ContentName} from '../content/ContentName';
-import {ContentPath} from '../content/ContentPath';
+import {type DescriptorKey} from '../page/DescriptorKey';
+import {type ContentName} from '../content/ContentName';
+import {type ContentPath} from '../content/ContentPath';
 
 export class CreatePageTemplateRequest
     extends PageTemplateResourceRequest<Content>

@@ -2,12 +2,12 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentId} from './content/ContentId';
-import {ContentVersion} from './ContentVersion';
+import {type ContentId} from './content/ContentId';
+import {type ContentVersion} from './ContentVersion';
 import {GetActiveContentVersionsRequest} from './resource/GetActiveContentVersionsRequest';
 import {RevertVersionRequest} from './resource/RevertVersionRequest';
 import {VersionContext} from './view/context/widget/version/VersionContext';
-import Q from 'q';
+import type Q from 'q';
 
 export class ContentVersionHelper {
 

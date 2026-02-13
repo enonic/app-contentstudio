@@ -1,6 +1,6 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {EnonicAiConfigData} from '../data/EnonicAiConfigData';
+import {type EnonicAiConfigData} from '../data/EnonicAiConfigData';
 
 export class AiTranslatorConfigureEvent
     extends Event {

@@ -1,5 +1,5 @@
 import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {AccessControlComboBox} from '../../../wizard/AccessControlComboBox';
 import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
 import {SectionEl} from '@enonic/lib-admin-ui/dom/SectionEl';

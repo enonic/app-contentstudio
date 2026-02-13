@@ -1,28 +1,28 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import Q from 'q';
+import type Q from 'q';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ComponentInspectionPanel, ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
-import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
-import {DescriptorBasedComponent} from '../../../../../page/region/DescriptorBasedComponent';
+import {ComponentInspectionPanel, type ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
+import {type LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
+import {type DescriptorBasedComponent} from '../../../../../page/region/DescriptorBasedComponent';
 import {DescriptorBasedDropdownForm} from './DescriptorBasedDropdownForm';
 import {ComponentDescriptorsDropdown} from './ComponentDescriptorsDropdown';
-import {SiteModel} from '../../../../../site/SiteModel';
+import {type SiteModel} from '../../../../../site/SiteModel';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {Descriptor} from '../../../../../page/Descriptor';
-import {DescriptorKey} from '../../../../../page/DescriptorKey';
-import {Form} from '@enonic/lib-admin-ui/form/Form';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
-import {ComponentType} from '../../../../../page/region/ComponentType';
+import {type Descriptor} from '../../../../../page/Descriptor';
+import {type DescriptorKey} from '../../../../../page/DescriptorKey';
+import {type Form} from '@enonic/lib-admin-ui/form/Form';
+import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {type ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
+import {type ComponentType} from '../../../../../page/region/ComponentType';
 import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
-import {ComponentUpdatedEventHandler} from '../../../../../page/region/Component';
+import {type ComponentUpdatedEventHandler} from '../../../../../page/region/Component';
 import {PageState} from '../../../PageState';
-import {ComponentUpdatedEvent} from '../../../../../page/region/ComponentUpdatedEvent';
+import {type ComponentUpdatedEvent} from '../../../../../page/region/ComponentUpdatedEvent';
 import {ComponentDescriptorUpdatedEvent} from '../../../../../page/region/ComponentDescriptorUpdatedEvent';
 import {PageEventsManager} from '../../../../PageEventsManager';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 
 export interface DescriptorBasedComponentInspectionPanelConfig
     extends ComponentInspectionPanelConfig {

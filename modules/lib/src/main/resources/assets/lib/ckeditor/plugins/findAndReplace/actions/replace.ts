@@ -1,4 +1,4 @@
-import {Editor, Highlight} from '../types';
+import {type Editor, type Highlight} from '../types';
 import {HIGHLIGHT_CLASS} from '../view/markup';
 
 export function replaceAll(editor: Editor, text?: string): void {

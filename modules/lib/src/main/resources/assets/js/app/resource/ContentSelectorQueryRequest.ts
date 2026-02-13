@@ -1,13 +1,13 @@
 import Q from 'q';
 import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ContentSelectorRequest} from './ContentSelectorRequest';
-import {ContentQueryResultJson} from './json/ContentQueryResultJson';
-import {ContentJson} from '../content/ContentJson';
+import {type ContentQueryResultJson} from './json/ContentQueryResultJson';
+import {type ContentJson} from '../content/ContentJson';
 import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
-import {ContentSummary} from '../content/ContentSummary';
-import {ContentSummaryJson} from '../content/ContentSummaryJson';
+import {type ContentSummary} from '../content/ContentSummary';
+import {type ContentSummaryJson} from '../content/ContentSummaryJson';
 import {ResultMetadata} from './ResultMetadata';
-import {Content} from '../content/Content';
+import {type Content} from '../content/Content';
 
 export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
     extends ContentSelectorRequest<CONTENT> {

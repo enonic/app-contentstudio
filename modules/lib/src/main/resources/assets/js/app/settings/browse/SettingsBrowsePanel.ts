@@ -1,18 +1,18 @@
 import {BrowsePanel} from '@enonic/lib-admin-ui/app/browse/BrowsePanel';
 import {SettingsBrowseToolbar} from './SettingsBrowseToolbar';
 import {SettingsBrowseItemPanel} from './SettingsBrowseItemPanel';
-import {SettingsViewItem} from '../view/SettingsViewItem';
+import {type SettingsViewItem} from '../view/SettingsViewItem';
 import {SelectableListBoxPanel} from '@enonic/lib-admin-ui/ui/panel/SelectableListBoxPanel';
 import {ListBoxToolbar} from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolbar';
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {SettingsTreeList} from '../SettingsTreeList';
 import {SettingsTreeActions} from '../tree/SettingsTreeActions';
 import {TreeGridContextMenu} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridContextMenu';
-import Q from 'q';
+import type Q from 'q';
 import {Projects} from '../resource/Projects';
 import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
 import {EditSettingsItemEvent} from '../event/EditSettingsItemEvent';
-import {ProjectViewItem} from '../view/ProjectViewItem';
+import {type ProjectViewItem} from '../view/ProjectViewItem';
 import {SettingsDataViewItem} from '../view/SettingsDataViewItem';
 
 export class SettingsBrowsePanel

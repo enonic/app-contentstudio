@@ -1,12 +1,12 @@
 import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {SectionEl} from '@enonic/lib-admin-ui/dom/SectionEl';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
-import {RadioButton} from '@enonic/lib-admin-ui/ui/RadioButton';
+import {type RadioButton} from '@enonic/lib-admin-ui/ui/RadioButton';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
-import {ApplyPermissionsScope} from '../PermissionsData';
+import {type ApplyPermissionsScope} from '../PermissionsData';
 import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 

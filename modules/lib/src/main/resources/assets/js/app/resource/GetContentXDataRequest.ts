@@ -1,8 +1,8 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {XDataListJson} from './json/XDataListJson';
-import {XData} from '../content/XData';
-import {XDataJson} from './json/XDataJson';
-import {ContentId} from '../content/ContentId';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type XDataListJson} from './json/XDataListJson';
+import {type XData} from '../content/XData';
+import {type XDataJson} from './json/XDataJson';
+import {type ContentId} from '../content/ContentId';
 import {XDataContextResourceRequest} from './XDataContextResourceRequest';
 
 export class GetContentXDataRequest

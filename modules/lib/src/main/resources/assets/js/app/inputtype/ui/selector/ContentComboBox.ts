@@ -3,15 +3,15 @@ import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem'
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {type Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import Q from 'q';
+import type Q from 'q';
 import {ContentPath} from '../../../content/ContentPath';
-import {ContentSummary} from '../../../content/ContentSummary';
+import {type ContentSummary} from '../../../content/ContentSummary';
 import {EditContentEvent} from '../../../event/EditContentEvent';
-import {ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
-import {Project} from '../../../settings/data/project/Project';
+import {type ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
+import {type Project} from '../../../settings/data/project/Project';
 
 export class ContentSelectedOptionsView
     extends BaseSelectedOptionsView<ContentTreeSelectorItem> {

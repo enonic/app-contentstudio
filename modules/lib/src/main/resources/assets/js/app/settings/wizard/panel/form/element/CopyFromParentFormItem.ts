@@ -1,5 +1,5 @@
 import {ProjectFormItem} from './ProjectFormItem';
-import {Project} from '../../../../data/project/Project';
+import {type Project} from '../../../../data/project/Project';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';

@@ -8,12 +8,12 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ProjectHelper} from '../../../settings/data/project/ProjectHelper';
 import {ContentId} from '../../../content/ContentId';
 import {HtmlAreaSanitizer} from './HtmlAreaSanitizer';
-import {Project} from '../../../settings/data/project/Project';
+import {type Project} from '../../../settings/data/project/Project';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 
 export class HTMLAreaHelper {
 
-    private static sourceCodeEditablePromise: Q.Promise<boolean>;
+    private static sourceCodeEditablePromise: Q.Promise<boolean> | undefined;
 
     private static getConvertedImageSrc(imgSrc: string, contentId: string, project?: Project): string {
         const imageId = HTMLAreaHelper.extractImageIdFromImgSrc(imgSrc);
@@ -107,9 +107,10 @@ export class HTMLAreaHelper {
     }
 
     public static isSourceCodeEditable(): Q.Promise<boolean> {
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        HTMLAreaHelper.sourceCodeEditablePromise = HTMLAreaHelper.sourceCodeEditablePromise || HTMLAreaHelper.sendIsCodeEditableRequest();
 
+        if (HTMLAreaHelper.sourceCodeEditablePromise === undefined) {
+            HTMLAreaHelper.sourceCodeEditablePromise = HTMLAreaHelper.sendIsCodeEditableRequest();
+        }
 
         return HTMLAreaHelper.sourceCodeEditablePromise;
     }

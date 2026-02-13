@@ -4,9 +4,9 @@ import {PermissionSelector} from '../security/PermissionSelector';
 import {Access, ACCESS_OPTIONS} from '../security/Access';
 import {AccessControlEntry} from '../access/AccessControlEntry';
 import {Permission} from '../access/Permission';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {PrincipalContainerSelectedEntryView} from '@enonic/lib-admin-ui/ui/security/PrincipalContainerSelectedEntryView';
-import {AccessChangedEvent} from '../security/AccessChangedEvent';
+import {type AccessChangedEvent} from '../security/AccessChangedEvent';
 import {AccessHelper} from '../security/AccessHelper';
 
 export class AccessControlEntryView
@@ -116,8 +116,8 @@ export class AccessControlEntryView
     }
 
     public getItem(): AccessControlEntry {
-        let permissions = this.permissionSelector.getValue();
-        let ace = new AccessControlEntry(this.item.getPrincipal());
+        const permissions = this.permissionSelector.getValue();
+        const ace = new AccessControlEntry(this.item.getPrincipal());
         ace.setAllowedPermissions(permissions.allow);
         return ace;
     }

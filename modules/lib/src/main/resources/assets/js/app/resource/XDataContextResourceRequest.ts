@@ -1,5 +1,5 @@
 import {XData} from '../content/XData';
-import {XDataJson} from './json/XDataJson';
+import {type XDataJson} from './json/XDataJson';
 import {CmsProjectBasedResourceRequest} from '../wizard/CmsProjectBasedResourceRequest';
 import {ContentPath} from '../content/ContentPath';
 

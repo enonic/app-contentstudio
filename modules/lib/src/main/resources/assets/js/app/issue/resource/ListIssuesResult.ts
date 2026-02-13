@@ -1,5 +1,5 @@
-import {IssueWithAssigneesJson} from '../json/IssueWithAssigneesJson';
-import {ResultMetadataJson} from '../../resource/json/ResultMetadataJson';
+import {type IssueWithAssigneesJson} from '../json/IssueWithAssigneesJson';
+import {type ResultMetadataJson} from '../../resource/json/ResultMetadataJson';
 
 export interface ListIssuesResult {
 

@@ -1,5 +1,5 @@
 import {BaseRegionChangedEvent} from './BaseRegionChangedEvent';
-import {ComponentPath} from './ComponentPath';
+import {type ComponentPath} from './ComponentPath';
 
 export class ComponentUpdatedEvent
     extends BaseRegionChangedEvent {

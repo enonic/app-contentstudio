@@ -1,8 +1,7 @@
-import {IDentifiable} from '@enonic/lib-admin-ui/IDentifiable';
-import {ItemView} from '../../page-editor/ItemView';
-import {TreeComponent} from './TreeComponent';
-import {ComponentIdProducer} from '../../page-editor/ComponentIdProducer';
-import {PageItemType} from '../page/region/PageItemType';
+import {type PageItemType} from '../page/region/PageItemType';
+import {type IDentifiable} from '@enonic/lib-admin-ui/IDentifiable';
+import {type TreeComponent} from './TreeComponent';
+import {ComponentIdProducer} from '../page/region/ComponentIdProducer';
 
 // Wrapper around TreeComponent to bring id
 export class ComponentsTreeItem

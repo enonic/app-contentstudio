@@ -3,14 +3,14 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {TreeGridActions} from '@enonic/lib-admin-ui/ui/treegrid/actions/TreeGridActions';
+import {type Action} from '@enonic/lib-admin-ui/ui/Action';
+import {type TreeGridActions} from '@enonic/lib-admin-ui/ui/treegrid/actions/TreeGridActions';
 import {ManagedActionManager} from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
 import {ManagedActionState} from '@enonic/lib-admin-ui/managedaction/ManagedActionState';
-import {ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
+import {type ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentTreeGridAction} from './action/ContentTreeGridAction';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ContentTreeGridAction} from './action/ContentTreeGridAction';
 import {ShowNewContentDialogAction} from './action/ShowNewContentDialogAction';
 import {EditContentAction} from './action/EditContentAction';
 import {DuplicateContentAction} from './action/DuplicateContentAction';
@@ -24,15 +24,15 @@ import {MarkAsReadyContentAction} from './action/MarkAsReadyContentAction';
 import {RequestPublishContentAction} from './action/RequestPublishContentAction';
 import {CreateIssueAction} from './action/CreateIssueAction';
 import {ToggleSearchPanelAction} from './action/ToggleSearchPanelAction';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import {type SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {Permission} from '../access/Permission';
 import {ContentTreeGridItemsState} from './action/ContentTreeGridItemsState';
 import {GetPermittedActionsRequest} from '../resource/GetPermittedActionsRequest';
-import {ContentId} from '../content/ContentId';
+import {type ContentId} from '../content/ContentId';
 import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
-import {HasUnpublishedChildren, HasUnpublishedChildrenResult} from '../resource/HasUnpublishedChildrenResult';
+import {type HasUnpublishedChildren, type HasUnpublishedChildrenResult} from '../resource/HasUnpublishedChildrenResult';
 import {GetContentTypeByNameRequest} from '../resource/GetContentTypeByNameRequest';
-import {ContentType} from '../inputtype/schema/ContentType';
+import {type ContentType} from '../inputtype/schema/ContentType';
 import {State} from './State';
 
 

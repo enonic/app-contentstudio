@@ -2,7 +2,7 @@ import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
 import {FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
-import {ComponentDescriptorsDropdown} from './ComponentDescriptorsDropdown';
+import {type ComponentDescriptorsDropdown} from './ComponentDescriptorsDropdown';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 
 export class DescriptorBasedDropdownForm

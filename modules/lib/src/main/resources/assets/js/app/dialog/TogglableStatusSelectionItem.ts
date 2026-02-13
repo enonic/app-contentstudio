@@ -1,6 +1,6 @@
-import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
-import {ContentId} from '../content/ContentId';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
+import {type ContentId} from '../content/ContentId';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {AccessibilityHelper} from '../util/AccessibilityHelper';
 import {IncludeChildrenToggler} from './IncludeChildrenToggler';
 import {StatusSelectionItem} from './StatusSelectionItem';

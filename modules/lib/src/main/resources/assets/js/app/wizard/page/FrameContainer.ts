@@ -1,11 +1,11 @@
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ContentItemPreviewToolbar} from '../../view/ContentItemPreviewToolbar';
-import {LiveEditPageProxy} from './LiveEditPageProxy';
+import {type LiveEditPageProxy} from './LiveEditPageProxy';
 import {RenderingMode} from '../../rendering/RenderingMode';
-import {ContentWizardActions} from '../action/ContentWizardActions';
+import {type ContentWizardActions} from '../action/ContentWizardActions';
 import {PreviewActionHelper} from '../../action/PreviewActionHelper';
-import {PreviewWidgetDropdown} from '../../view/toolbar/PreviewWidgetDropdown';
+import {type PreviewWidgetDropdown} from '../../view/toolbar/PreviewWidgetDropdown';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 
 

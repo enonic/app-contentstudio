@@ -1,12 +1,12 @@
 import {FragmentResourceRequest} from './FragmentResourceRequest';
-import {Content} from '../app/content/Content';
-import {ContentJson} from '../app/content/ContentJson';
-import {Component} from '../app/page/region/Component';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type Content} from '../app/content/Content';
+import {type ContentJson} from '../app/content/ContentJson';
+import {type Component} from '../app/page/region/Component';
+import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {ContentId} from '../app/content/ContentId';
-import {Workflow} from '../app/content/Workflow';
+import {type ContentId} from '../app/content/ContentId';
+import {type Workflow} from '../app/content/Workflow';
 
 export class CreateFragmentRequest
     extends FragmentResourceRequest<Content> {

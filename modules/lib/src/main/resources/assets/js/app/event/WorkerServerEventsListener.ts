@@ -1,9 +1,9 @@
-import {Application} from '@enonic/lib-admin-ui/app/Application';
-import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {EventJson} from '@enonic/lib-admin-ui/event/EventJson';
-import {ServerEventsTranslator} from '@enonic/lib-admin-ui/event/ServerEventsTranslator';
+import {type Application} from '@enonic/lib-admin-ui/app/Application';
+import {type Event} from '@enonic/lib-admin-ui/event/Event';
+import {type EventJson} from '@enonic/lib-admin-ui/event/EventJson';
+import {type ServerEventsTranslator} from '@enonic/lib-admin-ui/event/ServerEventsTranslator';
 import {MessageType} from '../stores/data/server';
-import {ReceivedWorkerMessage} from '../stores/data/worker';
+import {type ReceivedWorkerMessage} from '../stores/data/worker';
 import {subscribe as subscribeToWorker} from '../stores/worker';
 
 export abstract class WorkerServerEventsListener {

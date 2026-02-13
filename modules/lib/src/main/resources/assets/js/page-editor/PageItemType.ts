@@ -1,4 +1,4 @@
-import {ItemTypeConfig, ItemTypeConfigJson} from './ItemTypeConfig';
+import {ItemTypeConfig, type ItemTypeConfigJson} from './ItemTypeConfig';
 import {ItemType} from './ItemType';
 
 export class PageItemType
@@ -14,7 +14,7 @@ export class PageItemType
         super('page');
     }
 
-    protected getItemTypeConfig(itemType: string): ItemTypeConfig {
+    protected getItemTypeConfig(_itemType: string): ItemTypeConfig {
         return new ItemTypeConfig({
             cssSelector: '[data-portal-component-type=page]',
             draggable: false,

@@ -4,10 +4,10 @@ import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {GetPermittedActionsRequest} from '../../resource/GetPermittedActionsRequest';
 import {CreatePageTemplateRequest} from '../CreatePageTemplateRequest';
 import {EditContentEvent} from '../../event/EditContentEvent';
-import {Site} from '../../content/Site';
+import {type Site} from '../../content/Site';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {Permission} from '../../access/Permission';
-import {ContentSummary} from '../../content/ContentSummary';
+import {type ContentSummary} from '../../content/ContentSummary';
 import {PageState} from '../page/PageState';
 import {PageEventsManager} from '../PageEventsManager';
 

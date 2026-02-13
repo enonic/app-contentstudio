@@ -1,5 +1,5 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class BaseContentModelEvent
     extends Event {

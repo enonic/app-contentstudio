@@ -1,8 +1,8 @@
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
 import {LazyListBox} from '@enonic/lib-admin-ui/ui/selector/list/LazyListBox';
-import {ContentId} from '../content/ContentId';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ContentId} from '../content/ContentId';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {StatusCheckableItem} from './StatusCheckableItem';
 

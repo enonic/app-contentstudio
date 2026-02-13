@@ -1,8 +1,8 @@
 import Q from 'q';
 import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
-import {MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
+import {type MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
 import {GetMacrosRequest} from './GetMacrosRequest';
 
 export class MacrosLoader

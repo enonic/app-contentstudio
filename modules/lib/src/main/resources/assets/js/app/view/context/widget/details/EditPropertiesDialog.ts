@@ -1,14 +1,14 @@
 import {DefaultModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentSummary} from '../../../../content/ContentSummary';
+import {type ContentSummary} from '../../../../content/ContentSummary';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {GetContentByIdRequest} from '../../../../resource/GetContentByIdRequest';
-import {Content} from '../../../../content/Content';
+import {type Content} from '../../../../content/Content';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {UpdateContentMetadataRequest} from '../../../../resource/UpdateContentMetadataRequest';
-import {PropertiesWizardStepForm} from './PropertiesWizardStepForm';
-import Q from 'q';
+import {type PropertiesWizardStepForm} from './PropertiesWizardStepForm';
+import type Q from 'q';
 import {ModalDialogWithConfirmation} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 
 export interface EditPropertiesDialogParams {

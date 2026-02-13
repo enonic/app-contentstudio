@@ -1,8 +1,8 @@
-import {ProjectsTreeList, ProjectsTreeListParams, ProjectTreeListElement} from './ProjectsTreeList';
+import {ProjectsTreeList, type ProjectsTreeListParams, ProjectTreeListElement} from './ProjectsTreeList';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {Project} from '../../../../data/project/Project';
+import {type Project} from '../../../../data/project/Project';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export class ProjectsTreeRootList extends ProjectsTreeList {

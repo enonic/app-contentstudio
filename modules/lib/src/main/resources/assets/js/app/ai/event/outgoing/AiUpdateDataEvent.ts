@@ -1,6 +1,6 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {AiData} from '../data/AiData';
+import {type AiData} from '../data/AiData';
 
 export class AiUpdateDataEvent
     extends Event {

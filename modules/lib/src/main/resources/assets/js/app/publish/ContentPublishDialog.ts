@@ -1,16 +1,16 @@
 import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {type TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import Q from 'q';
+import type Q from 'q';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
-import {ContentId} from '../content/ContentId';
+import {type ContentId} from '../content/ContentId';
 import {BasePublishDialog} from '../dialog/BasePublishDialog';
 import {ContentDialogSubTitle} from '../dialog/ContentDialogSubTitle';
-import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
+import {type DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {PublishContentRequest} from '../resource/PublishContentRequest';
 import {ContentPublishDialogAction} from './ContentPublishDialogAction';
 

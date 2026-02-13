@@ -1,5 +1,5 @@
 {
-  "name": "lib-contentstudio",
+  "name": "@enonic/lib-contentstudio",
   "version": "6.0.0",
   "description": "Enonix XP - Content Studio Library",
   "license": "GPL-3.0",

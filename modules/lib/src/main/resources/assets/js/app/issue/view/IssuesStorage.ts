@@ -1,4 +1,4 @@
-import {IssueWithAssignees} from '../IssueWithAssignees';
+import {type IssueWithAssignees} from '../IssueWithAssignees';
 
 export class IssuesStorage {
 

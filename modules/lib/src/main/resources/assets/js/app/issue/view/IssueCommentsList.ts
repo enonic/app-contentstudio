@@ -1,5 +1,5 @@
-import Q from 'q';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import type Q from 'q';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
@@ -10,9 +10,9 @@ import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {ContextMenu} from '@enonic/lib-admin-ui/ui/menu/ContextMenu';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
-import {IssueComment} from '../IssueComment';
+import {type IssueComment} from '../IssueComment';
 import {DeleteIssueCommentRequest} from '../resource/DeleteIssueCommentRequest';
-import {Issue} from '../Issue';
+import {type Issue} from '../Issue';
 import {ListIssueCommentsRequest} from '../resource/ListIssueCommentsRequest';
 import {UpdateIssueCommentRequest} from '../resource/UpdateIssueCommentRequest';
 import {InPlaceTextArea} from './InPlaceTextArea';
@@ -21,7 +21,7 @@ import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {PrincipalViewerCompact} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {ListIssueCommentsResponse} from '../resource/ListIssueCommentsResponse';
+import {type ListIssueCommentsResponse} from '../resource/ListIssueCommentsResponse';
 
 export class IssueCommentsList
     extends ListBox<IssueComment> {

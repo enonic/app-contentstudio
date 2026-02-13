@@ -1,5 +1,5 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {AccessOption} from '../../security/Access';
+import {type AccessOption} from '../../security/Access';
 
 export enum ProjectAccess {
     OWNER = 'owner',

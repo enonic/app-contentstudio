@@ -19,7 +19,7 @@ export class ModeTogglerButton
             this.toggleClass('icon-folder-open', isActive);
             this.toggleClass('icon-folder-closed', !isActive);
 
-            let isVisible: boolean = this.tooltip.isVisible();
+            const isVisible: boolean = this.tooltip.isVisible();
 
             if (isVisible) {
                 this.tooltip.hide();

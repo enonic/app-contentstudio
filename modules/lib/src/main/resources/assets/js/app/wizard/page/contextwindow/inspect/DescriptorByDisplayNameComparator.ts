@@ -1,5 +1,5 @@
-import {Comparator} from '@enonic/lib-admin-ui/Comparator';
-import {Descriptor} from '../../../../page/Descriptor';
+import {type Comparator} from '@enonic/lib-admin-ui/Comparator';
+import {type Descriptor} from '../../../../page/Descriptor';
 
 export class DescriptorByDisplayNameComparator
     implements Comparator<Descriptor> {

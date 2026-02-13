@@ -1,4 +1,4 @@
-import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
+import {type ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 
 export interface RegionJson {
 

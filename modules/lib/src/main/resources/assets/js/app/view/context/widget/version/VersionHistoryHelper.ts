@@ -1,4 +1,4 @@
-import {VersionHistoryItem} from './VersionHistoryItem';
+import {type VersionHistoryItem} from './VersionHistoryItem';
 
 export class VersionHistoryHelper {
 

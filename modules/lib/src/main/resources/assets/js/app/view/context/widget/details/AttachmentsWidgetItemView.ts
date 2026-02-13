@@ -4,15 +4,15 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {WidgetItemView} from '../../WidgetItemView';
 import {GetContentAttachmentsRequest} from '../../../../resource/GetContentAttachmentsRequest';
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {Attachments} from '../../../../attachment/Attachments';
+import {type ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {type Attachments} from '../../../../attachment/Attachments';
 import {Attachment} from '../../../../attachment/Attachment';
-import {AttachmentName} from '../../../../attachment/AttachmentName';
+import {type AttachmentName} from '../../../../attachment/AttachmentName';
 import {UlEl} from '@enonic/lib-admin-ui/dom/UlEl';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';
-import {ContentSummary} from '../../../../content/ContentSummary';
-import {ContentId} from '../../../../content/ContentId';
+import {type ContentSummary} from '../../../../content/ContentSummary';
+import {type ContentId} from '../../../../content/ContentId';
 import {ContentPath} from '../../../../content/ContentPath';
 
 export class AttachmentsWidgetItemView extends WidgetItemView {
@@ -39,7 +39,7 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
     }
 
     public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
-        let content = item.getContentSummary();
+        const content = item.getContentSummary();
         if (AttachmentsWidgetItemView.debug) {
             console.debug('AttachmentsWidgetItemView.setContent: ', content);
         }
@@ -83,10 +83,10 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
                 if (attachments) {
                     this.list = new UlEl('attachment-list');
 
-                    let contentId = this.content.getContentId();
+                    const contentId = this.content.getContentId();
                     attachments.forEach((attachment: Attachment) => {
-                        let attachmentContainer = new LiEl('attachment-container icon-attachment');
-                        let link = AttachmentsWidgetItemView.createLinkEl(contentId, attachment.getName(), this.contentRootPath);
+                        const attachmentContainer = new LiEl('attachment-container icon-attachment');
+                        const link = AttachmentsWidgetItemView.createLinkEl(contentId, attachment.getName(), this.contentRootPath);
                         attachmentContainer.appendChild(link);
                         this.list.appendChild(attachmentContainer);
 

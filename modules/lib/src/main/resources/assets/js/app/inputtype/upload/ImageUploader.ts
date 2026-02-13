@@ -1,21 +1,21 @@
 import Q from 'q';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Input} from '@enonic/lib-admin-ui/form/Input';
+import {type Input} from '@enonic/lib-admin-ui/form/Input';
 import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from '@enonic/lib-admin-ui/Class';
-import {Property} from '@enonic/lib-admin-ui/data/Property';
+import {type Property} from '@enonic/lib-admin-ui/data/Property';
 import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {Value} from '@enonic/lib-admin-ui/data/Value';
-import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
+import {type Value} from '@enonic/lib-admin-ui/data/Value';
+import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
+import {type UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
 import {ImageUploaderEl} from '../ui/selector/image/ImageUploaderEl';
 import {ImageErrorEvent} from '../ui/selector/image/ImageErrorEvent';
 import {MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
-import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {GetContentByIdRequest} from '../../resource/GetContentByIdRequest';
-import {ImageEditor, Point, Rect} from '../ui/selector/image/ImageEditor';
-import {Content} from '../../content/Content';
+import {type ImageEditor, type Point, type Rect} from '../ui/selector/image/ImageEditor';
+import {type Content} from '../../content/Content';
 import {BaseInputTypeSingleOccurrence} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeSingleOccurrence';
 import {InputValidationRecording} from '@enonic/lib-admin-ui/form/inputtype/InputValidationRecording';
 import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
@@ -85,9 +85,9 @@ export class ImageUploader
         }
 
         this.imageUploader.onFileUploaded((event: UploadedEvent<Content>) => {
-            let content = event.getUploadItem().getModel();
+            const content = event.getUploadItem().getModel();
             this.updateImageMimeType(content);
-            let value = this.imageUploader.getMediaValue(content);
+            const value = this.imageUploader.getMediaValue(content);
             this.imageUploader.setFileName(value.getString());
 
             this.imageUploader.setOriginalDimensions(
@@ -161,7 +161,7 @@ export class ImageUploader
 
     protected saveToProperty(value: Value) {
         this.ignorePropertyChange = true;
-        let property = this.getProperty();
+        const property = this.getProperty();
         switch (property.getType()) {
         case ValueTypes.DATA: {
             // update the attachment name, and reset the focal point data
@@ -219,7 +219,7 @@ export class ImageUploader
     }
 
     private saveEditDataToProperty(crop: Rect, zoom: Rect, focus: Point) {
-        let container = this.getPropertyContainer(this.getProperty());
+        const container = this.getPropertyContainer(this.getProperty());
 
         this.saveCropToProperty(crop, zoom, container);
         this.saveFocusToProperty(focus, container);
@@ -285,11 +285,11 @@ export class ImageUploader
             // save in new format always no matter what was the format originally
             container = new PropertyTree().getRoot();
             container.setString('attachment', 0, property.getString());
-            let propertyParent = property.getParent();
-            let propertyName = property.getName();
+            const propertyParent = property.getParent();
+            const propertyName = property.getName();
             // remove old string property and set the new property set
             propertyParent.removeProperty(propertyName, 0);
-            let newProperty = propertyParent.setPropertySet(propertyName, 0, container);
+            const newProperty = propertyParent.setPropertySet(propertyName, 0, container);
             // update local property reference
             this.registerProperty(newProperty);
             break;
@@ -299,15 +299,15 @@ export class ImageUploader
     }
 
     private getFocalPoint(content: Content): Point {
-        let focalProperty = this.getMediaProperty(content, 'focalPoint');
+        const focalProperty = this.getMediaProperty(content, 'focalPoint');
 
         if (!focalProperty) {
             return null;
         }
 
-        let focalSet = focalProperty.getPropertySet();
-        let x = focalSet.getDouble('x');
-        let y = focalSet.getDouble('y');
+        const focalSet = focalProperty.getPropertySet();
+        const x = focalSet.getDouble('x');
+        const y = focalSet.getDouble('y');
 
         if (!x || !y) {
             return null;
@@ -320,17 +320,17 @@ export class ImageUploader
     }
 
     private getRectFromProperty(content: Content, propertyName: string): Rect {
-        let property = this.getMediaProperty(content, propertyName);
+        const property = this.getMediaProperty(content, propertyName);
 
         if (!property) {
             return null;
         }
 
-        let cropPositionSet = property.getPropertySet();
-        let x = cropPositionSet.getDouble('left');
-        let y = cropPositionSet.getDouble('top');
-        let x2 = cropPositionSet.getDouble('right');
-        let y2 = cropPositionSet.getDouble('bottom');
+        const cropPositionSet = property.getPropertySet();
+        const x = cropPositionSet.getDouble('left');
+        const y = cropPositionSet.getDouble('top');
+        const x2 = cropPositionSet.getDouble('right');
+        const y2 = cropPositionSet.getDouble('bottom');
 
         return {x, y, x2, y2};
     }
@@ -346,7 +346,7 @@ export class ImageUploader
     }
 
     private readOrientation(content: Content): number {
-        let property = this.getMediaProperty(content, 'orientation');
+        const property = this.getMediaProperty(content, 'orientation');
         if (!property) {
             return this.readOriginalOrientation(content);
         }
@@ -385,7 +385,7 @@ export class ImageUploader
     }
 
     private getMediaProperty(content: Content, propertyName: string) {
-        let mediaProperty = content.getProperty('media');
+        const mediaProperty = content.getProperty('media');
         if (!mediaProperty || !ValueTypes.DATA.equals(mediaProperty.getType())) {
             return null;
         }
@@ -393,13 +393,13 @@ export class ImageUploader
     }
 
     private configEditorsProperties(content: Content) {
-        let focalPoint = this.getFocalPoint(content);
+        const focalPoint = this.getFocalPoint(content);
         this.imageUploader.setFocalPoint(focalPoint);
 
-        let cropPosition = this.getRectFromProperty(content, 'cropPosition');
+        const cropPosition = this.getRectFromProperty(content, 'cropPosition');
         this.imageUploader.setCrop(cropPosition);
 
-        let zoomPosition = this.getRectFromProperty(content, 'zoomPosition');
+        const zoomPosition = this.getRectFromProperty(content, 'zoomPosition');
         this.imageUploader.setZoom(zoomPosition);
 
         const orientation = this.readOrientation(content);

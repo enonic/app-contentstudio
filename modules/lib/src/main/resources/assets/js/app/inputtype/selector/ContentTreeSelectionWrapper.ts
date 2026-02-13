@@ -1,8 +1,8 @@
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
-import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {type ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {SelectableListBoxNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxNavigator';
 import {TreeListElement} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 
 export class ContentTreeSelectionWrapper
     extends SelectableListBoxWrapper<ContentTreeSelectorItem> {

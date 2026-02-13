@@ -1,10 +1,10 @@
 import {PropertiesWidgetItemView} from './PropertiesWidgetItemView';
-import {PropertiesWidgetItemViewHelper} from './PropertiesWidgetItemViewHelper';
+import {type PropertiesWidgetItemViewHelper} from './PropertiesWidgetItemViewHelper';
 import {OnlinePropertiesWidgetItemViewHelper} from './OnlinePropertiesWidgetItemViewHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {PropertiesWizardStepFormType} from './PropertiesWizardStepFormFactory';
-import {EditPropertiesDialogParams} from './EditPropertiesDialog';
-import {Content} from '../../../../content/Content';
+import {type EditPropertiesDialogParams} from './EditPropertiesDialog';
+import {type Content} from '../../../../content/Content';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 
 export class OnlinePropertiesWidgetItemView

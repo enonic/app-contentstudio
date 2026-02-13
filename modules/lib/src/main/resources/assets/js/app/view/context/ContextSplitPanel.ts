@@ -1,17 +1,17 @@
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {type Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {SplitPanel, SplitPanelAlignment, SplitPanelBuilder} from '@enonic/lib-admin-ui/ui/panel/SplitPanel';
 import {SplitPanelSize} from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
-import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import {type ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {ResponsiveRange} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRange';
+import {type ResponsiveRange} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRange';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {InspectEvent} from '../../event/InspectEvent';
 import {ContextPanelState} from './ContextPanelState';
-import {ContextView} from './ContextView';
-import {DockedContextPanel} from './DockedContextPanel';
-import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
+import {type ContextView} from './ContextView';
+import {type DockedContextPanel} from './DockedContextPanel';
+import {type Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export enum ContextPanelMode {

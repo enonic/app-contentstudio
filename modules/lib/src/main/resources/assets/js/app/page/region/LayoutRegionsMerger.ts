@@ -1,8 +1,8 @@
 import {Region} from './Region';
 import {Regions} from './Regions';
-import {LayoutComponent} from './LayoutComponent';
-import {Component} from './Component';
-import {RegionDescriptor} from '../RegionDescriptor';
+import {type LayoutComponent} from './LayoutComponent';
+import {type Component} from './Component';
+import {type RegionDescriptor} from '../RegionDescriptor';
 
 export class LayoutRegionsMerger {
 
@@ -32,9 +32,9 @@ export class LayoutRegionsMerger {
         this.mergeMissingRegions(layoutDescriptorRegions);
 
         // return merged regions in the same order as they were in target layoutDescriptor
-        let layoutRegionsBuilder = Regions.create();
+        const layoutRegionsBuilder = Regions.create();
         layoutDescriptorRegions.forEach((regionDescriptor: RegionDescriptor) => {
-            let layoutRegion = this.targetRegionsByName[regionDescriptor.getName()];
+            const layoutRegion = this.targetRegionsByName[regionDescriptor.getName()];
             layoutRegionsBuilder.addRegion(layoutRegion);
         });
         return layoutRegionsBuilder.build();
@@ -45,10 +45,10 @@ export class LayoutRegionsMerger {
      */
     private mergeExistingRegions() {
         this.layoutComponentRegions.forEach((region: Region) => {
-            let regionName = region.getName();
+            const regionName = region.getName();
             if (this.targetRegionsByName[regionName]) {
-                let targetRegion = this.targetRegionsByName[regionName];
-                let updatedRegion: Region = this.addComponents(region, targetRegion);
+                const targetRegion = this.targetRegionsByName[regionName];
+                const updatedRegion: Region = this.addComponents(region, targetRegion);
                 this.targetRegionsByName[regionName] = updatedRegion;
             }
         });
@@ -58,18 +58,18 @@ export class LayoutRegionsMerger {
      * Merge components from regions that are missing in target layout descriptor
      */
     private mergeMissingRegions(layoutDescriptorRegions: RegionDescriptor[]) {
-        let lastRegionName = layoutDescriptorRegions[layoutDescriptorRegions.length - 1].getName();
+        const lastRegionName = layoutDescriptorRegions[layoutDescriptorRegions.length - 1].getName();
 
         this.layoutComponentRegions.forEach((region: Region) => {
-            let regionName = region.getName();
+            const regionName = region.getName();
             if (!this.targetRegionsByName[regionName]) {
-                let sourceRegionPos: number = this.sourceRegionsPositionByName[regionName];
+                const sourceRegionPos: number = this.sourceRegionsPositionByName[regionName];
                 // insert region components in region with the same position in target,
                 // or in last region if there are less regions in target
-                let targetRegionName = this.targetRegionsNameByPosition[sourceRegionPos] || lastRegionName;
-                let targetRegion: Region = this.targetRegionsByName[targetRegionName];
+                const targetRegionName = this.targetRegionsNameByPosition[sourceRegionPos] || lastRegionName;
+                const targetRegion: Region = this.targetRegionsByName[targetRegionName];
 
-                let updatedRegion: Region = this.addComponents(region, targetRegion);
+                const updatedRegion: Region = this.addComponents(region, targetRegion);
                 this.targetRegionsByName[targetRegionName] = updatedRegion;
             }
         });
@@ -81,8 +81,8 @@ export class LayoutRegionsMerger {
         this.sourceRegionsPositionByName = {};
 
         layoutDescriptorRegions.forEach((regionDescriptor: RegionDescriptor, idx: number) => {
-            let regionName = regionDescriptor.getName();
-            let layoutRegion = Region.create().setName(regionName).setParent(parent).build();
+            const regionName = regionDescriptor.getName();
+            const layoutRegion = Region.create().setName(regionName).setParent(parent).build();
             this.targetRegionsByName[regionName] = layoutRegion;
             this.targetRegionsNameByPosition[idx] = regionName;
         });
@@ -96,7 +96,7 @@ export class LayoutRegionsMerger {
             return toRegion;
         }
 
-        let result = Region.create(toRegion);
+        const result = Region.create(toRegion);
         fromRegion.getComponents().forEach((component: Component) => {
             result.addComponent(component);
         });

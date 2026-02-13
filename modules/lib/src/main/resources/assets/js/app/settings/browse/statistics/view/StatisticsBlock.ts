@@ -1,7 +1,7 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {H3El} from '@enonic/lib-admin-ui/dom/H3El';
-import {StatisticsBlockColumn} from './StatisticsBlockColumn';
-import {SettingsViewItem} from '../../../view/SettingsViewItem';
+import {type StatisticsBlockColumn} from './StatisticsBlockColumn';
+import {type SettingsViewItem} from '../../../view/SettingsViewItem';
 
 export abstract class StatisticsBlock extends DivEl {
 

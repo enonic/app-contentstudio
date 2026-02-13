@@ -1,5 +1,5 @@
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {PageTemplateAndControllerOption, PageTemplateAndSelectorViewer} from './PageTemplateAndSelectorViewer';
+import {type PageTemplateAndControllerOption, PageTemplateAndSelectorViewer} from './PageTemplateAndSelectorViewer';
 
 export class PageOptionsList extends ListBox<PageTemplateAndControllerOption> {
 

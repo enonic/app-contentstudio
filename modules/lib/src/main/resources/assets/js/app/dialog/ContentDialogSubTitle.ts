@@ -1,11 +1,11 @@
 import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {AutosizeTextInput} from '@enonic/lib-admin-ui/ui/text/AutosizeTextInput';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import Q from 'q';
+import type Q from 'q';
 
 export class ContentDialogSubTitleOptions {
     placeholderText: string;

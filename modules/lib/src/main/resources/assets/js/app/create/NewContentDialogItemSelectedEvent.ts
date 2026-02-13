@@ -1,4 +1,4 @@
-import {NewContentDialogListItem} from './NewContentDialogListItem';
+import {type NewContentDialogListItem} from './NewContentDialogListItem';
 
 export class NewContentDialogItemSelectedEvent {
 

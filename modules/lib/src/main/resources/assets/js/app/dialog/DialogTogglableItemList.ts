@@ -1,10 +1,9 @@
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type ContentId} from '../content/ContentId';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ContentId} from '../content/ContentId';
-import {ContentIds} from '../content/ContentIds';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
-import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {type ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
+import {type ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {DialogMainItemsList} from './DialogMainItemsList';
 import {TogglableStatusSelectionItem} from './TogglableStatusSelectionItem';

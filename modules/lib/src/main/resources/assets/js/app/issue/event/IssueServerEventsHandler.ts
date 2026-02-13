@@ -1,8 +1,8 @@
 import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
 import {GetIssuesRequest} from '../resource/GetIssuesRequest';
-import {Issue} from '../Issue';
+import {type Issue} from '../Issue';
 import {IssueServerEvent} from '../../event/IssueServerEvent';
-import {IssueServerChangeItem} from '../../event/IssueServerChangeItem';
+import {type IssueServerChangeItem} from '../../event/IssueServerChangeItem';
 import {ProjectContext} from '../../project/ProjectContext';
 import {RepositoryId} from '../../repository/RepositoryId';
 

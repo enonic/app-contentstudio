@@ -1,9 +1,9 @@
-import {ContentPath} from '../../content/ContentPath';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {MacroKey} from '@enonic/lib-admin-ui/macro/MacroKey';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type ContentPath} from '../../content/ContentPath';
+import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {type MacroKey} from '@enonic/lib-admin-ui/macro/MacroKey';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {PreviewRequest} from './PreviewRequest';
-import {MacroPreviewJson} from './MacroPreviewJson';
+import {type MacroPreviewJson} from './MacroPreviewJson';
 import {MacroPreview} from '../MacroPreview';
 
 export class GetPreviewRequest
@@ -20,7 +20,7 @@ export class GetPreviewRequest
     getParams(): object {
         return {
             form: this.data.toJson(),
-            contentPath: !!this.path ? this.path.toString() : '',
+            contentPath: this.path ? this.path.toString() : '',
             macroKey: this.macroKey.getRefString()
         };
     }

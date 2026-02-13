@@ -1,29 +1,29 @@
-import Q from 'q';
+import type Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Router} from '../../Router';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {ContentQuery} from '../../content/ContentQuery';
+import {type ContentQuery} from '../../content/ContentQuery';
 import {AggregationGroupView} from '@enonic/lib-admin-ui/aggregation/AggregationGroupView';
-import {Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
+import {type Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
 import {BrowseFilterPanel} from '@enonic/lib-admin-ui/app/browse/filter/BrowseFilterPanel';
-import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
-import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
-import {BucketAggregationView} from '@enonic/lib-admin-ui/aggregation/BucketAggregationView';
-import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
+import {type BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
+import {type Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
+import {type BucketAggregationView} from '@enonic/lib-admin-ui/aggregation/BucketAggregationView';
+import {type ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 import {ProjectContext} from '../../project/ProjectContext';
-import {ContentSummary} from '../../content/ContentSummary';
-import {ContentId} from '../../content/ContentId';
+import {type ContentSummary} from '../../content/ContentSummary';
+import {type ContentId} from '../../content/ContentId';
 import {DependenciesSection} from './DependenciesSection';
 import {ContentAggregation} from './ContentAggregation';
 import {AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
 import {ContentAggregationsFetcher} from './ContentAggregationsFetcher';
 import {FilterableAggregationGroupView} from './FilterableAggregationGroupView';
-import {AggregationsQueryResult} from './AggregationsQueryResult';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type AggregationsQueryResult} from './AggregationsQueryResult';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContentExportElement} from './ContentExportElement';
-import {ContentDependency} from './ContentDependency';
+import {type ContentDependency} from './ContentDependency';
 import {TextSearchField} from '@enonic/lib-admin-ui/app/browse/filter/TextSearchField';
 import {Branch} from '../../versioning/Branch';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
@@ -143,7 +143,7 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
         this.aggregations = new Map<string, AggregationGroupView>();
 
         const aggregationEnum = this.getAggregationEnum();
-        for (let aggrEnum in aggregationEnum) {
+        for (const aggrEnum in aggregationEnum) {
             const name: string = aggregationEnum[aggrEnum];
             this.aggregations.set(name, this.createGroupView(name));
         }

@@ -1,7 +1,7 @@
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {Reference} from '@enonic/lib-admin-ui/util/Reference';
+import {type Reference} from '@enonic/lib-admin-ui/util/Reference';
 
 export class ContentId
     implements Equitable {
@@ -33,7 +33,7 @@ export class ContentId
             return false;
         }
 
-        let other = o as ContentId;
+        const other = o as ContentId;
 
         if (!ObjectHelper.stringEquals(this.value, other.value)) {
             return false;

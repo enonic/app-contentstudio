@@ -1,5 +1,5 @@
-import {PropertyArrayJson} from '@enonic/lib-admin-ui/data/PropertyArrayJson';
-import {FormJson} from '@enonic/lib-admin-ui/form/json/FormJson';
+import {type PropertyArrayJson} from '@enonic/lib-admin-ui/data/PropertyArrayJson';
+import {type FormJson} from '@enonic/lib-admin-ui/form/json/FormJson';
 
 export interface AiData {
     data?: ContentData;

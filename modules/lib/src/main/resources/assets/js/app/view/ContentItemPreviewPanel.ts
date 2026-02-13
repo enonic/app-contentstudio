@@ -1,18 +1,18 @@
 import Q from 'q';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ContentItemPreviewToolbar, WidgetPreviewAction} from './ContentItemPreviewToolbar';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentItemPreviewToolbar, type WidgetPreviewAction} from './ContentItemPreviewToolbar';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ItemPreviewPanel} from '@enonic/lib-admin-ui/app/view/ItemPreviewPanel';
 import {ContentResourceRequest} from '../resource/ContentResourceRequest';
-import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
+import {type ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
 import {ContentSummaryAndCompareStatusHelper} from '../content/ContentSummaryAndCompareStatusHelper';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {WidgetRenderingHandler, WidgetRenderer} from './WidgetRenderingHandler';
-import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
+import {type Action} from '@enonic/lib-admin-ui/ui/Action';
+import {WidgetRenderingHandler, type WidgetRenderer} from './WidgetRenderingHandler';
+import {type IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
+import {type DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {type Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
 import {PreviewActionHelper} from '../action/PreviewActionHelper';
-import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
+import {type PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
 
 
 export class ContentItemPreviewPanel

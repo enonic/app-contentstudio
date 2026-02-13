@@ -1,6 +1,6 @@
 import {ProjectResourceRequest} from './ProjectResourceRequest';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {Project} from '../data/project/Project';
+import {type Project} from '../data/project/Project';
 
 export class ProjectUpdateIconRequest
     extends ProjectResourceRequest<Project> {

@@ -6,12 +6,12 @@ import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {ContentVersionHelper} from '../../../../ContentVersionHelper';
 import {VersionContext} from './VersionContext';
-import Q from 'q';
+import type Q from 'q';
 import {VersionHistoryHelper} from './VersionHistoryHelper';
-import {VersionHistoryItem} from './VersionHistoryItem';
+import {type VersionHistoryItem} from './VersionHistoryItem';
 import {VersionHistoryItemViewer} from './VersionHistoryItemViewer';
 
 export class VersionHistoryListItem
@@ -142,11 +142,11 @@ export class VersionHistoryListItem
             this.version.getUser(),
         );
 
-        if (!!this.version.getActiveFrom()) {
+        if (this.version.getActiveFrom()) {
             tooltip += ' ' + i18n('tooltip.from', DateHelper.formatDateTime(this.version.getActiveFrom(), false));
         }
 
-        if (!!this.version.getActiveTo()) {
+        if (this.version.getActiveTo()) {
             tooltip += ' ' + i18n('tooltip.to', DateHelper.formatDateTime(this.version.getActiveTo(), false));
         }
 

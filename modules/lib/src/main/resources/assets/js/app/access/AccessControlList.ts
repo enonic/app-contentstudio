@@ -1,10 +1,10 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {type Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {AccessControlEntry} from './AccessControlEntry';
-import {AccessControlEntryJson} from './AccessControlEntryJson';
-import {PermissionsJson} from './PermissionsJson';
+import {type AccessControlEntryJson} from './AccessControlEntryJson';
+import {type PermissionsJson} from './PermissionsJson';
 
 export class AccessControlList
     implements Equitable, Cloneable {
@@ -19,8 +19,8 @@ export class AccessControlList
     }
 
     getEntries(): AccessControlEntry[] {
-        let values = [];
-        for (let key in this.entries) {
+        const values = [];
+        for (const key in this.entries) {
             if (this.entries.hasOwnProperty(key)) {
                 values.push(this.entries[key]);
             }
@@ -51,9 +51,9 @@ export class AccessControlList
     }
 
     toJson(): AccessControlEntryJson[] {
-        let acl: AccessControlEntryJson[] = [];
+        const acl: AccessControlEntryJson[] = [];
         this.getEntries().forEach((entry: AccessControlEntry) => {
-            let entryJson = entry.toJson();
+            const entryJson = entry.toJson();
             acl.push(entryJson);
         });
         return acl;
@@ -69,13 +69,13 @@ export class AccessControlList
             return false;
         }
 
-        let other = o as AccessControlList;
+        const other = o as AccessControlList;
         return ObjectHelper.arrayEquals(this.getEntries().sort(), other.getEntries().sort());
     }
 
     clone(): AccessControlList {
-        let entries: AccessControlEntry[] = [];
-        for (let key in this.entries) {
+        const entries: AccessControlEntry[] = [];
+        for (const key in this.entries) {
             if (this.entries.hasOwnProperty(key)) {
                 entries.push(this.entries[key].clone());
             }
@@ -84,9 +84,9 @@ export class AccessControlList
     }
 
     static fromJson(json: PermissionsJson): AccessControlList {
-        let acl = new AccessControlList();
+        const acl = new AccessControlList();
         json.permissions.forEach((entryJson: AccessControlEntryJson) => {
-            let entry = AccessControlEntry.fromJson(entryJson);
+            const entry = AccessControlEntry.fromJson(entryJson);
             acl.add(entry);
         });
         return acl;

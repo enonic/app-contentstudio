@@ -1,8 +1,8 @@
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {MacroKey} from '@enonic/lib-admin-ui/macro/MacroKey';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {type MacroKey} from '@enonic/lib-admin-ui/macro/MacroKey';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {PreviewRequest} from './PreviewRequest';
-import {MacroPreviewStringJson} from './MacroPreviewJson';
+import {type MacroPreviewStringJson} from './MacroPreviewJson';
 
 export class GetPreviewStringRequest
     extends PreviewRequest<string> {

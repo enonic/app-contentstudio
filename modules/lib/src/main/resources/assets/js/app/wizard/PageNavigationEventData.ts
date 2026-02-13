@@ -1,4 +1,4 @@
-import {ComponentPath} from '../page/region/ComponentPath';
+import {type ComponentPath} from '../page/region/ComponentPath';
 
 export enum PageNavigationEventSource {
     EDITOR, FORM

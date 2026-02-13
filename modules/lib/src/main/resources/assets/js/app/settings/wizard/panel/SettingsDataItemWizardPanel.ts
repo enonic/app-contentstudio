@@ -1,29 +1,29 @@
 import Q from 'q';
-import {WizardPanel, WizardPanelParams} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {Toolbar, ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
+import {WizardPanel, type WizardPanelParams} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
+import {type Action} from '@enonic/lib-admin-ui/ui/Action';
+import {Toolbar, type ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {WizardStep} from '@enonic/lib-admin-ui/app/wizard/WizardStep';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {WizardHeaderWithDisplayNameAndName} from '@enonic/lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {FormIcon} from '@enonic/lib-admin-ui/app/wizard/FormIcon';
-import {SettingDataItemWizardStepForm} from './form/SettingDataItemWizardStepForm';
+import {type FormIcon} from '@enonic/lib-admin-ui/app/wizard/FormIcon';
+import {type SettingDataItemWizardStepForm} from './form/SettingDataItemWizardStepForm';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
-import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
+import {type ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {SettingsDataItemFormIcon} from './form/element/SettingsDataItemFormIcon';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {SettingsDataItemWizardActions} from '../action/SettingsDataItemWizardActions';
-import {SettingsDataViewItem} from '../../view/SettingsDataViewItem';
-import {Exception, ExceptionType} from '@enonic/lib-admin-ui/Exception';
-import {SettingsType} from '../../data/type/SettingsType';
-import {AppBarTabId} from '@enonic/lib-admin-ui/app/bar/AppBarTabId';
-import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type SettingsDataItemWizardActions} from '../action/SettingsDataItemWizardActions';
+import {type SettingsDataViewItem} from '../../view/SettingsDataViewItem';
+import {type SettingsType} from '../../data/type/SettingsType';
+import {type AppBarTabId} from '@enonic/lib-admin-ui/app/bar/AppBarTabId';
+import {type ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 
-class SettingsWizardPanelParams<ITEM extends SettingsDataViewItem<Equitable>> implements WizardPanelParams<ITEM> {
+class SettingsWizardPanelParams<ITEM extends SettingsDataViewItem<Equitable>>
+    implements WizardPanelParams<ITEM> {
     tabId: AppBarTabId;
     type: SettingsType;
     persistedItem?: ITEM;
@@ -320,7 +320,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         wizardHeader.setPlaceholder(this.getParams().type.getDisplayNamePlaceholder());
 
         const existing: ITEM = this.getPersistedItem();
-        const displayName: string = !!existing ? existing.getDisplayName() : '';
+        const displayName: string = existing ? existing.getDisplayName() : '';
 
         wizardHeader.toggleNameInput(false);
         wizardHeader.setPath('');

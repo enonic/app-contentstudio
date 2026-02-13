@@ -1,19 +1,19 @@
 import {ProjectAccessControlEntry} from '../../../../access/ProjectAccessControlEntry';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {PrincipalContainerSelectedOptionsView} from '@enonic/lib-admin-ui/ui/security/PrincipalContainerSelectedOptionsView';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {ProjectAccessControlEntryView} from './ProjectAccessControlEntryView';
 import {CSPrincipalLoader} from '../../../../../security/CSPrincipalLoader';
 import {
     FilterableListBoxWrapperWithSelectedView,
-    ListBoxInputOptions
+    type ListBoxInputOptions
 } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
 import {ProjectAccessControlListBox} from './ProjectAccessControlListBox';
-import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import Q from 'q';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 

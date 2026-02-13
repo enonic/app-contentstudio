@@ -1,5 +1,5 @@
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeSummaryViewer} from '../ui/schema/ContentTypeSummaryViewer';
 
 export class ContentTypeList extends ListBox<ContentTypeSummary> {

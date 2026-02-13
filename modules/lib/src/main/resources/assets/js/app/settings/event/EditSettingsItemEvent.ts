@@ -1,6 +1,6 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {SettingsViewItem} from '../view/SettingsViewItem';
+import {type SettingsViewItem} from '../view/SettingsViewItem';
 
 export class EditSettingsItemEvent
     extends Event {

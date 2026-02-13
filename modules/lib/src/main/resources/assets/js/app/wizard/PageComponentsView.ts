@@ -1,55 +1,55 @@
+import {Component} from '../page/region/Component';
+import {type ComponentAddedEvent} from '../page/region/ComponentAddedEvent';
+import {ComponentPath} from '../page/region/ComponentPath';
+import {type ComponentRemovedEvent} from '../page/region/ComponentRemovedEvent';
+import {type ComponentUpdatedEvent} from '../page/region/ComponentUpdatedEvent';
+import {LayoutComponentType} from '../page/region/LayoutComponentType';
+import {Page} from '../page/Page';
+import {PageEventsManager} from './PageEventsManager';
+import {type PageItem} from '../page/region/PageItem';
+import {PageNavigationEvent} from './PageNavigationEvent';
+import {PageNavigationEventData} from './PageNavigationEventData';
+import {PageNavigationEventType} from './PageNavigationEventType';
+import {type PageNavigationHandler} from './PageNavigationHandler';
+import {PageNavigationMediator} from './PageNavigationMediator';
+import {PageState} from './page/PageState';
+import {Region} from '../page/region/Region';
+import {TextComponentType} from '../page/region/TextComponentType';
+import Q from 'q';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
 import {KeyBindings} from '@enonic/lib-admin-ui/ui/KeyBindings';
-import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import {type ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import Q from 'q';
-import {Highlighter} from '../../page-editor/Highlighter';
-import {ItemViewContextMenu} from '../../page-editor/ItemViewContextMenu';
-import {PageViewController} from '../../page-editor/PageViewController';
-import {Page} from '../page/Page';
-import {Component} from '../page/region/Component';
-import {ComponentPath} from '../page/region/ComponentPath';
-import {PageItem} from '../page/region/PageItem';
-import {Region} from '../page/region/Region';
-import {SaveAsTemplateAction} from './action/SaveAsTemplateAction';
-import {ComponentsTreeItem} from './ComponentsTreeItem';
-import {LiveEditPageProxy} from './page/LiveEditPageProxy';
-import {PageState} from './page/PageState';
-import {PageActionsHelper} from './PageActionsHelper';
-import {PageComponentsListElement, PageComponentsTreeGrid} from './PageComponentsTreeGrid';
-import {PageEventsManager} from './PageEventsManager';
-import {PageNavigationEvent} from './PageNavigationEvent';
-import {PageNavigationEventData} from './PageNavigationEventData';
-import {PageNavigationEventType} from './PageNavigationEventType';
-import {PageNavigationHandler} from './PageNavigationHandler';
-import {PageNavigationMediator} from './PageNavigationMediator';
-import {TreeComponent} from './TreeComponent';
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
-import {ComponentAddedEvent} from '../page/region/ComponentAddedEvent';
-import {ComponentRemovedEvent} from '../page/region/ComponentRemovedEvent';
-import {ComponentUpdatedEvent} from '../page/region/ComponentUpdatedEvent';
-import {PageComponentsViewDragHandler} from './PageComponentsViewDragHandler';
-import {LayoutComponentType} from '../page/region/LayoutComponentType';
-import {PageComponentsViewExpandHelper} from './PageComponentsViewExpandHelper';
-import {TextComponentType} from '../page/region/TextComponentType';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
+import {ItemViewContextMenu} from '../../page-editor/ItemViewContextMenu';
+import {PageViewController} from '../../page-editor/PageViewController';
+import {SaveAsTemplateAction} from './action/SaveAsTemplateAction';
+import {ComponentsTreeItem} from './ComponentsTreeItem';
+import {type LiveEditPageProxy} from './page/LiveEditPageProxy';
+import {PageActionsHelper} from './PageActionsHelper';
+import {type PageComponentsListElement, PageComponentsTreeGrid} from './PageComponentsTreeGrid';
+import {type TreeComponent} from './TreeComponent';
+import {PageComponentsViewDragHandler} from './PageComponentsViewDragHandler';
+import {PageComponentsViewExpandHelper} from './PageComponentsViewExpandHelper';
 
 enum Modifiers {
     LOCKED = 'locked',
     COLLAPSED = 'collapsed',
     ANIMATING = 'animating',
 }
+
 export class PageComponentsView
     extends DivEl
     implements PageNavigationHandler {
@@ -374,13 +374,13 @@ export class PageComponentsView
                         event.preventDefault();
                         event.stopPropagation();
 
-                        let el = this.getEl();
-                        let newPos = {
+                        const el = this.getEl();
+                        const newPos = {
                             x: event.clientX,
                             y: event.clientY
                         };
-                        let offset = el.getOffset();
-                        let newOffset = {
+                        const offset = el.getOffset();
+                        const newOffset = {
                             top: offset.top + newPos.y - lastPos.y,
                             left: offset.left + newPos.x - lastPos.x
                         };
@@ -485,10 +485,11 @@ export class PageComponentsView
                 const isViewVisible = (this.getHTMLElement().offsetHeight > 0);
 
                 setTimeout(() => {
+                    //TODO: Probably doesn't work
                     PageViewController.get().setContextMenuDisabled(false);
                     if (!isViewVisible) { // if PCV not visible, for example fragment created, hide highlighter
-
-                        Highlighter.get().hide();
+                        //TODO: Should not be directly manipulated outsite of page editor
+                        // Highlighter.get().hide();
                     }
                 }, 500);
             };
@@ -701,13 +702,14 @@ export class PageComponentsView
             this.expandHelper.expandToTheTop(listElement);
             this.pageComponentsWrapper.select(listElement.getItem());
         } else {
-            return this.expandHelper.loadAndExpandToItemRecursively(path, this.tree, ComponentPath.root()).then((item: ComponentsTreeItem) => {
-                if (item) {
-                    this.pageComponentsWrapper.select(item);
-                }
+            return this.expandHelper.loadAndExpandToItemRecursively(path, this.tree, ComponentPath.root()).then(
+                (item: ComponentsTreeItem) => {
+                    if (item) {
+                        this.pageComponentsWrapper.select(item);
+                    }
 
-                return Q.resolve();
-            });
+                    return Q.resolve();
+                });
         }
 
         return Q.resolve();

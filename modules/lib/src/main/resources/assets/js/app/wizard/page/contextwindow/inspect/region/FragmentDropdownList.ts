@@ -1,7 +1,7 @@
 import {LazyListBox} from '@enonic/lib-admin-ui/ui/selector/list/LazyListBox';
-import {ContentSummary} from '../../../../../content/ContentSummary';
+import {type ContentSummary} from '../../../../../content/ContentSummary';
 import {ContentSummaryViewer} from '../../../../../content/ContentSummaryViewer';
-import {FragmentContentSummaryLoader} from './FragmentContentSummaryLoader';
+import {type FragmentContentSummaryLoader} from './FragmentContentSummaryLoader';
 
 export class FragmentDropdownList extends LazyListBox<ContentSummary> {
 

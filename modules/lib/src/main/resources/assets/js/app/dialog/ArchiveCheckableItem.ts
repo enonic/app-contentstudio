@@ -1,8 +1,8 @@
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
-import Q from 'q';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
+import type Q from 'q';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../event/EditContentEvent';
-import {StatusCheckableItem, StatusCheckableItemConfig} from './StatusCheckableItem';
+import {StatusCheckableItem, type StatusCheckableItemConfig} from './StatusCheckableItem';
 import {ArchiveDialogHelper} from './ArchiveDialogHelper';
 
 export interface ArchiveItemConfig

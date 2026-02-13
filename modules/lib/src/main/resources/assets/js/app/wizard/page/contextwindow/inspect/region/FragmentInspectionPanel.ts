@@ -1,31 +1,31 @@
-import Q from 'q';
+import type Q from 'q';
 import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ComponentInspectionPanel, ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
+import {ComponentInspectionPanel, type ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
 import {FragmentSelectorForm} from './FragmentSelectorForm';
-import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
+import {type LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
 import {FragmentDropdown} from './FragmentDropdown';
 import {GetContentSummaryByIdRequest} from '../../../../../resource/GetContentSummaryByIdRequest';
 import {GetContentByIdRequest} from '../../../../../resource/GetContentByIdRequest';
 import {EditContentEvent} from '../../../../../event/EditContentEvent';
-import {Content} from '../../../../../content/Content';
+import {type Content} from '../../../../../content/Content';
 import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
-import {FragmentComponent} from '../../../../../page/region/FragmentComponent';
+import {type FragmentComponent} from '../../../../../page/region/FragmentComponent';
 import {LayoutComponentType} from '../../../../../page/region/LayoutComponentType';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {ContentServerEventsHandler} from '../../../../../event/ContentServerEventsHandler';
-import {ContentSummary} from '../../../../../content/ContentSummary';
-import {ContentId} from '../../../../../content/ContentId';
-import {ContentPath} from '../../../../../content/ContentPath';
-import {PageItem} from '../../../../../page/region/PageItem';
+import {type ContentSummary} from '../../../../../content/ContentSummary';
+import {type ContentId} from '../../../../../content/ContentId';
+import {type ContentPath} from '../../../../../content/ContentPath';
+import {type PageItem} from '../../../../../page/region/PageItem';
 import {LayoutComponent} from '../../../../../page/region/LayoutComponent';
 import {PageEventsManager} from '../../../../PageEventsManager';
 import {PageState} from '../../../PageState';
-import {ComponentUpdatedEvent} from '../../../../../page/region/ComponentUpdatedEvent';
+import {type ComponentUpdatedEvent} from '../../../../../page/region/ComponentUpdatedEvent';
 import {ComponentFragmentUpdatedEvent} from '../../../../../page/region/ComponentFragmentUpdatedEvent';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 
 export class FragmentInspectionPanel
     extends ComponentInspectionPanel<FragmentComponent> {

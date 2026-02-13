@@ -1,5 +1,5 @@
 import Q from 'q';
-import {XDataWizardStepForm} from './XDataWizardStepForm';
+import {type XDataWizardStepForm} from './XDataWizardStepForm';
 
 export class XDataWizardStepForms {
 
@@ -10,7 +10,7 @@ export class XDataWizardStepForms {
     }
 
     forEach(callback: (form: XDataWizardStepForm) => void) {
-        for (let key in this.xDataStepFormByName) {
+        for (const key in this.xDataStepFormByName) {
             if (this.xDataStepFormByName.hasOwnProperty(key)) {
                 const form = this.xDataStepFormByName[key];
                 callback(form);

@@ -1,7 +1,6 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
-import * as $ from 'jquery';
 
 export class SelectionToolbar
     extends DivEl {
@@ -18,7 +17,7 @@ export class SelectionToolbar
 
     private removeClickListeners: (() => void)[] = [];
 
-    constructor(config?: {editable: boolean}) {
+    constructor(config?: { editable: boolean }) {
         super('selection-toolbar');
 
         this.initElements(!config || config.editable);

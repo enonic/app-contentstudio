@@ -3,11 +3,11 @@ import 'jquery-simulate/jquery.simulate.js';
 import 'jquery-ui/ui/widgets/draggable';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
-import {ContentWizardPanel} from '../../../ContentWizardPanel';
-import {LiveEditPageProxy} from '../../LiveEditPageProxy';
+import {type ContentWizardPanel} from '../../../ContentWizardPanel';
+import {type LiveEditPageProxy} from '../../LiveEditPageProxy';
 import {InsertablesGrid} from './InsertablesGrid';
 import {Insertables} from './Insertables';
-import {SaveAsTemplateAction} from '../../../action/SaveAsTemplateAction';
+import {type SaveAsTemplateAction} from '../../../action/SaveAsTemplateAction';
 import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {PageEventsManager} from '../../../PageEventsManager';
@@ -47,7 +47,7 @@ export class InsertablesPanel
         super('insertables-panel');
         this.liveEditPageProxy = config.liveEditPage;
 
-        let topDescription = new PEl();
+        const topDescription = new PEl();
         topDescription.getEl().setInnerHtml(i18n('field.insertables'));
 
         this.insertablesGrid = new InsertablesGrid({draggableRows: true, rowClass: 'comp'});
@@ -84,7 +84,7 @@ export class InsertablesPanel
     }
 
     private initializeDraggables() {
-        let components = $('[data-context-window-draggable="true"]:not(.ui-draggable)');
+        const components = $('[data-context-window-draggable="true"]:not(.ui-draggable)');
 
         if (InsertablesPanel.debug) {
             console.log('InsertablesPanel.initializeDraggables', components);
@@ -105,7 +105,7 @@ export class InsertablesPanel
     }
 
     private destroyDraggables() {
-        let components = $('[data-context-window-draggable="true"]:not(.ui-draggable)');
+        const components = $('[data-context-window-draggable="true"]:not(.ui-draggable)');
 
         components.draggable('destroy');
     }
@@ -134,7 +134,7 @@ export class InsertablesPanel
             return;
         }
 
-        let over = this.isOverIFrame(event);
+        const over = this.isOverIFrame(event);
         if (this.overIFrame !== over) {
             if (over) {
                 this.onEnterIFrame(event, ui);
@@ -171,6 +171,11 @@ export class InsertablesPanel
         }
         this.liveEditPageProxy.getDragMask().show();
 
+        if (this.iFrameDraggable) {
+            // just remove draggable in iframe, but don't delete value yet
+            this.liveEditPageProxy.setDraggableVisible(this.iFrameDraggableData, false);
+        }
+
         // and show the one in the parent
         ui.helper.show();
     }
@@ -188,6 +193,9 @@ export class InsertablesPanel
             }
 
             this.liveEditPageProxy.createDraggable(this.iFrameDraggableData);
+        } else {
+
+            this.liveEditPageProxy.setDraggableVisible(this.iFrameDraggableData, true);
         }
 
         // and hide the one in the parent

@@ -1,9 +1,9 @@
-import {CustomSelectorItem} from './CustomSelectorItem';
+import {type CustomSelectorItem} from './CustomSelectorItem';
 import {CustomSelectorItemViewer} from './CustomSelectorItemViewer';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {type Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {BaseGallerySelectedOptionView} from '../ui/selector/BaseGallerySelectedOptionView';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 
 export class CustomSelectorGallerySelectedOptionView extends BaseGallerySelectedOptionView<CustomSelectorItem> {
     private icon: CustomSelectorItemViewer;

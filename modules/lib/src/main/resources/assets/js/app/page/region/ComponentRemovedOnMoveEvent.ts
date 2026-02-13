@@ -1,5 +1,5 @@
 import {ComponentRemovedEvent} from './ComponentRemovedEvent';
-import {ComponentPath} from './ComponentPath';
+import {type ComponentPath} from './ComponentPath';
 
 export class ComponentRemovedOnMoveEvent extends ComponentRemovedEvent {
 

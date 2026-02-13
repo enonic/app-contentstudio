@@ -1,4 +1,4 @@
-import {SortContentDialog} from '../sort/dialog/SortContentDialog';
+import {type SortContentDialog} from '../sort/dialog/SortContentDialog';
 import {SaveSortedContentEvent} from '../SaveSortedContentEvent';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';

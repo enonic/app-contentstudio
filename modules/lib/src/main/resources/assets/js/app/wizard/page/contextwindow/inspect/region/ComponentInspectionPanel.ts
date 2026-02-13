@@ -1,5 +1,5 @@
 import {BaseInspectionPanel} from '../BaseInspectionPanel';
-import {Component} from '../../../../../page/region/Component';
+import {type Component} from '../../../../../page/region/Component';
 
 export interface ComponentInspectionPanelConfig {
 

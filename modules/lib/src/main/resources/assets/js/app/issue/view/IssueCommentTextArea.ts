@@ -1,8 +1,8 @@
-import Q from 'q';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import type Q from 'q';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {CompositeFormInputEl} from '@enonic/lib-admin-ui/dom/CompositeFormInputEl';
 import {PrincipalViewerCompact} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
 

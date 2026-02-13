@@ -1,5 +1,5 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ComponentPath} from '../../../../app/page/region/ComponentPath';
+import {type ComponentPath} from '../../../../app/page/region/ComponentPath';
 import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
 export class MoveComponentViewEvent

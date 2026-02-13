@@ -2,16 +2,16 @@ import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
 import {showError, showSuccess, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import Q from 'q';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import type Q from 'q';
+import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {DialogStateBar} from '../../dialog/DialogStateBar';
-import {Issue} from '../Issue';
+import {type Issue} from '../Issue';
 import {PublishRequest} from '../PublishRequest';
 import {CreateIssueRequest} from '../resource/CreateIssueRequest';
-import {IssueDialog, IssueDialogConfig} from './IssueDialog';
+import {IssueDialog, type IssueDialogConfig} from './IssueDialog';
 
 export class CreateIssueDialog
     extends IssueDialog {

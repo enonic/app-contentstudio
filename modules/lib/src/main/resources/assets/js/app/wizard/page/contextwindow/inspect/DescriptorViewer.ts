@@ -1,7 +1,7 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
-import {Descriptor} from '../../../../page/Descriptor';
+import {type Descriptor} from '../../../../page/Descriptor';
 
 export class DescriptorViewer
     extends NamesAndIconViewer<Descriptor> {

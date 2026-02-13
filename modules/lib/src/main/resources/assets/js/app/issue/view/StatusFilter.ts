@@ -1,4 +1,4 @@
-import Q from 'q';
+import type Q from 'q';
 import {IssueStatus} from '../IssueStatus';
 import {StatusFilterButton} from './StatusFilterButton';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';

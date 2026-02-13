@@ -1,7 +1,7 @@
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ProjectReadAccessJson} from '../../resource/json/ProjectReadAccessJson';
+import {type ProjectReadAccessJson} from '../../resource/json/ProjectReadAccessJson';
 import {ProjectReadAccessType} from './ProjectReadAccessType';
 
 export class ProjectReadAccess

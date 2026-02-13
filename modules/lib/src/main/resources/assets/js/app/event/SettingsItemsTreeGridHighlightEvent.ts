@@ -1,8 +1,6 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {SettingsViewItem} from '../settings/view/SettingsViewItem';
-import {ProjectViewItem} from '../settings/view/ProjectViewItem';
-import {FolderViewItem} from '../settings/view/FolderViewItem';
+import {type SettingsViewItem} from '../settings/view/SettingsViewItem';
 
 export class SettingsItemsTreeGridHighlightEvent
     extends Event {

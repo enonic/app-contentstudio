@@ -1,14 +1,14 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ApplicationRemovedEvent} from './ApplicationRemovedEvent';
-import {Site} from '../content/Site';
+import {type Site} from '../content/Site';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
-import {PropertyAddedEvent} from '@enonic/lib-admin-ui/data/PropertyAddedEvent';
-import {PropertyRemovedEvent} from '@enonic/lib-admin-ui/data/PropertyRemovedEvent';
-import {Property} from '@enonic/lib-admin-ui/data/Property';
-import {ContentId} from '../content/ContentId';
+import {type PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
+import {type PropertyAddedEvent} from '@enonic/lib-admin-ui/data/PropertyAddedEvent';
+import {type PropertyRemovedEvent} from '@enonic/lib-admin-ui/data/PropertyRemovedEvent';
+import {type Property} from '@enonic/lib-admin-ui/data/Property';
+import {type ContentId} from '../content/ContentId';
 
 export class SiteModel {
 
@@ -159,7 +159,7 @@ export class SiteModel {
     }
 
     private notifyApplicationRemoved(applicationKey: ApplicationKey) {
-        let event = new ApplicationRemovedEvent(applicationKey);
+        const event = new ApplicationRemovedEvent(applicationKey);
         this.applicationRemovedListeners.forEach((listener: (event: ApplicationRemovedEvent) => void) => {
             listener(event);
         });

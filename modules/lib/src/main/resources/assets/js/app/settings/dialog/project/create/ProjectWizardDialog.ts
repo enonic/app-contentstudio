@@ -3,32 +3,32 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ParentProjectDialogStep} from './step/ParentProjectDialogStep';
 import {ProjectLocaleDialogStep} from './step/ProjectLocaleDialogStep';
 import {ProjectIdDialogStep} from './step/ProjectIdDialogStep';
-import {NamesAndIconView} from '@enonic/lib-admin-ui/app/NamesAndIconView';
+import {type NamesAndIconView} from '@enonic/lib-admin-ui/app/NamesAndIconView';
 import {ProjectIconUrlResolver} from '../../../../project/ProjectIconUrlResolver';
-import {Project} from '../../../data/project/Project';
+import {type Project} from '../../../data/project/Project';
 import {ProjectDialogStep} from './step/ProjectDialogStep';
-import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
+import {type Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {ProjectCreateRequest} from '../../../resource/ProjectCreateRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ProjectReadAccess} from '../../../data/project/ProjectReadAccess';
 import {ProjectAccessDialogStep} from './step/ProjectAccessDialogStep';
 import {ProjectSummaryStep} from './step/summary/ProjectSummaryStep';
-import {ProjectData} from './data/ProjectData';
-import {ProjectAccessDialogStepData} from './data/ProjectAccessDialogStepData';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {type ProjectData} from './data/ProjectData';
+import {type ProjectAccessDialogStepData} from './data/ProjectAccessDialogStepData';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {ProjectPermissionsDialogStep} from './step/ProjectPermissionsDialogStep';
-import {ProjectPermissionsDialogStepData} from './data/ProjectPermissionsDialogStepData';
-import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
-import {MultiStepDialog, MultiStepDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/multistep/MultiStepDialog';
+import {type ProjectPermissionsDialogStepData} from './data/ProjectPermissionsDialogStepData';
+import {type DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
+import {MultiStepDialog, type MultiStepDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/multistep/MultiStepDialog';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {ProjectIdDialogStepData} from './data/ProjectIdDialogStepData';
+import {type ProjectIdDialogStepData} from './data/ProjectIdDialogStepData';
 import {UpdateProjectLanguageRequest} from '../../../resource/UpdateProjectLanguageRequest';
 import {UpdateProjectPermissionsRequest} from '../../../resource/UpdateProjectPermissionsRequest';
 import {ProjectReadAccessType} from '../../../data/project/ProjectReadAccessType';
 import {ProjectApplicationsDialogStep} from './step/ProjectApplicationsDialogStep';
 import {ProjectContext} from '../../../../project/ProjectContext';
-import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {ProjectApplication} from '../../../wizard/panel/form/element/ProjectApplication';
+import {type ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {type ProjectApplication} from '../../../wizard/panel/form/element/ProjectApplication';
 
 export interface ProjectWizardDialogConfig
     extends MultiStepDialogConfig {
@@ -169,7 +169,7 @@ export class ProjectWizardDialog
     private updateLocale(projectName: string): Q.Promise<void> {
         const locale: Locale = this.getSelectedLocale();
 
-        return !!locale ? this.sendUpdateLocaleRequest(projectName, locale.getId()) : Q.resolve();
+        return locale ? this.sendUpdateLocaleRequest(projectName, locale.getId()) : Q.resolve();
     }
 
     private sendUpdateLocaleRequest(projectName: string, language: string): Q.Promise<void> {

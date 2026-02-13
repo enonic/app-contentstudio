@@ -1,9 +1,9 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {PageCUDRequest} from '../resource/PageCUDRequest';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type PageCUDRequest} from '../resource/PageCUDRequest';
 import {PageResourceRequest} from '../resource/PageResourceRequest';
-import {Content} from '../content/Content';
-import {ContentJson} from '../content/ContentJson';
-import {ContentId} from '../content/ContentId';
+import {type Content} from '../content/Content';
+import {type ContentJson} from '../content/ContentJson';
+import {type ContentId} from '../content/ContentId';
 
 export class DeletePageRequest
     extends PageResourceRequest<Content>

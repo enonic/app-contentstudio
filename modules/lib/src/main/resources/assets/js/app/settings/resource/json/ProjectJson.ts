@@ -1,7 +1,7 @@
-import {ProjectPermissionsJson} from './ProjectPermissionsJson';
-import {ProjectReadAccessJson} from './ProjectReadAccessJson';
-import {AttachmentJson} from '../../../attachment/AttachmentJson';
-import {ProjectSiteConfigJson} from './ProjectSiteConfigJson';
+import {type ProjectPermissionsJson} from './ProjectPermissionsJson';
+import {type ProjectReadAccessJson} from './ProjectReadAccessJson';
+import {type AttachmentJson} from '../../../attachment/AttachmentJson';
+import {type ProjectSiteConfigJson} from './ProjectSiteConfigJson';
 
 export interface ProjectJson {
     name: string;

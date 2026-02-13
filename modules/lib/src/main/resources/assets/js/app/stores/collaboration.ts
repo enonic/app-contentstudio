@@ -1,7 +1,7 @@
 import {batched, map} from 'nanostores';
-import {OutMessage as CollaborationOutMessage, IN_BASE, MessageType} from './data/collaboration';
-import {OutMessage as ServerOutMessage} from './data/server';
-import {ReceivedWorkerMessage} from './data/worker';
+import {type OutMessage as CollaborationOutMessage, IN_BASE, MessageType} from './data/collaboration';
+import {type OutMessage as ServerOutMessage} from './data/server';
+import {type ReceivedWorkerMessage} from './data/worker';
 import {$isReady, sendJoin, sendLeave, subscribeToOperation, subscribe as subscribeToWorker, unsubscribeFromOperation} from './worker';
 
 type Callback = (collaborators: Set<string>) => void;

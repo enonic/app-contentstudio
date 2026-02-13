@@ -1,6 +1,6 @@
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 
 export class ComponentPath
     implements Equitable {

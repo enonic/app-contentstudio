@@ -1,6 +1,6 @@
 import {ComponentAddedEvent} from './ComponentAddedEvent';
-import {Component} from './Component';
-import {Content} from '../../content/Content';
+import {type Component} from './Component';
+import {type Content} from '../../content/Content';
 
 export class ComponentFragmentCreatedEvent extends ComponentAddedEvent {
 

@@ -1,39 +1,43 @@
+import {type ContentJson} from '../content/ContentJson';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
-import {Checkbox, CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
-import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig, ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {type Checkbox, CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
+import {
+    DefaultModalDialogHeader,
+    ModalDialog,
+    type ModalDialogConfig,
+    type ModalDialogHeader
+} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {Menu} from '@enonic/lib-admin-ui/ui/menu/Menu';
 import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {Delta, DiffPatcher} from 'jsondiffpatch';
+import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {type Delta, DiffPatcher} from 'jsondiffpatch';
 import {format, showUnchanged} from 'jsondiffpatch/formatters/html';
 import Q from 'q';
-import {ContentJson} from '../content/ContentJson';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentVersion} from '../ContentVersion';
+import {type ContentVersion} from '../ContentVersion';
 import {ContentVersionHelper} from '../ContentVersionHelper';
-import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {type ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
 import {GetContentVersionsRequest} from '../resource/GetContentVersionsRequest';
-import {GetContentVersionsResult} from '../resource/GetContentVersionsResult';
-import {GetPrincipalByKeyRequest} from '../resource/GetPrincipalByKeyRequest';
+import {type GetContentVersionsResult} from '../resource/GetContentVersionsResult';
 import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
 import {ContentVersionViewer} from '../view/context/widget/version/ContentVersionViewer';
 import {NonBatchedContentVersionsConverter} from '../view/context/widget/version/NonBatchedContentVersionsConverter';
 import {VersionContext} from '../view/context/widget/version/VersionContext';
 import {VersionHistoryHelper} from '../view/context/widget/version/VersionHistoryHelper';
-import {AliasType, VersionHistoryItem} from '../view/context/widget/version/VersionHistoryItem';
+import {AliasType, type VersionHistoryItem} from '../view/context/widget/version/VersionHistoryItem';
 
 export class CompareContentVersionsDialog
     extends ModalDialog {
@@ -611,7 +615,7 @@ export class CompareContentVersionsDialog
         let markReadOnly = false;
 
         const rightOption = this.rightDropdown.getSelectedItems()[0];
-        const isNextSelectedInRightDropdown = !!rightOption ? rightOption.getAliasType() === AliasType.NEXT : null;
+        const isNextSelectedInRightDropdown = rightOption ? rightOption.getAliasType() === AliasType.NEXT : null;
 
         this.leftDropdown.getList().getItems().slice().reverse().forEach((option: VersionHistoryItem) => {
             // slice first to create new array and prevent modification of original options
@@ -639,7 +643,7 @@ export class CompareContentVersionsDialog
 
     private disableRightVersions(): void {
         const leftOption = this.leftDropdown.getSelectedItems()[0];
-        const isPrevSelectedInLeftDropdown = !!leftOption ? leftOption.getAliasType() === AliasType.PREV : null;
+        const isPrevSelectedInLeftDropdown = leftOption ? leftOption.getAliasType() === AliasType.PREV : null;
 
         this.rightDropdown.getList().getItems().filter(option => option.isAlias() || option.isReadonly()).forEach(option => {
             const view = this.rightDropdown.getList().getItemView(option);
@@ -796,7 +800,7 @@ class CompareDropdown
         super.initListeners();
 
         this.selectedItemViewer.onClicked(() => {
-           this.handleDropdownHandleClicked();
+            this.handleDropdownHandleClicked();
         });
     }
 

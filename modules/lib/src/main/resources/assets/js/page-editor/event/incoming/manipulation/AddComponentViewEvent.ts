@@ -1,6 +1,6 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ComponentPath} from '../../../../app/page/region/ComponentPath';
-import {ComponentType} from '../../../../app/page/region/ComponentType';
+import {type ComponentPath} from '../../../../app/page/region/ComponentPath';
+import {type ComponentType} from '../../../../app/page/region/ComponentType';
 import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
 //TODO: Will probably fail because receiver extects AddComponentViewEvent, but will get an Object

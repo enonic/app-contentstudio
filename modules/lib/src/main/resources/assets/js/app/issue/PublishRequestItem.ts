@@ -1,4 +1,4 @@
-import {PublishRequestItemJson} from './json/PublishRequestItemJson';
+import {type PublishRequestItemJson} from './json/PublishRequestItemJson';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {ContentId} from '../content/ContentId';
 

@@ -1,6 +1,6 @@
 import {RequestError} from '@enonic/lib-admin-ui/rest/RequestError';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
-import {LiveEditModel} from '../../../../../page-editor/LiveEditModel';
+import {type LiveEditModel} from '../../../../../page-editor/LiveEditModel';
 
 export abstract class BaseInspectionPanel
     extends Panel {

@@ -1,6 +1,6 @@
-import {ComponentPath} from './ComponentPath';
+import {type ComponentPath} from './ComponentPath';
 import {ComponentUpdatedEvent} from './ComponentUpdatedEvent';
-import {DescriptorKey} from '../DescriptorKey';
+import {type DescriptorKey} from '../DescriptorKey';
 
 export class ComponentDescriptorUpdatedEvent
     extends ComponentUpdatedEvent {

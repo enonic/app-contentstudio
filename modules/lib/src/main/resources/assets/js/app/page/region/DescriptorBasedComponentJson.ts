@@ -1,4 +1,4 @@
-import {ConfigBasedComponentJson} from './ConfigBasedComponentJson';
+import {type ConfigBasedComponentJson} from './ConfigBasedComponentJson';
 
 export interface DescriptorBasedComponentJson
     extends ConfigBasedComponentJson {

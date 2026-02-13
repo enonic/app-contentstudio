@@ -1,5 +1,5 @@
-import {ContentId} from '../content/ContentId';
-import {ContentPath} from '../content/ContentPath';
+import {type ContentId} from '../content/ContentId';
+import {type ContentPath} from '../content/ContentPath';
 
 export class DeletedContentItem {
     readonly id: ContentId;

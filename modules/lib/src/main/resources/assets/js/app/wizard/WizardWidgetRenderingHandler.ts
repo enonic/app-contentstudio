@@ -1,8 +1,8 @@
 import {RenderingMode} from '../rendering/RenderingMode';
-import {WidgetRenderingHandler, WidgetRenderer, PREVIEW_TYPE} from '../view/WidgetRenderingHandler';
+import {WidgetRenderingHandler, type WidgetRenderer, PREVIEW_TYPE} from '../view/WidgetRenderingHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
-import {ContentSummary} from '../content/ContentSummary';
+import {type ViewWidgetEvent} from '../event/ViewWidgetEvent';
+import {type ContentSummary} from '../content/ContentSummary';
 import Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {PageNavigationMediator} from './PageNavigationMediator';
@@ -13,7 +13,7 @@ import {ComponentPath} from '../page/region/ComponentPath';
 import {ItemViewContextMenu} from '../../page-editor/ItemViewContextMenu';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {PageViewContextMenuTitle} from '../../page-editor/PageViewContextMenuTitle';
-import {ItemViewContextMenuTitle} from '../../page-editor/ItemViewContextMenuTitle';
+import {type ItemViewContextMenuTitle} from '../../page-editor/ItemViewContextMenuTitle';
 
 export class WizardWidgetRenderingHandler
     extends WidgetRenderingHandler {
@@ -58,7 +58,7 @@ export class WizardWidgetRenderingHandler
     private clickHandler(event: MouseEvent): void {
         event.stopPropagation();
         event.preventDefault();
-        let isMenuVisible = this.contextMenu.isVisible();
+        const isMenuVisible = this.contextMenu.isVisible();
         if (isMenuVisible) {
             this.contextMenu.hide();
         } else {

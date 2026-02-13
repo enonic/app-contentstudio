@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/consistent-type-definitions */
 export const MESSAGE_BASE = 'com.enonic.app.contentstudio.server';
 
 export const IN_BASE = `${MESSAGE_BASE}.in`;
@@ -25,10 +24,10 @@ export enum MessageType {
 
 export type OutMessageType = MessageType.APPLICATION | MessageType.NODE | MessageType.REPOSITORY | MessageType.TASK | MessageType.PROJECT;
 
-type BaseOutMessage<T extends OutMessageType, P = unknown> = {
+interface BaseOutMessage<T extends OutMessageType, P = unknown> {
     type: T;
     payload: P;
-};
+}
 
 export type OutMessage =
     | ApplicationMessage
@@ -41,7 +40,7 @@ export type OutMessage =
 //* Messages
 //
 
-export type ServerMessagePayload = {
+export interface ServerMessagePayload {
     type: string;
     timestamp: number;
     data?: Record<string, unknown>;

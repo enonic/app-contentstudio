@@ -1,5 +1,5 @@
-import {Content} from '../content/Content';
-import {ContentWizardPanel} from './ContentWizardPanel';
+import {type Content} from '../content/Content';
+import {type ContentWizardPanel} from './ContentWizardPanel';
 
 export class RoutineContext {
 

@@ -1,12 +1,12 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {LazyListBox} from '@enonic/lib-admin-ui/ui/selector/list/LazyListBox';
 import Q from 'q';
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {GetContentVersionsRequest} from '../../../../resource/GetContentVersionsRequest';
-import {GetContentVersionsResult} from '../../../../resource/GetContentVersionsResult';
+import {type GetContentVersionsResult} from '../../../../resource/GetContentVersionsResult';
 import {GetPrincipalsByKeysRequest} from '../../../../security/GetPrincipalsByKeysRequest';
 import {BatchedContentVersionsConverter} from './BatchedContentVersionsConverter';
-import {VersionHistoryItem} from './VersionHistoryItem';
+import {type VersionHistoryItem} from './VersionHistoryItem';
 import {VersionHistoryListItem} from './VersionHistoryListItem';
 
 export class VersionHistoryList

@@ -1,9 +1,9 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {IssueStatus} from '../IssueStatus';
 import {Issue} from '../Issue';
-import {FindIssuesResult} from './FindIssuesResult';
+import {type FindIssuesResult} from './FindIssuesResult';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {ContentId} from '../../content/ContentId';
+import {type ContentId} from '../../content/ContentId';
 import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';
 
 export class FindIssuesRequest

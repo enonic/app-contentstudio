@@ -4,7 +4,7 @@ import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
 import {ContentPath} from '../content/ContentPath';
-import {ContentTreeSelectorItem} from './ContentTreeSelectorItem';
+import {type ContentTreeSelectorItem} from './ContentTreeSelectorItem';
 
 export class ContentTreeSelectorItemViewer
     extends NamesAndIconViewer<ContentTreeSelectorItem> {

@@ -1,9 +1,9 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {CompareStatus} from '../content/CompareStatus';
-import {Branch} from '../versioning/Branch';
-import {ContentId} from '../content/ContentId';
-import {ContentPath} from '../content/ContentPath';
+import {type CompareStatus} from '../content/CompareStatus';
+import {type Branch} from '../versioning/Branch';
+import {type ContentId} from '../content/ContentId';
+import {type ContentPath} from '../content/ContentPath';
 
 export class ContentDeletedEvent
     extends Event {

@@ -1,7 +1,7 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ContentId} from './ContentId';
-import {ContentSummary} from './ContentSummary';
+import {type ContentSummary} from './ContentSummary';
 
 export class ContentIds
     implements Equitable {
@@ -12,7 +12,7 @@ export class ContentIds
         this.array = [];
         array.forEach((contentId: ContentId) => {
 
-            let duplicate = this.array.some((possibleDuplicate: ContentId) => {
+            const duplicate = this.array.some((possibleDuplicate: ContentId) => {
                 return contentId.equals(possibleDuplicate);
             });
 
@@ -53,7 +53,7 @@ export class ContentIds
     }
 
     static fromContents(contents: ContentSummary[]): ContentIds {
-        let builder = ContentIds.create();
+        const builder = ContentIds.create();
         contents.forEach((content) => {
             builder.addContentId(content.getContentId());
         });
@@ -65,7 +65,7 @@ export class ContentIds
             return false;
         }
 
-        let other = o as ContentIds;
+        const other = o as ContentIds;
         return ObjectHelper.arrayEquals(this.array, other.array);
     }
 
@@ -88,7 +88,7 @@ export class ContentIdsBuilder {
     }
 
     fromContentIds(contentIds: ContentId[]): ContentIdsBuilder {
-        if (!!contentIds) {
+        if (contentIds) {
             contentIds.forEach((contentId: ContentId) => this.addContentId(contentId));
         }
         return this;

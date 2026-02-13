@@ -1,8 +1,7 @@
-import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {Project} from '../../settings/data/project/Project';
-import {ProjectListItem} from './ProjectListItem';
-import {ProjectHelper} from '../../settings/data/project/ProjectHelper';
+import {type Project} from '../../settings/data/project/Project';
 import {UrlHelper} from '../../util/UrlHelper';
+import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
+import {ProjectListItem} from './ProjectListItem';
 
 export class ProjectList
     extends ListBox<Project> {

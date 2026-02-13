@@ -1,13 +1,13 @@
 import {AiToolType} from '@enonic/lib-admin-ui/ai/tool/AiToolType';
 import {MinimizeWizardPanelEvent} from '@enonic/lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
-import {WizardHeader} from '@enonic/lib-admin-ui/app/wizard/WizardHeader';
+import {type WizardHeader} from '@enonic/lib-admin-ui/app/wizard/WizardHeader';
 import {WizardPanel} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
-import {WizardStep} from '@enonic/lib-admin-ui/app/wizard/WizardStep';
-import {WizardStepsPanel} from '@enonic/lib-admin-ui/app/wizard/WizardStepsPanel';
-import {Application} from '@enonic/lib-admin-ui/application/Application';
-import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {type WizardStep} from '@enonic/lib-admin-ui/app/wizard/WizardStep';
+import {type WizardStepsPanel} from '@enonic/lib-admin-ui/app/wizard/WizardStepsPanel';
+import {type Application} from '@enonic/lib-admin-ui/application/Application';
+import {type ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {type ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
+import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PropertyTreeComparator} from '@enonic/lib-admin-ui/data/PropertyTreeComparator';
@@ -15,78 +15,78 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {LangDirection} from '@enonic/lib-admin-ui/dom/Element';
-import {Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
-import {FormView} from '@enonic/lib-admin-ui/form/FormView';
+import {type Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
+import {type FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {showFeedback, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
+import {type PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ActivatedEvent} from '@enonic/lib-admin-ui/ui/ActivatedEvent';
+import {type ActivatedEvent} from '@enonic/lib-admin-ui/ui/ActivatedEvent';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {KeyBindings} from '@enonic/lib-admin-ui/ui/KeyBindings';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
-import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
-import {SplitPanel, SplitPanelAlignment, SplitPanelBuilder} from '@enonic/lib-admin-ui/ui/panel/SplitPanel';
+import {type Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {type SplitPanel, SplitPanelAlignment, SplitPanelBuilder} from '@enonic/lib-admin-ui/ui/panel/SplitPanel';
 import {SplitPanelSize} from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
-import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import {type ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
-import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
+import {type UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {assert} from '@enonic/lib-admin-ui/util/Assert';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ValidationErrorHelper} from '@enonic/lib-admin-ui/ValidationErrorHelper';
-import {ValidityChangedEvent} from '@enonic/lib-admin-ui/ValidityChangedEvent';
+import {type ValidityChangedEvent} from '@enonic/lib-admin-ui/ValidityChangedEvent';
 import Q from 'q';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
 import {Permission} from '../access/Permission';
 import {AI} from '../ai/AI';
 import {AiContentDataHelper} from '../ai/AiContentDataHelper';
 import {AiTranslatorOpenDialogEvent} from '../ai/event/outgoing/AiTranslatorOpenDialogEvent';
-import {MovedContentItem} from '../browse/MovedContentItem';
+import {type MovedContentItem} from '../browse/MovedContentItem';
 import {CompareStatus} from '../content/CompareStatus';
-import {Content, ContentBuilder} from '../content/Content';
+import {type Content, ContentBuilder} from '../content/Content';
 import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
-import {ContentId} from '../content/ContentId';
+import {type ContentId} from '../content/ContentId';
 import {ContentName} from '../content/ContentName';
 import {ContentPath} from '../content/ContentPath';
 import {ContentPathPrettifier} from '../content/ContentPathPrettifier';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentUnnamed} from '../content/ContentUnnamed';
 import {ExtraData} from '../content/ExtraData';
-import {PageTemplate} from '../content/PageTemplate';
-import {Site} from '../content/Site';
+import {type PageTemplate} from '../content/PageTemplate';
+import {type Site} from '../content/Site';
 import {WorkflowState} from '../content/WorkflowState';
-import {XData} from '../content/XData';
+import {type XData} from '../content/XData';
 import {XDataName} from '../content/XDataName';
 import {ContentFormContext} from '../ContentFormContext';
 import {BeforeContentSavedEvent} from '../event/BeforeContentSavedEvent';
 import {ContentLanguageUpdatedEvent} from '../event/ContentLanguageUpdatedEvent';
 import {ContentNamedEvent} from '../event/ContentNamedEvent';
 import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
-import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {type ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {InspectEvent} from '../event/InspectEvent';
-import {ContentType} from '../inputtype/schema/ContentType';
+import {type ContentType} from '../inputtype/schema/ContentType';
 import {ImageErrorEvent} from '../inputtype/ui/selector/image/ImageErrorEvent';
-import {Descriptor} from '../page/Descriptor';
+import {type Descriptor} from '../page/Descriptor';
 import {PageControllerCustomizedEvent} from '../page/event/PageControllerCustomizedEvent';
 import {PageControllerUpdatedEvent} from '../page/event/PageControllerUpdatedEvent';
-import {PageUpdatedEvent} from '../page/event/PageUpdatedEvent';
-import {Page} from '../page/Page';
+import {type PageUpdatedEvent} from '../page/event/PageUpdatedEvent';
+import {type Page} from '../page/Page';
 import {ProjectContext} from '../project/ProjectContext';
-import {PublishStatus} from '../publish/PublishStatus';
+import {type PublishStatus} from '../publish/PublishStatus';
 import {RepositoryId} from '../repository/RepositoryId';
 import {ContentsExistRequest} from '../resource/ContentsExistRequest';
-import {ContentsExistResult} from '../resource/ContentsExistResult';
+import {type ContentsExistResult} from '../resource/ContentsExistResult';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
-import {CreateContentRequest} from '../resource/CreateContentRequest';
+import {type CreateContentRequest} from '../resource/CreateContentRequest';
 import {GetApplicationRequest} from '../resource/GetApplicationRequest';
 import {GetApplicationXDataRequest} from '../resource/GetApplicationXDataRequest';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
@@ -95,7 +95,7 @@ import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyReque
 import {Router} from '../Router';
 import {ProjectHelper} from '../settings/data/project/ProjectHelper';
 import {ProjectDeletedEvent} from '../settings/event/ProjectDeletedEvent';
-import {ApplicationRemovedEvent} from '../site/ApplicationRemovedEvent';
+import {type ApplicationRemovedEvent} from '../site/ApplicationRemovedEvent';
 import {SiteModel} from '../site/SiteModel';
 import {UrlAction} from '../UrlAction';
 import {ContentHelper} from '../util/ContentHelper';
@@ -103,30 +103,30 @@ import {PageHelper} from '../util/PageHelper';
 import {UrlHelper} from '../util/UrlHelper';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 import {ContextPanelState} from '../view/context/ContextPanelState';
-import {ContextPanelMode} from '../view/context/ContextSplitPanel';
+import {type ContextPanelMode} from '../view/context/ContextSplitPanel';
 import {ContextView} from '../view/context/ContextView';
 import {DockedContextPanel} from '../view/context/DockedContextPanel';
 import {VersionContext} from '../view/context/widget/version/VersionContext';
-import {ContentSaveAction} from './action/ContentSaveAction';
+import {type ContentSaveAction} from './action/ContentSaveAction';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentContext} from './ContentContext';
-import {ContentTabBarItem} from './ContentTabBarItem';
+import {type ContentTabBarItem} from './ContentTabBarItem';
 import {ContentWizardContextSplitPanel} from './ContentWizardContextSplitPanel';
 import {ContentWizardDataLoader} from './ContentWizardDataLoader';
 import {ContentWizardHeader} from './ContentWizardHeader';
-import {ContentWizardPanelParams} from './ContentWizardPanelParams';
+import {type ContentWizardPanelParams} from './ContentWizardPanelParams';
 import {ContentWizardStep} from './ContentWizardStep';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
 import {ContentWizardStepsPanel} from './ContentWizardStepsPanel';
 import {ContentWizardToolbar} from './ContentWizardToolbar';
-import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
+import {type ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {DisplayNameResolver} from './DisplayNameResolver';
-import {RoutineContext} from './Flow';
+import {type RoutineContext} from './Flow';
 import {MaskContentWizardPanelEvent} from './MaskContentWizardPanelEvent';
 import {GetPageDescriptorsByApplicationsRequest} from './page/contextwindow/inspect/page/GetPageDescriptorsByApplicationsRequest';
-import {DefaultModels} from './page/DefaultModels';
+import {type DefaultModels} from './page/DefaultModels';
 import {LiveEditPageProxy} from './page/LiveEditPageProxy';
-import {LiveFormPanel, LiveFormPanelConfig} from './page/LiveFormPanel';
+import {LiveFormPanel, type LiveFormPanelConfig} from './page/LiveFormPanel';
 import {PageState} from './page/PageState';
 import {PageComponentsView} from './PageComponentsView';
 import {PageComponentsWizardStep} from './PageComponentsWizardStep';
@@ -138,12 +138,12 @@ import {PersistNewContentRoutine} from './PersistNewContentRoutine';
 import {SiteContentWizardStepForm} from './SiteContentWizardStepForm';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
 import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
-import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
+import {WorkflowStateManager, type WorkflowStateStatus} from './WorkflowStateManager';
 import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
-import {ContentItemPreviewToolbar} from '../view/ContentItemPreviewToolbar';
+import {type ContentItemPreviewToolbar} from '../view/ContentItemPreviewToolbar';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -384,12 +384,12 @@ export class ContentWizardPanel
 
             this.handleAppChange();
 
-            let message = i18n('text.application.not.available', event.getApplicationKey().toString());
+            const message = i18n('text.application.not.available', event.getApplicationKey().toString());
 
             if (this.isVisible()) {
                 showWarning(message);
             } else {
-                let shownHandler = () => {
+                const shownHandler = () => {
                     new GetApplicationRequest(event.getApplicationKey()).sendAndParse()
                         .then(
                             (application: Application) => {
@@ -419,8 +419,8 @@ export class ContentWizardPanel
     }
 
     private initBindings() {
-        let nextActions = this.getActions();
-        let currentKeyBindings = Action.getKeyBindings(nextActions);
+        const nextActions = this.getActions();
+        const currentKeyBindings = Action.getKeyBindings(nextActions);
         KeyBindings.get().bindKeys(currentKeyBindings);
     }
 
@@ -471,7 +471,7 @@ export class ContentWizardPanel
     toggleMinimize(navigationIndex: number = -1) {
         this.stepsPanel.setListenToScroll(false);
 
-        let scroll = this.stepsPanel.getScroll();
+        const scroll = this.stepsPanel.getScroll();
         this.minimized = !this.minimized;
         this.splitPanel.setSplitterIsHidden(this.minimized);
 
@@ -1009,7 +1009,7 @@ export class ContentWizardPanel
     }
 
     private handleSiteConfigApply() {
-        let siteConfigApplyHandler = (event: ContentRequiresSaveEvent) => {
+        const siteConfigApplyHandler = (event: ContentRequiresSaveEvent) => {
             if (this.isCurrentContentId(event.getContentId()) && this.hasUnsavedChanges()) {
                 this.setMarkedAsReady(false);
                 this.saveChanges();
@@ -1023,7 +1023,7 @@ export class ContentWizardPanel
     }
 
     private handleBrokenImageInTheWizard() {
-        let brokenImageHandler = (event: ImageErrorEvent) => {
+        const brokenImageHandler = (event: ImageErrorEvent) => {
             if (this.isCurrentContentId(event.getContentId())) {
                 this.wizardActions.setDeleteOnlyMode(this.getPersistedItem());
             }
@@ -1127,7 +1127,7 @@ export class ContentWizardPanel
     }
 
     close(checkCanClose: boolean = false) {
-        let liveFormPanel = this.getLivePanel();
+        const liveFormPanel = this.getLivePanel();
         if (liveFormPanel) {
             liveFormPanel.skipNextReloadConfirmation(true);
         }
@@ -1159,7 +1159,7 @@ export class ContentWizardPanel
             if (!form.isValid()) {
                 allMetadataFormsValid = false;
             }
-            let formHasValidUserInput = form.getFormView().hasValidUserInput();
+            const formHasValidUserInput = form.getFormView().hasValidUserInput();
             if (!formHasValidUserInput) {
                 allMetadataFormsHaveValidUserInput = false;
             }
@@ -1275,7 +1275,7 @@ export class ContentWizardPanel
     }
 
     private onFileUploaded(event: UploadedEvent<Content>) {
-        let newPersistedContent: Content = event.getUploadItem().getModel();
+        const newPersistedContent: Content = event.getUploadItem().getModel();
         this.setPersistedItem(newPersistedContent.clone());
         this.updateXDataStepForms(newPersistedContent);
         this.updateThumbnailWithContent(newPersistedContent);
@@ -1519,7 +1519,7 @@ export class ContentWizardPanel
             const thisContentId: ContentId = this.getPersistedItem().getContentId();
             const thisContentIdAsString: string = this.getPersistedItem().getContentId().toString();
 
-            let deletedParent = contextProject.getParents().find(parent => {
+            const deletedParent = contextProject.getParents().find(parent => {
                 const parentProjectRepo = RepositoryId.fromProjectName(parent).toString();
                 return items.some((item: ContentServerChangeItem) => {
                     return item.getContentId().equals(thisContentId) && item.getRepo() === parentProjectRepo;

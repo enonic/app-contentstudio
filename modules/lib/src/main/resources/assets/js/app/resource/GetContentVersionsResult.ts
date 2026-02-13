@@ -1,7 +1,7 @@
 import {ContentVersion} from '../ContentVersion';
-import {GetContentVersionsMetadata} from './GetContentVersionsMetadata';
-import {ContentVersionViewJson} from './json/ContentVersionViewJson';
-import {GetContentVersionsResultsJson} from './json/GetContentVersionsResultsJson';
+import {type GetContentVersionsMetadata} from './GetContentVersionsMetadata';
+import {type ContentVersionViewJson} from './json/ContentVersionViewJson';
+import {type GetContentVersionsResultsJson} from './json/GetContentVersionsResultsJson';
 
 export class GetContentVersionsResult {
 

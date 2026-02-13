@@ -3,10 +3,10 @@ import {UrlHelper} from './UrlHelper';
 import {ContentAppHelper} from '../wizard/ContentAppHelper';
 import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentId} from '../content/ContentId';
-import {DependencyParams} from '../browse/DependencyParams';
+import {type ContentId} from '../content/ContentId';
+import {type DependencyParams} from '../browse/DependencyParams';
 import {ContentEditParams} from '../wizard/ContentEditParams';
-import {ContentCreateParams} from '../wizard/ContentCreateParams';
+import {type ContentCreateParams} from '../wizard/ContentCreateParams';
 
 export class ContentUrlHelper {
 

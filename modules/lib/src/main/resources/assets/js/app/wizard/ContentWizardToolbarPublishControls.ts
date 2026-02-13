@@ -1,9 +1,9 @@
-import {ContentWizardActions} from './action/ContentWizardActions';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ContentWizardActions} from './action/ContentWizardActions';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentWizardPublishMenuButton} from '../browse/ContentWizardPublishMenuButton';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {BasePublishAction} from './action/BasePublishAction';
+import {type BasePublishAction} from './action/BasePublishAction';
 import {IssueDialogsManager} from '../issue/IssueDialogsManager';
 import {MenuButtonDropdownPos} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 

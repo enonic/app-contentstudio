@@ -1,7 +1,7 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {ResolveDependenciesResult, ResolveDependenciesResultJson} from './ResolveDependenciesResult';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {ResolveDependenciesResult, type ResolveDependenciesResultJson} from './ResolveDependenciesResult';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {ContentId} from '../content/ContentId';
+import {type ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 import {Branch} from '../versioning/Branch';
 

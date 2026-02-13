@@ -1,11 +1,11 @@
-import {ContentJson} from '../content/ContentJson';
-import {Content, ContentBuilder} from '../content/Content';
+import {type ContentJson} from '../content/ContentJson';
+import {type Content, ContentBuilder} from '../content/Content';
 import {SiteBuilder} from '../content/Site';
 import {PageTemplateBuilder} from '../content/PageTemplate';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ProjectBasedResourceRequest} from '../wizard/ProjectBasedResourceRequest';
 import {ContentSummary} from '../content/ContentSummary';
-import {ContentSummaryJson} from '../content/ContentSummaryJson';
+import {type ContentSummaryJson} from '../content/ContentSummaryJson';
 
 export abstract class ContentResourceRequest<PARSED_TYPE>
     extends ProjectBasedResourceRequest<PARSED_TYPE> {

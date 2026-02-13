@@ -1,8 +1,8 @@
-import {NodeEventNodeJson} from '@enonic/lib-admin-ui/event/NodeServerEvent';
+import {type NodeEventNodeJson} from '@enonic/lib-admin-ui/event/NodeServerEvent';
 import {NodeServerChangeItem, NodeServerChangeItemBuilder} from '@enonic/lib-admin-ui/event/NodeServerChangeItem';
 import {ContentId} from '../content/ContentId';
 import {ContentPath} from '../content/ContentPath';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class ContentServerChangeItem
@@ -54,7 +54,7 @@ export class ContentServerChangeItem
             return false;
         }
 
-        let other = o as ContentServerChangeItem;
+        const other = o as ContentServerChangeItem;
 
         if (!ObjectHelper.stringEquals(this.id, other.id)) {
             return false;

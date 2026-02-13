@@ -1,7 +1,7 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {AttachmentJson} from '../attachment/AttachmentJson';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type AttachmentJson} from '../attachment/AttachmentJson';
 import {Attachments} from '../attachment/Attachments';
-import {ContentId} from '../content/ContentId';
+import {type ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class GetContentAttachmentsRequest

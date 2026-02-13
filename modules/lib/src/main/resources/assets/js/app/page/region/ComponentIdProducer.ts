@@ -1,4 +1,3 @@
-
 export class ComponentIdProducer {
 
     private componentCounter: number = 0;

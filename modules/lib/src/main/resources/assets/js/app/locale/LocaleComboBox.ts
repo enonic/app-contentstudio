@@ -1,7 +1,7 @@
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {SelectedOptionView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionView';
+import {type SelectedOptionView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionView';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {LocaleViewer} from './LocaleViewer';
 import {FilterableListBoxWrapperWithSelectedView} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
@@ -9,8 +9,8 @@ import {LocaleListBox} from './LocaleListBox';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {LocaleLoader} from './LocaleLoader';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 
 export interface LocaleComboBoxOptions {
     selectedOptionsView?: LocaleSelectedOptionsView;

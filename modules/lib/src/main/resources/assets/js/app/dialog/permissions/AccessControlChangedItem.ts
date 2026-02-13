@@ -1,5 +1,5 @@
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {Permission} from '../../access/Permission';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {type Permission} from '../../access/Permission';
 
 export interface AccessControlChangedPermissions {
     persisted?: Permission[];

@@ -1,22 +1,22 @@
 import Q from 'q';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/app/NamesAndIconView';
+import {type NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/app/NamesAndIconView';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Issue} from '../Issue';
-import {IssueResponse} from '../resource/IssueResponse';
+import {type Issue} from '../Issue';
+import {type IssueResponse} from '../resource/IssueResponse';
 import {IssueStatusInfoGenerator} from './IssueStatusInfoGenerator';
 import {IssueStatus, IssueStatusFormatter} from '../IssueStatus';
 import {ListIssuesRequest} from '../resource/ListIssuesRequest';
-import {IssueWithAssignees} from '../IssueWithAssignees';
+import {type IssueWithAssignees} from '../IssueWithAssignees';
 import {IssuesStorage} from './IssuesStorage';
 import {IssueType} from '../IssueType';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
-import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import {type LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
@@ -288,7 +288,7 @@ export class IssueList
     }
 
     private isScrolledToBottom(): boolean {
-        let element = this.getHTMLElement();
+        const element = this.getHTMLElement();
         return (element.scrollHeight - element.scrollTop - 50) <= element.clientHeight; // 50px before bottom to start loading earlier
     }
 }

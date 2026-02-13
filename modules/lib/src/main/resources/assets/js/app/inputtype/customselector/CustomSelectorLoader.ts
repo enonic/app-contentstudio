@@ -2,7 +2,7 @@ import Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {PostLoader} from '@enonic/lib-admin-ui/util/loader/PostLoader';
 import {CustomSelectorRequest} from './CustomSelectorRequest';
-import {CustomSelectorItem} from './CustomSelectorItem';
+import {type CustomSelectorItem} from './CustomSelectorItem';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 
 export class CustomSelectorLoader

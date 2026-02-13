@@ -1,11 +1,11 @@
 import {SelectionItem} from '@enonic/lib-admin-ui/app/browse/SelectionItem';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
-import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
+import {type Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import Q from 'q';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import type Q from 'q';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class StatusSelectionItem
     extends SelectionItem<ContentSummaryAndCompareStatus> {
@@ -50,7 +50,7 @@ export class StatusSelectionItem
             this.clickTooltip = new Tooltip(this.removeEl, this.removeClickTooltip);
             this.clickTooltip.setTrigger(Tooltip.TRIGGER_NONE);
 
-            let onRemoveClicked = AppHelper.debounce(() => {
+            const onRemoveClicked = AppHelper.debounce(() => {
                 Tooltip.hideOtherInstances();
                 if (this.isRemovable()) {
                     this.removeHandlerFn();
@@ -86,7 +86,7 @@ export class StatusSelectionItem
 
     private initStatusDiv(content: ContentSummaryAndCompareStatus) {
 
-        let statusDiv = new DivEl('status');
+        const statusDiv = new DivEl('status');
 
         statusDiv.setHtml(content.getStatusText());
         statusDiv.addClass(content.getStatusClass());

@@ -1,5 +1,4 @@
-import {ContentVersionViewJson} from './ContentVersionViewJson';
-import {ActiveContentVersionJson} from './ActiveContentVersionJson';
+import {type ContentVersionViewJson} from './ContentVersionViewJson';
 
 export interface GetContentVersionsForViewResultsJson {
     totalHits: number;

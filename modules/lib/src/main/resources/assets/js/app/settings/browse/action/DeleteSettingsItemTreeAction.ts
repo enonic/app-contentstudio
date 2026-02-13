@@ -4,11 +4,11 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectDeleteRequest} from '../../resource/ProjectDeleteRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {SettingsViewItem} from '../../view/SettingsViewItem';
+import {type SettingsViewItem} from '../../view/SettingsViewItem';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {ConfirmValueDialog} from '../../../remove/ConfirmValueDialog';
 import {TextInputSize} from '@enonic/lib-admin-ui/ui/text/TextInput';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import {type SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class DeleteSettingsItemTreeAction
     extends Action {

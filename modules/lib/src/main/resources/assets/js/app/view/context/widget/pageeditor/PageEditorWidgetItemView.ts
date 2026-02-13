@@ -1,5 +1,5 @@
 import {WidgetItemView} from '../../WidgetItemView';
-import {ContextWindow} from '../../../../wizard/page/contextwindow/ContextWindow';
+import {type ContextWindow} from '../../../../wizard/page/contextwindow/ContextWindow';
 
 export class PageEditorWidgetItemView
     extends WidgetItemView {

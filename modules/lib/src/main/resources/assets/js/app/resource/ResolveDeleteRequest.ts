@@ -1,8 +1,8 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {ContentId} from '../content/ContentId';
+import {type ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {ContentWithRefsResultJson} from './json/ContentWithRefsResultJson';
+import {type ContentWithRefsResultJson} from './json/ContentWithRefsResultJson';
 import {ContentWithRefsResult} from './ContentWithRefsResult';
 
 export class ResolveDeleteRequest

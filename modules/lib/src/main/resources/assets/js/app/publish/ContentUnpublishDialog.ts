@@ -1,19 +1,19 @@
 import {BEl} from '@enonic/lib-admin-ui/dom/BEl';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {type TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentUnpublishPromptEvent} from '../browse/ContentUnpublishPromptEvent';
 import {CompareStatus} from '../content/CompareStatus';
-import {ContentId} from '../content/ContentId';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
+import {type ContentId} from '../content/ContentId';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {ConfirmValueDialog} from '../remove/ConfirmValueDialog';
 import {ResolveUnpublishRequest} from '../resource/ResolveUnpublishRequest';
 import {UnpublishContentRequest} from '../resource/UnpublishContentRequest';
 import {DependantItemsWithReferencesDialog} from '../dialog/DependantItemsWithReferencesDialog';
-import {DialogWithRefsItemListConfig} from '../remove/DialogWithRefsItemList';
+import {type DialogWithRefsItemListConfig} from '../remove/DialogWithRefsItemList';
 import {Branch} from '../versioning/Branch';
 
 export class ContentUnpublishDialog

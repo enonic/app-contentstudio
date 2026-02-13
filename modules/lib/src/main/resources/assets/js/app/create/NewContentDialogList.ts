@@ -1,5 +1,5 @@
 import {NewContentDialogItemSelectedEvent} from './NewContentDialogItemSelectedEvent';
-import {NewContentDialogListItem} from './NewContentDialogListItem';
+import {type NewContentDialogListItem} from './NewContentDialogListItem';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';
 import {NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/app/NamesAndIconView';

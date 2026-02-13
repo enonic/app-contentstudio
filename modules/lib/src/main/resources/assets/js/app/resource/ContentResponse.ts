@@ -1,4 +1,4 @@
-import {ResultMetadata} from './ResultMetadata';
+import {type ResultMetadata} from './ResultMetadata';
 
 export class ContentResponse<T> {
 

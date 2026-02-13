@@ -1,24 +1,24 @@
 import Q from 'q';
-import {Input} from '@enonic/lib-admin-ui/form/Input';
+import {type Input} from '@enonic/lib-admin-ui/form/Input';
 import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from '@enonic/lib-admin-ui/Class';
-import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
+import {type PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
-import {UploadFailedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
+import {type SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {type UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
+import {type UploadFailedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
 import {ContentSelector} from './ContentSelector';
-import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {MediaUploaderEl, MediaUploaderElConfig, MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
-import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {MediaUploaderEl, type MediaUploaderElConfig, MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
+import {type ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
-import {Content} from '../../content/Content';
-import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
+import {type Content} from '../../content/Content';
+import {type UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {ContentPath} from '../../content/ContentPath';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../../content/CompareStatus';
-import {ContentSelectedOptionsView} from '../ui/selector/ContentComboBox';
-import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {type ContentSelectedOptionsView} from '../ui/selector/ContentComboBox';
+import {type BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 
 export class MediaSelector<T extends BaseSelectedOptionsView<ContentTreeSelectorItem> = ContentSelectedOptionsView>
     extends ContentSelector<T> {
@@ -158,7 +158,7 @@ export class MediaSelector<T extends BaseSelectedOptionsView<ContentTreeSelector
             const item: UploadItem<Content> = event.getUploadItem();
 
             const selectedOption: SelectedOption<ContentTreeSelectorItem> = this.getSelectedOptionsView().getById(item.getId());
-            if (!!selectedOption) {
+            if (selectedOption) {
                 this.getSelectedOptionsView().removeOption(selectedOption.getOption());
             }
         });

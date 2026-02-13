@@ -1,5 +1,5 @@
 import {ProjectDialogStepData} from './ProjectDialogStepData';
-import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
+import {type Locale} from '@enonic/lib-admin-ui/locale/Locale';
 
 export class ProjectLocaleDialogStepData
     extends ProjectDialogStepData {

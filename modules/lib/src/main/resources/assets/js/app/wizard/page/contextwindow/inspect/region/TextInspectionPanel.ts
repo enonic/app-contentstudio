@@ -1,29 +1,30 @@
-import Q from 'q';
+import {BeforeContentSavedEvent} from '../../../../../event/BeforeContentSavedEvent';
+import {ComponentTextUpdatedEvent} from '../../../../../page/region/ComponentTextUpdatedEvent';
+import {type ComponentUpdatedEvent} from '../../../../../page/region/ComponentUpdatedEvent';
+import {HTMLAreaHelper} from '../../../../../inputtype/ui/text/HTMLAreaHelper';
+import {HtmlEditor} from '../../../../../inputtype/ui/text/HtmlEditor';
+import {type HtmlEditorCursorPosition} from '../../../../../inputtype/ui/text/HtmlEditorTypes';
+import {HtmlEditorParams} from '../../../../../inputtype/ui/text/HtmlEditorParams';
+import {PageEventsManager} from '../../../../PageEventsManager';
+import {PageState} from '../../../PageState';
+import {StylesRequest} from '../../../../../inputtype/ui/text/styles/StylesRequest';
+import {type TextComponent} from '../../../../../page/region/TextComponent';
+import {TextComponentType} from '../../../../../page/region/TextComponentType';
+import type Q from 'q';
 import {NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/app/NamesAndIconView';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
-import {BeforeContentSavedEvent} from '../../../../../event/BeforeContentSavedEvent';
 import {ContentRequiresSaveEvent} from '../../../../../event/ContentRequiresSaveEvent';
-import {TextComponent} from '../../../../../page/region/TextComponent';
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {TextComponentType} from '../../../../../page/region/TextComponentType';
 import {ComponentInspectionPanel} from './ComponentInspectionPanel';
-import {HtmlEditor, HtmlEditorCursorPosition} from '../../../../../inputtype/ui/text/HtmlEditor';
-import {HtmlEditorParams} from '../../../../../inputtype/ui/text/HtmlEditorParams';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
-import {StylesRequest} from '../../../../../inputtype/ui/text/styles/StylesRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
-import {PageState} from '../../../PageState';
-import {ComponentUpdatedEvent} from '../../../../../page/region/ComponentUpdatedEvent';
-import {HTMLAreaHelper} from '../../../../../inputtype/ui/text/HTMLAreaHelper';
-import {PageEventsManager} from '../../../../PageEventsManager';
-import {ComponentTextUpdatedEvent} from '../../../../../page/region/ComponentTextUpdatedEvent';
 import {HTMLAreaProxy} from '../../../../../inputtype/ui/text/dialog/HTMLAreaProxy';
+import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
+import {type LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 
 export class TextInspectionPanel
     extends ComponentInspectionPanel<TextComponent> {

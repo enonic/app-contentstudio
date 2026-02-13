@@ -1,6 +1,6 @@
-import {ComponentPath} from './ComponentPath';
+import {type ComponentPath} from './ComponentPath';
 import {ComponentUpdatedEvent} from './ComponentUpdatedEvent';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 
 export class ComponentConfigUpdatedEvent
     extends ComponentUpdatedEvent {

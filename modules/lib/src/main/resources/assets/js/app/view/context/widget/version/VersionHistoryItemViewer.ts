@@ -2,9 +2,9 @@ import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {VersionHistoryItem} from './VersionHistoryItem';
+import {type VersionHistoryItem} from './VersionHistoryItem';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 
 export class VersionHistoryItemViewer
     extends NamesAndIconViewer<VersionHistoryItem> {

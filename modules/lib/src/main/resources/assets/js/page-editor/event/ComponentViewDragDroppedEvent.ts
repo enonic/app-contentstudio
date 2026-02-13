@@ -1,6 +1,6 @@
 import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ComponentPath} from '../app/page/region/ComponentPath';
+import {type ComponentPath} from '../../app/page/region/ComponentPath';
 
 export class ComponentViewDragDroppedEvent
     extends IframeEvent {

@@ -1,9 +1,9 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
+import {type UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {ContentIconUrlResolver} from '../../../../content/ContentIconUrlResolver';
-import {ContentSummary} from '../../../../content/ContentSummary';
+import {type ContentSummary} from '../../../../content/ContentSummary';
 import {ContentTreeSelectorItem, ContentTreeSelectorItemBuilder} from '../../../../item/ContentTreeSelectorItem';
 
 export class MediaTreeSelectorItem

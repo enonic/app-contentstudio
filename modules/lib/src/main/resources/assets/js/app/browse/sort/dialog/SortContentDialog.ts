@@ -1,4 +1,4 @@
-import Q from 'q';
+import type Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Permission} from '../../../access/Permission';
@@ -9,23 +9,23 @@ import {SortContentTabMenu} from '../menu/SortContentTabMenu';
 import {ContentGridDragHandler} from '../../ContentGridDragHandler';
 import {OpenSortDialogEvent} from '../../OpenSortDialogEvent';
 import {OrderChildContentRequest} from '../../../resource/OrderChildContentRequest';
-import {OrderChildMovements} from '../../../resource/order/OrderChildMovements';
+import {type OrderChildMovements} from '../../../resource/order/OrderChildMovements';
 import {OrderContentRequest} from '../../../resource/OrderContentRequest';
-import {Content} from '../../../content/Content';
-import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
-import {TabMenuItem, TabMenuItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabMenuItem';
-import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
+import {type Content} from '../../../content/Content';
+import {type ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
+import {type TabMenuItem, TabMenuItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabMenuItem';
+import {type DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
 import {TabMenu} from '@enonic/lib-admin-ui/ui/tab/TabMenu';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {ModalDialog, ModalDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
-import {SortContentTabMenuItem} from '../menu/SortContentTabMenuItem';
+import {ModalDialog, type ModalDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {type SortContentTabMenuItem} from '../menu/SortContentTabMenuItem';
 import {ProjectContext} from '../../../project/ProjectContext';
 import {ContentsExistRequest} from '../../../resource/ContentsExistRequest';
-import {ContentsExistResult} from '../../../resource/ContentsExistResult';
+import {type ContentsExistResult} from '../../../resource/ContentsExistResult';
 import {ContentSummaryAndCompareStatusFetcher} from '../../../resource/ContentSummaryAndCompareStatusFetcher';
 import {RestoreInheritRequest} from '../../../resource/RestoreInheritRequest';
 import {ContentInheritType} from '../../../content/ContentInheritType';
-import {ChildOrder} from '../../../resource/order/ChildOrder';
+import {type ChildOrder} from '../../../resource/order/ChildOrder';
 
 export class SortContentDialog
     extends ModalDialog {
@@ -198,7 +198,7 @@ export class SortContentDialog
             .setRequestProjectName(parentProject)
             .sendAndParse()
             .then((result: ContentsExistResult) => {
-                if (!!result.getContentsExistMap().get(this.selectedContent.getId())) {
+                if (result.getContentsExistMap().get(this.selectedContent.getId())) {
                     return new ContentSummaryAndCompareStatusFetcher().fetch(this.selectedContent.getContentId(), parentProject);
                 } else {
                     return null;

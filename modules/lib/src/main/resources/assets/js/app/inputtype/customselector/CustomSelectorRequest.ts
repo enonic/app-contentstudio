@@ -1,9 +1,9 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Path} from '@enonic/lib-admin-ui/rest/Path';
 import {CustomSelectorItem} from './CustomSelectorItem';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
-import Q from 'q';
+import type Q from 'q';
 
 export interface CustomSelectorResponse {
     total: number;

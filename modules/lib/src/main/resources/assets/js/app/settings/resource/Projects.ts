@@ -1,5 +1,5 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Project} from '../data/project/Project';
+import {type Project} from '../data/project/Project';
 import {ProjectListRequest} from './ProjectListRequest';
 
 export class Projects {

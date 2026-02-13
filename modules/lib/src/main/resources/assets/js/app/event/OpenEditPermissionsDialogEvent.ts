@@ -1,9 +1,9 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {Content} from '../content/Content';
-import {AccessControlList} from '../access/AccessControlList';
-import {ContentId} from '../content/ContentId';
-import {ContentPath} from '../content/ContentPath';
+import {type Content} from '../content/Content';
+import {type AccessControlList} from '../access/AccessControlList';
+import {type ContentId} from '../content/ContentId';
+import {type ContentPath} from '../content/ContentPath';
 
 export class OpenEditPermissionsDialogEvent
     extends Event {

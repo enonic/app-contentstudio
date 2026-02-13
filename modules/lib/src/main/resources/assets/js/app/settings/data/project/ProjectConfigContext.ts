@@ -1,7 +1,7 @@
-import {ProjectConfig} from './ProjectConfig';
+import {type ProjectConfig} from './ProjectConfig';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ProjectConfigRequest} from '../../resource/ProjectConfigRequest';
-import Q from 'q';
+import type Q from 'q';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class ProjectConfigContext {
