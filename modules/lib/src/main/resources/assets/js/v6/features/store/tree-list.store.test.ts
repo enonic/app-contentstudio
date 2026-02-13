@@ -567,6 +567,24 @@ describe('tree-list.store', () => {
                 expect(hasTreeNode('child')).toBe(false);
             });
 
+            it('does not add child as root when root is loaded but parent is not yet in tree', () => {
+                // Setup: root is already loaded
+                addTreeNode({id: 'existing-root', data: createNodeData('existing-root')});
+                setTreeRootIds(['existing-root']);
+
+                // Parent is known in path cache, but not yet present in the tree
+                const parentContent = createMockContentWithParent('parent', '/');
+                setContents([parentContent]);
+
+                // Emit: child content created under parent
+                const childContent = createMockContentWithParent('child', '/parent');
+                emitContentCreated([childContent] as ContentSummaryAndCompareStatus[]);
+
+                // Assert: child should not be inserted as root while parent is missing
+                expect(hasTreeNode('child')).toBe(false);
+                expect($treeState.get().rootIds).toEqual(['existing-root']);
+            });
+
             it('adds root-level content when root is loaded', () => {
                 // Setup: tree with existing root items
                 addTreeNode({id: '1', data: createNodeData('1')});
