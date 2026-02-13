@@ -1,4 +1,5 @@
 import {type ReactElement} from 'react';
+import {DeleteSettingsDialog} from '../../shared/dialogs/DeleteSettingsDialog';
 import {NewProjectDialog} from '../../shared/dialogs/new-project/NewProjectDialog';
 import {LegacyElement} from '../../shared/LegacyElement';
 
@@ -7,6 +8,7 @@ export const SettingsAppShell = (): ReactElement => {
         <>
             {/* Shared dialogs */}
             <NewProjectDialog />
+            <DeleteSettingsDialog />
         </>
     );
 };
