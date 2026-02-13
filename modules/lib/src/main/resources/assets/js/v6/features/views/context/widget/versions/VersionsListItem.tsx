@@ -9,15 +9,18 @@ import {VersionItemPublishStatus} from '../../../../shared/status/VersionItemPub
 import {
     $activeVersionId,
     $selectedVersions,
-    $selectionModeOn,
     getOperationLabel,
     isVersionRevertable,
     requestRevert,
     toggleVersionSelection,
 } from '../../../../store/context/versionStore';
-import {VersionsListItemIcon} from './VersionListItemIcon';
+import {VersionsListItemIcon} from './VersionsListItemIcon';
 
 const COMPONENT_NAME = 'VersionsListItem';
+
+const preventFocusChange = (e: React.MouseEvent<HTMLElement>): void => {
+    e.preventDefault();
+};
 
 // ============================================================================
 // Types
@@ -38,7 +41,7 @@ type VersionsListItemProps = {
 
 const useVersionItemState = (version: ContentVersion, isFocused: boolean) => {
     const selectedVersions = useStore($selectedVersions);
-    const isSelectionModeOn = useStore($selectionModeOn);
+    const isSelectionModeOn = selectedVersions.size > 0;
     const currentVersionId = useStore($activeVersionId);
     const {active, setActive} = useListbox();
 
@@ -116,13 +119,16 @@ export const VersionsListItem = ({
 
     const revertLabel = useI18n('field.version.revert');
 
-    const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-        e.stopPropagation();
+    const handleMouseDown = useCallback(() => {
         if (!isActive) {
             setActive(versionId);
         }
+    }, [versionId, isActive, setActive]);
+
+    const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+        e.stopPropagation();
         onToggleExpanded?.(versionId);
-    }, [versionId, isActive, setActive, onToggleExpanded]);
+    }, [versionId, onToggleExpanded]);
 
     const handleCheckboxClick = useCallback((e: React.MouseEvent<HTMLLabelElement>) => {
         e.stopPropagation();
@@ -135,16 +141,13 @@ export const VersionsListItem = ({
         requestRevert(contentId, versionId);
     }, [contentId, versionId]);
 
-    const preventFocusChange = useCallback((e: React.MouseEvent<HTMLElement>) => {
-        e.preventDefault();
-    }, []);
-
     const showRestoreButton = isExpanded && isRevertable;
 
     return (
         <div
             data-component={COMPONENT_NAME}
             className='group w-full p-2.5 flex flex-col gap-5 cursor-pointer rounded-sm'
+            onMouseDownCapture={handleMouseDown}
             onClick={handleClick}
             {...props}
         >

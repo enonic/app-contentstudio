@@ -1,6 +1,6 @@
 import {Listbox} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import React from 'react';
+import type {KeyboardEvent, ReactElement, RefObject} from 'react';
 import {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
 import {ContentVersion} from '../../../../../../app/ContentVersion';
 import {$versionsDisplayMode} from '../../../../store/context/versionStore';
@@ -8,20 +8,17 @@ import {VersionsListItem} from './VersionsListItem';
 
 const COMPONENT_NAME = 'VersionsListContent';
 
-/**
- * Component for rendering versions list content grouped by dates
- */
-interface VersionsListContentProps {
-    content: ContentSummaryAndCompareStatus,
+type VersionsListContentProps = {
+    content: ContentSummaryAndCompareStatus;
     versionsByDate: Record<string, ContentVersion[]>;
     activeVersionId: string | null;
     expandedVersionId: string | null;
     restoreFocusVersionId: string | null;
     isFocused: boolean;
-    onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+    onKeyDown: (e: KeyboardEvent<HTMLDivElement>) => void;
     onToggleExpanded: (versionId: string) => void;
-    listRef: React.RefObject<HTMLDivElement>;
-}
+    listRef: RefObject<HTMLDivElement>;
+};
 
 export const VersionsListContent = ({
     content,
@@ -33,7 +30,7 @@ export const VersionsListContent = ({
     onKeyDown,
     onToggleExpanded,
     listRef
-}: VersionsListContentProps): React.ReactElement => {
+}: VersionsListContentProps): ReactElement => {
     const displayMode = useStore($versionsDisplayMode);
 
     return (

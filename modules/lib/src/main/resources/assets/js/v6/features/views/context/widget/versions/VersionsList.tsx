@@ -20,7 +20,7 @@ import {VersionsShowAllActivitiesSection} from './VersionsShowAllActivitiesSecti
 
 const INFINITE_SCROLL_CONFIG = {
     ROOT_MARGIN: '200px',
-    THRESHOLD: 0.1,
+    THRESHOLD: 0,
 };
 
 const COMPONENT_NAME = 'VersionsList';
@@ -111,16 +111,16 @@ export const VersionsList = (): ReactElement => {
         }
     }, [isFocused]);
 
-    const handleSelectionChange = useCallback((newSelection: string[]) => {
+    const handleSelectionChange = (newSelection: string[]): void => {
         setSelectedVersions(newSelection);
-    }, []);
+    };
 
-    const handleCancelSelection = useCallback(() => {
+    const handleCancelSelection = (): void => {
         listRef.current?.focus();
-    }, []);
+    };
 
-    const handleFocus = useCallback(() => setIsFocused(true), []);
-    const handleBlur = useCallback(() => setIsFocused(false), []);
+    const handleFocus = (): void => setIsFocused(true);
+    const handleBlur = (): void => setIsFocused(false);
 
     // Show error state
     if (error) {

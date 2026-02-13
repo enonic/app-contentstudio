@@ -10,7 +10,8 @@ import {
     Archive,
     ArchiveRestore,
     ArrowDownNarrowWide,
-    ArrowLeftRight, CaseSensitive,
+    ArrowLeftRight,
+    CaseSensitive,
     CircleCheckBig,
     CircleUserRound,
     Clock,
@@ -18,7 +19,8 @@ import {
     CloudCheck,
     CloudOff,
     Copy,
-    FilePenLine, FolderInput,
+    FilePenLine,
+    FolderInput,
     LucideIcon,
     Pen,
     PenLine,
@@ -104,14 +106,12 @@ export const $selectedVersions = atom<ReadonlySet<string>>(new Set());
 
 export const $activeVersionId = computed($versions, (versions) => versions[0]?.getId());
 
-export const $selectionModeOn = computed($selectedVersions, (selected) => selected.size > 0);
-
 export const $versionsByDate = computed(
     [$versions, $versionsDisplayMode],
     (versions, displayMode) => {
         const filteredVersions = displayMode === 'standard'
-                                 ? versions.filter((version) => isVersionToBeDisplayedByDefault(version))
-                                 : versions.filter((version) => isVersionToBeDisplayedInFullMode(version));
+                                 ? versions.filter(isStandardModeVersion)
+                                 : versions.filter(isVersionToBeDisplayedInFullMode);
 
         return filteredVersions.reduce<Record<string, ContentVersion[]>>((acc, version) => {
             const dateKey = getFormattedVersionDate(version);
@@ -124,7 +124,7 @@ export const $versionsByDate = computed(
     }
 );
 
-export const $onlineVersionId = atom<string | null>(null);
+export const $onlineVersionId = atom<string | undefined>(undefined);
 
 // ============================================================================
 // Version Helpers
@@ -147,27 +147,7 @@ export const getFormattedVersionDate = (version: ContentVersion): string => {
     return `${year}-${month}-${day}`;
 };
 
-export const isStandardModeVersion = (version: ContentVersion): boolean => {
-    const action = getFirstAction(version);
-
-    if (!action) {
-        return false;
-    }
-
-    const operation = action.getOperation();
-
-    if (operation === ContentOperation.CREATE || operation === ContentOperation.PUBLISH || operation === ContentOperation.UNPUBLISH) {
-        return true;
-    }
-
-    if (operation === ContentOperation.UPDATE) {
-        return action.getFields().some(isRevertibleField);
-    }
-
-    return false;
-};
-
-export const isVersionRevertable = (version: ContentVersion): boolean => {
+const hasRevertibleContent = (version: ContentVersion): boolean => {
     const action = getFirstAction(version);
 
     if (!action) {
@@ -187,18 +167,23 @@ export const isVersionRevertable = (version: ContentVersion): boolean => {
     return false;
 };
 
-const isVersionToBeDisplayedByDefault = (version: ContentVersion): boolean => {
-    if (isStandardModeVersion(version)) {
+export const isVersionRevertable = hasRevertibleContent;
+
+export const isStandardModeVersion = (version: ContentVersion): boolean => {
+    if (hasRevertibleContent(version)) {
         return true;
     }
 
-    const firstAction = getFirstAction(version);
-
-    return firstAction?.getOperation() === ContentOperation.PUBLISH || firstAction?.getOperation() === ContentOperation.UNPUBLISH;
+    const operation = getFirstAction(version)?.getOperation();
+    return operation === ContentOperation.PUBLISH || operation === ContentOperation.UNPUBLISH;
 };
 
 const isVersionToBeDisplayedInFullMode = (version: ContentVersion): boolean => {
     const firstAction = getFirstAction(version);
+
+    if (!firstAction) {
+        return true;
+    }
 
     // Don't display versions where 'manualOrderValue' was changed (These versions are created for children of manually sorted parents)
     if (firstAction.getOperation() === ContentOperation.SORT && firstAction.getFields().some(f => f === ContentField.MANUAL_ORDER)) {
@@ -206,7 +191,7 @@ const isVersionToBeDisplayedInFullMode = (version: ContentVersion): boolean => {
     }
 
     return true;
-}
+};
 
 // ============================================================================
 // Publish Status
@@ -259,8 +244,7 @@ const OPERATION_ICON_MAP: Record<ContentOperation, LucideIcon> = {
 
 type IconResolverContext = {
     version: ContentVersion;
-    versions: ContentVersion[];
-}
+};
 
 type IconResolver = (context: IconResolverContext) => LucideIcon | null;
 
@@ -312,9 +296,8 @@ const ICON_RESOLVERS: IconResolver[] = [
 
 export const getIconForOperation = (
     version: ContentVersion,
-    versions: ContentVersion[],
 ): LucideIcon => {
-    const context: IconResolverContext = {version, versions};
+    const context: IconResolverContext = {version};
 
     for (const resolver of ICON_RESOLVERS) {
         const icon = resolver(context);
@@ -331,8 +314,11 @@ export const getIconForOperation = (
 
 export const getOperationLabel = (version: ContentVersion): string => {
     const action = getFirstAction(version);
-
     const operation = action?.getOperation();
+
+    if (!operation) {
+        return i18n('operation.content.unknown');
+    }
 
     // Separate Rename from Move
     if (operation === ContentOperation.MOVE) {
@@ -349,12 +335,12 @@ export const getOperationLabel = (version: ContentVersion): string => {
         : i18n('operation.content.unknown');
 };
 
-export const getModifierLabel = (version: ContentVersion): string => {
+export const getModifierLabel = (version: ContentVersion): string | undefined => {
     const modifierName = version.getModifierDisplayName()
         || version.getPublishInfo()?.getPublisherDisplayName();
 
-    return modifierName ? i18n('field.version.by', modifierName) : null;
-}
+    return modifierName ? i18n('field.version.by', modifierName) : undefined;
+};
 
 // ============================================================================
 // Store Actions
@@ -399,7 +385,7 @@ export const toggleVersionSelection = (versionId: string): void => {
     if (isVersionSelected(versionId)) {
         deselectVersion(versionId);
     } else {
-        setSelectedVersions([...Array.from($selectedVersions.get()), versionId]);
+        setSelectedVersions([...$selectedVersions.get(), versionId]);
     }
 };
 
@@ -409,7 +395,7 @@ export const resetVersionsSelection = (): void => {
 
 export const setOnlineVersionId = (versionId: string | undefined): void => {
     $onlineVersionId.set(versionId);
-}
+};
 
 // ============================================================================
 // Patch Detection
@@ -442,7 +428,7 @@ type PendingRevert = {
     versionId: string;
 };
 
-export const $pendingRevert = atom<PendingRevert | null>(null);
+export const $pendingRevert = atom<PendingRevert | undefined>(undefined);
 
 export const requestRevert = (contentId: ContentId, versionId: string): void => {
     if (hasPatchVersionsBefore(versionId)) {
@@ -455,13 +441,13 @@ export const requestRevert = (contentId: ContentId, versionId: string): void => 
 export const confirmRevert = (): void => {
     const pending = $pendingRevert.get();
     if (pending) {
-        $pendingRevert.set(null);
+        $pendingRevert.set(undefined);
         revertToVersion(pending.contentId, pending.versionId);
     }
 };
 
 export const cancelRevert = (): void => {
-    $pendingRevert.set(null);
+    $pendingRevert.set(undefined);
 };
 
 // ============================================================================

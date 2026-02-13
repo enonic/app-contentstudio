@@ -1,6 +1,6 @@
 import {useStore} from '@nanostores/preact';
 import Q from 'q';
-import {ReactElement, useMemo} from 'react';
+import {ReactElement} from 'react';
 import {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
 import {WidgetItemViewInterface} from '../../../../../../app/view/context/WidgetItemView';
 import {LegacyElement} from '../../../../shared/LegacyElement';
@@ -12,7 +12,7 @@ import {VersionsList} from './VersionsList';
 export const VersionsWidget = (): ReactElement => {
     const isContextOpen = useStore($isContextOpen);
     const activeWidget = useStore($activeWidgetId);
-    const isActiveWidget = useMemo(() => activeWidget === VERSIONS_WIDGET_KEY, [activeWidget]);
+    const isActiveWidget = activeWidget === VERSIONS_WIDGET_KEY;
     const content = useStore($contextContent);
 
     return (isContextOpen && isActiveWidget && content && <VersionsList />)

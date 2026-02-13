@@ -6,6 +6,9 @@ import {InspectEvent} from '../../../../../../app/event/InspectEvent';
 import {useI18n} from '../../../../hooks/useI18n';
 
 export function PreviewToolbarVersionHistoryItem(): ReactElement {
+    const ariaLabel = useI18n('wcag.preview.toolbar.versionHistory.label');
+    const buttonLabel = useI18n('field.preview.toolbar.versionHistory.label');
+
     const handleShowVersionHistory = () => {
         InspectEvent.create()
             .setWidgetType(InternalWidgetType.HISTORY)
@@ -20,11 +23,11 @@ export function PreviewToolbarVersionHistoryItem(): ReactElement {
             <Button
                 size="sm"
                 className="min-w-9 @max-sm:p-0 flex-shrink-0"
-                aria-label={useI18n('wcag.preview.toolbar.versionHistory.label')}
+                aria-label={ariaLabel}
                 startIcon={History}
                 onClick={handleShowVersionHistory}
             >
-                <span className="hidden @sm:inline">{useI18n('field.preview.toolbar.versionHistory.label')}</span>
+                <span className="hidden @sm:inline">{buttonLabel}</span>
             </Button>
         </Toolbar.Item>
     );
