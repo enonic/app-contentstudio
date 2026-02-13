@@ -12,7 +12,7 @@ export const loadContentVersions = async (contentId: ContentId, cursor?: string)
         return cached;
     }
 
-    const request = new GetContentVersionsRequest(contentId).setSize(BATCH_SIZE); // 10 to display fetching process clearly
+    const request = new GetContentVersionsRequest(contentId).setSize(BATCH_SIZE);
 
     if (cursor) {
         request.setCursor(cursor);

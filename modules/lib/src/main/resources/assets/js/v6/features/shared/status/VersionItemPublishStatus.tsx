@@ -15,13 +15,13 @@ export const VersionItemPublishStatus = ({version, className}: VersionItemPublis
     const expiredLabel = useI18n('status.expired');
     const scheduledLabel = useI18n('status.scheduled');
     const onlineVersionId = useStore($onlineVersionId);
-    const commonClassName = 'text-sm flex items-center truncate inline-block';
+    const commonClassName = 'text-sm flex items-center truncate';
 
     if (!version) {
         return null;
     }
 
-    const publishStatus = getVersionPublishStatus(version, onlineVersionId ?? undefined);
+    const publishStatus = getVersionPublishStatus(version, onlineVersionId);
 
     switch (publishStatus) {
         case VersionPublishStatus.ONLINE:

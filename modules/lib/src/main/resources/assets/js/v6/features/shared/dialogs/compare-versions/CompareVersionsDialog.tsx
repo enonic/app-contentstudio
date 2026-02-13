@@ -2,7 +2,7 @@ import {Dialog, Checkbox, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {DiffPatcher} from 'jsondiffpatch';
 import {format, showUnchanged} from 'jsondiffpatch/formatters/html';
-import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
+import {ReactElement, useCallback, useEffect, useMemo} from 'react';
 import {ContentVersion} from '../../../../../app/ContentVersion';
 import {useI18n} from '../../../hooks/useI18n';
 import {$versions} from '../../../store/context/versionStore';
@@ -47,9 +47,6 @@ export const CompareVersionsDialog = (): ReactElement => {
 
     const diffPatcher = useMemo(() => new DiffPatcher(), []);
 
-    const [diffHtml, setDiffHtml] = useState<string>('');
-    const [isEmpty, setIsEmpty] = useState(false);
-
     const leftVersion = useMemo(
         () => (leftVersionId ? findById(versions, leftVersionId) : null),
         [leftVersionId, versions]
@@ -91,34 +88,23 @@ export const CompareVersionsDialog = (): ReactElement => {
 
     useEffect(() => {
         if (!open) {
-            setDiffHtml('');
-            setIsEmpty(false);
             showUnchanged(false, null, 0);
         }
     }, [open]);
 
-    const delta = useMemo(() => {
-        if (!olderVersionJson || !newerVersionJson) {
-            return null;
+    const {diffHtml, isEmpty} = useMemo(() => {
+        if (!open || !olderVersionJson || !newerVersionJson) {
+            return {diffHtml: '', isEmpty: false};
         }
-        return diffPatcher.diff(olderVersionJson, newerVersionJson);
-    }, [olderVersionJson, newerVersionJson, diffPatcher]);
 
-
-    // Generate diff HTML when version JSONs are loaded
-    useEffect(() => {
-        if (!olderVersionJson || !newerVersionJson) {
-            return;
-        }
+        const delta = diffPatcher.diff(olderVersionJson, newerVersionJson);
 
         if (delta) {
-            setDiffHtml(format(delta, newerVersionJson));
-            setIsEmpty(false);
-        } else {
-            setDiffHtml(`<h3>${versionsIdenticalLabel}</h3>`);
-            setIsEmpty(true);
+            return {diffHtml: format(delta, newerVersionJson), isEmpty: false};
         }
-    }, [olderVersionJson, newerVersionJson, delta, versionsIdenticalLabel]);
+
+        return {diffHtml: `<h3>${versionsIdenticalLabel}</h3>`, isEmpty: true};
+    }, [open, olderVersionJson, newerVersionJson, diffPatcher, versionsIdenticalLabel]);
 
     // Apply showUnchanged when diffHtml is updated or showAllContent changes
     useEffect(() => {

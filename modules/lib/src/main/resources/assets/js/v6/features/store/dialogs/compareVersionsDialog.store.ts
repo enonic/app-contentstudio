@@ -19,7 +19,7 @@ const initialState: CompareVersionsDialogState = {
     showAllContent: false,
 };
 
-export const $compareVersionsDialog = map<CompareVersionsDialogState>(structuredClone(initialState));
+export const $compareVersionsDialog = map<CompareVersionsDialogState>({...initialState});
 
 export const openCompareVersionsDialog = (content: ContentSummaryAndCompareStatus, versionIds: string[]): void => {
     if (!content || versionIds.length !== 2) {
@@ -32,7 +32,7 @@ export const openCompareVersionsDialog = (content: ContentSummaryAndCompareStatu
     }
 
     $compareVersionsDialog.set({
-        ...structuredClone(initialState),
+        ...{...initialState},
         open: true,
         contentId: contentId.toString(),
         contentPath: content.getPath()?.toString() ?? null,
@@ -42,7 +42,7 @@ export const openCompareVersionsDialog = (content: ContentSummaryAndCompareStatu
 };
 
 export const closeCompareVersionsDialog = (): void => {
-    $compareVersionsDialog.set(structuredClone(initialState));
+    $compareVersionsDialog.set({...initialState});
 };
 
 export const setCompareVersionsShowAll = (showAll: boolean): void => {

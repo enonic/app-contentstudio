@@ -44,7 +44,7 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
             .then((result) => {
                 if (cancelled) return;
                 setVersions(result.versions);
-                setOnlineVersionId(result.onlineVersionId); // Set online version ID on initial load
+                setOnlineVersionId(result.onlineVersionId);
                 resetVersionsSelection();
                 setHasMore(result.hasMore);
                 setCursor(result.cursor);
@@ -69,7 +69,7 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
             const result = await loadContentVersions(content.getContentId(), cursor);
             appendVersions(result.versions);
             setHasMore(result.hasMore);
-            setCursor(result.cursor); // No need to update onlineVersionId on pagination
+            setCursor(result.cursor);
         } catch (err) {
             setError(err instanceof Error ? err : new Error('Failed to load more versions'));
         } finally {
