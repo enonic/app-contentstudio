@@ -1,8 +1,8 @@
 import {Dialog, Input} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {ChangeEvent, ReactElement, useCallback, useEffect, useRef, useState} from 'react';
+import {ReactElement, useCallback, useEffect, useRef, useState} from 'react';
 import {useI18n} from '../../../../hooks/useI18n';
-import {setNewProjectDialogName} from '../../../../store/dialogs/newProjectDialog.store';
+import {$newProjectDialog, setNewProjectDialogName} from '../../../../store/dialogs/newProjectDialog.store';
 import {$projects} from '../../../../store/projects.store';
 import {prettifyProjectIdentifier, validateProjectIdentifier} from '../../../../utils/cms/projects/identifier';
 
@@ -18,15 +18,18 @@ NewProjectDialogNameStepHeader.displayName = 'NewProjectDialogNameStepHeader';
 
 export const NewProjectDialogNameStepContent = ({locked = false}: {locked?: boolean}): ReactElement => {
     const {projects} = useStore($projects);
-    const [name, setName] = useState('');
+    const {
+        nameData: {name: initialName, identifier: initialIdentifier, description: initialDescription, hasError: initialHasError},
+    } = useStore($newProjectDialog);
+    const [name, setName] = useState(initialName);
     const identifierRef = useRef<HTMLInputElement>(null);
-    const [identifier, setIdentifier] = useState('');
-    const [description, setDescription] = useState('');
+    const [identifier, setIdentifier] = useState(initialIdentifier);
+    const [description, setDescription] = useState(initialDescription);
     const [nameError, setNameError] = useState<string>();
     const [identifierError, setIdentifierError] = useState<string>();
     const [descriptionError, setDescriptionError] = useState<string>();
-    const isInitialRender = useRef(true);
-    const lastAutoIdentifierRef = useRef('');
+    const isInitialRender = useRef(!initialHasError);
+    const lastAutoIdentifierRef = useRef(prettifyProjectIdentifier(initialName, false));
 
     const projectNameLabel = useI18n('dialog.project.wizard.name.projectName');
     const projectIdentifierLabel = useI18n('dialog.project.wizard.name.projectIdentifier');
@@ -61,35 +64,53 @@ export const NewProjectDialogNameStepContent = ({locked = false}: {locked?: bool
         [projects, errorRequiredField, errorInvalidField, projectErrorIdentifierAlreadyExists]
     );
 
-    // Handlers
-    const handleDisplayNameChange = useCallback(
-        (e: ChangeEvent<HTMLInputElement>): void => {
-            const value = e.currentTarget.value;
-
+    // Processors
+    const processName = useCallback(
+        (value: string): void => {
             setName(value);
             setNameError('');
 
             if (value.length === 0) {
                 setNameError(errorRequiredField);
-                return;
             }
         },
         [errorRequiredField]
     );
-    const handleIdentifierChange = useCallback(
-        (e: ChangeEvent<HTMLInputElement>): void => {
-            const value = e.currentTarget.value;
-
+    const processIdentifier = useCallback(
+        (value: string): void => {
             updateIdentifier(value, true);
         },
         [updateIdentifier]
     );
-    const handleDescriptionChange = useCallback((e: ChangeEvent<HTMLInputElement>): void => {
-        const value = e.currentTarget.value;
-
+    const processDescription = useCallback((value: string): void => {
         setDescription(value);
         setDescriptionError('');
     }, []);
+
+    // Process values. Skip initial render.
+    // Dialog view goes back to 'main' => Re-render this component => Re-process to show possible errors
+    useEffect(() => {
+        if (isInitialRender.current) return;
+
+        processName(name);
+        processIdentifier(identifier);
+        processDescription(description);
+    }, [name, identifier, description, processName, processIdentifier, processDescription]);
+
+    // Map name to identifier on user input. Skip initial render.
+    useEffect(() => {
+        if (isInitialRender.current) {
+            isInitialRender.current = false;
+            return;
+        }
+
+        const shouldSync = identifier === lastAutoIdentifierRef.current;
+        lastAutoIdentifierRef.current = prettifyProjectIdentifier(name, false);
+
+        if (shouldSync) {
+            updateIdentifier(name, false);
+        }
+    }, [name, identifier, updateIdentifier]);
 
     // Sync with the store
     useEffect(() => {
@@ -106,33 +127,23 @@ export const NewProjectDialogNameStepContent = ({locked = false}: {locked?: bool
         setNewProjectDialogName(data);
     }, [name, identifier, description, nameError, identifierError, descriptionError]);
 
-    // Map name to identifier on user input, skip initial render
-    useEffect(() => {
-        if (isInitialRender.current) {
-            isInitialRender.current = false;
-            return;
-        }
-
-        const shouldSync = identifier === lastAutoIdentifierRef.current;
-        lastAutoIdentifierRef.current = prettifyProjectIdentifier(name, false);
-
-        if (shouldSync) {
-            updateIdentifier(name, false);
-        }
-    }, [name, identifier, updateIdentifier]);
-
     return (
         <Dialog.StepContent step="step-name" locked={locked}>
             <div className="flex flex-col gap-7.5">
-                <Input label={projectNameLabel} value={name} error={nameError} onChange={handleDisplayNameChange} />
+                <Input label={projectNameLabel} value={name} error={nameError} onChange={(e) => processName(e.currentTarget.value)} />
                 <Input
                     ref={identifierRef}
                     label={projectIdentifierLabel}
                     value={identifier}
                     error={identifierError}
-                    onChange={handleIdentifierChange}
+                    onChange={(e) => processIdentifier(e.currentTarget.value)}
                 />
-                <Input label={projectDescriptionLabel} value={description} error={descriptionError} onChange={handleDescriptionChange} />
+                <Input
+                    label={projectDescriptionLabel}
+                    value={description}
+                    error={descriptionError}
+                    onChange={(e) => processDescription(e.currentTarget.value)}
+                />
             </div>
         </Dialog.StepContent>
     );

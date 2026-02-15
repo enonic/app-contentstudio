@@ -27,10 +27,10 @@ NewProjectDialogAccessStepHeader.displayName = 'NewProjectDialogAccessStepHeader
 export const NewProjectDialogAccessStepContent = (): ReactElement => {
     // Hooks
     const {principals} = useStore($principals);
-    const {parentProjects} = useStore($newProjectDialog);
-    const [selection, setSelection] = useState<readonly string[]>([]);
-    const [accessModeValue, setAccessModeValue] = useState('');
-    const [selectedPrincipals, setSelectedPrincipals] = useState<Principal[]>([]);
+    const {parentProjects, accessMode: initialAccessMode, permissions: initialPermissions} = useStore($newProjectDialog);
+    const [selection, setSelection] = useState<readonly string[]>(initialPermissions.map((principal) => principal.getKey().toString()));
+    const [accessModeValue, setAccessModeValue] = useState(initialAccessMode || '');
+    const [selectedPrincipals, setSelectedPrincipals] = useState<Principal[]>(initialPermissions);
 
     // Set selected principals based on the selection of principal ids
     useEffect(() => {

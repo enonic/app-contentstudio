@@ -1,7 +1,11 @@
 import {Dialog, GridList, IconButton, Selector} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
-import {$newProjectDialog, setNewProjectDialogRolePrincipals, setNewProjectDialogRoles} from '../../../../store/dialogs/newProjectDialog.store';
+import {
+    $newProjectDialog,
+    setNewProjectDialogRolePrincipals,
+    setNewProjectDialogRoles,
+} from '../../../../store/dialogs/newProjectDialog.store';
 import {useI18n} from '../../../../hooks/useI18n';
 import {PrincipalSelector} from '../../../selectors/PrincipalSelector';
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
@@ -24,10 +28,10 @@ NewProjectDialogRoleStepHeader.displayName = 'NewProjectDialogRoleStepHeader';
 export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: boolean}): ReactElement => {
     // Hooks
     const {principals} = useStore($principals);
-    const {parentProjects} = useStore($newProjectDialog);
-    const [selection, setSelection] = useState<string[]>([]);
-    const [selectedPrincipals, setSelectedPrincipals] = useState<Principal[]>([]);
-    const [selectedRoles, setSelectedRoles] = useState<Record<string, ProjectAccess>>({});
+    const {parentProjects, roles: initialRoles, rolePrincipals: initialRolePrincipals} = useStore($newProjectDialog);
+    const [selection, setSelection] = useState<string[]>(Object.keys(initialRoles));
+    const [selectedPrincipals, setSelectedPrincipals] = useState<Principal[]>(initialRolePrincipals);
+    const [selectedRoles, setSelectedRoles] = useState<Record<string, ProjectAccess>>(initialRoles);
 
     // Set selected principals based on the selection of principal ids
     useEffect(() => {
