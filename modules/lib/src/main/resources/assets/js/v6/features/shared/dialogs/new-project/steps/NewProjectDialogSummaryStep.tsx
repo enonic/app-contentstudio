@@ -1,13 +1,13 @@
-import {Avatar, Dialog, Tooltip} from '@enonic/ui';
-import {ReactElement} from 'react';
-import {useI18n} from '../../../../hooks/useI18n';
-import {useStore} from '@nanostores/preact';
-import {$newProjectDialog} from '../../../../store/dialogs/newProjectDialog.store';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {Avatar, Dialog, Tooltip} from '@enonic/ui';
+import {useStore} from '@nanostores/preact';
+import {ReactElement} from 'react';
 import {ProjectAccess} from '../../../../../../app/settings/access/ProjectAccess';
+import {useI18n} from '../../../../hooks/useI18n';
+import {$newProjectDialog} from '../../../../store/dialogs/newProjectDialog.store';
+import {$languages} from '../../../../store/languages.store';
 import {getInitials} from '../../../../utils/format/initials';
 import {ApplicationIcon} from '../../../icons/ApplicationIcon';
-import {$languages} from '../../../../store/languages.store';
 import {FlagIcon} from '../../../icons/FlagIcon';
 
 export const NewProjectDialogSummaryStepHeader = (): ReactElement => {
@@ -86,7 +86,7 @@ export const NewProjectDialogSummaryStepContent = ({locked = false}: NewProjectD
 
     return (
         <Dialog.StepContent step="step-summary" locked={locked}>
-            <dl className="grid grid-cols-[auto_1fr] gap-5 bg-surface-primary p-5 rounded-md text-sm">
+            <dl className="grid grid-cols-[auto_1fr] gap-x-7.5 gap-y-5 bg-surface-primary p-5 rounded-md text-sm">
                 {parentProjects.length > 0 && (
                     <div className="contents">
                         <dt className="font-semibold">{parentProjects.length > 1 ? parentProjectsLabel : parentProjectLabel}</dt>
@@ -112,7 +112,7 @@ export const NewProjectDialogSummaryStepContent = ({locked = false}: NewProjectD
                     <div className="contents">
                         <dt className="font-semibold">{languageLabel}</dt>
                         <dd className="flex gap-2">
-                            <FlagIcon language={defaultLanguage.id} />
+                            <FlagIcon language={defaultLanguage.id} className="size-6 -my-0.5" />
                             <span>{defaultLanguage.label}</span>
                         </dd>
                     </div>
@@ -130,7 +130,7 @@ export const NewProjectDialogSummaryStepContent = ({locked = false}: NewProjectD
 
                                     return (
                                         <Tooltip key={principalKey} value={principalDisplayName}>
-                                            <Avatar size="sm">
+                                            <Avatar size="sm" className="size-6 -my-0.5">
                                                 <Avatar.Fallback className="text-alt font-semibold">
                                                     {getInitials(principalDisplayName)}
                                                 </Avatar.Fallback>
@@ -156,7 +156,7 @@ export const NewProjectDialogSummaryStepContent = ({locked = false}: NewProjectD
 
                                             return (
                                                 <Tooltip key={principalKey} value={principalDisplayName}>
-                                                    <Avatar size="sm">
+                                                    <Avatar size="sm" className="size-6 -my-0.5">
                                                         <Avatar.Fallback className="text-alt font-semibold">
                                                             {getInitials(principalDisplayName)}
                                                         </Avatar.Fallback>
@@ -174,14 +174,14 @@ export const NewProjectDialogSummaryStepContent = ({locked = false}: NewProjectD
                 {applications.length > 0 && (
                     <div className="contents">
                         <dt className="font-semibold">{applicationsLabel}</dt>
-                        <dd className="grid grid-cols-[auto_1fr] items-center gap-1.5">
+                        <dd className="grid grid-cols-[auto_1fr] items-center gap-x-1 gap-y-2.5">
                             {applications.map((application) => {
                                 const key = application.getApplicationKey().toString();
                                 const name = application.getDisplayName();
 
                                 return (
                                     <div className="contents" key={key}>
-                                        <ApplicationIcon application={application} />
+                                        <ApplicationIcon application={application} className="size-6 -my-0.5" />
                                         <span>{name}</span>
                                     </div>
                                 );

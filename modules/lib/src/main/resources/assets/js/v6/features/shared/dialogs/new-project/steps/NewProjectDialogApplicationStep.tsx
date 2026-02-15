@@ -1,13 +1,13 @@
 import {Dialog, GridList, IconButton} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
-import {setNewProjectDialogApplications} from '../../../../store/dialogs/newProjectDialog.store';
-import {useI18n} from '../../../../hooks/useI18n';
 import {X} from 'lucide-react';
-import {ApplicationSelector} from '../../../selectors/ApplicationSelector';
+import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
+import {useI18n} from '../../../../hooks/useI18n';
 import {$applications} from '../../../../store/applications.store';
+import {setNewProjectDialogApplications} from '../../../../store/dialogs/newProjectDialog.store';
 import {ItemLabel} from '../../../ItemLabel';
 import {ApplicationIcon} from '../../../icons/ApplicationIcon';
+import {ApplicationSelector} from '../../../selectors/ApplicationSelector';
 
 export const NewProjectDialogApplicationStepHeader = (): ReactElement => {
     const helperLabel = useI18n('dialog.project.wizard.title');
@@ -48,7 +48,7 @@ export const NewProjectDialogApplicationStepContent = ({locked = false}: {locked
 
     return (
         <Dialog.StepContent step="step-application" locked={locked}>
-            <h3 className="my-2 font-semibold">{label}</h3>
+            <label className="block font-semibold mb-2">{label}</label>
             <ApplicationSelector
                 selection={selection}
                 onSelectionChange={setSelection}
@@ -56,18 +56,17 @@ export const NewProjectDialogApplicationStepContent = ({locked = false}: {locked
                 placeholder={typeToSearchLabel}
                 emptyLabel={noApplicationsFoundLabel}
                 closeOnBlur
-                className="mb-2.5"
             />
             {selection.length > 0 && (
                 <>
-                    <GridList className="rounded-md space-y-2.5 mb-2.5 py-1.5 pl-5 pr-1">
+                    <GridList className="rounded-md mb-2.5 py-1.5 pl-4 pr-1">
                         {selectedApplications.map((application) => {
                             const key = application.getApplicationKey().toString();
                             const name = application.getDisplayName();
                             const description = application.getDescription();
 
                             return (
-                                <GridList.Row key={key} id={key} className="p-1.5 gap-1.5">
+                                <GridList.Row key={key} id={key} className="p-1 gap-1.5">
                                     <GridList.Cell interactive={false} className="flex-1 self-stretch">
                                         <ItemLabel
                                             icon={<ApplicationIcon application={application} />}

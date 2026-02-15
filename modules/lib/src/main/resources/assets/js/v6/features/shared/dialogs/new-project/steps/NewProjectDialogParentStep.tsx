@@ -1,12 +1,12 @@
 import {Dialog, GridList, IconButton} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {ReactElement, useCallback, useEffect, useState} from 'react';
-import {$projects} from '../../../../store/projects.store';
-import {$newProjectDialog, setNewProjectDialogParentProjects} from '../../../../store/dialogs/newProjectDialog.store';
-import {useI18n} from '../../../../hooks/useI18n';
-import {ProjectSelector} from '../../../selectors/ProjectSelector';
-import {ProjectLabel} from '../../../project/ProjectLabel';
 import {X} from 'lucide-react';
+import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
+import {useI18n} from '../../../../hooks/useI18n';
+import {$newProjectDialog, setNewProjectDialogParentProjects} from '../../../../store/dialogs/newProjectDialog.store';
+import {$projects} from '../../../../store/projects.store';
+import {ProjectLabel} from '../../../project/ProjectLabel';
+import {ProjectSelector} from '../../../selectors/ProjectSelector';
 
 export const NewProjectDialogParentStepHeader = (): ReactElement => {
     const helperLabel = useI18n('dialog.project.wizard.title');
@@ -22,6 +22,10 @@ export const NewProjectDialogParentStepContent = (): ReactElement => {
     const {selectedProjects, isMultiInheritance} = useStore($newProjectDialog);
     const {projects} = useStore($projects);
     const [selection, setSelection] = useState<readonly string[]>(selectedProjects.map((p) => p.getName()));
+
+    const selectedProject = useMemo(() => {
+        return selection.length > 0 ? projects.find((p) => p.getName() === selection[0]) : undefined;
+    }, [selection, projects]);
 
     // Sync with the store
     useEffect(() => {
@@ -45,7 +49,7 @@ export const NewProjectDialogParentStepContent = (): ReactElement => {
 
     return (
         <Dialog.StepContent step="step-parent">
-            <h3 className="my-2 font-semibold">{label}</h3>
+            <label className="block font-semibold mb-2">{label}</label>
             <ProjectSelector
                 selection={selection}
                 onSelectionChange={setSelection}
@@ -53,15 +57,14 @@ export const NewProjectDialogParentStepContent = (): ReactElement => {
                 placeholder={typeToSearchLabel}
                 emptyLabel={noProjectsFoundLabel}
                 closeOnBlur
-                className="mb-2.5"
             />
             {selection.length > 0 && (
                 <>
-                    <GridList className="rounded-md space-y-2.5 mb-2.5 py-1.5 pl-5 pr-1">
+                    <GridList className="rounded-md mb-2.5 py-1.5 pl-4 pr-1">
                         {Array.from(selection).map((projectName) => (
-                            <GridList.Row key={projectName} id={projectName} className="p-1.5 gap-1.5">
+                            <GridList.Row key={projectName} id={projectName} className="p-1 gap-1.5">
                                 <GridList.Cell interactive={false} className="flex-1 self-stretch">
-                                    <ProjectLabel project={projects.find((p) => p.getName() === projectName)} />
+                                    <ProjectLabel project={selectedProject} />
                                 </GridList.Cell>
                                 <GridList.Cell>
                                     <GridList.Action>

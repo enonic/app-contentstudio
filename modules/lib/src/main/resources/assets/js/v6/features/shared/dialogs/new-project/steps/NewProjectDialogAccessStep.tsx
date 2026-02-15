@@ -1,18 +1,19 @@
-import {Button, cn, Dialog, GridList, IconButton, RadioGroup} from '@enonic/ui';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
+import {Dialog, GridList, IconButton, RadioGroup} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
+import {CircleUserRound, X} from 'lucide-react';
 import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
+import {useI18n} from '../../../../hooks/useI18n';
 import {
     $newProjectDialog,
     setNewProjectDialogAccessMode,
     setNewProjectDialogPermissions,
 } from '../../../../store/dialogs/newProjectDialog.store';
-import {useI18n} from '../../../../hooks/useI18n';
-import {PrincipalSelector} from '../../../selectors/PrincipalSelector';
-import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
-import {CircleUserRound, X} from 'lucide-react';
 import {$principals, getPrincipalsByKeys} from '../../../../store/principals.store';
+import {InlineButton} from '../../../InlineButton';
 import {ItemLabel} from '../../../ItemLabel';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {PrincipalSelector} from '../../../selectors/PrincipalSelector';
 
 export const NewProjectDialogAccessStepHeader = (): ReactElement => {
     const helperLabel = useI18n('dialog.project.wizard.title');
@@ -100,16 +101,14 @@ export const NewProjectDialogAccessStepContent = (): ReactElement => {
 
     return (
         <Dialog.StepContent step="step-access">
-            <div className="flex justify-between gap-3 my-2">
-                <h3 className="font-semibold">{accessModeLabel}</h3>
+            <div className="flex justify-between gap-3 mb-2">
+                <label className="font-semibold">{accessModeLabel}</label>
                 {canCopyFromParentProject && (
-                    <Button variant="text" size="sm" className="-mt-1.5" onClick={handleCopyFromParentProject}>
-                        {copyFromParentLabel}
-                    </Button>
+                    <InlineButton onClick={handleCopyFromParentProject} label={copyFromParentLabel} />
                 )}
             </div>
 
-            <RadioGroup.Root name="accessMode" value={accessModeValue} onValueChange={setAccessModeValue}>
+            <RadioGroup.Root name="accessMode" value={accessModeValue} onValueChange={setAccessModeValue} className="px-2 py-1.25 -mt-2 -my-1.25">
                 <RadioGroup.Item value="public">
                     <RadioGroup.Indicator />
                     <span className="ml-2">{publicLabel}</span>
@@ -127,8 +126,8 @@ export const NewProjectDialogAccessStepContent = (): ReactElement => {
             </RadioGroup.Root>
 
             {accessModeValue === 'custom' && (
-                <div className="mt-2.5">
-                    <h3 className="font-semibold mb-2">{permissionsLabel}</h3>
+                <div className="mt-7.5">
+                    <label className="block font-semibold mb-2">{permissionsLabel}</label>
 
                     <PrincipalSelector
                         selection={selection}
@@ -138,19 +137,18 @@ export const NewProjectDialogAccessStepContent = (): ReactElement => {
                         placeholder={typeToSearchLabel}
                         emptyLabel={noPrincipalsFoundLabel}
                         closeOnBlur
-                        className="mb-2.5"
                     />
 
                     {selection.length > 0 && (
                         <>
-                            <GridList className="rounded-md space-y-2.5 mb-2.5 py-1.5 pl-5 pr-1">
+                            <GridList className="rounded-md mb-2.5 py-1.5 pl-4 pr-1">
                                 {selectedPrincipals.map((principal) => {
                                     const key = principal.getKey().toString();
                                     const principalDisplayName = principal.getDisplayName();
                                     const principalPath = principal.getKey().toPath();
 
                                     return (
-                                        <GridList.Row key={key} id={key} className="p-1.5 gap-1.5">
+                                        <GridList.Row key={key} id={key} className="p-1 gap-1.5">
                                             <GridList.Cell interactive={false} className="flex-1 self-stretch">
                                                 <div className="flex items-center gap-2.5 flex-1">
                                                     <ItemLabel

@@ -1,19 +1,20 @@
-import {Button, Dialog, GridList, IconButton, Selector} from '@enonic/ui';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
+import {Dialog, GridList, IconButton, Selector} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
+import {CircleUserRound, X} from 'lucide-react';
 import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
+import {ProjectAccess} from '../../../../../../app/settings/access/ProjectAccess';
+import {useI18n} from '../../../../hooks/useI18n';
 import {
     $newProjectDialog,
     setNewProjectDialogRolePrincipals,
     setNewProjectDialogRoles,
 } from '../../../../store/dialogs/newProjectDialog.store';
-import {useI18n} from '../../../../hooks/useI18n';
-import {PrincipalSelector} from '../../../selectors/PrincipalSelector';
-import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
-import {CircleUserRound, X} from 'lucide-react';
 import {$principals} from '../../../../store/principals.store';
+import {InlineButton} from '../../../InlineButton';
 import {ItemLabel} from '../../../ItemLabel';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {ProjectAccess} from '../../../../../../app/settings/access/ProjectAccess';
+import {PrincipalSelector} from '../../../selectors/PrincipalSelector';
 
 export const NewProjectDialogRoleStepHeader = (): ReactElement => {
     const helperLabel = useI18n('dialog.project.wizard.title');
@@ -125,12 +126,10 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
 
     return (
         <Dialog.StepContent step="step-role" locked={locked}>
-            <div className="flex justify-between gap-3 my-2">
-                <h3 className="font-semibold">{label}</h3>
+            <div className="flex justify-between gap-3 mb-2">
+                <label className="font-semibold">{label}</label>
                 {canCopyFromParentProject && (
-                    <Button variant="text" size="sm" className="-mt-1.5" onClick={handleCopyFromParentProject}>
-                        {copyFromParentLabel}
-                    </Button>
+                    <InlineButton onClick={handleCopyFromParentProject} label={copyFromParentLabel} />
                 )}
             </div>
 
@@ -142,12 +141,11 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
                 placeholder={typeToSearchLabel}
                 emptyLabel={noRolesFoundLabel}
                 closeOnBlur
-                className="mb-2.5"
             />
 
             {selection.length > 0 && (
                 <>
-                    <GridList className="rounded-md space-y-2.5 mb-2.5 py-1.5 pl-5 pr-1">
+                    <GridList className="rounded-md mb-2.5 py-1.5 pl-4 pr-1">
                         {selectedPrincipals.map((principal) => {
                             const key = principal.getKey().toString();
                             const principalDisplayName = principal.getDisplayName();
@@ -156,11 +154,11 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
                             const principalRoleLabel = roleOptions.find((role) => role.role === principalRole)?.label;
 
                             return (
-                                <GridList.Row key={key} id={key} className="p-1.5 gap-1.5">
+                                <GridList.Row key={key} id={key} className="p-1 gap-1.5">
                                     <GridList.Cell interactive={false} className="flex-1 self-stretch">
                                         <div className="flex items-center gap-2.5 flex-1">
                                             <ItemLabel
-                                                icon={<CircleUserRound />}
+                                                icon={<CircleUserRound strokeWidth={1.5} />}
                                                 primary={principalDisplayName}
                                                 secondary={principalPath}
                                             />
@@ -169,26 +167,27 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
 
                                     {/* Manage selected principal role */}
                                     <GridList.Cell>
-                                        <GridList.Action>
-                                            <Selector.Root
-                                                value={principalRole}
-                                                onValueChange={(value) => handleSelectRole(principal, value as ProjectAccess)}
-                                            >
+
+                                        <Selector.Root
+                                            value={principalRole}
+                                            onValueChange={(value) => handleSelectRole(principal, value as ProjectAccess)}
+                                        >
+                                            <GridList.Action>
                                                 <Selector.Trigger className="border-none text-sm h-10">
                                                     <Selector.Value>{principalRoleLabel}</Selector.Value>
                                                     <Selector.Icon />
                                                 </Selector.Trigger>
-                                                <Selector.Content portal={false}>
-                                                    <Selector.Viewport>
-                                                        {roleOptions.map(({role, label}) => (
-                                                            <Selector.Item key={label} value={role} textValue={label}>
-                                                                <Selector.ItemText>{label}</Selector.ItemText>
-                                                            </Selector.Item>
-                                                        ))}
-                                                    </Selector.Viewport>
-                                                </Selector.Content>
-                                            </Selector.Root>
-                                        </GridList.Action>
+                                            </GridList.Action>
+                                            <Selector.Content portal={false}>
+                                                <Selector.Viewport>
+                                                    {roleOptions.map(({role, label}) => (
+                                                        <Selector.Item key={label} value={role} textValue={label}>
+                                                            <Selector.ItemText>{label}</Selector.ItemText>
+                                                        </Selector.Item>
+                                                    ))}
+                                                </Selector.Viewport>
+                                            </Selector.Content>
+                                        </Selector.Root>
                                     </GridList.Cell>
 
                                     {/* Unselect principal */}
