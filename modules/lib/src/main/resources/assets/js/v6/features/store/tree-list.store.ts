@@ -342,20 +342,26 @@ function findParentIdByPath(content: ContentSummaryAndCompareStatus): string | n
     const parentId = getIdByPath(parentPath.toString());
     if (!parentId) return null;
 
-    // Verify parent is in tree
-    return $treeState.get().nodes.has(parentId) ? parentId : null;
+    return parentId;
 }
 
 // Helper: Add newly created content to tree
 // Uses single state update to avoid stale state race conditions
 function addContentToTree(content: ContentSummaryAndCompareStatus): void {
-    const id = content.getId();
-    if (hasTreeNode(id)) return; // Already in tree
-
-    const parentId = findParentIdByPath(content);
-
     updateTreeState((state) => {
+        const id = content.getId();
+        if (state.nodes.has(id)) return state; // Already in tree
+
+        const path = content.getPath();
+        const hasParentPath = path?.hasParentContent() ?? false;
+
+        // Resolve parent from path cache, then verify against the same tree snapshot.
+        const parentCandidateId = findParentIdByPath(content);
+        const parentId = parentCandidateId && state.nodes.has(parentCandidateId) ? parentCandidateId : null;
+
         if (parentId === null) {
+            // If this content is not root-level, do not insert it as root.
+            if (hasParentPath) return state;
             if (state.rootIds.length === 0) return state;
         } else {
             const parent = state.nodes.get(parentId);
