@@ -1,18 +1,18 @@
 import {ProjectFormItemBuilder} from './ProjectFormItem';
 import {ProjectAccessControlComboBox, ProjectAccessControlComboBoxWrapper} from './ProjectAccessControlComboBox';
-import {PrincipalLoader} from '@enonic/lib-admin-ui/security/PrincipalLoader';
+import {type PrincipalLoader} from '@enonic/lib-admin-ui/security/PrincipalLoader';
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ProjectItemPermissionsBuilder, ProjectPermissions} from '../../../../data/project/ProjectPermissions';
+import {ProjectItemPermissionsBuilder, type ProjectPermissions} from '../../../../data/project/ProjectPermissions';
 import Q from 'q';
 import {ProjectAccessControlEntry} from '../../../../access/ProjectAccessControlEntry';
 import {GetPrincipalsByKeysRequest} from '../../../../../security/GetPrincipalsByKeysRequest';
 import {ProjectAccess} from '../../../../access/ProjectAccess';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {CopyFromParentFormItem} from './CopyFromParentFormItem';
 
 export class ProjectRolesFormItem

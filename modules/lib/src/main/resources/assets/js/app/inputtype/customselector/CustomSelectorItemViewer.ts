@@ -1,6 +1,6 @@
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
-import {CustomSelectorItem} from './CustomSelectorItem';
+import {type CustomSelectorItem} from './CustomSelectorItem';
 
 export class CustomSelectorItemViewer
     extends NamesAndIconViewer<CustomSelectorItem> {

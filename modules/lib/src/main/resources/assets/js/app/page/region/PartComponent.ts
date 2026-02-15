@@ -1,9 +1,9 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {DescriptorBasedComponent, DescriptorBasedComponentBuilder} from './DescriptorBasedComponent';
-import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
+import {type ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {PartComponentType} from './PartComponentType';
-import {DescriptorBasedComponentJson} from './DescriptorBasedComponentJson';
+import {type DescriptorBasedComponentJson} from './DescriptorBasedComponentJson';
 
 export class PartComponent
     extends DescriptorBasedComponent {
@@ -13,7 +13,7 @@ export class PartComponent
     }
 
     toJson(): ComponentTypeWrapperJson {
-        let json: DescriptorBasedComponentJson = super.toComponentJson();
+        const json: DescriptorBasedComponentJson = super.toComponentJson();
 
         return {
             PartComponent: json

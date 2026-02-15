@@ -1,5 +1,5 @@
 import {EffectivePermissionMember} from './EffectivePermissionMember';
-import {EffectivePermissionAccessJson} from '../resource/json/EffectivePermissionAccessJson';
+import {type EffectivePermissionAccessJson} from '../resource/json/EffectivePermissionAccessJson';
 
 export class EffectivePermissionAccess {
 
@@ -9,7 +9,7 @@ export class EffectivePermissionAccess {
 
     static fromJson(json: EffectivePermissionAccessJson) {
 
-        let effectivePermissionAccess = new EffectivePermissionAccess();
+        const effectivePermissionAccess = new EffectivePermissionAccess();
 
         effectivePermissionAccess.count = json.count;
         effectivePermissionAccess.users = json.users.map(

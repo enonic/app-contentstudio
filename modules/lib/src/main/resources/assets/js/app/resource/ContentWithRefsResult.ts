@@ -1,5 +1,5 @@
 import {ContentId} from '../content/ContentId';
-import {ContentWithRefsResultJson} from './json/ContentWithRefsResultJson';
+import {type ContentWithRefsResultJson} from './json/ContentWithRefsResultJson';
 import {InboundDependenciesResult} from './InboudDependenciesResult';
 
 export class ContentWithRefsResult {

@@ -1,4 +1,4 @@
-import {PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';
+import {type PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';
 
 export interface AccessControlEntryJson {
 

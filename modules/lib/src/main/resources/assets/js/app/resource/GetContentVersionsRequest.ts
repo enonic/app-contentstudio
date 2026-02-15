@@ -1,9 +1,9 @@
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {ContentId} from '../content/ContentId';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 import {GetContentVersionsResult} from './GetContentVersionsResult';
-import {GetContentVersionsForViewResultsJson} from './json/GetContentVersionsForViewResultsJson';
+import {type GetContentVersionsForViewResultsJson} from './json/GetContentVersionsForViewResultsJson';
 
 export class GetContentVersionsRequest
     extends CmsContentResourceRequest<GetContentVersionsResult> {

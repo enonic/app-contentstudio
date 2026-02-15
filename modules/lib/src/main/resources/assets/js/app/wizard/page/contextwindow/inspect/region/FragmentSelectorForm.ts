@@ -1,5 +1,5 @@
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {FragmentDropdown} from './FragmentDropdown';
+import {type FragmentDropdown} from './FragmentDropdown';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
 import {FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';

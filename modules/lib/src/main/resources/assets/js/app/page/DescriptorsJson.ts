@@ -1,4 +1,4 @@
-import {DescriptorJson} from './DescriptorJson';
+import {type DescriptorJson} from './DescriptorJson';
 
 export interface DescriptorsJson {
 

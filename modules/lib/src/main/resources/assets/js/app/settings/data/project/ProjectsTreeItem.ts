@@ -1,5 +1,5 @@
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ProjectsTreeItemJson} from '../../resource/json/ProjectsTreeItemJson';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type ProjectsTreeItemJson} from '../../resource/json/ProjectsTreeItemJson';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class ProjectsTreeItem implements Equitable {

@@ -1,9 +1,12 @@
 import Q from 'q';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
-import {BaseSelectedOptionView as LibBaseSelectedOptionView, BaseSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
+import {type Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {
+    BaseSelectedOptionView as LibBaseSelectedOptionView,
+    BaseSelectedOptionViewBuilder
+} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 
 export abstract class BaseGallerySelectedOptionView<T> extends LibBaseSelectedOptionView<T> {
     protected label: DivEl;

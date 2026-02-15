@@ -1,11 +1,11 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {TaskIdJson} from '@enonic/lib-admin-ui/task/TaskIdJson';
-import {AccessControlList} from '../access/AccessControlList';
+import {type TaskIdJson} from '@enonic/lib-admin-ui/task/TaskIdJson';
+import {type AccessControlList} from '../access/AccessControlList';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {ContentId} from '../content/ContentId';
+import {type ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {ApplyPermissionsScope} from '../dialog/permissions/PermissionsData';
+import {type ApplyPermissionsScope} from '../dialog/permissions/PermissionsData';
 
 export class ApplyContentPermissionsRequest
     extends CmsContentResourceRequest<TaskId> {

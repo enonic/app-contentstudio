@@ -1,6 +1,6 @@
 import {ItemStatisticsPanel} from '@enonic/lib-admin-ui/app/view/ItemStatisticsPanel';
-import {SettingsViewItem} from '../../view/SettingsViewItem';
-import {SettingsStatisticsView} from './view/SettingsStatisticsView';
+import {type SettingsViewItem} from '../../view/SettingsViewItem';
+import {type SettingsStatisticsView} from './view/SettingsStatisticsView';
 import {StatisticsViewFactory} from './StatisticsViewFactory';
 import {ProjectDAGVisualization} from './view/project/ProjectDAGVisualization';
 import {SettingsTreeList} from '../../SettingsTreeList';

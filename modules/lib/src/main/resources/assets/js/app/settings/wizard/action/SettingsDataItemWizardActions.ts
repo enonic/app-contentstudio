@@ -1,11 +1,11 @@
 import {WizardActions} from '@enonic/lib-admin-ui/app/wizard/WizardActions';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {CloseAction} from '@enonic/lib-admin-ui/app/wizard/CloseAction';
 import {DeleteSettingsItemWizardAction} from './DeleteSettingsItemWizardAction';
 import {SaveSettingsItemWizardAction} from './SaveSettingsItemWizardAction';
-import {SettingsDataItemWizardPanel} from '../panel/SettingsDataItemWizardPanel';
-import {SettingsDataViewItem} from '../../view/SettingsDataViewItem';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type SettingsDataItemWizardPanel} from '../panel/SettingsDataItemWizardPanel';
+import {type SettingsDataViewItem} from '../../view/SettingsDataViewItem';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 
 export abstract class SettingsDataItemWizardActions<ITEM extends SettingsDataViewItem<Equitable>>
     extends WizardActions<ITEM> {

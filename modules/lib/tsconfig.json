@@ -28,6 +28,7 @@
         ]
     },
     "include": [
+        "./src/main/resources/assets/js/page-editor-types.d.ts",
         "./src/main/resources/assets/js/types.d.ts",
         "./src/main/resources/assets/js/**/*",
         "./.xp/dev/lib-admin-ui/**/*.d.ts"

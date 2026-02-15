@@ -1,12 +1,12 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {ResultMetadata} from './ResultMetadata';
 import {ContentSelectorRequest} from './ContentSelectorRequest';
-import {ContentSummary} from '../content/ContentSummary';
-import {ChildOrder} from './order/ChildOrder';
-import {ContentPath} from '../content/ContentPath';
+import {type ContentSummary} from '../content/ContentSummary';
+import {type ChildOrder} from './order/ChildOrder';
+import {type ContentPath} from '../content/ContentPath';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {ContentTreeSelectorListJson} from './json/ContentTreeSelectorListJson';
+import {type ContentTreeSelectorListJson} from './json/ContentTreeSelectorListJson';
 
 export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorItem>
     extends ContentSelectorRequest<DATA> {
@@ -43,7 +43,7 @@ export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorIte
     }
 
     getParams(): object {
-        let params = super.getParams();
+        const params = super.getParams();
         return Object.assign(params, {
             parentPath: this.parentPath ? this.parentPath.toString() : null,
             childOrder: this.childOrder ? this.childOrder.toString() : ''

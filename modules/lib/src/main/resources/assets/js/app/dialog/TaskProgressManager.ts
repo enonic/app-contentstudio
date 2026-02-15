@@ -1,7 +1,7 @@
 import {ManagedActionManager} from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
-import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
-import {ManagedActionsModalDialog, ProgressBarManager} from './ProgressBarManager';
+import {type TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {type TaskState} from '@enonic/lib-admin-ui/task/TaskState';
+import {type ManagedActionsModalDialog, ProgressBarManager} from './ProgressBarManager';
 
 export interface WithTaskProgress {
     isProgressBarEnabled(): boolean;

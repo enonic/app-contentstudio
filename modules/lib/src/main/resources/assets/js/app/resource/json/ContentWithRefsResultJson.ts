@@ -1,5 +1,5 @@
-import {ContentIdBaseItemJson} from './ContentIdBaseItemJson';
-import {InboundDependenciesJson} from './InboundDependenciesJson';
+import {type ContentIdBaseItemJson} from './ContentIdBaseItemJson';
+import {type InboundDependenciesJson} from './InboundDependenciesJson';
 
 export interface ContentWithRefsResultJson {
     contentIds: ContentIdBaseItemJson[];

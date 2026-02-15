@@ -1,16 +1,16 @@
-import {PropertyEvent} from '@enonic/lib-admin-ui/data/PropertyEvent';
+import {type PropertyEvent} from '@enonic/lib-admin-ui/data/PropertyEvent';
 import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
+import {type ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
+import {type DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import Q from 'q';
-import {ContentId} from '../content/ContentId';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import type Q from 'q';
+import {type ContentId} from '../content/ContentId';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {IssueServerEventsHandler} from '../issue/event/IssueServerEventsHandler';
-import {Issue} from '../issue/Issue';
+import {type Issue} from '../issue/Issue';
 import {CreateIssueDialog} from '../issue/view/CreateIssueDialog';
 import {PublishDialogDependantList} from '../publish/PublishDialogDependantList';
 import {PublishDialogItemList} from '../publish/PublishDialogItemList';
@@ -18,9 +18,9 @@ import {PublishProcessor} from '../publish/PublishProcessor';
 import {PublishScheduleForm} from '../publish/PublishScheduleForm';
 import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
 import {MarkAsReadyRequest} from '../resource/MarkAsReadyRequest';
-import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from './DependantItemsWithProgressDialog';
+import {DependantItemsWithProgressDialog, type DependantItemsWithProgressDialogConfig} from './DependantItemsWithProgressDialog';
 import {DialogStateBar} from './DialogStateBar';
-import {DialogStateEntry} from './DialogStateEntry';
+import {type DialogStateEntry} from './DialogStateEntry';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 
 export abstract class BasePublishDialog

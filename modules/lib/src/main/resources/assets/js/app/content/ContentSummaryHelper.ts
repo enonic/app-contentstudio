@@ -1,5 +1,5 @@
-import {ContentSummary} from './ContentSummary';
-import {ContentSummaryDiff} from './ContentSummaryDiff';
+import {type ContentSummary} from './ContentSummary';
+import {type ContentSummaryDiff} from './ContentSummaryDiff';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class ContentSummaryHelper {

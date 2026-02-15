@@ -1,8 +1,8 @@
-import {CheckableItem, CheckableItemConfig} from '@enonic/lib-admin-ui/app/browse/CheckableItem';
+import {CheckableItem, type CheckableItemConfig} from '@enonic/lib-admin-ui/app/browse/CheckableItem';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 enum StatusCheckableItemStatus {
     HIDDEN = 'hidden',

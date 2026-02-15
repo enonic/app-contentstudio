@@ -5,9 +5,9 @@ import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
-import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
-import {PageTemplateAndControllerOption} from './PageTemplateAndSelectorViewer';
-import Q from 'q';
+import {type LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
+import {type PageTemplateAndControllerOption} from './PageTemplateAndSelectorViewer';
+import type Q from 'q';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {PageEventsManager} from '../../../../PageEventsManager';
@@ -62,7 +62,7 @@ export class PageTemplateAndControllerForm
     }
 
     private updateButtonsVisibility() {
-        let content = this.liveEditModel?.getContent();
+        const content = this.liveEditModel?.getContent();
         const isInherited = content?.isInherited();
         const isLocalized = !content?.isDataInherited();
         this.customizeAction.setVisible((!isInherited || isLocalized) && this.isPageLocked && this.isPageRenderable);

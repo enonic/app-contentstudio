@@ -1,16 +1,16 @@
-import Q from 'q';
+import type Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {LiveFormPanel} from '../LiveFormPanel';
-import {InspectionsPanel} from './inspect/InspectionsPanel';
-import {BaseInspectionPanel} from './inspect/BaseInspectionPanel';
-import {InsertablesPanel} from './insert/InsertablesPanel';
+import {type LiveFormPanel} from '../LiveFormPanel';
+import {type InspectionsPanel} from './inspect/InspectionsPanel';
+import {type BaseInspectionPanel} from './inspect/BaseInspectionPanel';
+import {type InsertablesPanel} from './insert/InsertablesPanel';
 import {InspectEvent} from '../../../event/InspectEvent';
 import {PageInspectionPanel} from './inspect/page/PageInspectionPanel';
-import {TabBarItem} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
-import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {type TabBarItem} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
+import {type Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {DockedPanel} from '@enonic/lib-admin-ui/ui/panel/DockedPanel';
 import {PageState} from '../PageState';
-import {PageNavigationEventSource} from '../../PageNavigationEventData';
+import {type PageNavigationEventSource} from '../../PageNavigationEventData';
 import {PageEventsManager} from '../../PageEventsManager';
 
 export interface ContextWindowConfig {

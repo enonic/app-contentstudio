@@ -1,5 +1,5 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import Q from 'q';
+import type Q from 'q';
 import {Element, NewElementBuilder} from '@enonic/lib-admin-ui/dom/Element';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
@@ -13,7 +13,7 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {GetWidgetsByInterfaceRequest} from './resource/GetWidgetsByInterfaceRequest';
 import {Widget, WidgetConfig} from '@enonic/lib-admin-ui/content/Widget';
-import {WidgetElement, WidgetHelper} from '@enonic/lib-admin-ui/widget/WidgetHelper';
+import {type WidgetElement, WidgetHelper} from '@enonic/lib-admin-ui/widget/WidgetHelper';
 import {ContentAppContainer} from './ContentAppContainer';
 import {Router} from './Router';
 import {UrlAction} from './UrlAction';

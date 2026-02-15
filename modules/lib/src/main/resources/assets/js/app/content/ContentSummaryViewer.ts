@@ -1,7 +1,7 @@
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {ContentIconUrlResolver} from './ContentIconUrlResolver';
-import {ContentSummary} from './ContentSummary';
+import {type ContentSummary} from './ContentSummary';
 import {ContentPath} from './ContentPath';
 
 export class ContentSummaryViewer
@@ -12,8 +12,8 @@ export class ContentSummaryViewer
     }
 
     resolveDisplayName(object: ContentSummary): string {
-        let contentName = object.getName();
-        let invalid = !object.isValid() || !object.getDisplayName() || contentName.isUnnamed();
+        const contentName = object.getName();
+        const invalid = !object.isValid() || !object.getDisplayName() || contentName.isUnnamed();
         this.toggleClass('invalid', invalid);
 
         return object.getDisplayName();
@@ -24,7 +24,7 @@ export class ContentSummaryViewer
     }
 
     resolveSubName(object: ContentSummary): string {
-        let contentName = object.getName();
+        const contentName = object.getName();
         if (this.isRelativePath) {
             return !contentName.isUnnamed() ? object.getName().toString() :
                 NamePrettyfier.prettifyUnnamed();

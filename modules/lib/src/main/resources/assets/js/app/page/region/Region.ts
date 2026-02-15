@@ -1,18 +1,18 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {Component, ComponentUpdatedEventHandler} from './Component';
+import {type Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Component, type ComponentUpdatedEventHandler} from './Component';
 import {ComponentRemovedEvent} from './ComponentRemovedEvent';
 import {ComponentAddedEvent} from './ComponentAddedEvent';
 import {ComponentPath} from './ComponentPath';
-import {RegionJson} from './RegionJson';
-import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
+import {type RegionJson} from './RegionJson';
+import {type ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {assertState} from '@enonic/lib-admin-ui/util/Assert';
-import {PageItem} from './PageItem';
-import {ComponentUpdatedEvent} from './ComponentUpdatedEvent';
+import {type PageItem} from './PageItem';
+import {type ComponentUpdatedEvent} from './ComponentUpdatedEvent';
 import {ComponentEventsHolder} from '../../wizard/page/ComponentEventsHolder';
 import {ComponentEventsWrapper} from '../../wizard/page/ComponentEventsWrapper';
-import {PageItemType} from './PageItemType';
+import {type PageItemType} from './PageItemType';
 
 export class Region
     implements Equitable, Cloneable, PageItem {
@@ -114,9 +114,9 @@ export class Region
     }
 
     getComponentByIndex(index: number): Component {
-        let component = this.components[index];
+        const component = this.components[index];
         if (!component) {
-            let message = 'The rendered page is not consistent with the page components structure. Expected component with index ' +
+            const message = 'The rendered page is not consistent with the page components structure. Expected component with index ' +
                           `${index} was not found in region '${this.getName()}'.`;
             console.error(message);
             throw Error(message);
@@ -153,7 +153,7 @@ export class Region
 
     toJson(): RegionJson {
 
-        let componentJsons: ComponentTypeWrapperJson[] = [];
+        const componentJsons: ComponentTypeWrapperJson[] = [];
 
         this.components.forEach((component: Component) => {
             componentJsons.push(component.toJson());
@@ -175,7 +175,7 @@ export class Region
             return false;
         }
 
-        let other = o as Region;
+        const other = o as Region;
 
         if (!ObjectHelper.stringEquals(this.name, other.name)) {
             return false;
@@ -216,7 +216,7 @@ export class Region
         }
         component.unComponentUpdated(this.componentUpdatedEventHandler);
 
-        let index = component.getIndex();
+        const index = component.getIndex();
         if (index === -1) {
             throw new Error(component.toString() + ' to remove does not exist in ' + this.toString());
         }

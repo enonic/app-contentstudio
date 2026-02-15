@@ -1,6 +1,6 @@
 import {OrderExpr, OrderExprBuilder} from './OrderExpr';
-import {OrderExprJson} from '../json/OrderExprJson';
-import {OrderExprWrapperJson} from '../json/OrderExprWrapperJson';
+import {type OrderExprJson} from '../json/OrderExprJson';
+import {type OrderExprWrapperJson} from '../json/OrderExprWrapperJson';
 
 export class DynamicOrderExpr
     extends OrderExpr {

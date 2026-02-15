@@ -1,4 +1,4 @@
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {NodePath, NodePathBuilder} from '@enonic/lib-admin-ui/NodePath';
 

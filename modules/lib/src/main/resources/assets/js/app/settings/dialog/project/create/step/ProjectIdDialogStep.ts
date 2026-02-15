@@ -1,14 +1,14 @@
-import {ProjectFormItem, ProjectFormItemBuilder} from '../../../../wizard/panel/form/element/ProjectFormItem';
+import {type ProjectFormItem, ProjectFormItemBuilder} from '../../../../wizard/panel/form/element/ProjectFormItem';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
 import {ProjectDialogStep} from './ProjectDialogStep';
-import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import Q from 'q';
 import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ProjectListRequest} from '../../../../resource/ProjectListRequest';
-import {Project} from '../../../../data/project/Project';
+import {type Project} from '../../../../data/project/Project';
 import {ProjectNameFormItem} from '../../../../wizard/panel/form/element/ProjectNameFormItem';
 import {ProjectIdDialogStepData} from '../data/ProjectIdDialogStepData';
 

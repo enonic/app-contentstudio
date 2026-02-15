@@ -1,12 +1,12 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {XDataJson} from '../resource/json/XDataJson';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type XDataJson} from '../resource/json/XDataJson';
 import {XDataName} from './XDataName';
 import {Schema, SchemaBuilder} from '@enonic/lib-admin-ui/schema/Schema';
-import {FormItem} from '@enonic/lib-admin-ui/form/FormItem';
-import {Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
+import {type FormItem} from '@enonic/lib-admin-ui/form/FormItem';
+import {type Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
 import {FormItemFactoryImpl} from '@enonic/lib-admin-ui/form/FormItemFactoryImpl';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 
 export class XData
     extends Schema
@@ -55,7 +55,7 @@ export class XData
             return false;
         }
 
-        let other = o as XData;
+        const other = o as XData;
 
         if (!ObjectHelper.stringEquals(this.schemaKey, other.schemaKey)) {
             return false;

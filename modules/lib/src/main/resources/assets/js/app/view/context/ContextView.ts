@@ -1,5 +1,5 @@
 import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
-import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {type Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
@@ -14,7 +14,7 @@ import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler
 import {InspectEvent} from '../../event/InspectEvent';
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
 import {UserAccessWidgetItemView} from '../../security/UserAccessWidgetItemView';
-import {ContextWindow} from '../../wizard/page/contextwindow/ContextWindow';
+import {type ContextWindow} from '../../wizard/page/contextwindow/ContextWindow';
 import {ReloadActiveWidgetEvent} from './ReloadActiveWidgetEvent';
 import {DependenciesWidgetItemView} from './widget/dependency/DependenciesWidgetItemView';
 import {AttachmentsWidgetItemView} from './widget/details/AttachmentsWidgetItemView';
@@ -25,14 +25,14 @@ import {PageTemplateWidgetItemView} from './widget/details/PageTemplateWidgetIte
 import {StatusWidgetItemView} from './widget/details/StatusWidgetItemView';
 import {PageEditorWidgetItemView} from './widget/pageeditor/PageEditorWidgetItemView';
 import {VersionHistoryView} from './widget/version/VersionHistoryView';
-import {WidgetItemView} from './WidgetItemView';
+import {type WidgetItemView} from './WidgetItemView';
 import {WidgetsSelectionRow} from './WidgetsSelectionRow';
 import {InternalWidgetType, WidgetView} from './WidgetView';
 import {PageEventsManager} from '../../wizard/PageEventsManager';
 import {PageNavigationMediator} from '../../wizard/PageNavigationMediator';
-import {PageNavigationEvent} from '../../wizard/PageNavigationEvent';
+import {type PageNavigationEvent} from '../../wizard/PageNavigationEvent';
 import {PageNavigationEventType} from '../../wizard/PageNavigationEventType';
-import {PageNavigationHandler} from '../../wizard/PageNavigationHandler';
+import {type PageNavigationHandler} from '../../wizard/PageNavigationHandler';
 
 export class ContextView
     extends DivEl
@@ -201,7 +201,7 @@ export class ContextView
     private handleWidgetUpdate(key: string, type: ApplicationEventType) {
         if (this.isWidgetRemoveEvent(type)) {
             this.handleWidgetRemoveEvent(key);
-        } else if (!!this.getWidgetByKey(key)) {
+        } else if (this.getWidgetByKey(key)) {
             this.handleWidgetUpdateEvent(key);
         } else {
             this.handleWidgetAddedEvent(key);
@@ -263,7 +263,7 @@ export class ContextView
     }
 
     getCustomWidgetViewsAndUpdateDropdown(): Q.Promise<void> {
-        let deferred = Q.defer<void>();
+        const deferred = Q.defer<void>();
         if (!this.alreadyFetchedCustomWidgets) {
             this.fetchAndInitCustomWidgetViews().then(() => {
                 this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews);

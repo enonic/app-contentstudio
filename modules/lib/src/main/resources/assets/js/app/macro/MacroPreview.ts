@@ -1,6 +1,6 @@
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {MacroPreviewJson} from './resource/MacroPreviewJson';
+import {type MacroPreviewJson} from './resource/MacroPreviewJson';
 import {PageContributions} from './PageContributions';
 
 export class MacroPreview
@@ -39,7 +39,7 @@ export class MacroPreview
             return false;
         }
 
-        let other = o as MacroPreview;
+        const other = o as MacroPreview;
 
         if (this.html !== other.html) {
             return false;

@@ -1,7 +1,7 @@
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {DescriptorKey} from './page/DescriptorKey';
-import {AdminToolJson} from './resource/json/AdminToolJson';
+import {type AdminToolJson} from './resource/json/AdminToolJson';
 
 export class AdminTool
     implements Equitable {

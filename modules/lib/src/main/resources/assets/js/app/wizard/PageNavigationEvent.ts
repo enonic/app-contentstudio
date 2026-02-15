@@ -1,5 +1,4 @@
-import {ComponentPath} from '../page/region/ComponentPath';
-import {PageNavigationEventType} from './PageNavigationEventType';
+import {type PageNavigationEventType} from './PageNavigationEventType';
 import {PageNavigationEventData} from './PageNavigationEventData';
 
 export class PageNavigationEvent {

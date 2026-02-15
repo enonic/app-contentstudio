@@ -1,8 +1,9 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
-import {Project} from '../../../settings/data/project/Project';
-import {FullScreenDialogParams, MacroDialogParams} from './HtmlEditor';
-import eventInfo = CKEDITOR.eventInfo;
+import {type Project} from '../../../settings/data/project/Project';
+import {type FullScreenDialogParams, type MacroDialogParams} from './HtmlEditorTypes';
+
+type eventInfo = CKEDITOR.eventInfo;
 
 export enum HtmlAreaDialogType {
     ANCHOR, IMAGE, LINK, MACRO, CODE, SPECIALCHAR, FULLSCREEN, TABLE, NUMBERED_LIST, BULLETED_LIST

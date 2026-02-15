@@ -1,13 +1,13 @@
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {Content, ContentBuilder} from '../content/Content';
-import {ContentJson} from '../content/ContentJson';
-import {UploaderEl, UploaderElConfig} from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Content, ContentBuilder} from '../content/Content';
+import {type ContentJson} from '../content/ContentJson';
+import {UploaderEl, type UploaderElConfig} from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
 import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
 import {UrlHelper} from '../util/UrlHelper';
 import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
 import {ContentPath} from '../content/ContentPath';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {WorkflowStateManager, WorkflowStateStatus} from './WorkflowStateManager';
+import {WorkflowStateManager, type WorkflowStateStatus} from './WorkflowStateManager';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class ThumbnailUploaderEl

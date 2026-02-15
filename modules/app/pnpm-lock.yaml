@@ -9,8 +9,11 @@ importers:
   .:
     dependencies:
       '@enonic/lib-admin-ui':
-        specifier: file:.xp/dev/lib-admin-ui
+        specifier: workspace:*
         version: link:.xp/dev/lib-admin-ui
+      '@enonic/lib-contentstudio':
+        specifier: workspace:*
+        version: link:.xp/dev/lib-contentstudio
       chart.js:
         specifier: ^4.5.1
         version: 4.5.1
@@ -26,9 +29,6 @@ importers:
       jquery-ui:
         specifier: ^1.14.1
         version: 1.14.1
-      lib-contentstudio:
-        specifier: workspace:*
-        version: link:.xp/dev/lib-contentstudio
       nanostores:
         specifier: ^0.11.4
         version: 0.11.4

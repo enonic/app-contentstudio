@@ -1,10 +1,10 @@
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
-import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
-import Q from 'q';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
+import {type Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
+import type Q from 'q';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../event/EditContentEvent';
 import {StatusSelectionItem} from './StatusSelectionItem';
-import {Branch} from '../versioning/Branch';
+import {type Branch} from '../versioning/Branch';
 import {ArchiveDialogHelper} from './ArchiveDialogHelper';
 
 export interface ArchiveSelectableItemConfig {

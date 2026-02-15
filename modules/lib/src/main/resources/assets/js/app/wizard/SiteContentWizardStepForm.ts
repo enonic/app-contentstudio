@@ -1,19 +1,19 @@
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {PropertyEvent} from '@enonic/lib-admin-ui/data/PropertyEvent';
-import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
+import {type PropertyEvent} from '@enonic/lib-admin-ui/data/PropertyEvent';
+import {type PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PropertyValueChangedEvent} from '@enonic/lib-admin-ui/data/PropertyValueChangedEvent';
 import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
-import {Input, InputBuilder} from '@enonic/lib-admin-ui/form/Input';
+import {type Input, InputBuilder} from '@enonic/lib-admin-ui/form/Input';
 import {TextLine} from '@enonic/lib-admin-ui/form/inputtype/text/TextLine';
 import {OccurrencesBuilder} from '@enonic/lib-admin-ui/form/Occurrences';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import Q from 'q';
-import {ContentFormContext} from '../ContentFormContext';
+import type Q from 'q';
+import {type ContentFormContext} from '../ContentFormContext';
 import {SiteConfigProviderRegistry} from '../inputtype/siteconfigurator/SiteConfigProviderRegistry';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
 

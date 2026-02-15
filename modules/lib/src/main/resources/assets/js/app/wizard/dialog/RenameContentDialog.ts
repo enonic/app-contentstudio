@@ -1,11 +1,11 @@
 import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import Q from 'q';
+import type Q from 'q';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {ContentPath} from '../../content/ContentPath';
+import {type ContentPath} from '../../content/ContentPath';
 import {RenameInput} from './RenameInput';
-import {ValidityStatus, ValueValidationState} from '../../inputtype/text/CheckedValueInput';
+import {ValidityStatus, type ValueValidationState} from '../../inputtype/text/CheckedValueInput';
 
 export class RenameContentDialog extends ModalDialog {
 

@@ -1,4 +1,4 @@
-import {ContentDependencyGroupJson} from './ContentDependencyGroupJson';
+import {type ContentDependencyGroupJson} from './ContentDependencyGroupJson';
 
 export interface ContentDependencyJson {
 

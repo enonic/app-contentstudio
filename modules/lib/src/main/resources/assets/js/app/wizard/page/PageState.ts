@@ -1,35 +1,35 @@
 import {Page, PageBuilder} from '../../page/Page';
-import {ComponentPath} from '../../page/region/ComponentPath';
-import {ComponentType} from '../../page/region/ComponentType';
+import {type ComponentPath} from '../../page/region/ComponentPath';
+import {type ComponentType} from '../../page/region/ComponentType';
 import {PageEventsManager} from '../PageEventsManager';
-import {ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
-import {ComponentRemovedEvent} from '../../page/region/ComponentRemovedEvent';
-import {PageItem} from '../../page/region/PageItem';
+import {type ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
+import {type ComponentRemovedEvent} from '../../page/region/ComponentRemovedEvent';
+import {type PageItem} from '../../page/region/PageItem';
 import {Region} from '../../page/region/Region';
 import {
     Component,
-    ComponentAddedEventHandler,
-    ComponentRemovedEventHandler,
-    ComponentUpdatedEventHandler
+    type ComponentAddedEventHandler,
+    type ComponentRemovedEventHandler,
+    type ComponentUpdatedEventHandler
 } from '../../page/region/Component';
 import {ComponentFactory} from '../../page/region/ComponentFactory';
 import {FragmentComponent, FragmentComponentBuilder} from '../../page/region/FragmentComponent';
 import {ContentId} from '../../content/ContentId';
 import {PageEventsHolder} from './PageEventsHolder';
 import {PageEventsWrapper} from './PageEventsWrapper';
-import {PageTemplateKey} from '../../page/PageTemplateKey';
-import {DescriptorKey} from '../../page/DescriptorKey';
+import {type PageTemplateKey} from '../../page/PageTemplateKey';
+import {type DescriptorKey} from '../../page/DescriptorKey';
 import {DescriptorBasedComponent} from '../../page/region/DescriptorBasedComponent';
 import {TextComponent} from '../../page/region/TextComponent';
 import {GetComponentDescriptorRequest} from '../../resource/GetComponentDescriptorRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Descriptor} from '../../page/Descriptor';
+import {type Descriptor} from '../../page/Descriptor';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PageHelper} from '../../util/PageHelper';
 import {PageControllerUpdatedEvent} from '../../page/event/PageControllerUpdatedEvent';
 import {PageTemplateUpdatedEvent} from '../../page/event/PageTemplateUpdatedEvent';
 import {PageControllerCustomizedEvent} from '../../page/event/PageControllerCustomizedEvent';
-import {Content} from '../../content/Content';
+import {type Content} from '../../content/Content';
 import {GetContentByIdRequest} from '../../resource/GetContentByIdRequest';
 import {ComponentDetachedEvent} from '../../page/region/ComponentDetachedEvent';
 import {ComponentDuplicatedEvent} from '../../page/region/ComponentDuplicatedEvent';
@@ -37,10 +37,10 @@ import {ComponentName} from '../../page/region/ComponentName';
 import {ComponentFragmentCreatedEvent} from '../../page/region/ComponentFragmentCreatedEvent';
 import {ComponentMovedEvent} from '../../page/region/ComponentMovedEvent';
 import {ComponentRemovedOnMoveEvent} from '../../page/region/ComponentRemovedOnMoveEvent';
-import {PageTemplate} from '../../content/PageTemplate';
+import {type PageTemplate} from '../../content/PageTemplate';
 import {LayoutComponent} from '../../page/region/LayoutComponent';
 import Q from 'q';
-import {ComponentTextUpdatedOrigin} from '../../page/region/ComponentTextUpdatedOrigin';
+import {type ComponentTextUpdatedOrigin} from '../../page/region/ComponentTextUpdatedOrigin';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {PageStateEvent} from '../../../page-editor/event/incoming/common/PageStateEvent';
@@ -363,7 +363,7 @@ export class PageStateEventHandler {
 
     private setFragmentComponent(path: ComponentPath, id: string): void {
         const item: PageItem = PageState.getState().getComponentByPath(path);
-        const contentId: ContentId = !!id ? new ContentId(id) : null;
+        const contentId: ContentId = id ? new ContentId(id) : null;
 
         if (item instanceof FragmentComponent) {
             item.setFragment(contentId, null);

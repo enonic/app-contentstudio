@@ -1,12 +1,12 @@
-import {Application} from '@enonic/lib-admin-ui/app/Application';
-import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
-import {NodeServerEvent} from '@enonic/lib-admin-ui/event/NodeServerEvent';
+import {type Application} from '@enonic/lib-admin-ui/app/Application';
+import {type Event} from '@enonic/lib-admin-ui/event/Event';
+import {type NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
+import {type NodeServerEvent} from '@enonic/lib-admin-ui/event/NodeServerEvent';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {RepositoryId} from '../repository/RepositoryId';
 import {ArchiveServerEvent} from './ArchiveServerEvent';
 import {BatchContentServerEvent} from './BatchContentServerEvent';
-import {ContentServerChangeItem} from './ContentServerChangeItem';
+import {type ContentServerChangeItem} from './ContentServerChangeItem';
 import {ContentServerEvent} from './ContentServerEvent';
 import {ContentServerEventsTranslator} from './ContentServerEventsTranslator';
 import {IssueServerEvent} from './IssueServerEvent';

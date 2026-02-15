@@ -1,8 +1,8 @@
-import {SettingsViewItem} from '../view/SettingsViewItem';
+import {type SettingsViewItem} from '../view/SettingsViewItem';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {FolderViewItem} from '../view/FolderViewItem';
 import {Projects} from '../resource/Projects';
-import {Project} from '../data/project/Project';
+import {type Project} from '../data/project/Project';
 
 export class SettingsTreeHelper {
 

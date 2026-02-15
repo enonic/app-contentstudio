@@ -1,6 +1,6 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {PageNavigationEventSource} from '../wizard/PageNavigationEventData';
+import {type PageNavigationEventSource} from '../wizard/PageNavigationEventData';
 
 export class InspectEvent
     extends Event {

@@ -19,13 +19,13 @@
     "check:lint": "eslint **/*.ts --quiet --cache"
   },
   "dependencies": {
-    "@enonic/lib-admin-ui": "file:.xp/dev/lib-admin-ui",
+    "@enonic/lib-admin-ui": "workspace:*",
+    "@enonic/lib-contentstudio": "workspace:*",
     "chart.js": "^4.5.1",
     "enonic-admin-artifacts": "^2.4.0",
     "jquery": "^3.7.1",
     "jquery-simulate": "^1.0.2",
     "jquery-ui": "^1.14.1",
-    "lib-contentstudio": "workspace:*",
     "nanostores": "^0.11.4",
     "q": "^1.5.1"
   },

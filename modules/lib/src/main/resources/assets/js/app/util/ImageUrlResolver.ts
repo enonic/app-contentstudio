@@ -1,9 +1,9 @@
 import {IconUrlResolver} from '@enonic/lib-admin-ui/icon/IconUrlResolver';
 import {StyleHelper} from '../inputtype/ui/text/styles/StyleHelper';
 import {UrlHelper} from './UrlHelper';
-import {ContentId} from '../content/ContentId';
+import {type ContentId} from '../content/ContentId';
 import {ContentResourceRequest} from '../resource/ContentResourceRequest';
-import {Project} from '../settings/data/project/Project';
+import {type Project} from '../settings/data/project/Project';
 
 export class ImageUrlResolver
     extends IconUrlResolver {

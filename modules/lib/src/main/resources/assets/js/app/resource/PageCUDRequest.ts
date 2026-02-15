@@ -1,4 +1,4 @@
-import {Content} from '../content/Content';
+import {type Content} from '../content/Content';
 
 export interface PageCUDRequest {
 

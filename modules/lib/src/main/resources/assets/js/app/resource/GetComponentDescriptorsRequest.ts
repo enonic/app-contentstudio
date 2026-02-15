@@ -1,7 +1,7 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {DescriptorsJson} from '../page/DescriptorsJson';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type DescriptorsJson} from '../page/DescriptorsJson';
 import {Descriptor} from '../page/Descriptor';
-import {ComponentType} from '../page/region/ComponentType';
+import {type ComponentType} from '../page/region/ComponentType';
 import {SchemaFilterBasedRequest} from './SchemaFilterBasedRequest';
 
 export class GetComponentDescriptorsRequest

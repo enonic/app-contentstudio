@@ -1,10 +1,10 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {AttachmentName} from './AttachmentName';
-import {AttachmentJson} from './AttachmentJson';
+import {type AttachmentJson} from './AttachmentJson';
 import {BinaryReference} from '@enonic/lib-admin-ui/util/BinaryReference';
 import {UrlHelper} from '../util/UrlHelper';
-import {Project} from '../settings/data/project/Project';
+import {type Project} from '../settings/data/project/Project';
 
 export class Attachment
     implements Equitable {
@@ -49,7 +49,7 @@ export class Attachment
             return false;
         }
 
-        let other = o as Attachment;
+        const other = o as Attachment;
 
         if (!ObjectHelper.equals(this.name, other.name)) {
             return false;

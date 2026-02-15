@@ -36,7 +36,7 @@ export class IssueStatusFormatter {
 
     static getStatuses(): IssueStatus[] {
         const statuses = [];
-        for (let key in IssueStatus) {
+        for (const key in IssueStatus) {
             if (Number.isInteger(IssueStatus[key]) && IssueStatus.hasOwnProperty(key)) {
                 statuses.push(IssueStatus[key]);
             }

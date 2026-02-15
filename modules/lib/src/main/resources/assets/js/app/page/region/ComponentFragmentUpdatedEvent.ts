@@ -1,6 +1,6 @@
-import {ComponentPath} from './ComponentPath';
+import {type ComponentPath} from './ComponentPath';
 import {ComponentUpdatedEvent} from './ComponentUpdatedEvent';
-import {ContentId} from '../../content/ContentId';
+import {type ContentId} from '../../content/ContentId';
 
 export class ComponentFragmentUpdatedEvent
     extends ComponentUpdatedEvent {

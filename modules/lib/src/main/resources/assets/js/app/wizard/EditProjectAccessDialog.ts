@@ -1,12 +1,15 @@
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
-import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
+import {type TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {type TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {DefaultModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
-import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
+import {
+    ModalDialogWithConfirmation,
+    type ModalDialogWithConfirmationConfig
+} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import Q from 'q';
-import {TaskProgressManager, WithTaskProgress} from '../dialog/TaskProgressManager';
+import type Q from 'q';
+import {TaskProgressManager, type WithTaskProgress} from '../dialog/TaskProgressManager';
 
 export class EditProjectAccessDialog
     extends ModalDialogWithConfirmation

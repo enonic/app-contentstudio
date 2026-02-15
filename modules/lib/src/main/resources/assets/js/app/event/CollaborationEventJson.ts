@@ -1,4 +1,4 @@
-import {EventJson} from '@enonic/lib-admin-ui/event/EventJson';
+import {type EventJson} from '@enonic/lib-admin-ui/event/EventJson';
 
 export interface CollaborationEventJson
     extends EventJson {

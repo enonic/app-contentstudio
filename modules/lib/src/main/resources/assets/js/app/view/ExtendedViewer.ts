@@ -1,12 +1,12 @@
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {NamesView} from '@enonic/lib-admin-ui/app/NamesView';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type NamesView} from '@enonic/lib-admin-ui/app/NamesView';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 
 export class ExtendedViewer<OBJECT> extends NamesAndIconViewer<OBJECT> {
 
     constructor(className?: string) {
-        super('extended-viewer ' + (!!className ? className : ''));
+        super('extended-viewer ' + (className ? className : ''));
     }
 
     protected resolveSecondaryName(object: OBJECT): string {

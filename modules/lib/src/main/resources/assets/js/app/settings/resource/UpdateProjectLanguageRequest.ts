@@ -1,11 +1,9 @@
 import {ProjectResourceRequest} from './ProjectResourceRequest';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {Response} from '@enonic/lib-admin-ui/rest/Response';
-import {ProjectReadAccessJson} from './json/ProjectReadAccessJson';
-import {ProjectJson} from './json/ProjectJson';
-import {ProjectPermissionsJson} from './json/ProjectPermissionsJson';
+import {type Response} from '@enonic/lib-admin-ui/rest/Response';
 
-export class UpdateProjectLanguageRequest extends ProjectResourceRequest<string> {
+export class UpdateProjectLanguageRequest
+    extends ProjectResourceRequest<string> {
 
     private name: string;
 
@@ -30,7 +28,7 @@ export class UpdateProjectLanguageRequest extends ProjectResourceRequest<string>
 
     getParams(): object {
 
-        const params: {name: string, language?: string} = {
+        const params: { name: string, language?: string } = {
             name: this.name
         };
 

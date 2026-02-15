@@ -1,5 +1,5 @@
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {ProjectReadAccessType} from '../../../../data/project/ProjectReadAccessType';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {type ProjectReadAccessType} from '../../../../data/project/ProjectReadAccessType';
 import {ProjectDialogStepData} from './ProjectDialogStepData';
 
 export class ProjectAccessDialogStepData

@@ -1,23 +1,23 @@
-import Q from 'q';
+import {type ContentSummary} from '../../../../content/ContentSummary';
+import {HTMLAreaHelper} from '../HTMLAreaHelper';
+import {type Macro, type MacroDialogParams} from '../HtmlEditorTypes';
+import type Q from 'q';
 import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {HtmlAreaModalDialogConfig, ModalDialog, ModalDialogFormItemBuilder} from './ModalDialog';
+import {type HtmlAreaModalDialogConfig, ModalDialog, ModalDialogFormItemBuilder} from './ModalDialog';
 import {MacroDockedPanel} from './MacroDockedPanel';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ContentSummary} from '../../../../content/ContentSummary';
-import {MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
+import {type MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
 import {GetMacrosRequest} from '../../../../macro/resource/GetMacrosRequest';
 import {MacroComboBox, MacroFormInputElWrapper} from '../../../../macro/MacroComboBox';
 import DOMPurify from 'dompurify';
-import {Macro, MacroDialogParams} from '../HtmlEditor';
-import {HTMLAreaHelper} from '../HTMLAreaHelper';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export interface MacroModalDialogConfig
@@ -214,7 +214,7 @@ export class MacroModalDialog
                 data.addString('body', this.sanitize(this.selectedMacro.body as string));
             } else if (this.isMultipleTagsBodyMacro()) {
                 const body = this.selectedMacro.body as HTMLElement[];
-                const bodyArrayText = body.map((elem)  => elem.outerHTML).reduce((prev, curr) => {
+                const bodyArrayText = body.map((elem) => elem.outerHTML).reduce((prev, curr) => {
                     return prev + curr;
                 }, '');
                 data.addString('body', this.sanitize(bodyArrayText));
@@ -262,7 +262,7 @@ export class MacroModalDialog
             const bodyElements = this.selectedMacro.body as HTMLElement[];
 
             bodyElements.forEach((elem) => {
-               elem.remove();
+                elem.remove();
             });
 
             this.selectedMacro.macroEnd?.remove();

@@ -1,6 +1,6 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {XData} from './XData';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type XData} from './XData';
 import {XDataName} from './XDataName';
 
 export class XDataNames
@@ -12,7 +12,7 @@ export class XDataNames
         this.array = [];
         array.forEach((xDataName: XDataName) => {
 
-            let duplicate = this.array.some((possibleDuplicate: XDataName) => {
+            const duplicate = this.array.some((possibleDuplicate: XDataName) => {
                 return xDataName.equals(possibleDuplicate);
             });
 
@@ -35,7 +35,7 @@ export class XDataNames
     }
 
     contains(xDataName: XDataName): boolean {
-        let containName = this.array.some((curXData: XDataName) => {
+        const containName = this.array.some((curXData: XDataName) => {
             return curXData.equals(xDataName);
         });
         return !!containName;
@@ -58,7 +58,7 @@ export class XDataNames
             return false;
         }
 
-        let other = o as XDataNames;
+        const other = o as XDataNames;
         return ObjectHelper.arrayEquals(this.array, other.array);
     }
 }
@@ -68,7 +68,7 @@ export class XDataNamesBuilder {
     array: XDataName[] = [];
 
     fromStrings(values: string[]): XDataNamesBuilder {
-        if (!!values) {
+        if (values) {
             values.forEach((value: string) => {
                 this.addXDataName(new XDataName(value));
             });
@@ -77,7 +77,7 @@ export class XDataNamesBuilder {
     }
 
     fromXDatas(xDatas: XData[]): XDataNamesBuilder {
-        if (!!xDatas) {
+        if (xDatas) {
             xDatas.forEach((xData: XData) => {
                 this.addXDataName(xData.getXDataName());
             });

@@ -1,6 +1,6 @@
 import {GetPublishStatusResult} from './GetPublishStatusResult';
-import {GetPublishStatusResultJson} from './json/GetPublishStatusResultJson';
-import {GetPublishStatusesResultJson} from './json/GetPublishStatusesResultJson';
+import {type GetPublishStatusResultJson} from './json/GetPublishStatusResultJson';
+import {type GetPublishStatusesResultJson} from './json/GetPublishStatusesResultJson';
 
 export class GetPublishStatusesResult {
 
@@ -30,7 +30,7 @@ export class GetPublishStatusesResult {
 
     static fromJson(json: GetPublishStatusesResultJson): GetPublishStatusesResult {
 
-        let list: GetPublishStatusResult[] = [];
+        const list: GetPublishStatusResult[] = [];
 
         json.publishStatuses.forEach((getPublishStatusResult: GetPublishStatusResultJson) => {
             list.push(GetPublishStatusResult.fromJson(getPublishStatusResult));

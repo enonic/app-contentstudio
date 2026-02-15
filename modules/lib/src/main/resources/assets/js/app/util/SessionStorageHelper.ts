@@ -1,5 +1,5 @@
 import {ComponentPath} from '../page/region/ComponentPath';
-import {HtmlEditorCursorPosition} from '../inputtype/ui/text/HtmlEditor';
+import {type HtmlEditorCursorPosition} from '../inputtype/ui/text/HtmlEditorTypes';
 
 export class SessionStorageHelper {
     public static debug: boolean = false;

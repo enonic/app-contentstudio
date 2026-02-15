@@ -1,22 +1,22 @@
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {type Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {OptionDataLoader, OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
 import Q from 'q';
 import {ContentId} from '../../../content/ContentId';
-import {ContentSummary} from '../../../content/ContentSummary';
+import {type ContentSummary} from '../../../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
-import {ContentSummaryJson} from '../../../content/ContentSummaryJson';
+import {type ContentSummaryJson} from '../../../content/ContentSummaryJson';
 import {ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
 import {CompareContentRequest} from '../../../resource/CompareContentRequest';
-import {CompareContentResult} from '../../../resource/CompareContentResult';
-import {CompareContentResults} from '../../../resource/CompareContentResults';
+import {type CompareContentResult} from '../../../resource/CompareContentResult';
+import {type CompareContentResults} from '../../../resource/CompareContentResults';
 import {ContentSelectorQueryRequest} from '../../../resource/ContentSelectorQueryRequest';
-import {ContentSelectorRequest} from '../../../resource/ContentSelectorRequest';
+import {type ContentSelectorRequest} from '../../../resource/ContentSelectorRequest';
 import {ContentSummaryFetcher} from '../../../resource/ContentSummaryFetcher';
 import {ContentTreeSelectorQueryRequest} from '../../../resource/ContentTreeSelectorQueryRequest';
 import {GetContentSummaryByIds} from '../../../resource/GetContentSummaryByIds';
 import {ListByIdSelectorRequest} from '../../../resource/ListByIdSelectorRequest';
-import {Project} from '../../../settings/data/project/Project';
+import {type Project} from '../../../settings/data/project/Project';
 
 export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem>
     extends OptionDataLoader<DATA> {

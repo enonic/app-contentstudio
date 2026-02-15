@@ -2,8 +2,8 @@ import Q from 'q';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {GetContentSummaryByIds} from '../../../../resource/GetContentSummaryByIds';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ContentSummary} from '../../../../content/ContentSummary';
-import {ContentId} from '../../../../content/ContentId';
+import {type ContentSummary} from '../../../../content/ContentSummary';
+import {type ContentId} from '../../../../content/ContentId';
 
 interface RequestToken {
     contentId: ContentId;

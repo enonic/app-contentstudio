@@ -1,5 +1,5 @@
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {type ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 

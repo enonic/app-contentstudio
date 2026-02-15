@@ -1,5 +1,5 @@
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {Descriptor} from '../../../../../page/Descriptor';
+import {type Descriptor} from '../../../../../page/Descriptor';
 import {DescriptorViewer} from '../DescriptorViewer';
 
 export class DescriptorListBox extends ListBox<Descriptor> {

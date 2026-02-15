@@ -1,5 +1,5 @@
 import {ContentItemPreviewPanel} from './ContentItemPreviewPanel';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ItemStatisticsPanel} from '@enonic/lib-admin-ui/app/view/ItemStatisticsPanel';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 

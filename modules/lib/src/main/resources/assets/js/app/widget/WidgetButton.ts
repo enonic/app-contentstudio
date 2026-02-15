@@ -1,6 +1,6 @@
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {AppContext} from '../AppContext';
-import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {type Widget} from '@enonic/lib-admin-ui/content/Widget';
 
 export class WidgetButton
     extends Button {

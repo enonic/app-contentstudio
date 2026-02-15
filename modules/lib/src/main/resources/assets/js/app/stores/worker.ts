@@ -1,22 +1,18 @@
 import {batched, computed, map} from 'nanostores';
 
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {type InMessage, type JoinMessage, type LeaveMessage, MessageType} from './data/collaboration';
 import {
-    InMessage,
-    JoinMessage,
-    LeaveMessage,
-    MessageType
-} from './data/collaboration';
-import {
-    ConnectedWorkerMessage,
-    InitWorkerMessage,
-    OutWorkerMessage,
-    ReceivedWorkerMessage,
-    SendWorkerMessage,
-    SubscribeWorkerMessage,
-    UnsubscribeWorkerMessage
+    type ConnectedWorkerMessage,
+    type InitWorkerMessage,
+    type OutWorkerMessage,
+    type ReceivedWorkerMessage,
+    type SendWorkerMessage,
+    type SubscribeWorkerMessage,
+    type UnsubscribeWorkerMessage
 } from './data/worker';
 import {SharedSocketProxy} from './utils/SharedSocketProxy';
+
 type WorkerLifecycle = 'mounting' | 'mounted' | 'unmounting' | 'unmounted';
 
 type WorkerState = 'connecting' | 'connected' | 'disconnecting' | 'disconnected';

@@ -1,10 +1,10 @@
-import Q from 'q';
+import type Q from 'q';
 import {WizardStepsPanel} from '@enonic/lib-admin-ui/app/wizard/WizardStepsPanel';
-import {PanelStripHeader} from '@enonic/lib-admin-ui/ui/panel/PanelStripHeader';
+import {type PanelStripHeader} from '@enonic/lib-admin-ui/ui/panel/PanelStripHeader';
 import {ContentPanelStripHeader} from './ContentPanelStripHeader';
-import {TabBarItem} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
+import {type TabBarItem} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
-import {WizardStepForm} from '@enonic/lib-admin-ui/app/wizard/WizardStepForm';
+import {type WizardStepForm} from '@enonic/lib-admin-ui/app/wizard/WizardStepForm';
 
 export class ContentWizardStepsPanel
     extends WizardStepsPanel {

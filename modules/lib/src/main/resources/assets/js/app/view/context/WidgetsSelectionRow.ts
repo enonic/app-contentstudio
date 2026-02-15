@@ -1,15 +1,14 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {WidgetView} from './WidgetView';
+import {type WidgetView} from './WidgetView';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import Q from 'q';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {FilterableListBoxWrapperWithSelectedView} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
+import type Q from 'q';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
-import {SelectedOptionView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionView';
+import {type SelectedOptionView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionView';
 import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
 
 export class WidgetsSelectionRow
@@ -45,11 +44,11 @@ export class WidgetsSelectionRow
         });
 
         this.selectionWrapper.onDropdownVisibilityChanged((visible: boolean) => {
-           this.toggleClass('dropdown-visible', visible);
+            this.toggleClass('dropdown-visible', visible);
 
             if (visible) {
-               this.selectionWrapper.giveFocus();
-           }
+                this.selectionWrapper.giveFocus();
+            }
         });
     }
 

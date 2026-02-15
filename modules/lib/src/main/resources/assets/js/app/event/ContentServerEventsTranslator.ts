@@ -1,6 +1,6 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {EventJson} from '@enonic/lib-admin-ui/event/EventJson';
-import {NodeEventJson} from '@enonic/lib-admin-ui/event/NodeServerEvent';
+import {type Event} from '@enonic/lib-admin-ui/event/Event';
+import {type EventJson} from '@enonic/lib-admin-ui/event/EventJson';
+import {type NodeEventJson} from '@enonic/lib-admin-ui/event/NodeServerEvent';
 import {ServerEventsTranslator} from '@enonic/lib-admin-ui/event/ServerEventsTranslator';
 import {ArchiveServerEvent} from './ArchiveServerEvent';
 import {ContentServerEvent} from './ContentServerEvent';

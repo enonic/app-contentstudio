@@ -1,6 +1,6 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {GetPublishStatusResultJson} from './json/GetPublishStatusResultJson';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type GetPublishStatusResultJson} from './json/GetPublishStatusResultJson';
 import {PublishStatus} from '../publish/PublishStatus';
 
 export class GetPublishStatusResult
@@ -30,7 +30,7 @@ export class GetPublishStatusResult
             return false;
         }
 
-        let other = o as GetPublishStatusResult;
+        const other = o as GetPublishStatusResult;
 
         if (!ObjectHelper.stringEquals(this.id.toString(), other.id.toString())) {
             return false;
@@ -45,7 +45,7 @@ export class GetPublishStatusResult
 
     static fromJson(json: GetPublishStatusResultJson): GetPublishStatusResult {
 
-        let status: PublishStatus = PublishStatus[json.publishStatus] as PublishStatus;
+        const status: PublishStatus = PublishStatus[json.publishStatus] as PublishStatus;
 
         return new GetPublishStatusResult(json.id, status);
     }

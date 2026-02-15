@@ -1,8 +1,8 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ContentId} from '../content/ContentId';
-import {ChildOrder} from './order/ChildOrder';
+import {type ChildOrder} from './order/ChildOrder';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {ContentIdBaseItemJson} from './json/ContentIdBaseItemJson';
+import {type ContentIdBaseItemJson} from './json/ContentIdBaseItemJson';
 
 export class GetContentIdsByParentRequest
     extends CmsContentResourceRequest<ContentId[]> {

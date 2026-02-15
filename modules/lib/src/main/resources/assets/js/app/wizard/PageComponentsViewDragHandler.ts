@@ -1,9 +1,9 @@
-import Sortable, {MoveEvent, SortableEvent} from 'sortablejs';
-import {PageComponentsListElement, PageComponentsTreeGrid} from './PageComponentsTreeGrid';
+import Sortable, {type MoveEvent, type SortableEvent} from 'sortablejs';
+import {type PageComponentsListElement, type PageComponentsTreeGrid} from './PageComponentsTreeGrid';
 import {ComponentPath} from '../page/region/ComponentPath';
 import {PageEventsManager} from './PageEventsManager';
 import {LayoutComponentType} from '../page/region/LayoutComponentType';
-import {ComponentsTreeItem} from './ComponentsTreeItem';
+import {type ComponentsTreeItem} from './ComponentsTreeItem';
 import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 

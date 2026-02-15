@@ -1,54 +1,54 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
-import {FormItemEl} from '@enonic/lib-admin-ui/dom/FormItemEl';
-import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
+import {type FormItemEl} from '@enonic/lib-admin-ui/dom/FormItemEl';
+import {type InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {Checkbox, InputAlignment} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {Dropdown} from '@enonic/lib-admin-ui/ui/Dropdown';
-import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
-import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {type Form} from '@enonic/lib-admin-ui/ui/form/Form';
+import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
 import {DockedPanel} from '@enonic/lib-admin-ui/ui/panel/DockedPanel';
-import {NavigatedDeckPanel} from '@enonic/lib-admin-ui/ui/panel/NavigatedDeckPanel';
-import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {type NavigatedDeckPanel} from '@enonic/lib-admin-ui/ui/panel/NavigatedDeckPanel';
+import {type Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
-import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {type SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {TabBarItem} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
-import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
-import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
-import {UploadFailedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
+import {type Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {type TabBarItem} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
+import {type TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
+import {type UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
+import {type UploadFailedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
 import {HTMLAreaHelper} from '../HTMLAreaHelper';
-import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
-import {UploadStartedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadStartedEvent';
+import {type UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
+import {type UploadStartedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadStartedEvent';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import Q from 'q';
-import {Content} from '../../../../content/Content';
-import {ContentId} from '../../../../content/ContentId';
+import {type Content} from '../../../../content/Content';
+import {type ContentId} from '../../../../content/ContentId';
 import {ContentPath} from '../../../../content/ContentPath';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {Site} from '../../../../content/Site';
-import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
+import {type Site} from '../../../../content/Site';
+import {type ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
 import {GetNearestSiteRequest} from '../../../../resource/GetNearestSiteRequest';
-import {Project} from '../../../../settings/data/project/Project';
+import {type Project} from '../../../../settings/data/project/Project';
 import {ContentListBox} from '../../../selector/ContentListBox';
-import {ContentTreeSelectorDropdown, ContentTreeSelectorDropdownOptions} from '../../../selector/ContentTreeSelectorDropdown';
+import {ContentTreeSelectorDropdown, type ContentTreeSelectorDropdownOptions} from '../../../selector/ContentTreeSelectorDropdown';
 import {ContentSelectedOptionsView} from '../../selector/ContentComboBox';
-import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../../selector/ContentSummaryOptionDataLoader';
+import {ContentSummaryOptionDataLoader, type ContentSummaryOptionDataLoaderBuilder} from '../../selector/ContentSummaryOptionDataLoader';
 import {MediaTreeSelectorItem} from '../../selector/media/MediaTreeSelectorItem';
 import {MediaUploaderEl, MediaUploaderElOperation} from '../../upload/MediaUploaderEl';
-import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
+import {type HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
 import {OverrideNativeDialog} from './OverrideNativeDialog';
-import eventInfo = CKEDITOR.eventInfo;
 import {CompareStatus} from '../../../../content/CompareStatus';
+import eventInfo = CKEDITOR.eventInfo;
 
 export interface LinkModalDialogConfig
     extends HtmlAreaModalDialogConfig {
@@ -1054,7 +1054,7 @@ export class LinkModalDialog
             const item: UploadItem<Content> = event.getUploadItem();
             const selectedOption: SelectedOption<ContentTreeSelectorItem> = contentSelector.getSelectedOptionsView().getById(item.getId());
 
-            if (!!selectedOption) {
+            if (selectedOption) {
                 contentSelector.getSelectedOptionsView().removeOption(selectedOption.getOption());
             }
         });

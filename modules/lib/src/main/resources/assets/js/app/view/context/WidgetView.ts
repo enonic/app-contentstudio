@@ -1,11 +1,11 @@
-import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {type Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import Q from 'q';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {ContextView} from './ContextView';
+import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {type ContextView} from './ContextView';
 import {WidgetItemView} from './WidgetItemView';
 
 export enum InternalWidgetType {
@@ -78,7 +78,7 @@ export class WidgetView
 
     private applyConfig() {
         if (this.isUrlBased()) {
-            let config = this.widget.getConfig();
+            const config = this.widget.getConfig();
             if (config && config.hasOwnProperty('render-on-resize') && config['render-on-resize'] === 'true') {
                 this.handleRerenderOnResize();
             }
@@ -86,8 +86,8 @@ export class WidgetView
     }
 
     private handleRerenderOnResize() {
-        let updateWidgetItemViewsHandler = () => {
-            let containerWidth = this.contextView.getEl().getWidth();
+        const updateWidgetItemViewsHandler = () => {
+            const containerWidth = this.contextView.getEl().getWidth();
             if (this.contextView.getItem() && containerWidth !== this.containerWidth) {
                 this.updateWidgetItemViews().catch(DefaultErrorHandler.handle);
             }
@@ -96,7 +96,7 @@ export class WidgetView
             if (this.isActive()) {
                 updateWidgetItemViewsHandler();
             } else {
-                let onActivatedHandler = () => {
+                const onActivatedHandler = () => {
                     updateWidgetItemViewsHandler();
                     this.unActivated(onActivatedHandler);
                 };
@@ -110,7 +110,7 @@ export class WidgetView
     }
 
     private updateCustomWidgetItemViews(): Q.Promise<void>[] {
-        let promises = [];
+        const promises = [];
 
         this.url = this.getWidgetUrl();
         this.widgetItemViews.forEach((widgetItemView: WidgetItemView) => {
@@ -155,7 +155,7 @@ export class WidgetView
 
         this.slideOut();
 
-        let layoutTasks: Q.Promise<void>[] = [];
+        const layoutTasks: Q.Promise<void>[] = [];
 
         this.widgetItemViews.forEach((itemView: WidgetItemView) => {
             this.appendChild(itemView);
@@ -264,7 +264,7 @@ export class WidgetView
     }
 
     private redoLayout() {
-        let firstItemView = this.widgetItemViews[0];
+        const firstItemView = this.widgetItemViews[0];
         if (!firstItemView) {
             return;
         }

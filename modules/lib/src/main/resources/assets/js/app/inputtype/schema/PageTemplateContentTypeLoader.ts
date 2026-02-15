@@ -1,13 +1,13 @@
-import Q from 'q';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import type Q from 'q';
+import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {GetNearestSiteRequest} from '../../resource/GetNearestSiteRequest';
 import {GetAllContentTypesRequest} from '../../resource/GetAllContentTypesRequest';
-import {Site} from '../../content/Site';
+import {type Site} from '../../content/Site';
 import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
-import {ContentId} from '../../content/ContentId';
-import {Project} from '../../settings/data/project/Project';
+import {type ContentId} from '../../content/ContentId';
+import {type Project} from '../../settings/data/project/Project';
 
 export class PageTemplateContentTypeLoader
     extends BaseLoader<ContentTypeSummary> {
@@ -33,17 +33,17 @@ export class PageTemplateContentTypeLoader
         return new GetAllContentTypesRequest().sendAndParse().then((contentTypeArray: ContentTypeSummary[]) => {
             return new GetNearestSiteRequest(this.contentId).setRequestProject(this.project).sendAndParse().then(
                 (parentSite: Site) => {
-                    let typesAllowedEverywhere: Record<string, ContentTypeName> = {};
+                    const typesAllowedEverywhere: Record<string, ContentTypeName> = {};
                     [ContentTypeName.UNSTRUCTURED, ContentTypeName.FOLDER, ContentTypeName.SITE].forEach((contentTypeName: ContentTypeName) => {
                         typesAllowedEverywhere[contentTypeName.toString()] = contentTypeName;
                     });
-                    let siteApplications: Record<string, ApplicationKey> = {};
+                    const siteApplications: Record<string, ApplicationKey> = {};
                     parentSite.getApplicationKeys().forEach((applicationKey: ApplicationKey) => {
                         siteApplications[applicationKey.toString()] = applicationKey;
                     });
 
                     return contentTypeArray.filter((item: ContentTypeSummary) => {
-                        let contentTypeName = item.getContentTypeName();
+                        const contentTypeName = item.getContentTypeName();
                         if (item.isAbstract()) {
                             return false;
                         } else if (contentTypeName.isDescendantOfMedia()) {

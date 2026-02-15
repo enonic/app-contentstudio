@@ -1,7 +1,7 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
-import {FragmentComponentJson} from './FragmentComponentJson';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
+import {type FragmentComponentJson} from './FragmentComponentJson';
 import {ComponentName} from './ComponentName';
 import {FragmentComponentType} from './FragmentComponentType';
 import {ConfigBasedComponent, ConfigBasedComponentBuilder} from './ConfigBasedComponent';
@@ -26,7 +26,7 @@ export class FragmentComponent
     }
 
     setFragment(contentId: ContentId, name: string) {
-        let oldValue = this.fragment;
+        const oldValue = this.fragment;
         this.fragment = contentId;
 
         this.setName(name ? new ComponentName(name) : this.getType().getDefaultName());
@@ -50,7 +50,7 @@ export class FragmentComponent
 
     toJson(): ComponentTypeWrapperJson {
 
-        let json: FragmentComponentJson = {} as FragmentComponentJson;
+        const json: FragmentComponentJson = {} as FragmentComponentJson;
         json.fragment = this.fragment != null ? this.fragment.toString() : null;
         json.config = this.config != null ? this.config.toJson() : null;
 

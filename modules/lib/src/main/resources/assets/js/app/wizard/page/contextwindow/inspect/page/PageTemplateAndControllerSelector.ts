@@ -4,30 +4,30 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {PageTemplateOption} from './PageTemplateOption';
-import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
+import {type LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {GetPageTemplatesByCanRenderRequest} from './GetPageTemplatesByCanRenderRequest';
 import {PageTemplateLoader} from './PageTemplateLoader';
 import {ContentServerEventsHandler} from '../../../../../event/ContentServerEventsHandler';
-import {PageTemplate, PageTemplateBuilder} from '../../../../../content/PageTemplate';
-import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
-import {PageTemplateAndControllerOption, PageTemplateAndSelectorViewer} from './PageTemplateAndSelectorViewer';
+import {type PageTemplate, PageTemplateBuilder} from '../../../../../content/PageTemplate';
+import {type ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
+import {type PageTemplateAndControllerOption, PageTemplateAndSelectorViewer} from './PageTemplateAndSelectorViewer';
 import {PageControllerOption} from './PageControllerOption';
-import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
-import {ContentServerChangeItem} from '../../../../../event/ContentServerChangeItem';
-import {Descriptor, DescriptorBuilder} from '../../../../../page/Descriptor';
+import {type ContentServerChangeItem} from '../../../../../event/ContentServerChangeItem';
+import {type Descriptor, DescriptorBuilder} from '../../../../../page/Descriptor';
 import {ComponentDescriptorsLoader} from '../region/ComponentDescriptorsLoader';
 import {PageComponentType} from '../../../../../page/region/PageComponentType';
 import {PageState} from '../../../PageState';
 import {PageEventsManager} from '../../../../PageEventsManager';
-import {PageUpdatedEvent} from '../../../../../page/event/PageUpdatedEvent';
+import {type PageUpdatedEvent} from '../../../../../page/event/PageUpdatedEvent';
 import {PageControllerUpdatedEvent} from '../../../../../page/event/PageControllerUpdatedEvent';
 import {PageTemplateUpdatedEvent} from '../../../../../page/event/PageTemplateUpdatedEvent';
-import {Page} from '../../../../../page/Page';
+import {type Page} from '../../../../../page/Page';
 import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
 import {PageOptionsList} from './PageOptionsList';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 
 export class PageTemplateAndControllerSelector
@@ -330,7 +330,7 @@ export class PageTemplateAndControllerSelector
     private initPageModelListeners() {
         PageState.getEvents().onPageUpdated((event: PageUpdatedEvent) => {
             if (event instanceof PageTemplateUpdatedEvent) {
-                let pageTemplateKey = event.getPageTemplate();
+                const pageTemplateKey = event.getPageTemplate();
 
                 if (pageTemplateKey) {
                     this.selectOptionByValue(pageTemplateKey.toString());

@@ -1,6 +1,6 @@
 import {findAndHighlight} from '../actions/find';
 import {replace, replaceAll} from '../actions/replace';
-import {Editor, Highlight} from '../types';
+import {type Editor, type Highlight} from '../types';
 import {Classes, SELECTION_CLASS} from '../view/markup';
 import {fixPanelPosition} from '../view/position';
 import {SearchOptions} from './options';

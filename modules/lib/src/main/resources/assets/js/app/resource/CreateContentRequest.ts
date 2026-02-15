@@ -1,16 +1,16 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {Content} from '../content/Content';
-import {ContentJson} from '../content/ContentJson';
-import {ExtraData} from '../content/ExtraData';
-import {ExtraDataJson} from './json/ExtraDataJson';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type Content} from '../content/Content';
+import {type ContentJson} from '../content/ContentJson';
+import {type ExtraData} from '../content/ExtraData';
+import {type ExtraDataJson} from './json/ExtraDataJson';
+import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {ContentName} from '../content/ContentName';
-import {ContentPath} from '../content/ContentPath';
+import {type ContentName} from '../content/ContentName';
+import {type ContentPath} from '../content/ContentPath';
 import {ContentUnnamed} from '../content/ContentUnnamed';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {Workflow} from '../content/Workflow';
+import {type Workflow} from '../content/Workflow';
 
 export class CreateContentRequest
     extends CmsContentResourceRequest<Content> {

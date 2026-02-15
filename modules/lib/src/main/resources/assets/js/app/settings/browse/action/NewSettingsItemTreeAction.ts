@@ -1,13 +1,13 @@
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Project} from '../../data/project/Project';
-import {SettingsViewItem} from '../../view/SettingsViewItem';
+import {type Project} from '../../data/project/Project';
+import {type SettingsViewItem} from '../../view/SettingsViewItem';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {ProjectWizardDialog} from '../../dialog/project/create/ProjectWizardDialog';
 import {ProjectSteps} from '../../dialog/project/create/ProjectSteps';
 import {ProjectConfigContext} from '../../data/project/ProjectConfigContext';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import {type SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class NewSettingsItemTreeAction
     extends Action {

@@ -1,6 +1,6 @@
-import {UploadStartedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadStartedEvent';
+import {type UploadStartedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadStartedEvent';
 import {MediaUploaderEl, MediaUploaderElOperation} from '../inputtype/ui/upload/MediaUploaderEl';
-import {Content} from '../content/Content';
+import {type Content} from '../content/Content';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 
 export class NewContentUploader
@@ -28,7 +28,7 @@ export class NewContentUploader
 
     private createMediaUploaderEl(): MediaUploaderEl {
 
-        let mediaUploaderEl = new MediaUploaderEl({
+        const mediaUploaderEl = new MediaUploaderEl({
             operation: MediaUploaderElOperation.create,
             name: 'file-input-uploader',
             allowDrop: true,

@@ -1,24 +1,24 @@
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {showFeedback, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
+import {type TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {type TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {AccessControlList} from '../../access/AccessControlList';
-import {ContentId} from '../../content/ContentId';
-import {TaskProgressManager, WithTaskProgress} from '../TaskProgressManager';
-import {OpenEditPermissionsDialogEvent} from '../../event/OpenEditPermissionsDialogEvent';
+import {type ContentId} from '../../content/ContentId';
+import {TaskProgressManager, type WithTaskProgress} from '../TaskProgressManager';
+import {type OpenEditPermissionsDialogEvent} from '../../event/OpenEditPermissionsDialogEvent';
 import {ApplyContentPermissionsRequest} from '../../resource/ApplyContentPermissionsRequest';
-import {MultiStepDialog, MultiStepDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/multistep/MultiStepDialog';
-import {NamesAndIconView} from '@enonic/lib-admin-ui/app/NamesAndIconView';
+import {MultiStepDialog, type MultiStepDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/multistep/MultiStepDialog';
+import {type NamesAndIconView} from '@enonic/lib-admin-ui/app/NamesAndIconView';
 import {MainAccessStep} from './steps/MainAccessStep';
 import {GetDescendantsOfContentsRequest} from '../../resource/GetDescendantsOfContentsRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {SummaryStep} from './steps/SummaryStep';
 import {StrategyStep} from './steps/StrategyStep';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {PermissionsData} from './PermissionsData';
-import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
-import {AccessControlEntry} from '../../access/AccessControlEntry';
+import {type Action} from '@enonic/lib-admin-ui/ui/Action';
+import {type PermissionsData} from './PermissionsData';
+import {type DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
+import {type AccessControlEntry} from '../../access/AccessControlEntry';
 import {AccessControlHelper} from '../../wizard/AccessControlHelper';
 
 export class EditPermissionsDialog

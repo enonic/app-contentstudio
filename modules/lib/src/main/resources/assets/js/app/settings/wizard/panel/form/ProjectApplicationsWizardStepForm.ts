@@ -1,14 +1,14 @@
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
-import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
-import {ProjectViewItem} from '../../../view/ProjectViewItem';
+import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {type ProjectViewItem} from '../../../view/ProjectViewItem';
 import Q from 'q';
-import {SettingsType} from '../../../data/type/SettingsType';
+import {type SettingsType} from '../../../data/type/SettingsType';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectApplicationsFormItem} from './element/ProjectApplicationsFormItem';
-import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {type ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {ProjectApplicationsFormParams} from './element/ProjectApplicationsFormParams';
-import {Project} from '../../../data/project/Project';
+import {type Project} from '../../../data/project/Project';
 
 export class ProjectApplicationsWizardStepForm
     extends ProjectWizardStepForm {

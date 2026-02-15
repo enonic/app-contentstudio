@@ -1,14 +1,13 @@
-import Q from 'q';
-import {BeforeContentSavedEvent} from '../event/BeforeContentSavedEvent';
-import {Form} from '@enonic/lib-admin-ui/form/Form';
-import {FormContext} from '@enonic/lib-admin-ui/form/FormContext';
+import {type ContentFormContext} from '../ContentFormContext';
+import type Q from 'q';
+import {type Form} from '@enonic/lib-admin-ui/form/Form';
+import {type FormContext} from '@enonic/lib-admin-ui/form/FormContext';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {WizardStepValidityChangedEvent} from '@enonic/lib-admin-ui/app/wizard/WizardStepValidityChangedEvent';
 import {WizardStepForm} from '@enonic/lib-admin-ui/app/wizard/WizardStepForm';
-import {FormValidityChangedEvent} from '@enonic/lib-admin-ui/form/FormValidityChangedEvent';
+import {type FormValidityChangedEvent} from '@enonic/lib-admin-ui/form/FormValidityChangedEvent';
 import {ValidationRecording} from '@enonic/lib-admin-ui/form/ValidationRecording';
-import {ContentFormContext} from '../ContentFormContext';
 
 export class ContentWizardStepForm
     extends WizardStepForm {

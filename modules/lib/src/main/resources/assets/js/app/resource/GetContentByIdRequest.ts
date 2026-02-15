@@ -1,7 +1,7 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {Content} from '../content/Content';
-import {ContentJson} from '../content/ContentJson';
-import {ContentId} from '../content/ContentId';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type Content} from '../content/Content';
+import {type ContentJson} from '../content/ContentJson';
+import {type ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class GetContentByIdRequest

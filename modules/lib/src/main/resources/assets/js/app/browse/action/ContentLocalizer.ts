@@ -1,6 +1,6 @@
 import Q from 'q';
-import {ContentId} from '../../content/ContentId';
-import {ContentSummary} from '../../content/ContentSummary';
+import {type ContentId} from '../../content/ContentId';
+import {type ContentSummary} from '../../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentEventsProcessor} from '../../ContentEventsProcessor';
 import {EditContentEvent} from '../../event/EditContentEvent';

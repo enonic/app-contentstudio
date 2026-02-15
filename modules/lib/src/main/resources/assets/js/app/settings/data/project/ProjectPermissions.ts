@@ -1,6 +1,6 @@
-import {ProjectPermissionsJson} from '../../resource/json/ProjectPermissionsJson';
+import {type ProjectPermissionsJson} from '../../resource/json/ProjectPermissionsJson';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class ProjectPermissions
@@ -107,7 +107,7 @@ export class ProjectPermissions
                 .setContributors(json.contributor ? json.contributor.map(PrincipalKey.fromString) : [])
                 .setEditors(json.editor ? json.editor.map(PrincipalKey.fromString) : [])
                 .setOwners(json.owner ? json.owner.map(PrincipalKey.fromString) : [])
-                .setAuthors(!!json.author ? json.author.map(PrincipalKey.fromString) : [])
+                .setAuthors(json.author ? json.author.map(PrincipalKey.fromString) : [])
                 .build();
         }
 

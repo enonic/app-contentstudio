@@ -6,29 +6,29 @@ import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectUpdateRequest} from '../../resource/ProjectUpdateRequest';
 import {ProjectDeleteRequest} from '../../resource/ProjectDeleteRequest';
-import {WizardHeaderWithDisplayNameAndName} from '@enonic/lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
+import {type WizardHeaderWithDisplayNameAndName} from '@enonic/lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {ProjectItemNameWizardStepForm} from './form/ProjectItemNameWizardStepForm';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {Project, ProjectBuilder} from '../../data/project/Project';
+import {type Project, ProjectBuilder} from '../../data/project/Project';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {ProjectWizardActions} from '../action/ProjectWizardActions';
 import {ProjectReadAccessWizardStepForm} from './form/ProjectReadAccessWizardStepForm';
-import {SettingDataItemWizardStepForm} from './form/SettingDataItemWizardStepForm';
-import {ProjectPermissions} from '../../data/project/ProjectPermissions';
+import {type SettingDataItemWizardStepForm} from './form/SettingDataItemWizardStepForm';
+import {type ProjectPermissions} from '../../data/project/ProjectPermissions';
 import {UpdateProjectLanguageRequest} from '../../resource/UpdateProjectLanguageRequest';
-import {ProjectReadAccess} from '../../data/project/ProjectReadAccess';
+import {type ProjectReadAccess} from '../../data/project/ProjectReadAccess';
 import {UpdateProjectPermissionsRequest} from '../../resource/UpdateProjectPermissionsRequest';
 import {ProjectRolesWizardStepForm} from './form/ProjectRolesWizardStepForm';
 import {ProjectUpdateIconRequest} from '../../resource/ProjectUpdateIconRequest';
 import {EditProjectAccessDialog} from '../../../wizard/EditProjectAccessDialog';
-import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {type TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {UpdateProjectReadAccessRequest} from '../../resource/UpdateProjectReadAccessRequest';
 import {ProjectDataItemFormIcon} from './form/element/ProjectDataItemFormIcon';
 import {ConfirmValueDialog} from '../../../remove/ConfirmValueDialog';
 import {TextInputSize} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {ProjectApplicationsWizardStepForm} from './form/ProjectApplicationsWizardStepForm';
-import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {type ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {LangDirection} from '@enonic/lib-admin-ui/dom/Element';
 
@@ -48,7 +48,7 @@ export class ProjectWizardPanel
     private hasChildrenLayers: boolean = false;
 
     protected getIconClass(): string {
-        return !!this.getPersistedItem() ? this.getPersistedItem().getIconClass() : this.getParams().type.getIconClass();
+        return this.getPersistedItem() ? this.getPersistedItem().getIconClass() : this.getParams().type.getIconClass();
     }
 
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {

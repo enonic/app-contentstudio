@@ -1,6 +1,6 @@
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {RegionsDescriptorJson} from './RegionsDescriptorJson';
+import {type RegionsDescriptorJson} from './RegionsDescriptorJson';
 
 export class RegionDescriptor
     implements Equitable {
@@ -28,7 +28,7 @@ export class RegionDescriptor
             return false;
         }
 
-        let other = o as RegionDescriptor;
+        const other = o as RegionDescriptor;
 
         return this.name === other.getName();
     }

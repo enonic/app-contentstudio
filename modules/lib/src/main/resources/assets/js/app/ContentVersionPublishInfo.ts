@@ -1,5 +1,5 @@
-import {ContentVersionPublishInfoJson} from './resource/json/ContentVersionPublishInfoJson';
-import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {type ContentVersionPublishInfoJson} from './resource/json/ContentVersionPublishInfoJson';
+import {type Cloneable} from '@enonic/lib-admin-ui/Cloneable';
 import {ContentPublishInfo} from './ContentPublishInfo';
 
 enum COMMIT_TYPE {
@@ -27,7 +27,7 @@ implements Cloneable {
             this.publisherDisplayName = source.getPublisherDisplayName();
             this.publisher = source.getPublisher();
             this.type = source.getType();
-            this.timestamp = !!source.getTimestamp() ? new Date(source.getTimestamp().getTime()) : null;
+            this.timestamp = source.getTimestamp() ? new Date(source.getTimestamp().getTime()) : null;
         }
     }
 

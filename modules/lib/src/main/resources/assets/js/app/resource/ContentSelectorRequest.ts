@@ -1,17 +1,17 @@
-import {OrderExpr} from '@enonic/lib-admin-ui/query/expr/OrderExpr';
+import {type OrderExpr} from '@enonic/lib-admin-ui/query/expr/OrderExpr';
 import {FieldOrderExpr} from '@enonic/lib-admin-ui/query/expr/FieldOrderExpr';
 import {OrderDirection} from '@enonic/lib-admin-ui/query/expr/OrderDirection';
 import {FieldExpr} from '@enonic/lib-admin-ui/query/expr/FieldExpr';
-import {Expression} from '@enonic/lib-admin-ui/query/expr/Expression';
+import {type Expression} from '@enonic/lib-admin-ui/query/expr/Expression';
 import {QueryField} from '@enonic/lib-admin-ui/query/QueryField';
 import {QueryExpr} from '@enonic/lib-admin-ui/query/expr/QueryExpr';
 import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
 import {PathMatchExpressionBuilder} from '@enonic/lib-admin-ui/query/PathMatchExpression';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {ContentSummary} from '../content/ContentSummary';
+import {type ContentSummary} from '../content/ContentSummary';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {ResultMetadata} from './ResultMetadata';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {type ResultMetadata} from './ResultMetadata';
+import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 
 export abstract class ContentSelectorRequest<CONTENT>
     extends CmsContentResourceRequest<CONTENT[]> {
@@ -104,7 +104,7 @@ export abstract class ContentSelectorRequest<CONTENT>
     }
 
     setSearchString(searchString: string = '') {
-        let fulltextExpression = this.createSearchExpression(searchString);
+        const fulltextExpression = this.createSearchExpression(searchString);
 
         this.queryExpr = new QueryExpr(fulltextExpression, ContentSelectorRequest.DEFAULT_ORDER);
     }

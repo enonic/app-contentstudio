@@ -1,9 +1,8 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {EffectivePermission} from './EffectivePermission';
-import {EffectivePermissionMember} from './EffectivePermissionMember';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {type EffectivePermission} from './EffectivePermission';
+import {type EffectivePermissionMember} from './EffectivePermissionMember';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {PrincipalViewerCompact} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
@@ -72,9 +71,9 @@ export class UserAccessListItemView
 
     private setExtraCount() {
         if (this.userLine.getChildren().length > 0) {
-            let visibleCount = this.getVisibleCount();
-            let iconCount = this.getObject().getPermissionAccess().getCount();
-            let extraCount = iconCount - visibleCount;
+            const visibleCount = this.getVisibleCount();
+            const iconCount = this.getObject().getPermissionAccess().getCount();
+            const extraCount = iconCount - visibleCount;
 
             if (extraCount > 0) {
                 this.userLine.getEl().setAttribute('extra-count', '+' + extraCount);
@@ -85,9 +84,9 @@ export class UserAccessListItemView
     }
 
     private getVisibleCount(): number {
-        let userIcons = this.userLine.getChildren();
+        const userIcons = this.userLine.getChildren();
         let count = 0;
-        for (let userIcon of userIcons) {
+        for (const userIcon of userIcons) {
             if (userIcon.getEl().getOffsetTopRelativeToParent() === 0) {
                 count++;
             } else {

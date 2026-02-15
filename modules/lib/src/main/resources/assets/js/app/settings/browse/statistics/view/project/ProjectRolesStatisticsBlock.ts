@@ -1,11 +1,11 @@
 import {StatisticsBlock} from '../StatisticsBlock';
 import {StatisticsBlockColumn} from '../StatisticsBlockColumn';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ProjectViewItem} from '../../../../view/ProjectViewItem';
+import {type ProjectViewItem} from '../../../../view/ProjectViewItem';
 import {PrincipalsListBox} from '../PrincipalsListBox';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {GetPrincipalsByKeysRequest} from '../../../../../security/GetPrincipalsByKeysRequest';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ProjectHelper} from '../../../../data/project/ProjectHelper';
 

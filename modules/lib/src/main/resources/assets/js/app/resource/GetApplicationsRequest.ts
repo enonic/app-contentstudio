@@ -1,8 +1,8 @@
 import {Application} from '@enonic/lib-admin-ui/application/Application';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {ApplicationListResult} from '@enonic/lib-admin-ui/application/ApplicationListResult';
+import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {type ApplicationListResult} from '@enonic/lib-admin-ui/application/ApplicationListResult';
 import {ApplicationResourceRequest} from '@enonic/lib-admin-ui/application/ApplicationResourceRequest';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {UrlHelper} from '../util/UrlHelper';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 

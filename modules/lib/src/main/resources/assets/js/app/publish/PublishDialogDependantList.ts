@@ -1,12 +1,11 @@
+import {type ContentId} from '../content/ContentId';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {CompareStatusChecker} from '../content/CompareStatus';
-import {ContentId} from '../content/ContentId';
 import {ContentIds} from '../content/ContentIds';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {DependantItemViewer} from '../dialog/DependantItemViewer';
-import {DialogDependantItemsList, ObserverConfig} from '../dialog/DialogDependantItemsList';
+import {DialogDependantItemsList, type ObserverConfig} from '../dialog/DialogDependantItemsList';
 import {StatusCheckableItem} from '../dialog/StatusCheckableItem';
-import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {type ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 
 export class PublishDialogDependantList
@@ -76,7 +75,8 @@ export class PublishDialogDependantList
 
         const permissionsUpdatedHandler = (updatedItems: ContentSummaryAndCompareStatus[]): void => {
             const updatedIds = updatedItems.map(item => item.getId());
-            const isItemsPermissionsUpdated = this.getItems().some(item => updatedIds.findIndex(updatedId => updatedId === item.getId()) > -1);
+            const isItemsPermissionsUpdated = this.getItems().some(
+                item => updatedIds.findIndex(updatedId => updatedId === item.getId()) > -1);
             if (isItemsPermissionsUpdated) {
                 this.notifyListChanged();
             }

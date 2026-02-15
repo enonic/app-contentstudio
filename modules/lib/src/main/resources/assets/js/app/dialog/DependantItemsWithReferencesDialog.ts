@@ -1,20 +1,20 @@
 import {DependantItemsWithProgressDialog} from './DependantItemsWithProgressDialog';
 import {DialogStateBar} from './DialogStateBar';
-import {DialogStateEntry} from './DialogStateEntry';
-import {ContentWithRefsResult} from '../resource/ContentWithRefsResult';
-import {ContentId} from '../content/ContentId';
+import {type DialogStateEntry} from './DialogStateEntry';
+import {type ContentWithRefsResult} from '../resource/ContentWithRefsResult';
+import {type ContentId} from '../content/ContentId';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {ArchiveCheckableItem} from './ArchiveCheckableItem';
-import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
+import {type ArchiveCheckableItem} from './ArchiveCheckableItem';
+import {type ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import Q from 'q';
-import {ArchiveSelectableItem} from './ArchiveSelectableItem';
+import type Q from 'q';
+import {type ArchiveSelectableItem} from './ArchiveSelectableItem';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {CmsContentResourceRequest} from '../resource/CmsContentResourceRequest';
+import {type CmsContentResourceRequest} from '../resource/CmsContentResourceRequest';
 import {DialogWithRefsDependantList} from '../remove/DialogWithRefsDependantList';
-import {DialogWithRefsItemList, DialogWithRefsItemListConfig} from '../remove/DialogWithRefsItemList';
+import {DialogWithRefsItemList, type DialogWithRefsItemListConfig} from '../remove/DialogWithRefsItemList';
 
 export abstract class DependantItemsWithReferencesDialog extends DependantItemsWithProgressDialog {
 

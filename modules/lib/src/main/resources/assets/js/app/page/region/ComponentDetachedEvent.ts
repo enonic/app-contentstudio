@@ -1,5 +1,5 @@
 import {ComponentAddedEvent} from './ComponentAddedEvent';
-import {Component} from './Component';
+import {type Component} from './Component';
 
 export class ComponentDetachedEvent extends ComponentAddedEvent {
 

@@ -1,8 +1,8 @@
-import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {type Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
-import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {ContentSummary} from '../content/ContentSummary';
+import {type IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type ContentSummary} from '../content/ContentSummary';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
@@ -11,10 +11,10 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {PreviewActionHelper} from '../action/PreviewActionHelper';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {ContentPreviewPathChangedEvent} from './ContentPreviewPathChangedEvent';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
+import {type Action} from '@enonic/lib-admin-ui/ui/Action';
+import {type Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
 import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
-import {EmulatedEvent} from '../event/EmulatedEvent';
+import {type EmulatedEvent} from '../event/EmulatedEvent';
 import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
 import {EmulatorContext} from './context/widget/emulator/EmulatorContext';
 

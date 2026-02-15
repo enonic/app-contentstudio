@@ -1,6 +1,6 @@
-import {LocaleListJson} from '@enonic/lib-admin-ui/locale/json/LocaleListJson';
-import {LocaleJson} from '@enonic/lib-admin-ui/locale/json/LocaleJson';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type LocaleListJson} from '@enonic/lib-admin-ui/locale/json/LocaleListJson';
+import {type LocaleJson} from '@enonic/lib-admin-ui/locale/json/LocaleJson';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {CmsResourceRequest} from './CmsResourceRequest';
 import {ContentResourceRequest} from './ContentResourceRequest';

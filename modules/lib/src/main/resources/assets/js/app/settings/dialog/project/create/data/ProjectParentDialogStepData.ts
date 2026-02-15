@@ -1,5 +1,5 @@
 import {ProjectDialogStepData} from './ProjectDialogStepData';
-import {Project} from '../../../../data/project/Project';
+import {type Project} from '../../../../data/project/Project';
 
 export class ProjectParentDialogStepData
     extends ProjectDialogStepData {

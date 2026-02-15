@@ -1,8 +1,8 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
 import {ItemPreviewToolbar} from '@enonic/lib-admin-ui/app/view/ItemPreviewToolbar';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
+import {type ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {CompareWithPublishedVersionDialog} from './dialog/CompareWithPublishedVersionDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';

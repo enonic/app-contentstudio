@@ -1,25 +1,25 @@
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {CustomSelectorItem} from './CustomSelectorItem';
+import {type CustomSelectorItem} from './CustomSelectorItem';
 import {CustomSelectorItemViewer} from './CustomSelectorItemViewer';
 import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
 import {
     FilterableListBoxWrapperWithSelectedView,
-    ListBoxInputOptions
+    type ListBoxInputOptions
 } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
 import {CustomSelectorLoader} from './CustomSelectorLoader';
 import {CustomSelectorListBox} from './CustomSelectorListBox';
-import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import Q from 'q';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {CustomSelectorMode} from './CustomSelectorMode';
 import {CustomSelectorGallerySelectedOptionsView} from './CustomSelectorGallerySelectedOptionsView';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {type SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 
 interface CustomSelectorComboBoxOptions extends ListBoxInputOptions<CustomSelectorItem> {
     loader: CustomSelectorLoader;
@@ -151,7 +151,7 @@ export class CustomSelectorSelectedOptionView
     }
 
     protected createView(_content: CustomSelectorItem): CustomSelectorItemViewer {
-        let viewer = new CustomSelectorItemViewer();
+        const viewer = new CustomSelectorItemViewer();
         viewer.setObject(this.getOption().getDisplayValue());
 
         return viewer;

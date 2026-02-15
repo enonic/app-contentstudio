@@ -1,5 +1,5 @@
 import {Issue} from './Issue';
-import {IssueWithAssigneesJson} from './json/IssueWithAssigneesJson';
+import {type IssueWithAssigneesJson} from './json/IssueWithAssigneesJson';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 
 export class IssueWithAssignees {

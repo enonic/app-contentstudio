@@ -1,16 +1,16 @@
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {Class} from '@enonic/lib-admin-ui/Class';
-import {Property} from '@enonic/lib-admin-ui/data/Property';
-import {Value} from '@enonic/lib-admin-ui/data/Value';
-import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
+import {type Property} from '@enonic/lib-admin-ui/data/Property';
+import {type Value} from '@enonic/lib-admin-ui/data/Value';
+import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
 import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Element, LangDirection} from '@enonic/lib-admin-ui/dom/Element';
 import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
-import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import {type FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import {BaseInputTypeNotManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeNotManagingAdd';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
@@ -22,21 +22,21 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import * as $ from 'jquery';
 import 'jquery-simulate/jquery.simulate.js';
-import Q from 'q';
-import {ContentSummary} from '../../content/ContentSummary';
+import type Q from 'q';
+import {type ContentSummary} from '../../content/ContentSummary';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
 import {ProjectContext} from '../../project/ProjectContext';
-import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {HTMLAreaProxy} from '../ui/text/dialog/HTMLAreaProxy';
 import {HTMLAreaHelper} from '../ui/text/HTMLAreaHelper';
 import {HtmlEditor} from '../ui/text/HtmlEditor';
 import {HtmlEditorParams} from '../ui/text/HtmlEditorParams';
 import {StylesRequest} from '../ui/text/styles/StylesRequest';
 import {HtmlAreaResizeEvent} from './HtmlAreaResizeEvent';
-import {AiConfig} from '@enonic/lib-admin-ui/form/inputtype/InputAiConfig';
+import {type AiConfig} from '@enonic/lib-admin-ui/form/inputtype/InputAiConfig';
 
 export class HtmlArea
     extends BaseInputTypeNotManagingAdd {

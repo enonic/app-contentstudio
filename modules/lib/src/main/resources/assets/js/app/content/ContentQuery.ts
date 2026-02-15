@@ -1,10 +1,10 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {QueryExpr} from '@enonic/lib-admin-ui/query/expr/QueryExpr';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {AggregationQuery} from '@enonic/lib-admin-ui/query/aggregation/AggregationQuery';
-import {Filter} from '@enonic/lib-admin-ui/query/filter/Filter';
-import {ContentId} from './ContentId';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type QueryExpr} from '@enonic/lib-admin-ui/query/expr/QueryExpr';
+import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {type AggregationQuery} from '@enonic/lib-admin-ui/query/aggregation/AggregationQuery';
+import {type Filter} from '@enonic/lib-admin-ui/query/filter/Filter';
+import {type ContentId} from './ContentId';
 
 export class ContentQuery
     implements Equitable {
@@ -127,7 +127,7 @@ export class ContentQuery
             return false;
         }
 
-        let other = o as ContentQuery;
+        const other = o as ContentQuery;
 
         if (!ObjectHelper.numberEquals(this.from, other.from)) {
             return false;

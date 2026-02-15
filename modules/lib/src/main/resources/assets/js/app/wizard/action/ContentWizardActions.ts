@@ -1,22 +1,21 @@
+import {type AccessControlList} from '../../access/AccessControlList';
+import {type Content} from '../../content/Content';
+import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {Permission} from '../../access/Permission';
 import {CloseAction} from '@enonic/lib-admin-ui/app/wizard/CloseAction';
 import {WizardActions} from '@enonic/lib-admin-ui/app/wizard/WizardActions';
-import {ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
+import {type ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
 import {ManagedActionManager} from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
 import {ManagedActionState} from '@enonic/lib-admin-ui/managedaction/ManagedActionState';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ActionsMap, ActionsState, ActionsStateManager} from '@enonic/lib-admin-ui/ui/ActionsStateManager';
+import {type Action} from '@enonic/lib-admin-ui/ui/Action';
+import {type ActionsMap, type ActionsState, ActionsStateManager} from '@enonic/lib-admin-ui/ui/ActionsStateManager';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
-import {AccessControlList} from '../../access/AccessControlList';
-import {Permission} from '../../access/Permission';
-import {CompareStatusChecker} from '../../content/CompareStatus';
-import {Content} from '../../content/Content';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {GetContentByPathRequest} from '../../resource/GetContentByPathRequest';
 import {GetContentPermissionsByIdRequest} from '../../resource/GetContentPermissionsByIdRequest';
 import {GetContentRootPermissionsRequest} from '../../resource/GetContentRootPermissionsRequest';
-import {ContentWizardPanel} from '../ContentWizardPanel';
+import {type ContentWizardPanel} from '../ContentWizardPanel';
 import {AccessControlHelper} from '../AccessControlHelper';
 import {ArchiveContentAction} from './ArchiveContentAction';
 import {ContentSaveAction} from './ContentSaveAction';
@@ -300,7 +299,7 @@ export class ContentWizardActions
     }
 
     private enableDeleteIfAllowed(content: Content) {
-        let hasDeletePermission = AccessControlHelper.hasPermission(Permission.DELETE, content.getPermissions());
+        const hasDeletePermission = AccessControlHelper.hasPermission(Permission.DELETE, content.getPermissions());
         this.enableActions({ARCHIVE: hasDeletePermission});
     }
 
@@ -331,7 +330,7 @@ export class ContentWizardActions
                 (parent: Content) => {
                     new GetContentPermissionsByIdRequest(parent.getContentId()).sendAndParse().then(
                         (accessControlList: AccessControlList) => {
-                            let hasParentCreatePermission = AccessControlHelper.hasPermission(Permission.CREATE, accessControlList);
+                            const hasParentCreatePermission = AccessControlHelper.hasPermission(Permission.CREATE, accessControlList);
 
                             if (!hasParentCreatePermission) {
                                 this.enableActions({DUPLICATE: false});
@@ -341,7 +340,7 @@ export class ContentWizardActions
         } else {
             new GetContentRootPermissionsRequest().sendAndParse().then(
                 (accessControlList: AccessControlList) => {
-                    let hasParentCreatePermission = AccessControlHelper.hasPermission(Permission.CREATE, accessControlList);
+                    const hasParentCreatePermission = AccessControlHelper.hasPermission(Permission.CREATE, accessControlList);
 
                     if (!hasParentCreatePermission) {
                         this.enableActions({DUPLICATE: false});

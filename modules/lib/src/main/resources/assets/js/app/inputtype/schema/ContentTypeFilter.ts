@@ -1,22 +1,22 @@
-import Q from 'q';
-import {Input} from '@enonic/lib-admin-ui/form/Input';
-import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
+import type Q from 'q';
+import {type Input} from '@enonic/lib-admin-ui/form/Input';
+import {type PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
 import {Value} from '@enonic/lib-admin-ui/data/Value';
-import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
+import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
-import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
+import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {type BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
 import {BaseInputTypeManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
-import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {PageTemplateContentTypeLoader} from './PageTemplateContentTypeLoader';
 import {ContentTypeSummaryLoader} from './ContentTypeSummaryLoader';
 import {ContentTypeComparator} from './ContentTypeComparator';
 import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
 import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from '@enonic/lib-admin-ui/Class';
-import {ContentId} from '../../content/ContentId';
+import {type ContentId} from '../../content/ContentId';
 import {ContentTypeFilterDropdown} from './ContentTypeFilterDropdown';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
@@ -66,7 +66,7 @@ export class ContentTypeFilter
 
     private onContentTypeSelected(contentType: ContentTypeSummary): void {
         this.ignorePropertyChange(true);
-        let value = new Value(contentType.getContentTypeName().toString(), ValueTypes.STRING);
+        const value = new Value(contentType.getContentTypeName().toString(), ValueTypes.STRING);
         if (this.typesListDropdown.countSelected() === 1) { // overwrite initial value
             this.getPropertyArray().set(0, value);
         } else {

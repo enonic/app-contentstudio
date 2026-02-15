@@ -1,10 +1,10 @@
 import Q from 'q';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {ListContentResult} from './ListContentResult';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type ListContentResult} from './ListContentResult';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ContentSummary} from '../content/ContentSummary';
-import {ContentId} from '../content/ContentId';
-import {ContentSummaryJson} from '../content/ContentSummaryJson';
+import {type ContentId} from '../content/ContentId';
+import {type ContentSummaryJson} from '../content/ContentSummaryJson';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class LocalizeContentsRequest

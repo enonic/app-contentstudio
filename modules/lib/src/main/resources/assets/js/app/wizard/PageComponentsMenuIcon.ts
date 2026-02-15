@@ -1,5 +1,4 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
 
 export class PageComponentsMenuIcon
     extends DivEl {

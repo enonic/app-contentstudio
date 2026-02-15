@@ -1,5 +1,5 @@
-import {ContentId} from '../content/ContentId';
-import {Project} from '../settings/data/project/Project';
+import {type ContentId} from '../content/ContentId';
+import {type Project} from '../settings/data/project/Project';
 import {ProjectContext} from '../project/ProjectContext';
 
 export class ContentEditParams {

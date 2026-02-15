@@ -1,8 +1,8 @@
 import Q from 'q';
-import {ContentWizardPanel} from './ContentWizardPanel';
-import {CreateContentRequest} from '../resource/CreateContentRequest';
+import {type ContentWizardPanel} from './ContentWizardPanel';
+import {type CreateContentRequest} from '../resource/CreateContentRequest';
 import {Flow, RoutineContext} from './Flow';
-import {Content} from '../content/Content';
+import {type Content} from '../content/Content';
 
 export class PersistNewContentRoutine
     extends Flow {
@@ -22,7 +22,7 @@ export class PersistNewContentRoutine
 
     public execute(): Q.Promise<RoutineContext> {
 
-        let context = new RoutineContext();
+        const context = new RoutineContext();
         return this.doExecute(context);
     }
 

@@ -1,30 +1,30 @@
 import {Class} from '@enonic/lib-admin-ui/Class';
-import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
-import {Input} from '@enonic/lib-admin-ui/form/Input';
+import {type PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
+import {type Input} from '@enonic/lib-admin-ui/form/Input';
 import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
-import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {UploadFailedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
-import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
-import {UploadProgressEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadProgressEvent';
+import {type BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {type SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {type UploadFailedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
+import {type UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
+import {type UploadProgressEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadProgressEvent';
 import Q from 'q';
-import {Content} from '../../content/Content';
-import {ContentPath} from '../../content/ContentPath';
+import {type Content} from '../../content/Content';
+import {type ContentPath} from '../../content/ContentPath';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../event/EditContentEvent';
-import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {type ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
-import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
+import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {type ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
 import {ImageOptionDataLoader, ImageOptionDataLoaderBuilder} from '../ui/selector/image/ImageOptionDataLoader';
 import {ImageSelectorSelectedOptionsView} from '../ui/selector/image/ImageSelectorSelectedOptionsView';
-import {ImageSelectorSelectedOptionView} from '../ui/selector/image/ImageSelectorSelectedOptionView';
+import {type ImageSelectorSelectedOptionView} from '../ui/selector/image/ImageSelectorSelectedOptionView';
 import {ImageUploaderEl} from '../ui/selector/image/ImageUploaderEl';
 import {MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem';
-import {ContentListBox} from './ContentListBox';
-import {ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
+import {type ContentListBox} from './ContentListBox';
+import {type ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
 import {ImageContentListBox} from './ImageContentListBox';
 import {ImageSelectorDropdown} from './ImageSelectorDropdown';
 import {MediaSelector} from './MediaSelector';
@@ -52,7 +52,7 @@ export class ImageSelector
     }
 
     protected createSelectedOptionsView(): BaseSelectedOptionsView<MediaTreeSelectorItem> {
-        let selectedOptionsView = new ImageSelectorSelectedOptionsView(this.context.content?.isReadOnly());
+        const selectedOptionsView = new ImageSelectorSelectedOptionsView(this.context.content?.isReadOnly());
 
         selectedOptionsView.onEditSelectedOptions((options: SelectedOption<MediaTreeSelectorItem>[]) => {
             options.forEach((option: SelectedOption<MediaTreeSelectorItem>) => {
@@ -102,10 +102,10 @@ export class ImageSelector
         super.doInitUploader(uploader);
 
         uploader.onUploadProgress((event: UploadProgressEvent<Content>) => {
-            let item = event.getUploadItem();
+            const item = event.getUploadItem();
 
-            let selectedOption = this.getSelectedOptionsView().getById(item.getId());
-            if (!!selectedOption) {
+            const selectedOption = this.getSelectedOptionsView().getById(item.getId());
+            if (selectedOption) {
                 (selectedOption.getOptionView() as ImageSelectorSelectedOptionView).setProgress(item.getProgress());
             }
         });
@@ -128,7 +128,7 @@ export class ImageSelector
             const selectedOption: SelectedOption<MediaTreeSelectorItem> =
                 this.getSelectedOptionsView().getById(item.getId());
 
-            if (!!selectedOption) {
+            if (selectedOption) {
                 this.getSelectedOptionsView().removeOption(selectedOption.getOption());
             }
         });

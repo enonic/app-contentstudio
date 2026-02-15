@@ -1,4 +1,4 @@
-import {ContentsExistJson} from './json/ContentsExistJson';
+import {type ContentsExistJson} from './json/ContentsExistJson';
 
 export class ContentsExistResult {
 

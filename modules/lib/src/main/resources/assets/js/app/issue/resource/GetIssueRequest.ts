@@ -1,6 +1,6 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {Issue} from '../Issue';
-import {IssueJson} from '../json/IssueJson';
+import {type IssueJson} from '../json/IssueJson';
 import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';
 
 export class GetIssueRequest

@@ -21,10 +21,10 @@ export class PermissionSelector
         super('permission-selector');
 
         this.getOptions().forEach((option: PermissionSelectorOption) => {
-            let toggle = new PermissionToggle(option);
+            const toggle = new PermissionToggle(option);
             toggle.setEnabled(this.enabled);
             toggle.onValueChanged(() => {
-                let newValue = this.getValue();
+                const newValue = this.getValue();
                 this.notifyValueChanged(new ValueChangedEvent(JSON.stringify(this.oldValue), JSON.stringify(newValue)));
                 this.oldValue = newValue;
             });
@@ -60,7 +60,7 @@ export class PermissionSelector
     }
 
     getValue(): { allow: Permission[] } {
-        let values = {
+        const values = {
             allow: []
         };
         this.toggles.forEach((toggle: PermissionToggle) => {
@@ -76,7 +76,7 @@ export class PermissionSelector
 
     setValue(newValue: { allow: Permission[] }, silent?: boolean): PermissionSelector {
         this.toggles.forEach((toggle: PermissionToggle) => {
-            let value = toggle.getValue();
+            const value = toggle.getValue();
             let state;
             if (newValue.allow.indexOf(value) >= 0) {
                 state = PermissionState.ALLOW;
@@ -132,7 +132,7 @@ export class PermissionToggle
 
         this.onClicked((event: MouseEvent) => {
             if (this.enabled) {
-                let newIndex = (this.stateIndex + 1) % PermissionToggle.STATES.length;
+                const newIndex = (this.stateIndex + 1) % PermissionToggle.STATES.length;
                 this.setState(PermissionToggle.STATES[newIndex]);
 
                 event.preventDefault();
@@ -160,14 +160,14 @@ export class PermissionToggle
     }
 
     setState(newState: PermissionState, silent?: boolean): PermissionToggle {
-        let newStateIndex = PermissionToggle.STATES.indexOf(newState);
+        const newStateIndex = PermissionToggle.STATES.indexOf(newState);
         if (newStateIndex !== this.stateIndex) {
             if (this.originalStateIndex < 0) {
                 this.originalStateIndex = newStateIndex;
             }
             this.toggleClass('dirty', this.originalStateIndex >= 0 && this.originalStateIndex !== newStateIndex);
 
-            let oldState = this.getState();
+            const oldState = this.getState();
             if (oldState != null) {
                 this.removeClass(PermissionState[oldState].toLowerCase());
             }

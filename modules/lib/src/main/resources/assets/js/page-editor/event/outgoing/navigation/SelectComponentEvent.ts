@@ -1,8 +1,8 @@
 import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ClickPosition} from '../../../ClickPosition';
-import {SelectedByClickEvent} from '../../../SelectedByClickEvent';
-import {ComponentPath} from '../../../../app/page/region/ComponentPath';
+import type {ClickPosition} from '../../../ClickPosition';
+import {SelectedByClickEvent} from '../../SelectedByClickEvent';
+import {type ComponentPath} from '../../../../app/page/region/ComponentPath';
 
 export interface ItemViewSelectedEventConfig {
     path: ComponentPath;

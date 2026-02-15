@@ -1,24 +1,24 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {type BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {
     FilterableListBoxWrapperWithSelectedView,
-    ListBoxInputOptions
+    type ListBoxInputOptions
 } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import Q from 'q';
 import {ContentId} from '../../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {ContentsExistRequest} from '../../resource/ContentsExistRequest';
-import {ContentsExistResult} from '../../resource/ContentsExistResult';
+import {type ContentsExistResult} from '../../resource/ContentsExistResult';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentSummaryOptionDataHelper} from '../../util/ContentSummaryOptionDataHelper';
-import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
-import {ContentAvailabilityStatus} from './ContentAvailabilityStatus';
+import {type ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
+import {type ContentAvailabilityStatus} from './ContentAvailabilityStatus';
 
 export interface ContentSelectorDropdownOptions extends ListBoxInputOptions<ContentTreeSelectorItem> {
     loader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem>;

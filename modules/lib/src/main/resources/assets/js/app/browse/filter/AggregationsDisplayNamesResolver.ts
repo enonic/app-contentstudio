@@ -1,17 +1,17 @@
-import {Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
-import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
-import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
+import {type Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
+import {type Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
+import {type BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentAggregation} from './ContentAggregation';
 import {GetPrincipalsByKeysRequest} from '../../security/GetPrincipalsByKeysRequest';
 import Q from 'q';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {GetLocalesRequest} from '../../resource/GetLocalesRequest';
-import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
+import {type Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {GetAllContentTypesRequest} from '../../resource/GetAllContentTypesRequest';
-import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 
 export class AggregationsDisplayNamesResolver {
 
@@ -94,7 +94,7 @@ export class AggregationsDisplayNamesResolver {
     updateLanguageAggregations(aggregations: Aggregation[]): Q.Promise<void> {
         const langAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregation.LANGUAGE.toString());
 
-        return !!langAggr ? this.updateLanguageAggregation(langAggr as BucketAggregation) : Q.resolve(null);
+        return langAggr ? this.updateLanguageAggregation(langAggr as BucketAggregation) : Q.resolve(null);
     }
 
     private updateLanguageAggregation(langAggr: BucketAggregation): Q.Promise<void> {
@@ -120,7 +120,7 @@ export class AggregationsDisplayNamesResolver {
     updateContentTypeAggregations(aggregations: Aggregation[]): Q.Promise<void> {
         const contentTypeAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregation.CONTENT_TYPE.toString());
 
-        return !!contentTypeAggr ? this.updateContentTypeAggregation(contentTypeAggr as BucketAggregation) : Q.resolve(null);
+        return contentTypeAggr ? this.updateContentTypeAggregation(contentTypeAggr as BucketAggregation) : Q.resolve(null);
     }
 
     private updateContentTypeAggregation(aggregation: BucketAggregation): Q.Promise<void> {

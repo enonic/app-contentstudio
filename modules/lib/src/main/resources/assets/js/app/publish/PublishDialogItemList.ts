@@ -1,11 +1,11 @@
 import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentId} from '../content/ContentId';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
-import {DialogTogglableItemList, DialogTogglableItemListConfig} from '../dialog/DialogTogglableItemList';
-import {TogglableStatusSelectionItem} from '../dialog/TogglableStatusSelectionItem';
-import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {type ContentId} from '../content/ContentId';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
+import {DialogTogglableItemList, type DialogTogglableItemListConfig} from '../dialog/DialogTogglableItemList';
+import {type TogglableStatusSelectionItem} from '../dialog/TogglableStatusSelectionItem';
+import {type ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 
 export interface PublishDialogItemListConfig

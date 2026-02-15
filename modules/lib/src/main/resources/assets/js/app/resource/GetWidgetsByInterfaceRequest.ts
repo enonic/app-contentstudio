@@ -1,8 +1,8 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {WidgetDescriptorResourceRequest} from './WidgetDescriptorResourceRequest';
-import {WidgetDescriptorJson} from '@enonic/lib-admin-ui/content/json/WidgetDescriptorJson';
+import {type WidgetDescriptorJson} from '@enonic/lib-admin-ui/content/json/WidgetDescriptorJson';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {type Widget} from '@enonic/lib-admin-ui/content/Widget';
 
 export class GetWidgetsByInterfaceRequest
     extends WidgetDescriptorResourceRequest<Widget[]> {

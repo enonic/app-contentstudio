@@ -1,5 +1,5 @@
-import {Diff} from '../Diff';
-import {ContentSummaryDiff} from './ContentSummaryDiff';
+import {type Diff} from '../Diff';
+import {type ContentSummaryDiff} from './ContentSummaryDiff';
 
 export interface ContentSummaryAndCompareStatusDiff extends Diff {
     uploadItem?: boolean;

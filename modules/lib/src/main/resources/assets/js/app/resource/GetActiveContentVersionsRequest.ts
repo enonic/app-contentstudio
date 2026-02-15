@@ -1,8 +1,8 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ActiveContentVersion} from '../ActiveContentVersion';
-import {ContentId} from '../content/ContentId';
+import {type ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {GetActiveContentVersionsResultsJson} from './json/GetActiveContentVersionsResultsJson';
+import {type GetActiveContentVersionsResultsJson} from './json/GetActiveContentVersionsResultsJson';
 
 export class GetActiveContentVersionsRequest
     extends CmsContentResourceRequest<ActiveContentVersion[]> {

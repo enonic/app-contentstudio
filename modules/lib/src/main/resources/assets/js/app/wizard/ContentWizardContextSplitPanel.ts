@@ -1,11 +1,9 @@
-import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
-import {ResponsiveRange} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRange';
+import {type Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {type ResponsiveRange} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRange';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {ContextSplitPanel, ContextSplitPanelBuilder} from '../view/context/ContextSplitPanel';
-import {LiveFormPanel} from './page/LiveFormPanel';
-import {ContextView} from '../view/context/ContextView';
-import {DockedContextPanel} from '../view/context/DockedContextPanel';
-import {SplitPanelSize} from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
+import {type LiveFormPanel} from './page/LiveFormPanel';
+import {type DockedContextPanel} from '../view/context/DockedContextPanel';
 
 export class ContentWizardContextSplitPanel
     extends ContextSplitPanel {

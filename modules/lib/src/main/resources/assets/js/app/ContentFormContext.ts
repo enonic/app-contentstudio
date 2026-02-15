@@ -1,15 +1,15 @@
-import {Application} from '@enonic/lib-admin-ui/application/Application';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
+import {type Application} from '@enonic/lib-admin-ui/application/Application';
+import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {type PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
 import {FormContext, FormContextBuilder} from '@enonic/lib-admin-ui/form/FormContext';
-import {Input} from '@enonic/lib-admin-ui/form/Input';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {Content} from './content/Content';
-import {ContentId} from './content/ContentId';
-import {ContentPath} from './content/ContentPath';
-import {Site} from './content/Site';
-import {ContentInputTypeViewContext} from './inputtype/ContentInputTypeViewContext';
-import {Project} from './settings/data/project/Project';
+import {type Input} from '@enonic/lib-admin-ui/form/Input';
+import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {type Content} from './content/Content';
+import {type ContentId} from './content/ContentId';
+import {type ContentPath} from './content/ContentPath';
+import {type Site} from './content/Site';
+import {type ContentInputTypeViewContext} from './inputtype/ContentInputTypeViewContext';
+import {type Project} from './settings/data/project/Project';
 
 export class ContentFormContext
     extends FormContext {

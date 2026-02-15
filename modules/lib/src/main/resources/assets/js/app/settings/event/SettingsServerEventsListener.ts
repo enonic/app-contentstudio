@@ -1,9 +1,9 @@
-import {Application} from '@enonic/lib-admin-ui/app/Application';
-import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {EventJson} from '@enonic/lib-admin-ui/event/EventJson';
+import {type Application} from '@enonic/lib-admin-ui/app/Application';
+import {type Event} from '@enonic/lib-admin-ui/event/Event';
+import {type EventJson} from '@enonic/lib-admin-ui/event/EventJson';
 import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
-import {NodeServerChangeItem} from '@enonic/lib-admin-ui/event/NodeServerChangeItem';
-import {NodeEventJson, NodeEventNodeJson, NodeServerEvent} from '@enonic/lib-admin-ui/event/NodeServerEvent';
+import {type NodeServerChangeItem} from '@enonic/lib-admin-ui/event/NodeServerChangeItem';
+import {type NodeEventJson, type NodeEventNodeJson, type NodeServerEvent} from '@enonic/lib-admin-ui/event/NodeServerEvent';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ContentPath} from '../../content/ContentPath';
 import {ContentServerEvent} from '../../event/ContentServerEvent';

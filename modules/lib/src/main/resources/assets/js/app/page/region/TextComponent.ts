@@ -1,13 +1,13 @@
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {Component, ComponentBuilder} from './Component';
-import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
-import {TextComponentJson} from './TextComponentJson';
+import {type ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
+import {type TextComponentJson} from './TextComponentJson';
 import {TextComponentType} from './TextComponentType';
 import {ComponentName} from './ComponentName';
 import {ComponentTextUpdatedEvent} from './ComponentTextUpdatedEvent';
-import {ComponentTextUpdatedOrigin} from './ComponentTextUpdatedOrigin';
+import {type ComponentTextUpdatedOrigin} from './ComponentTextUpdatedOrigin';
 
 export class TextComponent
     extends Component {
@@ -46,7 +46,7 @@ export class TextComponent
 
     toJson(): ComponentTypeWrapperJson {
 
-        let json: TextComponentJson = {} as TextComponentJson;
+        const json: TextComponentJson = {} as TextComponentJson;
         json.text = this.text != null ? this.text : null;
 
         return {

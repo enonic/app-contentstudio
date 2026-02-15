@@ -1,6 +1,6 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import Q from 'q';
-import {ComponentsTreeItem} from './ComponentsTreeItem';
+import type Q from 'q';
+import {type ComponentsTreeItem} from './ComponentsTreeItem';
 import {PageComponentsItemViewer} from './PageComponentsItemViewer';
 import {PageComponentsMenuIcon} from './PageComponentsMenuIcon';
 

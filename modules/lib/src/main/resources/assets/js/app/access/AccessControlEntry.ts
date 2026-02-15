@@ -1,9 +1,9 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {AccessControlEntryJson} from './AccessControlEntryJson';
+import {type AccessControlEntryJson} from './AccessControlEntryJson';
 import {Permission} from './Permission';
 import {PrincipalContainer} from '@enonic/lib-admin-ui/ui/security/PrincipalContainer';
 import {PermissionsHelper} from './PermissionsHelper';
@@ -74,7 +74,7 @@ export class AccessControlEntry
             return false;
         }
 
-        let other = o as AccessControlEntry;
+        const other = o as AccessControlEntry;
 
         if (!ObjectHelper.equals(this.getPrincipalKey(), other.getPrincipalKey())) {
             return false;
@@ -105,7 +105,7 @@ export class AccessControlEntry
     }
 
     clone(): AccessControlEntry {
-        let ace = new AccessControlEntry(this.principal.clone());
+        const ace = new AccessControlEntry(this.principal.clone());
         ace.allowedPermissions = this.allowedPermissions.slice(0);
         ace.deniedPermissions = this.deniedPermissions.slice(0);
         return ace;
@@ -120,9 +120,9 @@ export class AccessControlEntry
     }
 
     static fromJson(json: AccessControlEntryJson): AccessControlEntry {
-        let ace = new AccessControlEntry(Principal.fromJson(json.principal));
-        let allow: Permission[] = json.allow.map((permStr) => Permission[permStr.toUpperCase()]);
-        let deny: Permission[] = json.deny.map((permStr) => Permission[permStr.toUpperCase()]);
+        const ace = new AccessControlEntry(Principal.fromJson(json.principal));
+        const allow: Permission[] = json.allow.map((permStr) => Permission[permStr.toUpperCase()]);
+        const deny: Permission[] = json.deny.map((permStr) => Permission[permStr.toUpperCase()]);
         ace.setAllowedPermissions(allow);
         ace.setDeniedPermissions(deny);
         return ace;

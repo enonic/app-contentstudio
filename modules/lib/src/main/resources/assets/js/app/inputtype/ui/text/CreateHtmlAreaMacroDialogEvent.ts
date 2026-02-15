@@ -1,4 +1,4 @@
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {CreateHtmlAreaContentDialogEvent, CreateHtmlAreaContentDialogEventBuilder} from './CreateHtmlAreaContentDialogEvent';
 
 export class CreateHtmlAreaMacroDialogEvent extends CreateHtmlAreaContentDialogEvent {

@@ -2,8 +2,8 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {PageTemplateOption} from './PageTemplateOption';
-import {PageTemplate} from '../../../../../content/PageTemplate';
-import {PageControllerOption} from './PageControllerOption';
+import {type PageTemplate} from '../../../../../content/PageTemplate';
+import {type PageControllerOption} from './PageControllerOption';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 
 export type PageTemplateAndControllerOption = PageTemplateOption | PageControllerOption;

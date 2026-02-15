@@ -3,7 +3,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Flag} from '../../../locale/Flag';
 import {ProjectIconUrlResolver} from '../../../project/ProjectIconUrlResolver';
 import {ExtendedViewer} from '../../../view/ExtendedViewer';
-import {Project} from '../../data/project/Project';
+import {type Project} from '../../data/project/Project';
 import {ProjectHelper} from '../../data/project/ProjectHelper';
 
 export class ProjectViewer
@@ -52,7 +52,7 @@ export class ProjectViewer
         }
 
         const language: string = project.getLanguage();
-        return !!language ? new Flag(language) : null;
+        return language ? new Flag(language) : null;
     }
 
     resolveIconUrl(project: Project): string {

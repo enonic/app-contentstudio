@@ -1,11 +1,11 @@
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ProjectJson} from '../../resource/json/ProjectJson';
+import {type ProjectJson} from '../../resource/json/ProjectJson';
 import {ProjectPermissions} from './ProjectPermissions';
 import {ProjectReadAccess} from './ProjectReadAccess';
-import {Attachment, AttachmentBuilder} from '../../../attachment/Attachment';
-import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {ProjectSiteConfigJson} from '../../resource/json/ProjectSiteConfigJson';
+import {type Attachment, AttachmentBuilder} from '../../../attachment/Attachment';
+import {type ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {type ProjectSiteConfigJson} from '../../resource/json/ProjectSiteConfigJson';
 import {ApplicationConfigHelper} from './ApplicationConfigHelper';
 
 export class Project

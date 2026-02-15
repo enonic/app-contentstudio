@@ -3,12 +3,12 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {TagRemovedEvent} from './TagRemovedEvent';
 import {TagAddedEvent} from './TagAddedEvent';
-import {Tag, TagBuilder} from './Tag';
+import {type Tag, TagBuilder} from './Tag';
 import {TagSuggestions} from './TagSuggestions';
-import {TagSuggester} from './TagSuggester';
+import {type TagSuggester} from './TagSuggester';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 
 export class TagsBuilder {
@@ -119,12 +119,12 @@ export class Tags
             this.textInput.getEl().setWidth('');
         });
 
-        let searchSuggestionHandler = AppHelper.debounce((searchString: string) => {
+        const searchSuggestionHandler = AppHelper.debounce((searchString: string) => {
             this.searchSuggestions(searchString);
         }, 300, false);
 
         this.textInput.onValueChanged((event: ValueChangedEvent) => {
-            let searchString = event.getNewValue();
+            const searchString = event.getNewValue();
 
             if (StringHelper.isBlank(searchString)) {
                 this.tagSuggestions.hide();
@@ -156,7 +156,7 @@ export class Tags
                 return;
             }
 
-            let existingValues = this.doGetTags().concat(searchString);
+            const existingValues = this.doGetTags().concat(searchString);
             values = values.filter((value: string) => (existingValues.indexOf(value) < 0));
 
             if (values.length === 0) {
@@ -176,10 +176,10 @@ export class Tags
     }
 
     private handleWordCompleted() {
-        let inputValue = this.textInput.getValue();
-        let word = inputValue.trim();
+        const inputValue = this.textInput.getValue();
+        const word = inputValue.trim();
 
-        let tag = this.doAddTag(word);
+        const tag = this.doAddTag(word);
         if (tag) {
             this.textInput.setValue('');
 
@@ -200,7 +200,7 @@ export class Tags
             return null;
         }
 
-        let tag = new TagBuilder().setValue(value).setRemovable(true).build();
+        const tag = new TagBuilder().setValue(value).setRemovable(true).build();
         this.tags.push(tag);
         tag.insertBeforeEl(this.textInput);
 
@@ -218,7 +218,7 @@ export class Tags
     }
 
     private doRemoveTag(tag: Tag, silent?: boolean) {
-        let index = this.indexOf(tag.getValue());
+        const index = this.indexOf(tag.getValue());
         if (index >= 0) {
             tag.remove();
             this.tags.splice(index, 1);

@@ -1,5 +1,5 @@
-import {PageNavigationEvent} from './PageNavigationEvent';
-import {PageNavigationHandler} from './PageNavigationHandler';
+import {type PageNavigationEvent} from './PageNavigationEvent';
+import {type PageNavigationHandler} from './PageNavigationHandler';
 
 export class PageNavigationMediator {
 

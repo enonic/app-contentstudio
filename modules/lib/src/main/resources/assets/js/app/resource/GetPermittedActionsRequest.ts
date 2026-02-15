@@ -1,7 +1,7 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {Permission} from '../access/Permission';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {ContentId} from '../content/ContentId';
+import {type ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class GetPermittedActionsRequest
@@ -33,10 +33,10 @@ export class GetPermittedActionsRequest
     }
 
     getParams(): object {
-        let fn = (contentId: ContentId) => {
+        const fn = (contentId: ContentId) => {
             return contentId.toString();
         };
-        let fn2 = (permission: Permission) => {
+        const fn2 = (permission: Permission) => {
             return Permission[permission];
         };
 
@@ -47,7 +47,7 @@ export class GetPermittedActionsRequest
     }
 
     protected parseResponse(response: JsonResponse<string[]>): Permission[] {
-        let result = [];
+        const result = [];
 
         response.getResult().forEach((entry: string) => {
             result.push(Permission[entry]);

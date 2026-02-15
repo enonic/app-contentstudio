@@ -1,10 +1,10 @@
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {type Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {ProjectApplicationSelectedOptionView, ProjectApplicationSelectedOptionViewBuilder} from './ProjectApplicationSelectedOptionView';
-import {Application} from '@enonic/lib-admin-ui/application/Application';
-import {ProjectApplicationsFormParams} from './ProjectApplicationsFormParams';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {type Application} from '@enonic/lib-admin-ui/application/Application';
+import {type ProjectApplicationsFormParams} from './ProjectApplicationsFormParams';
+import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 
 export class ProjectApplicationsSelectedOptionsView
     extends BaseSelectedOptionsView<Application> {

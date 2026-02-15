@@ -1,7 +1,11 @@
-import {ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
-import {ComponentRemovedEvent} from '../../page/region/ComponentRemovedEvent';
-import {ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
-import {ComponentAddedEventHandler, ComponentRemovedEventHandler, ComponentUpdatedEventHandler} from '../../page/region/Component';
+import {type ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
+import {type ComponentRemovedEvent} from '../../page/region/ComponentRemovedEvent';
+import {type ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
+import {
+    type ComponentAddedEventHandler,
+    type ComponentRemovedEventHandler,
+    type ComponentUpdatedEventHandler
+} from '../../page/region/Component';
 
 export class ComponentEventsHolder {
 

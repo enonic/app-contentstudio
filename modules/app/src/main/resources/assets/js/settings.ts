@@ -1,9 +1,9 @@
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ElementEvent} from '@enonic/lib-admin-ui/dom/ElementEvent';
-import {SettingsAppContainer} from 'lib-contentstudio/app/settings/SettingsAppContainer';
+import {SettingsAppContainer} from '@enonic/lib-contentstudio/app/settings/SettingsAppContainer';
 import {CONFIG, ConfigObject} from '@enonic/lib-admin-ui/util/Config';
-import {ProjectConfigContext} from 'lib-contentstudio/app/settings/data/project/ProjectConfigContext';
+import {ProjectConfigContext} from '@enonic/lib-contentstudio/app/settings/data/project/ProjectConfigContext';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';

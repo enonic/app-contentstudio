@@ -4,7 +4,7 @@ import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
 import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import Q from 'q';
+import type Q from 'q';
 
 export enum ValidityStatus {
     VALID = 'valid',

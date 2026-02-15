@@ -1,6 +1,6 @@
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ElementRegistry} from '@enonic/lib-admin-ui/dom/ElementRegistry';
-import {ElementRemovedEvent} from '@enonic/lib-admin-ui/dom/ElementRemovedEvent';
+import {type ElementRemovedEvent} from '@enonic/lib-admin-ui/dom/ElementRemovedEvent';
 import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
 
 export class TooltipHelper {

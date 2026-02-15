@@ -1,7 +1,7 @@
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {type Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {ImageSelectorSelectedOptionView} from './ImageSelectorSelectedOptionView';
-import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
+import {type MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
 import {BaseGallerySelectedOptionsView} from '../BaseGallerySelectedOptionsView';
 
 export class ImageSelectorSelectedOptionsView

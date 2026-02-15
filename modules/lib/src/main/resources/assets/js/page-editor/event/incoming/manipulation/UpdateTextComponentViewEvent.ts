@@ -1,6 +1,6 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ComponentPath} from '../../../../app/page/region/ComponentPath';
-import {ComponentTextUpdatedOrigin} from '../../../../app/page/region/ComponentTextUpdatedOrigin';
+import {type ComponentPath} from '../../../../app/page/region/ComponentPath';
+import type {ComponentTextUpdatedOrigin} from '../../../../app/page/region/ComponentTextUpdatedOrigin';
 import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
 export class UpdateTextComponentViewEvent

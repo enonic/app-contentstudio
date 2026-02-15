@@ -1,5 +1,5 @@
-import {OrderChildMovement} from './OrderChildMovement';
-import {ReorderChildContentJson} from '../json/ReorderChildContentJson';
+import {type OrderChildMovement} from './OrderChildMovement';
+import {type ReorderChildContentJson} from '../json/ReorderChildContentJson';
 
 export class OrderChildMovements {
 
@@ -14,7 +14,7 @@ export class OrderChildMovements {
     }
 
     toArrayJson(): ReorderChildContentJson[] {
-        let result: ReorderChildContentJson[] = [];
+        const result: ReorderChildContentJson[] = [];
         this.reorderChildren.forEach((movement: OrderChildMovement) => {
             result.push(movement.toJson());
         });

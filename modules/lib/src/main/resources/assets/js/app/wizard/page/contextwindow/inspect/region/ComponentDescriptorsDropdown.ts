@@ -1,15 +1,15 @@
 import {ComponentDescriptorsLoader} from './ComponentDescriptorsLoader';
-import {ComponentType} from '../../../../../page/region/ComponentType';
-import {ContentId} from '../../../../../content/ContentId';
+import {type ComponentType} from '../../../../../page/region/ComponentType';
+import {type ContentId} from '../../../../../content/ContentId';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Descriptor} from '../../../../../page/Descriptor';
-import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
-import Q from 'q';
+import {type Descriptor} from '../../../../../page/Descriptor';
+import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import type Q from 'q';
 import {DescriptorViewer} from '../DescriptorViewer';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
 import {DescriptorListBox} from './DescriptorListBox';
-import {DescriptorKey} from '../../../../../page/DescriptorKey';
+import {type DescriptorKey} from '../../../../../page/DescriptorKey';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
 export class ComponentDescriptorsDropdown

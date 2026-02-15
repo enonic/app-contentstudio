@@ -1,7 +1,7 @@
-import {SettingsViewItem} from '../../view/SettingsViewItem';
-import {ProjectViewItem} from '../../view/ProjectViewItem';
+import {type SettingsViewItem} from '../../view/SettingsViewItem';
+import {type ProjectViewItem} from '../../view/ProjectViewItem';
 import {SettingsDataItemWizardActions} from './SettingsDataItemWizardActions';
-import {ProjectWizardPanel} from '../panel/ProjectWizardPanel';
+import {type ProjectWizardPanel} from '../panel/ProjectWizardPanel';
 
 export class ProjectWizardActions
     extends SettingsDataItemWizardActions<ProjectViewItem> {

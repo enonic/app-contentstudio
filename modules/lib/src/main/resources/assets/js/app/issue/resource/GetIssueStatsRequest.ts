@@ -1,5 +1,5 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {IssueStatsJson} from '../json/IssueStatsJson';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type IssueStatsJson} from '../json/IssueStatsJson';
 import {IssueType} from '../IssueType';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';

@@ -1,10 +1,11 @@
 /*global Q*/
 
+import {type FullScreenDialogParams, type HtmlEditorCursorPosition} from '../HtmlEditorTypes';
+import {HtmlEditor} from '../HtmlEditor';
+import {HtmlEditorParams} from '../HtmlEditorParams';
 import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {HtmlAreaModalDialogConfig, ModalDialog} from './ModalDialog';
-import {HtmlEditorParams} from '../HtmlEditorParams';
-import {FullScreenDialogParams, HtmlEditor, HtmlEditorCursorPosition} from '../HtmlEditor';
+import {type HtmlAreaModalDialogConfig, ModalDialog} from './ModalDialog';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export interface FullscreenDialogConfig

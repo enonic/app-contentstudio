@@ -1,4 +1,4 @@
-import {ActiveContentVersionJson} from './ActiveContentVersionJson';
+import {type ActiveContentVersionJson} from './ActiveContentVersionJson';
 
 export interface GetActiveContentVersionsResultsJson {
 

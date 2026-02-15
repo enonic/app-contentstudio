@@ -1,12 +1,12 @@
 import {Descriptor} from '../page/Descriptor';
-import {DescriptorJson} from '../page/DescriptorJson';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type DescriptorJson} from '../page/DescriptorJson';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ComponentType} from '../page/region/ComponentType';
+import {type ComponentType} from '../page/region/ComponentType';
 import {PageComponentType} from '../page/region/PageComponentType';
 import {CmsResourceRequest} from './CmsResourceRequest';
 import {ContentResourceRequest} from './ContentResourceRequest';
-import Q from 'q';
+import type Q from 'q';
 
 export class GetComponentDescriptorRequest
     extends CmsResourceRequest<Descriptor> {

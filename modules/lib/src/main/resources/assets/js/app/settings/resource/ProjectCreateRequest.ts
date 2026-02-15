@@ -1,6 +1,6 @@
 import {ProjectCreateUpdateRequest} from './ProjectCreateUpdateRequest';
-import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
-import {Project} from '../data/project/Project';
+import {type ProjectReadAccess} from '../data/project/ProjectReadAccess';
+import {type Project} from '../data/project/Project';
 
 export class ProjectCreateRequest
     extends ProjectCreateUpdateRequest {

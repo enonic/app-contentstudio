@@ -1,4 +1,4 @@
-import {HasUnpublishedChildrenJson, HasUnpublishedChildrenListJson} from './json/HasUnpublishedChildrenJson';
+import {type HasUnpublishedChildrenJson, type HasUnpublishedChildrenListJson} from './json/HasUnpublishedChildrenJson';
 import {ContentId} from '../content/ContentId';
 
 export class HasUnpublishedChildrenResult {
@@ -15,7 +15,7 @@ export class HasUnpublishedChildrenResult {
 
     static fromJson(json: HasUnpublishedChildrenListJson): HasUnpublishedChildrenResult {
 
-        let contents: HasUnpublishedChildren[] = json.contents ? json.contents.map(
+        const contents: HasUnpublishedChildren[] = json.contents ? json.contents.map(
             requestedJson => HasUnpublishedChildren.fromJson(requestedJson)) : [];
 
         return new HasUnpublishedChildrenResult(contents);

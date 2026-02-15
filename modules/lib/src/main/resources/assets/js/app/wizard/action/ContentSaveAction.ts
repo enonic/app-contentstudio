@@ -1,8 +1,8 @@
-import Q from 'q';
+import type Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {SaveAction} from '@enonic/lib-admin-ui/app/wizard/SaveAction';
-import {ContentWizardPanel} from '../ContentWizardPanel';
+import {type ContentWizardPanel} from '../ContentWizardPanel';
 
 export class ContentSaveAction
     extends SaveAction {

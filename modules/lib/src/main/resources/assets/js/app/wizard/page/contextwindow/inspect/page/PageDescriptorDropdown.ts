@@ -1,9 +1,9 @@
-import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
-import {Descriptor} from '../../../../../page/Descriptor';
+import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import {type Descriptor} from '../../../../../page/Descriptor';
 import {ComponentDescriptorsDropdown} from '../region/ComponentDescriptorsDropdown';
 import {PageComponentType} from '../../../../../page/region/PageComponentType';
-import {ContentId} from '../../../../../content/ContentId';
-import Q from 'q';
+import {type ContentId} from '../../../../../content/ContentId';
+import type Q from 'q';
 
 export class PageDescriptorDropdown
     extends ComponentDescriptorsDropdown {

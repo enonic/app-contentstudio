@@ -1,6 +1,6 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {AppPanel} from '@enonic/lib-admin-ui/app/AppPanel';
-import Q from 'q';
+import {type AppPanel} from '@enonic/lib-admin-ui/app/AppPanel';
+import type Q from 'q';
 
 export abstract class AppContainer
     extends DivEl {

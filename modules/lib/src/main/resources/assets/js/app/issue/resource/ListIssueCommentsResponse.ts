@@ -1,5 +1,5 @@
-import {IssueComment} from '../IssueComment';
-import {ResultMetadata} from '../../resource/ResultMetadata';
+import {type IssueComment} from '../IssueComment';
+import {type ResultMetadata} from '../../resource/ResultMetadata';
 
 export class ListIssueCommentsResponse {
 

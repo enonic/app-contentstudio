@@ -1,6 +1,6 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectDialogStep} from './ProjectDialogStep';
-import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {ProjectParentDialogStepData} from '../data/ProjectParentDialogStepData';
 import {ParentProjectFormItem} from '../../../../wizard/panel/form/element/ParentProjectFormItem';
 

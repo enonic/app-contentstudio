@@ -1,8 +1,8 @@
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {SummaryValueContainer} from './SummaryValueContainer';
-import {ProjectPermissionsDialogStepData} from '../../data/ProjectPermissionsDialogStepData';
+import {type ProjectPermissionsDialogStepData} from '../../data/ProjectPermissionsDialogStepData';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {PrincipalsContainer} from './PrincipalsContainer';
 

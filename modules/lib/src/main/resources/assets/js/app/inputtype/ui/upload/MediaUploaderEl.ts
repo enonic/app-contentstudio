@@ -1,17 +1,17 @@
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
-import {UploaderEl, UploaderElConfig} from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
+import {UploaderEl, type UploaderElConfig} from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
 import {CreateMediaFromUrlRequest} from '../../../resource/CreateMediaFromUrlRequest';
-import {Content, ContentBuilder} from '../../../content/Content';
-import {ContentJson} from '../../../content/ContentJson';
+import {type Content, ContentBuilder} from '../../../content/Content';
+import {type ContentJson} from '../../../content/ContentJson';
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
-import {Value} from '@enonic/lib-admin-ui/data/Value';
+import {type Value} from '@enonic/lib-admin-ui/data/Value';
 import {UrlHelper} from '../../../util/UrlHelper';
 import {ContentResourceRequest} from '../../../resource/ContentResourceRequest';
-import {Project} from '../../../settings/data/project/Project';
+import {type Project} from '../../../settings/data/project/Project';
 
 export enum MediaUploaderElOperation {
     create,
@@ -150,7 +150,7 @@ export class MediaUploaderEl
     }
 
     getMediaValue(item: Content): Value {
-        let mediaProperty = item.getContentData().getProperty('media');
+        const mediaProperty = item.getContentData().getProperty('media');
         let mediaValue;
         switch (mediaProperty.getType()) {
         case ValueTypes.DATA:

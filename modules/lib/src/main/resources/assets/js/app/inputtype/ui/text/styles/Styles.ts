@@ -1,5 +1,5 @@
 import {Style} from './Style';
-import {StyleJson, StylesJson} from './StylesDescriptor';
+import {type StyleJson, type StylesJson} from './StylesDescriptor';
 
 export class Styles {
 

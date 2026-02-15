@@ -1,6 +1,6 @@
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {PageTemplate} from '../../../../../content/PageTemplate';
-import {Descriptor} from '../../../../../page/Descriptor';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type PageTemplate} from '../../../../../content/PageTemplate';
+import {type Descriptor} from '../../../../../page/Descriptor';
 
 export type TemplateOrController = PageTemplate | Descriptor;
 

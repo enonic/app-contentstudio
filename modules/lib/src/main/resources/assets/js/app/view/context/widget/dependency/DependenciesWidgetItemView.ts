@@ -1,11 +1,11 @@
 import {WidgetItemView} from '../../WidgetItemView';
 import {DependencyGroup} from './DependencyGroup';
 import {ResolveDependenciesRequest} from '../../../../resource/ResolveDependenciesRequest';
-import {ContentDependencyJson} from '../../../../resource/json/ContentDependencyJson';
-import {ResolveDependencyResult} from '../../../../resource/ResolveDependencyResult';
-import {ResolveDependenciesResult} from '../../../../resource/ResolveDependenciesResult';
+import {type ContentDependencyJson} from '../../../../resource/json/ContentDependencyJson';
+import {type ResolveDependencyResult} from '../../../../resource/ResolveDependencyResult';
+import {type ResolveDependenciesResult} from '../../../../resource/ResolveDependenciesResult';
 import {ShowDependenciesEvent} from '../../../../browse/ShowDependenciesEvent';
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/app/NamesAndIconView';

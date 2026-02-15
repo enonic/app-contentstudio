@@ -1,4 +1,4 @@
-import {NodeEventNodeJson} from '@enonic/lib-admin-ui/event/NodeServerEvent';
+import {type NodeEventNodeJson} from '@enonic/lib-admin-ui/event/NodeServerEvent';
 import {NodeServerChangeItem, NodeServerChangeItemBuilder} from '@enonic/lib-admin-ui/event/NodeServerChangeItem';
 import {RepositoryId} from '../../repository/RepositoryId';
 
@@ -20,7 +20,7 @@ export class SettingsServerChangeItemBuilder
     fromJson(json: NodeEventNodeJson): SettingsServerChangeItemBuilder {
         super.fromJson(json);
 
-        this.id = !!json.id ? json.id.replace(RepositoryId.CONTENT_REPO_PREFIX, '') : json.id;
+        this.id = json.id ? json.id.replace(RepositoryId.CONTENT_REPO_PREFIX, '') : json.id;
 
         return this;
     }

@@ -1,6 +1,6 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ContentId} from '../content/ContentId';
+import {type ContentId} from '../content/ContentId';
 
 export class SearchAndExpandItemEvent
     extends Event {

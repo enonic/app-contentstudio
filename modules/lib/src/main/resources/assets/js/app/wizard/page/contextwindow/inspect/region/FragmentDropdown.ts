@@ -1,17 +1,16 @@
-import {Descriptor} from '../../../../../page/Descriptor';
 import {FragmentContentSummaryLoader} from './FragmentContentSummaryLoader';
 import {ContentSummaryViewer} from '../../../../../content/ContentSummaryViewer';
-import {ContentSummary} from '../../../../../content/ContentSummary';
-import {ContentId} from '../../../../../content/ContentId';
-import {ContentPath} from '../../../../../content/ContentPath';
-import Q from 'q';
+import {type ContentSummary} from '../../../../../content/ContentSummary';
+import {type ContentId} from '../../../../../content/ContentId';
+import {type ContentPath} from '../../../../../content/ContentPath';
+import type Q from 'q';
 import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
 import {FragmentDropdownList} from './FragmentDropdownList';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 
 export class FragmentDropdown
     extends FilterableListBoxWrapper<ContentSummary> {

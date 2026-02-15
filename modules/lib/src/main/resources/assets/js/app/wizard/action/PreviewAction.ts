@@ -1,6 +1,6 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ContentWizardPanel} from '../ContentWizardPanel';
+import {type ContentWizardPanel} from '../ContentWizardPanel';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {PreviewActionHelper} from '../../action/PreviewActionHelper';
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
