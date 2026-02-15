@@ -26,6 +26,7 @@ export const ProjectLabel = ({
             data-component={dataComponent}
             icon={
                 <ProjectIcon
+                    className="size-6"
                     projectName={project.getName()}
                     language={project.getLanguage()}
                     hasIcon={!!project.getIcon()}

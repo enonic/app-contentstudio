@@ -1,11 +1,12 @@
-import {Button, Dialog, GridList, IconButton} from '@enonic/ui';
+import {Dialog, GridList, IconButton} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
 import {X} from 'lucide-react';
-import {$languages, LanguageOption} from '../../../../store/languages.store';
-import {$newProjectDialog, setNewProjectDialogDefaultLanguage} from '../../../../store/dialogs/newProjectDialog.store';
-import {FlagIcon} from '../../../icons/FlagIcon';
+import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
 import {useI18n} from '../../../../hooks/useI18n';
+import {$newProjectDialog, setNewProjectDialogDefaultLanguage} from '../../../../store/dialogs/newProjectDialog.store';
+import {$languages, LanguageOption} from '../../../../store/languages.store';
+import {FlagIcon} from '../../../icons/FlagIcon';
+import {InlineButton} from '../../../InlineButton';
 import {LanguageSelector} from '../../../selectors/LanguageSelector';
 
 export const NewProjectDialogLanguageStepHeader = (): ReactElement => {
@@ -55,12 +56,10 @@ export const NewProjectDialogLanguageStepContent = (): ReactElement => {
 
     return (
         <Dialog.StepContent step="step-language">
-            <div className="flex justify-between gap-3 my-2">
-                <h3 className="font-semibold">{label}</h3>
+            <div className="flex justify-between gap-3 mb-2">
+                <label className="font-semibold">{label}</label>
                 {canCopyFromParentProject && (
-                    <Button variant="text" size="sm" className="-mt-1.5" onClick={handleCopyFromParentProject}>
-                        {copyFromParentLabel}
-                    </Button>
+                    <InlineButton onClick={handleCopyFromParentProject} label={copyFromParentLabel} />
                 )}
             </div>
 
@@ -70,14 +69,13 @@ export const NewProjectDialogLanguageStepContent = (): ReactElement => {
                 onSelectionChange={setSelection}
                 searchPlaceholder={typeToSearchLabel}
                 emptyLabel={noLanguagesFoundLabel}
-                className="mb-2.5"
                 closeOnBlur
                 usePortal
             />
 
             {selectedLanguage && (
-                <GridList className="rounded-md space-y-2.5 mb-2.5 py-1.5 pl-5 pr-1">
-                    <GridList.Row key={selectedLanguage.id} id={selectedLanguage.id} className="p-1.5 gap-1.5">
+                <GridList className="rounded-md mb-2.5 py-1.5 pl-4 pr-1">
+                    <GridList.Row key={selectedLanguage.id} id={selectedLanguage.id} className="p-1 gap-1.5">
                         <GridList.Cell interactive={false} className="flex-1 self-stretch">
                             <div className="flex gap-2">
                                 <FlagIcon language={selectedLanguage.id} />

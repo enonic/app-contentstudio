@@ -1,6 +1,9 @@
+import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {cn, Dialog} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ReactElement} from 'react';
+import {useI18n} from '../../../hooks/useI18n';
 import {
     $newProjectDialog,
     closeNewProjectDialog,
@@ -8,9 +11,6 @@ import {
     setNewProjectDialogStep,
 } from '../../../store/dialogs/newProjectDialog.store';
 import {NewProjectDialogSteps} from './steps';
-import {useI18n} from '../../../hooks/useI18n';
-import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 const NEW_PROJECT_DIALOG_NAME = 'NewProjectDialog';
 
@@ -64,7 +64,7 @@ export const NewProjectDialog = (): ReactElement => {
                     <NewProjectDialogSteps.NameStep.Header />
                     <NewProjectDialogSteps.SummaryStep.Header />
 
-                    <Dialog.Body className={cn(step !== 'step-summary' && 'p-1.5')}>
+                    <Dialog.Body className={cn(step !== 'step-summary' && 'p-1.5 -m-1.5')}>
                         <NewProjectDialogSteps.ParentStep.Content />
                         <NewProjectDialogSteps.LanguageStep.Content />
                         <NewProjectDialogSteps.AccessStep.Content />
