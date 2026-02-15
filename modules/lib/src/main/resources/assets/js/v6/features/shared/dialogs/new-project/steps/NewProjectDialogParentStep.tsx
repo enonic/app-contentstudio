@@ -19,9 +19,9 @@ export const NewProjectDialogParentStepHeader = (): ReactElement => {
 NewProjectDialogParentStepHeader.displayName = 'NewProjectDialogParentStepHeader';
 
 export const NewProjectDialogParentStepContent = (): ReactElement => {
-    const {selectedProjects, isMultiInheritance} = useStore($newProjectDialog);
+    const {parentProjects: initialParentProjects, isMultiInheritance} = useStore($newProjectDialog);
     const {projects} = useStore($projects);
-    const [selection, setSelection] = useState<readonly string[]>(selectedProjects.map((p) => p.getName()));
+    const [selection, setSelection] = useState<readonly string[]>(initialParentProjects.map((p) => p.getName()));
 
     // Sync with the store
     useEffect(() => {

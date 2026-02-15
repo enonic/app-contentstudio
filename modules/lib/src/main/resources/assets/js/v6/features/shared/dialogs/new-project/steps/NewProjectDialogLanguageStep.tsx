@@ -21,11 +21,12 @@ NewProjectDialogLanguageStepHeader.displayName = 'NewProjectDialogLanguageStepHe
 export const NewProjectDialogLanguageStepContent = (): ReactElement => {
     // Hooks
     const languages = useStore($languages);
-    const {parentProjects} = useStore($newProjectDialog);
+    const {parentProjects, defaultLanguage} = useStore($newProjectDialog);
     const [selection, setSelection] = useState<readonly string[]>([]);
     const selectedLanguage = useMemo<LanguageOption | undefined>(() => {
-        if (selection.length === 0) return undefined;
-        return languages.find((language) => language.id === selection[0]);
+        const lang = defaultLanguage || selection?.[0];
+        if (!lang) return undefined;
+        return languages.find((language) => language.id === lang);
     }, [selection, languages]);
 
     // Sync with the store
