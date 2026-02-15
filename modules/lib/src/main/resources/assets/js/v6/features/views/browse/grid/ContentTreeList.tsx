@@ -1,19 +1,28 @@
-import {cn, VirtualizedTreeList} from '@enonic/ui';
+import {Button, cn, VirtualizedTreeList} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {Loader2, LoaderCircle} from 'lucide-react';
+import {AlertCircle, LoaderCircle} from 'lucide-react';
 import type {HTMLAttributes} from 'react';
-import {forwardRef, useCallback, useEffect, useMemo, useRef} from 'react';
+import {forwardRef, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {ListRange, VirtuosoHandle} from 'react-virtuoso';
 import {Virtuoso} from 'react-virtuoso';
 import {EditContentEvent} from '../../../../../app/event/EditContentEvent';
 import {
+    clearChildrenIdsRetryCooldown,
+    clearFilterChildrenIdsRetryCooldown,
     fetchChildrenIdsOnly,
+    clearVisibleContentDataRetryCooldown,
+    clearVisibleFilterContentDataRetryCooldown,
     fetchFilterChildrenIdsOnly,
     fetchMoreFilteredResults,
     fetchRootChildrenIdsOnly,
     fetchVisibleContentData,
     fetchVisibleFilterContentData,
+    isChildrenIdsLoadFailed,
+    isFilterChildrenIdsLoadFailed,
+    isVisibleContentDataLoadFailed,
+    isVisibleFilterContentDataLoadFailed,
 } from '../../../api/content-fetcher';
+import {useI18n} from '../../../hooks/useI18n';
 import type {FlatNode} from '../../../lib/tree-store';
 import {ItemLabel} from '../../../shared/ItemLabel';
 import {ProgressBar} from '../../../shared/primitives/ProgressBar';
@@ -34,12 +43,15 @@ import {ContentTreeContextMenu, type ContentTreeContextMenuProps} from './Conten
 import {ContentTreeListItem} from './ContentTreeListItem';
 import {ContentTreeListSkeletonRow} from './ContentTreeListSkeletonRow';
 import type {ContentUploadData} from './ContentUploadData';
+import {
+    buildVisibleTreeItems,
+    type ContentFlatNode,
+    type ErrorPlaceholderNode,
+} from './content-tree-list-visible-items';
 
 //
 // * Types
 //
-
-type ContentFlatNode = FlatNode<ContentData | ContentUploadData>;
 
 //
 // * Type checking helpers
@@ -102,6 +114,34 @@ const ContentTreeListUploadRow = ({item}: ContentTreeListUploadRowProps): React.
 
 ContentTreeListUploadRow.displayName = 'ContentTreeListUploadRow';
 
+type ContentTreeListErrorRowProps = {
+    level: number;
+    label: string;
+    retryLabel: string;
+    loading: boolean;
+    onRetry: () => void;
+};
+
+const ContentTreeListErrorRow = ({level, label, retryLabel, loading, onRetry}: ContentTreeListErrorRowProps): React.ReactElement => {
+    return (
+        <VirtualizedTreeList.Row active={false} selected={false}>
+            <VirtualizedTreeList.RowLeft>
+                <span className="w-3.5" />
+                <VirtualizedTreeList.RowLevelSpacer level={level} />
+                <AlertCircle size={20} className="shrink-0 text-danger" />
+            </VirtualizedTreeList.RowLeft>
+            <VirtualizedTreeList.RowContent>
+                <div className="flex items-center justify-between gap-2.5">
+                    <span className="text-sm text-danger truncate">{label}</span>
+                    <Button size="sm" variant="outline" label={retryLabel} disabled={loading} onClick={onRetry} />
+                </div>
+            </VirtualizedTreeList.RowContent>
+        </VirtualizedTreeList.Row>
+    );
+};
+
+ContentTreeListErrorRow.displayName = 'ContentTreeListErrorRow';
+
 //
 // * Constants
 //
@@ -117,6 +157,8 @@ const FAST_SCROLL_VELOCITY = 0.5;
 
 /** Debounce delay for viewport data loading (ms) */
 const VIEWPORT_LOAD_DEBOUNCE = 100;
+const RETRY_BATCH_SIZE = 20;
+const ERROR_ROW_PREFIX = '__error_batch__';
 
 //
 // * Main Component
@@ -130,11 +172,84 @@ const CONTENT_TREE_LIST_NAME = 'ContentTreeList';
 
 export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps): React.ReactElement => {
     const virtuosoRef = useRef<VirtuosoHandle>(null);
+    const visibleDataLoadInFlightRef = useRef(false);
+    const [isVisibleDataLoadInFlight, setIsVisibleDataLoadInFlight] = useState(false);
     const flatNodes = useStore($activeFlatNodes);
     const selection = useStore($selection);
     const activeId = useStore($activeId);
     const isFilterActive = useStore($isFilterActive);
     const activeProject = useStore($activeProject);
+    const loadFailedLabel = useI18n('field.tree.loadFailed');
+    const retryLabel = useI18n('action.retry');
+
+    const failedNodeIds = useMemo(
+        () =>
+            flatNodes
+                .filter((node) => {
+                    if (node.nodeType !== 'node' || node.data !== null) return false;
+                    return isFilterActive
+                        ? isVisibleFilterContentDataLoadFailed(node.id)
+                        : isVisibleContentDataLoadFailed(node.id);
+                })
+                .map((node) => node.id),
+        [flatNodes, isFilterActive]
+    );
+
+    const failedNodeIdSet = useMemo(() => new Set(failedNodeIds), [failedNodeIds]);
+    const hasPendingPlaceholders = useMemo(
+        () => flatNodes.some((node) => node.nodeType === 'node' && node.data === null && !failedNodeIdSet.has(node.id)),
+        [flatNodes, failedNodeIdSet]
+    );
+    const pendingChildLoadParentIds = useMemo(() => {
+        const parentIds = new Set<string>();
+
+        for (const node of flatNodes) {
+            if (node.nodeType !== 'loading' || node.parentId === null) continue;
+            if (isFilterActive) {
+                if (isFilterChildrenIdsLoadFailed(node.parentId) || !filterNodeNeedsChildrenLoad(node.parentId)) continue;
+            } else {
+                if (isChildrenIdsLoadFailed(node.parentId) || !nodeNeedsChildrenLoad(node.parentId)) continue;
+            }
+            parentIds.add(node.parentId);
+        }
+
+        return [...parentIds];
+    }, [flatNodes, isFilterActive]);
+
+    const {visibleItems, rawIndexById} = useMemo(
+        () =>
+            buildVisibleTreeItems({
+                rawItems: flatNodes,
+                isFailedPlaceholder: (item) =>
+                    item.nodeType === 'node' &&
+                    item.data === null &&
+                    (isFilterActive ? isVisibleFilterContentDataLoadFailed(item.id) : isVisibleContentDataLoadFailed(item.id)),
+                errorRowPrefix: ERROR_ROW_PREFIX,
+            }),
+        [flatNodes, isFilterActive]
+    );
+    const visibleItemsRef = useRef<ContentFlatNode[]>(visibleItems);
+    visibleItemsRef.current = visibleItems;
+
+    const setVisibleDataLoadInFlight = useCallback((value: boolean) => {
+        visibleDataLoadInFlightRef.current = value;
+        setIsVisibleDataLoadInFlight((current) => (current === value ? current : value));
+    }, []);
+
+    const retryFailedNodes = useCallback((failedIds: string[]) => {
+        if (failedIds.length === 0 || visibleDataLoadInFlightRef.current) return;
+        const retryIds = failedIds.slice(0, RETRY_BATCH_SIZE);
+
+        setVisibleDataLoadInFlight(true);
+
+        const reloadPromise = isFilterActive
+            ? (clearVisibleFilterContentDataRetryCooldown(retryIds), fetchVisibleFilterContentData(retryIds))
+            : (clearVisibleContentDataRetryCooldown(retryIds), fetchVisibleContentData(retryIds));
+
+        void reloadPromise.finally(() => {
+            setVisibleDataLoadInFlight(false);
+        });
+    }, [isFilterActive, setVisibleDataLoadInFlight]);
 
     // Track visible range for viewport-based loading
     const visibleRangeRef = useRef<ListRange>({startIndex: 0, endIndex: 20});
@@ -151,32 +266,65 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
     // Load visible content data (debounced to avoid excessive API calls during scroll)
     // NOTE: Reads directly from stores to avoid stale closure values
     const loadVisibleContentData = useDebouncedCallback(() => {
+        if (visibleDataLoadInFlightRef.current) return;
+
         const {startIndex, endIndex} = visibleRangeRef.current;
         const buffer = bufferSizeRef.current;
 
-        // Read current state directly from stores (avoids stale closure)
-        const currentFlatNodes = $activeFlatNodes.get();
+        // Read current state directly from stores/refs (avoids stale closure)
+        const currentVisibleItems = visibleItemsRef.current;
         const currentIsFilterActive = $isFilterActive.get();
-
         // Add buffer zone around viewport
         const start = Math.max(0, startIndex - buffer);
-        const end = Math.min(currentFlatNodes.length, endIndex + buffer);
+        const end = Math.min(currentVisibleItems.length, endIndex + buffer);
 
         // Find nodes that need data (have ID but no content loaded)
-        const idsNeedingData = currentFlatNodes
+        const idsNeedingData = currentVisibleItems
             .slice(start, end)
             .filter((node) => node.nodeType === 'node' && node.data === null)
             .map((node) => node.id);
 
         if (idsNeedingData.length > 0) {
+            setVisibleDataLoadInFlight(true);
+
             // Use filter-specific fetch when in filter mode
-            if (currentIsFilterActive) {
-                fetchVisibleFilterContentData(idsNeedingData);
-            } else {
-                fetchVisibleContentData(idsNeedingData);
-            }
+            const loadPromise = currentIsFilterActive
+                ? fetchVisibleFilterContentData(idsNeedingData)
+                : fetchVisibleContentData(idsNeedingData);
+
+            void loadPromise.finally(() => {
+                setVisibleDataLoadInFlight(false);
+            });
         }
     }, VIEWPORT_LOAD_DEBOUNCE);
+
+    // Keep retry attempts progressing even without scroll events.
+    useEffect(() => {
+        if (!hasPendingPlaceholders) return;
+
+        const retryTimer = setInterval(() => {
+            loadVisibleContentData();
+        }, 1000);
+
+        return () => clearInterval(retryTimer);
+    }, [hasPendingPlaceholders, loadVisibleContentData]);
+
+    // Keep retry attempts progressing for loading non-root children IDs.
+    useEffect(() => {
+        if (pendingChildLoadParentIds.length === 0) return;
+
+        const retryTimer = setInterval(() => {
+            for (const parentId of pendingChildLoadParentIds) {
+                if (isFilterActive) {
+                    void fetchFilterChildrenIdsOnly(parentId).catch(() => undefined);
+                } else {
+                    void fetchChildrenIdsOnly(parentId).catch(() => undefined);
+                }
+            }
+        }, 1000);
+
+        return () => clearInterval(retryTimer);
+    }, [pendingChildLoadParentIds, isFilterActive]);
 
     // Load root IDs on mount and when project changes (lazy loading: IDs first, data on demand)
     // Filter mode loads via activateFilter(), not here
@@ -186,7 +334,7 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
             // Only load if main tree is empty (caching)
             const mainTreeState = $treeState.get();
             if (mainTreeState.rootIds.length === 0) {
-                fetchRootChildrenIdsOnly();
+                void fetchRootChildrenIdsOnly().catch(() => undefined);
             }
         }
     }, [isFilterActive, activeProject]);
@@ -204,13 +352,13 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
                 // Expand in filter tree
                 expandFilterNode(id);
                 if (filterNodeNeedsChildrenLoad(id)) {
-                    fetchFilterChildrenIdsOnly(id);
+                    void fetchFilterChildrenIdsOnly(id).catch(() => undefined);
                 }
             } else {
                 // Expand in main tree
                 expandNode(id);
                 if (nodeNeedsChildrenLoad(id)) {
-                    fetchChildrenIdsOnly(id);
+                    void fetchChildrenIdsOnly(id).catch(() => undefined);
                 }
             }
         },
@@ -318,9 +466,10 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
             // Check loading state to prevent duplicate fetches
             const isFilterLoading = $filterLoadingState.get() === 'loading';
             if ($isFilterActive.get() && filterRootHasMoreChildren() && !isFilterLoading) {
-                const currentFlatNodes = $activeFlatNodes.get();
-                const loadMoreIndex = currentFlatNodes.findIndex((n) => n.id === '__filter_load_more__');
+                const currentVisibleItems = visibleItemsRef.current;
+                const loadMoreIndex = currentVisibleItems.findIndex((n) => n.id === '__filter_load_more__');
                 if (loadMoreIndex >= 0 && loadMoreIndex <= range.endIndex) {
+                    const currentFlatNodes = $activeFlatNodes.get();
                     const currentCount = currentFlatNodes.filter((n) => n.nodeType === 'node').length;
                     fetchMoreFilteredResults(currentCount);
                 }
@@ -346,13 +495,13 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
             aria-label='Content browser'
             className='w-full flex-1 min-h-0'
         >
-            {({items, getItemProps, containerProps}) => {
+            {({getItemProps, containerProps}) => {
                 const {className: containerClassName, ...restContainerProps} = containerProps;
                 return (
                     <ContentTreeContextMenu actions={contextMenuActions}>
                         <Virtuoso<ContentFlatNode>
                             ref={virtuosoRef}
-                            data={items as ContentFlatNode[]}
+                            data={visibleItems}
                             className={cn('h-full px-5 py-2.5 bg-surface-neutral', containerClassName)}
                             components={virtuosoComponents}
                             rangeChanged={handleRangeChange}
@@ -360,16 +509,56 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
                             itemContent={(index, node) => {
                                 const {id, level, isExpanded, hasChildren, nodeType, data} = node;
 
+                                if (id.startsWith(ERROR_ROW_PREFIX)) {
+                                    const failedIds = (node as ErrorPlaceholderNode).failedIds;
+                                    const isRetrying = failedIds.some((failedId) =>
+                                        flatNodes.some((n) => n.id === failedId && n.isLoadingData)
+                                    );
+
+                                    return (
+                                        <ContentTreeListErrorRow
+                                            level={level}
+                                            label={loadFailedLabel}
+                                            retryLabel={retryLabel}
+                                            loading={isRetrying || isVisibleDataLoadInFlight}
+                                            onRetry={() => retryFailedNodes(failedIds)}
+                                        />
+                                    );
+                                }
+
                                 if (hasProgressData(data)) {
                                     return <ContentTreeListUploadRow item={node as FlatNode<ContentUploadData>} />;
                                 }
 
                                 if (nodeType === 'loading') {
-                                    return (
-                                        <VirtualizedTreeList.RowLoading level={level} className="min-h-12">
-                                            <Loader2 className="ml-13.5 size-6 animate-spin text-subtle" />
-                                        </VirtualizedTreeList.RowLoading>
-                                    );
+                                    const parentId = node.parentId;
+                                    const isParentLoadFailed = parentId !== null &&
+                                        (isFilterActive
+                                            ? isFilterChildrenIdsLoadFailed(parentId)
+                                            : isChildrenIdsLoadFailed(parentId));
+
+                                    if (isParentLoadFailed && parentId !== null) {
+                                        const isRetrying = flatNodes.some((n) => n.id === parentId && n.isLoading);
+                                        return (
+                                            <ContentTreeListErrorRow
+                                                level={level}
+                                                label={loadFailedLabel}
+                                                retryLabel={retryLabel}
+                                                loading={isRetrying}
+                                                onRetry={() => {
+                                                    if (isFilterActive) {
+                                                        clearFilterChildrenIdsRetryCooldown(parentId);
+                                                        void fetchFilterChildrenIdsOnly(parentId).catch(() => undefined);
+                                                    } else {
+                                                        clearChildrenIdsRetryCooldown(parentId);
+                                                        void fetchChildrenIdsOnly(parentId).catch(() => undefined);
+                                                    }
+                                                }}
+                                            />
+                                        );
+                                    }
+
+                                    return <ContentTreeListSkeletonRow level={level} />;
                                 }
 
                                 if (nodeType === 'node' && data === null) {
@@ -377,7 +566,8 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
                                 }
 
                                 if (hasDisplayNameData(data)) {
-                                    const itemProps = getItemProps(index, node);
+                                    const originalIndex = rawIndexById.get(id) ?? index;
+                                    const itemProps = getItemProps(originalIndex, node);
                                     const isSelected = selection.has(id);
                                     const isActive = activeId === id;
                                     // Active item with no selection should look like selected
