@@ -1,7 +1,11 @@
-import {Dialog, GridList, IconButton, Selector} from '@enonic/ui';
+import {Button, Dialog, GridList, IconButton, Selector} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
-import {$newProjectDialog, setNewProjectDialogRolePrincipals, setNewProjectDialogRoles} from '../../../../store/dialogs/newProjectDialog.store';
+import {
+    $newProjectDialog,
+    setNewProjectDialogRolePrincipals,
+    setNewProjectDialogRoles,
+} from '../../../../store/dialogs/newProjectDialog.store';
 import {useI18n} from '../../../../hooks/useI18n';
 import {PrincipalSelector} from '../../../selectors/PrincipalSelector';
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
@@ -121,12 +125,12 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
 
     return (
         <Dialog.StepContent step="step-role" locked={locked}>
-            <div className="flex justify-between gap-3 mb-2">
+            <div className="flex justify-between gap-3 my-2">
                 <h3 className="font-semibold">{label}</h3>
                 {canCopyFromParentProject && (
-                    <button className="text-sm underline cursor-pointer" onClick={handleCopyFromParentProject}>
+                    <Button variant="text" size="sm" className="-mt-1.5" onClick={handleCopyFromParentProject}>
                         {copyFromParentLabel}
-                    </button>
+                    </Button>
                 )}
             </div>
 
@@ -170,7 +174,7 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
                                                 value={principalRole}
                                                 onValueChange={(value) => handleSelectRole(principal, value as ProjectAccess)}
                                             >
-                                                <Selector.Trigger className="border-none text-sm">
+                                                <Selector.Trigger className="border-none text-sm h-10">
                                                     <Selector.Value>{principalRoleLabel}</Selector.Value>
                                                     <Selector.Icon />
                                                 </Selector.Trigger>

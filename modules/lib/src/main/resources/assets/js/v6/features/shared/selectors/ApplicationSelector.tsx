@@ -38,6 +38,7 @@ export const ApplicationSelector = (props: ApplicationSelectorProps): ReactEleme
             onSelectionChange={onSelectionChange}
             selectionMode={selectionMode}
             closeOnBlur={closeOnBlur}
+            contentType="listbox"
         >
             <Combobox.Content className={className}>
                 <Combobox.Control>
@@ -86,7 +87,7 @@ const ApplicationSelectorList = (props: ApplicationSelectorListProps): ReactElem
             selection={selectionArray}
             onSelectionChange={onSelectionChange}
         >
-            <Listbox.Content className="max-h-60 rounded-sm">
+            <Combobox.ListContent className="max-h-60 rounded-sm">
                 {items.map((application) => {
                     const key = application.getApplicationKey().toString();
                     const name = application.getDisplayName();
@@ -108,7 +109,7 @@ const ApplicationSelectorList = (props: ApplicationSelectorListProps): ReactElem
                 })}
 
                 {items.length === 0 && <div className="px-4 py-3 text-sm text-subtle">{emptyLabel}</div>}
-            </Listbox.Content>
+            </Combobox.ListContent>
         </Listbox>
     );
 };

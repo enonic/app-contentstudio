@@ -1,4 +1,4 @@
-import {Dialog, GridList, IconButton} from '@enonic/ui';
+import {Button, Dialog, GridList, IconButton} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
 import {X} from 'lucide-react';
@@ -55,12 +55,12 @@ export const NewProjectDialogLanguageStepContent = (): ReactElement => {
 
     return (
         <Dialog.StepContent step="step-language">
-            <div className="flex justify-between gap-3 mb-2">
+            <div className="flex justify-between gap-3 my-2">
                 <h3 className="font-semibold">{label}</h3>
                 {canCopyFromParentProject && (
-                    <button className="text-sm underline cursor-pointer" onClick={handleCopyFromParentProject}>
+                    <Button variant="text" size="sm" className="-mt-1.5" onClick={handleCopyFromParentProject}>
                         {copyFromParentLabel}
-                    </button>
+                    </Button>
                 )}
             </div>
 

@@ -45,7 +45,7 @@ export const NewProjectDialogParentStepContent = (): ReactElement => {
 
     return (
         <Dialog.StepContent step="step-parent">
-            <h3 className="mb-2 font-semibold">{label}</h3>
+            <h3 className="my-2 font-semibold">{label}</h3>
             <ProjectSelector
                 selection={selection}
                 onSelectionChange={setSelection}
