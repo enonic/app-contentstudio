@@ -77,6 +77,10 @@ export class SettingsItemPanelElement extends BrowseItemPanel {
         });
     }
 
+    togglePreviewForItem(): void {
+        // no-op: store subscription in doRender handles CSS state
+    }
+
     getStatisticsItem(): SettingsViewItem | null {
         return getCurrentItems()[0] ?? null;
     }

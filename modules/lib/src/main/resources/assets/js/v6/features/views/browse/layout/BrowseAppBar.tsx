@@ -34,6 +34,9 @@ export const BrowseAppBar = (): ReactElement => {
     const appName = useStore($appName);
     const {stats} = useStore($issuesStats);
     const issuesStatsLabel = useI18n(...createIssuesLabelKeys(stats));
+    const projectAriaLabel = useI18n('wcag.appbar.project.label');
+    const issuesAriaLabel = useI18n('wcag.appbar.issues.label');
+    const launcherAriaLabel = useI18n('wcag.appbar.launcher.label');
 
     return (
         <header className="bg-surface-neutral h-15 px-5 py-2 flex items-center gap-2.5 border-b border-bdr-soft">
@@ -43,7 +46,7 @@ export const BrowseAppBar = (): ReactElement => {
                     size="sm"
                     endIcon={ArrowLeftRight}
                     onClick={() => setProjectSelectionDialogOpen(true)}
-                    aria-label={useI18n('wcag.appbar.project.label')}
+                    aria-label={projectAriaLabel}
                     label={activeProjectName}
                 />
             ) : (
@@ -57,7 +60,7 @@ export const BrowseAppBar = (): ReactElement => {
                 onClick={() => {
                     new ShowIssuesDialogEvent().fire();
                 }}
-                aria-label={useI18n('wcag.appbar.issues.label')}
+                aria-label={issuesAriaLabel}
                 label={issuesStatsLabel}
             />
 
@@ -71,7 +74,7 @@ export const BrowseAppBar = (): ReactElement => {
                     // TODO: Enonic UI Hack - Defer the click to the next event loop to prevent the launcher from closing due to its outside-click handler
                     requestAnimationFrame(() => document.getElementById('launcher-button')?.click());
                 }}
-                aria-label={useI18n('wcag.appbar.launcher.label')}
+                aria-label={launcherAriaLabel}
             />
         </header>
     );

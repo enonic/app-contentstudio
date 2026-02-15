@@ -26,3 +26,5 @@ export const PrincipalsList = ({principals}: PrincipalsListProps): ReactElement 
         </ul>
     );
 };
+
+PrincipalsList.displayName = 'PrincipalsList';

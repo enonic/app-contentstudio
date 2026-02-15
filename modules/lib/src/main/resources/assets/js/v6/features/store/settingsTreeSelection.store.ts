@@ -66,10 +66,6 @@ export function getCurrentItems(): readonly SettingsViewItem[] {
     return $currentItems.get();
 }
 
-export function getSelectedItems(): readonly SettingsViewItem[] {
-    return $selectedItems.get();
-}
-
 export function hasCurrentItems(): boolean {
     return $currentIds.get().length > 0;
 }

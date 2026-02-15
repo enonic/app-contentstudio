@@ -126,7 +126,7 @@ const DialogPresetGatedConfirmContentParts = ({
                 <Gate.Hint value={expected} />
                 <Gate.Input
                     ref={gateInputRef}
-                    inputMode='numeric'
+                    inputMode={typeof expected === 'number' ? 'numeric' : undefined}
                     expected={expected}
                     validate={validate}
                 />
