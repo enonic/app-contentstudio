@@ -60,6 +60,7 @@ export const PrincipalSelector = (props: PrincipalSelectorProps): ReactElement =
             onSelectionChange={handleOnSelectionChange}
             selectionMode={selectionMode}
             closeOnBlur={closeOnBlur}
+            contentType="listbox"
         >
             <Combobox.Content className={className}>
                 <Combobox.Control>
@@ -108,7 +109,7 @@ const PrincipalSelectorList = (props: PrincipalSelectorListProps): ReactElement 
             selection={selectionArray}
             onSelectionChange={onSelectionChange}
         >
-            <Listbox.Content className="max-h-60 rounded-sm">
+            <Combobox.ListContent className="max-h-60 rounded-sm">
                 {items.map((principal) => {
                     const key = encodeToValidDomId(principal.getKey().toString());
 
@@ -123,7 +124,6 @@ const PrincipalSelectorList = (props: PrincipalSelectorListProps): ReactElement 
                             </div>
 
                             <Checkbox
-                                tabIndex={-1}
                                 checked={selectionArray.includes(key)}
                                 onCheckedChange={() => handleOnCheckedChange(key)}
                             />
@@ -132,7 +132,7 @@ const PrincipalSelectorList = (props: PrincipalSelectorListProps): ReactElement 
                 })}
 
                 {items.length === 0 && <div className="px-4 py-3 text-sm text-subtle">{emptyLabel}</div>}
-            </Listbox.Content>
+            </Combobox.ListContent>
         </Listbox>
     );
 };
