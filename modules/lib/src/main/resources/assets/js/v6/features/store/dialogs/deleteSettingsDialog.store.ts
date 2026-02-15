@@ -34,11 +34,10 @@ export const closeDeleteSettingsDialog = (): void => {
 export const executeDeleteSettingsDialogAction = (): void => {
     const {projectName} = $deleteSettingsDialog.get();
 
-    if (!projectName) {
-        return;
-    }
+    if (!projectName) return;
 
     new ProjectDeleteRequest(projectName).sendAndParse().then(() => {
+        closeDeleteSettingsDialog();
         showFeedback(i18n('notify.settings.project.deleted', projectName));
     }).catch(DefaultErrorHandler.handle);
 };

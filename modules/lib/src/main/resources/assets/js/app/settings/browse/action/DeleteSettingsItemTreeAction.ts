@@ -19,9 +19,7 @@ export class DeleteSettingsItemTreeAction
         const selectedItems: SettingsViewItem[] = [...getCurrentItems()];
         const selectedItem = selectedItems[0];
 
-        if (!selectedItem || !ObjectHelper.iFrameSafeInstanceOf(selectedItem, ProjectViewItem)) {
-            return;
-        }
+        if (!selectedItem || !ObjectHelper.iFrameSafeInstanceOf(selectedItem, ProjectViewItem)) return;
 
         const projectItem = selectedItem as ProjectViewItem;
         openDeleteSettingsDialog(projectItem.getId(), projectItem.getName());

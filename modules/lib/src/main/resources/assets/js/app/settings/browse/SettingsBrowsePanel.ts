@@ -15,7 +15,6 @@ import {SettingsTreeListSelectablePanelProxy} from './SettingsTreeListSelectable
 import {getSettingsItem, hasSettingsItem} from '../../../v6/features/store/settings-tree.store';
 import {removeProject, upsertProject, reloadProjects} from '../../../v6/features/store/projects.store';
 import {SettingsItemPanelElement} from '../../../v6/features/views/browse/settings/item-panel/SettingsItemPanelElement';
-import {$currentItems} from '../../../v6/features/store/settingsTreeSelection.store';
 
 export class SettingsBrowsePanel
     extends BrowsePanel {
@@ -36,15 +35,6 @@ export class SettingsBrowsePanel
 
         this.prependChild(new SettingsBrowseToolbarElement(this.treeActions));
         this.settingsTreeList.setContextMenuActions(this.treeActions.getAllActions());
-    }
-
-    protected initListeners(): void {
-        super.initListeners();
-
-        // Subscribe to store selection changes to update toolbar actions
-        $currentItems.subscribe((items) => {
-            this.treeActions.updateActionsEnabledState([...items]);
-        });
     }
 
     protected createListBoxPanel(): SelectableListBoxPanel<SettingsViewItem> {

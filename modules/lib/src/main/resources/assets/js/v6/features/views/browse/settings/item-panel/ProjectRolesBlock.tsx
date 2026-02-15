@@ -55,3 +55,5 @@ export const ProjectRolesBlock = ({
         </StatisticsBlock>
     );
 };
+
+ProjectRolesBlock.displayName = 'ProjectRolesBlock';

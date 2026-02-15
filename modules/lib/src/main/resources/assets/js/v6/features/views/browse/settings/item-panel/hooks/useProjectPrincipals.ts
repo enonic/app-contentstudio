@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {ProjectViewItem} from '../../../../../../../app/settings/view/ProjectViewItem';
@@ -30,6 +30,7 @@ function filterPrincipalsByKeys(principals: Principal[], keys: PrincipalKey[]): 
 
 export function useProjectPrincipals(item: ProjectViewItem | null): PrincipalsByRole {
     const [result, setResult] = useState<PrincipalsByRole>(emptyResult);
+    const requestIdRef = useRef(0);
 
     useEffect(() => {
         if (!item) {
@@ -58,10 +59,12 @@ export function useProjectPrincipals(item: ProjectViewItem | null): PrincipalsBy
             return;
         }
 
+        const requestId = ++requestIdRef.current;
         setResult((prev) => ({...prev, loading: true}));
 
         void getPrincipalsByKeys(allKeys).match(
             (principals) => {
+                if (requestId !== requestIdRef.current) return;
                 setResult({
                     owners: filterPrincipalsByKeys(principals, ownersKeys),
                     editors: filterPrincipalsByKeys(principals, editorsKeys),
@@ -72,6 +75,7 @@ export function useProjectPrincipals(item: ProjectViewItem | null): PrincipalsBy
                 });
             },
             (error) => {
+                if (requestId !== requestIdRef.current) return;
                 console.error('Failed to fetch principals:', error);
                 setResult(emptyResult);
             }

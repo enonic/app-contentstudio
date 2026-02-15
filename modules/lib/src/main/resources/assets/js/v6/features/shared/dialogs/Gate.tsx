@@ -101,7 +101,6 @@ export const GateInput = forwardRef<HTMLInputElement, GateInputProps>(({
                 setValue(e.currentTarget.value);
             }}
             readOnly={valid}
-            inputMode='numeric'
             error={errorMessage}
             {...props}
         />
