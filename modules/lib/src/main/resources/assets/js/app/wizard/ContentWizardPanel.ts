@@ -143,6 +143,8 @@ import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
 import {PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
+import {ContentWizardTabsElement} from '../../v6/features/views/wizard/content-wizard-tabs/ContentWizardTabsElement';
+import {setPersistedContent, setContentType, setXDataSchemas} from '../../v6/features/store/wizardContent.store';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -264,6 +266,8 @@ export class ContentWizardPanel
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
     private isRename: boolean;
+
+    private contentWizardTabsElement: ContentWizardTabsElement;
 
     constructor(params: ContentWizardPanelParams, cls?: string) {
         super(params);
@@ -530,7 +534,10 @@ export class ContentWizardPanel
     }
 
     fetchContentXData(): Q.Promise<XData[]> {
-        return new GetContentXDataRequest(this.getPersistedItem().getContentId()).sendAndParse();
+        return new GetContentXDataRequest(this.getPersistedItem().getContentId()).sendAndParse().then((xDatas: XData[]) => {
+            setXDataSchemas(xDatas);
+            return xDatas;
+        });
     }
 
     protected doLoadData(): Q.Promise<Content> {
@@ -841,6 +848,19 @@ export class ContentWizardPanel
     }
 
     protected prepareMainPanel(): Panel {
+        this.formPanel.addClass('content-wizard-form-panel');
+
+        if (this.contentType) {
+            setContentType(this.contentType);
+        }
+        if (this.getPersistedItem()) {
+            setPersistedContent(this.getPersistedItem());
+        }
+        this.contentWizardTabsElement = new ContentWizardTabsElement();
+        this.formPanel.prependChild(this.contentWizardTabsElement);
+
+        this.onPageStateChanged(() => this.updateTabsElement());
+
         const leftPanel: Panel = this.createSplitFormAndLivePanel(this.formPanel, this.livePanel);
         return this.createWizardAndDetailsSplitPanel(leftPanel);
     }
@@ -1301,6 +1321,7 @@ export class ContentWizardPanel
                 this.formsContexts.delete(xDataName);
             }
         });
+        this.updateTabsElement();
     }
 
     private resetWizard() {
@@ -1892,7 +1913,9 @@ export class ContentWizardPanel
                 return Q(null);
             }
 
-            return this.fetchContentXData().then(this.createXDataWizardStepForms.bind(this));
+            return this.fetchContentXData().then(this.createXDataWizardStepForms.bind(this)).then(() => {
+                this.updateTabsElement();
+            });
         });
     }
 
@@ -2022,7 +2045,9 @@ export class ContentWizardPanel
             formViewLayoutPromises.push(promise);
         });
 
-        return Q.all(formViewLayoutPromises).thenResolve(null);
+        return Q.all(formViewLayoutPromises).then(() => {
+            this.updateTabsElement();
+        }).thenResolve(null);
     }
 
     private layoutXDataWizardStepForm(content: Content, xDataStepForm: XDataWizardStepForm): Q.Promise<void> {
@@ -2194,6 +2219,7 @@ export class ContentWizardPanel
 
                 return Q.all(layoutPromises).then(() => {
                     this.xDataWizardStepForms.resetState();
+                    this.updateTabsElement();
                 });
 
             }).catch((reason) => {
@@ -2489,6 +2515,12 @@ export class ContentWizardPanel
 
     getLiveMask(): LoadMask {
         return this.liveMask;
+    }
+
+    private updateTabsElement(): void {
+        if (this.getPersistedItem()) {
+            setPersistedContent(this.getPersistedItem());
+        }
     }
 
     onPageStateChanged(listener: () => void) {
