@@ -22,12 +22,12 @@ NewProjectDialogLanguageStepHeader.displayName = 'NewProjectDialogLanguageStepHe
 export const NewProjectDialogLanguageStepContent = (): ReactElement => {
     // Hooks
     const languages = useStore($languages);
-    const {parentProjects} = useStore($newProjectDialog);
-    const [selection, setSelection] = useState<readonly string[]>([]);
-    const selectedLanguage = useMemo<LanguageOption | undefined>(() => {
-        if (selection.length === 0) return undefined;
-        return languages.find((language) => language.id === selection[0]);
-    }, [selection, languages]);
+    const {parentProjects, defaultLanguage} = useStore($newProjectDialog);
+    const [selection, setSelection] = useState<readonly string[]>([defaultLanguage]);
+    const selectedLanguage = useMemo<LanguageOption | undefined>(
+        () => languages.find((language) => language.id === defaultLanguage),
+        [defaultLanguage, languages]
+    );
 
     // Sync with the store
     useEffect(() => {
@@ -58,9 +58,7 @@ export const NewProjectDialogLanguageStepContent = (): ReactElement => {
         <Dialog.StepContent step="step-language">
             <div className="flex justify-between gap-3 mb-2">
                 <label className="font-semibold">{label}</label>
-                {canCopyFromParentProject && (
-                    <InlineButton onClick={handleCopyFromParentProject} label={copyFromParentLabel} />
-                )}
+                {canCopyFromParentProject && <InlineButton onClick={handleCopyFromParentProject} label={copyFromParentLabel} />}
             </div>
 
             <LanguageSelector

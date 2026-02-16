@@ -1,4 +1,4 @@
-import {map} from 'nanostores';
+import {computed, map} from 'nanostores';
 import {ResultAsync} from 'neverthrow';
 import {Project} from '../../../../app/settings/data/project/Project';
 import {ProjectConfigContext} from '../../../../app/settings/data/project/ProjectConfigContext';
@@ -30,8 +30,8 @@ type NewProjectNameData = {
 type NewProjectDialogStore = {
     // config
     open: boolean;
+    view: 'main' | 'confirmation';
     isMultiInheritance: boolean;
-    selectedProjects: Project[];
     step: string;
     submitting: boolean;
 
@@ -49,8 +49,8 @@ type NewProjectDialogStore = {
 const initialState: NewProjectDialogStore = {
     // config
     open: false,
+    view: 'main',
     isMultiInheritance: false,
-    selectedProjects: [],
     step: 'step-parent',
     submitting: false,
 
@@ -72,6 +72,21 @@ const initialState: NewProjectDialogStore = {
 
 export const $newProjectDialog = map<NewProjectDialogStore>(structuredClone(initialState));
 
+export const $isNewProjectDialogDirty = computed($newProjectDialog, (state): boolean => {
+    return (
+        state.parentProjects.length > 0 ||
+        state.defaultLanguage !== '' ||
+        state.accessMode !== '' ||
+        state.permissions.length > 0 ||
+        Object.keys(state.roles).length > 0 ||
+        state.rolePrincipals.length > 0 ||
+        state.applications.length > 0 ||
+        state.nameData.name !== '' ||
+        state.nameData.identifier !== '' ||
+        state.nameData.description !== ''
+    );
+});
+
 //
 // * Public API
 //
@@ -82,13 +97,17 @@ export const openNewProjectDialog = (selectedProjects: Project[]): void => {
     $newProjectDialog.set({
         ...structuredClone(initialState),
         open: true,
-        selectedProjects: selectedProjects,
+        parentProjects: selectedProjects,
         isMultiInheritance: isMultiInheritance,
     });
 };
 
 export const closeNewProjectDialog = (): void => {
     $newProjectDialog.set(structuredClone(initialState));
+};
+
+export const setNewProjectDialogView = (view: 'main' | 'confirmation'): void => {
+    $newProjectDialog.setKey('view', view);
 };
 
 export const setNewProjectDialogStep = (step: string): void => {
@@ -164,13 +183,9 @@ export const createProject = (): ResultAsync<
         .filter(([_, value]) => value === ProjectAccess.CONTRIBUTOR)
         .map(([key]) => PrincipalKey.fromString(key));
 
-    const editors = rolesEntries
-        .filter(([_, value]) => value === ProjectAccess.EDITOR)
-        .map(([key]) => PrincipalKey.fromString(key));
+    const editors = rolesEntries.filter(([_, value]) => value === ProjectAccess.EDITOR).map(([key]) => PrincipalKey.fromString(key));
 
-    const authors = rolesEntries
-        .filter(([_, value]) => value === ProjectAccess.AUTHOR)
-        .map(([key]) => PrincipalKey.fromString(key));
+    const authors = rolesEntries.filter(([_, value]) => value === ProjectAccess.AUTHOR).map(([key]) => PrincipalKey.fromString(key));
 
     const projectRoles = new ProjectItemPermissionsBuilder()
         .setOwners(owners)

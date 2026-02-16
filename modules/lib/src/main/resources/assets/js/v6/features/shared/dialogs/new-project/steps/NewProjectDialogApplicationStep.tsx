@@ -2,9 +2,9 @@ import {Dialog, GridList, IconButton} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {X} from 'lucide-react';
 import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
+import {$newProjectDialog, setNewProjectDialogApplications} from '../../../../store/dialogs/newProjectDialog.store';
 import {useI18n} from '../../../../hooks/useI18n';
 import {$applications} from '../../../../store/applications.store';
-import {setNewProjectDialogApplications} from '../../../../store/dialogs/newProjectDialog.store';
 import {ItemLabel} from '../../../ItemLabel';
 import {ApplicationIcon} from '../../../icons/ApplicationIcon';
 import {ApplicationSelector} from '../../../selectors/ApplicationSelector';
@@ -21,8 +21,11 @@ NewProjectDialogApplicationStepHeader.displayName = 'NewProjectDialogApplication
 
 export const NewProjectDialogApplicationStepContent = ({locked = false}: {locked?: boolean}): ReactElement => {
     // Hooks
+    const {applications: newProjectApplications} = useStore($newProjectDialog);
     const {applications} = useStore($applications);
-    const [selection, setSelection] = useState<readonly string[]>([]);
+    const [selection, setSelection] = useState<readonly string[]>(
+        newProjectApplications.map((application) => application.getApplicationKey().toString())
+    );
     const selectedApplications = useMemo(() => {
         return selection.map((id) => applications.find((application) => application.getApplicationKey().toString() === id));
     }, [selection, applications]);

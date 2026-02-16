@@ -28,10 +28,10 @@ NewProjectDialogAccessStepHeader.displayName = 'NewProjectDialogAccessStepHeader
 export const NewProjectDialogAccessStepContent = (): ReactElement => {
     // Hooks
     const {principals} = useStore($principals);
-    const {parentProjects} = useStore($newProjectDialog);
-    const [selection, setSelection] = useState<readonly string[]>([]);
-    const [accessModeValue, setAccessModeValue] = useState('');
-    const [selectedPrincipals, setSelectedPrincipals] = useState<Principal[]>([]);
+    const {parentProjects, accessMode, permissions} = useStore($newProjectDialog);
+    const [selection, setSelection] = useState<readonly string[]>(permissions.map((principal) => principal.getKey().toString()));
+    const [accessModeValue, setAccessModeValue] = useState(accessMode || '');
+    const [selectedPrincipals, setSelectedPrincipals] = useState<Principal[]>(permissions);
 
     // Set selected principals based on the selection of principal ids
     useEffect(() => {
@@ -103,12 +103,15 @@ export const NewProjectDialogAccessStepContent = (): ReactElement => {
         <Dialog.StepContent step="step-access">
             <div className="flex justify-between gap-3 mb-2">
                 <label className="font-semibold">{accessModeLabel}</label>
-                {canCopyFromParentProject && (
-                    <InlineButton onClick={handleCopyFromParentProject} label={copyFromParentLabel} />
-                )}
+                {canCopyFromParentProject && <InlineButton onClick={handleCopyFromParentProject} label={copyFromParentLabel} />}
             </div>
 
-            <RadioGroup.Root name="accessMode" value={accessModeValue} onValueChange={setAccessModeValue} className="px-2 py-1.25 -mt-2 -my-1.25">
+            <RadioGroup.Root
+                name="accessMode"
+                value={accessModeValue}
+                onValueChange={setAccessModeValue}
+                className="px-2 py-1.25 -my-1 rounded-md"
+            >
                 <RadioGroup.Item value="public">
                     <RadioGroup.Indicator />
                     <span className="ml-2">{publicLabel}</span>
