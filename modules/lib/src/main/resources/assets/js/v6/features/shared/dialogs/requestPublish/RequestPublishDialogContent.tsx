@@ -38,7 +38,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
         description,
         assigneeIds,
         items,
-        excludedChildrenIds,
+        excludeChildrenIds,
         dependants,
         excludedDependantIds,
         requiredDependantIds,
@@ -51,7 +51,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
             'description',
             'assigneeIds',
             'items',
-            'excludedChildrenIds',
+            'excludeChildrenIds',
             'dependants',
             'excludedDependantIds',
             'requiredDependantIds',
@@ -76,9 +76,9 @@ export const RequestPublishDialogContent = (): ReactElement => {
     const noResultsLabel = useI18n('dialog.search.result.noResults');
     const includeChildrenLabel = useI18n('field.content.includeChildren');
 
-    const excludedChildrenSet = useMemo(
-        () => new Set(excludedChildrenIds.map(id => id.toString())),
-        [excludedChildrenIds],
+    const excludeChildrenSet = useMemo(
+        () => new Set(excludeChildrenIds.map(id => id.toString())),
+        [excludeChildrenIds],
     );
     const excludedDependantSet = useMemo(
         () => new Set(excludedDependantIds.map(id => id.toString())),
@@ -206,7 +206,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
                                 disabled={isItemsDisabled}
                                 renderRow={(item) => {
                                     const id = item.getContentId();
-                                    const includeChildren = !excludedChildrenSet.has(id.toString());
+                                    const includeChildren = !excludeChildrenSet.has(id.toString());
                                     const hasUnpublishedChildrenForItem = itemsWithUnpublishedChildren
                                         ? itemsWithUnpublishedChildren.has(id.toString())
                                         : true;

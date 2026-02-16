@@ -166,7 +166,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         itemsUpdating,
         itemsLoading,
         items,
-        excludedChildrenIds,
+        excludeChildrenIds,
         dependants,
         excludedDependantIds,
         requiredDependantIds,
@@ -186,7 +186,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             'itemsUpdating',
             'itemsLoading',
             'items',
-            'excludedChildrenIds',
+            'excludeChildrenIds',
             'dependants',
             'excludedDependantIds',
             'requiredDependantIds',
@@ -323,11 +323,11 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             : undefined;
         void syncPublishDialogContext({
             items,
-            excludedChildrenIds,
+            excludeChildrenIds,
             excludedDependantIds,
             schedule,
         });
-    }, [excludedChildrenIds, excludedDependantIds, issueData, issuePublishFrom, issuePublishTo, items, syncPublishDialogContext]);
+    }, [excludeChildrenIds, excludedDependantIds, issueData, issuePublishFrom, issuePublishTo, items, syncPublishDialogContext]);
 
     const assigneeIds = useMemo(
         () => issueData?.getApprovers().map(approver => approver.toString()) ?? [],
@@ -341,9 +341,9 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         () => selectedItemIds.map(id => id.toString()),
         [selectedItemIds],
     );
-    const excludedChildrenSet = useMemo(
-        () => new Set(excludedChildrenIds.map(id => id.toString())),
-        [excludedChildrenIds],
+    const excludeChildrenSet = useMemo(
+        () => new Set(excludeChildrenIds.map(id => id.toString())),
+        [excludeChildrenIds],
     );
     const excludedDependantSet = useMemo(
         () => new Set(excludedDependantIds.map(id => id.toString())),
@@ -552,7 +552,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             if (schedule) {
                 void syncPublishDialogContext({
                     items,
-                    excludedChildrenIds,
+                    excludeChildrenIds,
                     excludedDependantIds,
                     schedule,
                 });
@@ -766,7 +766,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                             disabled={isItemsDisabled || itemsLoading}
                                             renderRow={(item) => {
                                                 const id = item.getContentId();
-                                                const includeChildren = !excludedChildrenSet.has(id.toString());
+                                                const includeChildren = !excludeChildrenSet.has(id.toString());
                                                 const hasUnpublishedChildrenForItem = itemsWithUnpublishedChildren
                                                     ? itemsWithUnpublishedChildren.has(id.toString())
                                                     : true;

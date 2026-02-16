@@ -21,7 +21,7 @@ type NewIssueDialogStore = {
     description: string;
     assigneeIds: string[];
     items: ContentSummaryAndCompareStatus[];
-    excludedChildrenIds: ContentId[];
+    excludeChildrenIds: ContentId[];
     dependants: ContentSummaryAndCompareStatus[];
     excludedDependantIds: ContentId[];
     requiredDependantIds: ContentId[];
@@ -36,7 +36,7 @@ const initialState: NewIssueDialogStore = {
     description: '',
     assigneeIds: [],
     items: [],
-    excludedChildrenIds: [],
+    excludeChildrenIds: [],
     dependants: [],
     excludedDependantIds: [],
     requiredDependantIds: [],
@@ -111,7 +111,7 @@ export const setNewIssueItems = (items: ContentSummaryAndCompareStatus[]): void 
         $newIssueDialog.set(resetDependenciesState({
             ...$newIssueDialog.get(),
             items: [],
-            excludedChildrenIds: [],
+            excludeChildrenIds: [],
         }));
         return;
     }
@@ -119,7 +119,7 @@ export const setNewIssueItems = (items: ContentSummaryAndCompareStatus[]): void 
     $newIssueDialog.set({
         ...$newIssueDialog.get(),
         items: nextItems,
-        excludedChildrenIds: getItemIds(nextItems),
+        excludeChildrenIds: getItemIds(nextItems),
     });
 
     reloadDependenciesDebounced();
@@ -134,15 +134,15 @@ export const addNewIssueItems = (items: ContentSummaryAndCompareStatus[]): void 
     const existingIds = new Set(state.items.map(item => item.getContentId().toString()));
     const newItems = items.filter(item => !existingIds.has(item.getContentId().toString()));
     const nextItems = dedupeItems([...state.items, ...newItems]);
-    const nextExcludedChildrenIds = uniqueIds([
-        ...state.excludedChildrenIds,
+    const nextExcludeChildrenIds = uniqueIds([
+        ...state.excludeChildrenIds,
         ...newItems.map(item => item.getContentId()),
     ]);
 
     $newIssueDialog.set({
         ...state,
         items: nextItems,
-        excludedChildrenIds: nextExcludedChildrenIds,
+        excludeChildrenIds: nextExcludeChildrenIds,
     });
 
     reloadDependenciesDebounced();
@@ -173,14 +173,14 @@ export const removeNewIssueItemsByIds = (ids: ContentId[]): void => {
     const idsToRemove = new Set(ids.map(id => id.toString()));
     const state = $newIssueDialog.get();
     const nextItems = state.items.filter(item => !idsToRemove.has(item.getContentId().toString()));
-    const nextExcludedChildrenIds = state.excludedChildrenIds
+    const nextExcludeChildrenIds = state.excludeChildrenIds
         .filter(id => !idsToRemove.has(id.toString()));
 
     if (nextItems.length === 0) {
         $newIssueDialog.set(resetDependenciesState({
             ...state,
             items: [],
-            excludedChildrenIds: [],
+            excludeChildrenIds: [],
         }));
         return;
     }
@@ -188,7 +188,7 @@ export const removeNewIssueItemsByIds = (ids: ContentId[]): void => {
     $newIssueDialog.set({
         ...state,
         items: nextItems,
-        excludedChildrenIds: nextExcludedChildrenIds,
+        excludeChildrenIds: nextExcludeChildrenIds,
     });
 
     reloadDependenciesDebounced();
@@ -196,19 +196,19 @@ export const removeNewIssueItemsByIds = (ids: ContentId[]): void => {
 
 export const setNewIssueItemIncludeChildren = (id: ContentId, includeChildren: boolean): void => {
     const state = $newIssueDialog.get();
-    const alreadyExcluded = hasContentIdInIds(id, state.excludedChildrenIds);
+    const alreadyExcluded = hasContentIdInIds(id, state.excludeChildrenIds);
 
     if (includeChildren && alreadyExcluded) {
         $newIssueDialog.setKey(
-            'excludedChildrenIds',
-            state.excludedChildrenIds.filter(item => !item.equals(id)),
+            'excludeChildrenIds',
+            state.excludeChildrenIds.filter(item => !item.equals(id)),
         );
         reloadDependenciesDebounced();
         return;
     }
 
     if (!includeChildren && !alreadyExcluded) {
-        $newIssueDialog.setKey('excludedChildrenIds', [...state.excludedChildrenIds, id]);
+        $newIssueDialog.setKey('excludeChildrenIds', [...state.excludeChildrenIds, id]);
         reloadDependenciesDebounced();
     }
 };
@@ -247,7 +247,7 @@ export const submitNewIssueDialog = async (): Promise<void> => {
     const publishRequest = PublishRequest
         .create()
         .addExcludeIds(state.excludedDependantIds)
-        .addPublishRequestItems(buildItems(state.items, state.excludedChildrenIds))
+        .addPublishRequestItems(buildItems(state.items, state.excludeChildrenIds))
         .build();
 
     try {
@@ -293,7 +293,7 @@ const reloadNewIssueDependencies = async (): Promise<void> => {
     try {
         const result = await resolvePublishDependencies({
             ids: itemIds,
-            excludeChildrenIds: state.excludedChildrenIds,
+            excludeChildrenIds: state.excludeChildrenIds,
         });
 
         if (currentInstance !== instanceId) {

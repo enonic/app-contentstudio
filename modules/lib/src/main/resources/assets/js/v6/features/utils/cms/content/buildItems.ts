@@ -15,13 +15,13 @@ export const dedupeItems = (items: ContentSummaryAndCompareStatus[]): ContentSum
 
 export const buildItems = (
     items: ContentSummaryAndCompareStatus[],
-    excludedChildrenIds: ContentId[],
+    excludeChildrenIds: ContentId[],
 ): PublishRequestItem[] => {
     return items.map(item =>
         PublishRequestItem
             .create()
             .setId(item.getContentId())
-            .setIncludeChildren(!hasContentIdInIds(item.getContentId(), excludedChildrenIds))
+            .setIncludeChildren(!hasContentIdInIds(item.getContentId(), excludeChildrenIds))
             .build()
     );
 };

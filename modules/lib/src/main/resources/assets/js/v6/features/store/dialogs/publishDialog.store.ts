@@ -284,13 +284,13 @@ export const setPublishDialogState = (state: Partial<Omit<PublishDialogStore, 'o
 
 export const syncPublishDialogContext = async ({
     items,
-    excludedChildrenIds = [],
+    excludeChildrenIds = [],
     excludedDependantIds = [],
     message,
     schedule,
 }: {
     items: ContentSummaryAndCompareStatus[];
-    excludedChildrenIds?: ContentId[];
+    excludeChildrenIds?: ContentId[];
     excludedDependantIds?: ContentId[];
     message?: string;
     schedule?: PublishSchedule;
@@ -310,7 +310,7 @@ export const syncPublishDialogContext = async ({
         failed: false,
         items,
         excludedItemsIds: [],
-        excludedItemsWithChildrenIds: [...excludedChildrenIds],
+        excludedItemsWithChildrenIds: [...excludeChildrenIds],
         excludedDependantItemsIds: [...excludedDependantIds],
         message,
         schedule,
@@ -318,7 +318,7 @@ export const syncPublishDialogContext = async ({
 
     $draftPublishDialogSelection.set({
         excludedItemsIds: [],
-        excludedItemsWithChildrenIds: [...excludedChildrenIds],
+        excludedItemsWithChildrenIds: [...excludeChildrenIds],
         excludedDependantItemsIds: [...excludedDependantIds],
     });
 
@@ -1023,11 +1023,37 @@ async function markIdsReady(ids: ContentId[]): Promise<ContentId[]> {
     }
 }
 
+type PublishRequestData = {
+    ids: ContentId[];
+    excludedIds: ContentId[];
+    excludeChildrenIds: ContentId[];
+};
+
+/**
+ * Build publish request data to match legacy publish semantics:
+ * - ids: included main items only
+ * - excludedIds: excluded dependant items only
+ * - excludeChildrenIds: included main items where descendants should be excluded
+ */
+function buildPublishRequestData(): PublishRequestData {
+    const {items, excludedItemsIds, excludedItemsWithChildrenIds, excludedDependantItemsIds} = $publishDialog.get();
+
+    const includedMainItems = items.filter(item => !hasContentIdInIds(item.getContentId(), excludedItemsIds));
+
+    const excludeChildrenIds = includedMainItems
+        .filter(item => !item.hasChildren() || hasContentIdInIds(item.getContentId(), excludedItemsWithChildrenIds))
+        .map(item => item.getContentId());
+
+    return {
+        ids: includedMainItems.map(item => item.getContentId()),
+        excludedIds: uniqueIds(excludedDependantItemsIds),
+        excludeChildrenIds: uniqueIds(excludeChildrenIds),
+    };
+}
+
 async function sendPublishRequest(): Promise<TaskId | undefined> {
-    const publishableIds = $publishableIds.get();
-    const {message, excludedItemsIds, excludedItemsWithChildrenIds, excludedDependantItemsIds, schedule} = $publishDialog.get();
-    const allExcludedItemsWithChildrenIds = uniqueIds([...excludedItemsWithChildrenIds, ...excludedItemsIds]);
-    const allExcludedItemsIds = uniqueIds([...excludedItemsIds, ...excludedDependantItemsIds]);
+    const {message, schedule} = $publishDialog.get();
+    const publishRequestData = buildPublishRequestData();
 
     const hasScheduleValues = schedule?.from || schedule?.to;
     const resolvedSchedule = hasScheduleValues
@@ -1039,9 +1065,9 @@ async function sendPublishRequest(): Promise<TaskId | undefined> {
 
     try {
         return await publishContent({
-            ids: publishableIds,
-            excludedIds: allExcludedItemsIds,
-            excludeChildrenIds: allExcludedItemsWithChildrenIds,
+            ids: publishRequestData.ids,
+            excludedIds: publishRequestData.excludedIds,
+            excludeChildrenIds: publishRequestData.excludeChildrenIds,
             message: message || undefined,
             schedule: resolvedSchedule,
         });

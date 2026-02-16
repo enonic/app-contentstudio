@@ -1,4 +1,4 @@
-import {Button, Dialog, GridList, Input, Checkbox, TextArea} from '@enonic/ui';
+import {Button, Checkbox, Dialog, GridList, Input, TextArea} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {CornerDownRight} from 'lucide-react';
 import {useCallback, useMemo, type ReactElement} from 'react';
@@ -6,23 +6,23 @@ import {useCallback, useMemo, type ReactElement} from 'react';
 import {ContentId} from '../../../../../app/content/ContentId';
 import {IssueType} from '../../../../../app/issue/IssueType';
 import {useI18n} from '../../../hooks/useI18n';
-import {useItemsWithUnpublishedChildren} from '../../../utils/cms/content/useItemsWithUnpublishedChildren';
-import {ContentRow, SplitList} from '../../lists';
-import {useAssigneeSearch, useAssigneeSelection} from '../../selectors/assignee/hooks/useAssigneeSearch';
-import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
-import {ContentCombobox} from '../../selectors/content';
 import {
     $newIssueDialog,
     $newIssueDialogCreateCount,
     addNewIssueItemsByIds,
     removeNewIssueItemsByIds,
     setNewIssueAssignees,
-    setNewIssueDescription,
     setNewIssueDependantIncluded,
+    setNewIssueDescription,
     setNewIssueItemIncludeChildren,
     setNewIssueTitle,
     submitNewIssueDialog,
 } from '../../../store/dialogs/newIssueDialog.store';
+import {useItemsWithUnpublishedChildren} from '../../../utils/cms/content/useItemsWithUnpublishedChildren';
+import {ContentRow, SplitList} from '../../lists';
+import {AssigneeSelector} from '../../selectors/assignee/AssigneeSelector';
+import {useAssigneeSearch, useAssigneeSelection} from '../../selectors/assignee/hooks/useAssigneeSearch';
+import {ContentCombobox} from '../../selectors/content';
 import {IssueIcon} from '../issue/IssueIcon';
 import {useIssuePublishTargetIds} from '../issue/hooks/useIssuePublishTargetIds';
 
@@ -34,7 +34,7 @@ export const NewIssueDialogContent = (): ReactElement => {
         description,
         assigneeIds,
         items,
-        excludedChildrenIds,
+        excludeChildrenIds,
         dependants,
         excludedDependantIds,
         requiredDependantIds,
@@ -46,7 +46,7 @@ export const NewIssueDialogContent = (): ReactElement => {
             'description',
             'assigneeIds',
             'items',
-            'excludedChildrenIds',
+            'excludeChildrenIds',
             'dependants',
             'excludedDependantIds',
             'requiredDependantIds',
@@ -69,9 +69,9 @@ export const NewIssueDialogContent = (): ReactElement => {
     const noResultsLabel = useI18n('dialog.search.result.noResults');
     const includeChildrenLabel = useI18n('field.content.includeChildren');
 
-    const excludedChildrenSet = useMemo(
-        () => new Set(excludedChildrenIds.map(id => id.toString())),
-        [excludedChildrenIds],
+    const excludeChildrenSet = useMemo(
+        () => new Set(excludeChildrenIds.map(id => id.toString())),
+        [excludeChildrenIds],
     );
     const excludedDependantSet = useMemo(
         () => new Set(excludedDependantIds.map(id => id.toString())),
@@ -95,8 +95,8 @@ export const NewIssueDialogContent = (): ReactElement => {
     const isItemsDisabled = submitting || loading;
 
     const createButtonLabel = createCount > 1
-                              ? `${createLabel} (${createCount})`
-                              : createLabel;
+        ? `${createLabel} (${createCount})`
+        : createLabel;
     const isCreateDisabled = submitting || loading || title.trim().length === 0;
 
     const selectedIds = useMemo(
@@ -137,10 +137,10 @@ export const NewIssueDialogContent = (): ReactElement => {
         >
             <Dialog.Header className='grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 px-5'>
                 <div className='flex min-w-0 items-center gap-2.5'>
-                    <IssueIcon type={IssueType.STANDARD}/>
+                    <IssueIcon type={IssueType.STANDARD} />
                     <Dialog.Title className='min-w-0 truncate text-2xl font-semibold'>{dialogTitle}</Dialog.Title>
                 </div>
-                <Dialog.DefaultClose className='self-start justify-self-end'/>
+                <Dialog.DefaultClose className='self-start justify-self-end' />
             </Dialog.Header>
             <Dialog.Body className='min-h-0 overflow-y-auto rounded-sm outline-none focus:ring-2 focus:ring-ring/10 focus:ring-inset'>
                 <div className='flex min-h-0 flex-col gap-7.5 px-5'>
@@ -191,10 +191,10 @@ export const NewIssueDialogContent = (): ReactElement => {
                                 disabled={isItemsDisabled}
                                 renderRow={(item) => {
                                     const id = item.getContentId();
-                                    const includeChildren = !excludedChildrenSet.has(id.toString());
+                                    const includeChildren = !excludeChildrenSet.has(id.toString());
                                     const hasUnpublishedChildrenForItem = itemsWithUnpublishedChildren
-                                                                          ? itemsWithUnpublishedChildren.has(id.toString())
-                                                                          : true;
+                                        ? itemsWithUnpublishedChildren.has(id.toString())
+                                        : true;
                                     const showChildrenCheckbox = hasUnpublishedChildrenForItem && item.hasChildren();
 
                                     return (
@@ -205,8 +205,8 @@ export const NewIssueDialogContent = (): ReactElement => {
                                                 id={`main-${item.getId()}`}
                                                 disabled={isItemsDisabled}
                                             >
-                                                <ContentRow.Label action="edit"/>
-                                                <ContentRow.Status variant="simple"/>
+                                                <ContentRow.Label action="edit" />
+                                                <ContentRow.Status variant="simple" />
                                                 <ContentRow.RemoveButton
                                                     onRemove={() => removeNewIssueItemsByIds([item.getContentId()])}
                                                     disabled={isItemsDisabled || items.length === 1}
@@ -221,7 +221,7 @@ export const NewIssueDialogContent = (): ReactElement => {
                                                     className="gap-3 px-2.5 -mt-1"
                                                 >
                                                     <GridList.Cell className="pl-2.5 flex items-center gap-2.5">
-                                                        <CornerDownRight className="size-4 shrink-0"/>
+                                                        <CornerDownRight className="size-4 shrink-0" />
                                                         <GridList.Action>
                                                             <Checkbox
                                                                 className="font-semibold"
@@ -266,8 +266,8 @@ export const NewIssueDialogContent = (): ReactElement => {
                                                     setNewIssueDependantIncluded(id, checked)
                                                 }
                                             />
-                                            <ContentRow.Label action="edit"/>
-                                            <ContentRow.Status variant="simple"/>
+                                            <ContentRow.Label action="edit" />
+                                            <ContentRow.Status variant="simple" />
                                         </ContentRow>
                                     );
                                 }}

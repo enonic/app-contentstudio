@@ -11,8 +11,19 @@ import {getCmsApiUrl} from '../utils/url/cms';
 //
 
 export type PublishContentParams = {
+    /**
+     * Root IDs selected in the publish dialog (main list only).
+     * Dependants are resolved and included server-side.
+     */
     ids: ContentId[];
+    /**
+     * IDs explicitly excluded from the resolved dependant list.
+     */
     excludedIds?: ContentId[];
+    /**
+     * Root IDs whose descendants should be excluded.
+     * This is typically all selected roots until "include children" is enabled per item.
+     */
     excludeChildrenIds?: ContentId[];
     message?: string;
     schedule?: {
@@ -22,8 +33,17 @@ export type PublishContentParams = {
 };
 
 export type ResolvePublishParams = {
+    /**
+     * Root IDs selected in the publish dialog (main list only).
+     */
     ids: ContentId[];
+    /**
+     * IDs explicitly excluded from the resolved dependant list.
+     */
     excludedIds?: ContentId[];
+    /**
+     * Root IDs whose descendants should be excluded.
+     */
     excludeChildrenIds?: ContentId[];
 };
 

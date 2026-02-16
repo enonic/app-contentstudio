@@ -21,7 +21,7 @@ type RequestPublishDialogStore = {
     description: string;
     assigneeIds: string[];
     items: ContentSummaryAndCompareStatus[];
-    excludedChildrenIds: ContentId[];
+    excludeChildrenIds: ContentId[];
     dependants: ContentSummaryAndCompareStatus[];
     excludedDependantIds: ContentId[];
     requiredDependantIds: ContentId[];
@@ -45,7 +45,7 @@ const initialState: RequestPublishDialogStore = {
     description: '',
     assigneeIds: [],
     items: [],
-    excludedChildrenIds: [],
+    excludeChildrenIds: [],
     dependants: [],
     excludedDependantIds: [],
     requiredDependantIds: [],
@@ -191,18 +191,18 @@ export const setRequestPublishItems = (
         $requestPublishDialog.set(resetDependenciesState({
             ...$requestPublishDialog.get(),
             items: [],
-            excludedChildrenIds: [],
+            excludeChildrenIds: [],
         }));
         resetChecksState();
         return;
     }
 
-    const excludedChildrenIds = includeChildren ? [] : getItemIds(nextItems);
+    const excludeChildrenIds = includeChildren ? [] : getItemIds(nextItems);
 
     $requestPublishDialog.set({
         ...$requestPublishDialog.get(),
         items: nextItems,
-        excludedChildrenIds,
+        excludeChildrenIds,
     });
 
     reloadDependenciesDebounced();
@@ -210,25 +210,25 @@ export const setRequestPublishItems = (
 
 export const setRequestPublishItemIncludeChildren = (id: ContentId, includeChildren: boolean): void => {
     const state = $requestPublishDialog.get();
-    const alreadyExcluded = hasContentIdInIds(id, state.excludedChildrenIds);
+    const alreadyExcluded = hasContentIdInIds(id, state.excludeChildrenIds);
 
     if (includeChildren && alreadyExcluded) {
         $requestPublishDialog.setKey(
-            'excludedChildrenIds',
-            state.excludedChildrenIds.filter(item => !item.equals(id)),
+            'excludeChildrenIds',
+            state.excludeChildrenIds.filter(item => !item.equals(id)),
         );
         reloadDependenciesDebounced();
         return;
     }
 
     if (!includeChildren && !alreadyExcluded) {
-        $requestPublishDialog.setKey('excludedChildrenIds', [...state.excludedChildrenIds, id]);
+        $requestPublishDialog.setKey('excludeChildrenIds', [...state.excludeChildrenIds, id]);
         reloadDependenciesDebounced();
     }
 };
 
 export const removeRequestPublishItem = (id: ContentId): void => {
-    const {items, excludedChildrenIds} = $requestPublishDialog.get();
+    const {items, excludeChildrenIds} = $requestPublishDialog.get();
     const newItems = items.filter(item => !item.getContentId().equals(id));
 
     if (newItems.length === 0) {
@@ -239,7 +239,7 @@ export const removeRequestPublishItem = (id: ContentId): void => {
     $requestPublishDialog.set({
         ...$requestPublishDialog.get(),
         items: newItems,
-        excludedChildrenIds: excludedChildrenIds.filter(i => !i.equals(id)),
+        excludeChildrenIds: excludeChildrenIds.filter(i => !i.equals(id)),
     });
 
     reloadDependenciesDebounced();
@@ -374,7 +374,7 @@ export const submitRequestPublishDialog = async (): Promise<void> => {
     const publishRequest = PublishRequest
         .create()
         .addExcludeIds(state.excludedDependantIds)
-        .addPublishRequestItems(buildItems(state.items, state.excludedChildrenIds))
+        .addPublishRequestItems(buildItems(state.items, state.excludeChildrenIds))
         .build();
 
     try {
@@ -425,7 +425,7 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
     try {
         const result = await resolvePublishDependencies({
             ids: itemIds,
-            excludeChildrenIds: state.excludedChildrenIds,
+            excludeChildrenIds: state.excludeChildrenIds,
         });
 
         if (currentInstance !== instanceId) {
