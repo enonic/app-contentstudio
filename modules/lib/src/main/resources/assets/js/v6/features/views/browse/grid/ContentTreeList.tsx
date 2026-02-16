@@ -1,8 +1,7 @@
 import {cn, VirtualizedTreeList} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Loader2, LoaderCircle} from 'lucide-react';
-import type {HTMLAttributes} from 'react';
-import {forwardRef, useCallback, useEffect, useMemo, useRef} from 'react';
+import {useCallback, useEffect, useMemo, useRef} from 'react';
 import type {ListRange, VirtuosoHandle} from 'react-virtuoso';
 import {Virtuoso} from 'react-virtuoso';
 import {EditContentEvent} from '../../../../../app/event/EditContentEvent';
@@ -15,6 +14,7 @@ import {
     fetchVisibleFilterContentData,
 } from '../../../api/content-fetcher';
 import type {FlatNode} from '../../../lib/tree-store';
+import {virtuosoComponents} from '../../../shared/lists';
 import {ItemLabel} from '../../../shared/ItemLabel';
 import {ProgressBar} from '../../../shared/primitives/ProgressBar';
 import {$activeFlatNodes, $isFilterActive} from '../../../store/active-tree.store';
@@ -52,23 +52,6 @@ function hasProgressData(data: unknown): data is ContentUploadData {
 function hasDisplayNameData(data: unknown): data is ContentData {
     return data !== null && typeof data === 'object' && 'displayName' in data;
 }
-
-//
-// * Virtuoso Custom Components
-//
-
-const virtuosoComponents = {
-    Scroller: forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({style, children, ...props}, ref) => (
-        <div ref={ref} {...props} style={style} className="*:px-5 *:py-2.5">
-            {children}
-        </div>
-    )),
-    List: forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({style, children, ...props}, ref) => (
-        <div ref={ref} {...props} style={style} className="flex flex-col gap-y-1.5">
-            {children}
-        </div>
-    )),
-};
 
 //
 // * Upload Row
