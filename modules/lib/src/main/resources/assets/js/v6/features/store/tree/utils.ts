@@ -44,7 +44,7 @@ export function convertToContentFlatNode(
             id: data.id,
             displayName: content ? resolveDisplayName(content) : data.displayName,
             name: data.name,
-            publishStatus: content?.getPublishStatus() ?? data.publishStatus,
+            publishStatus: content ? content.getPublishStatus() : data.publishStatus,
             workflowStatus: content ? calcWorkflowStateStatus(content.getContentSummary()) : data.workflowStatus,
             contentType: data.contentType,
             iconUrl: content?.getContentSummary()?.getIconUrl() ?? data.iconUrl,

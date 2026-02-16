@@ -49,7 +49,11 @@ function createNodeData(id: string, displayName?: string): ContentTreeNodeData {
 }
 
 // Mock ContentSummaryAndCompareStatus for cache
-function createMockContent(id: string, displayName?: string): ContentSummaryAndCompareStatus {
+function createMockContent(
+    id: string,
+    displayName?: string,
+    publishStatus: PublishStatus | 'missing' = PublishStatus.ONLINE
+): ContentSummaryAndCompareStatus {
     const mockName = {
         isUnnamed: () => false,
         toString: () => id,
@@ -71,7 +75,7 @@ function createMockContent(id: string, displayName?: string): ContentSummaryAndC
         getId: () => id,
         getDisplayName: () => displayName ?? `Content ${id}`,
         getType: () => mockType,
-        getPublishStatus: () => PublishStatus.ONLINE,
+        getPublishStatus: () => (publishStatus === 'missing' ? undefined : publishStatus),
         hasChildren: () => false,
         hasContentSummary: () => true,
         hasUploadItem: () => false,
@@ -479,6 +483,19 @@ describe('tree-list.store', () => {
             expect(merged).toHaveLength(1);
             const data = merged[0].data;
             expect(data && 'item' in data ? data.item?.getDisplayName() : undefined).toBe('Cache Name');
+        });
+
+        it('uses cache publish status even when unpublished payload has no publish status', () => {
+            addTreeNodes([{id: '1', data: createNodeData('1', 'Tree Name')}]);
+            setTreeRootIds(['1']);
+            setContent(createMockContent('1', 'Cache Name', PublishStatus.ONLINE));
+
+            // Unpublish event payloads may carry compare status changes with publishStatus unset.
+            setContents([createMockContent('1', 'Cache Name', 'missing')]);
+
+            const merged = $mergedFlatNodes.get();
+            const data = merged[0].data;
+            expect(data && 'publishStatus' in data ? data.publishStatus : PublishStatus.ONLINE).toBeUndefined();
         });
 
         it('injects uploads at parent position', () => {
