@@ -29,10 +29,10 @@ NewProjectDialogRoleStepHeader.displayName = 'NewProjectDialogRoleStepHeader';
 export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: boolean}): ReactElement => {
     // Hooks
     const {principals} = useStore($principals);
-    const {parentProjects} = useStore($newProjectDialog);
-    const [selection, setSelection] = useState<string[]>([]);
-    const [selectedPrincipals, setSelectedPrincipals] = useState<Principal[]>([]);
-    const [selectedRoles, setSelectedRoles] = useState<Record<string, ProjectAccess>>({});
+    const {parentProjects, roles, rolePrincipals} = useStore($newProjectDialog);
+    const [selection, setSelection] = useState<string[]>(Object.keys(roles));
+    const [selectedPrincipals, setSelectedPrincipals] = useState<Principal[]>(rolePrincipals);
+    const [selectedRoles, setSelectedRoles] = useState<Record<string, ProjectAccess>>(roles);
 
     // Set selected principals based on the selection of principal ids
     useEffect(() => {
@@ -128,9 +128,7 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
         <Dialog.StepContent step="step-role" locked={locked}>
             <div className="flex justify-between gap-3 mb-2">
                 <label className="font-semibold">{label}</label>
-                {canCopyFromParentProject && (
-                    <InlineButton onClick={handleCopyFromParentProject} label={copyFromParentLabel} />
-                )}
+                {canCopyFromParentProject && <InlineButton onClick={handleCopyFromParentProject} label={copyFromParentLabel} />}
             </div>
 
             <PrincipalSelector
@@ -167,7 +165,6 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
 
                                     {/* Manage selected principal role */}
                                     <GridList.Cell>
-
                                         <Selector.Root
                                             value={principalRole}
                                             onValueChange={(value) => handleSelectRole(principal, value as ProjectAccess)}

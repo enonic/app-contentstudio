@@ -19,9 +19,9 @@ export const NewProjectDialogParentStepHeader = (): ReactElement => {
 NewProjectDialogParentStepHeader.displayName = 'NewProjectDialogParentStepHeader';
 
 export const NewProjectDialogParentStepContent = (): ReactElement => {
-    const {selectedProjects, isMultiInheritance} = useStore($newProjectDialog);
+    const {parentProjects, isMultiInheritance} = useStore($newProjectDialog);
     const {projects} = useStore($projects);
-    const [selection, setSelection] = useState<readonly string[]>(selectedProjects.map((p) => p.getName()));
+    const [selection, setSelection] = useState<readonly string[]>(parentProjects.map((p) => p.getName()));
 
     const selectedProject = useMemo(() => {
         return selection.length > 0 ? projects.find((p) => p.getName() === selection[0]) : undefined;
