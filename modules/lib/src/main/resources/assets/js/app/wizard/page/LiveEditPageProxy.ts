@@ -9,9 +9,6 @@ import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedE
 import {ComponentType} from '../../page/region/ComponentType';
 import {type ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
 import {ContentId} from '../../content/ContentId';
-import {CreateHtmlAreaContentDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaContentDialogEvent';
-import {CreateHtmlAreaDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
-import {CreateHtmlAreaMacroDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaMacroDialogEvent';
 import {DescriptorKey} from '../../page/DescriptorKey';
 import {FragmentComponentType} from '../../page/region/FragmentComponentType';
 import {IframeBeforeContentSavedEvent} from '../../event/IframeBeforeContentSavedEvent';
@@ -357,8 +354,6 @@ export class LiveEditPageProxy
 
         LiveEditPageInitializationErrorEvent.un(null);
 
-        CreateHtmlAreaDialogEvent.un(null);
-
         UpdateTextComponentEvent.un(null);
 
         CustomizePageEvent.un(null);
@@ -446,18 +441,6 @@ export class LiveEditPageProxy
 
         LiveEditPageInitializationErrorEvent.on((event: LiveEditPageInitializationErrorEvent) => {
             eventsManager.notifyLiveEditPageInitializationError(event);
-        });
-
-        CreateHtmlAreaDialogEvent.on((event: CreateHtmlAreaDialogEvent) => {
-            eventsManager.notifyLiveEditPageDialogCreate(event);
-        });
-
-        CreateHtmlAreaMacroDialogEvent.on((event: CreateHtmlAreaMacroDialogEvent) => {
-            eventsManager.notifyLiveEditPageDialogCreate(event);
-        });
-
-        CreateHtmlAreaContentDialogEvent.on((event: CreateHtmlAreaContentDialogEvent) => {
-            eventsManager.notifyLiveEditPageDialogCreate(event);
         });
 
         SaveAsTemplateEvent.on(() => {
