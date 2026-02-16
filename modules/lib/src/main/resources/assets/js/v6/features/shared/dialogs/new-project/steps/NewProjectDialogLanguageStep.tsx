@@ -25,8 +25,8 @@ export const NewProjectDialogLanguageStepContent = (): ReactElement => {
     const {parentProjects, defaultLanguage} = useStore($newProjectDialog);
     const [selection, setSelection] = useState<readonly string[]>([defaultLanguage]);
     const selectedLanguage = useMemo<LanguageOption | undefined>(
-        () => languages.find((language) => language.id === defaultLanguage),
-        [defaultLanguage, languages]
+        () => (selection.length > 0 ? languages.find((language) => language.id === selection[0]) : undefined),
+        [selection, languages]
     );
 
     // Sync with the store
