@@ -21,6 +21,7 @@
   "dependencies": {
     "@enonic/lib-admin-ui": "workspace:*",
     "@enonic/lib-contentstudio": "workspace:*",
+    "@enonic/page-editor": "^0.0.1",
     "chart.js": "^4.5.1",
     "enonic-admin-artifacts": "^2.4.0",
     "jquery": "^3.7.1",
