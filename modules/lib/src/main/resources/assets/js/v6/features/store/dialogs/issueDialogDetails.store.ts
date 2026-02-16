@@ -50,7 +50,7 @@ type IssueDialogDetailsStore = {
     itemsLoading: boolean;
     itemsError: boolean;
     items: ContentSummaryAndCompareStatus[];
-    excludedChildrenIds: ContentId[];
+    excludeChildrenIds: ContentId[];
     dependants: ContentSummaryAndCompareStatus[];
     excludedDependantIds: ContentId[];
     requiredDependantIds: ContentId[];
@@ -85,7 +85,7 @@ const initialState: IssueDialogDetailsStore = {
     itemsLoading: false,
     itemsError: false,
     items: [],
-    excludedChildrenIds: [],
+    excludeChildrenIds: [],
     dependants: [],
     excludedDependantIds: [],
     requiredDependantIds: [],
@@ -157,7 +157,7 @@ export const loadIssueDialogItems = async (
 
     const publishRequest = targetIssue.getPublishRequest();
     const itemIds = publishRequest?.getItemsIds() ?? [];
-    const excludedChildrenIds = publishRequest?.getExcludeChildrenIds() ?? [];
+    const excludeChildrenIds = publishRequest?.getExcludeChildrenIds() ?? [];
     const excludedDependantIds = publishRequest?.getExcludeIds() ?? [];
 
     if (itemIds.length === 0) {
@@ -166,7 +166,7 @@ export const loadIssueDialogItems = async (
             itemsLoading: false,
             itemsError: false,
             items: [],
-            excludedChildrenIds: [],
+            excludeChildrenIds: [],
             dependants: [],
             excludedDependantIds: [],
             requiredDependantIds: [],
@@ -190,7 +190,7 @@ export const loadIssueDialogItems = async (
         items: canReuseItems ? currentState.items : [],
         dependants: isSameIssue ? currentState.dependants : [],
         requiredDependantIds: isSameIssue ? currentState.requiredDependantIds : [],
-        excludedChildrenIds,
+        excludeChildrenIds,
         excludedDependantIds,
     });
 
@@ -204,7 +204,7 @@ export const loadIssueDialogItems = async (
 
         const result = await resolvePublishDependencies({
             ids: itemIds,
-            excludeChildrenIds: excludedChildrenIds,
+            excludeChildrenIds: excludeChildrenIds,
         });
         if (requestId !== dependenciesRequestId) {
             return;
@@ -229,7 +229,7 @@ export const loadIssueDialogItems = async (
         $issueDialogDetails.set({
             ...latestState,
             items: sortedItems,
-            excludedChildrenIds,
+            excludeChildrenIds,
             dependants: sortedDependants,
             requiredDependantIds,
             excludedDependantIds: nextExcludedDependantIds,

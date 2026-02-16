@@ -51,7 +51,7 @@ export class PublishItemsListElement
 
     private $excludedIds: WritableAtom<ContentId[]>;
 
-    private $excludedChildrenIds: WritableAtom<ContentId[]>;
+    private $excludeChildrenIds: WritableAtom<ContentId[]>;
 
     constructor(props: ElementProps) {
         super({
@@ -65,25 +65,25 @@ export class PublishItemsListElement
             },
             onIncludeChildrenChange: (contentId: ContentId, enabled: boolean) => {
                 if (enabled) {
-                    this.$excludedChildrenIds.set(this.$excludedChildrenIds.get().filter(id => id !== contentId));
-                } else if (!this.$excludedChildrenIds.get().includes(contentId)) {
-                    this.$excludedChildrenIds.set([...this.$excludedChildrenIds.get(), contentId]);
+                    this.$excludeChildrenIds.set(this.$excludeChildrenIds.get().filter(id => id !== contentId));
+                } else if (!this.$excludeChildrenIds.get().includes(contentId)) {
+                    this.$excludeChildrenIds.set([...this.$excludeChildrenIds.get(), contentId]);
                 }
             },
         }, PublishItemsList);
 
         this.$excludedIds = atom([]);
-        this.$excludedChildrenIds = atom([]);
-        this.$excludedChildrenIds.set(props.includeChildren ? [] : props.items.map(item => item.getContentId()));
+        this.$excludeChildrenIds = atom([]);
+        this.$excludeChildrenIds.set(props.includeChildren ? [] : props.items.map(item => item.getContentId()));
     }
 
     setIncludeChildren(include: boolean): void {
         this.props.setKey('includeChildren', include);
-        this.$excludedChildrenIds.set(include ? [] : this.props.get().items.map(item => item.getContentId()));
+        this.$excludeChildrenIds.set(include ? [] : this.props.get().items.map(item => item.getContentId()));
     }
 
     setExcludedChildrenIds(ids: ContentId[]): void {
-        this.$excludedChildrenIds.set(ids);
+        this.$excludeChildrenIds.set(ids);
     }
 
     //
@@ -111,7 +111,7 @@ export class PublishItemsListElement
     }
 
     onChildrenListChanged(listener: (notAdded: boolean) => void) {
-        this.$excludedChildrenIds.listen((value, oldValue) => {
+        this.$excludeChildrenIds.listen((value, oldValue) => {
             const newIds = value.map(id => id.toString());
             const oldIds = oldValue.map(id => id.toString());
             const addedIds = newIds.filter(id => !oldIds.includes(id));
@@ -139,11 +139,11 @@ export class PublishItemsListElement
     }
 
     getIncludeChildrenIds(): ContentId[] {
-        return this.getItemsIds().filter(id => !this.$excludedChildrenIds.get().includes(id));
+        return this.getItemsIds().filter(id => !this.$excludeChildrenIds.get().includes(id));
     }
 
     getExcludeChildrenIds(): ContentId[] {
-        return this.$excludedChildrenIds.get();
+        return this.$excludeChildrenIds.get();
     }
 
     isVisible(): boolean {
@@ -152,7 +152,7 @@ export class PublishItemsListElement
 
     reset(): void {
         this.$excludedIds.set([]);
-        this.$excludedChildrenIds.set([]);
+        this.$excludeChildrenIds.set([]);
         this.props.setKey('items', []);
         this.props.setKey('readOnly', false);
     }
