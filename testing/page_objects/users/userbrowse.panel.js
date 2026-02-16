@@ -289,6 +289,7 @@ class UserBrowsePanel extends Page {
         let closeIcon = xpath.closeItemTabButton(displayName);
         await this.waitForElementDisplayed(closeIcon, appConst.mediumTimeout);
         await this.waitForElementEnabled(closeIcon, appConst.mediumTimeout);
+        await this.pause(100);
         await this.clickOnElement(closeIcon);
         await this.pause(500);
         let confirmationDialog = new ConfirmationDialog();

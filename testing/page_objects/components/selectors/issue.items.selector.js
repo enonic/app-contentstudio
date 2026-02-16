@@ -4,7 +4,7 @@
 const ContentSelectorDropdown = require('./content.selector.dropdown');
 const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
-const {NEW_DROPDOWN} = require('../../../libs/elements');
+const {DROPDOWN} = require('../../../libs/elements');
 
 const XPATH = {
     principalViewerDiv: "//div[contains(@id,'PrincipalViewer')]",
@@ -40,7 +40,7 @@ class IssueItemsSelector extends ContentSelectorDropdown {
     async clickOnFilteredByDisplayNameTreeItem(optionDisplayName) {
         try {
             const popupLocator = "//div[@data-combobox-popup='' or @data-combobox-popup]";
-            let optionLocator = NEW_DROPDOWN.treeItemByDisplayName(optionDisplayName);
+            let optionLocator = DROPDOWN.treeItemByDisplayName(optionDisplayName);
             await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
             await this.clickOnElement(optionLocator);
         } catch (err) {

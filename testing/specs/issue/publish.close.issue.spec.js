@@ -51,7 +51,7 @@ describe('publish.close.issue.spec: publish a content and close the issue.', fun
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
             // 2. Go to Items tab:
-            await issueDetailsDialog.clickOnItemsTabBarItem();
+            await issueDetailsDialog.clickOnItemsTabItem();
             // 3. Click on Publish... button and open Publish Wizard dialog:
             await issueDetailsDialogItemsTab.clickOnPublishAndOpenPublishWizard();
             let contentPublishDialog = new ContentPublishDialog();

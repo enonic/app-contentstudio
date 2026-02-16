@@ -16,7 +16,7 @@ const COMMON = {
         CHECKBOX_INPUT: "//input[@type='checkbox']",
         CHECKBOX_INPUT_CHECKED: "//input[@type='checkbox' and @aria-checked='true']",
         TEXT: "//input[@type='text']",
-        INPUT:"//input",
+        INPUT: "//input",
         textAreaByName: (name) => `//textarea[@name='${name}']`,
         inputByAriaLabel: (ariaLabel) => `//input[@aria-label='${ariaLabel}']`,
     }
@@ -38,7 +38,7 @@ const BUTTONS = {
     SELECTOR_MODE_TOGGLER: "//button[contains(@id,'ModeTogglerButton')]",
     UPLOAD_BUTTON: "//button[contains(@class,'upload-button')]",
     buttonByLabel: (label) => `//button[contains(@type,'button') and contains(.,'${label}')]`,
-    BUTTON_MENU_POPUP:"//button[@aria-haspopup='menu']",
+    BUTTON_MENU_POPUP: "//button[@aria-haspopup='menu']",
     buttonAriaLabel: (ariaLabel) => `//button[contains(@type,'button') and contains(@aria-label,'${ariaLabel}')]`,
     buttonStatusBar: (label) => `//button[@data-component='StatusBarEntryButton' and contains(.,'${label}')]`,
     actionButton: (label) => `//div[contains(@id,'ActionButton')]/button[contains(.,'${label}')]`,
@@ -94,32 +94,34 @@ const TREE_GRID = {
         return `//div[contains(@role,'treeitem') and descendant::small[contains(@class,'t-subtle') and contains(.,'${name}')]]`;
     },
 }
-const NEW_DROPDOWN = {
+const DROPDOWN = {
     DROPDOWN_LIST_ITEM_DISPLAY_NAME: `//div[@role='option']//div[1]//span[1]`,
-    buttonComboboxByLabel: (label)=> `//span[contains(.,'${label}')]/following-sibling::button[@role='combobox']`,
+    buttonComboboxByLabel: (label) => `//span[contains(.,'${label}')]/following-sibling::button[@role='combobox']`,
     CONTENT_COMBOBOX: "//div[@data-component='ContentCombobox')]",
     DROPDOWN_HANDLE: "//button[@aria-label='Toggle']",
+    LISTBOX_OPTIONS_DIV: "//div[contains(@role,'listbox')]",
+    listboxOptionByText: (text) => `//div[contains(@role,'option')  and descendant::span[text()='${text}']]`,
     optionByDisplayName: (displayName) => `//div[contains(@id,'listbox-option')  and descendant::span[contains(.,'${displayName}')]]`,
     treeItemByDisplayName: (displayName) => `//div[@role='treeitem']//div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]]`,
     treeItemByName: (name) => `//div[@role='treeitem']//div[@data-component='ContentLabel' and descendant::small[contains(.,'${name}')]]`,
     LIST_BOX_DIV: "//div[contains(@role,'listbox')]",
     optionByText: (text) => `//div[contains(@role,'option')  and descendant::span[text()='${text}']]`,
-};
-const DROPDOWN = {
-    HANDLE: "//button[contains(@id,'DropdownHandle')]",
-    DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
-    OPTION_FILTER_INPUT: "//input[contains(@id,'OptionFilterInput') and contains(@class, 'option-filter-input')]",
-    DROPDOWN_DIV: "//div[contains(@id,'Dropdown')]",
-    DROPDOWN_LIST_ITEM: "//*[contains(@class,'item-view-wrapper')]",
-    DROPDOWN_DIV_ITEM: "//div[contains(@class,'item-view-wrapper')]",
-    WIDGET_COMBOBOX: "//button[contains(@id,'WidgetsSelector') and @role='combobox']",
-    SELECTOR_LISTBOX: "//div[contains(@role,'listbox')]",
     dropdownSelectedOptionByName: (dataComponentValue, optionName) => {
         return `//div[@data-component='${dataComponentValue}']//span[contains(.,'${optionName}')]`;
     },
     selectorListOptionByName: (optionName) => {
         return `//div[@role='option']//span[contains(.,'${optionName}')]`;
     },
+    SELECTOR_LISTBOX: "//div[contains(@role,'listbox')]",
+    WIDGET_COMBOBOX: "//button[contains(@id,'WidgetsSelector') and @role='combobox']",
+};
+const DROPDOWN_OLD = {
+    HANDLE: "//button[contains(@id,'DropdownHandle')]",
+    DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
+    OPTION_FILTER_INPUT: "//input[contains(@id,'OptionFilterInput') and contains(@class, 'option-filter-input')]",
+    DROPDOWN_DIV: "//div[contains(@id,'Dropdown')]",
+    DROPDOWN_LIST_ITEM: "//*[contains(@class,'item-view-wrapper')]",
+    DROPDOWN_DIV_ITEM: "//div[contains(@class,'item-view-wrapper')]",
     FILTERABLE_LISTBOX: "//div[contains(@id,'FilterableListBoxWrapper')]",
     IMAGE_CONTENT_COMBOBOX_DIV: "//div[contains(@id,'ImageContentComboBox')]",
     MODE_TOGGLER_BUTTON: "//button[contains(@id,'ModeTogglerButton')]",
@@ -131,12 +133,15 @@ const DROPDOWN = {
     IMG_DROPDOWN_OPT_DISPLAY_NAME_FLAT_MODE: "//li[contains(@class,'item-view-wrapper')]" +
                                              "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",
 };
+const ISSUE = {
+    contentRowByName: displayName => `//div[@data-component='ContentRow' and (descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]])]`,
+}
 module.exports = Object.freeze({
     COMMON,
-    DROPDOWN,
     BUTTONS,
     LIVE_VIEW,
     WIZARD,
     TREE_GRID,
-    NEW_DROPDOWN,
+    DROPDOWN,
+    ISSUE,
 });

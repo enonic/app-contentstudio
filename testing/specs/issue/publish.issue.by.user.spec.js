@@ -73,7 +73,7 @@ describe('publish.issue.by.user.spec: an user publishes assigned to him issue', 
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
             // 4. Expand the status selector
-            await issueDetailsDialog.clickOnItemsTabBarItem();
+            await issueDetailsDialog.clickOnItemsTabItem();
             await issueDetailsDialogItemsTab.clickOnPublishAndOpenPublishWizard();
             let contentPublishDialog = new ContentPublishDialog();
             // 4. Click on 'Publish Now' button in Publish Wizard dialog:

@@ -43,7 +43,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await createIssueDialog.clickOnCreateIssueButton();
             // 5. Go to 'Items' tab
             await issueDetailsDialog.waitForDialogLoaded();
-            await issueDetailsDialog.clickOnItemsTabBarItem()
+            await issueDetailsDialog.clickOnItemsTabItem()
             await studioUtils.saveScreenshot('issue_details_items_2_parent_selected');
             await issueDetailsDialog.pause(1000);
             // 6. Verify that 'All' checkbox is displayed in the dialog:
@@ -92,7 +92,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
             // 3. Go to 'Items' tab:
-            await issueDetailsDialog.clickOnItemsTabBarItem();
+            await issueDetailsDialog.clickOnItemsTabItem();
             await studioUtils.saveScreenshot('publish_close_issue_should_be_disabled');
             // 4.'Publish...' button should be disabled, because invalid child is present'
             let isEnabled = await issueDetailsDialogItemsTab.isPublishButtonEnabled();
@@ -110,7 +110,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
             // 3. Go to 'Items' tab:
-            await issueDetailsDialog.clickOnItemsTabBarItem();
+            await issueDetailsDialog.clickOnItemsTabItem();
             // 4. Exclude the invalid content:
             await issueDetailsDialogItemsTab.clickOnCheckboxInDependentItem('shortcut-imported');
             await issueDetailsDialogItemsTab.clickOnApplySelectionButton();
@@ -134,7 +134,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
             // 2. Go to 'Items' tab(IssueDetails dialog):
-            await issueDetailsDialog.clickOnItemsTabBarItem();
+            await issueDetailsDialog.clickOnItemsTabItem();
             // 3. Exclude a dependant item: click on the checkbox:
             await issueDetailsDialogItemsTab.clickOnCheckboxInDependentItem(TEST_CONTENT_NAME);
             await issueDetailsDialogItemsTab.clickOnApplySelectionButton();

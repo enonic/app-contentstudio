@@ -60,7 +60,7 @@ describe('wizard.publish.menu.issue.item.spec - tests for Publish menu in wizard
             // 2. Expand Publish Menu in the wizard and click on the issue-name(load the issue in modal dialog):
             await contentWizard.openPublishMenuSelectItem(ISSUE_TITLE);
             // 3. Click on the remove icon and exclude this folder in Items:
-            await taskDetailsDialog.clickOnItemsTabBarItem();
+            await taskDetailsDialog.clickOnItemsTabItem();
             await issueDetailsItemsTab.excludeItem(TEST_FOLDER.displayName);
             await taskDetailsDialog.pause(1000);
             // 4. Verify that Items tab remains active:

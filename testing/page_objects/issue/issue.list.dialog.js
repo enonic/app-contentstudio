@@ -1,5 +1,5 @@
 const Page = require('../page');
-const {BUTTONS, NEW_DROPDOWN} = require('../../libs/elements');
+const {BUTTONS, DROPDOWN} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const xpath = {
@@ -27,7 +27,7 @@ class IssuesListDialog extends Page {
     }
 
     get typeFilterDropDownHandle() {
-        return xpath.container + NEW_DROPDOWN.buttonComboboxByLabel('Filter');
+        return xpath.container + DROPDOWN.buttonComboboxByLabel('Filter');
     }
 
     get closedTabButton() {

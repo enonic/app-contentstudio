@@ -372,17 +372,16 @@ class Page {
             await this.pause(300);
             return await this.getTextInDisplayedElements(lib.NOTIFICATION_TEXT);
         } catch (err) {
-            await this.handleError('Wait for notification messages - ', 'err_notification_messages', err);
+            await this.handleError('Wait for notification messages ', 'err_notification_messages', err);
         }
     }
 
     async waitForExpectedNotificationMessage(expectedMessage) {
         try {
-            let selector = `//div[contains(@id,'NotificationMessage')]//div[contains(@class,'notification-text') and contains(.,'${expectedMessage}')]`;
+            let selector = `//div[contains(@id,'NotificationMessage')]//p[contains(.,'${expectedMessage}')]`;
             await this.waitForElementDisplayed(selector, appConst.shortTimeout)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_notification');
-            throw new Error('expected notification message was not shown, screenshot: ' + screenshot + "  " + err);
+            await this.handleError(`Wait for expected notification message: ${expectedMessage} - `, 'err_exp_notification_message', err);
         }
     }
 
@@ -481,7 +480,7 @@ class Page {
             type: 'key',
             id: 'keyboard',
             actions: [
-                { type: 'keyDown', value: Key.Shift }
+                {type: 'keyDown', value: Key.Shift}
             ]
         }]);
 
@@ -491,8 +490,8 @@ class Page {
                 type: 'key',
                 id: 'keyboard',
                 actions: [
-                    { type: 'keyDown', value: Key.ArrowDown },
-                    { type: 'keyUp', value: Key.ArrowDown  }
+                    {type: 'keyDown', value: Key.ArrowDown},
+                    {type: 'keyUp', value: Key.ArrowDown}
                 ]
             }]);
             await this.getBrowser().pause(400);
@@ -502,7 +501,7 @@ class Page {
             type: 'key',
             id: 'keyboard',
             actions: [
-                { type: 'keyUp', value: Key.Shift } // Shift
+                {type: 'keyUp', value: Key.Shift} // Shift
             ]
         }]);
     }

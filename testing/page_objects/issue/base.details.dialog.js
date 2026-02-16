@@ -1,9 +1,10 @@
 const Page = require('../page');
-const {BUTTONS} = require('../../libs/elements');
+const {BUTTONS, DROPDOWN} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const XPATH = {
     container: `//div[@data-component='IssueDialogDetailsContent' and @role='dialog']`,
+
     toIssueList: "//a[@title='To the Issue List']",
     issueNameInPlaceInput: `//div[contains(@id,'IssueDetailsInPlaceTextInput')]`,
     editIssueTitleToggle: `//h2[@class='inplace-text' and @title='Click to  edit']`,
@@ -12,7 +13,7 @@ const XPATH = {
     itemsTabBarItem: "//button[@role='tab') and child::span[contains(.,'Items')]]",
     assigneesTabItem: "//button[@role='tab') and child::span[contains(.,'Assignees')]]",
     commentsTabItem: "//button[@role='tab') and child::span[contains(.,'Comments')]]",
-    issueStatusSelectorButton: `//button[@role='combobox' and contains(@id,'trigger')]`,
+    issueStatusSelectorButton: `//button[@role='combobox' and descendant::span[@data-component='IssueStatusBadge']]`,
     issueCommentTextArea: `//div[contains(@id,'IssueCommentTextArea')]`,
     issueCommentsListItem: `//div[contains(@id,'IssueCommentsListItem')]`,
     noActionLabel: `//div[@class='no-action-message']`,
@@ -119,26 +120,25 @@ class BaseIssueDetailsDialog extends Page {
 
     async clickOnIssueStatusSelectorAndCloseIssue() {
         try {
-            // expand the menu:
+            // expand the dropdown selector menu:
             await this.clickOnStatusSelectorMenu();
-            let menuItemSelector = XPATH.issueStatusMenuItem('Closed');
-            // click on the menu item:
-            await this.waitForElementDisplayed(menuItemSelector, appConst.mediumTimeout);
-            await this.clickOnElement(menuItemSelector);
+            let optionItemLocator = DROPDOWN.listboxOptionByText(appConst.ISSUES.STATUS_CLOSED);
+            // click on the 'Closed' option item:
+            await this.waitForElementDisplayed(optionItemLocator, appConst.mediumTimeout);
+            await this.clickOnElement(optionItemLocator);
             return await this.waitForNotificationMessage();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_issue_status_selector');
-            throw new Error(`Error occurred in IssueDetails, status selector menu , screenshot:${screenshot} ` + err);
+            await this.handleError('Issue Details Dialog, tried to click on "Closed" option', 'err_issue_status_selector', err);
         }
     }
 
     async clickOnIssueStatusSelectorAndOpenIssue() {
-        let menuItemSelector = XPATH.issueStatusMenuItem('Open');
+        let optionItemLocator = DROPDOWN.listboxOptionByText(appConst.ISSUES.STATUS_OPEN);
         // expand the menu:
         await this.clickOnStatusSelectorMenu();
         // click on the menu item:
-        await this.waitForElementDisplayed(menuItemSelector, appConst.mediumTimeout);
-        await this.clickOnElement(menuItemSelector);
+        await this.waitForElementDisplayed(optionItemLocator, appConst.mediumTimeout);
+        await this.clickOnElement(optionItemLocator);
         return await this.waitForNotificationMessage();
     }
 
@@ -178,8 +178,9 @@ class BaseIssueDetailsDialog extends Page {
             let locator = this.issueStatusSelector + "//span[2]";
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getText(locator);
-        }catch (err){
-            await this.handleError('Issue Details Dialog, get current status in status selector', 'err_get_current_status_in_status_selector', err);
+        } catch (err) {
+            await this.handleError('Issue Details Dialog, tried to get the current status in status selector', 'err_get_current_status',
+                err);
         }
     }
 }

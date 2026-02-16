@@ -1059,9 +1059,11 @@ module.exports = {
     async saveAndCloseUserWizard(displayName) {
         let wizardPanel = new UserWizard();
         let browsePanel = new UserBrowsePanel();
+        await wizardPanel.pause(200);
         await wizardPanel.waitAndClickOnSave();
+        await wizardPanel.waitForChangePasswordButtonDisplayed();
         //await wizardPanel.waitForNotificationMessage();
-        await wizardPanel.pause(2000);
+        await wizardPanel.pause(1000);
         //Click on Close icon and close the wizard:
         return await browsePanel.closeTabAndWaitForGrid(displayName);
     },

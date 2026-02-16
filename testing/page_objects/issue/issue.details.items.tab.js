@@ -1,5 +1,5 @@
 const BaseIssueDetailsDialog = require('./base.details.dialog');
-const {NEW_DROPDOWN, COMMON, BUTTONS} = require('../../libs/elements');
+const {DROPDOWN, COMMON, BUTTONS,ISSUE} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const DependantsControls = require('./dependant.controls');
@@ -31,7 +31,7 @@ class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
     }
 
     get itemsComboboxDropdownHandle() {
-        return xpath.container + NEW_DROPDOWN.CONTENT_COMBOBOX + NEW_DROPDOWN.DROP_DOWN_HANDLE;
+        return xpath.container + DROPDOWN.CONTENT_COMBOBOX + DROPDOWN.DROP_DOWN_HANDLE;
     }
 
     get showExcludedItemsButton() {
@@ -140,7 +140,7 @@ class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
 
     async clickOnIncludeChildItems(displayName) {
         try {
-            let includeIcon = xpath.selectionItemByDisplayName(displayName) + xpath.includeChildrenToggler;
+            let includeIcon = ISSUE.contentRowByName(displayName) + "/following-sibling::div[contains(@id,'children')]//label";
             await this.waitForElementDisplayed(includeIcon, appConst.shortTimeout);
             await this.clickOnElement(includeIcon);
             return await this.pause(2000);
@@ -162,12 +162,13 @@ class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
     }
 
 
-    async filterAndSelectItem(itemDisplayName) {
+    async filterAndSelectItem(displayName) {
         try {
-            let contentSelectorDropdown = new ContentSelectorDropdown();
-            return await contentSelectorDropdown.selectFilteredByDisplayNameContent(itemDisplayName, xpath.container);
+            let contentSelectorDropdown = new ContentSelectorDropdown(xpath.container);
+            await contentSelectorDropdown.selectFilteredByDisplayNameContent(displayName);
         } catch (err) {
-            throw new Error("Issue Details dialog -  " + err);
+            await this.handleError(`Issue Details dialog, tried to select the item in Items combobox: ${displayName}`,
+                'err_select_items_combobox', err);
         }
     }
 

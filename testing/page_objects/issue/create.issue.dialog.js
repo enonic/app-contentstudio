@@ -186,7 +186,6 @@ class CreateIssueDialog extends Page {
     // filters and selects the item in Items combobox(clicks on Apply button too)
     async selectItemInContentCombobox(displayName) {
         try {
-            //let issueItemsSelector = new IssueItemsSelector(this.container);
             let contentSelectorDropdown = new ContentSelectorDropdown(xpath.container);
             await contentSelectorDropdown.selectFilteredByDisplayNameContent(displayName);
         } catch (err) {

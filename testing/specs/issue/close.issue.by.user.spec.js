@@ -1,5 +1,5 @@
 /**
- * Created on 07.02.2022
+ * Created on 07.02.2022 updated 16.02.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -24,7 +24,7 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
     const PASSWORD = appConst.PASSWORD.MEDIUM;
     const ISSUE_TITLE = appConst.generateRandomName('issue');
 
-    it.skip(`Precondition 1: new system user should be added`,
+    it(`Precondition 1: new system user should be added`,
         async () => {
             //Do Log in with 'SU', navigate to 'Users' and create new system user:
             await studioUtils.navigateToUsersApp();

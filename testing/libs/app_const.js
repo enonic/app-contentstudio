@@ -181,7 +181,8 @@ module.exports = Object.freeze({
         PROJECT_IS_OCCUPIED: 'This project identifier is occupied',
     },
     ISSUES: {
-        TASK_CLOSED: 'Task is closed',
+        STATUS_CLOSED: 'Closed',
+        STATUS_OPEN: 'Open',
         COMMENT_ADDED: 'Your comment is added to the task.',
     },
     PROJECT_ACCESS_MODE: {

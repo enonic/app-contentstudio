@@ -2,7 +2,7 @@
  * Created on 08.01.2024 updated on 11.02.2026
  */
 const lib = require('../../../libs/elements-old');
-const {COMMON, BUTTONS, NEW_DROPDOWN} = require('../../../libs/elements');
+const {COMMON, BUTTONS, DROPDOWN} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const Page = require('../../page');
 
@@ -154,7 +154,7 @@ class BaseDropdown extends Page {
     // new
     async clickOnFilteredByDisplayNameOption(optionDisplayName) {
         try {
-            let optionLocator = NEW_DROPDOWN.optionByDisplayName(optionDisplayName);
+            let optionLocator = DROPDOWN.optionByDisplayName(optionDisplayName);
             //const popupLocator = "//div[@data-combobox-popup='' or @data-combobox-popup]";
             await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
             await this.clickOnElement(optionLocator);
@@ -165,7 +165,7 @@ class BaseDropdown extends Page {
     }
     async clickOnFilteredByDisplayNameTreeOption(optionDisplayName) {
         try {
-            let optionLocator = NEW_DROPDOWN.treeItemByDisplayName(optionDisplayName);
+            let optionLocator = DROPDOWN.treeItemByDisplayName(optionDisplayName);
             await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
             await this.clickOnElement(optionLocator);
         } catch (err) {

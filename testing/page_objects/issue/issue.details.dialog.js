@@ -46,14 +46,13 @@ class IssueDetailsDialog extends BaseDetailsDialog {
     }
 
     async getNumberInItemsTab() {
-        let xpath = this.itemsTabBarItem + '/a';
-        let result = await this.getText(xpath);
-        let startIndex = result.indexOf('(');
-        if (startIndex === -1) {
-            return undefined;
+        try {
+            let xpath = this.itemsTabItem + '/span[2]';
+            let result = await this.getText(xpath);
+            return result;
+        } catch (err) {
+            await this.handleError('Issue Details Dialog, tried to get the number in Items tab', 'err_get_number_in_items_tab', err);
         }
-        let endIndex = result.indexOf(')');
-        return result.substring(startIndex + 1, endIndex);
     }
 
 
@@ -63,33 +62,23 @@ class IssueDetailsDialog extends BaseDetailsDialog {
         return result.substring(0, endIndex).trim();
     }
 
-    async getNumberInItemsTab() {
-        let result = await this.getText(this.itemsTabBarItem);
-        let startIndex = result.indexOf('(');
-        if (startIndex === -1) {
-            return undefined;
-        }
-        let endIndex = result.indexOf(')');
-        return result.substring(startIndex + 1, endIndex);
-    }
-
     async isItemsTabBarItemActive() {
         try {
-            let result = await this.getAttribute(this.itemsTabBarItem, 'class');
+            let result = await this.getAttribute(this.itemsTabItem, 'class');
             return result.includes('active');
         } catch (err) {
             throw new Error('Issue Details Dialog  ' + err);
         }
     }
 
-    async clickOnItemsTabBarItem() {
+    // Clicks on 'Items' tab item in Issue Details dialog
+    async clickOnItemsTabItem() {
         try {
-            await this.waitForElementDisplayed(this.itemsTabBarItem, appConst.mediumTimeout);
-            await this.clickOnElement(this.itemsTabBarItem);
+            await this.waitForElementDisplayed(this.itemsTabItem, appConst.mediumTimeout);
+            await this.clickOnElement(this.itemsTabItem);
             return await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot('err_click_on_items_tab_bar_item');
-            throw new Error('Issue Details Dialog: error during clicking on Items tab bar item: ' + err)
+            await this.handleError(`Issue Details Dialog: error during clicking on 'Items' tab`, 'err_issues_click_on_items_tab', err);
         }
     }
 
@@ -98,8 +87,9 @@ class IssueDetailsDialog extends BaseDetailsDialog {
             await this.waitForElementDisplayed(XPATH.closedMenuOption, appConst.mediumTimeout);
             await this.pause(200);
             await this.clickOnElement(XPATH.closedMenuOption);
-        }catch (err){
-            await this.handleError('Issue Details Dialog: error during clicking on Close Issue menu item', 'err_click_close_issue_menu_item', err);
+        } catch (err) {
+            await this.handleError('Issue Details Dialog: error during clicking on Close Issue menu item',
+                'err_click_close_issue_menu_item', err);
         }
     }
 
