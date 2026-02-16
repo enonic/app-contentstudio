@@ -80,15 +80,18 @@ class InsertMacroModalDialog extends Page {
     }
 
     async clickOnInsertButton() {
+        await this.waitForElementDisplayed(this.insertButton, appConst.mediumTimeout);
+        await this.pause(300);
         await this.clickOnElement(this.insertButton);
-        return await this.pause(1000);
+        return await this.pause(500);
     }
 
-    waitForDialogLoaded() {
-        return this.waitForElementDisplayed(this.insertButton, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot('err_open_insert_macro_dialog');
-            throw new Error('Insert Macro Dialog should be opened!' + err);
-        });
+    async waitForDialogLoaded() {
+        try {
+            return await this.waitForElementDisplayed(this.insertButton, appConst.shortTimeout);
+        } catch (err) {
+            await this.handleError('Insert Macro Dialog should be loaded!', 'err_insert_macro_dialog_loaded', err);
+        }
     }
 
     async waitForDialogClosed() {

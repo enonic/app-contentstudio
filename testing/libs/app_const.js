@@ -114,6 +114,7 @@ module.exports = Object.freeze({
         FOLDER_WITH_IMAGES_2_NAME: 'imagearchive',
         SELENIUM_TESTS_FOLDER_DISPLAY_NAME: "folder for selenium tests",
         SELENIUM_TESTS_FOLDER_NAME: 'selenium-tests-folder',
+        IMPORTED_SITE_NAME: 'site040269',
     },
     TEST_APPS_NAME: {
         APP_CONTENT_TYPES: 'All Content Types App',

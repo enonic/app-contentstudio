@@ -11,12 +11,16 @@ const XPATH = {
     ckeToolbox: "//span[contains(@class,'cke_toolbox')]",
     formatDropDownHandle: `//span[contains(@class,'cke_combo__styles') and descendant::a[@class='cke_combo_button']]`,
     removeAreaButton: "//div[contains(@id,'HtmlArea')]//button[@class='remove-button']",
-
-    typeText(id, text) {
-        return `CKEDITOR.instances['${id}'].setData('${text}')`;
-    },
     getText(id) {
         return `return CKEDITOR.instances['${id}'].getData()`;
+    },
+    typeText(id, text) {
+        return `
+        if (window.CKEDITOR && CKEDITOR.instances['${id}']) {
+            CKEDITOR.instances['${id}'].setData('${text}');
+        } else {
+            throw new Error('CKEDITOR instance с id ${id} не найден');
+        }`;
     },
     formatOptionByName: optionName => {
         return `//div[@title='Formatting Styles']//li[@class='cke_panel_listItem']//a[@title='${optionName}']`;
@@ -24,6 +28,15 @@ const XPATH = {
 };
 
 class HtmlAreaForm extends OccurrencesFormView {
+
+    constructor(parentElementXpath = '') {
+        super();
+        this._container = parentElementXpath;
+    }
+
+    get container() {
+        return this._container;
+    }
 
     get fullScreenButton() {
         return lib.FORM_VIEW + lib.CKE.fullScreen;
@@ -52,17 +65,24 @@ class HtmlAreaForm extends OccurrencesFormView {
         return await this.pause(300);
     }
 
-    typeTextInHtmlArea(texts) {
-        return this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout).then(() => {
-            return this.getIdOfHtmlAreas();
-        }).then(ids => {
-            const promises = [].concat(texts).map((text, index) => {
-                return this.execute(XPATH.typeText(ids[index], text));
-            });
-            return Promise.all(promises);
-        }).then(() => {
-            return this.pause(300);
-        });
+    async typeTextInHtmlArea(texts) {
+        const inputTexts = [].concat(texts);
+        try {
+            await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
+            const ids = await this.getIdOfHtmlAreas();
+            if (inputTexts.length > ids.length) {
+                const errMsg = `Array of text (${inputTexts.length}) more, чем htmlAreas (${ids.length})`;
+                throw new Error(errMsg);
+            }
+
+            for (let i = 0; i < inputTexts.length; i++) {
+                await this.execute(XPATH.typeText(ids[i], inputTexts[i]));
+            }
+            await this.pause(300);
+        } catch (err) {
+            console.error('typeTextInHtmlArea: tried to insert the text:', err);
+            throw err;
+        }
     }
 
     async insertTextInHtmlArea(index, text) {
@@ -72,24 +92,39 @@ class HtmlAreaForm extends OccurrencesFormView {
     }
 
     async getIdOfHtmlAreas() {
-        let selector = lib.FORM_VIEW + lib.TEXT_AREA;
-        let elems = await this.findElements(selector);
-        let ids = [];
-        for (const item of elems) {
-            ids.push(await item.getAttribute('id'));
+        try {
+            const textAreaSelector = this.container ? this.container + lib.TEXT_AREA : lib.FORM_VIEW + lib.TEXT_AREA;
+            const elements = await this.findElements(textAreaSelector);
+            if (!elements || elements.length === 0) {
+                console.warn('getIdOfHtmlAreas: htmlArea elements not found with selector: ' + textAreaSelector);
+                return [];
+            }
+            const ids = [];
+            for (const el of elements) {
+                const id = await el.getAttribute('id');
+                if (id) {
+                    ids.push(id);
+                } else {
+                    console.warn('getIdOfHtmlAreas: area element found but id attribute is missing:', el);
+                }
+            }
+            return ids;
+        } catch (err) {
+            console.error('HtmlArea form panel getIdOfHtmlAreas: tried to get ID:', err);
+            throw err;
         }
-        return ids;
     }
 
+
     async isEditorToolbarVisible(index) {
-        let elements = await this.findElements(XPATH.ckeToolbox);
+        let elements = await this.findElements(this.container + XPATH.ckeToolbox);
         if (elements.length > 0) {
             return await elements[index].isDisplayed();
         }
     }
 
     async clearHtmlArea(index) {
-        await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.container + XPATH.ckeTextArea, appConst.mediumTimeout);
         let ids = await this.getIdOfHtmlAreas();
         const arr = [].concat(ids);
         await this.execute(XPATH.typeText(arr[index], ''));
@@ -98,7 +133,7 @@ class HtmlAreaForm extends OccurrencesFormView {
 
     async getTextInHtmlArea(index) {
         let ids = await this.getIdOfHtmlAreas();
-        let text = await this.execute(XPATH.getText(ids[index]));
+        let text = await this.execute(this.container + XPATH.getText(ids[index]));
         return text;
     }
 
@@ -106,7 +141,7 @@ class HtmlAreaForm extends OccurrencesFormView {
         try {
             await this.clickInTextArea();
             await this.pause(500);
-            let frameLocator = XPATH.ckeTextArea + "//iframe";
+            let frameLocator = this.container + XPATH.ckeTextArea + "//iframe";
             await this.switchToFrame(frameLocator);
             await this.pause(500);
             await this.doDoubleClick(`//body//p[contains(.,'${text}')]`);
@@ -120,7 +155,7 @@ class HtmlAreaForm extends OccurrencesFormView {
 
     getTextFromHtmlArea() {
         let strings = [];
-        return this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout).then(() => {
+        return this.waitForElementDisplayed(this.container + XPATH.ckeTextArea, appConst.mediumTimeout).then(() => {
             return this.getIdOfHtmlAreas();
         }).then(ids => {
             [].concat(ids).forEach(id => {
@@ -150,7 +185,7 @@ class HtmlAreaForm extends OccurrencesFormView {
     async showToolbar() {
         try {
             await this.clickInTextArea();
-            return await this.waitUntilDisplayed(XPATH.ckeToolbox, appConst.mediumTimeout)
+            return await this.waitUntilDisplayed(this.container + XPATH.ckeToolbox, appConst.mediumTimeout)
         } catch (err) {
             await this.handleError('HtmlArea Form - show toolbar', 'err_htmlarea_toolbar', err);
         }
@@ -254,8 +289,8 @@ class HtmlAreaForm extends OccurrencesFormView {
     }
 
     async clickInTextArea() {
-        await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
-        await this.clickOnElement(XPATH.ckeTextArea);
+        await this.waitForElementDisplayed(this.container + XPATH.ckeTextArea, appConst.mediumTimeout);
+        await this.clickOnElement(this.container + XPATH.ckeTextArea);
         await this.pause(100);
     }
 

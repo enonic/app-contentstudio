@@ -2,9 +2,9 @@
  * Created on 04.12.2018.
  */
 const OccurrencesFormView = require('../occurrences.form.view');
-const HtmlArea = require('../../components/htmlarea');
 const appConst = require('../../../libs/app_const');
 const lib = require('../../../libs/elements');
+const HtmlAreaForm = require('../htmlarea.form.panel');
 
 const XPATH = {
     container: "//div[contains(@id,'XDataWizardStepForm')]",
@@ -12,14 +12,17 @@ const XPATH = {
 
 class XDataHtmlArea extends OccurrencesFormView {
 
-    typeTextInHtmlArea(text) {
-        let htmlArea = new HtmlArea();
-        return htmlArea.typeTextInHtmlArea(XPATH.container, text);
+    async typeTextInHtmlArea(text) {
+        let htmlAreaForm = new HtmlAreaForm(XPATH.container);
+        await htmlAreaForm.clickInTextArea();
+        await htmlAreaForm.pause(200);
+        await htmlAreaForm.typeTextInHtmlArea(text)
+        //await htmlAreaForm.pressEnterKey();
     }
 
     getTextInHtmlArea() {
-        let htmlArea = new HtmlArea();
-        return htmlArea.getTextFromHtmlArea(XPATH.container);
+        let htmlAreaForm = new HtmlAreaForm(XPATH.container);
+        return htmlAreaForm.getTextFromHtmlArea();
     }
 
     waitForHtmlAreaVisible() {

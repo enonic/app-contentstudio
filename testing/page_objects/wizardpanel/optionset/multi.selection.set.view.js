@@ -5,6 +5,7 @@ const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const HtmlAreaForm = require('../htmlarea.form.panel');
+
 const xpath = {
     container: "//div[contains(@id,'FormView')]//div[contains(@id,'FormOptionSetView') and descendant::h5[text()='Multi selection']]",
     validationMessage: "//div[contains(@class,'selection-message')]",
@@ -103,7 +104,7 @@ class MultiSelectionOptionSet extends Page {
     }
 
     async typeTextInHtmlAreaInOption3(index, text) {
-        let htmlAreaForm = new HtmlAreaForm();
+        let htmlAreaForm = new HtmlAreaForm(xpath.container);
         return await htmlAreaForm.insertTextInHtmlArea(index, text);
     }
 

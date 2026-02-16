@@ -119,8 +119,7 @@ class SiteConfiguratorDialog extends Page {
             await this.clickOnElement(this.applyButton);
             return await this.waitForDialogClosed();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName(screenshot);
-            throw new Error(`Site Configurator Dialog, error during clicking on Apply button, screenshot: ${screenshot}  ` + err);
+            await this.handleError(`Error occurred after clicking on Apply button, dialog should be closed!`, 'site_conf_apply_button');
         }
     }
 
