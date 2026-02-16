@@ -9,6 +9,7 @@ import {SettingsDataViewItem} from '../../../../../app/settings/view/SettingsDat
 import {SettingsViewItem} from '../../../../../app/settings/view/SettingsViewItem';
 import {ProjectHelper} from '../../../../../app/settings/data/project/ProjectHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {virtuosoComponents} from '../../../shared/lists';
 import {ProjectLabel} from '../../../shared/project/ProjectLabel';
 import {ItemLabel} from '../../../shared/ItemLabel';
 import {useI18n} from '../../../hooks/useI18n';
@@ -96,6 +97,7 @@ export const SettingsTreeList = ({contextMenuActions = []}: SettingsTreeListProp
                             ref={virtuosoRef}
                             data={items as SettingsFlatNode[]}
                             className={cn('h-full px-5 py-2.5 bg-surface-neutral', containerClassName)}
+                            components={virtuosoComponents}
                             rangeChanged={handleRangeChange}
                             {...restContainerProps}
                             itemContent={(index, node) => {
