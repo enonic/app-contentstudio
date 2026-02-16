@@ -23,8 +23,7 @@ export const IssueCommentDeleteDialog = ({
             <ConfirmationDialog.Portal>
                 <ConfirmationDialog.Overlay className='z-40 bg-transparent' />
                 <ConfirmationDialog.Content>
-                    <ConfirmationDialog.DefaultHeader title={title} />
-                    <ConfirmationDialog.Body>{description}</ConfirmationDialog.Body>
+                    <ConfirmationDialog.DefaultHeader title={title} description={description} />
                     <ConfirmationDialog.Footer
                         intent='danger'
                         onConfirm={onConfirm}

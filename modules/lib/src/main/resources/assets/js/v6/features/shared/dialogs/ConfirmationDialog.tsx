@@ -50,7 +50,7 @@ const ConfirmationDialogContent = forwardRef<HTMLDivElement, ConfirmationDialogC
     ({defaultConfirmEnabled = true, className, children, ...props}, ref): ReactElement => {
         return (
             <Dialog.Content ref={ref}
-                className={cn('max-w-180 w-fit sm:min-w-152 text-main gap-2.5', className)} {...props}>
+                className={cn('max-w-180 w-fit sm:min-w-152 text-main gap-10', className)} {...props}>
                 <ConfirmationDialogProvider defaultConfirmEnabled={defaultConfirmEnabled}>{children}</ConfirmationDialogProvider>
             </Dialog.Content>
         );
@@ -66,6 +66,7 @@ ConfirmationDialogContent.displayName = 'ConfirmationDialog.Content';
 export type ConfirmationDialogFooterProps = {
     onCancel?: () => void;
     onConfirm?: () => void;
+    closeOnConfirm?: boolean;
     intent?: 'default' | 'danger';
     className?: string;
 } & ComponentPropsWithoutRef<'footer'>;
@@ -73,6 +74,7 @@ export type ConfirmationDialogFooterProps = {
 const ConfirmationDialogFooter = forwardRef<HTMLButtonElement, ConfirmationDialogFooterProps>(({
     onCancel,
     onConfirm,
+    closeOnConfirm = true,
     intent = 'default',
     className,
     ...props
@@ -82,21 +84,23 @@ const ConfirmationDialogFooter = forwardRef<HTMLButtonElement, ConfirmationDialo
     const cancel = useI18n('action.cancel');
     const confirm = useI18n('action.confirm');
 
+    const ConfirmButton = (
+        <Button ref={ref}
+            onClick={onConfirm}
+            disabled={!confirmEnabled}
+            size='lg'
+            label={confirm}
+            variant='solid'
+            className={cn(intent === 'danger' && 'bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50')}
+        />
+    );
+
     return (
-        <Dialog.Footer {...props}>
+        <Dialog.Footer className={cn('mt-2.5', className)} {...props}>
             <Dialog.Close asChild>
                 <Button size='lg' label={cancel} variant='outline' onClick={onCancel} />
             </Dialog.Close>
-            <Dialog.Close asChild>
-                <Button ref={ref}
-                    onClick={onConfirm}
-                    disabled={!confirmEnabled}
-                    size='lg'
-                    label={confirm}
-                    variant='solid'
-                    className={cn(intent === 'danger' && 'bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50')}
-                />
-            </Dialog.Close>
+            {closeOnConfirm ? <Dialog.Close asChild>{ConfirmButton}</Dialog.Close> : ConfirmButton}
         </Dialog.Footer>
     );
 });

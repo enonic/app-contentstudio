@@ -1,9 +1,9 @@
 import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {useI18n} from '../../../hooks/useI18n';
-import {Button, cn, Dialog} from '@enonic/ui';
+import {cn, Dialog} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ReactElement, useCallback} from 'react';
+import {useI18n} from '../../../hooks/useI18n';
 import {
     $isNewProjectDialogDirty,
     $newProjectDialog,
@@ -12,6 +12,7 @@ import {
     setNewProjectDialogStep,
     setNewProjectDialogView,
 } from '../../../store/dialogs/newProjectDialog.store';
+import {ConfirmationDialog} from '../ConfirmationDialog';
 import {NewProjectDialogSteps} from './steps';
 
 const NEW_PROJECT_DIALOG_NAME = 'NewProjectDialog';
@@ -33,13 +34,16 @@ export const NewProjectDialog = (): ReactElement => {
     const submitLabel = useI18n('dialog.project.wizard.action.submit');
     const confirmTitle = useI18n('dialog.confirm.newProject.title');
     const confirmDescription = useI18n('dialog.confirm.newProject.description');
-    const cancelLabel = useI18n('action.cancel');
-    const confirmLabel = useI18n('action.confirm');
 
     // Handlers
     const handleOpenChange = useCallback(
         (open: boolean) => {
             if (open) return;
+
+            if (view === 'confirmation') {
+                setNewProjectDialogView('main');
+                return;
+            }
 
             if (isDirty) {
                 setNewProjectDialogView('confirmation');
@@ -48,7 +52,7 @@ export const NewProjectDialog = (): ReactElement => {
 
             closeNewProjectDialog();
         },
-        [isDirty]
+        [isDirty, view]
     );
 
     const handleSubmit = () => {
@@ -61,10 +65,6 @@ export const NewProjectDialog = (): ReactElement => {
                 console.error(error);
                 showError(error.message);
             });
-    };
-
-    const handleResetView = () => {
-        setNewProjectDialogView('main');
     };
 
     const handleConfirm = () => {
@@ -114,19 +114,10 @@ export const NewProjectDialog = (): ReactElement => {
                     </Dialog.Content>
                 )}
                 {view === 'confirmation' && (
-                    <Dialog.Content className="max-w-180 w-fit sm:min-w-152 text-main gap-2.5">
-                        <Dialog.DefaultHeader title={confirmTitle} description={confirmDescription} withClose />
-                        <Dialog.Footer className="mt-5">
-                            <Button size="lg" label={cancelLabel} variant="outline" onClick={handleResetView} />
-                            <Button
-                                size="lg"
-                                label={confirmLabel}
-                                variant="solid"
-                                className="bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50"
-                                onClick={handleConfirm}
-                            />
-                        </Dialog.Footer>
-                    </Dialog.Content>
+                    <ConfirmationDialog.Content>
+                        <ConfirmationDialog.DefaultHeader title={confirmTitle} description={confirmDescription} />
+                        <ConfirmationDialog.Footer onConfirm={handleConfirm} />
+                    </ConfirmationDialog.Content>
                 )}
             </Dialog.Portal>
         </Dialog.Root>

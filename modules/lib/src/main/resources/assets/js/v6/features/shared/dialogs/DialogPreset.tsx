@@ -1,7 +1,5 @@
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {Button, Dialog} from '@enonic/ui';
 import {ReactElement, RefObject, useEffect, useRef} from 'react';
-import {useI18n} from '../../hooks/useI18n';
 import {LegacyElement} from './../LegacyElement';
 import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
 import {Gate} from './Gate';
@@ -35,9 +33,9 @@ const DialogPresetConfirm = ({
         }}>
             <ConfirmationDialog.Portal>
                 <ConfirmationDialog.Overlay />
-                    <ConfirmationDialog.Content data-component={DIALOG_PRESET_CONFIRM_NAME} defaultConfirmEnabled={defaultConfirmEnabled}>
+                <ConfirmationDialog.Content data-component={DIALOG_PRESET_CONFIRM_NAME} defaultConfirmEnabled={defaultConfirmEnabled}>
                     <ConfirmationDialog.DefaultHeader title={title} />
-                    <ConfirmationDialog.Body className="mb-7">{description}</ConfirmationDialog.Body>
+                    <ConfirmationDialog.Body>{description}</ConfirmationDialog.Body>
                     <ConfirmationDialog.Footer onConfirm={onConfirm} onCancel={onCancel} />
                 </ConfirmationDialog.Content>
             </ConfirmationDialog.Portal>
@@ -113,35 +111,16 @@ const DialogPresetGatedConfirmContentParts = ({
         }
     }, [confirmEnabled]);
 
-    const cancel = useI18n('action.cancel');
-    const confirm = useI18n('action.confirm');
-
     return (
         <>
-            <ConfirmationDialog.DefaultHeader title={title} />
-            {description && (
-                <ConfirmationDialog.Body>{description}</ConfirmationDialog.Body>
-            )}
-            <Gate className="mt-7 mb-9.5">
-                <Gate.Hint value={expected} />
-                <Gate.Input
-                    ref={gateInputRef}
-                    inputMode={typeof expected === 'number' ? 'numeric' : undefined}
-                    expected={expected}
-                    validate={validate}
-                />
-            </Gate>
-            <Dialog.Footer>
-                <Button size='lg' label={cancel} variant='outline' onClick={onCancel} />
-                <Button ref={confirmButtonRef}
-                    className='bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50'
-                    size='lg'
-                    variant='solid'
-                    onClick={onConfirm}
-                    disabled={!confirmEnabled}
-                    label={confirm}
-                />
-            </Dialog.Footer>
+            <ConfirmationDialog.DefaultHeader title={title} description={description} />
+            <ConfirmationDialog.Body>
+                <Gate className="mb-2.5">
+                    <Gate.Hint value={expected} />
+                    <Gate.Input ref={gateInputRef} inputMode={typeof expected === 'number' ? 'numeric' : undefined} expected={expected} validate={validate} />
+                </Gate>
+            </ConfirmationDialog.Body>
+            <ConfirmationDialog.Footer onCancel={onCancel} onConfirm={onConfirm} intent='danger' ref={confirmButtonRef} closeOnConfirm={false} />
         </>
     );
 };

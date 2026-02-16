@@ -1,4 +1,4 @@
-import {computed, map} from 'nanostores';
+import {atom, computed, map} from 'nanostores';
 import {ResultAsync} from 'neverthrow';
 import {Project} from '../../../../app/settings/data/project/Project';
 import {ProjectConfigContext} from '../../../../app/settings/data/project/ProjectConfigContext';
@@ -72,9 +72,15 @@ const initialState: NewProjectDialogStore = {
 
 export const $newProjectDialog = map<NewProjectDialogStore>(structuredClone(initialState));
 
-export const $isNewProjectDialogDirty = computed($newProjectDialog, (state): boolean => {
+const $openParentProjectNames = atom<readonly string[]>([]);
+
+export const $isNewProjectDialogDirty = computed([$newProjectDialog, $openParentProjectNames], (state, openNames): boolean => {
+    const parentNames = state.parentProjects.map((p) => p.getName());
+    const parentsDirty =
+        parentNames.length !== openNames.length || parentNames.some((name, i) => name !== openNames[i]);
+
     return (
-        state.parentProjects.length > 0 ||
+        parentsDirty ||
         state.defaultLanguage !== '' ||
         state.accessMode !== '' ||
         state.permissions.length > 0 ||
@@ -94,6 +100,7 @@ export const $isNewProjectDialogDirty = computed($newProjectDialog, (state): boo
 export const openNewProjectDialog = (selectedProjects: Project[]): void => {
     const isMultiInheritance = Boolean(ProjectConfigContext.get().getProjectConfig()?.isMultiInheritance());
 
+    $openParentProjectNames.set(selectedProjects.map((p) => p.getName()));
     $newProjectDialog.set({
         ...structuredClone(initialState),
         open: true,
