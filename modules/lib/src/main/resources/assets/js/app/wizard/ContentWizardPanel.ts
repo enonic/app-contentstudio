@@ -45,9 +45,6 @@ import {type ValidityChangedEvent} from '@enonic/lib-admin-ui/ValidityChangedEve
 import Q from 'q';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
 import {DialogPresetConfirmElement} from '../../v6/features/shared/dialogs/DialogPreset';
-import {setContentType, setPersistedContent} from '../../v6/features/store/wizardContent.store';
-import type {PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
-import {ContentWizardTabsElement} from '../../v6/features/views/wizard/content-wizard-tabs/ContentWizardTabsElement';
 import {Permission} from '../access/Permission';
 import {AI} from '../ai/AI';
 import {AiContentDataHelper} from '../ai/AiContentDataHelper';
@@ -76,7 +73,6 @@ import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
 import {type ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {InspectEvent} from '../event/InspectEvent';
-import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
 import {type ContentType} from '../inputtype/schema/ContentType';
 import {ImageErrorEvent} from '../inputtype/ui/selector/image/ImageErrorEvent';
 import {type Descriptor} from '../page/Descriptor';
@@ -145,6 +141,10 @@ import {WorkflowStateManager, type WorkflowStateStatus} from './WorkflowStateMan
 import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
+import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
+import {type PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
+import {ContentWizardTabsToolbarElement} from '../../v6/features/views/wizard/content-wizard-tabs/ContentWizardTabsToolbarElement';
+import {setPersistedContent, setContentType, setMixinsDescriptors} from '../../v6/features/store/wizardContent.store';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -266,6 +266,8 @@ export class ContentWizardPanel
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
     private isRename: boolean;
+
+    private contentWizardTabsElement: ContentWizardTabsToolbarElement;
 
     constructor(params: ContentWizardPanelParams, cls?: string) {
         super(params);
@@ -532,7 +534,10 @@ export class ContentWizardPanel
     }
 
     fetchContentXData(): Q.Promise<MixinDescriptor[]> {
-        return new GetContentMixinsRequest(this.getPersistedItem().getContentId()).sendAndParse();
+        return new GetContentMixinsRequest(this.getPersistedItem().getContentId()).sendAndParse().then((mixinsDescriptors) => {
+            setMixinsDescriptors(mixinsDescriptors.slice());
+            return mixinsDescriptors;
+        });
     }
 
     protected doLoadData(): Q.Promise<Content> {
@@ -851,8 +856,8 @@ export class ContentWizardPanel
         if (this.getPersistedItem()) {
             setPersistedContent(this.getPersistedItem());
         }
-        const contentWizardTabsElement = new ContentWizardTabsElement();
-        this.formPanel.prependChild(contentWizardTabsElement);
+        this.contentWizardTabsElement = new ContentWizardTabsToolbarElement();
+        this.formPanel.prependChild(this.contentWizardTabsElement);
 
         this.onPageStateChanged(() => this.updateTabsElement());
 
