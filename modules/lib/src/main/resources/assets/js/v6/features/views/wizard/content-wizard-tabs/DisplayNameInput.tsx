@@ -1,22 +1,29 @@
-import {ReactElement, useRef} from 'react';
+import {cn} from '@enonic/ui';
+import {useStore} from '@nanostores/preact';
+import {type ReactElement} from 'react';
+import {useI18n} from '../../../hooks/useI18n';
+import {EditableText} from '../../../shared/primitives/EditableText';
+import {$displayName, setDisplayNameDraft} from '../../../store/wizardContent.store';
 
-type DisplayNameInputProps = {
-    value: string;
-};
+const displayNameClasses = cn(
+    'rounded-none',
+    'px-5',
+    'min-w-64',
+    'border-l-bdr-subtle',
+);
 
-export const DisplayNameInput = ({value}: DisplayNameInputProps): ReactElement => {
-    const inputRef = useRef<HTMLInputElement>(null);
+export const DisplayNameInput = (): ReactElement => {
+    const displayName = useStore($displayName);
+    const placeholder = useI18n('field.displayName');
 
     return (
-        <div className="border-l border-subtle pl-2.5">
-            <input
-                ref={inputRef}
-                type="text"
-                value={value}
-                placeholder="Display name"
-                className="px-2.5 py-1 text-[32px] font-semibold bg-transparent outline-none min-w-80 max-w-full placeholder:text-muted"
-            />
-        </div>
+        <EditableText
+            size="xl"
+            value={displayName}
+            placeholder={placeholder}
+            onCommit={setDisplayNameDraft}
+            className={displayNameClasses}
+        />
     );
 };
 

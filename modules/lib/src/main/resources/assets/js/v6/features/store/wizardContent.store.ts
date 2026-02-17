@@ -22,6 +22,13 @@ export const $xDataSchemas = atom<XData[]>([]);
 
 export const $persistedDisplayName = computed($persistedContent, (content) => content?.getDisplayName() ?? '');
 
+const $displayNameDraft = atom<string | null>(null);
+
+export const $displayName = computed(
+    [$displayNameDraft, $persistedDisplayName],
+    (draft, persisted) => draft ?? persisted,
+);
+
 export const $persistedPage = computed($persistedContent, (content): Page | null => content?.getPage() ?? null);
 
 export const $persistedHasPage = computed($persistedPage, (page) => page != null);
@@ -52,8 +59,13 @@ export const $xDataTabs = computed([$persistedXData, $xDataSchemas], (extraData,
 // * Actions
 //
 
+export function setDisplayNameDraft(value: string): void {
+    $displayNameDraft.set(value);
+}
+
 export function setPersistedContent(content: Content): void {
     $persistedContent.set(content);
+    $displayNameDraft.set(null);
 }
 
 export function setContentType(contentType: ContentType): void {
@@ -68,4 +80,5 @@ export function resetWizardContent(): void {
     $persistedContent.set(null);
     $contentType.set(null);
     $xDataSchemas.set([]);
+    $displayNameDraft.set(null);
 }

@@ -659,7 +659,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                 onCommit={handleTitleCommit}
                                 onEditingChange={setIsEditingTitle}
                                 disabled={isTitleDisabled}
-                                variant="heading"
+                                size="lg"
+                                allowEmpty={false}
                                 aria-label={titleLabel}
                             />
                             {!isEditingTitle && issueIndex != null && (

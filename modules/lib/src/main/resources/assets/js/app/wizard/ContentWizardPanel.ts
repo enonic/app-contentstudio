@@ -267,8 +267,6 @@ export class ContentWizardPanel
 
     private isRename: boolean;
 
-    private contentWizardTabsElement: ContentWizardTabsElement;
-
     constructor(params: ContentWizardPanelParams, cls?: string) {
         super(params);
 
@@ -856,8 +854,8 @@ export class ContentWizardPanel
         if (this.getPersistedItem()) {
             setPersistedContent(this.getPersistedItem());
         }
-        this.contentWizardTabsElement = new ContentWizardTabsElement();
-        this.formPanel.prependChild(this.contentWizardTabsElement);
+        const contentWizardTabsElement = new ContentWizardTabsElement();
+        this.formPanel.prependChild(contentWizardTabsElement);
 
         this.onPageStateChanged(() => this.updateTabsElement());
 

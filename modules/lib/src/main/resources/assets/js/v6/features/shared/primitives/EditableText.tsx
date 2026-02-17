@@ -11,17 +11,24 @@ import {
 } from 'react';
 
 const editableTextVariants = cva([
-    'bg-transparent',
-    'border border-transparent rounded-sm',
+    'bg-transparent border',
+    'border-transparent rounded-sm',
+    'hover:not-focus:not-disabled:border-bdr-subtle',
+    'focus:border-bdr-strong',
     'transition-highlight',
+    'placeholder:text-subtle',
+    'focus:outline-none',
+    'focus:ring-3 focus:ring-ring focus:ring-offset-3 focus:ring-offset-ring-offset',
+    'disabled:select-none disabled:cursor-not-allowed disabled:opacity-50',
 ], {
     variants: {
-        variant: {
-            heading: 'text-2xl font-semibold px-1 py-0',
-            text: 'text-md px-2 py-1',
+        size: {
+            md: 'text-md px-2 py-1',
+            lg: 'text-2xl font-semibold px-1 py-0',
+            xl: 'text-[2rem] font-semibold px-2.5 py-1',
         },
     },
-    defaultVariants: {variant: 'text'},
+    defaultVariants: {size: 'md'},
 });
 
 export type EditableTextProps = {
@@ -30,8 +37,9 @@ export type EditableTextProps = {
     onCommit?: (value: string) => void;
     onEditingChange?: (isEditing: boolean) => void;
     allowEmpty?: boolean;
+    fullWidth?: boolean;
 } & VariantProps<typeof editableTextVariants>
-    & Omit<ComponentPropsWithoutRef<'input'>, 'value' | 'onChange' | 'type'>;
+    & Omit<ComponentPropsWithoutRef<'input'>, 'value' | 'onChange' | 'type' | 'size'>;
 
 const EDITABLE_TEXT_NAME = 'EditableText';
 
@@ -43,9 +51,9 @@ export const EditableText = forwardRef<HTMLInputElement, EditableTextProps>(({
     placeholder,
     onCommit,
     onEditingChange,
-    allowEmpty = false,
-    variant,
-    disabled,
+    allowEmpty = true,
+    size,
+    fullWidth = false,
     className,
     onFocus,
     onBlur,
@@ -56,6 +64,7 @@ export const EditableText = forwardRef<HTMLInputElement, EditableTextProps>(({
     const [isFocused, setIsFocused] = useState(false);
     const [inputWidth, setInputWidth] = useState(0);
     const committedRef = useRef(value);
+    const skipNextSyncRef = useRef(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const measureRef = useRef<HTMLSpanElement>(null);
 
@@ -78,8 +87,27 @@ export const EditableText = forwardRef<HTMLInputElement, EditableTextProps>(({
         updateWidth();
     }, [draft, value, updateWidth]);
 
+    // WORKAROUND: Preact compat timing issue — useLayoutEffect can fire before
+    // the browser calculates layout, causing offsetWidth to return 0 on initial
+    // mount. ResizeObserver acts as an async fallback. Remove if migrating to React.
+    useEffect(() => {
+        const el = measureRef.current;
+        if (!el) return;
+
+        const observer = new ResizeObserver(() => {
+            updateWidth();
+        });
+        observer.observe(el);
+
+        return () => observer.disconnect();
+    }, [updateWidth]);
+
     useEffect(() => {
         if (!isFocused) {
+            if (skipNextSyncRef.current) {
+                skipNextSyncRef.current = false;
+                return;
+            }
             setDraft(value);
             committedRef.current = value;
         }
@@ -96,6 +124,7 @@ export const EditableText = forwardRef<HTMLInputElement, EditableTextProps>(({
         }
 
         if (hasChanged) {
+            skipNextSyncRef.current = true;
             onCommit?.(trimmed);
             committedRef.current = trimmed;
             setDraft(trimmed);
@@ -120,6 +149,7 @@ export const EditableText = forwardRef<HTMLInputElement, EditableTextProps>(({
         setIsFocused(false);
         onEditingChange?.(false);
         commit();
+        e.currentTarget.setSelectionRange(0, 0);
     };
 
     const handleKeyDown: ComponentPropsWithoutRef<'input'>['onKeyDown'] = (e) => {
@@ -142,42 +172,39 @@ export const EditableText = forwardRef<HTMLInputElement, EditableTextProps>(({
     return (
         <div
             data-component={EDITABLE_TEXT_NAME}
-            className="relative inline-flex min-w-0 max-w-full"
+            className={cn(
+                'relative inline-flex min-w-0 max-w-full',
+                fullWidth && 'flex w-full',
+            )}
         >
-            {/* Hidden sizer span - measures text width */}
-            <span
-                ref={measureRef}
-                className={cn(
-                    editableTextVariants({variant}),
-                    'absolute invisible whitespace-pre pointer-events-none',
-                    className,
-                )}
-                aria-hidden="true"
-            >
-                {draft || placeholder || '\u00A0'}
-            </span>
+            {!fullWidth && (
+                <span
+                    ref={measureRef}
+                    className={cn(
+                        editableTextVariants({size}),
+                        'absolute invisible whitespace-pre pointer-events-none',
+                        className,
+                    )}
+                    aria-hidden="true"
+                >
+                    {(isFocused ? draft : value) || placeholder || '\u00A0'}
+                </span>
+            )}
 
-            {/* Input - width controlled via JS measurement */}
             <input
                 ref={setRefs}
                 type="text"
                 value={draft}
                 placeholder={placeholder}
-                disabled={disabled}
                 onChange={(e) => setDraft(e.currentTarget.value)}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
-                style={{width: inputWidth}}
+                style={fullWidth ? undefined : {width: inputWidth}}
                 className={cn(
-                    editableTextVariants({variant}),
-                    'placeholder:text-subtle',
-                    'hover:border-bdr-subtle',
-                    'focus:border-bdr-strong focus:outline-none',
-                    'focus:ring-3 focus:ring-ring focus:ring-offset-3 focus:ring-offset-ring-offset',
-                    'disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-transparent',
-                    'min-w-6 max-w-full',
-                    !isFocused && 'truncate',
+                    editableTextVariants({size}),
+                    fullWidth ? 'w-full' : 'min-w-6 max-w-full',
+                    !isFocused && !fullWidth && 'truncate',
                     className,
                 )}
                 {...props}
