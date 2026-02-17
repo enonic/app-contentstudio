@@ -16,7 +16,7 @@ export const $contentType = atom<ContentType | null>(null);
 //
 //! This is broken, we need to fix it
 //
-export const $mixins = atom<MixinDescriptor[]>([]);
+export const $mixinsDescriptors = atom<MixinDescriptor[]>([]);
 
 //
 // * Derived State
@@ -41,20 +41,59 @@ export const $persistedMixins = computed($persistedContent, (content): MixinDesc
 
 export const $contentTypeDisplayName = computed($contentType, (contentType) => contentType?.getDisplayName() ?? '');
 
-export type XDataTabInfo = {
+export type MixinTabInfo = {
     name: string;
     displayName: string;
 };
 
-export const $mixinsTabs = computed([$persistedMixins, $mixins], (extraData, schemas): XDataTabInfo[] => {
-    return extraData.map((extra) => {
-        const name = extra.getName().toString();
-        const schema = schemas.find((s) => s.getName() === name);
-        return {
-            name,
-            displayName: schema?.getDisplayName() ?? name,
-        };
-    });
+export const $mixinsPendingChanges = atom<Map<string, boolean>>(new Map());
+
+export const $enabledMixinsNames = computed(
+    [$persistedMixins, $mixinsDescriptors, $mixinsPendingChanges],
+    (extraData, schemas, pendingChanges): Set<string> => {
+        const persistedNames = new Set(extraData.map((extra) => extra.getName().toString()));
+        const enabledNames = new Set<string>();
+
+        for (const schema of schemas) {
+            const name = schema.getName();
+            const override = pendingChanges.get(name);
+
+            if (override != null) {
+                if (override) {
+                    enabledNames.add(name);
+                }
+            } else if (!schema.isOptional() || persistedNames.has(name)) {
+                enabledNames.add(name);
+            }
+        }
+
+        return enabledNames;
+    },
+);
+
+export const $mixinsTabs = computed([$enabledMixinsNames, $mixinsDescriptors], (enabledNames, schemas): MixinTabInfo[] => {
+    return schemas
+        .filter((schema) => enabledNames.has(schema.getName()))
+        .map((schema) => ({
+            name: schema.getName(),
+            displayName: schema.getDisplayName() ?? schema.getName(),
+        }));
+});
+
+export type MixinMenuItem = {
+    name: string;
+    displayName: string;
+    isOptional: boolean;
+    isEnabled: boolean;
+};
+
+export const $mixinsMenuItems = computed([$mixinsDescriptors, $enabledMixinsNames], (schemas, enabledNames): MixinMenuItem[] => {
+    return schemas.map((schema) => ({
+        name: schema.getName(),
+        displayName: schema.getDisplayName() ?? schema.getName(),
+        isOptional: schema.isOptional(),
+        isEnabled: enabledNames.has(schema.getName()),
+    }));
 });
 
 //
@@ -74,13 +113,20 @@ export function setContentType(contentType: ContentType): void {
     $contentType.set(contentType);
 }
 
-export function setXDataSchemas(xDatas: MixinDescriptor[]): void {
-    $mixins.set(xDatas);
+export function setMixinsDescriptors(mixinsDescriptors: MixinDescriptor[]): void {
+    $mixinsDescriptors.set(mixinsDescriptors);
+}
+
+export function toggleMixin(name: string, enabled: boolean): void {
+    const next = new Map($mixinsPendingChanges.get());
+    next.set(name, enabled);
+    $mixinsPendingChanges.set(next);
 }
 
 export function resetWizardContent(): void {
     $persistedContent.set(null);
     $contentType.set(null);
-    $mixins.set([]);
+    $mixinsDescriptors.set([]);
+    $mixinsPendingChanges.set(new Map());
     $displayNameDraft.set(null);
 }

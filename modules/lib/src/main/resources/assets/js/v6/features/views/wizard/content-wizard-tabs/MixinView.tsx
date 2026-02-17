@@ -1,13 +1,13 @@
 import {ReactElement} from 'react';
 
-type XDataViewProps = {
+type MixinViewProps = {
     displayName: string;
 };
 
-export const XDataView = ({displayName}: XDataViewProps): ReactElement => {
+export const MixinView = ({displayName}: MixinViewProps): ReactElement => {
     return (
         <p className="text-subtle">{displayName} configuration</p>
     );
 };
 
-XDataView.displayName = 'XDataView';
+MixinView.displayName = 'XDataView';
