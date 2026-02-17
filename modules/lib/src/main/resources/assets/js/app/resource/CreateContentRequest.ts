@@ -1,8 +1,8 @@
 import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {type Content} from '../content/Content';
 import {type ContentJson} from '../content/ContentJson';
-import {type ExtraData} from '../content/ExtraData';
-import {type ExtraDataJson} from './json/ExtraDataJson';
+import {type Mixin} from '../content/Mixin';
+import {type MixinJson} from './json/MixinJson';
 import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
@@ -27,7 +27,7 @@ export class CreateContentRequest
 
     private data: PropertyTree;
 
-    private meta: ExtraData[] = [];
+    private meta: Mixin[] = [];
 
     private displayName: string;
 
@@ -71,7 +71,7 @@ export class CreateContentRequest
         return this;
     }
 
-    setExtraData(extraData: ExtraData[]): CreateContentRequest {
+    setExtraData(extraData: Mixin[]): CreateContentRequest {
         this.meta = extraData;
         return this;
     }
@@ -100,8 +100,8 @@ export class CreateContentRequest
         };
     }
 
-    private extraDataToJson(): ExtraDataJson[] {
-        return this.meta ? this.meta.map((extraData: ExtraData) => extraData.toJson()) : null;
+    private extraDataToJson(): MixinJson[] {
+        return this.meta ? this.meta.map((extraData: Mixin) => extraData.toJson()) : null;
     }
 
     protected parseResponse(response: JsonResponse<ContentJson>): Content {

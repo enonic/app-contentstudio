@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import jakarta.servlet.http.HttpServletRequest;
 
 import com.enonic.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
-import com.enonic.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.app.contentstudio.rest.resource.schema.mixin.CmsFormFragmentResolver;
 import com.enonic.xp.region.PartDescriptors;
 
 
@@ -21,7 +21,7 @@ public class PartDescriptorsJson
     }
 
     public PartDescriptorsJson( final PartDescriptors descriptors, final LocaleMessageResolver localeMessageResolver,
-                                final InlineMixinResolver inlineMixinResolver, final HttpServletRequest request )
+                                final CmsFormFragmentResolver inlineMixinResolver, final HttpServletRequest request )
     {
         this.descriptorJsonList = descriptors.stream()
             .map( descriptor -> new PartDescriptorJson( descriptor, localeMessageResolver, inlineMixinResolver, request ) )

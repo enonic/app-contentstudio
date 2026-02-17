@@ -1,12 +1,12 @@
 import Q from 'q';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
-import {type XDataName} from '../content/XDataName';
-import {type XData} from '../content/XData';
+import {type MixinName} from '../content/MixinName';
+import {type MixinDescriptor} from '../content/MixinDescriptor';
 import {type Form} from '@enonic/lib-admin-ui/form/Form';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {type ContentFormContext} from '../ContentFormContext';
-import {type ExtraData} from '../content/ExtraData';
+import {type Mixin} from '../content/Mixin';
 import {type ContentPanelStripHeader} from './ContentPanelStripHeader';
 
 export class XDataWizardStepForm
@@ -14,7 +14,7 @@ export class XDataWizardStepForm
 
     declare protected outerHeader: ContentPanelStripHeader;
 
-    private readonly xData: XData;
+    private readonly xData: MixinDescriptor;
 
     private enabled: boolean = false;
 
@@ -24,7 +24,7 @@ export class XDataWizardStepForm
 
     private static REGISTRY = new Map<string, XDataWizardStepForm>();
 
-    constructor(xData: XData) {
+    constructor(xData: MixinDescriptor) {
         super();
         this.addClass('x-data-wizard-step-form');
 
@@ -33,16 +33,16 @@ export class XDataWizardStepForm
         XDataWizardStepForm.REGISTRY.set(this.xData.getName(), this);
     }
 
-    getXData(): XData {
+    getXData(): MixinDescriptor {
         return this.xData;
     }
 
-    getXDataName(): XDataName {
-        return this.xData.getXDataName();
+    getXDataName(): MixinName {
+        return this.xData.getMixinName();
     }
 
     getXDataNameAsString(): string {
-        return this.xData.getXDataName().toString();
+        return this.xData.getMixinName().toString();
     }
 
     setExpandState(value: boolean) {
@@ -185,8 +185,8 @@ export class XDataWizardStepForm
     }
 
     private isSaved(): boolean {
-        const persistedXData: ExtraData =
-            (this.formContext as ContentFormContext).getPersistedContent().getExtraDataByName(this.getXDataName());
+        const persistedXData: Mixin =
+            (this.formContext as ContentFormContext).getPersistedContent().getMixinByName(this.getXDataName());
 
         return persistedXData?.getData()?.getRoot()?.getPropertyArrays().length > 0;
     }

@@ -43,20 +43,20 @@ export abstract class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
         return new ApplicationBasedName(applicationKey, name).toString();
     }
 
-    private getAllowedContentTypes(inputConfig: Record<string, Record<string, string>[]>): string[] {
+    private getAllowedContentTypes(inputConfig: Record<string, Record<string, unknown>[]>): string[] {
         const applicationKey: ApplicationKey = (this.context.input as FormItem).getApplicationKey();
         const allowContentTypeConfig = inputConfig['allowContentType'] || [];
         return allowContentTypeConfig
-            .map((cfg) => this.prependApplicationName(applicationKey, cfg['value']))
+            .map((cfg) => this.prependApplicationName(applicationKey, cfg['value'] as string))
             .filter((val) => !!val);
     }
 
-    private getAllowedContentPaths(inputConfig: Record<string, Record<string, string>[]>): string[] {
+    private getAllowedContentPaths(inputConfig: Record<string, Record<string, unknown>[]>): string[] {
         const allowContentPathConfig = inputConfig['allowPath'] || [];
         if (allowContentPathConfig.length > 0) {
             return allowContentPathConfig
-                    .map((cfg) => cfg['value'])
-                    .filter((val) => !!val);
+                .map((cfg) => cfg['value'] as string)
+                .filter((val) => !!val);
         }
         if (!StringHelper.isBlank(this.getDefaultAllowPath())) {
             return [this.getDefaultAllowPath()];
@@ -66,7 +66,7 @@ export abstract class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     }
 
     protected readInputConfig(): void {
-        const inputConfig: Record<string, Record<string, string>[]> = this.context.inputConfig;
+        const inputConfig: Record<string, Record<string, unknown>[]> = this.context.inputConfig;
 
         this.allowedContentTypes = this.getAllowedContentTypes(inputConfig);
         this.allowedContentPaths = this.getAllowedContentPaths(inputConfig);
