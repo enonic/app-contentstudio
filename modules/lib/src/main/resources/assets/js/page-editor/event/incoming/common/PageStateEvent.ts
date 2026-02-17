@@ -1,5 +1,5 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {PageJson} from '../../../../app/page/PageJson';
+import type {PageJson} from '../../../../app/page/PageJson';
 import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 
 export class PageStateEvent

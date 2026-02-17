@@ -1,23 +1,23 @@
-import Q from 'q';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import type Q from 'q';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
-import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
-import {UploadProgressEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadProgressEvent';
+import {type UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
+import {type UploadProgressEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadProgressEvent';
 import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {Content} from '../../../../../content/Content';
+import {type Content} from '../../../../../content/Content';
 import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
 import {OverrideNativeDialog} from '../OverrideNativeDialog';
-import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from '../ModalDialog';
+import {type HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from '../ModalDialog';
 import {ImageStyleSelector} from './ImageStyleSelector';
 import {MediaTreeSelectorItem} from '../../../selector/media/MediaTreeSelectorItem';
 import {ImageUploaderEl} from '../../../selector/image/ImageUploaderEl';
@@ -26,7 +26,7 @@ import {MediaUploaderElOperation} from '../../../upload/MediaUploaderEl';
 import {GetContentByIdRequest} from '../../../../../resource/GetContentByIdRequest';
 import {StylesRequest} from '../../styles/StylesRequest';
 import {Styles} from '../../styles/Styles';
-import {Style} from '../../styles/Style';
+import {type Style} from '../../styles/Style';
 import {HTMLAreaHelper} from '../../HTMLAreaHelper';
 import {ImageUrlResolver} from '../../../../../util/ImageUrlResolver';
 import {StyleHelper} from '../../styles/StyleHelper';
@@ -37,25 +37,25 @@ import {FigureEl} from '@enonic/lib-admin-ui/dom/FigureEl';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {DropzoneContainer} from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
 import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
-import {Toolbar, ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
+import {Toolbar, type ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {LinkEl} from '@enonic/lib-admin-ui/dom/LinkEl';
-import {ContentSummary} from '../../../../../content/ContentSummary';
+import {type ContentSummary} from '../../../../../content/ContentSummary';
 import {ContentId} from '../../../../../content/ContentId';
-import {Project} from '../../../../../settings/data/project/Project';
+import {type Project} from '../../../../../settings/data/project/Project';
 import {ContentPath} from '../../../../../content/ContentPath';
 import {ImageSelectorDropdown} from '../../../../selector/ImageSelectorDropdown';
-import {ContentSelectorDropdownOptions} from '../../../../selector/ContentSelectorDropdown';
+import {type ContentSelectorDropdownOptions} from '../../../../selector/ContentSelectorDropdown';
 import {ImageContentListBox} from '../../../../selector/ImageContentListBox';
-import {ImageOptionDataLoader, ImageOptionDataLoaderBuilder} from '../../../selector/image/ImageOptionDataLoader';
+import {type ImageOptionDataLoader, ImageOptionDataLoaderBuilder} from '../../../selector/image/ImageOptionDataLoader';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
-import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
+import {type Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
@@ -124,7 +124,7 @@ export class ImageModalDialog
         this.createImagePreviewContainer();
         this.imageLoadMask = new LoadMask(this.imagePreviewContainer);
         this.initPresetImage();
-        this.setSubmitAction(new Action(!!this.presetImageEl ? 'Update' : 'Insert'));
+        this.setSubmitAction(new Action(this.presetImageEl ? 'Update' : 'Insert'));
     }
 
     protected initListeners() {
@@ -192,10 +192,10 @@ export class ImageModalDialog
 
         const presetFigureEl = selectedElement.findOne('figure');
 
-        this.presetImageEl = !!presetFigureEl ? presetFigureEl.findOne('img').$ : selectedElement.findOne('img').$;
+        this.presetImageEl = presetFigureEl ? presetFigureEl.findOne('img').$ : selectedElement.findOne('img').$;
 
         if (this.presetImageEl) {
-            const presetStyles = !!presetFigureEl ? presetFigureEl.getAttribute('class') : '';
+            const presetStyles = presetFigureEl ? presetFigureEl.getAttribute('class') : '';
             if (presetFigureEl && presetFigureEl.hasAttribute('style')) {
                 this.figure.getEl().setAttribute('style', presetFigureEl.getAttribute('style'));
             }
@@ -204,7 +204,7 @@ export class ImageModalDialog
     }
 
     protected setDialogInputValues() {
-        const caption: string = !!this.ckeOriginalDialog.getSelectedElement()
+        const caption: string = this.ckeOriginalDialog.getSelectedElement()
                                 ? this.ckeOriginalDialog.getSelectedElement().getText()
                                 : '';
         (this.imageCaptionField.getInput() as InputEl).setValue(caption);
@@ -944,7 +944,7 @@ export class ImageDialogToolbar
 
     private getAlignmentStyleCls(): string {
 
-        for (let alignment in this.alignmentButtons) {
+        for (const alignment in this.alignmentButtons) {
             if (this.alignmentButtons[alignment].hasClass('active')) {
                 return alignment.toString();
             }
@@ -955,7 +955,7 @@ export class ImageDialogToolbar
 
     getAlignment(): string {
 
-        for (let alignment in this.alignmentButtons) {
+        for (const alignment in this.alignmentButtons) {
             if (this.alignmentButtons[alignment].hasClass('active')) {
                 return alignment.toString().replace('editor-align-', '');
             }
@@ -974,7 +974,7 @@ export class ImageDialogToolbar
 
     private resetActiveAlignmentButton() {
 
-        for (let alignment in this.alignmentButtons) {
+        for (const alignment in this.alignmentButtons) {
             this.alignmentButtons[alignment].removeClass('active');
         }
     }

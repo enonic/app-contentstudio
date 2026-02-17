@@ -1,9 +1,9 @@
-import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {OverrideNativeDialog} from './OverrideNativeDialog';
-import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
+import {type HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
 import {Dropdown} from '@enonic/lib-admin-ui/ui/Dropdown';
 import eventInfo = CKEDITOR.eventInfo;
 

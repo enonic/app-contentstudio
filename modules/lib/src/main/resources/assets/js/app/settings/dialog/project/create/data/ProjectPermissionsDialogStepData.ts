@@ -1,7 +1,7 @@
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {ProjectDialogStepData} from './ProjectDialogStepData';
-import {ProjectItemPermissionsBuilder, ProjectPermissions} from '../../../../data/project/ProjectPermissions';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {ProjectItemPermissionsBuilder, type ProjectPermissions} from '../../../../data/project/ProjectPermissions';
+import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 
 export class ProjectPermissionsDialogStepData extends ProjectDialogStepData {
 

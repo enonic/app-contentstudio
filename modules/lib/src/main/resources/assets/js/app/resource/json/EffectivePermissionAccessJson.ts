@@ -1,4 +1,4 @@
-import {EffectivePermissionMemberJson} from './EffectivePermissionMemberJson';
+import {type EffectivePermissionMemberJson} from './EffectivePermissionMemberJson';
 
 export interface EffectivePermissionAccessJson {
 

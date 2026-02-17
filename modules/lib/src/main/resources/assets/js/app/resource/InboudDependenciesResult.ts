@@ -1,6 +1,5 @@
 import {ContentId} from '../content/ContentId';
-import {ContentWithRefsResultJson} from './json/ContentWithRefsResultJson';
-import {InboundDependenciesJson} from './json/InboundDependenciesJson';
+import {type InboundDependenciesJson} from './json/InboundDependenciesJson';
 
 export class InboundDependenciesResult {
     private readonly id: ContentId;

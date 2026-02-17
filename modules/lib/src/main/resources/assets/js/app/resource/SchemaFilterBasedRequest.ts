@@ -1,4 +1,4 @@
-import {ContentId} from '../content/ContentId';
+import {type ContentId} from '../content/ContentId';
 import {CmsProjectBasedResourceRequest} from '../wizard/CmsProjectBasedResourceRequest';
 import {ContentPath} from '../content/ContentPath';
 

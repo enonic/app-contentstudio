@@ -1,4 +1,4 @@
-import {PrincipalComboBox, PrincipalComboBoxParams} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
+import {PrincipalComboBox, type PrincipalComboBoxParams} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
 import {UrlHelper} from '../util/UrlHelper';
 
 export class CSPrincipalCombobox extends PrincipalComboBox {

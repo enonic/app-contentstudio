@@ -1,4 +1,4 @@
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ArchiveItemViewer} from '../dialog/ArchiveItemViewer';
 import {ArchiveSelectableItem} from '../dialog/ArchiveSelectableItem';
 import {DialogMainItemsList} from '../dialog/DialogMainItemsList';

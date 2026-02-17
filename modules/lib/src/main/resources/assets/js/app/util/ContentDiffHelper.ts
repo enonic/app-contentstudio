@@ -1,11 +1,11 @@
-import {ContentDiff} from '../content/ContentDiff';
+import {type ContentDiff} from '../content/ContentDiff';
 import {PropertyTreeHelper} from '@enonic/lib-admin-ui/util/PropertyTreeHelper';
-import {ExtraData} from '../content/ExtraData';
+import {type ExtraData} from '../content/ExtraData';
 import {ExtraDataByMixinNameComparator} from '../content/ExtraDataByMixinNameComparator';
 import {ContentSummaryHelper} from '../content/ContentSummaryHelper';
-import {Content} from '../content/Content';
+import {type Content} from '../content/Content';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 
 export class ContentDiffHelper {
     public static diff(item: Content, other: Content, ignoreEmptyDataValues: boolean = false): ContentDiff {

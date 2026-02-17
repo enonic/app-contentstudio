@@ -1,5 +1,5 @@
 import {PublishRequestItem} from './PublishRequestItem';
-import {PublishRequestJson} from './json/PublishRequestJson';
+import {type PublishRequestJson} from './json/PublishRequestJson';
 import {ContentId} from '../content/ContentId';
 
 export class PublishRequest {
@@ -60,8 +60,8 @@ export class PublishRequestBuilder {
 
     constructor(source?: PublishRequest) {
         if (source) {
-            this.excludeIds = !!source.getExcludeIds() ? source.getExcludeIds().slice() : [];
-            this.issueItems = !!source.getItems() ? source.getItems().slice() : [];
+            this.excludeIds = source.getExcludeIds() ? source.getExcludeIds().slice() : [];
+            this.issueItems = source.getItems() ? source.getItems().slice() : [];
         }
     }
 

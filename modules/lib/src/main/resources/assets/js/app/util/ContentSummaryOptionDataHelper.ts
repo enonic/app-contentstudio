@@ -1,5 +1,5 @@
-import {OptionDataHelper} from '@enonic/lib-admin-ui/ui/selector/OptionDataHelper';
-import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
+import {type OptionDataHelper} from '@enonic/lib-admin-ui/ui/selector/OptionDataHelper';
+import {type ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 
 export class ContentSummaryOptionDataHelper
     implements OptionDataHelper<ContentTreeSelectorItem> {

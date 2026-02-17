@@ -1,9 +1,9 @@
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {TabMenuItem, TabMenuItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabMenuItem';
+import {type TabMenuItem, TabMenuItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabMenuItem';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
-import {Access, ACCESS_OPTIONS, AccessOption} from './Access';
+import {type AccessOption} from './Access';
 import {TabMenu} from '@enonic/lib-admin-ui/ui/tab/TabMenu';
-import {NavigatorEvent} from '@enonic/lib-admin-ui/ui/NavigatorEvent';
+import {type NavigatorEvent} from '@enonic/lib-admin-ui/ui/NavigatorEvent';
 import {AccessChangedEvent} from './AccessChangedEvent';
 
 export class AccessSelector
@@ -19,7 +19,7 @@ export class AccessSelector
         this.options = options;
 
         this.options.forEach((option: AccessOption) => {
-            let menuItem = (new TabMenuItemBuilder()
+            const menuItem = (new TabMenuItemBuilder()
                 .setLabel(option.displayName)
                 .setAddLabelTitleAttribute(false))
                 .build();
@@ -32,7 +32,7 @@ export class AccessSelector
 
     initEventHandlers() {
         this.onNavigationItemSelected((event: NavigatorEvent) => {
-            let item: TabMenuItem = event.getItem() as TabMenuItem;
+            const item: TabMenuItem = event.getItem() as TabMenuItem;
             this.setValue(this.options[item.getIndex()].id);
         });
 

@@ -1,7 +1,7 @@
-import {SettingsViewItem} from '../../../view/SettingsViewItem';
-import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
+import {type SettingsViewItem} from '../../../view/SettingsViewItem';
+import {type NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 
 export abstract class SettingsStatisticsView<T extends SettingsViewItem> extends DivEl {
 

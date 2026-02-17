@@ -1,18 +1,17 @@
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentAggregation} from './ContentAggregation';
-import {AggregationSelection} from '@enonic/lib-admin-ui/aggregation/AggregationSelection';
+import {type AggregationSelection} from '@enonic/lib-admin-ui/aggregation/AggregationSelection';
 import {ProjectContext} from '../../project/ProjectContext';
 import {Path} from '@enonic/lib-admin-ui/rest/Path';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {DateRangeBucket} from '@enonic/lib-admin-ui/aggregation/DateRangeBucket';
+import {type DateRangeBucket} from '@enonic/lib-admin-ui/aggregation/DateRangeBucket';
 import {ValueExpr} from '@enonic/lib-admin-ui/query/expr/ValueExpr';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {DateTimeFormatter} from '@enonic/lib-admin-ui/ui/treegrid/DateTimeFormatter';
-import {SearchInputValues} from '@enonic/lib-admin-ui/query/SearchInputValues';
-import {ContentDependency} from './ContentDependency';
+import {type SearchInputValues} from '@enonic/lib-admin-ui/query/SearchInputValues';
+import {type ContentDependency} from './ContentDependency';
 
 enum EXPORT_TYPE {
     CSV = 'csv', JSON = 'json'

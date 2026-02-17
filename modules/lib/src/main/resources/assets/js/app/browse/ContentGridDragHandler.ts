@@ -1,8 +1,8 @@
 import {OrderChildMovements} from '../resource/order/OrderChildMovements';
 import {OrderChildMovement} from '../resource/order/OrderChildMovement';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {DragHandler} from './DragHandler';
-import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
+import {type ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 
 export class ContentGridDragHandler extends DragHandler {
 

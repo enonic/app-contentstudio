@@ -1,7 +1,7 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {Project} from '../settings/data/project/Project';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type Project} from '../settings/data/project/Project';
 import {ProjectContext} from '../project/ProjectContext';
 
 export class EditContentEvent

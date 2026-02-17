@@ -1,7 +1,7 @@
 import {ProjectApplicationViewer} from './ProjectApplicationViewer';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Application} from '@enonic/lib-admin-ui/application/Application';
+import {type Application} from '@enonic/lib-admin-ui/application/Application';
 
 export class ProjectSelectedApplicationViewer
     extends ProjectApplicationViewer {

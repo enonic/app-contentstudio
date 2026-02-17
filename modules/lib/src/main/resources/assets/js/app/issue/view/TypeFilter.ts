@@ -2,7 +2,7 @@ import {MenuButton, MenuButtonDropdownPos} from '@enonic/lib-admin-ui/ui/button/
 import {IssuePanelFilterAction} from './IssuePanelFilterAction';
 import {FilterType} from './FilterType';
 import {IssueStatus} from '../IssueStatus';
-import {IssuesCount} from './IssuesPanel';
+import {type IssuesCount} from './IssuesPanel';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 

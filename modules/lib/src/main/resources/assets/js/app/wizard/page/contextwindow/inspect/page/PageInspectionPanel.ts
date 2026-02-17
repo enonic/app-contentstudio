@@ -1,18 +1,18 @@
-import Q from 'q';
+import type Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {BaseInspectionPanel} from '../BaseInspectionPanel';
-import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
+import {type LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {PageTemplateAndControllerForm} from './PageTemplateAndControllerForm';
-import {ContentFormContext} from '../../../../../ContentFormContext';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {type ContentFormContext} from '../../../../../ContentFormContext';
+import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {FormContextBuilder} from '@enonic/lib-admin-ui/form/FormContext';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {Descriptor} from '../../../../../page/Descriptor';
+import {type PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
+import {type Descriptor} from '../../../../../page/Descriptor';
 import {PageState} from '../../../PageState';
 import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
-import {PageTemplateAndControllerOption} from './PageTemplateAndSelectorViewer';
+import {type PageTemplateAndControllerOption} from './PageTemplateAndSelectorViewer';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
 
 export class PageInspectionPanel

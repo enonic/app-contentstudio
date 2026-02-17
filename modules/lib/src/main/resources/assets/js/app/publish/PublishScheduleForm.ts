@@ -1,17 +1,17 @@
-import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
+import {type PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {FormBuilder} from '@enonic/lib-admin-ui/form/Form';
 import {FormContext} from '@enonic/lib-admin-ui/form/FormContext';
-import {FormItem} from '@enonic/lib-admin-ui/form/FormItem';
+import {type FormItem} from '@enonic/lib-admin-ui/form/FormItem';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {InputBuilder} from '@enonic/lib-admin-ui/form/Input';
 import {DateTimeRange} from '@enonic/lib-admin-ui/form/inputtype/time/DateTimeRange';
 import {OccurrencesBuilder} from '@enonic/lib-admin-ui/form/Occurrences';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import Q from 'q';
+import type Q from 'q';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export class PublishScheduleForm

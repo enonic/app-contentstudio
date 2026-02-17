@@ -1,13 +1,13 @@
 import Q from 'q';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
-import {XDataName} from '../content/XDataName';
-import {XData} from '../content/XData';
-import {Form} from '@enonic/lib-admin-ui/form/Form';
+import {type XDataName} from '../content/XDataName';
+import {type XData} from '../content/XData';
+import {type Form} from '@enonic/lib-admin-ui/form/Form';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {ContentFormContext} from '../ContentFormContext';
-import {ExtraData} from '../content/ExtraData';
-import {ContentPanelStripHeader} from './ContentPanelStripHeader';
+import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {type ContentFormContext} from '../ContentFormContext';
+import {type ExtraData} from '../content/ExtraData';
+import {type ContentPanelStripHeader} from './ContentPanelStripHeader';
 
 export class XDataWizardStepForm
     extends ContentWizardStepForm {

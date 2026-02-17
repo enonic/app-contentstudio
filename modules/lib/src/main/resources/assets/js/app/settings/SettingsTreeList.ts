@@ -1,12 +1,17 @@
-import {TreeListBox, TreeListBoxParams, TreeListElement, TreeListElementParams} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
-import {SettingsViewItem} from './view/SettingsViewItem';
+import {
+    TreeListBox,
+    type TreeListBoxParams,
+    TreeListElement,
+    type TreeListElementParams
+} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
+import {type SettingsViewItem} from './view/SettingsViewItem';
 import {FolderItemBuilder, FolderViewItem} from './view/FolderViewItem';
 import {FolderItemViewer} from './browse/viewer/FolderItemViewer';
-import {SettingsItemViewer} from './browse/viewer/SettingsItemViewer';
+import {type SettingsItemViewer} from './browse/viewer/SettingsItemViewer';
 import {ProjectItemViewer} from './browse/viewer/ProjectItemViewer';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectViewItem} from './view/ProjectViewItem';
-import Q from 'q';
+import type Q from 'q';
 import {SettingsTreeHelper} from './tree/SettingsTreeHelper';
 import {ProjectsUtil} from './resource/ProjectsUtil';
 

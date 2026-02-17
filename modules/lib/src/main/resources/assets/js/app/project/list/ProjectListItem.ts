@@ -1,4 +1,4 @@
-import {Project} from '../../settings/data/project/Project';
+import {type Project} from '../../settings/data/project/Project';
 import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {ProjectViewer} from '../../settings/wizard/viewer/ProjectViewer';
 import {ProjectHelper} from '../../settings/data/project/ProjectHelper';

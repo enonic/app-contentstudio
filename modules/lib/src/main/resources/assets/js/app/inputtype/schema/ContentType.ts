@@ -1,7 +1,7 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ContentTypeSummary, ContentTypeSummaryBuilder} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
-import {ContentTypeJson} from '../../resource/json/ContentTypeJson';
+import {type ContentTypeJson} from '../../resource/json/ContentTypeJson';
 import {Form} from '@enonic/lib-admin-ui/form/Form';
 
 export class ContentType
@@ -29,7 +29,7 @@ export class ContentType
             return false;
         }
 
-        let other = o as ContentType;
+        const other = o as ContentType;
 
         if (!ObjectHelper.equals(this.form, other.form)) {
             return false;

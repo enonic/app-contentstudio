@@ -1,8 +1,8 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {IssueResponse} from './IssueResponse';
-import {ListIssuesResult} from './ListIssuesResult';
+import {type ListIssuesResult} from './ListIssuesResult';
 import {IssueStatus} from '../IssueStatus';
-import {IssueWithAssigneesJson} from '../json/IssueWithAssigneesJson';
+import {type IssueWithAssigneesJson} from '../json/IssueWithAssigneesJson';
 import {IssueWithAssignees} from '../IssueWithAssignees';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';

@@ -1,10 +1,10 @@
 import Q from 'q';
 import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent';
-import {Component} from '../page/region/Component';
+import {type Component} from '../page/region/Component';
 import {ComponentsTreeItem} from './ComponentsTreeItem';
 import {GetComponentDescriptorRequest} from '../resource/GetComponentDescriptorRequest';
 import {LayoutComponentType} from '../page/region/LayoutComponentType';
-import {Descriptor} from '../page/Descriptor';
+import {type Descriptor} from '../page/Descriptor';
 import {PartComponentType} from '../page/region/PartComponentType';
 import {Region} from '../page/region/Region';
 import {Page} from '../page/Page';
@@ -19,12 +19,17 @@ import {TextComponentType} from '../page/region/TextComponentType';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
-import {Content} from '../content/Content';
+import {type Content} from '../content/Content';
 import {ComponentPath} from '../page/region/ComponentPath';
-import {PageItem} from '../page/region/PageItem';
+import {type PageItem} from '../page/region/PageItem';
 import {PageState} from './page/PageState';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {TreeListBox, TreeListBoxParams, TreeListElement, TreeListElementParams} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
+import {
+    TreeListBox,
+    type TreeListBoxParams,
+    TreeListElement,
+    type TreeListElementParams
+} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
 import {PageEventsManager} from './PageEventsManager';
 import {PageComponentsItemView} from './PageComponentsItemView';
 

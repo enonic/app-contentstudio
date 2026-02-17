@@ -1,10 +1,10 @@
-import Q from 'q';
+import type Q from 'q';
 import {Path} from '@enonic/lib-admin-ui/rest/Path';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {Content} from '../content/Content';
-import {ContentJson} from '../content/ContentJson';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type Content} from '../content/Content';
+import {type ContentJson} from '../content/ContentJson';
 import {RepositoryId} from '../repository/RepositoryId';
-import {ContentId} from '../content/ContentId';
+import {type ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 

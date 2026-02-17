@@ -1,8 +1,8 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {ContentVersionJson} from './json/ContentVersionJson';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type ContentVersionJson} from './json/ContentVersionJson';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {ContentId} from '../content/ContentId';
+import {type ContentId} from '../content/ContentId';
 
 export class RevertVersionRequest
     extends CmsContentResourceRequest<string> {

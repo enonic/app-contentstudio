@@ -1,7 +1,7 @@
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {ApplyPermissionsScope} from './PermissionsData';
+import {type ApplyPermissionsScope} from './PermissionsData';
 import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
-import {AccessControlEntry} from '../../access/AccessControlEntry';
+import {type AccessControlEntry} from '../../access/AccessControlEntry';
 import {AccessControlChangedItem} from './AccessControlChangedItem';
 import {AccessControlChangedItemView} from './AccessControlChangedItemView';
 

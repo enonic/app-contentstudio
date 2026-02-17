@@ -1,11 +1,11 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
-import {ProjectAccessControlComboBox} from '../../../../wizard/panel/form/element/ProjectAccessControlComboBox';
+import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {type ProjectAccessControlComboBox} from '../../../../wizard/panel/form/element/ProjectAccessControlComboBox';
 import {ProjectDialogStep} from './ProjectDialogStep';
-import {ProjectAccessControlEntry} from '../../../../access/ProjectAccessControlEntry';
+import {type ProjectAccessControlEntry} from '../../../../access/ProjectAccessControlEntry';
 import {ProjectAccess} from '../../../../access/ProjectAccess';
-import {ProjectPermissionsDataBuilder, ProjectPermissionsDialogStepData} from '../data/ProjectPermissionsDialogStepData';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {ProjectPermissionsDataBuilder, type ProjectPermissionsDialogStepData} from '../data/ProjectPermissionsDialogStepData';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {ProjectRolesFormItem} from '../../../../wizard/panel/form/element/ProjectRolesFormItem';
 
 export class ProjectPermissionsDialogStep

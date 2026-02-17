@@ -1,17 +1,17 @@
 import {FormState} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {FormContext} from '@enonic/lib-admin-ui/form/FormContext';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import Q from 'q';
-import {Descriptor} from '../Descriptor';
+import {type Descriptor} from '../Descriptor';
 import {DescriptorKey} from '../DescriptorKey';
 import {ComponentDescriptorUpdatedEvent} from './ComponentDescriptorUpdatedEvent';
 import {ComponentName} from './ComponentName';
 import {ConfigBasedComponent, ConfigBasedComponentBuilder} from './ConfigBasedComponent';
-import {DescriptorBasedComponentJson} from './DescriptorBasedComponentJson';
+import {type DescriptorBasedComponentJson} from './DescriptorBasedComponentJson';
 
 export abstract class DescriptorBasedComponent
     extends ConfigBasedComponent {
@@ -45,7 +45,7 @@ export abstract class DescriptorBasedComponent
 
         // populating config before saving with values from form view after layout
         const propertyTree = new PropertyTree();
-        const layoutPromise = !!descriptor ? new FormView(FormContext.create().setFormState(new FormState(true)).build(),
+        const layoutPromise = descriptor ? new FormView(FormContext.create().setFormState(new FormState(true)).build(),
             descriptor.getConfig(), propertyTree.getRoot()).layout(false) : Q.resolve(null);
 
         return layoutPromise.catch(DefaultErrorHandler.handle).finally(() => {

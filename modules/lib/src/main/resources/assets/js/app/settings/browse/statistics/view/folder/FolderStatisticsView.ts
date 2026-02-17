@@ -1,5 +1,5 @@
 import {SettingsStatisticsView} from '../SettingsStatisticsView';
-import {FolderViewItem} from '../../../../view/FolderViewItem';
+import {type FolderViewItem} from '../../../../view/FolderViewItem';
 import {FolderStatisticsViewer} from './FolderStatisticsViewer';
 
 export class FolderStatisticsView extends SettingsStatisticsView<FolderViewItem> {

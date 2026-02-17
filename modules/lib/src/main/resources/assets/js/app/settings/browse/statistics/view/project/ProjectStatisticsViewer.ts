@@ -3,13 +3,13 @@ import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 import Q from 'q';
 import {Flag} from '../../../../../locale/Flag';
 import {ProjectIconUrlResolver} from '../../../../../project/ProjectIconUrlResolver';
-import {Project} from '../../../../data/project/Project';
+import {type Project} from '../../../../data/project/Project';
 import {ProjectHelper} from '../../../../data/project/ProjectHelper';
 import {ProjectCreatedEvent} from '../../../../event/ProjectCreatedEvent';
 import {ProjectDeletedEvent} from '../../../../event/ProjectDeletedEvent';
 import {ProjectUpdatedEvent} from '../../../../event/ProjectUpdatedEvent';
 import {ProjectListRequest} from '../../../../resource/ProjectListRequest';
-import {ProjectViewItem} from '../../../../view/ProjectViewItem';
+import {type ProjectViewItem} from '../../../../view/ProjectViewItem';
 import {ProjectsChainBlock} from '../../../../wizard/panel/form/element/ProjectsChainBlock';
 
 export class ProjectStatisticsViewer

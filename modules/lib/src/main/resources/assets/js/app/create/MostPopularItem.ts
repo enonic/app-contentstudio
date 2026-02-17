@@ -1,5 +1,5 @@
 import {NewContentDialogListItem} from './NewContentDialogListItem';
-import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 
 export class MostPopularItem extends NewContentDialogListItem {
 

@@ -1,5 +1,5 @@
 import {RegionsChangedEvent} from './RegionsChangedEvent';
-import {RegionPath} from './RegionPath';
+import {type RegionPath} from './RegionPath';
 
 export class RegionChangedEvent
     extends RegionsChangedEvent {

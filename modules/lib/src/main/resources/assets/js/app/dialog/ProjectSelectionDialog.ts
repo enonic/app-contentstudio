@@ -5,11 +5,11 @@ import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import Q from 'q';
+import type Q from 'q';
 import {ProjectList} from '../project/list/ProjectList';
-import {ProjectListItem} from '../project/list/ProjectListItem';
+import {type ProjectListItem} from '../project/list/ProjectListItem';
 import {ProjectContext} from '../project/ProjectContext';
-import {Project} from '../settings/data/project/Project';
+import {type Project} from '../settings/data/project/Project';
 import {ProjectHelper} from '../settings/data/project/ProjectHelper';
 import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
 

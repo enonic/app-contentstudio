@@ -1,15 +1,15 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {ApplicationCaches} from '@enonic/lib-admin-ui/application/ApplicationCaches';
-import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
+import {type ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {Cache} from '@enonic/lib-admin-ui/cache/Cache';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
-import {Descriptor} from '../page/Descriptor';
-import {DescriptorKey} from '../page/DescriptorKey';
+import {type Descriptor} from '../page/Descriptor';
+import {type DescriptorKey} from '../page/DescriptorKey';
 
 export type CacheableRequest = new(keys: ApplicationKey[] | ApplicationKey) => ResourceRequest<Descriptor[]>;
 
@@ -57,7 +57,7 @@ export class ApplicationBasedCache<T extends Descriptor> {
 
         let caches = [];
         const allCached = applicationKeys.every((key) => {
-            let keyCache = this.applicationCaches.getByKey(key);
+            const keyCache = this.applicationCaches.getByKey(key);
             if (keyCache) {
                 caches = caches.concat(keyCache.getAll());
             }
@@ -90,9 +90,9 @@ export class ApplicationBasedCache<T extends Descriptor> {
 
     putApplicationKeys(applicationKeys: ApplicationKey[]) {
         applicationKeys.forEach((key) => {
-            let cache = this.applicationCaches.getByKey(key);
+            const cache = this.applicationCaches.getByKey(key);
             if (!cache) {
-                let newCache = this.createApplicationCache();
+                const newCache = this.createApplicationCache();
                 this.applicationCaches.put(key, newCache);
             }
         });

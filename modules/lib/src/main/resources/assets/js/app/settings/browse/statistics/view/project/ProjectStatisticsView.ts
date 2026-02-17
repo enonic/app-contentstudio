@@ -1,5 +1,5 @@
 import {SettingsStatisticsView} from '../SettingsStatisticsView';
-import {ProjectViewItem} from '../../../../view/ProjectViewItem';
+import {type ProjectViewItem} from '../../../../view/ProjectViewItem';
 import {ProjectStatisticsViewer} from './ProjectStatisticsViewer';
 import {ProjectMetaStatisticsBlock} from './ProjectMetaStatisticsBlock';
 import {ProjectRolesStatisticsBlock} from './ProjectRolesStatisticsBlock';

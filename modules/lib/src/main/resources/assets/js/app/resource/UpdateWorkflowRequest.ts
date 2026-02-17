@@ -1,9 +1,9 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {Content} from '../content/Content';
-import {ContentId} from '../content/ContentId';
-import {ContentJson} from '../content/ContentJson';
-import {WorkflowState} from '../content/WorkflowState';
+import {type Content} from '../content/Content';
+import {type ContentId} from '../content/ContentId';
+import {type ContentJson} from '../content/ContentJson';
+import {type WorkflowState} from '../content/WorkflowState';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class UpdateWorkflowRequest

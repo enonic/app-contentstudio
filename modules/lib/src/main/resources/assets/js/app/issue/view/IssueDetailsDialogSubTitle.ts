@@ -1,13 +1,13 @@
 import Q from 'q';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {Issue} from '../Issue';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {type Issue} from '../Issue';
 import {IssueStatusSelector} from './IssueStatusSelector';
 import {IssueStatusInfoGenerator} from './IssueStatusInfoGenerator';
-import {IssueStatus} from '../IssueStatus';
+import {type IssueStatus} from '../IssueStatus';
 import {IssueTypeFormatter} from '../IssueType';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 
 export class IssueDetailsDialogSubTitle
     extends DivEl {

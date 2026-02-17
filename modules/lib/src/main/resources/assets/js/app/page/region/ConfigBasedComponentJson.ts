@@ -1,5 +1,5 @@
-import {ComponentJson} from './ComponentJson';
-import {PropertyArrayJson} from '@enonic/lib-admin-ui/data/PropertyArrayJson';
+import {type ComponentJson} from './ComponentJson';
+import {type PropertyArrayJson} from '@enonic/lib-admin-ui/data/PropertyArrayJson';
 
 export interface ConfigBasedComponentJson
     extends ComponentJson {

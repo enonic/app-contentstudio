@@ -1,8 +1,8 @@
 import {MostPopularItem} from './MostPopularItem';
 import {NewContentDialogList} from './NewContentDialogList';
-import {AggregateContentTypesResult, ContentTypeAggregation} from '../resource/AggregateContentTypesResult';
-import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {type AggregateContentTypesResult, type ContentTypeAggregation} from '../resource/AggregateContentTypesResult';
+import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 
 export class MostPopularItemsList extends NewContentDialogList {
 

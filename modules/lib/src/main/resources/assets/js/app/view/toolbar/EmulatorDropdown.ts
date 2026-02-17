@@ -1,5 +1,5 @@
 import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
-import Q from 'q';
+import type Q from 'q';
 import {EmulatorDevice} from '../context/widget/emulator/EmulatorDevice';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';

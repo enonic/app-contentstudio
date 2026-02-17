@@ -1,7 +1,7 @@
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ContentId} from '../content/ContentId';
-import {DependencyType} from './DependencyType';
-import {Project} from '../settings/data/project/Project';
+import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {type ContentId} from '../content/ContentId';
+import {type DependencyType} from './DependencyType';
+import {type Project} from '../settings/data/project/Project';
 import {ProjectContext} from '../project/ProjectContext';
 import {Branch} from '../versioning/Branch';
 

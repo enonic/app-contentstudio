@@ -38,5 +38,7 @@ if ( hasEnvironment() && libAdminUiExists.get() )
 afterEvaluate {
     tasks.matching { it.name == 'clean' }.configureEach {
         delete '.xp'
+        delete '.webpack-cache'
+        delete '.eslintcache'
     }
 }

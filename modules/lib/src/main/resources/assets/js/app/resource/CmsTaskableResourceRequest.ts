@@ -1,11 +1,11 @@
 import {UrlHelper} from '../util/UrlHelper';
 import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
 import Q from 'q';
-import {TaskIdJson} from '@enonic/lib-admin-ui/task/TaskIdJson';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type TaskIdJson} from '@enonic/lib-admin-ui/task/TaskIdJson';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {TaskEvent, TaskEventType} from '@enonic/lib-admin-ui/task/TaskEvent';
-import {TaskInfo} from '@enonic/lib-admin-ui/task/TaskInfo';
+import {type TaskInfo} from '@enonic/lib-admin-ui/task/TaskInfo';
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {GetTaskInfoRequest} from './GetTaskInfoRequest';

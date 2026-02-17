@@ -24,55 +24,55 @@ import {CONFIG, ConfigObject} from '@enonic/lib-admin-ui/util/Config';
 import {LauncherHelper} from '@enonic/lib-admin-ui/util/LauncherHelper';
 import {i18n, Messages} from '@enonic/lib-admin-ui/util/Messages';
 import * as $ from 'jquery';
-import {AppContext} from 'lib-contentstudio/app/AppContext';
-import {ContentDeletePromptEvent} from 'lib-contentstudio/app/browse/ContentDeletePromptEvent';
-import {ContentDuplicatePromptEvent} from 'lib-contentstudio/app/browse/ContentDuplicatePromptEvent';
-import {ContentPublishPromptEvent} from 'lib-contentstudio/app/browse/ContentPublishPromptEvent';
-import {ContentUnpublishPromptEvent} from 'lib-contentstudio/app/browse/ContentUnpublishPromptEvent';
-import {CreateIssuePromptEvent} from 'lib-contentstudio/app/browse/CreateIssuePromptEvent';
-import {RequestContentPublishPromptEvent} from 'lib-contentstudio/app/browse/RequestContentPublishPromptEvent';
-import {ShowDependenciesEvent} from 'lib-contentstudio/app/browse/ShowDependenciesEvent';
-import {ShowIssuesDialogEvent} from 'lib-contentstudio/app/browse/ShowIssuesDialogEvent';
-import {ShowNewContentDialogEvent} from 'lib-contentstudio/app/browse/ShowNewContentDialogEvent';
-import {Content} from 'lib-contentstudio/app/content/Content';
-import {ContentIconUrlResolver} from 'lib-contentstudio/app/content/ContentIconUrlResolver';
-import {ContentSummary} from 'lib-contentstudio/app/content/ContentSummary';
-import {ContentEventsListener} from 'lib-contentstudio/app/ContentEventsListener';
-import {ContentEventsProcessor} from 'lib-contentstudio/app/ContentEventsProcessor';
-import {NewContentEvent} from 'lib-contentstudio/app/create/NewContentEvent';
-import {ProjectSelectionDialog} from 'lib-contentstudio/app/dialog/ProjectSelectionDialog';
-import {AggregatedServerEventsListener} from 'lib-contentstudio/app/event/AggregatedServerEventsListener';
-import {ContentServerEventsHandler} from 'lib-contentstudio/app/event/ContentServerEventsHandler';
-import {ContentUpdatedEvent} from 'lib-contentstudio/app/event/ContentUpdatedEvent';
-import {EditContentEvent} from 'lib-contentstudio/app/event/EditContentEvent';
-import {OpenEditPermissionsDialogEvent} from 'lib-contentstudio/app/event/OpenEditPermissionsDialogEvent';
-import {IssueServerEventsHandler} from 'lib-contentstudio/app/issue/event/IssueServerEventsHandler';
-import {IssueDialogsManager} from 'lib-contentstudio/app/issue/IssueDialogsManager';
-import {ContentMovePromptEvent} from 'lib-contentstudio/app/move/ContentMovePromptEvent';
-import {ProjectContext} from 'lib-contentstudio/app/project/ProjectContext';
-import {GetContentByIdRequest} from 'lib-contentstudio/app/resource/GetContentByIdRequest';
-import {GetContentByPathRequest} from 'lib-contentstudio/app/resource/GetContentByPathRequest';
-import {GetContentTypeByNameRequest} from 'lib-contentstudio/app/resource/GetContentTypeByNameRequest';
-import {Router} from 'lib-contentstudio/app/Router';
-import {Project} from 'lib-contentstudio/app/settings/data/project/Project';
-import {ProjectHelper} from 'lib-contentstudio/app/settings/data/project/ProjectHelper';
-import {ProjectNotAvailableDialog} from 'lib-contentstudio/app/settings/dialog/project/create/ProjectNotAvailableDialog';
-import {ProjectDeletedEvent} from 'lib-contentstudio/app/settings/event/ProjectDeletedEvent';
-import {SettingsServerEventsListener} from 'lib-contentstudio/app/settings/event/SettingsServerEventsListener';
-import {ProjectListRequest} from 'lib-contentstudio/app/settings/resource/ProjectListRequest';
-import {$isDown, subscribe as subscribeToWorker} from 'lib-contentstudio/app/stores/worker';
-import {TooltipHelper} from 'lib-contentstudio/app/TooltipHelper';
-import {UrlAction} from 'lib-contentstudio/app/UrlAction';
-import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
-import {ContentWizardPanelParams} from 'lib-contentstudio/app/wizard/ContentWizardPanelParams';
-import {VersionHelper} from 'lib-contentstudio/app/util/VersionHelper';
+import {AppContext} from '@enonic/lib-contentstudio/app/AppContext';
+import {ContentDeletePromptEvent} from '@enonic/lib-contentstudio/app/browse/ContentDeletePromptEvent';
+import {ContentDuplicatePromptEvent} from '@enonic/lib-contentstudio/app/browse/ContentDuplicatePromptEvent';
+import {ContentPublishPromptEvent} from '@enonic/lib-contentstudio/app/browse/ContentPublishPromptEvent';
+import {ContentUnpublishPromptEvent} from '@enonic/lib-contentstudio/app/browse/ContentUnpublishPromptEvent';
+import {CreateIssuePromptEvent} from '@enonic/lib-contentstudio/app/browse/CreateIssuePromptEvent';
+import {RequestContentPublishPromptEvent} from '@enonic/lib-contentstudio/app/browse/RequestContentPublishPromptEvent';
+import {ShowDependenciesEvent} from '@enonic/lib-contentstudio/app/browse/ShowDependenciesEvent';
+import {ShowIssuesDialogEvent} from '@enonic/lib-contentstudio/app/browse/ShowIssuesDialogEvent';
+import {ShowNewContentDialogEvent} from '@enonic/lib-contentstudio/app/browse/ShowNewContentDialogEvent';
+import {Content} from '@enonic/lib-contentstudio/app/content/Content';
+import {ContentIconUrlResolver} from '@enonic/lib-contentstudio/app/content/ContentIconUrlResolver';
+import {ContentSummary} from '@enonic/lib-contentstudio/app/content/ContentSummary';
+import {ContentEventsListener} from '@enonic/lib-contentstudio/app/ContentEventsListener';
+import {ContentEventsProcessor} from '@enonic/lib-contentstudio/app/ContentEventsProcessor';
+import {NewContentEvent} from '@enonic/lib-contentstudio/app/create/NewContentEvent';
+import {ProjectSelectionDialog} from '@enonic/lib-contentstudio/app/dialog/ProjectSelectionDialog';
+import {AggregatedServerEventsListener} from '@enonic/lib-contentstudio/app/event/AggregatedServerEventsListener';
+import {ContentServerEventsHandler} from '@enonic/lib-contentstudio/app/event/ContentServerEventsHandler';
+import {ContentUpdatedEvent} from '@enonic/lib-contentstudio/app/event/ContentUpdatedEvent';
+import {EditContentEvent} from '@enonic/lib-contentstudio/app/event/EditContentEvent';
+import {OpenEditPermissionsDialogEvent} from '@enonic/lib-contentstudio/app/event/OpenEditPermissionsDialogEvent';
+import {IssueServerEventsHandler} from '@enonic/lib-contentstudio/app/issue/event/IssueServerEventsHandler';
+import {IssueDialogsManager} from '@enonic/lib-contentstudio/app/issue/IssueDialogsManager';
+import {ContentMovePromptEvent} from '@enonic/lib-contentstudio/app/move/ContentMovePromptEvent';
+import {ProjectContext} from '@enonic/lib-contentstudio/app/project/ProjectContext';
+import {GetContentByIdRequest} from '@enonic/lib-contentstudio/app/resource/GetContentByIdRequest';
+import {GetContentByPathRequest} from '@enonic/lib-contentstudio/app/resource/GetContentByPathRequest';
+import {GetContentTypeByNameRequest} from '@enonic/lib-contentstudio/app/resource/GetContentTypeByNameRequest';
+import {Router} from '@enonic/lib-contentstudio/app/Router';
+import {Project} from '@enonic/lib-contentstudio/app/settings/data/project/Project';
+import {ProjectHelper} from '@enonic/lib-contentstudio/app/settings/data/project/ProjectHelper';
+import {ProjectNotAvailableDialog} from '@enonic/lib-contentstudio/app/settings/dialog/project/create/ProjectNotAvailableDialog';
+import {ProjectDeletedEvent} from '@enonic/lib-contentstudio/app/settings/event/ProjectDeletedEvent';
+import {SettingsServerEventsListener} from '@enonic/lib-contentstudio/app/settings/event/SettingsServerEventsListener';
+import {ProjectListRequest} from '@enonic/lib-contentstudio/app/settings/resource/ProjectListRequest';
+import {$isDown, subscribe as subscribeToWorker} from '@enonic/lib-contentstudio/app/stores/worker';
+import {TooltipHelper} from '@enonic/lib-contentstudio/app/TooltipHelper';
+import {UrlAction} from '@enonic/lib-contentstudio/app/UrlAction';
+import {ContentAppHelper} from '@enonic/lib-contentstudio/app/wizard/ContentAppHelper';
+import {ContentWizardPanelParams} from '@enonic/lib-contentstudio/app/wizard/ContentWizardPanelParams';
+import {VersionHelper} from '@enonic/lib-contentstudio/app/util/VersionHelper';
 import Q from 'q';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
 declare const require: {context: (directory: string, useSubdirectories: boolean, filter: RegExp) => void};
 const importAll = r => r.keys().forEach(r);
-importAll(require.context('lib-contentstudio/app/inputtype', true, /^(?!\.[\/\\](ui)).*(\.js)$/));
+importAll(require.context('@enonic/lib-contentstudio/app/inputtype', true, /^(?!\.[\/\\](ui)).*(\.js)$/));
 
 function getApplication(): Application {
     const application = new Application(
@@ -341,7 +341,7 @@ async function startApplication() {
 
     AppHelper.preventDragRedirect();
 
-    const {ContentDuplicateDialog} = await import('lib-contentstudio/app/duplicate/ContentDuplicateDialog');
+    const {ContentDuplicateDialog} = await import('@enonic/lib-contentstudio/app/duplicate/ContentDuplicateDialog');
     let contentDuplicateDialog = null;
 
     ContentDuplicatePromptEvent.on((event) => {
@@ -357,7 +357,7 @@ async function startApplication() {
             .open();
     });
 
-    const {MoveContentDialog} = await import('lib-contentstudio/app/move/MoveContentDialog');
+    const {MoveContentDialog} = await import('@enonic/lib-contentstudio/app/move/MoveContentDialog');
     let moveContentDialog = null;
 
     ContentMovePromptEvent.on((event) => {
@@ -368,7 +368,7 @@ async function startApplication() {
         moveContentDialog.handlePromptEvent(event);
     });
 
-    const {ContentDeleteDialog} = await import('lib-contentstudio/app/remove/ContentDeleteDialog');
+    const {ContentDeleteDialog} = await import('@enonic/lib-contentstudio/app/remove/ContentDeleteDialog');
     let contentDeleteDialog = null;
 
     ContentDeletePromptEvent.on((event) => {
@@ -383,7 +383,7 @@ async function startApplication() {
             .open();
     });
 
-    const {ContentPublishDialog} = await import('lib-contentstudio/app/publish/ContentPublishDialog');
+    const {ContentPublishDialog} = await import('@enonic/lib-contentstudio/app/publish/ContentPublishDialog');
     let contentPublishDialog = null;
 
     ContentPublishPromptEvent.on((event) => {
@@ -400,7 +400,7 @@ async function startApplication() {
             .open();
     });
 
-    const {ContentUnpublishDialog} = await import('lib-contentstudio/app/publish/ContentUnpublishDialog');
+    const {ContentUnpublishDialog} = await import('@enonic/lib-contentstudio/app/publish/ContentUnpublishDialog');
     let contentUnpublishDialog = null;
 
     ContentUnpublishPromptEvent.on((event) => {
@@ -423,7 +423,7 @@ async function startApplication() {
 
     ShowDependenciesEvent.on(ContentEventsProcessor.handleShowDependencies);
 
-    const {EditPermissionsDialog} = await import('lib-contentstudio/app/dialog/permissions/EditPermissionsDialog');
+    const {EditPermissionsDialog} = await import('@enonic/lib-contentstudio/app/dialog/permissions/EditPermissionsDialog');
     let editPermissionsDialog = null;
 
     OpenEditPermissionsDialogEvent.on((event: OpenEditPermissionsDialogEvent) => {
@@ -452,7 +452,7 @@ const refreshTabOnContentUpdate = (content: Content) => {
 async function startContentWizard() {
     window['CKEDITOR'].config.language = CONFIG.getString('locale');
 
-    const {ContentWizardPanel} = await import('lib-contentstudio/app/wizard/ContentWizardPanel');
+    const {ContentWizardPanel} = await import('@enonic/lib-contentstudio/app/wizard/ContentWizardPanel');
 
     const wizardParams = ContentAppHelper.createWizardParamsFromUrl();
     const wizard = new ContentWizardPanel(wizardParams, getTheme());
@@ -519,8 +519,8 @@ function isDefaultAppUrl(url: string): boolean {
 }
 
 async function startContentBrowser() {
-    await import('lib-contentstudio/app/ContentAppPanel');
-    const AppWrapper = (await import('lib-contentstudio/app/AppWrapper')).AppWrapper;
+    await import('@enonic/lib-contentstudio/app/ContentAppPanel');
+    const AppWrapper = (await import('@enonic/lib-contentstudio/app/AppWrapper')).AppWrapper;
     const url: string = window.location.href;
     const commonWrapper = new AppWrapper(getTheme());
 
@@ -551,7 +551,7 @@ async function startContentBrowser() {
     LauncherHelper.appendLauncherPanel();
     Body.get().appendChild(commonWrapper);
 
-    const NewContentDialog = (await import('lib-contentstudio/app/create/NewContentDialog')).NewContentDialog;
+    const NewContentDialog = (await import('@enonic/lib-contentstudio/app/create/NewContentDialog')).NewContentDialog;
 
     const newContentDialog = new NewContentDialog();
     ShowNewContentDialogEvent.on((event) => {
@@ -584,8 +584,8 @@ async function startContentBrowser() {
         }
     });
 
-    const {IssueListDialog} = await import('lib-contentstudio/app/issue/view/IssueListDialog');
-    const {SortContentDialog} = await import('lib-contentstudio/app/browse/sort/dialog/SortContentDialog');
+    const {IssueListDialog} = await import('@enonic/lib-contentstudio/app/issue/view/IssueListDialog');
+    const {SortContentDialog} = await import('@enonic/lib-contentstudio/app/browse/sort/dialog/SortContentDialog');
 
     IssueListDialog.get();
 

@@ -1,11 +1,11 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {LazyListBox} from '@enonic/lib-admin-ui/ui/selector/list/LazyListBox';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {type ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {ContentTreeSelectorItemViewer} from '../../item/ContentTreeSelectorItemViewer';
-import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
+import {type ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
 
 export interface ContentListBoxOptions<T extends ContentTreeSelectorItem> {
     loader: ContentSummaryOptionDataLoader<T>;

@@ -1,8 +1,8 @@
 import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
-import {MenuButton, MenuButtonConfig} from '@enonic/lib-admin-ui/ui/button/MenuButton';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {type MenuButton, type MenuButtonConfig} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 
-export class IssueDetailsDialogButtonRow extends DropdownButtonRow {
+export class IssueDetailsDialogButtonRow
+    extends DropdownButtonRow {
 
     makeActionMenu(menuButtonConfig: MenuButtonConfig, useDefault: boolean = true): MenuButton {
         super.makeActionMenu(menuButtonConfig, useDefault);

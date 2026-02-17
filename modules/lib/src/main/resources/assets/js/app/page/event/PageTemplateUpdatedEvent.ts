@@ -1,4 +1,4 @@
-import {PageTemplateKey} from '../PageTemplateKey';
+import {type PageTemplateKey} from '../PageTemplateKey';
 import {PageUpdatedEvent} from './PageUpdatedEvent';
 
 export class PageTemplateUpdatedEvent extends PageUpdatedEvent {

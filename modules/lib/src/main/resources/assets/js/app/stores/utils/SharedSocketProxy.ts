@@ -1,4 +1,4 @@
-import {InWorkerMessage, OutWorkerMessage} from '../data/worker';
+import {type InWorkerMessage, type OutWorkerMessage} from '../data/worker';
 import {importScript} from './scripts';
 
 export class SharedSocketProxy {

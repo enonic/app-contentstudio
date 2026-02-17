@@ -1,16 +1,16 @@
 import {XDataWizardStepForm} from '../wizard/XDataWizardStepForm';
 import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
-import {Property} from '@enonic/lib-admin-ui/data/Property';
+import {type Property} from '@enonic/lib-admin-ui/data/Property';
 import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {PageState} from '../wizard/page/PageState';
-import {PageItem} from '../page/region/PageItem';
+import {type PageItem} from '../page/region/PageItem';
 import {ComponentPath} from '../page/region/ComponentPath';
 import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent';
 import {TextComponent} from '../page/region/TextComponent';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {ContentWizardHeader} from '../wizard/ContentWizardHeader';
-import {CompareStatus, CompareStatusChecker} from '../content/CompareStatus';
+import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {type ContentWizardHeader} from '../wizard/ContentWizardHeader';
+import {type CompareStatus, CompareStatusChecker} from '../content/CompareStatus';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class AiContentDataHelper {

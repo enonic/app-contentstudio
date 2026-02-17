@@ -1,17 +1,17 @@
 import Q from 'q';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {WidgetItemView} from '../../WidgetItemView';
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {DlEl} from '@enonic/lib-admin-ui/dom/DlEl';
 import {DdDtEl} from '@enonic/lib-admin-ui/dom/DdDtEl';
 import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {PropertiesWidgetItemViewHelper} from './PropertiesWidgetItemViewHelper';
+import {type PropertiesWidgetItemViewHelper} from './PropertiesWidgetItemViewHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {EditPropertiesDialog, EditPropertiesDialogParams} from './EditPropertiesDialog';
-import {PropertiesWidgetItemViewValue} from './PropertiesWidgetItemViewValue';
-import {PropertiesWizardStepForm} from './PropertiesWizardStepForm';
-import {PropertiesWizardStepFormType} from './PropertiesWizardStepFormFactory';
+import {EditPropertiesDialog, type EditPropertiesDialogParams} from './EditPropertiesDialog';
+import {type PropertiesWidgetItemViewValue} from './PropertiesWidgetItemViewValue';
+import {type PropertiesWizardStepForm} from './PropertiesWizardStepForm';
+import {type PropertiesWizardStepFormType} from './PropertiesWizardStepFormFactory';
 
 export abstract class PropertiesWidgetItemView
     extends WidgetItemView {

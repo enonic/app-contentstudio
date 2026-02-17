@@ -1,4 +1,4 @@
-import Q from 'q';
+import type Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {RecentItemsList} from './RecentItemsList';

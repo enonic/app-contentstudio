@@ -1,8 +1,8 @@
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {Permission} from '../../access/Permission';
-import Q from 'q';
+import type Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {EditPermissionState} from './EditPermissionState';
+import {type EditPermissionState} from './EditPermissionState';
 
 export class PermissionStateView extends SpanEl {
 

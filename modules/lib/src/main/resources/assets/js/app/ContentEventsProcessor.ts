@@ -1,11 +1,11 @@
 import {OpenSortDialogEvent} from './browse/OpenSortDialogEvent';
-import {ShowDependenciesEvent} from './browse/ShowDependenciesEvent';
-import {SortContentEvent} from './browse/sort/SortContentEvent';
-import {ContentSummary} from './content/ContentSummary';
-import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
-import {NewContentEvent} from './create/NewContentEvent';
-import {ContentUpdatedEvent} from './event/ContentUpdatedEvent';
-import {EditContentEvent} from './event/EditContentEvent';
+import {type ShowDependenciesEvent} from './browse/ShowDependenciesEvent';
+import {type SortContentEvent} from './browse/sort/SortContentEvent';
+import {type ContentSummary} from './content/ContentSummary';
+import {type ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
+import {type NewContentEvent} from './create/NewContentEvent';
+import {type ContentUpdatedEvent} from './event/ContentUpdatedEvent';
+import {type EditContentEvent} from './event/EditContentEvent';
 import {ContentUrlHelper} from './util/ContentUrlHelper';
 import {ContentCreateParams} from './wizard/ContentCreateParams';
 import {ContentEditParams} from './wizard/ContentEditParams';

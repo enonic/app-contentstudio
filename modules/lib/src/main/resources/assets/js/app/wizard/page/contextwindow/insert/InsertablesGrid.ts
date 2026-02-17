@@ -1,9 +1,9 @@
 import {H5El} from '@enonic/lib-admin-ui/dom/H5El';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {FontIcon} from '../../../../icon/FontIcon';
-import {Insertable} from './Insertable';
+import {type Insertable} from './Insertable';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';
 
 export interface InsertablesGridOptions {
@@ -31,7 +31,7 @@ export class InsertablesGrid
     }
 
     private createView(insertable: Insertable): LiEl {
-        let rowEl = new LiEl();
+        const rowEl = new LiEl();
         rowEl.getEl().setData('portal-component-type', insertable.getName());
         if (this.componentGridOptions.draggableRows) {
             rowEl.getEl().setData('context-window-draggable', 'true');
@@ -40,12 +40,12 @@ export class InsertablesGrid
             rowEl.addClass(this.componentGridOptions.rowClass);
         }
 
-        let icon = new FontIcon(insertable.getIconCls());
+        const icon = new FontIcon(insertable.getIconCls());
 
-        let title = new H5El('title');
+        const title = new H5El('title');
         title.getEl().setInnerHtml(insertable.getDisplayName());
 
-        let subtitle = new H6El('subtitle');
+        const subtitle = new H6El('subtitle');
         subtitle.getEl().setInnerHtml(insertable.getDescription());
 
         rowEl.appendChild(icon);

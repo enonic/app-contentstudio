@@ -1,22 +1,22 @@
-import {Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
+import {type Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
 import {AggregationSelection} from '@enonic/lib-admin-ui/aggregation/AggregationSelection';
 import {SearchInputValues} from '@enonic/lib-admin-ui/query/SearchInputValues';
 import Q from 'q';
-import {ContentQuery} from '../../content/ContentQuery';
+import {type ContentQuery} from '../../content/ContentQuery';
 import {SearchContentQueryCreator} from './SearchContentQueryCreator';
 import {ContentQueryRequest} from '../../resource/ContentQueryRequest';
-import {ContentSummaryJson} from '../../content/ContentSummaryJson';
-import {ContentSummary} from '../../content/ContentSummary';
+import {type ContentSummaryJson} from '../../content/ContentSummaryJson';
+import {type ContentSummary} from '../../content/ContentSummary';
 import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
-import {ContentQueryResult} from '../../resource/ContentQueryResult';
-import {ContentId} from '../../content/ContentId';
-import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
+import {type ContentQueryResult} from '../../resource/ContentQueryResult';
+import {type ContentId} from '../../content/ContentId';
+import {type BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
 import {ContentAggregation} from './ContentAggregation';
-import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
+import {type Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
 import {WorkflowState} from '../../content/WorkflowState';
 import {AggregationsQueryResult} from './AggregationsQueryResult';
 import {ContentResourceRequest} from '../../resource/ContentResourceRequest';
-import {Branch} from '../../versioning/Branch';
+import {type Branch} from '../../versioning/Branch';
 
 export class ContentAggregationsFetcher {
 

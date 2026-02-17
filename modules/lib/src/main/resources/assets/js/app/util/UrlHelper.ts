@@ -1,6 +1,6 @@
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {ProjectContext} from '../project/ProjectContext';
-import {Project} from '../settings/data/project/Project';
+import {type Project} from '../settings/data/project/Project';
 import {UrlAction} from '../UrlAction';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 

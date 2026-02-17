@@ -1,10 +1,11 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {CreateHtmlAreaContentDialogEvent} from './CreateHtmlAreaContentDialogEvent';
-import {CreateHtmlAreaDialogEvent, HtmlAreaDialogConfig, HtmlAreaDialogType} from './CreateHtmlAreaDialogEvent';
+import {CreateHtmlAreaDialogEvent, type HtmlAreaDialogConfig, HtmlAreaDialogType} from './CreateHtmlAreaDialogEvent';
 import {CreateHtmlAreaMacroDialogEvent} from './CreateHtmlAreaMacroDialogEvent';
-import {FullScreenDialogParams, MacroDialogParams} from './HtmlEditor';
-import {HtmlEditorParams} from './HtmlEditorParams';
-import eventInfo = CKEDITOR.eventInfo;
+import {type FullScreenDialogParams, type MacroDialogParams} from './HtmlEditorTypes';
+import {type HtmlEditorParams} from './HtmlEditorParams';
+
+type eventInfo = CKEDITOR.eventInfo;
 
 export class CreateHtmlAreaDialogEventGenerator {
 

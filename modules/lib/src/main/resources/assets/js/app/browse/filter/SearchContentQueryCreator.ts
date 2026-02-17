@@ -1,15 +1,15 @@
-import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
-import {SearchInputValues} from '@enonic/lib-admin-ui/query/SearchInputValues';
+import {type Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
+import {type SearchInputValues} from '@enonic/lib-admin-ui/query/SearchInputValues';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ContentQuery} from '../../content/ContentQuery';
 import {ValueFilter} from './ValueFilter';
 import {ExistsFilter} from './ExistsFilter';
 import {BooleanFilter} from '@enonic/lib-admin-ui/query/filter/BooleanFilter';
-import {DateRangeBucket} from '@enonic/lib-admin-ui/aggregation/DateRangeBucket';
+import {type DateRangeBucket} from '@enonic/lib-admin-ui/aggregation/DateRangeBucket';
 import {RangeFilter} from '@enonic/lib-admin-ui/query/filter/RangeFilter';
 import {QueryField} from '@enonic/lib-admin-ui/query/QueryField';
 import {ValueExpr} from '@enonic/lib-admin-ui/query/expr/ValueExpr';
-import {Filter} from '@enonic/lib-admin-ui/query/filter/Filter';
+import {type Filter} from '@enonic/lib-admin-ui/query/filter/Filter';
 import {
     TermsAggregationOrderDirection,
     TermsAggregationOrderType,
@@ -18,7 +18,7 @@ import {
 import {DateRangeAggregationQuery} from '@enonic/lib-admin-ui/query/aggregation/DateRangeAggregationQuery';
 import {DateRange} from '@enonic/lib-admin-ui/query/aggregation/DateRange';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentId} from '../../content/ContentId';
+import {type ContentId} from '../../content/ContentId';
 import {ContentAggregation} from './ContentAggregation';
 import {WorkflowState} from '../../content/WorkflowState';
 
@@ -315,7 +315,7 @@ export class SearchContentQueryCreator {
         const booleanFilter: BooleanFilter = new BooleanFilter();
 
         selectedBuckets.forEach((selectedBucket: DateRangeBucket) => {
-            let rangeFilter: RangeFilter =
+            const rangeFilter: RangeFilter =
                 new RangeFilter(fieldName, ValueExpr.dateTime(selectedBucket.getFrom()).getValue(),
                     null);
 

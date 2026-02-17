@@ -1,5 +1,5 @@
-import {ReorderChildContentJson} from '../json/ReorderChildContentJson';
-import {ContentId} from '../../content/ContentId';
+import {type ReorderChildContentJson} from '../json/ReorderChildContentJson';
+import {type ContentId} from '../../content/ContentId';
 
 export class OrderChildMovement {
 
@@ -23,7 +23,7 @@ export class OrderChildMovement {
     toJson(): ReorderChildContentJson {
         return {
             contentId: this.contentId.toString(),
-            moveBefore: !!this.moveBefore ? this.moveBefore.toString() : ''
+            moveBefore: this.moveBefore ? this.moveBefore.toString() : ''
         };
     }
 

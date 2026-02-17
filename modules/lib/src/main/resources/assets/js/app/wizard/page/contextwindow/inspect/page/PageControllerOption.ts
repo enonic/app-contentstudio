@@ -1,7 +1,7 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {TemplateOrControllerOption} from './TemplateOrControllerOption';
-import {Descriptor} from '../../../../../page/Descriptor';
+import {type Descriptor} from '../../../../../page/Descriptor';
 
 export class PageControllerOption
     extends TemplateOrControllerOption<Descriptor> {
@@ -12,7 +12,7 @@ export class PageControllerOption
             return false;
         }
 
-        let other = o as PageControllerOption;
+        const other = o as PageControllerOption;
 
         if (this.isAuto() && other.isAuto()) {
             return true;

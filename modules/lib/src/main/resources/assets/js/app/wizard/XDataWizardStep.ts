@@ -1,6 +1,6 @@
 import {ContentWizardStep} from './ContentWizardStep';
-import {XDataWizardStepForm} from './XDataWizardStepForm';
-import {XDataName} from '../content/XDataName';
+import {type XDataWizardStepForm} from './XDataWizardStepForm';
+import {type XDataName} from '../content/XDataName';
 
 export class XDataWizardStep
     extends ContentWizardStep {

@@ -1,6 +1,6 @@
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {PageContributionsJson} from './resource/MacroPreviewJson';
+import {type PageContributionsJson} from './resource/MacroPreviewJson';
 
 export class PageContributions
     implements Equitable {
@@ -45,7 +45,7 @@ export class PageContributions
             return false;
         }
 
-        let other = o as PageContributions;
+        const other = o as PageContributions;
 
         if (!ObjectHelper.stringArrayEquals(this.bodyBegin, other.bodyBegin)) {
             return false;

@@ -1,6 +1,6 @@
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ProjectContext} from '../project/ProjectContext';
 
 export class RepositoryId
@@ -41,7 +41,7 @@ export class RepositoryId
             return false;
         }
 
-        let other = o as RepositoryId;
+        const other = o as RepositoryId;
 
         if (!ObjectHelper.stringEquals(this.value, other.value)) {
             return false;

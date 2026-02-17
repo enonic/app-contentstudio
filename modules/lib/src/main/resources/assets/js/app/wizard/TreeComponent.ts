@@ -1,4 +1,4 @@
-import {PageItemType} from '../page/region/PageItemType';
+import {type PageItemType} from '../page/region/PageItemType';
 
 export class TreeComponent {
 

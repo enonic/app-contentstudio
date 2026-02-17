@@ -1,10 +1,10 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {Content} from '../content/Content';
-import {ContentJson} from '../content/ContentJson';
-import {ExtraData} from '../content/ExtraData';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type Content} from '../content/Content';
+import {type ContentJson} from '../content/ContentJson';
+import {type ExtraData} from '../content/ExtraData';
+import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {ContentName} from '../content/ContentName';
+import {type ContentName} from '../content/ContentName';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class UpdateContentRequest
@@ -74,10 +74,10 @@ export class UpdateContentRequest
         return {
             contentId: this.id,
             requireValid: this.requireValid,
-            contentName: !!contentName ? contentName.trim() : '',
+            contentName: contentName ? contentName.trim() : '',
             data: this.data.toJson(),
             meta: (this.meta || []).map((extraData: ExtraData) => extraData.toJson()),
-            displayName: !!this.displayName ? this.displayName.trim() : '',
+            displayName: this.displayName ? this.displayName.trim() : '',
         };
     }
 

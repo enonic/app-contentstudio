@@ -1,11 +1,11 @@
-import Q from 'q';
+import type Q from 'q';
 import {PostLoader} from '@enonic/lib-admin-ui/util/loader/PostLoader';
 import {ContentSummaryRequest} from '../../../../../resource/ContentSummaryRequest';
 import {GetContentSummaryByIds} from '../../../../../resource/GetContentSummaryByIds';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ContentSummary} from '../../../../../content/ContentSummary';
+import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {type ContentSummary} from '../../../../../content/ContentSummary';
 import {ContentId} from '../../../../../content/ContentId';
-import {ContentPath} from '../../../../../content/ContentPath';
+import {type ContentPath} from '../../../../../content/ContentPath';
 
 export class ContentSummaryLoader
     extends PostLoader<ContentSummary> {
@@ -19,7 +19,7 @@ export class ContentSummaryLoader
     }
 
     protected sendPreLoadRequest(ids: string): Q.Promise<ContentSummary[]> {
-        let contentIds = ids.split(';').map((id) => {
+        const contentIds = ids.split(';').map((id) => {
             return new ContentId(id);
         });
 

@@ -1,5 +1,5 @@
-import {Toolbar, ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
-import {SettingsTreeActions} from '../tree/SettingsTreeActions';
+import {Toolbar, type ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
+import {type SettingsTreeActions} from '../tree/SettingsTreeActions';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class SettingsBrowseToolbar

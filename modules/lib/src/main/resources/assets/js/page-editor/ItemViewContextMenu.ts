@@ -1,6 +1,6 @@
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {ItemViewContextMenuTitle} from './ItemViewContextMenuTitle';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {type ItemViewContextMenuTitle} from './ItemViewContextMenuTitle';
+import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {TreeContextMenu} from '@enonic/lib-admin-ui/ui/menu/TreeContextMenu';
 
@@ -196,17 +196,17 @@ export class ItemViewContextMenu
     }
 
     private restrainX(x: number): number {
-        let parentEl = this.getParentElement().getEl();
+        const parentEl = this.getParentElement().getEl();
 
-        let width = this.getEl().getWidth();
-        let halfWidth = width / 2;
-        let arrowHalfWidth = this.arrow ? this.arrow.getWidth() / 2 : 0;
-        let desiredX = x - halfWidth;
+        const width = this.getEl().getWidth();
+        const halfWidth = width / 2;
+        const arrowHalfWidth = this.arrow ? this.arrow.getWidth() / 2 : 0;
+        const desiredX = x - halfWidth;
         let resultX = desiredX;
         let deltaX;
         let arrowPos;
-        let minX = parentEl.getMarginLeft();
-        let maxX = parentEl.getWidthWithMargin() - parentEl.getMarginRight() - width;
+        const minX = parentEl.getMarginLeft();
+        const maxX = parentEl.getWidthWithMargin() - parentEl.getMarginRight() - width;
 
         if (desiredX < minX) {
             deltaX = minX - desiredX;
@@ -226,9 +226,9 @@ export class ItemViewContextMenu
 
     private restrainY(y: number, notClicked?: boolean, keepOrientation?: boolean): number {
         let orientation = keepOrientation ? this.orientation : ItemViewContextMenuOrientation.DOWN;
-        let arrowHeight = this.arrow ? this.arrow.getHeight() : 0;
-        let height = this.getEl().getHeight();
-        let minY = 0;
+        const arrowHeight = this.arrow ? this.arrow.getHeight() : 0;
+        const height = this.getEl().getHeight();
+        const minY = 0;
         let maxY;
         let desiredY;
 

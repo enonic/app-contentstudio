@@ -1,22 +1,22 @@
 import {Application, ApplicationBuilder} from '@enonic/lib-admin-ui/application/Application';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {ApplicationConfigProvider} from '@enonic/lib-admin-ui/form/inputtype/appconfig/ApplicationConfigProvider';
+import {type FormView} from '@enonic/lib-admin-ui/form/FormView';
+import {type SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {type ApplicationConfigProvider} from '@enonic/lib-admin-ui/form/inputtype/appconfig/ApplicationConfigProvider';
 import {SiteConfiguratorSelectedOptionsView} from './SiteConfiguratorSelectedOptionsView';
-import {SiteConfiguratorSelectedOptionView} from './SiteConfiguratorSelectedOptionView';
-import {ContentFormContext} from '../../ContentFormContext';
+import {type SiteConfiguratorSelectedOptionView} from './SiteConfiguratorSelectedOptionView';
+import {type ContentFormContext} from '../../ContentFormContext';
 import {SiteApplicationLoader} from '../../application/SiteApplicationLoader';
 import {
     FilterableListBoxWrapperWithSelectedView,
-    ListBoxInputOptions
+    type ListBoxInputOptions
 } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
 import {SiteConfiguratorListBox} from './SiteConfiguratorListBox';
-import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import Q from 'q';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {InputBuilder} from '@enonic/lib-admin-ui/form/Input';
@@ -94,7 +94,7 @@ export class SiteConfiguratorComboBox
     }
 
     getSelectedOptionViews(): SiteConfiguratorSelectedOptionView[] {
-        let views: SiteConfiguratorSelectedOptionView[] = [];
+        const views: SiteConfiguratorSelectedOptionView[] = [];
         this.getSelectedOptions().forEach((selectedOption: SelectedOption<Application>) => {
             views.push(selectedOption.getOptionView() as SiteConfiguratorSelectedOptionView);
         });

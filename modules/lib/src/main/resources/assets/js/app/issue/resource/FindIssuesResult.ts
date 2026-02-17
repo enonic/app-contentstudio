@@ -1,4 +1,4 @@
-import {IssueJson} from '../json/IssueJson';
+import {type IssueJson} from '../json/IssueJson';
 
 export interface FindIssuesResult {
 

@@ -1,4 +1,4 @@
-import {GetPublishStatusResultJson} from './GetPublishStatusResultJson';
+import {type GetPublishStatusResultJson} from './GetPublishStatusResultJson';
 
 export interface GetPublishStatusesResultJson {
 

@@ -1,14 +1,14 @@
-import {ContentSelectorDropdown, ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
+import {ContentSelectorDropdown, type ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
 import {ContentsTreeList} from '../../browse/ContentsTreeList';
 import {ModeTogglerButton} from '../ui/selector/ModeTogglerButton';
-import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
-import Q from 'q';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {type ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import type Q from 'q';
+import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentTreeSelectionWrapper} from './ContentTreeSelectionWrapper';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {SelectionDeltaItem} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
+import {type SelectionDeltaItem} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
 
 export interface ContentTreeSelectorDropdownOptions
     extends ContentSelectorDropdownOptions {

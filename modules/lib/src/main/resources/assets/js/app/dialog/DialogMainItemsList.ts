@@ -1,7 +1,7 @@
 import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {ContentId} from '../content/ContentId';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ContentId} from '../content/ContentId';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {StatusSelectionItem} from './StatusSelectionItem';
 

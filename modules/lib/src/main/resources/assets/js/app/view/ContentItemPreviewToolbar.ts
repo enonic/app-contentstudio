@@ -1,12 +1,12 @@
-import Q from 'q';
+import type Q from 'q';
 import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {PreviewActionHelper} from '../action/PreviewActionHelper';
+import {type PreviewActionHelper} from '../action/PreviewActionHelper';
 import {EmulatorDropdown} from './toolbar/EmulatorDropdown';
 import {AriaRole} from '@enonic/lib-admin-ui/ui/WCAG';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';

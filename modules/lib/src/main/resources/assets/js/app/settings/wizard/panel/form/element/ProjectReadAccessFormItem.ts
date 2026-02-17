@@ -1,23 +1,22 @@
-import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
+import {ProjectHelper} from '../../../../data/project/ProjectHelper';
+import {type ProjectPermissions} from '../../../../data/project/ProjectPermissions';
+import {ProjectReadAccess} from '../../../../data/project/ProjectReadAccess';
+import {ProjectReadAccessType} from '../../../../data/project/ProjectReadAccessType';
+import {type PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
 import {ProjectFormItemBuilder} from './ProjectFormItem';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
-import {ProjectReadAccessType} from '../../../../data/project/ProjectReadAccessType';
 import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
-import {ProjectReadAccess} from '../../../../data/project/ProjectReadAccess';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
-import {ProjectHelper} from '../../../../data/project/ProjectHelper';
-import {ProjectPermissions} from '../../../../data/project/ProjectPermissions';
-import Q from 'q';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import type Q from 'q';
 import {GetPrincipalsByKeysRequest} from '../../../../../security/GetPrincipalsByKeysRequest';
 import {CopyFromParentFormItem} from './CopyFromParentFormItem';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {CSPrincipalCombobox} from '../../../../../security/CSPrincipalCombobox';
-import {PrincipalLoader} from '@enonic/lib-admin-ui/security/PrincipalLoader';
 
 export class ProjectReadAccessFormItem
     extends CopyFromParentFormItem {

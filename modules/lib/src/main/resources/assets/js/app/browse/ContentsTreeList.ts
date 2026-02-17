@@ -1,13 +1,18 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
-import {TreeListBox, TreeListBoxParams, TreeListElement, TreeListElementParams} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
+import {
+    TreeListBox,
+    type TreeListBoxParams,
+    TreeListElement,
+    type TreeListElementParams
+} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
+import {type OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import Q from 'q';
-import {ContentSummaryOptionDataLoader} from '../inputtype/ui/selector/ContentSummaryOptionDataLoader';
-import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
+import type Q from 'q';
+import {type ContentSummaryOptionDataLoader} from '../inputtype/ui/selector/ContentSummaryOptionDataLoader';
+import {type ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {ContentTreeSelectorItemViewer} from '../item/ContentTreeSelectorItemViewer';
 
 export interface ContentsListParams extends TreeListBoxParams<ContentTreeSelectorItem> {

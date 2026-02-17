@@ -1,7 +1,7 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {Attachment, AttachmentBuilder} from './Attachment';
-import {AttachmentJson} from './AttachmentJson';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Attachment, AttachmentBuilder} from './Attachment';
+import {type AttachmentJson} from './AttachmentJson';
 
 export class Attachments
     implements Equitable {
@@ -53,7 +53,7 @@ export class Attachments
             return false;
         }
 
-        let other: Attachments = o as Attachments;
+        const other: Attachments = o as Attachments;
 
         return ObjectHelper.arrayEquals(this.attachments, other.attachments);
     }

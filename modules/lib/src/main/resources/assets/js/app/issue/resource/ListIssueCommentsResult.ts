@@ -1,5 +1,5 @@
-import {ResultMetadataJson} from '../../resource/json/ResultMetadataJson';
-import {IssueCommentJson} from '../json/IssueCommentJson';
+import {type ResultMetadataJson} from '../../resource/json/ResultMetadataJson';
+import {type IssueCommentJson} from '../json/IssueCommentJson';
 
 export interface ListIssueCommentsResult {
 

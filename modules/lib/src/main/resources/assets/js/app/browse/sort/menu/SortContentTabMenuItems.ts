@@ -1,4 +1,4 @@
-import {SortContentTabMenuItem} from './SortContentTabMenuItem';
+import {type SortContentTabMenuItem} from './SortContentTabMenuItem';
 import {QueryField} from '@enonic/lib-admin-ui/query/QueryField';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {InheritedSortContentTabMenuItem} from './InheritedSortContentTabMenuItem';

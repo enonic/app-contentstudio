@@ -1,4 +1,4 @@
-import {PanelStripHeader, PanelStripHeaderConfig} from '@enonic/lib-admin-ui/ui/panel/PanelStripHeader';
+import {PanelStripHeader, type PanelStripHeaderConfig} from '@enonic/lib-admin-ui/ui/panel/PanelStripHeader';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';

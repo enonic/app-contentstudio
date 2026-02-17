@@ -1,10 +1,9 @@
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ProjectPermissions} from '../data/project/ProjectPermissions';
+import {type ProjectPermissionsJson} from './json/ProjectPermissionsJson';
 import {ProjectResourceRequest} from './ProjectResourceRequest';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {ProjectPermissionsJson} from './json/ProjectPermissionsJson';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {ProjectReadAccessJson} from './json/ProjectReadAccessJson';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 
 export class UpdateProjectPermissionsRequest
     extends ProjectResourceRequest<ProjectPermissions> {
@@ -37,7 +36,7 @@ export class UpdateProjectPermissionsRequest
     }
 
     getParams(): object {
-        const params: {name: string, permissions?: ProjectPermissionsJson} = {
+        const params: { name: string, permissions?: ProjectPermissionsJson } = {
             name: this.name
         };
 

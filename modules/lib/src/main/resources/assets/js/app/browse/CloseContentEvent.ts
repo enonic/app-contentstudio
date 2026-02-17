@@ -1,6 +1,6 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {type Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 
 export class CloseContentEvent extends Event {
 

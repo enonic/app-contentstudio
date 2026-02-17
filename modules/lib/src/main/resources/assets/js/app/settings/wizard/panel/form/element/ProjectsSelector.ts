@@ -1,4 +1,4 @@
-import {Project} from '../../../../data/project/Project';
+import {type Project} from '../../../../data/project/Project';
 import {ProjectViewer} from '../../../viewer/ProjectViewer';
 import Q from 'q';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
@@ -7,15 +7,15 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ProjectOptionDataHelper} from './ProjectOptionDataHelper';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {SelectedOptionView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionView';
+import {type SelectedOptionView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionView';
 import {ProjectOptionDataLoader} from './ProjectOptionDataLoader';
 import {
     FilterableListBoxWrapperWithSelectedView,
-    ListBoxInputOptions
+    type ListBoxInputOptions
 } from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ProjectsTreeRootList} from './ProjectsTreeRootList';
 

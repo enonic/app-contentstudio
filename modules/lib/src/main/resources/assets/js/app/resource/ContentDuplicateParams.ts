@@ -1,5 +1,5 @@
-import {ContentId} from '../content/ContentId';
-import {ContentDuplicateParamsJson} from './ContentDuplicateParamsJson';
+import {type ContentId} from '../content/ContentId';
+import {type ContentDuplicateParamsJson} from './ContentDuplicateParamsJson';
 
 export class ContentDuplicateParams {
     private readonly contentId: ContentId;

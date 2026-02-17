@@ -1,5 +1,5 @@
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {SortContentTabMenuItem} from './SortContentTabMenuItem';
+import {type SortContentTabMenuItem} from './SortContentTabMenuItem';
 import {DropdownHandle} from '@enonic/lib-admin-ui/ui/button/DropdownHandle';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {TabMenu} from '@enonic/lib-admin-ui/ui/tab/TabMenu';

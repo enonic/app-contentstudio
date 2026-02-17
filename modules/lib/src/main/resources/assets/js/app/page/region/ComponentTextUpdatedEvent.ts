@@ -1,6 +1,6 @@
-import {ComponentPath} from './ComponentPath';
+import {type ComponentPath} from './ComponentPath';
 import {ComponentUpdatedEvent} from './ComponentUpdatedEvent';
-import {ComponentTextUpdatedOrigin} from './ComponentTextUpdatedOrigin';
+import {type ComponentTextUpdatedOrigin} from './ComponentTextUpdatedOrigin';
 
 export class ComponentTextUpdatedEvent
     extends ComponentUpdatedEvent {

@@ -1,4 +1,4 @@
-import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
+import {type Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
 import {NamesView} from '@enonic/lib-admin-ui/app/NamesView';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';

@@ -1,18 +1,18 @@
 import Q from 'q';
-import {Input} from '@enonic/lib-admin-ui/form/Input';
+import {type Input} from '@enonic/lib-admin-ui/form/Input';
 import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
 import {Class} from '@enonic/lib-admin-ui/Class';
 import {PropertyPath, PropertyPathElement} from '@enonic/lib-admin-ui/data/PropertyPath';
-import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
+import {type PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
 import {Value} from '@enonic/lib-admin-ui/data/Value';
-import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
+import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {ContentTagSuggester, ContentTagSuggesterBuilder} from './ContentTagSuggester';
-import {Tags, TagsBuilder} from '../ui/tag/Tags';
-import {TagRemovedEvent} from '../ui/tag/TagRemovedEvent';
-import {TagAddedEvent} from '../ui/tag/TagAddedEvent';
-import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {type Tags, TagsBuilder} from '../ui/tag/Tags';
+import {type TagRemovedEvent} from '../ui/tag/TagRemovedEvent';
+import {type TagAddedEvent} from '../ui/tag/TagAddedEvent';
+import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {BaseInputTypeManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
 
 export class Tag
@@ -61,7 +61,7 @@ export class Tag
                 new TagsBuilder().setTagSuggester(this.tagSuggester).setMaxTags(this.context.input.getOccurrences().getMaximum());
 
             propertyArray.forEach((property) => {
-                let value = property.getString();
+                const value = property.getString();
                 if (value) {
                     tagsBuilder.addTag(value);
                 }
@@ -72,7 +72,7 @@ export class Tag
 
             this.tags.onTagAdded((event: TagAddedEvent) => {
                 this.ignorePropertyChange(true);
-                let value = new Value(event.getValue(), ValueTypes.STRING);
+                const value = new Value(event.getValue(), ValueTypes.STRING);
                 if (this.tags.countTags() === 1) {
                     this.getPropertyArray().set(0, value);
                 } else {
@@ -96,7 +96,7 @@ export class Tag
     }
 
     update(propertyArray: PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {
-        let superPromise = super.update(propertyArray, unchangedOnly);
+        const superPromise = super.update(propertyArray, unchangedOnly);
 
         if (!unchangedOnly || !this.tags.isDirty()) {
             return superPromise.then(() => {

@@ -1,15 +1,13 @@
 import {WizardStepForm} from '@enonic/lib-admin-ui/app/wizard/WizardStepForm';
-import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import Q from 'q';
-import {SettingsDataViewItem} from '../../../view/SettingsDataViewItem';
+import type Q from 'q';
+import {type SettingsDataViewItem} from '../../../view/SettingsDataViewItem';
 import {ValidationRecording} from '@enonic/lib-admin-ui/form/ValidationRecording';
-import {SettingsType} from '../../../data/type/SettingsType';
-import {ProjectViewItem} from '../../../view/ProjectViewItem';
-import {Project} from '../../../data/project/Project';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type SettingsType} from '../../../data/type/SettingsType';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 
 export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataViewItem<Equitable>>
     extends WizardStepForm {
@@ -18,7 +16,7 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
 
     private readonly form: Form;
 
-    private formItems:  FormItem[];
+    private formItems: FormItem[];
 
     private dataChangedListeners: (() => void)[] = [];
 

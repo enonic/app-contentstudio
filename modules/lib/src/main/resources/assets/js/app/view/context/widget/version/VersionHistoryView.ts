@@ -4,14 +4,14 @@ import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
-import {ContentSummary} from '../../../../content/ContentSummary';
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {type ContentSummary} from '../../../../content/ContentSummary';
+import {type ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {ContentVersionHelper} from '../../../../ContentVersionHelper';
 import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
 import {WidgetItemView} from '../../WidgetItemView';
-import {VersionHistoryItem} from './VersionHistoryItem';
+import {type VersionHistoryItem} from './VersionHistoryItem';
 import {VersionHistoryList} from './VersionHistoryList';
-import {VersionHistoryListItem} from './VersionHistoryListItem';
+import {type VersionHistoryListItem} from './VersionHistoryListItem';
 
 export class VersionHistoryView extends WidgetItemView {
 

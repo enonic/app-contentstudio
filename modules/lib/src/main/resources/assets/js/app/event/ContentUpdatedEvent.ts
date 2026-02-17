@@ -1,7 +1,7 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {ContentSummary} from '../content/ContentSummary';
-import {ContentId} from '../content/ContentId';
+import {type ContentSummary} from '../content/ContentSummary';
+import {type ContentId} from '../content/ContentId';
 
 export class ContentUpdatedEvent
     extends Event {

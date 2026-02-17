@@ -1,6 +1,6 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ComponentPath} from './ComponentPath';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type ComponentPath} from './ComponentPath';
 
 export class RegionPath
     implements Equitable {
@@ -47,7 +47,7 @@ export class RegionPath
             return false;
         }
 
-        let other = o as RegionPath;
+        const other = o as RegionPath;
 
         if (!ObjectHelper.stringEquals(this.refString, other.refString)) {
             return false;

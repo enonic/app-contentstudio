@@ -1,6 +1,6 @@
-import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeList} from './ContentTypeList';
-import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
+import {type BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentTypeSelectedOptionsView} from './ContentTypeComboBox';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
@@ -8,7 +8,7 @@ import {GetContentTypeByNameRequest} from '../../resource/GetContentTypeByNameRe
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {FilterableListBoxWrapperWithSelectedView} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
-import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {type SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import Q from 'q';
 
 export interface ContentTypeFilterDropdownOptions {

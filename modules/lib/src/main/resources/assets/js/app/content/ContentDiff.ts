@@ -1,4 +1,4 @@
-import {ContentSummaryDiff} from './ContentSummaryDiff';
+import {type ContentSummaryDiff} from './ContentSummaryDiff';
 
 export interface ContentDiff extends ContentSummaryDiff {
     data?: boolean;

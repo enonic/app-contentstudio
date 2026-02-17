@@ -1,5 +1,5 @@
-import {Application} from '@enonic/lib-admin-ui/application/Application';
-import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {type Application} from '@enonic/lib-admin-ui/application/Application';
+import {type ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 
 export class ProjectApplication {
 

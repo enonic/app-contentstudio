@@ -1,12 +1,12 @@
-import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {Form} from '@enonic/lib-admin-ui/form/Form';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {DescriptorKey} from './DescriptorKey';
 import {DescriptorName} from './DescriptorName';
 import {RegionDescriptor} from './RegionDescriptor';
-import {DescriptorJson} from './DescriptorJson';
-import {ComponentType} from './region/ComponentType';
+import {type DescriptorJson} from './DescriptorJson';
+import {type ComponentType} from './region/ComponentType';
 
 export class Descriptor
     implements Cloneable, Equitable {
@@ -101,7 +101,7 @@ export class Descriptor
             return false;
         }
 
-        let other = o as Descriptor;
+        const other = o as Descriptor;
 
         return this.name.toString() === other.getName().toString() &&
                 this.componentType === other.getComponentType() &&

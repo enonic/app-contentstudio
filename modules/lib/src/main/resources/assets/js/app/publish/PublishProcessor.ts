@@ -5,17 +5,17 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
 import {CompareStatus} from '../content/CompareStatus';
-import {ContentId} from '../content/ContentId';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ContentId} from '../content/ContentId';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {SelectionType} from '../dialog/DialogDependantItemsList';
 import {EditContentEvent} from '../event/EditContentEvent';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {FindIdsByParentsRequest} from '../resource/FindIdsByParentsRequest';
 import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfContentsRequest';
 import {ResolvePublishDependenciesRequest} from '../resource/ResolvePublishDependenciesRequest';
-import {ResolvePublishDependenciesResult} from '../resource/ResolvePublishDependenciesResult';
-import {PublishDialogDependantList} from './PublishDialogDependantList';
-import {PublishDialogItemList} from './PublishDialogItemList';
+import {type ResolvePublishDependenciesResult} from '../resource/ResolvePublishDependenciesResult';
+import {type PublishDialogDependantList} from './PublishDialogDependantList';
+import {type PublishDialogItemList} from './PublishDialogItemList';
 
 interface ReloadDependenciesParams {
     resetDependantItems?: boolean;
@@ -729,7 +729,7 @@ export class PublishProcessor {
     }
 
     private filterDependantItems(dependants: ContentSummaryAndCompareStatus[]) {
-        let itemsToRemove = this.dependantList.getItems().filter(
+        const itemsToRemove = this.dependantList.getItems().filter(
             (oldDependantItem: ContentSummaryAndCompareStatus) => !dependants.some(
                 (newDependantItem) => oldDependantItem.equals(newDependantItem)));
         this.dependantList.removeItems(itemsToRemove);

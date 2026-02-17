@@ -1,11 +1,10 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {Property} from '@enonic/lib-admin-ui/data/Property';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {type Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Property} from '@enonic/lib-admin-ui/data/Property';
+import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {Content, ContentBuilder} from './Content';
-import {ContentJson} from './ContentJson';
 
 export class Site
     extends Content
@@ -25,11 +24,11 @@ export class Site
 
     getSiteConfigs(): ApplicationConfig[] {
 
-        let siteConfigs: ApplicationConfig[] = [];
+        const siteConfigs: ApplicationConfig[] = [];
         this.getContentData().forEachProperty('siteConfig', (applicationProperty: Property) => {
-            let siteConfigData = applicationProperty.getPropertySet();
+            const siteConfigData = applicationProperty.getPropertySet();
             if (siteConfigData) {
-                let siteConfig = ApplicationConfig.create().fromData(siteConfigData).build();
+                const siteConfig = ApplicationConfig.create().fromData(siteConfigData).build();
                 siteConfigs.push(siteConfig);
             }
         });

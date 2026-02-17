@@ -1,4 +1,4 @@
-import {ContentIdBaseItemJson} from './ContentIdBaseItemJson';
+import {type ContentIdBaseItemJson} from './ContentIdBaseItemJson';
 
 export interface InboundDependenciesJson {
     id: ContentIdBaseItemJson;

@@ -1,17 +1,17 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {Region} from './Region';
 import {RegionAddedEvent} from './RegionAddedEvent';
 import {RegionRemovedEvent} from './RegionRemovedEvent';
-import {RegionJson} from './RegionJson';
-import {RegionDescriptor} from '../RegionDescriptor';
-import {ComponentPath} from './ComponentPath';
-import {ComponentAddedEvent} from './ComponentAddedEvent';
+import {type RegionJson} from './RegionJson';
+import {type RegionDescriptor} from '../RegionDescriptor';
+import {type ComponentPath} from './ComponentPath';
+import {type ComponentAddedEvent} from './ComponentAddedEvent';
 import {ComponentRemovedEvent} from './ComponentRemovedEvent';
-import {ComponentUpdatedEvent} from './ComponentUpdatedEvent';
+import {type ComponentUpdatedEvent} from './ComponentUpdatedEvent';
 import {ComponentEventsHolder} from '../../wizard/page/ComponentEventsHolder';
 import {ComponentEventsWrapper} from '../../wizard/page/ComponentEventsWrapper';
-import {ComponentAddedEventHandler, ComponentRemovedEventHandler, ComponentUpdatedEventHandler} from './Component';
+import {type ComponentAddedEventHandler, type ComponentRemovedEventHandler, type ComponentUpdatedEventHandler} from './Component';
 
 export class Regions
     implements Equitable {
@@ -97,7 +97,7 @@ export class Regions
     changeRegionsTo(regionDescriptors: RegionDescriptor[]) {
 
         // Remove regions not existing in regionDescriptors
-        let regionsToRemove: Region[] = this.getRegions().filter((region: Region) => {
+        const regionsToRemove: Region[] = this.getRegions().filter((region: Region) => {
             return !regionDescriptors.some((regionDescriptor: RegionDescriptor) => {
                 return regionDescriptor.getName() === region.getName();
             });
@@ -120,7 +120,7 @@ export class Regions
 
     public toJson(): RegionJson[] {
 
-        let regionJsons: RegionJson[] = [];
+        const regionJsons: RegionJson[] = [];
         this.getRegions().forEach((region: Region) => {
             regionJsons.push(region.toJson());
         });
@@ -133,10 +133,10 @@ export class Regions
             return false;
         }
 
-        let other = o as Regions;
+        const other = o as Regions;
 
-        let thisRegions = this.getRegions()?.filter((region: Region) => !region.isEmpty());
-        let otherRegions = other.getRegions()?.filter((region: Region) => !region.isEmpty());
+        const thisRegions = this.getRegions()?.filter((region: Region) => !region.isEmpty());
+        const otherRegions = other.getRegions()?.filter((region: Region) => !region.isEmpty());
 
         if (!ObjectHelper.arrayEquals(thisRegions, otherRegions)) {
             return false;

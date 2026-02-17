@@ -1,5 +1,5 @@
-import {ContentDependencyJson} from './json/ContentDependencyJson';
-import {ContentId} from '../content/ContentId';
+import {type ContentDependencyJson} from './json/ContentDependencyJson';
+import {type ContentId} from '../content/ContentId';
 
 export interface ResolveDependencyResultJson {
 

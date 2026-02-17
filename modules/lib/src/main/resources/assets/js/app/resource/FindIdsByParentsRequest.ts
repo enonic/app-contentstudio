@@ -1,9 +1,9 @@
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {ContentId} from '../content/ContentId';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 import {FindIdsByParentsResult} from './FindIdsByParentsResult';
-import {FindIdsByParentsResultJson} from './json/FindIdsByParentsResultJson';
+import {type FindIdsByParentsResultJson} from './json/FindIdsByParentsResultJson';
 
 export class FindIdsByParentsRequest
     extends CmsContentResourceRequest<ContentId[]> {

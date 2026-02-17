@@ -1,18 +1,18 @@
 import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 import Q from 'q';
 import {ProjectSelectedApplicationViewer} from './ProjectSelectedApplicationViewer';
-import {Application} from '@enonic/lib-admin-ui/application/Application';
+import {type Application} from '@enonic/lib-admin-ui/application/Application';
 import {SiteConfiguratorDialog} from '../../../../../inputtype/ui/siteconfigurator/SiteConfiguratorDialog';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {FormContext} from '@enonic/lib-admin-ui/form/FormContext';
+import {type FormContext} from '@enonic/lib-admin-ui/form/FormContext';
 import {FormState} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {FormValidityChangedEvent} from '@enonic/lib-admin-ui/form/FormValidityChangedEvent';
+import {type FormValidityChangedEvent} from '@enonic/lib-admin-ui/form/FormValidityChangedEvent';
 import {ProjectApplication} from './ProjectApplication';
 import {ContentFormContext} from '../../../../../ContentFormContext';
-import {Project} from '../../../../data/project/Project';
+import {type Project} from '../../../../data/project/Project';
 
 export class ProjectApplicationSelectedOptionView
     extends BaseSelectedOptionView<Application> {

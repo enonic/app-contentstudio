@@ -1,4 +1,4 @@
-import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
+import {type DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
 import {ProjectContext} from '../../../../project/ProjectContext';
 import {ParentProjectDialogStep} from './step/ParentProjectDialogStep';
 import {ProjectLocaleDialogStep} from './step/ProjectLocaleDialogStep';

@@ -1,5 +1,5 @@
 import {ShowLiveEditEvent} from '../ShowLiveEditEvent';
-import {ContentWizardPanel} from '../ContentWizardPanel';
+import {type ContentWizardPanel} from '../ContentWizardPanel';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';

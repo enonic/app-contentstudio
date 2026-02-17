@@ -1,11 +1,11 @@
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {type Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
-import Q from 'q';
+import type Q from 'q';
 import {ContentId} from '../../../../content/ContentId';
-import {ContentSummary} from '../../../../content/ContentSummary';
+import {type ContentSummary} from '../../../../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
+import {type ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
 import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../ContentSummaryOptionDataLoader';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
 import {ImageContentLoader} from './ImageContentLoader';

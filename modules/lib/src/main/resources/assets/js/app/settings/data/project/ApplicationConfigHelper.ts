@@ -1,7 +1,7 @@
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {ProjectSiteConfigJson} from '../../resource/json/ProjectSiteConfigJson';
+import {type ProjectSiteConfigJson} from '../../resource/json/ProjectSiteConfigJson';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
+import {type PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 
 export class ApplicationConfigHelper {

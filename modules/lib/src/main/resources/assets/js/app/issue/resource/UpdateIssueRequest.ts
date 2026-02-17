@@ -1,9 +1,9 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {IssueJson} from '../json/IssueJson';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type IssueJson} from '../json/IssueJson';
 import {Issue} from '../Issue';
 import {IssueStatus} from '../IssueStatus';
-import {PublishRequest} from '../PublishRequest';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {type PublishRequest} from '../PublishRequest';
+import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';
 

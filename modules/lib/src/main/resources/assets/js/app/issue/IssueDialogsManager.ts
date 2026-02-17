@@ -1,10 +1,10 @@
-import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {type ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentPublishDialog} from '../publish/ContentPublishDialog';
 import {RequestContentPublishDialog} from '../publish/RequestContentPublishDialog';
 import {IssueServerEventsHandler} from './event/IssueServerEventsHandler';
-import {Issue} from './Issue';
+import {type Issue} from './Issue';
 import {GetIssueRequest} from './resource/GetIssueRequest';
 import {CreateIssueDialog} from './view/CreateIssueDialog';
 import {IssueDetailsDialog} from './view/IssueDetailsDialog';
@@ -119,7 +119,7 @@ export class IssueDialogsManager {
             this.listDialog.addClickIgnoredElement(this.createDialog);
         });
         this.listDialog.onIssueSelected(issue => {
-            if (!!this.getIssueRequest) {
+            if (this.getIssueRequest) {
                 return;
             }
             this.getIssueRequest = new GetIssueRequest(issue.getId());

@@ -1,5 +1,5 @@
-import {OptionDataHelper} from '@enonic/lib-admin-ui/ui/selector/OptionDataHelper';
-import {Project} from '../../../../data/project/Project';
+import {type OptionDataHelper} from '@enonic/lib-admin-ui/ui/selector/OptionDataHelper';
+import {type Project} from '../../../../data/project/Project';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
 export class ProjectOptionDataHelper

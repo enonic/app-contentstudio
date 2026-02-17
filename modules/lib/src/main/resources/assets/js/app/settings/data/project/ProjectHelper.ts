@@ -1,9 +1,9 @@
-import {Project} from './Project';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {type Project} from './Project';
+import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {ProjectGetRequest} from '../../resource/ProjectGetRequest';
 import {ProjectContext} from '../../../project/ProjectContext';
 import Q from 'q';
-import {ProjectPermissions} from './ProjectPermissions';
+import {type ProjectPermissions} from './ProjectPermissions';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 
 export class ProjectHelper {

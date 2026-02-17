@@ -1,13 +1,13 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {ResultMetadata} from './ResultMetadata';
 import {ContentSelectorRequest} from './ContentSelectorRequest';
 import {ContentSummary} from '../content/ContentSummary';
-import {ChildOrder} from './order/ChildOrder';
+import {type ChildOrder} from './order/ChildOrder';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {ListContentResult} from './ListContentResult';
-import {ContentSummaryJson} from '../content/ContentSummaryJson';
+import {type ListContentResult} from './ListContentResult';
+import {type ContentSummaryJson} from '../content/ContentSummaryJson';
 
 
 export class ListByIdSelectorRequest<DATA extends ContentTreeSelectorItem>

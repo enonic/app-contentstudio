@@ -1,5 +1,5 @@
-import {ContentTreeSelectorItemJson} from '../../item/ContentTreeSelectorItem';
-import {ResultMetadataJson} from './ResultMetadataJson';
+import {type ContentTreeSelectorItemJson} from '../../item/ContentTreeSelectorItem';
+import {type ResultMetadataJson} from './ResultMetadataJson';
 
 export interface ContentTreeSelectorListJson {
 

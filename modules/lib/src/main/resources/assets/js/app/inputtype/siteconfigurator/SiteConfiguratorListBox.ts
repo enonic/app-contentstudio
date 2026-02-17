@@ -1,6 +1,6 @@
 import {LazyListBox} from '@enonic/lib-admin-ui/ui/selector/list/LazyListBox';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {Application} from '@enonic/lib-admin-ui/application/Application';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Application} from '@enonic/lib-admin-ui/application/Application';
 import {ApplicationViewer} from '@enonic/lib-admin-ui/application/ApplicationViewer';
 
 export class SiteConfiguratorListBox

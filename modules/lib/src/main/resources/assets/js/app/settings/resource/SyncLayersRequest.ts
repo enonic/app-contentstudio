@@ -1,6 +1,6 @@
-import Q from 'q';
+import type Q from 'q';
 import {ProjectResourceRequest} from './ProjectResourceRequest';
-import {TaskInfo} from '@enonic/lib-admin-ui/task/TaskInfo';
+import {type TaskInfo} from '@enonic/lib-admin-ui/task/TaskInfo';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {CmsTaskableResourceRequest} from '../../resource/CmsTaskableResourceRequest';
 

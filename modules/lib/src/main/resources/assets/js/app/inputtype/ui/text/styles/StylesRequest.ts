@@ -1,7 +1,7 @@
 import Q from 'q';
 import {Path} from '@enonic/lib-admin-ui/rest/Path';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {StyleJson} from './StylesDescriptor';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type StyleJson} from './StylesDescriptor';
 import {Styles} from './Styles';
 import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
 import {ProjectContext} from '../../../../project/ProjectContext';

@@ -1,5 +1,5 @@
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
+import {type Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {LocaleViewer} from './LocaleViewer';
 
 export class LocaleListBox extends ListBox<Locale> {

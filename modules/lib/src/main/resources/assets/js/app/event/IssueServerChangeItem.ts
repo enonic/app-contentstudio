@@ -1,4 +1,4 @@
-import {NodeEventNodeJson} from '@enonic/lib-admin-ui/event/NodeServerEvent';
+import {type NodeEventNodeJson} from '@enonic/lib-admin-ui/event/NodeServerEvent';
 import {NodeServerChangeItem, NodeServerChangeItemBuilder} from '@enonic/lib-admin-ui/event/NodeServerChangeItem';
 
 export class IssueServerChangeItem

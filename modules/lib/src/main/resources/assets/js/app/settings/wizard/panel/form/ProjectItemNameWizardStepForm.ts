@@ -1,17 +1,17 @@
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
-import {FormItem, FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {type FormItem, FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
-import {ProjectViewItem} from '../../../view/ProjectViewItem';
+import {type ProjectViewItem} from '../../../view/ProjectViewItem';
 import Q from 'q';
 import {ValidationRecording} from '@enonic/lib-admin-ui/form/ValidationRecording';
-import {Project} from '../../../data/project/Project';
+import {type Project} from '../../../data/project/Project';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
-import {SettingsType} from '../../../data/type/SettingsType';
+import {type SettingsType} from '../../../data/type/SettingsType';
 import {ParentProjectFormItem} from './element/ParentProjectFormItem';
 import {ProjectNameFormItem} from './element/ProjectNameFormItem';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 
 export class ProjectItemNameWizardStepForm
     extends ProjectWizardStepForm {

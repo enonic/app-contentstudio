@@ -1,28 +1,28 @@
 import Q from 'q';
-import {Input} from '@enonic/lib-admin-ui/form/Input';
+import {type Input} from '@enonic/lib-admin-ui/form/Input';
 import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from '@enonic/lib-admin-ui/Class';
-import {Property} from '@enonic/lib-admin-ui/data/Property';
-import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
-import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {FormView} from '@enonic/lib-admin-ui/form/FormView';
-import {Value} from '@enonic/lib-admin-ui/data/Value';
-import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
+import {type Property} from '@enonic/lib-admin-ui/data/Property';
+import {type PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
+import {type PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
+import {type FormView} from '@enonic/lib-admin-ui/form/FormView';
+import {type Value} from '@enonic/lib-admin-ui/data/Value';
+import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {Application, ApplicationBuilder} from '@enonic/lib-admin-ui/application/Application';
+import {type SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {type Application, ApplicationBuilder} from '@enonic/lib-admin-ui/application/Application';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {ApplicationConfigProvider} from '@enonic/lib-admin-ui/form/inputtype/appconfig/ApplicationConfigProvider';
 import {SiteConfigProviderRegistry} from './SiteConfigProviderRegistry';
 import {SiteConfiguratorComboBox} from './SiteConfiguratorComboBox';
-import {SiteConfiguratorSelectedOptionView} from './SiteConfiguratorSelectedOptionView';
-import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {ContentFormContext} from '../../ContentFormContext';
+import {type SiteConfiguratorSelectedOptionView} from './SiteConfiguratorSelectedOptionView';
+import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {type ContentFormContext} from '../../ContentFormContext';
 import {BaseInputTypeManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
 import {ProjectHelper} from '../../settings/data/project/ProjectHelper';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {GetApplicationsRequest} from '../../resource/GetApplicationsRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
@@ -62,7 +62,7 @@ export class SiteConfigurator
 
     layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
         return super.layout(input, propertyArray).then(() => {
-            let deferred = Q.defer<void>();
+            const deferred = Q.defer<void>();
             this.siteConfigProvider = new ApplicationConfigProvider(propertyArray);
             SiteConfigProviderRegistry.setConfigProvider(this.siteConfigProvider);
             // ignore changes made to property by siteConfigProvider
@@ -175,8 +175,8 @@ export class SiteConfigurator
             propertySet = this.getPropertyArray().addSet();
         }
 
-        let config = siteConfig.getConfig();
-        let appKey = siteConfig.getApplicationKey();
+        const config = siteConfig.getConfig();
+        const appKey = siteConfig.getApplicationKey();
 
         propertySet.setStringByPath(ApplicationConfig.PROPERTY_KEY, appKey.toString());
         propertySet.setPropertySetByPath(ApplicationConfig.PROPERTY_CONFIG, config);
@@ -185,7 +185,7 @@ export class SiteConfigurator
     protected getValueFromPropertyArray(propertyArray: PropertyArray): string {
         return propertyArray.getProperties().map((property) => {
             if (property.hasNonNullValue()) {
-                let siteConfig = ApplicationConfig.create().fromData(property.getPropertySet()).build();
+                const siteConfig = ApplicationConfig.create().fromData(property.getPropertySet()).build();
                 return siteConfig.getApplicationKey().toString();
             }
         }).join(';');
@@ -269,7 +269,7 @@ export class SiteConfigurator
         });
 
         comboBox.onSiteConfigFormDisplayed((applicationKey: ApplicationKey, formView: FormView) => {
-            let indexToRemove = siteConfigFormsToDisplay.indexOf(applicationKey.toString());
+            const indexToRemove = siteConfigFormsToDisplay.indexOf(applicationKey.toString());
             if (indexToRemove !== -1) {
                 siteConfigFormsToDisplay.splice(indexToRemove, 1);
             }

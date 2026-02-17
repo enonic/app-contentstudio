@@ -1,25 +1,24 @@
+import {type CompareStatus} from '../content/CompareStatus';
+import {type Content} from '../content/Content';
+import {type ContentId} from '../content/ContentId';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ContentType} from '../inputtype/schema/ContentType';
+import {DefaultModels} from './page/DefaultModels';
+import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
+import {GetContentTypeByNameRequest} from '../resource/GetContentTypeByNameRequest';
+import {ProjectContext} from '../project/ProjectContext';
+import {type PublishStatus} from '../publish/PublishStatus';
+import {type Site} from '../content/Site';
 import Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {DefaultModels} from './page/DefaultModels';
-import {DefaultModelsFactory, DefaultModelsFactoryConfig} from './page/DefaultModelsFactory';
-import {ContentWizardPanelParams} from './ContentWizardPanelParams';
-import {GetContentTypeByNameRequest} from '../resource/GetContentTypeByNameRequest';
+import {DefaultModelsFactory, type DefaultModelsFactoryConfig} from './page/DefaultModelsFactory';
+import {type ContentWizardPanelParams} from './ContentWizardPanelParams';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
-import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {GetContentByPathRequest} from '../resource/GetContentByPathRequest';
 import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
-import {Content} from '../content/Content';
-import {Site} from '../content/Site';
-import {CompareStatus} from '../content/CompareStatus';
-import {PublishStatus} from '../publish/PublishStatus';
-import {ContentType} from '../inputtype/schema/ContentType';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {Exception, ExceptionType} from '@enonic/lib-admin-ui/Exception';
-import {ContentId} from '../content/ContentId';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ProjectContext} from '../project/ProjectContext';
+import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ContentsExistRequest} from '../resource/ContentsExistRequest';
-import {ContentsExistResult} from '../resource/ContentsExistResult';
+import {type ContentsExistResult} from '../resource/ContentsExistResult';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 
 export class ContentWizardDataLoader {
@@ -118,7 +117,7 @@ export class ContentWizardDataLoader {
     }
 
     private loadContentType(name: ContentTypeName): Q.Promise<ContentType> {
-        let deferred = Q.defer<ContentType>();
+        const deferred = Q.defer<ContentType>();
         new GetContentTypeByNameRequest(name).sendAndParse().then((contentType) => {
             deferred.resolve(contentType);
         }).catch((reason) => {

@@ -3,12 +3,12 @@ import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {MacrosLoader} from './resource/MacrosLoader';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
-import {MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
+import {type MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
 import {FilterableListBoxWrapperWithSelectedView} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
 import {MacroListBox} from './MacroListBox';
-import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 
 export class MacroComboBox
@@ -90,7 +90,7 @@ export class MacroSelectedOptionsView
     extends BaseSelectedOptionsView<MacroDescriptor> {
 
     createSelectedOption(option: Option<MacroDescriptor>): SelectedOption<MacroDescriptor> {
-        let optionView = new MacroSelectedOptionView(option);
+        const optionView = new MacroSelectedOptionView(option);
         return new SelectedOption<MacroDescriptor>(optionView, this.count());
     }
 }

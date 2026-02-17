@@ -1,5 +1,4 @@
-import {PageTemplate} from '../../content/PageTemplate';
-import {Descriptor} from '../../page/Descriptor';
+import {type PageTemplate} from '../../content/PageTemplate';
 
 export class DefaultModels {
 

@@ -1,26 +1,26 @@
 import Q from 'q';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Input} from '@enonic/lib-admin-ui/form/Input';
+import {type Input} from '@enonic/lib-admin-ui/form/Input';
 import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from '@enonic/lib-admin-ui/Class';
-import {Property} from '@enonic/lib-admin-ui/data/Property';
-import {Value} from '@enonic/lib-admin-ui/data/Value';
-import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
+import {type Property} from '@enonic/lib-admin-ui/data/Property';
+import {type Value} from '@enonic/lib-admin-ui/data/Value';
+import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
+import {type UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
 import {MediaUploaderEl, MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
 import {BaseInputTypeSingleOccurrence} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeSingleOccurrence';
 import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
 import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
-import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {Content} from '../../content/Content';
+import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {type Content} from '../../content/Content';
 import {ImageUrlResolver} from '../../util/ImageUrlResolver';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
-import {ContentSummary} from '../../content/ContentSummary';
-import {ContentId} from '../../content/ContentId';
+import {type ContentSummary} from '../../content/ContentSummary';
+import {type ContentId} from '../../content/ContentId';
 
 export interface MediaUploaderConfigAllowType {
     name: string;
@@ -68,9 +68,9 @@ export class MediaUploader
 
         this.mediaUploaderEl.onFileUploaded((event: UploadedEvent<Content>) => {
 
-            let content = event.getUploadItem().getModel();
-            let value = this.mediaUploaderEl.getMediaValue(content);
-            let fileName = value.getString();
+            const content = event.getUploadItem().getModel();
+            const value = this.mediaUploaderEl.getMediaValue(content);
+            const fileName = value.getString();
 
             this.mediaUploaderEl.setFileName(fileName);
 
@@ -189,9 +189,9 @@ export class MediaUploader
     }
 
     private createUploaderWrapper(property: Property): DivEl {
-        let wrapper = new DivEl('uploader-wrapper');
+        const wrapper = new DivEl('uploader-wrapper');
 
-        let uploadButton = new Button();
+        const uploadButton = new Button();
         uploadButton.addClass('upload-button');
 
         uploadButton.onClicked(() => {
@@ -210,7 +210,7 @@ export class MediaUploader
     private createUploader(property: Property): MediaUploaderEl {
 
         let predefinedAllowTypes;
-        let attachmentFileName = MediaUploader.getFileNameFromProperty(property);
+        const attachmentFileName = MediaUploader.getFileNameFromProperty(property);
 
         if (this.propertyAlreadyHasAttachment(property)) {
             predefinedAllowTypes = this.getAllowTypeFromFileName(attachmentFileName);

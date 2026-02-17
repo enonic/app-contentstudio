@@ -1,5 +1,5 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {type ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {InPlaceTextInput} from './InPlaceTextInput';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 

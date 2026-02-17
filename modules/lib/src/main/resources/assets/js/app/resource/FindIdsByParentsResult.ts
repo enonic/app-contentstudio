@@ -1,5 +1,5 @@
 import {ContentId} from '../content/ContentId';
-import {FindIdsByParentsResultJson} from './json/FindIdsByParentsResultJson';
+import {type FindIdsByParentsResultJson} from './json/FindIdsByParentsResultJson';
 
 export class FindIdsByParentsResult {
 

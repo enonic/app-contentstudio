@@ -1,5 +1,5 @@
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import Sortable, {SortableEvent} from 'sortablejs';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
+import Sortable, {type SortableEvent} from 'sortablejs';
 
 export class DragHandler {
 

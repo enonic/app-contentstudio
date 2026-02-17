@@ -1,6 +1,6 @@
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {type DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {PrincipalViewer} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
 
 

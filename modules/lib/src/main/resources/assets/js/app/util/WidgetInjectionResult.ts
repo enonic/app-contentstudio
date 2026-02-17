@@ -1,4 +1,4 @@
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 
 export interface WidgetInjectionResult {
     scriptElements: HTMLScriptElement[],

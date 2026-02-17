@@ -8,16 +8,16 @@ import {UrlAction} from './UrlAction';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentSummaryAndCompareStatusFetcher} from './resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentId} from './content/ContentId';
-import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from './event/EditContentEvent';
 import {GetIssueRequest} from './issue/resource/GetIssueRequest';
-import {Issue} from './issue/Issue';
+import {type Issue} from './issue/Issue';
 import {IssueDialogsManager} from './issue/IssueDialogsManager';
-import {Path} from '@enonic/lib-admin-ui/rest/Path';
+import {type Path} from '@enonic/lib-admin-ui/rest/Path';
 import {ContentTreeGridLoadedEvent} from './browse/ContentTreeGridLoadedEvent';
 import {ResolveDependenciesRequest} from './resource/ResolveDependenciesRequest';
-import {ResolveDependenciesResult} from './resource/ResolveDependenciesResult';
-import {ResolveDependencyResult} from './resource/ResolveDependencyResult';
+import {type ResolveDependenciesResult} from './resource/ResolveDependenciesResult';
+import {type ResolveDependencyResult} from './resource/ResolveDependencyResult';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
@@ -63,7 +63,7 @@ export class ContentAppContainer
 
     private route(path?: Path) {
         const action = path ? path.getElement(1) : null;
-        const actionAsTabMode: UrlAction = !!action ? UrlAction[action.toUpperCase()] : null;
+        const actionAsTabMode: UrlAction = action ? UrlAction[action.toUpperCase()] : null;
         const id = path ? path.getElement(2) : null;
 
         switch (actionAsTabMode) {
@@ -97,7 +97,7 @@ export class ContentAppContainer
         const id = path ? path.getElement(2) : null;
 
         if (id) {
-            if (!!this.issueRequest) {
+            if (this.issueRequest) {
                 return;
             }
             this.issueRequest = new GetIssueRequest(id);

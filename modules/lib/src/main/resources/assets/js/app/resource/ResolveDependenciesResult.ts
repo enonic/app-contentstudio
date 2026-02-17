@@ -1,5 +1,5 @@
 import {ResolveDependencyResult} from './ResolveDependencyResult';
-import {ContentDependencyJson} from './json/ContentDependencyJson';
+import {type ContentDependencyJson} from './json/ContentDependencyJson';
 import {ContentId} from '../content/ContentId';
 
 export interface ResolveDependenciesResultJson {
@@ -41,7 +41,7 @@ export class ResolveDependenciesResult {
         const dependencies: ResolveDependencyResult[] = [];
 
         if (json) {
-            for (let id in json.dependencies) {
+            for (const id in json.dependencies) {
                 if (json.dependencies.hasOwnProperty(id)) {
                     dependencies.push(new ResolveDependencyResult(new ContentId(id), json.dependencies[id]));
                 }

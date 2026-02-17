@@ -1,12 +1,12 @@
-import {ProjectViewItem} from '../../../view/ProjectViewItem';
-import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {type ProjectViewItem} from '../../../view/ProjectViewItem';
+import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ProjectAccessControlComboBox} from './element/ProjectAccessControlComboBox';
+import {type ProjectAccessControlComboBox} from './element/ProjectAccessControlComboBox';
 import Q from 'q';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 import {ProjectRolesFormItem} from './element/ProjectRolesFormItem';
-import {Project} from '../../../data/project/Project';
-import {ProjectPermissions} from '../../../data/project/ProjectPermissions';
+import {type Project} from '../../../data/project/Project';
+import {type ProjectPermissions} from '../../../data/project/ProjectPermissions';
 
 export class ProjectRolesWizardStepForm
     extends ProjectWizardStepForm {

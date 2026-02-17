@@ -1,5 +1,5 @@
-import {IssueWithAssignees} from '../IssueWithAssignees';
-import {ResultMetadata} from '../../resource/ResultMetadata';
+import {type IssueWithAssignees} from '../IssueWithAssignees';
+import {type ResultMetadata} from '../../resource/ResultMetadata';
 
 export class IssueResponse {
 

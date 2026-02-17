@@ -1,5 +1,9 @@
-import {ComponentEventsHolder} from './ComponentEventsHolder';
-import {ComponentAddedEventHandler, ComponentRemovedEventHandler, ComponentUpdatedEventHandler} from '../../page/region/Component';
+import {type ComponentEventsHolder} from './ComponentEventsHolder';
+import {
+    type ComponentAddedEventHandler,
+    type ComponentRemovedEventHandler,
+    type ComponentUpdatedEventHandler
+} from '../../page/region/Component';
 
 export class ComponentEventsWrapper {
 

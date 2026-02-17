@@ -1,6 +1,6 @@
-import {OrderExprJson} from '../json/OrderExprJson';
-import {OrderExprWrapperJson} from '../json/OrderExprWrapperJson';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type OrderExprJson} from '../json/OrderExprJson';
+import {type OrderExprWrapperJson} from '../json/OrderExprWrapperJson';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class OrderExpr
@@ -36,7 +36,7 @@ export class OrderExpr
         if (!ObjectHelper.iFrameSafeInstanceOf(o, OrderExpr)) {
             return false;
         }
-        let other = o as OrderExpr;
+        const other = o as OrderExpr;
         if (this.direction.toLowerCase() !== other.getDirection().toLowerCase()) {
             return false;
         }

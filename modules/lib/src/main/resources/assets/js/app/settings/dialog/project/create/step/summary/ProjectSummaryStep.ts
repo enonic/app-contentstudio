@@ -1,7 +1,7 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ProjectData} from '../../data/ProjectData';
+import {type ProjectData} from '../../data/ProjectData';
 import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
 import {SummaryNameContainer} from './SummaryNameContainer';
 import {SummaryValueContainer} from './SummaryValueContainer';

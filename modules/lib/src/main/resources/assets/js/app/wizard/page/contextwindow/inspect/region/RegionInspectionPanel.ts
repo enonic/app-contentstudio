@@ -3,7 +3,7 @@ import {NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/ap
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 import {BaseInspectionPanel} from '../BaseInspectionPanel';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
-import {Region} from '../../../../../page/region/Region';
+import {type Region} from '../../../../../page/region/Region';
 import * as _ from 'lodash';
 
 export class RegionInspectionPanel

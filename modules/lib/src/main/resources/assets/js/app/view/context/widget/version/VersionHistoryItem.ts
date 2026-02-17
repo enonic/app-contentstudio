@@ -1,8 +1,8 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
-import {ContentVersion} from '../../../../ContentVersion';
-import {ContentId} from '../../../../content/ContentId';
+import {type Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {type ContentVersion} from '../../../../ContentVersion';
+import {type ContentId} from '../../../../content/ContentId';
 
 export enum VersionItemStatus {
     PUBLISHED = 'published',

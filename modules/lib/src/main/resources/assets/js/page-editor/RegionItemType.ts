@@ -1,6 +1,6 @@
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ItemType} from './ItemType';
-import {ItemTypeConfig, ItemTypeConfigJson} from './ItemTypeConfig';
+import {ItemTypeConfig, type ItemTypeConfigJson} from './ItemTypeConfig';
 
 export class RegionItemType
     extends ItemType {
@@ -19,7 +19,7 @@ export class RegionItemType
         return element.getEl().getAttribute('data-' + ItemType.ATTRIBUTE_REGION_NAME);
     }
 
-    protected getItemTypeConfig(itemType: string): ItemTypeConfig {
+    protected getItemTypeConfig(_itemType: string): ItemTypeConfig {
         return new ItemTypeConfig({
             cssSelector: '[data-portal-region]',
             draggable: false,

@@ -1,10 +1,10 @@
-import Q from 'q';
+import type Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {OverrideNativeDialog} from './OverrideNativeDialog';
-import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
-import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {type HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
+import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {NumberHelper} from '@enonic/lib-admin-ui/util/NumberHelper';
-import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import {type FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Dropdown} from '@enonic/lib-admin-ui/ui/Dropdown';
 import eventInfo = CKEDITOR.eventInfo;

@@ -1,5 +1,5 @@
-import {ContentTabBarItem, ContentTabBarItemBuilder} from './ContentTabBarItem';
-import {WizardStepForm} from '@enonic/lib-admin-ui/app/wizard/WizardStepForm';
+import {type ContentTabBarItem, ContentTabBarItemBuilder} from './ContentTabBarItem';
+import {type WizardStepForm} from '@enonic/lib-admin-ui/app/wizard/WizardStepForm';
 import {BaseWizardStep} from '@enonic/lib-admin-ui/app/wizard/BaseWizardStep';
 
 export class PageComponentsWizardStep

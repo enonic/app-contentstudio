@@ -1,7 +1,7 @@
-import Q from 'q';
+import type Q from 'q';
 import {
     ApplicationConfiguratorDialog,
-    ApplicationConfiguratorDialogParams
+    type ApplicationConfiguratorDialogParams
 } from '@enonic/lib-admin-ui/form/inputtype/appconfig/ApplicationConfiguratorDialog';
 
 export interface SiteConfiguratorDialogParams extends ApplicationConfiguratorDialogParams {
@@ -41,7 +41,7 @@ export class SiteConfiguratorDialog
         const ckeInstances: Record<string, CKEDITOR.editor> = CKEDITOR.instances;
         const dialogElement: HTMLElement = this.getHTMLElement();
 
-        for (let i in ckeInstances) {
+        for (const i in ckeInstances) {
             if (CKEDITOR.instances[i]) {
                 const ckeInstance: CKEDITOR.editor = CKEDITOR.instances[i];
 

@@ -1,4 +1,4 @@
-import {ContentWizardPanel} from '../ContentWizardPanel';
+import {type ContentWizardPanel} from '../ContentWizardPanel';
 import {ContentDeletePromptEvent} from '../../browse/ContentDeletePromptEvent';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';

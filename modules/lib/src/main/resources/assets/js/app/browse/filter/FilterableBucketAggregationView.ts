@@ -1,15 +1,15 @@
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
+import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {type BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
 import {BucketAggregationView} from '@enonic/lib-admin-ui/aggregation/BucketAggregationView';
-import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
-import {BucketView} from '@enonic/lib-admin-ui/aggregation/BucketView';
+import {type Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
+import {type BucketView} from '@enonic/lib-admin-ui/aggregation/BucketView';
 import {BucketListBox} from '@enonic/lib-admin-ui/aggregation/BucketListBox';
-import {BucketViewSelectionChangedEvent} from '@enonic/lib-admin-ui/aggregation/BucketViewSelectionChangedEvent';
+import {type BucketViewSelectionChangedEvent} from '@enonic/lib-admin-ui/aggregation/BucketViewSelectionChangedEvent';
 import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
+import {type AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
-import Q from 'q';
+import type Q from 'q';
 import {ProjectContext} from '../../project/ProjectContext';
 
 export class FilterableBucketAggregationView

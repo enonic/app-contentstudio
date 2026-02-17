@@ -1,7 +1,7 @@
-import {ComponentPath} from '../page/region/ComponentPath';
-import {PageComponentsListElement, PageComponentsTreeGrid} from './PageComponentsTreeGrid';
+import {type ComponentPath} from '../page/region/ComponentPath';
+import {type PageComponentsListElement, type PageComponentsTreeGrid} from './PageComponentsTreeGrid';
 import Q from 'q';
-import {ComponentsTreeItem} from './ComponentsTreeItem';
+import {type ComponentsTreeItem} from './ComponentsTreeItem';
 
 export class PageComponentsViewExpandHelper {
 

@@ -1,5 +1,5 @@
 import {SettingsItemViewer} from './SettingsItemViewer';
-import {FolderViewItem} from '../../view/FolderViewItem';
+import {type FolderViewItem} from '../../view/FolderViewItem';
 
 export class FolderItemViewer
     extends SettingsItemViewer {

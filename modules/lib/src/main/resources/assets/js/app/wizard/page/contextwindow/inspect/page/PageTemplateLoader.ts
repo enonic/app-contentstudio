@@ -1,5 +1,5 @@
-import {PageTemplateResourceRequest} from '../../../../../resource/PageTemplateResourceRequest';
-import {PageTemplate} from '../../../../../content/PageTemplate';
+import {type PageTemplateResourceRequest} from '../../../../../resource/PageTemplateResourceRequest';
+import {type PageTemplate} from '../../../../../content/PageTemplate';
 import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
 
 export class PageTemplateLoader

@@ -1,4 +1,4 @@
-import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import {type FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';

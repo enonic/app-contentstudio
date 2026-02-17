@@ -1,6 +1,6 @@
 import {CompareContentResult} from './CompareContentResult';
-import {CompareContentResultJson} from './json/CompareContentResultJson';
-import {CompareContentResultsJson} from './json/CompareContentResultsJson';
+import {type CompareContentResultJson} from './json/CompareContentResultJson';
+import {type CompareContentResultsJson} from './json/CompareContentResultsJson';
 
 export class CompareContentResults {
 
@@ -30,7 +30,7 @@ export class CompareContentResults {
 
     static fromJson(json: CompareContentResultsJson): CompareContentResults {
 
-        let list: CompareContentResult[] = [];
+        const list: CompareContentResult[] = [];
 
         json.compareContentResults.forEach((compareContentResult: CompareContentResultJson) => {
             list.push(CompareContentResult.fromJson(compareContentResult));

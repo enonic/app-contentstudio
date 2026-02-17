@@ -1,6 +1,6 @@
 import {SettingDataItemWizardStepForm} from './SettingDataItemWizardStepForm';
-import {ProjectViewItem} from '../../../view/ProjectViewItem';
-import {Project} from '../../../data/project/Project';
+import {type ProjectViewItem} from '../../../view/ProjectViewItem';
+import {type Project} from '../../../data/project/Project';
 
 export abstract class ProjectWizardStepForm
     extends SettingDataItemWizardStepForm<ProjectViewItem> {

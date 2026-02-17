@@ -1,19 +1,19 @@
-import Q from 'q';
-import {Element as UIElement} from '@enonic/lib-admin-ui/dom/Element';
+import type Q from 'q';
+import {type Element as UIElement} from '@enonic/lib-admin-ui/dom/Element';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
-import {FormItem, FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
-import {ModalDialog as OriginalModalDialog, ModalDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
-import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
-import {FormItemEl} from '@enonic/lib-admin-ui/dom/FormItemEl';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {type FormItem, FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {ModalDialog as OriginalModalDialog, type ModalDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {type FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import {type FormItemEl} from '@enonic/lib-admin-ui/dom/FormItemEl';
+import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
-import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
+import {type InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
 
 export class ModalDialogFormItemBuilder {
 
@@ -162,8 +162,8 @@ export abstract class ModalDialog
     }
 
     protected createFormPanel(formItems: FormItem[]): Panel {
-        let panel = new Panel();
-        let form = this.createForm(formItems);
+        const panel = new Panel();
+        const form = this.createForm(formItems);
 
         panel.appendChild(form);
 
@@ -196,13 +196,13 @@ export abstract class ModalDialog
     }
 
     protected createFormItem(modalDialogFormItemBuilder: ModalDialogFormItemBuilder): FormItem {
-        let label = modalDialogFormItemBuilder.label;
-        let id = modalDialogFormItemBuilder.id;
-        let value = modalDialogFormItemBuilder.value;
-        let validator = modalDialogFormItemBuilder.validator;
-        let formItemEl = modalDialogFormItemBuilder.inputEl || this.createTextInput(modalDialogFormItemBuilder.placeholder);
-        let formItemBuilder = new FormItemBuilder(formItemEl).setLabel(label);
-        let inputWrapper = new DivEl('input-wrapper');
+        const label = modalDialogFormItemBuilder.label;
+        const id = modalDialogFormItemBuilder.id;
+        const value = modalDialogFormItemBuilder.value;
+        const validator = modalDialogFormItemBuilder.validator;
+        const formItemEl = modalDialogFormItemBuilder.inputEl || this.createTextInput(modalDialogFormItemBuilder.placeholder);
+        const formItemBuilder = new FormItemBuilder(formItemEl).setLabel(label);
+        const inputWrapper = new DivEl('input-wrapper');
         let formItem;
 
         if (this.fields[id]) {

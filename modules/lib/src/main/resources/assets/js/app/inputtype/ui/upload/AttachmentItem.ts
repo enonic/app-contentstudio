@@ -1,8 +1,8 @@
-import Q from 'q';
+import type Q from 'q';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {Attachment} from '../../../attachment/Attachment';
-import {Project} from '../../../settings/data/project/Project';
+import {type Project} from '../../../settings/data/project/Project';
 
 export class AttachmentItem
     extends DivEl {

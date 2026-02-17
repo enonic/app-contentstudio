@@ -1,6 +1,6 @@
 import {ComponentEventsHolder} from './ComponentEventsHolder';
-import {PageConfigUpdateHandler, PageResetHandler, PageUpdatedEventHandler} from '../../page/Page';
-import {PageUpdatedEvent} from '../../page/event/PageUpdatedEvent';
+import {type PageConfigUpdateHandler, type PageResetHandler, type PageUpdatedEventHandler} from '../../page/Page';
+import {type PageUpdatedEvent} from '../../page/event/PageUpdatedEvent';
 
 export class PageEventsHolder extends ComponentEventsHolder {
 

@@ -1,8 +1,8 @@
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {EditSettingsItemEvent} from '../../event/EditSettingsItemEvent';
-import {SettingsViewItem} from '../../view/SettingsViewItem';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import {type SettingsViewItem} from '../../view/SettingsViewItem';
+import {type SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class EditSettingsItemTreeAction
     extends Action {

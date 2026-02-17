@@ -1,4 +1,4 @@
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {DescriptorName} from './DescriptorName';
@@ -21,13 +21,13 @@ export class DescriptorKey
     }
 
     public static fromString(str: string): DescriptorKey {
-        let sepIndex: number = str.indexOf(DescriptorKey.SEPARATOR);
+        const sepIndex: number = str.indexOf(DescriptorKey.SEPARATOR);
         if (sepIndex === -1) {
             throw new Error(`DescriptorKey must contain separator '${DescriptorKey.SEPARATOR}':${str}`);
         }
 
-        let applicationKey = str.substring(0, sepIndex);
-        let name = str.substring(sepIndex + 1, str.length);
+        const applicationKey = str.substring(0, sepIndex);
+        const name = str.substring(sepIndex + 1, str.length);
 
         return new DescriptorKey(ApplicationKey.fromString(applicationKey), new DescriptorName(name));
     }
@@ -50,7 +50,7 @@ export class DescriptorKey
             return false;
         }
 
-        let other = o as DescriptorKey;
+        const other = o as DescriptorKey;
 
         if (!ObjectHelper.stringEquals(this.refString, other.refString)) {
             return false;

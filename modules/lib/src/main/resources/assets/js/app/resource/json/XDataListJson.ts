@@ -1,4 +1,4 @@
-import {XDataJson} from './XDataJson';
+import {type XDataJson} from './XDataJson';
 
 export interface XDataListJson {
 

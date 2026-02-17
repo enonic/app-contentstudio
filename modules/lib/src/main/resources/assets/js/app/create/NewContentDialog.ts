@@ -8,19 +8,19 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {MostPopularItemsBlock} from './MostPopularItemsBlock';
 import {RecentItemsBlock} from './RecentItemsBlock';
-import {NewContentDialogItemSelectedEvent} from './NewContentDialogItemSelectedEvent';
+import {type NewContentDialogItemSelectedEvent} from './NewContentDialogItemSelectedEvent';
 import {NewMediaUploadEvent} from './NewMediaUploadEvent';
 import {NewContentEvent} from './NewContentEvent';
 import {FilterableItemsList} from './FilterableItemsList';
-import {AggregateContentTypesResult} from '../resource/AggregateContentTypesResult';
+import {type AggregateContentTypesResult} from '../resource/AggregateContentTypesResult';
 import {FileInput} from './FileInput';
-import {Content} from '../content/Content';
+import {type Content} from '../content/Content';
 import {NewContentUploader} from './NewContentUploader';
-import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
+import {type UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
-import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
-import {UploadStartedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadStartedEvent';
-import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {type UploadStartedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadStartedEvent';
+import {DefaultModalDialogHeader, ModalDialog, type ModalDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {DropzoneContainer} from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
 import {SectionEl} from '@enonic/lib-admin-ui/dom/SectionEl';
 import {AsideEl} from '@enonic/lib-admin-ui/dom/AsideEl';
@@ -28,11 +28,9 @@ import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
 import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
 import {ContentPath} from '../content/ContentPath';
-import {ContentSummary} from '../content/ContentSummary';
-import {ContentTypesHelper, GetTypesParams} from '../util/ContentTypesHelper';
-import {GetContentTypeByNameRequest} from '../resource/GetContentTypeByNameRequest';
-import {ContentType} from '../inputtype/schema/ContentType';
-import {Project} from '../settings/data/project/Project';
+import {type ContentSummary} from '../content/ContentSummary';
+import {ContentTypesHelper, type GetTypesParams} from '../util/ContentTypesHelper';
+import {type Project} from '../settings/data/project/Project';
 
 type TypesAndAggregations = [ContentTypeSummary[], AggregateContentTypesResult];
 
@@ -235,7 +233,7 @@ export class NewContentDialog
         let dragOverEl;
         this.onDragEnter((event: DragEvent) => {
             if (this.newContentUploader.isEnabled()) {
-                let target = event.target as HTMLElement;
+                const target = event.target as HTMLElement;
 
                 if (!!dragOverEl || dragOverEl === this.getHTMLElement()) {
                     this.dropzoneContainer.show();

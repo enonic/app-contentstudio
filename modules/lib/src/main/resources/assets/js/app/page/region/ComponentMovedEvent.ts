@@ -1,6 +1,6 @@
 import {ComponentAddedEvent} from './ComponentAddedEvent';
-import {Component} from './Component';
-import {ComponentPath} from './ComponentPath';
+import {type Component} from './Component';
+import {type ComponentPath} from './ComponentPath';
 
 export class ComponentMovedEvent extends ComponentAddedEvent {
 

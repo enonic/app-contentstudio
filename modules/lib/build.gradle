@@ -68,6 +68,11 @@ tasks.register( 'devJar', Jar ) {
     includeEmptyDirs = false
     dependsOn tasks.named( 'pnpmBuild' )
     dependsOn tasks.named( 'copyPackage' )
+
+    into( "dev/${base.archivesName.get()}/styles" ) {
+        from "${buildDir}/resources/main/assets/styles"
+        include '**/*.less'
+    }
 }
 
 tasks.named( 'jar' ).configure {

@@ -1,5 +1,5 @@
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {MacroKey} from '@enonic/lib-admin-ui/macro/MacroKey';
+import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {type MacroKey} from '@enonic/lib-admin-ui/macro/MacroKey';
 import {MacroResourceRequest} from './MacroResourceRequest';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 

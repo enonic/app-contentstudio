@@ -1,6 +1,6 @@
 import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {BeforeContentSavedEvent} from './BeforeContentSavedEvent';
+import {type BeforeContentSavedEvent} from './BeforeContentSavedEvent';
 
 export class IframeBeforeContentSavedEvent
     extends IframeEvent {

@@ -1,5 +1,5 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 
 export class ComponentName
@@ -16,7 +16,7 @@ export class ComponentName
 
     public hasCountPostfix(): boolean {
 
-        let countDelimiterIndex = this.value.lastIndexOf(ComponentName.COUNT_DELIMITER);
+        const countDelimiterIndex = this.value.lastIndexOf(ComponentName.COUNT_DELIMITER);
         return countDelimiterIndex > 0 && countDelimiterIndex <= this.value.length - 2;
     }
 
@@ -26,7 +26,7 @@ export class ComponentName
             return this;
         }
 
-        let nameWithoutCountPostfix = this.value.substring(0, this.value.lastIndexOf(ComponentName.COUNT_DELIMITER));
+        const nameWithoutCountPostfix = this.value.substring(0, this.value.lastIndexOf(ComponentName.COUNT_DELIMITER));
         return new ComponentName(nameWithoutCountPostfix);
     }
 
@@ -39,13 +39,13 @@ export class ComponentName
             return false;
         }
 
-        let nameWithoutCountPostfix = this.removeCountPostfix();
+        const nameWithoutCountPostfix = this.removeCountPostfix();
         return nameWithoutCountPostfix.equals(other);
     }
 
     public createDuplicate(count: number): ComponentName {
 
-        let newValue = this.value + ComponentName.COUNT_DELIMITER + '' + count;
+        const newValue = this.value + ComponentName.COUNT_DELIMITER + '' + count;
         return new ComponentName(newValue);
     }
 
@@ -59,7 +59,7 @@ export class ComponentName
             return false;
         }
 
-        let other = o as ComponentName;
+        const other = o as ComponentName;
 
         if (!ObjectHelper.stringEquals(this.value, other.value)) {
             return false;

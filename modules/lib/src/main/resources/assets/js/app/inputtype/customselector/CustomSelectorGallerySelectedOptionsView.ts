@@ -1,6 +1,6 @@
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {type Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {CustomSelectorItem} from './CustomSelectorItem';
+import {type CustomSelectorItem} from './CustomSelectorItem';
 import {CustomSelectorGallerySelectedOptionView} from './CustomSelectorGallerySelectedOptionView';
 import {BaseGallerySelectedOptionsView} from '../ui/selector/BaseGallerySelectedOptionsView';
 

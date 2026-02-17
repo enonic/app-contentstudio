@@ -1,4 +1,4 @@
-import {OrderExprWrapperJson} from './OrderExprWrapperJson';
+import {type OrderExprWrapperJson} from './OrderExprWrapperJson';
 
 export interface ChildOrderJson {
 

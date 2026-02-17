@@ -1,24 +1,24 @@
-import Q from 'q';
-import {Path} from '@enonic/lib-admin-ui/rest/Path';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import type Q from 'q';
+import {type Path} from '@enonic/lib-admin-ui/rest/Path';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {QueryField} from '@enonic/lib-admin-ui/query/QueryField';
-import {OrderExpr} from '@enonic/lib-admin-ui/query/expr/OrderExpr';
+import {type OrderExpr} from '@enonic/lib-admin-ui/query/expr/OrderExpr';
 import {QueryExpr} from '@enonic/lib-admin-ui/query/expr/QueryExpr';
 import {FieldExpr} from '@enonic/lib-admin-ui/query/expr/FieldExpr';
 import {FieldOrderExpr} from '@enonic/lib-admin-ui/query/expr/FieldOrderExpr';
 import {OrderDirection} from '@enonic/lib-admin-ui/query/expr/OrderDirection';
-import {ConstraintExpr} from '@enonic/lib-admin-ui/query/expr/ConstraintExpr';
+import {type ConstraintExpr} from '@enonic/lib-admin-ui/query/expr/ConstraintExpr';
 import {ContentQueryRequest} from './ContentQueryRequest';
-import {ContentQueryResult} from './ContentQueryResult';
-import {ContentQueryResultJson} from './json/ContentQueryResultJson';
+import {type ContentQueryResult} from './ContentQueryResult';
+import {type ContentQueryResultJson} from './json/ContentQueryResultJson';
 import {ContentQuery} from '../content/ContentQuery';
 import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
 import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {PathMatchExpressionBuilder} from '@enonic/lib-admin-ui/query/PathMatchExpression';
-import {ContentSummary} from '../content/ContentSummary';
-import {ContentSummaryJson} from '../content/ContentSummaryJson';
-import {ContentPath} from '../content/ContentPath';
+import {type ContentSummary} from '../content/ContentSummary';
+import {type ContentSummaryJson} from '../content/ContentSummaryJson';
+import {type ContentPath} from '../content/ContentPath';
 
 export class ContentSummaryRequest
     extends ResourceRequest<ContentSummary[]> {

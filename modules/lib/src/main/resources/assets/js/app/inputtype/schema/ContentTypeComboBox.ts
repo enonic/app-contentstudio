@@ -1,8 +1,8 @@
 import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
-import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {type Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {SchemaBuilder} from '@enonic/lib-admin-ui/schema/Schema';
 
 export class ContentTypeSelectedOptionsView

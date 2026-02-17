@@ -1,21 +1,21 @@
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 import {NewContentDialog} from '../../../create/NewContentDialog';
-import {ContentSummary} from '../../../content/ContentSummary';
-import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {type ContentSummary} from '../../../content/ContentSummary';
+import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Content} from '../../../content/Content';
+import {type Content} from '../../../content/Content';
 import {EditContentEvent} from '../../../event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
-import Q from 'q';
+import type Q from 'q';
 import {ContentHelper} from '../../../util/ContentHelper';
 import {ContentTypesHelper} from '../../../util/ContentTypesHelper';
 import {ContentServerEventsHandler} from '../../../event/ContentServerEventsHandler';
-import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
+import {type UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {UploadProgressBar} from './UploadProgressBar';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentPath} from '../../../content/ContentPath';
-import {Project} from '../../../settings/data/project/Project';
+import {type Project} from '../../../settings/data/project/Project';
 
 export interface NewContentButtonParams {
     content?: ContentSummary,

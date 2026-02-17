@@ -4,30 +4,30 @@ import {FieldExpr} from '@enonic/lib-admin-ui/query/expr/FieldExpr';
 import {CompareExpr} from '@enonic/lib-admin-ui/query/expr/CompareExpr';
 import {ValueExpr} from '@enonic/lib-admin-ui/query/expr/ValueExpr';
 import {ContentQueryRequest} from '../resource/ContentQueryRequest';
-import {ContentQueryResult} from '../resource/ContentQueryResult';
+import {type ContentQueryResult} from '../resource/ContentQueryResult';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
-import {Content} from '../content/Content';
+import {type Content} from '../content/Content';
 import {ContentQuery} from '../content/ContentQuery';
 import {QueryField} from '@enonic/lib-admin-ui/query/QueryField';
-import {ContentSummary} from '../content/ContentSummary';
-import {ContentId} from '../content/ContentId';
-import {ContentSummaryJson} from '../content/ContentSummaryJson';
+import {type ContentSummary} from '../content/ContentSummary';
+import {type ContentId} from '../content/ContentId';
+import {type ContentSummaryJson} from '../content/ContentSummaryJson';
 import {CreateContentRequest} from '../resource/CreateContentRequest';
 import {ContentUnnamed} from '../content/ContentUnnamed';
 import {Workflow} from '../content/Workflow';
 import {WorkflowState} from '../content/WorkflowState';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {PageHelper} from './PageHelper';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {Form} from '@enonic/lib-admin-ui/form/Form';
-import {FormItemParent} from '@enonic/lib-admin-ui/form/FormItem';
+import {type Form} from '@enonic/lib-admin-ui/form/Form';
+import {type FormItemParent} from '@enonic/lib-admin-ui/form/FormItem';
 import {Input} from '@enonic/lib-admin-ui/form/Input';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {Permission} from '../access/Permission';
+import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {type Permission} from '../access/Permission';
 import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
-import {AccessControlList} from '../access/AccessControlList';
+import {type AccessControlList} from '../access/AccessControlList';
 
 
 export class ContentHelper {
@@ -102,10 +102,10 @@ export class ContentHelper {
     }
 
     static doHtmlAreasContainId(id: string, form: Form, data: PropertyTree): boolean {
-        let areas = this.getHtmlAreasInForm(form);
+        const areas = this.getHtmlAreasInForm(form);
 
         return areas.some((area) => {
-            let property = data.getProperty(area);
+            const property = data.getProperty(area);
             if (property && property.hasNonNullValue() && property.getType().equals(ValueTypes.STRING)) {
                 return property.getString().indexOf(id) >= 0;
             }

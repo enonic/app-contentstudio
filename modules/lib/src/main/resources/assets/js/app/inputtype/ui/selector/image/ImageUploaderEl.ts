@@ -1,15 +1,15 @@
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {type DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ImageErrorEvent} from './ImageErrorEvent';
-import {MediaUploaderEl, MediaUploaderElConfig} from '../../upload/MediaUploaderEl';
-import {ImageEditor, Point, Rect} from './ImageEditor';
+import {MediaUploaderEl, type MediaUploaderElConfig} from '../../upload/MediaUploaderEl';
+import {ImageEditor, type Point, type Rect} from './ImageEditor';
 import {ImageUrlResolver} from '../../../../util/ImageUrlResolver';
 import {ContentId} from '../../../../content/ContentId';
 import {MaskContentWizardPanelEvent} from '../../../../wizard/MaskContentWizardPanelEvent';
-import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
+import {type AEl} from '@enonic/lib-admin-ui/dom/AEl';
 
 export interface ImageUploaderElConfig extends MediaUploaderElConfig {
     imageEditorCreatedCallback?: (imageEditor: ImageEditor) => void;
@@ -122,7 +122,7 @@ export class ImageUploaderEl
     }
 
     private togglePlaceholder(flag: boolean) {
-        let resultEl = this.getResultContainer().toggleClass('placeholder', flag).getEl();
+        const resultEl = this.getResultContainer().toggleClass('placeholder', flag).getEl();
         if (flag) {
             resultEl.setHeightPx(resultEl.getHeight() || this.getProportionalHeight());
         } else {
@@ -153,9 +153,9 @@ export class ImageUploaderEl
     }
 
     private subscribeImageEditorOnEvents(imageEditor: ImageEditor, contentId: ContentId) {
-        let focusAutoPositionedChangedHandler = (auto: boolean) => this.notifyFocusAutoPositionedChanged(auto);
-        let cropAutoPositionedChangedHandler = (auto: boolean) => this.notifyCropAutoPositionedChanged(auto);
-        let editModeChangedHandler = (edit: boolean, position: Rect, zoom: Rect, focus: Point) => {
+        const focusAutoPositionedChangedHandler = (auto: boolean) => this.notifyFocusAutoPositionedChanged(auto);
+        const cropAutoPositionedChangedHandler = (auto: boolean) => this.notifyCropAutoPositionedChanged(auto);
+        const editModeChangedHandler = (edit: boolean, position: Rect, zoom: Rect, focus: Point) => {
             this.notifyEditModeChanged(edit, position, zoom, focus);
             this.togglePlaceholder(edit);
 
@@ -167,17 +167,17 @@ export class ImageUploaderEl
                 this.getResultContainer().insertChild(imageEditor.removeClass(ImageUploaderEl.STANDOUT_CLASS), -1);
             }
         };
-        let uploadButtonClickedHandler = () => {
+        const uploadButtonClickedHandler = () => {
             this.showFileSelectionDialog();
         };
-        let getLastButtonInContainerBlurHandler = () => {
+        const getLastButtonInContainerBlurHandler = () => {
             this.toggleSelected(imageEditor);
         };
-        let shaderVisibilityChangedHandler = (visible: boolean) => {
+        const shaderVisibilityChangedHandler = (visible: boolean) => {
             new MaskContentWizardPanelEvent(contentId, visible).fire();
         };
 
-        let imageErrorHandler = () => {
+        const imageErrorHandler = () => {
             new ImageErrorEvent(contentId).fire();
             this.imageEditors = this.imageEditors.filter((curr) => {
                 return curr !== imageEditor;
@@ -231,7 +231,7 @@ export class ImageUploaderEl
     }
 
     private positionImageEditor(imageEditor: ImageEditor) {
-        let resultOffset = this.getResultContainer().getEl().getOffset();
+        const resultOffset = this.getResultContainer().getEl().getOffset();
 
         imageEditor.getEl().setTopPx(resultOffset.top).setLeftPx(resultOffset.left);
     }
@@ -258,7 +258,7 @@ export class ImageUploaderEl
     }
 
     createResultItem(value: string): DivEl {
-        let imageEditor = this.createImageEditor(value);
+        const imageEditor = this.createImageEditor(value);
         imageEditor.appendLinkEl(super.createResultItem(value) as AEl);
         this.imageEditors.push(imageEditor);
 
@@ -273,7 +273,7 @@ export class ImageUploaderEl
 
     setFocalPoint(focal: Point) {
         this.imageEditors.forEach((editor: ImageEditor) => {
-            if (!!focal) {
+            if (focal) {
                 editor.setFocusPosition(focal.x, focal.y);
             } else {
                 editor.resetFocusPosition();
@@ -283,7 +283,7 @@ export class ImageUploaderEl
 
     setCrop(crop: Rect) {
         this.imageEditors.forEach((editor: ImageEditor) => {
-            if (!!crop) {
+            if (crop) {
                 editor.setCropPosition(crop.x, crop.y, crop.x2, crop.y2);
             } else {
                 editor.resetCropPosition();
@@ -293,7 +293,7 @@ export class ImageUploaderEl
 
     setZoom(zoom: Rect) {
         this.imageEditors.forEach((editor: ImageEditor) => {
-            if (!!zoom) {
+            if (zoom) {
                 editor.setZoomPosition(zoom.x, zoom.y, zoom.x2, zoom.y2);
             } else {
                 editor.resetZoomPosition();

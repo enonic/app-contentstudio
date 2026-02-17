@@ -1,5 +1,5 @@
 import {NewContentEvent} from './NewContentEvent';
-import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import {CookieHelper} from '@enonic/lib-admin-ui/util/CookieHelper';
 
 NewContentEvent.on((event: NewContentEvent) => {
@@ -25,7 +25,7 @@ export class RecentItems {
 
     public addItemName(contentType: ContentTypeSummary) {
         let itemsNames = this.getRecentItemsNames();
-        let name = contentType.getName();
+        const name = contentType.getName();
 
         itemsNames = itemsNames.filter((storedName: string) => storedName !== name);
         itemsNames.unshift(name);
@@ -35,7 +35,7 @@ export class RecentItems {
     }
 
     public getRecentItemsNames(): string[] {
-        let cookies = CookieHelper.getCookie(this.cookieKey);
+        const cookies = CookieHelper.getCookie(this.cookieKey);
         return cookies ? cookies.split(this.valueSeparator) : [];
     }
 

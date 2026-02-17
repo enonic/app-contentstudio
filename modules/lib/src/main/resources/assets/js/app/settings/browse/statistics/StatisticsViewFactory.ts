@@ -1,5 +1,5 @@
-import {SettingsStatisticsView} from './view/SettingsStatisticsView';
-import {SettingsViewItem} from '../../view/SettingsViewItem';
+import {type SettingsStatisticsView} from './view/SettingsStatisticsView';
+import {type SettingsViewItem} from '../../view/SettingsViewItem';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {FolderViewItem} from '../../view/FolderViewItem';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';

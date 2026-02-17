@@ -1,5 +1,5 @@
 import {Name} from '@enonic/lib-admin-ui/Name';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class ContentName

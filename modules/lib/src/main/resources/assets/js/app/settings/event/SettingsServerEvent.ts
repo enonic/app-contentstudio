@@ -1,8 +1,8 @@
-import {NodeEventJson, NodeServerEvent} from '@enonic/lib-admin-ui/event/NodeServerEvent';
+import {type NodeEventJson, NodeServerEvent} from '@enonic/lib-admin-ui/event/NodeServerEvent';
 import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
 import {SettingsServerChange} from './SettingsServerChange';
 import {RepositoryId} from '../../repository/RepositoryId';
-import {SettingsServerChangeItem} from './SettingsServerChangeItem';
+import {type SettingsServerChangeItem} from './SettingsServerChangeItem';
 
 export class SettingsServerEvent
     extends NodeServerEvent {

@@ -1,5 +1,5 @@
-import {SearchOptionsData} from '../data/options';
-import {Editor, Highlight, SearchNode} from '../types';
+import {type SearchOptionsData} from '../data/options';
+import {type Editor, type Highlight, type SearchNode} from '../types';
 import {HIGHLIGHT_CLASS} from '../view/markup';
 
 type Range = CKEDITOR.dom.range;

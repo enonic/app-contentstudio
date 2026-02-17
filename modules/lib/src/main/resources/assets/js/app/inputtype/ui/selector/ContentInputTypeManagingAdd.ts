@@ -1,13 +1,13 @@
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
-import {ContentInputTypeViewContext} from '../../ContentInputTypeViewContext';
-import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
+import {type SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {type SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
+import {type ContentInputTypeViewContext} from '../../ContentInputTypeViewContext';
+import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
 import {BaseInputTypeManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
-import {ContentPath} from '../../../content/ContentPath';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {type ContentPath} from '../../../content/ContentPath';
+import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ApplicationBasedName} from '@enonic/lib-admin-ui/application/ApplicationBasedName';
-import {FormItem} from '@enonic/lib-admin-ui/form/FormItem';
+import {type FormItem} from '@enonic/lib-admin-ui/form/FormItem';
 
 export abstract class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     extends BaseInputTypeManagingAdd {

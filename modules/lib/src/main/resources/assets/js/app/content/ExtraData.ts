@@ -1,9 +1,9 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {XDataName} from './XDataName';
-import {ExtraDataJson} from '../resource/json/ExtraDataJson';
+import {type ExtraDataJson} from '../resource/json/ExtraDataJson';
 
 export class ExtraData
     implements Cloneable, Equitable {
@@ -34,7 +34,7 @@ export class ExtraData
             return false;
         }
 
-        let other = o as ExtraData;
+        const other = o as ExtraData;
 
         if (!ObjectHelper.equals(this.name, other.name)) {
             return false;

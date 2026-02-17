@@ -1,10 +1,10 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import * as d3 from 'd3';
 import * as d3dag from 'd3-dag';
-import Q from 'q';
+import type Q from 'q';
 import {Flag} from '../../../../../locale/Flag';
 import {ProjectIconUrlResolver} from '../../../../../project/ProjectIconUrlResolver';
-import {Project} from '../../../../data/project/Project';
+import {type Project} from '../../../../data/project/Project';
 import {ProjectListRequest} from '../../../../resource/ProjectListRequest';
 
 interface DATA {

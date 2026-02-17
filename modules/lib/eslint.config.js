@@ -65,7 +65,14 @@ module.exports = [
             '@typescript-eslint/no-use-before-define': ['off'],
 
             // '@typescript-eslint/unbound-method': ['error', {ignoreStatic: true}],
-            '@typescript-eslint/unbound-method': ['off']
+            '@typescript-eslint/unbound-method': ['off'],
+            '@typescript-eslint/consistent-type-imports': [
+                'error',
+                {
+                    prefer: 'type-imports',
+                    fixStyle: 'inline-type-imports'
+                }
+            ]
         }
     },
     {

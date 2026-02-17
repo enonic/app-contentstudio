@@ -1,11 +1,11 @@
 import {SettingsItemViewer} from './SettingsItemViewer';
-import {ProjectViewItem} from '../../view/ProjectViewItem';
+import {type ProjectViewItem} from '../../view/ProjectViewItem';
 import {ProjectHelper} from '../../data/project/ProjectHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectIconUrlResolver} from '../../../project/ProjectIconUrlResolver';
 import {Flag} from '../../../locale/Flag';
-import {NamesView} from '@enonic/lib-admin-ui/app/NamesView';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type NamesView} from '@enonic/lib-admin-ui/app/NamesView';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 
 export class ProjectItemViewer
@@ -52,7 +52,7 @@ export class ProjectItemViewer
         }
 
         const language: string = project.getLanguage();
-        return !!language ? new Flag(language) : null;
+        return language ? new Flag(language) : null;
     }
 
     resolveIconUrl(project: ProjectViewItem): string {

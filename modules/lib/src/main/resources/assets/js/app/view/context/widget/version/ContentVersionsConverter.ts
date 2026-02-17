@@ -1,10 +1,10 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {ContentPath} from '../../../../content/ContentPath';
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {ContentVersion} from '../../../../ContentVersion';
-import {ContentVersionPublishInfo} from '../../../../ContentVersionPublishInfo';
-import {VersionHistoryItem, VersionHistoryItemBuilder, VersionItemStatus} from './VersionHistoryItem';
+import {type ContentVersionPublishInfo} from '../../../../ContentVersionPublishInfo';
+import {type VersionHistoryItem, VersionHistoryItemBuilder, VersionItemStatus} from './VersionHistoryItem';
 
 export abstract class ContentVersionsConverter {
 

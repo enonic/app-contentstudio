@@ -1,7 +1,7 @@
 import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
 import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {Application} from '@enonic/lib-admin-ui/application/Application';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Application} from '@enonic/lib-admin-ui/application/Application';
 
 export class ProjectApplicationViewer
     extends NamesAndIconViewer<Application> {

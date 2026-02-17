@@ -1,6 +1,6 @@
 import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ContentWizardPanel} from '../ContentWizardPanel';
+import {type ContentWizardPanel} from '../ContentWizardPanel';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 

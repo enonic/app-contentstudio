@@ -1,5 +1,5 @@
-import {ExtraData} from './ExtraData';
-import {Comparator} from '@enonic/lib-admin-ui/Comparator';
+import {type ExtraData} from './ExtraData';
+import {type Comparator} from '@enonic/lib-admin-ui/Comparator';
 
 export class ExtraDataByMixinNameComparator
     implements Comparator<ExtraData> {

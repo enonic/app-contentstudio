@@ -1,6 +1,6 @@
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {IconUrlResolver} from '@enonic/lib-admin-ui/icon/IconUrlResolver';
-import {ContentSummary} from './ContentSummary';
+import {type ContentSummary} from './ContentSummary';
 
 export class ContentIconUrlResolver
     extends IconUrlResolver {
@@ -33,7 +33,7 @@ export class ContentIconUrlResolver
 
     resolve(): string {
 
-        let url = this.content.getIconUrl();
+        const url = this.content.getIconUrl();
         if (!url) {
             return null;
         }
@@ -43,7 +43,7 @@ export class ContentIconUrlResolver
         }
 
         // parse existing params from url in case there are any
-        let params = UriHelper.decodeUrlParams(url);
+        const params = UriHelper.decodeUrlParams(url);
 
         if (this.crop != null) {
             params['crop'] = String(this.crop);

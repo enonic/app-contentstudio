@@ -1,10 +1,10 @@
-import {Application} from '@enonic/lib-admin-ui/app/Application';
+import {type Application} from '@enonic/lib-admin-ui/app/Application';
 import {TabbedAppBar} from '@enonic/lib-admin-ui/app/bar/TabbedAppBar';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import Q from 'q';
+import type Q from 'q';
 import {ProjectSelectionDialog} from '../dialog/ProjectSelectionDialog';
 import {ShowIssuesDialogButton} from '../issue/view/ShowIssuesDialogButton';
 import {ProjectContext} from '../project/ProjectContext';

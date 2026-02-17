@@ -1,12 +1,12 @@
 import Q from 'q';
 import {ContentSummaryAndCompareStatusViewer} from './ContentSummaryAndCompareStatusViewer';
-import {ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {Request} from '@enonic/lib-admin-ui/rest/Request';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {Path} from '@enonic/lib-admin-ui/rest/Path';
-import {Response} from '@enonic/lib-admin-ui/rest/Response';
+import {type Response} from '@enonic/lib-admin-ui/rest/Response';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
 import {Element, NewElementBuilder} from '@enonic/lib-admin-ui/dom/Element';

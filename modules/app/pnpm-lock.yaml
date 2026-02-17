@@ -9,8 +9,14 @@ importers:
   .:
     dependencies:
       '@enonic/lib-admin-ui':
-        specifier: file:.xp/dev/lib-admin-ui
+        specifier: workspace:*
         version: link:.xp/dev/lib-admin-ui
+      '@enonic/lib-contentstudio':
+        specifier: workspace:*
+        version: link:.xp/dev/lib-contentstudio
+      '@enonic/page-editor':
+        specifier: ^0.0.1
+        version: 0.0.1
       chart.js:
         specifier: ^4.5.1
         version: 4.5.1
@@ -26,9 +32,6 @@ importers:
       jquery-ui:
         specifier: ^1.14.1
         version: 1.14.1
-      lib-contentstudio:
-        specifier: workspace:*
-        version: link:.xp/dev/lib-contentstudio
       nanostores:
         specifier: ^0.11.4
         version: 0.11.4
@@ -429,6 +432,10 @@ packages:
       '@typescript-eslint/parser': ^8.39.0
       typescript: ^5.8.3
       typescript-eslint: ^8.39.0
+
+  '@enonic/page-editor@0.0.1':
+    resolution: {integrity: sha512-MSm4RwiTtkjkFaDXLCS9WKTZXeF3Ae7qRG40EfV+B3+XEmPYwe0UNFFKvhVO0DwFZVT7f5zJg8JE3SMiKvhjIg==}
+    engines: {node: '>= 24.13.0'}
 
   '@epic-web/invariant@1.0.0':
     resolution: {integrity: sha512-lrTPqgvfFQtR/eY/qkIzp98OGdNJu0m5ji3q/nJI8v3SXkRKEnWiOxMmbvcSoAIzv/cGiuvRy57k4suKQSAdwA==}
@@ -3234,6 +3241,15 @@ snapshots:
       globals: 16.5.0
       typescript: 5.9.3
       typescript-eslint: 8.55.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+
+  '@enonic/page-editor@0.0.1':
+    dependencies:
+      dompurify: 3.3.1
+      jquery: 3.7.1
+      jquery-simulate: 1.0.2
+      jquery-ui: 1.14.2
+      mousetrap: 1.6.5
+      q: 1.5.1
 
   '@epic-web/invariant@1.0.0': {}
 

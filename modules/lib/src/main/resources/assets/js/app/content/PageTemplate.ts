@@ -1,14 +1,12 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {Property} from '@enonic/lib-admin-ui/data/Property';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {type Property} from '@enonic/lib-admin-ui/data/Property';
+import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {Content, ContentBuilder} from './Content';
-import {ContentJson} from './ContentJson';
-import {PageMode} from '../page/PageMode';
 import {PageTemplateKey} from '../page/PageTemplateKey';
-import {Regions} from '../page/region/Regions';
-import {DescriptorKey} from '../page/DescriptorKey';
+import {type Regions} from '../page/region/Regions';
+import {type DescriptorKey} from '../page/DescriptorKey';
 
 export class PageTemplate
     extends Content

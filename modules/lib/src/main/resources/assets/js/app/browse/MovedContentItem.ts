@@ -1,5 +1,5 @@
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentPath} from '../content/ContentPath';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ContentPath} from '../content/ContentPath';
 
 export class MovedContentItem {
 

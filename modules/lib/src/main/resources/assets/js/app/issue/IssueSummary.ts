@@ -1,5 +1,5 @@
-import {IssueStatus, IssueStatusFormatter} from './IssueStatus';
-import {IssueSummaryJson} from './json/IssueSummaryJson';
+import {type IssueStatus, IssueStatusFormatter} from './IssueStatus';
+import {type IssueSummaryJson} from './json/IssueSummaryJson';
 import {IssueType, IssueTypeFormatter} from './IssueType';
 
 export class IssueSummary {

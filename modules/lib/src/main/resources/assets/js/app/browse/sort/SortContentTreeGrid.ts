@@ -1,10 +1,10 @@
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
-import {ContentResponse} from '../../resource/ContentResponse';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {type ContentResponse} from '../../resource/ContentResponse';
+import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryViewer} from '../../content/ContentSummaryViewer';
-import {ContentId} from '../../content/ContentId';
-import {ChildOrder} from '../../resource/order/ChildOrder';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type ContentId} from '../../content/ContentId';
+import {type ChildOrder} from '../../resource/order/ChildOrder';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {LazyListBox} from '@enonic/lib-admin-ui/ui/selector/list/LazyListBox';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';

@@ -1,20 +1,20 @@
 import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
-import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {type ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
+import {type TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {MenuButton, MenuButtonConfig} from '@enonic/lib-admin-ui/ui/button/MenuButton';
+import {type MenuButton, type MenuButtonConfig} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import Q from 'q';
+import type Q from 'q';
 import {ContentDeletePromptEvent} from '../browse/ContentDeletePromptEvent';
 import {ContentTreeGridDeselectAllEvent} from '../browse/ContentTreeGridDeselectAllEvent';
-import {CompareStatus} from '../content/CompareStatus';
-import {ContentId} from '../content/ContentId';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type CompareStatus} from '../content/CompareStatus';
+import {type ContentId} from '../content/ContentId';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentDialogSubTitle} from '../dialog/ContentDialogSubTitle';
-import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
+import {type DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {ArchiveContentRequest} from '../resource/ArchiveContentRequest';
 import {DeleteContentRequest} from '../resource/DeleteContentRequest';
 import {ResolveDeleteRequest} from '../resource/ResolveDeleteRequest';
@@ -274,7 +274,7 @@ export class ContentDeleteDialog
     }
 
     private isAnySiteToBeDeleted(): boolean {
-        let result = this.getItemList().getItems().some((item: ContentSummaryAndCompareStatus) => {
+        const result = this.getItemList().getItems().some((item: ContentSummaryAndCompareStatus) => {
             return item.getContentSummary().isSite();
         });
 
@@ -282,7 +282,7 @@ export class ContentDeleteDialog
             return true;
         }
 
-        let dependantList = this.getDependantList();
+        const dependantList = this.getDependantList();
         if (dependantList.getItemCount() > 0) {
             return dependantList.getItems().some((descendant: ContentSummaryAndCompareStatus) => {
                 return descendant.getContentSummary().isSite();

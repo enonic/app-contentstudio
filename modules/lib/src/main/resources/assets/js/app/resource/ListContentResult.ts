@@ -1,4 +1,4 @@
-import {ResultMetadataJson} from './json/ResultMetadataJson';
+import {type ResultMetadataJson} from './json/ResultMetadataJson';
 
 export interface ListContentResult<T> {
 

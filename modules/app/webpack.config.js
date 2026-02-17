@@ -24,7 +24,6 @@ module.exports = {
         'js/main': './js/main.ts',
         'js/settings': './js/settings.ts',
         'page-editor/js/editor': './js/page-editor.ts',
-        'page-editor/styles/main': './page-editor/styles/main.less',
         'styles/widgets/stats': './styles/widgets/stats.less'
     },
     output: {
@@ -52,13 +51,20 @@ module.exports = {
                 ],
             },
             {
-                test: /\.less$/,
+                test: /\.(?:less|css)$/,
                 use: [
-                    {loader: MiniCssExtractPlugin.loader, options: {publicPath: '../'}},
+                    {loader: MiniCssExtractPlugin.loader},
                     {loader: 'css-loader', options: {sourceMap: !isProd, importLoaders: 1}},
                     {loader: 'postcss-loader', options: {sourceMap: !isProd}},
                     {loader: 'less-loader', options: {sourceMap: !isProd}},
                 ]
+            },
+            {
+                test: /\.(woff|woff2|eot|ttf|otf)$/i,
+                type: 'asset/resource',
+                generator: {
+                    filename: 'fonts/[name][ext][query]'
+                }
             }
         ]
     },
@@ -74,19 +80,6 @@ module.exports = {
                 }
             })
         ],
-        splitChunks: {
-            chunks: 'all',
-            cacheGroups: {
-                default: false,
-                defaultVendors: {
-                    test: /[\\/]node_modules[\\/]/,
-                    reuseExistingChunk: true,
-                    minChunks: 3,
-                    priority: -10,
-                    filename: 'js/vendors.main~editor.js'
-                }
-            }
-        }
     },
     plugins: [
         new ProvidePlugin({

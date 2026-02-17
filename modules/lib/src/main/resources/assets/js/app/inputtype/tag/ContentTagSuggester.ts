@@ -1,19 +1,19 @@
 import Q from 'q';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {QueryExpr} from '@enonic/lib-admin-ui/query/expr/QueryExpr';
-import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
-import {Property} from '@enonic/lib-admin-ui/data/Property';
-import {TagSuggester} from '../ui/tag/TagSuggester';
-import {Content} from '../../content/Content';
-import {ContentJson} from '../../content/ContentJson';
+import {type PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
+import {type Property} from '@enonic/lib-admin-ui/data/Property';
+import {type TagSuggester} from '../ui/tag/TagSuggester';
+import {type Content} from '../../content/Content';
+import {type ContentJson} from '../../content/ContentJson';
 import {ContentSelectorQueryRequest} from '../../resource/ContentSelectorQueryRequest';
 import {GetNearestSiteRequest} from '../../resource/GetNearestSiteRequest';
-import {Site} from '../../content/Site';
-import {Expression} from '@enonic/lib-admin-ui/query/expr/Expression';
+import {type Site} from '../../content/Site';
+import {type Expression} from '@enonic/lib-admin-ui/query/expr/Expression';
 import {FulltextSearchExpressionBuilder} from '@enonic/lib-admin-ui/query/FulltextSearchExpression';
 import {QueryField} from '@enonic/lib-admin-ui/query/QueryField';
 import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
-import {ContentSummary} from '../../content/ContentSummary';
+import {type ContentSummary} from '../../content/ContentSummary';
 
 export class ContentTagSuggesterBuilder {
 

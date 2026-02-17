@@ -1,9 +1,9 @@
 import {ProjectResourceRequest} from './ProjectResourceRequest';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {ProjectJson} from './json/ProjectJson';
+import {type ProjectJson} from './json/ProjectJson';
 import {Project} from '../data/project/Project';
-import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {type ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 
 export abstract class ProjectCreateUpdateRequest
     extends ProjectResourceRequest<Project> {

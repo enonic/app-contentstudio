@@ -1,9 +1,8 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
-import {ContentTypeSummaryJson} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummaryJson';
-import {ContentTypeResourceRequest} from './ContentTypeResourceRequest';
-import {ContentId} from '../content/ContentId';
-import {ContentTypeSummaryListJson} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummaryListJson';
+import {type ContentId} from '../content/ContentId';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {type ContentTypeSummaryJson} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummaryJson';
+import {type ContentTypeSummaryListJson} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummaryListJson';
 import {ContentTypeContextResourceRequest} from './ContentTypeContextResourceRequest';
 
 export class GetContentTypesByContentRequest

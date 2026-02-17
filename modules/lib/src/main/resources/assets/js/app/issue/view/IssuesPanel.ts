@@ -1,11 +1,11 @@
-import Q from 'q';
-import {FilterType} from './FilterType';
+import type Q from 'q';
+import {type FilterType} from './FilterType';
 import {FilterState, IssueList} from './IssueList';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {IssueStatus} from '../IssueStatus';
-import {IssueWithAssignees} from '../IssueWithAssignees';
+import {type IssueWithAssignees} from '../IssueWithAssignees';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
-import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import {type LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {TypeFilter} from './TypeFilter';

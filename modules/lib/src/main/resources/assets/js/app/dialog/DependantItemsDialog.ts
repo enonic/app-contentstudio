@@ -1,21 +1,24 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {TogglerButton} from '@enonic/lib-admin-ui/ui/button/TogglerButton';
-import {Checkbox, CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
-import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
-import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
+import {type Checkbox, CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
+import {type DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
+import {
+    ModalDialogWithConfirmation,
+    type ModalDialogWithConfirmationConfig
+} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import Q from 'q';
-import {ContentId} from '../content/ContentId';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import type Q from 'q';
+import {type ContentId} from '../content/ContentId';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfContentsRequest';
 import {DependantItemViewer} from './DependantItemViewer';
-import {DialogDependantItemsList, ObserverConfig, SelectionType} from './DialogDependantItemsList';
+import {DialogDependantItemsList, type ObserverConfig, SelectionType} from './DialogDependantItemsList';
 import {DialogMainItemsList} from './DialogMainItemsList';
 
 enum DependantsStatus {

@@ -1,7 +1,7 @@
-import {Issue} from '../Issue';
+import {type Issue} from '../Issue';
 import {IssueStatus} from '../IssueStatus';
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class IssueStatusInfoGenerator {
@@ -52,7 +52,7 @@ export class IssueStatusInfoGenerator {
     }
 
     private getModifiedBy(): string {
-        const lastModifiedBy: string = !!this.issue.getModifier() ? this.issue.getModifier() : this.issue.getCreator();
+        const lastModifiedBy: string = this.issue.getModifier() ? this.issue.getModifier() : this.issue.getCreator();
 
         if (this.currentUser && (lastModifiedBy === this.currentUser.getKey().toString())) {
             return i18n('field.me');

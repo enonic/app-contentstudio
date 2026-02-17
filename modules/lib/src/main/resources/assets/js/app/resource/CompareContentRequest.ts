@@ -1,11 +1,10 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {CompareContentResults} from './CompareContentResults';
-import {CompareContentResultsJson} from './json/CompareContentResultsJson';
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {ContentSummary} from '../content/ContentSummary';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentPath} from '../content/ContentPath';
+import {type ContentSummary} from '../content/ContentSummary';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {CompareContentResults} from './CompareContentResults';
+import {type CompareContentResultsJson} from './json/CompareContentResultsJson';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 
 export class CompareContentRequest
     extends CmsContentResourceRequest<CompareContentResults> {

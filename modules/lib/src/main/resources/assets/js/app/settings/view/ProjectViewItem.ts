@@ -1,13 +1,13 @@
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ProjectPermissions} from '../data/project/ProjectPermissions';
-import {Project} from '../data/project/Project';
+import {type ProjectPermissions} from '../data/project/ProjectPermissions';
+import {type Project} from '../data/project/Project';
 import {SettingsDataItemBuilder, SettingsDataViewItem} from './SettingsDataViewItem';
-import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
+import {type ProjectReadAccess} from '../data/project/ProjectReadAccess';
 import {ProjectIconUrlResolver} from '../../project/ProjectIconUrlResolver';
-import {SettingsType} from '../data/type/SettingsType';
+import {type SettingsType} from '../data/type/SettingsType';
 import {SettingsTypes} from '../data/type/SettingsTypes';
-import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {type ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 

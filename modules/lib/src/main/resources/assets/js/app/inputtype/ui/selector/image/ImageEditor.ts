@@ -8,16 +8,16 @@ import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
 import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
-import {ElementHiddenEvent} from '@enonic/lib-admin-ui/dom/ElementHiddenEvent';
-import {ElementRemovedEvent} from '@enonic/lib-admin-ui/dom/ElementRemovedEvent';
-import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
+import {type ElementHiddenEvent} from '@enonic/lib-admin-ui/dom/ElementHiddenEvent';
+import {type ElementRemovedEvent} from '@enonic/lib-admin-ui/dom/ElementRemovedEvent';
+import {type ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 import {BodyMask} from '@enonic/lib-admin-ui/ui/mask/BodyMask';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {CloseButton} from '@enonic/lib-admin-ui/ui/button/CloseButton';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
-import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
+import {type AEl} from '@enonic/lib-admin-ui/dom/AEl';
 
 export interface Point {
     x: number;
@@ -161,7 +161,7 @@ export class ImageEditor
             this.renderSrc(originalSrc);
         });
 
-        let resizeHandler = () => {
+        const resizeHandler = () => {
             if (this.isVisible()) {
                 this.updateImageDimensions(false, true);
                 this.updateStickyToolbar();
@@ -170,7 +170,7 @@ export class ImageEditor
 
         let isFirstLoad = true;
 
-        let updateImageOnShown: () => void = () => {
+        const updateImageOnShown: () => void = () => {
             this.updateImageDimensions(true, !isFirstLoad);
             this.updateStickyToolbar();
             this.setToolbarButtonsEnabled(true);
@@ -181,7 +181,7 @@ export class ImageEditor
             }
         };
 
-        let onLoaded = () => {
+        const onLoaded = () => {
             // check that real image has been loaded
             if (this.isImageLoaded()) {
                 if (this.isVisible()) {
@@ -194,16 +194,16 @@ export class ImageEditor
 
         this.image.onLoaded(onLoaded);
 
-        let imageErrorHandler = (event: UIEvent) => {
+        const imageErrorHandler = (event: UIEvent) => {
             this.notifyImageError(event);
             this.remove();
         };
 
         this.image.onError(imageErrorHandler);
 
-        let myId = this.getId();
+        const myId = this.getId();
 
-        let clipHtml = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">' +
+        const clipHtml = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">' +
                        '    <defs>' +
                        '        <clipPath id="' + myId + '-focusClipPath">' +
                        '            <circle cx="0" cy="0" r="0" class="clip-circle"/>' +
@@ -237,7 +237,7 @@ export class ImageEditor
             return false;
         };
 
-        let imageMask = new DivEl('image-bg-mask');
+        const imageMask = new DivEl('image-bg-mask');
 
         this.canvas.appendChildren(imageMask, this.image, this.clip);
 
@@ -247,7 +247,7 @@ export class ImageEditor
         this.stickyToolbar = this.createStickyToolbar();
         this.appendChildren(this.stickyToolbar, this.frame);
 
-        let scrollListener = () => this.updateStickyToolbar();
+        const scrollListener = () => this.updateStickyToolbar();
 
         this.onAdded(() => {
             // sticky toolbar needs to have access to parent elements
@@ -255,7 +255,7 @@ export class ImageEditor
         });
         this.onRemoved((event: ElementRemovedEvent) => {
             // element has already been removed so use parent
-            if (!!event.getParent()) {
+            if (event.getParent()) {
                 $(event.getParent().getHTMLElement()).closest(this.SCROLLABLE_SELECTOR).unbind('scroll', scrollListener);
             }
             ResponsiveManager.unAvailableSizeChanged(this);
@@ -314,7 +314,7 @@ export class ImageEditor
     }
 
     private setImageClipPath(path: Element) {
-        let image: SVGImageElement = this.clip.getHTMLElement().querySelector('image');
+        const image: SVGImageElement = this.clip.getHTMLElement().querySelector('image');
         image.setAttribute('clip-path', 'url(#' + path.getId() + ')');
     }
 
@@ -351,8 +351,8 @@ export class ImageEditor
      * @returns {SVGRect} normalized to 0-1 rectangle
      */
     private normalizeRect(rect: SVGRect): SVGRect {
-        let minW = this.frameW;
-        let minH = this.frameH;
+        const minW = this.frameW;
+        const minH = this.frameH;
         return {
             x: rect.x / minW,
             y: rect.y / minH,
@@ -367,8 +367,8 @@ export class ImageEditor
      * @returns {SVGRect} denormalized rectangle
      */
     private denormalizeRect(rect: SVGRect): SVGRect {
-        let minW = this.frameW;
-        let minH = this.frameH;
+        const minW = this.frameW;
+        const minH = this.frameH;
         return {
             x: rect.x * minW,
             y: rect.y * minH,
@@ -524,7 +524,7 @@ export class ImageEditor
                 this.revertZoomData = this.denormalizeRect(revZoomPct);
             }
             if (revCropPct) {
-                let revCrop = this.denormalizeRect(revCropPct);
+                const revCrop = this.denormalizeRect(revCropPct);
                 this.revertCropData = {
                     x: revCrop.x,
                     y: revCrop.y,
@@ -534,8 +534,8 @@ export class ImageEditor
                 };
             }
             if (revFocusPosPct && revFocusRadPct) {
-                let revFocusPos = this.denormalizePoint(revFocusPosPct.x, revFocusPosPct.y);
-                let revFocusRad = this.denormalizeRadius(revFocusRadPct);
+                const revFocusPos = this.denormalizePoint(revFocusPosPct.x, revFocusPosPct.y);
+                const revFocusRad = this.denormalizeRadius(revFocusRadPct);
                 this.revertFocusData = {
                     x: revFocusPos.x,
                     y: revFocusPos.y,
@@ -574,12 +574,12 @@ export class ImageEditor
     }
 
     private isOutside(event: MouseEvent) {
-        let el = this.getEl();
-        let offset = el.getOffset();
-        let bottom = offset.top + el.getHeightWithBorder();
-        let right = offset.left + el.getWidthWithBorder();
-        let scrollEl = $(this.getHTMLElement()).closest(this.SCROLLABLE_SELECTOR);
-        let scrollOffset = scrollEl.length === 1 ? scrollEl.offset() : {left: 0, top: 0};
+        const el = this.getEl();
+        const offset = el.getOffset();
+        const bottom = offset.top + el.getHeightWithBorder();
+        const right = offset.left + el.getWidthWithBorder();
+        const scrollEl = $(this.getHTMLElement()).closest(this.SCROLLABLE_SELECTOR);
+        const scrollOffset = scrollEl.length === 1 ? scrollEl.offset() : {left: 0, top: 0};
 
         return event.clientX < Math.max(scrollOffset.left, offset.left) ||
                event.clientX > right ||
@@ -592,7 +592,7 @@ export class ImageEditor
             console.log('setShaderVisible', visible);
         }
 
-        let bodyMask = BodyMask.get();
+        const bodyMask = BodyMask.get();
         if (visible) {
             if (!this.maskClickListener) {
                 this.maskClickListener = (event: MouseEvent) => {
@@ -626,18 +626,18 @@ export class ImageEditor
 
             if (!this.maskWheelListener) {
                 this.maskWheelListener = (event: WheelEvent) => {
-                    let el = this.getEl();
-                    let win = WindowDOM.get();
-                    let myHeight = el.getHeight();
-                    let myTop = el.getTopPx();
-                    let winHeight = win.getHeight();
+                    const el = this.getEl();
+                    const win = WindowDOM.get();
+                    const myHeight = el.getHeight();
+                    const myTop = el.getTopPx();
+                    const winHeight = win.getHeight();
 
                     let newTop = myTop - this.normalizeWheel(event).pixelY;
 
                     let newTopLimited;
-                    let heightLimit = this.stickyToolbar.getEl().getHeight() + 100;
+                    const heightLimit = this.stickyToolbar.getEl().getHeight() + 100;
                     newTopLimited = Math.min(winHeight - heightLimit, Math.max(heightLimit - myHeight, newTop));
-                    let isInsideLimit = newTop === newTopLimited;
+                    const isInsideLimit = newTop === newTopLimited;
                     if (!isInsideLimit && (Math.abs(newTop - newTopLimited) > Math.abs(myTop - newTopLimited))) {
                         // we are outside limit and trying to move away from it
                         // so keep my current position to prevent it
@@ -714,9 +714,9 @@ export class ImageEditor
     }
 
     private createStickyToolbar(): DivEl {
-        let toolbar = new DivEl('sticky-toolbar');
+        const toolbar = new DivEl('sticky-toolbar');
 
-        let editContainer = new DivEl('edit-container');
+        const editContainer = new DivEl('edit-container');
 
         this.editResetButton = new Button(i18n('button.reset'));
         this.editResetButton.addClass('reset-button transparent').setVisible(false).onClicked((event: MouseEvent) => {
@@ -832,10 +832,10 @@ export class ImageEditor
             }
         });
 
-        let rightContainer = new DivEl('right-container');
+        const rightContainer = new DivEl('right-container');
         rightContainer.appendChildren(standbyContainer, editContainer);
 
-        let zoomContainer = this.createZoomContainer();
+        const zoomContainer = this.createZoomContainer();
 
         this.rotateButton = new Button();
         this.rotateButton
@@ -1049,8 +1049,8 @@ export class ImageEditor
 
         let w;
         let h;
-        let width = image.getEl().getNaturalWidth();
-        let height = image.getEl().getNaturalHeight();
+        const width = image.getEl().getNaturalWidth();
+        const height = image.getEl().getNaturalHeight();
 
         if (orientation >= 1 && orientation < 5) {
             w = width;
@@ -1065,7 +1065,7 @@ export class ImageEditor
 
         let x;
         let y;
-        let modifier = inverse ? -1 : 1;
+        const modifier = inverse ? -1 : 1;
         switch (orientation) {
         case 1:
             x = 0;
@@ -1119,7 +1119,7 @@ export class ImageEditor
     }
 
     private updateStickyToolbar() {
-        let relativeScrollTop = this.getRelativeScrollTop();
+        const relativeScrollTop = this.getRelativeScrollTop();
         const el = this.stickyToolbar.getEl();
         this.getEl().setPaddingTop(this.topContainer.getEl().getHeight() + 'px');
         if (!this.isTopEdgeVisible(relativeScrollTop) && this.isBottomEdgeVisible(relativeScrollTop)) {
@@ -1138,7 +1138,7 @@ export class ImageEditor
         this.zoomKnob = new SpanEl('zoom-knob');
         this.zoomLine.appendChild(this.zoomKnob);
 
-        let zoomTitle = new SpanEl('zoom-title');
+        const zoomTitle = new SpanEl('zoom-title');
         zoomTitle.setHtml(i18n('field.zoom'));
 
         this.zoomContainer.appendChildren(zoomTitle, this.zoomLine);
@@ -1152,12 +1152,12 @@ export class ImageEditor
 
     private isBottomEdgeVisible(relativeScrollTop: number): boolean {
         // use crop area bottom edge
-        let stickyToolbarHeight = this.stickyToolbar.getEl().getHeight();
-        let frameHeight = this.frame.getEl().getHeight();
-        let totalHeight = this.getEl().getHeight();
+        const stickyToolbarHeight = this.stickyToolbar.getEl().getHeight();
+        const frameHeight = this.frame.getEl().getHeight();
+        const totalHeight = this.getEl().getHeight();
 
         // in crop edit mode toolbar grows bigger because of zoom control, so calc difference
-        let toolbarDelta = stickyToolbarHeight - (totalHeight - frameHeight);
+        const toolbarDelta = stickyToolbarHeight - (totalHeight - frameHeight);
 
         return (this.getCropPositionPx().h + relativeScrollTop - toolbarDelta) > 0;
     }
@@ -1315,8 +1315,8 @@ export class ImageEditor
     }
 
     private setFocusPositionPx(position: Point, updateAuto: boolean = true) {
-        let oldX = this.focusData.x;
-        let oldY = this.focusData.y;
+        const oldX = this.focusData.x;
+        const oldY = this.focusData.y;
 
         if (ImageEditor.debug) {
             console.group('ImageEditor.setFocusPositionPx');
@@ -1367,7 +1367,7 @@ export class ImageEditor
             console.log('resetFocusPosition');
         }
 
-        let denormalizedPoint = this.denormalizePoint(0.5, 0.5);
+        const denormalizedPoint = this.denormalizePoint(0.5, 0.5);
         // make sure it resets to the center of the crop area
         this.setFocusAutoPositioned(true);
         this.setFocusPositionPx({
@@ -1385,7 +1385,7 @@ export class ImageEditor
     }
 
     private setFocusRadiusPx(r: number, updateAuto: boolean = true) {
-        let oldR = this.focusData.r;
+        const oldR = this.focusData.r;
 
         if (ImageEditor.debug) {
             console.group('ImageEditor.setFocusRadiusPx');
@@ -1431,7 +1431,7 @@ export class ImageEditor
         if (ImageEditor.debug) {
             console.log('setFocusAutoPositioned', auto);
         }
-        let autoChanged = this.focusData.auto !== auto;
+        const autoChanged = this.focusData.auto !== auto;
         this.focusData.auto = auto;
 
         this.toggleClass('autofocused', auto);
@@ -1471,7 +1471,7 @@ export class ImageEditor
                     console.log('ImageEditor.mouseMoveListener');
                 }
 
-                let restrainedPos = {
+                const restrainedPos = {
                     x: this.restrainFocusX(this.focusData.x + this.getOffsetX(event) - lastPos.x),
                     y: this.restrainFocusY(this.focusData.y + this.getOffsetY(event) - lastPos.y)
                 };
@@ -1498,7 +1498,7 @@ export class ImageEditor
                 }
 
                 // allow focus positioning by clicking
-                let restrainedPos = {
+                const restrainedPos = {
                     x: this.restrainFocusX(this.getOffsetX(event)),
                     y: this.restrainFocusY(this.getOffsetY(event))
                 };
@@ -1633,7 +1633,7 @@ export class ImageEditor
      * @param h
      */
     setCropPosition(x: number, y: number, x2: number, y2: number) {
-        let svg = this.rectToSVG(x, y, x2, y2);
+        const svg = this.rectToSVG(x, y, x2, y2);
         if (this.isImageLoaded()) {
             this.setCropPositionPx(this.denormalizeRect(svg));
         } else {
@@ -1651,10 +1651,10 @@ export class ImageEditor
 
     private setCropPositionPx(crop: SVGRect, updateAuto: boolean = true) {
 
-        let oldX = this.cropData.x;
-        let oldY = this.cropData.y;
-        let oldW = this.cropData.w;
-        let oldH = this.cropData.h;
+        const oldX = this.cropData.x;
+        const oldY = this.cropData.y;
+        const oldW = this.cropData.w;
+        const oldH = this.cropData.h;
 
         if (ImageEditor.debug) {
             console.group('ImageEditor.setCropPositionPx');
@@ -1677,8 +1677,8 @@ export class ImageEditor
             oldW !== this.cropData.w ||
             oldH !== this.cropData.h) {
 
-            let dx = this.cropData.x - oldX;
-            let dy = this.cropData.y - oldY;
+            const dx = this.cropData.x - oldX;
+            const dy = this.cropData.y - oldY;
 
             if (ImageEditor.debug) {
                 console.log('After restraining', dx, dy, this.cropData);
@@ -1723,7 +1723,7 @@ export class ImageEditor
         if (ImageEditor.debug) {
             console.log('resetCropPosition');
         }
-        let crop = {x: 0, y: 0, w: 1, h: 1};
+        const crop = {x: 0, y: 0, w: 1, h: 1};
         this.setCropAutoPositioned(true);
         this.setCropPositionPx(this.denormalizeRect(crop), false);
     }
@@ -1732,7 +1732,7 @@ export class ImageEditor
         if (ImageEditor.debug) {
             console.log('setCropAutoPositioned', auto);
         }
-        let autoChanged = this.cropData.auto !== auto;
+        const autoChanged = this.cropData.auto !== auto;
         this.cropData.auto = auto;
 
         if (autoChanged) {
@@ -1741,8 +1741,8 @@ export class ImageEditor
     }
 
     private updateCropMaskPosition() {
-        let rect = this.cropClipPath.getHTMLElement().querySelector('rect');
-        let drag = this.dragHandle.getHTMLElement();
+        const rect = this.cropClipPath.getHTMLElement().querySelector('rect');
+        const drag = this.dragHandle.getHTMLElement();
 
         if (ImageEditor.debug) {
             console.log('ImageEditor.updateCropPosition', this.cropData);
@@ -1819,8 +1819,8 @@ export class ImageEditor
             event.stopPropagation();
             event.preventDefault();
 
-            let x = this.getOffsetX(event);
-            let y = this.getOffsetY(event);
+            const x = this.getOffsetX(event);
+            const y = this.getOffsetY(event);
 
             if (ImageEditor.debug) {
                 console.group('ImageEditor.mouseDownListener');
@@ -1847,7 +1847,7 @@ export class ImageEditor
 
         this.mouseMoveListener = (event: MouseEvent) => {
 
-            let currPos = {
+            const currPos = {
                 x: this.getOffsetX(event),
                 y: this.getOffsetY(event)
             };
@@ -1863,11 +1863,11 @@ export class ImageEditor
 
             } else if (dragMouseDown) {
 
-                let deltaY = this.getOffsetY(event) - lastPos.y;
-                let toolbarEl = this.stickyToolbar.getEl();
-                let topBoundary = toolbarEl.getHeight() + toolbarEl.getOffsetTop() - this.frame.getEl().getOffsetTop();
-                let distBetweenCropAndZoomBottoms = this.SVGRect.h - this.cropData.h - this.cropData.y;
-                let newH = this.cropData.h +
+                const deltaY = this.getOffsetY(event) - lastPos.y;
+                const toolbarEl = this.stickyToolbar.getEl();
+                const topBoundary = toolbarEl.getHeight() + toolbarEl.getOffsetTop() - this.frame.getEl().getOffsetTop();
+                const distBetweenCropAndZoomBottoms = this.SVGRect.h - this.cropData.h - this.cropData.y;
+                const newH = this.cropData.h +
                            (deltaY > distBetweenCropAndZoomBottoms ? distBetweenCropAndZoomBottoms : deltaY);
 
                 if (newH > topBoundary && newH !== this.cropData.h) {
@@ -1987,7 +1987,7 @@ export class ImageEditor
      */
 
     setZoomPosition(x: number, y: number, x2: number, y2: number) {
-        let zoom = this.rectToSVG(x, y, x2, y2);
+        const zoom = this.rectToSVG(x, y, x2, y2);
         if (this.isImageLoaded()) {
             this.setZoomPositionPx(this.denormalizeRect(zoom));
         } else {
@@ -2003,10 +2003,10 @@ export class ImageEditor
     }
 
     private setZoomPositionPx(zoom: SVGRect, updateAuto: boolean = true) {
-        let oldX = this.SVGRect.x;
-        let oldY = this.SVGRect.y;
-        let oldW = this.SVGRect.w;
-        let oldH = this.SVGRect.h;
+        const oldX = this.SVGRect.x;
+        const oldY = this.SVGRect.y;
+        const oldW = this.SVGRect.w;
+        const oldH = this.SVGRect.h;
 
         if (ImageEditor.debug) {
             console.group('ImageEditor.setZoomPositionPx');
@@ -2023,8 +2023,8 @@ export class ImageEditor
             oldW !== this.SVGRect.w ||
             oldH !== this.SVGRect.h) {
 
-            let dx = this.SVGRect.x - oldX;
-            let dy = this.SVGRect.y - oldY;
+            const dx = this.SVGRect.x - oldX;
+            const dy = this.SVGRect.y - oldY;
 
             if (ImageEditor.debug) {
                 console.log('After restraining', dx, dy, this.SVGRect);
@@ -2066,7 +2066,7 @@ export class ImageEditor
         if (ImageEditor.debug) {
             console.log('resetZoomPosition');
         }
-        let zoom = {x: 0, y: 0, w: 1, h: 1};
+        const zoom = {x: 0, y: 0, w: 1, h: 1};
         this.setCropAutoPositioned(true);
         this.setZoomPositionPx(this.denormalizeRect(zoom), false);
     }
@@ -2078,22 +2078,22 @@ export class ImageEditor
 
     private moveZoomKnobByPx(delta: number) {
 
-        let zoomLineEl = this.zoomLine.getEl();
-        let zoomKnobEl = this.zoomKnob.getEl();
+        const zoomLineEl = this.zoomLine.getEl();
+        const zoomKnobEl = this.zoomKnob.getEl();
 
-        let sliderLength = zoomLineEl.getWidth();
-        let knobX = zoomKnobEl.getLeftPx() || 0;
-        let knobNewX = Math.max(0, Math.min(sliderLength, knobX + delta));
+        const sliderLength = zoomLineEl.getWidth();
+        const knobX = zoomKnobEl.getLeftPx() || 0;
+        const knobNewX = Math.max(0, Math.min(sliderLength, knobX + delta));
 
         if (knobNewX !== knobX) {
             zoomKnobEl.setLeftPx(knobNewX);
 
-            let knobPct = knobNewX / sliderLength;
-            let zoomCoeff = 1 + knobPct * (this.maxZoom - 1);
-            let w = this.restrainZoomW(this.frameW * zoomCoeff);
-            let h = this.restrainZoomH(this.frameH * zoomCoeff);
-            let x = this.SVGRect.x - (w - this.SVGRect.w) / 2;
-            let y = this.SVGRect.y - (h - this.SVGRect.h) / 2;
+            const knobPct = knobNewX / sliderLength;
+            const zoomCoeff = 1 + knobPct * (this.maxZoom - 1);
+            const w = this.restrainZoomW(this.frameW * zoomCoeff);
+            const h = this.restrainZoomH(this.frameH * zoomCoeff);
+            const x = this.SVGRect.x - (w - this.SVGRect.w) / 2;
+            const y = this.SVGRect.y - (h - this.SVGRect.h) / 2;
 
             this.setZoomPositionPx({x, y, w, h});
         }
@@ -2108,18 +2108,18 @@ export class ImageEditor
         this.canvas.getEl().setWidthPx(this.SVGRect.w).setHeightPx(this.SVGRect.h).setLeftPx(this.SVGRect.x).setTopPx(
             this.SVGRect.y);
 
-        let zoomKnobEl = this.zoomKnob.getEl();
-        let zoomLineEl = this.zoomLine.getEl();
+        const zoomKnobEl = this.zoomKnob.getEl();
+        const zoomLineEl = this.zoomLine.getEl();
 
-        let sliderLength = zoomLineEl.getWidth();
-        let knobPct = (this.SVGRect.w / this.frameW - 1) / (this.maxZoom - 1);
-        let knobNewX = Math.max(0, Math.min(sliderLength, knobPct * sliderLength));
+        const sliderLength = zoomLineEl.getWidth();
+        const knobPct = (this.SVGRect.w / this.frameW - 1) / (this.maxZoom - 1);
+        const knobNewX = Math.max(0, Math.min(sliderLength, knobPct * sliderLength));
 
         zoomKnobEl.setLeftPx(knobNewX);
     }
 
     private updateRevertCropData() {
-        let cropPosition = this.getCropPositionPx();
+        const cropPosition = this.getCropPositionPx();
         this.revertCropData = {
             x: cropPosition.x,
             y: cropPosition.y,
@@ -2130,7 +2130,7 @@ export class ImageEditor
     }
 
     private updateRevertZoomData() {
-        let zoomPosition = this.getZoomPositionPx();
+        const zoomPosition = this.getZoomPositionPx();
         this.revertZoomData = {
             x: zoomPosition.x,
             y: zoomPosition.y,
@@ -2140,7 +2140,7 @@ export class ImageEditor
     }
 
     private updateRevertFocusData() {
-        let focusPosition = this.getFocusPositionPx();
+        const focusPosition = this.getFocusPositionPx();
         this.revertFocusData = {
             x: focusPosition.x,
             y: focusPosition.y,
@@ -2239,7 +2239,7 @@ export class ImageEditor
     }
 
     private notifyFocusPositionChanged(position: Point) {
-        let normalizedPosition = this.normalizePoint(position);
+        const normalizedPosition = this.normalizePoint(position);
         this.focusPositionChangedListeners.forEach((listener) => {
             listener(normalizedPosition);
         });
@@ -2256,7 +2256,7 @@ export class ImageEditor
     }
 
     private notifyFocusRadiusChanged(r: number) {
-        let normalizedRadius = this.normalizeRadius(r);
+        const normalizedRadius = this.normalizeRadius(r);
         this.focusRadiusChangedListeners.forEach((listener) => {
             listener(normalizedRadius);
         });
@@ -2293,8 +2293,8 @@ export class ImageEditor
     }
 
     private notifyCropPositionChanged(crop: SVGRect, zoom: SVGRect) {
-        let normalizedCrop = this.rectFromSVG(this.normalizeRect(crop));
-        let normalizedZoom = this.rectFromSVG(this.normalizeRect(zoom));
+        const normalizedCrop = this.rectFromSVG(this.normalizeRect(crop));
+        const normalizedZoom = this.rectFromSVG(this.normalizeRect(zoom));
         this.cropPositionChangedListeners.forEach(listener => {
             listener(normalizedCrop, normalizedZoom);
         });

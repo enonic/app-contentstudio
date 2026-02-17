@@ -1,4 +1,4 @@
-import {AccessControlEntry} from '../../access/AccessControlEntry';
+import {type AccessControlEntry} from '../../access/AccessControlEntry';
 
 export type ApplyPermissionsScope = 'single' | 'tree' | 'subtree';
 

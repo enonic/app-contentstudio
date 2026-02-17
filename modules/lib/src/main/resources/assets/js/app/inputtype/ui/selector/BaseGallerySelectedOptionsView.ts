@@ -1,9 +1,9 @@
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {type Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {type SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {SelectionToolbar} from './SelectionToolbar';
 import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
-import {BaseGallerySelectedOptionView} from './BaseGallerySelectedOptionView';
+import {type BaseGallerySelectedOptionView} from './BaseGallerySelectedOptionView';
 import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 
@@ -65,7 +65,7 @@ export abstract class BaseGallerySelectedOptionsView<T> extends BaseSelectedOpti
                 this.selection.push(option);
             }
         } else {
-            let index = this.selection.indexOf(option);
+            const index = this.selection.indexOf(option);
             if (index > -1) {
                 this.selection.splice(index, 1);
             }

@@ -1,14 +1,14 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {AttachmentItem} from './AttachmentItem';
-import {Attachment, AttachmentBuilder} from '../../../attachment/Attachment';
-import {AttachmentJson} from '../../../attachment/AttachmentJson';
-import {UploaderEl, UploaderElConfig} from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
-import Q from 'q';
+import {type Attachment, AttachmentBuilder} from '../../../attachment/Attachment';
+import {type AttachmentJson} from '../../../attachment/AttachmentJson';
+import {UploaderEl, type UploaderElConfig} from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
+import type Q from 'q';
 import {UrlHelper} from '../../../util/UrlHelper';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ContentPath} from '../../../content/ContentPath';
-import {Project} from '../../../settings/data/project/Project';
+import {type Project} from '../../../settings/data/project/Project';
 
 export interface AttachmentUploaderElConfig
     extends UploaderElConfig {

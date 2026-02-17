@@ -1,8 +1,8 @@
 import Q from 'q';
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {PropertiesWidgetItemViewValue} from './PropertiesWidgetItemViewValue';
-import {PropertiesWizardStepForm} from './PropertiesWizardStepForm';
-import {PropertiesWizardStepFormFactory, PropertiesWizardStepFormType} from './PropertiesWizardStepFormFactory';
+import {type ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {type PropertiesWidgetItemViewValue} from './PropertiesWidgetItemViewValue';
+import {type PropertiesWizardStepForm} from './PropertiesWizardStepForm';
+import {PropertiesWizardStepFormFactory, type PropertiesWizardStepFormType} from './PropertiesWizardStepFormFactory';
 
 export abstract class PropertiesWidgetItemViewHelper {
 

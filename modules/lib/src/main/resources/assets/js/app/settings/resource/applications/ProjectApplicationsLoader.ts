@@ -1,7 +1,7 @@
 import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
-import Q from 'q';
+import type Q from 'q';
 import {ListSiteApplicationsRequest} from '../../../resource/ListSiteApplicationsRequest';
-import {Application} from '@enonic/lib-admin-ui/application/Application';
+import {type Application} from '@enonic/lib-admin-ui/application/Application';
 
 export class ProjectApplicationsLoader
     extends BaseLoader<Application> {

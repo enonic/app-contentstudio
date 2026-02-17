@@ -1,5 +1,5 @@
-import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
 

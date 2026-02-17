@@ -1,8 +1,8 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ContentWizardPanel} from '../ContentWizardPanel';
+import {type ContentWizardPanel} from '../ContentWizardPanel';
 import {RequestContentPublishPromptEvent} from '../../browse/RequestContentPublishPromptEvent';
 import {BasePublishAction} from './BasePublishAction';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 
 export class RequestPublishAction
     extends BasePublishAction {

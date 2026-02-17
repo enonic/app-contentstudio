@@ -1,5 +1,5 @@
 import {PageUpdatedEvent} from './PageUpdatedEvent';
-import {DescriptorKey} from '../DescriptorKey';
+import {type DescriptorKey} from '../DescriptorKey';
 
 export class PageControllerUpdatedEvent extends PageUpdatedEvent {
 

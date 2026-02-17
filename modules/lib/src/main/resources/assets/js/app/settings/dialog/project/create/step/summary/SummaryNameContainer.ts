@@ -1,6 +1,6 @@
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {SummaryItemContainer} from './SummaryItemContainer';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 
 export class SummaryNameContainer
     extends SummaryItemContainer {

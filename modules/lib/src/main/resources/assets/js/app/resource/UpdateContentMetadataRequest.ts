@@ -1,8 +1,8 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {Content} from '../content/Content';
-import {ContentJson} from '../content/ContentJson';
+import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {type Content} from '../content/Content';
+import {type ContentJson} from '../content/ContentJson';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class UpdateContentMetadataRequest

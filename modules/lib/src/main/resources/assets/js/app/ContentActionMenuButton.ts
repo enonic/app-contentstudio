@@ -1,16 +1,16 @@
-import Q from 'q';
+import type Q from 'q';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {FindIssuesRequest} from './issue/resource/FindIssuesRequest';
 import {IssueStatus} from './issue/IssueStatus';
 import {IssueDialogsManager} from './issue/IssueDialogsManager';
-import {Issue} from './issue/Issue';
-import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
+import {type Issue} from './issue/Issue';
+import {type ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
 import {IssueServerEventsHandler} from './issue/event/IssueServerEventsHandler';
-import {MenuButtonConfig, MenuButton, MenuButtonDropdownPos} from '@enonic/lib-admin-ui/ui/button/MenuButton';
+import {type MenuButtonConfig, MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {MenuButtonProgressBarManager} from '@enonic/lib-admin-ui/ui/button/MenuButtonProgressBarManager';
-import {ContentId} from './content/ContentId';
+import {type ContentId} from './content/ContentId';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 interface ContentActionMenuButtonConfig

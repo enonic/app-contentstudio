@@ -11,6 +11,7 @@ export class DeselectComponentViewEvent
     constructor(path?: string, silent: boolean = true) {
         super();
         this.path = path;
+        this.silent = silent;
     }
 
     getPath(): string {

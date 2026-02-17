@@ -1,11 +1,11 @@
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {DeckPanel} from '@enonic/lib-admin-ui/ui/panel/DeckPanel';
 import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
-import {BaseInspectionPanel} from './BaseInspectionPanel';
-import Q from 'q';
+import {type BaseInspectionPanel} from './BaseInspectionPanel';
+import type Q from 'q';
 
 export interface InspectionsPanelConfig {
     inspectionPanels: BaseInspectionPanel[];

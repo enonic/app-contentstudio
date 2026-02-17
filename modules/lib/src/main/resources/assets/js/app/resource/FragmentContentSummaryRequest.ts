@@ -3,7 +3,7 @@ import {FieldExpr} from '@enonic/lib-admin-ui/query/expr/FieldExpr';
 import {ValueExpr} from '@enonic/lib-admin-ui/query/expr/ValueExpr';
 import {LogicalExpr} from '@enonic/lib-admin-ui/query/expr/LogicalExpr';
 import {LogicalOperator} from '@enonic/lib-admin-ui/query/expr/LogicalOperator';
-import {ConstraintExpr} from '@enonic/lib-admin-ui/query/expr/ConstraintExpr';
+import {type ConstraintExpr} from '@enonic/lib-admin-ui/query/expr/ConstraintExpr';
 import {ContentSummaryRequest} from './ContentSummaryRequest';
 
 export class FragmentContentSummaryRequest
@@ -13,8 +13,8 @@ export class FragmentContentSummaryRequest
 
     protected createSearchExpression(): ConstraintExpr {
         if (this.parentSitePath) {
-            let searchConstraint = super.createSearchExpression();
-            let nearestSiteConstraint = this.createParentSiteFragmentsOnlyQuery();
+            const searchConstraint = super.createSearchExpression();
+            const nearestSiteConstraint = this.createParentSiteFragmentsOnlyQuery();
             return new LogicalExpr(searchConstraint, LogicalOperator.AND, nearestSiteConstraint);
         } else {
             return super.createSearchExpression();

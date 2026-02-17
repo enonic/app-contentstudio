@@ -1,5 +1,5 @@
-import {WorkflowJson} from '@enonic/lib-admin-ui/content/json/WorkflowJson';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type WorkflowJson} from '@enonic/lib-admin-ui/content/json/WorkflowJson';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {WorkflowState} from './WorkflowState';
 

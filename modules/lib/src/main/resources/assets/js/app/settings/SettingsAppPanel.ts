@@ -2,17 +2,17 @@ import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {NavigatedAppPanel} from '@enonic/lib-admin-ui/app/NavigatedAppPanel';
 import {SettingsBrowsePanel} from './browse/SettingsBrowsePanel';
 import {AppBarTabId} from '@enonic/lib-admin-ui/app/bar/AppBarTabId';
-import {AppBarTabMenuItem, AppBarTabMenuItemBuilder} from '@enonic/lib-admin-ui/app/bar/AppBarTabMenuItem';
+import {type AppBarTabMenuItem, AppBarTabMenuItemBuilder} from '@enonic/lib-admin-ui/app/bar/AppBarTabMenuItem';
 import {ProjectWizardPanel} from './wizard/panel/ProjectWizardPanel';
-import {TabMenuItem} from '@enonic/lib-admin-ui/ui/tab/TabMenuItem';
+import {type TabMenuItem} from '@enonic/lib-admin-ui/ui/tab/TabMenuItem';
 import {EditSettingsItemEvent} from './event/EditSettingsItemEvent';
-import {SettingsDataItemWizardPanel} from './wizard/panel/SettingsDataItemWizardPanel';
+import {type SettingsDataItemWizardPanel} from './wizard/panel/SettingsDataItemWizardPanel';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
-import {Project} from './data/project/Project';
-import {SettingsViewItem} from './view/SettingsViewItem';
-import {SettingsDataViewItem} from './view/SettingsDataViewItem';
+import {type Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {type Project} from './data/project/Project';
+import {type SettingsViewItem} from './view/SettingsViewItem';
+import {type SettingsDataViewItem} from './view/SettingsDataViewItem';
 import {ProjectViewItem} from './view/ProjectViewItem';
 import {ProjectUpdatedEvent} from './event/ProjectUpdatedEvent';
 import {ProjectDeletedEvent} from './event/ProjectDeletedEvent';
@@ -20,7 +20,7 @@ import {ProjectSelectionDialog} from '../dialog/ProjectSelectionDialog';
 import {ProjectCreatedEvent} from './event/ProjectCreatedEvent';
 import {ProjectGetRequest} from './resource/ProjectGetRequest';
 import {ContentAppBar} from '../bar/ContentAppBar';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ProjectsUtil} from './resource/ProjectsUtil';
 import {Projects} from './resource/Projects';
 
@@ -120,7 +120,7 @@ export class SettingsAppPanel
             this.addWizardPanel(newTabMenuItem, wizard);
 
             wizard.onWizardHeaderNameUpdated((name: string) => {
-                newTabMenuItem.setLabel(!!name ? name : unnamedTabMenuText);
+                newTabMenuItem.setLabel(name ? name : unnamedTabMenuText);
             });
         }
     }

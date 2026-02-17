@@ -1,4 +1,4 @@
-import {ContentVersionJson} from './ContentVersionJson';
+import {type ContentVersionJson} from './ContentVersionJson';
 
 export interface ContentVersionViewJson
     extends ContentVersionJson {

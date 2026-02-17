@@ -1,10 +1,10 @@
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {CompareStatus} from '../content/CompareStatus';
 import {ContentId} from '../content/ContentId';
-import {ContentPath} from '../content/ContentPath';
+import {type ContentPath} from '../content/ContentPath';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {ContentIdBaseItemJson} from './json/ContentIdBaseItemJson';
+import {type ContentIdBaseItemJson} from './json/ContentIdBaseItemJson';
 
 export class GetDescendantsOfContentsRequest
     extends CmsContentResourceRequest<ContentId[]> {

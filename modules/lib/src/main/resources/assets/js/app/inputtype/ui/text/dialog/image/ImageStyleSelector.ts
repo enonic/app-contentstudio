@@ -1,10 +1,9 @@
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {ImageStyleOption, ImageStyleOptions} from './ImageStyleOptions';
-import {Style} from '../../styles/Style';
+import {type Style} from '../../styles/Style';
+import {type Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {type ImageStyleOption, ImageStyleOptions} from './ImageStyleOptions';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
-import {WidgetView} from '../../../../../view/context/WidgetView';
 
 export class ImageStyleSelector
     extends DivEl {
@@ -61,7 +60,8 @@ export class ImageStyleSelector
     }
 }
 
-class StyleListBox extends ListBox<Style> {
+class StyleListBox
+    extends ListBox<Style> {
 
     constructor() {
         super('style-list-box');
@@ -80,7 +80,8 @@ class StyleListBox extends ListBox<Style> {
     }
 }
 
-class StyleFilterInput extends FilterableListBoxWrapper<Style> {
+class StyleFilterInput
+    extends FilterableListBoxWrapper<Style> {
     private selectedOptionView: DivEl;
 
     constructor() {
@@ -117,7 +118,7 @@ class StyleFilterInput extends FilterableListBoxWrapper<Style> {
         });
 
         this.selectedOptionView.onClicked(() => {
-           this.showDropdown();
+            this.showDropdown();
         });
 
         this.onDropdownVisibilityChanged(isDropdownVisible => {

@@ -1,22 +1,22 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PropertyTreeHelper} from '@enonic/lib-admin-ui/util/PropertyTreeHelper';
 import {PageTemplateKey} from './PageTemplateKey';
-import {Regions} from './region/Regions';
-import {Component} from './region/Component';
-import {Region} from './region/Region';
+import {type Regions} from './region/Regions';
+import {type Component} from './region/Component';
+import {type Region} from './region/Region';
 import {ComponentFactory} from './region/ComponentFactory';
-import {PageJson} from './PageJson';
+import {type PageJson} from './PageJson';
 import {ComponentPath} from './region/ComponentPath';
 import {DescriptorKey} from './DescriptorKey';
-import {PageItem} from './region/PageItem';
-import {ComponentAddedEvent} from './region/ComponentAddedEvent';
-import {ComponentRemovedEvent} from './region/ComponentRemovedEvent';
-import {ComponentUpdatedEvent} from './region/ComponentUpdatedEvent';
-import {PageUpdatedEvent} from './event/PageUpdatedEvent';
-import {PageItemType} from './region/PageItemType';
+import {type PageItem} from './region/PageItem';
+import {type ComponentAddedEvent} from './region/ComponentAddedEvent';
+import {type ComponentRemovedEvent} from './region/ComponentRemovedEvent';
+import {type ComponentUpdatedEvent} from './region/ComponentUpdatedEvent';
+import {type PageUpdatedEvent} from './event/PageUpdatedEvent';
+import {type PageItemType} from './region/PageItemType';
 import {LayoutComponent} from './region/LayoutComponent';
 
 export type PageUpdatedEventHandler = (event: PageUpdatedEvent) => void;
@@ -102,7 +102,7 @@ export class Page
             return false;
         }
 
-        let other = o as Page;
+        const other = o as Page;
 
         if (!ObjectHelper.equals(this.controller, other.controller)) {
             return false;
@@ -237,7 +237,7 @@ export class PageBuilder {
                        : null);
 
         if (json.fragment) {
-            let component: Component = ComponentFactory.createFromJson(json.fragment, 0, null);
+            const component: Component = ComponentFactory.createFromJson(json.fragment, 0, null);
             this.setFragment(component);
         }
 

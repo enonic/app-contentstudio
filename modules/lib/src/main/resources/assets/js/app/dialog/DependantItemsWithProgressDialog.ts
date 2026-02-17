@@ -1,7 +1,7 @@
-import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
-import {DependantItemsDialog, DependantItemsDialogConfig} from './DependantItemsDialog';
-import {TaskProgressManager, WithTaskProgress} from './TaskProgressManager';
+import {type TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {type TaskState} from '@enonic/lib-admin-ui/task/TaskState';
+import {DependantItemsDialog, type DependantItemsDialogConfig} from './DependantItemsDialog';
+import {TaskProgressManager, type WithTaskProgress} from './TaskProgressManager';
 
 export interface DependantItemsWithProgressDialogConfig
     extends DependantItemsDialogConfig {

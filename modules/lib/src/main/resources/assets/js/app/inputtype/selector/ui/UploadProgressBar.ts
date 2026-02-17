@@ -1,8 +1,8 @@
 import {ProgressBar} from '@enonic/lib-admin-ui/ui/ProgressBar';
-import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {FormItemEl} from '@enonic/lib-admin-ui/dom/FormItemEl';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 
 export class UploadProgressBar<T extends Equitable> extends ProgressBar {
 

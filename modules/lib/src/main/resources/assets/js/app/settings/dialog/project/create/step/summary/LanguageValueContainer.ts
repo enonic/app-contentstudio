@@ -1,8 +1,8 @@
 import {SummaryValueContainer} from './SummaryValueContainer';
 import {LocaleViewer} from '../../../../../../locale/LocaleViewer';
 import {Flag} from '../../../../../../locale/Flag';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Locale} from '@enonic/lib-admin-ui/locale/Locale';
 
 export class LanguageValueContainer
     extends SummaryValueContainer {

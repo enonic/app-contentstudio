@@ -7,19 +7,19 @@ import {
     TermsAggregationOrderType,
     TermsAggregationQuery
 } from '@enonic/lib-admin-ui/query/aggregation/TermsAggregationQuery';
-import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
+import {type BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {QueryField} from '@enonic/lib-admin-ui/query/QueryField';
 import {AggregateContentTypesResult, ContentTypeAggregation} from './AggregateContentTypesResult';
 import {ContentQueryRequest} from './ContentQueryRequest';
-import {ContentQueryResult} from './ContentQueryResult';
+import {type ContentQueryResult} from './ContentQueryResult';
 import {ContentQuery} from '../content/ContentQuery';
-import {Path} from '@enonic/lib-admin-ui/rest/Path';
-import {ContentSummary} from '../content/ContentSummary';
-import {ContentSummaryJson} from '../content/ContentSummaryJson';
-import {ContentPath} from '../content/ContentPath';
+import {type Path} from '@enonic/lib-admin-ui/rest/Path';
+import {type ContentSummary} from '../content/ContentSummary';
+import {type ContentSummaryJson} from '../content/ContentSummaryJson';
+import {type ContentPath} from '../content/ContentPath';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {Project} from '../settings/data/project/Project';
+import {type Project} from '../settings/data/project/Project';
 
 export class AggregateContentTypesByPathRequest
     extends CmsContentResourceRequest<AggregateContentTypesResult> {
@@ -55,7 +55,7 @@ export class AggregateContentTypesByPathRequest
     }
 
     private buildAggregationsQuery(parentPath: ContentPath): ContentQuery {
-        let contentQuery: ContentQuery = new ContentQuery();
+        const contentQuery: ContentQuery = new ContentQuery();
         contentQuery.setQueryExpr(new QueryExpr(CompareExpr.eq(new FieldExpr('_parentPath'),
             ValueExpr.string('/content' + (parentPath.isRoot() ? '' : parentPath.toString())))));
 
@@ -72,7 +72,7 @@ export class AggregateContentTypesByPathRequest
     }
 
     private createTermsAggregation(name: string, fieldName: string, size: number): TermsAggregationQuery {
-        let termsAggregation = new TermsAggregationQuery(name);
+        const termsAggregation = new TermsAggregationQuery(name);
         termsAggregation.setFieldName(fieldName);
         termsAggregation.setSize(size);
         termsAggregation.setOrderByType(TermsAggregationOrderType.DOC_COUNT);

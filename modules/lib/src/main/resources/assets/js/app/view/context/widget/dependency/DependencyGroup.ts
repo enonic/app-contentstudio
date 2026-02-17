@@ -1,6 +1,6 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ContentDependencyGroupJson} from '../../../../resource/json/ContentDependencyGroupJson';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type ContentDependencyGroupJson} from '../../../../resource/json/ContentDependencyGroupJson';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {DependencyType} from '../../../../browse/DependencyType';
 
@@ -48,7 +48,7 @@ export class DependencyGroup
             return false;
         }
 
-        let other = o as DependencyGroup;
+        const other = o as DependencyGroup;
 
         if (!ObjectHelper.numberEquals(this.itemCount, other.itemCount)) {
             return false;
@@ -64,7 +64,7 @@ export class DependencyGroup
     }
 
     static fromDependencyGroupJson(type: DependencyType, jsonItems: ContentDependencyGroupJson[]): DependencyGroup[] {
-        let array: DependencyGroup[] = [];
+        const array: DependencyGroup[] = [];
         jsonItems.forEach((obj: ContentDependencyGroupJson) => {
             array.push(new DependencyGroupBuilder().fromJson(obj).setType(type).build());
         });

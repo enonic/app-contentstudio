@@ -1,6 +1,6 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ResultMetadataJson} from './json/ResultMetadataJson';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type ResultMetadataJson} from './json/ResultMetadataJson';
 
 export class ResultMetadata
     implements Equitable {
@@ -39,7 +39,7 @@ export class ResultMetadata
             return false;
         }
 
-        let other = o as ResultMetadata;
+        const other = o as ResultMetadata;
 
         if (this.hits !== other.hits ||
             this.totalHits !== other.totalHits) {

@@ -1,4 +1,4 @@
-import {Project} from '../settings/data/project/Project';
+import {type Project} from '../settings/data/project/Project';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 
 export class ProjectContext {

@@ -1,5 +1,5 @@
-import {ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
-import {ContentSummaryAndCompareStatusDiff} from './ContentSummaryAndCompareStatusDiff';
+import {type ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatusDiff} from './ContentSummaryAndCompareStatusDiff';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ContentSummaryHelper} from './ContentSummaryHelper';
 

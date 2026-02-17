@@ -1,4 +1,4 @@
-import {IssueCommentJson} from './json/IssueCommentJson';
+import {type IssueCommentJson} from './json/IssueCommentJson';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 
 export class IssueComment {

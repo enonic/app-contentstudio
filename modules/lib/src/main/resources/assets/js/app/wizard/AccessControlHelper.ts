@@ -1,4 +1,4 @@
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
 import {AccessControlList} from '../access/AccessControlList';
 import {AccessControlEntry} from '../access/AccessControlEntry';
@@ -6,10 +6,10 @@ import {Permission} from '../access/Permission';
 import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import {Access} from '../security/Access';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
-import Q from 'q';
+import type Q from 'q';
 import {GetContentByPathRequest} from '../resource/GetContentByPathRequest';
-import {Content} from '../content/Content';
-import {ContentPath} from '../content/ContentPath';
+import {type Content} from '../content/Content';
+import {type ContentPath} from '../content/ContentPath';
 import {PermissionsHelper} from '../access/PermissionsHelper';
 import {GetContentRootPermissionsRequest} from '../resource/GetContentRootPermissionsRequest';
 
@@ -17,8 +17,8 @@ export class AccessControlHelper {
 
     static hasPermission(permission: Permission, accessControlList: AccessControlList): boolean {
         let result = false;
-        let entries = accessControlList.getEntries();
-        let accessEntriesWithGivenPermissions: AccessControlEntry[] = entries.filter((item: AccessControlEntry) => {
+        const entries = accessControlList.getEntries();
+        const accessEntriesWithGivenPermissions: AccessControlEntry[] = entries.filter((item: AccessControlEntry) => {
             return item.isAllowed(permission);
         });
 

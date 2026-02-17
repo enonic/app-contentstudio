@@ -1,8 +1,8 @@
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {OrderExpr, OrderExprBuilder} from './OrderExpr';
-import {OrderExprJson} from '../json/OrderExprJson';
-import {OrderExprWrapperJson} from '../json/OrderExprWrapperJson';
+import {type OrderExprJson} from '../json/OrderExprJson';
+import {type OrderExprWrapperJson} from '../json/OrderExprWrapperJson';
 
 export class FieldOrderExpr
     extends OrderExpr {
@@ -47,7 +47,7 @@ export class FieldOrderExpr
         if (!ObjectHelper.iFrameSafeInstanceOf(o, FieldOrderExpr)) {
             return false;
         }
-        let other = o as FieldOrderExpr;
+        const other = o as FieldOrderExpr;
         if (this.fieldName.toLowerCase() !== other.getFieldName().toLowerCase()) {
             return false;
         }

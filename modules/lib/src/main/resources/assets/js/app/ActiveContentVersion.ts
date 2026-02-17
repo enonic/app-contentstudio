@@ -1,5 +1,5 @@
 import {ContentVersion} from './ContentVersion';
-import {ActiveContentVersionJson} from './resource/json/ActiveContentVersionJson';
+import {type ActiveContentVersionJson} from './resource/json/ActiveContentVersionJson';
 
 export class ActiveContentVersion {
 

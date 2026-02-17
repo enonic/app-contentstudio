@@ -1,7 +1,7 @@
 import {Path} from '@enonic/lib-admin-ui/rest/Path';
 import {UrlHelper} from '../util/UrlHelper';
 import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
-import {Project} from '../settings/data/project/Project';
+import {type Project} from '../settings/data/project/Project';
 
 export abstract class ProjectBasedResourceRequest<PARSED_TYPE>
     extends ResourceRequest<PARSED_TYPE> {
@@ -13,7 +13,7 @@ export abstract class ProjectBasedResourceRequest<PARSED_TYPE>
     }
 
     setRequestProject(value: Project): ProjectBasedResourceRequest<PARSED_TYPE> {
-        this.projectName = !!value ? value.getName() : null;
+        this.projectName = value ? value.getName() : null;
         return this;
     }
 

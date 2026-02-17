@@ -1,8 +1,8 @@
 /*global Q*/
 
-import {Issue} from '../issue/Issue';
+import {type Issue} from '../issue/Issue';
 import {IssueType} from '../issue/IssueType';
-import {ContentId} from '../content/ContentId';
+import {type ContentId} from '../content/ContentId';
 import {ContentActionMenuButton} from '../ContentActionMenuButton';
 
 export class ContentWizardPublishMenuButton

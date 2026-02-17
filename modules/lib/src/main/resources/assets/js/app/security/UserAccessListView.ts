@@ -1,8 +1,8 @@
-import Q from 'q';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import type Q from 'q';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {UserAccessListItemView} from './UserAccessListItemView';
-import {AccessControlEntry} from '../access/AccessControlEntry';
+import {type UserAccessListItemView} from './UserAccessListItemView';
+import {type AccessControlEntry} from '../access/AccessControlEntry';
 
 export class UserAccessListView
     extends ListBox<AccessControlEntry> {

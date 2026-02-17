@@ -14,7 +14,7 @@ export class TagSuggestions
         this.onMouseMove((event: MouseEvent) => {
             // don't wrap element in ElementHelper because mousemove event is generated very frequently
             // unnecessary new objects would clog browser memory
-            let htmlEl = event.target as HTMLElement;
+            const htmlEl = event.target as HTMLElement;
             if (htmlEl.tagName === 'LI') {
                 this.notifySelected(htmlEl.innerText || htmlEl.textContent);
             }
@@ -56,7 +56,7 @@ export class TagSuggestions
     }
 
     private select(index: number) {
-        let tags = this.getChildren();
+        const tags = this.getChildren();
         let tag = tags[this.selectedIndex];
         if (tag) {
             tag.removeClass('selected');

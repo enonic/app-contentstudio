@@ -3,14 +3,17 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
+import {
+    ModalDialogWithConfirmation,
+    type ModalDialogWithConfirmationConfig
+} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {IssuesCount, IssuesPanel} from './IssuesPanel';
-import {Issue} from '../Issue';
+import {type IssuesCount, IssuesPanel} from './IssuesPanel';
+import {type Issue} from '../Issue';
 import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
 import {GetIssueStatsRequest} from '../resource/GetIssueStatsRequest';
-import {IssueStatsJson} from '../json/IssueStatsJson';
+import {type IssueStatsJson} from '../json/IssueStatsJson';
 import {IssueType} from '../IssueType';
 import {ProjectContext} from '../../project/ProjectContext';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';

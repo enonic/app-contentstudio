@@ -1,9 +1,9 @@
 import {Thumbnail} from '@enonic/lib-admin-ui/thumb/Thumbnail';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ContentSummaryJson} from './ContentSummaryJson';
+import {type ContentSummaryJson} from './ContentSummaryJson';
 import {ContentName} from './ContentName';
 import {ContentPath} from './ContentPath';
 import {assert} from '@enonic/lib-admin-ui/util/Assert';

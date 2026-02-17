@@ -1,11 +1,11 @@
-import {SiteModel} from '../app/site/SiteModel';
-import {ContentFormContext} from '../app/ContentFormContext';
-import {Content} from '../app/content/Content';
-import {PageState} from '../app/wizard/page/PageState';
-import {DefaultModels} from '../app/wizard/page/DefaultModels';
-import {CompareStatus} from '../app/content/CompareStatus';
+import {type CompareStatus} from '../app/content/CompareStatus';
+import {type Content} from '../app/content/Content';
+import {type ContentFormContext} from '../app/ContentFormContext';
 import {ContentSummaryAndCompareStatus} from '../app/content/ContentSummaryAndCompareStatus';
 import {ContentSummaryBuilder} from '../app/content/ContentSummary';
+import {type DefaultModels} from '../app/wizard/page/DefaultModels';
+import {PageState} from '../app/wizard/page/PageState';
+import {type SiteModel} from '../app/site/SiteModel';
 
 export class LiveEditModel {
 

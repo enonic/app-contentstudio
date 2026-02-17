@@ -1,6 +1,5 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContextPanel} from './ContextPanel';
-import {ContextView} from './ContextView';
+import {type ContextView} from './ContextView';
 
 export class SlidablePanel
     extends ContextPanel {

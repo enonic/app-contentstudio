@@ -1,8 +1,13 @@
-import {TreeListBox, TreeListBoxParams, TreeListElement, TreeListElementParams} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
-import {Project} from '../../../../data/project/Project';
-import {ProjectOptionDataHelper} from './ProjectOptionDataHelper';
+import {
+    TreeListBox,
+    type TreeListBoxParams,
+    TreeListElement,
+    type TreeListElementParams
+} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
+import {type Project} from '../../../../data/project/Project';
+import {type ProjectOptionDataHelper} from './ProjectOptionDataHelper';
 import {ProjectViewer} from '../../../viewer/ProjectViewer';
-import {ProjectOptionDataLoader} from './ProjectOptionDataLoader';
+import {type ProjectOptionDataLoader} from './ProjectOptionDataLoader';
 
 export interface ProjectsTreeListParams
     extends TreeListBoxParams<Project> {

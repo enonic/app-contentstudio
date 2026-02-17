@@ -1,15 +1,15 @@
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
-import {FormItem, FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
-import {PrincipalComboBox, PrincipalComboBoxWrapper} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
+import {type FormItem, FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {type PrincipalComboBox, PrincipalComboBoxWrapper} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {LocaleComboBox, LocaleFormInputElWrapper} from '../../../../locale/LocaleComboBox';
-import {ContentSummary} from '../../../../content/ContentSummary';
+import {type ContentSummary} from '../../../../content/ContentSummary';
 import {PropertiesWizardStepForm} from './PropertiesWizardStepForm';
-import {UpdateContentMetadataRequest} from '../../../../resource/UpdateContentMetadataRequest';
+import {type UpdateContentMetadataRequest} from '../../../../resource/UpdateContentMetadataRequest';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {CSPrincipalCombobox} from '../../../../security/CSPrincipalCombobox';
 
 export class SettingsWizardStepForm

@@ -1,8 +1,8 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {TaskIdJson} from '@enonic/lib-admin-ui/task/TaskIdJson';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type TaskIdJson} from '@enonic/lib-admin-ui/task/TaskIdJson';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {ContentPath} from '../content/ContentPath';
+import {type ContentPath} from '../content/ContentPath';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class DeleteContentRequest
@@ -31,7 +31,7 @@ export class DeleteContentRequest
     }
 
     getParams(): object {
-        let fn = (contentPath: ContentPath) => {
+        const fn = (contentPath: ContentPath) => {
             return contentPath.toString();
         };
         return {

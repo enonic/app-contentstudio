@@ -1,5 +1,4 @@
-import {Widget} from '@enonic/lib-admin-ui/content/Widget';
-import {DescriptorKey} from './page/DescriptorKey';
+import {type Widget} from '@enonic/lib-admin-ui/content/Widget';
 
 export class AppContext {
 

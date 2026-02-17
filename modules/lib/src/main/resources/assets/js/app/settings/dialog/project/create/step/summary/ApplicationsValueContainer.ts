@@ -1,6 +1,6 @@
 import {SummaryValueContainer} from './SummaryValueContainer';
 import {ProjectApplicationViewer} from '../../../../../wizard/panel/form/element/ProjectApplicationViewer';
-import {ProjectApplication} from '../../../../../wizard/panel/form/element/ProjectApplication';
+import {type ProjectApplication} from '../../../../../wizard/panel/form/element/ProjectApplication';
 
 export class ApplicationsValueContainer
     extends SummaryValueContainer {

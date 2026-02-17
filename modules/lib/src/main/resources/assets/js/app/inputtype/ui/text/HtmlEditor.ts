@@ -3,7 +3,7 @@
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {NotificationMessage} from '@enonic/lib-admin-ui/notify/NotificationMessage';
+import {type NotificationMessage} from '@enonic/lib-admin-ui/notify/NotificationMessage';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
@@ -11,47 +11,24 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import Q from 'q';
 import {ContentPath} from '../../../content/ContentPath';
-import {ContentSummary} from '../../../content/ContentSummary';
+import {type ContentSummary} from '../../../content/ContentSummary';
 import {ContentResourceRequest} from '../../../resource/ContentResourceRequest';
 import {ContentsExistByPathRequest} from '../../../resource/ContentsExistByPathRequest';
-import {ContentsExistByPathResult} from '../../../resource/ContentsExistByPathResult';
+import {type ContentsExistByPathResult} from '../../../resource/ContentsExistByPathResult';
 import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
 import {UrlHelper} from '../../../util/UrlHelper';
 import {CreateHtmlAreaDialogEventGenerator} from './CreateHtmlAreaDialogEventGenerator';
 import {HTMLAreaHelper} from './HTMLAreaHelper';
-import {HtmlEditorParams} from './HtmlEditorParams';
+import {type HtmlEditorParams} from './HtmlEditorParams';
 import {StyleHelper} from './styles/StyleHelper';
 import {Styles} from './styles/Styles';
 import {StylesRequest} from './styles/StylesRequest';
-import editor = CKEDITOR.editor;
-import eventInfo = CKEDITOR.eventInfo;
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
-export interface HtmlEditorCursorPosition {
-    selectionIndexes: number[];
-    indexOfSelectedElement: number;
-    startOffset: number;
-}
+import {type FullScreenDialogParams, type HtmlEditorCursorPosition, type Macro} from './HtmlEditorTypes';
 
-export interface FullScreenDialogParams {
-    editor: editor,
-    editorParams: HtmlEditorParams,
-    cursorPosition: HtmlEditorCursorPosition
-}
-
-export interface MacroDialogParams {
-    editor: editor,
-    macro: Macro
-}
-
-export interface Macro {
-    name: string;
-    attributes: string[];
-    macroStart: CKEDITOR.dom.element;
-    index: number,
-    body?: string | HTMLElement[];
-    macroEnd?: CKEDITOR.dom.element;
-}
+type editor = CKEDITOR.editor;
+type eventInfo = CKEDITOR.eventInfo;
 
 /**
  * NB: Using inline styles for editor's inline mode; Inline styles apply same alignment styles as alignment classes
@@ -64,8 +41,8 @@ export class HtmlEditor {
 
     private editor: CKEDITOR.editor;
 
-    static SPECIAL_CHAR_NBSP= '(_)';
-    static SPECIAL_CHAR_SHY= '(-)';
+    static SPECIAL_CHAR_NBSP = '(_)';
+    static SPECIAL_CHAR_SHY = '(-)';
 
     private isSaveSnapshotAllowed: boolean;
 
@@ -142,8 +119,8 @@ export class HtmlEditor {
         const originalDowncastFunction: (el: CKEDITOR.htmlParser.element) => CKEDITOR.htmlParser.element = e.data.downcast;
         const newDowncastFunction = function (el: CKEDITOR.htmlParser.element) {
             if (el.name === 'figure' && (el.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS) ||
-                el.hasClass(StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS) ||
-                el.hasClass(StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS))) {
+                                         el.hasClass(StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS) ||
+                                         el.hasClass(StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS))) {
                 return el;
             }
 
@@ -231,7 +208,8 @@ export class HtmlEditor {
 
         this.editor.on('afterPaste', (e: eventInfo) => {
             if (isCleanupNbspRequired) {
-                selectedTextElement.textContent = selectedTextElement.textContent.slice(0, indexOfNbsp - 1) + ' ' + selectedTextElement.textContent.slice(indexOfNbsp);
+                selectedTextElement.textContent =
+                    selectedTextElement.textContent.slice(0, indexOfNbsp - 1) + ' ' + selectedTextElement.textContent.slice(indexOfNbsp);
             }
         });
     }
@@ -267,7 +245,7 @@ export class HtmlEditor {
                 console.log('Failed to init tooltip handler');
             }
 
-            if (!!tooltipElem) {
+            if (tooltipElem) {
                 this.editor.editable().on('mouseover', mouseOverHandler);
             }
 
@@ -285,7 +263,7 @@ export class HtmlEditor {
 
         const body: CKEDITOR.dom.element = this.editor.document.getBody();
 
-        return !!body ? body.getParent() : null;
+        return body ? body.getParent() : null;
     }
 
     private handleFileUpload() {
@@ -452,7 +430,7 @@ export class HtmlEditor {
         }
 
         // if improperly selected image is not first element in the editor then new image would be inserted without errors
-        if (!!selectedElement.getPrevious()) {
+        if (selectedElement.getPrevious()) {
             return;
         }
 
@@ -752,7 +730,7 @@ export class HtmlEditor {
             });
         }
 
-        this.editor.on('key',  (evt: eventInfo) => { // stopping select all from propagating
+        this.editor.on('key', (evt: eventInfo) => { // stopping select all from propagating
             if (evt.data.keyCode === CKEDITOR.CTRL + 65) {
                 if (evt.data.domEvent && evt.data.domEvent.stopPropagation) {
                     evt.data.domEvent.stopPropagation();
@@ -771,13 +749,14 @@ export class HtmlEditor {
         const isAfterOrBeforeLink = startNode.getParent()?.is('a') || range.getNextNode()?.is?.('a');
 
         // checking that cursor is at the end of the same text node, like at place where link ends and other text starts right after it
-        if (isAfterOrBeforeLink && startNode.$ === endNode.$ && range.startOffset === range.endOffset && (range.startOffset === startNode.getText().length ||
-            range.startOffset === 1 || range.startOffset === 2)) {
+        if (isAfterOrBeforeLink && startNode.$ === endNode.$ && range.startOffset === range.endOffset &&
+            (range.startOffset === startNode.getText().length ||
+             range.startOffset === 1 || range.startOffset === 2)) {
             const prevChar = startNode.getText()[range.startOffset - 1];
             const nextChar = range.getNextNode()?.getText()[0];
 
             // checking that cursor position is surrounded by non-whitespace characters
-            if (ObjectHelper.bothDefined(prevChar, nextChar) && !StringHelper.isBlank(prevChar) && !StringHelper.isBlank(nextChar)){
+            if (ObjectHelper.bothDefined(prevChar, nextChar) && !StringHelper.isBlank(prevChar) && !StringHelper.isBlank(nextChar)) {
                 setTimeout(() => { // setting timeout to allow space to be replaced with nbsp by browser/editor
                     const selection: CKEDITOR.dom.selection = this.editor.getSelection();
                     const range: CKEDITOR.dom.range = selection.getRanges()[0];
@@ -851,7 +830,7 @@ export class HtmlEditor {
     }
 
     public static setData(id: string, data: string, callback?: () => void) {
-        CKEDITOR.instances[id]?.setData(data, !!callback ? {callback: callback} : null);
+        CKEDITOR.instances[id]?.setData(data, callback ? {callback: callback} : null);
     }
 
     public static setReadOnly(id: string, value: boolean): void {

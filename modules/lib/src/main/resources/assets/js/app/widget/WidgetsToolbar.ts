@@ -1,7 +1,7 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
+import {type Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {AppContext} from '../AppContext';
-import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {type Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
 import {WidgetButton} from './WidgetButton';
 

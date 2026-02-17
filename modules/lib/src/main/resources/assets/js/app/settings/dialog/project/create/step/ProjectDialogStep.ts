@@ -1,13 +1,13 @@
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {type DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
-import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
-import {ProjectDialogStepData} from '../data/ProjectDialogStepData';
-import {Project} from '../../../../data/project/Project';
+import {type ProjectDialogStepData} from '../data/ProjectDialogStepData';
+import {type Project} from '../../../../data/project/Project';
 import {CopyFromParentFormItem} from '../../../../wizard/panel/form/element/CopyFromParentFormItem';
-import Q from 'q';
+import type Q from 'q';
 
 export abstract class ProjectDialogStep
     extends DialogStep {

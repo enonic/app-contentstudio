@@ -1,12 +1,12 @@
-import Q from 'q';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import type Q from 'q';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
-import {HtmlAreaModalDialogConfig, ModalDialog} from './ModalDialog';
-import eventInfo = CKEDITOR.eventInfo;
+import {type DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
+import {type HtmlAreaModalDialogConfig, ModalDialog} from './ModalDialog';
 import {HtmlEditor} from '../HtmlEditor';
+import eventInfo = CKEDITOR.eventInfo;
 
 export class SpecialCharDialog
     extends ModalDialog {

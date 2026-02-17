@@ -1,6 +1,6 @@
-import {AggregationTypeWrapperJson} from '@enonic/lib-admin-ui/aggregation/AggregationTypeWrapperJson';
-import {ContentIdBaseItemJson} from './ContentIdBaseItemJson';
-import {ResultMetadataJson} from './ResultMetadataJson';
+import {type AggregationTypeWrapperJson} from '@enonic/lib-admin-ui/aggregation/AggregationTypeWrapperJson';
+import {type ContentIdBaseItemJson} from './ContentIdBaseItemJson';
+import {type ResultMetadataJson} from './ResultMetadataJson';
 
 export interface ContentQueryResultJson<T extends ContentIdBaseItemJson> {
 

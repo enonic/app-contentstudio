@@ -1,23 +1,23 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {AggregationQueryTypeWrapperJson} from '@enonic/lib-admin-ui/query/aggregation/AggregationQueryTypeWrapperJson';
-import {ContentQueryResultJson} from './json/ContentQueryResultJson';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type AggregationQueryTypeWrapperJson} from '@enonic/lib-admin-ui/query/aggregation/AggregationQueryTypeWrapperJson';
+import {type ContentQueryResultJson} from './json/ContentQueryResultJson';
 import {ContentQueryResult} from './ContentQueryResult';
 import {ResultMetadata} from './ResultMetadata';
-import {ContentJson} from '../content/ContentJson';
-import {ContentQuery} from '../content/ContentQuery';
+import {type ContentJson} from '../content/ContentJson';
+import {type ContentQuery} from '../content/ContentQuery';
 import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
 import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
-import {AggregationQuery} from '@enonic/lib-admin-ui/query/aggregation/AggregationQuery';
-import {FilterTypeWrapperJson} from '@enonic/lib-admin-ui/query/filter/FilterTypeWrapperJson';
-import {Filter} from '@enonic/lib-admin-ui/query/filter/Filter';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {type AggregationQuery} from '@enonic/lib-admin-ui/query/aggregation/AggregationQuery';
+import {type FilterTypeWrapperJson} from '@enonic/lib-admin-ui/query/filter/FilterTypeWrapperJson';
+import {type Filter} from '@enonic/lib-admin-ui/query/filter/Filter';
+import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ContentSummary} from '../content/ContentSummary';
-import {ContentSummaryJson} from '../content/ContentSummaryJson';
+import {type ContentSummaryJson} from '../content/ContentSummaryJson';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {ContentIdBaseItemJson} from './json/ContentIdBaseItemJson';
+import {type ContentIdBaseItemJson} from './json/ContentIdBaseItemJson';
 import {ContentId} from '../content/ContentId';
-import {Content} from '../content/Content';
+import {type Content} from '../content/Content';
 import {Branch} from '../versioning/Branch';
 
 export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
@@ -113,15 +113,15 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
     }
 
     private getMustBereferencedById(): string {
-        let contentId = this.contentQuery.getMustBeReferencedById();
-        if (!!contentId) {
+        const contentId = this.contentQuery.getMustBeReferencedById();
+        if (contentId) {
             return contentId.toString();
         }
         return null;
     }
 
     private aggregationQueriesToJson(aggregationQueries: AggregationQuery[]): AggregationQueryTypeWrapperJson[] {
-        let aggregationQueryJsons: AggregationQueryTypeWrapperJson[] = [];
+        const aggregationQueryJsons: AggregationQueryTypeWrapperJson[] = [];
 
         if (aggregationQueries == null) {
             return aggregationQueryJsons;
@@ -136,7 +136,7 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
 
     private queryFiltersToJson(queryFilters: Filter[]): FilterTypeWrapperJson[] {
 
-        let queryFilterJsons: FilterTypeWrapperJson[] = [];
+        const queryFilterJsons: FilterTypeWrapperJson[] = [];
 
         if (queryFilters == null || queryFilters.length === 0) {
             return queryFilterJsons;
@@ -165,7 +165,7 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
     }
 
     contentTypeNamesAsString(names: ContentTypeName[]): string[] {
-        let result: string[] = [];
+        const result: string[] = [];
 
         names.forEach((name: ContentTypeName) => {
             result.push(name.toString());

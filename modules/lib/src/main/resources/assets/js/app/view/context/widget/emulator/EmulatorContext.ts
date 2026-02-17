@@ -1,4 +1,4 @@
-import {EmulatedEvent} from '../../../../event/EmulatedEvent';
+import {type EmulatedEvent} from '../../../../event/EmulatedEvent';
 
 export class EmulatorContext {
 

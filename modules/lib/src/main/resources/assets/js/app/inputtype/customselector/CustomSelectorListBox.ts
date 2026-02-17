@@ -1,9 +1,9 @@
 import {LazyListBox} from '@enonic/lib-admin-ui/ui/selector/list/LazyListBox';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {CustomSelectorItem} from './CustomSelectorItem';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type CustomSelectorItem} from './CustomSelectorItem';
 import {CustomSelectorItemViewer} from './CustomSelectorItemViewer';
-import {CustomSelectorLoader} from './CustomSelectorLoader';
-import {CustomSelectorMode, CustomSelectorModeHelper} from './CustomSelectorMode';
+import {type CustomSelectorLoader} from './CustomSelectorLoader';
+import {type CustomSelectorMode, CustomSelectorModeHelper} from './CustomSelectorMode';
 
 export class CustomSelectorListBox
     extends LazyListBox<CustomSelectorItem> {

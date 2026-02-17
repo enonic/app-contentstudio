@@ -1,4 +1,4 @@
-import {Diff} from '../Diff';
+import {type Diff} from '../Diff';
 
 export interface InheritDiff extends Diff {
     content?: boolean;

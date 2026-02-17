@@ -1,4 +1,4 @@
-import {PageNavigationEvent} from './PageNavigationEvent';
+import {type PageNavigationEvent} from './PageNavigationEvent';
 
 export interface PageNavigationHandler {
 

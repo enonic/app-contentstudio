@@ -1,6 +1,6 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {LocaleComboBox} from '../../../../../locale/LocaleComboBox';
-import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {type LocaleComboBox} from '../../../../../locale/LocaleComboBox';
+import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {ProjectDialogStep} from './ProjectDialogStep';
 import {LocaleFormItem} from '../../../../wizard/panel/form/element/LocaleFormItem';
 import {ProjectLocaleDialogStepData} from '../data/ProjectLocaleDialogStepData';

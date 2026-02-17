@@ -1,10 +1,9 @@
-import {ContentVersionJson} from './resource/json/ContentVersionJson';
-import {ContentVersionPublishInfo} from './ContentVersionPublishInfo';
-import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {ChildOrder} from './resource/order/ChildOrder';
 import {Workflow} from './content/Workflow';
 import {WorkflowState} from './content/WorkflowState';
-import {ChildOrder} from './resource/order/ChildOrder';
-import {AccessControlList} from './access/AccessControlList';
+import {type ContentVersionJson} from './resource/json/ContentVersionJson';
+import {ContentVersionPublishInfo} from './ContentVersionPublishInfo';
+import {type Cloneable} from '@enonic/lib-admin-ui/Cloneable';
 
 export class ContentVersion
     implements Cloneable {
@@ -194,9 +193,9 @@ export class ContentVersionBuilder {
             this.modifier = source.getModifier();
             this.modifierDisplayName = source.getModifierDisplayName();
             this.displayName = source.getDisplayName();
-            this.modified = !!source.getModified() ? new Date(source.getModified().getTime()) : null;
+            this.modified = source.getModified() ? new Date(source.getModified().getTime()) : null;
             this.childOrder = source.getChildOrder();
-            this.timestamp = !!source.getTimestamp() ? new Date(source.getTimestamp().getTime()) : null;
+            this.timestamp = source.getTimestamp() ? new Date(source.getTimestamp().getTime()) : null;
             this.comment = source.getComment();
             this.id = source.getId();
             this.workspaces = source.getWorkspaces().slice();
@@ -210,9 +209,9 @@ export class ContentVersionBuilder {
     fromJson(contentVersionJson: ContentVersionJson, workspaces?: string[]): ContentVersionBuilder {
         this.modifier = contentVersionJson.modifier;
         this.displayName = contentVersionJson.displayName;
-        this.modified = !!contentVersionJson.modified ? new Date(contentVersionJson.modified) : null;
+        this.modified = contentVersionJson.modified ? new Date(contentVersionJson.modified) : null;
         this.childOrder = ChildOrder.fromJson(contentVersionJson.childOrder);
-        this.timestamp = !!contentVersionJson.timestamp ? new Date(contentVersionJson.timestamp) : null;
+        this.timestamp = contentVersionJson.timestamp ? new Date(contentVersionJson.timestamp) : null;
         this.modifierDisplayName = contentVersionJson.modifierDisplayName;
         this.comment = contentVersionJson.comment;
         this.id = contentVersionJson.id;

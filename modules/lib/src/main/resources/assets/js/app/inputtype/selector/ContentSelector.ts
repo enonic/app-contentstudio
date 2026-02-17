@@ -1,39 +1,39 @@
 import {Class} from '@enonic/lib-admin-ui/Class';
-import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
+import {type PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
 import {Value} from '@enonic/lib-admin-ui/data/Value';
-import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
+import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
 import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Input} from '@enonic/lib-admin-ui/form/Input';
+import {type Input} from '@enonic/lib-admin-ui/form/Input';
 import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
-import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {type BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {type SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Reference} from '@enonic/lib-admin-ui/util/Reference';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import Q from 'q';
-import {MovedContentItem} from '../../browse/MovedContentItem';
+import {type MovedContentItem} from '../../browse/MovedContentItem';
 import {CompareStatus} from '../../content/CompareStatus';
-import {ContentId} from '../../content/ContentId';
+import {type ContentId} from '../../content/ContentId';
 import {ContentPath} from '../../content/ContentPath';
-import {ContentSummary, ContentSummaryBuilder} from '../../content/ContentSummary';
+import {type ContentSummary, ContentSummaryBuilder} from '../../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
+import {type ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {GetContentTypeByNameRequest} from '../../resource/GetContentTypeByNameRequest';
-import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {ContentType} from '../schema/ContentType';
+import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
+import {type ContentType} from '../schema/ContentType';
 import {ContentSelectedOptionsView} from '../ui/selector/ContentComboBox';
 import {ContentInputTypeManagingAdd} from '../ui/selector/ContentInputTypeManagingAdd';
-import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../ui/selector/ContentSummaryOptionDataLoader';
+import {ContentSummaryOptionDataLoader, type ContentSummaryOptionDataLoaderBuilder} from '../ui/selector/ContentSummaryOptionDataLoader';
 import {ContentListBox} from './ContentListBox';
-import {ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
-import {ContentTreeSelectorDropdown, ContentTreeSelectorDropdownOptions} from './ContentTreeSelectorDropdown';
+import {type ContentSelectorDropdownOptions} from './ContentSelectorDropdown';
+import {ContentTreeSelectorDropdown, type ContentTreeSelectorDropdownOptions} from './ContentTreeSelectorDropdown';
 import {NewContentButton} from './ui/NewContentButton';
 
 export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelectorItem> = ContentSelectedOptionsView>
@@ -130,7 +130,7 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
                 return;
             }
 
-            let selectedContentIdsMap: object = {};
+            const selectedContentIdsMap: object = {};
             this.getSelectedOptions().forEach((selectedOption: SelectedOption<ContentTreeSelectorItem>) => {
                 if (selectedOption.getOption().getDisplayValue()?.getContentId()) {
                     selectedContentIdsMap[selectedOption.getOption().getDisplayValue().getContentId().toString()] = '';
@@ -139,14 +139,14 @@ export class ContentSelector<T extends BaseSelectedOptionsView<ContentTreeSelect
 
             paths.filter(deletedItem => selectedContentIdsMap.hasOwnProperty(deletedItem.getContentId().toString()))
                 .forEach((deletedItem) => {
-                    let selectedOption = this.getSelectedOptionsView().getById(deletedItem.getContentId().toString());
+                    const selectedOption = this.getSelectedOptionsView().getById(deletedItem.getContentId().toString());
                     if (selectedOption != null) {
                         this.handleSelectedOptionDeleted(selectedOption);
                     }
                 });
         };
 
-        let handler = ContentServerEventsHandler.getInstance();
+        const handler = ContentServerEventsHandler.getInstance();
         handler.onContentDeleted(this.contentDeletedListener);
 
         this.onRemoved(() => {

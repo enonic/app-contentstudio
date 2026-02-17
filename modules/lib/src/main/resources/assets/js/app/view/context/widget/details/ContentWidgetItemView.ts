@@ -1,6 +1,6 @@
 import Q from 'q';
 import {WidgetItemView} from '../../WidgetItemView';
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../../../../content/ContentSummaryAndCompareStatusViewer';
 
 export class ContentWidgetItemView

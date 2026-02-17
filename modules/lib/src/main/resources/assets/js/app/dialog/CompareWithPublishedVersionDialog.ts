@@ -1,23 +1,28 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {Checkbox, CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
-import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig, ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {type Checkbox, CheckboxBuilder} from '@enonic/lib-admin-ui/ui/Checkbox';
+import {
+    DefaultModalDialogHeader,
+    ModalDialog,
+    type ModalDialogConfig,
+    type ModalDialogHeader
+} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Delta, DiffPatcher} from 'jsondiffpatch';
+import {type Delta, DiffPatcher} from 'jsondiffpatch';
 import {format, showUnchanged} from 'jsondiffpatch/formatters/html';
 import Q from 'q';
-import {ActiveContentVersion} from '../ActiveContentVersion';
-import {Content} from '../content/Content';
-import {ContentJson} from '../content/ContentJson';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ActiveContentVersion} from '../ActiveContentVersion';
+import {type Content} from '../content/Content';
+import {type ContentJson} from '../content/ContentJson';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentVersionHelper} from '../ContentVersionHelper';
-import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {type ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {GetActiveContentVersionsRequest} from '../resource/GetActiveContentVersionsRequest';
 import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
 import {GetContentVersionsRequest} from '../resource/GetContentVersionsRequest';
-import {GetContentVersionsResult} from '../resource/GetContentVersionsResult';
+import {type GetContentVersionsResult} from '../resource/GetContentVersionsResult';
 import {VersionContext} from '../view/context/widget/version/VersionContext';
 
 export class CompareWithPublishedVersionDialog

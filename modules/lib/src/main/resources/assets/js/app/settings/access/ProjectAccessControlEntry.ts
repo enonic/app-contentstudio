@@ -1,5 +1,5 @@
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectAccess} from './ProjectAccess';
 import {PrincipalContainer} from '@enonic/lib-admin-ui/ui/security/PrincipalContainer';
@@ -28,7 +28,7 @@ export class ProjectAccessControlEntry
         if (!ObjectHelper.iFrameSafeInstanceOf(o, ProjectAccessControlEntry)) {
             return false;
         }
-        let other = o as ProjectAccessControlEntry;
+        const other = o as ProjectAccessControlEntry;
         return this.principal.equals(other.getPrincipal()) &&
                this.access === other.access;
     }

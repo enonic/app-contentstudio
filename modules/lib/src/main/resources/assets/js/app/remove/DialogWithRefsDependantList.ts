@@ -1,8 +1,8 @@
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ArchiveCheckableItem} from '../dialog/ArchiveCheckableItem';
 import {DependantArchiveItemViewer} from '../dialog/DependantArchiveItemViewer';
-import {compareItems, DialogDependantItemsList, ObserverConfig} from '../dialog/DialogDependantItemsList';
-import {ContentWithRefsResult} from '../resource/ContentWithRefsResult';
+import {compareItems, DialogDependantItemsList, type ObserverConfig} from '../dialog/DialogDependantItemsList';
+import {type ContentWithRefsResult} from '../resource/ContentWithRefsResult';
 
 export class DialogWithRefsDependantList
     extends DialogDependantItemsList {

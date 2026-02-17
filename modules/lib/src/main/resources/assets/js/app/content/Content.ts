@@ -1,19 +1,19 @@
-import {Property} from '@enonic/lib-admin-ui/data/Property';
+import {type Property} from '@enonic/lib-admin-ui/data/Property';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {Attachments, AttachmentsBuilder} from '../attachment/Attachments';
-import {ContentJson} from './ContentJson';
+import {type Attachments, AttachmentsBuilder} from '../attachment/Attachments';
+import {type ContentJson} from './ContentJson';
 import {ExtraData} from './ExtraData';
-import {ExtraDataJson} from '../resource/json/ExtraDataJson';
-import {XDataName} from './XDataName';
-import {Page, PageBuilder} from '../page/Page';
+import {type ExtraDataJson} from '../resource/json/ExtraDataJson';
+import {type XDataName} from './XDataName';
+import {type Page, PageBuilder} from '../page/Page';
 import {AccessControlList} from '../access/AccessControlList';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Cloneable} from '@enonic/lib-admin-ui/Cloneable';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ContentSummary, ContentSummaryBuilder} from './ContentSummary';
 import {ValidationError} from '@enonic/lib-admin-ui/ValidationError';
-import {ContentDiff} from './ContentDiff';
+import {type ContentDiff} from './ContentDiff';
 import {isEqual} from '../Diff';
 import {ContentDiffHelper} from '../util/ContentDiffHelper';
 

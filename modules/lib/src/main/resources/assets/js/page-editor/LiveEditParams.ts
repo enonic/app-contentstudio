@@ -1,10 +1,10 @@
-import {LiveEditModel} from './LiveEditModel';
+import {type LiveEditModel} from './LiveEditModel';
 import {ComponentPath} from '../app/page/region/ComponentPath';
-import {PageState} from '../app/wizard/page/PageState';
 import {FragmentComponent} from '../app/page/region/FragmentComponent';
-import {TextComponent} from '../app/page/region/TextComponent';
 import {PageHelper} from '../app/util/PageHelper';
-import {PageItem} from '../app/page/region/PageItem';
+import {PageState} from '../app/wizard/page/PageState';
+import {TextComponent} from '../app/page/region/TextComponent';
+import {type PageItem} from '../app/page/region/PageItem';
 
 export class LiveEditParams {
 

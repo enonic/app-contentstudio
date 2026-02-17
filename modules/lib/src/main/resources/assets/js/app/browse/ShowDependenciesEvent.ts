@@ -1,6 +1,6 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {DependencyParams} from './DependencyParams';
+import {type DependencyParams} from './DependencyParams';
 
 export class ShowDependenciesEvent
     extends Event {

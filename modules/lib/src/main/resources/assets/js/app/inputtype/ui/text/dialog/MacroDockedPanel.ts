@@ -11,13 +11,13 @@ import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {ContentFormContext} from '../../../../ContentFormContext';
-import {Content} from '../../../../content/Content';
+import {type Content} from '../../../../content/Content';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
-import {ContentSummary} from '../../../../content/ContentSummary';
+import {type ContentSummary} from '../../../../content/ContentSummary';
 import {GetPreviewRequest} from '../../../../macro/resource/GetPreviewRequest';
 import {GetPreviewStringRequest} from '../../../../macro/resource/GetPreviewStringRequest';
-import {MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
+import {type MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
 import {MacroPreview} from '../../../../macro/MacroPreview';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
@@ -143,7 +143,7 @@ export class MacroDockedPanel
     }
 
     public getMacroPreviewString(): Q.Promise<string> {
-        let deferred = Q.defer<string>();
+        const deferred = Q.defer<string>();
         if (this.previewResolved) {
             deferred.resolve(this.macroPreview.getMacroString());
         } else {
@@ -162,7 +162,7 @@ export class MacroDockedPanel
 
     private renderPreviewWithMessage(message: string) {
         this.previewPanel.removeChildren();
-        let appendMe = new DivEl('preview-message');
+        const appendMe = new DivEl('preview-message');
         appendMe.setHtml(message);
         this.previewPanel.appendChild(appendMe);
     }
@@ -220,7 +220,7 @@ export class MacroDockedPanel
         this.selectPanel(this.configPanel);
 
         if (macroDescriptor) {
-            let formView: FormView = new FormView(
+            const formView: FormView = new FormView(
                 ContentFormContext.create().setPersistedContent(this.content as Content).build(),
                 macroDescriptor.getForm(), this.data);
 
@@ -229,10 +229,10 @@ export class MacroDockedPanel
     }
 
     private initPropertySetForDescriptor(data?: PropertySet) {
-        if (!!this.data) {
+        if (this.data) {
             this.data.unChanged(this.formValueChangedHandler);
         }
-        this.data = !!data ? data : new PropertySet();
+        this.data = data ? data : new PropertySet();
         this.data.onChanged(this.formValueChangedHandler);
     }
 
@@ -313,10 +313,10 @@ export class MacroPreviewFrame
     }
 
     private adjustFrameHeightOnContentsUpdate() {
-        let frameWindow = this.getHTMLElement()['contentWindow'];
+        const frameWindow = this.getHTMLElement()['contentWindow'];
         if (frameWindow) {
-            let observer = new MutationObserver(this.debouncedResizeHandler);
-            let config = {attributes: true, childList: true, characterData: true};
+            const observer = new MutationObserver(this.debouncedResizeHandler);
+            const config = {attributes: true, childList: true, characterData: true};
 
             observer.observe(frameWindow.document.body, config);
         }
@@ -324,9 +324,9 @@ export class MacroPreviewFrame
 
     private adjustFrameHeight() {
         try {
-            let frameWindow = this.getHTMLElement()['contentWindow'] || this.getHTMLElement()['contentDocument'];
-            let scrollHeight = frameWindow.document.body.scrollHeight;
-            let maxFrameHeight = this.getMaxFrameHeight();
+            const frameWindow = this.getHTMLElement()['contentWindow'] || this.getHTMLElement()['contentDocument'];
+            const scrollHeight = frameWindow.document.body.scrollHeight;
+            const maxFrameHeight = this.getMaxFrameHeight();
             this.getEl().setHeightPx(scrollHeight > 150
                                      ? scrollHeight > maxFrameHeight ? maxFrameHeight : scrollHeight + (this.isInstagramPreview() ? 18 : 0)
                                      : $('#' + this.id).contents().find('body').outerHeight());

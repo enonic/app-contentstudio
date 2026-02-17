@@ -1,4 +1,5 @@
-import {ContentPublishInfoJson} from './ContentPublishInfoJson';
+import {type ContentPublishInfoJson} from './ContentPublishInfoJson';
+
 export interface ContentVersionPublishInfoJson {
 
     message: string;

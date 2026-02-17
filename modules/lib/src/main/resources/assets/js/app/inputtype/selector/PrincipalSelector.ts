@@ -2,7 +2,7 @@ import {PrincipalSelector as BasePrincipalSelector} from '@enonic/lib-admin-ui/f
 import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from '@enonic/lib-admin-ui/Class';
 import {InputTypeName} from '@enonic/lib-admin-ui/form/InputTypeName';
-import {PrincipalLoader} from '@enonic/lib-admin-ui/security/PrincipalLoader';
+import {type PrincipalLoader} from '@enonic/lib-admin-ui/security/PrincipalLoader';
 import {CSPrincipalLoader} from '../../security/CSPrincipalLoader';
 
 export class PrincipalSelector

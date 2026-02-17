@@ -6,24 +6,24 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectApplicationsLoader} from '../../../../resource/applications/ProjectApplicationsLoader';
 import {ProjectApplicationsSelectedOptionsView} from './ProjectApplicationsSelectedOptionsView';
 import {Application, ApplicationBuilder} from '@enonic/lib-admin-ui/application/Application';
-import {ProjectViewItem} from '../../../../view/ProjectViewItem';
-import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {type ProjectViewItem} from '../../../../view/ProjectViewItem';
+import {type ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import Q from 'q';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {GetApplicationsRequest} from '../../../../../resource/GetApplicationsRequest';
-import {ProjectApplicationSelectedOptionView} from './ProjectApplicationSelectedOptionView';
-import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {ProjectApplication} from './ProjectApplication';
-import {ProjectApplicationsFormParams} from './ProjectApplicationsFormParams';
+import {type ProjectApplicationSelectedOptionView} from './ProjectApplicationSelectedOptionView';
+import {type SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {type ProjectApplication} from './ProjectApplication';
+import {type ProjectApplicationsFormParams} from './ProjectApplicationsFormParams';
 import {FilterableListBoxWrapperWithSelectedView} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
 import {ProjectApplicationsListBox} from './ProjectApplicationsListBox';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
-import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {Project} from '../../../../data/project/Project';
-import {DataChangedEvent} from '@enonic/lib-admin-ui/ui/treegrid/DataChangedEvent';
+import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
+import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {type Project} from '../../../../data/project/Project';
+import {type DataChangedEvent} from '@enonic/lib-admin-ui/ui/treegrid/DataChangedEvent';
 
 export class ProjectApplicationsComboBox
     extends FilterableListBoxWrapperWithSelectedView<Application> {

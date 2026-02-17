@@ -1,16 +1,16 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ComponentName} from './ComponentName';
-import {Region} from './Region';
-import {ComponentType} from './ComponentType';
+import {type Region} from './Region';
+import {type ComponentType} from './ComponentType';
 import {ComponentPath} from './ComponentPath';
-import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
-import {ComponentJson} from './ComponentJson';
-import {PageItem} from './PageItem';
-import {ComponentAddedEvent} from './ComponentAddedEvent';
-import {ComponentRemovedEvent} from './ComponentRemovedEvent';
-import {ComponentUpdatedEvent} from './ComponentUpdatedEvent';
+import {type ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
+import {type ComponentJson} from './ComponentJson';
+import {type PageItem} from './PageItem';
+import {type ComponentAddedEvent} from './ComponentAddedEvent';
+import {type ComponentRemovedEvent} from './ComponentRemovedEvent';
+import {type ComponentUpdatedEvent} from './ComponentUpdatedEvent';
 
 export type ComponentResetEventHandler = () => void;
 export type ComponentAddedEventHandler = (event: ComponentAddedEvent) => void;
@@ -75,8 +75,8 @@ export abstract class Component
     }
 
     duplicate(): Component {
-        let duplicateName = this.getName();
-        let duplicatedComponent = this.clone();
+        const duplicateName = this.getName();
+        const duplicatedComponent = this.clone();
         duplicatedComponent.setName(duplicateName);
 
         return duplicatedComponent;

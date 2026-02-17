@@ -1,14 +1,14 @@
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {type DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
 import {ProgressBar} from '@enonic/lib-admin-ui/ui/ProgressBar';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
-import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
+import {type Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {type MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
 import {BaseGallerySelectedOptionView} from '../BaseGallerySelectedOptionView';
-import {NamesAndIconViewBuilder, NamesAndIconView} from '@enonic/lib-admin-ui/app/NamesAndIconView';
+import {NamesAndIconViewBuilder, type NamesAndIconView} from '@enonic/lib-admin-ui/app/NamesAndIconView';
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 
 export class ImageSelectorSelectedOptionView
@@ -111,7 +111,7 @@ export class ImageSelectorSelectedOptionView
     }
 
     updateProportions() {
-        let contentHeight = this.getEl().getHeightWithBorder() -
+        const contentHeight = this.getEl().getHeightWithBorder() -
                             this.getEl().getBorderTopWidth() -
                             this.getEl().getBorderBottomWidth();
 

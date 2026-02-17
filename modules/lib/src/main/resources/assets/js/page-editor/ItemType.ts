@@ -1,10 +1,10 @@
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ItemTypeConfig} from './ItemTypeConfig';
+import {type ItemTypeConfig} from './ItemTypeConfig';
 import {ComponentType} from '../app/page/region/ComponentType';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import type {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {assert} from '@enonic/lib-admin-ui/util/Assert';
 
 type ShortName = Record<string, ItemType>;
@@ -27,7 +27,7 @@ export class ItemType
         this.config = this.getItemTypeConfig(shortName);
     }
 
-    protected getItemTypeConfig(itemType: string): ItemTypeConfig {
+    protected getItemTypeConfig(_itemType: string): ItemTypeConfig {
         return null;
     }
 
@@ -82,7 +82,7 @@ export class ItemType
     static fromHTMLElement(element: HTMLElement): ItemType {
         let typeAsString = element.getAttribute('data-' + ItemType.ATTRIBUTE_TYPE);
         if (StringHelper.isBlank(typeAsString)) {
-            let regionName = element.getAttribute('data-' + ItemType.ATTRIBUTE_REGION_NAME);
+            const regionName = element.getAttribute('data-' + ItemType.ATTRIBUTE_REGION_NAME);
             if (!StringHelper.isBlank(regionName)) {
                 typeAsString = 'region';
             }

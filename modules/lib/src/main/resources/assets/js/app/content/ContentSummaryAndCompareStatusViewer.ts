@@ -1,13 +1,13 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
-import {ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
+import {type ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
 import {ExtendedViewer} from '../view/ExtendedViewer';
 import {ProjectContext} from '../project/ProjectContext';
 import {ContentIconUrlResolver} from './ContentIconUrlResolver';
-import {ContentSummary} from './ContentSummary';
-import {ContentName} from './ContentName';
+import {type ContentSummary} from './ContentSummary';
+import {type ContentName} from './ContentName';
 import {ContentPath} from './ContentPath';
-import {Workflow} from './Workflow';
+import {type Workflow} from './Workflow';
 
 export class ContentSummaryAndCompareStatusViewer
     extends ExtendedViewer<ContentSummaryAndCompareStatus> {

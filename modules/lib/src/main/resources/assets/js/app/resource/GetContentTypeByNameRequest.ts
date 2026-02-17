@@ -1,10 +1,10 @@
 import Q from 'q';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ContentTypeCache} from '../content/ContentTypeCache';
 import {ContentTypeResourceRequest} from './ContentTypeResourceRequest';
-import {ContentType} from '../inputtype/schema/ContentType';
-import {ContentTypeJson} from './json/ContentTypeJson';
+import {type ContentType} from '../inputtype/schema/ContentType';
+import {type ContentTypeJson} from './json/ContentTypeJson';
 
 export class GetContentTypeByNameRequest
     extends ContentTypeResourceRequest<ContentType> {

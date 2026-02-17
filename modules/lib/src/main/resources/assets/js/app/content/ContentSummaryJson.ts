@@ -1,8 +1,8 @@
-import {ItemJson} from '@enonic/lib-admin-ui/item/ItemJson';
-import {ThumbnailJson} from '@enonic/lib-admin-ui/thumb/ThumbnailJson';
-import {WorkflowJson} from '@enonic/lib-admin-ui/content/json/WorkflowJson';
-import {ChildOrderJson} from '../resource/json/ChildOrderJson';
-import {ContentPublishTimeRangeJson} from '../resource/json/ContentPublishTimeRangeJson';
+import {type ItemJson} from '@enonic/lib-admin-ui/item/ItemJson';
+import {type ThumbnailJson} from '@enonic/lib-admin-ui/thumb/ThumbnailJson';
+import {type WorkflowJson} from '@enonic/lib-admin-ui/content/json/WorkflowJson';
+import {type ChildOrderJson} from '../resource/json/ChildOrderJson';
+import {type ContentPublishTimeRangeJson} from '../resource/json/ContentPublishTimeRangeJson';
 
 export interface ContentSummaryJson
     extends ItemJson {

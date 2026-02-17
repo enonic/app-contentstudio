@@ -1,5 +1,5 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Highlight} from '../types';
+import {type Highlight} from '../types';
 
 export class SearchResult {
 

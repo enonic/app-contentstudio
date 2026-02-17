@@ -1,14 +1,15 @@
 import Q from 'q';
-import {TreeGridActions} from '@enonic/lib-admin-ui/ui/treegrid/actions/TreeGridActions';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {SettingsViewItem} from '../view/SettingsViewItem';
+import {type TreeGridActions} from '@enonic/lib-admin-ui/ui/treegrid/actions/TreeGridActions';
+import {type Action} from '@enonic/lib-admin-ui/ui/Action';
+import {type SettingsViewItem} from '../view/SettingsViewItem';
 import {SettingsTreeHelper} from './SettingsTreeHelper';
 import {NewSettingsItemTreeAction} from '../browse/action/NewSettingsItemTreeAction';
-import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import {type SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {EditSettingsItemTreeAction} from '../browse/action/EditSettingsItemTreeAction';
 import {DeleteSettingsItemTreeAction} from '../browse/action/DeleteSettingsItemTreeAction';
 import {SyncTreeAction} from '../browse/action/SyncTreeAction';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
+
 export class SettingsTreeActions
     implements TreeGridActions<SettingsViewItem> {
 

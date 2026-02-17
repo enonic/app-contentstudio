@@ -1,12 +1,12 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import Q from 'q';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
+import type Q from 'q';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {type Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {WidgetsToolbar} from './WidgetsToolbar';
 
 export class WidgetsSidebar

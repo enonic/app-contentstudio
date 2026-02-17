@@ -1,6 +1,6 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {type Widget} from '@enonic/lib-admin-ui/content/Widget';
 
 export class ViewWidgetEvent
     extends Event {

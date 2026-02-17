@@ -1,5 +1,5 @@
 import {NodeServerChangeItem, NodeServerChangeItemBuilder} from '@enonic/lib-admin-ui/event/NodeServerChangeItem';
-import {NodeEventNodeJson} from '@enonic/lib-admin-ui/event/NodeServerEvent';
+import {type NodeEventNodeJson} from '@enonic/lib-admin-ui/event/NodeServerEvent';
 import {NodePath} from '@enonic/lib-admin-ui/NodePath';
 
 //TODO: should be replaced by lib class in #1221
@@ -16,11 +16,11 @@ export class PrincipalServerChangeItem
         }
 
         const fullPathWithRoot: NodePath = NodePath.create().fromString(path).build();
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+
         const pathNoRoot: NodePath = fullPathWithRoot
             .newBuilder()
             .setElements(fullPathWithRoot.getElements().slice(1))
-            .build() as NodePath;
+            .build();
 
         return pathNoRoot;
     }

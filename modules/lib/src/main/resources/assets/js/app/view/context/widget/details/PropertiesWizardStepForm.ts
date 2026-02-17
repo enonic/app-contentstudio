@@ -1,9 +1,9 @@
 import {WizardStepForm} from '@enonic/lib-admin-ui/app/wizard/WizardStepForm';
-import {ContentSummary} from '../../../../content/ContentSummary';
+import {type ContentSummary} from '../../../../content/ContentSummary';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {UpdateContentRequest} from '../../../../resource/UpdateContentRequest';
-import {UpdateContentMetadataRequest} from '../../../../resource/UpdateContentMetadataRequest';
+import {type UpdateContentRequest} from '../../../../resource/UpdateContentRequest';
+import {type UpdateContentMetadataRequest} from '../../../../resource/UpdateContentMetadataRequest';
 
 export class PropertiesWizardStepForm
     extends WizardStepForm {

@@ -1,17 +1,17 @@
-import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
+import {type ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {CompareStatus} from '../content/CompareStatus';
-import {ContentId} from '../content/ContentId';
-import {ContentName} from '../content/ContentName';
-import {ContentPath} from '../content/ContentPath';
+import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {type CompareStatus} from '../content/CompareStatus';
+import {type ContentId} from '../content/ContentId';
+import {type ContentName} from '../content/ContentName';
+import {type ContentPath} from '../content/ContentPath';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentSummaryJson} from '../content/ContentSummaryJson';
-import {ContentAvailabilityStatus} from '../inputtype/selector/ContentAvailabilityStatus';
-import {PublishStatus} from '../publish/PublishStatus';
+import {type ContentSummaryJson} from '../content/ContentSummaryJson';
+import {type ContentAvailabilityStatus} from '../inputtype/selector/ContentAvailabilityStatus';
+import {type PublishStatus} from '../publish/PublishStatus';
 
 export class ContentTreeSelectorItemJson {
 
@@ -142,7 +142,7 @@ export class ContentTreeSelectorItem
             return false;
         }
 
-        let other = o as ContentTreeSelectorItem;
+        const other = o as ContentTreeSelectorItem;
 
         if (!ObjectHelper.equals(this.content, other.content)) {
             return false;

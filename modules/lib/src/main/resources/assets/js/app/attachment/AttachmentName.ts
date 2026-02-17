@@ -1,5 +1,5 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 
 export class AttachmentName
     implements Equitable {
@@ -15,7 +15,7 @@ export class AttachmentName
             return false;
         }
 
-        let other = o as AttachmentName;
+        const other = o as AttachmentName;
 
         if (!ObjectHelper.stringEquals(this.fileName, other.fileName)) {
             return false;

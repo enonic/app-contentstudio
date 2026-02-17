@@ -1,5 +1,5 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ContentId} from '../content/ContentId';
 
 export class PageTemplateKey
@@ -25,7 +25,7 @@ export class PageTemplateKey
             return false;
         }
 
-        let other = o as PageTemplateKey;
+        const other = o as PageTemplateKey;
         return super.equals(other);
     }
 }

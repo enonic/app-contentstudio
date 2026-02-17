@@ -1,12 +1,17 @@
-import Q from 'q';
+import type Q from 'q';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {TreeListBox, TreeListBoxParams, TreeListElement, TreeListElementParams} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
+import {
+    TreeListBox,
+    type TreeListBoxParams,
+    TreeListElement,
+    type TreeListElementParams
+} from '@enonic/lib-admin-ui/ui/selector/list/TreeListBox';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
-import {ContentResponse} from '../resource/ContentResponse';
+import {type ContentResponse} from '../resource/ContentResponse';
 import {ContentPath} from '../content/ContentPath';
 import {ContentTreeGridListViewer} from './ContentTreeGridListViewer';
-import {ChildOrder} from '../resource/order/ChildOrder';
+import {type ChildOrder} from '../resource/order/ChildOrder';
 
 export class ContentsTreeGridList
     extends TreeListBox<ContentSummaryAndCompareStatus> {

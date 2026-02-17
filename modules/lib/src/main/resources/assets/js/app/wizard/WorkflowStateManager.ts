@@ -1,8 +1,8 @@
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ContentWizardPanel} from './ContentWizardPanel';
-import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentSummary} from '../content/ContentSummary';
+import {type DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {type ContentWizardPanel} from './ContentWizardPanel';
+import {type ThumbnailUploaderEl} from './ThumbnailUploaderEl';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {type ContentSummary} from '../content/ContentSummary';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export enum WorkflowStateStatus {

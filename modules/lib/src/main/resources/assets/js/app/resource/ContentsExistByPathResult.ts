@@ -1,4 +1,4 @@
-import {ContentsExistByPathJson} from './json/ContentsExistByPathJson';
+import {type ContentsExistByPathJson} from './json/ContentsExistByPathJson';
 
 export class ContentsExistByPathResult {
 

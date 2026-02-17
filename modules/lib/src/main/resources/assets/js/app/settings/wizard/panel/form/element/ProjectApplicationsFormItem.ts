@@ -1,11 +1,10 @@
 import {ProjectFormItem, ProjectFormItemBuilder} from './ProjectFormItem';
 import {ProjectApplicationsComboBox, ProjectApplicationsComboBoxWrapper} from './ProjectApplicationsComboBox';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ProjectViewItem} from '../../../../view/ProjectViewItem';
-import {ProjectApplicationsFormParams} from './ProjectApplicationsFormParams';
-import Q from 'q';
-import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
-import {ProjectApplication} from './ProjectApplication';
+import {type ProjectViewItem} from '../../../../view/ProjectViewItem';
+import {type ProjectApplicationsFormParams} from './ProjectApplicationsFormParams';
+import type Q from 'q';
+import {type ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 
 export class ProjectApplicationsFormItem
     extends ProjectFormItem {

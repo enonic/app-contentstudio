@@ -1,11 +1,11 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {ProjectDialogStep} from './ProjectDialogStep';
 import {ProjectApplicationsFormItem} from '../../../../wizard/panel/form/element/ProjectApplicationsFormItem';
-import {ProjectApplicationsComboBox} from '../../../../wizard/panel/form/element/ProjectApplicationsComboBox';
+import {type ProjectApplicationsComboBox} from '../../../../wizard/panel/form/element/ProjectApplicationsComboBox';
 import {ProjectApplicationsDialogStepData} from '../data/ProjectApplicationsDialogStepData';
 import {ProjectApplicationsFormParams} from '../../../../wizard/panel/form/element/ProjectApplicationsFormParams';
-import {Project} from '../../../../data/project/Project';
+import {type Project} from '../../../../data/project/Project';
 import Q from 'q';
 
 export class ProjectApplicationsDialogStep

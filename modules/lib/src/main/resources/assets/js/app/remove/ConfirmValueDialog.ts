@@ -1,9 +1,12 @@
-import Q from 'q';
+import type Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
-import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
-import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
+import {
+    ModalDialogWithConfirmation,
+    type ModalDialogWithConfirmationConfig
+} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
+import {type DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {TextInput, TextInputSize} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';

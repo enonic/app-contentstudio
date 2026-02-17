@@ -1,4 +1,4 @@
-import {PublishRequestItemJson} from './PublishRequestItemJson';
+import {type PublishRequestItemJson} from './PublishRequestItemJson';
 
 export interface PublishRequestJson {
 

@@ -1,11 +1,10 @@
-import {OrderChildMovements} from './order/OrderChildMovements';
-import {ReorderChildContentsJson} from './json/ReorderChildContentsJson';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {ContentId} from '../content/ContentId';
-import {ChildOrder} from './order/ChildOrder';
+import {type ChildOrder} from './order/ChildOrder';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {Content} from '../content/Content';
+import {type Content} from '../content/Content';
+import {type ContentId} from '../content/ContentId';
+import {type OrderChildMovements} from './order/OrderChildMovements';
+import {type ReorderChildContentsJson} from './json/ReorderChildContentsJson';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 
 export class OrderChildContentRequest
     extends CmsContentResourceRequest<Content> {

@@ -1,7 +1,6 @@
-import {ContentVersionPublishInfoJson} from './ContentVersionPublishInfoJson';
-import {WorkflowJson} from '@enonic/lib-admin-ui/content/json/WorkflowJson';
-import {ChildOrderJson} from './ChildOrderJson';
-import {PermissionsJson} from '../../access/PermissionsJson';
+import {type ChildOrderJson} from './ChildOrderJson';
+import {type ContentVersionPublishInfoJson} from './ContentVersionPublishInfoJson';
+import {type WorkflowJson} from '@enonic/lib-admin-ui/content/json/WorkflowJson';
 
 export interface ContentVersionJson {
 

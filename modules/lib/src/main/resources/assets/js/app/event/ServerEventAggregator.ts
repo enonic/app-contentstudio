@@ -1,7 +1,7 @@
 import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ContentServerEvent} from './ContentServerEvent';
-import {ContentServerChangeItem} from './ContentServerChangeItem';
+import {type ContentServerEvent} from './ContentServerEvent';
+import {type ContentServerChangeItem} from './ContentServerChangeItem';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type delayedFnType = (args?: any[], interrupt?: boolean) => void

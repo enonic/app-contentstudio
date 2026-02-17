@@ -1,17 +1,17 @@
 import {ContentLanguageUpdatedEvent} from '../../../../event/ContentLanguageUpdatedEvent';
 import {PropertiesWidgetItemView} from './PropertiesWidgetItemView';
 import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {PropertiesWidgetItemViewHelper} from './PropertiesWidgetItemViewHelper';
+import {type ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {type PropertiesWidgetItemViewHelper} from './PropertiesWidgetItemViewHelper';
 import {BasePropertiesWidgetItemViewHelper} from './BasePropertiesWidgetItemViewHelper';
 import {GetApplicationRequest} from '../../../../resource/GetApplicationRequest';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {Application} from '@enonic/lib-admin-ui/application/Application';
+import {type ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {type Application} from '@enonic/lib-admin-ui/application/Application';
 import Q from 'q';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {PropertiesWizardStepFormType} from './PropertiesWizardStepFormFactory';
-import {EditPropertiesDialogParams} from './EditPropertiesDialog';
-import {Content} from '../../../../content/Content';
+import {type EditPropertiesDialogParams} from './EditPropertiesDialog';
+import {type Content} from '../../../../content/Content';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 
 export class BasePropertiesWidgetItemView

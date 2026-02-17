@@ -1,11 +1,11 @@
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {DialogStep} from '@enonic/lib-admin-ui/ui/dialog/multistep/DialogStep';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {SectionEl} from '@enonic/lib-admin-ui/dom/SectionEl';
 import {DdDtEl} from '@enonic/lib-admin-ui/dom/DdDtEl';
 import {DlEl} from '@enonic/lib-admin-ui/dom/DlEl';
-import {PermissionsData} from '../PermissionsData';
-import {AccessControlEntry} from '../../../access/AccessControlEntry';
+import {type PermissionsData} from '../PermissionsData';
+import {type AccessControlEntry} from '../../../access/AccessControlEntry';
 import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
 import {AccessControlChangedItemsList} from '../AccessControlChangedItemsList';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';

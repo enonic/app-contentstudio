@@ -1,8 +1,8 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {TaskIdJson} from '@enonic/lib-admin-ui/task/TaskIdJson';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type TaskIdJson} from '@enonic/lib-admin-ui/task/TaskIdJson';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {ContentId} from '../content/ContentId';
+import {type ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class UnpublishContentRequest

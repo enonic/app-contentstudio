@@ -1,4 +1,4 @@
-import {PropertiesWizardStepForm} from './PropertiesWizardStepForm';
+import {type PropertiesWizardStepForm} from './PropertiesWizardStepForm';
 import {SettingsWizardStepForm} from './SettingsWizardStepForm';
 
 export enum PropertiesWizardStepFormType {

@@ -1,11 +1,13 @@
+import {ContentPath} from '../content/ContentPath';
+import {type ContentSummary} from '../content/ContentSummary';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
+import {type ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
 import {Message} from '@enonic/lib-admin-ui/notify/Message';
 import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {type TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ModalDialogWithConfirmation} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
@@ -13,17 +15,14 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
 import {SearchAndExpandItemEvent} from '../browse/SearchAndExpandItemEvent';
 import {ContentIds} from '../content/ContentIds';
-import {ContentPath} from '../content/ContentPath';
-import {ContentSummary} from '../content/ContentSummary';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ProgressBarManager} from '../dialog/ProgressBarManager';
-import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
+import {type ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
 import {MoveContentRequest} from '../resource/MoveContentRequest';
 import {ContentAppHelper} from '../wizard/ContentAppHelper';
 import {ContentMoveComboBox} from './ContentMoveComboBox';
 import {ContentMovePromptEvent} from './ContentMovePromptEvent';
-import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 
 export class MoveContentDialog
     extends ModalDialogWithConfirmation
@@ -158,7 +157,7 @@ export class MoveContentDialog
 
         return this.getTargetContentSite(targetContent).then((targetContentSite) => {
             const contentParentSitePromises: Q.Promise<ContentSummary>[] = [];
-            const targetContentSiteId: string = !!targetContentSite ? targetContentSite.getId() : null;
+            const targetContentSiteId: string = targetContentSite ? targetContentSite.getId() : null;
 
             for (const movedContentSummary of this.movedContentSummaries) {
                 contentParentSitePromises.push(this.getContentParentSite(movedContentSummary));

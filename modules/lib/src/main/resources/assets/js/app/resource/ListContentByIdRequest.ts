@@ -1,12 +1,12 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ContentResponse} from './ContentResponse';
-import {ListContentResult} from './ListContentResult';
+import {type ListContentResult} from './ListContentResult';
 import {ResultMetadata} from './ResultMetadata';
 import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
 import {ContentSummary} from '../content/ContentSummary';
-import {ContentId} from '../content/ContentId';
-import {ChildOrder} from './order/ChildOrder';
-import {ContentSummaryJson} from '../content/ContentSummaryJson';
+import {type ContentId} from '../content/ContentId';
+import {type ChildOrder} from './order/ChildOrder';
+import {type ContentSummaryJson} from '../content/ContentSummaryJson';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class ListContentByIdRequest
@@ -54,7 +54,7 @@ export class ListContentByIdRequest
             expand: this.expand,
             from: this.from,
             size: this.size,
-            childOrder: !!this.order ? this.order.toString() : ''
+            childOrder: this.order ? this.order.toString() : ''
         };
     }
 

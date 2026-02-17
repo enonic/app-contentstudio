@@ -1,14 +1,14 @@
-import {ContentSummary} from '../content/ContentSummary';
+import {type ContentSummary} from '../content/ContentSummary';
 import Q from 'q';
 import {GetContentTypeDescriptorsRequest} from '../resource/GetContentTypeDescriptorsRequest';
 import {ProjectHelper} from '../settings/data/project/ProjectHelper';
-import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
-import {AggregateContentTypesResult} from '../resource/AggregateContentTypesResult';
+import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {type AggregateContentTypesResult} from '../resource/AggregateContentTypesResult';
 import {AggregateContentTypesByPathRequest} from '../resource/AggregateContentTypesByPathRequest';
 import {ContentPath} from '../content/ContentPath';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ContentId} from '../content/ContentId';
-import {Project} from '../settings/data/project/Project';
+import {type ContentId} from '../content/ContentId';
+import {type Project} from '../settings/data/project/Project';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 
 export interface GetTypesParams {

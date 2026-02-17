@@ -1,4 +1,4 @@
-import {Project} from '../data/project/Project';
+import {type Project} from '../data/project/Project';
 import {Projects} from './Projects';
 
 export class ProjectsUtil {

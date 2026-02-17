@@ -1,10 +1,10 @@
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
+import {type ProjectReadAccess} from '../data/project/ProjectReadAccess';
 import {ProjectResourceRequest} from './ProjectResourceRequest';
-import {TaskIdJson} from '@enonic/lib-admin-ui/task/TaskIdJson';
+import {type TaskIdJson} from '@enonic/lib-admin-ui/task/TaskIdJson';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {ProjectReadAccessJson} from './json/ProjectReadAccessJson';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type ProjectReadAccessJson} from './json/ProjectReadAccessJson';
 
 export class UpdateProjectReadAccessRequest
     extends ProjectResourceRequest<TaskId> {

@@ -1,7 +1,7 @@
-import {ContentListBox, ContentListBoxOptions} from './ContentListBox';
+import {ContentListBox, type ContentListBoxOptions} from './ContentListBox';
 import {ImageSelectorViewer} from '../ui/selector/image/ImageSelectorViewer';
-import {MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem';
-import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {type MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem';
+import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 
 export class ImageContentListBox extends ContentListBox<MediaTreeSelectorItem> {
 

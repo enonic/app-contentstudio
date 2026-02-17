@@ -1,7 +1,7 @@
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import Q from 'q';
-import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import type Q from 'q';
+import {type ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {ProgressBar} from '@enonic/lib-admin-ui/ui/ProgressBar';
 import {DateTimeFormatter} from '@enonic/lib-admin-ui/ui/treegrid/DateTimeFormatter';

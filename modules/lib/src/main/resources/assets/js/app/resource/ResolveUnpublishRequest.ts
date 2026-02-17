@@ -1,10 +1,9 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {ContentIdBaseItemJson} from './json/ContentIdBaseItemJson';
+import {type ContentId} from '../content/ContentId';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ContentWithRefsResult} from './ContentWithRefsResult';
-import {ContentWithRefsResultJson} from './json/ContentWithRefsResultJson';
+import {type ContentWithRefsResultJson} from './json/ContentWithRefsResultJson';
 
 export class ResolveUnpublishRequest
     extends CmsContentResourceRequest<ContentWithRefsResult> {

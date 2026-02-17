@@ -1,5 +1,5 @@
-import {AppContainer} from './AppContainer';
-import {DescriptorKey} from './page/DescriptorKey';
+import {type AppContainer} from './AppContainer';
+import {type DescriptorKey} from './page/DescriptorKey';
 
 export abstract class App {
 

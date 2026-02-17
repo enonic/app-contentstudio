@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/consistent-type-definitions */
 export const COLLAB_MESSAGE_BASE = 'com.enonic.app.contentstudio.collaboration';
 
 export const IN_BASE = `${COLLAB_MESSAGE_BASE}.in`;
@@ -19,10 +18,10 @@ export enum MessageType {
 
 export type InMessageType = MessageType.JOIN | MessageType.LEAVE;
 
-type BaseInMessage<T extends InMessageType, P = unknown> = {
+interface BaseInMessage<T extends InMessageType, P = unknown> {
     type: T;
     payload: P;
-};
+}
 
 export type InMessage = JoinMessage | LeaveMessage;
 
@@ -32,10 +31,10 @@ export type InMessage = JoinMessage | LeaveMessage;
 
 export type OutMessageType = MessageType.UPDATED;
 
-type BaseOutMessage<T extends OutMessageType, P = unknown> = {
+interface BaseOutMessage<T extends OutMessageType, P = unknown> {
     type: T;
     payload: P;
-};
+}
 
 export type OutMessage = UpdatedMessage;
 

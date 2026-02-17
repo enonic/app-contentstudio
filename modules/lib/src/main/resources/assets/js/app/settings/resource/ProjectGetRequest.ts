@@ -1,7 +1,7 @@
 import {ProjectResourceRequest} from './ProjectResourceRequest';
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {Project} from '../data/project/Project';
-import {ProjectJson} from './json/ProjectJson';
+import {type ProjectJson} from './json/ProjectJson';
 
 export class ProjectGetRequest
     extends ProjectResourceRequest<Project> {

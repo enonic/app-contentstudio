@@ -1,8 +1,8 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {ListIssueCommentsResult} from './ListIssueCommentsResult';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type ListIssueCommentsResult} from './ListIssueCommentsResult';
 import {ListIssueCommentsResponse} from './ListIssueCommentsResponse';
 import {IssueComment} from '../IssueComment';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';
 import {ResultMetadata} from '../../resource/ResultMetadata';

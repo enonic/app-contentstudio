@@ -1,9 +1,9 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {PageTemplateResourceRequest} from '../../resource/PageTemplateResourceRequest';
-import {PageTemplate} from '../../content/PageTemplate';
-import {ContentJson} from '../../content/ContentJson';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ContentId} from '../../content/ContentId';
+import {type PageTemplate} from '../../content/PageTemplate';
+import {type ContentJson} from '../../content/ContentJson';
+import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {type ContentId} from '../../content/ContentId';
 
 export class GetDefaultPageTemplateRequest
     extends PageTemplateResourceRequest<PageTemplate> {

@@ -1,15 +1,15 @@
-import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {PageCUDRequest} from './PageCUDRequest';
+import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {type PageCUDRequest} from './PageCUDRequest';
 import {PageResourceRequest} from './PageResourceRequest';
-import {Content} from '../content/Content';
-import {ContentJson} from '../content/ContentJson';
-import {PageTemplateKey} from '../page/PageTemplateKey';
-import {Regions} from '../page/region/Regions';
-import {Component} from '../page/region/Component';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {type Content} from '../content/Content';
+import {type ContentJson} from '../content/ContentJson';
+import {type PageTemplateKey} from '../page/PageTemplateKey';
+import {type Regions} from '../page/region/Regions';
+import {type Component} from '../page/region/Component';
+import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {DescriptorKey} from '../page/DescriptorKey';
-import {ContentId} from '../content/ContentId';
+import {type DescriptorKey} from '../page/DescriptorKey';
+import {type ContentId} from '../content/ContentId';
 
 export class UpdatePageRequest extends PageResourceRequest<Content> implements PageCUDRequest {
 
