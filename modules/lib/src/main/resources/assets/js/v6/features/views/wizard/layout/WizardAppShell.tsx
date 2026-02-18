@@ -3,25 +3,27 @@ import {CompareVersionsDialog} from '../../../shared/dialogs/compare-versions/Co
 import {DeleteDialog} from '../../../shared/dialogs/delete/DeleteDialog';
 import {DuplicateDialog} from '../../../shared/dialogs/duplicate/DuplicateDialog';
 import {IssueDialog} from '../../../shared/dialogs/issue/IssueDialog';
-import {NewIssueDialog} from '../../../shared/dialogs/new-issue/NewIssueDialog';
 import {MoveDialog} from '../../../shared/dialogs/move/MoveDialog';
+import {NewIssueDialog} from '../../../shared/dialogs/new-issue/NewIssueDialog';
 import {PublishDialog} from '../../../shared/dialogs/publish/PublishDialog';
 import {RequestPublishDialog} from '../../../shared/dialogs/requestPublish/RequestPublishDialog';
+import {SortDialog} from '../../../shared/dialogs/sort-dialog/SortDialog';
 import {UnpublishDialog} from '../../../shared/dialogs/unpublish/UnpublishDialog';
 
 export const WizardAppShell = (): ReactElement => {
     return (
         <>
             {/* Shared dialogs */}
+            <CompareVersionsDialog />
+            <DeleteDialog />
+            <DuplicateDialog />
+            <IssueDialog />
+            <MoveDialog />
+            <NewIssueDialog />
             <PublishDialog />
             <RequestPublishDialog />
             <UnpublishDialog />
-            <DeleteDialog />
-            <DuplicateDialog />
-            <MoveDialog />
-            <IssueDialog />
-            <NewIssueDialog />
-            <CompareVersionsDialog />
+            <SortDialog />
         </>
     );
 };

@@ -1,8 +1,8 @@
-import {Combobox, Listbox, cn, Avatar} from '@enonic/ui';
+import {Avatar, Combobox, Listbox, cn} from '@enonic/ui';
 import {useEffect, useMemo, useState, type ReactElement} from 'react';
-import {createDebounce} from '../../utils/timing/createDebounce';
-import {buildKey} from '../../utils/format/keys';
 import {getInitials} from '../../utils/format/initials';
+import {buildKey} from '../../utils/format/keys';
+import {createDebounce} from '../../utils/timing/createDebounce';
 
 export type OwnerSelectorOption = {
     id: string;
@@ -39,7 +39,7 @@ const matchesQuery = (option: OwnerSelectorOption, normalizedQuery: string): boo
     }
 
     return option.label.toLowerCase().includes(normalizedQuery) ||
-           option.description?.toLowerCase().includes(normalizedQuery) === true;
+        option.description?.toLowerCase().includes(normalizedQuery) === true;
 };
 
 export const OwnerSelector = ({
@@ -143,7 +143,7 @@ export const OwnerSelector = ({
         <div
             data-component={OWNER_SELECTOR_NAME}
             className={cn('flex flex-col gap-2.5', className)}>
-            <span className='text-md font-semibold text-subtle'>{label}</span>
+            <span className='font-semibold'>{label}</span>
             <Combobox.Root
                 open={open}
                 onOpenChange={handleOpenChange}
