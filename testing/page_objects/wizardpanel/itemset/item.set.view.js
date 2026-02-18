@@ -13,7 +13,7 @@ const xpath = {
     typeTextInHtmlArea: (id, text) => {
         return `CKEDITOR.instances['${id}'].setData('${text}')`;
     },
-    occurrenceByText: (text) => `//div[contains(@id,'FormOccurrenceDraggableLabel') and contains(.,'${text}')]`
+    occurrenceByText: (text) => `//div[contains(@id,'FormOccurrenceDraggableLabel') and contains(.,'${text}')]//div[contains(@class, 'drag-control')]`
 };
 
 class ItemSetFormView extends Page {
@@ -165,8 +165,8 @@ class ItemSetFormView extends Page {
 
     async swapItems(sourceName, destinationName) {
         try {
-            let sourceElem = xpath.occurrenceByText(sourceName) + "/preceding-sibling::div[contains(@class,'drag-control')][1]";
-            let destinationElem = xpath.occurrenceByText(destinationName) + "/preceding-sibling::div[contains(@class,'drag-control')][1]";
+            let sourceElem = xpath.occurrenceByText(sourceName);
+            let destinationElem = xpath.occurrenceByText(destinationName);
             let source = await this.findElement(sourceElem);
             let destination = await this.findElement(destinationElem);
             await source.dragAndDrop(destination);
