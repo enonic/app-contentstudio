@@ -27,7 +27,7 @@ import {
     setPublishSchedule,
 } from '../../../store/dialogs/publishDialog.store';
 import {ContentRow} from '../../lists';
-import {SplitList} from '../../lists/split-list';
+import {SplitList} from '../../lists';
 import {SelectionStatusBar} from '../status-bar/SelectionStatusBar';
 import {PublishScheduleForm} from './PublishScheduleForm';
 

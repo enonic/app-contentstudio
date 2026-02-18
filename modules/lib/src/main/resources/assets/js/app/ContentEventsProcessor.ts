@@ -1,4 +1,3 @@
-import {OpenSortDialogEvent} from './browse/OpenSortDialogEvent';
 import {ShowDependenciesEvent} from './browse/ShowDependenciesEvent';
 import {SortContentEvent} from './browse/sort/SortContentEvent';
 import {ContentSummary} from './content/ContentSummary';
@@ -6,6 +5,7 @@ import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompare
 import {NewContentEvent} from './create/NewContentEvent';
 import {ContentUpdatedEvent} from './event/ContentUpdatedEvent';
 import {EditContentEvent} from './event/EditContentEvent';
+import {openSortDialog} from '../v6/features/store/dialogs/sortDialog.store';
 import {ContentUrlHelper} from './util/ContentUrlHelper';
 import {ContentCreateParams} from './wizard/ContentCreateParams';
 import {ContentEditParams} from './wizard/ContentEditParams';
@@ -44,7 +44,11 @@ export class ContentEventsProcessor {
 
     static handleSort(event: SortContentEvent): void {
         const contents: ContentSummaryAndCompareStatus[] = event.getModels();
-        new OpenSortDialogEvent(contents[0]).fire();
+        const firstContent = contents[0];
+        if (!firstContent) {
+            return;
+        }
+        openSortDialog(firstContent);
     }
 
     static handleShowDependencies(event: ShowDependenciesEvent): void {

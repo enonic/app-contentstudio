@@ -6,6 +6,7 @@ export {
     type ContentRowStatusProps,
     type ContentRowCellProps,
 } from './content-row';
+export {SortableList, type SortableListProps, type SortableListItemInteractionProps, type SortableListItemRenderContext} from './SortableList';
 export {SplitList} from './split-list';
 export type {
     SplitListPrimaryProps,
