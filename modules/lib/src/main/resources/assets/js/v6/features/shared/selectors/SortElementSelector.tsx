@@ -81,7 +81,7 @@ export const SortElementSelector = ({
                 >
                     <Selector.Viewport className='max-h-none overflow-visible p-1 flex flex-col items-start gap-1'>
                         {mappedOptions.length === 0 && emptyLabel ? (
-                            <div className='w-full px-[18px] py-1 text-sm text-subtle'>{emptyLabel}</div>
+                            <div className='w-full px-4 py-1 text-sm text-subtle'>{emptyLabel}</div>
                         ) : (
                             mappedOptions.map((option) => (
                                 <Selector.Item
@@ -89,9 +89,9 @@ export const SortElementSelector = ({
                                     value={option.internalValue}
                                     textValue={option.label}
                                     disabled={option.disabled}
-                                    className='flex h-[30px] w-full shrink-0 items-center gap-2.5 self-stretch px-[18px] py-1'
+                                    className='flex w-full shrink-0 items-center gap-2.5 self-stretch px-4 py-1'
                                 >
-                                    <Selector.ItemText className='[font-family:Open_Sans] text-[16px] not-italic font-semibold leading-[22px] group-data-[tone=inverse]:text-alt'>
+                                    <Selector.ItemText className='text-md font-semibold leading-5.5 group-data-[tone=inverse]:text-alt'>
                                         {option.label}
                                     </Selector.ItemText>
                                 </Selector.Item>

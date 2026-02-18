@@ -10,32 +10,25 @@ import {ChildOrder} from '../../../../app/resource/order/ChildOrder';
 import {OrderChildMovement} from '../../../../app/resource/order/OrderChildMovement';
 import {OrderChildMovements} from '../../../../app/resource/order/OrderChildMovements';
 import {FieldOrderExprBuilder} from '../../../../app/resource/order/FieldOrderExpr';
-import {ContentId} from '../../../../app/content/ContentId';
-
-export type SortElementId = 'modified' | 'created' | 'displayName' | 'publish' | 'manual';
-export type SortDirection = 'ASC' | 'DESC';
-export type SortOrderOptionId =
-    | 'modified:ASC'
-    | 'modified:DESC'
-    | 'created:ASC'
-    | 'created:DESC'
-    | 'displayName:ASC'
-    | 'displayName:DESC'
-    | 'publish:ASC'
-    | 'publish:DESC'
-    | 'manual';
+import type {
+    SortDirection,
+    SortElementId,
+    SortManualMovement,
+    SortOrderOption,
+    SortOrderOptionId,
+} from './sortDialog.types';
 
 type SortDialogStore = {
     open: boolean;
     loading: boolean;
     submitting: boolean;
     failed: boolean;
-    parent: ContentSummaryAndCompareStatus | null;
+    parent: ContentSummaryAndCompareStatus | undefined;
     items: ContentSummaryAndCompareStatus[];
     selectedOptionId: SortOrderOptionId;
     initialOptionId: SortOrderOptionId;
     hasManualChanges: boolean;
-    manualMovements: {contentId: ContentId; moveBefore?: ContentId}[];
+    manualMovements: SortManualMovement[];
 };
 
 const DEFAULT_SORT_OPTION_ID: SortOrderOptionId = 'modified:DESC';
@@ -45,7 +38,7 @@ const initialState: SortDialogStore = {
     loading: false,
     submitting: false,
     failed: false,
-    parent: null,
+    parent: undefined,
     items: [],
     selectedOptionId: DEFAULT_SORT_OPTION_ID,
     initialOptionId: DEFAULT_SORT_OPTION_ID,
@@ -53,7 +46,7 @@ const initialState: SortDialogStore = {
     manualMovements: [],
 };
 
-const SORT_OPTION_MAP: Record<SortOrderOptionId, {element: SortElementId; direction: SortDirection}> = {
+const SORT_OPTION_MAP: Record<SortOrderOptionId, SortOrderOption> = {
     'modified:ASC': {element: 'modified', direction: 'ASC'},
     'modified:DESC': {element: 'modified', direction: 'DESC'},
     'created:ASC': {element: 'created', direction: 'ASC'},
@@ -95,7 +88,7 @@ const createManualMovement = (
     items: readonly ContentSummaryAndCompareStatus[],
     fromIndex: number,
     toIndex: number
-): {contentId: ContentId; moveBefore?: ContentId} => {
+): SortManualMovement => {
     const movedItem = items[fromIndex];
     const moveBeforeItem = items[toIndex > fromIndex ? toIndex + 1 : toIndex];
 
@@ -105,7 +98,7 @@ const createManualMovement = (
     };
 };
 
-const toOrderChildMovements = (movements: {contentId: ContentId; moveBefore?: ContentId}[]): OrderChildMovements => {
+const toOrderChildMovements = (movements: SortManualMovement[]): OrderChildMovements => {
     const result = new OrderChildMovements();
     movements.forEach(({contentId, moveBefore}) => {
         result.addChildMovement(new OrderChildMovement(contentId, moveBefore));

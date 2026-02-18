@@ -3,6 +3,7 @@ import {useStore} from '@nanostores/preact';
 import {type ReactElement} from 'react';
 import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {useI18n} from '../../../hooks/useI18n';
+import type {SortOrderOptionId} from '../../../store/dialogs/sortDialog.types';
 import {
     $isSortDialogReady,
     $sortDialog,
@@ -10,7 +11,6 @@ import {
     startSortDialogManualReorder,
     setSortDialogOrderSelection,
     submitSortDialogAction,
-    type SortOrderOptionId,
 } from '../../../store/dialogs/sortDialog.store';
 import {SortContentListItem} from '../../items';
 import {SortableList} from '../../lists';
@@ -26,6 +26,7 @@ export const SortDialogMainContent = (): ReactElement => {
 
     const title = useI18n('dialog.sort');
     const sortElementLabel = useI18n('field.sortElement');
+    const sortElementEmptyLabel = useI18n('field.sortElement.missing');
     const ascendingLabel = useI18n('field.sortType.ascending');
     const descendingLabel = useI18n('field.sortType.descending');
     const alphabeticalAscendingLabel = useI18n('field.sortType.alphabetical.ascending');
@@ -56,6 +57,7 @@ export const SortDialogMainContent = (): ReactElement => {
             <Dialog.DefaultHeader title={title} withClose >
                 <SortElementSelector
                     label={sortElementLabel}
+                    emptyLabel={sortElementEmptyLabel}
                     options={sortElementOptions}
                     selection={[selectedOptionId]}
                     onSelectionChange={setSortDialogOrderSelection}

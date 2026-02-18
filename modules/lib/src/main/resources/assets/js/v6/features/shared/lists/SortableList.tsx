@@ -40,8 +40,8 @@ export type SortableListProps<Item> = {
     onDragIntent?: () => void;
     onReorder: (fromIndex: number, toIndex: number) => void;
     getItemAriaLabel?: (item: Item, index: number) => string;
-    className?: string;
     renderItem: (item: Item, context: SortableListItemRenderContext) => ReactNode;
+    className?: string;
 };
 
 const SORTABLE_LIST_NAME = 'SortableList';
@@ -56,10 +56,10 @@ export const SortableList = <Item,>({
     renderItem,
 }: SortableListProps<Item>): ReactNode => {
     const [focusedItemIndex, setFocusedItemIndex] = useState(0);
-    const [pickedItemIndex, setPickedItemIndex] = useState<number | null>(null);
+    const [pickedItemIndex, setPickedItemIndex] = useState<number | undefined>(undefined);
     const [isListFocused, setIsListFocused] = useState(false);
 
-    const listRef = useRef<HTMLUListElement>(null);
+    const listRef = useRef<HTMLUListElement | null>(null);
     const dragSourceIndexRef = useRef<number | null>(null);
     const focusedItemIndexRef = useRef(0);
     const pickedItemIndexRef = useRef<number | null>(null);
@@ -71,8 +71,8 @@ export const SortableList = <Item,>({
         setFocusedItemIndex(index);
     };
 
-    const setPickedIndex = (index: number | null): void => {
-        pickedItemIndexRef.current = index;
+    const setPickedIndex = (index: number | undefined): void => {
+        pickedItemIndexRef.current = index ?? null;
         setPickedItemIndex(index);
     };
 
@@ -103,7 +103,7 @@ export const SortableList = <Item,>({
     useEffect(() => {
         if (items.length === 0) {
             setFocusedIndex(0);
-            setPickedIndex(null);
+            setPickedIndex(undefined);
             return;
         }
 
@@ -113,7 +113,7 @@ export const SortableList = <Item,>({
         }
 
         const nextPickedIndex = pickedItemIndexRef.current === null
-            ? null
+            ? undefined
             : Math.min(pickedItemIndexRef.current, items.length - 1);
         if (nextPickedIndex !== pickedItemIndexRef.current) {
             setPickedIndex(nextPickedIndex);
@@ -122,7 +122,7 @@ export const SortableList = <Item,>({
 
     useEffect(() => {
         if (!enabled) {
-            setPickedIndex(null);
+            setPickedIndex(undefined);
         }
     }, [enabled]);
 
@@ -202,7 +202,7 @@ export const SortableList = <Item,>({
         }
 
         setFocusedIndex(index);
-        setPickedIndex(pickedItemIndexRef.current === index ? null : index);
+        setPickedIndex(pickedItemIndexRef.current === index ? undefined : index);
         focusItemByIndex(index);
     };
 
@@ -244,13 +244,13 @@ export const SortableList = <Item,>({
 
         if (event.key === ' ' || event.key === 'Spacebar') {
             event.preventDefault();
-            setPickedIndex(pickedIndex === index ? null : index);
+            setPickedIndex(pickedIndex === index ? undefined : index);
             return;
         }
 
         if (event.key === 'Escape') {
             event.preventDefault();
-            setPickedIndex(null);
+            setPickedIndex(undefined);
         }
     };
 
