@@ -1,4 +1,4 @@
-import {Combobox, VirtualizedTreeList, cn} from '@enonic/ui';
+import {cn, Combobox, VirtualizedTreeList} from '@enonic/ui';
 import {forwardRef, Fragment, ReactNode, useEffect, useMemo, useRef, useState, type HTMLAttributes, type ReactElement} from 'react';
 import type {VirtuosoHandle} from 'react-virtuoso';
 import {Virtuoso} from 'react-virtuoso';
@@ -190,7 +190,7 @@ export const LanguageSelector = ({
 
     return (
         <div data-component={LANGUAGE_SELECTOR_NAME} className={cn('flex flex-col gap-2.5', className)}>
-            {label && <span className="text-md font-semibold text-subtle">{label}</span>}
+            {label && <span className='font-semibold'>{label}</span>}
             <Combobox.Root
                 open={open}
                 onOpenChange={handleOpenChange}

@@ -108,7 +108,7 @@ export const IssueDialogListContent = (): ReactElement => {
             data-component={ISSUE_DIALOG_LIST_CONTENT_NAME}
             className='sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 gap-7.5 px-5'
         >
-            <Dialog.DefaultHeader className='px-5' title={title} withClose/>
+            <Dialog.DefaultHeader className='px-5' title={title} withClose />
             <Dialog.Body>
                 <Tab.Root
                     value={tab}
@@ -121,7 +121,7 @@ export const IssueDialogListContent = (): ReactElement => {
                 >
                     <div className='grid min-h-0 grid-cols-2 gap-x-15 gap-y-7.5 items-end px-2.5'>
                         <div className='flex flex-col gap-2.5 px-2.5'>
-                            <span className='text-md font-semibold text-subtle'>{filterLabel}</span>
+                            <span className='font-semibold'>{filterLabel}</span>
                             <IssueDialogSelector
                                 value={filter}
                                 options={filterOptions}
