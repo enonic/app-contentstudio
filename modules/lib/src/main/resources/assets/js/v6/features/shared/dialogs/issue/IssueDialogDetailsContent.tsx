@@ -249,7 +249,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const publishLabel = publishCount > 1 ? publishLabelMultiple : publishLabelSingle;
     const commentCount = comments.length;
     const assigneeCount = issueData?.getApprovers().length ?? 0;
-    const itemsCount = items.length + dependants.length;
+    const itemsCount = items.length + dependants.length - excludedDependantIds.length;
     const tabs = isPublishRequest
         ? [
             {value: 'items', label: publishRequestLabel, count: itemsCount},
