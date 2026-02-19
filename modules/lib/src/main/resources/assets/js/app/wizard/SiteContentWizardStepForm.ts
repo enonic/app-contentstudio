@@ -5,12 +5,8 @@ import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PropertyValueChangedEvent} from '@enonic/lib-admin-ui/data/PropertyValueChangedEvent';
 import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
-import {type Input, InputBuilder} from '@enonic/lib-admin-ui/form/Input';
-import {TextLine} from '@enonic/lib-admin-ui/form/inputtype/text/TextLine';
-import {OccurrencesBuilder} from '@enonic/lib-admin-ui/form/Occurrences';
+import {type Form} from '@enonic/lib-admin-ui/form/Form';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import type Q from 'q';
 import {type ContentFormContext} from '../ContentFormContext';
@@ -20,7 +16,7 @@ import {ContentWizardStepForm} from './ContentWizardStepForm';
 export class SiteContentWizardStepForm
     extends ContentWizardStepForm {
 
-    private static BASE_URL_INPUT_PROP = 'portalBaseUrl';
+    private static BASE_URL_INPUT_PROP = 'baseUrl';
 
     private readonly dataChangeListener: () => void;
 
@@ -35,7 +31,7 @@ export class SiteContentWizardStepForm
     }
 
     layout(formContext: ContentFormContext, data: PropertyTree, form: Form): Q.Promise<void> {
-        return super.layout(formContext, data, this.createFormWithBaseUrl(form)).then(() => {
+        return super.layout(formContext, data, form).then(() => {
             const baseUrl = this.getBaseUrlValue();
 
             if (!StringHelper.isBlank(baseUrl)) { // Setting baseUrl input value from the site config
@@ -108,19 +104,6 @@ export class SiteContentWizardStepForm
 
     private isBaseUrlInputPath(path: PropertyPath): boolean {
         return path.toString() === `.${SiteContentWizardStepForm.BASE_URL_INPUT_PROP}`;
-    }
-
-    private createFormWithBaseUrl(siteForm: Form): Form { // Inserting baseUrl input between Description and Site Configurator
-        const formBuilder = new FormBuilder().addFormItems(
-            [siteForm.getFormItems()[0], this.createBaseUrlFormItem(), ...siteForm.getFormItems().slice(1)]);
-
-        return new Form(formBuilder);
-    }
-
-    private createBaseUrlFormItem(): Input {
-        return new InputBuilder().setName(SiteContentWizardStepForm.BASE_URL_INPUT_PROP).setInputType(TextLine.getName()).setLabel(
-            i18n('field.baseUrl')).setHelpText(i18n('field.baseUrl.help')).setOccurrences(
-            new OccurrencesBuilder().setMinimum(0).setMaximum(1).build()).build();
     }
 
     private getBaseUrlValue(): string {

@@ -3,9 +3,9 @@ import {useStore} from '@nanostores/preact';
 import {ReactElement} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {
+    $hasPage,
     $contentTypeDisplayName,
     $mixinsTabs,
-    $persistedHasPage,
 } from '../../../store/wizardContent.store';
 import {ContentDataView} from './ContentDataView';
 import {PageView} from './PageView';
@@ -17,12 +17,12 @@ type Props = {
 
 export const ContentWizardTabs = ({tabListAction}: Props): ReactElement => {
     const contentTypeDisplayName = useStore($contentTypeDisplayName);
-    const hasPage = useStore($persistedHasPage);
+    const hasPage = useStore($hasPage);
     const xDataTabs = useStore($mixinsTabs);
     const pageTabLabel = useI18n('field.page');
 
     return (
-        <Tab.Root defaultValue="content" className="flex flex-col gap-3 p-5">
+        <Tab.Root defaultValue="content" className="flex flex-col gap-7.5">
             <div className="flex items-center gap-2">
             <Tab.List>
                 <Tab.DefaultTrigger value="content">{contentTypeDisplayName}</Tab.DefaultTrigger>
@@ -48,7 +48,7 @@ export const ContentWizardTabs = ({tabListAction}: Props): ReactElement => {
 
             {xDataTabs.map((tab) => (
                 <Tab.Content key={tab.name} value={tab.name}>
-                    <MixinView displayName={tab.displayName} />
+                    <MixinView mixinName={tab.name} displayName={tab.displayName} />
                 </Tab.Content>
             ))}
         </Tab.Root>

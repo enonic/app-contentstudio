@@ -137,6 +137,7 @@ import {PersistNewContentRoutine} from './PersistNewContentRoutine';
 import {SiteContentWizardStepForm} from './SiteContentWizardStepForm';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
 import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
+import {UpdatePersistedContentWithStoreRoutine} from './UpdatePersistedContentWithStoreRoutine';
 import {WorkflowStateManager, type WorkflowStateStatus} from './WorkflowStateManager';
 import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
@@ -144,7 +145,19 @@ import {XDataWizardStepForms} from './XDataWizardStepForms';
 import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
 import {type PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
 import {ContentWizardTabsToolbarElement} from '../../v6/features/views/wizard/content-wizard-tabs/ContentWizardTabsToolbarElement';
-import {setPersistedContent, setContentType, setMixinsDescriptors} from '../../v6/features/store/wizardContent.store';
+import {
+    $displayName,
+    $wizardHasChanges,
+    initializeWizardContentState,
+    resetWizardContent,
+    setContentType as setWizardContentType,
+    setDraftDisplayName,
+    setDraftName,
+    setDraftPage,
+    setDraftWorkflowState,
+    setMixinsDescriptors as setWizardMixinsDescriptors,
+    setPersistedContent as setWizardPersistedContent,
+} from '../../v6/features/store/wizardContent.store';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -268,6 +281,10 @@ export class ContentWizardPanel
     private isRename: boolean;
 
     private contentWizardTabsElement: ContentWizardTabsToolbarElement;
+
+    private wizardDisplayNameUnsubscribe?: () => void;
+
+    private wizardHasChangesUnsubscribe?: () => void;
 
     constructor(params: ContentWizardPanelParams, cls?: string) {
         super(params);
@@ -438,7 +455,10 @@ export class ContentWizardPanel
         this.getWizardHeader().onPropertyChanged(this.dataChangedHandler);
         this.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
             if (event.getPropertyName() === 'displayName') {
+                setDraftDisplayName(this.getWizardHeader().getDisplayName());
                 this.debouncedEnonicAiDataChangedHandler();
+            } else if (event.getPropertyName() === 'name') {
+                setDraftName(this.resolveContentNameForUpdateRequest());
             }
         });
 
@@ -535,7 +555,7 @@ export class ContentWizardPanel
 
     fetchContentXData(): Q.Promise<MixinDescriptor[]> {
         return new GetContentMixinsRequest(this.getPersistedItem().getContentId()).sendAndParse().then((mixinsDescriptors) => {
-            setMixinsDescriptors(mixinsDescriptors.slice());
+            setWizardMixinsDescriptors(mixinsDescriptors.slice());
             return mixinsDescriptors;
         });
     }
@@ -798,6 +818,11 @@ export class ContentWizardPanel
 
             this.onRemoved(() => {
                 ResponsiveManager.unAvailableSizeChanged(this);
+                this.wizardDisplayNameUnsubscribe?.();
+                this.wizardDisplayNameUnsubscribe = undefined;
+                this.wizardHasChangesUnsubscribe?.();
+                this.wizardHasChangesUnsubscribe = undefined;
+                resetWizardContent();
             });
 
             const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
@@ -848,14 +873,41 @@ export class ContentWizardPanel
     }
 
     protected prepareMainPanel(): Panel {
-        this.formPanel.addClass('content-wizard-form-panel');
+        this.formPanel.addClass('content-wizard-form-panel px-5 py-3');
 
-        if (this.contentType) {
-            setContentType(this.contentType);
-        }
         if (this.getPersistedItem()) {
-            setPersistedContent(this.getPersistedItem());
+            initializeWizardContentState(
+                this.getPersistedItem(),
+                this.contentType ?? null,
+                [],
+                this.markedAsReady ? WorkflowState.READY : this.getPersistedItem().getWorkflow()?.getState() ?? null,
+            );
+        } else if (this.contentType) {
+            setWizardContentType(this.contentType);
         }
+
+        if (!this.wizardHasChangesUnsubscribe) {
+            this.wizardHasChangesUnsubscribe = $wizardHasChanges.subscribe((hasChanges, previousHasChanges) => {
+                if (previousHasChanges === undefined || hasChanges === previousHasChanges) {
+                    return;
+                }
+
+                this.notifyDataChanged();
+            });
+        }
+
+        if (!this.wizardDisplayNameUnsubscribe) {
+            this.wizardDisplayNameUnsubscribe = $displayName.subscribe((displayName, previousDisplayName) => {
+                if (previousDisplayName === undefined || displayName === previousDisplayName) {
+                    return;
+                }
+
+                if (this.getWizardHeader().getDisplayName() !== displayName) {
+                    this.getWizardHeader().setDisplayName(displayName);
+                }
+            });
+        }
+
         this.contentWizardTabsElement = new ContentWizardTabsToolbarElement();
         this.formPanel.prependChild(this.contentWizardTabsElement);
 
@@ -2104,10 +2156,17 @@ export class ContentWizardPanel
 
     updatePersistedItem(): Q.Promise<Content> {
         const persistedContent: Content = this.getPersistedItem();
-        const viewedContent: Content = this.assembleViewedContent(persistedContent.newBuilder(), true, this.isRename).build();
         const isInherited: boolean = persistedContent.isDataInherited();
+        const hasStoreChanges = $wizardHasChanges.get();
+        const updateContentRoutine = hasStoreChanges
+            ? new UpdatePersistedContentWithStoreRoutine(this, persistedContent)
+            : new UpdatePersistedContentRoutine(
+                this,
+                persistedContent,
+                this.assembleViewedContent(persistedContent.newBuilder(), true, this.isRename).build(),
+            );
 
-        const updateContentRoutine: UpdatePersistedContentRoutine = new UpdatePersistedContentRoutine(this, persistedContent, viewedContent)
+        updateContentRoutine
             .setRequireValid(this.requireValid)
             .setWorkflowState(this.markedAsReady ? WorkflowState.READY : WorkflowState.IN_PROGRESS);
 
@@ -2189,7 +2248,7 @@ export class ContentWizardPanel
             return true;
         }
 
-        return this.hasContentChanged();
+        return this.hasContentChanged() || $wizardHasChanges.get();
     }
 
     private enableDisplayNameScriptExecution(formView: FormView) {
@@ -2291,6 +2350,7 @@ export class ContentWizardPanel
 
     setMarkedAsReady(value: boolean) {
         this.markedAsReady = value;
+        setDraftWorkflowState(value ? WorkflowState.READY : WorkflowState.IN_PROGRESS);
     }
 
     isMarkedAsReady(): boolean {
@@ -2527,9 +2587,7 @@ export class ContentWizardPanel
     }
 
     private updateTabsElement(): void {
-        if (this.getPersistedItem()) {
-            setPersistedContent(this.getPersistedItem());
-        }
+        setDraftPage(PageState.getState());
     }
 
     onPageStateChanged(listener: () => void) {
@@ -2566,6 +2624,8 @@ export class ContentWizardPanel
 
     protected setPersistedItem(newPersistedItem: Content): void {
         super.setPersistedItem(newPersistedItem);
+
+        setWizardPersistedContent(newPersistedItem);
 
         this.wizardHeader?.setPersistedPath(newPersistedItem);
         AI.get().setContent(newPersistedItem);
