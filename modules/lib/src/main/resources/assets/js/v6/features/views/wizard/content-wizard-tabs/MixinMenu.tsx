@@ -4,9 +4,9 @@ import {Ellipsis, Square} from 'lucide-react';
 import {ReactElement, useCallback, useEffect, useRef, useState} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {
-    $persistedHasPage,
+    $hasPage,
     $mixinsMenuItems,
-    toggleMixin,
+    setDraftMixinEnabled,
 } from '../../../store/wizardContent.store';
 
 type ConfirmMenuItemProps = {
@@ -50,7 +50,7 @@ const ConfirmMenuItem = ({disabled, onConfirm}: ConfirmMenuItemProps): ReactElem
 };
 
 export const MixinMenu = (): ReactElement => {
-    const hasPage = useStore($persistedHasPage);
+    const hasPage = useStore($hasPage);
     const menuItems = useStore($mixinsMenuItems);
 
     const [pendingChanges, setPendingChanges] = useState<Map<string, boolean>>(new Map());
@@ -80,7 +80,7 @@ export const MixinMenu = (): ReactElement => {
 
     const handleApply = useCallback(() => {
         for (const [name, enabled] of pendingChanges) {
-            toggleMixin(name, enabled);
+            setDraftMixinEnabled(name, enabled);
         }
         setPendingChanges(new Map());
         setOpen(false);

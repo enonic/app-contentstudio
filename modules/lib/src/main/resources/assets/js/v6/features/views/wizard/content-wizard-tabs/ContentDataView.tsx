@@ -1,10 +1,6 @@
 import {type ReactElement} from 'react';
-import {DisplayNameInput} from './DisplayNameInput';
+import {ContentForm} from './ContentForm';
 
-export const ContentDataView = (): ReactElement => {
-    return (
-        <DisplayNameInput />
-    );
-};
+export const ContentDataView = (): ReactElement => <ContentForm />;
 
 ContentDataView.displayName = 'ContentDataView';

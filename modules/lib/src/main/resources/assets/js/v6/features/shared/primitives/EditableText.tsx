@@ -35,6 +35,7 @@ export type EditableTextProps = {
     value?: string;
     placeholder?: string;
     onCommit?: (value: string) => void;
+    onValueChange?: (value: string) => void;
     onEditingChange?: (isEditing: boolean) => void;
     allowEmpty?: boolean;
     fullWidth?: boolean;
@@ -50,6 +51,7 @@ export const EditableText = forwardRef<HTMLInputElement, EditableTextProps>(({
     value = '',
     placeholder,
     onCommit,
+    onValueChange,
     onEditingChange,
     allowEmpty = true,
     size,
@@ -196,7 +198,11 @@ export const EditableText = forwardRef<HTMLInputElement, EditableTextProps>(({
                 type="text"
                 value={draft}
                 placeholder={placeholder}
-                onChange={(e) => setDraft(e.currentTarget.value)}
+                onChange={(e) => {
+                    const nextValue = e.currentTarget.value;
+                    setDraft(nextValue);
+                    onValueChange?.(nextValue);
+                }}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
