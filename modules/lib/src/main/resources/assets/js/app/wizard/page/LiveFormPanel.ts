@@ -673,7 +673,7 @@ export class LiveFormPanel
         eventsManager.onTextComponentEditModeChanged((value: boolean) => {
             this.isTextModeOn = value;
 
-            if (value && this.isContextPanelExpanded() && !this.isContextPanelDocked()) {
+            if (this.shouldCollapseContextPanel()) {
                 this.contextPanelToggleHandler?.();
             }
         });
@@ -800,11 +800,9 @@ export class LiveFormPanel
     private inspectComponentOnDemand(component: Component, source?: PageNavigationEventSource, focus?: boolean): void {
         assertNotNull(component, 'component cannot be null');
 
-        // not showing/hiding inspection panel if component has no descriptor or if is in text edit mode
-        const isPanelToHide: boolean = this.isInspectComponentToHide(component);
+        const isPanelToHide = this.shouldCollapseContextPanel();
         const waitForContextPanel = !isPanelToHide && this.isContextPanelCollapsed();
-
-        if (isPanelToHide && this.isContextPanelExpanded() && !this.isContextPanelDocked()) {
+        if (isPanelToHide) {
             this.contextPanelToggleHandler?.();
         }
 
@@ -822,12 +820,8 @@ export class LiveFormPanel
         this.doInspectComponent(component, !isPanelToHide, focus);
     }
 
-    private isInspectComponentToHide(component: Component): boolean {
-        if (this.isTextModeOn) {
-            return false;
-        }
-
-        return component instanceof DescriptorBasedComponent && !component.hasDescriptor() && this.isShown();
+    private shouldCollapseContextPanel() {
+        return this.isTextModeOn && this.isContextPanelExpanded() && !this.isContextPanelDocked();
     }
 
     private openComponentInspect(component: Component, source?: PageNavigationEventSource, focus?: boolean): void {
