@@ -1,5 +1,6 @@
 import {PermissionsDialogAccessStepHeader, PermissionsDialogAccessStepContent} from './PermissionsAccessStep';
 import {PermissionsDialogStrategyStepHeader, PermissionsDialogStrategyStepContent} from './PermissionsStrategyStep';
+import {PermissionsDialogSummaryStepHeader, PermissionsDialogSummaryStepContent} from './PermissionsSummaryStep';
 
 export const PermissionsDialogSteps = {
     AccessStep: {
@@ -9,5 +10,9 @@ export const PermissionsDialogSteps = {
     StrategyStep: {
         Header: PermissionsDialogStrategyStepHeader,
         Content: PermissionsDialogStrategyStepContent,
+    },
+    SummaryStep: {
+        Header: PermissionsDialogSummaryStepHeader,
+        Content: PermissionsDialogSummaryStepContent,
     },
 };
