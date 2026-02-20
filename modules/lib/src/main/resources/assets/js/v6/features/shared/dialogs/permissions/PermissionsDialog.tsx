@@ -149,9 +149,11 @@ export const PermissionsDialog = (): ReactElement => {
                     {!loading && !taskId && (
                         <>
                             <PermissionsDialogSteps.AccessStep.Header />
+                            {!isLeafContent && <PermissionsDialogSteps.StrategyStep.Header />}
 
                             <Dialog.Body className="p-2 -m-2">
                                 <PermissionsDialogSteps.AccessStep.Content />
+                                {!isLeafContent && <PermissionsDialogSteps.StrategyStep.Content locked={!hasChanges} />}
                             </Dialog.Body>
 
                             <Dialog.Footer className="flex flex-col">
