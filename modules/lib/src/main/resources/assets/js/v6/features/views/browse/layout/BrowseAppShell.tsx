@@ -11,6 +11,7 @@ import {PublishDialog} from '../../../shared/dialogs/publish/PublishDialog';
 import {RequestPublishDialog} from '../../../shared/dialogs/requestPublish/RequestPublishDialog';
 import {SortDialog} from '../../../shared/dialogs/sort-dialog/SortDialog';
 import {UnpublishDialog} from '../../../shared/dialogs/unpublish/UnpublishDialog';
+import {PermissionsDialog} from '../../../shared/dialogs/permissions/PermissionsDialog';
 
 export const BrowseAppShell = (): ReactElement => {
     return (
@@ -24,6 +25,7 @@ export const BrowseAppShell = (): ReactElement => {
             <NewContentDialog />
             <NewIssueDialog />
             <ProjectSelectionDialog />
+            <PermissionsDialog />
             <PublishDialog />
             <RequestPublishDialog />
             <SortDialog />
