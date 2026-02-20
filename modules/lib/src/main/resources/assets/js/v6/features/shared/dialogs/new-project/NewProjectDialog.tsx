@@ -91,7 +91,7 @@ export const NewProjectDialog = (): ReactElement => {
                         <NewProjectDialogSteps.NameStep.Header />
                         <NewProjectDialogSteps.SummaryStep.Header />
 
-                        <Dialog.Body className={cn(step !== 'step-summary' && 'p-1.5 -m-1.5')}>
+                        <Dialog.Body className={cn(step !== 'step-summary' && 'p-2 -m-2')}>
                             <NewProjectDialogSteps.ParentStep.Content />
                             <NewProjectDialogSteps.LanguageStep.Content />
                             <NewProjectDialogSteps.AccessStep.Content />

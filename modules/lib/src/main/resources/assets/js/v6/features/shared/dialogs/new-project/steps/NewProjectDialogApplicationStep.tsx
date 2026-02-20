@@ -62,7 +62,7 @@ export const NewProjectDialogApplicationStepContent = ({locked = false}: {locked
             />
             {selection.length > 0 && (
                 <>
-                    <GridList className="rounded-md mb-2.5 py-1.5 pl-4 pr-1">
+                    <GridList className="rounded-md mb-2.5 py-2.5 pl-4 pr-1">
                         {selectedApplications.map((application) => {
                             const key = application.getApplicationKey().toString();
                             const name = application.getDisplayName();
