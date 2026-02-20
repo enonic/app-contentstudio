@@ -150,10 +150,12 @@ export const PermissionsDialog = (): ReactElement => {
                         <>
                             <PermissionsDialogSteps.AccessStep.Header />
                             {!isLeafContent && <PermissionsDialogSteps.StrategyStep.Header />}
+                            <PermissionsDialogSteps.SummaryStep.Header />
 
                             <Dialog.Body className="p-2 -m-2">
                                 <PermissionsDialogSteps.AccessStep.Content />
                                 {!isLeafContent && <PermissionsDialogSteps.StrategyStep.Content locked={!hasChanges} />}
+                                <PermissionsDialogSteps.SummaryStep.Content locked={!canGoToSummaryStep} />
                             </Dialog.Body>
 
                             <Dialog.Footer className="flex flex-col">

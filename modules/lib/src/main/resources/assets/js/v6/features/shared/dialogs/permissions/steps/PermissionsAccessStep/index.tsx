@@ -78,7 +78,7 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
         setPrincipalsInCustomAccess(getPrincipalsInCustomAccess(parentAccessControlEntries));
         setSelection(accessControlEntriesToPrincipalKeys(parentAccessControlEntries));
         setPermissionsDialogAccessControlEntries(parentAccessControlEntries);
-    }, [parentAccessControlEntries, accessControlEntries]);
+    }, [parentAccessControlEntries]);
 
     // Manage the selection of principals. New ones are added with read permission only.
     const handleSelect = useCallback(
