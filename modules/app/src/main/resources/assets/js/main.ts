@@ -383,15 +383,10 @@ async function startApplication() {
 
     ShowDependenciesEvent.on(ContentEventsProcessor.handleShowDependencies);
 
-    const {EditPermissionsDialog} = await import('@enonic/lib-contentstudio/app/dialog/permissions/EditPermissionsDialog');
-    let editPermissionsDialog = null;
+    const {openPermissionsDialog} = await import('@enonic/lib-contentstudio/v6/features/store/dialogs/permissionsDialog.store');
 
     OpenEditPermissionsDialogEvent.on((event: OpenEditPermissionsDialogEvent) => {
-        if (!editPermissionsDialog) {
-            editPermissionsDialog = new EditPermissionsDialog();
-        }
-
-        editPermissionsDialog.setDataAndOpen(event);
+        openPermissionsDialog(event);
     });
 
     application.setLoaded(true);
