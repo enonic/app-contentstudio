@@ -106,12 +106,7 @@ export const NewProjectDialogAccessStepContent = (): ReactElement => {
                 {canCopyFromParentProject && <InlineButton onClick={handleCopyFromParentProject} label={copyFromParentLabel} />}
             </div>
 
-            <RadioGroup.Root
-                name="accessMode"
-                value={accessModeValue}
-                onValueChange={setAccessModeValue}
-                className="px-2 py-1.25 -my-1 rounded-md"
-            >
+            <RadioGroup.Root name="accessMode" value={accessModeValue} onValueChange={setAccessModeValue} className="rounded-md -mx-2">
                 <RadioGroup.Item value="public">
                     <RadioGroup.Indicator />
                     <span className="ml-2">{publicLabel}</span>
@@ -144,7 +139,7 @@ export const NewProjectDialogAccessStepContent = (): ReactElement => {
 
                     {selection.length > 0 && (
                         <>
-                            <GridList className="rounded-md mb-2.5 py-1.5 pl-4 pr-1">
+                            <GridList className="rounded-md mb-2.5 py-2.5 pl-4 pr-1">
                                 {selectedPrincipals.map((principal) => {
                                     const key = principal.getKey().toString();
                                     const principalDisplayName = principal.getDisplayName();

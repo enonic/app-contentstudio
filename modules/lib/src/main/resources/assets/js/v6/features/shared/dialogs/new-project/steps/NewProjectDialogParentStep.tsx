@@ -60,7 +60,7 @@ export const NewProjectDialogParentStepContent = (): ReactElement => {
             />
             {selection.length > 0 && (
                 <>
-                    <GridList className="rounded-md mb-2.5 py-1.5 pl-4 pr-1">
+                    <GridList className="rounded-md mb-2.5 py-2.5 pl-4 pr-1">
                         {Array.from(selection).map((projectName) => (
                             <GridList.Row key={projectName} id={projectName} className="p-1 gap-1.5">
                                 <GridList.Cell interactive={false} className="flex-1 self-stretch">

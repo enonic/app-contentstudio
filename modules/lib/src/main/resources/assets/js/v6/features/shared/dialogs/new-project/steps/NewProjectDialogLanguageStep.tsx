@@ -72,7 +72,7 @@ export const NewProjectDialogLanguageStepContent = (): ReactElement => {
             />
 
             {selectedLanguage && (
-                <GridList className="rounded-md mb-2.5 py-1.5 pl-4 pr-1">
+                <GridList className="rounded-md mb-2.5 py-2.5 pl-4 pr-1">
                     <GridList.Row key={selectedLanguage.id} id={selectedLanguage.id} className="p-1 gap-1.5">
                         <GridList.Cell interactive={false} className="flex-1 self-stretch">
                             <div className="flex gap-2">
