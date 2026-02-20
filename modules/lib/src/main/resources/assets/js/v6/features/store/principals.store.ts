@@ -44,21 +44,55 @@ export function loadPrincipals(query: string, size: number = 10): void {
 
     ResultAsync.fromPromise(request.sendAndParse(), (error) => {
         console.error('Failed to load principals:', error);
-    }).map((principals) => {
-        const seen = new Set<string>();
+    })
+        .map((principals) => {
+            const seen = new Set<string>();
 
-        const updatedPrincipals = [...$principals.get().principals, ...principals]
-            .filter((principal) => {
-                const key = principal.getKey().toString();
-                if (seen.has(key)) return false;
-                seen.add(key);
-                return true;
-            })
-            .sort((a, b) => a.getDisplayName().localeCompare(b.getDisplayName()));
+            const updatedPrincipals = [...$principals.get().principals, ...principals]
+                .filter((principal) => {
+                    const key = principal.getKey().toString();
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                })
+                .sort((a, b) => a.getDisplayName().localeCompare(b.getDisplayName()));
 
-        $principals.setKey('principals', updatedPrincipals);
-        $principals.setKey('loading', false);
-    });
+            $principals.setKey('principals', updatedPrincipals);
+            $principals.setKey('loading', false);
+        })
+        .mapErr((error) => {
+            console.error('Failed to load principals:', error);
+            $principals.setKey('loading', false);
+        });
+}
+
+export function loadPrincipalsByKeys(keys: PrincipalKey[]): ResultAsync<Principal[], Error> {
+    $principals.setKey('loading', true);
+
+    return getPrincipalsByKeys(keys)
+        .map((principals) => {
+            const seen = new Set<string>();
+
+            const updatedPrincipals = [...$principals.get().principals, ...principals]
+                .filter((principal) => {
+                    const key = principal.getKey().toString();
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                })
+                .sort((a, b) => a.getDisplayName().localeCompare(b.getDisplayName()));
+
+            $principals.setKey('principals', updatedPrincipals);
+            $principals.setKey('loading', false);
+
+            return principals;
+        })
+        .mapErr((error) => {
+            console.error('Failed to load principals by keys:', error);
+            $principals.setKey('loading', false);
+
+            return error;
+        });
 }
 
 export function getPrincipalsByKeys(keys: PrincipalKey[]): ResultAsync<Principal[], Error> {
