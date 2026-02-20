@@ -2,18 +2,31 @@ import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {Avatar, cn, Tooltip} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ReactElement, useRef} from 'react';
-import {ACCESS_OPTIONS} from '../../../../../../app/security/Access';
 import {EffectivePermission} from '../../../../../../app/security/EffectivePermission';
 import {useVisibleAvatars} from '../../../../hooks/useVisibleAvatars';
 import {$detailsWidgetEffectivePermissions, sortPrincipals} from '../../../../store/context/detailsWidgets.store';
 import {getInitials} from '../../../../utils/format/initials';
+import {Access} from '../../../../../../app/security/Access';
+import {useI18n} from '../../../../hooks/useI18n';
 
 const AVATAR_OVERFLOW_OFFSET = 50;
 
 const PermissionItem = ({permission}: {permission: EffectivePermission}): ReactElement => {
     const listRef = useRef<HTMLDivElement>(null);
-    const access = permission.getAccess().toString();
-    const status = ACCESS_OPTIONS.find((option) => option.id === access)?.displayName;
+    const accessFullLabel = useI18n('security.access.full');
+    const accessPublishLabel = useI18n('security.access.publish');
+    const accessWriteLabel = useI18n('security.access.write');
+    const accessReadLabel = useI18n('security.access.read');
+    const accessCustomLabel = useI18n('security.access.custom');
+    const accessLabelMap = new Map<Access, string>([
+        [Access.FULL, accessFullLabel],
+        [Access.PUBLISH, accessPublishLabel],
+        [Access.WRITE, accessWriteLabel],
+        [Access.READ, accessReadLabel],
+        [Access.CUSTOM, accessCustomLabel],
+    ]);
+
+    const status = accessLabelMap.get(permission.getAccess());
     const principals = sortPrincipals(permission.getMembers().map((epm) => epm.toPrincipal()));
     const currentUser = AuthContext.get().getUser();
     const {visibleCount, extraCount} = useVisibleAvatars(listRef, principals.length, AVATAR_OVERFLOW_OFFSET);
@@ -39,9 +52,7 @@ const PermissionItem = ({permission}: {permission: EffectivePermission}): ReactE
                                     index >= maxVisibleCount && 'invisible order-last'
                                 )}
                             >
-                                <Avatar.Fallback className="text-alt font-semibold">
-                                    {getInitials(p.getDisplayName())}
-                                </Avatar.Fallback>
+                                <Avatar.Fallback className="text-alt font-semibold">{getInitials(p.getDisplayName())}</Avatar.Fallback>
                             </Avatar>
                         </Tooltip>
                     );

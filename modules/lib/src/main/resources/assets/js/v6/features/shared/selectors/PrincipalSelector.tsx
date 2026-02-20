@@ -16,20 +16,30 @@ type PrincipalSelectorProps = {
     onSelectionChange: (selection: string[]) => void;
     selectionMode: ComboboxRootProps['selectionMode'];
     allowedTypes: PrincipalType[];
+    customFilter?: (principal: Principal) => boolean;
     placeholder?: string;
     emptyLabel?: string;
     closeOnBlur?: boolean;
     className?: string;
 };
 
-export const PrincipalSelector = (props: PrincipalSelectorProps): ReactElement => {
+export const PrincipalSelector = ({
+    selection,
+    onSelectionChange,
+    selectionMode,
+    allowedTypes,
+    customFilter = (_: Principal) => true,
+    placeholder,
+    emptyLabel,
+    closeOnBlur,
+    className,
+}: PrincipalSelectorProps): ReactElement => {
     const {principals} = useStore($principals);
     const [searchValue, setSearchValue] = useState('');
-    const {selection, onSelectionChange, selectionMode, allowedTypes, placeholder, emptyLabel, closeOnBlur, className} = props;
     const allowedTypesKey = allowedTypes.join(','); // Serialize array for stable comparison in useEffect dependencies
 
     const allowedPrincipals = useMemo(() => {
-        return principals.filter((principal) => allowedTypes.includes(principal.getType()));
+        return principals.filter((principal) => allowedTypes.includes(principal.getType()) && customFilter(principal));
     }, [principals, allowedTypesKey]);
 
     const filtered = useMemo(() => {
@@ -47,9 +57,12 @@ export const PrincipalSelector = (props: PrincipalSelectorProps): ReactElement =
     }, [searchValue]);
 
     // Handlers
-    const handleOnSelectionChange = useCallback((selection: string[]) => {
-        onSelectionChange(selection.map(decodeFromValidDomId));
-    }, []);
+    const handleOnSelectionChange = useCallback(
+        (selection: string[]) => {
+            onSelectionChange(selection.map(decodeFromValidDomId));
+        },
+        [onSelectionChange]
+    );
 
     return (
         <Combobox.Root
@@ -123,10 +136,7 @@ const PrincipalSelectorList = (props: PrincipalSelectorListProps): ReactElement 
                                 />
                             </div>
 
-                            <Checkbox
-                                checked={selectionArray.includes(key)}
-                                onCheckedChange={() => handleOnCheckedChange(key)}
-                            />
+                            <Checkbox checked={selectionArray.includes(key)} onCheckedChange={() => handleOnCheckedChange(key)} />
                         </Listbox.Item>
                     );
                 })}
