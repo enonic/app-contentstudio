@@ -2,7 +2,7 @@ import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {beforeEach, describe, expect, it} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {ContentBuilder, type Content} from '../../../app/content/Content';
 import {ContentName} from '../../../app/content/ContentName';
 import {Mixin} from '../../../app/content/Mixin';
@@ -72,6 +72,10 @@ function createContent({
 describe('wizardContent.store', () => {
     beforeEach(() => {
         resetWizardContent();
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
     });
 
     it('keeps all section flags false on initialization', () => {

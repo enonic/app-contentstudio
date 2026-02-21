@@ -20,19 +20,17 @@ export type FormFieldSetViewProps = {
 
 export const FormFieldSetView = ({fieldSet, parentPath}: FormFieldSetViewProps): ReactElement => {
     return (
-        <fieldset className="flex flex-col gap-5">
+        <fieldset className="flex flex-col gap-7.5">
             {fieldSet.getLabel() && (
                 <span className="text-base font-normal uppercase leading-3.5 tracking-[0.96px]">{fieldSet.getLabel()}</span>
             )}
             {fieldSet.getFormItems().map(item => (
-                <div className='pl-5 border border-transparent border-l-bdr-soft'>
+                <div key={item.getName()} className='pl-5 border border-transparent border-l-bdr-soft'>
                     <FormItemView
-                        key={item.getName()}
                         formItem={item}
                         parentPath={parentPath}
                     />
                 </div>
-
             ))}
         </fieldset>
     );

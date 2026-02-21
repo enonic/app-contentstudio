@@ -1,7 +1,7 @@
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {beforeEach, describe, expect, it} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {ContentBuilder, type Content} from '../content/Content';
 import {ContentName} from '../content/ContentName';
 import {Workflow} from '../content/Workflow';
@@ -46,6 +46,10 @@ function buildViewedContentFromStore(content: Content): Content {
 describe('UpdatePersistedContentWithStoreRoutine', () => {
     beforeEach(() => {
         resetWizardContent();
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
     });
 
     it('stores baseUrl in portal siteConfig and removes bridge field', () => {

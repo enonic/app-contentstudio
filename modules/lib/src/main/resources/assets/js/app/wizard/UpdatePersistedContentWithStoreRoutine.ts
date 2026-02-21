@@ -19,17 +19,15 @@ import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
 export class UpdatePersistedContentWithStoreRoutine
     extends Flow {
 
-    private static readonly BASE_URL_INPUT_PROP = 'baseUrl';
+    private static readonly BASE_URL_PROP = 'baseUrl';
 
-    private static readonly LEGACY_PORTAL_BASE_URL_INPUT_PROP = 'portalBaseUrl';
+    private static readonly LEGACY_PORTAL_BASE_URL_PROP = 'portalBaseUrl';
 
     private static readonly SITE_CONFIG_PROP = 'siteConfig';
 
     private static readonly APPLICATION_KEY_PROP = 'applicationKey';
 
     private static readonly CONFIG_PROP = 'config';
-
-    private static readonly BASE_URL_PROP = 'baseUrl';
 
     private static readonly PORTAL_APPLICATION_KEY = ApplicationKey.PORTAL.toString();
 
@@ -94,7 +92,7 @@ export class UpdatePersistedContentWithStoreRoutine
         const data = draftData ? draftData.copy() : this.persistedContent.getContentData().copy();
 
         if (this.isSiteContent()) {
-            const baseUrl = data.getString(UpdatePersistedContentWithStoreRoutine.BASE_URL_INPUT_PROP) ?? null;
+            const baseUrl = data.getString(UpdatePersistedContentWithStoreRoutine.BASE_URL_PROP) ?? null;
             this.syncPortalBaseUrlInSiteConfig(data, baseUrl);
             this.removeBaseUrlBridgeProperties(data);
         }
@@ -121,8 +119,8 @@ export class UpdatePersistedContentWithStoreRoutine
     }
 
     private removeBaseUrlBridgeProperties(data: PropertyTree): void {
-        data.removeProperty(UpdatePersistedContentWithStoreRoutine.BASE_URL_INPUT_PROP, 0);
-        data.removeProperty(UpdatePersistedContentWithStoreRoutine.LEGACY_PORTAL_BASE_URL_INPUT_PROP, 0);
+        data.removeProperty(UpdatePersistedContentWithStoreRoutine.BASE_URL_PROP, 0);
+        data.removeProperty(UpdatePersistedContentWithStoreRoutine.LEGACY_PORTAL_BASE_URL_PROP, 0);
     }
 
     private removePortalBaseUrlFromSiteConfig(data: PropertyTree): void {

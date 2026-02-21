@@ -13,7 +13,7 @@ export type FormDataContextValue = {
     removeOccurrence: (path: PropertyPath, occurrenceIndex: number) => void;
 };
 
-export const FormDataContext = createContext<FormDataContextValue | null>(null);
+export const FormDataContext = createContext<FormDataContextValue | undefined>(undefined);
 
 FormDataContext.displayName = 'FormDataContext';
 

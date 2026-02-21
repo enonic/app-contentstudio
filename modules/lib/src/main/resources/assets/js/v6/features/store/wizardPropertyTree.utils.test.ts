@@ -1,6 +1,6 @@
 import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {describe, expect, it} from 'vitest';
+import {afterEach, describe, expect, it, vi} from 'vitest';
 import {
     type ChangedPathsStore,
     addStringOccurrence,
@@ -27,6 +27,10 @@ function createChangedPathsStore(): ChangedPathsStore & {value: Record<string, n
 }
 
 describe('setStringValue', () => {
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
     it('returns false and clears path when clearing absent persisted field', () => {
         const draft = new PropertyTree();
         const persisted = new PropertyTree();
@@ -129,6 +133,10 @@ describe('setStringValue', () => {
 });
 
 describe('addStringOccurrence', () => {
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
     it('returns false for negative index', () => {
         const draft = new PropertyTree();
         const changedPaths = createChangedPathsStore();
@@ -170,6 +178,10 @@ describe('addStringOccurrence', () => {
 });
 
 describe('removeStringOccurrence', () => {
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
     it('returns false for negative index', () => {
         const draft = new PropertyTree();
         const changedPaths = createChangedPathsStore();
