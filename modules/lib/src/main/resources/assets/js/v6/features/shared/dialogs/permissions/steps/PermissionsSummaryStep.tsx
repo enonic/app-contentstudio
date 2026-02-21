@@ -1,7 +1,7 @@
 import {Dialog} from '@enonic/ui';
 import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
 import {useStore} from '@nanostores/preact';
-import {ReactElement, useMemo} from 'react';
+import {type ReactElement, useMemo} from 'react';
 import {useI18n} from '../../../../hooks/useI18n';
 import {$permissionsDialog} from '../../../../store/dialogs/permissionsDialog.store';
 import {compareAccessControlEntries} from '../../../../utils/cms/permissions/accessControl';
@@ -42,8 +42,8 @@ export const PermissionsDialogSummaryStepContent = ({locked}: {locked: boolean})
         // Omit Everyone principal
         const addedWithoutPrincipal = added.filter((entry) => !entry.getPrincipalKey().equals(RoleKeys.EVERYONE));
         const modifiedWithoutPrincipal = modified.filter((entry) => !entry.getPrincipalKey().equals(RoleKeys.EVERYONE));
-        const removedWithoutPrincipal = removed.filter((entry) => !entry.getPrincipal().getKey().equals(RoleKeys.EVERYONE));
-        const unchangedWithoutPrincipal = unchanged.filter((entry) => !entry.getPrincipal().getKey().equals(RoleKeys.EVERYONE));
+        const removedWithoutPrincipal = removed.filter((entry) => !entry.getPrincipalKey().equals(RoleKeys.EVERYONE));
+        const unchangedWithoutPrincipal = unchanged.filter((entry) => !entry.getPrincipalKey().equals(RoleKeys.EVERYONE));
 
         return {
             added: addedWithoutPrincipal,
@@ -66,18 +66,24 @@ export const PermissionsDialogSummaryStepContent = ({locked}: {locked: boolean})
     const modifiedLabel = useI18n('dialog.permissions.summary.modified');
     const removedLabel = useI18n('dialog.permissions.summary.removed');
     const unchangedLabel = useI18n('dialog.permissions.summary.unchanged');
+    const yesLabel = useI18n('action.yes');
+    const noLabel = useI18n('action.no');
     const accessFullLabel = useI18n('security.access.full');
     const accessPublishLabel = useI18n('security.access.publish');
     const accessWriteLabel = useI18n('security.access.write');
     const accessReadLabel = useI18n('security.access.read');
     const accessCustomLabel = useI18n('security.access.custom');
-    const accessLabelMap = new Map([
-        [Access.FULL, accessFullLabel],
-        [Access.PUBLISH, accessPublishLabel],
-        [Access.WRITE, accessWriteLabel],
-        [Access.READ, accessReadLabel],
-        [Access.CUSTOM, accessCustomLabel],
-    ]);
+    const accessLabelMap = useMemo(
+        () =>
+            new Map([
+                [Access.FULL, accessFullLabel],
+                [Access.PUBLISH, accessPublishLabel],
+                [Access.WRITE, accessWriteLabel],
+                [Access.READ, accessReadLabel],
+                [Access.CUSTOM, accessCustomLabel],
+            ]),
+        [accessFullLabel, accessPublishLabel, accessWriteLabel, accessReadLabel, accessCustomLabel]
+    );
 
     return (
         <Dialog.StepContent step="step-summary" locked={locked}>
@@ -102,7 +108,7 @@ export const PermissionsDialogSummaryStepContent = ({locked}: {locked: boolean})
                 </div>
                 <div className="contents">
                     <dt className="font-semibold">{replaceChildPermissionsLabel}</dt>
-                    <dd>{replaceAllChildPermissions ? 'Yes' : 'No'}</dd>
+                    <dd>{replaceAllChildPermissions ? yesLabel : noLabel}</dd>
                 </div>
             </dl>
 
