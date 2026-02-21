@@ -71,16 +71,16 @@ export function getConfig(locales: string[], aiEnabled: boolean): Record<string,
         marketApi: exports.getMarketApi(),
         services: {
             contentUrl: apiUrl({
-                api: 'content'
+                api: `${app.name}:content`
             }),
             stylesUrl: apiUrl({
-                api: 'styles'
+                api: `${app.name}:styles`
             }),
             exportServiceUrl: apiUrl({
-                api: 'export'
+                api: `${app.name}:export`
             }),
             eventsUrl: apiUrl({
-                api: 'events'
+                api: `${app.name}:events`
             }),
             dismissNotificationUrl: apiUrl({
                 api: 'dismiss-notification'
