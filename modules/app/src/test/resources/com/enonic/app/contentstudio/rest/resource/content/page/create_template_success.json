@@ -27,7 +27,7 @@
     "owner": "user:myStore:me",
     "page": {
         "config": [],
-        "controller": "my-descriptor:",
+        "controller": "myapplication:my-descriptor",
         "customized": false,
         "regions": []
     },
