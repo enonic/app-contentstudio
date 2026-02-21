@@ -128,7 +128,7 @@ export const $contentTypeDisplayName = computed($contentType, (contentType) => c
 const $wizardDataChanged = computed(
     [$wizardPersistedData, $wizardDraftData, $wizardDataVersion],
     (persistedData, draftData): boolean => {
-        return !dataTreesEqual(persistedData, draftData)
+        return !dataTreesEqual(persistedData, draftData);
     },
 );
 

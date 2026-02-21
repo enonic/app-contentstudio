@@ -49,7 +49,7 @@ const UnsupportedInputFallback = ({inputType, path}: UnsupportedInputFallbackPro
             </span>
             {errors.length > 0 && (
                 <ul className="text-xs text-destructive">
-                    {errors.map((e, i) => <li key={i}>{e}</li>)}
+                    {errors.map((e) => <li key={e}>{e}</li>)}
                 </ul>
             )}
         </div>

@@ -1,7 +1,7 @@
 import {Button, FilledSquareCheck, IconButton, Menu, useActiveItemFocus, useMenu} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Ellipsis, Square} from 'lucide-react';
-import {ReactElement, useCallback, useEffect, useRef, useState} from 'react';
+import {type ReactElement, useCallback, useEffect, useRef, useState} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {
     $hasPage,
@@ -49,6 +49,8 @@ const ConfirmMenuItem = ({disabled, onConfirm}: ConfirmMenuItemProps): ReactElem
     );
 };
 
+ConfirmMenuItem.displayName = 'ConfirmMenuItem';
+
 export const MixinMenu = (): ReactElement => {
     const hasPage = useStore($hasPage);
     const menuItems = useStore($mixinsMenuItems);
@@ -87,7 +89,7 @@ export const MixinMenu = (): ReactElement => {
     }, [pendingChanges]);
 
     if (!showMenu) {
-        return <></>;
+        return null;
     }
 
     return (

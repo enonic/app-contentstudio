@@ -48,21 +48,20 @@ export const FormInputView = ({input, parentPath}: FormInputViewProps): ReactEle
         return maximum > 0 ? Math.min(requiredOccurrences, maximum) : requiredOccurrences;
     }, [basePath, basePathVersion, draftData, maximum, minimumVisibleOccurrences, supportsOccurrenceInputs]);
 
-    const occurrenceCount = dataOccurrences;
-    const canRemoveOccurrence = supportsOccurrenceInputs && occurrenceCount > minimumVisibleOccurrences;
-    const canAddOccurrence = maximum === 0 || occurrenceCount < maximum;
+    const canRemoveOccurrence = supportsOccurrenceInputs && dataOccurrences > minimumVisibleOccurrences;
+    const canAddOccurrence = maximum === 0 || dataOccurrences < maximum;
     const showAddButton = supportsOccurrenceInputs && input.getOccurrences().multiple() && canAddOccurrence;
     const occurrenceIndexes = useMemo(() => {
-        return Array.from({length: occurrenceCount}, (_, index) => index);
-    }, [occurrenceCount]);
+        return Array.from({length: dataOccurrences}, (_, index) => index);
+    }, [dataOccurrences]);
 
     const handleAdd = useCallback(() => {
-        if (!supportsOccurrenceInputs || (maximum > 0 && occurrenceCount >= maximum)) {
+        if (!supportsOccurrenceInputs || (maximum > 0 && dataOccurrences >= maximum)) {
             return;
         }
 
-        addOccurrence(basePath, occurrenceCount);
-    }, [addOccurrence, basePath, maximum, occurrenceCount, supportsOccurrenceInputs]);
+        addOccurrence(basePath, dataOccurrences);
+    }, [addOccurrence, basePath, dataOccurrences, maximum, supportsOccurrenceInputs]);
 
     const handleRemove = useCallback((occurrenceIndex: number) => {
         if (!canRemoveOccurrence) {

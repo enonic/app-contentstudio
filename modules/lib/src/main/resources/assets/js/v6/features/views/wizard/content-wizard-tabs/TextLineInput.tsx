@@ -7,15 +7,14 @@ import {useFormData} from './FormDataContext';
 
 export type TextLineInputProps = {
     path: PropertyPath;
-    label?: string;
 };
 
-export const TextLineInput = ({path, label}: TextLineInputProps): ReactElement => {
+export const TextLineInput = ({path}: TextLineInputProps): ReactElement => {
     const pathKey = toPathKey(path);
 
-    const {$draftData, $changedPaths, $validation, getDraftStringByPath, setDraftStringByPath} = useFormData();
+    const {$changedPaths, $validation, getDraftStringByPath, setDraftStringByPath} = useFormData();
 
-    useStore($draftData);
+    // Subscribing to $changedPaths drives re-renders when the in-place-mutated PropertyTree changes
     useStore($changedPaths, {keys: [pathKey]});
     const validationMap = useStore($validation, {keys: [pathKey]});
 
@@ -26,7 +25,7 @@ export const TextLineInput = ({path, label}: TextLineInputProps): ReactElement =
         setDraftStringByPath(path, e.currentTarget.value);
     }, [path, setDraftStringByPath]);
 
-    return <UIInput label={label} error={error} value={value} onChange={handleChange} />;
+    return <UIInput error={error} value={value} onChange={handleChange} />;
 };
 
 TextLineInput.displayName = 'TextLineInput';

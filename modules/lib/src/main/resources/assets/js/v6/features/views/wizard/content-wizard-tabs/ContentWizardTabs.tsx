@@ -1,6 +1,6 @@
 import {Tab} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {ReactElement} from 'react';
+import {type ReactElement} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {
     $hasPage,
@@ -11,11 +11,11 @@ import {ContentDataView} from './ContentDataView';
 import {PageView} from './PageView';
 import {MixinView} from './MixinView';
 
-type Props = {
+type ContentWizardTabsProps = {
     tabListAction?: ReactElement;
 };
 
-export const ContentWizardTabs = ({tabListAction}: Props): ReactElement => {
+export const ContentWizardTabs = ({tabListAction}: ContentWizardTabsProps): ReactElement => {
     const contentTypeDisplayName = useStore($contentTypeDisplayName);
     const hasPage = useStore($hasPage);
     const xDataTabs = useStore($mixinsTabs);

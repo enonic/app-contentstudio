@@ -1,7 +1,7 @@
 import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {beforeEach, describe, expect, it} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {ContentBuilder, type Content} from '../../../app/content/Content';
 import {ContentName} from '../../../app/content/ContentName';
 import {Mixin} from '../../../app/content/Mixin';
@@ -32,6 +32,10 @@ function createMixin(name: string, data: PropertyTree): Mixin {
 describe('wizardMixinData.store', () => {
     beforeEach(() => {
         resetWizardContent();
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
     });
 
     it('bumps changed-path version for repeated dirty edits and clears it on revert', () => {
