@@ -314,7 +314,7 @@ public class PageTemplateResourceTest
 
     private PageTemplate createPageTemplate( final String id, final String name, final String canRender )
     {
-        return createPageTemplate( id, name, canRender, DescriptorKey.from( "my-descriptor" ) );
+        return createPageTemplate( id, name, canRender, DescriptorKey.from( "myapplication:my-descriptor" ) );
     }
 
     private Content createContent( final String id, final ContentPath parentPath, final String name, final String contentTypeName )
@@ -353,7 +353,7 @@ public class PageTemplateResourceTest
     {
         final Content content = this.createContent( id, ContentPath.ROOT, name, contentTypeName );
         final Page page = Page.create().
-            descriptor( DescriptorKey.from( "my-descriptor" ) ).
+            descriptor( DescriptorKey.from( "myapplication:my-descriptor" ) ).
             config( new PropertyTree() ).
                 regions(Regions.create().build()).
             build();
