@@ -83,7 +83,7 @@ export function getConfig(locales: string[], aiEnabled: boolean): Record<string,
                 api: `${app.name}:events`
             }),
             dismissNotificationUrl: apiUrl({
-                api: '${app.name}:dismiss-notification'
+                api: `${app.name}:dismiss-notification`
             }),
             aiContentOperatorWsServiceUrl: serviceUrl({service: 'ws', application: 'com.enonic.app.ai.contentoperator', type: 'websocket'}),
             aiTranslatorLicenseServiceUrl: serviceUrl({service: 'license', application: 'com.enonic.app.ai.translator'}),
