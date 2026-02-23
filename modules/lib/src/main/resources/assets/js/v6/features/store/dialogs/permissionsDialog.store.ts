@@ -3,7 +3,7 @@ import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
 import {type TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {listenKeys, map} from 'nanostores';
+import {computed, listenKeys, map} from 'nanostores';
 import {ResultAsync} from 'neverthrow';
 import {type OpenEditPermissionsDialogEvent} from '../../../../app/event/OpenEditPermissionsDialogEvent';
 import {AccessControlHelper} from '../../../../app/wizard/AccessControlHelper';
@@ -20,6 +20,7 @@ import {type TaskResultState} from '../task.store';
 import {trackTask} from '../../services/task.service';
 import {formatError} from '../../utils/format/error';
 import {Permission} from '../../../../app/access/Permission';
+import {compareAccessControlEntries} from '../../utils/cms/permissions/accessControl';
 
 //
 // * Store State
@@ -28,6 +29,7 @@ import {Permission} from '../../../../app/access/Permission';
 type PermissionsDialogStore = {
     // Config
     open: boolean;
+    view: 'main' | 'confirmation';
     step: string;
     loading: boolean;
     contentDisplayName: string;
@@ -55,6 +57,7 @@ type PermissionsDialogStore = {
 const initialState: PermissionsDialogStore = {
     // Config
     open: false,
+    view: 'main',
     step: 'step-access',
     loading: false,
     contentDisplayName: '',
@@ -81,6 +84,15 @@ const initialState: PermissionsDialogStore = {
 };
 
 export const $permissionsDialog = map<PermissionsDialogStore>(structuredClone(initialState));
+
+export const $isPermissionsDialogDirty = computed(
+    [$permissionsDialog],
+    ({initialAccessControlEntries, finalAccessControlEntries}): boolean => {
+        const {added, removed, modified} = compareAccessControlEntries(initialAccessControlEntries, finalAccessControlEntries);
+
+        return added.length > 0 || removed.length > 0 || modified.length > 0;
+    }
+);
 
 //
 // * Public API
@@ -156,6 +168,10 @@ export const openPermissionsDialog = (event: OpenEditPermissionsDialogEvent): vo
 
 export const closePermissionsDialog = (): void => {
     $permissionsDialog.set(structuredClone(initialState));
+};
+
+export const setPermissionsDialogView = (view: 'main' | 'confirmation'): void => {
+    $permissionsDialog.setKey('view', view);
 };
 
 export const setPermissionsDialogStep = (step: string): void => {

@@ -2,9 +2,11 @@ import {showError, showSuccess, showWarning} from '@enonic/lib-admin-ui/notify/M
 import {Dialog, Skeleton} from '@enonic/ui';
 import {ReactElement, useCallback, useMemo} from 'react';
 import {
+    $isPermissionsDialogDirty,
     $permissionsDialog,
     closePermissionsDialog,
     setPermissionsDialogStep,
+    setPermissionsDialogView,
     updatePermissions,
 } from '../../../store/dialogs/permissionsDialog.store';
 import {useStore} from '@nanostores/preact';
@@ -13,12 +15,15 @@ import {useI18n} from '../../../hooks/useI18n';
 import {useTaskProgress} from '../../../hooks/useTaskProgress';
 import {ProgressBar} from '../../primitives/ProgressBar';
 import {compareAccessControlEntries} from '../../../utils/cms/permissions/accessControl';
+import {ConfirmationDialog} from '../ConfirmationDialog';
+import {setNewProjectDialogView} from '../../../store/dialogs/newProjectDialog.store';
 
 const PERMISSIONS_DIALOG_NAME = 'PermissionsDialog';
 
 export const PermissionsDialog = (): ReactElement => {
     const {
         open,
+        view,
         loading,
         step,
         taskId,
@@ -31,6 +36,7 @@ export const PermissionsDialog = (): ReactElement => {
     } = useStore($permissionsDialog, {
         keys: [
             'open',
+            'view',
             'loading',
             'step',
             'taskId',
@@ -43,13 +49,9 @@ export const PermissionsDialog = (): ReactElement => {
         ],
     });
 
+    const isDirty = useStore($isPermissionsDialogDirty);
+
     // Memoized values
-    const hasChanges = useMemo(() => {
-        const {added, removed, modified} = compareAccessControlEntries(initialAccessControlEntries, finalAccessControlEntries);
-
-        return added.length > 0 || removed.length > 0 || modified.length > 0;
-    }, [initialAccessControlEntries, finalAccessControlEntries]);
-
     const numberItemsToApplyTo = useMemo(
         () => (applyTo === 'single' ? 1 : applyTo === 'subtree' ? contentDescendantsCount : contentDescendantsCount + 1),
         [applyTo, contentDescendantsCount]
@@ -58,8 +60,8 @@ export const PermissionsDialog = (): ReactElement => {
     const isLeafContent = useMemo(() => contentDescendantsCount === 0, [contentDescendantsCount]);
 
     const canGoToSummaryStep = useMemo(
-        () => (isLeafContent ? hasChanges : hasVisitedStrategyStep && (applyTo === 'tree' || applyTo === 'subtree' || hasChanges)),
-        [hasVisitedStrategyStep, isLeafContent, hasChanges, applyTo]
+        () => (isLeafContent ? isDirty : hasVisitedStrategyStep && (applyTo === 'tree' || applyTo === 'subtree' || isDirty)),
+        [hasVisitedStrategyStep, isLeafContent, isDirty, applyTo]
     );
 
     // Constants
@@ -74,18 +76,33 @@ export const PermissionsDialog = (): ReactElement => {
     const progressHelper = useI18n('dialog.permissions.title', contentDisplayName);
     const progressTitle = useI18n('dialog.permissions.progress.title');
     const nothingToApplyLabel = useI18n('dialog.permissions.nothingToApply');
+    const confirmTitle = useI18n('dialog.confirm.permissions.title');
+    const confirmDescription = useI18n('dialog.confirm.permissions.description');
     const nextProcessedLabel = useMemo(() => {
-        if (step === 'step-access') return hasChanges ? nextLabel : nothingToApplyLabel;
+        if (step === 'step-access') return isDirty ? nextLabel : nothingToApplyLabel;
         if (step === 'step-strategy') return canGoToSummaryStep ? nextLabel : nothingToApplyLabel;
         return nextLabel;
-    }, [step, hasChanges, canGoToSummaryStep, nextLabel, nothingToApplyLabel]);
+    }, [step, isDirty, canGoToSummaryStep, nextLabel, nothingToApplyLabel]);
 
     // Handlers
-    const handleOpenChange = (open: boolean) => {
-        if (open) return;
+    const handleOpenChange = useCallback(
+        (open: boolean) => {
+            if (open) return;
 
-        closePermissionsDialog();
-    };
+            if (view === 'confirmation') {
+                setPermissionsDialogView('main');
+                return;
+            }
+
+            if (isDirty) {
+                setPermissionsDialogView('confirmation');
+                return;
+            }
+
+            closePermissionsDialog();
+        },
+        [view, isDirty]
+    );
 
     const handleSubmit = useCallback(() => {
         const successMessage = applyTo === 'single' ? permissionsAppliedSingleLabel : permissionsAppliedMultipleLabel;
@@ -108,6 +125,10 @@ export const PermissionsDialog = (): ReactElement => {
         permissionsFailedMultipleLabel,
     ]);
 
+    const handleConfirm = () => {
+        closePermissionsDialog();
+    };
+
     return (
         <Dialog.Root
             data-component={PERMISSIONS_DIALOG_NAME}
@@ -118,65 +139,73 @@ export const PermissionsDialog = (): ReactElement => {
         >
             <Dialog.Portal>
                 <Dialog.Overlay />
-                <Dialog.Content className="w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[90vh] lg:max-w-220">
-                    {loading && (
-                        <>
-                            <Dialog.Header className="flex flex-col gap-2.5">
-                                <Skeleton shape="rectangle" className="h-6 w-36" />
-                                <Skeleton shape="rectangle" className="h-10 w-48" />
-                            </Dialog.Header>
-                            <Dialog.Body className="flex flex-col gap-7.5 mt-7.5">
-                                <div className="flex flex-col gap-2.5">
-                                    <Skeleton shape="rectangle" className="h-10 w-full" />
-                                    <Skeleton shape="rectangle" className="h-10 w-full" />
-                                    <Skeleton shape="rectangle" className="h-10 w-full" />
-                                    <Skeleton shape="rectangle" className="h-10 w-full" />
-                                    <Skeleton shape="rectangle" className="h-10 w-full" />
-                                    <Skeleton shape="rectangle" className="h-10 w-full" />
-                                    <Skeleton shape="rectangle" className="h-10 w-full" />
-                                    <Skeleton shape="rectangle" className="h-10 w-full" />
-                                </div>
-
-                                <div className="flex flex-col gap-2.5">
+                {view === 'main' && (
+                    <Dialog.Content className="w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[90vh] lg:max-w-220">
+                        {loading && (
+                            <>
+                                <Dialog.Header className="flex flex-col gap-2.5">
                                     <Skeleton shape="rectangle" className="h-6 w-36" />
-                                    <Skeleton shape="rectangle" className="h-6 w-48" />
-                                    <Skeleton shape="rectangle" className="h-6 w-60" />
-                                </div>
-                            </Dialog.Body>
-                        </>
-                    )}
+                                    <Skeleton shape="rectangle" className="h-10 w-48" />
+                                </Dialog.Header>
+                                <Dialog.Body className="flex flex-col gap-7.5 mt-7.5">
+                                    <div className="flex flex-col gap-2.5">
+                                        <Skeleton shape="rectangle" className="h-10 w-full" />
+                                        <Skeleton shape="rectangle" className="h-10 w-full" />
+                                        <Skeleton shape="rectangle" className="h-10 w-full" />
+                                        <Skeleton shape="rectangle" className="h-10 w-full" />
+                                        <Skeleton shape="rectangle" className="h-10 w-full" />
+                                        <Skeleton shape="rectangle" className="h-10 w-full" />
+                                        <Skeleton shape="rectangle" className="h-10 w-full" />
+                                        <Skeleton shape="rectangle" className="h-10 w-full" />
+                                    </div>
 
-                    {!loading && !taskId && (
-                        <>
-                            <PermissionsDialogSteps.AccessStep.Header />
-                            {!isLeafContent && <PermissionsDialogSteps.StrategyStep.Header />}
-                            <PermissionsDialogSteps.SummaryStep.Header />
+                                    <div className="flex flex-col gap-2.5">
+                                        <Skeleton shape="rectangle" className="h-6 w-36" />
+                                        <Skeleton shape="rectangle" className="h-6 w-48" />
+                                        <Skeleton shape="rectangle" className="h-6 w-60" />
+                                    </div>
+                                </Dialog.Body>
+                            </>
+                        )}
 
-                            <Dialog.Body className="p-2 -m-2">
-                                <PermissionsDialogSteps.AccessStep.Content />
-                                {!isLeafContent && <PermissionsDialogSteps.StrategyStep.Content locked={!hasChanges} />}
-                                <PermissionsDialogSteps.SummaryStep.Content locked={!canGoToSummaryStep} />
-                            </Dialog.Body>
+                        {!loading && !taskId && (
+                            <>
+                                <PermissionsDialogSteps.AccessStep.Header />
+                                {!isLeafContent && <PermissionsDialogSteps.StrategyStep.Header />}
+                                <PermissionsDialogSteps.SummaryStep.Header />
 
-                            <Dialog.Footer className="flex flex-col">
-                                <Dialog.StepIndicator
-                                    previousLabel={previousLabel}
-                                    nextLabel={nextProcessedLabel}
-                                    lastStepLabel={submitLabel}
-                                    onLastStep={handleSubmit}
-                                    dots
-                                />
-                            </Dialog.Footer>
-                        </>
-                    )}
+                                <Dialog.Body className="p-2 -m-2">
+                                    <PermissionsDialogSteps.AccessStep.Content />
+                                    {!isLeafContent && <PermissionsDialogSteps.StrategyStep.Content locked={!isDirty} />}
+                                    <PermissionsDialogSteps.SummaryStep.Content locked={!canGoToSummaryStep} />
+                                </Dialog.Body>
 
-                    {!loading && taskId && (
-                        <>
-                            <Dialog.StepHeader step="step-summary" helper={progressHelper} title={progressTitle} withClose />
-                            <ProgressBar value={progress} />
-                        </>
-                    )}
-                </Dialog.Content>
+                                <Dialog.Footer className="flex flex-col">
+                                    <Dialog.StepIndicator
+                                        previousLabel={previousLabel}
+                                        nextLabel={nextProcessedLabel}
+                                        lastStepLabel={submitLabel}
+                                        onLastStep={handleSubmit}
+                                        dots
+                                    />
+                                </Dialog.Footer>
+                            </>
+                        )}
+
+                        {!loading && taskId && (
+                            <>
+                                <Dialog.StepHeader step="step-summary" helper={progressHelper} title={progressTitle} withClose />
+                                <ProgressBar value={progress} />
+                            </>
+                        )}
+                    </Dialog.Content>
+                )}
+                {view === 'confirmation' && (
+                    <ConfirmationDialog.Content>
+                        <ConfirmationDialog.DefaultHeader title={confirmTitle} description={confirmDescription} />
+                        <ConfirmationDialog.Footer onConfirm={handleConfirm} />
+                    </ConfirmationDialog.Content>
+                )}
             </Dialog.Portal>
         </Dialog.Root>
     );
