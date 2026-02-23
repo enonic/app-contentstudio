@@ -39,7 +39,7 @@ export class WorkflowStateManager {
 
     private updateIcons(): void {
         const thumbnailUploader: ThumbnailUploaderEl = this.wizard.getFormIcon();
-        const toolbarIcon: DivEl = this.wizard.getMainToolbar()?.getStateIcon();
+        const toolbarIcon: DivEl = this.wizard.getContentWizardToolbar()?.getStateIcon();
         const isStatusHidden: boolean = this.isStatusToBeHidden();
 
         thumbnailUploader.setStatus(this.status);

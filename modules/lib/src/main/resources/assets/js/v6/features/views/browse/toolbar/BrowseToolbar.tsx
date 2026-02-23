@@ -1,6 +1,6 @@
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {Button, Toolbar} from '@enonic/ui';
-import {ReactElement} from 'react';
+import {type Action} from '@enonic/lib-admin-ui/ui/Action';
+import {Toolbar} from '@enonic/ui';
+import {type ReactElement} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {LegacyElement} from '../../../shared/LegacyElement';
 import {ToolbarActionButton} from './ToolbarActionButton';

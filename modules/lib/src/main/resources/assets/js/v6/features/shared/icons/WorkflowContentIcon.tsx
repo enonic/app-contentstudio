@@ -1,4 +1,4 @@
-import {WorkflowStateStatus} from '../../../../app/wizard/WorkflowStateManager';
+import {type WorkflowStateStatus} from '../../../../app/wizard/WorkflowStateManager';
 import {ContentIcon} from './ContentIcon';
 import {StatusIcon} from './StatusIcon';
 

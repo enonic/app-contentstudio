@@ -1,7 +1,7 @@
-import {ReactElement} from 'react';
-import {Project} from '../../../../app/settings/data/project/Project';
+import {type ReactElement} from 'react';
+import {type Project} from '../../../../app/settings/data/project/Project';
 import {ProjectIcon} from '../icons/ProjectIcon';
-import {ItemLabel, ItemLabelProps} from '../ItemLabel';
+import {ItemLabel, type ItemLabelProps} from '../ItemLabel';
 
 const PROJECT_LABEL_NAME = 'ProjectLabel';
 

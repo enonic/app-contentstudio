@@ -1,7 +1,7 @@
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Toolbar} from '@enonic/ui';
-import {ReactElement} from 'react';
-import {SettingsTreeActions} from 'src/main/resources/assets/js/app/settings/tree/SettingsTreeActions';
+import {type ReactElement} from 'react';
+import {type SettingsTreeActions} from 'src/main/resources/assets/js/app/settings/tree/SettingsTreeActions';
 import {useI18n} from '../../../hooks/useI18n';
 import {LegacyElement} from '../../../shared/LegacyElement';
 import {ActionGroup} from './ActionGroup';

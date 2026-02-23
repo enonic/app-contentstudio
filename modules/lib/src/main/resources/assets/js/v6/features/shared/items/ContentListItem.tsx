@@ -2,7 +2,7 @@ import {Button, cn, ListItem, type ListItemProps} from '@enonic/ui';
 import React, {type ReactNode} from 'react';
 import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../../../app/event/EditContentEvent';
-import {ContentLabel, ContentLabelVariant} from '../content/ContentLabel';
+import {ContentLabel, type ContentLabelVariant} from '../content/ContentLabel';
 import {LegacyElement} from '../LegacyElement';
 import {StatusBadge} from '../status/StatusBadge';
 

@@ -34,6 +34,7 @@ import {SplitPanelSize} from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
 import {type ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
+import {type Toolbar, type ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {type UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {assert} from '@enonic/lib-admin-ui/util/Assert';
@@ -118,7 +119,7 @@ import {type ContentWizardPanelParams} from './ContentWizardPanelParams';
 import {ContentWizardStep} from './ContentWizardStep';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
 import {ContentWizardStepsPanel} from './ContentWizardStepsPanel';
-import {ContentWizardToolbar} from './ContentWizardToolbar';
+import {ContentWizardToolbar} from '../browse/ContentWizardToolbar';
 import {type ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {DisplayNameResolver} from './DisplayNameResolver';
 import {type RoutineContext} from './Flow';
@@ -159,7 +160,7 @@ import {
     setMixinsDescriptors as setWizardMixinsDescriptors,
     setPersistedContent as setWizardPersistedContent,
 } from '../../v6/features/store/wizardContent.store';
-import {setContextOpen} from '../../v6/features/store/contextWidgets.store';
+import {$isContextOpen, setContextOpen} from '../../v6/features/store/contextWidgets.store';
 import {setWizardContent} from '../../v6/features/store/context/contextContent.store';
 
 export class ContentWizardPanel
@@ -646,11 +647,11 @@ export class ContentWizardPanel
         return super.getFormIcon() as ThumbnailUploaderEl;
     }
 
-    protected createMainToolbar(): ContentWizardToolbar {
+    protected createMainToolbar(): Toolbar<ToolbarConfig> {
         return new ContentWizardToolbar({
             actions: this.wizardActions,
             workflowStateIconsManager: this.workflowStateManager,
-            className: 'content-wizard-toolbar',
+            //className: 'content-wizard-toolbar',
             compareVersionsPreHook: () => {
                 if (!this.hasUnsavedChanges()) {
                     return Q();
@@ -658,11 +659,11 @@ export class ContentWizardPanel
 
                 return this.saveChangesWithoutValidation().thenResolve(undefined);
             }
-        });
+        }) as unknown as Toolbar<ToolbarConfig>;
     }
 
-    public getMainToolbar(): ContentWizardToolbar {
-        return super.getMainToolbar() as ContentWizardToolbar;
+    public getContentWizardToolbar(): ContentWizardToolbar {
+        return super.getMainToolbar() as unknown as ContentWizardToolbar;
     }
 
     private getWidgetToolbar(): PreviewToolbarElement {
@@ -707,7 +708,25 @@ export class ContentWizardPanel
             .build();
 
         this.contextSplitPanel.hideSecondPanel();
-        this.mainToolbar.addElement(contextToggleButton);
+
+        // Backward compatibility with legacy context panel while React toggle controls store state.
+        setContextOpen(this.contextSplitPanel.getState() === ContextPanelState.EXPANDED);
+
+        this.contextSplitPanel.onStateChanged((state: ContextPanelState) => {
+            setContextOpen(state === ContextPanelState.EXPANDED);
+        });
+
+        $isContextOpen.subscribe((isOpen: boolean, wasOpen: boolean) => {
+            if (isOpen === wasOpen) {
+                return;
+            }
+
+            if (isOpen) {
+                this.contextSplitPanel.showContextPanel();
+            } else {
+                this.contextSplitPanel.hideContextPanel();
+            }
+        });
 
         if (this.livePanel) {
             this.splitPanel.onPanelResized(() => this.updateStickyToolbar());
@@ -1692,7 +1711,7 @@ export class ContentWizardPanel
         this.currentCompareStatus = updatedContent.getCompareStatus();
         this.currentPublishStatus = updatedContent.getPublishStatus();
         this.setPersistedContent(updatedContent);
-        this.getMainToolbar().setItem(updatedContent);
+        this.getContentWizardToolbar().setItem(updatedContent);
         this.getWidgetToolbar().setItem(updatedContent);
         this.wizardActions.setContent(updatedContent).refreshState();
         this.workflowStateManager.update();
@@ -2437,7 +2456,7 @@ export class ContentWizardPanel
     }
 
     getContentWizardToolbarPublishControls(): ContentWizardToolbarPublishControls {
-        return this.getMainToolbar().getContentWizardToolbarPublishControls();
+        return this.getContentWizardToolbar().getContentWizardToolbarPublishControls();
     }
 
 
@@ -2593,7 +2612,7 @@ export class ContentWizardPanel
                     this.currentCompareStatus = CompareStatus.NEWER;
                 }
             }
-            this.getMainToolbar().setItem(this.getContent());
+            this.getContentWizardToolbar().setItem(this.getContent());
             this.wizardActions.setContent(this.getContent()).refreshState();
             this.workflowStateManager.update();
         }

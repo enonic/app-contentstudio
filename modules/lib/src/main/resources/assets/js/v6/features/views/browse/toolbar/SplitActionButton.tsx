@@ -1,7 +1,7 @@
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Button, cn, IconButton, Menu, Toolbar, Tooltip} from '@enonic/ui';
 import {ChevronDown} from 'lucide-react';
-import {Fragment, ReactElement, useMemo} from 'react';
+import {type ReactElement, useMemo} from 'react';
 import {useAction} from '../../../hooks/useAction';
 import {useI18n} from '../../../hooks/useI18n';
 
@@ -12,6 +12,7 @@ export type SplitActionButtonAction = {
 type Props = {
     actions: SplitActionButtonAction[];
     className?: string;
+    disabled?: boolean;
 };
 
 // TODO: Enonic UI - Move to @enonic/ui
@@ -22,7 +23,7 @@ type Props = {
  * - The dropdown chevron button opens a menu with all other enabled actions
  * - The buttons are visually joined together as a single unit
  */
-export const SplitActionButton = ({actions, className}: Props): ReactElement | null => {
+export const SplitActionButton = ({actions, className, disabled = false}: Props): ReactElement | null => {
     // Subscribe to all actions to track their state
     const actionStates = actions.map(({action}) => ({
         ...useAction(action),
@@ -48,14 +49,15 @@ export const SplitActionButton = ({actions, className}: Props): ReactElement | n
         return null;
     }
 
-    const isDropdownDisabled = !primaryState.enabled || !hasMenuActions;
+    const isPrimaryDisabled = disabled || !primaryState.enabled;
+    const isDropdownDisabled = disabled || !primaryState.enabled || !hasMenuActions;
 
     return (
         <div className={cn('flex items-stretch', className)}>
-            <Toolbar.Item asChild disabled={!primaryState.enabled}>
+            <Toolbar.Item asChild disabled={isPrimaryDisabled}>
                 <Button
                     className={cn(hasMenuActions && 'rounded-r-none border-r-0', 'focus-visible:z-1')}
-                    size="sm"
+                    size='sm'
                     iconStrokeWidth={2}
                     aria-label={primaryState.label}
                     label={primaryState.label}
@@ -69,7 +71,7 @@ export const SplitActionButton = ({actions, className}: Props): ReactElement | n
                         <Menu.Trigger asChild>
                             <IconButton
                                 className={cn(hasMenuActions ? 'p-0 rounded-l-none' : 'hidden')}
-                                size="sm"
+                                size='sm'
                                 iconStrokeWidth={2}
                                 aria-label={moreLabel}
                                 icon={ChevronDown}
@@ -82,7 +84,7 @@ export const SplitActionButton = ({actions, className}: Props): ReactElement | n
                         {menuStates.map(({enabled, label, execute}, index) => {
                             return (
                                 <Menu.Item key={index} disabled={!enabled} onSelect={() => execute()}>
-                                    <span className="font-semibold">{label}</span>
+                                    <span className='font-semibold'>{label}</span>
                                 </Menu.Item>
                             );
                         })}
