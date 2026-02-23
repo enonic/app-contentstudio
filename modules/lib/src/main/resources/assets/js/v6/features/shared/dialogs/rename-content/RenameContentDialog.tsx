@@ -40,7 +40,7 @@ export const RenameContentDialog = (): ReactElement => {
     const setNameTitle = useI18n('dialog.rename.setName.title');
     const newNameLabel = useI18n('dialog.rename.label');
     const nameLabel = useI18n('dialog.rename.name');
-    const checkingLabel = useI18n('dialog.state.checking');
+    const checkingLabel = useI18n('path.checking');
     const availableLabel = useI18n('path.available');
     const notAvailableLabel = useI18n('path.not.available');
     const renameLabel = useI18n('action.rename');
@@ -95,14 +95,15 @@ export const RenameContentDialog = (): ReactElement => {
                             }}
                             endAddon={
                                 helperText ? (
-                                    <span className={cn(
-                                        'whitespace-nowrap text-xs font-medium',
-                                        availabilityStatus === 'checking' && 'text-subtle',
-                                        availabilityStatus === 'available' && 'text-success',
-                                        hasAvailabilityError && 'text-error',
+
+                                    <div className={cn(
+                                        'mr-4.5 flex cursor-default text-xs text-main h-fit min-w-22 justify-center px-2 self-center rounded-sm leading-normal',
+                                        availabilityStatus === 'checking' && 'bg-muted',
+                                        availabilityStatus === 'available' && 'bg-surface-success',
+                                        hasAvailabilityError && 'bg-surface-error',
                                     )}>
                                         {helperText}
-                                    </span>
+                                    </div>
                                 ) : undefined
                             }
                         />
