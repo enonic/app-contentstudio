@@ -150,6 +150,7 @@ import {
     $wizardHasChanges,
     initializeWizardContentState,
     resetWizardContent,
+    setContentFormExpanded,
     setContentType as setWizardContentType,
     setDraftDisplayName,
     setDraftName,
@@ -207,8 +208,6 @@ export class ContentWizardPanel
     private xDataWizardStepForms: XDataWizardStepForms;
 
     private displayNameResolver: DisplayNameResolver;
-
-    private minimizeEditButton?: DivEl;
 
     private toggleMinimizeListener?: (event: ActivatedEvent) => void;
 
@@ -287,6 +286,8 @@ export class ContentWizardPanel
     private wizardDisplayNameUnsubscribe?: () => void;
 
     private wizardHasChangesUnsubscribe?: () => void;
+
+    private contentFormExpandedUnsubscribe?: () => void;
 
     constructor(params: ContentWizardPanelParams, cls?: string) {
         super(params);
@@ -504,21 +505,21 @@ export class ContentWizardPanel
 
         this.stepNavigator.unNavigationItemActivated(this.toggleMinimizeListener);
         this.formPanel.toggleClass('minimized');
-        this.minimizeEditButton.toggleClass('icon-arrow-right', this.minimized);
-        this.minimizeEditButton.toggleClass('icon-arrow-left', !this.minimized);
 
         new MinimizeWizardPanelEvent().fire();
 
         if (this.minimized) {
             this.stepNavigator.setScrollEnabled(false);
+            this.formPanel.addClass('border-r border-bdr-soft');
 
             this.scrollPosition = scroll;
-            this.splitPanel.savePanelSizesAndDistribute(SplitPanelSize.PIXELS(40));
+            this.splitPanel.savePanelSizesAndDistribute(SplitPanelSize.PIXELS(60));
             this.splitPanel.hideSplitter();
             this.stepNavigator.onNavigationItemActivated(this.toggleMinimizeListener);
             this.undockPCV();
         } else {
             this.splitPanel.loadPanelSizesAndDistribute();
+            this.formPanel.removeClass('border-r border-bdr-soft');
 
             if (!this.splitPanel.isSecondPanelHidden()) {
                 this.splitPanel.showSplitter();
@@ -535,7 +536,8 @@ export class ContentWizardPanel
         if (this.helpTextToggleButton) {
             this.helpTextToggleButton.setVisible(maximized);
         }
-        this.stepNavigatorAndToolbarContainer.changeOrientation(maximized);
+
+        setContentFormExpanded(!this.minimized);
     }
 
     protected createWizardActions(): ContentWizardActions {
@@ -746,11 +748,11 @@ export class ContentWizardPanel
             });
         }
 
-        $isContentFormExpanded.listen((isContentFormExpanded, prev) => {
-            if (isContentFormExpanded !== prev) {
-                // this.toggleMinimize();
+        this.contentFormExpandedUnsubscribe = $isContentFormExpanded.listen((isExpanded) => {
+            if (isExpanded === this.minimized) {
+                this.toggleMinimize();
             }
-        })
+        });
 
         return this.contextSplitPanel;
     }
@@ -783,9 +785,6 @@ export class ContentWizardPanel
         liveFormPanel.onRenderableChanged((renderable: boolean) => {
             PageEventsManager.get().notifyRenderableChanged(renderable);
         });
-
-        this.minimizeEditButton = new DivEl('minimize-edit icon-arrow-left');
-        this.minimizeEditButton.onClicked(this.toggleMinimize.bind(this, -1));
 
         return liveFormPanel;
     }
@@ -836,6 +835,8 @@ export class ContentWizardPanel
                 this.wizardDisplayNameUnsubscribe = undefined;
                 this.wizardHasChangesUnsubscribe?.();
                 this.wizardHasChangesUnsubscribe = undefined;
+                this.contentFormExpandedUnsubscribe?.();
+                this.contentFormExpandedUnsubscribe = undefined;
                 resetWizardContent();
             });
 
@@ -875,12 +876,13 @@ export class ContentWizardPanel
             if (this.livePanel) {
                 this.livePanel.addClass('rendering');
                 ResponsiveManager.onAvailableSizeChanged(this.formPanel);
-                this.stepNavigatorAndToolbarContainer.appendChild(this.minimizeEditButton);
             }
 
             if (this.params.createSite || this.getPersistedItem().isSite()) {
                 thumbnailUploader.addClass('site');
             }
+
+            this.stepNavigatorAndToolbarContainer?.getParentElement()?.remove(); // removing legacy nav bar
 
             return rendered;
         });
@@ -2731,14 +2733,6 @@ export class ContentWizardPanel
             }
             return hasControllers ?? false;
         });
-    }
-
-    protected calcNavigationWidth(): number {
-        if (this.minimized) {
-            return this.splitPanel.getEl().getHeight() + this.stepNavigatorAndToolbarContainer.getEl().getPaddingLeft();
-        }
-
-        return super.calcNavigationWidth();
     }
 
     isInMobileViewMode(): boolean {

@@ -31,6 +31,7 @@ import {
     setDraftStringByPath,
     setDraftWorkflowState,
     setContentFormExpanded,
+    toggleContentFormExpanded,
     setPersistedContent,
 } from './wizardContent.store';
 import {getMixinDataContext} from './wizardMixinData.store';
@@ -501,6 +502,16 @@ describe('wizardContent.store', () => {
         expect($isContentFormExpanded.get()).toBe(false);
 
         setContentFormExpanded(true);
+        expect($isContentFormExpanded.get()).toBe(true);
+    });
+
+    it('toggles content form expanded state', () => {
+        expect($isContentFormExpanded.get()).toBe(true);
+
+        toggleContentFormExpanded();
+        expect($isContentFormExpanded.get()).toBe(false);
+
+        toggleContentFormExpanded();
         expect($isContentFormExpanded.get()).toBe(true);
     });
 });

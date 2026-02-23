@@ -468,9 +468,13 @@ export function setMixinsDescriptors(mixinsDescriptors: MixinDescriptor[]): void
     $mixinsDescriptors.set(mixinsDescriptors);
 }
 
-export function setContentFormExpanded(isExpanded: boolean): void {
+export const setContentFormExpanded = (isExpanded: boolean): void => {
     $isContentFormExpanded.set(isExpanded);
-}
+};
+
+export const toggleContentFormExpanded = (): void => {
+    $isContentFormExpanded.set(!$isContentFormExpanded.get());
+};
 
 export function setDraftMixinEnabled(name: string, enabled: boolean): void {
     const mixinDescriptor = $mixinsDescriptors.get().find((descriptor) => descriptor.getName() === name);

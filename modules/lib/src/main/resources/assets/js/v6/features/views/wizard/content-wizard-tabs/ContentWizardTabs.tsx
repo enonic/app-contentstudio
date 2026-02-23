@@ -3,10 +3,13 @@ import {useStore} from '@nanostores/preact';
 import {type ReactElement} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {
+    $displayName,
     $hasPage,
+    $isContentFormExpanded,
     $contentTypeDisplayName,
     $mixinsTabs,
 } from '../../../store/wizardContent.store';
+import {CollapsedFormPanel} from './CollapsedFormPanel';
 import {ContentDataView} from './ContentDataView';
 import {PageView} from './PageView';
 import {MixinView} from './MixinView';
@@ -17,10 +20,16 @@ type ContentWizardTabsProps = {
 };
 
 export const ContentWizardTabs = ({tabListAction}: ContentWizardTabsProps): ReactElement => {
+    const isExpanded = useStore($isContentFormExpanded);
     const contentTypeDisplayName = useStore($contentTypeDisplayName);
+    const displayName = useStore($displayName);
     const hasPage = useStore($hasPage);
     const xDataTabs = useStore($mixinsTabs);
     const pageTabLabel = useI18n('field.page');
+
+    if (!isExpanded) {
+        return <CollapsedFormPanel displayName={displayName || contentTypeDisplayName} />;
+    }
 
     return (
         <Tab.Root defaultValue="content" className="flex flex-col gap-7.5">
