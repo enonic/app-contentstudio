@@ -146,7 +146,7 @@ import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
 import {type PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
 import {ContentWizardTabsToolbarElement} from '../../v6/features/views/wizard/content-wizard-tabs/ContentWizardTabsToolbarElement';
 import {
-    $displayName,
+    $displayName, $isContentFormExpanded,
     $wizardHasChanges,
     initializeWizardContentState,
     resetWizardContent,
@@ -745,6 +745,12 @@ export class ContentWizardPanel
                 }
             });
         }
+
+        $isContentFormExpanded.listen((isContentFormExpanded, prev) => {
+            if (isContentFormExpanded !== prev) {
+                // this.toggleMinimize();
+            }
+        })
 
         return this.contextSplitPanel;
     }

@@ -115,6 +115,8 @@ export const $mixinsDescriptors = atom<MixinDescriptor[]>([]);
 
 export const $wizardDataValidation = map<FormDataValidation>({});
 
+export const $isContentFormExpanded = atom<boolean>(true);
+
 //
 // * Derived
 //
@@ -466,6 +468,10 @@ export function setMixinsDescriptors(mixinsDescriptors: MixinDescriptor[]): void
     $mixinsDescriptors.set(mixinsDescriptors);
 }
 
+export function setContentFormExpanded(isExpanded: boolean): void {
+    $isContentFormExpanded.set(isExpanded);
+}
+
 export function setDraftMixinEnabled(name: string, enabled: boolean): void {
     const mixinDescriptor = $mixinsDescriptors.get().find((descriptor) => descriptor.getName() === name);
     if (mixinDescriptor && !mixinDescriptor.isOptional()) {
@@ -534,6 +540,7 @@ export function resetWizardContent(): void {
 
     $contentType.set(null);
     $mixinsDescriptors.set([]);
+    $isContentFormExpanded.set(true);
 
     for (const callback of resetCallbacks) {
         callback();
