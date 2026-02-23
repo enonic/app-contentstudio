@@ -12,6 +12,7 @@ import {Workflow} from '../../../app/content/Workflow';
 import {WorkflowState} from '../../../app/content/WorkflowState';
 import {PageBuilder, type Page} from '../../../app/page/Page';
 import {
+    $isContentFormExpanded,
     addDraftStringOccurrenceByPath,
     $mixinsDescriptors,
     $wizardDataChangedPaths,
@@ -29,6 +30,7 @@ import {
     setDraftPage,
     setDraftStringByPath,
     setDraftWorkflowState,
+    setContentFormExpanded,
     setPersistedContent,
 } from './wizardContent.store';
 import {getMixinDataContext} from './wizardMixinData.store';
@@ -481,6 +483,7 @@ describe('wizardContent.store', () => {
         const descriptor = createMixinDescriptor('app:seo', true);
         initializeWizardContentState(createContent(), null, [descriptor], WorkflowState.IN_PROGRESS);
         setDraftDisplayName('Updated');
+        setContentFormExpanded(false);
 
         resetWizardContent();
 
@@ -488,5 +491,16 @@ describe('wizardContent.store', () => {
         expect($wizardDataChangedPaths.get()).toEqual({});
         expect($wizardChangedSections.get()).toEqual([]);
         expect($wizardHasChanges.get()).toBe(false);
+        expect($isContentFormExpanded.get()).toBe(true);
+    });
+
+    it('sets content form expanded state', () => {
+        expect($isContentFormExpanded.get()).toBe(true);
+
+        setContentFormExpanded(false);
+        expect($isContentFormExpanded.get()).toBe(false);
+
+        setContentFormExpanded(true);
+        expect($isContentFormExpanded.get()).toBe(true);
     });
 });

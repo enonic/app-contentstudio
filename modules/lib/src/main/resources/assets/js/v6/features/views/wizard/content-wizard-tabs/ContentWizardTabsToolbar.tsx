@@ -1,4 +1,4 @@
-import {ReactElement} from 'react';
+import {type ReactElement} from 'react';
 import {ContentWizardTabs} from './ContentWizardTabs';
 import {MixinMenu} from './MixinMenu';
 

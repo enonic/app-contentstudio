@@ -95,7 +95,7 @@ export const MixinMenu = (): ReactElement => {
     return (
         <Menu open={open} onOpenChange={handleOpenChange}>
             <Menu.Trigger asChild>
-                <IconButton icon={Ellipsis} size="sm" variant="text"/>
+                <IconButton className="shrink-0" icon={Ellipsis} size="sm" variant="text"/>
             </Menu.Trigger>
             <Menu.Portal>
                 <Menu.Content align="end">

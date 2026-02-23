@@ -10,6 +10,7 @@ import {
 import {ContentDataView} from './ContentDataView';
 import {PageView} from './PageView';
 import {MixinView} from './MixinView';
+import {ToggleFormButton} from './ToggleFormButton';
 
 type ContentWizardTabsProps = {
     tabListAction?: ReactElement;
@@ -24,16 +25,17 @@ export const ContentWizardTabs = ({tabListAction}: ContentWizardTabsProps): Reac
     return (
         <Tab.Root defaultValue="content" className="flex flex-col gap-7.5">
             <div className="flex items-center gap-2">
-            <Tab.List>
-                <Tab.DefaultTrigger value="content">{contentTypeDisplayName}</Tab.DefaultTrigger>
-                {hasPage && <Tab.DefaultTrigger value="page">{pageTabLabel}</Tab.DefaultTrigger>}
-                {xDataTabs.map((tab) => (
-                    <Tab.DefaultTrigger key={tab.name} value={tab.name}>
-                        {tab.displayName}
-                    </Tab.DefaultTrigger>
-                ))}
-            </Tab.List>
-            {tabListAction}
+                <Tab.List className="w-auto flex-1 min-w-0">
+                    <Tab.DefaultTrigger value="content">{contentTypeDisplayName}</Tab.DefaultTrigger>
+                    {hasPage && <Tab.DefaultTrigger value="page">{pageTabLabel}</Tab.DefaultTrigger>}
+                    {xDataTabs.map((tab) => (
+                        <Tab.DefaultTrigger key={tab.name} value={tab.name}>
+                            {tab.displayName}
+                        </Tab.DefaultTrigger>
+                    ))}
+                </Tab.List>
+                {tabListAction}
+                <ToggleFormButton />
             </div>
 
             <Tab.Content value="content">
