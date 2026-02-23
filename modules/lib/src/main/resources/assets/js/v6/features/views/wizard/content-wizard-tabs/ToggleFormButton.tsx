@@ -3,7 +3,7 @@ import {useStore} from '@nanostores/preact';
 import {PanelRightClose, PanelRightOpen} from 'lucide-react';
 import {type ReactElement} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
-import {$isContentFormExpanded, setContentFormExpanded} from '../../../store/wizardContent.store';
+import {$isContentFormExpanded, toggleContentFormExpanded} from '../../../store/wizardContent.store';
 
 export const ToggleFormButton = (): ReactElement => {
     const isContentFormExpanded = useStore($isContentFormExpanded);
@@ -13,7 +13,7 @@ export const ToggleFormButton = (): ReactElement => {
     const ContentFormIcon = isContentFormExpanded ? PanelRightOpen : PanelRightClose;
 
     const handleClick = (): void => {
-        setContentFormExpanded(!isContentFormExpanded);
+        toggleContentFormExpanded();
     };
 
     return (
