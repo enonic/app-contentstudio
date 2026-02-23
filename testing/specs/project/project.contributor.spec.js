@@ -259,8 +259,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await studioUtils.findAndSelectItem(FOLDER_READY_TO_PUBLISH.displayName);
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await createRequestPublishDialog.waitForDialogLoaded();
-            await createRequestPublishDialog.clickOnNextButton();
-            await createRequestPublishDialog.typeInChangesInput('contributor request');
+            await createRequestPublishDialog.typeInTitleInput('contributor request');
             // 3. Click on 'Create Request' button:
             await createRequestPublishDialog.clickOnCreateRequestButton();
             // 4. Verify that Create Request dialog closes:
@@ -276,8 +275,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await publishRequestDetailsDialog.waitForPublishNowButtonDisabled();
         });
 
-    //Verifies - User with contributor role - Duplicate button gets enabled after selecting 2 items in grid #1922
-    //https://github.com/enonic/app-contentstudio/issues/1922
+
     it("GIVEN user with 'Contributor' role is logged in WHEN 2 folders have been selected THEN 'Duplicate' button should be disabled",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();

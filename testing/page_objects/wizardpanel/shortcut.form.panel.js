@@ -195,8 +195,8 @@ class ShortcutForm extends Page {
     }
 
     async filterOptionsAndSelectTarget(displayName) {
-        let contentSelectorDropdown = new ContentSelectorDropdown();
-        return await contentSelectorDropdown.selectFilteredByDisplayNameContent(displayName, xpath.stepForm);
+        let contentSelectorDropdown = new ContentSelectorDropdown(xpath.stepForm);
+        await contentSelectorDropdown.clickOnFilteredByDisplayNameItem(displayName);
     }
 
     async getSelectedTargetDisplayName() {

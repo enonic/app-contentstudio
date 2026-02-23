@@ -1,5 +1,5 @@
 const Page = require('../page');
-const {BUTTONS, DROPDOWN} = require('../../libs/elements');
+const {BUTTONS, DROPDOWN, ISSUE} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const XPATH = {
@@ -180,6 +180,17 @@ class BaseIssueDetailsDialog extends Page {
             return await this.getText(locator);
         } catch (err) {
             await this.handleError('Issue Details Dialog, tried to get the current status in status selector', 'err_get_current_status',
+                err);
+        }
+    }
+    async clickOnIncludeChildrenCheckbox(displayName) {
+        try {
+            let includeIcon = ISSUE.contentRowByName(displayName) + "/following-sibling::div[contains(@id,'children')]//label";
+            await this.waitForElementDisplayed(includeIcon, appConst.shortTimeout);
+            await this.clickOnElement(includeIcon);
+            return await this.pause(1000);
+        } catch (err) {
+            await this.handleError(`Tried to click on 'include children' checkbox for the content: ${displayName}`, 'err_include_children',
                 err);
         }
     }

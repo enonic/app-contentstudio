@@ -47,8 +47,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await contentBrowsePanel.openPublishMenuSelectItem(csConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await createRequestPublishDialog.waitForDialogLoaded();
-            await createRequestPublishDialog.clickOnNextButton();
-            await createRequestPublishDialog.typeInChangesInput(PUBLISH_REQUEST_TITLE);
+            await createRequestPublishDialog.typeInTitleInput(PUBLISH_REQUEST_TITLE);
             await createRequestPublishDialog.clickOnCreateRequestButton();
         });
 

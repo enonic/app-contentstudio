@@ -55,6 +55,19 @@ class IssueDetailsDialog extends BaseDetailsDialog {
         }
     }
 
+    async waitForNumberInItemsTab(value) {
+        try {
+            let xpath = this.itemsTabItem + '/span[2]';
+            await this.getBrowser().waitUntil(async () => {
+                let result = await this.getText(xpath);
+                let resultNum = parseInt(result, 10);
+                return resultNum === Number(value);
+            }, {timeout: appConst.mediumTimeout, timeoutMsg: "'Items' tab number is not equal to " + value});
+        } catch (err) {
+            await this.handleError('Issue Details Dialog, tried to get the number in Items tab', 'err_get_number_in_items_tab', err);
+        }
+    }
+
 
     async getIssueTitle() {
         let result = await this.getText(XPATH.issueNameInPlaceInput + '/h2');
@@ -62,7 +75,7 @@ class IssueDetailsDialog extends BaseDetailsDialog {
         return result.substring(0, endIndex).trim();
     }
 
-    async isItemsTabBarItemActive() {
+    async isItemsTabItemActive() {
         try {
             let result = await this.getAttribute(this.itemsTabItem, 'class');
             return result.includes('active');

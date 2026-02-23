@@ -11,7 +11,6 @@ const COMMON = {
     SELECT_ALL_CHECKBOX_LABEL: "//label[descendant::input[@type='checkbox' and @aria-label='Select all']]",
     menuItemByText: (text) => `//div[@role,'menuitem') and text()='${text}']`,
 
-
     INPUTS: {
         CHECKBOX_INPUT: "//input[@type='checkbox']",
         CHECKBOX_INPUT_CHECKED: "//input[@type='checkbox' and @aria-checked='true']",
@@ -20,8 +19,6 @@ const COMMON = {
         textAreaByName: (name) => `//textarea[@name='${name}']`,
         inputByAriaLabel: (ariaLabel) => `//input[@aria-label='${ariaLabel}']`,
     }
-
-
 };
 const WIZARD = {
     DISPLAY_NAME_INPUT: "//input[@name='displayName']",
@@ -136,6 +133,21 @@ const DROPDOWN_OLD = {
 const ISSUE = {
     contentRowByName: displayName => `//div[@data-component='ContentRow' and (descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]])]`,
 }
+const DEPENDANTS_COMPONENT = {
+    SECONDARY_DATA_COMPONENT_DIV: "//div[@data-component='SplitList.Secondary']",
+    CONTENT_ROW: "//div[@data-component='ContentRow' and (not(@aria-disabled) or @aria-disabled!='true')]",
+    contentRowByName: displayName => `//div[@data-component='ContentRow' and (not(@aria-disabled) or @aria-disabled!='true') and (descendant::div[@data-component='ContentRowLabel' and descendant::span[contains(.,'${displayName}')]])]`,
+    ITEMS_NAME_SPAN: "//div[@data-component='ContentRowLabel']//div[@data-component='ContentLabel']//div[2]//span",
+    //contentCheckboxLabelByName: name => DEPENDANTS_COMPONENT.contentRowByName(name) + `//div[@data-component='ContentRowCheckbox']/`,
+    contentCheckboxInputByName: name => DEPENDANTS_COMPONENT.contentRowByName(name) +
+                                        `//div[@data-component='ContentRowCheckbox']//input[@type='checkbox']`,
+    contentCheckboxLabelByName: name => DEPENDANTS_COMPONENT.contentRowByName(name) + `//div[@data-component='ContentRowCheckbox']//label`,
+};
+const SELECTION_STATUS_BAR = {
+    SELECTION_STATUS_BAR: "//div[@data-component='SelectionStatusBar' ]",
+    BUTTON_APPLY: "//button[@data-component='StatusBarEntryButton' and text()='Apply']",
+
+};
 module.exports = Object.freeze({
     COMMON,
     BUTTONS,
@@ -144,4 +156,6 @@ module.exports = Object.freeze({
     TREE_GRID,
     DROPDOWN,
     ISSUE,
+    DEPENDANTS_COMPONENT,
+    SELECTION_STATUS_BAR
 });

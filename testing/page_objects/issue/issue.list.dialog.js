@@ -56,7 +56,8 @@ class IssuesListDialog extends Page {
             await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
             await this.pause(200);
         } catch (err) {
-            await this.handleError('Issues list dialog was not loaded', 'err_load_issue_list_dialog', err);
+            let screenshot = await this.saveScreenshotUniqueName('err_issue_list_dlg');
+            throw new Error(`Issues list dialog is not loaded screenshot: ${screenshot} ` + err);
         }
     }
 

@@ -3,7 +3,7 @@
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const {BUTTONS} = require('../../libs/elements');
+const {BUTTONS, ISSUE} = require('../../libs/elements');
 const PrincipalComboBox = require('../components/selectors/principal.combobox.dropdown');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 const DependantsControls = require('./dependant.controls');
@@ -95,18 +95,6 @@ class CreateIssueDialog extends Page {
             return await this.pause(300);
         } catch (err) {
             await this.handleError('Create Issue dialog, Error after Clicking on Close button', 'err_close_issue_dialog', err);
-        }
-    }
-
-    async clickOnIncludeChildrenToggler(contentName) {
-        try {
-            let selector = xpath.container + xpath.selectionItemByDisplayName(contentName) + lib.INCLUDE_CHILDREN_TOGGLER;
-            await this.waitForElementDisplayed(selector, appConst.shortTimeout);
-            await this.clickOnElement(selector);
-            await this.pause(1000);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_include_children');
-            throw new Error(`Error when clicking on 'include children' icon , screenshot:${screenshot}` + err);
         }
     }
 
@@ -290,6 +278,17 @@ class CreateIssueDialog extends Page {
 
     async waitForAllDependantsCheckboxNotDisplayed() {
         return await this.dependantsControls.waitForAllDependantsCheckboxNotDisplayed();
+    }
+    async clickOnIncludeChildrenCheckbox(itemName) {
+        try {
+            let includeIcon = ISSUE.contentRowByName(itemName) + "/following-sibling::div[contains(@id,'children')]//label";
+            await this.waitForElementDisplayed(includeIcon, appConst.shortTimeout);
+            await this.clickOnElement(includeIcon);
+            return await this.pause(1000);
+        } catch (err) {
+            await this.handleError(`Tried to click on 'include children' checkbox for the content: ${itemName}`, 'err_include_children',
+                err);
+        }
     }
 }
 

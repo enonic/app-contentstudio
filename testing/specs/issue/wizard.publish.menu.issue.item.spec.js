@@ -64,7 +64,7 @@ describe('wizard.publish.menu.issue.item.spec - tests for Publish menu in wizard
             await issueDetailsItemsTab.excludeItem(TEST_FOLDER.displayName);
             await taskDetailsDialog.pause(1000);
             // 4. Verify that Items tab remains active:
-            let isActive = await taskDetailsDialog.isItemsTabBarItemActive();
+            let isActive = await taskDetailsDialog.isItemsTabItemActive();
             assert.ok(isActive, 'Items tab remains active');
             // 5. Close the modal dialog:
             await taskDetailsDialog.clickOnCloseButton();

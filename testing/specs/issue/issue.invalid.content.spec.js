@@ -37,8 +37,8 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             await createIssueDialog.typeTitle(ISSUE_TITLE_2);
             // 3. Click on both 'include children items' icons:
-            await createIssueDialog.clickOnIncludeChildrenToggler(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_DISPLAY_NAME);
-            await createIssueDialog.clickOnIncludeChildrenToggler(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME);
+            await createIssueDialog.clickOnIncludeChildrenCheckbox(appConst.TEST_DATA.FOLDER_WITH_IMAGES_2_NAME);
+            await createIssueDialog.clickOnIncludeChildrenCheckbox(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_NAME);
             // 4. click on 'create issue' button:
             await createIssueDialog.clickOnCreateIssueButton();
             // 5. Go to 'Items' tab
@@ -69,7 +69,7 @@ describe('issue.invalid.content.spec: create a issue with invalid content', func
             // 2. open 'Create Issue' dialog
             await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
             await createIssueDialog.typeTitle(ISSUE_TITLE);
-            await createIssueDialog.clickOnIncludeChildrenToggler(appConst.TEST_FOLDER_2_DISPLAY_NAME);
+            await createIssueDialog.clickOnIncludeChildrenCheckbox(appConst.TEST_FOLDER_2_DISPLAY_NAME);
             await studioUtils.saveScreenshot('create_issue_dialog_1');
             // 3. click on create issue button:
             await createIssueDialog.clickOnCreateIssueButton();

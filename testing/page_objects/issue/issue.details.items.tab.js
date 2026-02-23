@@ -46,18 +46,6 @@ class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
         return xpath.container + xpath.itemsToPublish + lib.H6_DISPLAY_NAME;
     }
 
-    async clickOnIncludeChildrenToggler(displayName) {
-        try {
-            let selector = xpath.selectionItemByDisplayName(displayName) + lib.INCLUDE_CHILDREN_TOGGLER;
-            await this.waitForElementDisplayed(selector, appConst.shortTimeout);
-            await this.clickOnElement(selector);
-            return await this.pause(500);
-        } catch (err) {
-            await this.saveScreenshot('err_click_on_dependent');
-            throw new Error('Error when clicking on dependant ' + displayName + ' ' + err);
-        }
-    }
-
     // clicks on Publish... button and  opens 'Publishing Wizard'
     async clickOnPublishAndOpenPublishWizard() {
         try {
@@ -138,17 +126,6 @@ class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
         return await this.getBrowser().getElementText(result[0].elementId);
     }
 
-    async clickOnIncludeChildItems(displayName) {
-        try {
-            let includeIcon = ISSUE.contentRowByName(displayName) + "/following-sibling::div[contains(@id,'children')]//label";
-            await this.waitForElementDisplayed(includeIcon, appConst.shortTimeout);
-            await this.clickOnElement(includeIcon);
-            return await this.pause(2000);
-        } catch (err) {
-            await this.saveScreenshot('err_issue_items');
-            throw new Error('error during clicking on `Include Child items`: ' + err)
-        }
-    }
 
     async excludeItem(displayName) {
         let removeIcon = xpath.selectionItemByDisplayName(displayName) + "//div[contains(@class,'icon remove')]";

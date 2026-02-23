@@ -167,7 +167,7 @@ class BaseContextWindowPanel extends Page {
     }
 
     async waitForWidgetSelected(optionName) {
-        let selector = this.widgetSelectorDropdown + DROPDOWN.dropdownSelectedOptionByName('WidgetsSelectorItem', optionName);
+        let selector = this.widgetSelectorDropdown + lib.itemByDisplayName(optionName);
         await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
 }

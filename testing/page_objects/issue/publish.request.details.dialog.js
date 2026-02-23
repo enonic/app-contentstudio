@@ -3,6 +3,7 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
+const {ISSUE} = require('../../libs/elements');
 
 const xpath = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
@@ -55,16 +56,6 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
         }
     }
 
-    async clickOnIncludeChildrenToggler(displayName) {
-        try {
-            let selector = xpath.selectionItemByDisplayName(displayName) + lib.INCLUDE_CHILDREN_TOGGLER;
-            await this.waitForElementDisplayed(selector, appConst.TIMEOUT_1);
-            await this.clickOnElement(selector);
-            return await this.pause(1000);
-        } catch (err) {
-            await this.handleError(`Error during clicking on Include Child Items toggle`, 'err_click_on_include_children', err);
-        }
-    }
 
     // clicks on Publish... button and  opens 'Publishing Wizard'
     async clickOnPublishAndOpenPublishWizard() {

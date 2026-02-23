@@ -99,6 +99,18 @@ class BaseDropdown extends Page {
         }
     }
 
+    async clickOnApplySelectionButtonOld() {
+        try {
+            let locator = this.container + lib.DROPDOWN_SELECTOR.APPLY_SELECTION_BUTTON;
+            await this.waitUntilDisplayed(locator, appConst.shortTimeout);
+            //await this.waitForApplySelectionButtonDisplayed();
+            let elements = await this.getDisplayedElements(locator);
+            await elements[0].click();
+            await this.pause(100);
+        } catch (err) {
+            await this.handleError('Dropdown, tried to click on Apply Selection button.', 'err_click_apply_button', err);
+        }
+    }
     async clickOnApplySelectionButton() {
         try {
             await this.waitForApplySelectionButtonDisplayed();
@@ -111,8 +123,9 @@ class BaseDropdown extends Page {
     }
 
     async filterItem(text, parentLocator = '') {
-        await this.waitUntilDisplayed(parentLocator + this.optionsFilterInput, appConst.mediumTimeout);
-        let elements = await this.getDisplayedElements(parentLocator + this.optionsFilterInput);
+        let locator = this.container + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
+        //await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
+        let elements = await this.getDisplayedElements(locator);
         await elements[0].setValue(text);
         return await this.pause(300);
     }

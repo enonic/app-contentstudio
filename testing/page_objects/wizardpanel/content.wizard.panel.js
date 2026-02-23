@@ -67,7 +67,7 @@ class ContentWizardPanel extends Page {
     }
 
     get markAsReadyButton() {
-        return XPATH.container + BUTTONS.actionButtonStrict('Mark as ready');
+        return XPATH.container + BUTTONS.buttonByLabel('Mark as ready');
     }
 
     get emulatorDropdown() {
@@ -874,13 +874,12 @@ class ContentWizardPanel extends Page {
         await contentPublishDialog.waitForDialogClosed();
     }
 
-    async openPublishMenuAndCreateRequestPublish(changes, assignees) {
+    async openPublishMenuAndCreateRequestPublish(title, assignees) {
         let createRequestPublishDialog = new CreateRequestPublishDialog();
         let contentWizardPanel = new ContentWizardPanel();
         await contentWizardPanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
         await createRequestPublishDialog.waitForDialogLoaded();
-        await createRequestPublishDialog.clickOnNextButton();
-        await createRequestPublishDialog.typeInChangesInput(changes);
+        await createRequestPublishDialog.typeInTitleInput(title);
         return await createRequestPublishDialog.clickOnCreateRequestButton();
     }
 

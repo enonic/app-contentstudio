@@ -204,8 +204,7 @@ module.exports = {
             await browsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await createRequestPublishDialog.waitForDialogLoaded();
             await createRequestPublishDialog.pause(300);
-            await createRequestPublishDialog.clickOnNextButton();
-            await createRequestPublishDialog.typeInChangesInput(text);
+            await createRequestPublishDialog.typeInTitleInput(text);
             return await createRequestPublishDialog.clickOnCreateRequestButton();
         } catch (err) {
             throw new Error("Error when create 'Publish Request' " + err);

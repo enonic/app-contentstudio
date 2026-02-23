@@ -7,7 +7,7 @@ const XPATH = {
     commentAndCloseRequestButton: `//button[contains(@id,'DialogButton') and child::span[text()='Comment & Close Request']]`,
     commentAndCloseIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='Comment & Close Issue']]`,
     commentsPanelDiv: `//div[@role='tabpanel' and contains(@id,'comments')]`,
-    noCommentsMessage: "//h5[@class='empty-list-item']",
+    noCommentsMessage: "//div[text()='No comments yet']",
     reopenRequestButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Request']]`,
     commentsListDiv: "//div[@data-component='IssueCommentsList']",
     issueCommentsListItemByText:
@@ -94,7 +94,7 @@ class IssueDetailsDialogCommentsTab extends Page {
     }
 
     async clickOnDeleteCommentMenuItem(text) {
-        let menuButton = XPATH.issueCommentsListItemByText(text) +  BUTTONS.BUTTON_MENU_POPUP;
+        let menuButton = XPATH.issueCommentsListItemByText(text) + BUTTONS.BUTTON_MENU_POPUP;
         await this.waitForElementDisplayed(menuButton, appConst.shortTimeout);
         // click on menu button then click on menu item
         await this.clickOnElement(menuButton);
@@ -131,20 +131,30 @@ class IssueDetailsDialogCommentsTab extends Page {
         })
     }
 
-    waitForCommentButtonDisabled() {
-        return this.waitForElementDisabled(this.commentButton, appConst.shortTimeout).catch(err => {
-            throw new Error('Issue Details Dialog  ' + err);
-        })
+    async waitForCommentButtonDisabled() {
+        try {
+            return await this.waitForElementDisabled(this.commentButton, appConst.shortTimeout)
+        } catch (err) {
+          await this.handleError('Comments Tab, Comment button should be disabled', 'err_comment_btn_disabled', err);
+        }
     }
 
-    waitForNoCommentsYetMessageDisplayed() {
-        let locator = XPATH.commentsList + XPATH.noCommentsMessage;
-        return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    async waitForNoCommentsYetMessageDisplayed() {
+        try {
+            let locator = XPATH.commentsListDiv + XPATH.noCommentsMessage;
+            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Comments Tab, wait for "No comments yet" message displayed', 'err_no_comments_message', err);
+        }
     }
 
-    waitForNoCommentsYetMessageNotDisplayed() {
-        let locator = XPATH.commentsList + XPATH.noCommentsMessage;
-        return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+    async waitForNoCommentsYetMessageNotDisplayed() {
+        try {
+            let locator = XPATH.commentsListDiv + XPATH.noCommentsMessage;
+            return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Comments Tab, wait for "No comments yet" message not displayed', 'err_no_comments_msg', err);
+        }
     }
 }
 

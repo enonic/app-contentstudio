@@ -15,6 +15,9 @@ class ContentSelectorDropdown extends BaseDropdown {
         super();
         this._container = parentElementXpath;
     }
+    get dataComponent() {
+        return "//div[contains(@data-component,'AssigneeSelector')]";
+    }
 
     // returns the element that contains the dropdown:
     get container() {
@@ -28,24 +31,24 @@ class ContentSelectorDropdown extends BaseDropdown {
 
 
     // selects a tree option by display name .
-    async selectFilteredByDisplayNameContent(userDisplayName) {
+    async selectFilteredByDisplayNameContent(displayName) {
         try {
-            await this.doFilterItem(userDisplayName);
-            await this.clickOnFilteredByDisplayNameTreeOption(userDisplayName);
+            await this.doFilterItem(displayName);
+            await this.clickOnFilteredByDisplayNameTreeOption(displayName);
             await this.clickOnApplySelectionButton();
         } catch (err) {
-            await this.handleError(`Content selector, tried to click on the filtered option, ${userDisplayName} `, 'err_content_sel', err);
+            await this.handleError(`Content selector, tried to click on the filtered option, ${displayName} `, 'err_content_sel', err);
         }
     }
 
-    // async selectFilteredByDisplayNameContent(displayName, parent) {
-    //     try {
-    //         // doesn't click on Apply - just click on the option:
-    //         await this.clickOnFilteredByDisplayNameItem(displayName, parent);
-    //     } catch (err) {
-    //         await this.handleError(`Content selector - Error during selecting the option`, 'err_content_selector_dropdown', err);
-    //     }
-    // }
+    async selectFilteredByDisplayNameContent_old(displayName, parent) {
+        try {
+            // doesn't click on Apply - just click on the option:
+            await this.clickOnFilteredByDisplayNameItem(displayName, parent);
+        } catch (err) {
+            await this.handleError(`Content selector - Error during selecting the option`, 'err_content_selector_dropdown', err);
+        }
+    }
 
     async selectFilteredByDisplayNameContentMulti(displayName, parent) {
         try {
