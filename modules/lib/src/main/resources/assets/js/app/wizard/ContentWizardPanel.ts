@@ -158,6 +158,8 @@ import {
     setMixinsDescriptors as setWizardMixinsDescriptors,
     setPersistedContent as setWizardPersistedContent,
 } from '../../v6/features/store/wizardContent.store';
+import {setContextOpen} from '../../v6/features/store/contextWidgets.store';
+import {setWizardContent} from '../../v6/features/store/context/contextContent.store';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -686,8 +688,11 @@ export class ContentWizardPanel
     }
 
     protected createWizardAndDetailsSplitPanel(leftPanel: Panel): SplitPanel {
-        this.contextView = new ContextView(true);
+        this.contextView = new ContextView(false); // don't show the widget until it is fixed
+
         this.contextView.setItem(this.getContent());
+        setWizardContent(this.getContent());
+
         const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
         const contextToggleButton = new NonMobileContextPanelToggleButton();
 
@@ -720,7 +725,10 @@ export class ContentWizardPanel
                 this.livePanel.setContextPanelMode(mode);
             });
 
+            setContextOpen(this.contextSplitPanel.getState() === ContextPanelState.EXPANDED);
+
             this.contextSplitPanel.onStateChanged((state: ContextPanelState) => {
+                setContextOpen(state === ContextPanelState.EXPANDED);
                 this.livePanel.setContextPanelState(state);
 
                 if (this.isMinimized()) {
