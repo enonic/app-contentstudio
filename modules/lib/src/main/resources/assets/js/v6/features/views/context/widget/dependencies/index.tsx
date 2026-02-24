@@ -10,6 +10,8 @@ import {LegacyElement} from '../../../../shared/LegacyElement';
 import {$contextContent} from '../../../../store/context/contextContent.store';
 import {DependenciesWidgetContentSection} from './DependenciesWidgetContentSection';
 import {DependenciesWidgetFlowSection} from './DependenciesWidgetFlowSection';
+import {$activeWidgetId, $isContextOpen} from '../../../../store/contextWidgets.store';
+import {DEPENDENCIES_WIDGET_KEY} from '../../../../utils/widget/dependencies';
 
 export type DependencyItem = {
     type: DependencyType;
@@ -21,12 +23,18 @@ export type DependencyItem = {
 const DEPENDENCIES_WIDGET_NAME = 'DependenciesWidget';
 
 const DependenciesWidget = (): ReactElement => {
+    const isContextOpen = useStore($isContextOpen);
+    const activeWidget = useStore($activeWidgetId);
+    const isActiveWidget = activeWidget === DEPENDENCIES_WIDGET_KEY;
     const content = useStore($contextContent);
+
     const [inboundDependencies, setInboundDependencies] = useState<DependencyItem[]>([]);
     const [outboundDependencies, setOutboundDependencies] = useState<DependencyItem[]>([]);
 
     // TODO: Enonic UI - use tanstack query instead of useEffect
     useEffect(() => {
+        if (!isContextOpen || !isActiveWidget) return;
+
         if (!content) {
             setInboundDependencies([]);
             setOutboundDependencies([]);
@@ -52,15 +60,12 @@ const DependenciesWidget = (): ReactElement => {
 
             setOutboundDependencies(outbound);
         });
-    }, [content]);
+    }, [content, isContextOpen, isActiveWidget]);
 
-    if (!content) return null;
+    if (!isContextOpen || !isActiveWidget || !content) return null;
 
     return (
-        <div
-            data-component={DEPENDENCIES_WIDGET_NAME}
-            className="flex flex-col gap-7.5 items-center h-full overflow-hidden"
-        >
+        <div data-component={DEPENDENCIES_WIDGET_NAME} className="flex flex-col gap-7.5 items-center h-full overflow-hidden">
             <DependenciesWidgetFlowSection
                 contentId={content.getContentId()}
                 type={DependencyType.INBOUND}
@@ -80,9 +85,7 @@ const DependenciesWidget = (): ReactElement => {
 
 DependenciesWidget.displayName = DEPENDENCIES_WIDGET_NAME;
 
-export class DependenciesWidgetElement
-    extends LegacyElement<typeof DependenciesWidget>
-    implements WidgetItemViewInterface {
+export class DependenciesWidgetElement extends LegacyElement<typeof DependenciesWidget> implements WidgetItemViewInterface {
     constructor() {
         super({}, DependenciesWidget);
     }

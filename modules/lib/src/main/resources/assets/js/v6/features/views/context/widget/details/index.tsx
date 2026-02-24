@@ -9,10 +9,21 @@ import {DetailsWidgetInfoSection} from './DetailsWidgetInfoSection';
 import {DetailsWidgetPermissionsSection} from './DetailsWidgetPermissionsSection';
 import {DetailsWidgetScheduleSection} from './DetailsWidgetScheduleSection';
 import {DetailsWidgetTemplateSection} from './DetailsWidgetTemplateSection';
+import {useStore} from '@nanostores/preact';
+import {$activeWidgetId, $isContextOpen} from '../../../../store/contextWidgets.store';
+import {$contextContent} from '../../../../store/context/contextContent.store';
+import {DETAILS_WIDGET_KEY} from '../../../../utils/widget/details';
 
 const DETAILS_WIDGET_NAME = 'DetailsWidget';
 
 export const DetailsWidget = (): ReactElement => {
+    const isContextOpen = useStore($isContextOpen);
+    const activeWidget = useStore($activeWidgetId);
+    const isActiveWidget = activeWidget === DETAILS_WIDGET_KEY;
+    const content = useStore($contextContent);
+
+    if (!isContextOpen || !isActiveWidget || !content) return null;
+
     return (
         <div data-component={DETAILS_WIDGET_NAME} className="flex flex-col gap-7.5">
             <DetailsWidgetContentSection />

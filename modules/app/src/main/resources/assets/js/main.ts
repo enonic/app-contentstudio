@@ -408,9 +408,11 @@ async function startContentWizard() {
     window['CKEDITOR'].config.language = CONFIG.getString('locale');
 
     const {ContentWizardPanel} = await import('@enonic/lib-contentstudio/app/wizard/ContentWizardPanel');
+    const {setMode} = await import('@enonic/lib-contentstudio/v6/features/store/mode.store');
 
     const wizardParams = ContentAppHelper.createWizardParamsFromUrl();
     const wizard = new ContentWizardPanel(wizardParams, getTheme());
+    setMode('wizard');
 
     wizard.onDataLoaded((content: Content) => {
         let contentType = wizard.getContentType();
@@ -470,9 +472,11 @@ function getTheme(): string {
 
 async function startContentBrowser() {
     await import('@enonic/lib-contentstudio/app/ContentAppPanel');
+    const {setMode} = await import('@enonic/lib-contentstudio/v6/features/store/mode.store');
+
     const AppWrapper = (await import('@enonic/lib-contentstudio/app/AppWrapper')).AppWrapper;
-    const url: string = window.location.href;
     const commonWrapper = new AppWrapper(getTheme());
+    setMode('browser');
 
     if (CONFIG.isTrue('checkLatestVersion') && AuthHelper.isContentAdmin()) {
         VersionHelper.checkAndNotifyIfNewerVersionExists();
