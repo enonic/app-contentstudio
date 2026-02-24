@@ -56,11 +56,11 @@ No conventional commit prefixes. Plain descriptive language throughout.
   ```
   <4–8 sentence description: what, what's affected, how to reproduce, impact>
 
-  ##### Rationale
+  #### Rationale
   <why this needs to be fixed or implemented>
 
-  ##### References        ← optional
-  ##### Implementation Notes  ← optional
+  #### References        ← optional
+  #### Implementation Notes  ← optional
 
   <sub>*Drafted with AI assistance*</sub>
   ```
