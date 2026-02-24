@@ -14,9 +14,7 @@ import {PermissionsDialogSteps} from './steps';
 import {useI18n} from '../../../hooks/useI18n';
 import {useTaskProgress} from '../../../hooks/useTaskProgress';
 import {ProgressBar} from '../../primitives/ProgressBar';
-import {compareAccessControlEntries} from '../../../utils/cms/permissions/accessControl';
 import {ConfirmationDialog} from '../ConfirmationDialog';
-import {setNewProjectDialogView} from '../../../store/dialogs/newProjectDialog.store';
 
 const PERMISSIONS_DIALOG_NAME = 'PermissionsDialog';
 
@@ -29,8 +27,6 @@ export const PermissionsDialog = (): ReactElement => {
         taskId,
         applyTo,
         contentDescendantsCount,
-        initialAccessControlEntries,
-        finalAccessControlEntries,
         contentDisplayName,
         hasVisitedStrategyStep,
     } = useStore($permissionsDialog, {
@@ -42,8 +38,6 @@ export const PermissionsDialog = (): ReactElement => {
             'taskId',
             'applyTo',
             'contentDescendantsCount',
-            'initialAccessControlEntries',
-            'finalAccessControlEntries',
             'contentDisplayName',
             'hasVisitedStrategyStep',
         ],
@@ -57,7 +51,7 @@ export const PermissionsDialog = (): ReactElement => {
         [applyTo, contentDescendantsCount]
     );
 
-    const isLeafContent = useMemo(() => contentDescendantsCount === 0, [contentDescendantsCount]);
+    const isLeafContent = contentDescendantsCount === 0;
 
     const canGoToSummaryStep = useMemo(
         () => (isLeafContent ? isDirty : hasVisitedStrategyStep && (applyTo === 'tree' || applyTo === 'subtree' || isDirty)),
@@ -94,6 +88,11 @@ export const PermissionsDialog = (): ReactElement => {
                 return;
             }
 
+            if (taskId) {
+                closePermissionsDialog();
+                return;
+            }
+
             if (isDirty) {
                 setPermissionsDialogView('confirmation');
                 return;
@@ -101,7 +100,7 @@ export const PermissionsDialog = (): ReactElement => {
 
             closePermissionsDialog();
         },
-        [view, isDirty]
+        [view, taskId, isDirty]
     );
 
     const handleSubmit = useCallback(() => {
@@ -125,9 +124,9 @@ export const PermissionsDialog = (): ReactElement => {
         permissionsFailedMultipleLabel,
     ]);
 
-    const handleConfirm = () => {
+    const handleConfirm = useCallback(() => {
         closePermissionsDialog();
-    };
+    }, []);
 
     return (
         <Dialog.Root
