@@ -10,6 +10,9 @@ const COMMON = {
     CONTENT_APP_BAR_DIV: "//div[contains(@id,'BrowseAppBarElement')]",
     SELECT_ALL_CHECKBOX_LABEL: "//label[descendant::input[@type='checkbox' and @aria-label='Select all']]",
     menuItemByText: (text) => `//div[@role,'menuitem') and text()='${text}']`,
+    WIDGET_SIDEBAR: {
+        CONTAINER: "//nav[@aria-label='Sidebar']",
+    },
 
     INPUTS: {
         CHECKBOX_INPUT: "//input[@type='checkbox']",
@@ -93,6 +96,7 @@ const TREE_GRID = {
 }
 const DROPDOWN = {
     DROPDOWN_LIST_ITEM_DISPLAY_NAME: `//div[@role='option']//div[1]//span[1]`,
+    COMBOBOX_POPUP: "//div[@data-combobox-popup='' or @data-combobox-popup]",
     buttonComboboxByLabel: (label) => `//span[contains(.,'${label}')]/following-sibling::button[@role='combobox']`,
     CONTENT_COMBOBOX: "//div[@data-component='ContentCombobox')]",
     DROPDOWN_HANDLE: "//button[@aria-label='Toggle']",

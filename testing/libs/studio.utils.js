@@ -8,6 +8,7 @@ const BrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const FilterPanel = require("../page_objects/browsepanel/content.filter.panel");
 const appConst = require("./app_const");
 const lib = require("./elements-old");
+const {BUTTONS, COMMON} = require("./elements");
 const NewContentDialog = require('../page_objects/browsepanel/new.content.dialog');
 const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.panel');
 const webDriverHelper = require("./WebDriverHelper");
@@ -67,7 +68,7 @@ module.exports = {
             return this.getBrowser().execute(script2);
         })
     },
-    setTextInCKE (id, text) {
+    setTextInCKE(id, text) {
         let script = `CKEDITOR.instances['${id}'].setData('${text}')`;
         return this.getBrowser().execute(script).then(() => {
             let script2 = `CKEDITOR.instances['${id}'].fire('change')`;
@@ -702,6 +703,23 @@ module.exports = {
             throw new Error(`Error when navigating to Content Studio. Screenshot: ${screenshot}` + err);
         }
     },
+    async navigateToContentStudioSelectDefault(userName, password) {
+        try {
+            let projectSelectionDialog = new ProjectSelectionDialog();
+            await this.clickOnContentStudioLink(userName, password);
+            await this.switchToTab(appConst.BROWSER_XP_TITLES.CONTENT_STUDIO);
+            let isLoaded = await projectSelectionDialog.isDialogLoaded();
+            if (isLoaded) {
+                await projectSelectionDialog.pause(200);
+                await projectSelectionDialog.selectContext('Default');
+                await projectSelectionDialog.waitForDialogClosed();
+                return await this.getBrowser().pause(200);
+            }
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_navigate_to_studio');
+            throw new Error(`Error when navigating to Content Studio. Screenshot: ${screenshot}` + err);
+        }
+    },
     // Clicks on Cancel button and switches to Default project
     async closeProjectSelectionDialog() {
         let projectSelectionDialog = new ProjectSelectionDialog();
@@ -945,9 +963,9 @@ module.exports = {
     async openSettingsPanel() {
         try {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            await this.openContentStudioMenu();
-            await this.waitForElementDisplayed(lib.WIDGET_SIDEBAR.SETTINGS_BUTTON, appConst.mediumTimeout);
-            await this.clickOnElement(lib.WIDGET_SIDEBAR.SETTINGS_BUTTON);
+            let buttonLocator = COMMON.WIDGET_SIDEBAR.CONTAINER + BUTTONS.buttonAriaLabel('Settings');
+            await this.waitForElementDisplayed(buttonLocator, appConst.mediumTimeout);
+            await this.clickOnElement(buttonLocator);
             await this.getBrowser().pause(300);
             await settingsBrowsePanel.waitForGridLoaded(appConst.mediumTimeout);
             return settingsBrowsePanel;

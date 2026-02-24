@@ -1,7 +1,7 @@
 /**
  * Created on 5/03/2020.
  */
-const lib = require('../../libs/elements');
+const {BUTTONS} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const BaseBrowsePanel = require('../../page_objects/base.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
@@ -13,7 +13,7 @@ const XPATH = {
     appBar: "//div[contains(@id,'ContentAppBar')]",
     appBarTabMenu: "//div[contains(@id,'AppBarTabMenu')]",
     homeButton: "//div[contains(@class,'home-button') and descendant::span[text()='Settings']]",
-    toolbarDiv: `//div[contains(@id,'SettingsBrowseToolbar')]`,
+    toolbarDiv: `//div[contains(@id,'SettingsBrowseToolbar') and @role='toolbar'  and @aria-label='Project settings menu bar']`,
     itemsTreeGrid: `//div[contains(@id,'SettingsItemsTreeGrid')]`,
     settingsTreeList: `//ul[contains(@id,'SettingsTreeList')]`,
     listBoxToolbarDiv: `//div[contains(@id,'ListBoxToolbar')]`,
@@ -49,7 +49,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     get deleteButton() {
-        return XPATH.toolbarDiv + `/*[contains(@id, 'ActionButton') and child::span[text()='Delete']]`;
+        return XPATH.toolbarDiv +  BUTTONS.buttonAriaLabel('Delete');
     }
 
     get homeButton() {
@@ -57,15 +57,15 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     get newButton() {
-        return XPATH.toolbarDiv + `/*[contains(@id, 'ActionButton') and child::span[text()='New...']]`;
+        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('New');
     }
 
     get editButton() {
-        return XPATH.toolbarDiv + `/*[contains(@id, 'ActionButton') and child::span[text()='Edit']]`;
+        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Edit');
     }
 
     get syncButton() {
-        return XPATH.toolbarDiv + `/*[contains(@id, 'ActionButton') and child::span[text()='Sync']]`;
+        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Sync');
     }
 
     get treeGrid() {

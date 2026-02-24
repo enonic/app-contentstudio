@@ -1,5 +1,5 @@
 /**
- * Created on 23.08.2022.
+ * Created on 23.08.2022.  updated on 24.02.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -13,37 +13,54 @@ describe('parent.project.dialog.step.spec - ui-tests for Parent Project step in 
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    const DESCRIPTION = "1 of 7 - To set up synchronization of a content with another project, select it here (optional)";
+    const DESCRIPTION = "To set up synchronization of a content with another project, select it here (optional)";
+
+    it(`GIVEN Project Wizard modal dialog is opened WHEN 'Close' button has been pressed THEN the dialog should be closed`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            // 1.'New...' button has been clicked:
+            await settingsBrowsePanel.clickOnNewButton();
+            // 2. 'parent Project Step' dialog should be loaded:
+            await parentProjectStep.waitForLoaded();
+            const MULTI_PROJECTS = ['Features', 'Default'];
+            await parentProjectStep.selectParentParentProjects(MULTI_PROJECTS);
+            // 3. 'Close' button has been clicked
+            await parentProjectStep.clickOnCloseButton();
+            await studioUtils.saveScreenshot("setting_item_dialog_canceled");
+            await parentProjectStep.waitForDialogClosed();
+        });
 
     it(`WHEN 'New...' button has been pressed THEN 'Parent Project' step should be loaded in Project Wizard dialog`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let parentProjectStep = new ProjectWizardDialogParentProjectStep();
-            //1.'New...' button has been clicked:
+            // 1.'New' button has been clicked:
             await settingsBrowsePanel.clickOnNewButton();
-            //2. 'parent Project Step' dialog should be loaded:
+            // 2. 'parent Project Step' dialog should be loaded:
             await parentProjectStep.waitForLoaded();
             await studioUtils.saveScreenshot("setting_item_dialog_1");
-            //3. Expected title should be loaded:
+            // 3. Expected title should be loaded:
             let actualDescription = await parentProjectStep.getStepDescription();
             assert.equal(actualDescription, DESCRIPTION, "Expected description should be displayed");
-            //4. Skip button should be enabled:
-            await parentProjectStep.waitForSkipButtonEnabled();
-            await parentProjectStep.waitForCancelButtonTopDisplayed();
-            //5. Verify that Project options filter input is displayed:
+            // 4. Next button should be enabled:
+            await parentProjectStep.waitForNextButtonEnabled();
+            // 5. Verify that Project options filter input is displayed:
             await parentProjectStep.waitForProjectOptionsFilterInputDisplayed();
         });
 
-    it(`GIVEN Project Wizard modal dialog is opened WHEN 'Cancel Top' button has been pressed THEN the dialog should be closed`,
+    it(`GIVEN Project Wizard modal dialog is opened WHEN 'Close' button has been pressed THEN the dialog should be closed`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let parentProjectStep = new ProjectWizardDialogParentProjectStep();
-            //1.'New...' button has been clicked:
+            // 1.'New...' button has been clicked:
             await settingsBrowsePanel.clickOnNewButton();
-            //2. 'parent Project Step' dialog should be loaded:
+            // 2. 'parent Project Step' dialog should be loaded:
             await parentProjectStep.waitForLoaded();
-            //3. 'Cancel' button has been clicked
-            await parentProjectStep.clickOnCancelButtonTop();
+            const MULTI_PROJECTS = ['cc', 'Default'];
+            await parentProjectStep.selectParentParentProjects(MULTI_PROJECTS);
+            // 3. 'Close' button has been clicked
+            await parentProjectStep.clickOnCloseButton();
             await studioUtils.saveScreenshot("setting_item_dialog_canceled");
             await parentProjectStep.waitForDialogClosed();
         });
@@ -52,18 +69,18 @@ describe('parent.project.dialog.step.spec - ui-tests for Parent Project step in 
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let parentProjectStep = new ProjectWizardDialogParentProjectStep();
-            //1.'New...' button has been clicked:
+            // 1.'New' button has been clicked:
             await settingsBrowsePanel.clickOnNewButton();
-            //2. 'parent Project Step' dialog should be loaded:
+            // 2. 'parent Project Step' dialog should be loaded:
             await parentProjectStep.waitForLoaded();
-            //3. 'Cancel Top' button has been clicked:
+            // 3. 'Esc' key has been pressed:
             await parentProjectStep.pressEscKey();
             await studioUtils.saveScreenshot("setting_item_dialog_esc");
             await parentProjectStep.waitForDialogClosed();
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
+        await studioUtils.navigateToContentStudioSelectDefault();
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

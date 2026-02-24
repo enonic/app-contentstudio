@@ -26,7 +26,8 @@ class BaseDropdown extends Page {
     }
 
     get applySelectionButton() {
-        return this.container + this.dataComponentDiv + BUTTONS.buttonAriaLabel('Apply');
+        const base = this.dataComponentDiv ? this.container + this.dataComponentDiv : this.container;
+        return base + BUTTONS.buttonAriaLabel('Apply');
     }
 
     optionsFilterInput() {
@@ -176,6 +177,7 @@ class BaseDropdown extends Page {
                 'err_click_filtered_option', err);
         }
     }
+    // new
     async clickOnFilteredByDisplayNameTreeOption(optionDisplayName) {
         try {
             let optionLocator = DROPDOWN.treeItemByDisplayName(optionDisplayName);

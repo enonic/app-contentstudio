@@ -24,7 +24,7 @@ class ProjectSelectionDialog extends Page {
     async clickOnCloseButton() {
         try {
             await this.waitForElementDisplayed(this.closeButton, appConst.mediumTimeout);
-            await this.clickOnElement(this.cancelButtonTop);
+            await this.clickOnElement(this.closeButton);
             return await this.waitForDialogClosed();
         } catch (err) {
             await this.handleError('Project Selection dialog, Error occurred while clicking the Close button ', 'err_proj_sel_close_button',
