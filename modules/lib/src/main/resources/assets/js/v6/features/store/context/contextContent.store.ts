@@ -1,9 +1,8 @@
 import {atom, onMount} from 'nanostores';
-import {EditContentEvent} from '../../../../app/event/EditContentEvent';
 import {$currentItem as $treeContent} from '../contentTreeSelection.store';
 import {$mode, getMode} from '../mode.store';
 import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
-import {$contentUpdated} from '../socket.store';
+import {$contentMoved, $contentPublished, $contentUnpublished, $contentUpdated} from '../socket.store';
 
 const $wizardContent = atom<ContentSummaryAndCompareStatus | null>(null);
 
@@ -13,17 +12,8 @@ export const $contextContent = atom<ContentSummaryAndCompareStatus | null>(null)
 // * Public API
 //
 
-export const openContextContentForEdit = (): void => {
-    const content = $contextContent.get();
 
-    if (!content) {
-        return;
-    }
-
-    new EditContentEvent([content]).fire();
-};
-
-export const setContextContent = (content: ContentSummaryAndCompareStatus): void => {
+export const setWizardContent = (content: ContentSummaryAndCompareStatus): void => {
     $wizardContent.set(content);
 };
 
@@ -64,17 +54,25 @@ onMount($contextContent, () => {
     };
 });
 
-// Update the context content when the content is updated.
-$contentUpdated.subscribe((event) => {
-    if (!event?.data?.length) return;
+// Update wizard content when content changes come through socket events.
+// Only relevant in wizard mode, since browser mode derives context from the tree selection store.
+
+const updateWizardContentFromEvent = (data: ContentSummaryAndCompareStatus[] | undefined): void => {
+    if (!data?.length || getMode() !== 'wizard') return;
 
     const contextContent = $contextContent.get();
-
     if (!contextContent) return;
 
-    const updatedContextContent = event.data.find((item) => item.getId() === contextContent.getId());
+    const match = data.find((item) => item.getId() === contextContent.getId());
+    if (match) {
+        setWizardContent(match);
+    }
+};
 
-    if (!updatedContextContent || getMode() !== 'wizard') return;
+$contentUpdated.subscribe((event) => updateWizardContentFromEvent(event?.data));
 
-    setContextContent(updatedContextContent);
-});
+$contentPublished.subscribe((event) => updateWizardContentFromEvent(event?.data));
+
+$contentUnpublished.subscribe((event) => updateWizardContentFromEvent(event?.data));
+
+$contentMoved.subscribe((event) => updateWizardContentFromEvent(event?.data?.map((moved) => moved.item)));

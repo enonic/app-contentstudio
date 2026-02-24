@@ -159,7 +159,7 @@ import {
     setPersistedContent as setWizardPersistedContent,
 } from '../../v6/features/store/wizardContent.store';
 import {setContextOpen} from '../../v6/features/store/contextWidgets.store';
-import {setContextContent} from '../../v6/features/store/context/contextContent.store';
+import {setWizardContent} from '../../v6/features/store/context/contextContent.store';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -688,10 +688,10 @@ export class ContentWizardPanel
     }
 
     protected createWizardAndDetailsSplitPanel(leftPanel: Panel): SplitPanel {
-        this.contextView = new ContextView(true);
+        this.contextView = new ContextView(false); // don't show the widget until it is fixed
 
         this.contextView.setItem(this.getContent());
-        setContextContent(this.getContent());
+        setWizardContent(this.getContent());
 
         const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
         const contextToggleButton = new NonMobileContextPanelToggleButton();
