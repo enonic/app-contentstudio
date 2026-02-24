@@ -33,13 +33,17 @@
   pointer-events: auto;
 }
 
+body > .cke_panel {
+  z-index: @z-index-shader !important;
+}
+
 body.cke_editable {
   font-family: @admin-font-family;
   font-size: 14px;
   line-height: 1.3;
 
   &.fullscreen {
-    padding: 0 100px;
+    padding: 0 20px;
   }
 
   @media screen and (max-width: 660px) {
