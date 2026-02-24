@@ -31,5 +31,7 @@ testing/allure-results
 
 # AI Assistant
 .claude/plans/
-
 settings.local.json
+
+# Workflow
+.worktrees/
