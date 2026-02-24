@@ -30,7 +30,6 @@ testing/allure-results
 **/.webpack-cache
 
 # AI Assistant
-.claude/plans/
 settings.local.json
 
 # Workflow

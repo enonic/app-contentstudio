@@ -45,16 +45,42 @@ Detailed rules in `.cursor/rules/`:
 - `comments.mdc` - Documentation style
 - `structure.mdc` - File organization
 
-## Architecture
+## Git & GitHub
 
-See `.cursor/docs/architecture.md` for project structure, modules, and build system details.
+No conventional commit prefixes. Plain descriptive language throughout.
 
-## Skills
+### Issues
 
-- `issue-writer` - Create or modify GitHub issues
-- `docs-finder` - Search external documentation
+- **Title**: plain descriptive text — e.g. `Add MyComponent to browse view`, `PublishDialog: add schedule button`
+- **Body**: concisely explain what and why, skip trivial details
+  ```
+  <4–8 sentence description: what, what's affected, how to reproduce, impact>
 
-## External Docs
+  ##### Rationale
+  <why this needs to be fixed or implemented>
 
-Use Context7 MCP for React, Preact, Tailwind CSS v4, Gradle documentation.
-Request specific topics, not full manuals.
+  ##### References        ← optional
+  ##### Implementation Notes  ← optional
+
+  <sub>*Drafted with AI assistance*</sub>
+  ```
+
+### Commits
+
+- **With issue**: `<Issue Title> #<number>` — e.g. `Add MyComponent to browse view #12`
+- **Without issue**: capitalized plain-English description — e.g. `Add local Git worktrees ignore`, `Fix build`
+- **Body** (optional): past tense, one line per change, 2–6 lines, backticks for code refs
+
+### Pull Requests
+
+- **Title**: `<Issue Title> #<number>` — matches the commit title
+- **Body**: concisely explain what and why, skip trivial details. No emojis. Separate all sections with one blank line.
+  ```
+  <summary of changes>
+
+  Closes #<number>
+
+  [Claude Code session](<link>)  ← optional
+
+  <sub>*Drafted with AI assistance*</sub>
+  ```
