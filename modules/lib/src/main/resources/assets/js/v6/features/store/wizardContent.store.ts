@@ -492,6 +492,21 @@ export function onWizardContentReset(callback: () => void): () => void {
     return () => { resetCallbacks.delete(callback); };
 }
 
+let cleanupTreeListener: (() => void) | null = null;
+
+$wizardDraftData.subscribe((tree) => {
+    cleanupTreeListener?.();
+    cleanupTreeListener = null;
+
+    if (tree) {
+        const handler = () => {
+            bumpDraftDataVersion();
+        };
+        tree.onChanged(handler);
+        cleanupTreeListener = () => tree.unChanged(handler);
+    }
+});
+
 export function resetWizardContent(): void {
     $wizardPersistedDisplayName.set('');
     $wizardDraftDisplayName.set('');

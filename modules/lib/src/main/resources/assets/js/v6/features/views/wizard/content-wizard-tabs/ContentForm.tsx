@@ -1,28 +1,8 @@
 import {useStore} from '@nanostores/preact';
 import {type ReactElement} from 'react';
-import {
-    $contentType,
-    $wizardDataChangedPaths,
-    $wizardDataValidation,
-    $wizardDraftData,
-    addDraftStringOccurrenceByPath,
-    getDraftStringByPath,
-    removeDraftStringOccurrenceByPath,
-    setDraftStringByPath,
-} from '../../../store/wizardContent.store';
+import {$contentType, $wizardDraftData} from '../../../store/wizardContent.store';
+import {FormRenderer} from '../../../shared/form';
 import {DisplayNameInput} from './DisplayNameInput';
-import {type FormDataContextValue, FormDataContext} from './FormDataContext';
-import {FormItemView} from './FormItemView';
-
-const contentFormDataContext: FormDataContextValue = {
-    $draftData: $wizardDraftData,
-    $changedPaths: $wizardDataChangedPaths,
-    $validation: $wizardDataValidation,
-    getDraftStringByPath,
-    setDraftStringByPath,
-    addOccurrence: addDraftStringOccurrenceByPath,
-    removeOccurrence: removeDraftStringOccurrenceByPath,
-};
 
 export const ContentForm = (): ReactElement | null => {
     const contentType = useStore($contentType);
@@ -32,20 +12,14 @@ export const ContentForm = (): ReactElement | null => {
         return null;
     }
 
-    const formItems = contentType.getForm().getFormItems();
-
     return (
-        <FormDataContext.Provider value={contentFormDataContext}>
-            <div className="flex flex-col gap-7.5">
-                <DisplayNameInput />
-                {formItems.map(item => (
-                    <FormItemView
-                        key={item.getName()}
-                        formItem={item}
-                    />
-                ))}
-            </div>
-        </FormDataContext.Provider>
+        <div className="flex flex-col gap-7.5">
+            <DisplayNameInput />
+            <FormRenderer
+                form={contentType.getForm()}
+                propertySet={draftData.getRoot()}
+            />
+        </div>
     );
 };
 

@@ -1,3 +1,4 @@
+import {initBuiltInTypes} from '@enonic/lib-admin-ui/form2';
 import {computed, map} from 'nanostores';
 import {syncMapStore} from '../utils/storage/sync';
 import {isWizardUrl} from '../utils/url/app';
@@ -166,3 +167,9 @@ if (typeof window !== 'undefined') {
         mediaQuery.addListener(handleSystemThemeChange);
     }
 }
+
+//
+// * App-wide initializations
+//
+
+initBuiltInTypes();

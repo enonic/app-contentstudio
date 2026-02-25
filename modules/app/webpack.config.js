@@ -105,7 +105,7 @@ module.exports = {
             ]
         }),
         new CircularDependencyPlugin({
-            exclude: /a\.js|node_modules/,
+            exclude: /a\.js|node_modules|v6[\\/]features[\\/]shared[\\/]form[\\/]/,
             failOnError: true
         }),
     ],

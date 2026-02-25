@@ -1,9 +1,7 @@
 import {useStore} from '@nanostores/preact';
 import {type ReactElement, useMemo} from 'react';
-import {$mixinsDescriptors} from '../../../store/wizardContent.store';
-import {getMixinDataContext} from '../../../store/wizardMixinData.store';
-import {FormDataContext} from './FormDataContext';
-import {FormItemView} from './FormItemView';
+import {$mixinsDescriptors, $wizardDraftMixins} from '../../../store/wizardContent.store';
+import {FormRenderer} from '../../../shared/form';
 
 type MixinViewProps = {
     mixinName: string;
@@ -12,31 +10,29 @@ type MixinViewProps = {
 
 export const MixinView = ({mixinName, displayName}: MixinViewProps): ReactElement => {
     const descriptors = useStore($mixinsDescriptors);
+    const draftMixins = useStore($wizardDraftMixins);
 
     const descriptor = useMemo(
         () => descriptors.find((d) => d.getName() === mixinName),
         [descriptors, mixinName],
     );
 
-    const formDataContext = useMemo(() => getMixinDataContext(mixinName), [mixinName]);
+    const mixinData = useMemo(
+        () => draftMixins.find((m) => m.getName().toString() === mixinName)?.getData() ?? null,
+        [draftMixins, mixinName],
+    );
 
-    const formItems = descriptor?.getFormItems();
+    const form = useMemo(() => descriptor?.toForm(), [descriptor]);
 
-    if (!formItems || formItems.length === 0) {
+    if (!form || form.getFormItems().length === 0 || !mixinData) {
         return <p className="text-subtle">{displayName} configuration</p>;
     }
 
     return (
-        <FormDataContext.Provider value={formDataContext}>
-            <div className="flex flex-col gap-7.5">
-                {formItems.map(item => (
-                    <FormItemView
-                        key={item.getName()}
-                        formItem={item}
-                    />
-                ))}
-            </div>
-        </FormDataContext.Provider>
+        <FormRenderer
+            form={form}
+            propertySet={mixinData.getRoot()}
+        />
     );
 };
 

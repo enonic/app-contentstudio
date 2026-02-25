@@ -227,9 +227,11 @@ type ResolvedInputFieldProps = InputFieldProps & {
 5. `ComponentRegistry.get(inputTypeName) ?? UnsupportedInput` → Component
 6. Render: Label, help text, `<OccurrenceList>`, validation summary
 
-#### PropertyArray creation (eager)
+#### PropertyArray creation + fill-to-minimum (eager, synchronous)
 
-`parentData.getPropertyArray(input.getName())` returns `undefined` for fields without data (new content). Create it eagerly:
+`parentData.getPropertyArray(input.getName())` returns `undefined` for fields without data (new content). Create it eagerly AND fill to minimum in the same `useMemo` — synchronously, before the first render, to avoid a flash of empty state.
+
+For non-multiple inputs (`max=1`), always fill to at least 1 so the bare input renders immediately — matching legacy behavior where single-optional fields (min=0, max=1) show one empty input with no add/remove buttons.
 
 ```typescript
 const propertyArray = useMemo(() => {
@@ -242,24 +244,21 @@ const propertyArray = useMemo(() => {
             .build();
         parentData.addPropertyArray(array);
     }
+    // Fill-to-minimum: for non-multiple (max=1), always fill to at least 1
+    const occurrences = input.getOccurrences();
+    const minFill = occurrences.multiple()
+        ? occurrences.getMinimum()
+        : Math.max(occurrences.getMinimum(), 1);
+    while (array.getSize() < minFill) {
+        array.add(descriptor.getValueType().newNullValue());
+    }
     return array;
 }, [parentData, input, descriptor]);
 ```
 
-#### Fill-to-minimum (PropertyArray level)
-
-OccurrenceManager no longer auto-fills to minimum. Fill at the PropertyArray level:
-
-```typescript
-useEffect(() => {
-    const min = input.getOccurrences().getMinimum();
-    while (propertyArray.getSize() < min) {
-        propertyArray.add(descriptor.getValueType().newNullValue());
-    }
-}, [propertyArray, input, descriptor]);
-```
-
 > **Architecture principle**: PropertyArray is the single source of truth. OccurrenceManager is always derived via `sync(values)`. See Phase 4.1 for mutation handlers.
+>
+> **Why synchronous fill**: `useEffect` runs after render, causing a flash where OccurrenceList sees 0 values and renders an empty container (or add button) on the first frame. Doing it in `useMemo` guarantees the correct state on the first render. Do NOT put fill logic in a separate `useEffect`.
 
 ### 2.5 Create FieldSetView
 
@@ -311,18 +310,17 @@ Export FormRenderer and FormRenderContext for use by ContentDataView and MixinVi
 
 Register all 14 descriptors + TextLine/TextArea components into registries.
 
-**Where**: `ContentAppContainer.initListeners()` — runs once during app shell construction, before any wizard opens.
+**Where**: Bottom of `v6/features/store/app.store.ts` — runs once at module load time, before any wizard mounts. `ContentAppContainer` is legacy code and no longer the right entry point for v6 initialization.
 
 ```typescript
-// ContentAppContainer.ts
-import { initBuiltInTypes } from '@enonic/lib-admin-ui/form2';
+// v6/features/store/app.store.ts
 
-protected initListeners() {
-    super.initListeners();
-    initBuiltInTypes();
-    // Phase 6: registerCSTypes() will be added here too
-    // ... existing listener setup
-}
+//
+// * App-wide initializations
+//
+
+initBuiltInTypes();
+// Phase 6: registerCSTypes() will be added here too
 ```
 
 This guarantees registration before any FormRenderer mount.
@@ -738,8 +736,8 @@ v6/.../content-wizard-tabs/
 v6/features/store/
 └── wizardContent.store.ts       # Phase 3-4 (wire PropertyTree.onChanged)
 
-app/
-└── ContentAppContainer.ts       # Phase 3 (add initBuiltInTypes call)
+v6/features/store/
+└── app.store.ts                 # Phase 3 (add initBuiltInTypes call at module level)
 ```
 
 ---
@@ -775,7 +773,7 @@ Resolved from consilium critical review (4 critical, 7 warnings, 3 notes analyze
 
 2. **InputField split architecture** — InputField dispatches to UnsupportedInput (no hooks) or ResolvedInputField (full hook chain). Handles unregistered CS-specific types in Phases 2-5 without crashing on missing descriptor.
 
-3. **Eager PropertyArray creation** — Created in `useMemo` when InputField mounts, using `PropertyArray.create().setParent().setName().setType().build()`. Fill-to-minimum via `useEffect`, not OccurrenceManager auto-fill.
+3. **Eager PropertyArray creation + synchronous fill** — Created and filled in the same `useMemo`, before the first render. For non-multiple inputs (`max=1`), always fill to at least 1 — the equivalent of legacy `FormItemOccurrences.showEmptyFormItemOccurrences()` which always created one empty occurrence for plain Inputs regardless of minimum. Do NOT use `useEffect` for filling: it runs after render, causing a flash of wrong state.
 
 4. **$wizardDraftData.subscribe() for tree lifecycle** — Listener attaches to each new tree, detaches from old. Prevents leak after save/reset when PropertyTree is replaced.
 
@@ -785,7 +783,7 @@ Resolved from consilium critical review (4 critical, 7 warnings, 3 notes analyze
 
 7. **Form-level validation via schema walk** — Walk PropertyTree + Form schema synchronously on save/publish. OccurrenceManager provides inline UX. Schema walk is the authoritative source.
 
-8. **initBuiltInTypes() in ContentAppContainer.initListeners()** — Deterministic, runs before any wizard mount. CS-specific registration added there too.
+8. **initBuiltInTypes() in app.store.ts** — Runs at module load time, before any wizard mount. `ContentAppContainer` is legacy code and no longer the v6 entry point. CS-specific registration added here too.
 
 9. **No i18n bridging needed** — form2's I18nContext defaults to lib-admin-ui's global `i18n` function, same Messages store as CS v6.
 
@@ -793,6 +791,9 @@ Resolved from consilium critical review (4 critical, 7 warnings, 3 notes analyze
 
 - **usePropertyArray O(n)**: PropertyArray events don't bubble from nested PropertySets to parent arrays for value changes. Re-reading 1-10 values per input change is negligible. Optimize later if profiling shows issues.
 - **UnsupportedInput window**: 23 types show as UnsupportedInput through Phases 2-5. Acceptable on feature branch (`epic-enonic-ui`).
+- **lib-admin-ui fixes already applied (2026-02-26)**:
+  - `OccurrenceList.tsx`: `isSingle` changed from `min === 1 && max === 1` to `!occurrences.multiple()`. Extends bare single-input rendering to `min=0, max=1` (single optional), matching legacy UX intent: max=1 always means "one slot", add/remove buttons never shown.
+  - `useOccurrenceManager.ts`: Eager fill changed from `getMinimum()` to `max(getMinimum(), 1)` for non-multiple inputs, so `state.values[0]` is always present when OccurrenceList renders in single mode.
 
 ---
 
