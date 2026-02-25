@@ -7,23 +7,16 @@ export class LoadComponentViewEvent
 
     private readonly path: ComponentPath;
 
-    private readonly uri: string;
-
     private readonly existing: boolean;
 
-    constructor(path?: ComponentPath, uri?: string, existing: boolean = false) {
+    constructor(path?: ComponentPath, existing: boolean = false) {
         super();
         this.path = path;
-        this.uri = uri;
         this.existing = existing;
     }
 
     getComponentPath(): ComponentPath {
         return this.path;
-    }
-
-    getURI(): string {
-        return this.uri;
     }
 
     isExisting(): boolean {
