@@ -3,7 +3,11 @@ import {useStore} from '@nanostores/preact';
 import {ReactElement} from 'react';
 import {ContentVersion} from '../../../../app/ContentVersion';
 import {useI18n} from '../../hooks/useI18n';
-import {$onlineVersionId, getVersionPublishStatus, VersionPublishStatus} from '../../store/context/versionStore';
+import {
+    $activePublishVersionId,
+    getVersionPublishStatus,
+    VersionPublishStatus
+} from '../../store/context/versionStore';
 
 type VersionItemPublishStatusProps = {
     version: ContentVersion | null;
@@ -14,37 +18,22 @@ export const VersionItemPublishStatus = ({version, className}: VersionItemPublis
     const onlineLabel = useI18n('status.online');
     const expiredLabel = useI18n('status.expired');
     const scheduledLabel = useI18n('status.scheduled');
-    const onlineVersionId = useStore($onlineVersionId);
-    const commonClassName = 'text-sm flex items-center truncate';
+    const activePublishVersionId = useStore($activePublishVersionId);
+    const commonClassName = 'text-sm items-center truncate group-data-[tone=inverse]:text-alt';
 
-    if (!version) {
+    if (!version || version.getId() !== activePublishVersionId) {
         return null;
     }
 
-    const publishStatus = getVersionPublishStatus(version, onlineVersionId);
+    const publishStatus = getVersionPublishStatus(version);
 
     switch (publishStatus) {
-        case VersionPublishStatus.ONLINE:
-            return (
-                <div className={cn(commonClassName, 'text-success', className)}>
-                    {onlineLabel}
-                </div>
-            );
-
+        case VersionPublishStatus.PUBLISHED:
+            return <div className={cn(commonClassName, 'text-success', className)}>{onlineLabel}</div>;
         case VersionPublishStatus.EXPIRED:
-            return (
-                <div className={cn(commonClassName, 'text-red-400', className)}>
-                    {expiredLabel}
-                </div>
-            );
-
+            return <div className={cn(commonClassName, 'text-danger', className)}>{expiredLabel}</div>;
         case VersionPublishStatus.SCHEDULED:
-            return (
-                <div className={cn(commonClassName, 'text-orange-400', className)}>
-                    {scheduledLabel}
-                </div>
-            );
-
+            return <div className={cn(commonClassName, 'text-warn', className)}>{scheduledLabel}</div>;
         default:
             return null;
     }

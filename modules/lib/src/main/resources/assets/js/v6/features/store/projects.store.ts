@@ -12,6 +12,7 @@ import {resetTree} from './tree-list.store';
 import {clearSelection, setActive} from './contentTreeSelection.store';
 import {setContentFilterOpen, resetContentFilter} from './contentFilter.store';
 import {deactivateFilter} from '../api/content-fetcher';
+import {clearVersionsCache} from '../utils/widget/versions/versionsCache';
 
 /*
 TODO: Enonic UI - Feature
@@ -204,6 +205,9 @@ function resetProjectDependentStores(): void {
 
     // Reset main tree (will be repopulated by ContentTreeListElement)
     resetTree();
+
+    // Clear version history cache (versions are project-specific)
+    clearVersionsCache();
 }
 
 const $previousProjectId = atom<string | undefined>(undefined);

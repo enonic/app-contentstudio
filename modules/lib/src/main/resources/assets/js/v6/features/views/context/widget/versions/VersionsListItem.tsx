@@ -1,4 +1,5 @@
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Button, Checkbox, cn, useListbox} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ComponentPropsWithoutRef, ReactElement, useCallback, useMemo} from 'react';
@@ -7,12 +8,15 @@ import {ContentVersion} from '../../../../../../app/ContentVersion';
 import {useI18n} from '../../../../hooks/useI18n';
 import {VersionItemPublishStatus} from '../../../../shared/status/VersionItemPublishStatus';
 import {
+    $activePublishVersionId,
     $activeVersionId,
     $selectedVersions,
     getOperationLabel,
+    getVersionPublishStatus,
     isVersionRevertable,
     requestRevert,
     toggleVersionSelection,
+    VersionPublishStatus,
 } from '../../../../store/context/versionStore';
 import {VersionsListItemIcon} from './VersionsListItemIcon';
 
@@ -77,11 +81,11 @@ const VersionItemMainInfo = ({version}: VersionItemMainInfoProps): ReactElement 
     return (
         <div className='flex flex-col justify-center grow'>
             <div className='flex gap-1'>
-                <span className='shrink-0 text-sm'>
+                <span className='shrink-0 text-sm font-semibold'>
                     {DateHelper.getFormattedTimeFromDate(version.getTimestamp())}
                 </span>
                 <span className='text-bdr-soft text-sm'>|</span>
-                <span className='text-sm'>{getOperationLabel(version)}</span>
+                <span className='text-sm font-semibold'>{getOperationLabel(version)}</span>
             </div>
             {modifierDisplayName && (
                 <div className='text-xs'>{modifierLabel}</div>
@@ -141,7 +145,35 @@ export const VersionsListItem = ({
         requestRevert(contentId, versionId);
     }, [contentId, versionId]);
 
+    const publishMessage = version.getPublishInfo()?.getMessage();
+    const activePublishVersionId = useStore($activePublishVersionId);
     const showRestoreButton = isExpanded && isRevertable;
+
+    const publishStatusMessage = useMemo(() => {
+        if (version.getId() !== activePublishVersionId) {
+            return undefined;
+        }
+
+        const publishStatus = getVersionPublishStatus(version);
+        const publishInfo = version.getPublishInfo();
+
+        const to = publishInfo?.getPublishedTo();
+
+        if (publishStatus === VersionPublishStatus.PUBLISHED) {
+            return to ? i18n('widget.versionhistory.publishedUntil', DateHelper.formatDateTime(to)) : undefined;
+        }
+
+        if (publishStatus === VersionPublishStatus.SCHEDULED) {
+            const from = publishInfo?.getPublishedFrom();
+            return from ? i18n('widget.versionhistory.scheduled', DateHelper.formatDateTime(from)) : undefined;
+        }
+
+        if (publishStatus === VersionPublishStatus.EXPIRED) {
+            return to ? i18n('widget.versionhistory.expired', DateHelper.formatDateTime(to)) : undefined;
+        }
+
+        return undefined;
+    }, [version, activePublishVersionId]);
 
     return (
         <div
@@ -170,6 +202,14 @@ export const VersionsListItem = ({
                 <VersionItemPublishStatus version={version} />
 
             </div>
+
+            {isExpanded && publishMessage && (
+                <div className='text-sm font-normal'>{publishMessage}</div>
+            )}
+
+            {isExpanded && publishStatusMessage && (
+                <div className='text-sm font-normal'>{publishStatusMessage}</div>
+            )}
 
             {showRestoreButton && (
                 <div className='w-full flex justify-end'>

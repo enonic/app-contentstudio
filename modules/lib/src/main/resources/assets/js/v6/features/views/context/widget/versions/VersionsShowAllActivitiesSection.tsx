@@ -18,7 +18,7 @@ export const VersionsShowAllActivitiesSection = (): ReactElement => {
     };
 
     return (
-        <div data-component={COMPONENT_NAME} className='pl-2.5'>
+        <div data-component={COMPONENT_NAME} className='flex items-center min-h-16 pl-2.5'>
             <Checkbox
                 label={showAllActivitiesLabel}
                 checked={displayMode === 'full'}
