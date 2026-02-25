@@ -15,6 +15,9 @@ import {$principals} from '../../../../store/principals.store';
 import {InlineButton} from '../../../InlineButton';
 import {ItemLabel} from '../../../ItemLabel';
 import {PrincipalSelector} from '../../../selectors/PrincipalSelector';
+import {getProjectDetailedPermissions} from '../../../../utils/url/projects';
+
+const filterAnonymousUserOut = (principal: Principal) => !principal.getKey().isAnonymous();
 
 export const NewProjectDialogRoleStepHeader = (): ReactElement => {
     const helperLabel = useI18n('dialog.project.wizard.title');
@@ -29,7 +32,7 @@ NewProjectDialogRoleStepHeader.displayName = 'NewProjectDialogRoleStepHeader';
 export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: boolean}): ReactElement => {
     // Hooks
     const {principals} = useStore($principals);
-    const {parentProjects, roles, rolePrincipals} = useStore($newProjectDialog);
+    const {parentProjects, roles, rolePrincipals} = useStore($newProjectDialog, {keys: ['parentProjects', 'roles', 'rolePrincipals']});
     const [selection, setSelection] = useState<string[]>(Object.keys(roles));
     const [selectedPrincipals, setSelectedPrincipals] = useState<Principal[]>(rolePrincipals);
     const [selectedRoles, setSelectedRoles] = useState<Record<string, ProjectAccess>>(roles);
@@ -62,9 +65,23 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
         setNewProjectDialogRolePrincipals(selectedPrincipals);
     }, [selectedPrincipals]);
 
+    // Memoized values
+    const canCopyFromParentProject = useMemo(() => {
+        if (!parentProjects || parentProjects?.length === 0 || parentProjects[0]?.getPermissions().isEmpty()) return false;
+
+        const {principalKeys, roles} = getProjectDetailedPermissions(parentProjects[0]);
+
+        const isParentProjectPrincipalsDifferent =
+            principalKeys.length !== selection.length || principalKeys.some((p) => !selection.includes(p));
+
+        const isParentProjectPermissionsRolesDifferent = Object.entries(roles).some(([key, value]) => selectedRoles[key] !== value);
+
+        return isParentProjectPrincipalsDifferent || isParentProjectPermissionsRolesDifferent;
+    }, [parentProjects, selection, selectedRoles]);
+
     // Constants
     const label = useI18n('dialog.project.wizard.role.roles');
-    const copyFromParentLabel = useI18n('dialog.project.wizard.role.copyFromParent');
+    const copyFromLabel = useI18n('dialog.project.wizard.role.copyFrom');
     const typeToSearchLabel = useI18n('field.search.placeholder');
     const noRolesFoundLabel = useI18n('dialog.project.wizard.role.noRolesFound');
     const ownerLabel = useI18n('settings.projects.access.owner');
@@ -80,33 +97,24 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
         ],
         [ownerLabel, editorLabel, contributorLabel, authorLabel]
     );
+    const copyFromParentLabel = useMemo(() => {
+        if (!canCopyFromParentProject) return '';
+
+        const parentProjectName = parentProjects[0]?.getDisplayName() || '';
+
+        if (!parentProjectName) return '';
+
+        return `${copyFromLabel} ${parentProjectName}`;
+    }, [canCopyFromParentProject, parentProjects, copyFromLabel]);
 
     // Handlers
-    const canCopyFromParentProject = useMemo(
-        () => parentProjects?.length > 0 && !parentProjects[0]?.getPermissions().isEmpty(),
-        [parentProjects]
-    );
-
     const handleCopyFromParentProject = useCallback(() => {
         if (!canCopyFromParentProject) return;
 
-        const parentPermissions = parentProjects[0]?.getPermissions();
-        const owners = parentPermissions.getOwners();
-        const editors = parentPermissions.getEditors();
-        const contributors = parentPermissions.getContributors();
-        const authors = parentPermissions.getAuthors();
+        const {principalKeys, roles} = getProjectDetailedPermissions(parentProjects[0]);
 
-        const selection = [...owners, ...editors, ...contributors, ...authors].map((principalKey) => principalKey.toString());
-
-        const updatedRoles: Record<string, ProjectAccess> = Object.fromEntries([
-            ...owners.map((owner) => [owner.toString(), ProjectAccess.OWNER]),
-            ...editors.map((editor) => [editor.toString(), ProjectAccess.EDITOR]),
-            ...contributors.map((contributor) => [contributor.toString(), ProjectAccess.CONTRIBUTOR]),
-            ...authors.map((author) => [author.toString(), ProjectAccess.AUTHOR]),
-        ]);
-
-        setSelection(selection);
-        setSelectedRoles(updatedRoles);
+        setSelection(principalKeys);
+        setSelectedRoles(roles);
     }, [parentProjects, setSelection, setSelectedRoles, canCopyFromParentProject]);
 
     const handleUnselect = useCallback(
@@ -138,11 +146,11 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
                 allowedTypes={[PrincipalType.USER, PrincipalType.GROUP]}
                 placeholder={typeToSearchLabel}
                 emptyLabel={noRolesFoundLabel}
+                customFilter={filterAnonymousUserOut}
                 closeOnBlur
             />
 
             {selection.length > 0 && (
-                <>
                     <GridList className="rounded-md mb-2.5 py-2.5 pl-4 pr-1">
                         {selectedPrincipals.map((principal) => {
                             const key = principal.getKey().toString();
@@ -201,7 +209,6 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
                             );
                         })}
                     </GridList>
-                </>
             )}
         </Dialog.StepContent>
     );

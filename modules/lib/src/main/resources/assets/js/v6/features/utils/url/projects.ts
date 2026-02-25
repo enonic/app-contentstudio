@@ -1,6 +1,7 @@
 import {type FlatNode} from '@enonic/ui';
-import {type Project} from '../../../../app/settings/data/project/Project';
 import {getCmsRestUri} from './cms';
+import {type Project} from '../../../../app/settings/data/project/Project';
+import {ProjectAccess} from '../../../../app/settings/access/ProjectAccess';
 
 export function resolveProjectIconUrl(projectName: string | undefined | null): string | undefined {
     if (projectName == null) {
@@ -50,6 +51,41 @@ export function projectsToTreeListItems(projects: Readonly<Project>[], expanded:
     return flatten(null, 1);
 }
 
+/**
+ * Extracts a principal keys list and a roles object from a project's permissions.
+ *
+ * @param project - Project to extract permissions from
+ * @returns Object containing:
+ *   - `principalKeys` - Array of all principal key strings across all roles
+ *   - `roles` - Object of principal key string to its {@link ProjectAccess} role
+ *
+ * @example
+ * const { principalKeys, roles } = getProjectDetailedPermissions(project);
+ * // principalKeys: ['user:system:alice', 'group:system:editors']
+ * // roles: { 'user:system:alice': ProjectAccess.OWNER, 'group:system:editors': ProjectAccess.EDITOR }
+ */
+export const getProjectDetailedPermissions = (
+    project: Readonly<Project>
+): {principalKeys: string[]; roles: Record<string, ProjectAccess>} => {
+    const permissions = project.getPermissions();
+
+    const owners = permissions.getOwners();
+    const editors = permissions.getEditors();
+    const contributors = permissions.getContributors();
+    const authors = permissions.getAuthors();
+
+    const principalKeys = [...owners, ...editors, ...contributors, ...authors].map((principal) => principal.toString());
+
+    const roles: Record<string, ProjectAccess> = Object.fromEntries([
+        ...owners.map((owner) => [owner, ProjectAccess.OWNER]),
+        ...editors.map((editor) => [editor, ProjectAccess.EDITOR]),
+        ...contributors.map((contributor) => [contributor, ProjectAccess.CONTRIBUTOR]),
+        ...authors.map((author) => [author, ProjectAccess.AUTHOR]),
+    ]);
+
+    return {principalKeys, roles};
+};
+
 function childrenOf(projects: Readonly<Project>[], parentName: string | null): Readonly<Project>[] {
-    return projects.filter((p) => (parentName === null ? p.getParents().length === 0 : p.getParents().includes(parentName)));
+    return projects.filter((p) => (parentName === null ? p.getParents().length === 0 : p.hasMainParentByName(parentName)));
 }

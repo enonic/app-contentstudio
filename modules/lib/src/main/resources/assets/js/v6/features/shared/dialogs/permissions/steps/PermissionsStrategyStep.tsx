@@ -36,7 +36,7 @@ export const PermissionsDialogStrategyStepContent = ({locked}: {locked: boolean}
 
     return (
         <Dialog.StepContent step="step-strategy" locked={locked}>
-            <div className="space-y-2.25">
+            <div className="space-y-2">
                 <label className="block font-semibold">{applyToLabel}</label>
 
                 <RadioGroup.Root name="applyTo" value={applyTo} onValueChange={setPermissionsDialogApplyTo} className="rounded-md -mx-2">

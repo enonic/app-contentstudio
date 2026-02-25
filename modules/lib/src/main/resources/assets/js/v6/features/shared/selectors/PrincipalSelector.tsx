@@ -1,4 +1,4 @@
-import {Checkbox, Combobox, ComboboxRootProps, Listbox, useCombobox} from '@enonic/ui';
+import {Checkbox, cn, Combobox, ComboboxRootProps, Listbox, useCombobox} from '@enonic/ui';
 import {useState, ReactElement, useEffect, useMemo, useCallback} from 'react';
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
@@ -64,32 +64,33 @@ export const PrincipalSelector = ({
     );
 
     return (
-        <Combobox.Root
-            data-component={PRINCIPAL_SELECTOR_NAME}
-            value={searchValue}
-            onChange={setSearchValue}
-            selection={selection}
-            onSelectionChange={handleOnSelectionChange}
-            selectionMode={selectionMode}
-            closeOnBlur={closeOnBlur}
-            contentType="listbox"
-        >
-            <Combobox.Content className={className}>
-                <Combobox.Control>
-                    <Combobox.Search>
-                        <Combobox.SearchIcon />
-                        <Combobox.Input placeholder={placeholder} />
-                        {selectionMode === 'staged' && <Combobox.Apply />}
-                        <Combobox.Toggle />
-                    </Combobox.Search>
-                </Combobox.Control>
-                <Combobox.Portal>
-                    <Combobox.Popup>
-                        <PrincipalSelectorList items={filtered} selectionMode={selectionMode} emptyLabel={emptyLabel} />
-                    </Combobox.Popup>
-                </Combobox.Portal>
-            </Combobox.Content>
-        </Combobox.Root>
+        <div data-component={PRINCIPAL_SELECTOR_NAME} className={cn('flex', className)}>
+            <Combobox.Root
+                value={searchValue}
+                onChange={setSearchValue}
+                selection={selection}
+                onSelectionChange={handleOnSelectionChange}
+                selectionMode={selectionMode}
+                closeOnBlur={closeOnBlur}
+                contentType="listbox"
+            >
+                <Combobox.Content className="w-full">
+                    <Combobox.Control>
+                        <Combobox.Search>
+                            <Combobox.SearchIcon />
+                            <Combobox.Input placeholder={placeholder} />
+                            {selectionMode === 'staged' && <Combobox.Apply />}
+                            <Combobox.Toggle />
+                        </Combobox.Search>
+                    </Combobox.Control>
+                    <Combobox.Portal>
+                        <Combobox.Popup>
+                            <PrincipalSelectorList items={filtered} selectionMode={selectionMode} emptyLabel={emptyLabel} />
+                        </Combobox.Popup>
+                    </Combobox.Portal>
+                </Combobox.Content>
+            </Combobox.Root>
+        </div>
     );
 };
 

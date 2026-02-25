@@ -15,6 +15,8 @@ import {InlineButton} from '../../../InlineButton';
 import {ItemLabel} from '../../../ItemLabel';
 import {PrincipalSelector} from '../../../selectors/PrincipalSelector';
 
+const filterAnonymousUserOut = (principal: Principal) => !principal.getKey().isAnonymous();
+
 export const NewProjectDialogAccessStepHeader = (): ReactElement => {
     const helperLabel = useI18n('dialog.project.wizard.title');
     const titleLabel = useI18n('dialog.project.wizard.access.title');
@@ -25,11 +27,11 @@ export const NewProjectDialogAccessStepHeader = (): ReactElement => {
 
 NewProjectDialogAccessStepHeader.displayName = 'NewProjectDialogAccessStepHeader';
 
-export const NewProjectDialogAccessStepContent = (): ReactElement => {
+export const NewProjectDialogAccessStepContent = ({locked = false}: {locked?: boolean}): ReactElement => {
     // Hooks
     const {principals} = useStore($principals);
-    const {parentProjects, accessMode, permissions} = useStore($newProjectDialog);
-    const [selection, setSelection] = useState<readonly string[]>(permissions.map((principal) => principal.getKey().toString()));
+    const {parentProjects, accessMode, permissions} = useStore($newProjectDialog, {keys: ['parentProjects', 'accessMode', 'permissions']});
+    const [selection, setSelection] = useState<string[]>(permissions.map((principal) => principal.getKey().toString()));
     const [accessModeValue, setAccessModeValue] = useState(accessMode || '');
     const [selectedPrincipals, setSelectedPrincipals] = useState<Principal[]>(permissions);
 
@@ -48,27 +50,46 @@ export const NewProjectDialogAccessStepContent = (): ReactElement => {
         setNewProjectDialogPermissions(selectedPrincipals);
     }, [selectedPrincipals]);
 
-    // Constants
-    const accessModeLabel = useI18n('dialog.project.wizard.access.accessMode');
-    const publicLabel = useI18n('dialog.project.wizard.access.public');
-    const privateLabel = useI18n('dialog.project.wizard.access.private');
-    const customLabel = useI18n('dialog.project.wizard.access.custom');
-    const permissionsLabel = useI18n('dialog.project.wizard.access.permissions');
-    const copyFromParentLabel = useI18n('dialog.project.wizard.access.copyFromParent');
-    const typeToSearchLabel = useI18n('field.search.placeholder');
-    const noPrincipalsFoundLabel = useI18n('dialog.project.wizard.access.noPrincipalsFound');
-
-    // Handlers
+    // Memoized values
     const canCopyFromParentProject = useMemo(() => {
         const hasParentProjects = parentProjects?.length > 0;
 
         if (!hasParentProjects) return false;
 
         const parentProjectReadAccess = parentProjects[0]?.getReadAccess();
+        const parentProjectReadAccessPrincipalsKeys = parentProjectReadAccess
+            .getPrincipalsKeys()
+            .map((principalKey) => principalKey.toString());
 
-        return parentProjectReadAccess.isPublic() || parentProjectReadAccess.isPrivate() || parentProjectReadAccess.isCustom();
-    }, [parentProjects]);
+        const isParentProjectReadAccessDifferent = parentProjectReadAccess.getType().toString() !== accessModeValue;
 
+        const isParentProjectPrincipalKeysDifferent =
+            parentProjectReadAccessPrincipalsKeys.length !== selection.length ||
+            parentProjectReadAccessPrincipalsKeys.some((key) => !selection.includes(key));
+
+        return isParentProjectReadAccessDifferent || isParentProjectPrincipalKeysDifferent;
+    }, [parentProjects, accessModeValue, selection]);
+
+    // Constants
+    const accessModeLabel = useI18n('dialog.project.wizard.access.accessMode');
+    const publicLabel = useI18n('dialog.project.wizard.access.public');
+    const privateLabel = useI18n('dialog.project.wizard.access.private');
+    const customLabel = useI18n('dialog.project.wizard.access.custom');
+    const permissionsLabel = useI18n('dialog.project.wizard.access.permissions');
+    const copyFromLabel = useI18n('dialog.project.wizard.access.copyFrom');
+    const typeToSearchLabel = useI18n('field.search.placeholder');
+    const noPrincipalsFoundLabel = useI18n('dialog.project.wizard.access.noPrincipalsFound');
+    const copyFromParentLabel = useMemo(() => {
+        if (!canCopyFromParentProject) return '';
+
+        const parentProjectName = parentProjects[0]?.getDisplayName() || '';
+
+        if (!parentProjectName) return '';
+
+        return `${copyFromLabel} ${parentProjectName}`;
+    }, [canCopyFromParentProject, parentProjects, copyFromLabel]);
+
+    // Handlers
     const handleCopyFromParentProject = useCallback(() => {
         if (!canCopyFromParentProject) return;
 
@@ -100,8 +121,8 @@ export const NewProjectDialogAccessStepContent = (): ReactElement => {
     );
 
     return (
-        <Dialog.StepContent step="step-access">
-            <div className="flex justify-between gap-3 mb-2">
+        <Dialog.StepContent step="step-access" locked={locked}>
+            <div className="flex justify-between gap-3 mb-2 h-6.5">
                 <label className="font-semibold">{accessModeLabel}</label>
                 {canCopyFromParentProject && <InlineButton onClick={handleCopyFromParentProject} label={copyFromParentLabel} />}
             </div>
@@ -134,38 +155,37 @@ export const NewProjectDialogAccessStepContent = (): ReactElement => {
                         allowedTypes={[PrincipalType.USER, PrincipalType.GROUP]}
                         placeholder={typeToSearchLabel}
                         emptyLabel={noPrincipalsFoundLabel}
+                        customFilter={filterAnonymousUserOut}
                         closeOnBlur
                     />
 
                     {selection.length > 0 && (
-                        <>
-                            <GridList className="rounded-md mb-2.5 py-2.5 pl-4 pr-1">
-                                {selectedPrincipals.map((principal) => {
-                                    const key = principal.getKey().toString();
-                                    const principalDisplayName = principal.getDisplayName();
-                                    const principalPath = principal.getKey().toPath();
+                        <GridList className="rounded-md mb-2.5 py-2.5 pl-4 pr-1">
+                            {selectedPrincipals.map((principal) => {
+                                const key = principal.getKey().toString();
+                                const principalDisplayName = principal.getDisplayName();
+                                const principalPath = principal.getKey().toPath();
 
-                                    return (
-                                        <GridList.Row key={key} id={key} className="p-1 gap-1.5">
-                                            <GridList.Cell interactive={false} className="flex-1 self-stretch">
-                                                <div className="flex items-center gap-2.5 flex-1">
-                                                    <ItemLabel
-                                                        icon={<CircleUserRound />}
-                                                        primary={principalDisplayName}
-                                                        secondary={principalPath}
-                                                    />
-                                                </div>
-                                            </GridList.Cell>
-                                            <GridList.Cell>
-                                                <GridList.Action>
-                                                    <IconButton variant="text" icon={X} onClick={() => handleUnselect(key)} />
-                                                </GridList.Action>
-                                            </GridList.Cell>
-                                        </GridList.Row>
-                                    );
-                                })}
-                            </GridList>
-                        </>
+                                return (
+                                    <GridList.Row key={key} id={key} className="p-1 gap-1.5">
+                                        <GridList.Cell interactive={false} className="flex-1 self-stretch">
+                                            <div className="flex items-center gap-2.5 flex-1">
+                                                <ItemLabel
+                                                    icon={<CircleUserRound />}
+                                                    primary={principalDisplayName}
+                                                    secondary={principalPath}
+                                                />
+                                            </div>
+                                        </GridList.Cell>
+                                        <GridList.Cell>
+                                            <GridList.Action>
+                                                <IconButton variant="text" icon={X} onClick={() => handleUnselect(key)} />
+                                            </GridList.Action>
+                                        </GridList.Cell>
+                                    </GridList.Row>
+                                );
+                            })}
+                        </GridList>
                     )}
                 </div>
             )}

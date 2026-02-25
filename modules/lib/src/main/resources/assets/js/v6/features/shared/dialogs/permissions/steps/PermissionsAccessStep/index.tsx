@@ -1,30 +1,30 @@
-import {CheckboxChecked, Dialog, GridList, RadioGroup} from '@enonic/ui';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
 import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {Fragment, ReactElement, useCallback, useMemo, useState} from 'react';
+import {CheckboxChecked, Dialog, GridList, RadioGroup} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
+import {LockKeyhole, LockKeyholeOpen} from 'lucide-react';
+import {Fragment, ReactElement, useCallback, useMemo, useState} from 'react';
+import {AccessControlEntry} from '../../../../../../../app/access/AccessControlEntry';
+import {Permission} from '../../../../../../../app/access/Permission';
+import {Access} from '../../../../../../../app/security/Access';
+import {AccessHelper} from '../../../../../../../app/security/AccessHelper';
 import {useI18n} from '../../../../../hooks/useI18n';
-import {PrincipalSelector} from '../../../../selectors/PrincipalSelector';
-import {InlineButton} from '../../../../InlineButton';
 import {
     $permissionsDialog,
     setPermissionsDialogAccessControlEntries,
     setPermissionsDialogAccessMode,
 } from '../../../../../store/dialogs/permissionsDialog.store';
 import {$principals} from '../../../../../store/principals.store';
-import {AccessControlEntry} from '../../../../../../../app/access/AccessControlEntry';
-import {Permission} from '../../../../../../../app/access/Permission';
-import {Access} from '../../../../../../../app/security/Access';
 import {
     accessControlEntriesToPrincipalKeys,
     areAccessControlEntriesEqual,
     getPrincipalsInCustomAccess,
 } from '../../../../../utils/cms/permissions/accessControl';
+import {InlineButton} from '../../../../InlineButton';
+import {PrincipalSelector} from '../../../../selectors/PrincipalSelector';
 import {AccessControlRow} from './AccessControlRow';
 import {CustomPermissionsRow} from './CustomPermissionsRow';
-import {AccessHelper} from '../../../../../../../app/security/AccessHelper';
-import {LockKeyhole, LockKeyholeOpen} from 'lucide-react';
 
 const filterAnonymousUserOut = (principal: Principal) => !principal.getKey().isAnonymous();
 const filterEveryonePrincipalOut = (principal: Principal) => !principal.getKey().equals(RoleKeys.EVERYONE);
@@ -210,7 +210,7 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
                 </>
             )}
 
-            <div className="mt-7.5 space-y-2.25">
+            <div className="mt-7.5 space-y-2">
                 <label className="block font-semibold">{accessModeLabel}</label>
 
                 <RadioGroup.Root
