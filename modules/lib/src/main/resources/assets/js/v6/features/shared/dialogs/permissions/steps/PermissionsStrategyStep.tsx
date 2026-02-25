@@ -6,6 +6,7 @@ import {
     $permissionsDialog,
     setPermissionsDialogApplyTo,
     setPermissionsDialogReplaceAllChildPermissions,
+    setPermissionsDialogView,
 } from '../../../../store/dialogs/permissionsDialog.store';
 
 export const PermissionsDialogStrategyStepHeader = (): ReactElement => {
@@ -62,7 +63,12 @@ export const PermissionsDialogStrategyStepContent = ({locked}: {locked: boolean}
                         label={replaceTitle}
                         checked={replaceAllChildPermissions}
                         onCheckedChange={(checked) => {
-                            setPermissionsDialogReplaceAllChildPermissions(checked === true);
+                            if (checked) {
+                                setPermissionsDialogView('replaceAllConfirmation');
+                                return;
+                            }
+
+                            setPermissionsDialogReplaceAllChildPermissions(false);
                         }}
                         className="font-semibold"
                     />

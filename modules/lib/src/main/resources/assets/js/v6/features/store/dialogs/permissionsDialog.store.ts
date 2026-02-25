@@ -29,7 +29,7 @@ import {compareAccessControlEntries} from '../../utils/cms/permissions/accessCon
 type PermissionsDialogStore = {
     // Config
     open: boolean;
-    view: 'main' | 'confirmation';
+    view: 'main' | 'confirmation' | 'replaceAllConfirmation';
     step: string;
     loading: boolean;
     contentDisplayName: string;
@@ -87,8 +87,10 @@ export const $permissionsDialog = map<PermissionsDialogStore>(structuredClone(in
 
 export const $isPermissionsDialogDirty = computed(
     [$permissionsDialog],
-    ({initialAccessControlEntries, finalAccessControlEntries}): boolean => {
-        const {added, removed, modified} = compareAccessControlEntries(initialAccessControlEntries, finalAccessControlEntries);
+    ({initialAccessControlEntries, accessControlEntries, initialAccessMode, accessMode}): boolean => {
+        if (accessMode !== initialAccessMode) return true;
+
+        const {added, removed, modified} = compareAccessControlEntries(initialAccessControlEntries, accessControlEntries);
 
         return added.length > 0 || removed.length > 0 || modified.length > 0;
     }
@@ -170,7 +172,7 @@ export const closePermissionsDialog = (): void => {
     $permissionsDialog.set(structuredClone(initialState));
 };
 
-export const setPermissionsDialogView = (view: 'main' | 'confirmation'): void => {
+export const setPermissionsDialogView = (view: PermissionsDialogStore['view']): void => {
     $permissionsDialog.setKey('view', view);
 };
 

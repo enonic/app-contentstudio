@@ -5,18 +5,24 @@ import {type ReactElement, useMemo} from 'react';
 import {useI18n} from '../../../../hooks/useI18n';
 import {$permissionsDialog} from '../../../../store/dialogs/permissionsDialog.store';
 import {compareAccessControlEntries} from '../../../../utils/cms/permissions/accessControl';
-import {CircleUserRound, MoveRight} from 'lucide-react';
-import {ItemLabel} from '../../../ItemLabel';
+import {MoveRight} from 'lucide-react';
 import {Access} from '../../../../../../app/security/Access';
 import {AccessHelper} from '../../../../../../app/security/AccessHelper';
+import {PrincipalLabel} from '../../../PrincipalLabel';
 
 export const PermissionsDialogSummaryStepHeader = (): ReactElement => {
-    const {contentDisplayName} = useStore($permissionsDialog, {keys: ['contentDisplayName']});
+    const {contentDisplayName, contentDescendantsCount} = useStore($permissionsDialog, {
+        keys: ['contentDisplayName', 'contentDescendantsCount'],
+    });
+
+    const isLeafContent = contentDescendantsCount === 0;
 
     const helperLabel = useI18n('dialog.permissions.title', contentDisplayName);
     const titleLabel = useI18n('dialog.permissions.summary.title');
+    const leafTitleLabel = useI18n('dialog.permissions.summary.leafTitle');
+    const title = isLeafContent ? leafTitleLabel : titleLabel;
 
-    return <Dialog.StepHeader step="step-summary" helper={helperLabel} title={titleLabel} withClose />;
+    return <Dialog.StepHeader step="step-summary" helper={helperLabel} title={title} withClose />;
 };
 
 PermissionsDialogSummaryStepHeader.displayName = 'PermissionsDialogSummaryStepHeader';
@@ -106,10 +112,12 @@ export const PermissionsDialogSummaryStepContent = ({locked}: {locked: boolean})
                         {applyTo === 'single' ? thisItemLabel : applyTo === 'subtree' ? childrenOnlyLabel : thisItemAndAllChildrenLabel}
                     </dd>
                 </div>
-                <div className="contents">
-                    <dt className="font-semibold">{replaceChildPermissionsLabel}</dt>
-                    <dd>{replaceAllChildPermissions ? yesLabel : noLabel}</dd>
-                </div>
+                {applyTo !== 'single' && (
+                    <div className="contents">
+                        <dt className="font-semibold">{replaceChildPermissionsLabel}</dt>
+                        <dd>{replaceAllChildPermissions ? yesLabel : noLabel}</dd>
+                    </div>
+                )}
             </dl>
 
             {/* Detailed summary */}
@@ -122,18 +130,12 @@ export const PermissionsDialogSummaryStepContent = ({locked}: {locked: boolean})
                             {added.map((entry) => {
                                 const principal = entry.getPrincipal();
                                 const key = principal.getKey().toString();
-                                const principalDisplayName = principal.getDisplayName();
-                                const principalPath = principal.getKey().toPath();
                                 const accessValue = AccessHelper.getAccessValueFromPermissions(entry.getAllowedPermissions());
                                 const accessControlEntryLabel = accessLabelMap.get(accessValue);
 
                                 return (
                                     <li key={key} className="flex items-center justify-between py-1">
-                                        <ItemLabel
-                                            icon={<CircleUserRound strokeWidth={1.5} />}
-                                            primary={principalDisplayName}
-                                            secondary={principalPath}
-                                        />
+                                        <PrincipalLabel principal={principal} />
                                         <span className="text-sm">{accessControlEntryLabel}</span>
                                     </li>
                                 );
@@ -150,8 +152,6 @@ export const PermissionsDialogSummaryStepContent = ({locked}: {locked: boolean})
                             {modified.map((newEntry) => {
                                 const principal = newEntry.getPrincipal();
                                 const key = principal.getKey().toString();
-                                const principalDisplayName = principal.getDisplayName();
-                                const principalPath = principal.getKey().toPath();
                                 const initialEntry = initialAccessControlEntries.find((initialEntry) =>
                                     initialEntry.getPrincipal().getKey().equals(principal.getKey())
                                 );
@@ -164,11 +164,7 @@ export const PermissionsDialogSummaryStepContent = ({locked}: {locked: boolean})
 
                                 return (
                                     <li key={key} className="flex items-center justify-between py-1">
-                                        <ItemLabel
-                                            icon={<CircleUserRound strokeWidth={1.5} />}
-                                            primary={principalDisplayName}
-                                            secondary={principalPath}
-                                        />
+                                        <PrincipalLabel principal={principal} />
                                         <div className="flex items-center gap-2.5 text-sm">
                                             <span className="line-through">{initialAccessControlEntryLabel}</span>
                                             <MoveRight strokeWidth={1} />
@@ -189,19 +185,12 @@ export const PermissionsDialogSummaryStepContent = ({locked}: {locked: boolean})
                             {removed.map((entry) => {
                                 const principal = entry.getPrincipal();
                                 const key = principal.getKey().toString();
-                                const principalDisplayName = principal.getDisplayName();
-                                const principalPath = principal.getKey().toPath();
                                 const accessValue = AccessHelper.getAccessValueFromPermissions(entry.getAllowedPermissions());
                                 const accessControlEntryLabel = accessLabelMap.get(accessValue);
 
                                 return (
                                     <li key={key} className="flex items-center justify-between py-1">
-                                        <ItemLabel
-                                            icon={<CircleUserRound strokeWidth={1.5} />}
-                                            primary={principalDisplayName}
-                                            secondary={principalPath}
-                                            className="[&_span:first-child]:line-through"
-                                        />
+                                        <PrincipalLabel principal={principal} className="[&_span:has(+small)]:line-through" />
                                         <span className="line-through text-sm">{accessControlEntryLabel}</span>
                                     </li>
                                 );
@@ -211,25 +200,19 @@ export const PermissionsDialogSummaryStepContent = ({locked}: {locked: boolean})
                 )}
 
                 {/* Unchanged */}
-                {unchanged.length > 0 && (
+                {replaceAllChildPermissions && unchanged.length > 0 && (
                     <div className="flex flex-col gap-2.5">
                         <h3 className="font-semibold">{unchangedLabel}</h3>
                         <ul className="flex flex-col gap-2.5 ml-5 mr-2.5">
                             {unchanged.map((entry) => {
                                 const principal = entry.getPrincipal();
                                 const key = principal.getKey().toString();
-                                const principalDisplayName = principal.getDisplayName();
-                                const principalPath = principal.getKey().toPath();
                                 const accessValue = AccessHelper.getAccessValueFromPermissions(entry.getAllowedPermissions());
                                 const accessControlEntryLabel = accessLabelMap.get(accessValue);
 
                                 return (
                                     <li key={key} className="flex items-center justify-between py-1 opacity-70">
-                                        <ItemLabel
-                                            icon={<CircleUserRound strokeWidth={1.5} />}
-                                            primary={principalDisplayName}
-                                            secondary={principalPath}
-                                        />
+                                        <PrincipalLabel principal={principal} />
                                         <span className="text-sm">{accessControlEntryLabel}</span>
                                     </li>
                                 );

@@ -49,15 +49,13 @@ export type ConfirmationDialogContentProps = {
 const ConfirmationDialogContent = forwardRef<HTMLDivElement, ConfirmationDialogContentProps>(
     ({defaultConfirmEnabled = true, className, children, ...props}, ref): ReactElement => {
         return (
-            <Dialog.Content ref={ref}
-                className={cn('max-w-180 w-fit sm:min-w-152 text-main gap-10', className)} {...props}>
+            <Dialog.Content ref={ref} className={cn('max-w-180 w-fit sm:min-w-152 text-main gap-10', className)} {...props}>
                 <ConfirmationDialogProvider defaultConfirmEnabled={defaultConfirmEnabled}>{children}</ConfirmationDialogProvider>
             </Dialog.Content>
         );
     }
 );
 ConfirmationDialogContent.displayName = 'ConfirmationDialog.Content';
-
 
 //
 // * ConfirmationDialogFooter
@@ -66,44 +64,44 @@ ConfirmationDialogContent.displayName = 'ConfirmationDialog.Content';
 export type ConfirmationDialogFooterProps = {
     onCancel?: () => void;
     onConfirm?: () => void;
+    closeOnCancel?: boolean;
     closeOnConfirm?: boolean;
     intent?: 'default' | 'danger';
     className?: string;
 } & ComponentPropsWithoutRef<'footer'>;
 
-const ConfirmationDialogFooter = forwardRef<HTMLButtonElement, ConfirmationDialogFooterProps>(({
-    onCancel,
-    onConfirm,
-    closeOnConfirm = true,
-    intent = 'default',
-    className,
-    ...props
-}, ref): ReactElement => {
-    const {confirmEnabled} = useConfirmationDialog();
+const ConfirmationDialogFooter = forwardRef<HTMLButtonElement, ConfirmationDialogFooterProps>(
+    ({onCancel, onConfirm, closeOnCancel = true, closeOnConfirm = true, intent = 'default', className, ...props}, ref): ReactElement => {
+        const {confirmEnabled} = useConfirmationDialog();
 
-    const cancel = useI18n('action.cancel');
-    const confirm = useI18n('action.confirm');
+        const cancel = useI18n('action.cancel');
+        const confirm = useI18n('action.confirm');
 
-    const ConfirmButton = (
-        <Button ref={ref}
-            onClick={onConfirm}
-            disabled={!confirmEnabled}
-            size='lg'
-            label={confirm}
-            variant='solid'
-            className={cn(intent === 'danger' && 'bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50')}
-        />
-    );
+        const ConfirmButton = (
+            <Button
+                ref={ref}
+                onClick={onConfirm}
+                disabled={!confirmEnabled}
+                size="lg"
+                label={confirm}
+                variant="solid"
+                className={cn(
+                    intent === 'danger' &&
+                        'bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50'
+                )}
+            />
+        );
 
-    return (
-        <Dialog.Footer className={cn('mt-2.5', className)} {...props}>
-            <Dialog.Close asChild>
-                <Button size='lg' label={cancel} variant='outline' onClick={onCancel} />
-            </Dialog.Close>
-            {closeOnConfirm ? <Dialog.Close asChild>{ConfirmButton}</Dialog.Close> : ConfirmButton}
-        </Dialog.Footer>
-    );
-});
+        const CancelButton = <Button size="lg" label={cancel} variant="outline" onClick={onCancel} />;
+
+        return (
+            <Dialog.Footer className={cn('mt-2.5', className)} {...props}>
+                {closeOnCancel ? <Dialog.Close asChild>{CancelButton}</Dialog.Close> : CancelButton}
+                {closeOnConfirm ? <Dialog.Close asChild>{ConfirmButton}</Dialog.Close> : ConfirmButton}
+            </Dialog.Footer>
+        );
+    }
+);
 ConfirmationDialogFooter.displayName = 'ConfirmationDialog.Footer';
 
 export const ConfirmationDialog = {

@@ -24,7 +24,9 @@ import {
 import {AccessControlRow} from './AccessControlRow';
 import {CustomPermissionsRow} from './CustomPermissionsRow';
 import {AccessHelper} from '../../../../../../../app/security/AccessHelper';
+import {LockKeyhole, LockKeyholeOpen} from 'lucide-react';
 
+const filterAnonymousUserOut = (principal: Principal) => !principal.getKey().isAnonymous();
 const filterEveryonePrincipalOut = (principal: Principal) => !principal.getKey().equals(RoleKeys.EVERYONE);
 
 export const PermissionsDialogAccessStepHeader = (): ReactElement => {
@@ -60,7 +62,7 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
     );
 
     // Constants
-    const usersLabel = useI18n('dialog.permissions.access.users');
+    const permissionsLabel = useI18n('dialog.permissions.access.permissions');
     const accessModeLabel = useI18n('dialog.permissions.access.accessMode');
     const accessModePublicLabel = useI18n('dialog.permissions.access.accessMode.public');
     const accessModeRestrictedLabel = useI18n('dialog.permissions.access.accessMode.restricted');
@@ -113,19 +115,22 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
     // Manage the change of access for a principal.
     const handlePrincipalAccessChange = useCallback(
         (principalKey: string, value: Access) => {
-            const newAccessControlEntries = accessControlEntries.map((entry) => {
-                if (entry.getPrincipalKey().toString() !== principalKey) {
-                    return entry;
-                }
+            if (value !== Access.CUSTOM) {
+                const newAccessControlEntries = accessControlEntries.map((entry) => {
+                    if (entry.getPrincipalKey().toString() !== principalKey) {
+                        return entry;
+                    }
 
-                const clone = entry.clone();
-                const permissions = AccessHelper.getPermissionsFromAccess(value);
-                clone.setAllowedPermissions(permissions);
+                    const clone = entry.clone();
+                    const permissions = AccessHelper.getPermissionsFromAccess(value);
+                    clone.setAllowedPermissions(permissions);
 
-                return clone;
-            });
+                    return clone;
+                });
 
-            setPermissionsDialogAccessControlEntries(newAccessControlEntries);
+                setPermissionsDialogAccessControlEntries(newAccessControlEntries);
+            }
+
             setPrincipalsInCustomAccess((prev) =>
                 value === Access.CUSTOM ? [...prev, principalKey] : prev.filter((item) => item !== principalKey)
             );
@@ -160,7 +165,7 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
     return (
         <Dialog.StepContent step="step-access">
             <div className="flex justify-between gap-3 mb-2.25">
-                <label className="font-semibold">{usersLabel}</label>
+                <label className="font-semibold">{permissionsLabel}</label>
                 {canCopyFromParent && <InlineButton onClick={handleCopyFromParent} label={copyFromLabel} />}
             </div>
 
@@ -169,7 +174,7 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
                 onSelectionChange={handleSelect}
                 selectionMode="staged"
                 allowedTypes={[PrincipalType.USER, PrincipalType.GROUP, PrincipalType.ROLE]}
-                customFilter={filterEveryonePrincipalOut}
+                customFilter={(principal) => filterEveryonePrincipalOut(principal) && filterAnonymousUserOut(principal)}
                 placeholder={typeToSearchLabel}
                 emptyLabel={notFoundLabel}
                 closeOnBlur
@@ -184,7 +189,6 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
                             return (
                                 <Fragment key={key}>
                                     <AccessControlRow
-                                        entries={accessControlEntries}
                                         principal={principal}
                                         principalsInCustomAccess={principalsInCustomAccess}
                                         onSelect={(access: Access) => handlePrincipalAccessChange(key, access)}
@@ -193,7 +197,6 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
 
                                     {principalsInCustomAccess.includes(key) && (
                                         <CustomPermissionsRow
-                                            entries={accessControlEntries}
                                             principal={principal}
                                             onCheckedChange={(permission, checked) =>
                                                 handlePrincipalCustomAccessChange(key, permission, checked)
@@ -218,12 +221,18 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
                 >
                     <RadioGroup.Item value="public">
                         <RadioGroup.Indicator />
-                        <span className="ml-2">{accessModePublicLabel}</span>
+                        <span className="ml-2 flex items-center gap-1">
+                            <LockKeyholeOpen size={14} />
+                            {accessModePublicLabel}
+                        </span>
                     </RadioGroup.Item>
 
                     <RadioGroup.Item value="restricted">
                         <RadioGroup.Indicator />
-                        <span className="ml-2">{accessModeRestrictedLabel}</span>
+                        <span className="ml-2 flex items-center gap-1">
+                            <LockKeyhole size={14} />
+                            {accessModeRestrictedLabel}
+                        </span>
                     </RadioGroup.Item>
                 </RadioGroup.Root>
             </div>

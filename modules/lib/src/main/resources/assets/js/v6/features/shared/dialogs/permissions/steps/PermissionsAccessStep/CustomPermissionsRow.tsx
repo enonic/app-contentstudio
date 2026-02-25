@@ -2,19 +2,21 @@ import {Checkbox, CheckboxChecked, GridList} from '@enonic/ui';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {ReactElement} from 'react';
 import {Permission} from '../../../../../../../app/access/Permission';
-import {AccessControlEntry} from '../../../../../../../app/access/AccessControlEntry';
 import {getPrincipalAllowedPermissions} from '../../../../../utils/cms/permissions/accessControl';
 import {useI18n} from '../../../../../hooks/useI18n';
+import {useStore} from '@nanostores/preact';
+import {$permissionsDialog} from '../../../../../store/dialogs/permissionsDialog.store';
 
 type CustomPermissionsRowProps = {
-    entries: AccessControlEntry[];
     principal: Principal;
     onCheckedChange: (permission: Permission, checked: CheckboxChecked) => void;
 };
 
-export const CustomPermissionsRow = ({entries, principal, onCheckedChange}: CustomPermissionsRowProps): ReactElement => {
+export const CustomPermissionsRow = ({principal, onCheckedChange}: CustomPermissionsRowProps): ReactElement => {
+    const {accessControlEntries} = useStore($permissionsDialog, {keys: ['accessControlEntries']});
+
     const key = principal.getKey().toString();
-    const allowedPermissions = getPrincipalAllowedPermissions(entries, key);
+    const allowedPermissions = getPrincipalAllowedPermissions(accessControlEntries, key);
 
     const permissionReadLabel = useI18n('security.permission.read');
     const permissionCreateLabel = useI18n('security.permission.create');

@@ -1,29 +1,25 @@
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {ReactElement} from 'react';
 import {GridList, IconButton, Selector} from '@enonic/ui';
-import {CircleUserRound, X} from 'lucide-react';
+import {X} from 'lucide-react';
 import {Access} from '../../../../../../../app/security/Access';
 import {useI18n} from '../../../../../hooks/useI18n';
-import {ItemLabel} from '../../../../ItemLabel';
-import {AccessControlEntry} from '../../../../../../../app/access/AccessControlEntry';
 import {getPrincipalAllowedPermissions} from '../../../../../utils/cms/permissions/accessControl';
 import {AccessHelper} from '../../../../../../../app/security/AccessHelper';
+import {$permissionsDialog} from '../../../../../store/dialogs/permissionsDialog.store';
+import {useStore} from '@nanostores/preact';
+import {PrincipalLabel} from '../../../../PrincipalLabel';
 
 type AccessControlRowProps = {
-    entries: AccessControlEntry[];
     principal: Principal;
     principalsInCustomAccess: string[];
-    onSelect: (value: string) => void;
+    onSelect: (value: Access) => void;
     onUnselect: () => void;
 };
 
-export const AccessControlRow = ({
-    entries,
-    principal,
-    principalsInCustomAccess,
-    onSelect,
-    onUnselect,
-}: AccessControlRowProps): ReactElement => {
+export const AccessControlRow = ({principal, principalsInCustomAccess, onSelect, onUnselect}: AccessControlRowProps): ReactElement => {
+    const {accessControlEntries} = useStore($permissionsDialog, {keys: ['accessControlEntries']});
+
     const accessFullLabel = useI18n('security.access.full');
     const accessPublishLabel = useI18n('security.access.publish');
     const accessWriteLabel = useI18n('security.access.write');
@@ -38,10 +34,8 @@ export const AccessControlRow = ({
     ]);
 
     const key = principal.getKey().toString();
-    const principalPath = principal.getKey().toPath();
-    const principalDisplayName = principal.getDisplayName();
 
-    const allowedPermissions = getPrincipalAllowedPermissions(entries, key);
+    const allowedPermissions = getPrincipalAllowedPermissions(accessControlEntries, key);
     const accessValue = AccessHelper.getAccessValueFromPermissions(allowedPermissions);
     const accessControlEntryLabel = principalsInCustomAccess.includes(key)
         ? accessLabelMap.get(Access.CUSTOM)
@@ -51,7 +45,7 @@ export const AccessControlRow = ({
         <GridList.Row id={`${key}-access`} className="p-1 gap-2.5">
             <GridList.Cell interactive={false} className="flex-1 self-stretch">
                 <div className="flex items-center gap-2.5 flex-1">
-                    <ItemLabel icon={<CircleUserRound strokeWidth={1.5} />} primary={principalDisplayName} secondary={principalPath} />
+                    <PrincipalLabel principal={principal} />
                 </div>
             </GridList.Cell>
 
