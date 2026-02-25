@@ -162,6 +162,7 @@ export class LiveEditPageProxy
         IframeEventBus.get().registerClass('CreateFragmentEvent', CreateFragmentEvent);
         IframeEventBus.get().registerClass('EditTextComponentViewEvent', EditTextComponentViewEvent);
         IframeEventBus.get().registerClass('LiveEditPageInitializationErrorEvent', LiveEditPageInitializationErrorEvent);
+        IframeEventBus.get().registerClass('PageReloadRequestedEvent', PageReloadRequestedEvent);
 
 
         IframeEventBus.get().onEvent('editor-iframe-loaded', (event) => {
@@ -323,8 +324,8 @@ export class LiveEditPageProxy
         }
     }
 
-    public loadComponent(path: ComponentPath, uri: string, isExisting = false): void {
-        new LoadComponentViewEvent(path, uri, isExisting).fire();
+    public loadComponent(path: ComponentPath, isExisting = false): void {
+        new LoadComponentViewEvent(path, isExisting).fire();
     }
 
     public stopListening() {

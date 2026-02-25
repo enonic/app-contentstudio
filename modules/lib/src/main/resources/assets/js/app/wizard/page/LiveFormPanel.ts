@@ -54,8 +54,6 @@ import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler
 import {InspectEvent} from '../../event/InspectEvent';
 import {HTMLAreaProxy} from '../../inputtype/ui/text/dialog/HTMLAreaProxy';
 import {type ModalDialog} from '../../inputtype/ui/text/dialog/ModalDialog';
-import {RenderingMode} from '../../rendering/RenderingMode';
-import {UriHelper} from '../../rendering/UriHelper';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContextPanelState} from '../../view/context/ContextPanelState';
 import {ContextPanelMode} from '../../view/context/ContextSplitPanel';
@@ -612,17 +610,11 @@ export class LiveFormPanel
     }
 
     private loadComponent(path: ComponentPath): void {
-        const componentUrl: string = UriHelper.getComponentUri(this.content.getContentId().toString(),
-            path,
-            RenderingMode.EDIT);
-        this.liveEditPageProxy.loadComponent(path, componentUrl);
+        this.liveEditPageProxy.loadComponent(path);
     }
 
     private reloadExistingComponent(path: ComponentPath): void {
-        const componentUrl: string = UriHelper.getComponentUri(this.content.getContentId().toString(),
-            path,
-            RenderingMode.EDIT);
-        this.liveEditPageProxy.loadComponent(path, componentUrl, true);
+        this.liveEditPageProxy.loadComponent(path, true);
     }
 
     private addPageProxyEventListeners() {
