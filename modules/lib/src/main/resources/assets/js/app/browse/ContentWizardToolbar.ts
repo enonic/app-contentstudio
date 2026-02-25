@@ -9,6 +9,7 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
 import {AI} from '../ai/AI';
+import {ContentUnnamed} from '../content/ContentUnnamed';
 import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ProjectContext} from '../project/ProjectContext';
 import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
@@ -33,6 +34,7 @@ import {
     setWizardToolbarPublishStatus,
     setWizardToolbarWorkflowStatus
 } from '../../v6/features/store/wizardToolbar.store';
+import {$wizardDraftName} from '../../v6/features/store/wizardContent.store';
 import type {WizardToolbarCollaborator} from '../../v6/features/store/wizardToolbar.types';
 import {calcWorkflowStateStatus} from '../../v6/features/utils/cms/content/workflow';
 import {
@@ -167,9 +169,12 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
         this.item = item;
         const summary = item?.getContentSummary();
         const publishStatus = item?.getPublishStatus() ?? $wizardToolbar.get().publishStatus ?? null;
-        const workflowStatus = summary ? calcWorkflowStateStatus(summary) : $wizardToolbar.get().workflowStatus ?? null;
+        const workflowStatus = this.config.workflowStateIconsManager.getStatus() ??
+                               $wizardToolbar.get().workflowStatus ??
+                               (summary ? calcWorkflowStateStatus(summary) : null);
+        const contentPath = this.resolveToolbarContentPath(item);
         setWizardToolbarPublishStatus(publishStatus);
-        setWizardToolbarContentPath(item?.getPath()?.getName() ?? '');
+        setWizardToolbarContentPath(contentPath);
         setWizardToolbarCanRenameContentPath(!!item?.getPath());
         setWizardToolbarWorkflowStatus(workflowStatus);
         this.contentWizardToolbarPublishControls.setContent(item);
@@ -266,6 +271,21 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
 
             return 0;
         });
+    }
+
+    private resolveToolbarContentPath(item: ContentSummaryAndCompareStatus): string {
+        const draftName = $wizardDraftName.get()?.toString() || '';
+        if (draftName.length > 0) {
+            return draftName;
+        }
+
+        const summaryName = item?.getContentSummary()?.getName()?.toString() || '';
+        if (summaryName.length > 0) {
+            return summaryName.startsWith(ContentUnnamed.UNNAMED_PREFIX) ? '' : summaryName;
+        }
+
+        const pathName = item?.getPath()?.getName() || '';
+        return pathName.startsWith(ContentUnnamed.UNNAMED_PREFIX) ? '' : pathName;
     }
 
     private addEnonicAiContentOperatorButton(): void {

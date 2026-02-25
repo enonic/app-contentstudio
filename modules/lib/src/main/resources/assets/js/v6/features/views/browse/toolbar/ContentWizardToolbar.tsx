@@ -62,7 +62,7 @@ export const ContentWizardToolbar = ({
         collaborators,
         publishStatus,
         contentPath,
-        canRenameContentPath,
+        isPathAvailable,
         workflowStatus,
         isLayerProject
     } = useStore($wizardToolbar, {
@@ -74,7 +74,7 @@ export const ContentWizardToolbar = ({
             'collaborators',
             'publishStatus',
             'contentPath',
-            'canRenameContentPath',
+            'isPathAvailable',
             'workflowStatus',
             'isLayerProject'
         ]
@@ -83,7 +83,8 @@ export const ContentWizardToolbar = ({
 
     const projectViewLabel = projectLabel || useI18n('field.root');
     const layersLabel = useI18n('widget.layers.displayName');
-    const toolbarLabel = useI18n('wcag.contenteditor.toolbar.label')
+    const toolbarLabel = useI18n('wcag.contenteditor.toolbar.label');
+    const contentPathLabel = contentPath || `<${useI18n('field.path')}>`;
 
     const publishSplitActions: SplitActionButtonAction[] = [
         {action: markAsReadyAction},
@@ -168,27 +169,28 @@ export const ContentWizardToolbar = ({
                     {workflowStatus && (
                         <StatusIcon status={workflowStatus} className='size-3.5 my-auto mx-1.5 md:mx-2.75 shrink-0'/>
                     )}
-                    <Toolbar.Item asChild disabled={!canRenameContentPath || !bp.sm}>
+                    <Toolbar.Item asChild disabled={!bp.sm}>
                         <Button
                             size='sm'
                             variant='text'
-                            className='hidden sm:inline-flex min-w-0 max-w-full px-1.5 md:px-2.75'
-                            title={contentPath}
+                            className={cn('hidden sm:inline-flex min-w-0 max-w-full px-1.5 md:px-2.75',
+                                !isPathAvailable && 'text-error')}
+                            title={contentPathLabel}
                             onClick={onContentPathClick}
                         >
                             <span className='min-w-0 max-w-full overflow-hidden text-ellipsis whitespace-nowrap'>
-                                {contentPath}
+                                {contentPathLabel}
                             </span>
                         </Button>
                     </Toolbar.Item>
-                    <Toolbar.Item asChild disabled={!canRenameContentPath || bp.sm}>
+                    <Toolbar.Item asChild disabled={bp.sm}>
                         <IconButton
                             size='md'
                             icon={Link2}
-                            aria-label={contentPath}
-                            title={contentPath}
+                            aria-label={contentPathLabel}
+                            title={contentPathLabel}
                             onClick={onContentPathClick}
-                            className='sm:hidden shrink-0 size-8'
+                            className={cn('sm:hidden shrink-0 size-8', !isPathAvailable && 'text-error')}
                         />
                     </Toolbar.Item>
                 </div>
@@ -196,7 +198,7 @@ export const ContentWizardToolbar = ({
                     <div className='-space-x-2 items-center px-3.5 hidden sm:flex'>
                         {collaborators[0] && (
                             <Tooltip key={collaborators[0].key} value={collaborators[0].label}>
-                                <Avatar className={cn('ring-2 ring-surface-neutral z-20', collaborators[0].isCurrent && 'ring-info')}>
+                                <Avatar className={cn('ring-2 ring-surface-neutral', collaborators[0].isCurrent && 'ring-info')}>
                                     <Avatar.Fallback className='text-alt font-semibold'>
                                         <span>{getInitials(collaborators[0].label)}</span>
                                     </Avatar.Fallback>

@@ -18,7 +18,7 @@ import {LangDirection} from '@enonic/lib-admin-ui/dom/Element';
 import {type Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
 import {type FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
-import {showFeedback, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {showFeedback, showWarning, showError} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {type PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
@@ -160,6 +160,7 @@ import {
     setMixinsDescriptors as setWizardMixinsDescriptors,
     setPersistedContent as setWizardPersistedContent,
 } from '../../v6/features/store/wizardContent.store';
+import {setWizardToolbarContentPath, setWizardToolbarIsPathAvailable} from '../../v6/features/store/wizardToolbar.store';
 import {$isContextOpen, setContextOpen} from '../../v6/features/store/contextWidgets.store';
 import {setWizardContent} from '../../v6/features/store/context/contextContent.store';
 
@@ -458,11 +459,26 @@ export class ContentWizardPanel
         this.handleBrokenImageInTheWizard();
         this.getWizardHeader().onPropertyChanged(this.dataChangedHandler);
         this.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
-            if (event.getPropertyName() === 'displayName') {
-                setDraftDisplayName(this.getWizardHeader().getDisplayName());
+            const propertyName = event.getPropertyName();
+            const header = this.getWizardHeader();
+
+            setDraftDisplayName(header.getDisplayName());
+            setDraftName(this.resolveContentNameForUpdateRequest());
+            setWizardToolbarContentPath(this.normalizeToolbarContentPath(header.getName() || ''));
+            this.workflowStateManager.update();
+
+            if (propertyName === 'unique') {
+                const isPathAvailable = event.getNewValue() !== 'false';
+                const wasPathAvailable = event.getOldValue() !== 'false';
+                setWizardToolbarIsPathAvailable(isPathAvailable);
+
+                if (!isPathAvailable && wasPathAvailable) {
+                    showError(i18n('notify.path.not.available'));
+                }
+            }
+
+            if (propertyName === 'displayName') {
                 this.debouncedEnonicAiDataChangedHandler();
-            } else if (event.getPropertyName() === 'name') {
-                setDraftName(this.resolveContentNameForUpdateRequest());
             }
         });
 
@@ -479,6 +495,7 @@ export class ContentWizardPanel
         });
 
         this.getWizardHeader().onRenamed(() => {
+            setWizardToolbarContentPath(this.normalizeToolbarContentPath(this.getWizardHeader().getName()));
             this.isRename = true;
             saveAction.setEnabled(true);
             saveAction.execute();
@@ -862,13 +879,14 @@ export class ContentWizardPanel
             const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
 
             this.onValidityChanged((event: ValidityChangedEvent) => {
+                const isThisValid: boolean = this.isValid();
+                this.isContentFormValid = isThisValid;
+                this.workflowStateManager.update();
+
                 if (!this.getPersistedItem()) {
                     return;
                 }
 
-                const isThisValid: boolean = this.isValid();
-                this.isContentFormValid = isThisValid;
-                this.workflowStateManager.update();
                 this.wizardActions
                     .setContentCanBePublished(this.checkContentCanBePublished())
                     .setIsValid(isThisValid)
@@ -2688,8 +2706,16 @@ export class ContentWizardPanel
 
         this.wizardHeader?.setOnline(!content.isNew());
         this.wizardHeader?.setPath(this.getWizardHeaderPath());
+        setWizardToolbarContentPath(
+            this.normalizeToolbarContentPath(this.wizardHeader?.getName() || content.getPath()?.getName() || '')
+        );
+        setWizardToolbarIsPathAvailable(true);
         this.wizardHeader?.setDir(Locale.supportsRtl(content.getLanguage()) ? LangDirection.RTL : LangDirection.AUTO);
         this.contextView?.setItem(content);
+    }
+
+    private normalizeToolbarContentPath(pathName: string): string {
+        return pathName?.startsWith(ContentUnnamed.UNNAMED_PREFIX) ? '' : pathName;
     }
 
     protected checkIfEditIsAllowed(): Q.Promise<boolean> {

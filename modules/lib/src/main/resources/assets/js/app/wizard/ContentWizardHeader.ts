@@ -17,6 +17,7 @@ import {AiContentDataHelper} from '../ai/AiContentDataHelper';
 import {AiAnimationTool} from '@enonic/lib-admin-ui/ai/tool/AiAnimationTool';
 import {AI} from '../ai/AI';
 import {AiDialogIconTool} from '@enonic/lib-admin-ui/ai/tool/AiDialogIconTool';
+import {ContentUnnamed} from '../content/ContentUnnamed';
 
 export class ContentWizardHeader
     extends WizardHeaderWithDisplayNameAndName {
@@ -96,19 +97,21 @@ export class ContentWizardHeader
         });
 
         this.pathEl.onClicked(() => {
-            if (this.hasClass(ContentWizardHeader.LOCKED_CLASS)) {
-                if (!this.renameDialog) {
-                    this.renameDialog = new RenameContentDialog();
-
-                    this.renameDialog.onRenamed((newName: string) => {
-                        this.setName(newName, true); // setting silently to avoid duplication check
-                        this.nameEl.show(); // using workaround to trigger AutosizeTextInput's resize
-                        this.notifyRenamed();
-                    });
-                }
-
-                this.renameDialog.setInitialPath(this.persistedContent.getPath()).open();
+            if (!this.persistedContent) {
+                return;
             }
+
+            if (!this.renameDialog) {
+                this.renameDialog = new RenameContentDialog();
+
+                this.renameDialog.onRenamed((newName: string) => {
+                    this.setName(newName, true); // setting silently to avoid duplication check
+                    this.nameEl.show(); // using workaround to trigger AutosizeTextInput's resize
+                    this.notifyRenamed();
+                });
+            }
+
+            this.renameDialog.setInitialPath(this.persistedContent.getPath()).open();
         });
 
         this.debouncedNameUniqueChecker = AppHelper.debounce(() => {
@@ -134,7 +137,8 @@ export class ContentWizardHeader
     }
 
     setName(value: string, silent?: boolean) {
-        this.nameEl.setValue(value, silent);
+        const normalizedValue = value?.startsWith(ContentUnnamed.UNNAMED_PREFIX) ? '' : value;
+        this.nameEl.setValue(normalizedValue, silent);
     }
 
     refreshNameUniqueness() {
