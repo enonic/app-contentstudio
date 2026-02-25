@@ -15,7 +15,7 @@ libMustache = "2.1.1"
 libHttpClient = "3.2.2"
 
 # Rest
-jacksonJrObjects = "2.19.0"
+jacksonJrObjects = "2.21.1"
 
 [libraries]
 
