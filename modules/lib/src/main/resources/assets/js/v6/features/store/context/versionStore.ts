@@ -15,15 +15,14 @@ import {
     CircleCheckBig,
     CircleUserRound,
     Clock,
-    ClockAlert,
-    CloudCheck,
+    ClockAlert, Cloud,
     CloudOff,
     Copy,
     FilePenLine,
     FolderInput,
     type LucideIcon,
     Pen,
-    PenLine,
+    PenLine, SendToBack,
     SquarePen,
 } from 'lucide-react';
 
@@ -47,6 +46,7 @@ export const ContentOperation = {
     UNPUBLISH: 'content.unpublish',
     METADATA: 'content.updateMetadata',
     WORKFLOW: 'content.updateWorkflow',
+    SYNC: 'content.sync',
 } as const;
 
 export type ContentOperation = typeof ContentOperation[keyof typeof ContentOperation];
@@ -72,22 +72,12 @@ export const ContentField = {
     MANUAL_ORDER: 'manualOrderValue',
 } as const;
 
-const REVERTIBLE_FIELDS = new Set<string>([
-    ContentField.DISPLAY_NAME,
-    ContentField.DATA,
-    ContentField.X,
-    ContentField.PAGE,
-    ContentField.OWNER,
-    ContentField.LANGUAGE,
-]);
-
-export const isRevertibleField = (field: string): boolean => REVERTIBLE_FIELDS.has(field);
-
 export const VersionPublishStatus = {
-    ONLINE: 'online',
+    PUBLISHED: 'published',
     OFFLINE: 'offline',
     SCHEDULED: 'scheduled',
     EXPIRED: 'expired',
+    UNPUBLISHED: 'unpublished',
 } as const;
 
 export type VersionPublishStatus = typeof VersionPublishStatus[keyof typeof VersionPublishStatus];
@@ -126,6 +116,19 @@ export const $versionsByDate = computed(
 
 export const $onlineVersionId = atom<string | undefined>(undefined);
 
+export const $activePublishVersionId = computed([$versions, $onlineVersionId], (versions, onlineVersionId) => {
+    if (!onlineVersionId) {
+        return undefined;
+    }
+
+    return versions.find(v => {
+        const status = getVersionPublishStatus(v);
+        return status === VersionPublishStatus.PUBLISHED
+            || status === VersionPublishStatus.SCHEDULED
+            || status === VersionPublishStatus.EXPIRED;
+    })?.getId();
+});
+
 // ============================================================================
 // Version Helpers
 // ============================================================================
@@ -147,7 +150,7 @@ export const getFormattedVersionDate = (version: ContentVersion): string => {
     return `${year}-${month}-${day}`;
 };
 
-const hasRevertibleContent = (version: ContentVersion): boolean => {
+export const isVersionRevertable = (version: ContentVersion): boolean => {
     const action = getFirstAction(version);
 
     if (!action) {
@@ -160,17 +163,15 @@ const hasRevertibleContent = (version: ContentVersion): boolean => {
         return true;
     }
 
-    if (operation === ContentOperation.UPDATE) {
-        return action.getFields().some(isRevertibleField);
+    if (operation === ContentOperation.DUPLICATE) {
+        return true;
     }
 
-    return false;
+   return operation === ContentOperation.UPDATE;
 };
 
-export const isVersionRevertable = hasRevertibleContent;
-
 export const isStandardModeVersion = (version: ContentVersion): boolean => {
-    if (hasRevertibleContent(version)) {
+    if (isVersionRevertable(version)) {
         return true;
     }
 
@@ -197,26 +198,29 @@ const isVersionToBeDisplayedInFullMode = (version: ContentVersion): boolean => {
 // Publish Status
 // ============================================================================
 
-export const getVersionPublishStatus = (version: ContentVersion, onlineVersionId?: string): VersionPublishStatus => {
-    if (onlineVersionId && version.getId() === onlineVersionId) {
-        return VersionPublishStatus.ONLINE;
-    }
-
-    if (!hasPublishAction(version) || hasUnpublishAction(version)) {
-        return VersionPublishStatus.OFFLINE;
-    }
-
-    const now = new Date();
+export const getVersionPublishStatus = (version: ContentVersion): VersionPublishStatus => {
     const publishInfo = version.getPublishInfo();
-    const publishedFrom = publishInfo?.getPublishedFrom();
-    const publishedTo = publishInfo?.getPublishedTo();
 
-    if (publishedFrom && publishedFrom > now) {
-        return VersionPublishStatus.SCHEDULED;
-    }
+    if (publishInfo) {
+        const now = new Date();
+        const publishedFrom = publishInfo?.getPublishedFrom();
+        const publishedTo = publishInfo?.getPublishedTo();
 
-    if (publishedTo && publishedTo < now) {
-        return VersionPublishStatus.EXPIRED;
+        if (publishedFrom && publishedFrom > now) {
+            return VersionPublishStatus.SCHEDULED;
+        }
+
+        if (publishedTo && publishedTo < now) {
+            return VersionPublishStatus.EXPIRED;
+        }
+
+        const actions = version.getActions();
+
+        if (actions.some(a => a.getOperation() === ContentOperation.PUBLISH)) {
+            return VersionPublishStatus.PUBLISHED;
+        }
+
+        return VersionPublishStatus.UNPUBLISHED;
     }
 
     return VersionPublishStatus.OFFLINE;
@@ -227,7 +231,7 @@ export const getVersionPublishStatus = (version: ContentVersion, onlineVersionId
 // ============================================================================
 
 const OPERATION_ICON_MAP: Record<ContentOperation, LucideIcon> = {
-    [ContentOperation.PUBLISH]: CloudCheck,
+    [ContentOperation.PUBLISH]: Cloud,
     [ContentOperation.CREATE]: PenLine,
     [ContentOperation.PERMISSIONS]: CircleUserRound,
     [ContentOperation.SORT]: ArrowDownNarrowWide,
@@ -240,6 +244,7 @@ const OPERATION_ICON_MAP: Record<ContentOperation, LucideIcon> = {
     [ContentOperation.UNPUBLISH]: CloudOff,
     [ContentOperation.METADATA]: FilePenLine,
     [ContentOperation.WORKFLOW]: CircleCheckBig,
+    [ContentOperation.SYNC]: SendToBack,
 };
 
 type IconResolverContext = {
@@ -295,7 +300,7 @@ const ICON_RESOLVERS: IconResolver[] = [
 ];
 
 export const getIconForOperation = (
-    version: ContentVersion,
+    version: ContentVersion
 ): LucideIcon => {
     const context: IconResolverContext = {version};
 

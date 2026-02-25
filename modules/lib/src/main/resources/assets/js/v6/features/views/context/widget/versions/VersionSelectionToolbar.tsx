@@ -42,7 +42,7 @@ export const VersionSelectionToolbar = ({
 
     return (
         <div
-            className='flex justify-center items-center gap-2.5 sticky top-0 bg-surface-neutral/85 py-3 z-1'
+            className='flex justify-center items-center gap-2.5 sticky top-0 bg-surface-neutral min-h-16 z-1'
             data-component={COMPONENT_NAME}
         >
             <Button

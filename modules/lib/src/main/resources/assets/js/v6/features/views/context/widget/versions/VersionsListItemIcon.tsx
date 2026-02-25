@@ -12,7 +12,7 @@ export const VersionsListItemIcon = ({version}: VersionsListItemIconProps): Reac
     const Icon = getIconForOperation(version);
 
     return (
-        <div className='w-7.5 h-full flex justify-center items-center' data-component={COMPONENT_NAME}>
+        <div className='h-full flex justify-center items-center' data-component={COMPONENT_NAME}>
             <Icon size={20} />
         </div>
     );
