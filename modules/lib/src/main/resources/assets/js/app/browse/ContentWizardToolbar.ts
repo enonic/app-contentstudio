@@ -28,6 +28,7 @@ import {
     resetWizardToolbar,
     setWizardToolbarContentPath,
     setWizardToolbarCollaborators,
+    setWizardToolbarIsContentOnline,
     setWizardToolbarIsLayerProject,
     setWizardToolbarProjectInfo,
     setWizardToolbarProjectLabel,
@@ -176,6 +177,7 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
         setWizardToolbarPublishStatus(publishStatus);
         setWizardToolbarContentPath(contentPath);
         setWizardToolbarCanRenameContentPath(!!item?.getPath());
+        setWizardToolbarIsContentOnline(!!item?.isOnline());
         setWizardToolbarWorkflowStatus(workflowStatus);
         this.contentWizardToolbarPublishControls.setContent(item);
 

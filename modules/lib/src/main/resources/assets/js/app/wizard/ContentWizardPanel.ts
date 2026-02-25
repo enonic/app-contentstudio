@@ -496,6 +496,7 @@ export class ContentWizardPanel
 
         this.getWizardHeader().onRenamed(() => {
             setWizardToolbarContentPath(this.normalizeToolbarContentPath(this.getWizardHeader().getName()));
+            setDraftName(this.resolveContentNameForUpdateRequest());
             this.isRename = true;
             saveAction.setEnabled(true);
             saveAction.execute();

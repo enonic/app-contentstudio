@@ -11,13 +11,14 @@ import type Q from 'q';
 import {type Content} from '../content/Content';
 import {ContentPath} from '../content/ContentPath';
 import {ContentExistsByPathRequest} from '../resource/ContentExistsByPathRequest';
-import {RenameContentDialog} from './dialog/RenameContentDialog';
 import {AiStateTool} from '@enonic/lib-admin-ui/ai/tool/AiStateTool';
 import {AiContentDataHelper} from '../ai/AiContentDataHelper';
 import {AiAnimationTool} from '@enonic/lib-admin-ui/ai/tool/AiAnimationTool';
 import {AI} from '../ai/AI';
 import {AiDialogIconTool} from '@enonic/lib-admin-ui/ai/tool/AiDialogIconTool';
 import {ContentUnnamed} from '../content/ContentUnnamed';
+import {openRenameContentDialog} from '../../v6/features/store/dialogs/renameContentDialog.store';
+import {$wizardToolbar} from '../../v6/features/store/wizardToolbar.store';
 
 export class ContentWizardHeader
     extends WizardHeaderWithDisplayNameAndName {
@@ -27,8 +28,6 @@ export class ContentWizardHeader
     private isNameUnique: boolean = true;
 
     private persistedContent: Content;
-
-    private renameDialog: RenameContentDialog;
 
     private asyncNameChecksRunning: number = 0;
 
@@ -101,17 +100,26 @@ export class ContentWizardHeader
                 return;
             }
 
-            if (!this.renameDialog) {
-                this.renameDialog = new RenameContentDialog();
-
-                this.renameDialog.onRenamed((newName: string) => {
-                    this.setName(newName, true); // setting silently to avoid duplication check
-                    this.nameEl.show(); // using workaround to trigger AutosizeTextInput's resize
-                    this.notifyRenamed();
-                });
+            const persistedPath = this.persistedContent.getPath();
+            if (!persistedPath) {
+                return;
             }
 
-            this.renameDialog.setInitialPath(this.persistedContent.getPath()).open();
+            const initialName = this.normalizeNameForRename(this.getName()) || this.normalizeNameForRename(persistedPath.getName());
+
+            void openRenameContentDialog({
+                parentPath: persistedPath.getParentPath(),
+                initialName,
+                isPublished: $wizardToolbar.get().isContentOnline,
+            }).then((newName?: string) => {
+                if (!newName) {
+                    return;
+                }
+
+                this.setName(newName, true); // setting silently to avoid duplication check
+                this.nameEl.show(); // using workaround to trigger AutosizeTextInput's resize
+                this.notifyRenamed();
+            });
         });
 
         this.debouncedNameUniqueChecker = AppHelper.debounce(() => {
@@ -137,8 +145,13 @@ export class ContentWizardHeader
     }
 
     setName(value: string, silent?: boolean) {
-        const normalizedValue = value?.startsWith(ContentUnnamed.UNNAMED_PREFIX) ? '' : value;
+        const normalizedValue = this.normalizeNameForRename(value);
         this.nameEl.setValue(normalizedValue, silent);
+    }
+
+    private normalizeNameForRename(value: string): string {
+        const normalizedValue = value?.trim() || '';
+        return normalizedValue.startsWith(ContentUnnamed.UNNAMED_PREFIX) ? '' : normalizedValue;
     }
 
     refreshNameUniqueness() {
