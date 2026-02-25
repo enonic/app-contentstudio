@@ -2,15 +2,11 @@ version: 2
 updates:
   - package-ecosystem: "gradle"
     directories:
-      - "/modules/app"
-      - "/modules/lib"
-      - "/modules/rest"
+      - "/"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 10
     assignees:
-      - "rymsha"
-    reviewers:
       - "rymsha"
   - package-ecosystem: "npm"
     directories:
@@ -24,14 +20,10 @@ updates:
     open-pull-requests-limit: 10
     assignees:
       - "alansemenov"
-    reviewers:
-      - "alansemenov"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 10
     assignees:
-      - "rymsha"
-    reviewers:
       - "rymsha"
