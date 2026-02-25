@@ -928,6 +928,7 @@ export class ContentWizardPanel
     private createSplitFormAndLivePanel(firstPanel: Panel, secondPanel: Panel): SplitPanel {
         const builder: SplitPanelBuilder = new SplitPanelBuilder(firstPanel, secondPanel)
             .setFirstPanelMinSize(SplitPanelSize.PIXELS(280))
+            .setSplitterThickness(1)
             .setAlignment(SplitPanelAlignment.VERTICAL);
 
         if ($(window).width() > this.splitPanelThreshold) {
