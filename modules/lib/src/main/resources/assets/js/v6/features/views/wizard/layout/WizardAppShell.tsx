@@ -9,11 +9,13 @@ import {PublishDialog} from '../../../shared/dialogs/publish/PublishDialog';
 import {RequestPublishDialog} from '../../../shared/dialogs/requestPublish/RequestPublishDialog';
 import {SortDialog} from '../../../shared/dialogs/sort-dialog/SortDialog';
 import {UnpublishDialog} from '../../../shared/dialogs/unpublish/UnpublishDialog';
+import {PermissionsDialog} from '../../../shared/dialogs/permissions/PermissionsDialog';
 
 export const WizardAppShell = (): ReactElement => {
     return (
         <>
             {/* Shared dialogs */}
+            <PermissionsDialog />
             <CompareVersionsDialog />
             <DeleteDialog />
             <DuplicateDialog />
