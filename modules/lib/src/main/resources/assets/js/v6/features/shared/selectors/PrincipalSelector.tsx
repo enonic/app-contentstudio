@@ -2,11 +2,10 @@ import {Checkbox, Combobox, ComboboxRootProps, Listbox, useCombobox} from '@enon
 import {useState, ReactElement, useEffect, useMemo, useCallback} from 'react';
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {CircleUserRound} from 'lucide-react';
 import {useStore} from '@nanostores/preact';
 import {$principals, loadPrincipals} from '../../store/principals.store';
-import {ItemLabel} from '../ItemLabel';
 import {useDebouncedCallback} from '../../utils/hooks/useDebouncedCallback';
+import {PrincipalLabel} from '../PrincipalLabel';
 
 const PRINCIPAL_SELECTOR_NAME = 'PrincipalSelector';
 const DEFAULT_DEBOUNCE = 500;
@@ -54,7 +53,7 @@ export const PrincipalSelector = ({
 
     useEffect(() => {
         void debouncedLoadPrincipals(searchValue);
-    }, [searchValue]);
+    }, [searchValue, debouncedLoadPrincipals]);
 
     // Handlers
     const handleOnSelectionChange = useCallback(
@@ -128,14 +127,7 @@ const PrincipalSelectorList = (props: PrincipalSelectorListProps): ReactElement 
 
                     return (
                         <Listbox.Item key={key} value={key}>
-                            <div className="flex-1">
-                                <ItemLabel
-                                    icon={<CircleUserRound strokeWidth={1.5} />}
-                                    primary={principal.getDisplayName()}
-                                    secondary={principal.getKey().toPath()}
-                                />
-                            </div>
-
+                            <PrincipalLabel principal={principal} className="flex-1" />
                             <Checkbox checked={selectionArray.includes(key)} onCheckedChange={() => handleOnCheckedChange(key)} />
                         </Listbox.Item>
                     );

@@ -1,10 +1,11 @@
 import {showError, showSuccess, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {Dialog, Skeleton} from '@enonic/ui';
+import {Dialog, Skeleton, Tooltip} from '@enonic/ui';
 import {ReactElement, useCallback, useMemo} from 'react';
 import {
     $isPermissionsDialogDirty,
     $permissionsDialog,
     closePermissionsDialog,
+    setPermissionsDialogReplaceAllChildPermissions,
     setPermissionsDialogStep,
     setPermissionsDialogView,
     updatePermissions,
@@ -29,6 +30,7 @@ export const PermissionsDialog = (): ReactElement => {
         contentDescendantsCount,
         contentDisplayName,
         hasVisitedStrategyStep,
+        replaceAllChildPermissions,
     } = useStore($permissionsDialog, {
         keys: [
             'open',
@@ -40,6 +42,7 @@ export const PermissionsDialog = (): ReactElement => {
             'contentDescendantsCount',
             'contentDisplayName',
             'hasVisitedStrategyStep',
+            'replaceAllChildPermissions',
         ],
     });
 
@@ -66,24 +69,33 @@ export const PermissionsDialog = (): ReactElement => {
     const permissionsAppliedMultipleLabel = useI18n('dialog.permissions.permissionsAppliedMultiple', numberItemsToApplyTo);
     const permissionsFailedSingleLabel = useI18n('dialog.permissions.permissionsFailedSingle');
     const permissionsFailedMultipleLabel = useI18n('dialog.permissions.permissionsFailedMultiple', numberItemsToApplyTo);
-    const submitLabel = useI18n('dialog.permissions.submit', numberItemsToApplyTo);
+    const replaceAllPermissionsLabel = useI18n('dialog.permissions.replaceAllPermissions', numberItemsToApplyTo);
+    const applyPermissionsLabel = useI18n('dialog.permissions.applyChanges', numberItemsToApplyTo);
     const progressHelper = useI18n('dialog.permissions.title', contentDisplayName);
     const progressTitle = useI18n('dialog.permissions.progress.title');
-    const nothingToApplyLabel = useI18n('dialog.permissions.nothingToApply');
     const confirmTitle = useI18n('dialog.confirm.permissions.title');
     const confirmDescription = useI18n('dialog.confirm.permissions.description');
-    const nextProcessedLabel = useMemo(() => {
-        if (step === 'step-access') return isDirty ? nextLabel : nothingToApplyLabel;
-        if (step === 'step-strategy') return canGoToSummaryStep ? nextLabel : nothingToApplyLabel;
-        return nextLabel;
-    }, [step, isDirty, canGoToSummaryStep, nextLabel, nothingToApplyLabel]);
+    const replaceAllConfirmationTitle = useI18n('dialog.confirm.replaceAllPermissions.title');
+    const replaceAllConfirmationDescription = useI18n('dialog.confirm.replaceAllPermissions.description');
+    const stepAccessTooltip = useI18n('dialog.permissions.access.stepTooltip');
+    const stepStrategyTooltip = useI18n('dialog.permissions.strategy.stepTooltip');
+    const stepSummaryTooltip = useI18n('dialog.permissions.summary.stepTooltip');
+    const stepsMap = useMemo(
+        () =>
+            new Map<string, string>([
+                ['step-access', stepAccessTooltip],
+                ['step-strategy', stepStrategyTooltip],
+                ['step-summary', stepSummaryTooltip],
+            ]),
+        [stepAccessTooltip, stepStrategyTooltip, stepSummaryTooltip]
+    );
 
     // Handlers
     const handleOpenChange = useCallback(
         (open: boolean) => {
             if (open) return;
 
-            if (view === 'confirmation') {
+            if (view === 'confirmation' || view === 'replaceAllConfirmation') {
                 setPermissionsDialogView('main');
                 return;
             }
@@ -126,6 +138,16 @@ export const PermissionsDialog = (): ReactElement => {
 
     const handleConfirm = useCallback(() => {
         closePermissionsDialog();
+    }, []);
+
+    const handleReplaceAllConfirm = useCallback(() => {
+        setPermissionsDialogReplaceAllChildPermissions(true);
+        setPermissionsDialogView('main');
+    }, []);
+
+    const handleReplaceAllCancel = useCallback(() => {
+        setPermissionsDialogReplaceAllChildPermissions(false);
+        setPermissionsDialogView('main');
     }, []);
 
     return (
@@ -181,11 +203,16 @@ export const PermissionsDialog = (): ReactElement => {
 
                                 <Dialog.Footer className="flex flex-col">
                                     <Dialog.StepIndicator
-                                        previousLabel={previousLabel}
-                                        nextLabel={nextProcessedLabel}
-                                        lastStepLabel={submitLabel}
-                                        onLastStep={handleSubmit}
                                         dots
+                                        previousLabel={previousLabel}
+                                        nextLabel={nextLabel}
+                                        lastStepLabel={replaceAllChildPermissions ? replaceAllPermissionsLabel : applyPermissionsLabel}
+                                        onLastStep={handleSubmit}
+                                        renderDot={(dot, step) => (
+                                            <Tooltip delay={150} side="top" value={stepsMap.get(step) ?? ''}>
+                                                {dot}
+                                            </Tooltip>
+                                        )}
                                     />
                                 </Dialog.Footer>
                             </>
@@ -199,6 +226,22 @@ export const PermissionsDialog = (): ReactElement => {
                         )}
                     </Dialog.Content>
                 )}
+
+                {view === 'replaceAllConfirmation' && (
+                    <ConfirmationDialog.Content>
+                        <ConfirmationDialog.DefaultHeader
+                            title={replaceAllConfirmationTitle}
+                            description={replaceAllConfirmationDescription}
+                        />
+                        <ConfirmationDialog.Footer
+                            closeOnConfirm={false}
+                            closeOnCancel={false}
+                            onConfirm={handleReplaceAllConfirm}
+                            onCancel={handleReplaceAllCancel}
+                        />
+                    </ConfirmationDialog.Content>
+                )}
+
                 {view === 'confirmation' && (
                     <ConfirmationDialog.Content>
                         <ConfirmationDialog.DefaultHeader title={confirmTitle} description={confirmDescription} />
