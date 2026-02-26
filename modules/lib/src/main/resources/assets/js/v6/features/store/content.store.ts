@@ -6,7 +6,6 @@ import {
     $contentDeleted,
     $contentDuplicated,
     $contentMoved,
-    $contentPermissionsUpdated,
     $contentPublished,
     $contentRenamed,
     $contentSorted,
@@ -224,13 +223,6 @@ $contentUnpublished.subscribe((event) => {
 
 // Content duplicated - add to cache
 $contentDuplicated.subscribe((event) => {
-    if (event?.data) {
-        setContents(event.data);
-    }
-});
-
-// Content permissions updated - update cache
-$contentPermissionsUpdated.subscribe((event) => {
     if (event?.data) {
         setContents(event.data);
     }

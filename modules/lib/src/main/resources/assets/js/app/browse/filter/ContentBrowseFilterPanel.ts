@@ -133,7 +133,17 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
             }
         });
 
-        const permissionsUpdatedHandler = (data: T[]) => {
+        const permissionsUpdatedHandler = (contentIds: ContentId[]) => {
+            if (!this.dependenciesSection.isActive()) {
+                return;
+            }
+
+            if (contentIds.some((id: ContentId) => id.equals(this.dependenciesSection.getDependencyId()))) {
+                this.search();
+            }
+        };
+
+        const updatedHandler = (data: T[]) => {
             if (!this.dependenciesSection.isActive()) {
                 return;
             }
@@ -142,8 +152,6 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
                 this.search();
             }
         };
-
-        const updatedHandler = (data: T[]) => permissionsUpdatedHandler(data);
 
         handler.onContentUpdated(updatedHandler);
         handler.onContentPermissionsUpdated(permissionsUpdatedHandler);

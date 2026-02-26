@@ -54,9 +54,8 @@ export class PublishDialogDependantList
         super.initListeners();
         const serverEvents = ContentServerEventsHandler.getInstance();
 
-        const permissionsUpdatedHandler = (updatedItems: ContentSummaryAndCompareStatus[]): void => {
-            const updatedIds = updatedItems.map(item => item.getId());
-            const touched = this.getItems().some(item => updatedIds.includes(item.getId()));
+        const permissionsUpdatedHandler = (contentIds: ContentId[]): void => {
+            const touched = this.getItems().some(item => contentIds.some(id => id.toString() === item.getId()));
             if (touched) {
                 this.notifyListChanged();
             }
@@ -72,7 +71,11 @@ export class PublishDialogDependantList
         };
 
         const updatedHandler = (updatedItems: ContentSummaryAndCompareStatus[]) => {
-            permissionsUpdatedHandler(updatedItems);
+            const updatedIds = updatedItems.map(item => item.getId());
+            const touched = this.getItems().some(item => updatedIds.includes(item.getId()));
+            if (touched) {
+                this.notifyListChanged();
+            }
         };
 
         this.onAdded(() => {

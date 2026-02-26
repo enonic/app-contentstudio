@@ -18,7 +18,8 @@ import {DetailsWidgetElement} from '../../../v6/features/views/context/widget/de
 import {VersionsWidgetElement} from '../../../v6/features/views/context/widget/versions/VersionsWidget';
 import WidgetsSelectorElement from '../../../v6/features/views/context/widget/WidgetsSelector';
 import {CompareStatus} from '../../content/CompareStatus';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import type {ContentId} from '../../content/ContentId';
+import type {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {InspectEvent} from '../../event/InspectEvent';
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
@@ -108,12 +109,12 @@ export class ContextView
 
         const contentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
-        contentServerEventsHandler.onContentPermissionsUpdated((contents: ContentSummaryAndCompareStatus[]) => {
+        contentServerEventsHandler.onContentPermissionsUpdated((contentIds: ContentId[]) => {
             const itemSelected: boolean = this.item != null;
             const activeWidgetVisible: boolean = this.activeWidget != null && this.isVisible();
 
             if (activeWidgetVisible && this.activeWidget.isInternal() && itemSelected &&
-                ContentSummaryAndCompareStatus.isInArray(this.item.getContentId(), contents)) {
+                contentIds.some((id: ContentId) => id.equals(this.item.getContentId()))) {
                 this.updateActiveWidget();
             }
         });
