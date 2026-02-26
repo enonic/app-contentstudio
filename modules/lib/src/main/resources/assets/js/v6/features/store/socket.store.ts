@@ -1,4 +1,5 @@
 import {atom} from 'nanostores';
+import type {ContentId} from '../../../app/content/ContentId';
 import type {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
 import type {ContentServerChangeItem} from '../../../app/event/ContentServerChangeItem';
 import type {MovedContentItem} from '../../../app/browse/MovedContentItem';
@@ -56,7 +57,7 @@ export const $contentDuplicated = atom<ContentEvent | null>(null);
 export const $contentSorted = atom<ContentEvent | null>(null);
 
 /** Content permissions updated events */
-export const $contentPermissionsUpdated = atom<ContentEvent | null>(null);
+export const $contentPermissionsUpdated = atom<ContentEvent<ContentId[]> | null>(null);
 
 //
 // * Internal API (for socketService only)
@@ -106,6 +107,6 @@ export const emitContentSorted = (data: ContentSummaryAndCompareStatus[]): void 
     $contentSorted.set({timestamp: Date.now(), data});
 };
 
-export const emitContentPermissionsUpdated = (data: ContentSummaryAndCompareStatus[]): void => {
+export const emitContentPermissionsUpdated = (data: ContentId[]): void => {
     $contentPermissionsUpdated.set({timestamp: Date.now(), data});
 };

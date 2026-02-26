@@ -151,7 +151,7 @@ export class LiveFormPanel
     private showLoadMaskHandler: () => void;
     private hideLoadMaskHandler: () => void;
     private contentUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
-    private contentPermissionsUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
+    private contentPermissionsUpdatedHandler: (contentIds: ContentId[]) => void;
 
     constructor(config: LiveFormPanelConfig) {
         super('live-form-panel widget-preview-panel');
@@ -344,14 +344,14 @@ export class LiveFormPanel
         }
     }
 
-    private handleContentPermissionsUpdate(contents: ContentSummaryAndCompareStatus[]) {
+    private handleContentPermissionsUpdate(contentIds: ContentId[]) {
         if (!this.content) {
             return;
         }
 
         const thisContentId: ContentId = this.content.getContentId();
 
-        if (!ContentSummaryAndCompareStatus.isInArray(thisContentId, contents)) {
+        if (!contentIds.some((id: ContentId) => id.equals(thisContentId))) {
             return;
         }
 

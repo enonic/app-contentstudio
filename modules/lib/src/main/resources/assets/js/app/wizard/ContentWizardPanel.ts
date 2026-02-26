@@ -1551,14 +1551,14 @@ export class ContentWizardPanel
             }
         };
 
-        const contentPermissionsUpdatedHandler = (contents: ContentSummaryAndCompareStatus[]) => {
+        const contentPermissionsUpdatedHandler = (contentIds: ContentId[]) => {
             if (this.contentUpdateDisabled || !this.getPersistedItem()) {
                 return;
             }
 
             const thisContentId: ContentId = this.getPersistedItem().getContentId();
 
-            if (!ContentSummaryAndCompareStatus.isInArray(thisContentId, contents)) {
+            if (!contentIds.some((id: ContentId) => id.equals(thisContentId))) {
                 return;
             }
 

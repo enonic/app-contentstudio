@@ -105,6 +105,6 @@ $contentUnpublished.subscribe((event) => {
 // Permissions updated - directly affects action availability
 $contentPermissionsUpdated.subscribe((event) => {
     if (event?.data) {
-        checkAndSignalRefresh(event.data.map((item) => item.getId()));
+        checkAndSignalRefresh(event.data.map((id) => id.toString()));
     }
 });

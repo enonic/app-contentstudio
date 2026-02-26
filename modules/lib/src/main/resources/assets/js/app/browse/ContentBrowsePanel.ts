@@ -412,8 +412,6 @@ export class ContentBrowsePanel
 
         handler.onContentUpdated((data: ContentSummaryAndCompareStatus[]) => this.handleContentUpdated(data));
 
-        handler.onContentPermissionsUpdated((data: ContentSummaryAndCompareStatus[]) => this.handleContentPermissionsUpdated(data));
-
         handler.onContentRenamed((data: ContentSummaryAndCompareStatus[]) => {
             this.handleContentRenamed(data);
         });
@@ -514,27 +512,6 @@ export class ContentBrowsePanel
         }
 
         this.doHandleContentUpdate(data);
-    }
-
-    private handleContentPermissionsUpdated(data: ContentSummaryAndCompareStatus[]) {
-        if (ContentBrowsePanel.debug) {
-            console.debug('ContentBrowsePanel: permissions updated', data);
-        }
-
-        if (!data || data.length === 0 ||
-            !data.some((summary: ContentSummaryAndCompareStatus) => this.treeListBox.getItem(summary.getId()))) {
-            return;
-        }
-
-        data.forEach((newItem: ContentSummaryAndCompareStatus) => {
-            const existingItem: ContentSummaryAndCompareStatus = this.treeListBox.getItem(newItem.getId());
-
-            if (existingItem) {
-                newItem.setCompareStatus(existingItem.getCompareStatus());
-            }
-        });
-
-        this.treeListBox.replaceItems(data);
     }
 
     private handleContentDeleted(items: DeletedContentItem[]) {
