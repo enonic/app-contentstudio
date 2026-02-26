@@ -1,5 +1,5 @@
 /**
- * Created on 1.12.2017.
+ * Created on 1.12.2017. updated for epic-enonic-ui on 26.02.2026
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
@@ -9,7 +9,6 @@ const FilterableListBox = require('../components/selectors/filterable.list.box')
 
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowseFilterPanel')]",
-    //hitsAndClearDiv: "//div[contains(@class,'hits-and-clear')]",
     clearFilterLink: "//a[contains(@id,'ClearFilterButton')]",
     searchInput: "//input[contains(@aria-label,'Search')]",
     dependenciesSection: "//div[contains(@id,'DependenciesSection')]",
@@ -57,14 +56,12 @@ class BrowseFilterPanel extends Page {
         return XPATH.container + XPATH.searchInput;
     }
 
-
     async typeSearchText(text) {
         try {
             await this.typeTextInInput(this.searchTextInput, text);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_filter_input');
-            throw new Error("Error when type text in Search Input, screenshot: " + screenshot + ' ' + err);
+            await this.handleError('Filter Panel: Search Input', 'err_filter_input', err);
         }
     }
 
@@ -72,8 +69,7 @@ class BrowseFilterPanel extends Page {
         try {
             return await this.waitForElementDisplayed(this.exportButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_export_btn');
-            throw new Error("Error - Export button should be displayed, screenshot: " + screenshot + ' ' + err);
+            await this.handleError('Filter Panel: Export Button should be displayed', 'err_export_btn', err);
         }
     }
 
@@ -81,20 +77,7 @@ class BrowseFilterPanel extends Page {
         try {
             return await this.waitForElementNotDisplayed(this.exportButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_export_btn');
-            throw new Error("Error - Export button should not be displayed, screenshot: " + screenshot + ' ' + err);
-        }
-    }
-
-    async waitForExportButtonDisabled() {
-        try {
-            await this.getBrowser().waitUntil(async () => {
-                let text = await this.getAttribute(this.exportButton, "class");
-                return text.includes('disabled');
-            }, {timeout: appConst.shortTimeout, timeoutMsg: "'Export' button should be disabled"});
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_export_btn');
-            throw new Error("Error - Export button should be disabled, screenshot: " + screenshot + ' ' + err);
+            await this.handleError('Filter Panel: Export Button should not be displayed', 'err_export_btn_not_displayed', err);
         }
     }
 
@@ -164,14 +147,11 @@ class BrowseFilterPanel extends Page {
         return this.waitForElementNotDisplayed(this.clearFilterLink, appConst.mediumTimeout)
     }
 
-    async waitForDependenciesSectionVisible(ms) {
+    async waitForDependenciesSectionVisible(ms = appConst.mediumTimeout) {
         try {
-            let timeout;
-            timeout = ms === undefined ? appConst.mediumTimeout : ms;
-            return await this.waitForElementDisplayed(XPATH.container + XPATH.dependenciesSection, timeout)
+            return await this.waitForElementDisplayed(XPATH.container + XPATH.dependenciesSection, ms)
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_load_dependencies_section');
-            throw new Error("Filter Panel: Dependencies section should be visible! screenshot " + screenshot + ' ' + err);
+            await this.handleError('Filter Panel: Dependencies section should be visible', 'err_dependencies_section', err);
         }
     }
 
@@ -194,8 +174,7 @@ class BrowseFilterPanel extends Page {
             await this.clickOnElement(selector);
             return await this.pause(700);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_content_types_filtering');
-            throw new Error("Error, checkbox in Content Types aggregation block, screenshot " + screenshot + ' ' + err);
+            await this.handleError('Filter Panel: Tried to click on checkbox in  aggregation block', 'err_click_checkbox', err);
         }
     }
 

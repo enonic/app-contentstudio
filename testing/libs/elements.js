@@ -30,6 +30,7 @@ const WIZARD = {
 
 };
 const BUTTONS = {
+    BUTTON_REMOVE_ICON: "//button[@aria-label='Remove']",
     BUTTON_WITH_SPAN_ADD: "//button[child::span[text()='Add']]",
     NEW_CONTENT_BUTTON: "//button[contains(@class,'new-content-button')]",
     REFRESH_BUTTON: "//button[contains(@class,'icon-loop')]",
@@ -96,6 +97,7 @@ const TREE_GRID = {
 }
 const DROPDOWN = {
     DROPDOWN_LIST_ITEM_DISPLAY_NAME: `//div[@role='option']//div[1]//span[1]`,
+    CONTENT_LABEL_OPTIONS_NAME: "//div[@role='treeitem']//div[@data-component='ContentLabel']/div[2]/span",
     COMBOBOX_POPUP: "//div[@data-combobox-popup='' or @data-combobox-popup]",
     buttonComboboxByLabel: (label) => `//span[contains(.,'${label}')]/following-sibling::button[@role='combobox']`,
     CONTENT_COMBOBOX: "//div[@data-component='ContentCombobox')]",
@@ -104,6 +106,7 @@ const DROPDOWN = {
     listboxOptionByText: (text) => `//div[contains(@role,'option')  and descendant::span[text()='${text}']]`,
     optionByDisplayName: (displayName) => `//div[contains(@id,'listbox-option')  and descendant::span[contains(.,'${displayName}')]]`,
     treeItemByDisplayName: (displayName) => `//div[@role='treeitem']//div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]]`,
+    languageTreeItemByDisplayName: (displayName) => `//div[@role='treeitem']//div[descendant::span[contains(.,'${displayName}')]]`,
     treeItemByName: (name) => `//div[@role='treeitem']//div[@data-component='ContentLabel' and descendant::small[contains(.,'${name}')]]`,
     LIST_BOX_DIV: "//div[contains(@role,'listbox')]",
     optionByText: (text) => `//div[contains(@role,'option')  and descendant::span[text()='${text}']]`,
@@ -115,6 +118,7 @@ const DROPDOWN = {
     },
     SELECTOR_LISTBOX: "//div[contains(@role,'listbox')]",
     WIDGET_COMBOBOX: "//button[contains(@id,'WidgetsSelector') and @role='combobox']",
+    OPTION_FILTER_INPUT: "//input[@role='combobox']",
 };
 const DROPDOWN_OLD = {
     HANDLE: "//button[contains(@id,'DropdownHandle')]",

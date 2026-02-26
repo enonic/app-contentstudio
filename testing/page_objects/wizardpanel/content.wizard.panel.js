@@ -176,9 +176,13 @@ class ContentWizardPanel extends Page {
         return this.previewItemToolbar + BUTTONS.buttonAriaLabel('Open version history');
     }
 
+    async waitForVersionHistoryButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.versionHistoryButton);
+    }
+
     async waitForHelpTextsButtonTogglerDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.wizardToolbarHelpButton, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.wizardToolbarHelpButton);
         } catch (err) {
             await this.handleError(`'Help texts' toggle button is not displayed in the Content Wizard`, 'err_help_text_button', err);
         }
@@ -186,7 +190,7 @@ class ContentWizardPanel extends Page {
 
     async waitForLocalizeButtonEnabled() {
         try {
-            await this.waitForElementDisplayed(this.localizeButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.localizeButton);
             return await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
         } catch (err) {
             await this.handleError(`'Localize' button is not enabled in the Content Wizard`, 'err_localize_button_enabled', err);

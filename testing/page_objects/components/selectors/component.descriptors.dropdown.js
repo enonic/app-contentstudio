@@ -11,8 +11,12 @@ const XPATH = {
 
 class ComponentDescriptorsDropdown extends BasDropdown {
 
+    constructor(parentElementXpath) {
+        super();
+        this._parent = parentElementXpath;
+    }
     get container() {
-        return XPATH.container;
+        return this._parent+ XPATH.container;
     }
 
     async selectFilteredComponent(displayName, parentElement) {

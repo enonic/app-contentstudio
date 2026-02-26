@@ -25,7 +25,6 @@ class IssueItemsSelector extends ContentSelectorDropdown {
         return "//div[contains(@data-component,'IssueItemsSelector')]";
     }
 
-
     async clickOnFilteredByDisplayNameContent(displayName) {
         try {
             await this.doFilterItem(displayName);

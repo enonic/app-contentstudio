@@ -1,15 +1,15 @@
 /**
- * Created on 29.01.2024
+ * Created on 26.02.2026
  */
 const BasDropdown = require('./base.dropdown');
 const {DROPDOWN} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
 const xpath = {
-    dataComponent: "//div[@data-component='LanguageSelector']",
+    dataComponent: "//div[@data-component='OwnerSelector']",
 };
 
-class LocaleSelectorDropdown extends BasDropdown {
+class OwnerSelectorDropdown extends BasDropdown {
 
     constructor(parentElementXpath) {
         super();
@@ -24,7 +24,7 @@ class LocaleSelectorDropdown extends BasDropdown {
         return this.container + xpath.dataComponent + DROPDOWN.OPTION_FILTER_INPUT;
     }
 
-    async clickOnFilteredLanguage(language) {
+    async clickOnFilteredOwner(language) {
         try {
             await this.doFilterItem(language);
             await this.clickOnOptionByDisplayName(language);
@@ -40,4 +40,4 @@ class LocaleSelectorDropdown extends BasDropdown {
     }
 }
 
-module.exports = LocaleSelectorDropdown;
+module.exports = OwnerSelectorDropdown;

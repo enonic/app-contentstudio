@@ -31,10 +31,9 @@ class PrincipalSelector extends BasDropdown {
     async selectFilteredUser(userDisplayName) {
         try {
             await this.doFilterItem(userDisplayName);
-            await this.clickOnFilteredByDisplayNameOption(userDisplayName);
+            await this.clickOnOptionByDisplayName(userDisplayName);
         } catch (err) {
-            await this.handleError(`Principal Selector, tried to click on the filtered option, ${userDisplayName} `, 'err_principal_sel',
-                err);
+            await this.handleError(`Principal Selector, tried to click on the option, ${userDisplayName} `, 'err_principal_sel', err);
         }
     }
 

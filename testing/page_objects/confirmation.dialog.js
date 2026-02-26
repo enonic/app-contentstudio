@@ -12,7 +12,7 @@ const XPATH = {
 class ConfirmationDialog extends Page {
 
     get warningMessage() {
-        return XPATH.container + "//h6[@class='question']";
+        return XPATH.container + "//header/following-sibling::div";
     }
 
     get confirmButton() {
@@ -60,8 +60,8 @@ class ConfirmationDialog extends Page {
         return this.isElementDisplayed(this.warningMessage);
     }
 
-    getWarningMessage() {
-        return this.getText(this.warningMessage);
+    async getWarningMessage() {
+        return await  this.getText(this.warningMessage);
     }
 
     async clickOnCancelButton() {

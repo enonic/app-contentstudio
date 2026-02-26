@@ -9,8 +9,7 @@ const LocaleSelectorDropdown = require('../components/selectors/locale.selector.
 const PrincipalComboBox = require('../components/selectors/principal.combobox.dropdown')
 
 const xpath = {
-    container: `//div[contains(@id,'EditPropertiesDialog')]`,
-    settingsStepFormDiv: "//div[contains(@id,'SettingsWizardStepForm')]",
+    container: `//div[@data-component='EditPropertiesDialog']`,
     dialogTitle: "//div[contains(@id,'EditDetailsDialogHeader') and child::h2[@class='title']]",
     localeCombobox: `//div[contains(@id,'LocaleComboBox')]`,
     ownerCombobox: `//div[contains(@id,'PrincipalComboBox')]`,
@@ -22,10 +21,6 @@ const xpath = {
 };
 
 class EditSettingDialog extends Page {
-
-    get cancelTopButton() {
-        return xpath.container + lib.CANCEL_BUTTON_TOP;
-    }
 
     get cancelButton() {
         return xpath.container + BUTTONS.buttonAriaLabel('Cancel');
@@ -67,10 +62,10 @@ class EditSettingDialog extends Page {
 
     async waitForLoaded() {
         try {
-            await this.waitForElementDisplayed(xpath.settingsStepFormDiv, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(xpath.container);
             await this.waitForApplyButtonDisplayed();
-        }catch (err){
-            await this.handleError('Edit Setting dialog was not loaded','err_edit_settings_loaded', err)
+        } catch (err) {
+            await this.handleError('Edit Setting dialog was not loaded', 'err_edit_settings_loaded', err)
         }
     }
 
@@ -88,10 +83,10 @@ class EditSettingDialog extends Page {
 
     async filterOptionsAndSelectLanguage(language) {
         try {
-            let localeSelectorDropdown = new LocaleSelectorDropdown();
+            let localeSelectorDropdown = new LocaleSelectorDropdown(xpath.container);
             await localeSelectorDropdown.clickOnFilteredLanguage(language);
         } catch (err) {
-            await this.handleError('Edit Setting dialog, language selector','err_lang_option', err);
+            await this.handleError('Edit Setting dialog, language selector', 'err_lang_option', err);
         }
     }
 
@@ -101,7 +96,7 @@ class EditSettingDialog extends Page {
             await principalComboBox.selectFilteredUser(owner, xpath.container);
             return await this.pause(200);
         } catch (err) {
-            await this.handleError('Edit Setting dialog, owner selector','err_owner_option', err);
+            await this.handleError('Edit Setting dialog, owner selector', 'err_owner_option', err);
         }
     }
 
@@ -111,7 +106,7 @@ class EditSettingDialog extends Page {
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getText(selector);
         } catch (err) {
-            await this.handleError('Edit Setting dialog, the selected language is not displayed','err_lang_display', err);
+            await this.handleError('Edit Setting dialog, the selected language is not displayed', 'err_lang_display', err);
         }
     }
 
@@ -135,7 +130,7 @@ class EditSettingDialog extends Page {
             await this.clickOnElement(this.removeLanguageButton);
             return await this.pause(500);
         } catch (err) {
-            await this.handleError('Edit Setting dialog, error when removing the language','err_click_remove_lang', err);
+            await this.handleError('Edit Setting dialog, error when removing the language', 'err_click_remove_lang', err);
         }
     }
 
@@ -144,7 +139,7 @@ class EditSettingDialog extends Page {
             await this.clickOnElement(this.removeOwnerButton);
             return await this.pause(500);
         } catch (err) {
-            await this.handleError('Edit Setting dialog, error when removing the owner','err_click_remove_owner', err);
+            await this.handleError('Edit Setting dialog, error when removing the owner', 'err_click_remove_owner', err);
         }
     }
 

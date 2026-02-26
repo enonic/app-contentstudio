@@ -47,14 +47,14 @@ class LayoutInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     async clickOnOptionInLayoutDropdown(optionDisplayName) {
-        let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
-        await componentDescriptorsDropdown.clickOnOptionByDisplayName(optionDisplayName, xpath.container);
+        let componentDescriptorsDropdown = new ComponentDescriptorsDropdown(xpath.container);
+        await componentDescriptorsDropdown.clickOnOptionByDisplayName(optionDisplayName);
         return await this.pause(1000);
     }
 
     async waitForApplyButtonInComponentsDescriptorNotDisplayed(optionDisplayName) {
-        let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
-        await componentDescriptorsDropdown.waitForApplySelectionButtonNotDisplayed(optionDisplayName, xpath.container);
+        let componentDescriptorsDropdown = new ComponentDescriptorsDropdown(xpath.container);
+        await componentDescriptorsDropdown.waitForApplySelectionButtonNotDisplayed(optionDisplayName);
     }
 
     async getSelectedOption() {

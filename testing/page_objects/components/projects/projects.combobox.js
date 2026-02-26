@@ -17,7 +17,7 @@ class ProjectsSelector extends BasDropdown {
     }
 
     optionsFilterInput() {
-        return XPATH.searchInput;
+        return XPATH.container + XPATH.searchInput;
     }
 
     async typeTextInSearchInput(text) {
@@ -36,15 +36,14 @@ class ProjectsSelector extends BasDropdown {
         try {
             await this.clickOnFilteredByNameItemAndClickOnApply(projectId, parentElement);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('Error occurred in Projects Selector selector, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError(`Projects Combobox, tried to click on option by id: ${projectId}`, 'err_project_dropdown', err);
         }
     }
 
     async selectFilteredByDisplayNameAndClickOnApply(displayName) {
         try {
             await this.doFilterItem(displayName);
-            await this.clickOnFilteredByDisplayNameItem(displayName);
+            await this.clickOnOptionByDisplayName(displayName);
             await this.clickOnApplySelectionButton();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_project_selector_dropdown');
@@ -52,7 +51,7 @@ class ProjectsSelector extends BasDropdown {
         }
     }
 
-    async clickOnFilteredByDisplayNameItem(displayName) {
+    async clickOnOptionByDisplayName(displayName, parent = '') {
         try {
             let optionLocator = DROPDOWN.COMBOBOX_POPUP + XPATH.optionRowByDisplayName(displayName);
             await this.waitForElementDisplayed(optionLocator);

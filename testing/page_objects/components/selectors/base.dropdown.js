@@ -31,11 +31,11 @@ class BaseDropdown extends Page {
     }
 
     optionsFilterInput() {
-        return this.dataComponentDiv + COMMON.INPUTS.INPUT;
+        return (this.dataComponentDiv ? this.dataComponentDiv : '') + COMMON.INPUTS.INPUT;
     }
 
     optionsFilterInputByAriaLabel(ariaLabel = '') {
-        return this.dataComponentDiv + COMMON.INPUTS.inputByAriaLabel(ariaLabel);
+        return (this.dataComponentDiv ? this.dataComponentDiv : '') + COMMON.INPUTS.inputByAriaLabel(ariaLabel);
     }
 
     waitForOptionFilterInputDisplayed() {
@@ -85,15 +85,15 @@ class BaseDropdown extends Page {
         await this.pause(100);
     }
 
-    async waitForApplySelectionButtonDisplayedOld(parentLocator = '') {
-        await this.waitUntilDisplayed(parentLocator + this.applySelectionButton, appConst.shortTimeout);
+    async waitForApplySelectionButtonDisplayedOld() {
+        await this.waitUntilDisplayed(this.applySelectionButton, appConst.shortTimeout);
         await this.pause(200);
     }
 
-    async waitForApplySelectionButtonNotDisplayed(parentLocator = '') {
+    async waitForApplySelectionButtonNotDisplayed() {
         try {
             // Wait until the Apply Selection button is not displayed
-            await this.waitForElementNotDisplayed(parentLocator + this.applySelectionButton, appConst.shortTimeout);
+            await this.waitForElementNotDisplayed(this.applySelectionButton, appConst.shortTimeout);
         } catch (error) {
             // Handle errors gracefully and log the issue
             await this.handleError('Failed to wait for Apply Selection button to disappear.', 'err_wait_apply_button', error);
@@ -112,6 +112,7 @@ class BaseDropdown extends Page {
             await this.handleError('Dropdown, tried to click on Apply Selection button.', 'err_click_apply_button', err);
         }
     }
+
     async clickOnApplySelectionButton() {
         try {
             await this.waitForApplySelectionButtonDisplayed();
@@ -133,7 +134,7 @@ class BaseDropdown extends Page {
 
     // new
     async doFilterItem(text) {
-        let optionsFilterLocator = this.container + this.optionsFilterInput();
+        let optionsFilterLocator = this.optionsFilterInput();
         await this.waitUntilDisplayed(optionsFilterLocator, appConst.mediumTimeout);
         let elements = await this.getDisplayedElements(optionsFilterLocator);
         await elements[0].setValue(text);
@@ -165,11 +166,19 @@ class BaseDropdown extends Page {
         return await this.clickOnApplySelectionButton(parentLocator);
     }
 
-    // new
-    async clickOnFilteredByDisplayNameOption(optionDisplayName) {
+    // Do filter by a display name then Click on the item
+    async clickOnFilteredByDisplayNameItem(optionDisplayName, parentLocator) {
+        // parentLocator - modal dialog or wizard panel
+        // 1. Insert the text in Options Filter Input:
+        await this.filterItem(optionDisplayName, parentLocator);
+        // 2. Wait for the required option is displayed then click on it:
+        await this.clickOnOptionByDisplayName(optionDisplayName, parentLocator);
+    }
+
+    // epic-enonic-ui
+    async clickOnOptionByDisplayName(optionDisplayName) {
         try {
             let optionLocator = DROPDOWN.optionByDisplayName(optionDisplayName);
-            //const popupLocator = "//div[@data-combobox-popup='' or @data-combobox-popup]";
             await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
             await this.clickOnElement(optionLocator);
         } catch (err) {
@@ -177,8 +186,8 @@ class BaseDropdown extends Page {
                 'err_click_filtered_option', err);
         }
     }
-    // new
-    async clickOnFilteredByDisplayNameTreeOption(optionDisplayName) {
+    // epic-enonic-ui
+    async clickOnTreeItemOptionByDisplayName(optionDisplayName) {
         try {
             let optionLocator = DROPDOWN.treeItemByDisplayName(optionDisplayName);
             await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
@@ -189,26 +198,8 @@ class BaseDropdown extends Page {
         }
     }
 
-
-    // Do filter by a display name then Click on the item
-    async clickOnFilteredByDisplayNameItem(optionDisplayName, parentLocator) {
-        // parentLocator - modal dialog or wizard panel
-        // 1. Insert the text in Options Filter Input:
-        await this.filterItem(optionDisplayName, parentLocator);
-        // 2. Wait for the required option is displayed then click on it:
-        await this.clickOnOptionByDisplayName(optionDisplayName, parentLocator);
-    }
-
-    async clickOnFilteredByDisplayNameOption1(optionDisplayName,) {
-        let optionLocator = this.buildLocatorForOptionByDisplayName(optionDisplayName);
-        //  Wait for the required option is displayed:
-        await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-        // Click on the item:
-        await this.clickOnElement(optionLocator);
-    }
-
     // Click on option-item by display name:
-    async clickOnOptionByDisplayName(optionDisplayName, parentLocator = '') {
+    async clickOnOptionByDisplayName_old(optionDisplayName, parentLocator = '') {
         let optionLocator = this.buildLocatorForOptionByDisplayName(optionDisplayName, parentLocator);
         //  Wait for the required option is displayed:
         await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);

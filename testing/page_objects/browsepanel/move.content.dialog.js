@@ -2,15 +2,15 @@
  * Created on 1.12.2017.
  */
 const Page = require('../page');
-const lib = require('../../libs/elements-old');
+const {DROPDOWN, BUTTONS} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentMoveComboBox = require('../components/selectors/content.move.combobox');
 
 const XPATH = {
-    container: `//div[contains(@id,'MoveContentDialog')]`,
+    container: `//div[@data-component='MoveDialogMainContent']`,
     header: `//div[contains(@class,'modal-dialog-header')]/h2`,
     path: `//div[contains(@class,'modal-dialog-header')]/h6`,
-    contentMoveComboBox: "//div[contains(@id,'ContentMoveComboBox')]"
+    pathSelector: "//div[@data-component='PathSelector']",
 };
 
 class MoveContentDialog extends Page {
@@ -20,34 +20,29 @@ class MoveContentDialog extends Page {
     }
 
     get optionFilterInput() {
-        return XPATH.container + XPATH.contentMoveComboBox + lib.OPTION_FILTER_INPUT;
+        return XPATH.container + XPATH.pathSelector + DROPDOWN.OPTION_FILTER_INPUT;
     }
 
     get dropDownHandle() {
-        return XPATH.container + XPATH.contentMoveComboBox + lib.DROP_DOWN_HANDLE;
+        return XPATH.container + XPATH.pathSelector + DROPDOWN.DROPDOWN_HANDLE;
     }
 
     get moveButton() {
-        return XPATH.container + lib.dialogButton('Move');
+        return XPATH.container + BUTTONS.buttonByLabel('Move');
     }
 
-    get cancelButton() {
-        return XPATH.container + lib.dialogButton('Cancel');
+    get closeButton() {
+        return XPATH.container + BUTTONS.buttonAriaLabel('Close');
     }
 
-    get cancelButtonTop() {
-        return XPATH.container + lib.CANCEL_BUTTON_TOP;
-    }
 
-    clickOnCancelButton() {
-        return this.clickOnElement(this.cancelButton).catch(err => {
-            this.saveScreenshot('err_move_dialog_cancel');
-            throw new Error('Error when try click on Cancel button ' + err);
-        })
-    }
-
-    clickOnCancelTopButton() {
-        return this.clickOnElement(this.cancelButtonTop);
+    async clickOnCloseButton() {
+        try {
+            await this.waitForElementDisplayed(this.closeButton);
+            return await this.clickOnElement(this.closeButton);
+        } catch (err) {
+            await this.handleError('Move Dialog - Tried to click on Cancel button', 'err_move_dialog_close', err);
+        }
     }
 
     async clickOnDropdownHandle() {
@@ -57,23 +52,24 @@ class MoveContentDialog extends Page {
             await this.waitForSpinnerNotVisible(appConst.mediumTimeout);
             await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_move_dialog_dropdown');
-            throw new Error("Error occurred in Move Dialog, screenshot: " + screenshot + "  " + err);
+            await this.handleError('Move Dialog - Tried to click on dropdown handle', 'err_move_dialog_dropdown_handle', err);
         }
     }
 
-    waitForOpened() {
-        return this.waitForElementDisplayed(this.moveButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_move_content_dialog_load');
-            throw new Error('Move Content dialog was not loaded! ' + err);
-        });
+    async waitForOpened() {
+        try {
+            return await this.waitForElementDisplayed(this.moveButton, appConst.mediumTimeout)
+        } catch (err) {
+            await this.handleError('Move Content dialog was not loaded!', 'err_move_content_dialog_load', err);
+        }
     }
 
-    waitForClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout).catch(error => {
-            this.saveScreenshot('err_move_content_dialog_close');
-            throw new Error('Error occurred in Move Content Dialog was not closed');
-        });
+    async waitForClosed() {
+        try {
+            return await this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout)
+        } catch (err) {
+            await this.handleError('Move content dialog should be closed! ', 'err_close_move_dlg', err);
+        }
     }
 
     getHeaderText() {
@@ -87,68 +83,67 @@ class MoveContentDialog extends Page {
 
     async typeTextAndClickOnOption(displayName) {
         try {
-            let contentMoveComboBox = new ContentMoveComboBox();
-            return await contentMoveComboBox.selectFilteredContent(displayName, XPATH.container);
+            let contentMoveComboBox = new ContentMoveComboBox(XPATH.container);
+            return await contentMoveComboBox.clickOnFilteredContent(displayName);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_move_dialog');
-            throw new Error("Error occurred in Move Dialog - after selecting an option, screenshot: " + screenshot + "  " + err);
+            await this.handleError('Move Dialog - Tried to select the option in dropdown', 'err_move_dialog_select_option', err);
         }
     }
 
     async clickOnOptionInDropdown(displayName) {
         try {
-            let contentMoveComboBox = new ContentMoveComboBox();
-            let optionLocator = contentMoveComboBox.buildLocatorForOptionByDisplayName(displayName, XPATH.container);
-            return await contentMoveComboBox.clickOnElement(optionLocator);
+            let contentMoveComboBox = new ContentMoveComboBox(XPATH.container);
+            await contentMoveComboBox.clickOnOptionByDisplayName(displayName);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_click_on_option');
-            throw new Error("Error occurred in Move Dialog after clicking on the option, screenshot: " + screenshot + "  " + err);
+            await this.handleError('Move Dialog - Tried to click on the option in dropdown', 'err_move_dialog_click_option', err);
         }
     }
 
-
-    async clickOnApplySelectionButton() {
-        let contentMoveComboBox = new ContentMoveComboBox();
-        await contentMoveComboBox.clickOnApplySelectionButton(XPATH.container);
-    }
-
     async clickOnRemoveOptionIcon() {
-        let locator = XPATH.container + "//div[contains(@id,'ContentSelectedOptionView')]" + lib.REMOVE_ICON;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.clickOnElement(locator);
-        await this.pause(200);
+        try {
+            let locator = XPATH.container + "//div[@data-component='PathSelector']" + BUTTONS.BUTTON_REMOVE_ICON;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.clickOnElement(locator);
+            await this.pause(200);
+        } catch (err) {
+            await this.handleError('Move Dialog - Tried to click on remove option icon', 'err_move_dialog_remove_option', err);
+        }
     }
 
     async typeTextInOptionFilterInput(text) {
-        await this.typeTextInInput(this.optionFilterInput, text);
+        let contentMoveComboBox = new ContentMoveComboBox(XPATH.container);
+        await contentMoveComboBox.doFilterItem(text);
         return await this.pause(1000);
     }
 
-    async isDestinationDisabled(name) {
-        let optionLocator = lib.DROPDOWN_SELECTOR.contentListElementByName(XPATH.container, name);
-        let attr = await this.getAttribute(optionLocator, 'class')
-        return attr.includes('readonly');
-    }
+    async isOptionRowDisabled(displayName) {
+        try {
+            let optionLocator;
+            if (displayName === 'Project root') {
+                optionLocator = DROPDOWN.COMBOBOX_POPUP + "//div[contains(@data-component,'PathSelectorRootLabel')]/ancestor::div[1]";
 
-    async isDestinationByDisplayNameDisabled(displayName) {
-        let optionLocator = lib.DROPDOWN_SELECTOR.contentListElementByDisplayName(XPATH.container, displayName);
-        await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-        let attr = await this.getAttribute(optionLocator, 'class')
-        return attr.includes('readonly');
+            } else {
+                optionLocator = DROPDOWN.COMBOBOX_POPUP + DROPDOWN.treeItemByDisplayName(displayName) + "/ancestor::div[1]";
+            }
+            let elementRow = await this.findElement(optionLocator);
+            let attr = await this.getAttribute(elementRow, 'class')
+            return attr.includes('pointer-events-none');
+        } catch (err) {
+            await this.handleError(`Move Dialog - Tried to check if the option is disabled: ${displayName}`, 'err_check_option_disabled',
+                err);
+        }
     }
 
     async getOptionsName() {
-        let locator = XPATH.container + lib.DROPDOWN_SELECTOR.OPTIONS_LI_ELEMENT + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getTextInDisplayedElements(locator);
+        let contentMoveComboBox = new ContentMoveComboBox(XPATH.container);
+        return await contentMoveComboBox.getOptionsDisplayName();
     }
 
     async waitForMoveButtonDisabled() {
         try {
             return await this.waitForElementDisabled(this.moveButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_move_dialog');
-            throw new Error("Move Dialog - Move button should be disabled, screenshot: " + screenshot + "  " + err);
+            await this.handleError("Move Dialog - Move button should be disabled", 'err_move_btn_disabled', err);
         }
     }
 
@@ -156,8 +151,7 @@ class MoveContentDialog extends Page {
         try {
             return await this.waitForElementEnabled(this.moveButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_move_btn_dialog');
-            throw new Error("Move Dialog - Move button should be enabled, screenshot: " + screenshot + "  " + err);
+            await this.handleError("Move Dialog - Move button should be enabled", 'err_move_btn_enabled', err);
         }
     }
 }

@@ -194,7 +194,7 @@ class Page {
         return await element.isEnabled();
     }
 
-    async waitForElementEnabled(selector, ms) {
+    async waitForElementEnabled(selector, ms = appConst.mediumTimeout) {
         let el = await this.findElements(selector);
         if (el.length > 1) {
             throw new Error("More than one element were found with the selector " + selector);
@@ -216,7 +216,7 @@ class Page {
         return await el[0].waitForEnabled({timeout: ms});
     }
 
-    async waitForElementDisabled(selector, ms) {
+    async waitForElementDisabled(selector, ms = appConst.mediumTimeout) {
         let element = await this.findElements(selector);
         if (element.length > 1) {
             throw new Error("More than one element were found with the selector " + selector);
@@ -238,7 +238,7 @@ class Page {
      *     - is not disabled
      *     otherwise exception will be thrown.
      */
-    async waitForElementClickable(selector, ms) {
+    async waitForElementClickable(selector, ms = appConst.mediumTimeout) {
         let element = await this.findElements(selector);
         if (element.length > 1) {
             throw new Error("More than one element were found with the selector " + selector);
@@ -272,12 +272,12 @@ class Page {
         return await element[0].waitForEnabled({timeout: ms, reverse: true});
     }
 
-    waitForElementNotDisplayed(selector, ms) {
+    waitForElementNotDisplayed(selector, ms = appConst.mediumTimeout) {
         return this.getBrowser().waitUntil(() => {
             return this.getDisplayedElements(selector).then(result => {
                 return result.length === 0;
             })
-        }, {timeout: ms, timeoutMsg: 'Timeout exception. Element ' + selector + ' still visible, timeout is ' + ms});
+        }, {timeout: ms, timeoutMsg: `Timeout exception. Element ${selector} still not visible in: ${ms}`});
     }
 
     waitUntilDisplayed(selector, ms) {
@@ -285,10 +285,10 @@ class Page {
             return this.getDisplayedElements(selector).then(result => {
                 return result.length > 0;
             })
-        }, {timeout: ms, timeoutMsg: 'Timeout exception. Element ' + selector + ' still not visible in: ' + ms});
+        }, {timeout: ms, timeoutMsg: `Timeout exception. Element ${selector} still not visible in: ${ms}`});
     }
 
-    async waitForElementDisplayed(selector, ms) {
+    async waitForElementDisplayed(selector, ms = appConst.mediumTimeout) {
         let element = await this.findElement(selector);
         return await element.waitForDisplayed({timeout: ms});
     }
@@ -301,7 +301,7 @@ class Page {
                     const isNotDisplayed = await this.isElementNotDisplayed(spinnerSelector);
                     return isNotDisplayed;
                 },
-                {timeout: ms, timeoutMsg:timeoutMsg}
+                {timeout: ms, timeoutMsg: timeoutMsg}
             );
         } catch (err) {
             await this.handleError('Spinner should not be visible!', 'err_spinner', err);
@@ -368,7 +368,7 @@ class Page {
     //returns array of messages
     async waitForNotificationMessages() {
         try {
-            await this.waitForElementDisplayed(lib.NOTIFICATION_TEXT, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(lib.NOTIFICATION_TEXT);
             await this.pause(300);
             return await this.getTextInDisplayedElements(lib.NOTIFICATION_TEXT);
         } catch (err) {
