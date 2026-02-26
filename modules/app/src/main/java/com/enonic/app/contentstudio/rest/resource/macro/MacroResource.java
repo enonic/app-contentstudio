@@ -127,7 +127,8 @@ public final class MacroResource
         {
             throw new WebApplicationException( Response.Status.NOT_FOUND );
         }
-        final MacroProcessor macroProcessor = macroProcessorFactory.fromScript( macroDescriptor.toControllerResourceKey() );
+        final MacroProcessor macroProcessor =
+            macroProcessorFactory.fromScript( macroDescriptorService.getControllerResourceKey( macroKey ) );
         if ( macroProcessor == null )
         {
             throw new WebApplicationException( Response.Status.NOT_FOUND );
