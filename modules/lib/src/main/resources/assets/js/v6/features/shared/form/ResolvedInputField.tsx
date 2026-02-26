@@ -20,23 +20,32 @@ type ResolvedInputFieldProps = {
 export const ResolvedInputField = ({input, propertySet, descriptor, config, Component}: ResolvedInputFieldProps): ReactElement => {
     const {enabled} = useFormRender();
 
-    // NOTE: This creates empty PropertyArrays on the shared draft PropertyTree for schema inputs
-    // that have no data. Any code calling removeProperty on the draft data must guard against
-    // empty arrays (getPropertyArray(name)?.getSize() > 0) before removal.
-    // Fill-to-minimum logic belongs to Phase 4 (editing support) and does NOT fully solve this
-    // because multiple inputs with minimum=0 will still produce empty arrays.
+    // NOTE: This creates PropertyArrays on the shared draft PropertyTree for schema inputs
+    // that have no data, then fills to minFill with null values. Any code calling
+    // removeProperty on the draft data must guard against arrays that contain only nulls.
+    // The minFill formula must match useOccurrenceManager (lib-admin-ui).
     const propertyArray = useMemo(() => {
         const existing = propertySet.getPropertyArray(input.getName());
+        let array: PropertyArray;
         if (existing) {
-            return existing;
+            array = existing;
+        } else {
+            array = PropertyArray.create()
+                .setParent(propertySet)
+                .setName(input.getName())
+                .setType(descriptor.getValueType())
+                .build();
+            propertySet.addPropertyArray(array);
         }
-        const created = PropertyArray.create()
-            .setParent(propertySet)
-            .setName(input.getName())
-            .setType(descriptor.getValueType())
-            .build();
-        propertySet.addPropertyArray(created);
-        return created;
+
+        // Always show at least 1 input — matches legacy showEmptyFormItemOccurrences().
+        const minFill = Math.max(input.getOccurrences().getMinimum(), 1);
+        while (array.getSize() < minFill) {
+            const before = array.getSize();
+            array.add(descriptor.getValueType().newNullValue());
+            if (array.getSize() === before) break;
+        }
+        return array;
     }, [propertySet, input, descriptor]);
 
     const {values} = usePropertyArray(propertyArray);
@@ -52,9 +61,23 @@ export const ResolvedInputField = ({input, propertySet, descriptor, config, Comp
         occurrence.sync(values);
     }, [values, occurrence]);
 
-    const onChange = useCallback((index: number, value: Value) => {
-        occurrence.set(index, value);
-    }, [occurrence]);
+    const handleChange = useCallback((index: number, value: Value) => {
+        propertyArray.set(index, value);
+    }, [propertyArray]);
+
+    const handleAdd = useCallback(() => {
+        if (!occurrence.state.canAdd) return;
+        propertyArray.add(descriptor.getValueType().newNullValue());
+    }, [propertyArray, occurrence.state.canAdd, descriptor]);
+
+    const handleRemove = useCallback((index: number) => {
+        if (!occurrence.state.canRemove) return;
+        propertyArray.remove(index);
+    }, [propertyArray, occurrence.state.canRemove]);
+
+    const handleMove = useCallback((from: number, to: number) => {
+        propertyArray.move(from, to);
+    }, [propertyArray]);
 
     const inputLabel = input.getLabel();
     const helpText = input.getHelpText();
@@ -70,10 +93,10 @@ export const ResolvedInputField = ({input, propertySet, descriptor, config, Comp
             <OccurrenceList.Root
                 Component={Component}
                 state={occurrence.state}
-                onAdd={occurrence.add}
-                onRemove={occurrence.remove}
-                onMove={occurrence.move}
-                onChange={onChange}
+                onAdd={handleAdd}
+                onRemove={handleRemove}
+                onMove={handleMove}
+                onChange={handleChange}
                 config={config}
                 input={input}
                 enabled={enabled}

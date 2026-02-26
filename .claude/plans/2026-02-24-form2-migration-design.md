@@ -244,11 +244,8 @@ const propertyArray = useMemo(() => {
             .build();
         parentData.addPropertyArray(array);
     }
-    // Fill-to-minimum: for non-multiple (max=1), always fill to at least 1
-    const occurrences = input.getOccurrences();
-    const minFill = occurrences.multiple()
-        ? occurrences.getMinimum()
-        : Math.max(occurrences.getMinimum(), 1);
+    // Always show at least 1 input — matches legacy showEmptyFormItemOccurrences()
+    const minFill = Math.max(input.getOccurrences().getMinimum(), 1);
     while (array.getSize() < minFill) {
         array.add(descriptor.getValueType().newNullValue());
     }
@@ -773,7 +770,7 @@ Resolved from consilium critical review (4 critical, 7 warnings, 3 notes analyze
 
 2. **InputField split architecture** — InputField dispatches to UnsupportedInput (no hooks) or ResolvedInputField (full hook chain). Handles unregistered CS-specific types in Phases 2-5 without crashing on missing descriptor.
 
-3. **Eager PropertyArray creation + synchronous fill** — Created and filled in the same `useMemo`, before the first render. For non-multiple inputs (`max=1`), always fill to at least 1 — the equivalent of legacy `FormItemOccurrences.showEmptyFormItemOccurrences()` which always created one empty occurrence for plain Inputs regardless of minimum. Do NOT use `useEffect` for filling: it runs after render, causing a flash of wrong state.
+3. **Eager PropertyArray creation + synchronous fill** — Created and filled in the same `useMemo`, before the first render. Always fill to at least 1 (`Math.max(min, 1)`) regardless of occurrence config — the equivalent of legacy `FormItemOccurrences.showEmptyFormItemOccurrences()` which unconditionally created one empty occurrence for all Inputs. Do NOT use `useEffect` for filling: it runs after render, causing a flash of wrong state.
 
 4. **$wizardDraftData.subscribe() for tree lifecycle** — Listener attaches to each new tree, detaches from old. Prevents leak after save/reset when PropertyTree is replaced.
 
@@ -793,7 +790,8 @@ Resolved from consilium critical review (4 critical, 7 warnings, 3 notes analyze
 - **UnsupportedInput window**: 23 types show as UnsupportedInput through Phases 2-5. Acceptable on feature branch (`epic-enonic-ui`).
 - **lib-admin-ui fixes already applied (2026-02-26)**:
   - `OccurrenceList.tsx`: `isSingle` changed from `min === 1 && max === 1` to `!occurrences.multiple()`. Extends bare single-input rendering to `min=0, max=1` (single optional), matching legacy UX intent: max=1 always means "one slot", add/remove buttons never shown.
-  - `useOccurrenceManager.ts`: Eager fill changed from `getMinimum()` to `max(getMinimum(), 1)` for non-multiple inputs, so `state.values[0]` is always present when OccurrenceList renders in single mode.
+  - `useOccurrenceManager.ts`: Eager fill changed from `getMinimum()` to `Math.max(getMinimum(), 1)` unconditionally (all occurrence configs, not just non-multiple). Every Input always shows at least 1 empty field — matches legacy `showEmptyFormItemOccurrences()`.
+  - `OccurrenceList.tsx`: Remove button guarded by `state.values.length > 1` in addition to `state.canRemove` (Option D). This keeps `canRemove()` as a pure data-model check (`count > min`) while the view applies the UX policy of never removing the last visible input — matching legacy `isRemoveButtonRequiredStrict()`. This separation preserves `canRemove()` semantics for future FormItemSet/OptionSet consumers (Phase 7).
 
 ---
 
