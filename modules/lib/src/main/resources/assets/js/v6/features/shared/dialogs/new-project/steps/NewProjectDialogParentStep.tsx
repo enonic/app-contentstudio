@@ -1,7 +1,8 @@
-import {Dialog, GridList, IconButton} from '@enonic/ui';
+import {Dialog, GridList, IconButton, ListItem, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {X} from 'lucide-react';
+import {GripVertical, X} from 'lucide-react';
 import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
+import {SortableList} from '../../../lists/SortableList';
 import {useI18n} from '../../../../hooks/useI18n';
 import {
     $newProjectDialog,
@@ -29,8 +30,10 @@ NewProjectDialogParentStepHeader.displayName = 'NewProjectDialogParentStepHeader
 export const NewProjectDialogParentStepContent = (): ReactElement => {
     // Hooks
     const languages = useStore($languages);
-    const {parentProjects, isMultiInheritance, defaultLanguage} = useStore($newProjectDialog, {keys: ['parentProjects', 'isMultiInheritance', 'defaultLanguage']});
-    const {projects} = useStore($projects);
+    const {parentProjects, isMultiInheritance, defaultLanguage} = useStore($newProjectDialog, {
+        keys: ['parentProjects', 'isMultiInheritance', 'defaultLanguage'],
+    });
+    const {projects} = useStore($projects, {keys: ['projects']});
     const [projectSelection, setProjectSelection] = useState<readonly string[]>(parentProjects.map((p) => p.getName()));
     const [languageSelection, setLanguageSelection] = useState<readonly string[]>([defaultLanguage]);
 
@@ -60,7 +63,7 @@ export const NewProjectDialogParentStepContent = (): ReactElement => {
     const copyFromParentLabel = useMemo(() => {
         if (!canCopyFromParentProject) return '';
 
-        const parentProjectName = parentProjects[0]?.getDisplayName() || '';
+        const parentProjectName = parentProjects[0]?.getDisplayName() ?? '';
 
         if (!parentProjectName) return '';
 
@@ -75,15 +78,15 @@ export const NewProjectDialogParentStepContent = (): ReactElement => {
 
     // Sync language selection with the store
     useEffect(() => {
-        setNewProjectDialogDefaultLanguage(languageSelection?.[0] || '');
+        setNewProjectDialogDefaultLanguage(languageSelection?.[0] ?? '');
     }, [languageSelection]);
 
     // Handlers
     const handleUnselectProject = useCallback(
         (projectName: string): void => {
-            setProjectSelection(projectSelection.filter((id) => id !== projectName));
+            setProjectSelection((prev) => prev.filter((id) => id !== projectName));
         },
-        [setProjectSelection, projectSelection]
+        []
     );
     const handleCopyFromParentProject = useCallback(() => {
         if (!canCopyFromParentProject) return;
@@ -92,7 +95,15 @@ export const NewProjectDialogParentStepContent = (): ReactElement => {
     }, [parentProjects, canCopyFromParentProject]);
     const handleUnselectLanguage = useCallback(() => {
         setLanguageSelection([]);
-    }, [setLanguageSelection]);
+    }, []);
+    const handleReorder = useCallback((fromIndex: number, toIndex: number): void => {
+        setProjectSelection((prev) => {
+            const next = [...prev];
+            const [moved] = next.splice(fromIndex, 1);
+            next.splice(toIndex, 0, moved);
+            return next;
+        });
+    }, []);
 
     return (
         <Dialog.StepContent step="step-parent">
@@ -110,28 +121,65 @@ export const NewProjectDialogParentStepContent = (): ReactElement => {
                     />
                     {projectSelection.length > 0 && (
                         <>
-                            <GridList className="rounded-md py-2.5 pl-4 pr-1">
-                                {Array.from(projectSelection).map((projectName) => {
-                                    const project = projects.find((p) => p.getName() === projectName);
+                            {projectSelection.length > 1 && isMultiInheritance ? (
+                                <SortableList
+                                    items={Array.from(projectSelection).filter(
+                                        (name) => projects.some((p) => p.getName() === name)
+                                    )}
+                                    enabled
+                                    onReorder={handleReorder}
+                                    className="rounded-md py-2.5 px-1"
+                                    renderItem={(projectName, {interactionProps, isMovable, isFocused}) => {
+                                        const project = projects.find((p) => p.getName() === projectName)!;
 
-                                    return (
-                                        <GridList.Row key={projectName} id={projectName} className="p-1 gap-1.5">
-                                            <GridList.Cell interactive={false} className="flex-1 self-stretch">
-                                                <ProjectLabel project={project} />
-                                            </GridList.Cell>
-                                            <GridList.Cell>
-                                                <GridList.Action>
+                                        return (
+                                            <ListItem
+                                                key={projectName}
+                                                selected={isMovable}
+                                                className={cn(
+                                                    'pl-0 py-0',
+                                                    isMovable && 'bg-surface-selected',
+                                                    isFocused && !isMovable && 'bg-surface-neutral-hover'
+                                                )}
+                                                {...interactionProps}
+                                            >
+                                                <ListItem.Content className="flex items-center gap-2.5 p-1.5 rounded cursor-move">
+                                                    <GripVertical className="size-4 shrink-0 text-subtle group-data-[tone=inverse]:text-alt" />
+                                                    <ProjectLabel project={project} className="flex-1 self-stretch" />
                                                     <IconButton
                                                         variant="text"
                                                         icon={X}
                                                         onClick={() => handleUnselectProject(projectName)}
                                                     />
-                                                </GridList.Action>
-                                            </GridList.Cell>
-                                        </GridList.Row>
-                                    );
-                                })}
-                            </GridList>
+                                                </ListItem.Content>
+                                            </ListItem>
+                                        );
+                                    }}
+                                />
+                            ) : (
+                                <GridList className="rounded-md py-2.5 pl-4 pr-1">
+                                    {Array.from(projectSelection).map((projectName) => {
+                                        const project = projects.find((p) => p.getName() === projectName);
+
+                                        return (
+                                            <GridList.Row key={projectName} id={projectName} className="p-1 gap-1.5">
+                                                <GridList.Cell interactive={false} className="flex-1 self-stretch">
+                                                    <ProjectLabel project={project} />
+                                                </GridList.Cell>
+                                                <GridList.Cell>
+                                                    <GridList.Action>
+                                                        <IconButton
+                                                            variant="text"
+                                                            icon={X}
+                                                            onClick={() => handleUnselectProject(projectName)}
+                                                        />
+                                                    </GridList.Action>
+                                                </GridList.Cell>
+                                            </GridList.Row>
+                                        );
+                                    })}
+                                </GridList>
+                            )}
                             <span className="text-sm text-subtle italic">{hintLabel}</span>
                         </>
                     )}
