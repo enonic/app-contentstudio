@@ -119,8 +119,15 @@ export class UpdatePersistedContentWithStoreRoutine
     }
 
     private removeBaseUrlBridgeProperties(data: PropertyTree): void {
-        data.removeProperty(UpdatePersistedContentWithStoreRoutine.BASE_URL_PROP, 0);
-        data.removeProperty(UpdatePersistedContentWithStoreRoutine.LEGACY_PORTAL_BASE_URL_PROP, 0);
+        const root = data.getRoot();
+
+        if (root.getPropertyArray(UpdatePersistedContentWithStoreRoutine.BASE_URL_PROP)?.getSize() > 0) {
+            data.removeProperty(UpdatePersistedContentWithStoreRoutine.BASE_URL_PROP, 0);
+        }
+
+        if (root.getPropertyArray(UpdatePersistedContentWithStoreRoutine.LEGACY_PORTAL_BASE_URL_PROP)?.getSize() > 0) {
+            data.removeProperty(UpdatePersistedContentWithStoreRoutine.LEGACY_PORTAL_BASE_URL_PROP, 0);
+        }
     }
 
     private removePortalBaseUrlFromSiteConfig(data: PropertyTree): void {
@@ -137,7 +144,9 @@ export class UpdatePersistedContentWithStoreRoutine
             return;
         }
 
-        config.removeProperty(UpdatePersistedContentWithStoreRoutine.BASE_URL_PROP, 0);
+        if (config.getPropertyArray(UpdatePersistedContentWithStoreRoutine.BASE_URL_PROP)?.getSize() > 0) {
+            config.removeProperty(UpdatePersistedContentWithStoreRoutine.BASE_URL_PROP, 0);
+        }
 
         if (config.getSize() === 0) {
             data.removeProperty(UpdatePersistedContentWithStoreRoutine.SITE_CONFIG_PROP, portalConfigIndex);

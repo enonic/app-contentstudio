@@ -20,6 +20,11 @@ type ResolvedInputFieldProps = {
 export const ResolvedInputField = ({input, propertySet, descriptor, config, Component}: ResolvedInputFieldProps): ReactElement => {
     const {enabled} = useFormRender();
 
+    // NOTE: This creates empty PropertyArrays on the shared draft PropertyTree for schema inputs
+    // that have no data. Any code calling removeProperty on the draft data must guard against
+    // empty arrays (getPropertyArray(name)?.getSize() > 0) before removal.
+    // Fill-to-minimum logic belongs to Phase 4 (editing support) and does NOT fully solve this
+    // because multiple inputs with minimum=0 will still produce empty arrays.
     const propertyArray = useMemo(() => {
         const existing = propertySet.getPropertyArray(input.getName());
         if (existing) {

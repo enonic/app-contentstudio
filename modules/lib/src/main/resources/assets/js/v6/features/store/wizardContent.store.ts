@@ -263,12 +263,16 @@ function injectSiteBaseUrlBridge(data: PropertyTree | null, content: Content): P
         return data;
     }
 
+    const root = data.getRoot();
     const baseUrl = getPortalSiteConfigBaseUrl(data);
-    data.removeProperty(LEGACY_BASE_URL_INPUT_PROP, 0);
+
+    if (root.getPropertyArray(LEGACY_BASE_URL_INPUT_PROP)?.getSize() > 0) {
+        data.removeProperty(LEGACY_BASE_URL_INPUT_PROP, 0);
+    }
 
     if (baseUrl != null && baseUrl.trim().length > 0) {
         data.setString(BASE_URL_INPUT_PROP, 0, baseUrl);
-    } else {
+    } else if (root.getPropertyArray(BASE_URL_INPUT_PROP)?.getSize() > 0) {
         data.removeProperty(BASE_URL_INPUT_PROP, 0);
     }
 

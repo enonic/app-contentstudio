@@ -1,13 +1,16 @@
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
 import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
+import {afterEach, assert, beforeEach, describe, expect, it, vi} from 'vitest';
 import {ContentBuilder, type Content} from '../content/Content';
 import {ContentName} from '../content/ContentName';
 import {Workflow} from '../content/Workflow';
 import {WorkflowState} from '../content/WorkflowState';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {
+    $wizardDraftData,
     initializeWizardContentState,
     resetWizardContent,
     setDraftStringByPath,
@@ -83,6 +86,32 @@ describe('UpdatePersistedContentWithStoreRoutine', () => {
         const viewedData = viewedContent.getContentData();
 
         expect(viewedData.getPropertySets('siteConfig')).toEqual([]);
+        expect(viewedData.getString('baseUrl')).toBeNull();
+    });
+
+    it('handles empty baseUrl PropertyArray from form rendering', () => {
+        const persistedData = new PropertyTree();
+        addSiteConfig(persistedData, 'my.app', {title: 'existing'});
+        const persistedContent = createContent(persistedData);
+
+        initializeWizardContentState(persistedContent, null, [], WorkflowState.IN_PROGRESS);
+
+        // Simulate what ResolvedInputField does: creates an empty PropertyArray for baseUrl
+        // in the draft data without adding any elements
+        const draftData = $wizardDraftData.get();
+        assert(draftData != null);
+        const emptyArray = PropertyArray.create()
+            .setParent(draftData.getRoot())
+            .setName('baseUrl')
+            .setType(ValueTypes.STRING)
+            .build();
+        draftData.getRoot().addPropertyArray(emptyArray);
+
+        // This should not throw even though baseUrl PropertyArray is empty
+        expect(() => buildViewedContentFromStore(persistedContent)).not.toThrow();
+
+        const viewedContent = buildViewedContentFromStore(persistedContent);
+        const viewedData = viewedContent.getContentData();
         expect(viewedData.getString('baseUrl')).toBeNull();
     });
 
