@@ -1,4 +1,5 @@
 import {ContentServerEventsHandler} from '../../../app/event/ContentServerEventsHandler';
+import type {ContentId} from '../../../app/content/ContentId';
 import type {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
 import type {ContentServerChangeItem} from '../../../app/event/ContentServerChangeItem';
 import type {MovedContentItem} from '../../../app/browse/MovedContentItem';
@@ -39,7 +40,7 @@ type Listeners = {
     unpublished: ContentListener;
     duplicated: ContentListener;
     sorted: ContentListener;
-    permissionsUpdated: ContentListener;
+    permissionsUpdated: Listener<ContentId[]>;
 };
 
 //

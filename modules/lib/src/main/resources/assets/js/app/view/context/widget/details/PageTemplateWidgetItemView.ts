@@ -78,10 +78,10 @@ export class PageTemplateWidgetItemView
 
     private initListeners() {
 
-        const onContentPermissionsUpdated = (contents: ContentSummaryAndCompareStatus[]) => {
+        const onContentPermissionsUpdated = (contentIds: ContentId[]) => {
             const thisContentId: ContentId = this.content.getContentId();
 
-            if (!ContentSummaryAndCompareStatus.isInArray(thisContentId, contents)) {
+            if (!contentIds.some((id: ContentId) => id.equals(thisContentId))) {
                 return;
             }
 
@@ -89,7 +89,6 @@ export class PageTemplateWidgetItemView
                 .fetch(thisContentId)
                 .then(this.setContentAndUpdateView.bind(this))
                 .catch(DefaultErrorHandler.handle);
-
         };
 
         const onContentUpdated = (contents: ContentSummaryAndCompareStatus[]) => {

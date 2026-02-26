@@ -13,6 +13,7 @@ import {RepositoryId} from '../repository/RepositoryId';
 import {type ContentId} from '../content/ContentId';
 import {type ContentPath} from '../content/ContentPath';
 import {ArchiveServerEvent} from './ArchiveServerEvent';
+import {PermissionsServerEvent} from './PermissionsServerEvent';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {MovedContentItem} from '../browse/MovedContentItem';
 
@@ -47,7 +48,7 @@ export class ContentServerEventsHandler {
 
     private contentSortListeners: ((data: ContentSummaryAndCompareStatus[]) => void)[] = [];
 
-    private contentPermissionsUpdatedListeners: ((data: ContentSummaryAndCompareStatus[]) => void)[] = [];
+    private contentPermissionsUpdatedListeners: ((contentIds: ContentId[]) => void)[] = [];
 
     private contentFetcher: ContentSummaryAndCompareStatusFetcher = new ContentSummaryAndCompareStatusFetcher();
 
@@ -76,6 +77,10 @@ export class ContentServerEventsHandler {
                 this.handleContentRestored(event.getNodeChange().getChangeItems());
             }
         });
+
+        PermissionsServerEvent.on((event: PermissionsServerEvent) => {
+            this.handleContentPermissionsUpdated([event.getChangeItem().getContentId()]);
+        });
     }
 
     stop() {
@@ -85,7 +90,7 @@ export class ContentServerEventsHandler {
         }
     }
 
-    onContentPermissionsUpdated(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
+    onContentPermissionsUpdated(listener: (contentIds: ContentId[]) => void) {
         this.contentPermissionsUpdatedListeners.push(listener);
     }
 
@@ -184,11 +189,9 @@ export class ContentServerEventsHandler {
         this.notifyContentSorted(data);
     }
 
-    unContentPermissionsUpdated(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
+    unContentPermissionsUpdated(listener: (contentIds: ContentId[]) => void) {
         this.contentPermissionsUpdatedListeners =
-            this.contentPermissionsUpdatedListeners.filter((currentListener: (data: ContentSummaryAndCompareStatus[]) => void) => {
-                return currentListener !== listener;
-            });
+            this.contentPermissionsUpdatedListeners.filter((currentListener) => currentListener !== listener);
     }
 
     onContentCreated(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
@@ -415,8 +418,6 @@ export class ContentServerEventsHandler {
             this.handleDeleteAndUnPublish(changeItems);
         } else if (type === NodeServerChangeType.MOVE) {
             this.handleMovedAndArchived(changeItems);
-        } else if (type === NodeServerChangeType.UPDATE_PERMISSIONS) {
-            this.handleContentPermissionsUpdated(this.extractContentIds(changeItems));
         } else {
             this.handleEventByType(changeItems, type);
         }
@@ -518,14 +519,12 @@ export class ContentServerEventsHandler {
         if (ContentServerEventsHandler.debug) {
             console.debug('ContentServerEventsHandler: permissions updated', contentIds);
         }
-        this.contentFetcher.fetchAndUpdateReadonly(contentIds).then((summaries: ContentSummaryAndCompareStatus[]) =>
-            this.notifyContentPermissionsUpdated(summaries)
-        );
+        this.notifyContentPermissionsUpdated(contentIds);
     }
 
-    private notifyContentPermissionsUpdated(contentSummaries: ContentSummaryAndCompareStatus[]) {
-        this.contentPermissionsUpdatedListeners.forEach((listener: (contentSummaries: ContentSummaryAndCompareStatus[]) => void) => {
-            listener(contentSummaries);
+    private notifyContentPermissionsUpdated(contentIds: ContentId[]) {
+        this.contentPermissionsUpdatedListeners.forEach((listener) => {
+            listener(contentIds);
         });
     }
 

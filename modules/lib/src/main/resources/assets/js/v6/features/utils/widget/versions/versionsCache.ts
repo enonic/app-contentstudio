@@ -1,3 +1,4 @@
+import {atom} from 'nanostores';
 import {type ContentId} from '../../../../../app/content/ContentId';
 import {type ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {type ContentVersion} from '../../../../../app/ContentVersion';
@@ -35,6 +36,9 @@ export type ContentVersionsLoadResult = {
 // ============================================================================
 
 const versionsCache = new Map<string, CachedVersionsEntry>();
+
+/** Signal emitted when the versions cache is invalidated for a specific content ID */
+export const $versionsCacheInvalidated = atom<{id: string; ts: number} | null>(null);
 
 // ============================================================================
 // Cache Operations
@@ -123,7 +127,12 @@ const registerCacheInvalidationHandlers = (): void => {
 
     // Content changes that create new versions
     eventsHandler.onContentUpdated(handleContentSummaryChange);
-    eventsHandler.onContentPermissionsUpdated(handleContentSummaryChange);
+    eventsHandler.onContentPermissionsUpdated((contentIds: ContentId[]) => {
+        contentIds.forEach((id) => {
+            clearVersionsCache(id);
+            $versionsCacheInvalidated.set({id: id.toString(), ts: Date.now()});
+        });
+    });
     eventsHandler.onContentPublished(handleContentSummaryChange);
     eventsHandler.onContentUnpublished(handleContentSummaryChange);
     eventsHandler.onContentRenamed(handleContentSummaryChange);

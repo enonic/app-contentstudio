@@ -1,3 +1,4 @@
+import {useStore} from '@nanostores/preact';
 import {useCallback, useEffect, useState} from 'react';
 import {type ContentSummaryAndCompareStatus} from '../../../../../../../app/content/ContentSummaryAndCompareStatus';
 import {
@@ -5,6 +6,7 @@ import {
     resetVersionsSelection, setOnlineVersionId,
     setVersions
 } from '../../../../../store/context/versionStore';
+import {$versionsCacheInvalidated} from '../../../../../utils/widget/versions/versionsCache';
 import {loadContentVersions} from '../../../../../utils/widget/versions/versionsLoader';
 
 /**
@@ -23,6 +25,7 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
     const [cursor, setCursor] = useState<string | undefined>();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
+    const cacheInvalidated = useStore($versionsCacheInvalidated);
 
     // Initial load when content changes
     useEffect(() => {
@@ -58,6 +61,35 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
             });
         return () => { cancelled = true; };
     }, [content]);
+
+    // Reload when cache is invalidated for the current content
+    useEffect(() => {
+        if (!cacheInvalidated || !content) return;
+        if (cacheInvalidated.id !== content.getId()) return;
+
+        let cancelled = false;
+
+        setIsLoading(true);
+        setError(null);
+
+        loadContentVersions(content.getContentId())
+            .then((result) => {
+                if (cancelled) return;
+                setVersions(result.versions);
+                setOnlineVersionId(result.onlineVersionId);
+                resetVersionsSelection();
+                setHasMore(result.hasMore);
+                setCursor(result.cursor);
+            })
+            .catch((err) => {
+                if (cancelled) return;
+                setError(err instanceof Error ? err : new Error('Failed to load versions'));
+            })
+            .finally(() => {
+                if (!cancelled) setIsLoading(false);
+            });
+        return () => { cancelled = true; };
+    }, [cacheInvalidated, content]);
 
     const loadMore = useCallback(async () => {
         if (!content || !hasMore || isLoading) return;

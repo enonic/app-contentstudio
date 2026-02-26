@@ -1,4 +1,4 @@
-import {computed, task} from 'nanostores';
+import {atom, computed, task} from 'nanostores';
 import {$contextContent} from './contextContent.store';
 import {type Content} from '../../../../app/content/Content';
 import {type EffectivePermission} from '../../../../app/security/EffectivePermission';
@@ -14,8 +14,22 @@ import {AccessControlEntryView} from '../../../../app/view/AccessControlEntryVie
 import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {$contentPermissionsUpdated} from '../socket.store';
 
-export const $detailsWidgetContent = computed($contextContent, (contentSummary) =>
+const $detailsContentRefreshSignal = atom(0);
+
+$contentPermissionsUpdated.subscribe((event) => {
+    if (!event?.data) return;
+    const contextContent = $contextContent.get();
+    if (!contextContent) return;
+
+    const contentId = contextContent.getContentId();
+    if (event.data.some((id) => id.equals(contentId))) {
+        $detailsContentRefreshSignal.set(Date.now());
+    }
+});
+
+export const $detailsWidgetContent = computed([$contextContent, $detailsContentRefreshSignal], (contentSummary, _refresh) =>
     task(async () => {
         if (!contentSummary) return undefined;
 
