@@ -26,6 +26,10 @@ export class ContentServerEventsHandler {
 
     private handler: (event: BatchContentServerEvent) => void;
 
+    private archiveHandler: (event: ArchiveServerEvent) => void;
+
+    private permissionsHandler: (event: PermissionsServerEvent) => void;
+
     private contentCreatedListeners: ((data: ContentSummaryAndCompareStatus[]) => void)[] = [];
 
     private contentUpdatedListeners: ((data: ContentSummaryAndCompareStatus[]) => void)[] = [];
@@ -70,23 +74,39 @@ export class ContentServerEventsHandler {
             this.handler = this.contentServerEventHandler.bind(this);
         }
 
+        if (!this.archiveHandler) {
+            this.archiveHandler = (event: ArchiveServerEvent) => {
+                if (event.getNodeChange().getChangeType() === NodeServerChangeType.MOVE) {
+                    this.handleContentRestored(event.getNodeChange().getChangeItems());
+                }
+            };
+        }
+
+        if (!this.permissionsHandler) {
+            this.permissionsHandler = (event: PermissionsServerEvent) => {
+                this.handleContentPermissionsUpdated([event.getChangeItem().getContentId()]);
+            };
+        }
+
         BatchContentServerEvent.on(this.handler);
-
-        ArchiveServerEvent.on((event: ArchiveServerEvent) => {
-            if (event.getNodeChange().getChangeType() === NodeServerChangeType.MOVE) {
-                this.handleContentRestored(event.getNodeChange().getChangeItems());
-            }
-        });
-
-        PermissionsServerEvent.on((event: PermissionsServerEvent) => {
-            this.handleContentPermissionsUpdated([event.getChangeItem().getContentId()]);
-        });
+        ArchiveServerEvent.on(this.archiveHandler);
+        PermissionsServerEvent.on(this.permissionsHandler);
     }
 
     stop() {
         if (this.handler) {
             BatchContentServerEvent.un(this.handler);
             this.handler = null;
+        }
+
+        if (this.archiveHandler) {
+            ArchiveServerEvent.un(this.archiveHandler);
+            this.archiveHandler = null;
+        }
+
+        if (this.permissionsHandler) {
+            PermissionsServerEvent.un(this.permissionsHandler);
+            this.permissionsHandler = null;
         }
     }
 

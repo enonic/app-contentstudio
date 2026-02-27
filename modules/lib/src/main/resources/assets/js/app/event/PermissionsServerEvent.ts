@@ -1,17 +1,16 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {type EventJson} from '@enonic/lib-admin-ui/event/EventJson';
-import {type NodeEventNodeJson} from '@enonic/lib-admin-ui/event/NodeServerEvent';
 import {ContentServerChangeItem} from './ContentServerChangeItem';
 
-export interface PermissionsEventJson extends EventJson {
+export type PermissionsEventJson = EventJson & {
     data: {
         id: string;
         path: string;
         branch: string;
         repo: string;
     };
-}
+};
 
 export class PermissionsServerEvent
     extends Event {
@@ -28,7 +27,7 @@ export class PermissionsServerEvent
     }
 
     static fromJson(json: PermissionsEventJson): PermissionsServerEvent {
-        const changeItem = ContentServerChangeItem.fromJson(json.data as NodeEventNodeJson);
+        const changeItem = ContentServerChangeItem.fromJson({...json.data, newPath: ''});
         return new PermissionsServerEvent(changeItem);
     }
 
