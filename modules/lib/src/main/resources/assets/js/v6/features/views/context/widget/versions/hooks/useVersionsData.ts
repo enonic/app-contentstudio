@@ -1,5 +1,6 @@
 import {useStore} from '@nanostores/preact';
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
+import {type ContentId} from '../../../../../../../app/content/ContentId';
 import {type ContentSummaryAndCompareStatus} from '../../../../../../../app/content/ContentSummaryAndCompareStatus';
 import {
     appendVersions,
@@ -26,11 +27,36 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
     const cacheInvalidated = useStore($versionsCacheInvalidated);
+    const loadIdRef = useRef(0);
+
+    const loadInitialVersions = useCallback((contentId: ContentId) => {
+        const id = ++loadIdRef.current;
+
+        setIsLoading(true);
+        setError(null);
+
+        loadContentVersions(contentId)
+            .then((result) => {
+                if (loadIdRef.current !== id) return;
+                setVersions(result.versions);
+                setOnlineVersionId(result.onlineVersionId);
+                resetVersionsSelection();
+                setHasMore(result.hasMore);
+                setCursor(result.cursor);
+            })
+            .catch((err) => {
+                if (loadIdRef.current !== id) return;
+                setError(err instanceof Error ? err : new Error('Failed to load versions'));
+            })
+            .finally(() => {
+                if (loadIdRef.current === id) setIsLoading(false);
+            });
+    }, []);
 
     // Initial load when content changes
     useEffect(() => {
-        let cancelled = false;
         if (!content) {
+            loadIdRef.current++;
             setVersions([]);
             setOnlineVersionId(undefined);
             resetVersionsSelection();
@@ -40,56 +66,16 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
             return;
         }
 
-        setIsLoading(true);
-        setError(null);
-
-        loadContentVersions(content.getContentId())
-            .then((result) => {
-                if (cancelled) return;
-                setVersions(result.versions);
-                setOnlineVersionId(result.onlineVersionId);
-                resetVersionsSelection();
-                setHasMore(result.hasMore);
-                setCursor(result.cursor);
-            })
-            .catch((err) => {
-                if (cancelled) return;
-                setError(err instanceof Error ? err : new Error('Failed to load versions'));
-            })
-            .finally(() => {
-                if (!cancelled) setIsLoading(false);
-            });
-        return () => { cancelled = true; };
-    }, [content]);
+        loadInitialVersions(content.getContentId());
+    }, [content, loadInitialVersions]);
 
     // Reload when cache is invalidated for the current content
     useEffect(() => {
         if (!cacheInvalidated || !content) return;
         if (cacheInvalidated.id !== content.getId()) return;
 
-        let cancelled = false;
-
-        setIsLoading(true);
-        setError(null);
-
-        loadContentVersions(content.getContentId())
-            .then((result) => {
-                if (cancelled) return;
-                setVersions(result.versions);
-                setOnlineVersionId(result.onlineVersionId);
-                resetVersionsSelection();
-                setHasMore(result.hasMore);
-                setCursor(result.cursor);
-            })
-            .catch((err) => {
-                if (cancelled) return;
-                setError(err instanceof Error ? err : new Error('Failed to load versions'));
-            })
-            .finally(() => {
-                if (!cancelled) setIsLoading(false);
-            });
-        return () => { cancelled = true; };
-    }, [cacheInvalidated, content]);
+        loadInitialVersions(content.getContentId());
+    }, [cacheInvalidated, content, loadInitialVersions]);
 
     const loadMore = useCallback(async () => {
         if (!content || !hasMore || isLoading) return;

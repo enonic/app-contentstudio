@@ -8,6 +8,7 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ContentPath} from '../../content/ContentPath';
 import {ContentServerEvent} from '../../event/ContentServerEvent';
 import {ContentServerEventsTranslator} from '../../event/ContentServerEventsTranslator';
+import {PermissionsServerEvent} from '../../event/PermissionsServerEvent';
 import {PrincipalServerEvent} from '../../event/PrincipalServerEvent';
 import {WorkerServerEventsListener} from '../../event/WorkerServerEventsListener';
 import {RepositoryId} from '../../repository/RepositoryId';
@@ -28,11 +29,28 @@ export class SettingsServerEventsListener
     protected onServerEvent(event: Event): void {
         if (this.isPrincipalEvent(event)) {
             this.handleProjectPermissionsUpdate(event as PrincipalServerEvent);
+            return;
+        }
+
+        if (this.isPermissionsEvent(event)) {
+            this.handleContentPermissionsUpdate(event as PermissionsServerEvent);
         }
     }
 
     private isPrincipalEvent(event: Event): boolean {
         return ObjectHelper.iFrameSafeInstanceOf(event, PrincipalServerEvent);
+    }
+
+    private isPermissionsEvent(event: Event): boolean {
+        return ObjectHelper.iFrameSafeInstanceOf(event, PermissionsServerEvent);
+    }
+
+    private handleContentPermissionsUpdate(event: PermissionsServerEvent): void {
+        const changeItem = event.getChangeItem();
+
+        if (SettingsServerEventsListener.isRootNodeEventItem(changeItem)) {
+            this.appendUpdateEvent(SettingsServerEventsListener.extractProjectNameFromRootNodeEventItem(changeItem));
+        }
     }
 
     protected onUnknownServerEvent(eventJson: EventJson) {
