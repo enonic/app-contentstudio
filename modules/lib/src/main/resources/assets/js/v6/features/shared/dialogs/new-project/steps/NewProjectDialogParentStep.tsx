@@ -82,12 +82,9 @@ export const NewProjectDialogParentStepContent = (): ReactElement => {
     }, [languageSelection]);
 
     // Handlers
-    const handleUnselectProject = useCallback(
-        (projectName: string): void => {
-            setProjectSelection((prev) => prev.filter((id) => id !== projectName));
-        },
-        []
-    );
+    const handleUnselectProject = useCallback((projectName: string): void => {
+        setProjectSelection((prev) => prev.filter((id) => id !== projectName));
+    }, []);
     const handleCopyFromParentProject = useCallback(() => {
         if (!canCopyFromParentProject) return;
         const parentProject = parentProjects[0];
@@ -110,8 +107,8 @@ export const NewProjectDialogParentStepContent = (): ReactElement => {
             <div className="flex flex-col gap-7.5">
                 {/* Project selection */}
                 <div>
-                    <label className="block font-semibold mb-2">{projectLabel}</label>
                     <ProjectSelector
+                        label={projectLabel}
                         selection={projectSelection}
                         onSelectionChange={setProjectSelection}
                         selectionMode={isMultiInheritance ? 'staged' : 'single'}
@@ -123,9 +120,7 @@ export const NewProjectDialogParentStepContent = (): ReactElement => {
                         <>
                             {projectSelection.length > 1 && isMultiInheritance ? (
                                 <SortableList
-                                    items={Array.from(projectSelection).filter(
-                                        (name) => projects.some((p) => p.getName() === name)
-                                    )}
+                                    items={Array.from(projectSelection).filter((name) => projects.some((p) => p.getName() === name))}
                                     enabled
                                     onReorder={handleReorder}
                                     className="rounded-md py-2.5 px-1"
@@ -198,7 +193,6 @@ export const NewProjectDialogParentStepContent = (): ReactElement => {
                         searchPlaceholder={typeToSearchLabel}
                         emptyLabel={noLanguagesFoundLabel}
                         closeOnBlur
-                        usePortal
                     />
                     {selectedLanguage && (
                         <GridList className="rounded-md mb-2.5 py-2.5 pl-4 pr-1">

@@ -19,7 +19,6 @@ type PrincipalSelectorProps = {
     label?: string;
     placeholder?: string;
     emptyLabel?: string;
-    usePortal?: boolean;
     closeOnBlur?: boolean;
     disabled?: boolean;
     className?: string;
@@ -34,7 +33,6 @@ export const PrincipalSelector = ({
     label,
     placeholder,
     emptyLabel,
-    usePortal = false,
     closeOnBlur,
     disabled,
     className,
@@ -82,7 +80,7 @@ export const PrincipalSelector = ({
                 disabled={disabled}
                 contentType="listbox"
             >
-                <Combobox.Content className="w-full">
+                <Combobox.Content className="relative">
                     <Combobox.Control>
                         <Combobox.Search>
                             <Combobox.SearchIcon />
@@ -91,11 +89,11 @@ export const PrincipalSelector = ({
                             <Combobox.Toggle />
                         </Combobox.Search>
                     </Combobox.Control>
-                    <ConditionalPortal usePortal={usePortal}>
+                    <Combobox.Portal>
                         <Combobox.Popup>
                             <PrincipalSelectorList items={filtered} selectionMode={selectionMode} emptyLabel={emptyLabel} />
                         </Combobox.Popup>
-                    </ConditionalPortal>
+                    </Combobox.Portal>
                 </Combobox.Content>
             </Combobox.Root>
         </div>
@@ -160,11 +158,4 @@ const encodeToValidDomId = (key: string): string => {
 
 const decodeFromValidDomId = (key: string): string => {
     return key.replaceAll('_', ':');
-};
-
-const ConditionalPortal = ({usePortal, children}: {usePortal: boolean; children: ReactNode}): ReactElement => {
-    if (usePortal) {
-        return <Combobox.Portal>{children}</Combobox.Portal>;
-    }
-    return <Fragment>{children}</Fragment>;
 };

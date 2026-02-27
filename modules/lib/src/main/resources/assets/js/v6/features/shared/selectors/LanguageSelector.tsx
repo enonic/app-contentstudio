@@ -1,5 +1,5 @@
 import {cn, Combobox, VirtualizedTreeList} from '@enonic/ui';
-import {forwardRef, Fragment, ReactNode, useEffect, useMemo, useRef, useState, type HTMLAttributes, type ReactElement} from 'react';
+import {forwardRef, useEffect, useMemo, useRef, useState, type HTMLAttributes, type ReactElement} from 'react';
 import type {VirtuosoHandle} from 'react-virtuoso';
 import {Virtuoso} from 'react-virtuoso';
 import {buildKey} from '../../utils/format/keys';
@@ -23,7 +23,6 @@ export type LanguageSelectorProps = {
     placeholder?: string;
     searchPlaceholder?: string;
     emptyLabel?: string;
-    usePortal?: boolean;
     closeOnBlur?: boolean;
     className?: string;
 };
@@ -92,7 +91,6 @@ export const LanguageSelector = ({
     placeholder,
     searchPlaceholder,
     emptyLabel,
-    usePortal = false,
     closeOnBlur,
     className,
 }: LanguageSelectorProps): ReactElement => {
@@ -110,7 +108,7 @@ export const LanguageSelector = ({
     }, [options]);
     const selectionDisplay = useMemo(() => {
         const selectedId = selectedIds[0];
-        return selectedId ? optionMap.get(selectedId)?.label ?? selectedId : '';
+        return selectedId ? (optionMap.get(selectedId)?.label ?? selectedId) : '';
     }, [selectedIds, optionMap]);
 
     useEffect(() => {
@@ -181,7 +179,7 @@ export const LanguageSelector = ({
         const decodedSelection = nextArray.map((value) => optionKeyMap.get(value) ?? value);
         const selectedIds = decodedSelection.slice(0, 1);
         const selectedId = selectedIds[0];
-        const nextDisplay = selectedId ? optionMap.get(selectedId)?.label ?? selectedId : '';
+        const nextDisplay = selectedId ? (optionMap.get(selectedId)?.label ?? selectedId) : '';
 
         setInputValue(nextDisplay);
         onSelectionChange(selectedIds);
@@ -190,7 +188,7 @@ export const LanguageSelector = ({
 
     return (
         <div data-component={LANGUAGE_SELECTOR_NAME} className={cn('flex flex-col gap-2.5', className)}>
-            {label && <span className='font-semibold'>{label}</span>}
+            {label && <span className="font-semibold">{label}</span>}
             <Combobox.Root
                 open={open}
                 onOpenChange={handleOpenChange}
@@ -208,7 +206,7 @@ export const LanguageSelector = ({
                             <Combobox.Toggle />
                         </Combobox.Search>
                     </Combobox.Control>
-                    <ConditionalPortal usePortal={usePortal}>
+                    <Combobox.Portal>
                         <Combobox.Popup>
                             {flatNodes.length === 0 && emptyLabel ? (
                                 <div className="px-4.5 py-2 text-sm text-subtle">{emptyLabel}</div>
@@ -252,7 +250,7 @@ export const LanguageSelector = ({
                                 </Combobox.TreeContent>
                             )}
                         </Combobox.Popup>
-                    </ConditionalPortal>
+                    </Combobox.Portal>
                 </Combobox.Content>
             </Combobox.Root>
         </div>
@@ -260,14 +258,3 @@ export const LanguageSelector = ({
 };
 
 LanguageSelector.displayName = LANGUAGE_SELECTOR_NAME;
-
-//
-// * Utility
-//
-
-const ConditionalPortal = ({usePortal, children}: {usePortal: boolean; children: ReactNode}): ReactElement => {
-    if (usePortal) {
-        return <Combobox.Portal>{children}</Combobox.Portal>;
-    }
-    return <Fragment>{children}</Fragment>;
-};
