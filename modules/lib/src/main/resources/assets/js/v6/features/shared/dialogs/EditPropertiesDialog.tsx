@@ -99,7 +99,6 @@ export const EditPropertiesDialog = (): ReactElement => {
                                 emptyLabel={noLanguagesFoundLabel}
                                 disabled={saving}
                                 closeOnBlur
-                                usePortal
                             />
                             {selectedLanguageOption && (
                                 <GridList className="rounded-md py-2.5 pl-4 pr-1">
@@ -132,7 +131,6 @@ export const EditPropertiesDialog = (): ReactElement => {
                                 emptyLabel={noOwnersFoundLabel}
                                 disabled={saving}
                                 closeOnBlur
-                                usePortal
                             />
                             {selectedOwnerPrincipal && (
                                 <GridList className="rounded-md py-2.5 pl-4 pr-1">

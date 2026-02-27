@@ -151,64 +151,60 @@ export const NewProjectDialogRoleStepContent = ({locked = false}: {locked?: bool
             />
 
             {selection.length > 0 && (
-                    <GridList className="rounded-md mb-2.5 py-2.5 pl-4 pr-1">
-                        {selectedPrincipals.map((principal) => {
-                            const key = principal.getKey().toString();
-                            const principalDisplayName = principal.getDisplayName();
-                            const principalPath = principal.getKey().toPath();
-                            const principalRole = selectedRoles[principal.getKey().toString()];
-                            const principalRoleLabel = roleOptions.find((role) => role.role === principalRole)?.label;
+                <GridList className="rounded-md mb-2.5 py-2.5 pl-4 pr-1">
+                    {selectedPrincipals.map((principal) => {
+                        const key = principal.getKey().toString();
+                        const principalDisplayName = principal.getDisplayName();
+                        const principalPath = principal.getKey().toPath();
+                        const principalRole = selectedRoles[principal.getKey().toString()];
+                        const principalRoleLabel = roleOptions.find((role) => role.role === principalRole)?.label;
 
-                            return (
-                                <GridList.Row key={key} id={key} className="p-1 gap-1.5">
-                                    <GridList.Cell interactive={false} className="flex-1 self-stretch">
-                                        <div className="flex items-center gap-2.5 flex-1">
-                                            <ItemLabel
-                                                icon={<CircleUserRound strokeWidth={1.5} />}
-                                                primary={principalDisplayName}
-                                                secondary={principalPath}
-                                            />
-                                        </div>
-                                    </GridList.Cell>
+                        return (
+                            <GridList.Row key={key} id={key} className="p-1 gap-1.5">
+                                <GridList.Cell interactive={false} className="flex-1 self-stretch">
+                                    <div className="flex items-center gap-2.5 flex-1">
+                                        <ItemLabel
+                                            icon={<CircleUserRound strokeWidth={1.5} />}
+                                            primary={principalDisplayName}
+                                            secondary={principalPath}
+                                        />
+                                    </div>
+                                </GridList.Cell>
 
-                                    {/* Manage selected principal role */}
-                                    <GridList.Cell>
-                                        <Selector.Root
-                                            value={principalRole}
-                                            onValueChange={(value) => handleSelectRole(principal, value as ProjectAccess)}
-                                        >
-                                            <GridList.Action>
-                                                <Selector.Trigger className="border-none text-sm h-10">
-                                                    <Selector.Value>{principalRoleLabel}</Selector.Value>
-                                                    <Selector.Icon />
-                                                </Selector.Trigger>
-                                            </GridList.Action>
-                                            <Selector.Content portal={false}>
-                                                <Selector.Viewport>
-                                                    {roleOptions.map(({role, label}) => (
-                                                        <Selector.Item key={label} value={role} textValue={label}>
-                                                            <Selector.ItemText>{label}</Selector.ItemText>
-                                                        </Selector.Item>
-                                                    ))}
-                                                </Selector.Viewport>
-                                            </Selector.Content>
-                                        </Selector.Root>
-                                    </GridList.Cell>
-
-                                    {/* Unselect principal */}
-                                    <GridList.Cell>
+                                {/* Manage selected principal role */}
+                                <GridList.Cell>
+                                    <Selector.Root
+                                        value={principalRole}
+                                        onValueChange={(value) => handleSelectRole(principal, value as ProjectAccess)}
+                                    >
                                         <GridList.Action>
-                                            <IconButton
-                                                variant="text"
-                                                icon={X}
-                                                onClick={() => handleUnselect(principal.getKey().toString())}
-                                            />
+                                            <Selector.Trigger className="border-none text-sm h-10">
+                                                <Selector.Value>{principalRoleLabel}</Selector.Value>
+                                                <Selector.Icon />
+                                            </Selector.Trigger>
                                         </GridList.Action>
-                                    </GridList.Cell>
-                                </GridList.Row>
-                            );
-                        })}
-                    </GridList>
+                                        <Selector.Content portal={false}>
+                                            <Selector.Viewport>
+                                                {roleOptions.map(({role, label}) => (
+                                                    <Selector.Item key={label} value={role} textValue={label}>
+                                                        <Selector.ItemText>{label}</Selector.ItemText>
+                                                    </Selector.Item>
+                                                ))}
+                                            </Selector.Viewport>
+                                        </Selector.Content>
+                                    </Selector.Root>
+                                </GridList.Cell>
+
+                                {/* Unselect principal */}
+                                <GridList.Cell>
+                                    <GridList.Action>
+                                        <IconButton variant="text" icon={X} onClick={() => handleUnselect(principal.getKey().toString())} />
+                                    </GridList.Action>
+                                </GridList.Cell>
+                            </GridList.Row>
+                        );
+                    })}
+                </GridList>
             )}
         </Dialog.StepContent>
     );

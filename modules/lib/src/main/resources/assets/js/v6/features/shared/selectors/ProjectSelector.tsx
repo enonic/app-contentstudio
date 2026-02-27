@@ -11,6 +11,7 @@ type ProjectSelectorProps = {
     selection: readonly string[];
     onSelectionChange: (selection: readonly string[]) => void;
     selectionMode?: ComboboxRootProps['selectionMode'];
+    label?: string;
     placeholder?: string;
     emptyLabel?: string;
     closeOnBlur?: boolean;
@@ -20,7 +21,7 @@ type ProjectSelectorProps = {
 const PROJECT_SELECTOR_NAME = 'ProjectSelector';
 
 export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
-    const {selection, onSelectionChange, selectionMode = 'single', placeholder, emptyLabel, closeOnBlur, className} = props;
+    const {selection, onSelectionChange, selectionMode = 'single', label, placeholder, emptyLabel, closeOnBlur, className} = props;
 
     // Hooks
     const {projects} = useStore($projects);
@@ -45,39 +46,42 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
     };
 
     return (
-        <Combobox.Root
-            data-component={PROJECT_SELECTOR_NAME}
-            value={searchValue}
-            onChange={setSearchValue}
-            selection={selection}
-            onSelectionChange={onSelectionChange}
-            contentType="tree"
-            selectionMode={selectionMode}
-            closeOnBlur={closeOnBlur}
-        >
-            <Combobox.Content className={className}>
-                <Combobox.Control>
-                    <Combobox.Search>
-                        <Combobox.SearchIcon />
-                        <Combobox.Input placeholder={placeholder} />
-                        <Combobox.Apply />
-                        <Combobox.Toggle />
-                    </Combobox.Search>
-                </Combobox.Control>
-                <Combobox.Portal>
-                    <Combobox.Popup className="mt-1.5">
-                        <ProjectSelectorTreeContent
-                            items={filteredItems}
-                            handleExpand={handleExpand}
-                            handleCollapse={handleCollapse}
-                            selectionMode={selectionMode}
-                            emptyLabel={emptyLabel}
-                            virtuosoRef={virtuosoRef}
-                        />
-                    </Combobox.Popup>
-                </Combobox.Portal>
-            </Combobox.Content>
-        </Combobox.Root>
+        <div data-component={PROJECT_SELECTOR_NAME} className={cn('flex flex-col gap-2', className)}>
+            {label && <label className="font-semibold">{label}</label>}
+            <Combobox.Root
+                data-component={PROJECT_SELECTOR_NAME}
+                value={searchValue}
+                onChange={setSearchValue}
+                selection={selection}
+                onSelectionChange={onSelectionChange}
+                contentType="tree"
+                selectionMode={selectionMode}
+                closeOnBlur={closeOnBlur}
+            >
+                <Combobox.Content className="relative">
+                    <Combobox.Control>
+                        <Combobox.Search>
+                            <Combobox.SearchIcon />
+                            <Combobox.Input placeholder={placeholder} />
+                            <Combobox.Apply />
+                            <Combobox.Toggle />
+                        </Combobox.Search>
+                    </Combobox.Control>
+                    <Combobox.Portal>
+                        <Combobox.Popup className="mt-1.5">
+                            <ProjectSelectorTreeContent
+                                items={filteredItems}
+                                handleExpand={handleExpand}
+                                handleCollapse={handleCollapse}
+                                selectionMode={selectionMode}
+                                emptyLabel={emptyLabel}
+                                virtuosoRef={virtuosoRef}
+                            />
+                        </Combobox.Popup>
+                    </Combobox.Portal>
+                </Combobox.Content>
+            </Combobox.Root>
+        </div>
     );
 };
 
