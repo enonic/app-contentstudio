@@ -1,3 +1,5 @@
+import {expandLigatures} from '../../format/ligatures';
+
 /**
  * Checks whether a string is a valid project identifier.
  * Allows lowercase alphanumeric characters and hyphens,
@@ -8,17 +10,6 @@ export function validateProjectIdentifier(value: string): boolean {
 
     return regExp.test(value) && !value.endsWith('-');
 }
-
-/**
- * Characters that do not decompose via NFD normalization and
- * need explicit Latin-ASCII expansion. Covers Nordic (æ, ø),
- * German (ß), and other common European ligatures.
- */
-const LIGATURES: Record<string, string> = {
-    æ: 'ae', œ: 'oe', ß: 'ss', ø: 'o', đ: 'd', ł: 'l', ŋ: 'ng', þ: 'th',
-};
-
-const LIGATURE_RE = new RegExp(`[${Object.keys(LIGATURES).join('')}]`, 'g');
 
 /**
  * Converts an arbitrary string into a valid project identifier.
@@ -33,9 +24,7 @@ const LIGATURE_RE = new RegExp(`[${Object.keys(LIGATURES).join('')}]`, 'g');
  * @param isUserInput - Preserve a trailing hyphen for live typing.
  */
 export function prettifyProjectIdentifier(value: string, isUserInput?: boolean): string {
-    const prettified = value
-        .toLowerCase()
-        .replace(LIGATURE_RE, (ch) => LIGATURES[ch])
+    const prettified = expandLigatures(value.toLowerCase())
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')   // strip combining diacritical marks (é→e, ü→u)
         .replace(/[^a-z0-9]+/g, '-')       // replace non-alphanumeric runs with single hyphen

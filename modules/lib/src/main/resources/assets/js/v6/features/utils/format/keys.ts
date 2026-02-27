@@ -1,8 +1,11 @@
+import {expandLigatures} from './ligatures';
+
 /**
  * Normalizes text for use as keys (e.g., localStorage keys, identifiers).
  *
  * Transformation rules:
  * - Converts to lowercase
+ * - Expands ligatures (æ→ae, ß→ss, etc.)
  * - Replaces whitespace, hyphens, dots, slashes with underscores
  * - Removes all non-alphanumeric characters except underscores
  * - Collapses multiple underscores into one
@@ -23,8 +26,7 @@ export function normalize(text: string): string {
         return '';
     }
 
-    return text
-        .toLowerCase()
+    return expandLigatures(text.toLowerCase())
         .normalize('NFD') // Decompose accented characters
         .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
         .replace(/[\s\-./\\:]+/g, '_') // Replace separators with underscores
