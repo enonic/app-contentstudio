@@ -1,5 +1,5 @@
 import {Checkbox, cn, Combobox, ComboboxRootProps, Listbox, useCombobox} from '@enonic/ui';
-import {useState, ReactElement, useEffect, useMemo, useCallback} from 'react';
+import {useState, ReactElement, useEffect, useMemo, useCallback, Fragment, ReactNode} from 'react';
 import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
 import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {useStore} from '@nanostores/preact';
@@ -16,9 +16,12 @@ type PrincipalSelectorProps = {
     selectionMode: ComboboxRootProps['selectionMode'];
     allowedTypes: PrincipalType[];
     customFilter?: (principal: Principal) => boolean;
+    label?: string;
     placeholder?: string;
     emptyLabel?: string;
+    usePortal?: boolean;
     closeOnBlur?: boolean;
+    disabled?: boolean;
     className?: string;
 };
 
@@ -28,9 +31,12 @@ export const PrincipalSelector = ({
     selectionMode,
     allowedTypes,
     customFilter = (_: Principal) => true,
+    label,
     placeholder,
     emptyLabel,
+    usePortal = false,
     closeOnBlur,
+    disabled,
     className,
 }: PrincipalSelectorProps): ReactElement => {
     const {principals} = useStore($principals);
@@ -64,7 +70,8 @@ export const PrincipalSelector = ({
     );
 
     return (
-        <div data-component={PRINCIPAL_SELECTOR_NAME} className={cn('flex', className)}>
+        <div data-component={PRINCIPAL_SELECTOR_NAME} className={cn('flex flex-col gap-2', className)}>
+            {label && <label className="font-semibold">{label}</label>}
             <Combobox.Root
                 value={searchValue}
                 onChange={setSearchValue}
@@ -72,6 +79,7 @@ export const PrincipalSelector = ({
                 onSelectionChange={handleOnSelectionChange}
                 selectionMode={selectionMode}
                 closeOnBlur={closeOnBlur}
+                disabled={disabled}
                 contentType="listbox"
             >
                 <Combobox.Content className="w-full">
@@ -83,11 +91,11 @@ export const PrincipalSelector = ({
                             <Combobox.Toggle />
                         </Combobox.Search>
                     </Combobox.Control>
-                    <Combobox.Portal>
+                    <ConditionalPortal usePortal={usePortal}>
                         <Combobox.Popup>
                             <PrincipalSelectorList items={filtered} selectionMode={selectionMode} emptyLabel={emptyLabel} />
                         </Combobox.Popup>
-                    </Combobox.Portal>
+                    </ConditionalPortal>
                 </Combobox.Content>
             </Combobox.Root>
         </div>
@@ -129,7 +137,9 @@ const PrincipalSelectorList = (props: PrincipalSelectorListProps): ReactElement 
                     return (
                         <Listbox.Item key={key} value={key}>
                             <PrincipalLabel principal={principal} className="flex-1" />
-                            <Checkbox checked={selectionArray.includes(key)} onCheckedChange={() => handleOnCheckedChange(key)} />
+                            {selectionMode !== 'single' && (
+                                <Checkbox checked={selectionArray.includes(key)} onCheckedChange={() => handleOnCheckedChange(key)} />
+                            )}
                         </Listbox.Item>
                     );
                 })}
@@ -150,4 +160,11 @@ const encodeToValidDomId = (key: string): string => {
 
 const decodeFromValidDomId = (key: string): string => {
     return key.replaceAll('_', ':');
+};
+
+const ConditionalPortal = ({usePortal, children}: {usePortal: boolean; children: ReactNode}): ReactElement => {
+    if (usePortal) {
+        return <Combobox.Portal>{children}</Combobox.Portal>;
+    }
+    return <Fragment>{children}</Fragment>;
 };

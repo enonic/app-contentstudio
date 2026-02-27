@@ -146,9 +146,8 @@ export const NewProjectDialogAccessStepContent = ({locked = false}: {locked?: bo
 
             {accessModeValue === 'custom' && (
                 <div className="mt-7.5">
-                    <label className="block font-semibold mb-2">{permissionsLabel}</label>
-
                     <PrincipalSelector
+                        label={permissionsLabel}
                         selection={selection}
                         onSelectionChange={setSelection}
                         selectionMode="staged"
