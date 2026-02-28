@@ -14,7 +14,7 @@ export default defineConfig(({mode}) => {
       cssMinify: isProduction,
       rollupOptions: {
         input: {
-          'styles/tailwind': path.resolve(__dirname, 'src/main/resources/assets/styles/tailwind.css'),
+          'styles/index': path.resolve(__dirname, 'src/main/resources/assets/styles/index.css'),
         },
         output: {
           assetFileNames: '[name][extname]',
