@@ -54,7 +54,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew $GRADLE_ARGS
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: contentstudio
           path: modules/app/build/libs/contentstudio.jar
@@ -104,7 +104,7 @@ jobs:
           SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
           SLACK_COLOR: ${{ job.status }}
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: 'ui-test-report-${{ matrix.suite }}'
