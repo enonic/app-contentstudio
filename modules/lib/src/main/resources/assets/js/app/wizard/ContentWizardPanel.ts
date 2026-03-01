@@ -160,6 +160,7 @@ import {
     setMixinsDescriptors as setWizardMixinsDescriptors,
     setPersistedContent as setWizardPersistedContent,
 } from '../../v6/features/store/wizardContent.store';
+import {openRenameContentDialog} from '../../v6/features/store/dialogs/renameContentDialog.store';
 import {setWizardToolbarContentPath, setWizardToolbarIsPathAvailable} from '../../v6/features/store/wizardToolbar.store';
 import {$isContextOpen, setContextOpen} from '../../v6/features/store/contextWidgets.store';
 import {setWizardContent} from '../../v6/features/store/context/contextContent.store';
@@ -457,6 +458,9 @@ export class ContentWizardPanel
         this.listenToContentEvents();
         this.handleSiteConfigApply();
         this.handleBrokenImageInTheWizard();
+        this.getWizardHeader().onContentPathClick(() => {
+            this.requestContentPathRename();
+        });
         this.getWizardHeader().onPropertyChanged(this.dataChangedHandler);
         this.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
             const propertyName = event.getPropertyName();
@@ -492,14 +496,6 @@ export class ContentWizardPanel
         this.getWizardHeader().onNameCheckIsOff(() => {
             saveAction.setLocked(false);
             saveAction.setEnabled(this.hasUnsavedChanges());
-        });
-
-        this.getWizardHeader().onRenamed(() => {
-            setWizardToolbarContentPath(this.normalizeToolbarContentPath(this.getWizardHeader().getName()));
-            setDraftName(this.resolveContentNameForUpdateRequest());
-            this.isRename = true;
-            saveAction.setEnabled(true);
-            saveAction.execute();
         });
 
         const updateSaveInLivePanel = AppHelper.debounce(() => {
@@ -669,7 +665,9 @@ export class ContentWizardPanel
         return new ContentWizardToolbar({
             actions: this.wizardActions,
             workflowStateIconsManager: this.workflowStateManager,
-            //className: 'content-wizard-toolbar',
+            onContentPathClick: () => {
+                this.requestContentPathRename();
+            },
             compareVersionsPreHook: () => {
                 if (!this.hasUnsavedChanges()) {
                     return Q();
@@ -2717,6 +2715,39 @@ export class ContentWizardPanel
 
     private normalizeToolbarContentPath(pathName: string): string {
         return pathName?.startsWith(ContentUnnamed.UNNAMED_PREFIX) ? '' : pathName;
+    }
+
+    private requestContentPathRename(): void {
+        if (!this.isItemPersisted()) {
+            return;
+        }
+
+        const persistedPath = this.getPersistedItem()?.getPath();
+        if (!persistedPath) {
+            return;
+        }
+
+        const initialName = this.normalizeToolbarContentPath(this.getWizardHeader().getName()) ||
+                            this.normalizeToolbarContentPath(persistedPath.getName());
+
+        void openRenameContentDialog({
+            parentPath: persistedPath.getParentPath(),
+            initialName,
+            isPublished: this.wizardActions.isOnline(),
+        }).then((newName?: string) => {
+            if (!newName) {
+                return;
+            }
+
+            this.getWizardHeader().applyRenamedName(newName);
+            setWizardToolbarContentPath(this.normalizeToolbarContentPath(this.getWizardHeader().getName()));
+            setDraftName(this.resolveContentNameForUpdateRequest());
+            this.isRename = true;
+
+            const saveAction: ContentSaveAction = this.getWizardActions().getSaveAction();
+            saveAction.setEnabled(true);
+            saveAction.execute();
+        });
     }
 
     protected checkIfEditIsAllowed(): Q.Promise<boolean> {

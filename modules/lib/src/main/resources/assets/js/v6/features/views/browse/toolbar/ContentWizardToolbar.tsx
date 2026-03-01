@@ -32,12 +32,14 @@ export type ContentWizardToolbarViewProps = {
     requestPublishAction: Action;
     openRequestAction: Action;
     createIssueAction: Action;
+    className?: string;
 
 };
 
 const CONTENT_WIZARD_TOOLBAR_NAME = 'ContentWizardToolbar';
 
 export const ContentWizardToolbar = ({
+                                             className,
                                              onProjectBack,
                                              onLayersClick,
                                              onContentPathClick,
@@ -62,6 +64,7 @@ export const ContentWizardToolbar = ({
         collaborators,
         publishStatus,
         contentPath,
+        canRenameContentPath,
         isPathAvailable,
         workflowStatus,
         isLayerProject
@@ -74,17 +77,22 @@ export const ContentWizardToolbar = ({
             'collaborators',
             'publishStatus',
             'contentPath',
+            'canRenameContentPath',
             'isPathAvailable',
             'workflowStatus',
             'isLayerProject'
         ]
     });
-    const bp = useBreakpoints();
 
-    const projectViewLabel = projectLabel || useI18n('field.root');
+
+    const bp = useBreakpoints();
     const layersLabel = useI18n('widget.layers.displayName');
     const toolbarLabel = useI18n('wcag.contenteditor.toolbar.label');
-    const contentPathLabel = contentPath || `<${useI18n('field.path')}>`;
+    const projectRoot = useI18n('field.root');
+    const fieldPathLabel = useI18n('field.path');
+    const pathLabel = `<${fieldPathLabel}>`;
+    const projectViewLabel = projectLabel || projectRoot;
+    const contentPathLabel = contentPath || pathLabel;
 
     const publishSplitActions: SplitActionButtonAction[] = [
         {action: markAsReadyAction},
@@ -122,7 +130,10 @@ export const ContentWizardToolbar = ({
         <Toolbar data-component={CONTENT_WIZARD_TOOLBAR_NAME}>
             <Toolbar.Container
                 aria-label={toolbarLabel}
-                className='w-full h-15 px-1 md:pl-2 md:pr-5 py-1.75 flex items-center gap-0 sm:gap-0.5 md:gap-1 lg:gap-2.5 border-b border-bdr-soft bg-surface-neutral'
+                className={cn(
+                    'w-full h-15 px-1 md:pl-2 md:pr-5 py-1.75 flex items-center gap-0 sm:gap-0.5 md:gap-1 lg:gap-2.5 border-b border-bdr-soft bg-surface-neutral',
+                    className,
+                )}
             >
                 <Toolbar.Item asChild>
                     <Button
@@ -133,7 +144,7 @@ export const ContentWizardToolbar = ({
                         className='min-w-fit pr-2.75 sm:pr-3.5'
                     >
                         <ProjectIcon
-                            projectName={projectName || projectViewLabel}
+                            projectName={projectName ?? projectViewLabel}
                             language={projectLanguage || undefined}
                             hasIcon={projectHasIcon}
                             isLayer={isLayerProject}
@@ -176,6 +187,7 @@ export const ContentWizardToolbar = ({
                             className={cn('hidden sm:inline-flex min-w-0 max-w-full px-1.5 md:px-2.75',
                                 !isPathAvailable && 'text-error')}
                             title={contentPathLabel}
+                            disabled={!canRenameContentPath}
                             onClick={onContentPathClick}
                         >
                             <span className='min-w-0 max-w-full overflow-hidden text-ellipsis whitespace-nowrap'>
@@ -189,6 +201,7 @@ export const ContentWizardToolbar = ({
                             icon={Link2}
                             aria-label={contentPathLabel}
                             title={contentPathLabel}
+                            disabled={!canRenameContentPath}
                             onClick={onContentPathClick}
                             className={cn('sm:hidden shrink-0 size-8', !isPathAvailable && 'text-error')}
                         />

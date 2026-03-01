@@ -17,8 +17,6 @@ import {AiAnimationTool} from '@enonic/lib-admin-ui/ai/tool/AiAnimationTool';
 import {AI} from '../ai/AI';
 import {AiDialogIconTool} from '@enonic/lib-admin-ui/ai/tool/AiDialogIconTool';
 import {ContentUnnamed} from '../content/ContentUnnamed';
-import {openRenameContentDialog} from '../../v6/features/store/dialogs/renameContentDialog.store';
-import {$wizardToolbar} from '../../v6/features/store/wizardToolbar.store';
 
 export class ContentWizardHeader
     extends WizardHeaderWithDisplayNameAndName {
@@ -39,7 +37,7 @@ export class ContentWizardHeader
 
     private nameCheckIsOffListeners: (() => void) [] = [];
 
-    private renamedListeners: (() => void) [] = [];
+    private contentPathClickListeners: (() => void) [] = [];
 
     constructor() {
         super();
@@ -96,30 +94,11 @@ export class ContentWizardHeader
         });
 
         this.pathEl.onClicked(() => {
-            if (!this.persistedContent) {
+            if (!this.persistedContent?.getPath()) {
                 return;
             }
 
-            const persistedPath = this.persistedContent.getPath();
-            if (!persistedPath) {
-                return;
-            }
-
-            const initialName = this.normalizeNameForRename(this.getName()) || this.normalizeNameForRename(persistedPath.getName());
-
-            void openRenameContentDialog({
-                parentPath: persistedPath.getParentPath(),
-                initialName,
-                isPublished: $wizardToolbar.get().isContentOnline,
-            }).then((newName?: string) => {
-                if (!newName) {
-                    return;
-                }
-
-                this.setName(newName, true); // setting silently to avoid duplication check
-                this.nameEl.show(); // using workaround to trigger AutosizeTextInput's resize
-                this.notifyRenamed();
-            });
+            this.notifyContentPathClicked();
         });
 
         this.debouncedNameUniqueChecker = AppHelper.debounce(() => {
@@ -286,19 +265,24 @@ export class ContentWizardHeader
         });
     }
 
-    onRenamed(listener: () => void) {
-        this.renamedListeners.push(listener);
+    onContentPathClick(listener: () => void) {
+        this.contentPathClickListeners.push(listener);
     }
 
-    unRenamed(listener: () => void) {
-        this.renamedListeners = this.renamedListeners.filter((curr:  () => void) => {
+    unContentPathClick(listener: () => void) {
+        this.contentPathClickListeners = this.contentPathClickListeners.filter((curr:  () => void) => {
             return curr !== listener;
         });
         return this;
     }
 
-    private notifyRenamed() {
-        this.renamedListeners.forEach((listener: () => void) => {
+    applyRenamedName(value: string): void {
+        this.setName(value, true); // setting silently to avoid duplication check
+        this.nameEl.show(); // using workaround to trigger AutosizeTextInput's resize
+    }
+
+    private notifyContentPathClicked() {
+        this.contentPathClickListeners.forEach((listener: () => void) => {
             listener.call(this);
         });
     }

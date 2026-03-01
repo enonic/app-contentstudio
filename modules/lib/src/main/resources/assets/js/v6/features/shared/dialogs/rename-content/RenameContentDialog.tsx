@@ -1,6 +1,6 @@
-import {Button, Dialog, Input} from '@enonic/ui';
+import {Button, cn, Dialog, Input} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {type ReactElement} from 'react';
+import {type ReactElement, useRef} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {
     $canSubmitRenameContentDialog,
@@ -13,6 +13,7 @@ import {
 const RENAME_CONTENT_DIALOG_NAME = 'RenameContentDialog';
 
 export const RenameContentDialog = (): ReactElement => {
+    const inputRef = useRef<HTMLInputElement>(null);
     const {
         open,
         mode,
@@ -37,7 +38,7 @@ export const RenameContentDialog = (): ReactElement => {
 
     const canSubmit = useStore($canSubmitRenameContentDialog);
 
-    const renamePublishedTitle = useI18n('dialog.rename.title');
+    const renamePublishedTitle = useI18n('dialog.rename.published.title');
     const renameTitle = useI18n('dialog.rename.title');
     const setNameTitle = useI18n('dialog.rename.setName.title');
     const newNameLabel = useI18n('dialog.rename.label');
@@ -45,26 +46,27 @@ export const RenameContentDialog = (): ReactElement => {
     const checkingLabel = useI18n('dialog.state.checking');
     const availableLabel = useI18n('path.available');
     const notAvailableLabel = useI18n('path.not.available');
-    const cancelLabel = useI18n('action.cancel');
     const renameLabel = useI18n('action.rename');
 
     const title = mode === 'rename-published'
-        ? renamePublishedTitle
-        : mode === 'set-name'
-          ? setNameTitle
-          : renameTitle;
+                  ? renamePublishedTitle
+                  : mode === 'set-name'
+                    ? setNameTitle
+                    : renameTitle;
 
     const inputLabel = mode === 'set-name' ? nameLabel : newNameLabel;
     const trimmedValue = value.trim();
     const hasChanges = trimmedValue.length > 0 && trimmedValue !== initialName;
     const inputError = hasChanges && !checkingAvailability && !isPathAvailable ? notAvailableLabel : undefined;
     const helperText = !hasChanges
-        ? undefined
-        : checkingAvailability
-          ? checkingLabel
-          : isPathAvailable
-            ? availableLabel
-            : undefined;
+                       ? undefined
+                       : checkingAvailability
+                         ? checkingLabel
+                         : isPathAvailable
+                           ? availableLabel
+                           : inputError
+                             ? notAvailableLabel
+                             : undefined;
 
     return (
         <Dialog.Root
@@ -76,36 +78,44 @@ export const RenameContentDialog = (): ReactElement => {
             }}
         >
             <Dialog.Portal>
-                <Dialog.Overlay />
+                <Dialog.Overlay/>
                 <Dialog.Content
                     className='w-full h-full gap-7.5 sm:h-fit md:min-w-180 md:max-w-184'
                     data-component={RENAME_CONTENT_DIALOG_NAME}
+                    onOpenAutoFocus={(event) => {
+                        event.preventDefault();
+                        inputRef.current?.focus({focusVisible: true});
+                    }}
                 >
-                    <Dialog.DefaultHeader title={title} description={path} withClose />
+                    <Dialog.DefaultHeader title={title} withClose>
+                        <Dialog.Description className='text-subtle'>
+                            {path}
+                        </Dialog.Description>
+                    </Dialog.DefaultHeader>
                     <Dialog.Body className='flex flex-col gap-2.5 overflow-visible'>
                         <Input
-                            autoFocus
+                            ref={inputRef}
                             label={inputLabel}
                             value={value}
                             placeholder={placeholder}
-                            error={inputError}
                             onChange={(event) => {
                                 setRenameContentDialogValue(event.currentTarget.value);
                             }}
+                            endAddon={
+                                helperText ? (
+                                    <span className={cn(
+                                        'whitespace-nowrap text-xs font-medium',
+                                        checkingAvailability && 'text-subtle',
+                                        !checkingAvailability && isPathAvailable && 'text-success',
+                                        inputError && 'text-error',
+                                    )}>
+                                        {helperText}
+                                    </span>
+                                ) : undefined
+                            }
                         />
-                        {helperText && (
-                            <p className='text-sm text-subtle'>
-                                {helperText}
-                            </p>
-                        )}
                     </Dialog.Body>
-                    <Dialog.Footer className='justify-between'>
-                        <Button
-                            size='lg'
-                            variant='outline'
-                            label={cancelLabel}
-                            onClick={closeRenameContentDialog}
-                        />
+                    <Dialog.Footer>
                         <Button
                             size='lg'
                             variant='solid'

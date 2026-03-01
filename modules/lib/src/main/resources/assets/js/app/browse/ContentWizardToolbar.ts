@@ -45,7 +45,8 @@ import {
 export type ContentWizardToolbarConfig = ToolbarConfig & {
     actions: ContentWizardActions;
     workflowStateIconsManager: WorkflowStateManager;
-    compareVersionsPreHook?: () => Q.Promise<void>
+    compareVersionsPreHook?: () => Q.Promise<void>;
+    onContentPathClick?: () => void;
 };
 
 class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
@@ -80,6 +81,7 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
         const actions: ContentWizardActions = config.actions;
 
         super({
+            className: config.className ?? 'content-wizard-toolbar',
             onProjectBack: () => {
                 this.handleProjectBackClicked();
             },
@@ -104,7 +106,7 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
         });
 
         this.config = config;
-        this.setClass('content-wizard-toolbar-element');
+        this.getHTMLElement().classList.remove('contents');
 
         if (this.currentUserKey) {
             this.collaboratorDisplayNames.set(this.currentUserKey, this.currentUser.getDisplayName());
@@ -342,10 +344,11 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
     }
 
     private handleContentPathClicked(): void {
-        const wizardPanelEl = this.getHTMLElement().closest('.content-wizard-panel')
-                              || document.querySelector('.content-wizard-panel');
-        const legacyPathEl = wizardPanelEl?.querySelector<HTMLElement>('.wizard-header .wizard-header-bottom-row .path');
-        legacyPathEl?.click();
+        if (!$wizardToolbar.get().canRenameContentPath) {
+            return;
+        }
+
+        this.config.onContentPathClick?.();
     }
 
     private handleLayersClicked(): void {
