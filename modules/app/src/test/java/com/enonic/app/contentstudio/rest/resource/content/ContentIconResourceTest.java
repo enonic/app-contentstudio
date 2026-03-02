@@ -72,7 +72,7 @@ public class ContentIconResourceTest
     public void get_from_thumbnail()
         throws Exception
     {
-        Content content = createContent( "content-id", ContentTypeName.from( "my-content-type" ), Attachment.create()
+        Content content = createContent( "content-id", ContentTypeName.from( "my:content-type" ), Attachment.create()
             .mimeType( "image/png" )
             .size( 128 )
             .name( AttachmentNames.THUMBNAIL )
@@ -175,7 +175,7 @@ public class ContentIconResourceTest
     public void read_image_error()
         throws Exception
     {
-        Content content = createContent( "content-id", ContentTypeName.from( "my-content-type" ), Attachment.create()
+        Content content = createContent( "content-id", ContentTypeName.from( "my:content-type" ), Attachment.create()
             .mimeType( "image/png" )
             .size( 128 )
             .name( AttachmentNames.THUMBNAIL )
@@ -214,7 +214,7 @@ public class ContentIconResourceTest
 
     private Content createContent( final String id )
     {
-        return this.createContent( id,  ContentTypeName.from( "my-content-type" ), null );
+        return this.createContent( id,  ContentTypeName.from( "my:content-type" ), null );
     }
 
     private Media.Builder createMediaBuilder( final Attachment attachment )

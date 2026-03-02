@@ -41,7 +41,7 @@ public class MacroIconResourceTest
         throws Exception
     {
         MockRestResponse response = request().
-                path( "macro/icon/non-existing" ).
+                path( "macro/icon/non:existing" ).
                 get();
 
         final byte[] defaultMacroImage = HELPER.getDefaultMacroImage();

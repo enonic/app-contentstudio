@@ -292,7 +292,7 @@ public class IssueNotificationsSenderImplTest
         when( contentService.compare( any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
         when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) )
             .thenReturn( ContentType.create()
-                             .name( "mycontenttype" )
+                             .name( "my:contenttype" )
                              .icon( Icon.from( new byte[]{1}, "image/svg+xml", Instant.now() ) )
                              .setBuiltIn( true )
                              .build() );
@@ -340,7 +340,7 @@ public class IssueNotificationsSenderImplTest
         when( contentService.compare( any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
         when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) )
             .thenReturn( ContentType.create()
-                             .name( "mycontenttype" )
+                             .name( "my:contenttype" )
                              .icon( Icon.from( new byte[]{1}, "image/svg+xml", Instant.now() ) )
                              .setBuiltIn( true )
                              .build() );
@@ -390,7 +390,7 @@ public class IssueNotificationsSenderImplTest
         when( contentService.compare( any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
         when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) )
             .thenReturn( ContentType.create()
-                             .name( "mycontenttype" )
+                             .name( "my:contenttype" )
                              .icon( Icon.from( new byte[]{1}, "image/svg+xml", Instant.now() ) )
                              .setBuiltIn( true )
                              .build() );
@@ -440,7 +440,7 @@ public class IssueNotificationsSenderImplTest
         when( contentService.compare( any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
         when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) )
             .thenReturn( ContentType.create()
-                             .name( "mycontenttype" )
+                             .name( "my:contenttype" )
                              .icon( Icon.from( new byte[]{1}, "image/svg+xml", Instant.now() ) )
                              .setBuiltIn( true )
                              .build() );
@@ -489,7 +489,7 @@ public class IssueNotificationsSenderImplTest
         when( contentService.compare( any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
         when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) )
             .thenReturn( ContentType.create()
-                             .name( "mycontenttype" )
+                             .name( "my:contenttype" )
                              .icon( Icon.from( new byte[]{1}, "image/svg+xml", Instant.now() ) )
                              .setBuiltIn( true )
                              .build() );
@@ -538,7 +538,7 @@ public class IssueNotificationsSenderImplTest
         when( contentService.compare( any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
         when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) )
             .thenReturn( ContentType.create()
-                             .name( "mycontenttype" )
+                             .name( "my:contenttype" )
                              .icon( Icon.from( new byte[]{1}, "image/svg+xml", Instant.now() ) )
                              .setBuiltIn( true )
                              .build() );
@@ -653,7 +653,7 @@ public class IssueNotificationsSenderImplTest
         when( contentService.compare( any( CompareContentsParams.class ) ) ).thenReturn( compareResults );
         when( contentTypeService.getByName( isA( GetContentTypeParams.class ) ) )
             .thenReturn( ContentType.create()
-                             .name( "mycontenttype" )
+                             .name( "my:contenttype" )
                              .icon( Icon.from( new byte[]{1}, "image/svg+xml", Instant.now() ) )
                              .setBuiltIn( true )
                              .build() );
@@ -733,7 +733,7 @@ public class IssueNotificationsSenderImplTest
     {
         final String userId = UUID.randomUUID().toString();
         final User.Builder builder =
-            User.create().key( PrincipalKey.ofUser( IdProviderKey.createDefault(), userId ) ).login( userId ).displayName( "Some User" );
+            User.create().key( PrincipalKey.ofUser( IdProviderKey.system(), userId ) ).login( userId ).displayName( "Some User" );
         if ( email != null )
         {
             builder.email( email );

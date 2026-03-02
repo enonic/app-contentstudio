@@ -92,9 +92,9 @@ public class MacroResourceTest
     public void testGetByApps()
         throws Exception
     {
-        final MacroDescriptor macroDescriptor1 = newMacroDescriptor( "my-app1:macro1", "A macro" );
-        final MacroDescriptor macroDescriptor2 = newMacroDescriptor( "my-app2:macro2", "B macro" );
-        final MacroDescriptor macroDescriptor3 = newMacroDescriptor( "my-app3:macro3", "C macro" );
+        final MacroDescriptor macroDescriptor1 = newMacroDescriptor( "my.app1:macro1", "A macro" );
+        final MacroDescriptor macroDescriptor2 = newMacroDescriptor( "my.app2:macro2", "B macro" );
+        final MacroDescriptor macroDescriptor3 = newMacroDescriptor( "my.app3:macro3", "C macro" );
 
         when( this.macroDescriptorService.getByApplication( ApplicationKey.SYSTEM ) )
             .thenReturn( MacroDescriptors.from( macroDescriptor1 ) );
@@ -127,9 +127,9 @@ public class MacroResourceTest
                 build() ).
             build();
 
-        final MacroDescriptor macroDescriptor1 = newMacroDescriptor( "my-app1:macro1", "A macro", "key.a.display-name", descriptorForm );
-        final MacroDescriptor macroDescriptor2 = newMacroDescriptor( "my-app2:macro2", "B macro", "key.b.display-name", "key.description" );
-        final MacroDescriptor macroDescriptor3 = newMacroDescriptor( "my-app3:macro3", "C macro", "key.c.display-name" );
+        final MacroDescriptor macroDescriptor1 = newMacroDescriptor( "my.app1:macro1", "A macro", "key.a.display-name", descriptorForm );
+        final MacroDescriptor macroDescriptor2 = newMacroDescriptor( "my.app2:macro2", "B macro", "key.b.display-name", "key.description" );
+        final MacroDescriptor macroDescriptor3 = newMacroDescriptor( "my.app3:macro3", "C macro", "key.c.display-name" );
 
         when( this.macroDescriptorService.getByApplication( ApplicationKey.SYSTEM ) )
             .thenReturn( MacroDescriptors.from( macroDescriptor1 ) );

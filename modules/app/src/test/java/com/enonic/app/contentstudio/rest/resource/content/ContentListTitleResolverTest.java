@@ -27,7 +27,7 @@ class ContentListTitleResolverTest
     void resolve()
     {
         final ContentType contentType = ContentType.create()
-            .name( "contentType" )
+            .name( "my:contentType" )
             .schemaConfig(
                 GenericValue.newObject().put( "listTitleExpression", "${data.val1} ${missing} ${data.val1} ${displayName}" ).build() )
             .superType( ContentTypeName.unstructured() )
@@ -47,7 +47,7 @@ class ContentListTitleResolverTest
     @Test
     void resolve_no_list_title_expression_falls_back_to_displayName()
     {
-        final ContentType contentType = ContentType.create().name( "contentType" ).superType( ContentTypeName.unstructured() ).build();
+        final ContentType contentType = ContentType.create().name( "my:contentType" ).superType( ContentTypeName.unstructured() ).build();
 
         final Content content = Content.create().parentPath( ContentPath.ROOT ).name( "mycontent" ).displayName( "my content" ).build();
 

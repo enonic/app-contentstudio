@@ -128,7 +128,7 @@ public class IssueResourceTest
         securityService = mock( SecurityService.class );
         projectService = mock( ProjectService.class );
         when( securityService.getAllMemberships( isA( PrincipalKey.class ) ) )
-            .thenReturn( PrincipalKeys.from( "role:system:one" ) );
+            .thenReturn( PrincipalKeys.from( "role:system.one" ) );
         when( securityService.getUser( User.anonymous().getKey() ) ).thenReturn( Optional.of( User.anonymous() ) );
         when( projectService.getPermissions( isA( ProjectName.class ) ) ).thenReturn( createProjectPermissions() );
 

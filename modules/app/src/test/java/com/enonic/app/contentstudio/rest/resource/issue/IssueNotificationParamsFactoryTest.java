@@ -90,7 +90,7 @@ public class IssueNotificationParamsFactoryTest
         final ContentType contentType = ContentType.create()
             .icon( Icon.from( new byte[]{1, 2, 3}, "image/svg+xml", Instant.now() ) )
             .setBuiltIn()
-            .name( "folder" )
+            .name( "base:folder" )
             .build();
 
         when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
@@ -138,7 +138,7 @@ public class IssueNotificationParamsFactoryTest
         final ContentType contentType = ContentType.create()
             .icon( Icon.from( new byte[]{1, 2, 3}, "image/svg+xml", Instant.now() ) )
             .setBuiltIn()
-            .name( "folder" )
+            .name( "base:folder" )
             .build();
 
         when( securityService.getUser( issue.getModifier() ) ).thenReturn( Optional.of( modifier ) );
@@ -317,7 +317,7 @@ public class IssueNotificationParamsFactoryTest
     {
         final String userId = UUID.randomUUID().toString();
         return User.create()
-            .key( PrincipalKey.ofUser( IdProviderKey.createDefault(), userId ) )
+            .key( PrincipalKey.ofUser( IdProviderKey.system(), userId ) )
             .login( userId )
             .email( "some@user.com" )
             .displayName( "Some User" )
@@ -328,7 +328,7 @@ public class IssueNotificationParamsFactoryTest
     {
         final String userId = UUID.randomUUID().toString();
         return User.create()
-            .key( PrincipalKey.ofUser( IdProviderKey.createDefault(), userId ) )
+            .key( PrincipalKey.ofUser( IdProviderKey.system(), userId ) )
             .login( userId )
             .displayName( "noemail" )
             .build();
