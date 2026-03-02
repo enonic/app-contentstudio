@@ -101,11 +101,7 @@ export class UpdatePersistedContentWithStoreRoutine
     }
 
     private syncPortalBaseUrlInSiteConfig(data: PropertyTree, baseUrl: string | null): void {
-        if (baseUrl == null) {
-            return;
-        }
-
-        if (StringHelper.isBlank(baseUrl)) {
+        if (baseUrl == null || StringHelper.isBlank(baseUrl)) {
             this.removePortalBaseUrlFromSiteConfig(data);
             return;
         }
