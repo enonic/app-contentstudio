@@ -6,6 +6,7 @@ import {
     $canSubmitRenameContentDialog,
     $renameContentDialog,
     closeRenameContentDialog,
+    type RenameContentDialogAvailabilityStatus,
     setRenameContentDialogValue,
     submitRenameContentDialog,
 } from '../../../store/dialogs/renameContentDialog.store';
@@ -18,21 +19,17 @@ export const RenameContentDialog = (): ReactElement => {
         open,
         mode,
         path,
-        initialName,
         value,
         placeholder,
-        checkingAvailability,
-        isPathAvailable,
+        availabilityStatus,
     } = useStore($renameContentDialog, {
         keys: [
             'open',
             'mode',
             'path',
-            'initialName',
             'value',
             'placeholder',
-            'checkingAvailability',
-            'isPathAvailable',
+            'availabilityStatus',
         ],
     });
 
@@ -55,18 +52,13 @@ export const RenameContentDialog = (): ReactElement => {
                     : renameTitle;
 
     const inputLabel = mode === 'set-name' ? nameLabel : newNameLabel;
-    const trimmedValue = value.trim();
-    const hasChanges = trimmedValue.length > 0 && trimmedValue !== initialName;
-    const inputError = hasChanges && !checkingAvailability && !isPathAvailable ? notAvailableLabel : undefined;
-    const helperText = !hasChanges
-                       ? undefined
-                       : checkingAvailability
-                         ? checkingLabel
-                         : isPathAvailable
-                           ? availableLabel
-                           : inputError
-                             ? notAvailableLabel
-                             : undefined;
+    const availabilityLabels: Record<RenameContentDialogAvailabilityStatus, string> = {
+        'not-available': notAvailableLabel,
+        checking: checkingLabel,
+        available: availableLabel,
+    };
+    const hasAvailabilityError = availabilityStatus === 'not-available';
+    const helperText = availabilityStatus ? availabilityLabels[availabilityStatus] : undefined;
 
     return (
         <Dialog.Root
@@ -105,9 +97,9 @@ export const RenameContentDialog = (): ReactElement => {
                                 helperText ? (
                                     <span className={cn(
                                         'whitespace-nowrap text-xs font-medium',
-                                        checkingAvailability && 'text-subtle',
-                                        !checkingAvailability && isPathAvailable && 'text-success',
-                                        inputError && 'text-error',
+                                        availabilityStatus === 'checking' && 'text-subtle',
+                                        availabilityStatus === 'available' && 'text-success',
+                                        hasAvailabilityError && 'text-error',
                                     )}>
                                         {helperText}
                                     </span>

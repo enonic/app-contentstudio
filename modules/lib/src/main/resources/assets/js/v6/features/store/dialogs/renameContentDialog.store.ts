@@ -5,6 +5,7 @@ import {ContentPath} from '../../../../app/content/ContentPath';
 import {ContentExistsByPathRequest} from '../../../../app/resource/ContentExistsByPathRequest';
 
 export type RenameContentDialogMode = 'rename-published' | 'rename' | 'set-name';
+export type RenameContentDialogAvailabilityStatus = 'not-available' | 'checking' | 'available';
 
 type RenameContentDialogStore = {
     open: boolean;
@@ -14,8 +15,7 @@ type RenameContentDialogStore = {
     value: string;
     placeholder: string;
     parentPath?: ContentPath;
-    checkingAvailability: boolean;
-    isPathAvailable: boolean;
+    availabilityStatus?: RenameContentDialogAvailabilityStatus;
 };
 
 type OpenRenameContentDialogParams = {
@@ -32,17 +32,19 @@ const initialState: RenameContentDialogStore = {
     value: '',
     placeholder: '',
     parentPath: undefined,
-    checkingAvailability: false,
-    isPathAvailable: true,
+    availabilityStatus: undefined,
 };
 
 export const $renameContentDialog = map<RenameContentDialogStore>(structuredClone(initialState));
 
-export const $canSubmitRenameContentDialog = computed($renameContentDialog, (state): boolean => {
+const hasRenameContentDialogChanges = (state: RenameContentDialogStore): boolean => {
     const value = state.value.trim();
-    const hasChanges = value.length > 0 && value !== state.initialName;
 
-    return state.open && hasChanges && state.isPathAvailable && !state.checkingAvailability;
+    return value.length > 0 && value !== state.initialName;
+};
+
+export const $canSubmitRenameContentDialog = computed($renameContentDialog, (state): boolean => {
+    return state.open && hasRenameContentDialogChanges(state) && state.availabilityStatus === 'available';
 });
 
 let availabilityRequestId = 0;
@@ -85,8 +87,7 @@ const runAvailabilityCheck = async (requestId: number, path: ContentPath): Promi
 
         $renameContentDialog.set({
             ...state,
-            checkingAvailability: false,
-            isPathAvailable: !exists,
+            availabilityStatus: exists ? 'not-available' : 'available',
         });
     } catch (error) {
         if (requestId !== availabilityRequestId) {
@@ -102,8 +103,7 @@ const runAvailabilityCheck = async (requestId: number, path: ContentPath): Promi
 
         $renameContentDialog.set({
             ...state,
-            checkingAvailability: false,
-            isPathAvailable: false,
+            availabilityStatus: 'not-available',
         });
     }
 };
@@ -115,7 +115,7 @@ const scheduleAvailabilityCheck = (name: string, parentPath: ContentPath): void 
     const state = $renameContentDialog.get();
     $renameContentDialog.set({
         ...state,
-        checkingAvailability: true,
+        availabilityStatus: 'checking',
     });
 
     availabilityTimer = setTimeout(() => {
@@ -178,8 +178,7 @@ export const setRenameContentDialogValue = (value: string): void => {
         availabilityRequestId += 1;
         $renameContentDialog.set({
             ...$renameContentDialog.get(),
-            checkingAvailability: false,
-            isPathAvailable: true,
+            availabilityStatus: undefined,
         });
         return;
     }
@@ -190,8 +189,7 @@ export const setRenameContentDialogValue = (value: string): void => {
 export const submitRenameContentDialog = (): void => {
     const state = $renameContentDialog.get();
     const nextName = state.value.trim();
-    const hasChanges = nextName.length > 0 && nextName !== state.initialName;
-    if (!hasChanges || !state.isPathAvailable || state.checkingAvailability) {
+    if (!hasRenameContentDialogChanges(state) || state.availabilityStatus !== 'available') {
         return;
     }
 
