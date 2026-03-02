@@ -51,8 +51,8 @@ export const NewProjectDialogApplicationStepContent = ({locked = false}: {locked
 
     return (
         <Dialog.StepContent step="step-application" locked={locked}>
-            <label className="block font-semibold mb-2">{label}</label>
             <ApplicationSelector
+                label={label}
                 selection={selection}
                 onSelectionChange={setSelection}
                 selectionMode="staged"

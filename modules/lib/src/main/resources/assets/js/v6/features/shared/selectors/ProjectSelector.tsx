@@ -126,6 +126,7 @@ const ProjectSelectorTreeContent = (props: ProjectSelectorTreeContentProps): Rea
                 onSelectionChange={handleTreeSelectionChange}
                 clearSelectionOnEscape={false}
                 selectionMode={selectionMode === 'single' ? 'single' : 'multiple'}
+                rowClickSelection="toggle"
                 onExpand={handleExpand}
                 onCollapse={handleCollapse}
                 virtuosoRef={virtuosoRef}

@@ -2,7 +2,7 @@ import type {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import type {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
 import {Checkbox, cn, Combobox, Listbox, useCombobox, type ComboboxRootProps} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {useCallback, useEffect, useId, useMemo, useState, type ReactElement} from 'react';
+import {useEffect, useId, useMemo, useState, type ReactElement} from 'react';
 import {$principals, loadPrincipals} from '../../store/principals.store';
 import {useDebouncedCallback} from '../../utils/hooks/useDebouncedCallback';
 import {PrincipalLabel} from '../PrincipalLabel';
@@ -61,14 +61,6 @@ export const PrincipalSelector = ({
         void debouncedLoadPrincipals(searchValue);
     }, [searchValue, debouncedLoadPrincipals]);
 
-    // Handlers
-    const handleOnSelectionChange = useCallback(
-        (selection: string[]) => {
-            onSelectionChange(selection.map(decodeFromValidDomId));
-        },
-        [onSelectionChange]
-    );
-
     return (
         <div data-component={PRINCIPAL_SELECTOR_NAME} className={cn('flex flex-col gap-2', className)}>
             {label && <label htmlFor={inputId} className="font-semibold">{label}</label>}
@@ -76,7 +68,7 @@ export const PrincipalSelector = ({
                 value={searchValue}
                 onChange={setSearchValue}
                 selection={selection}
-                onSelectionChange={handleOnSelectionChange}
+                onSelectionChange={onSelectionChange}
                 selectionMode={selectionMode}
                 closeOnBlur={closeOnBlur}
                 disabled={disabled}
@@ -112,52 +104,28 @@ type PrincipalSelectorListProps = {
 
 const PrincipalSelectorList = (props: PrincipalSelectorListProps): ReactElement => {
     const {items, selectionMode, emptyLabel} = props;
-    const {selection, onSelectionChange} = useCombobox();
-    const selectionArray = useMemo(() => Array.from(selection).map(encodeToValidDomId), [selection]);
-
-    const handleOnCheckedChange = useCallback(
-        (key: string) => {
-            const newSelection = selectionArray.includes(key) ? selectionArray.filter((v) => v !== key) : [...selectionArray, key];
-
-            onSelectionChange(newSelection);
-        },
-        [selectionArray, onSelectionChange]
-    );
+    const {selection} = useCombobox();
 
     return (
-        <Listbox
-            selectionMode={selectionMode === 'single' ? 'single' : 'multiple'}
-            selection={selectionArray}
-            onSelectionChange={onSelectionChange}
-        >
-            <Combobox.ListContent className="max-h-60 rounded-sm">
-                {items.map((principal) => {
-                    const key = encodeToValidDomId(principal.getKey().toString());
+        <Combobox.ListContent className="max-h-60 rounded-sm">
+            {items.map((principal) => {
+                const key = principal.getKey().toString();
 
-                    return (
-                        <Listbox.Item key={key} value={key}>
-                            <PrincipalLabel principal={principal} className="flex-1" />
-                            {selectionMode !== 'single' && (
-                                <Checkbox checked={selectionArray.includes(key)} onCheckedChange={() => handleOnCheckedChange(key)} />
-                            )}
-                        </Listbox.Item>
-                    );
-                })}
+                return (
+                    <Listbox.Item key={key} value={key}>
+                        <PrincipalLabel principal={principal} className="flex-1" />
+                        {selectionMode !== 'single' && (
+                            <Checkbox tabIndex={-1} checked={selection.has(key)} onClick={(event) => event.preventDefault()} />
+                        )}
+                    </Listbox.Item>
+                );
+            })}
 
-                {items.length === 0 && <div className="px-4 py-3 text-sm text-subtle">{emptyLabel}</div>}
-            </Combobox.ListContent>
-        </Listbox>
+            {items.length === 0 && <div className="px-4 py-3 text-sm text-subtle">{emptyLabel}</div>}
+        </Combobox.ListContent>
     );
 };
 
 //
 // * Utilities
 //
-
-const encodeToValidDomId = (key: string): string => {
-    return key.replaceAll(':', '_');
-};
-
-const decodeFromValidDomId = (key: string): string => {
-    return key.replaceAll('_', ':');
-};

@@ -221,6 +221,7 @@ export const LanguageSelector = ({
                                         selection={safeSelection}
                                         onSelectionChange={handleSelectionChange}
                                         selectionMode="single"
+                                        rowClickSelection="toggle"
                                         active={activeId}
                                         onActiveChange={setActiveId}
                                         virtuosoRef={virtuosoRef}

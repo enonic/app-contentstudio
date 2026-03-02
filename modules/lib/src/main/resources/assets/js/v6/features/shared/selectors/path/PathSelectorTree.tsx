@@ -109,6 +109,7 @@ export const PathSelectorTree = ({
                 selection={selection}
                 onSelectionChange={handleTreeSelectionChange}
                 selectionMode='single'
+                rowClickSelection="toggle"
                 active={activeId}
                 onActiveChange={onActiveChange}
                 onExpand={onExpand}

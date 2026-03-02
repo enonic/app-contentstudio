@@ -1,5 +1,5 @@
-import {Checkbox, Combobox, ComboboxRootProps, Listbox, useCombobox} from '@enonic/ui';
-import {useState, ReactElement, useMemo, useCallback} from 'react';
+import {Checkbox, cn, Combobox, ComboboxRootProps, Listbox, useCombobox} from '@enonic/ui';
+import {useState, ReactElement, useMemo, useId} from 'react';
 import {useStore} from '@nanostores/preact';
 import {ItemLabel} from '../ItemLabel';
 import {$applications} from '../../store/applications.store';
@@ -9,6 +9,7 @@ import {ApplicationIcon} from '../icons/ApplicationIcon';
 const APPLICATION_SELECTOR_NAME = 'ApplicationSelector';
 
 type ApplicationSelectorProps = {
+    label?: string;
     selection: readonly string[];
     onSelectionChange: (selection: string[]) => void;
     selectionMode: ComboboxRootProps['selectionMode'];
@@ -20,8 +21,10 @@ type ApplicationSelectorProps = {
 
 export const ApplicationSelector = (props: ApplicationSelectorProps): ReactElement => {
     const {applications} = useStore($applications);
+    const baseId = useId();
+    const inputId = `${APPLICATION_SELECTOR_NAME}-${baseId}-input`;
     const [searchValue, setSearchValue] = useState('');
-    const {selection, onSelectionChange, selectionMode, placeholder, emptyLabel, closeOnBlur, className} = props;
+    const {label, selection, onSelectionChange, selectionMode, placeholder, emptyLabel, closeOnBlur, className} = props;
 
     const filtered = useMemo(() => {
         if (!searchValue) return applications;
@@ -30,32 +33,34 @@ export const ApplicationSelector = (props: ApplicationSelectorProps): ReactEleme
     }, [applications, searchValue]);
 
     return (
-        <Combobox.Root
-            data-component={APPLICATION_SELECTOR_NAME}
-            value={searchValue}
-            onChange={setSearchValue}
-            selection={selection}
-            onSelectionChange={onSelectionChange}
-            selectionMode={selectionMode}
-            closeOnBlur={closeOnBlur}
-            contentType="listbox"
-        >
-            <Combobox.Content className={className}>
-                <Combobox.Control>
-                    <Combobox.Search>
-                        <Combobox.SearchIcon />
-                        <Combobox.Input placeholder={placeholder} />
-                        {selectionMode === 'staged' && <Combobox.Apply />}
-                        <Combobox.Toggle />
-                    </Combobox.Search>
-                </Combobox.Control>
-                <Combobox.Portal>
-                    <Combobox.Popup>
-                        <ApplicationSelectorList items={filtered} selectionMode={selectionMode} emptyLabel={emptyLabel} />
-                    </Combobox.Popup>
-                </Combobox.Portal>
-            </Combobox.Content>
-        </Combobox.Root>
+        <div data-component={APPLICATION_SELECTOR_NAME} className={cn('flex flex-col gap-2', className)}>
+            {label && <label htmlFor={inputId} className="font-semibold">{label}</label>}
+            <Combobox.Root
+                value={searchValue}
+                onChange={setSearchValue}
+                selection={selection}
+                onSelectionChange={onSelectionChange}
+                selectionMode={selectionMode}
+                closeOnBlur={closeOnBlur}
+                contentType="listbox"
+            >
+                <Combobox.Content className="relative">
+                    <Combobox.Control>
+                        <Combobox.Search>
+                            <Combobox.SearchIcon />
+                            <Combobox.Input id={inputId} placeholder={placeholder} />
+                            {selectionMode === 'staged' && <Combobox.Apply />}
+                            <Combobox.Toggle />
+                        </Combobox.Search>
+                    </Combobox.Control>
+                    <Combobox.Portal>
+                        <Combobox.Popup>
+                            <ApplicationSelectorList items={filtered} emptyLabel={emptyLabel} />
+                        </Combobox.Popup>
+                    </Combobox.Portal>
+                </Combobox.Content>
+            </Combobox.Root>
+        </div>
     );
 };
 
@@ -63,53 +68,36 @@ ApplicationSelector.displayName = APPLICATION_SELECTOR_NAME;
 
 type ApplicationSelectorListProps = {
     items: Application[];
-    selectionMode: ComboboxRootProps['selectionMode'];
     emptyLabel?: string;
 };
 
 const ApplicationSelectorList = (props: ApplicationSelectorListProps): ReactElement => {
-    const {items, selectionMode, emptyLabel} = props;
-    const {selection, onSelectionChange} = useCombobox();
-    const selectionArray = useMemo(() => Array.from(selection), [selection]);
-
-    const handleOnCheckedChange = useCallback(
-        (key: string) => {
-            const newSelection = selectionArray.includes(key) ? selectionArray.filter((v) => v !== key) : [...selectionArray, key];
-
-            onSelectionChange(newSelection);
-        },
-        [selectionArray, onSelectionChange]
-    );
+    const {items, emptyLabel} = props;
+    const {selection, selectionMode} = useCombobox();
 
     return (
-        <Listbox
-            selectionMode={selectionMode === 'single' ? 'single' : 'multiple'}
-            selection={selectionArray}
-            onSelectionChange={onSelectionChange}
-        >
-            <Combobox.ListContent className="max-h-60 rounded-sm">
-                {items.map((application) => {
-                    const key = application.getApplicationKey().toString();
-                    const name = application.getDisplayName();
-                    const description = application.getDescription();
+        <Combobox.ListContent className="max-h-60 rounded-sm">
+            {items.map((application) => {
+                const key = application.getApplicationKey().toString();
+                const name = application.getDisplayName();
+                const description = application.getDescription();
 
-                    return (
-                        <Listbox.Item key={key} value={key}>
-                            <div className="flex-1">
-                                <ItemLabel icon={<ApplicationIcon application={application} />} primary={name} secondary={description} />
-                            </div>
+                return (
+                    <Listbox.Item key={key} value={key}>
+                        <ItemLabel
+                            className="flex-1"
+                            icon={<ApplicationIcon application={application} />}
+                            primary={name}
+                            secondary={description}
+                        />
+                        {selectionMode !== 'single' && (
+                            <Checkbox tabIndex={-1} checked={selection.has(key)} onClick={(event) => event.preventDefault()} />
+                        )}
+                    </Listbox.Item>
+                );
+            })}
 
-                            <Checkbox
-                                tabIndex={-1}
-                                checked={selectionArray.includes(key)}
-                                onCheckedChange={() => handleOnCheckedChange(key)}
-                            />
-                        </Listbox.Item>
-                    );
-                })}
-
-                {items.length === 0 && <div className="px-4 py-3 text-sm text-subtle">{emptyLabel}</div>}
-            </Combobox.ListContent>
-        </Listbox>
+            {items.length === 0 && <div className="px-4 py-3 text-sm text-subtle">{emptyLabel}</div>}
+        </Combobox.ListContent>
     );
 };

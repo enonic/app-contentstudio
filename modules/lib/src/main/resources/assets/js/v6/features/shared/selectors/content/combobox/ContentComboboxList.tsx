@@ -129,6 +129,7 @@ export const ContentComboboxList = ({
                 preserveFilteredSelection
                 clearSelectionOnEscape={false}
                 selection={selection}
+                rowClickSelection="toggle"
                 onSelectionChange={handleSelectionChange}
                 selectionMode={selectionMode}
                 active={activeId}
