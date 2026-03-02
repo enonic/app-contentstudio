@@ -12,7 +12,6 @@
     "formItems": [
       {
         "FormItemSet": {
-          "immutable": false,
           "items": [
             {
               "Input": {

@@ -1,8 +1,6 @@
 {
   "FormItemSet": {
-    "customText": "Custom text",
     "helpText": "Help text",
-    "immutable": false,
     "items": [
       {
         "Input": {

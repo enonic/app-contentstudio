@@ -87,16 +87,6 @@ public class FormItemSetJson
         }
     }
 
-    public boolean isImmutable()
-    {
-        return formItemSet.isImmutable();
-    }
-
-    public String getCustomText()
-    {
-        return formItemSet.getCustomText();
-    }
-
     public String getHelpText()
     {
         if ( localeMessageResolver != null && !nullToEmpty( formItemSet.getHelpTextI18nKey() ).isBlank() )
