@@ -1,11 +1,11 @@
-import {cn, Combobox, ComboboxRootProps, FlatNode, useCombobox, VirtualizedTreeList} from '@enonic/ui';
-import {Project} from '../../../../app/settings/data/project/Project';
-import {forwardRef, HTMLAttributes, ReactElement, useCallback, useMemo, useRef, useState} from 'react';
-import {ProjectLabel} from '../project/ProjectLabel';
+import {cn, Combobox, useCombobox, VirtualizedTreeList, type ComboboxRootProps, type FlatNode} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
+import {forwardRef, useCallback, useId, useMemo, useRef, useState, type HTMLAttributes, type ReactElement} from 'react';
+import {Virtuoso, type VirtuosoHandle} from 'react-virtuoso';
+import type {Project} from '../../../../app/settings/data/project/Project';
 import {$projects} from '../../store/projects.store';
 import {projectsToTreeListItems} from '../../utils/url/projects';
-import {Virtuoso, VirtuosoHandle} from 'react-virtuoso';
+import {ProjectLabel} from '../project/ProjectLabel';
 
 type ProjectSelectorProps = {
     selection: readonly string[];
@@ -25,6 +25,8 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
 
     // Hooks
     const {projects} = useStore($projects);
+    const baseId = useId();
+    const inputId = `${PROJECT_SELECTOR_NAME}-${baseId}-input`;
     const [searchValue, setSearchValue] = useState<string | undefined>();
     const [expanded, setExpanded] = useState<string[]>([]);
     const virtuosoRef = useRef<VirtuosoHandle>(null);
@@ -47,9 +49,8 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
 
     return (
         <div data-component={PROJECT_SELECTOR_NAME} className={cn('flex flex-col gap-2', className)}>
-            {label && <label className="font-semibold">{label}</label>}
+            {label && <label htmlFor={inputId} className="font-semibold">{label}</label>}
             <Combobox.Root
-                data-component={PROJECT_SELECTOR_NAME}
                 value={searchValue}
                 onChange={setSearchValue}
                 selection={selection}
@@ -62,7 +63,7 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
                     <Combobox.Control>
                         <Combobox.Search>
                             <Combobox.SearchIcon />
-                            <Combobox.Input placeholder={placeholder} />
+                            <Combobox.Input id={inputId} placeholder={placeholder} />
                             <Combobox.Apply />
                             <Combobox.Toggle />
                         </Combobox.Search>

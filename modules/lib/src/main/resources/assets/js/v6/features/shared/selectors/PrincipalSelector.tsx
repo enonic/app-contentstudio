@@ -1,8 +1,8 @@
-import {Checkbox, cn, Combobox, ComboboxRootProps, Listbox, useCombobox} from '@enonic/ui';
-import {useState, ReactElement, useEffect, useMemo, useCallback, Fragment, ReactNode} from 'react';
-import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import type {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import type {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
+import {Checkbox, cn, Combobox, Listbox, useCombobox, type ComboboxRootProps} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
+import {useCallback, useEffect, useId, useMemo, useState, type ReactElement} from 'react';
 import {$principals, loadPrincipals} from '../../store/principals.store';
 import {useDebouncedCallback} from '../../utils/hooks/useDebouncedCallback';
 import {PrincipalLabel} from '../PrincipalLabel';
@@ -38,6 +38,8 @@ export const PrincipalSelector = ({
     className,
 }: PrincipalSelectorProps): ReactElement => {
     const {principals} = useStore($principals);
+    const baseId = useId();
+    const inputId = `${PRINCIPAL_SELECTOR_NAME}-${baseId}-input`;
     const [searchValue, setSearchValue] = useState('');
     const allowedTypesKey = allowedTypes.join(','); // Serialize array for stable comparison in useEffect dependencies
 
@@ -69,7 +71,7 @@ export const PrincipalSelector = ({
 
     return (
         <div data-component={PRINCIPAL_SELECTOR_NAME} className={cn('flex flex-col gap-2', className)}>
-            {label && <label className="font-semibold">{label}</label>}
+            {label && <label htmlFor={inputId} className="font-semibold">{label}</label>}
             <Combobox.Root
                 value={searchValue}
                 onChange={setSearchValue}
@@ -84,7 +86,7 @@ export const PrincipalSelector = ({
                     <Combobox.Control>
                         <Combobox.Search>
                             <Combobox.SearchIcon />
-                            <Combobox.Input placeholder={placeholder} />
+                            <Combobox.Input id={inputId} placeholder={placeholder} />
                             {selectionMode === 'staged' && <Combobox.Apply />}
                             <Combobox.Toggle />
                         </Combobox.Search>

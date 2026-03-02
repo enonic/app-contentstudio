@@ -389,3 +389,37 @@ useLayoutEffect(() => {
 // ✅ Check and apply to cases, where no fast/instant feedback is needed
 const throttledScroll = useCallback(throttle(handleScroll, 100), [handleScroll]);
 ```
+
+## Element IDs
+
+```typescript
+// ✅ Use useId() to generate unique IDs for label-input associations
+const COMPONENT_NAME = 'MySelector';
+
+export const MySelector = ({ label }: Props) => {
+  const baseId = useId();
+  const inputId = `${COMPONENT_NAME}-${baseId}-input`;
+
+  return (
+    <div>
+      {label && <label htmlFor={inputId} className="font-semibold">{label}</label>}
+      <input id={inputId} />
+    </div>
+  );
+};
+
+// ❌ DON'T: Use static IDs (collisions with multiple instances)
+<label htmlFor="search-input">Search</label>
+<input id="search-input" />
+
+// ❌ DON'T: Use useId() for list keys
+const id = useId();
+items.map((item, i) => <Item key={`${id}-${i}`} />); // Wrong!
+```
+
+**Rules:**
+
+1. **Use `useId()`** for connecting labels, descriptions, and ARIA attributes to elements
+2. **Format:** `${DISPLAY_NAME}-${baseId}-suffix` where suffix describes the target (`-input`, `-title`, `-description`)
+3. **Call unconditionally** — `useId()` is a hook, follows hooks rules
+4. **Never for keys** — Use data IDs for list keys
