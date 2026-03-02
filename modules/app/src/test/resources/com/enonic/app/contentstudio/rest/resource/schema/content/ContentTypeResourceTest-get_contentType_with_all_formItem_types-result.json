@@ -55,7 +55,6 @@
       },
       {
         "FormItemSet": {
-          "immutable": false,
           "items": [
             {
               "Input": {

@@ -112,7 +112,6 @@ public class FormItemJsonTest
         FormItemSetJson formItemSetJson = new FormItemSetJson( FormItemSet.create().
             name( "mySet" ).
             label( "My set" ).
-            customText( "Custom text" ).
             helpText( "Help text" ).
             occurrences( 0, 10 ).
             addFormItem( Input.create().name( "myTextLine" ).label( "myTextLine" ).inputType( InputTypeName.TEXT_LINE ).build() ).
