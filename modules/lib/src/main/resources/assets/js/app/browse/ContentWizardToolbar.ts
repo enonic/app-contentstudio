@@ -81,7 +81,6 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
         const actions: ContentWizardActions = config.actions;
 
         super({
-            className: config.className ?? 'content-wizard-toolbar',
             onProjectBack: () => {
                 this.handleProjectBackClicked();
             },

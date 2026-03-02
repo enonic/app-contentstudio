@@ -32,14 +32,12 @@ export type ContentWizardToolbarViewProps = {
     requestPublishAction: Action;
     openRequestAction: Action;
     createIssueAction: Action;
-    className?: string;
 
 };
 
 const CONTENT_WIZARD_TOOLBAR_NAME = 'ContentWizardToolbar';
 
 export const ContentWizardToolbar = ({
-                                             className,
                                              onProjectBack,
                                              onLayersClick,
                                              onContentPathClick,
@@ -130,10 +128,7 @@ export const ContentWizardToolbar = ({
         <Toolbar data-component={CONTENT_WIZARD_TOOLBAR_NAME}>
             <Toolbar.Container
                 aria-label={toolbarLabel}
-                className={cn(
-                    'w-full h-15 px-1 md:pl-2 md:pr-5 py-1.75 flex items-center gap-0 sm:gap-0.5 md:gap-1 lg:gap-2.5 border-b border-bdr-soft bg-surface-neutral',
-                    className,
-                )}
+                className={'w-full h-15 px-1 md:pl-2 md:pr-5 py-1.75 flex items-center gap-0 sm:gap-0.5 md:gap-1 lg:gap-2.5 border-b border-bdr-soft bg-surface-neutral'}
             >
                 <Toolbar.Item asChild>
                     <Button
