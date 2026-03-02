@@ -1,6 +1,7 @@
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import type {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {atom, computed, map} from 'nanostores';
 import type {Content} from '../../../app/content/Content';
 import type {ContentName} from '../../../app/content/ContentName';
@@ -274,8 +275,8 @@ function injectSiteBaseUrlBridge(data: PropertyTree | null, content: Content): P
 
     if (baseUrl != null && baseUrl.trim().length > 0) {
         data.setString(BASE_URL_INPUT_PROP, 0, baseUrl);
-    } else if (root.getPropertyArray(BASE_URL_INPUT_PROP)?.getSize() > 0) {
-        data.removeProperty(BASE_URL_INPUT_PROP, 0);
+    } else {
+        data.setProperty(BASE_URL_INPUT_PROP, 0, ValueTypes.STRING.newNullValue());
     }
 
     return data;
