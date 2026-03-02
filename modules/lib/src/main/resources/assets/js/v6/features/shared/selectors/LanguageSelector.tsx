@@ -1,5 +1,5 @@
 import {cn, Combobox, VirtualizedTreeList} from '@enonic/ui';
-import {forwardRef, useEffect, useMemo, useRef, useState, type HTMLAttributes, type ReactElement} from 'react';
+import {forwardRef, useEffect, useId, useMemo, useRef, useState, type HTMLAttributes, type ReactElement} from 'react';
 import type {VirtuosoHandle} from 'react-virtuoso';
 import {Virtuoso} from 'react-virtuoso';
 import {buildKey} from '../../utils/format/keys';
@@ -95,6 +95,8 @@ export const LanguageSelector = ({
     className,
 }: LanguageSelectorProps): ReactElement => {
     const virtuosoRef = useRef<VirtuosoHandle>(null);
+    const baseId = useId();
+    const inputId = `${LANGUAGE_SELECTOR_NAME}-${baseId}-input`;
     const [open, setOpen] = useState(false);
     const [inputValue, setInputValue] = useState('');
     const [activeId, setActiveId] = useState<string | null>(null);
@@ -187,8 +189,8 @@ export const LanguageSelector = ({
     };
 
     return (
-        <div data-component={LANGUAGE_SELECTOR_NAME} className={cn('flex flex-col gap-2.5', className)}>
-            {label && <span className="font-semibold">{label}</span>}
+        <div data-component={LANGUAGE_SELECTOR_NAME} className={cn('flex flex-col gap-2', className)}>
+            {label && <label htmlFor={inputId} className="font-semibold">{label}</label>}
             <Combobox.Root
                 open={open}
                 onOpenChange={handleOpenChange}
@@ -202,7 +204,7 @@ export const LanguageSelector = ({
                     <Combobox.Control>
                         <Combobox.Search>
                             <Combobox.SearchIcon />
-                            <Combobox.Input placeholder={searchPlaceholder ?? placeholder} aria-label={label} />
+                            <Combobox.Input id={inputId} placeholder={searchPlaceholder ?? placeholder} aria-label={label} />
                             <Combobox.Toggle />
                         </Combobox.Search>
                     </Combobox.Control>
