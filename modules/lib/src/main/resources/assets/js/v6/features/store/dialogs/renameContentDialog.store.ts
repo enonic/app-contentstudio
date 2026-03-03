@@ -21,6 +21,7 @@ type RenameContentDialogStore = {
 type OpenRenameContentDialogParams = {
     parentPath: ContentPath;
     initialName: string;
+    persistedName?: string;
     isPublished: boolean;
 };
 
@@ -126,12 +127,14 @@ const scheduleAvailabilityCheck = (name: string, parentPath: ContentPath): void 
 export const openRenameContentDialog = ({
     parentPath,
     initialName,
+    persistedName,
     isPublished,
 }: OpenRenameContentDialogParams): Promise<string | undefined> => {
     resolveDialog?.(undefined);
     resolveDialog = undefined;
 
     const normalizedInitialName = initialName.trim();
+    const normalizedPersistedName = (persistedName ?? initialName).trim();
     const hasName = normalizedInitialName.length > 0;
     const mode: RenameContentDialogMode = hasName
         ? (isPublished ? 'rename-published' : 'rename')
@@ -144,11 +147,15 @@ export const openRenameContentDialog = ({
         open: true,
         mode,
         path: hasName ? buildPath(parentPath, normalizedInitialName).toString() : templatePath,
-        initialName: normalizedInitialName,
+        initialName: normalizedPersistedName,
         value: hasName ? normalizedInitialName : '',
-        placeholder: hasName ? normalizedInitialName : templatePath,
+        placeholder: normalizedPersistedName || templatePath,
         parentPath,
     });
+
+    if (hasName && normalizedInitialName !== normalizedPersistedName) {
+        scheduleAvailabilityCheck(normalizedInitialName, parentPath);
+    }
 
     return new Promise((resolve) => {
         resolveDialog = resolve;

@@ -148,6 +148,7 @@ import {type PreviewToolbarElement} from '../../v6/features/views/browse/layout/
 import {ContentWizardTabsToolbarElement} from '../../v6/features/views/wizard/content-wizard-tabs/ContentWizardTabsToolbarElement';
 import {
     $displayName, $isContentFormExpanded,
+    $wizardDraftName,
     $wizardHasChanges,
     initializeWizardContentState,
     resetWizardContent,
@@ -161,7 +162,7 @@ import {
     setPersistedContent as setWizardPersistedContent,
 } from '../../v6/features/store/wizardContent.store';
 import {openRenameContentDialog} from '../../v6/features/store/dialogs/renameContentDialog.store';
-import {setWizardToolbarContentPath, setWizardToolbarIsPathAvailable} from '../../v6/features/store/wizardToolbar.store';
+import {setWizardToolbarIsPathAvailable} from '../../v6/features/store/wizardToolbar.store';
 import {$isContextOpen, setContextOpen} from '../../v6/features/store/contextWidgets.store';
 import {setWizardContent} from '../../v6/features/store/context/contextContent.store';
 
@@ -468,7 +469,6 @@ export class ContentWizardPanel
 
             setDraftDisplayName(header.getDisplayName());
             setDraftName(this.resolveContentNameForUpdateRequest());
-            setWizardToolbarContentPath(this.normalizeToolbarContentPath(header.getName() || ''));
             this.workflowStateManager.update();
 
             if (propertyName === 'unique') {
@@ -2705,9 +2705,6 @@ export class ContentWizardPanel
 
         this.wizardHeader?.setOnline(!content.isNew());
         this.wizardHeader?.setPath(this.getWizardHeaderPath());
-        setWizardToolbarContentPath(
-            this.normalizeToolbarContentPath(this.wizardHeader?.getName() || content.getPath()?.getName() || '')
-        );
         setWizardToolbarIsPathAvailable(true);
         this.wizardHeader?.setDir(Locale.supportsRtl(content.getLanguage()) ? LangDirection.RTL : LangDirection.AUTO);
         this.contextView?.setItem(content);
@@ -2727,12 +2724,15 @@ export class ContentWizardPanel
             return;
         }
 
-        const initialName = this.normalizeToolbarContentPath(this.getWizardHeader().getName()) ||
+        const draftName = $wizardDraftName.get()?.toString() || '';
+        const initialName = this.normalizeToolbarContentPath(draftName) ||
                             this.normalizeToolbarContentPath(persistedPath.getName());
+        const persistedName = this.normalizeToolbarContentPath(persistedPath.getName());
 
         void openRenameContentDialog({
             parentPath: persistedPath.getParentPath(),
             initialName,
+            persistedName,
             isPublished: this.wizardActions.isOnline(),
         }).then((newName?: string) => {
             if (!newName) {
@@ -2740,7 +2740,6 @@ export class ContentWizardPanel
             }
 
             this.getWizardHeader().applyRenamedName(newName);
-            setWizardToolbarContentPath(this.normalizeToolbarContentPath(this.getWizardHeader().getName()));
             setDraftName(this.resolveContentNameForUpdateRequest());
             this.isRename = true;
 
