@@ -61,9 +61,9 @@ exports.canRender = function (req) {
 
 function createUrl(req, params) {
     const project = params.repository.substring('com.enonic.cms.'.length);
-    const baseUri = adminLib.getHomeToolUrl();
+    const baseUri = adminLib.getToolUrl(app.name, 'site');
     const normalizedBaseUri = baseUri === '/' ? '' : baseUri;
-    return `${normalizedBaseUri}/site/${params.mode}/${project}/${params.branch}${params.path}`;
+    return `${normalizedBaseUri}/${params.mode}/${project}/${params.branch}${params.path}`;
 }
 
 function collectResponseData(req, params, url) {
