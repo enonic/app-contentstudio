@@ -19,7 +19,7 @@ function handleGet(request) {
     const requiredPublishFrom = app.config['publishingWizard.requiredPublishFrom'] === 'true' || false;
 
     const isBrowseMode = request.path === admin.getToolUrl(app.name, 'main');
-    const aiEnabled = !isBrowseMode && (aiLib.aiContentOperatorRunning || aiLib.aiTranslatorRunning);
+    const aiEnabled = !isBrowseMode && (aiLib.aiContentOperatorRunning() || aiLib.aiTranslatorRunning());
 
     let lastDismissedVersion;
     if (checkLatestVersion) {
