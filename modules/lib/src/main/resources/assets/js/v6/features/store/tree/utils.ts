@@ -2,7 +2,7 @@ import type {FlatNode} from '../../lib/tree-store';
 import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import type {ContentTreeNodeData} from './types';
 import type {ContentData} from '../../views/browse/grid/ContentData';
-import {calcWorkflowStateStatus} from '../../utils/cms/content/workflow';
+import {calcContentState} from '../../utils/cms/content/workflow';
 import {resolveDisplayName} from '../../utils/cms/content/prettify';
 
 /**
@@ -23,7 +23,7 @@ export function convertToContentFlatNode(
                       displayName: node.data.displayName,
                       name: node.data.name,
                       publishStatus: node.data.publishStatus,
-                      workflowStatus: node.data.workflowStatus,
+                      contentState: node.data.contentState,
                       contentType: node.data.contentType,
                       iconUrl: node.data.iconUrl,
                       hasChildren: node.hasChildren,
@@ -45,7 +45,7 @@ export function convertToContentFlatNode(
             displayName: content ? resolveDisplayName(content) : data.displayName,
             name: data.name,
             publishStatus: content ? content.getPublishStatus() : data.publishStatus,
-            workflowStatus: content ? calcWorkflowStateStatus(content.getContentSummary()) : data.workflowStatus,
+            contentState: content ? calcContentState(content.getContentSummary()) : data.contentState,
             contentType: data.contentType,
             iconUrl: content?.getContentSummary()?.getIconUrl() ?? data.iconUrl,
             hasChildren: node.hasChildren,

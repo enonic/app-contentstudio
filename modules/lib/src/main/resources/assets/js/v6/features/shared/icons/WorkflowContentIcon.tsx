@@ -1,9 +1,9 @@
-import {type WorkflowStateStatus} from '../../../../app/wizard/WorkflowStateManager';
 import {ContentIcon} from './ContentIcon';
 import {StatusIcon} from './StatusIcon';
+import type {ContentState} from '../../../../app/content/ContentState';
 
 type Props = {
-    status: WorkflowStateStatus | null;
+    status: ContentState | null;
     contentType: string;
     url?: string | null;
 };

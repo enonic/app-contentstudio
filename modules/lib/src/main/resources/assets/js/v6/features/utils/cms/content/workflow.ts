@@ -1,18 +1,18 @@
 import type {ContentSummary} from '../../../../../app/content/ContentSummary';
-import {WorkflowStateStatus} from '../../../../../app/wizard/WorkflowStateManager';
+import type {ContentState} from '../../../../../app/content/ContentState';
 
-export function calcWorkflowStateStatus(summary: ContentSummary | null | undefined): WorkflowStateStatus | null {
+export function calcContentState(summary: ContentSummary | null | undefined): ContentState | null {
     if (!summary) {
         return null;
     }
     if (!summary.isValid()) {
-        return WorkflowStateStatus.INVALID;
+        return 'invalid';
     }
     if (summary.isReady()) {
-        return WorkflowStateStatus.READY;
+        return 'ready';
     }
     if (summary.isInProgress()) {
-        return WorkflowStateStatus.IN_PROGRESS;
+        return 'in-progress';
     }
     return null;
 }

@@ -1,6 +1,6 @@
 import {CompareStatus} from '../../../../../app/content/CompareStatus';
 import {PublishStatus} from '../../../../../app/publish/PublishStatus';
-import {WorkflowStateStatus} from '../../../../../app/wizard/WorkflowStateManager';
+import type {ContentState} from '../../../../../app/content/ContentState';
 
 export function createPublishStatusKey(status: PublishStatus): string {
     switch (status) {
@@ -34,13 +34,13 @@ export function createCompareStatusKey(status: CompareStatus, wasPublished: bool
     }
 }
 
-export function createWorkflowStatusKey(workflowStatus: WorkflowStateStatus): string {
-    switch (workflowStatus) {
-        case WorkflowStateStatus.READY:
+export function createContentStateKey(contentState: ContentState): string {
+    switch (contentState) {
+        case 'ready':
             return 'field.workflow.status.ready';
-        case WorkflowStateStatus.IN_PROGRESS:
+        case 'in-progress':
             return 'field.workflow.status.inProgress';
-        case WorkflowStateStatus.INVALID:
+        case 'invalid':
             return 'field.workflow.status.invalid';
         default:
             return 'status.unknown';

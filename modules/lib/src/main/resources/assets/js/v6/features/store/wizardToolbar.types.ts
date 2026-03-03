@@ -1,5 +1,5 @@
 import type {PublishStatus} from '../../../app/publish/PublishStatus';
-import type {WorkflowStateStatus} from '../../../app/wizard/WorkflowStateManager';
+import type {ContentState} from '../../../app/content/ContentState';
 
 export type WizardToolbarCollaborator = {
     key: string;
@@ -18,6 +18,6 @@ export type WizardToolbarStore = {
     canRenameContentPath: boolean;
     isPathAvailable: boolean;
     isContentOnline: boolean;
-    workflowStatus: WorkflowStateStatus | null;
+    contentState: ContentState | null;
     isLayerProject: boolean;
 };

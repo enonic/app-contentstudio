@@ -1,6 +1,6 @@
 import {type ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {type ContentData} from '../../../views/browse/grid/ContentData';
-import {calcWorkflowStateStatus} from './workflow';
+import {calcContentState} from './workflow';
 import {resolveDisplayName, resolveSubName} from './prettify';
 
 
@@ -19,7 +19,7 @@ export function toContentProps(item: ContentSummaryAndCompareStatus): Omit<Conte
         hasChildren: item.hasChildren(),
         contentType: item.getType(),
         publishStatus: item.getPublishStatus(),
-        workflowStatus: calcWorkflowStateStatus(item.getContentSummary()),
+        contentState: calcContentState(item.getContentSummary()),
         iconUrl: item.getContentSummary().getIconUrl(),
         item, // temporary, for backward compatibility
     }

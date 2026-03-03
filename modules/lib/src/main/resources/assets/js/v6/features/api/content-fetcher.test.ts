@@ -41,7 +41,7 @@ vi.mock('../../../app/resource/ContentSummaryAndCompareStatusFetcher', () => ({
 }));
 
 vi.mock('../utils/cms/content/workflow', () => ({
-    calcWorkflowStateStatus: vi.fn(() => null),
+    calcContentState: vi.fn(() => null),
 }));
 
 vi.mock('../utils/cms/content/prettify', () => ({

@@ -5,7 +5,7 @@ import {useI18n} from '../../../../hooks/useI18n';
 import {ContentIcon} from '../../../../shared/icons/ContentIcon';
 import {DiffStatusBadge} from '../../../../shared/status/DiffStatusBadge';
 import {$contextContent} from '../../../../store/context/contextContent.store';
-import {calcWorkflowStateStatus} from '../../../../utils/cms/content/workflow';
+import {calcContentState} from '../../../../utils/cms/content/workflow';
 
 function createDisplayName(content: ContentSummaryAndCompareStatus): string {
     const contentSummary = content.getContentSummary();
@@ -28,7 +28,7 @@ export const DetailsWidgetContentSection = (): ReactElement => {
     if (!content) return null;
 
     const contentSummary = content.getContentSummary();
-    const workflowStatus = calcWorkflowStateStatus(contentSummary);
+    const contentState = calcContentState(contentSummary);
     const displayName = createDisplayName(content);
 
     return (
@@ -47,7 +47,7 @@ export const DetailsWidgetContentSection = (): ReactElement => {
                         <DiffStatusBadge
                             publishStatus={content.getPublishStatus()}
                             compareStatus={content.getCompareStatus()}
-                            workflowStatus={workflowStatus}
+                            contentState={contentState}
                             wasPublished={!!contentSummary.getPublishFirstTime()} />
                     </dd>
                 </div>

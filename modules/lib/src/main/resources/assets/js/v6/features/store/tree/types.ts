@@ -1,7 +1,7 @@
 import type {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import type {PublishStatus} from '../../../../app/publish/PublishStatus';
-import type {WorkflowStateStatus} from '../../../../app/wizard/WorkflowStateManager';
 import type {TreeState, TreeNode, FlatNode} from '../../lib/tree-store';
+import type {ContentState} from '../../../../app/content/ContentState';
 
 //
 // * Shared Types
@@ -24,7 +24,7 @@ export type ContentTreeNodeData = {
     /** Publish status for visual indicators */
     publishStatus: PublishStatus;
     /** Workflow status */
-    workflowStatus: WorkflowStateStatus | null;
+    contentState: ContentState | null;
     /** Content type name */
     contentType: ContentTypeName;
     /** Icon URL */

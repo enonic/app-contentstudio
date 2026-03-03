@@ -2,16 +2,18 @@ import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import type {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {atom, computed, map} from 'nanostores';
+import {atom, batched, computed, map} from 'nanostores';
 import type {Content} from '../../../app/content/Content';
 import type {ContentName} from '../../../app/content/ContentName';
+import {ContentUnnamed} from '../../../app/content/ContentUnnamed';
 import {Mixin} from '../../../app/content/Mixin';
 import type {MixinDescriptor} from '../../../app/content/MixinDescriptor';
 import {MixinName} from '../../../app/content/MixinName';
-import type {WorkflowState} from '../../../app/content/WorkflowState';
+import {WorkflowState} from '../../../app/content/WorkflowState';
 import type {ContentType} from '../../../app/inputtype/schema/ContentType';
 import type {Page} from '../../../app/page/Page';
 import {ContentDiffHelper} from '../../../app/util/ContentDiffHelper';
+import type {ContentState} from '../../../app/content/ContentState';
 import {
     addStringOccurrence,
     removeStringOccurrence,
@@ -62,6 +64,8 @@ const APPLICATION_KEY_PROP = 'applicationKey';
 const CONFIG_PROP = 'config';
 
 const PORTAL_APPLICATION_KEY = ApplicationKey.PORTAL.toString();
+
+const WIZARD_FORM_VALIDATION_KEY = '__wizardForm';
 
 //
 // * State
@@ -187,6 +191,82 @@ export const $wizardChangedSections = computed($wizardSectionChanges, (sections)
 
 export const $wizardHasChanges = computed($wizardSectionChanges, (sections): boolean => {
     return sections.data || sections.displayName || sections.name || sections.mixins || sections.page || sections.workflow;
+});
+
+// Like $wizardHasChanges but excludes workflow changes. Used by $wizardContentState to avoid
+// circular dependency: contentState subscriber → setWizardMarkedAsReady → workflow change → hasChanges → contentState.
+const $wizardHasContentChanges = computed($wizardSectionChanges, (sections): boolean => {
+    return sections.data || sections.displayName || sections.name || sections.mixins || sections.page;
+});
+
+export const $wizardIsMarkedAsReady = computed($wizardDraftWorkflowState, (state): boolean => {
+    return state === WorkflowState.READY;
+});
+
+type CreateContentStateParams = {
+    displayName: string;
+    name: ContentName | null;
+    draftWorkflowState: WorkflowState | null;
+    validation: FormDataValidation;
+};
+
+function hasDataValidationErrors(validation: FormDataValidation): boolean {
+    return Object.values(validation).some((messages) => Array.isArray(messages) && messages.length > 0);
+}
+
+function hasValidDisplayName(displayName: string): boolean {
+    return displayName.trim().length > 0;
+}
+
+function hasValidName(name: ContentName | null): boolean {
+    const raw = name?.toString()?.trim() ?? '';
+
+    return raw.length > 0 && !raw.startsWith(ContentUnnamed.UNNAMED_PREFIX);
+}
+
+export function createContentState({
+    displayName,
+    name,
+    draftWorkflowState,
+    validation,
+}: CreateContentStateParams): ContentState | null {
+    if (draftWorkflowState == null) {
+        return null;
+    }
+
+    if (!hasValidDisplayName(displayName) || !hasValidName(name)) {
+        return 'invalid';
+    }
+
+    if (hasDataValidationErrors(validation)) {
+        return 'invalid';
+    }
+
+    if (draftWorkflowState === WorkflowState.READY) {
+        return 'ready';
+    }
+
+    return 'in-progress';
+}
+
+export const $wizardContentState = batched(
+    [$wizardDraftDisplayName, $wizardDraftName, $wizardDraftWorkflowState, $wizardDataValidation],
+    (displayName, name, draftWorkflowState, validation): ContentState | null => {
+        return createContentState({
+            displayName,
+            name,
+            draftWorkflowState,
+            validation,
+        });
+    },
+);
+
+// Reset workflow to IN_PROGRESS when READY content is edited.
+// Separate from $wizardContentState to avoid circular dependency.
+$wizardHasContentChanges.subscribe((hasChanges) => {
+    if (hasChanges && $wizardDraftWorkflowState.get() === WorkflowState.READY) {
+        setDraftWorkflowState(WorkflowState.IN_PROGRESS);
+    }
 });
 
 export type MixinTabInfo = {
@@ -363,15 +443,25 @@ function applyPersistedSectionsSnapshot(snapshot: WizardPersistedSectionsSnapsho
 // * Actions
 //
 
+export function setWizardFormValidation(isValid: boolean): void {
+    if (isValid) {
+        $wizardDataValidation.setKey(WIZARD_FORM_VALIDATION_KEY, undefined);
+        return;
+    }
+
+    $wizardDataValidation.setKey(WIZARD_FORM_VALIDATION_KEY, ['invalid']);
+}
+
 export function setPersistedContent(content: Content): void {
     applyPersistedSectionsSnapshot(buildPersistedSectionsSnapshot(content));
+    $wizardDataValidation.set({});
 }
 
 export function initializeWizardContentState(
     content: Content,
     contentType: ContentType | null,
     mixins: MixinDescriptor[],
-    workflowState: WorkflowState | null,
+    workflowState?: WorkflowState | null,
 ): void {
     setPersistedContent(content);
     $contentType.set(contentType);
@@ -458,7 +548,15 @@ export function setDraftPage(page: Page | null): void {
 }
 
 export function setDraftWorkflowState(state: WorkflowState | null): void {
+    if ($wizardDraftWorkflowState.get() === state) {
+        return;
+    }
+
     $wizardDraftWorkflowState.set(state);
+}
+
+export function setWizardMarkedAsReady(ready: boolean): void {
+    setDraftWorkflowState(ready ? WorkflowState.READY : WorkflowState.IN_PROGRESS);
 }
 
 export function setContentType(contentType: ContentType): void {
@@ -542,6 +640,7 @@ export function resetWizardContent(): void {
 
     $wizardPersistedWorkflowState.set(null);
     $wizardDraftWorkflowState.set(null);
+    $wizardDataValidation.set({});
 
     $contentType.set(null);
     $mixinsDescriptors.set([]);
