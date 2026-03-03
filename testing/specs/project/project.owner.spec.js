@@ -233,7 +233,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             // 2. The folder has been 'Marked as ready' in browse panel:
             await contentBrowsePanel.clickOnMarkAsReadyButton();
             await contentPublishDialog.waitForDialogOpened();
-            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.clickOnCloseButton();
             await contentPublishDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('project_owner_6');
             // 3. Open Publish Menu:

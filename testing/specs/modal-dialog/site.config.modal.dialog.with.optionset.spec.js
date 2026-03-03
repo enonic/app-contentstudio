@@ -65,7 +65,7 @@ describe('Tests for site configurator modal dialog with multi-selection Option S
             await contentWizard.clickOnMarkAsReadyButton();
             let contentPublishDialog = new ContentPublishDialog();
             await contentPublishDialog.waitForDialogOpened();
-            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.clickOnCloseButton();
             await contentPublishDialog.waitForDialogClosed();
             // 2. Open Site Configurator:
             await siteFormPanel.openSiteConfiguratorDialog(appConst.TEST_APPS_NAME.MY_FIRST_APP);

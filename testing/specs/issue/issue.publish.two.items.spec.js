@@ -51,7 +51,7 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             await contentBrowsePanel.clickOnMarkAsReadyButtonAndConfirm();
             // Publish wizard should be loaded automatically:
             await contentPublishDialog.waitForDialogOpened();
-            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.clickOnCloseButton();
             await contentPublishDialog.waitForDialogClosed();
             // Verify that 'Publish' button is default action now:
             await contentBrowsePanel.waitForPublishButtonVisible();

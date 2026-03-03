@@ -5,12 +5,14 @@ const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const {BUTTONS} = require('../../libs/elements');
 
-const xpath = {};
+const xpath = {
+    header: "//div[@role='dialog' and descendant::p[contains(.,'Permissions:')]]",
+};
 
 class BaseStepEditPermissionsDialog extends Page {
 
     get nextButton() {
-        return xpath.container + BUTTONS.buttonByLabel('Next');
+        return this.container + BUTTONS.buttonByLabel('Next');
     }
 
     get closeButton() {
@@ -47,13 +49,12 @@ class BaseStepEditPermissionsDialog extends Page {
         }
     }
 
-    waitForDialogClosed() {
+    async waitForDialogClosed() {
         let message = "Edit Permissions Dialog was not closed! timeout is " + 3000;
-        return this.getBrowser().waitUntil(() => {
-            return this.isElementNotDisplayed(xpath.container);
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: message}).then(() => {
-            return this.pause(400);
-        })
+        await this.getBrowser().waitUntil(async () => {
+            return await this.isElementNotDisplayed(xpath.header);
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: message});
+        await this.pause(400);
     }
 
     async clickOnNextButton() {

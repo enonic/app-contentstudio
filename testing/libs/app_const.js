@@ -434,6 +434,7 @@ module.exports = Object.freeze({
         CUSTOM: 'Custom...',
         CAN_PUBLISH: 'Can Publish',
         CAN_READ: 'Can Read',
+        CAN_WRITE: 'Can Write'
     },
     permissionOperation: {
         READ: 'Read',
@@ -497,11 +498,11 @@ module.exports = Object.freeze({
         SCHEDULED_MODIFIED: 'Scheduled, Modified',
     },
     PUBLISH_MENU: {
-        REQUEST_PUBLISH: 'Request Publishing...',
-        PUBLISH: 'Publish...',
-        PUBLISH_TREE: 'Publish Tree...',
+        REQUEST_PUBLISH: 'Request publishing',
+        PUBLISH: 'Publish',
+        PUBLISH_TREE: 'Publish Tree',
         MARK_AS_READY: 'Mark as ready',
-        UNPUBLISH: 'Unpublish...',
+        UNPUBLISH: 'Unpublish',
         CREATE_ISSUE: 'Create issue'
     },
     GRID_CONTEXT_MENU: {

@@ -33,7 +33,7 @@ describe('publish.request.dialog.add.items.spec - request publish dialog - check
             await contentWizard.typeDisplayName(displayName2);
             await contentWizard.clickOnMarkAsReadyButton();
             await contentPublishDialog.waitForDialogOpened();
-            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.clickOnCloseButton();
             await contentPublishDialog.waitForDialogClosed();
             // 3. Open publish menu in the wizard and create new publish request:
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);

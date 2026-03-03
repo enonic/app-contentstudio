@@ -3,7 +3,7 @@
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const {DEPENDANTS_COMPONENT, SELECTION_STATUS_BAR} = require('./../../libs/elements');
+const {DIALOG_ITEMS, SELECTION_STATUS_BAR} = require('./../../libs/elements');
 
 const xpath = {
     dependantsDataComponentDiv: "//div[@data-component,'SplitList.Secondary']",
@@ -26,19 +26,19 @@ class DependantsControls extends Page {
     }
 
     get showExcludedItemsButton() {
-        return this.container + DEPENDANTS_COMPONENT.SECONDARY_DATA_COMPONENT_DIV + lib.togglerButton('Show excluded');
+        return this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + lib.togglerButton('Show excluded');
     }
 
     get hideExcludedItemsButton() {
-        return this.container + DEPENDANTS_COMPONENT.SECONDARY_DATA_COMPONENT_DIV + lib.togglerButton('Hide excluded');
+        return this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + lib.togglerButton('Hide excluded');
     }
 
     get dependantsBlock() {
-        return this.container + DEPENDANTS_COMPONENT.SECONDARY_DATA_COMPONENT_DIV;
+        return this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV;
     }
 
     get allDependantsCheckbox() {
-        return this.container + DEPENDANTS_COMPONENT.SECONDARY_DATA_COMPONENT_DIV + lib.checkBoxDiv('All');
+        return this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + lib.checkBoxDiv('All');
     }
 
     waitForAllDependantsCheckboxDisplayed() {
@@ -191,7 +191,7 @@ class DependantsControls extends Page {
     }
 
     async getDisplayNameInDependentItems() {
-        let locator = this.container + DEPENDANTS_COMPONENT.SECONDARY_DATA_COMPONENT_DIV + DEPENDANTS_COMPONENT.CONTENT_ROW + DEPENDANTS_COMPONENT.ITEMS_NAME_SPAN;
+        let locator = this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + DIALOG_ITEMS.CONTENT_ROW + DIALOG_ITEMS.ITEMS_NAME_SPAN;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
@@ -199,8 +199,8 @@ class DependantsControls extends Page {
     async isDependantCheckboxSelected(name) {
         try {
 
-            let checkBoxInputLocator = this.container + DEPENDANTS_COMPONENT.contentCheckboxInputByName(name);
-            await this.waitForElementDisplayed(this.container + DEPENDANTS_COMPONENT.contentCheckboxLabelByName(name));
+            let checkBoxInputLocator = this.container + DIALOG_ITEMS.contentCheckboxInputByName(name);
+            await this.waitForElementDisplayed(this.container + DIALOG_ITEMS.contentCheckboxLabelByName(name));
             return await this.isSelected(checkBoxInputLocator);
         } catch (err) {
             await this.handleError(`Dependants block, is checkbox selected for item ${name}`, `err_checkbox_selected`, err);
@@ -208,7 +208,7 @@ class DependantsControls extends Page {
     }
 
     async clickOnCheckboxInDependentItem(displayName) {
-        let selector = DEPENDANTS_COMPONENT.contentCheckboxLabelByName(displayName);
+        let selector = DIALOG_ITEMS.contentCheckboxLabelByName(displayName);
         await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         await this.clickOnElement(selector);
         return await this.pause(400);

@@ -44,7 +44,7 @@ describe('publish.tree.check.child.spec - Publish Tree action - publish a conten
             // 4. Exclude child items:
             await contentPublishDialog.clickOnIncludeChildrenToogler();
             // 5. Close the modal dialog
-            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.clickOnCloseButton();
             // 6. Click on the 'Publish Tree' menu item and reopen the modal dialog:
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
             // Dependent items list should be expanded by default:

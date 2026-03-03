@@ -1,6 +1,7 @@
 const COMMON = {
     DISPLAY_NAME_INPUT: "//input[@name='displayName']",
     FOOTER_ELEMENT: `//footer`,
+    CSS_POINTER_EVENTS: 'pointer-events-none',
     NOTIFICATION_TEXT: "//div[@class='notification-wrapper']//p",
     FORM_VIEW: `//div[contains(@id,'FormView')]`,
     FORM_ITEM: "//div[contains(@id,'FormItem')]",
@@ -24,7 +25,7 @@ const COMMON = {
     }
 };
 const WIZARD = {
-    DISPLAY_NAME_INPUT: "//input[@name='displayName']",
+    DISPLAY_NAME_INPUT: "//input[@placeholder='Display Name']",
     RENAME_CONTENT_SPAN: "//span[contains(@title,'Click to rename the content')]",
     PATH_INPUT: "//input[@name='name']",
 
@@ -69,6 +70,8 @@ const LIVE_VIEW = {
     HIDE_PAGE_EDITOR_BUTTON: "//button[contains(@id,'ContentActionCycleButton') and @title='Hide Page Editor']",
 };
 const TREE_GRID = {
+    DIV_ROLE_GRID: "//div[@role='grid']",
+    DIV_ROLE_ROW: "//div[@role='row']",
     TREE_LIST_DIV: "//div[contains(@id,'tree-list')]",
     TREE_LIST_ITEM_DIV: "//div[contains(@role,'listitem')]",
     CONTENT_ITEM_CONTEXT_MENU: "//div[@role='menu' and contains(@id,'content')]",
@@ -141,19 +144,24 @@ const DROPDOWN_OLD = {
 const ISSUE = {
     contentRowByName: displayName => `//div[@data-component='ContentRow' and (descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]])]`,
 }
-const DEPENDANTS_COMPONENT = {
+const DIALOG_ITEMS = {
+    PRIMARY_DATA_COMPONENT: "//div[@data-component='SplitList.Primary']",
     SECONDARY_DATA_COMPONENT_DIV: "//div[@data-component='SplitList.Secondary']",
+    INCLUDE_CHILDREN_CHECKBOX: "/following::div[contains(@id,'children') and descendant::span[contains(.,'Include children')]]//label",
     CONTENT_ROW: "//div[@data-component='ContentRow' and (not(@aria-disabled) or @aria-disabled!='true')]",
+    CONTENT_REMOVE_BUTTON:"//div[@data-component='ContentRowRemoveButton' ]//button",
+    mainItemRowByName: name => `//div[@data-component='ContentRow' and descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${name}')]]]`,
     contentRowByName: displayName => `//div[@data-component='ContentRow' and (not(@aria-disabled) or @aria-disabled!='true') and (descendant::div[@data-component='ContentRowLabel' and descendant::span[contains(.,'${displayName}')]])]`,
     ITEMS_NAME_SPAN: "//div[@data-component='ContentRowLabel']//div[@data-component='ContentLabel']//div[2]//span",
-    //contentCheckboxLabelByName: name => DEPENDANTS_COMPONENT.contentRowByName(name) + `//div[@data-component='ContentRowCheckbox']/`,
-    contentCheckboxInputByName: name => DEPENDANTS_COMPONENT.contentRowByName(name) +
+    contentCheckboxInputByName: name => DIALOG_ITEMS.contentRowByName(name) +
                                         `//div[@data-component='ContentRowCheckbox']//input[@type='checkbox']`,
-    contentCheckboxLabelByName: name => DEPENDANTS_COMPONENT.contentRowByName(name) + `//div[@data-component='ContentRowCheckbox']//label`,
+    contentCheckboxLabelByName: name => DIALOG_ITEMS.contentRowByName(name) + `//div[@data-component='ContentRowCheckbox']//label`,
+    mainItemDivByName: name => DIALOG_ITEMS.PRIMARY_DATA_COMPONENT + DIALOG_ITEMS.mainItemRowByName(name),
 };
 const SELECTION_STATUS_BAR = {
-    SELECTION_STATUS_BAR: "//div[@data-component='SelectionStatusBar' ]",
+    COMPONENT_DIV: "//div[@data-component='SelectionStatusBar']",
     BUTTON_APPLY: "//button[@data-component='StatusBarEntryButton' and text()='Apply']",
+    buttonByLabel: (label) => `//button[@data-component='StatusBarEntryButton' and contains(.,'${label}')]`,
 
 };
 module.exports = Object.freeze({
@@ -164,6 +172,6 @@ module.exports = Object.freeze({
     TREE_GRID,
     DROPDOWN,
     ISSUE,
-    DEPENDANTS_COMPONENT,
+    DIALOG_ITEMS,
     SELECTION_STATUS_BAR
 });

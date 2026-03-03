@@ -23,7 +23,7 @@ class AccessControlCombobox extends BasDropdown {
         try {
             await this.doFilterItem(principal);
             await this.clickOnOptionByDisplayName(principal);
-            await this.clickOnApplyButton();
+            await this.clickOnApplySelectionButton();
         } catch (err) {
             await this.handleError(`AccessControlComboBox, tried to click on the option: ${principal} and apply changes`,
                 'err_click_option_apply', err);

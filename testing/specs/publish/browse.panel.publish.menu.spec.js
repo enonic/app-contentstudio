@@ -48,7 +48,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             // 2. Click on 'Mark As Ready' then close the 'Publish wizard':
             await contentBrowsePanel.clickOnMarkAsReadyButton();
             await contentPublishDialog.waitForDialogOpened();
-            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.clickOnCloseButton();
             await contentPublishDialog.waitForDialogClosed();
             // 3. open Publish Menu and verify status of all menu items:
             await contentBrowsePanel.openPublishMenu();

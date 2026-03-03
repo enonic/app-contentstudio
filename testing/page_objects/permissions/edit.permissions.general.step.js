@@ -14,12 +14,12 @@ const xpath = {
     aceSelectedOptionsView: "//div[contains(@id,'ACESelectedOptionsView')]",
     dialogButtonRow: `//div[contains(@class,'button-container')]`,
     permissionToggleByOperationName: name => `//a[contains(@id,'PermissionToggle') and text()='${name}']`,
-    aclEntryByName:
-        name => `//div[contains(@id,'PrincipalContainerSelectedOptionView') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`,
+    aclEntryRowByName:
+        name => `//div[@role='row' and (descendant::div[@data-component='ItemLabel' and descendant::span[contains(.,'${name}')]])]`,
     aclEntryByDisplayName:
         displayName => `//div[contains(@id,'PrincipalContainerSelectedOptionView') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
-    menuItemByName:
-        name => `//li[contains(@id,'TabMenuItem') and child::a[text()='${name}']]`,
+    aclOperationByValue:
+        name => `//div[@role='option' and child::span[text()='${name}']]`,
 };
 
 class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
@@ -190,15 +190,15 @@ class EditPermissionsGeneralStep extends BaseStepPermissionsDialog {
         }
     }
 
-    //finds an entry, clicks on 'tab-menu-button' (Can Write or Can Read or Custom...)  and selects new required 'operation'
+    // finds the acl entry, expands the menu (Can Write or Can Read or Custom...)  and clicks on the required 'operation'
     async showAceMenuAndSelectItem(principalName, menuItem) {
         try {
-            let tabMenuButton = xpath.aclEntryByName(principalName) + `//div[contains(@class,'tab-menu-button')]`;
-            let menuItemXpath = xpath.aclEntryByName(principalName) + xpath.menuItemByName(menuItem);
-            //  Open menu:
-            await this.clickOnElement(tabMenuButton);
+            let aclRowMenuButton = xpath.aclEntryRowByName(principalName) + `//button[@role='combobox']`;
+            let menuItemXpath =  xpath.aclEntryRowByName(principalName)+ xpath.aclOperationByValue(menuItem);
+            //  Expand the menu:
+            await this.clickOnElement(aclRowMenuButton);
             await this.pause(1000);
-            //Select a menu item: Custom, Can Write, Can Read....
+            // Click on a menu item: Custom, Can Write, Can Read....
             return await this.clickOnElement(menuItemXpath);
         } catch (err) {
             await this.handleError(`Principal operations, tab menu button`, 'err_click_on_ace_menu_button', err);

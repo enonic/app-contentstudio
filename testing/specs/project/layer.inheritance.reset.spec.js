@@ -122,7 +122,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             // 2. Press 'Mark as Ready' button:
             await contentWizard.clickOnMarkAsReadyButton();
             await contentPublishDialog.waitForDialogOpened();
-            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.clickOnCloseButton();
             await contentPublishDialog.waitForDialogClosed();
             // 3. Click on 'Reset' button:
             let confirmationDialog = await contentWizard.clickOnResetAndWaitForConfirmationDialog();

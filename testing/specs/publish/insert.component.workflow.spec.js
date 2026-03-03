@@ -53,7 +53,7 @@ describe("insert.component.workflow.spec - insert a component and click on 'Mark
             let actualMessage = await contentWizard.waitForNotificationMessage();
             assert.equal(actualMessage, expectedMessage, "Item is marked as ready - this message should appear");
             // Publish Wizard loads automatically , close it :
-            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.clickOnCloseButton();
             await studioUtils.saveScreenshot("text_component_mark_as_ready_pressed");
             // 5. Verify the workflow state get 'Ready for publishing'
             await contentWizard.clickOnMinimizeLiveEditToggler();
