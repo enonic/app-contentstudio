@@ -64,7 +64,7 @@ export const ContentWizardToolbar = ({
         contentPath,
         canRenameContentPath,
         isPathAvailable,
-        workflowStatus,
+        contentState,
         isLayerProject
     } = useStore($wizardToolbar, {
         keys: [
@@ -77,7 +77,7 @@ export const ContentWizardToolbar = ({
             'contentPath',
             'canRenameContentPath',
             'isPathAvailable',
-            'workflowStatus',
+            'contentState',
             'isLayerProject'
         ]
     });
@@ -172,8 +172,8 @@ export const ContentWizardToolbar = ({
                             />
                         </Toolbar.Item>
                     )}
-                    {workflowStatus && (
-                        <StatusIcon status={workflowStatus} className='size-3.5 my-auto mx-1.5 md:mx-2.75 shrink-0'/>
+                    {contentState && (
+                        <StatusIcon status={contentState} className='size-3.5 my-auto mx-1.5 md:mx-2.75 shrink-0'/>
                     )}
                     <Toolbar.Item asChild disabled={!bp.sm}>
                         <Button

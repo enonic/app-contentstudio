@@ -42,7 +42,7 @@ function createNodeData(id: string, displayName?: string): ContentTreeNodeData {
         displayName: displayName ?? `Node ${id}`,
         name: id,
         publishStatus: PublishStatus.ONLINE,
-        workflowStatus: null,
+        contentState: null,
         contentType: null as unknown as ContentTreeNodeData['contentType'],
         iconUrl: null,
     };

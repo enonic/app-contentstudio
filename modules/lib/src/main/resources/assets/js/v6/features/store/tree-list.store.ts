@@ -1,7 +1,7 @@
 import {atom, computed} from 'nanostores';
 import {$contentDeleted, $contentArchived, $contentCreated, $contentDuplicated} from './socket.store';
 import type {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
-import {calcWorkflowStateStatus} from '../utils/cms/content/workflow';
+import {calcContentState} from '../utils/cms/content/workflow';
 import {resolveDisplayName, resolveSubName} from '../utils/cms/content/prettify';
 import {
     createEmptyState,
@@ -325,7 +325,7 @@ function toTreeNodeData(content: ContentSummaryAndCompareStatus): ContentTreeNod
         displayName: resolveDisplayName(content),
         name: resolveSubName(content),
         publishStatus: content.getPublishStatus(),
-        workflowStatus: calcWorkflowStateStatus(content.getContentSummary()),
+        contentState: calcContentState(content.getContentSummary()),
         contentType: content.getType(),
         iconUrl: content.getContentSummary().getIconUrl(),
     };

@@ -163,7 +163,7 @@ function createMockNode(
             displayName: `Display ${id}`,
             name: `name-${id}`,
             publishStatus: 'ONLINE' as never,
-            workflowStatus: null,
+            contentState: null,
             contentType: {toString: () => 'base:content'} as never,
             iconUrl: null,
             item: mockContent as never,

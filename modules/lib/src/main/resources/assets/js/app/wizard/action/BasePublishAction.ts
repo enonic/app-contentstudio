@@ -3,6 +3,7 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {type ContentWizardPanel} from '../ContentWizardPanel';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {$wizardContentState} from '../../../v6/features/store/wizardContent.store';
 
 export interface BasePublishActionConfig {
     wizard: ContentWizardPanel;
@@ -57,7 +58,7 @@ export abstract class BasePublishAction
     }
 
     private checkOnExecuted(callback: () => void) {
-        if (this.config.wizard.checkContentCanBePublished()) {
+        if ($wizardContentState.get() !== 'invalid') {
             this.config.wizard.setRequireValid(true);
             callback();
         } else if (this.config.errorMessage) {

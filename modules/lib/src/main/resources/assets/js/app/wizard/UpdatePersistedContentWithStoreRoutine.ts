@@ -11,7 +11,6 @@ import {
     $wizardDraftPage,
 } from '../../v6/features/store/wizardContent.store';
 import {type Content} from '../content/Content';
-import type {WorkflowState} from '../content/WorkflowState';
 import {Flow, type RoutineContext} from './Flow';
 import {type ContentWizardPanel} from './ContentWizardPanel';
 import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
@@ -35,8 +34,6 @@ export class UpdatePersistedContentWithStoreRoutine
 
     private requireValid: boolean;
 
-    private workflowState: WorkflowState;
-
     constructor(thisOfProducer: ContentWizardPanel, persistedContent: Content) {
         super(thisOfProducer);
         this.persistedContent = persistedContent;
@@ -50,19 +47,13 @@ export class UpdatePersistedContentWithStoreRoutine
         const viewedContent = this.buildViewedContentFromStore();
 
         const routine = new UpdatePersistedContentRoutine(this.getThisOfProducer(), this.persistedContent, viewedContent)
-            .setRequireValid(this.requireValid)
-            .setWorkflowState(this.workflowState);
+            .setRequireValid(this.requireValid);
 
         return await routine.execute();
     }
 
     setRequireValid(requireValid: boolean): UpdatePersistedContentWithStoreRoutine {
         this.requireValid = requireValid;
-        return this;
-    }
-
-    setWorkflowState(state: WorkflowState): UpdatePersistedContentWithStoreRoutine {
-        this.workflowState = state;
         return this;
     }
 

@@ -1,7 +1,7 @@
 import {ReactElement} from 'react';
 import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import {resolveDisplayName, resolvePath} from '../../utils/cms/content/prettify';
-import {calcWorkflowStateStatus} from '../../utils/cms/content/workflow';
+import {calcContentState} from '../../utils/cms/content/workflow';
 import {ItemLabel, ItemLabelProps} from '../ItemLabel';
 import {WorkflowContentIcon} from '../icons/WorkflowContentIcon';
 
@@ -32,7 +32,7 @@ export const ContentLabel = ({
     const isCompact = variant === 'compact';
     const showFullPath = variant === 'compact' || variant === 'detailed';
 
-    const status = hideStatus ? null : calcWorkflowStateStatus(content.getContentSummary());
+    const status = hideStatus ? null : calcContentState(content.getContentSummary());
     const Icon = (
         <WorkflowContentIcon
             status={status}

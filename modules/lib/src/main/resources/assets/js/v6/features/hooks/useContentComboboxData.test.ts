@@ -50,7 +50,7 @@ vi.mock('../utils/cms/content/applyContentFilters', () => ({
 }));
 
 vi.mock('../utils/cms/content/workflow', () => ({
-    calcWorkflowStateStatus: vi.fn(() => null),
+    calcContentState: vi.fn(() => null),
 }));
 
 vi.mock('../utils/cms/content/prettify', () => ({

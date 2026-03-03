@@ -21,7 +21,6 @@ import {subscribe as subscribeToCollaborators} from '../stores/collaboration';
 import {UrlHelper} from '../util/UrlHelper';
 import {type ContentWizardActions} from '../wizard/action/ContentWizardActions';
 import {ContentWizardToolbarPublishControls} from '../wizard/ContentWizardToolbarPublishControls';
-import {type WorkflowStateManager} from '../wizard/WorkflowStateManager';
 import {
     $wizardToolbar,
     setWizardToolbarCanRenameContentPath,
@@ -33,18 +32,15 @@ import {
     setWizardToolbarProjectInfo,
     setWizardToolbarProjectLabel,
     setWizardToolbarPublishStatus,
-    setWizardToolbarWorkflowStatus
 } from '../../v6/features/store/wizardToolbar.store';
 import {$wizardDraftName} from '../../v6/features/store/wizardContent.store';
 import type {WizardToolbarCollaborator} from '../../v6/features/store/wizardToolbar.types';
-import {calcWorkflowStateStatus} from '../../v6/features/utils/cms/content/workflow';
 import {
     ContentWizardToolbarElement as V6ContentWizardToolbarElement
 } from '../../v6/features/views/browse/toolbar/ContentWizardToolbar';
 
 export type ContentWizardToolbarConfig = ToolbarConfig & {
     actions: ContentWizardActions;
-    workflowStateIconsManager: WorkflowStateManager;
     compareVersionsPreHook?: () => Q.Promise<void>;
     onContentPathClick?: () => void;
 };
@@ -169,17 +165,12 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
 
     setItem(item: ContentSummaryAndCompareStatus): void {
         this.item = item;
-        const summary = item?.getContentSummary();
         const publishStatus = item?.getPublishStatus() ?? $wizardToolbar.get().publishStatus ?? null;
-        const workflowStatus = this.config.workflowStateIconsManager.getStatus() ??
-                               $wizardToolbar.get().workflowStatus ??
-                               (summary ? calcWorkflowStateStatus(summary) : null);
         const contentPath = this.resolveToolbarContentPath(item);
         setWizardToolbarPublishStatus(publishStatus);
         setWizardToolbarContentPath(contentPath);
         setWizardToolbarCanRenameContentPath(!!item?.getPath());
         setWizardToolbarIsContentOnline(!!item?.isOnline());
-        setWizardToolbarWorkflowStatus(workflowStatus);
         this.contentWizardToolbarPublishControls.setContent(item);
 
         if (this.isCollaborationEnabled()) {

@@ -2,9 +2,8 @@ import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {map} from 'nanostores';
 import {ContentUnnamed} from '../../../app/content/ContentUnnamed';
 import type {PublishStatus} from '../../../app/publish/PublishStatus';
-import type {WorkflowStateStatus} from '../../../app/wizard/WorkflowStateManager';
 import type {WizardToolbarCollaborator, WizardToolbarStore} from './wizardToolbar.types';
-import {$wizardDraftDisplayName, $wizardDraftName, setDraftName} from './wizardContent.store';
+import {$wizardContentState, $wizardDraftDisplayName, $wizardDraftName, setDraftName} from './wizardContent.store';
 import {ContentName} from '../../../app/content/ContentName';
 
 const createInitialState = (): WizardToolbarStore => ({
@@ -18,7 +17,7 @@ const createInitialState = (): WizardToolbarStore => ({
     canRenameContentPath: false,
     isPathAvailable: true,
     isContentOnline: false,
-    workflowStatus: null,
+    contentState: null,
     isLayerProject: false,
 });
 
@@ -67,6 +66,10 @@ $wizardDraftName.subscribe((name) => {
     $wizardToolbar.setKey('contentPath', normalizeContentPath(nameStr));
 });
 
+$wizardContentState.subscribe((contentState) => {
+    $wizardToolbar.setKey('contentState', contentState);
+});
+
 export function setWizardToolbarProjectLabel(projectLabel: string): void {
     $wizardToolbar.setKey('projectLabel', projectLabel);
 }
@@ -101,15 +104,14 @@ export function setWizardToolbarIsContentOnline(isContentOnline: boolean): void 
     $wizardToolbar.setKey('isContentOnline', isContentOnline);
 }
 
-export function setWizardToolbarWorkflowStatus(workflowStatus: WorkflowStateStatus | null): void {
-    $wizardToolbar.setKey('workflowStatus', workflowStatus);
-}
-
 export function setWizardToolbarIsLayerProject(isLayerProject: boolean): void {
     $wizardToolbar.setKey('isLayerProject', isLayerProject);
 }
 
 export function resetWizardToolbar(): void {
-    previousDisplayName = undefined;
-    $wizardToolbar.set(createInitialState());
+    previousDisplayName = $wizardDraftDisplayName.get();
+    $wizardToolbar.set({
+        ...createInitialState(),
+        contentState: $wizardContentState.get(),
+    });
 }

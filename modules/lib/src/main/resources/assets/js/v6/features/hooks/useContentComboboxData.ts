@@ -11,13 +11,13 @@ import {ContentSelectorQueryRequest} from '../../../app/resource/ContentSelector
 import {ContentSummaryAndCompareStatusFetcher} from '../../../app/resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentTreeSelectorQueryRequest} from '../../../app/resource/ContentTreeSelectorQueryRequest';
 import {type ChildOrder} from '../../../app/resource/order/ChildOrder';
-import type {WorkflowStateStatus} from '../../../app/wizard/WorkflowStateManager';
 import type {CreateNodeOptions, FlatNode, UseTreeStoreReturn} from '../lib/tree-store';
 import {getLoadingNodeParentId, LOADING_NODE_PREFIX, useTreeStore} from '../lib/tree-store';
 import {getContent, setContents} from '../store/content.store';
 import {applyContentFilters, type ContentFilterOptions} from '../utils/cms/content/applyContentFilters';
+import type {ContentState} from '../../../app/content/ContentState';
 import {resolveDisplayName, resolveSubName} from '../utils/cms/content/prettify';
-import {calcWorkflowStateStatus} from '../utils/cms/content/workflow';
+import {calcContentState} from '../utils/cms/content/workflow';
 
 //
 // * Types
@@ -34,7 +34,7 @@ export type ContentComboboxNodeData = {
     displayName: string;
     name: string;
     publishStatus: PublishStatus;
-    workflowStatus: WorkflowStateStatus | null;
+    contentState: ContentState | null;
     contentType: ContentTypeName;
     iconUrl: string | null;
     item: ContentSummaryAndCompareStatus;
@@ -112,7 +112,7 @@ function toNodeData(content: ContentSummaryAndCompareStatus, selectable = true):
         displayName: resolveDisplayName(content),
         name: resolveSubName(content),
         publishStatus: content.getPublishStatus(),
-        workflowStatus: calcWorkflowStateStatus(content.getContentSummary()),
+        contentState: calcContentState(content.getContentSummary()),
         contentType: content.getType(),
         iconUrl: content.getContentSummary().getIconUrl(),
         item: content,
@@ -128,7 +128,7 @@ function toNodeDataFromTreeItem(item: ContentTreeSelectorItem): ContentComboboxN
         displayName: item.getDisplayName(),
         name: item.getName()?.toString() ?? '',
         publishStatus: content?.getPublishStatus() ?? item.getPublishStatus(),
-        workflowStatus: calcWorkflowStateStatus(content?.getContentSummary() ?? item.getContentSummary()),
+        contentState: calcContentState(content?.getContentSummary() ?? item.getContentSummary()),
         contentType: content?.getType() ?? item.getType(),
         iconUrl: content?.getContentSummary()?.getIconUrl() ?? item.getIconUrl(),
         item: content ?? item.getContent(),

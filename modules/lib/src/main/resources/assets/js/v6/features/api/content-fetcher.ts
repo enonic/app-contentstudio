@@ -22,7 +22,7 @@ import {
     type ContentTreeNodeData,
 } from '../store/tree-list.store';
 import type {CreateNodeOptions} from '../lib/tree-store';
-import {calcWorkflowStateStatus} from '../utils/cms/content/workflow';
+import {calcContentState} from '../utils/cms/content/workflow';
 import {resolveDisplayName, resolveSubName} from '../utils/cms/content/prettify';
 
 //
@@ -82,7 +82,7 @@ function toTreeNodeData(content: ContentSummaryAndCompareStatus): ContentTreeNod
         displayName: resolveDisplayName(content),
         name: resolveSubName(content),
         publishStatus: content.getPublishStatus(),
-        workflowStatus: calcWorkflowStateStatus(content.getContentSummary()),
+        contentState: calcContentState(content.getContentSummary()),
         contentType: content.getType(),
         iconUrl: content.getContentSummary().getIconUrl(),
     };

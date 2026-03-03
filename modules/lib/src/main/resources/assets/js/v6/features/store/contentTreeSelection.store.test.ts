@@ -38,7 +38,7 @@ function createMockNodeData(id: string): ContentTreeNodeData {
         displayName: `Node ${id}`,
         name: `node-${id}`,
         publishStatus: PublishStatus.ONLINE,
-        workflowStatus: null,
+        contentState: null,
         contentType: new ContentTypeName('base:folder'),
         iconUrl: null,
     };

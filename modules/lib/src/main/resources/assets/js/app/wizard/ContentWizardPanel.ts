@@ -65,7 +65,6 @@ import {type MixinDescriptor} from '../content/MixinDescriptor';
 import {MixinName} from '../content/MixinName';
 import {type PageTemplate} from '../content/PageTemplate';
 import {type Site} from '../content/Site';
-import {WorkflowState} from '../content/WorkflowState';
 import {ContentFormContext} from '../ContentFormContext';
 import {BeforeContentSavedEvent} from '../event/BeforeContentSavedEvent';
 import {ContentLanguageUpdatedEvent} from '../event/ContentLanguageUpdatedEvent';
@@ -139,7 +138,6 @@ import {SiteContentWizardStepForm} from './SiteContentWizardStepForm';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
 import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
 import {UpdatePersistedContentWithStoreRoutine} from './UpdatePersistedContentWithStoreRoutine';
-import {WorkflowStateManager, type WorkflowStateStatus} from './WorkflowStateManager';
 import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
@@ -147,17 +145,19 @@ import {ViewWidgetEvent} from '../event/ViewWidgetEvent';
 import {type PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
 import {ContentWizardTabsToolbarElement} from '../../v6/features/views/wizard/content-wizard-tabs/ContentWizardTabsToolbarElement';
 import {
-    $displayName, $isContentFormExpanded,
+    $displayName,
+    $isContentFormExpanded,
+    $wizardContentState,
     $wizardDraftName,
     $wizardHasChanges,
+    $wizardIsMarkedAsReady,
     initializeWizardContentState,
     resetWizardContent,
     setContentFormExpanded,
     setContentType as setWizardContentType,
-    setDraftDisplayName,
     setDraftName,
     setDraftPage,
-    setDraftWorkflowState,
+    setWizardMarkedAsReady,
     setMixinsDescriptors as setWizardMixinsDescriptors,
     setPersistedContent as setWizardPersistedContent,
 } from '../../v6/features/store/wizardContent.store';
@@ -221,8 +221,6 @@ export class ContentWizardPanel
 
     private isContentFormValid: boolean;
 
-    private markedAsReady: boolean;
-
     private contentNamedListeners: ((event: ContentNamedEvent) => void)[];
 
     private inMobileViewMode: boolean;
@@ -275,8 +273,6 @@ export class ContentWizardPanel
 
     private isFirstUpdateAndRenameEventSkiped: boolean;
 
-    private workflowStateManager: WorkflowStateManager;
-
     public static debug: boolean = false;
 
     private formsContexts: Map<string, ContentFormContext> = new Map<string, ContentFormContext>();
@@ -293,6 +289,8 @@ export class ContentWizardPanel
 
     private contentFormExpandedUnsubscribe?: () => void;
 
+    private contentStateUnsubscribe?: () => void;
+
     constructor(params: ContentWizardPanelParams, cls?: string) {
         super(params);
 
@@ -308,7 +306,6 @@ export class ContentWizardPanel
         super.initElements();
 
         this.isContentFormValid = false;
-        this.setMarkedAsReady(false);
         this.requireValid = false;
         this.skipValidation = false;
         this.contentNamedListeners = [];
@@ -318,7 +315,6 @@ export class ContentWizardPanel
         this.isFirstUpdateAndRenameEventSkiped = false;
         this.displayNameResolver = new DisplayNameResolver();
         this.xDataWizardStepForms = new XDataWizardStepForms();
-        this.workflowStateManager = new WorkflowStateManager(this);
         this.debouncedEnonicAiDataChangedHandler = AppHelper.debounce(() => {
             AI.get().setCurrentData({
                 contentId: this.getPersistedItem()?.getContentId().toString() ?? '',
@@ -465,11 +461,6 @@ export class ContentWizardPanel
         this.getWizardHeader().onPropertyChanged(this.dataChangedHandler);
         this.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
             const propertyName = event.getPropertyName();
-            const header = this.getWizardHeader();
-
-            setDraftDisplayName(header.getDisplayName());
-            setDraftName(this.resolveContentNameForUpdateRequest());
-            this.workflowStateManager.update();
 
             if (propertyName === 'unique') {
                 const isPathAvailable = event.getNewValue() !== 'false';
@@ -592,7 +583,6 @@ export class ContentWizardPanel
                     // in case of new content will be created in super.loadData()
                     this.formState.setIsNew(this.params.displayAsNew);
                     this.setPersistedItem(loader.content);
-                    this.setMarkedAsReady(loader.content.getWorkflow().getState() === WorkflowState.READY);
 
                     if (this.params.displayAsNew) {
                         showFeedback(i18n('notify.content.created'));
@@ -664,7 +654,6 @@ export class ContentWizardPanel
     protected createMainToolbar(): Toolbar<ToolbarConfig> {
         return new ContentWizardToolbar({
             actions: this.wizardActions,
-            workflowStateIconsManager: this.workflowStateManager,
             onContentPathClick: () => {
                 this.requestContentPathRename();
             },
@@ -872,6 +861,8 @@ export class ContentWizardPanel
                 this.wizardHasChangesUnsubscribe = undefined;
                 this.contentFormExpandedUnsubscribe?.();
                 this.contentFormExpandedUnsubscribe = undefined;
+                this.contentStateUnsubscribe?.();
+                this.contentStateUnsubscribe = undefined;
                 resetWizardContent();
             });
 
@@ -880,7 +871,6 @@ export class ContentWizardPanel
             this.onValidityChanged((event: ValidityChangedEvent) => {
                 const isThisValid: boolean = this.isValid();
                 this.isContentFormValid = isThisValid;
-                this.workflowStateManager.update();
 
                 if (!this.getPersistedItem()) {
                     return;
@@ -899,9 +889,12 @@ export class ContentWizardPanel
             thumbnailUploader.onFileUploaded(this.onFileUploaded.bind(this));
             thumbnailUploader.toggleClass('icon-variant', this.getPersistedItem().isVariant());
 
-            this.workflowStateManager.onStatusChanged((status: WorkflowStateStatus) => {
-                this.wizardActions.setContentCanBeMarkedAsReady(WorkflowStateManager.isInProgress(status)).refreshState();
-                this.setMarkedAsReady(WorkflowStateManager.isReady(status));
+            this.contentStateUnsubscribe = $wizardContentState.subscribe((contentState) => {
+                if (contentState == null) {
+                    return;
+                }
+
+                this.wizardActions.setContentCanBeMarkedAsReady(contentState === 'in-progress').refreshState();
             });
 
             this.getContentWizardToolbarPublishControls().getPublishButton().onPublishRequestActionChanged((added: boolean) => {
@@ -932,7 +925,6 @@ export class ContentWizardPanel
                 this.getPersistedItem(),
                 this.contentType ?? null,
                 [],
-                this.markedAsReady ? WorkflowState.READY : this.getPersistedItem().getWorkflow()?.getState() ?? null,
             );
         } else if (this.contentType) {
             setWizardContentType(this.contentType);
@@ -1731,7 +1723,6 @@ export class ContentWizardPanel
         this.getContentWizardToolbar().setItem(updatedContent);
         this.getWidgetToolbar().setItem(updatedContent);
         this.wizardActions.setContent(updatedContent).refreshState();
-        this.workflowStateManager.update();
 
         const isUpdatedAndRenamed = this.isContentUpdatedAndRenamed(updatedContent);
         if (!isUpdatedAndRenamed || this.isFirstUpdateAndRenameEventSkiped) {
@@ -1922,7 +1913,6 @@ export class ContentWizardPanel
             .setParams({id})
             .setEnabled(this.contentType ? !content.isImage() : false)
             .setValue(new ContentIconUrlResolver().setContent(content).resolve());
-        this.workflowStateManager.update();
     }
 
     private toggleLiveEdit(): Q.Promise<void> {
@@ -2219,9 +2209,7 @@ export class ContentWizardPanel
                 this.assembleViewedContent(persistedContent.newBuilder(), true, this.isRename).build(),
             );
 
-        updateContentRoutine
-            .setRequireValid(this.requireValid)
-            .setWorkflowState(this.markedAsReady ? WorkflowState.READY : WorkflowState.IN_PROGRESS);
+        updateContentRoutine.setRequireValid(this.requireValid);
 
         return updateContentRoutine.execute().then((context: RoutineContext) => {
             const content: Content = context.content;
@@ -2277,7 +2265,7 @@ export class ContentWizardPanel
             message = i18n('notify.item.savedUnnamed');
         } else if (this.isRename) {
             message = i18n('notify.wizard.contentRenamed', name);
-        } else if (this.markedAsReady) {
+        } else if (content.isReady()) {
             message = i18n('notify.item.markedAsReady', name);
         } else {
             message = i18n('notify.item.saved', name);
@@ -2402,12 +2390,11 @@ export class ContentWizardPanel
     }
 
     setMarkedAsReady(value: boolean) {
-        this.markedAsReady = value;
-        setDraftWorkflowState(value ? WorkflowState.READY : WorkflowState.IN_PROGRESS);
+        setWizardMarkedAsReady(value);
     }
 
     isMarkedAsReady(): boolean {
-        return this.markedAsReady;
+        return $wizardIsMarkedAsReady.get();
     }
 
     showForm(): void {
@@ -2631,7 +2618,6 @@ export class ContentWizardPanel
             }
             this.getContentWizardToolbar().setItem(this.getContent());
             this.wizardActions.setContent(this.getContent()).refreshState();
-            this.workflowStateManager.update();
         }
     }
 
