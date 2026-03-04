@@ -1,23 +1,22 @@
-import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {cn, Dialog, Tooltip} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ReactElement, useCallback, useMemo} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {
-    $isNewProjectDialogDirty,
-    $newProjectDialog,
-    closeNewProjectDialog,
+    $isProjectDialogDirty,
+    $projectDialog,
+    closeProjectDialog,
     createProject,
-    setNewProjectDialogStep,
-    setNewProjectDialogView,
-} from '../../../store/dialogs/newProjectDialog.store';
+    updateProject,
+    setProjectDialogStep,
+    setProjectDialogView,
+} from '../../../store/dialogs/projectDialog.store';
 import {ConfirmationDialog} from '../ConfirmationDialog';
-import {NewProjectDialogSteps} from './steps';
+import {ProjectDialogSteps} from './steps';
 
-const NEW_PROJECT_DIALOG_NAME = 'NewProjectDialog';
+const NEW_PROJECT_DIALOG_NAME = 'ProjectDialog';
 
-export const NewProjectDialog = (): ReactElement => {
+export const ProjectDialog = (): ReactElement => {
     const {
         open,
         view,
@@ -25,13 +24,16 @@ export const NewProjectDialog = (): ReactElement => {
         accessMode,
         nameData: {hasError},
         submitting,
-    } = useStore($newProjectDialog, {keys: ['open', 'view', 'step', 'accessMode', 'nameData', 'submitting']});
+        mode,
+    } = useStore($projectDialog, {keys: ['open', 'view', 'step', 'accessMode', 'nameData', 'submitting', 'mode']});
 
-    const isDirty = useStore($isNewProjectDialogDirty);
+    const isDirty = useStore($isProjectDialogDirty);
 
     const previousLabel = useI18n('dialog.project.wizard.previous');
     const nextLabel = useI18n('dialog.project.wizard.next');
-    const submitLabel = useI18n('dialog.project.wizard.action.submit');
+    const createLabel = useI18n('dialog.project.wizard.action.submit');
+    const updateLabel = useI18n('dialog.project.wizard.action.update');
+    const submitLabel = mode === 'edit' ? updateLabel : createLabel;
     const confirmTitle = useI18n('dialog.confirm.newProject.title');
     const confirmDescription = useI18n('dialog.confirm.newProject.description');
     const parentStepTitle = useI18n('dialog.project.wizard.parent.stepTitle');
@@ -59,34 +61,30 @@ export const NewProjectDialog = (): ReactElement => {
             if (open) return;
 
             if (view === 'confirmation') {
-                setNewProjectDialogView('main');
+                setProjectDialogView('main');
                 return;
             }
 
             if (isDirty) {
-                setNewProjectDialogView('confirmation');
+                setProjectDialogView('confirmation');
                 return;
             }
 
-            closeNewProjectDialog();
+            closeProjectDialog();
         },
         [isDirty, view]
     );
 
-    const handleSubmit = () => {
-        createProject()
-            .map(({project}) => {
-                closeNewProjectDialog();
-                showSuccess(i18n('notify.settings.project.created', project.getDisplayName()));
-            })
-            .mapErr((error) => {
-                console.error(error);
-                showError(error.message);
-            });
-    };
+    const handleSubmit = useCallback(() => {
+        if (mode === 'edit') {
+            updateProject();
+        } else {
+            createProject();
+        }
+    }, [mode]);
 
     const handleConfirm = () => {
-        closeNewProjectDialog();
+        closeProjectDialog();
     };
 
     return (
@@ -95,26 +93,26 @@ export const NewProjectDialog = (): ReactElement => {
             open={open}
             onOpenChange={handleOpenChange}
             step={step}
-            onStepChange={setNewProjectDialogStep}
+            onStepChange={setProjectDialogStep}
         >
             <Dialog.Portal>
                 <Dialog.Overlay />
                 {view === 'main' && (
                     <Dialog.Content className="w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220">
-                        <NewProjectDialogSteps.ParentStep.Header />
-                        <NewProjectDialogSteps.NameStep.Header />
-                        <NewProjectDialogSteps.AccessStep.Header />
-                        <NewProjectDialogSteps.RoleStep.Header />
-                        <NewProjectDialogSteps.ApplicationStep.Header />
-                        <NewProjectDialogSteps.SummaryStep.Header />
+                        <ProjectDialogSteps.ParentStep.Header />
+                        <ProjectDialogSteps.NameStep.Header />
+                        <ProjectDialogSteps.AccessStep.Header />
+                        <ProjectDialogSteps.RoleStep.Header />
+                        <ProjectDialogSteps.ApplicationStep.Header />
+                        <ProjectDialogSteps.SummaryStep.Header />
 
                         <Dialog.Body className={cn(step !== 'step-summary' && 'p-2 -m-2')}>
-                            <NewProjectDialogSteps.ParentStep.Content />
-                            <NewProjectDialogSteps.NameStep.Content />
-                            <NewProjectDialogSteps.AccessStep.Content locked={hasError} />
-                            <NewProjectDialogSteps.RoleStep.Content locked={!accessMode || hasError} />
-                            <NewProjectDialogSteps.ApplicationStep.Content locked={!accessMode || hasError} />
-                            <NewProjectDialogSteps.SummaryStep.Content locked={!accessMode || hasError} />
+                            <ProjectDialogSteps.ParentStep.Content />
+                            <ProjectDialogSteps.NameStep.Content />
+                            <ProjectDialogSteps.AccessStep.Content locked={hasError} />
+                            <ProjectDialogSteps.RoleStep.Content locked={!accessMode || hasError} />
+                            <ProjectDialogSteps.ApplicationStep.Content locked={!accessMode || hasError} />
+                            <ProjectDialogSteps.SummaryStep.Content locked={!accessMode || hasError} />
                         </Dialog.Body>
 
                         <Dialog.Footer className="flex flex-col">
@@ -145,4 +143,4 @@ export const NewProjectDialog = (): ReactElement => {
     );
 };
 
-NewProjectDialog.displayName = NEW_PROJECT_DIALOG_NAME;
+ProjectDialog.displayName = NEW_PROJECT_DIALOG_NAME;

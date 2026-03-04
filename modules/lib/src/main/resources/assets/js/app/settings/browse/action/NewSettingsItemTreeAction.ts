@@ -6,15 +6,14 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {ProjectConfigContext} from '../../data/project/ProjectConfigContext';
 import {getCurrentItems} from '../../../../v6/features/store/settingsTreeSelection.store';
-import {openNewProjectDialog} from '../../../../v6/features/store/dialogs/newProjectDialog.store';
-import {type SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import {openCreateProjectDialog} from '../../../../v6/features/store/dialogs/projectDialog.store';
 
 export class NewSettingsItemTreeAction extends Action {
     constructor() {
         super(i18n('action.new'), 'alt+n');
 
         this.onExecuted(() => {
-            openNewProjectDialog(this.getSelectedProjects());
+            openCreateProjectDialog(this.getSelectedProjects());
         });
     }
 
