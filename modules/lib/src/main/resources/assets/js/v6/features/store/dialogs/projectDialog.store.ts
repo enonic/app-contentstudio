@@ -99,9 +99,10 @@ const initialState: ProjectDialogStore = {
 };
 
 export const $projectDialog = map<ProjectDialogStore>(structuredClone(initialState));
-const $editProjectSnapshot = atom<EditProjectSnapshot | null>(null);
+const $editProjectSnapshot = atom<EditProjectSnapshot | undefined>(undefined);
+const $initialParentNames = atom<readonly string[]>([]);
 
-export const $isProjectDialogDirty = computed([$projectDialog, $editProjectSnapshot], (state, snapshot): boolean => {
+export const $isProjectDialogDirty = computed([$projectDialog, $editProjectSnapshot, $initialParentNames], (state, snapshot, initialParents): boolean => {
     if (state.mode === 'edit' && snapshot) {
         const currentPermissionKeys = state.permissions.map((p) => p.getKey().toString());
         const snapshotPermissionKeys = snapshot.permissions.map((p) => p.getKey().toString());
@@ -131,7 +132,13 @@ export const $isProjectDialogDirty = computed([$projectDialog, $editProjectSnaps
         );
     }
 
+    const currentParentNames = state.parentProjects.map((p) => p.getName());
+    const parentsDirty =
+        currentParentNames.length !== initialParents.length ||
+        currentParentNames.some((name, i) => name !== initialParents[i]);
+
     return (
+        parentsDirty ||
         state.defaultLanguage !== '' ||
         state.accessMode !== '' ||
         state.permissions.length > 0 ||
@@ -151,6 +158,7 @@ export const $isProjectDialogDirty = computed([$projectDialog, $editProjectSnaps
 export const openCreateProjectDialog = (selectedProjects: Project[]): void => {
     const isMultiInheritance = Boolean(ProjectConfigContext.get().getProjectConfig()?.isMultiInheritance());
 
+    $initialParentNames.set(selectedProjects.map((p) => p.getName()));
     $projectDialog.set({
         ...structuredClone(initialState),
         title: i18n('dialog.project.wizard.title'),
@@ -218,7 +226,8 @@ export const openEditProjectDialog = async (project: Project, parentProjects: Pr
 };
 
 export const closeProjectDialog = (): void => {
-    $editProjectSnapshot.set(null);
+    $editProjectSnapshot.set(undefined);
+    $initialParentNames.set([]);
     $projectDialog.set(structuredClone(initialState));
 };
 
@@ -416,7 +425,7 @@ function getDataForRequests() {
     };
 }
 
-export function refreshAndSelectProject(projectId: string) {
+function refreshAndSelectProject(projectId: string) {
     clearSelection();
     setActive(null);
     resetSettingsTreeForReload();

@@ -34,18 +34,20 @@ export const ProjectDialogRoleStepHeader = (): ReactElement => {
 
 ProjectDialogRoleStepHeader.displayName = 'ProjectDialogRoleStepHeader';
 
-export const ProjectDialogRoleStepContent = ({locked = false}: {locked?: boolean}): ReactElement => {
+export type ProjectDialogRoleStepContentProps = {
+    locked?: boolean;
+};
+
+export const ProjectDialogRoleStepContent = ({locked = false}: ProjectDialogRoleStepContentProps): ReactElement => {
     // Hooks
     const {principals} = useStore($principals);
     const {parentProjects, roles, rolePrincipals} = useStore($projectDialog, {keys: ['parentProjects', 'roles', 'rolePrincipals']});
     const [selection, setSelection] = useState<string[]>(Object.keys(roles));
-    const [selectedPrincipals, setSelectedPrincipals] = useState<Principal[]>(rolePrincipals);
+    const selectedPrincipals = useMemo(
+        () => principals.filter((principal) => selection.includes(principal.getKey().toString())),
+        [principals, selection]
+    );
     const [selectedRoles, setSelectedRoles] = useState<Record<string, ProjectAccess>>(roles);
-
-    // Set selected principals based on the selection of principal ids
-    useEffect(() => {
-        setSelectedPrincipals(principals.filter((principal) => selection.includes(principal.getKey().toString())));
-    }, [principals, selection]);
 
     // Set contributor role of the selected principals.
     // If not set, fallback to contributor role.

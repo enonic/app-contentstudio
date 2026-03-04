@@ -109,7 +109,6 @@ export class SettingsAppPanel extends NavigatedAppPanel {
 
     private doHandleItemEdit(item: SettingsViewItem) {
         if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem)) {
-            console.log('doHandleItemEdit', item);
             const projectItem = item as ProjectViewItem;
             const project = projectItem.getData();
             const parentProjects = (project.getParents() ?? [])

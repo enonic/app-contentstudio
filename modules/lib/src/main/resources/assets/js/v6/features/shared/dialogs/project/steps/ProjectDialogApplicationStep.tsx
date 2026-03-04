@@ -27,10 +27,14 @@ export const ProjectDialogApplicationStepHeader = (): ReactElement => {
 
 ProjectDialogApplicationStepHeader.displayName = 'ProjectDialogApplicationStepHeader';
 
-export const ProjectDialogApplicationStepContent = ({locked = false}: {locked?: boolean}): ReactElement => {
+export type ProjectDialogApplicationStepContentProps = {
+    locked?: boolean;
+};
+
+export const ProjectDialogApplicationStepContent = ({locked = false}: ProjectDialogApplicationStepContentProps): ReactElement => {
     // Hooks
-    const {applications: newProjectApplications} = useStore($projectDialog);
-    const {applications} = useStore($applications);
+    const {applications: newProjectApplications} = useStore($projectDialog, {keys: ['applications']});
+    const {applications} = useStore($applications, {keys: ['applications']});
     const [selection, setSelection] = useState<readonly string[]>(
         newProjectApplications.map((application) => application.getApplicationKey().toString())
     );
@@ -69,32 +73,30 @@ export const ProjectDialogApplicationStepContent = ({locked = false}: {locked?: 
                 closeOnBlur
             />
             {selection.length > 0 && (
-                <>
-                    <GridList className="rounded-md mb-2.5 py-2.5 pl-4 pr-1">
-                        {selectedApplications.map((application) => {
-                            const key = application.getApplicationKey().toString();
-                            const name = application.getDisplayName();
-                            const description = application.getDescription();
+                <GridList className="rounded-md mb-2.5 py-2.5 pl-4 pr-1">
+                    {selectedApplications.map((application) => {
+                        const key = application.getApplicationKey().toString();
+                        const name = application.getDisplayName();
+                        const description = application.getDescription();
 
-                            return (
-                                <GridList.Row key={key} id={key} className="p-1 gap-1.5">
-                                    <GridList.Cell interactive={false} className="flex-1 self-stretch">
-                                        <ItemLabel
-                                            icon={<ApplicationIcon application={application} />}
-                                            primary={name}
-                                            secondary={description}
-                                        />
-                                    </GridList.Cell>
-                                    <GridList.Cell>
-                                        <GridList.Action>
-                                            <IconButton variant="text" icon={X} onClick={() => handleUnselect(key)} />
-                                        </GridList.Action>
-                                    </GridList.Cell>
-                                </GridList.Row>
-                            );
-                        })}
-                    </GridList>
-                </>
+                        return (
+                            <GridList.Row key={key} id={key} className="p-1 gap-1.5">
+                                <GridList.Cell interactive={false} className="flex-1 self-stretch">
+                                    <ItemLabel
+                                        icon={<ApplicationIcon application={application} />}
+                                        primary={name}
+                                        secondary={description}
+                                    />
+                                </GridList.Cell>
+                                <GridList.Cell>
+                                    <GridList.Action>
+                                        <IconButton variant="text" icon={X} onClick={() => handleUnselect(key)} />
+                                    </GridList.Action>
+                                </GridList.Cell>
+                            </GridList.Row>
+                        );
+                    })}
+                </GridList>
             )}
         </Dialog.StepContent>
     );
