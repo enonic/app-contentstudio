@@ -31,18 +31,20 @@ export const ProjectDialogAccessStepHeader = (): ReactElement => {
 
 ProjectDialogAccessStepHeader.displayName = 'ProjectDialogAccessStepHeader';
 
-export const ProjectDialogAccessStepContent = ({locked = false}: {locked?: boolean}): ReactElement => {
+export type ProjectDialogAccessStepContentProps = {
+    locked?: boolean;
+};
+
+export const ProjectDialogAccessStepContent = ({locked = false}: ProjectDialogAccessStepContentProps): ReactElement => {
     // Hooks
     const {principals} = useStore($principals);
     const {parentProjects, accessMode, permissions} = useStore($projectDialog, {keys: ['parentProjects', 'accessMode', 'permissions']});
     const [selection, setSelection] = useState<string[]>(permissions.map((principal) => principal.getKey().toString()));
     const [accessModeValue, setAccessModeValue] = useState(accessMode || '');
-    const [selectedPrincipals, setSelectedPrincipals] = useState<Principal[]>(permissions);
-
-    // Set selected principals based on the selection of principal ids
-    useEffect(() => {
-        setSelectedPrincipals(principals.filter((principal) => selection.includes(principal.getKey().toString())));
-    }, [principals, selection]);
+    const selectedPrincipals = useMemo(
+        () => principals.filter((principal) => selection.includes(principal.getKey().toString())),
+        [principals, selection]
+    );
 
     // Sync with the store
     useEffect(() => {
@@ -101,11 +103,9 @@ export const ProjectDialogAccessStepContent = ({locked = false}: {locked?: boole
 
         if (parentProjectReadAccess.isPublic()) {
             setAccessModeValue('public');
-            setSelectedPrincipals([]);
             setSelection([]);
         } else if (parentProjectReadAccess.isPrivate()) {
             setAccessModeValue('private');
-            setSelectedPrincipals([]);
             setSelection([]);
         } else if (parentProjectReadAccess.isCustom()) {
             setAccessModeValue('custom');
@@ -116,7 +116,6 @@ export const ProjectDialogAccessStepContent = ({locked = false}: {locked?: boole
         if (keys.length === 0) return;
 
         getPrincipalsByKeys(keys).map((principals) => {
-            setSelectedPrincipals(principals);
             setSelection(principals.map((principal) => principal.getKey().toString()));
         });
     }, [parentProjects, canCopyFromParentProject]);

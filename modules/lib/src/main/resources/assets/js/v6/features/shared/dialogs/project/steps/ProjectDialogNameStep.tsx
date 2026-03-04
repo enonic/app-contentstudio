@@ -24,7 +24,11 @@ export const ProjectDialogNameStepHeader = (): ReactElement => {
 
 ProjectDialogNameStepHeader.displayName = 'ProjectDialogNameStepHeader';
 
-export const ProjectDialogNameStepContent = ({locked = false}: {locked?: boolean}): ReactElement => {
+export type ProjectDialogNameStepContentProps = {
+    locked?: boolean;
+};
+
+export const ProjectDialogNameStepContent = ({locked = false}: ProjectDialogNameStepContentProps): ReactElement => {
     const {projects} = useStore($projects);
     const {
         nameData: {name: projectName, identifier: projectIdentifier, description: projectDescription, hasError: projectNameHasError},
