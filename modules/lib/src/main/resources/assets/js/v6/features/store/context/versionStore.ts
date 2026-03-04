@@ -3,26 +3,29 @@ import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {atom, computed} from 'nanostores';
 import {type ContentId} from '../../../../app/content/ContentId';
-import {type ContentVersion} from '../../../../app/ContentVersion';
+import {type ContentVersion, ContentVersionBuilder} from '../../../../app/ContentVersion';
 import {revert} from '../../api/versions';
 
 import {
     Archive,
     ArchiveRestore,
     ArrowDownNarrowWide,
-    ArrowLeftRight,
     CaseSensitive,
     CircleCheckBig,
     CircleUserRound,
     Clock,
-    ClockAlert, Cloud,
+    ClockAlert,
+    Cloud,
     CloudOff,
     Copy,
     FilePenLine,
     FolderInput,
+    Globe,
+    Import,
     type LucideIcon,
     Pen,
-    PenLine, SendToBack,
+    PenLine,
+    SendToBack,
     SquarePen,
 } from 'lucide-react';
 
@@ -72,6 +75,191 @@ export const ContentField = {
     MANUAL_ORDER: 'manualOrderValue',
 } as const;
 
+export const VersionOperationType = {
+    ...ContentOperation,
+    RENAME: 'content.rename',
+    IMPORT: 'content.import',
+    LOCALIZE: 'content.localize',
+    SYNTHETIC_CREATE: 'content.syntheticCreate',
+} as const;
+
+export type VersionOperationType = typeof VersionOperationType[keyof typeof VersionOperationType];
+
+type VersionOperationConfig = {
+    standardMode: boolean;
+    fullMode: boolean;
+    restorable: boolean;
+    mayShowBadge: boolean;
+    comparable: boolean;
+    icon: LucideIcon;
+    labelKey: string;
+};
+
+const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationConfig> = {
+    [VersionOperationType.CREATE]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: true,
+        mayShowBadge: false,
+        comparable: true,
+        icon: PenLine,
+        labelKey: 'operation.content.create'
+    },
+    [VersionOperationType.DUPLICATE]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: true,
+        mayShowBadge: true,
+        comparable: true,
+        icon: Copy,
+        labelKey: 'operation.content.duplicate'
+    },
+    [VersionOperationType.UPDATE]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: true,
+        mayShowBadge: true,
+        comparable: true,
+        icon: Pen,
+        labelKey: 'operation.content.update'
+    },
+    [VersionOperationType.PUBLISH]: {
+        standardMode: false,
+        fullMode: true,
+        restorable: false,
+        mayShowBadge: false,
+        comparable: false,
+        icon: Cloud,
+        labelKey: 'operation.content.publish'
+    },
+    [VersionOperationType.UNPUBLISH]: {
+        standardMode: false,
+        fullMode: true,
+        restorable: false,
+        mayShowBadge: false,
+        comparable: false,
+        icon: CloudOff,
+        labelKey: 'operation.content.unpublish'
+    },
+    [VersionOperationType.PERMISSIONS]: {
+        standardMode: false,
+        fullMode: true,
+        restorable: false,
+        mayShowBadge: false,
+        comparable: false,
+        icon: CircleUserRound,
+        labelKey: 'operation.content.permissions'
+    },
+    [VersionOperationType.MOVE]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: false,
+        mayShowBadge: true,
+        comparable: true,
+        icon: FolderInput,
+        labelKey: 'operation.content.move'
+    },
+    [VersionOperationType.RENAME]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: false,
+        mayShowBadge: true,
+        comparable: true,
+        icon: CaseSensitive,
+        labelKey: 'operation.content.name'
+    },
+    [VersionOperationType.SORT]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: false,
+        mayShowBadge: true,
+        comparable: true,
+        icon: ArrowDownNarrowWide,
+        labelKey: 'operation.content.sort'
+    },
+    [VersionOperationType.PATCH]: {
+        standardMode: false,
+        fullMode: true,
+        restorable: false,
+        mayShowBadge: false,
+        comparable: false,
+        icon: SquarePen,
+        labelKey: 'operation.content.patch'
+    },
+    [VersionOperationType.ARCHIVE]: {
+        standardMode: false,
+        fullMode: true,
+        restorable: false,
+        mayShowBadge: false,
+        comparable: false,
+        icon: Archive,
+        labelKey: 'operation.content.archive'
+    },
+    [VersionOperationType.RESTORE]: {
+        standardMode: false,
+        fullMode: true,
+        restorable: false,
+        mayShowBadge: false,
+        comparable: false,
+        icon: ArchiveRestore,
+        labelKey: 'operation.content.restore'
+    },
+    [VersionOperationType.METADATA]: {
+        standardMode: false,
+        fullMode: true,
+        restorable: false,
+        mayShowBadge: false,
+        comparable: false,
+        icon: FilePenLine,
+        labelKey: 'operation.content.updateMetadata'
+    },
+    [VersionOperationType.WORKFLOW]: {
+        standardMode: false,
+        fullMode: true,
+        restorable: false,
+        mayShowBadge: false,
+        comparable: false,
+        icon: CircleCheckBig,
+        labelKey: 'operation.content.updateWorkflow'
+    },
+    [VersionOperationType.SYNC]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: true,
+        mayShowBadge: true,
+        comparable: true,
+        icon: SendToBack,
+        labelKey: 'operation.content.sync'
+    },
+    [VersionOperationType.IMPORT]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: true,
+        mayShowBadge: true,
+        comparable: true,
+        icon: Import,
+        labelKey: 'operation.content.import'
+    },
+    [VersionOperationType.LOCALIZE]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: true,
+        mayShowBadge: true,
+        comparable: true,
+        icon: Globe,
+        labelKey: 'operation.content.localize'
+    },
+    [VersionOperationType.SYNTHETIC_CREATE]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: false,
+        mayShowBadge: false,
+        comparable: false,
+        icon: PenLine,
+        labelKey: 'operation.content.create'
+    },
+};
+
 export const VersionPublishStatus = {
     PUBLISHED: 'published',
     OFFLINE: 'offline',
@@ -89,6 +277,8 @@ export type VersionsDisplayModeType = 'standard' | 'full';
 // ============================================================================
 
 export const $versions = atom<ContentVersion[]>([]);
+
+export const $allVersionsLoaded = atom(false);
 
 export const $versionsDisplayMode = atom<VersionsDisplayModeType>('standard');
 
@@ -116,30 +306,62 @@ export const $versionsByDate = computed(
 
 export const $onlineVersionId = atom<string | undefined>(undefined);
 
-export const $activePublishVersionId = computed([$versions, $onlineVersionId], (versions, onlineVersionId) => {
+type PublishBadge = {
+    versionId: string;
+    publishStatus: VersionPublishStatus;
+    publishedFrom: Date | undefined;
+    publishedTo: Date | undefined;
+};
+
+const $publishBadge = computed([$versions, $onlineVersionId], (versions, onlineVersionId): PublishBadge | undefined => {
     if (!onlineVersionId) {
         return undefined;
     }
 
-    return versions.find(v => {
+    const publishIndex = versions.findIndex(v => {
         const status = getVersionPublishStatus(v);
         return status === VersionPublishStatus.PUBLISHED
             || status === VersionPublishStatus.SCHEDULED
             || status === VersionPublishStatus.EXPIRED;
-    })?.getId();
+    });
+
+    if (publishIndex < 0) {
+        return undefined;
+    }
+
+    const publishVersion = versions[publishIndex];
+    const publishStatus = getVersionPublishStatus(publishVersion);
+    const publishInfo = publishVersion.getPublishInfo();
+
+    // Find the first mayShowBadge version right before the published version (older = higher index)
+    for (let i = publishIndex + 1; i < versions.length; i++) {
+        const config = getVersionConfig(versions[i]);
+        if (config?.mayShowBadge) {
+            return {
+                versionId: versions[i].getId(),
+                publishStatus,
+                publishedFrom: publishInfo?.getPublishedFrom(),
+                publishedTo: publishInfo?.getPublishedTo(),
+            };
+        }
+    }
+
+    return undefined;
 });
+
+export const $activePublishVersionId = computed($publishBadge, badge => badge?.versionId);
+
+export const $activePublishStatus = computed($publishBadge, badge => badge?.publishStatus);
+
+export const $activePublishedFrom = computed($publishBadge, badge => badge?.publishedFrom);
+
+export const $activePublishedTo = computed($publishBadge, badge => badge?.publishedTo);
 
 // ============================================================================
 // Version Helpers
 // ============================================================================
 
 const getFirstAction = (version: ContentVersion) => version.getActions()[0];
-
-const hasPublishAction = (version: ContentVersion): boolean =>
-    version.getActions().some((action) => action.getOperation() === ContentOperation.PUBLISH);
-
-const hasUnpublishAction = (version: ContentVersion): boolean =>
-    version.getActions().some((action) => action.getOperation() === ContentOperation.UNPUBLISH);
 
 /** Formats version date as YYYY-MM-DD */
 export const getFormattedVersionDate = (version: ContentVersion): string => {
@@ -150,48 +372,87 @@ export const getFormattedVersionDate = (version: ContentVersion): string => {
     return `${year}-${month}-${day}`;
 };
 
-export const isVersionRevertable = (version: ContentVersion): boolean => {
+const SYNTHETIC_VERSION_ID = '__synthetic_create__';
+
+const isSyntheticVersion = (version: ContentVersion): boolean =>
+    version.getId() === SYNTHETIC_VERSION_ID;
+
+const isFirstVersion = (version: ContentVersion): boolean => {
+    if (!$allVersionsLoaded.get()) {
+        return false;
+    }
+    const versions = $versions.get();
+    return versions.length > 0 && versions[versions.length - 1] === version;
+};
+
+export const resolveVersionOperationType = (version: ContentVersion): VersionOperationType | undefined => {
+    if (isSyntheticVersion(version)) {
+        return VersionOperationType.SYNTHETIC_CREATE;
+    }
+
     const action = getFirstAction(version);
 
     if (!action) {
-        return false;
+        return isFirstVersion(version) ? VersionOperationType.CREATE : VersionOperationType.IMPORT;
     }
 
     const operation = action.getOperation();
 
-    if (operation === ContentOperation.CREATE) {
-        return true;
+    if (operation === ContentOperation.MOVE) {
+        const fields = action.getFields();
+        if (fields.length === 1 && fields[0] === ContentField.NAME) {
+            return VersionOperationType.RENAME;
+        }
     }
 
-    if (operation === ContentOperation.DUPLICATE) {
-        return true;
-    }
-
-   return operation === ContentOperation.UPDATE;
+    return isContentOperation(operation) ? operation : undefined;
 };
 
-export const isStandardModeVersion = (version: ContentVersion): boolean => {
-    if (isVersionRevertable(version)) {
-        return true;
+export const appendSyntheticCreateVersion = (createdDate: Date): void => {
+    const versions = $versions.get();
+    if (versions.length === 0) {
+        return;
     }
 
-    const operation = getFirstAction(version)?.getOperation();
-    return operation === ContentOperation.PUBLISH || operation === ContentOperation.UNPUBLISH;
+    const lastVersion = versions[versions.length - 1];
+    const lastType = resolveVersionOperationType(lastVersion);
+
+    if (lastType === VersionOperationType.CREATE || lastType === VersionOperationType.IMPORT || lastType === VersionOperationType.SYNC) {
+        return;
+    }
+
+    const builder = new ContentVersionBuilder();
+    builder.id = SYNTHETIC_VERSION_ID;
+    builder.timestamp = createdDate;
+    builder.modified = createdDate;
+    builder.actions = [];
+
+    $versions.set([...versions, builder.build()]);
 };
+
+const getVersionConfig = (version: ContentVersion): VersionOperationConfig | undefined => {
+    const type = resolveVersionOperationType(version);
+    return type ? VERSION_OPERATION_MATRIX[type] : undefined;
+};
+
+export const isVersionRevertable = (version: ContentVersion): boolean =>
+    getVersionConfig(version)?.restorable ?? false;
+
+export const isVersionComparable = (version: ContentVersion): boolean =>
+    getVersionConfig(version)?.comparable ?? false;
+
+export const isStandardModeVersion = (version: ContentVersion): boolean =>
+    getVersionConfig(version)?.standardMode ?? false;
 
 const isVersionToBeDisplayedInFullMode = (version: ContentVersion): boolean => {
-    const firstAction = getFirstAction(version);
+    const action = getFirstAction(version);
 
-    if (!firstAction) {
-        return true;
-    }
-
-    // Don't display versions where 'manualOrderValue' was changed (These versions are created for children of manually sorted parents)
-    if (firstAction.getOperation() === ContentOperation.SORT && firstAction.getFields().some(f => f === ContentField.MANUAL_ORDER)) {
+    // Don't display versions where 'manualOrderValue' was changed (created for children of manually sorted parents)
+    if (action?.getOperation() === ContentOperation.SORT && action.getFields().some(f => f === ContentField.MANUAL_ORDER)) {
         return false;
     }
 
-    return true;
+    return getVersionConfig(version)?.fullMode ?? true;
 };
 
 // ============================================================================
@@ -227,90 +488,23 @@ export const getVersionPublishStatus = (version: ContentVersion): VersionPublish
 };
 
 // ============================================================================
-// Icon Resolution (Chain of Responsibility)
+// Icon Resolution
 // ============================================================================
 
-const OPERATION_ICON_MAP: Record<ContentOperation, LucideIcon> = {
-    [ContentOperation.PUBLISH]: Cloud,
-    [ContentOperation.CREATE]: PenLine,
-    [ContentOperation.PERMISSIONS]: CircleUserRound,
-    [ContentOperation.SORT]: ArrowDownNarrowWide,
-    [ContentOperation.MOVE]: ArrowLeftRight,
-    [ContentOperation.ARCHIVE]: Archive,
-    [ContentOperation.RESTORE]: ArchiveRestore,
-    [ContentOperation.UPDATE]: Pen,
-    [ContentOperation.DUPLICATE]: Copy,
-    [ContentOperation.PATCH]: SquarePen,
-    [ContentOperation.UNPUBLISH]: CloudOff,
-    [ContentOperation.METADATA]: FilePenLine,
-    [ContentOperation.WORKFLOW]: CircleCheckBig,
-    [ContentOperation.SYNC]: SendToBack,
-};
+export const getIconForOperation = (version: ContentVersion): LucideIcon => {
+    const type = resolveVersionOperationType(version);
 
-type IconResolverContext = {
-    version: ContentVersion;
-};
-
-type IconResolver = (context: IconResolverContext) => LucideIcon | null;
-
-const resolvePublishStatusIcon: IconResolver = ({version}) => {
-    const action = getFirstAction(version);
-    if (action?.getOperation() !== ContentOperation.PUBLISH) {
-        return null;
-    }
-
-    const status = getVersionPublishStatus(version);
-
-    if (status === VersionPublishStatus.SCHEDULED) {
-        return Clock;
-    }
-
-    if (status === VersionPublishStatus.EXPIRED) {
-        return ClockAlert;
-    }
-
-    return null;
-};
-
-const resolveMoveOperationIcon: IconResolver = ({version}) => {
-    const action = getFirstAction(version);
-    if (action?.getOperation() !== ContentOperation.MOVE) {
-        return null;
-    }
-
-    const fields = action.getFields();
-    const isRenameOnly = fields.length === 1 && fields[0] === ContentField.NAME;
-
-    return isRenameOnly
-        ? CaseSensitive
-        : FolderInput;
-};
-
-const resolveDefaultOperationIcon: IconResolver = ({version}) => {
-    const operation = getFirstAction(version)?.getOperation();
-    return operation && isContentOperation(operation)
-        ? OPERATION_ICON_MAP[operation]
-        : null;
-};
-
-const ICON_RESOLVERS: IconResolver[] = [
-    resolvePublishStatusIcon,
-    resolveMoveOperationIcon,
-    resolveDefaultOperationIcon,
-];
-
-export const getIconForOperation = (
-    version: ContentVersion
-): LucideIcon => {
-    const context: IconResolverContext = {version};
-
-    for (const resolver of ICON_RESOLVERS) {
-        const icon = resolver(context);
-        if (icon) {
-            return icon;
+    if (type === VersionOperationType.PUBLISH) {
+        const status = getVersionPublishStatus(version);
+        if (status === VersionPublishStatus.SCHEDULED) {
+            return Clock;
+        }
+        if (status === VersionPublishStatus.EXPIRED) {
+            return ClockAlert;
         }
     }
-    return Pen;
+
+    return type ? VERSION_OPERATION_MATRIX[type].icon : Pen;
 };
 
 // ============================================================================
@@ -318,26 +512,8 @@ export const getIconForOperation = (
 // ============================================================================
 
 export const getOperationLabel = (version: ContentVersion): string => {
-    const action = getFirstAction(version);
-    const operation = action?.getOperation();
-
-    if (!operation) {
-        return i18n('operation.content.unknown');
-    }
-
-    // Separate Rename from Move
-    if (operation === ContentOperation.MOVE) {
-        const fields = action.getFields();
-        const isRenameOnly = fields.length === 1 && fields[0] === ContentField.NAME;
-
-        if (isRenameOnly) {
-            return i18n('operation.content.name');
-        }
-    }
-
-    return isContentOperation(operation)
-        ? i18n(`operation.${operation}`)
-        : i18n('operation.content.unknown');
+    const config = getVersionConfig(version);
+    return config ? i18n(config.labelKey) : i18n('operation.content.unknown');
 };
 
 export const getModifierLabel = (version: ContentVersion): string | undefined => {

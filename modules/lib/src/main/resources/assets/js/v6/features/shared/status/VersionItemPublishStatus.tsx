@@ -4,9 +4,9 @@ import {ReactElement} from 'react';
 import {ContentVersion} from '../../../../app/ContentVersion';
 import {useI18n} from '../../hooks/useI18n';
 import {
+    $activePublishStatus,
     $activePublishVersionId,
-    getVersionPublishStatus,
-    VersionPublishStatus
+    VersionPublishStatus,
 } from '../../store/context/versionStore';
 
 type VersionItemPublishStatusProps = {
@@ -19,13 +19,12 @@ export const VersionItemPublishStatus = ({version, className}: VersionItemPublis
     const expiredLabel = useI18n('status.expired');
     const scheduledLabel = useI18n('status.scheduled');
     const activePublishVersionId = useStore($activePublishVersionId);
+    const publishStatus = useStore($activePublishStatus);
     const commonClassName = 'text-sm items-center truncate group-data-[tone=inverse]:text-alt';
 
     if (!version || version.getId() !== activePublishVersionId) {
         return null;
     }
-
-    const publishStatus = getVersionPublishStatus(version);
 
     switch (publishStatus) {
         case VersionPublishStatus.PUBLISHED:
