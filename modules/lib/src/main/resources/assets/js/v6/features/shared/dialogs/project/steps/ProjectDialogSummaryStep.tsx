@@ -4,27 +4,35 @@ import {useStore} from '@nanostores/preact';
 import {ReactElement} from 'react';
 import {ProjectAccess} from '../../../../../../app/settings/access/ProjectAccess';
 import {useI18n} from '../../../../hooks/useI18n';
-import {$newProjectDialog} from '../../../../store/dialogs/newProjectDialog.store';
+import {$projectDialog} from '../../../../store/dialogs/projectDialog.store';
 import {$languages} from '../../../../store/languages.store';
 import {getInitials} from '../../../../utils/format/initials';
 import {ApplicationIcon} from '../../../icons/ApplicationIcon';
 import {FlagIcon} from '../../../icons/FlagIcon';
 
-export const NewProjectDialogSummaryStepHeader = (): ReactElement => {
-    const helperLabel = useI18n('dialog.project.wizard.title');
+export const ProjectDialogSummaryStepHeader = (): ReactElement => {
+    const {mode, title} = useStore($projectDialog, {keys: ['mode', 'title']});
     const titleLabel = useI18n('dialog.project.wizard.summary.title');
     const descriptionLabel = useI18n('dialog.project.wizard.summary.description');
 
-    return <Dialog.StepHeader step="step-summary" helper={helperLabel} title={titleLabel} description={descriptionLabel} withClose />;
+    return (
+        <Dialog.StepHeader
+            step="step-summary"
+            helper={title}
+            title={titleLabel}
+            description={mode === 'create' && descriptionLabel}
+            withClose
+        />
+    );
 };
 
-NewProjectDialogSummaryStepHeader.displayName = 'NewProjectDialogSummaryStepHeader';
+ProjectDialogSummaryStepHeader.displayName = 'ProjectDialogSummaryStepHeader';
 
-export type NewProjectDialogSummaryStepContentProps = {
+export type ProjectDialogSummaryStepContentProps = {
     locked?: boolean;
 };
 
-export const NewProjectDialogSummaryStepContent = ({locked = false}: NewProjectDialogSummaryStepContentProps): ReactElement => {
+export const ProjectDialogSummaryStepContent = ({locked = false}: ProjectDialogSummaryStepContentProps): ReactElement => {
     const {
         parentProjects,
         nameData,
@@ -34,7 +42,9 @@ export const NewProjectDialogSummaryStepContent = ({locked = false}: NewProjectD
         roles,
         rolePrincipals,
         applications,
-    } = useStore($newProjectDialog, {keys: ['parentProjects', 'nameData', 'defaultLanguage', 'accessMode', 'permissions', 'roles', 'applications', 'rolePrincipals']});
+    } = useStore($projectDialog, {
+        keys: ['parentProjects', 'nameData', 'defaultLanguage', 'accessMode', 'permissions', 'roles', 'applications', 'rolePrincipals'],
+    });
     const languages = useStore($languages);
 
     // Constants
@@ -194,4 +204,4 @@ export const NewProjectDialogSummaryStepContent = ({locked = false}: NewProjectD
     );
 };
 
-NewProjectDialogSummaryStepContent.displayName = 'NewProjectDialogSummaryStepContent';
+ProjectDialogSummaryStepContent.displayName = 'ProjectDialogSummaryStepContent';

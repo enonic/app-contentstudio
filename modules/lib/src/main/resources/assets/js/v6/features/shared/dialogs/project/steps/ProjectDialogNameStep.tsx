@@ -2,25 +2,34 @@ import {Dialog, Input} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ReactElement, useCallback, useEffect, useRef, useState} from 'react';
 import {useI18n} from '../../../../hooks/useI18n';
-import {$newProjectDialog, setNewProjectDialogName} from '../../../../store/dialogs/newProjectDialog.store';
+import {$projectDialog, setProjectDialogName} from '../../../../store/dialogs/projectDialog.store';
 import {$projects} from '../../../../store/projects.store';
 import {prettifyProjectIdentifier, validateProjectIdentifier} from '../../../../utils/cms/projects/identifier';
 
-export const NewProjectDialogNameStepHeader = (): ReactElement => {
-    const helperLabel = useI18n('dialog.project.wizard.title');
+export const ProjectDialogNameStepHeader = (): ReactElement => {
+    const {mode, title} = useStore($projectDialog, {keys: ['mode', 'title']});
     const titleLabel = useI18n('dialog.project.wizard.name.title');
     const descriptionLabel = useI18n('dialog.project.wizard.name.description');
 
-    return <Dialog.StepHeader step="step-name" helper={helperLabel} title={titleLabel} description={descriptionLabel} withClose />;
+    return (
+        <Dialog.StepHeader
+            step="step-name"
+            helper={title}
+            title={titleLabel}
+            description={mode === 'create' && descriptionLabel}
+            withClose
+        />
+    );
 };
 
-NewProjectDialogNameStepHeader.displayName = 'NewProjectDialogNameStepHeader';
+ProjectDialogNameStepHeader.displayName = 'ProjectDialogNameStepHeader';
 
-export const NewProjectDialogNameStepContent = ({locked = false}: {locked?: boolean}): ReactElement => {
+export const ProjectDialogNameStepContent = ({locked = false}: {locked?: boolean}): ReactElement => {
     const {projects} = useStore($projects);
     const {
         nameData: {name: projectName, identifier: projectIdentifier, description: projectDescription, hasError: projectNameHasError},
-    } = useStore($newProjectDialog);
+        mode,
+    } = useStore($projectDialog, {keys: ['nameData', 'mode']});
     const [name, setName] = useState(projectName);
     const identifierRef = useRef<HTMLInputElement>(null);
     const [identifier, setIdentifier] = useState(projectIdentifier);
@@ -57,11 +66,13 @@ export const NewProjectDialogNameStepContent = ({locked = false}: {locked?: bool
                 return;
             }
 
-            const alreadyExists = projects.some((p) => p.getName() === prettifiedIdentifier);
-
-            setIdentifierError(alreadyExists ? projectErrorIdentifierAlreadyExists : '');
+            // In edit mode, the identifier is static and cannot be changed.
+            if (mode !== 'edit') {
+                const alreadyExists = projects.some((p) => p.getName() === prettifiedIdentifier);
+                setIdentifierError(alreadyExists ? projectErrorIdentifierAlreadyExists : '');
+            }
         },
-        [projects, errorRequiredField, errorInvalidField, projectErrorIdentifierAlreadyExists]
+        [mode, projects, errorRequiredField, errorInvalidField, projectErrorIdentifierAlreadyExists]
     );
 
     // Processors
@@ -97,12 +108,14 @@ export const NewProjectDialogNameStepContent = ({locked = false}: {locked?: bool
         processDescription(description);
     }, [name, identifier, description, processName, processIdentifier, processDescription]);
 
-    // Map name to identifier on user input. Skip initial render.
+    // Map name to identifier on user input. Skip initial render. Skip in edit mode.
     useEffect(() => {
         if (isInitialRender.current) {
             isInitialRender.current = false;
             return;
         }
+
+        if (mode === 'edit') return;
 
         const shouldSync = identifier === lastAutoIdentifierRef.current;
         lastAutoIdentifierRef.current = prettifyProjectIdentifier(name, false);
@@ -110,7 +123,7 @@ export const NewProjectDialogNameStepContent = ({locked = false}: {locked?: bool
         if (shouldSync) {
             updateIdentifier(name, false);
         }
-    }, [name, identifier, updateIdentifier]);
+    }, [mode, name, identifier, updateIdentifier]);
 
     // Sync with the store
     useEffect(() => {
@@ -124,20 +137,33 @@ export const NewProjectDialogNameStepContent = ({locked = false}: {locked?: bool
             hasError: hasErrors || isIncomplete,
         };
 
-        setNewProjectDialogName(data);
+        setProjectDialogName(data);
     }, [name, identifier, description, nameError, identifierError, descriptionError]);
 
     return (
         <Dialog.StepContent step="step-name" locked={locked}>
             <div className="flex flex-col gap-7.5">
+                {/* Name */}
                 <Input label={projectNameLabel} value={name} error={nameError} onChange={(e) => processName(e.currentTarget.value)} />
-                <Input
-                    ref={identifierRef}
-                    label={projectIdentifierLabel}
-                    value={identifier}
-                    error={identifierError}
-                    onChange={(e) => processIdentifier(e.currentTarget.value)}
-                />
+
+                {/* Identifier */}
+                {mode === 'create' && (
+                    <Input
+                        ref={identifierRef}
+                        label={projectIdentifierLabel}
+                        value={identifier}
+                        error={identifierError}
+                        onChange={(e) => processIdentifier(e.currentTarget.value)}
+                    />
+                )}
+                {mode === 'edit' && (
+                    <div className="flex flex-col gap-2">
+                        <span className="font-semibold">{projectIdentifierLabel}</span>
+                        <span className="text-subtle">{identifier}</span>
+                    </div>
+                )}
+
+                {/* Description */}
                 <Input
                     label={projectDescriptionLabel}
                     value={description}
@@ -149,4 +175,4 @@ export const NewProjectDialogNameStepContent = ({locked = false}: {locked?: bool
     );
 };
 
-NewProjectDialogNameStepContent.displayName = 'NewProjectDialogNameStepContent';
+ProjectDialogNameStepContent.displayName = 'ProjectDialogNameStepContent';

@@ -2,26 +2,34 @@ import {Dialog, GridList, IconButton} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {X} from 'lucide-react';
 import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
-import {$newProjectDialog, setNewProjectDialogApplications} from '../../../../store/dialogs/newProjectDialog.store';
+import {$projectDialog, setProjectDialogApplications} from '../../../../store/dialogs/projectDialog.store';
 import {useI18n} from '../../../../hooks/useI18n';
 import {$applications} from '../../../../store/applications.store';
 import {ItemLabel} from '../../../ItemLabel';
 import {ApplicationIcon} from '../../../icons/ApplicationIcon';
 import {ApplicationSelector} from '../../../selectors/ApplicationSelector';
 
-export const NewProjectDialogApplicationStepHeader = (): ReactElement => {
-    const helperLabel = useI18n('dialog.project.wizard.title');
+export const ProjectDialogApplicationStepHeader = (): ReactElement => {
+    const {mode, title} = useStore($projectDialog, {keys: ['mode', 'title']});
     const titleLabel = useI18n('dialog.project.wizard.application.title');
     const descriptionLabel = useI18n('dialog.project.wizard.application.description');
 
-    return <Dialog.StepHeader step="step-application" helper={helperLabel} title={titleLabel} description={descriptionLabel} withClose />;
+    return (
+        <Dialog.StepHeader
+            step="step-application"
+            helper={title}
+            title={titleLabel}
+            description={mode === 'create' && descriptionLabel}
+            withClose
+        />
+    );
 };
 
-NewProjectDialogApplicationStepHeader.displayName = 'NewProjectDialogApplicationStepHeader';
+ProjectDialogApplicationStepHeader.displayName = 'ProjectDialogApplicationStepHeader';
 
-export const NewProjectDialogApplicationStepContent = ({locked = false}: {locked?: boolean}): ReactElement => {
+export const ProjectDialogApplicationStepContent = ({locked = false}: {locked?: boolean}): ReactElement => {
     // Hooks
-    const {applications: newProjectApplications} = useStore($newProjectDialog);
+    const {applications: newProjectApplications} = useStore($projectDialog);
     const {applications} = useStore($applications);
     const [selection, setSelection] = useState<readonly string[]>(
         newProjectApplications.map((application) => application.getApplicationKey().toString())
@@ -33,7 +41,7 @@ export const NewProjectDialogApplicationStepContent = ({locked = false}: {locked
     // Sync with the store
     useEffect(() => {
         const apps = selection.map((id) => applications.find((application) => application.getApplicationKey().toString() === id));
-        setNewProjectDialogApplications(apps);
+        setProjectDialogApplications(apps);
     }, [selection, applications]);
 
     // Constants
@@ -92,4 +100,4 @@ export const NewProjectDialogApplicationStepContent = ({locked = false}: {locked
     );
 };
 
-NewProjectDialogApplicationStepContent.displayName = 'NewProjectDialogApplicationStepContent';
+ProjectDialogApplicationStepContent.displayName = 'ProjectDialogApplicationStepContent';
