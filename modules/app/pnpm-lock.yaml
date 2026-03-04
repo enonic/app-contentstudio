@@ -162,6 +162,9 @@ importers:
 
   .xp/dev/lib-admin-ui:
     dependencies:
+      dayjs:
+        specifier: ^1.11.19
+        version: 1.11.19
       dompurify:
         specifier: ~3.3.1
         version: 3.3.1
@@ -175,7 +178,7 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       jquery-ui:
-        specifier: ^1.14.1
+        specifier: ^1.14.2
         version: 1.14.2
       mousetrap:
         specifier: ^1.6.5
@@ -203,7 +206,7 @@ importers:
         specifier: ^1.5.8
         version: 1.5.8
       autoprefixer:
-        specifier: ^10.4.23
+        specifier: ^10.4.24
         version: 10.4.24(postcss@8.5.6)
       browserslist-config-enonic:
         specifier: ^1.0.8
@@ -215,7 +218,7 @@ importers:
         specifier: ^7.1.2
         version: 7.1.2(postcss@8.5.6)
       enonic-admin-artifacts:
-        specifier: ^2.4.0
+        specifier: ^2.5.0
         version: 2.5.0
       eslint:
         specifier: ^9.39.2
@@ -236,7 +239,7 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
       typescript-eslint:
-        specifier: ^8.53.1
+        specifier: ^8.56.0
         version: 8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
       vite:
         specifier: ^7.3.1
@@ -1185,10 +1188,6 @@ packages:
     resolution: {integrity: sha512-nHAE6bMKsizhA2uuYZbEbmp5z2UpffNrPEqiKIeN7VsV6UY/roxanWfoRrf6x/k9+Obf+GQdkm0nPU+vnMXo9A==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@typescript-eslint/types@8.55.0':
-    resolution: {integrity: sha512-ujT0Je8GI5BJWi+/mMoR0wxwVEQaxM+pi30xuMiJETlX80OPovb2p9E8ss87gnSVtYXtJoU9U1Cowcr6w2FE0w==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
   '@typescript-eslint/types@8.56.0':
     resolution: {integrity: sha512-DBsLPs3GsWhX5HylbP9HNG15U0bnwut55Lx12bHB9MpXxQ+R5GC8MwQe+N1UFXxAeQDvEsEDY6ZYwX03K7Z6HQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
@@ -1771,6 +1770,9 @@ packages:
   d3@7.9.0:
     resolution: {integrity: sha512-e1U46jVP+w7Iut8Jt8ri1YsPOvFpg46k+K8TpCb0P+zjCkjkPnV7WzfDJzMHy1LnA+wj5pLT1wjO901gLXeEhA==}
     engines: {node: '>=12'}
+
+  dayjs@1.11.19:
+    resolution: {integrity: sha512-t5EcLVS6QPBNqM2z8fakk/NKel+Xzshgt8FFKAn+qwlD1pzZWxh0nVCrvFK7ZDb6XucZeF9z8C7CBWTRIVApAw==}
 
   debug@4.4.3:
     resolution: {integrity: sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==}
@@ -3818,7 +3820,7 @@ snapshots:
   '@typescript-eslint/project-service@8.47.0(typescript@5.9.3)':
     dependencies:
       '@typescript-eslint/tsconfig-utils': 8.54.0(typescript@5.9.3)
-      '@typescript-eslint/types': 8.55.0
+      '@typescript-eslint/types': 8.56.0
       debug: 4.4.3
       typescript: 5.9.3
     transitivePeerDependencies:
@@ -3880,8 +3882,6 @@ snapshots:
       - supports-color
 
   '@typescript-eslint/types@8.47.0': {}
-
-  '@typescript-eslint/types@8.55.0': {}
 
   '@typescript-eslint/types@8.56.0': {}
 
@@ -4607,6 +4607,8 @@ snapshots:
       d3-timer: 3.0.1
       d3-transition: 3.0.1(d3-selection@3.0.0)
       d3-zoom: 3.0.0
+
+  dayjs@1.11.19: {}
 
   debug@4.4.3:
     dependencies:
