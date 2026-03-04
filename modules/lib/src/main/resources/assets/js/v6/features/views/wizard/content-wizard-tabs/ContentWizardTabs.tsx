@@ -35,18 +35,20 @@ export const ContentWizardTabs = ({tabListAction}: ContentWizardTabsProps): Reac
 
     return (
         <Tab.Root data-component={CONTENT_WIZARD_TABS_NAME} defaultValue="content" className="flex flex-col gap-7.5">
-            <div className="flex items-center gap-2">
-                <Tab.List className="w-auto flex-1 min-w-0">
-                    <Tab.DefaultTrigger value="content">{contentTypeDisplayName}</Tab.DefaultTrigger>
-                    {hasPage && <Tab.DefaultTrigger value="page">{pageTabLabel}</Tab.DefaultTrigger>}
-                    {xDataTabs.map((tab) => (
-                        <Tab.DefaultTrigger key={tab.name} value={tab.name}>
-                            {tab.displayName}
-                        </Tab.DefaultTrigger>
-                    ))}
-                </Tab.List>
+            <div className="flex items-center gap-1.5">
+                <Tab.ListOverflow className="min-w-0 flex-1">
+                    <Tab.List>
+                        <Tab.DefaultTrigger value="content">{contentTypeDisplayName}</Tab.DefaultTrigger>
+                        {hasPage && <Tab.DefaultTrigger value="page">{pageTabLabel}</Tab.DefaultTrigger>}
+                        {xDataTabs.map((tab) => (
+                            <Tab.DefaultTrigger key={tab.name} value={tab.name}>
+                                {tab.displayName}
+                            </Tab.DefaultTrigger>
+                        ))}
+                    </Tab.List>
+                </Tab.ListOverflow>
                 {tabListAction}
-                <ToggleFormButton />
+                <ToggleFormButton/>
             </div>
 
             <Tab.Content value="content">
