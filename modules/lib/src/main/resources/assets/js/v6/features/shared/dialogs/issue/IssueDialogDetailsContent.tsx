@@ -21,6 +21,7 @@ import {$issueDialog, closeIssueDialog, setIssueDialogView} from '../../../store
 import {
     $canIssueDialogDetailsPublish,
     $canIssueDialogDetailsShowSelectionStatusBar,
+    $isIssueDialogDetailsClosed,
     $isIssueDialogDetailsPublishRequest,
     $issueDialogDetails,
     loadIssueDialogItems,
@@ -193,6 +194,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         ],
     });
     const isPublishRequest = useStore($isIssueDialogDetailsPublishRequest);
+    const isClosed = useStore($isIssueDialogDetailsClosed);
     const canShowSelectionStatusBar = useStore($canIssueDialogDetailsShowSelectionStatusBar);
     const canPublish = useStore($canIssueDialogDetailsPublish);
     const publishCount = useStore($totalPublishableItems);
@@ -261,7 +263,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             {value: 'items', label: itemsLabel, count: itemsCount},
             {value: 'assignees', label: assigneesLabel, count: assigneeCount},
         ];
-    const isTitleDisabled = !issueData || issueError || titleUpdating || statusUpdating;
+    const isTitleDisabled = !issueData || issueError || titleUpdating || statusUpdating || isClosed;
     const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(null);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [publishView, setPublishView] = useState<PublishView>('main');
@@ -604,8 +606,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     };
 
     const canSubmitComment = useMemo(() => {
-        return commentText.trim().length > 0 && !commentSubmitting && !!issueId && !issueError;
-    }, [commentText, commentSubmitting, issueId, issueError]);
+        return commentText.trim().length > 0 && !commentSubmitting && !!issueId && !issueError && !isClosed;
+    }, [commentText, commentSubmitting, issueId, issueError, isClosed]);
 
     const handleCommentUpdate = useCallback(
         async (commentId: string, text: string): Promise<boolean> => {
@@ -617,8 +619,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const scheduleFromError = scheduleFromInputError ?? scheduleFromRangeError;
     const scheduleToError = scheduleToInputError ?? scheduleToRangeError;
 
-    const isAssigneesDisabled = !issueData || issueError || assigneesUpdating || statusUpdating;
-    const isItemsDisabled = !issueData || issueError || itemsUpdating || statusUpdating;
+    const isAssigneesDisabled = !issueData || issueError || assigneesUpdating || statusUpdating || isClosed;
+    const isItemsDisabled = !issueData || issueError || itemsUpdating || statusUpdating || isClosed;
     const hasScheduleErrors = !!scheduleFromError || !!scheduleToError;
     const isPublishDisabled = !isPublishReady ||
         !canPublish ||
@@ -626,6 +628,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         publishSubmitting ||
         publishDialogOpen ||
         isItemsDisabled ||
+        isClosed ||
         itemsLoading ||
         scheduleUpdating ||
         hasScheduleErrors;
@@ -705,8 +708,8 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                 <IssueCommentsList
                                     comments={comments}
                                     loading={commentsLoading}
-                                    onUpdateComment={handleCommentUpdate}
-                                    onDeleteComment={openDeleteCommentConfirmation}
+                                    onUpdateComment={!isClosed ? handleCommentUpdate : undefined}
+                                    onDeleteComment={!isClosed ? openDeleteCommentConfirmation : undefined}
                                     portalContainer={portalContainer}
                                     aria-label={commentsLabel}
                                 />
@@ -718,7 +721,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                     onKeyDown={handleCommentKeyDown}
                                     rows={3}
                                     autoSize
-                                    disabled={commentSubmitting}
+                                    disabled={commentSubmitting || isClosed}
                                     aria-label={commentAriaLabel}
                                     placeholder={commentAriaLabel}
                                 />
