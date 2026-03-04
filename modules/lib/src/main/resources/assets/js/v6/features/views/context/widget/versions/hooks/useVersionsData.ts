@@ -3,6 +3,8 @@ import {useCallback, useEffect, useRef, useState} from 'react';
 import {type ContentId} from '../../../../../../../app/content/ContentId';
 import {type ContentSummaryAndCompareStatus} from '../../../../../../../app/content/ContentSummaryAndCompareStatus';
 import {
+    $allVersionsLoaded,
+    appendSyntheticCreateVersion,
     appendVersions,
     resetVersionsSelection, setOnlineVersionId,
     setVersions
@@ -29,7 +31,7 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
     const cacheInvalidated = useStore($versionsCacheInvalidated);
     const loadIdRef = useRef(0);
 
-    const loadInitialVersions = useCallback((contentId: ContentId) => {
+    const loadInitialVersions = useCallback((contentId: ContentId, createdDate: Date) => {
         const id = ++loadIdRef.current;
 
         setIsLoading(true);
@@ -42,6 +44,10 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
                 setOnlineVersionId(result.onlineVersionId);
                 resetVersionsSelection();
                 setHasMore(result.hasMore);
+                $allVersionsLoaded.set(!result.hasMore);
+                if (!result.hasMore) {
+                    appendSyntheticCreateVersion(createdDate);
+                }
                 setCursor(result.cursor);
             })
             .catch((err) => {
@@ -61,12 +67,13 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
             setOnlineVersionId(undefined);
             resetVersionsSelection();
             setHasMore(false);
+            $allVersionsLoaded.set(false);
             setCursor(undefined);
             setError(null);
             return;
         }
 
-        loadInitialVersions(content.getContentId());
+        loadInitialVersions(content.getContentId(), content.getContentSummary().getCreatedTime());
     }, [content, loadInitialVersions]);
 
     // Reload when cache is invalidated for the current content
@@ -74,7 +81,7 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
         if (!cacheInvalidated || !content) return;
         if (cacheInvalidated.id !== content.getId()) return;
 
-        loadInitialVersions(content.getContentId());
+        loadInitialVersions(content.getContentId(), content.getContentSummary().getCreatedTime());
     }, [cacheInvalidated, content, loadInitialVersions]);
 
     const loadMore = useCallback(async () => {
@@ -87,6 +94,10 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
             const result = await loadContentVersions(content.getContentId(), cursor);
             appendVersions(result.versions);
             setHasMore(result.hasMore);
+            $allVersionsLoaded.set(!result.hasMore);
+            if (!result.hasMore && content) {
+                appendSyntheticCreateVersion(content.getContentSummary().getCreatedTime());
+            }
             setCursor(result.cursor);
         } catch (err) {
             setError(err instanceof Error ? err : new Error('Failed to load more versions'));

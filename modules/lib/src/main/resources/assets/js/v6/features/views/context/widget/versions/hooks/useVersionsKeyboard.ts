@@ -4,6 +4,7 @@ import {type ContentId} from '../../../../../../../app/content/ContentId';
 import {
     $activeVersionId,
     $versions,
+    isVersionComparable,
     isVersionRevertable,
     requestRevert,
     toggleVersionSelection,
@@ -88,11 +89,14 @@ export const useVersionsKeyboard = ({
             return;
         }
 
-        // Space: toggle version selection
+        // Space: toggle version selection (only for comparable versions)
         if (e.key === ' ') {
             e.preventDefault();
             e.stopPropagation();
-            toggleVersionSelection(activeListItemId);
+            const version = versions.find((item) => item.getId() === activeListItemId);
+            if (version && isVersionComparable(version)) {
+                toggleVersionSelection(activeListItemId);
+            }
             return;
         }
 

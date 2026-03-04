@@ -8,11 +8,14 @@ import {ContentVersion} from '../../../../../../app/ContentVersion';
 import {useI18n} from '../../../../hooks/useI18n';
 import {VersionItemPublishStatus} from '../../../../shared/status/VersionItemPublishStatus';
 import {
+    $activePublishedFrom,
+    $activePublishedTo,
+    $activePublishStatus,
     $activePublishVersionId,
     $activeVersionId,
     $selectedVersions,
     getOperationLabel,
-    getVersionPublishStatus,
+    isVersionComparable,
     isVersionRevertable,
     requestRevert,
     toggleVersionSelection,
@@ -53,14 +56,16 @@ const useVersionItemState = (version: ContentVersion, isFocused: boolean) => {
     const isActive = active === versionId;
     const isSelected = useMemo(() => selectedVersions.has(versionId), [versionId, selectedVersions]);
     const isRevertable = version.getId() !== currentVersionId && isVersionRevertable(version);
+    const isComparable = isVersionComparable(version);
 
-    const forceShowCheckbox = isSelectionModeOn || (isFocused && isActive);
+    const forceShowCheckbox = isComparable && (isSelectionModeOn || (isFocused && isActive));
 
     return {
         versionId,
         isActive,
         isSelected,
         isRevertable,
+        isComparable,
         forceShowCheckbox,
         setActive,
     };
@@ -117,6 +122,7 @@ export const VersionsListItem = ({
         isActive,
         isSelected,
         isRevertable,
+        isComparable,
         forceShowCheckbox,
         setActive,
     } = useVersionItemState(version, isFocused);
@@ -147,6 +153,9 @@ export const VersionsListItem = ({
 
     const publishMessage = version.getPublishInfo()?.getMessage();
     const activePublishVersionId = useStore($activePublishVersionId);
+    const publishStatus = useStore($activePublishStatus);
+    const publishedFrom = useStore($activePublishedFrom);
+    const publishedTo = useStore($activePublishedTo);
     const showRestoreButton = isExpanded && isRevertable;
 
     const publishStatusMessage = useMemo(() => {
@@ -154,26 +163,20 @@ export const VersionsListItem = ({
             return undefined;
         }
 
-        const publishStatus = getVersionPublishStatus(version);
-        const publishInfo = version.getPublishInfo();
-
-        const to = publishInfo?.getPublishedTo();
-
         if (publishStatus === VersionPublishStatus.PUBLISHED) {
-            return to ? i18n('widget.versionhistory.publishedUntil', DateHelper.formatDateTime(to)) : undefined;
+            return publishedTo ? i18n('widget.versionhistory.publishedUntil', DateHelper.formatDateTime(publishedTo)) : undefined;
         }
 
         if (publishStatus === VersionPublishStatus.SCHEDULED) {
-            const from = publishInfo?.getPublishedFrom();
-            return from ? i18n('widget.versionhistory.scheduled', DateHelper.formatDateTime(from)) : undefined;
+            return publishedFrom ? i18n('widget.versionhistory.scheduled', DateHelper.formatDateTime(publishedFrom)) : undefined;
         }
 
         if (publishStatus === VersionPublishStatus.EXPIRED) {
-            return to ? i18n('widget.versionhistory.expired', DateHelper.formatDateTime(to)) : undefined;
+            return publishedTo ? i18n('widget.versionhistory.expired', DateHelper.formatDateTime(publishedTo)) : undefined;
         }
 
         return undefined;
-    }, [version, activePublishVersionId]);
+    }, [version, activePublishVersionId, publishStatus, publishedFrom, publishedTo]);
 
     return (
         <div
@@ -185,14 +188,16 @@ export const VersionsListItem = ({
         >
             <div className='w-full flex items-center gap-2'>
                 <div className='w-7.5 h-full flex justify-center items-center'>
-                    <Checkbox
-                        checked={isSelected}
-                        tabIndex={-1}
-                        onMouseDown={preventFocusChange}
-                        onClick={handleCheckboxClick}
-                        className={cn(forceShowCheckbox ? 'flex' : 'hidden group-hover:flex')}
-                    />
-                    <div className={cn(forceShowCheckbox ? 'hidden' : 'flex group-hover:hidden')}>
+                    {isComparable && (
+                        <Checkbox
+                            checked={isSelected}
+                            tabIndex={-1}
+                            onMouseDown={preventFocusChange}
+                            onClick={handleCheckboxClick}
+                            className={cn(forceShowCheckbox ? 'flex' : 'hidden group-hover:flex')}
+                        />
+                    )}
+                    <div className={cn(isComparable && forceShowCheckbox ? 'hidden' : 'flex', isComparable && 'group-hover:hidden')}>
                         <VersionsListItemIcon version={version} />
                     </div>
                 </div>
