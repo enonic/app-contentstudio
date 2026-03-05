@@ -25,8 +25,6 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
 
     private publishStatus: PublishStatus;
 
-    private renderable: boolean = false;
-
     public static fromContentSummary(contentSummary: ContentSummary) {
         return new ContentSummaryAndCompareStatus().setContentSummary(contentSummary);
     }
@@ -110,15 +108,6 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
             });
         }
         return this;
-    }
-
-    setRenderable(value: boolean): ContentSummaryAndCompareStatus {
-        this.renderable = value;
-        return this;
-    }
-
-    isRenderable(): boolean {
-        return this.renderable;
     }
 
     getContentId(): ContentId {
@@ -335,7 +324,6 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
             this.compareStatus,
             this.publishStatus
         );
-        clone.setRenderable(this.renderable);
         return clone;
     }
 }

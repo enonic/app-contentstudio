@@ -18,6 +18,7 @@ export class PreviewAction
         super(i18n('action.preview'), BrowserHelper.isOSX() ? 'alt+space' : 'mod+alt+space', true);
         this.wizard = wizard;
         this.helper = new PreviewActionHelper();
+        this.setEnabled(false);
 
         this.onExecuted(() => this.handleExecuted());
     }

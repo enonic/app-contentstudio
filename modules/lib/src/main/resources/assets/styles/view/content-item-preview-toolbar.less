@@ -1,40 +1,16 @@
-@action-button-width: 200px;
-
 .content-item-preview-toolbar {
   justify-content: space-between;
   border-bottom: 1px solid @admin-bg-light-gray;
 
-  .content-status-wrapper,
-  .preview-button-wrapper {
+  .content-status-wrapper {
     flex: 1;
   }
 
-  .preview-button-wrapper {
+  .refresh-button-wrapper {
+    flex: 1;
     display: flex;
     justify-content: flex-end;
-
-    .action-button {
-      padding: 7px;
-      font-size: 18px;
-      flex-direction: row-reverse;
-
-      span {
-        display: block;
-        margin-right: 8px;
-      }
-
-      span,
-      &:before {
-        color: @admin-dark-gray;
-      }
-
-      &:not(.disabled):hover {
-        span,
-        &:before {
-          color: @admin-black;
-        }
-      }
-    }
+    align-items: center;
   }
 
   &._0-240,
@@ -63,14 +39,6 @@
           .@{_COMMON_PREFIX}wrapper {
             margin-right: 0;
           }
-        }
-      }
-    }
-
-    .preview-button-wrapper {
-      .action-button {
-        span {
-          display: none;
         }
       }
     }
