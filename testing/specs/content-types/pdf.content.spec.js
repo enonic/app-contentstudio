@@ -26,12 +26,13 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
     it(`GIVEN existing pdf content has been selected WHEN 'Media' has been selected in 'Preview' Dropdown THEN expected document should be displayed in the Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the site:
             await studioUtils.findAndSelectItem(PDF_CONTENT_DISPLAY_NAME);
             // 2. Select 'Media' in the Preview Dropdown:
             await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.MEDIA);
             // 3. Verify the 'Preview' button in Preview Panel (enabled):
-            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            await contentBrowsePanel.waitForPreviewButtonEnabled();
             // 4. PDF content should be displayed in the Preview Panel
             await contentItemPreviewPanel.waitForPreviewIframeClass('application');
         });

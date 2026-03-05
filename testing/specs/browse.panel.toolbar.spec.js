@@ -25,7 +25,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
     it(`GIVEN existing site is selected  AND new folder has been saved and the wizard closed THEN toolbar-buttons should be in expected state`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            let displayName = contentBuilder.generateRandomName('site-test');
+            let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddReadySite(SITE);
             await studioUtils.findAndSelectItem(SITE.displayName);
@@ -64,9 +64,10 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
     it(`WHEN a folder has been selected THEN 'Preview' button should be disabled and 'Automatic' option should be selected in preview widget`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             await studioUtils.saveScreenshot('folder_preview_panel_toolbar');
-            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
+            await contentBrowsePanel.waitForPreviewButtonDisabled();
             let actualOption = await contentItemPreviewPanel.getSelectedOptionInPreviewWidget()
             assert.equal(actualOption, appConst.PREVIEW_WIDGET.AUTOMATIC,
                 'Automatic option should be selected in preview widget by default');
@@ -78,9 +79,10 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
     it(`WHEN a folder and 'Enonic rendering' have been selected THEN 'Preview' button should be disabled`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             await studioUtils.saveScreenshot('folder_preview_panel_toolbar');
-            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
+            await contentBrowsePanel.waitForPreviewButtonDisabled();
             let actualOption = await contentItemPreviewPanel.getSelectedOptionInPreviewWidget()
             assert.equal(actualOption, appConst.PREVIEW_WIDGET.AUTOMATIC,
                 'Automatic option should be selected in preview widget by default');
@@ -124,7 +126,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             await contentBrowsePanel.waitForNewButtonDisabled();
             await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.MEDIA);
             // 'Preview' button should be enabled for an image and Media option
-            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            await contentBrowsePanel.waitForPreviewButtonEnabled();
             //  <img> element should be displayed in the iframe
             await contentItemPreviewPanel.waitForImageElementDisplayed();
         });

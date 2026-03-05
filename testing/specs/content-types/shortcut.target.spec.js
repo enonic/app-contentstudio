@@ -11,6 +11,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe("Shortcut's target specification", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -74,13 +75,14 @@ describe("Shortcut's target specification", function () {
     it(`GIVEN shortcut with an image in its target are selected WHEN 'Media' has been selected THEN 'Preview not available' message should be displayed in the Preview panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the existing shortcut to an image:
             await studioUtils.findAndSelectItem(SHORTCUT_NAME);
             // 2. Select 'Media' in the Preview widget dropdown:
             await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.MEDIA);
             await studioUtils.saveScreenshot('shortcut_target_image_media_selected');
             // 3. Verify that Preview button is  disabled in the toolbar in Item Preview Panel:
-            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
+            await contentBrowsePanel.waitForPreviewButtonDisabled();
             // 4. Verify the message in Preview panel:
             let actualMessage = await contentItemPreviewPanel.getNoPreviewMessage();
             // 'Preview not available' message should be displayed
@@ -91,6 +93,7 @@ describe("Shortcut's target specification", function () {
     it(`GIVEN shortcut with an image in its target is selected WHEN 'Automatic' has been selected THEN 'Preview not available' message should be displayed in the Preview panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the existing shortcut to an image:
             await studioUtils.findAndSelectItem(SHORTCUT_NAME);
             // 2. 'Automatic' should be in the Preview widget dropdown by default :
@@ -99,7 +102,7 @@ describe("Shortcut's target specification", function () {
                 'Automatic option should be selected in preview widget by default');
             await studioUtils.saveScreenshot('shortcut_target_image_automatic_selected');
             // 3. Verify that 'Preview' button is disabled in the toolbar in Item Preview Panel:
-            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
+            await contentBrowsePanel.waitForPreviewButtonDisabled();
             // 4. Verify the message in Preview panel:
             let actualMessage = await contentItemPreviewPanel.getNoPreviewMessage();
             assert.ok(actualMessage.includes('Preview not available'), "'Preview not available' message should be displayed");
