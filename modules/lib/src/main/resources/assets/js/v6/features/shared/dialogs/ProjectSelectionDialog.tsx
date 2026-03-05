@@ -1,4 +1,3 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Button, cn, Dialog, Listbox} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import type {ReactElement} from 'react';
@@ -8,11 +7,10 @@ import {ProjectHelper} from '../../../../app/settings/data/project/ProjectHelper
 import {useI18n} from '../../hooks/useI18n';
 import {setActiveProject, $projects} from '../../store/projects.store';
 import {flattenProjects} from '../../utils/cms/projects/flattenProjects';
-import {ProjectWizardDialog} from '../../../../app/settings/dialog/project/create/ProjectWizardDialog';
-import {ProjectSteps} from '../../../../app/settings/dialog/project/create/ProjectSteps';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 import {$dialogs, setProjectSelectionDialogOpen} from '../../store/dialogs.store';
 import {ProjectLabel} from '../project/ProjectLabel';
+import {openCreateProjectDialog} from '../../store/dialogs/projectDialog.store';
 
 export const ProjectSelectionDialog = (): ReactElement => {
     const {projects, activeProjectId} = useStore($projects);
@@ -40,7 +38,7 @@ export const ProjectSelectionDialog = (): ReactElement => {
                 <ConfirmationDialog.Content
                     className={cn(
                         'w-full h-full max-w-full max-h-full sm:w-auto sm:h-fit gap-7.5',
-                        'md:max-w-180 md:max-h-[85vh] lg:max-w-220',
+                        'md:max-w-180 md:max-h-[85vh] lg:max-w-220'
                     )}
                     onOpenAutoFocus={(e) => {
                         e.preventDefault();
@@ -50,19 +48,11 @@ export const ProjectSelectionDialog = (): ReactElement => {
                     <ConfirmationDialog.DefaultHeader title={title} withClose />
 
                     {!hasProjects ? (
-                        <ConfirmationDialog.Body className="flex flex-col gap-4">
+                        <ConfirmationDialog.Body className="flex flex-col gap-4 p-2 -m-2">
                             <p className="text-subtle">{isAdmin ? noProjectsAvailableText : noProjectsText}</p>
                             {isAdmin && (
                                 <Dialog.Close asChild>
-                                    <Button
-                                        variant="solid"
-                                        onClick={() => {
-                                            new ProjectWizardDialog({
-                                                steps: ProjectSteps.create(),
-                                                title: i18n('dialog.project.wizard.title'),
-                                            }).open();
-                                        }}
-                                    >
+                                    <Button variant="solid" onClick={() => openCreateProjectDialog([])}>
                                         {createProjectLabel}
                                     </Button>
                                 </Dialog.Close>
@@ -74,7 +64,7 @@ export const ProjectSelectionDialog = (): ReactElement => {
                                 selectionMode="single"
                                 selection={activeProjectId ? [activeProjectId] : []}
                                 defaultActive={activeProjectId}
-                                onSelectionChange={selection => {
+                                onSelectionChange={(selection) => {
                                     const name = selection[0] ?? activeProjectId;
                                     const project = name ? projectByName.get(name) : undefined;
                                     if (project && ProjectHelper.isAvailable(project)) {
@@ -83,7 +73,11 @@ export const ProjectSelectionDialog = (): ReactElement => {
                                     }
                                 }}
                             >
-                                <Listbox.Content ref={listRef} className="gap-2.5 max-h-full max-w-full pb-10 items-stretch" aria-label={title}>
+                                <Listbox.Content
+                                    ref={listRef}
+                                    className="gap-2.5 max-h-full max-w-full pb-10 items-stretch"
+                                    aria-label={title}
+                                >
                                     {flatProjects.map(({project, level}) => (
                                         <Listbox.Item
                                             key={project.getName()}

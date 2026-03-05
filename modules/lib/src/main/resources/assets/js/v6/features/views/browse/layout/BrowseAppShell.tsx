@@ -6,6 +6,7 @@ import {IssueDialog} from '../../../shared/dialogs/issue/IssueDialog';
 import {NewContentDialog} from '../../../shared/dialogs/new-content/NewContentDialog';
 import {MoveDialog} from '../../../shared/dialogs/move/MoveDialog';
 import {NewIssueDialog} from '../../../shared/dialogs/new-issue/NewIssueDialog';
+import {ProjectDialog} from '../../../shared/dialogs/project/ProjectDialog';
 import {ProjectSelectionDialog} from '../../../shared/dialogs/ProjectSelectionDialog';
 import {PublishDialog} from '../../../shared/dialogs/publish/PublishDialog';
 import {RequestPublishDialog} from '../../../shared/dialogs/requestPublish/RequestPublishDialog';
@@ -24,6 +25,7 @@ export const BrowseAppShell = (): ReactElement => {
             <MoveDialog />
             <NewContentDialog />
             <NewIssueDialog />
+            <ProjectDialog />
             <ProjectSelectionDialog />
             <PermissionsDialog />
             <PublishDialog />
