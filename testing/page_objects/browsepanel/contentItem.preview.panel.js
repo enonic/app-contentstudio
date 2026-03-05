@@ -23,10 +23,6 @@ class ContentItemPreviewPanel extends Page {
         return xpath.container + "//iframe";
     }
 
-    get previewButton() {
-        return xpath.toolbar + "//button[contains(@id, 'ActionButton') and contains(@class,'icon-newtab')]";
-    }
-
     get emulatorDropdown() {
         return xpath.toolbar + lib.LIVE_VIEW.EMULATOR_DROPDOWN;
     }
@@ -281,56 +277,6 @@ class ContentItemPreviewPanel extends Page {
 
     async waitForPreviewDropdownNotDisplayed() {
         return await this.waitForElementNotDisplayed(this.previewWidgetDropdown, appConst.mediumTimeout);
-    }
-
-    async waitForPreviewButtonNotDisplayed() {
-        try {
-            return await this.waitForElementNotDisplayed(this.previewButton, appConst.mediumTimeout);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_preview_btn');
-            throw new Error(`Preview button should not be displayed, screenshot: ${screenshot} ` + err);
-        }
-    }
-
-    // Wait for the 'Preview' button to be displayed in the Preview Toolbar
-    async waitForPreviewButtonDisplayed() {
-        try {
-            return await this.waitForElementDisplayed(this.previewButton, appConst.mediumTimeout);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_preview_btn');
-            throw new Error(`Preview button should be displayed, screenshot: ${screenshot} ` + err);
-        }
-    }
-
-    async clickOnPreviewButton() {
-        try {
-            await this.waitForPreviewButtonEnabled();
-            await this.clickOnElement(this.previewButton);
-            return await this.pause(2000);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_preview_btn');
-            throw new Error(`Error occurred after clicking on 'Preview' button, screenshot: ${screenshot} ` + err);
-        }
-    }
-
-    async waitForPreviewButtonDisabled() {
-        try {
-            await this.waitForPreviewButtonDisplayed();
-            await this.waitForElementDisabled(this.previewButton, appConst.mediumTimeout)
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_preview_btn_disabled');
-            throw new Error(`Preview button should be displayed and disabled, screenshot  : ${screenshot} ` + err);
-        }
-    }
-
-    async waitForPreviewButtonEnabled() {
-        try {
-            await this.waitForPreviewButtonDisplayed();
-            await this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout)
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_preview_btn_disabled');
-            throw new Error(`Preview button should be enabled, screenshot : ${screenshot} ` + err);
-        }
     }
 
     async waitForToolbarNotDisplayed() {

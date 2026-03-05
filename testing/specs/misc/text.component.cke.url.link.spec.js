@@ -12,6 +12,7 @@ const TextComponentCke = require('../../page_objects/components/text.component')
 const InsertLinkDialog = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.cke');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const InsertLinkDialogUrlPanel = require('../../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('Text Component with CKE - insert link and table specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -112,9 +113,10 @@ describe('Text Component with CKE - insert link and table specification', functi
     it(`GIVEN site is selected WHEN 'Automatic' is selected AND 'Preview' button has been pressed AND inserted link has been clicked THEN 'Enonic' site should be loaded in the page`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the site and click on Preview button:
             await studioUtils.findAndSelectItem(SITE.displayName);
-            await contentItemPreviewPanel.clickOnPreviewButton();
+            await contentBrowsePanel.clickOnPreviewButton();
             // 2. Switch to the new browser-tab and verify the link:
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             await studioUtils.clickOnElement('a=test');

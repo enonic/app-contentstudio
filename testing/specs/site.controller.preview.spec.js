@@ -44,10 +44,11 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
     it(`WHEN existing site has been selected(application is not added yet in the site-wizard) THEN 'Preview' button should be disabled in ItemPreviewPanel toolbar`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the site
             await studioUtils.findAndSelectItem(SITE.displayName);
             // 3. Verify that 'Preview' button is disabled in the browse toolbar: (No template or page configured)
-            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
+            await contentBrowsePanel.waitForPreviewButtonDisabled();
             // 4. Verify that 'Failed to render content preview' is displayed in Content Item Preview panel:
             await studioUtils.saveScreenshot('site_preview_not_available');
             let text = await contentItemPreviewPanel.getNoPreviewMessage();
@@ -91,11 +92,11 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             // 1. Select the site(controller is selected)
             await studioUtils.findAndSelectItem(SITE.displayName);
             // 3. Verify that 'Preview' button is enabled in the ItemPreviewPanel toolbar:
-            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            await contentBrowsePanel.waitForPreviewButtonEnabled();
             // 4.Verify that Preview menu item is not displayed in grid context menu:
             await contentBrowsePanel.rightClickOnItemByDisplayName(SITE.displayName);
             await studioUtils.saveScreenshot('check-context-menu-preview');
-            await contentBrowsePanel.waitForContextMenuItemNotDisplayed('Preview');
+            await contentBrowsePanel.waitForContextMenuItemEnabled('Preview');
         });
 
     // Verifies - Preview Panel is not refreshed after updating contents's page #8239
@@ -105,6 +106,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             let pageInspectionPanel = new PageInspectionPanel();
             let wizardContextWindow = await contentWizard.openContextWindow();
@@ -129,7 +131,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             // 6. Verify that 'Preview' button is disabled in browse-toolbar:
             await studioUtils.doSwitchToContentBrowsePanel();
             // 7. Verify that 'Preview' button is disabled in ItemPreviewPanel-toolbar:
-            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
+            await contentBrowsePanel.waitForPreviewButtonDisabled();
         });
 
     // Verifies - Preview Panel is not refreshed after updating contents's page #8239
@@ -138,6 +140,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
         async () => {
             let contentWizard = new ContentWizard();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             await contentWizard.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             // 1. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
@@ -151,7 +154,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             // 6. go to Browse Panel:
             await studioUtils.doSwitchToContentBrowsePanel();
             // 7. Verify that 'Preview' button is enabled in ItemPreviewPanel-toolbar:
-            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            await contentBrowsePanel.waitForPreviewButtonEnabled();
             // 8.Verify that text from the descriptor page is displayed in the LIVE VIEW in Browse Panel:
             await contentItemPreviewPanel.switchToTextFrame();
             let locator = "//div[@class='site-info']";

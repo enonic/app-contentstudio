@@ -76,6 +76,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             let contentWizard = new ContentWizard();
             let countryForm = new CountryForm();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             USA_CONTENT_NAME = contentBuilder.generateRandomName('usa');
             // 1. Open new country wizard, type a name, description, population:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'Country');
@@ -88,7 +89,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // 3. Select the country-content:
             await studioUtils.findAndSelectItem(USA_CONTENT_NAME);
             // 4. Click on 'Preview' button:
-            await contentItemPreviewPanel.clickOnPreviewButton();
+            await contentBrowsePanel.clickOnPreviewButton();
             await studioUtils.doSwitchToNextTab();
             await studioUtils.saveScreenshot('usa-country-preview');
             // 5. Verify expected population and description are loaded in the new browser tab:
