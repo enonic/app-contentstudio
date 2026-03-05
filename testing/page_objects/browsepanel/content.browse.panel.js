@@ -53,6 +53,10 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return XPATH.toolbarDiv;
     }
 
+    get previewButton() {
+        return XPATH.toolbarDiv + lib.BUTTONS.actionButton('Preview');
+    }
+
     get archiveButton() {
         return XPATH.toolbarDiv + lib.actionButton('Archive...');
     }
@@ -1007,6 +1011,61 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async getContentNamesInGrid() {
         return await this.getTextInDisplayedElements(this.contentNames);
     }
+    async clickOnPreviewButton() {
+        try {
+            await this.waitForPreviewButtonEnabled();
+            await this.clickOnElement(this.previewButton);
+            return await this.pause(2000);
+        } catch (err) {
+            await this.handleError(`Tried to click on 'Preview' button in the Preview Toolbar: `, 'err_preview_btn', err);
+        }
+    }
+    async waitForPreviewButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.previewButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(`Preview button should not be displayed`, 'err_preview_btn', err);
+        }
+    }
+
+    // Wait for the 'Preview' button to be displayed in the Preview Toolbar
+    async waitForPreviewButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.previewButton, appConst.mediumTimeout);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_preview_btn');
+            throw new Error(`Preview button should be displayed, screenshot: ${screenshot} ` + err);
+        }
+    }
+
+    async clickOnPreviewButton() {
+        try {
+            await this.waitForPreviewButtonEnabled();
+            await this.clickOnElement(this.previewButton);
+            return await this.pause(2000);
+        } catch (err) {
+            await this.handleError(`Tried to click on 'Preview' button in the Preview Toolbar: `, 'err_preview_btn', err);
+        }
+    }
+
+    async waitForPreviewButtonDisabled() {
+        try {
+            await this.waitForPreviewButtonDisplayed();
+            await this.waitForElementDisabled(this.previewButton, appConst.mediumTimeout)
+        } catch (err) {
+            await this.handleError(`Preview button should be displayed and disabled ` ,'err_preview_btn', err);
+        }
+    }
+
+    async waitForPreviewButtonEnabled() {
+        try {
+            await this.waitForPreviewButtonDisplayed();
+            await this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout)
+        } catch (err) {
+            await this.handleError(`'Preview' button should be displayed and enabled` ,'err_preview_btn_disabled', err);
+        }
+    }
+
 }
 
 module.exports = ContentBrowsePanel;

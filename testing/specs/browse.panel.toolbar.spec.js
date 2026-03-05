@@ -124,7 +124,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             await contentBrowsePanel.waitForNewButtonDisabled();
             await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.MEDIA);
             // 'Preview' button should be enabled for an image and Media option
-            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            await contentBrowsePanel.waitForPreviewButtonEnabled();
             //  <img> element should be displayed in the iframe
             await contentItemPreviewPanel.waitForImageElementDisplayed();
         });

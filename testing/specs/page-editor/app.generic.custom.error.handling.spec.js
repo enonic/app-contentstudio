@@ -75,6 +75,7 @@ describe('Custom error handling - specification. Verify that application error p
     it(`GIVEN existing site(controller has errors) has been selected WHEN 'Enonic rendering' has been selected in Preview Dropdown THEN expected error message should be displayed in the Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the site:
             await studioUtils.findAndSelectItem(SITE.displayName);
             // 2. Select 'Enonic rendering' in the Preview Dropdown:
@@ -85,7 +86,7 @@ describe('Custom error handling - specification. Verify that application error p
             assert.equal(actualResult[0], 'Oops, something went wrong!', "Expected message should be displayed in the Preview Panel");
             // 4. Verify the Preview button is enabled in Preview Panel:
             await contentItemPreviewPanel.switchToParentFrame();
-            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            await contentBrowsePanel.waitForPreviewButtonEnabled();
         });
 
     it(`GIVEN existing site(controller has a error) WHEN the site has been opened in draft THEN expected error page should be loaded in the browser page`,
