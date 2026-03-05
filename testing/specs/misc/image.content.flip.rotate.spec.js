@@ -26,7 +26,7 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
             await contentItemPreviewPanel.waitForPreviewToolbarNotDisplayed();
             await contentWizard.clickOnPageEditorToggler();
             await studioUtils.saveScreenshot('image_page_editor_show_page_toggle_pressed');
-            await contentItemPreviewPanel.waitForPreviewButtonDisplayed();
+            await contentWizard.waitForPreviewButtonDisplayed();
         });
 
     it(`GIVEN existing image is opened WHEN 'Rotate' button has been pressed AND 'Reset Filter' has been pressed THEN Save button has expected state`,
