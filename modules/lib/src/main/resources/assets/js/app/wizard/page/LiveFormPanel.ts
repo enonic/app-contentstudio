@@ -194,6 +194,10 @@ export class LiveFormPanel
         return this.contentWizardPanel.getWizardActions().getPreviewAction();
     }
 
+    private refresh(): void {
+        void this.widgetRenderingHandler.render(this.content, this.getWidgetSelector().getSelectedWidget());
+    }
+
     getMask(): Mask {
         return this.contentWizardPanel.getLiveMask();
     }
@@ -206,8 +210,9 @@ export class LiveFormPanel
 
         this.frameContainer = new FrameContainer({
             proxy: this.liveEditPageProxy,
-            wizardActions: this.contentWizardPanel.getWizardActions()
         });
+
+        this.frameContainer.getToolbar().setRefreshAction(() => this.refresh());
 
         this.liveEditPageProxy.setModifyPermissions(this.modifyPermissions);
         this.contextWindow = this.createContextWindow();

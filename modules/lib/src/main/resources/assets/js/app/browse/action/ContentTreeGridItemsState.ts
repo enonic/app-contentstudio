@@ -42,8 +42,6 @@ export class ContentTreeGridItemsState {
 
     private allReadOnly: boolean = false;
 
-    private anyRenderable: boolean = false;
-
     private managedActionExecuting: boolean = false;
 
     constructor(items: ContentSummaryAndCompareStatus[], allowedPermissions: Permission[]) {
@@ -71,7 +69,6 @@ export class ContentTreeGridItemsState {
         this.anyCanBeMarkedAsReady = false;
         this.anyInProgress = false;
         this.allReadOnly = true;
-        this.anyRenderable = false;
         this.managedActionExecuting = ManagedActionManager.instance().isExecuting();
     }
 
@@ -126,10 +123,6 @@ export class ContentTreeGridItemsState {
 
             if (!content.isReadOnly()) {
                 this.allReadOnly = false;
-            }
-
-            if (content.isRenderable()) {
-                this.anyRenderable = true;
             }
         });
     }
@@ -228,10 +221,6 @@ export class ContentTreeGridItemsState {
 
     hasAllReadOnly(): boolean {
         return this.allReadOnly;
-    }
-
-    hasAnyRenderable(): boolean {
-        return this.anyRenderable;
     }
 
     isManagedActionExecuting(): boolean {
