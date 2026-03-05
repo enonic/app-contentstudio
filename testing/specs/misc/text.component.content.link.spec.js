@@ -61,9 +61,10 @@ describe('Text Component with CKE - insert content-link specification', function
     it(`GIVEN site is selected WHEN 'Automatic' is selected AND 'Preview' button has been pressed THEN content-link should be present in the page`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the site and click on 'Preview' button:
             await studioUtils.findAndSelectItem(SITE.displayName);
-            await contentItemPreviewPanel.clickOnPreviewButton();
+            await contentBrowsePanel.clickOnPreviewButton();
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             // 2. Verify the link in the page:
             let isDisplayed = await studioUtils.isElementDisplayed(`a=test`);
