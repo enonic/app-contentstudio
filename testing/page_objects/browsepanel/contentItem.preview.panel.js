@@ -15,6 +15,7 @@ const xpath = {
     showChangesButtonToolbar: "//button[contains(@class,'show-changes') and @title='Show changes']",
     previewNotAvailableSpan: "//div[@class='no-preview-message']//span[text()='Preview not available']",
     noPreviewMessageSpan: "//div[@class='no-preview-message']//span",
+    iframe:"//iframe[contains(@src,'contentstudio/site/')]",
 };
 
 // Browse Panel -> Content Item Preview Panel
@@ -138,10 +139,10 @@ class ContentItemPreviewPanel extends Page {
     // Verifies that the element(selector) is displayed in the iframe in Preview Panel
     async waitForElementDisplayedInFrame(selector) {
         try {
-            await this.switchToFrame(xpath.container + "//iframe[contains(@src,'admin/site')]");
+            await this.switchToFrame(xpath.container + xpath.iframe);
             let result = await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             await this.switchToParentFrame();
-            return result
+            return result;
         } catch (err) {
             await this.switchToParentFrame();
             await this.handleError(`Element should be displayed in the iframe: ${selector}`, 'err_element_in_frame', err);
@@ -161,7 +162,7 @@ class ContentItemPreviewPanel extends Page {
     // Checks that the element(selector) is not displayed in the iframe in Preview Panel
     async waitForElementNotDisplayedInFrame(selector) {
         try {
-            await this.switchToFrame(xpath.container + "//iframe[contains(@src,'admin/site')]");
+            await this.switchToFrame(xpath.container + xpath.iframe);
             let result = await this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
             await this.switchToParentFrame();
             return result;
@@ -173,7 +174,7 @@ class ContentItemPreviewPanel extends Page {
 
     async clickOnElementInFrame(selector) {
         try {
-            await this.switchToFrame(xpath.container + "//iframe[contains(@src,'admin/site')]");
+            await this.switchToFrame(xpath.container + xpath.iframe);
             await this.clickOnElement(selector);
             return await this.switchToParentFrame();
         } catch (err) {
