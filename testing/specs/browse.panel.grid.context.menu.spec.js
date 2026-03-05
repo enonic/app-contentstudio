@@ -37,8 +37,8 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.MOVE);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.PUBLISH);
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.DUPLICATE);
-            // 4. Verify that 'Preview' item should not be displayed in the context menu:
-            await contentBrowsePanel.waitForContextMenuItemNotDisplayed(appConst.GRID_CONTEXT_MENU.PREVIEW);
+            // 4. Verify that 'Preview' item should  be disabled in the context menu:
+            await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.PREVIEW);
             // 5. 'Sort...'  menu item should be disabled in the context menu:
             await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.SORT);
         });
@@ -64,8 +64,8 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
             // 4.Verify that New, Preview, Sort  menu items are disabled in the context menu:
             await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.NEW);
             await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.SORT);
-            // 5. 'Preview' item should not be displayed in the context menu:
-            await contentBrowsePanel.waitForContextMenuItemNotDisplayed(appConst.GRID_CONTEXT_MENU.PREVIEW);
+            // 5. 'Preview' item should be disabled in the context menu:
+            await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.PREVIEW);
         });
 
     it(`GIVEN existing folder is published WHEN do right click on the folder THEN Unpublish menu item appears in the context menu `,
@@ -134,8 +134,8 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
             await studioUtils.saveScreenshot('image-context-menu-1');
             await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.SORT);
             await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.NEW);
-            // 4. 'Preview' menu item should not be displayed in the context menu:
-            await contentBrowsePanel.waitForContextMenuItemNotDisplayed(appConst.GRID_CONTEXT_MENU.PREVIEW);
+            // 4. 'Preview' menu item should be displayed in the context menu:
+            await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.PREVIEW);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -13,6 +13,7 @@ const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizar
 const appConst = require('../../libs/app_const');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('Text Component with CKE - insert email link  specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -63,9 +64,10 @@ describe('Text Component with CKE - insert email link  specification', function 
     it(`GIVEN site is selected WHEN 'Automatic' is selected AND 'Preview' button has been pressed THEN email-link should be present in the page`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the site and click on Preview button:
             await studioUtils.findAndSelectItem(SITE.displayName);
-            await contentItemPreviewPanel.clickOnPreviewButton();
+            await contentBrowsePanel.clickOnPreviewButton();
             await contentItemPreviewPanel.pause(1000);
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             // 2. Verify that the link is present:

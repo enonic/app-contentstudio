@@ -156,7 +156,7 @@ class ContentWizardPanel extends Page {
 
     // Preview button on the previewItemToolbar
     get previewButton() {
-        return this.previewItemToolbar + lib.actionButtonStrict('Preview');
+        return XPATH.container + XPATH.toolbar + lib.actionButtonStrict('Preview');
     }
 
     get controllerOptionFilterInput() {
@@ -964,7 +964,7 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(this.previewButton);
             return await this.pause(2000);
         } catch (err) {
-            await this.handleError(`Tried to click on Preview button`, 'err_preview_button', err);
+            await this.handleError(`Tried to click on Preview button`, 'err_click_preview_btn', err);
         }
     }
 
