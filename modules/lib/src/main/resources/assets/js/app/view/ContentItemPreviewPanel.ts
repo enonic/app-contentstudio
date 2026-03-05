@@ -1,6 +1,6 @@
 import Q from 'q';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ContentItemPreviewToolbar, type WidgetPreviewAction} from './ContentItemPreviewToolbar';
+import {ContentItemPreviewToolbar} from './ContentItemPreviewToolbar';
 import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ItemPreviewPanel} from '@enonic/lib-admin-ui/app/view/ItemPreviewPanel';
 import {ContentResourceRequest} from '../resource/ContentResourceRequest';
@@ -11,7 +11,6 @@ import {WidgetRenderingHandler, type WidgetRenderer} from './WidgetRenderingHand
 import {type IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
 import {type DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {type Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
-import {PreviewActionHelper} from '../action/PreviewActionHelper';
 import {type PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
 
 
@@ -27,13 +26,15 @@ export class ContentItemPreviewPanel
 
     private widgetRenderingHandler: WidgetRenderingHandler;
 
+    private previewAction: Action;
+
     constructor(contentRootPath?: string) {
         super('content-item-preview-panel widget-preview-panel');
 
         this.contentRootPath = contentRootPath || ContentResourceRequest.CONTENT_PATH;
         this.debouncedSetItem = AppHelper.runOnceAndDebounce(this.doSetItem.bind(this), 300);
 
-        this.widgetRenderingHandler = new WidgetRenderingHandler(this, this.getToolbar()?.getPreviewActionHelper());
+        this.widgetRenderingHandler = new WidgetRenderingHandler(this);
 
         this.setupListeners();
     }
@@ -42,8 +43,15 @@ export class ContentItemPreviewPanel
         return super.doRender().then((rendered) => {
             this.widgetRenderingHandler.layout();
             this.mask.addClass('content-item-preview-panel-load-mask');
+            this.getToolbar().setRefreshAction(() => this.refresh());
             return rendered;
         });
+    }
+
+    private refresh(): void {
+        if (this.item) {
+            void this.update(this.viewItemToContent(this.item));
+        }
     }
 
     protected viewItemToContent(item: ViewItem): ContentSummaryAndCompareStatus {
@@ -124,14 +132,7 @@ export class ContentItemPreviewPanel
     }
 
     createToolbar(): ContentItemPreviewToolbar {
-        return new ContentItemPreviewToolbar(new PreviewActionHelper());
-    }
-
-    getActions(): Action[] {
-        return [
-            ...super.getActions(),
-            this.getPreviewAction()
-        ];
+        return new ContentItemPreviewToolbar();
     }
 
     public getIFrameEl(): IFrameEl {
@@ -146,8 +147,12 @@ export class ContentItemPreviewPanel
         return this.mask;
     }
 
-    public getPreviewAction(): WidgetPreviewAction {
-        return this.getToolbar().getPreviewAction();
+    public setPreviewAction(action: Action): void {
+        this.previewAction = action;
+    }
+
+    public getPreviewAction(): Action {
+        return this.previewAction;
     }
 
     public getWidgetSelector(): PreviewWidgetDropdown {

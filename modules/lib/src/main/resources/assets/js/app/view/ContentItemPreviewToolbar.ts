@@ -1,18 +1,15 @@
 import type Q from 'q';
 import {ContentStatusToolbar} from '../ContentStatusToolbar';
-import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {PreviewWidgetDropdown} from './toolbar/PreviewWidgetDropdown';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {type PreviewActionHelper} from '../action/PreviewActionHelper';
 import {EmulatorDropdown} from './toolbar/EmulatorDropdown';
-import {AriaRole} from '@enonic/lib-admin-ui/ui/WCAG';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {RenderingMode} from '../rendering/RenderingMode';
+import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
+import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 
 export class ContentItemPreviewToolbar
     extends ContentStatusToolbar {
@@ -21,14 +18,13 @@ export class ContentItemPreviewToolbar
 
     private widgetSelector: PreviewWidgetDropdown;
     private emulatorSelector: EmulatorDropdown;
-    private previewButton: ActionButton;
-    private readonly previewHelper: PreviewActionHelper;
     private readonly mode: RenderingMode;
     private intervalMonitor: number | null = null;
+    private refreshButton: Button;
+    private refreshAction: (() => void) | null = null;
 
-    constructor(previewHelper: PreviewActionHelper, mode: RenderingMode = RenderingMode.PREVIEW) {
+    constructor(mode: RenderingMode = RenderingMode.PREVIEW) {
         super({className: 'content-item-preview-toolbar'});
-        this.previewHelper = previewHelper;
         this.mode = mode;
 
         this.initListeners();
@@ -39,13 +35,21 @@ export class ContentItemPreviewToolbar
 
         this.widgetSelector = new PreviewWidgetDropdown();
         this.emulatorSelector = new EmulatorDropdown();
+        this.refreshButton = new Button();
+        this.refreshButton
+            .setTitle(i18n('action.refresh'))
+            .setAriaLabel(i18n('action.refresh'))
+            .addClass(StyleHelper.getCommonIconCls('loop'));
+    }
 
-        this.previewButton = new ActionButton(new WidgetPreviewAction(this));
-        this.previewButton.addClass('icon-newtab');
+    setRefreshAction(fn: () => void): void {
+        this.refreshAction = fn;
     }
 
     protected initListeners(): void {
         super.initListeners();
+
+        this.refreshButton.onClicked(() => this.refreshAction?.());
 
         this.widgetSelector.onSelectionChanged(() => {
             this.stopListeningToIFrameClick();
@@ -67,9 +71,9 @@ export class ContentItemPreviewToolbar
             this.addContainer(this.emulatorSelector, this.emulatorSelector.getChildControls());
             this.addContainer(this.widgetSelector, this.widgetSelector.getChildControls());
 
-            const previewWrapper = new DivEl('preview-button-wrapper');
-            previewWrapper.appendChildren(this.previewButton);
-            this.addContainer(previewWrapper, [this.previewButton]);
+            const refreshWrapper = new DivEl('refresh-button-wrapper');
+            refreshWrapper.appendChild(this.refreshButton);
+            this.appendChild(refreshWrapper);
 
             return rendered;
         });
@@ -87,18 +91,6 @@ export class ContentItemPreviewToolbar
 
     public getWidgetSelector(): PreviewWidgetDropdown {
         return this.widgetSelector;
-    }
-
-    public getPreviewAction(): WidgetPreviewAction {
-        return this.previewButton.getAction() as WidgetPreviewAction;
-    }
-
-    public setPreviewAction(action: Action) {
-        this.previewButton.setAction(action);
-    }
-
-    public getPreviewActionHelper(): PreviewActionHelper {
-        return this.previewHelper;
     }
 
     protected foldOrExpand(): void {
@@ -120,29 +112,5 @@ export class ContentItemPreviewToolbar
             clearInterval(this.intervalMonitor);
             this.intervalMonitor = null;
         }
-    }
-}
-
-export class WidgetPreviewAction
-    extends Action {
-    private toolbar: ContentItemPreviewToolbar;
-
-    constructor(toolbar: ContentItemPreviewToolbar) {
-        super(i18n('action.preview'), BrowserHelper.isOSX() ? 'alt+space' : 'mod+alt+space', true);
-        this.toolbar = toolbar;
-        this.onExecuted(this.handleExecuted.bind(this));
-
-        this.setWcagAttributes({
-            role: AriaRole.BUTTON,
-            tabbable: true,
-            ariaLabel: i18n('action.preview')
-        });
-    }
-
-    protected handleExecuted() {
-        const contentSummary = this.toolbar.getItem().getContentSummary();
-        const selectedWidget = this.toolbar.getWidgetSelector().getSelectedWidget();
-        const mode = this.toolbar.getMode();
-        this.toolbar.getPreviewActionHelper().openWindow(contentSummary, selectedWidget, mode);
     }
 }
