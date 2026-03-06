@@ -15,7 +15,7 @@ import {InspectEvent} from '../../event/InspectEvent';
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
 import {UserAccessWidgetItemView} from '../../security/UserAccessWidgetItemView';
 import {type ContextWindow} from '../../wizard/page/contextwindow/ContextWindow';
-import {ReloadActiveWidgetEvent} from './ReloadActiveWidgetEvent';
+import {ReloadActiveExtensionEvent} from './ReloadActiveExtensionEvent';
 import {DependenciesWidgetItemView} from './widget/dependency/DependenciesWidgetItemView';
 import {AttachmentsWidgetItemView} from './widget/details/AttachmentsWidgetItemView';
 import {BasePropertiesWidgetItemView} from './widget/details/BasePropertiesWidgetItemView';
@@ -139,7 +139,7 @@ export class ContextView
                 });
         });
 
-        ReloadActiveWidgetEvent.on(() => {
+        ReloadActiveExtensionEvent.on(() => {
             if (this.activeWidget) {
                 this.activeWidget.updateWidgetItemViews().catch(DefaultErrorHandler.handle);
             }

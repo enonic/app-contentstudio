@@ -23,13 +23,6 @@ export class DockedContextPanel
                 contextContainer.getEl().setHeightPx(panelHeight - panelOffset.top - containerOffset.top);
             }
         });
-
-        this.onShown(() => {
-            if (this.getItem()) {
-                // small delay so that isVisibleOrAboutToBeVisible() check detects width change
-                window.setTimeout(() => void this.contextView.updateActiveWidget(), 250);
-            }
-        });
     }
 
     public isVisibleOrAboutToBeVisible(): boolean {

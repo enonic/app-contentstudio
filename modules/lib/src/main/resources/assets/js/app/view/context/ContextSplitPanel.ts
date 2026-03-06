@@ -132,6 +132,9 @@ export class ContextSplitPanel
         this.showSecondPanel();
         this.setState(ContextPanelState.EXPANDED);
         this.resetToggleButtonActiveState();
+        if (this.dockedContextPanel.getItem()) {
+            this.contextView.updateActiveWidget();
+        }
     }
 
     private resetToggleButtonActiveState(): void {

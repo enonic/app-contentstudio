@@ -4,9 +4,9 @@ import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryA
 import {RepositoryId} from '../../repository/RepositoryId';
 import {ProjectContext} from '../../project/ProjectContext';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {WidgetHelper} from '@enonic/lib-admin-ui/widget/WidgetHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import {ContextPanelExtension} from '../../extension/ContextPanelExtension';
 
 export class WidgetItemView
     extends DivEl {
@@ -14,6 +14,8 @@ export class WidgetItemView
     public static debug: boolean = false;
 
     private loadMask?: LoadMask;
+
+    private extensionElement: ContextPanelExtension | null = null;
 
     constructor(className?: string) {
         super('widget-item-view' + (className ? ' ' + className : ''));
@@ -47,15 +49,32 @@ export class WidgetItemView
         fetch(fullUrl)
             .then(response => response.text())
             .then((html: string) => {
+                // Clean up previous widget element completely
+                if (this.extensionElement) {
+                    this.extensionElement.cleanup();
+                    this.extensionElement = null;
+                }
                 this.removeChildren();
-                WidgetHelper.createFromHtmlAndAppend(html, this).then(() => deferred.resolve());
+
+                // Always create a fresh widget element to ensure scripts re-execute
+                this.extensionElement = ContextPanelExtension.create();
+                this.getHTMLElement().appendChild(this.extensionElement);
+
+                return this.extensionElement.setHtml(html);
             })
+            .then(() => deferred.resolve())
             .catch(() => {
                 deferred.reject();
                 this.handleWidgetRenderError();
             });
 
         return deferred.promise;
+    }
+
+    public cleanupWidget(): void {
+        if (this.extensionElement) {
+            this.extensionElement.cleanup();
+        }
     }
 
     private handleWidgetRenderError(): void {
