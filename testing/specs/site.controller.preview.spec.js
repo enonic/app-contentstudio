@@ -91,7 +91,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             // 1. Select the site(controller is selected)
             await studioUtils.findAndSelectItem(SITE.displayName);
             // 3. Verify that 'Preview' button is enabled in the ItemPreviewPanel toolbar:
-            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            await contentBrowsePanel.waitForPreviewButtonEnabled();
             // 4.Verify that Preview menu item is not displayed in grid context menu:
             await contentBrowsePanel.rightClickOnItemByDisplayName(SITE.displayName);
             await studioUtils.saveScreenshot('check-context-menu-preview');
@@ -151,7 +151,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             // 6. go to Browse Panel:
             await studioUtils.doSwitchToContentBrowsePanel();
             // 7. Verify that 'Preview' button is enabled in ItemPreviewPanel-toolbar:
-            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            await contentWizard.waitForPreviewButtonEnabled();
             // 8.Verify that text from the descriptor page is displayed in the LIVE VIEW in Browse Panel:
             await contentItemPreviewPanel.switchToTextFrame();
             let locator = "//div[@class='site-info']";

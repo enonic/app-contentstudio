@@ -3,15 +3,12 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ContentItemPreviewToolbar} from '../../view/ContentItemPreviewToolbar';
 import {LiveEditPageProxy} from './LiveEditPageProxy';
 import {RenderingMode} from '../../rendering/RenderingMode';
-import {ContentWizardActions} from '../action/ContentWizardActions';
-import {PreviewActionHelper} from '../../action/PreviewActionHelper';
 import {PreviewWidgetDropdown} from '../../view/toolbar/PreviewWidgetDropdown';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 
 
 export interface FrameContainerConfig {
     proxy: LiveEditPageProxy;
-    wizardActions: ContentWizardActions;
 }
 
 
@@ -27,10 +24,7 @@ export class FrameContainer
         this.setDoOffset(false);
 
         this.proxy = config.proxy;
-        const helper = new PreviewActionHelper();
-        this.toolbar = new ContentItemPreviewToolbar(helper, RenderingMode.EDIT);
-
-        this.toolbar.setPreviewAction(config.wizardActions.getPreviewAction());
+        this.toolbar = new ContentItemPreviewToolbar(RenderingMode.EDIT);
 
         this.wrapper = new DivEl('wrapper');
         this.wrapper.appendChild(this.proxy.getIFrame());

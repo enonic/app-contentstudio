@@ -20,10 +20,6 @@ export class ContentSummaryAndCompareStatusHelper {
             diff.compareStatus = true;
         }
 
-        if (!ObjectHelper.booleanEquals(item1.isRenderable(), item2.isRenderable())) {
-            diff.renderable = true;
-        }
-
         return diff;
     }
 

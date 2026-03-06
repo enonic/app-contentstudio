@@ -129,7 +129,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             assert.equal(actualWorkflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
 
             // 4. Verify that 'Preview' button is enabled in the preview-item-toolbar
-            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            await contentBrowsePanel.waitForPreviewButtonEnabled();
             let actualOption = await contentItemPreviewPanel.getSelectedOptionInPreviewWidget();
             assert.equal(actualOption, appConst.PREVIEW_WIDGET.AUTOMATIC,
                 'Automatic option should be selected in preview widget by default');
