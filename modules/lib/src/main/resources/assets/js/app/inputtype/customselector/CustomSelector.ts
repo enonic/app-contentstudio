@@ -4,7 +4,8 @@ import {type PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
 import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
+import {UriHelper} from '../../rendering/UriHelper';
+import {UriHelper as LibUriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {type SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {type CustomSelectorItem} from './CustomSelectorItem';
 import {CustomSelectorMode} from './CustomSelectorMode';
@@ -106,7 +107,7 @@ export class CustomSelector
         }, {});
 
         if (serviceUrl) {
-            return `${CustomSelector.getServiceUrlPrefix()}/${UriHelper.appendUrlParams(serviceUrl, params)}`;
+            return `${CustomSelector.getServiceUrlPrefix()}/${LibUriHelper.appendUrlParams(serviceUrl, params)}`;
         }
     }
 
