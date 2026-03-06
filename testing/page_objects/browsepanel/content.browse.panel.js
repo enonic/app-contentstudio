@@ -988,14 +988,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
 
-    async waitForGridRoleAttribute(expectedRole) {
-        let locator = XPATH.treeGrid;
-        await this.getBrowser().waitUntil(async () => {
-            let text = await this.getAttribute(locator, 'role');
-            return text === expectedRole;
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Role attribute for Grid should set 'grid'"});
-    }
-
     async waitForShowIssuesButtonAriaHasPopupAttribute(expectedValue) {
         let locator = this.showIssuesListButton;
         await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_HAS_POPUP, expectedValue);
@@ -1009,6 +1001,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async getContentNamesInGrid() {
         return await this.getTextInDisplayedElements(this.contentNames);
     }
+
     async clickOnPreviewButton() {
         try {
             await this.waitForPreviewButtonEnabled();
