@@ -1152,14 +1152,14 @@ module.exports = {
     async loadServiceURL(serviceName, appName) {
         let currentUrl = await this.getBrowser().getUrl();
         let base = currentUrl.substring(0, currentUrl.indexOf('admin'));
-        let url = base + `/site/default/draft/_/service/${appName}/${serviceName}`;
+        let url = base + `/com.enonic.app.contentstudio/site/default/draft/_/service/${appName}/${serviceName}`;
         await this.loadUrl(url);
         return await this.getBrowser().pause(2000);
     },
     async openResourceInMaster(res) {
         let currentUrl = await this.getBrowser().getUrl();
         let base = currentUrl.substring(0, currentUrl.indexOf('admin'));
-        let url = base + 'admin/site/preview/default/master/' + res;
+        let url = base + 'admin/com.enonic.app.contentstudio/site/preview/default/master/' + res;
         await this.loadUrl(url);
         return await this.getBrowser().pause(2000);
     },
