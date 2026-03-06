@@ -6,7 +6,7 @@ import {OccurrenceList, useOccurrenceManager, usePropertyArray} from '@enonic/li
 import type {InputTypeComponent} from '@enonic/lib-admin-ui/form2';
 import type {InputTypeConfig} from '@enonic/lib-admin-ui/form2/descriptor/InputTypeConfig';
 import type {InputTypeDescriptor} from '@enonic/lib-admin-ui/form2/descriptor/InputTypeDescriptor';
-import {type ReactElement, useCallback, useEffect, useMemo} from 'react';
+import {type ReactElement, useCallback, useEffect, useMemo, useRef} from 'react';
 import {useFormRender} from './FormRenderContext';
 
 type ResolvedInputFieldProps = {
@@ -50,20 +50,28 @@ export const ResolvedInputField = ({input, propertySet, descriptor, config, Comp
 
     const {values} = usePropertyArray(propertyArray);
 
-    const {state, sync} = useOccurrenceManager({
+    const {state, sync, set} = useOccurrenceManager({
         occurrences: input.getOccurrences(),
         descriptor,
         config,
         initialValues: values,
     });
 
+    const isLocalChange = useRef(false);
+
     useEffect(() => {
+        if (isLocalChange.current) {
+            isLocalChange.current = false;
+            return;
+        }
         sync(values);
     }, [values, sync]);
 
-    const handleChange = useCallback((index: number, value: Value) => {
+    const handleChange = useCallback((index: number, value: Value, rawValue?: string) => {
+        isLocalChange.current = true;
         propertyArray.set(index, value);
-    }, [propertyArray]);
+        set(index, value, rawValue);
+    }, [propertyArray, set]);
 
     const handleAdd = useCallback(() => {
         if (!state.canAdd) return;
