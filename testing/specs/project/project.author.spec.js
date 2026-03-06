@@ -115,7 +115,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             // 1. Do Log in with the user:
             await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
             // 2. load existing site from the current project:
-            let url = "http://localhost:8080/admin/site/preview" + `/${PROJECT_DISPLAY_NAME}/draft/${SITE_NAME}`;
+            let url = "http://localhost:8080/admin/com.enonic.app.contentstudio/site/preview" + `/${PROJECT_DISPLAY_NAME}/draft/${SITE_NAME}`;
             await studioUtils.getBrowser().url(url);
             // 3. Verify that expected site is loaded:
             let actualTitle = await studioUtils.getBrowser().getTitle();

@@ -155,7 +155,7 @@ describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', fun
             await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             //user's context should be loaded by default now!
             // 2. load existing site from the current layer:
-            let url = "http://localhost:8080/admin/site/preview" + `/${LAYER_DISPLAY_NAME}/draft/${SITE_NAME}`;
+            let url = "http://localhost:8080/admin/com.enonic.app.contentstudio/site/preview" + `/${LAYER_DISPLAY_NAME}/draft/${SITE_NAME}`;
             await studioUtils.getBrowser().url(url);
             // 3. Verify that expected site is loaded:
             let actualTitle = await studioUtils.getBrowser().getTitle();
