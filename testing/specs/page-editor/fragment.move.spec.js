@@ -69,6 +69,7 @@ describe('Move Fragment specification', function () {
     it(`WHEN existing fragment is selected AND 'Automatic' is selected in Preview Panel THEN expected text-fragment should be displayed in Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the fragment-content and click on Move button:
             await studioUtils.findAndSelectItemByDisplayName(TEST_TEXT_FRAGMENT);
             // 2. Verify that Automatic option is selected:
@@ -77,7 +78,7 @@ describe('Move Fragment specification', function () {
             assert.equal(actualOption, appConst.PREVIEW_WIDGET.AUTOMATIC,
                 'Automatic option should be selected in preview widget by default');
             // 3. Verify that 'Preview' button should be enabled:
-            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            await contentBrowsePanel.waitForPreviewButtonEnabled();
             await contentItemPreviewPanel.switchToTextFrame();
             let result = await contentItemPreviewPanel.getTextFromTextComponent(0);
             assert.equal(result, TEST_TEXT_FRAGMENT, "expected text should be present in the Preview Panel");
@@ -86,12 +87,13 @@ describe('Move Fragment specification', function () {
     it(`WHEN existing fragment is selected AND 'Enonic rendering' is selected in Preview Panel THEN expected text-fragment should be displayed in Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the fragment-content:
             await studioUtils.findAndSelectItemByDisplayName(TEST_TEXT_FRAGMENT);
             // 2. Select 'Enonic rendering' in the dropdown
             await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             // 3. Verify the Preview button should be enabled:
-            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            await contentBrowsePanel.waitForPreviewButtonEnabled();
             // 4. Verify the text-fragment should be displayed in the Preview Panel
             await contentItemPreviewPanel.switchToTextFrame()
             let result = await contentItemPreviewPanel.getTextFromTextComponent(0);

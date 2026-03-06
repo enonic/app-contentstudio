@@ -90,14 +90,14 @@ describe('updated.text.in.preview.panel.liveview.spec - verify that text is upda
             // 1. Click on the existing site(highlight it ):
             await studioUtils.findAndSelectItem(SITE.displayName);
             // 2. Verify that Preview button is enabled:
-            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            await contentBrowsePanel.waitForPreviewButtonEnabled();
             // 3. Click on the site again and unselect it:
             await contentBrowsePanel.clickOnRowByName(SITE.displayName);
             await contentBrowsePanel.pause(1000);
             // 4. Select the site in the second time:
             await contentBrowsePanel.clickOnRowByName(SITE.displayName);
             // 5. Verify that Preview button is enabled:
-            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            await contentBrowsePanel.waitForPreviewButtonEnabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

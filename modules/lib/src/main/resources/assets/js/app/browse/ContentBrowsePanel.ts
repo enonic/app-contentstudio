@@ -43,6 +43,7 @@ import {ContentBrowseToolbar} from './ContentBrowseToolbar';
 import {type ContentsTreeGridList, type ContentsTreeGridListElement} from './ContentsTreeGridList';
 import {ContentsTreeGridRootList} from './ContentsTreeGridRootList';
 import {ActionName, ContentTreeActions} from './ContentTreeActions';
+import {type PreviewContentAction} from './action/PreviewContentAction';
 import {DeletedContentItem} from './DeletedContentItem';
 import {ContentBrowseFilterPanel} from './filter/ContentBrowseFilterPanel';
 import {type MovedContentItem} from './MovedContentItem';
@@ -81,6 +82,10 @@ export class ContentBrowsePanel
         super.initElements();
 
         this.browseToolbar.addActions(this.getBrowseActions().getAllActionsNoPublish());
+
+        const previewAction = this.getBrowseActions().getAction(ActionName.PREVIEW) as PreviewContentAction;
+        this.getPreviewPanel().setPreviewAction(previewAction);
+        previewAction.setWidgetSelector(this.getPreviewPanel().getWidgetSelector());
 
         this.debouncedFilterRefresh = AppHelper.debounce(this.refreshFilter.bind(this), 1000);
         this.debouncedBrowseActionsAndPreviewRefreshOnDemand = AppHelper.debounce(() => {

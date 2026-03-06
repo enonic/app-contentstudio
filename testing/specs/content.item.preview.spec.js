@@ -6,6 +6,7 @@ const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
 const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem.preview.panel');
+const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 
 describe('content.item.preview.spec - Select a content file and check expected info in Item Preview Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -42,13 +43,14 @@ describe('content.item.preview.spec - Select a content file and check expected i
     it(`GIVEN existing *.txt file is selected WHEN 'Media' option is been selected AND 'Preview' button has been clicked THEN the content should be loaded in the new tab`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select a txt-content
             await studioUtils.findAndSelectItem(TEXT_CONTENT_NAME);
             // 2. Select 'Media' in the Preview widget dropdown:
             await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.MEDIA);
             await studioUtils.saveScreenshot('text_attachment_media_preview');
             // 3. Click on 'Preview' button:
-            await contentItemPreviewPanel.clickOnPreviewButton();
+            await contentBrowsePanel.clickOnPreviewButton();
             // 4. Verify that the new tab is opened and expected text is displayed:
             await studioUtils.doSwitchToNewTab();
             await studioUtils.waitForElementDisplayed("//pre[contains(.,'Belarus')]");
@@ -57,11 +59,12 @@ describe('content.item.preview.spec - Select a content file and check expected i
     it(`GIVEN existing *.txt file is selected WHEN 'Enonic rendering' option has been selected THEN '404' should be loaded in Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(TEXT_CONTENT_NAME);
             await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             await studioUtils.saveScreenshot('text_attachment_site_engine_preview');
             // 'Preview' button should be enabled for a text file and 'Enonic rendering' option
-            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            await contentBrowsePanel.waitForPreviewButtonEnabled();
             // Verify  - '404' error should be displayed in the iframe in Live View
             await contentItemPreviewPanel.switchToLiveViewFrame();
             await contentItemPreviewPanel.waitFor404ErrorDisplayed();
@@ -70,10 +73,11 @@ describe('content.item.preview.spec - Select a content file and check expected i
     it(`GIVEN existing *.txt file is selected WHEN 'JSON' option has been selected THEN expected text should be loaded in Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(TEXT_CONTENT_NAME);
             await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.JSON);
             await studioUtils.saveScreenshot('text_attachment_json_preview');
-            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            await contentBrowsePanel.waitForPreviewButtonEnabled();
             await contentItemPreviewPanel.switchToLiveViewFrame();
             let actualName = await contentItemPreviewPanel.getJSON_info(appConst.LIVE_VIEW_JSON_KEY.NAME);
             assert.equal(actualName, `"${TEXT_CONTENT_NAME}"`, 'expected name should be displayed in JSON preview');
@@ -82,6 +86,7 @@ describe('content.item.preview.spec - Select a content file and check expected i
     it(`WHEN existing folder has been selected AND 'Automatic' is selected THEN 'Please add an application...' should be shown in Item Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select an existing folder:
             await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_2_NAME);
             // 2. Verify that 'Please add an application to your site to enable rendering of this item' is displayed when 'Automatic' is selected
@@ -90,19 +95,20 @@ describe('content.item.preview.spec - Select a content file and check expected i
             // ''Preview not available''
             assert.equal(message, appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE, 'expected message should be displayed');
             // 3. Preview button should be disabled for a folder
-            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
+            await contentBrowsePanel.waitForPreviewButtonDisabled();
         });
 
     it(`WHEN existing 'pptx' content has been selected AND 'Enonic rendering' option has been selected THEN 'Preview' button should be enabled in Item Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select an existing pptx content:
             await studioUtils.findAndSelectItem(PPTX_CONTENT_NAME);
             // 2. Select 'Media' in the Preview widget dropdown:
             await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.ENONIC_RENDERING);
             // 3. Verify that 'Preview' button is enabled when 'Enonic rendering' is selected
             await studioUtils.saveScreenshot('site_engine_preview_button_disabled_for_pptx');
-            await contentItemPreviewPanel.waitForPreviewButtonEnabled();
+            await contentBrowsePanel.waitForPreviewButtonEnabled();
             // Verify  - '404' error should be displayed in the iframe in Live View
             await contentItemPreviewPanel.switchToLiveViewFrame();
             await contentItemPreviewPanel.waitFor404ErrorDisplayed();
@@ -111,13 +117,14 @@ describe('content.item.preview.spec - Select a content file and check expected i
     it(`WHEN existing 'pptx' content has been selected AND 'Media' option has been selected THEN 'Preview' button should be disabled in Item Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select an existing pptx content:
             await studioUtils.findAndSelectItem(PPTX_CONTENT_NAME);
             // 2. Select 'Media' in the Preview widget dropdown:
             await contentItemPreviewPanel.selectOptionInPreviewWidget(appConst.PREVIEW_WIDGET.MEDIA);
             // 3. Verify that 'Preview' button is disabled
             await studioUtils.saveScreenshot('media_preview_button_disabled_for_pptx');
-            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
+            await contentBrowsePanel.waitForPreviewButtonDisabled();
             let message = await contentItemPreviewPanel.getNoPreviewMessage();
             // 4. Verify - ''Preview not available''
             assert.equal(message, appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE, 'expected message should be displayed');
@@ -126,11 +133,12 @@ describe('content.item.preview.spec - Select a content file and check expected i
     it(`WHEN existing 'pptx' content AND 'Automatic' are selected THEN 'Preview' button should be disabled in Item Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select an existing pptx content:
             await studioUtils.findAndSelectItem(PPTX_CONTENT_NAME);
             // 2. Verify that 'Preview' button is disabled
             await studioUtils.saveScreenshot('preview_button_media_enabled_for_pptx');
-            await contentItemPreviewPanel.waitForPreviewButtonDisabled();
+            await contentBrowsePanel.waitForPreviewButtonDisabled();
             let message = await contentItemPreviewPanel.getNoPreviewMessage();
             // 3. Verify - 'Please add an application to your site to enable rendering of this item'
             assert.equal(message, appConst.PREVIEW_PANEL_MESSAGE.PREVIEW_NOT_AVAILABLE, 'expected message should be displayed');

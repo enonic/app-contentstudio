@@ -12,6 +12,7 @@ import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {type ContentTreeGridAction} from './action/ContentTreeGridAction';
 import {ShowNewContentDialogAction} from './action/ShowNewContentDialogAction';
+import {PreviewContentAction} from './action/PreviewContentAction';
 import {EditContentAction} from './action/EditContentAction';
 import {DuplicateContentAction} from './action/DuplicateContentAction';
 import {ArchiveContentAction} from './action/ArchiveContentAction';
@@ -37,7 +38,7 @@ import {State} from './State';
 
 
 export enum ActionName {
-    SHOW_NEW_DIALOG, EDIT, ARCHIVE, DUPLICATE, MOVE, SORT, PUBLISH, PUBLISH_TREE, UNPUBLISH, MARK_AS_READY, REQUEST_PUBLISH,
+    SHOW_NEW_DIALOG, PREVIEW, EDIT, ARCHIVE, DUPLICATE, MOVE, SORT, PUBLISH, PUBLISH_TREE, UNPUBLISH, MARK_AS_READY, REQUEST_PUBLISH,
     CREATE_ISSUE, TOGGLE_SEARCH_PANEL
 }
 
@@ -61,6 +62,7 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
 
     private initActions() {
         this.actionsMap.set(ActionName.SHOW_NEW_DIALOG, new ShowNewContentDialogAction(this.grid));
+        this.actionsMap.set(ActionName.PREVIEW, new PreviewContentAction(this.grid));
         this.actionsMap.set(ActionName.EDIT, new EditContentAction(this.grid));
         this.actionsMap.set(ActionName.ARCHIVE, new ArchiveContentAction(this.grid));
         this.actionsMap.set(ActionName.DUPLICATE, new DuplicateContentAction(this.grid));
@@ -76,7 +78,6 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
     }
 
     private initListeners() {
-
         const managedActionsHandler = (state: ManagedActionState, executor: ManagedActionExecutor) => {
             if (state === ManagedActionState.PREPARING) {
                 this.notifyBeforeActionsStashed();
@@ -135,7 +136,8 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
             this.getAction(ActionName.ARCHIVE),
             this.getAction(ActionName.DUPLICATE),
             this.getAction(ActionName.MOVE),
-            this.getAction(ActionName.SORT)
+            this.getAction(ActionName.SORT),
+            this.getAction(ActionName.PREVIEW)
         ];
     }
 
@@ -193,6 +195,7 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
             this.getAction(ActionName.DUPLICATE),
             this.getAction(ActionName.MOVE),
             this.getAction(ActionName.SORT),
+            this.getAction(ActionName.PREVIEW),
             this.getAction(ActionName.PUBLISH)
         ];
         defaultActions.forEach(action => action.setVisible(true));
