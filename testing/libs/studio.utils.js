@@ -319,9 +319,11 @@ module.exports = {
     },
     async doAddReadyFolder(folder) {
         let contentWizardPanel = new ContentWizardPanel();
+        let contentPublishDialog = new ContentPublishDialog();
         await this.openContentWizard(appConst.contentTypes.FOLDER);
         await contentWizardPanel.typeData(folder);
         await contentWizardPanel.clickOnMarkAsReadyButton();
+        await contentPublishDialog.waitForDialogOpened();
         await this.doCloseWizardAndSwitchToGrid();
         return await this.getBrowser().pause(1000);
     },
@@ -1143,7 +1145,7 @@ module.exports = {
     async openResourceInDraft(res) {
         let currentUrl = await this.getBrowser().getUrl();
         let base = currentUrl.substring(0, currentUrl.indexOf('admin'));
-        let url = base + 'admin/site/preview/default/draft/' + res;
+        let url = base + 'admin/com.enonic.app.contentstudio/site/preview/default/draft/' + res;
         await this.loadUrl(url);
         return await this.getBrowser().pause(2000);
     },
