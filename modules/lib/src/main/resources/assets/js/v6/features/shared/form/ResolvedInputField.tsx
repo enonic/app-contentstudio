@@ -50,7 +50,7 @@ export const ResolvedInputField = ({input, propertySet, descriptor, config, Comp
 
     const {values} = usePropertyArray(propertyArray);
 
-    const occurrence = useOccurrenceManager({
+    const {state, sync} = useOccurrenceManager({
         occurrences: input.getOccurrences(),
         descriptor,
         config,
@@ -58,22 +58,22 @@ export const ResolvedInputField = ({input, propertySet, descriptor, config, Comp
     });
 
     useEffect(() => {
-        occurrence.sync(values);
-    }, [values, occurrence]);
+        sync(values);
+    }, [values, sync]);
 
     const handleChange = useCallback((index: number, value: Value) => {
         propertyArray.set(index, value);
     }, [propertyArray]);
 
     const handleAdd = useCallback(() => {
-        if (!occurrence.state.canAdd) return;
+        if (!state.canAdd) return;
         propertyArray.add(descriptor.getValueType().newNullValue());
-    }, [propertyArray, occurrence.state.canAdd, descriptor]);
+    }, [propertyArray, state.canAdd, descriptor]);
 
     const handleRemove = useCallback((index: number) => {
-        if (!occurrence.state.canRemove) return;
+        if (!state.canRemove) return;
         propertyArray.remove(index);
-    }, [propertyArray, occurrence.state.canRemove]);
+    }, [propertyArray, state.canRemove]);
 
     const handleMove = useCallback((from: number, to: number) => {
         propertyArray.move(from, to);
@@ -92,7 +92,7 @@ export const ResolvedInputField = ({input, propertySet, descriptor, config, Comp
             )}
             <OccurrenceList.Root
                 Component={Component}
-                state={occurrence.state}
+                state={state}
                 onAdd={handleAdd}
                 onRemove={handleRemove}
                 onMove={handleMove}
