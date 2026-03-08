@@ -13,6 +13,7 @@ import {
     $activePublishStatus,
     $activePublishVersionId,
     $activeVersionId,
+    $pastPublishBadges,
     $selectedVersions,
     getOperationLabel,
     isVersionComparable,
@@ -156,27 +157,29 @@ export const VersionsListItem = ({
     const publishStatus = useStore($activePublishStatus);
     const publishedFrom = useStore($activePublishedFrom);
     const publishedTo = useStore($activePublishedTo);
+    const pastPublishBadges = useStore($pastPublishBadges);
     const showRestoreButton = isExpanded && isRevertable;
 
+    const pastBadge = useMemo(
+        () => pastPublishBadges.get(versionId),
+        [versionId, pastPublishBadges],
+    );
+
     const publishStatusMessage = useMemo(() => {
-        if (version.getId() !== activePublishVersionId) {
-            return undefined;
-        }
-
-        if (publishStatus === VersionPublishStatus.PUBLISHED) {
-            return publishedTo ? i18n('widget.versionhistory.publishedUntil', DateHelper.formatDateTime(publishedTo)) : undefined;
-        }
-
-        if (publishStatus === VersionPublishStatus.SCHEDULED) {
-            return publishedFrom ? i18n('widget.versionhistory.scheduled', DateHelper.formatDateTime(publishedFrom)) : undefined;
-        }
-
-        if (publishStatus === VersionPublishStatus.EXPIRED) {
-            return publishedTo ? i18n('widget.versionhistory.expired', DateHelper.formatDateTime(publishedTo)) : undefined;
+        if (versionId === activePublishVersionId) {
+            if (publishStatus === VersionPublishStatus.PUBLISHED) {
+                return publishedTo ? i18n('widget.versionhistory.publishedUntil', DateHelper.formatDateTime(publishedTo)) : undefined;
+            }
+            if (publishStatus === VersionPublishStatus.SCHEDULED) {
+                return publishedFrom ? i18n('widget.versionhistory.scheduled', DateHelper.formatDateTime(publishedFrom)) : undefined;
+            }
+            if (publishStatus === VersionPublishStatus.EXPIRED) {
+                return publishedTo ? i18n('widget.versionhistory.expired', DateHelper.formatDateTime(publishedTo)) : undefined;
+            }
         }
 
         return undefined;
-    }, [version, activePublishVersionId, publishStatus, publishedFrom, publishedTo]);
+    }, [versionId, activePublishVersionId, publishStatus, publishedFrom, publishedTo]);
 
     return (
         <div
@@ -214,6 +217,15 @@ export const VersionsListItem = ({
 
             {isExpanded && publishStatusMessage && (
                 <div className='text-sm font-normal'>{publishStatusMessage}</div>
+            )}
+
+            {isExpanded && pastBadge && (
+                <div className='flex flex-col text-sm font-normal'>
+                    <span>{i18n('widget.versionhistory.publishedFrom', DateHelper.formatDateTime(pastBadge.publishedFrom))}</span>
+                    {pastBadge.publishedTo && (
+                        <span>{i18n('widget.versionhistory.publishedTo', DateHelper.formatDateTime(pastBadge.publishedTo))}</span>
+                    )}
+                </div>
             )}
 
             {showRestoreButton && (
