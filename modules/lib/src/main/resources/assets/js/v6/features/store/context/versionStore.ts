@@ -309,44 +309,69 @@ export const $onlineVersionId = atom<string | undefined>(undefined);
 type PublishBadge = {
     versionId: string;
     publishStatus: VersionPublishStatus;
-    publishedFrom: Date | undefined;
+    publishedFrom: Date;
     publishedTo: Date | undefined;
 };
 
-const $publishBadge = computed([$versions, $onlineVersionId], (versions, onlineVersionId): PublishBadge | undefined => {
+const findBadgeTarget = (versions: ContentVersion[], startIndex: number): ContentVersion | undefined => {
+    for (let i = startIndex; i < versions.length; i++) {
+        if (getVersionConfig(versions[i])?.mayShowBadge) {
+            return versions[i];
+        }
+    }
+    return undefined;
+};
+
+const isPublishEvent = (version: ContentVersion): boolean =>
+    version.getActions().some(a => a.getOperation() === ContentOperation.PUBLISH);
+
+const isUnpublishEvent = (version: ContentVersion): boolean =>
+    version.getActions().some(a => a.getOperation() === ContentOperation.UNPUBLISH);
+
+const findUnpublishDate = (versions: ContentVersion[], publishIndex: number): Date | undefined => {
+    for (let i = publishIndex - 1; i >= 0; i--) {
+        if (isUnpublishEvent(versions[i])) {
+            return versions[i].getTimestamp();
+        }
+        if (isPublishEvent(versions[i])) {
+            return undefined;
+        }
+    }
+    return undefined;
+};
+
+const $allPublishBadges = computed($versions, (versions): PublishBadge[] => {
+    const badges: PublishBadge[] = [];
+    const seen = new Set<string>();
+
+    for (let i = 0; i < versions.length; i++) {
+        const v = versions[i];
+        if (!isPublishEvent(v) || !v.getPublishInfo()) {
+            continue;
+        }
+
+        const target = findBadgeTarget(versions, i + 1);
+        if (!target || seen.has(target.getId())) {
+            continue;
+        }
+
+        seen.add(target.getId());
+        badges.push({
+            versionId: target.getId(),
+            publishStatus: getVersionPublishStatus(v),
+            publishedFrom: v.getTimestamp(),
+            publishedTo: findUnpublishDate(versions, i),
+        });
+    }
+
+    return badges;
+});
+
+const $publishBadge = computed([$allPublishBadges, $onlineVersionId], (badges, onlineVersionId): PublishBadge | undefined => {
     if (!onlineVersionId) {
         return undefined;
     }
-
-    const publishIndex = versions.findIndex(v => {
-        const status = getVersionPublishStatus(v);
-        return status === VersionPublishStatus.PUBLISHED
-            || status === VersionPublishStatus.SCHEDULED
-            || status === VersionPublishStatus.EXPIRED;
-    });
-
-    if (publishIndex < 0) {
-        return undefined;
-    }
-
-    const publishVersion = versions[publishIndex];
-    const publishStatus = getVersionPublishStatus(publishVersion);
-    const publishInfo = publishVersion.getPublishInfo();
-
-    // Find the first mayShowBadge version right before the published version (older = higher index)
-    for (let i = publishIndex + 1; i < versions.length; i++) {
-        const config = getVersionConfig(versions[i]);
-        if (config?.mayShowBadge) {
-            return {
-                versionId: versions[i].getId(),
-                publishStatus,
-                publishedFrom: publishInfo?.getPublishedFrom(),
-                publishedTo: publishInfo?.getPublishedTo(),
-            };
-        }
-    }
-
-    return undefined;
+    return badges[0];
 });
 
 export const $activePublishVersionId = computed($publishBadge, badge => badge?.versionId);
@@ -356,6 +381,11 @@ export const $activePublishStatus = computed($publishBadge, badge => badge?.publ
 export const $activePublishedFrom = computed($publishBadge, badge => badge?.publishedFrom);
 
 export const $activePublishedTo = computed($publishBadge, badge => badge?.publishedTo);
+
+export const $pastPublishBadges = computed([$allPublishBadges, $onlineVersionId], (badges, onlineVersionId): ReadonlyMap<string, PublishBadge> => {
+    const pastBadges = onlineVersionId ? badges.slice(1) : badges;
+    return new Map(pastBadges.map(b => [b.versionId, b]));
+});
 
 // ============================================================================
 // Version Helpers
