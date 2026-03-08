@@ -49,7 +49,6 @@ type VersionsListItemProps = {
 
 const useVersionItemState = (version: ContentVersion, isFocused: boolean) => {
     const selectedVersions = useStore($selectedVersions);
-    const isSelectionModeOn = selectedVersions.size > 0;
     const currentVersionId = useStore($activeVersionId);
     const {active, setActive} = useListbox();
 
@@ -59,15 +58,12 @@ const useVersionItemState = (version: ContentVersion, isFocused: boolean) => {
     const isRevertable = version.getId() !== currentVersionId && isVersionRevertable(version);
     const isComparable = isVersionComparable(version);
 
-    const forceShowCheckbox = isComparable && (isSelectionModeOn || (isFocused && isActive));
-
     return {
         versionId,
         isActive,
         isSelected,
         isRevertable,
         isComparable,
-        forceShowCheckbox,
         setActive,
     };
 };
@@ -124,7 +120,6 @@ export const VersionsListItem = ({
         isSelected,
         isRevertable,
         isComparable,
-        forceShowCheckbox,
         setActive,
     } = useVersionItemState(version, isFocused);
 
@@ -191,18 +186,16 @@ export const VersionsListItem = ({
         >
             <div className='w-full flex items-center gap-2'>
                 <div className='w-7.5 h-full flex justify-center items-center'>
-                    {isComparable && (
+                    {isComparable ? (
                         <Checkbox
                             checked={isSelected}
                             tabIndex={-1}
                             onMouseDown={preventFocusChange}
                             onClick={handleCheckboxClick}
-                            className={cn(forceShowCheckbox ? 'flex' : 'hidden group-hover:flex')}
                         />
-                    )}
-                    <div className={cn(isComparable && forceShowCheckbox ? 'hidden' : 'flex', isComparable && 'group-hover:hidden')}>
+                    ) : (
                         <VersionsListItemIcon version={version} />
-                    </div>
+                    )}
                 </div>
 
                 <VersionItemMainInfo version={version} />
