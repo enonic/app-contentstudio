@@ -18,7 +18,7 @@ export const DisplayNameInput = (): ReactElement => {
             placeholder={placeholder}
             onValueChange={setDraftDisplayName}
             onCommit={setDraftDisplayName}
-            className='min-w-64 px-5 placeholder:text-subtle/50 border-l-bdr-subtle rounded-xs'
+            className='min-w-64 px-5 placeholder:text-subtle/50 border-l-bdr-subtle rounded-xs focus:border-transparent'
         />
     );
 };
