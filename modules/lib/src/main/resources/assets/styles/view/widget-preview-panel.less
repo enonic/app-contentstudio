@@ -70,17 +70,6 @@
 
   .no-preview-message,
   .no-selection-message {
-    &.icon-blocked::before {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      margin-left: -64px;
-      margin-top: -64px;
-      font-size: 6em;
-      color: @admin-bg-light-gray;
-      z-index: 1;
-    }
-
     position: static;
     top: 0;
     height: 100%;
@@ -89,14 +78,6 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
-
-    span {
-      .watermark-text(21px, true, @admin-font-gray1);
-      // overrides for watermark-text
-      position: static;
-      white-space: normal;
-      display: block;
-    }
 
     .page-settings-link {
       margin-top: 10px;

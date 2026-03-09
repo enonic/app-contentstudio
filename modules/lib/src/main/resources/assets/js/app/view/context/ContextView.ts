@@ -10,6 +10,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {cn} from '@enonic/ui';
 import {History, Link, List} from 'lucide-react';
 import Q from 'q';
+import {PreviewLabelElement} from '../../../v6/features/shared/PreviewLabel';
 import {setActiveWidgetId} from '../../../v6/features/store/contextWidgets.store';
 import {APP_NAME} from '../../../v6/features/utils/cms/app/app';
 import {VERSIONS_WIDGET_KEY} from '../../../v6/features/utils/widget/versions/versions';
@@ -167,8 +168,9 @@ export class ContextView
     }
 
     private initDivForNoSelection() {
-        this.divForNoSelection = new DivEl('no-selection-message');
-        this.divForNoSelection.getEl().setInnerHtml(i18n('field.contextPanel.empty'));
+        this.divForNoSelection = new DivEl('no-selection-message bg-surface-primary');
+        const label = new PreviewLabelElement({messages: [i18n('field.contextPanel.empty')], className: 'h-full text-base'});
+        this.divForNoSelection.appendChild(label);
         this.appendChild(this.divForNoSelection);
     }
 

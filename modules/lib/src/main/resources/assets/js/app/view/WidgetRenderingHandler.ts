@@ -2,7 +2,6 @@ import {type Widget} from '@enonic/lib-admin-ui/content/Widget';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {type IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
-import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {type Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
@@ -10,6 +9,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {listenKeys} from 'nanostores';
 import Q from 'q';
+import {PreviewLabelElement} from '../../v6/features/shared/PreviewLabel';
 import {$app, getResolvedTheme} from '../../v6/features/store/app.store';
 import {$isWidgetRenderable} from '../../v6/features/store/contextWidgets.store';
 import {$autoModeWidgets, WIDGET_AUTO_DESCRIPTOR} from '../../v6/features/store/liveViewWidgets.store';
@@ -43,6 +43,8 @@ export class WidgetRenderingHandler {
     private emptyView: DivEl;
 
     protected messageView: DivEl;
+
+    private messageLabel: PreviewLabelElement;
 
     private summary: ContentSummary;
 
@@ -124,19 +126,21 @@ export class WidgetRenderingHandler {
     }
 
     protected createEmptyView(): DivEl {
-        return this.createMessageView(i18n('panel.noselection'), 'no-selection-message bg-surface-neutral');
+        return this.createMessageView(i18n('panel.noselection'), 'no-selection-message bg-surface-primary');
     }
 
     protected createErrorView(): DivEl {
-        return this.createMessageView(this.getDefaultMessage(), 'no-preview-message bg-surface-neutral');
+        this.messageLabel = new PreviewLabelElement({messages: [this.getDefaultMessage()], showIcon: true, className: 'text-xl'});
+        const wrapper = new DivEl('no-preview-message bg-surface-primary');
+        wrapper.appendChild(this.messageLabel);
+        return wrapper;
     }
 
-    protected createMessageView(message: string, className?: string): DivEl {
-        const previewText: SpanEl = new SpanEl();
-        previewText.setHtml(message);
-        const previewMessage = new DivEl(className);
-        previewMessage.appendChild(previewText);
-        return previewMessage;
+    protected createMessageView(message: string, className?: string, showIcon?: boolean): DivEl {
+        const wrapper = new DivEl(className);
+        const label = new PreviewLabelElement({messages: [message], showIcon, className: 'text-xl'});
+        wrapper.appendChild(label);
+        return wrapper;
     }
 
     protected setPreviewType(previewType: PREVIEW_TYPE, messages?: string[]) {
@@ -168,11 +172,7 @@ export class WidgetRenderingHandler {
     }
 
     protected showPreviewMessages(messages: string[]) {
-        this.messageView.removeChildren();
-
-        messages.forEach((message: string) => {
-            this.messageView.appendChild(SpanEl.fromText(message));
-        });
+        this.messageLabel.setProps({messages, showIcon: true});
     }
 
     protected handlePreviewSuccess(response: Response, data: Record<string, never>) {

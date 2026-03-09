@@ -34,7 +34,14 @@
       }
     }
 
-    .no-selection-message, .widget-error {
+    .no-selection-message {
+      display: none;
+      height: 100%;
+      padding: 0 20px;
+      box-sizing: border-box;
+    }
+
+    .widget-error {
       .watermark-text(@color: @admin-font-gray1);
       display: none;
       height: 60px;
