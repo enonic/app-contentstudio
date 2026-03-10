@@ -11,9 +11,11 @@ import {
     type ReactElement,
 } from 'react';
 
+import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentId} from '../../../../../app/content/ContentId';
 import {IssueStatus} from '../../../../../app/issue/IssueStatus';
+import {IssueStatusInfoGenerator} from '../../../../../app/issue/view/IssueStatusInfoGenerator';
 import {useI18n} from '../../../hooks/useI18n';
 import {useTaskProgress} from '../../../hooks/useTaskProgress';
 import {$config} from '../../../store/config.store';
@@ -241,6 +243,16 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         () => issues.find(item => item.getIssue().getId() === issueId),
         [issues, issueId],
     );
+
+    const statusInfo = useMemo(() => {
+        if (!issueData) return undefined;
+        const currentUser = AuthContext.get().getUser();
+        return IssueStatusInfoGenerator.create()
+            .setIssue(issueData)
+            .setIssueStatus(issueData.getIssueStatus())
+            .setCurrentUser(currentUser)
+            .generate();
+    }, [issueData]);
 
     const issueIndex = issueData?.getIndex();
     const currentStatus = issueData?.getIssueStatus() ?? IssueStatus.OPEN;
@@ -686,6 +698,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                 options={statusOptions}
                                 placeholder={openStatusLabel}
                                 onValueChange={handleStatusChange}
+                                tooltip={statusInfo}
                                 renderValue={(value) => {
                                     const option = resolveStatusOption(statusOptions, value);
                                     return option ? <IssueStatusBadge status={option.status} /> : openStatusLabel;
