@@ -136,6 +136,7 @@ const registerCacheInvalidationHandlers = (): void => {
     eventsHandler.onContentPublished(handleContentSummaryChange);
     eventsHandler.onContentUnpublished(handleContentSummaryChange);
     eventsHandler.onContentRenamed(handleContentSummaryChange);
+    eventsHandler.onContentSorted(handleContentSummaryChange);
 
     // Content moved
     eventsHandler.onContentMoved(handleContentMoved);

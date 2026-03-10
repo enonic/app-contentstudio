@@ -23,7 +23,7 @@ export function fetchVersion(contentId: string, versionId: string): ResultAsync<
 
 function stripContentMetadata(contentJson: ContentJson): ContentJson {
     const cleaned = {...contentJson};
-    ['_id', 'creator', 'createdTime', 'hasChildren'].forEach((key) => {
+    ['_id', 'creator', 'createdTime', 'hasChildren', 'modifiedTime', 'validationErrors', 'publish'].forEach((key) => {
         delete cleaned[key];
     });
     return cleaned;
