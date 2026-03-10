@@ -1,4 +1,4 @@
-import {Selector} from '@enonic/ui';
+import {Selector, Tooltip} from '@enonic/ui';
 import type {ReactElement, ReactNode} from 'react';
 
 type IssueDialogSelectorOption = {
@@ -12,6 +12,7 @@ export type IssueDialogSelectorProps<Option extends IssueDialogSelectorOption> =
     disabled?: boolean;
     options: Option[];
     placeholder?: string;
+    tooltip?: string;
     onValueChange: (next: string) => void;
     renderValue?: (value: string | undefined) => ReactNode;
     renderItemText?: (option: Option) => ReactNode;
@@ -24,6 +25,7 @@ export function IssueDialogSelector<Option extends IssueDialogSelectorOption>({
     disabled,
     options,
     placeholder,
+    tooltip,
     onValueChange,
     renderValue,
     renderItemText,
@@ -40,12 +42,20 @@ export function IssueDialogSelector<Option extends IssueDialogSelectorOption>({
         return renderItemText ? renderItemText(option) : option.label;
     };
 
+    const trigger = (
+        <Selector.Trigger>
+            <Selector.Value placeholder={placeholder}>{valueRenderer}</Selector.Value>
+            <Selector.Icon />
+        </Selector.Trigger>
+    );
+
     return (
         <Selector.Root value={value} disabled={disabled} onValueChange={onValueChange} data-component={ISSUE_DIALOG_SELECTOR_NAME}>
-            <Selector.Trigger>
-                <Selector.Value placeholder={placeholder}>{valueRenderer}</Selector.Value>
-                <Selector.Icon />
-            </Selector.Trigger>
+            {tooltip ? (
+                <Tooltip value={tooltip} asChild>
+                    {trigger}
+                </Tooltip>
+            ) : trigger}
             {/* Prevent the dialog portal closing on select */}
             <Selector.Content onPointerDown={event => event.stopPropagation()}>
                 <Selector.Viewport>
