@@ -13,8 +13,8 @@ import {
     setIssueDialogListTab,
 } from '../../../store/dialogs/issueDialog.store';
 import {openNewIssueDialog} from '../../../store/dialogs/newIssueDialog.store';
-import {IssueList} from './IssueList';
 import {IssueDialogSelector} from './IssueDialogSelector';
+import {IssueList} from './IssueList';
 
 import type {IssueWithAssignees} from '../../../../../app/issue/IssueWithAssignees';
 import type {IssueDialogFilter, IssueDialogTab} from './issueDialog.types';
