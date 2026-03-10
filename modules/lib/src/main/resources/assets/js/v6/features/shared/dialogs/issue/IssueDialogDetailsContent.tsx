@@ -11,12 +11,11 @@ import {
     type ReactElement,
 } from 'react';
 
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentId} from '../../../../../app/content/ContentId';
 import {IssueStatus} from '../../../../../app/issue/IssueStatus';
-import {IssueStatusInfoGenerator} from '../../../../../app/issue/view/IssueStatusInfoGenerator';
 import {useI18n} from '../../../hooks/useI18n';
+import {generateIssueStatusInfo} from '../../../utils/cms/issue/generateIssueStatusInfo';
 import {useTaskProgress} from '../../../hooks/useTaskProgress';
 import {$config} from '../../../store/config.store';
 import {$issueDialog, closeIssueDialog, setIssueDialogView} from '../../../store/dialogs/issueDialog.store';
@@ -210,7 +209,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const {progress: publishProgress} = useTaskProgress(publishTaskId);
     const {invalid, inProgress, noPermissions} = useStore($publishCheckErrors);
 
-    const {defaultPublishFromTime} = useStore($config, {keys: ['defaultPublishFromTime']});
+    const {user, defaultPublishFromTime} = useStore($config, {keys: ['user', 'defaultPublishFromTime']});
 
     const fallbackTitle = useI18n('dialog.issue');
     const backLabel = useI18n('dialog.issue.back');
@@ -244,15 +243,12 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         [issues, issueId],
     );
 
-    const statusInfo = useMemo(() => {
-        if (!issueData) return undefined;
-        const currentUser = AuthContext.get().getUser();
-        return IssueStatusInfoGenerator.create()
-            .setIssue(issueData)
-            .setIssueStatus(issueData.getIssueStatus())
-            .setCurrentUser(currentUser)
-            .generate();
-    }, [issueData]);
+    // Intentional: useI18n doesn't use React hooks internally; passing it as a translate function.
+    // Replace with useI18n() from @enonic/lib-admin-ui when I18nProvider is wired up.
+    const statusInfo = useMemo(
+        () => issueData ? generateIssueStatusInfo(issueData, useI18n, user) : undefined,
+        [issueData, user],
+    );
 
     const issueIndex = issueData?.getIndex();
     const currentStatus = issueData?.getIssueStatus() ?? IssueStatus.OPEN;

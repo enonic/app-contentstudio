@@ -1,7 +1,9 @@
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {ListItem, cn} from '@enonic/ui';
+import {useStore} from '@nanostores/preact';
 import {type ReactElement} from 'react';
-import {IssueStatusInfoGenerator} from '../../../../../app/issue/view/IssueStatusInfoGenerator';
+import {useI18n} from '../../../hooks/useI18n';
+import {$config} from '../../../store/config.store';
+import {generateIssueStatusInfo} from '../../../utils/cms/issue/generateIssueStatusInfo';
 import {IssueStatusBadge} from '../../status/IssueStatusBadge';
 import {IssueIcon} from './IssueIcon';
 
@@ -15,13 +17,11 @@ export type IssueListItemProps = {
 const ISSUE_LIST_ITEM_NAME = 'IssueListItem';
 
 export const IssueListItem = ({issue, onSelect}: IssueListItemProps): ReactElement => {
+    const {user} = useStore($config, {keys: ['user']});
     const issueData = issue.getIssue();
-    const currentUser = AuthContext.get().getUser();
-    const subtitle = IssueStatusInfoGenerator.create()
-        .setIssue(issueData)
-        .setIssueStatus(issueData.getIssueStatus())
-        .setCurrentUser(currentUser)
-        .generate();
+    // Intentional: useI18n doesn't use React hooks internally; passing it as a translate function.
+    // Replace with useI18n() from @enonic/lib-admin-ui when I18nProvider is wired up.
+    const subtitle = generateIssueStatusInfo(issueData, useI18n, user);
     const handleSelect = () => {
         onSelect?.(issue);
     };

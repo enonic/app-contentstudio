@@ -1,8 +1,14 @@
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import type {PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';
 import {map} from 'nanostores';
 import {parseBoolean, parseString} from '../utils/format/values';
 
 type ConfigStore = {
+    // App
     appId: string;
+    // Session
+    user?: Principal;
+    // Flags
     excludeDependencies: boolean;
     allowContentUpdate: boolean;
     defaultPublishFromTime?: string;
@@ -10,6 +16,7 @@ type ConfigStore = {
 
 type ConfigJson = {
     appId: unknown;
+    user: unknown;
     excludeDependencies?: unknown;
     allowContentUpdate?: unknown;
     defaultPublishFromTime?: unknown;
@@ -52,6 +59,7 @@ function parseConfig(content: string): ConfigStore | undefined {
 
         return {
             appId: parseString(config.appId),
+            user: config.user ? Principal.fromJson(config.user as PrincipalJson) : undefined,
             excludeDependencies: parseBoolean(config.excludeDependencies),
             allowContentUpdate: parseBoolean(config.allowContentUpdate),
             defaultPublishFromTime: parseString(config.defaultPublishFromTime),
