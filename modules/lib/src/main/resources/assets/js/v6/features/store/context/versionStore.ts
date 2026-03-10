@@ -360,7 +360,7 @@ const $allPublishBadges = computed($versions, (versions): PublishBadge[] => {
             versionId: target.getId(),
             publishStatus: getVersionPublishStatus(v),
             publishedFrom: v.getTimestamp(),
-            publishedTo: findUnpublishDate(versions, i),
+            publishedTo: findUnpublishDate(versions, i) ?? v.getPublishInfo()?.getPublishedTo(),
         });
     }
 
@@ -423,7 +423,7 @@ export const resolveVersionOperationType = (version: ContentVersion): VersionOpe
     const action = getFirstAction(version);
 
     if (!action) {
-        return isFirstVersion(version) ? VersionOperationType.CREATE : VersionOperationType.IMPORT;
+        return VersionOperationType.IMPORT;
     }
 
     const operation = action.getOperation();
@@ -475,13 +475,6 @@ export const isStandardModeVersion = (version: ContentVersion): boolean =>
     getVersionConfig(version)?.standardMode ?? false;
 
 const isVersionToBeDisplayedInFullMode = (version: ContentVersion): boolean => {
-    const action = getFirstAction(version);
-
-    // Don't display versions where 'manualOrderValue' was changed (created for children of manually sorted parents)
-    if (action?.getOperation() === ContentOperation.SORT && action.getFields().some(f => f === ContentField.MANUAL_ORDER)) {
-        return false;
-    }
-
     return getVersionConfig(version)?.fullMode ?? true;
 };
 
@@ -543,7 +536,16 @@ export const getIconForOperation = (version: ContentVersion): LucideIcon => {
 
 export const getOperationLabel = (version: ContentVersion): string => {
     const config = getVersionConfig(version);
-    return config ? i18n(config.labelKey) : i18n('operation.content.unknown');
+    if (!config) {
+        return i18n('operation.content.unknown');
+    }
+
+    if (resolveVersionOperationType(version) === VersionOperationType.PUBLISH
+        && getVersionPublishStatus(version) === VersionPublishStatus.SCHEDULED) {
+        return i18n('operation.content.scheduled');
+    }
+
+    return i18n(config.labelKey);
 };
 
 export const getModifierLabel = (version: ContentVersion): string | undefined => {

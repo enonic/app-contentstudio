@@ -144,11 +144,11 @@ describe('resolveVersionOperationType', () => {
         expect(resolveVersionOperationType(version)).toBe(VersionOperationType.IMPORT);
     });
 
-    it('resolves no-actions version as CREATE when first version and all loaded', () => {
+    it('resolves no-actions version as IMPORT when first version and all loaded', () => {
         const version = createVersion('v1', []);
         $versions.set([version]);
         $allVersionsLoaded.set(true);
-        expect(resolveVersionOperationType(version)).toBe(VersionOperationType.CREATE);
+        expect(resolveVersionOperationType(version)).toBe(VersionOperationType.IMPORT);
     });
 
     it('resolves no-actions version as IMPORT when first version but not all loaded', () => {
@@ -298,7 +298,7 @@ describe('$versionsByDate', () => {
         expect(allVersions).toEqual([create]);
     });
 
-    it('excludes SORT with manualOrderValue in full mode', () => {
+    it('includes SORT with manualOrderValue in full mode', () => {
         const sort = createVersion('v1', [createAction(ContentOperation.SORT, [ContentField.MANUAL_ORDER])], new Date('2024-01-15'));
         const update = createVersion('v2', [createAction(ContentOperation.UPDATE)], new Date('2024-01-15'));
 
@@ -307,7 +307,7 @@ describe('$versionsByDate', () => {
 
         const result = $versionsByDate.get();
         const allVersions = Object.values(result).flat();
-        expect(allVersions).toEqual([update]);
+        expect(allVersions).toEqual([update, sort]);
     });
 
     it('includes SORT without manualOrderValue in full mode', () => {
@@ -516,7 +516,7 @@ describe('appendSyntheticCreateVersion', () => {
         expect($versions.get()).toHaveLength(1);
     });
 
-    it('does not append when last version has no actions and is first (CREATE)', () => {
+    it('does not append when last version has no actions and is first (IMPORT)', () => {
         const noActions = createVersion('v1', []);
         $versions.set([noActions]);
         $allVersionsLoaded.set(true);
@@ -524,7 +524,7 @@ describe('appendSyntheticCreateVersion', () => {
         appendSyntheticCreateVersion(new Date('2023-06-01'));
 
         expect($versions.get()).toHaveLength(1);
-        expect(resolveVersionOperationType(noActions)).toBe(VersionOperationType.CREATE);
+        expect(resolveVersionOperationType(noActions)).toBe(VersionOperationType.IMPORT);
     });
 
     it('does not append when last version is IMPORT', () => {
@@ -582,13 +582,13 @@ describe('isFirstVersion behavior with $allVersionsLoaded', () => {
         expect(resolveVersionOperationType(noActions)).toBe(VersionOperationType.IMPORT);
     });
 
-    it('no-actions version is CREATE when it is last and all loaded', () => {
+    it('no-actions version is IMPORT when it is last and all loaded', () => {
         const update = createVersion('v2', [createAction(ContentOperation.UPDATE)]);
         const noActions = createVersion('v1', []);
         $versions.set([update, noActions]);
         $allVersionsLoaded.set(true);
 
-        expect(resolveVersionOperationType(noActions)).toBe(VersionOperationType.CREATE);
+        expect(resolveVersionOperationType(noActions)).toBe(VersionOperationType.IMPORT);
     });
 
     it('no-actions version is IMPORT when it is not last even if all loaded', () => {

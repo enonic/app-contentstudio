@@ -22,7 +22,6 @@ import {
     toggleVersionSelection,
     VersionPublishStatus,
 } from '../../../../store/context/versionStore';
-import {VersionsListItemIcon} from './VersionsListItemIcon';
 
 const COMPONENT_NAME = 'VersionsListItem';
 
@@ -173,8 +172,12 @@ export const VersionsListItem = ({
             }
         }
 
+        if (pastBadge?.publishStatus === VersionPublishStatus.EXPIRED && pastBadge.publishedTo) {
+            return i18n('widget.versionhistory.expired', DateHelper.formatDateTime(pastBadge.publishedTo));
+        }
+
         return undefined;
-    }, [versionId, activePublishVersionId, publishStatus, publishedFrom, publishedTo]);
+    }, [versionId, activePublishVersionId, publishStatus, publishedFrom, publishedTo, pastBadge]);
 
     return (
         <div
@@ -194,7 +197,7 @@ export const VersionsListItem = ({
                             onClick={handleCheckboxClick}
                         />
                     ) : (
-                        <VersionsListItemIcon version={version} />
+                        <></>// <VersionsListItemIcon version={version} />
                     )}
                 </div>
 
@@ -210,15 +213,6 @@ export const VersionsListItem = ({
 
             {isExpanded && publishStatusMessage && (
                 <div className='text-sm font-normal'>{publishStatusMessage}</div>
-            )}
-
-            {isExpanded && pastBadge && (
-                <div className='flex flex-col text-sm font-normal'>
-                    <span>{i18n('widget.versionhistory.publishedFrom', DateHelper.formatDateTime(pastBadge.publishedFrom))}</span>
-                    {pastBadge.publishedTo && (
-                        <span>{i18n('widget.versionhistory.publishedTo', DateHelper.formatDateTime(pastBadge.publishedTo))}</span>
-                    )}
-                </div>
             )}
 
             {showRestoreButton && (

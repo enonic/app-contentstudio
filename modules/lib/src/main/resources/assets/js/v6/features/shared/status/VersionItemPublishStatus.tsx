@@ -1,6 +1,6 @@
 import {cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {GlobeOff} from 'lucide-react';
+import {Cloud} from 'lucide-react';
 import {ReactElement, useMemo} from 'react';
 import {ContentVersion} from '../../../../app/ContentVersion';
 import {useI18n} from '../../hooks/useI18n';
@@ -50,7 +50,7 @@ export const VersionItemPublishStatus = ({version, className}: VersionItemPublis
     }
 
     if (pastBadge) {
-        return <GlobeOff className={cn('w-4 h-4 shrink-0', className)} />;
+        return <Cloud className={cn('w-4 h-4 shrink-0', className)} />;
     }
 
     return null;
