@@ -4,10 +4,11 @@ import {Input} from '@enonic/lib-admin-ui/form/Input';
 import {FieldSet} from '@enonic/lib-admin-ui/form/set/fieldset/FieldSet';
 import {FormItemSet} from '@enonic/lib-admin-ui/form/set/itemset/FormItemSet';
 import {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
+import {InputField} from '@enonic/lib-admin-ui/form2';
 import {type ReactElement} from 'react';
 import {instanceOf} from '../../utils/object/instanceOf';
 import {FieldSetView} from './FieldSetView';
-import {InputField} from './InputField';
+import {useFormRender} from './FormRenderContext';
 import {ItemSetView} from './ItemSetView';
 import {OptionSetView} from './OptionSetView';
 
@@ -16,9 +17,15 @@ type FormItemRendererProps = {
     propertySet: PropertySet;
 };
 
+const FORM_ITEM_RENDERER_NAME = 'FormItemRenderer';
+
 export const FormItemRenderer = ({formItem, propertySet}: FormItemRendererProps): ReactElement => {
+    const {enabled} = useFormRender();
+
+    // TODO: Move to lib-admin-ui
+
     if (instanceOf(formItem, Input)) {
-        return <InputField input={formItem} propertySet={propertySet} />;
+        return <InputField input={formItem} propertySet={propertySet} enabled={enabled} />;
     }
     if (instanceOf(formItem, FieldSet)) {
         return <FieldSetView fieldSet={formItem} propertySet={propertySet} />;
@@ -30,10 +37,10 @@ export const FormItemRenderer = ({formItem, propertySet}: FormItemRendererProps)
         return <OptionSetView name={formItem.getName()} />;
     }
     return (
-        <div className="rounded border border-dashed border-bdr-subtle px-3 py-2 text-xs text-subtle">
+        <div data-component={FORM_ITEM_RENDERER_NAME} className="rounded border border-dashed border-bdr-subtle px-3 py-2 text-xs text-subtle">
             {formItem.constructor.name}: {formItem.getName()} — unknown form item type
         </div>
     );
 };
 
-FormItemRenderer.displayName = 'FormItemRenderer';
+FormItemRenderer.displayName = FORM_ITEM_RENDERER_NAME;
