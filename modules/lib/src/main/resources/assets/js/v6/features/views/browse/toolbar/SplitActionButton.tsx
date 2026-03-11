@@ -36,7 +36,8 @@ const getActionState = (action: Action): ActionState => ({
  * - The buttons are visually joined together as a single unit
  */
 export const SplitActionButton = ({actions, className, triggerClassName, disabled = false}: Props): ReactElement | null => {
-    const [, setRenderVersion] = useState(0);
+    const moreLabel = useI18n('tooltip.moreActions');
+    const [renderVersion, setRenderVersion] = useState(0);
 
     useEffect(() => {
         const subscriptions = actions.map(({action}) => {
@@ -50,7 +51,10 @@ export const SplitActionButton = ({actions, className, triggerClassName, disable
         };
     }, [actions]);
 
-    const actionStates = actions.map(({action}) => getActionState(action));
+    const actionStates = useMemo(
+        () => actions.map(({action}) => getActionState(action)),
+        [actions, renderVersion]
+    );
 
     // Determine primary action index (first enabled action)
     const primaryIndex = useMemo(() => {
@@ -65,8 +69,6 @@ export const SplitActionButton = ({actions, className, triggerClassName, disable
     );
 
     const hasMenuActions = menuStates.length > 0;
-
-    const moreLabel = useI18n('tooltip.moreActions');
 
     if (!primaryState || actions.length === 0) {
         return null;
