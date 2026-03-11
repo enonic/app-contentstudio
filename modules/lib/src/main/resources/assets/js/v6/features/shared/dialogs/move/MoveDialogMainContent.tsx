@@ -6,10 +6,10 @@ import {
     $moveDialog,
     $moveItemsCount,
     $isMoveDialogReady,
+    $moveItems,
     setMoveDestinationItem,
     setMoveDestinationId,
 } from '../../../store/dialogs/moveDialog.store';
-import {$currentItems} from '../../../store/contentTreeSelection.store';
 import {PathSelector} from '../../selectors/path/PathSelector';
 
 type MoveDialogMainContentProps = {
@@ -27,7 +27,7 @@ export const MoveDialogMainContent = ({
     const ready = useStore($isMoveDialogReady);
     const total = useStore($moveItemsCount);
     const isMultiple = total > 1;
-    const currentItems = useStore($currentItems);
+    const currentItems = useStore($moveItems);
     const hasRootLevelSelection = currentItems.some((item) => {
         const path = item.getPath();
         return path ? !path.hasParentContent() : false;

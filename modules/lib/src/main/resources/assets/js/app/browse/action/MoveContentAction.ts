@@ -17,7 +17,7 @@ export class MoveContentAction
     }
 
     protected handleExecuted() {
-        openMoveDialog(getCurrentItems().length);
+        openMoveDialog([...getCurrentItems()]);
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {

@@ -5,7 +5,7 @@ import {GetNearestSiteRequest} from '../../../../../app/resource/GetNearestSiteR
 import {useI18n} from '../../../hooks/useI18n';
 import {useTaskProgress} from '../../../hooks/useTaskProgress';
 import {
-    $moveCurrentItems,
+    $moveItems,
     $moveDialog,
     $moveTaskId,
     cancelMoveDialog,
@@ -21,7 +21,7 @@ type View = 'main' | 'confirmation' | 'progress';
 export const MoveDialog = (): ReactElement => {
     const {open, destinationPath, destinationItem} = useStore($moveDialog, {keys: ['open', 'destinationPath', 'destinationItem']});
     const taskId = useStore($moveTaskId);
-    const items = useStore($moveCurrentItems);
+    const items = useStore($moveItems);
     const {progress} = useTaskProgress(taskId);
     const [view, setView] = useState<View>('main');
 

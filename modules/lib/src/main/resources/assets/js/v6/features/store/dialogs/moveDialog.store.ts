@@ -7,7 +7,6 @@ import type {ContentSummaryAndCompareStatus} from '../../../../app/content/Conte
 import {MoveContentRequest} from '../../../../app/resource/MoveContentRequest';
 import {cleanupTask, trackTask} from '../../services/task.service';
 import {$isWizard} from '../app.store';
-import {getCurrentItems} from '../contentTreeSelection.store';
 
 //
 // * Types
@@ -15,7 +14,7 @@ import {getCurrentItems} from '../contentTreeSelection.store';
 
 type MoveDialogStore = {
     open: boolean;
-    itemsCount: number;
+    items: readonly ContentSummaryAndCompareStatus[];
     submitting: boolean;
     destinationId: string | null;
     destinationItem: ContentSummaryAndCompareStatus | null;
@@ -33,7 +32,7 @@ type MoveDialogStore = {
 
 const initialState: MoveDialogStore = {
     open: false,
-    itemsCount: 0,
+    items: [],
     submitting: false,
     destinationId: null,
     destinationItem: null,
@@ -51,10 +50,10 @@ export const $moveDialog = map<MoveDialogStore>(structuredClone(initialState));
 // * Derived State
 //
 
-export const $moveItemsCount = computed($moveDialog, ({itemsCount}) => itemsCount);
-export const $moveCurrentItems = computed($moveDialog, ({open}) => (open ? getCurrentItems() : []));
-export const $isMoveDialogReady = computed($moveDialog, ({open, submitting, itemsCount, destinationId}) => {
-    return open && !submitting && itemsCount > 0 && !!destinationId;
+export const $moveItemsCount = computed($moveDialog, ({items}) => items.length);
+export const $moveItems = computed($moveDialog, ({open, items}) => (open ? items : []));
+export const $isMoveDialogReady = computed($moveDialog, ({open, submitting, items, destinationId}) => {
+    return open && !submitting && items.length > 0 && !!destinationId;
 });
 export const $moveTaskId = computed($moveDialog, ({taskId}) => taskId);
 
@@ -64,15 +63,15 @@ let moveCompletionHandled = false;
 // * Public API
 //
 
-export const openMoveDialog = (itemsCount = 1): void => {
-    if (itemsCount <= 0) {
+export const openMoveDialog = (items: ContentSummaryAndCompareStatus[]): void => {
+    if (items.length === 0) {
         return;
     }
     moveCompletionHandled = false;
-    const excludedIds = getCurrentItems().map((item) => item.getContentId().toString());
+    const excludedIds = items.map((item) => item.getContentId().toString());
     $moveDialog.set({
         open: true,
-        itemsCount,
+        items,
         submitting: false,
         destinationId: null,
         destinationItem: null,
@@ -101,10 +100,6 @@ export const resetMoveDialogContext = (): void => {
     $moveDialog.set(structuredClone(initialState));
 };
 
-export const setMoveItemsCount = (itemsCount: number): void => {
-    $moveDialog.setKey('itemsCount', itemsCount);
-};
-
 export const setMoveDestinationId = (destinationId: string | null): void => {
     $moveDialog.setKey('destinationId', destinationId);
     if (!destinationId) {
@@ -121,16 +116,11 @@ export const setMoveDestinationItem = (item: ContentSummaryAndCompareStatus | nu
 
 export const executeMoveDialogAction = async (): Promise<boolean> => {
     const state = $moveDialog.get();
-    if (state.submitting || state.itemsCount === 0 || !state.destinationId) {
+    if (state.submitting || state.items.length === 0 || !state.destinationId) {
         return false;
     }
 
-    const items = getCurrentItems();
-    if (items.length === 0) {
-        showError(i18n('notify.item.nothingToMove'));
-        return false;
-    }
-
+    const items = state.items;
     const destinationPath = state.destinationItem?.getPath();
     if (!destinationPath) {
         showError(i18n('notify.item.nothingToMove'));
@@ -187,7 +177,7 @@ const handleMoveSuccess = (): void => {
     moveCompletionHandled = true;
 
     const state = $moveDialog.get();
-    const total = state.pendingTotal || state.itemsCount || 1;
+    const total = state.pendingTotal || state.items.length || 1;
     const destinationPath = state.pendingDestinationPath || state.destinationPath || '';
     const destinationLabel = destinationPath || i18n('field.root');
     const baseMessage = i18n(
