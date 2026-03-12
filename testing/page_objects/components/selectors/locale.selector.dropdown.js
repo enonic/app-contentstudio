@@ -32,7 +32,7 @@ class LocaleSelectorDropdown extends BasDropdown {
             await this.handleError(`Language selector - Tried to click on filtered option: ${language}`, 'err_click_lang_option', err);
         }
     }
-    //overridden
+    // overridden
     async clickOnOptionByDisplayName(language){
         let optionLocator = this.container + DROPDOWN.languageTreeItemByDisplayName(language);
         await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);

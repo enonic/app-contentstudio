@@ -280,7 +280,7 @@ class Page {
         }, {timeout: ms, timeoutMsg: `Timeout exception. Element ${selector} still not visible in: ${ms}`});
     }
 
-    waitUntilDisplayed(selector, ms) {
+    waitUntilDisplayed(selector, ms = appConst.mediumTimeout) {
         return this.getBrowser().waitUntil(() => {
             return this.getDisplayedElements(selector).then(result => {
                 return result.length > 0;

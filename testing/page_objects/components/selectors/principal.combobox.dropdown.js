@@ -2,8 +2,8 @@
  * Created on 12.02.2024  updated on 12.02.2026
  */
 const BasDropdown = require('./base.dropdown');
-const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
+const {DROPDOWN} = require('../../../libs/elements');
 const XPATH = {
     listBoxUL: "//ul[contains(@id,'PrincipalsListBox')]",
     principalViewerDiv: "//div[contains(@id,'PrincipalViewer')]",
@@ -11,7 +11,7 @@ const XPATH = {
 
 class PrincipalSelector extends BasDropdown {
 
-    constructor(parentElementXpath) {
+    constructor(parentElementXpath='') {
         super();
         this._container = parentElementXpath;
     }
@@ -37,15 +37,12 @@ class PrincipalSelector extends BasDropdown {
         }
     }
 
-    // TODO: Refactor this method for epic-enonic-ui
-    async getPrincipalsDisplayNameInOptions(parentXpath) {
-        if (parentXpath === undefined) {
-            parentXpath = '';
-        }
-        let locator = parentXpath + XPATH.listBoxUL + XPATH.principalViewerDiv + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.pause(500);
-        return await this.getTextInDisplayedElements(locator);
+    // Return display names of the options(principal display name) in the dropdown.
+    async getPrincipalsDisplayNameInOptions() {
+        let optionsLocator = DROPDOWN.COMBOBOX_POPUP + "//div[@role='option']/div/div[1]//span[1]";
+        await this.waitForElementDisplayed(optionsLocator, appConst.mediumTimeout);
+        await this.pause(200);
+        return await this.getTextInDisplayedElements(optionsLocator);
     }
 }
 

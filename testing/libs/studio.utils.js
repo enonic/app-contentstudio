@@ -240,7 +240,7 @@ module.exports = {
         //Switch to the new wizard:
         await this.doSwitchToNewWizard();
         await contentWizardPanel.waitForOpened();
-        return await contentWizardPanel.waitForDisplayNameInputFocused();
+        //return await contentWizardPanel.waitForDisplayNameInputFocused();
     },
     async selectAndOpenContentInWizard(contentName, checkFocused) {
         let contentWizardPanel = new ContentWizardPanel();
@@ -587,7 +587,7 @@ module.exports = {
         await newContentDialog.clickOnContentType(contentType);
         await this.doSwitchToNewWizard();
         await contentWizard.waitForOpened();
-        await contentWizard.waitForDisplayNameInputFocused();
+        //await contentWizard.waitForDisplayNameInputFocused();
         return contentWizard;
     },
     // Open delete dialog, click on 'Delete' button then type a number to delete

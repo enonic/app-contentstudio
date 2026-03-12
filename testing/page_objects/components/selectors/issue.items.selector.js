@@ -2,9 +2,9 @@
  * Created on 02.02.2026
  */
 const ContentSelectorDropdown = require('./content.selector.dropdown');
-const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
 const {DROPDOWN} = require('../../../libs/elements');
+const PrincipalComboBox = require('./principal.combobox.dropdown');
 
 const XPATH = {
     principalViewerDiv: "//div[contains(@id,'PrincipalViewer')]",
@@ -43,19 +43,14 @@ class IssueItemsSelector extends ContentSelectorDropdown {
             await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
             await this.clickOnElement(optionLocator);
         } catch (err) {
-            await this.handleError(`Dropdown Selector, tried to click on filtered by display name option: ${optionDisplayName}`,
-                'err_click_filtered_option', err);
+            await this.handleError(`Issue items selector, tried to click on filtered by display name option: ${optionDisplayName}`,
+                'err_issue_items_selector', err);
         }
     }
 
-    async getPrincipalsDisplayNameInOptions(parentXpath) {
-        if (parentXpath === undefined) {
-            parentXpath = '';
-        }
-        let locator = parentXpath + XPATH.listBoxUL + XPATH.principalViewerDiv + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.pause(500);
-        return await this.getTextInDisplayedElements(locator);
+    async getPrincipalsDisplayNameInOptions() {
+        let principalComboBox = new PrincipalComboBox();
+        return await principalComboBox.getPrincipalsDisplayNameInOptions();
     }
 }
 

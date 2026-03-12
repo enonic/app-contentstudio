@@ -3,27 +3,20 @@ const appConst = require('../../libs/app_const');
 const {BUTTONS, DIALOG_ITEMS, SELECTION_STATUS_BAR} = require('./../../libs/elements');
 const PrincipalComboBox = require('../components/selectors/principal.combobox.dropdown');
 const DependantsControls = require('./dependant.controls');
+const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 
 const xpath = {
     container: `//div[@data-component='RequestPublishDialogContent']`,
     titleInput: "//div[descendant::div[text()='Title']]/following-sibling::div[1]//input[contains(@class,'text')]",
     commentTextArea: "//div[descendant::div[text()='Add a comment']]/following-sibling::div[1]//textarea",
     invalidItemsDiv: "//div[@data-component='SelectionStatusBar' and descendant::span[contains(.,'Invalid items')]]",
-    publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
-    dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
+    //publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
     warningMessagePart1: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part1']",
     warningMessagePart2: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part2']",
     invalidIcon: "//span[contains(@class,'icon-state-invalid')]",
     errorEntry: "//div[contains(@id,'DialogStateEntry') and contains(@class,'error-entry')]",
-    excludeInvalidItems: "//button[child::span[contains(.,'Exclude')]]",
     inProgressEntryDiv: "//div[contains(@id,'DialogStateEntry') and descendant::span[contains(@class,'icon-state-in-progress')]]",
     invalidEntryDiv: "//div[contains(@id,'DialogStateEntry') and descendant::span[contains(@class,'icon-state-invalid')]]",
-    contentSummaryByDisplayName:
-        displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
-    itemToRequest:
-        displayName => `//div[contains(@id,'StatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
-    contentStatus:
-        displayName => `//div[contains(@id,'StatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/div[contains(@class,'status')][2]`,
 
 };
 // Modal Dialog for creating of new publish request
@@ -33,6 +26,10 @@ class CreateRequestPublishDialog extends Page {
     constructor() {
         super();
         this.dependantsControls = new DependantsControls(xpath.container);
+    }
+
+    get container() {
+        return xpath.container;
     }
 
     get dependantsBlock() {
@@ -157,6 +154,23 @@ class CreateRequestPublishDialog extends Page {
         }
     }
 
+    async clickOnDropDownHandleInItemsToPublishCombobox() {
+        try {
+            let contentSelector = new ContentSelectorDropdown(this.container);
+            await contentSelector.clickOnDropdownHandle();
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError('Request Publish Dialog tried to click on items to publish dropdown handle',
+                'err_click_items_to_publish_dropdown', err);
+        }
+    }
+
+    async clickOnExpanderIconInOptionsList(optionName) {
+        let contentSelector = new ContentSelectorDropdown(xpath.container);
+        return await contentSelector.clickOnExpanderIconInOptionsList(optionName);
+    }
+
+    // TODO epic-enonic-ui
     async clickOnItemToPublishAndSwitchToWizard(displayName) {
         let selector = xpath.publishItemList + xpath.itemToRequest(displayName);
         await this.clickOnElement(selector);
@@ -220,10 +234,19 @@ class CreateRequestPublishDialog extends Page {
         return this.getText(selector);
     }
 
+    async selectUserInAssignees(userName) {
+        try {
+            let principalComboBox = new PrincipalComboBox(this.container);
+            await principalComboBox.selectFilteredUser(userName);
+            await principalComboBox.clickOnApplySelectionButton();
+        } catch (err) {
+            await this.handleError(`Error when selecting user in Assignees combobox: ${userName}`, 'err_select_user_assignees', err);
+        }
+    }
 
     async clickOnDropDownHandleInAssigneesCombobox() {
         try {
-            let principalComboBox = new PrincipalComboBox(xpath.container);
+            let principalComboBox = new PrincipalComboBox(this.container);
             await principalComboBox.clickOnDropdownHandle();
             return await this.pause(300);
         } catch (err) {
@@ -231,9 +254,10 @@ class CreateRequestPublishDialog extends Page {
         }
     }
 
+    // TODO: Refactor this method for epic-enonic-ui
     async getOptionsInAssigneesDropdownList() {
-        let principalComboBox = new PrincipalComboBox();
-        return await principalComboBox.getPrincipalsDisplayNameInOptions(xpath.container);
+        let principalComboBox = new PrincipalComboBox(xpath.container);
+        return await principalComboBox.getPrincipalsDisplayNameInOptions();
     }
 
 

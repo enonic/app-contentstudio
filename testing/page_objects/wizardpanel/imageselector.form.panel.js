@@ -81,8 +81,8 @@ class ImageSelectorForm extends BaseSelectorForm {
     }
 
     async clickOnModeTogglerButton() {
-        let imageSelectorDropdown = new ImageSelectorDropdown();
-        await imageSelectorDropdown.clickOnModeTogglerButton(XPATH.container);
+        let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
+        await imageSelectorDropdown.clickOnModeTogglerButton();
         return await this.pause(1500);
     }
 

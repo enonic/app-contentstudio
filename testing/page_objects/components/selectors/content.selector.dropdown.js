@@ -15,6 +15,7 @@ class ContentSelectorDropdown extends BaseDropdown {
         super();
         this._container = parentElementXpath;
     }
+
     // get dataComponent() {
     //     return "//div[contains(@data-component,'AssigneeSelector')]";
     // }
@@ -48,24 +49,15 @@ class ContentSelectorDropdown extends BaseDropdown {
         }
     }
 
-    async selectFilteredByNameContent(name, parent) {
-        try {
-            await this.clickOnFilteredByNameItem(name, parent);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error(`Content selector - Error during selecting the option, screenshot:${screenshot} ` + err);
-        }
-    }
-
     async getOptionsDisplayNameInTreeMode(parentXpath) {
-        let locator =  XPATH.contentsTreeListUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.H6_DISPLAY_NAME;
+        let locator = XPATH.contentsTreeListUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.pause(500);
         return await this.getTextInDisplayedElements(locator);
     }
 
-    async getOptionsNameInTreeMode(parentXpath) {
-        let locator =  XPATH.contentsTreeListUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.P_SUB_NAME;
+    async getOptionsNameInTreeMode() {
+        let locator = XPATH.contentsTreeListUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.P_SUB_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.pause(500);
         return await this.getTextInDisplayedElements(locator);
@@ -73,14 +65,14 @@ class ContentSelectorDropdown extends BaseDropdown {
 
     async getOptionsDisplayNameInFlatMode() {
 
-        let locator =  XPATH.contentListBoxUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.H6_DISPLAY_NAME;
+        let locator = XPATH.contentListBoxUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.pause(500);
         return await this.getTextInDisplayedElements(locator);
     }
 
     async getOptionsName(parentXpath) {
-        let locator =  XPATH.contentListBoxUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.P_SUB_NAME;
+        let locator = XPATH.contentListBoxUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.P_SUB_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.pause(500);
         return await this.getTextInDisplayedElements(locator);

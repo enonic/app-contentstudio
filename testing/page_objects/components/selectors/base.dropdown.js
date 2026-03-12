@@ -18,11 +18,13 @@ const XPATH = {
 class BaseDropdown extends Page {
 
     get modeTogglerButton() {
-        return this.container + lib.DROPDOWN_SELECTOR.MODE_TOGGLER_BUTTON;
+        const base = this.dataComponentDiv ? this.container + this.dataComponentDiv : this.container;
+        return base + DROPDOWN.MODE_TOGGLE;
     }
 
     get dropdownHandle() {
-        return this.container + lib.DROPDOWN_SELECTOR.DROPDOWN_HANDLE;
+        const base = this.dataComponentDiv ? this.container + this.dataComponentDiv : this.container;
+        return base + DROPDOWN.DROPDOWN_HANDLE;
     }
 
     get applySelectionButton() {
@@ -49,12 +51,12 @@ class BaseDropdown extends Page {
         }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Options Filter input should be disabled'});
     }
 
-    async clickOnModeTogglerButton(parentElement) {
+    async clickOnModeTogglerButton() {
         try {
-            await this.waitForElementDisplayed(parentElement + this.modeTogglerButton);
-            return await this.clickOnElement(parentElement + this.modeTogglerButton);
+            await this.waitForElementDisplayed(this.modeTogglerButton);
+            return await this.clickOnElement(this.modeTogglerButton);
         } catch (err) {
-            await this.handleError('Dropdown, clicked on mode toggle icon.', 'err_click_mode_toggle', err);
+            await this.handleError('Tried to click on mode toggle icon.', 'err_click_mode_toggle', err);
         }
     }
 
@@ -76,8 +78,9 @@ class BaseDropdown extends Page {
     }
 
     async clickOnDropdownHandle(parentLocator = '') {
-        await this.waitForElementDisplayed(parentLocator + this.dropdownHandle, appConst.mediumTimeout);
-        return await this.clickOnElement(parentLocator + this.dropdownHandle);
+        let locator = parentLocator + this.dropdownHandle;
+        await this.waitForElementDisplayed(locator);
+        return await this.clickOnElement(locator);
     }
 
     async waitForApplySelectionButtonDisplayed() {
@@ -93,7 +96,7 @@ class BaseDropdown extends Page {
     async waitForApplySelectionButtonNotDisplayed() {
         try {
             // Wait until the Apply Selection button is not displayed
-            await this.waitForElementNotDisplayed(this.applySelectionButton, appConst.shortTimeout);
+            await this.waitForElementNotDisplayed(this.applySelectionButton);
         } catch (error) {
             // Handle errors gracefully and log the issue
             await this.handleError('Failed to wait for Apply Selection button to disappear.', 'err_wait_apply_button', error);
@@ -104,7 +107,6 @@ class BaseDropdown extends Page {
         try {
             let locator = this.container + lib.DROPDOWN_SELECTOR.APPLY_SELECTION_BUTTON;
             await this.waitUntilDisplayed(locator, appConst.shortTimeout);
-            //await this.waitForApplySelectionButtonDisplayed();
             let elements = await this.getDisplayedElements(locator);
             await elements[0].click();
             await this.pause(100);
@@ -142,10 +144,15 @@ class BaseDropdown extends Page {
     }
 
     async clickOnExpanderIconInOptionsList(listItemName) {
-        let locator = XPATH.expanderIconByName(listItemName);
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.clickOnElement(locator);
-        return await this.pause(300);
+        try {
+            let locator = DROPDOWN.COMBOBOX_POPUP + DROPDOWN.treeItemExpanderByDisplayName(listItemName);
+            await this.waitForElementDisplayed(locator);
+            await this.clickOnElement(locator);
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError(`Dropdown, tried to click on expander icon for list item: ${listItemName}`, 'err_click_expander_icon',
+                err);
+        }
     }
 
     async isOptionsFilterInputDisplayed() {
@@ -186,10 +193,11 @@ class BaseDropdown extends Page {
                 'err_click_filtered_option', err);
         }
     }
+
     // epic-enonic-ui
     async clickOnTreeItemOptionByDisplayName(optionDisplayName) {
         try {
-            let optionLocator = DROPDOWN.treeItemByDisplayName(optionDisplayName);
+            let optionLocator = DROPDOWN.COMBOBOX_POPUP + DROPDOWN.treeItemByDisplayName(optionDisplayName);
             await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
             await this.clickOnElement(optionLocator);
         } catch (err) {
@@ -250,13 +258,21 @@ class BaseDropdown extends Page {
 
     async clickOnCheckboxInDropdown(index, parentXpath = '') {
         let locator = parentXpath + XPATH.rightCheckBoxDiv;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(locator);
         let result = await this.findElements(locator);
         await result[index].click();
         return await this.pause(300);
     }
 
-    async clickOnCheckboxInDropdownByDisplayName(displayName, parentXpath = '') {
+    async clickOnSelectRowCheckboxByDisplayName(displayName) {
+        let locator = DROPDOWN.COMBOBOX_POPUP + DROPDOWN.treeItemCheckboxByDisplayName(displayName);
+        await this.waitForElementDisplayed(locator);
+        let result = await this.findElements(locator);
+        await result[0].click();
+        return await this.pause(300);
+    }
+
+    async clickOnCheckboxInDropdownByDisplayName_Old(displayName, parentXpath = '') {
         let locator = parentXpath + XPATH.rightCheckboxByDisplayName(displayName);
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         let result = await this.findElements(locator);
