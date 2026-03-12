@@ -110,6 +110,10 @@ body.cke_editable {
   background: white !important;
 }
 
+.cke_bottom .cke_button__sourcedialog {
+  float: right;
+}
+
 .cke_panel_container {
   font-family: @admin-font-family;
   font-size: 14px;
@@ -149,9 +153,279 @@ body.cke_editable {
 
 .cke__highlighted_term {
   background-color: yellow;
-
 }
 
 .cke__selected_term {
   outline: 1px solid black;
+}
+
+// ── Dark mode: outer chrome (toolbar, bottom bar, dropdowns) ──
+// Colors aligned with @enonic/ui design system tokens:
+//   grey-950: #242829  (surface-neutral)
+//   grey-900: #3d4142  (surface-primary, hover)
+//   grey-800: #5b5f60  (borders, muted)
+//   grey-700: #797d7e  (secondary)
+//   grey-400: #b5b9ba  (subtle text)
+//   white:    #ffffff  (main text)
+
+@cke-dark-surface:       #242829;  // grey-950
+@cke-dark-surface-hover: #3d4142;  // grey-900
+@cke-dark-border:        #5b5f60;  // grey-800
+@cke-dark-text:          #ffffff;  // main
+@cke-dark-text-subtle:   #b5b9ba;  // grey-400
+@cke-dark-text-muted:    #797d7e;  // grey-700
+@cke-dark-link:          #208ebe;  // fbk-info-subtle
+@cke-dark-link-visited:  #e46ee4;  // purple-subtle
+
+html.dark {
+  .cke_chrome {
+    border-color: @cke-dark-border;
+  }
+
+  .cke_inner {
+    background: @cke-dark-surface;
+  }
+
+  .cke_top,
+  .cke_bottom {
+    background: @cke-dark-surface-hover !important;
+    border-color: @cke-dark-border;
+  }
+
+  .cke_wysiwyg_frame,
+  .cke_wysiwyg_div {
+    background-color: @cke-dark-surface;
+  }
+
+  // Reset text color for all skin elements
+  .cke_reset_all,
+  .cke_reset_all * {
+    color: @cke-dark-text-subtle;
+  }
+
+  // Toolbar buttons
+  a.cke_button_off:hover,
+  a.cke_button_off:focus,
+  a.cke_button_off:active {
+    background: @cke-dark-surface-hover;
+    border-color: @cke-dark-border;
+  }
+
+  a.cke_button_on {
+    background: @cke-dark-surface-hover;
+    border-color: @cke-dark-border;
+  }
+
+  a.cke_button_disabled:hover,
+  a.cke_button_disabled:focus,
+  a.cke_button_disabled:active {
+    background-color: transparent;
+  }
+
+  // Invert toolbar icons (PNG sprite, black on transparent)
+  .cke_button_icon {
+    filter: invert(0.85);
+  }
+
+  .cke_button__sourcedialog_icon {
+    filter: invert(0.85);
+  }
+
+  // Toolbar separators and group dividers
+  .cke_toolbar_separator {
+    background-color: @cke-dark-border;
+  }
+
+  .cke_toolgroup a.cke_button:last-child::after {
+    border-right-color: @cke-dark-border;
+  }
+
+  .cke_rtl .cke_toolgroup a.cke_button:last-child::after {
+    border-left-color: @cke-dark-border;
+  }
+
+  // Combo (Styles dropdown)
+  .cke_combo::after {
+    border-right-color: @cke-dark-border;
+  }
+
+  .cke_combo_text {
+    color: @cke-dark-text-subtle;
+  }
+
+  .cke_combo_arrow {
+    border-top-color: @cke-dark-text-subtle;
+  }
+
+  .cke_combo_on a.cke_combo_button,
+  .cke_combo_off a.cke_combo_button:hover,
+  .cke_combo_off a.cke_combo_button:focus,
+  .cke_combo_off a.cke_combo_button:active {
+    background: @cke-dark-surface-hover;
+    border-color: @cke-dark-border;
+  }
+
+  .cke_combo_on a.cke_combo_button,
+  .cke_combo_off a.cke_combo_button:active {
+    background: @cke-dark-surface;
+  }
+
+  // Button labels and arrow colors
+  .cke_button_label {
+    color: @cke-dark-text-subtle;
+  }
+
+  .cke_button_arrow {
+    border-top-color: @cke-dark-text-subtle;
+  }
+
+  // Dropdown panels (Styles list, color picker, etc.)
+  .cke_panel {
+    background-color: @cke-dark-surface;
+    border-color: @cke-dark-border;
+  }
+
+  .cke_panel_listItem a:hover,
+  .cke_panel_listItem a:focus,
+  .cke_panel_listItem a:active,
+  .cke_panel_listItem.cke_selected a {
+    background-color: @cke-dark-surface-hover;
+  }
+
+  .cke_panel_grouptitle {
+    color: @cke-dark-text-subtle;
+    border-bottom-color: @cke-dark-border;
+    background: @cke-dark-surface;
+  }
+
+  // Context menu
+  .cke_menubutton:hover,
+  .cke_menubutton:focus,
+  .cke_menubutton:active {
+    background-color: @cke-dark-surface-hover;
+  }
+
+  .cke_menubutton_icon {
+    background-color: @cke-dark-surface;
+  }
+
+  .cke_menubutton:hover .cke_menubutton_icon,
+  .cke_menubutton:focus .cke_menubutton_icon,
+  .cke_menubutton:active .cke_menubutton_icon {
+    background-color: @cke-dark-surface-hover;
+  }
+
+  .cke_menuseparator {
+    background-color: @cke-dark-border;
+  }
+
+  // Path bar (bottom element path)
+  a.cke_path_item,
+  span.cke_path_empty {
+    color: @cke-dark-text-muted;
+  }
+
+  a.cke_path_item:hover,
+  a.cke_path_item:focus,
+  a.cke_path_item:active {
+    background-color: @cke-dark-surface-hover;
+  }
+
+  // Source code textarea
+  textarea.cke_source {
+    background-color: @cke-dark-surface;
+    color: @cke-dark-text-subtle;
+  }
+
+  // Resizer
+  .cke_resizer {
+    border-color: transparent @cke-dark-border transparent transparent;
+  }
+
+  // Color dialog
+  a.cke_colorauto,
+  a.cke_colormore {
+    border-color: @cke-dark-border;
+  }
+
+  a.cke_colorauto:hover,
+  a.cke_colormore:hover,
+  a.cke_colorauto:focus,
+  a.cke_colormore:focus {
+    border-color: @cke-dark-link;
+    background-color: @cke-dark-surface-hover;
+  }
+}
+
+// ── Dark mode: editor iframe content ──
+// These rules apply inside the CKEditor iframe via contentsCss.
+// The 'dark-mode' class is toggled on the iframe body at runtime.
+
+body.cke_editable.dark-mode {
+  background-color: #242829;  // grey-950
+  color: #ffffff;             // main
+
+  a {
+    color: #208ebe;           // fbk-info-subtle
+  }
+
+  a:visited {
+    color: #e46ee4;           // purple-subtle
+  }
+
+  blockquote {
+    border-color: #5b5f60;    // grey-800
+  }
+
+  hr {
+    border-top-color: #5b5f60;
+  }
+
+  figure {
+    outline-color: #5b5f60;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  img.right,
+  img.left {
+    border-color: #5b5f60;
+  }
+
+  a > img {
+    outline-color: #208ebe;
+  }
+
+  .marker {
+    background-color: #5c4422; // fbk-warn-surface-dark
+    color: #ffffff;
+  }
+
+  table,
+  th,
+  td {
+    border-color: #5b5f60;
+  }
+
+  table.cke_show_border {
+    border-color: #5b5f60 !important;
+
+    th,
+    td {
+      border-color: #5b5f60 !important;
+    }
+  }
+
+  .cke__highlighted_term {
+    background-color: #5c4422;
+    color: #ffffff;
+  }
+
+  .cke__selected_term {
+    outline-color: #b5b9ba;   // grey-400
+  }
+
+  .image-grayscale {
+    background-color: #3d4142; // grey-900
+    color: #b5b9ba;            // grey-400
+  }
 }

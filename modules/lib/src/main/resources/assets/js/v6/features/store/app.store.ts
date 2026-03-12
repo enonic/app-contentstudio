@@ -1,5 +1,6 @@
 import {initBuiltInTypes} from '@enonic/lib-admin-ui/form2';
 import {computed, map} from 'nanostores';
+import {registerContentStudioInputTypes} from '../shared/form/input-types';
 import {syncMapStore} from '../utils/storage/sync';
 import {isWizardUrl} from '../utils/url/app';
 
@@ -173,3 +174,4 @@ if (typeof window !== 'undefined') {
 //
 
 initBuiltInTypes();
+registerContentStudioInputTypes();
