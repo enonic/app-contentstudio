@@ -63,9 +63,9 @@ export class ExtensionItemView
                 return this.extensionElement.setHtml(html);
             })
             .then(() => deferred.resolve())
-            .catch(() => {
-                deferred.reject();
+            .catch((error: unknown) => {
                 this.handleExtensionRenderError();
+                deferred.reject(error);
             });
 
         return deferred.promise;
