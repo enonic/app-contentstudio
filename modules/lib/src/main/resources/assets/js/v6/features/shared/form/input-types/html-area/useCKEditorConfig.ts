@@ -1,5 +1,6 @@
 /*global CKEDITOR*/
 
+import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {useEffect, useMemo, useState} from 'react';
 import {ContentResourceRequest} from '../../../../../../app/resource/ContentResourceRequest';
@@ -16,12 +17,12 @@ type UseCKEditorConfigParams = {
     editorId: string;
     assetsUri: string;
     contentSummary: ContentSummary | undefined;
-    project: Project | undefined;
+    project: Readonly<Project> | undefined;
     editableSourceCode: boolean;
 };
 
 type UseCKEditorConfigResult = {
-    editorConfig: CKEDITOR.config | null;
+    editorConfig: CKEDITOR.config | undefined;
 };
 
 const DEFAULT_TOOLS: string[][] = [
@@ -37,9 +38,7 @@ function isDefaultTool(tools: string[][], tool: string): boolean {
 }
 
 function getAllowedHeadings(allowedHeadings: string | undefined): string[] {
-    if (allowedHeadings) {
-        return allowedHeadings.trim().replace(/  +/g, ' ').replace(/ /g, ';').split(';');
-    }
+    if (allowedHeadings) return allowedHeadings.trim().replace(/  +/g, ' ').replace(/ /g, ';').split(';');
 
     return ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
 }
@@ -59,7 +58,7 @@ function getExtraSpecialChars(): (string | [string, string])[] {
     ];
 }
 
-function getUploadUrl(project: Project | undefined): string {
+function getUploadUrl(project: Readonly<Project> | undefined): string {
     return UrlHelper.getCmsRestUri(
         `${UrlHelper.getCMSPathForContentRoot(project)}/${ContentResourceRequest.CONTENT_PATH}/createMedia`);
 }
@@ -114,9 +113,7 @@ function buildToolbar(inputConfig: HtmlAreaConfig, editableSourceCode: boolean):
 function initCustomStyleSet(editorId: string, allowedHeadings: string | undefined, disabledTools: string[]): string {
     const customStyleSetID = `custom-${editorId}`;
 
-    if (CKEDITOR.stylesSet.get(customStyleSetID)) {
-        return customStyleSetID;
-    }
+    if (CKEDITOR.stylesSet.get(customStyleSetID)) return customStyleSetID;
 
     const isEverythingDisabled = disabledTools.length === 1 && disabledTools[0] === '*';
     const isToolDisabled = (tool: string) => isEverythingDisabled || disabledTools.includes(tool);
@@ -182,6 +179,11 @@ function buildConfig(params: UseCKEditorConfigParams, cssPaths: string[]): CKEDI
         ],
     };
 
+    const contentLang = params.contentSummary?.getLanguage();
+    if (contentLang && Locale.supportsRtl(contentLang)) {
+        config.contentsLangDirection = 'rtl';
+    }
+
     config['qtRows'] = 10;
     config['qtColumns'] = 10;
     config['qtWidth'] = '100%';
@@ -193,7 +195,7 @@ export function useCKEditorConfig(params: UseCKEditorConfigParams): UseCKEditorC
     const {config, editorId, assetsUri, contentSummary, project, editableSourceCode} = params;
 
     // Async: fetch custom styles CSS paths (depends only on content).
-    const [cssPaths, setCssPaths] = useState<string[] | null>(null);
+    const [cssPaths, setCssPaths] = useState<string[] | undefined>(undefined);
 
     useEffect(() => {
         let cancelled = false;
@@ -224,9 +226,7 @@ export function useCKEditorConfig(params: UseCKEditorConfigParams): UseCKEditorC
     // useMemo ensures the config updates in the same render when
     // editableSourceCode or other params change — no stale config.
     const editorConfig = useMemo(() => {
-        if (cssPaths === null) {
-            return null;
-        }
+        if (cssPaths === undefined) return undefined;
 
         return buildConfig(
             {config, editorId, assetsUri, contentSummary, project, editableSourceCode},

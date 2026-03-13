@@ -1,7 +1,6 @@
 import {useStore} from '@nanostores/preact';
 import {type ReactElement, useMemo} from 'react';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import type {Project} from '../../../../../app/settings/data/project/Project';
 import {$contextContent} from '../../../store/context/contextContent.store';
 import {$activeProject} from '../../../store/projects.store';
 import {$contentType, $wizardDraftData} from '../../../store/wizardContent.store';
@@ -33,7 +32,7 @@ export const ContentForm = (): ReactElement | null => {
             <DisplayNameInput />
             <HtmlAreaProvider
                 contentSummary={contentSummary}
-                project={activeProject as Project}
+                project={activeProject}
                 applicationKeys={applicationKeys}
                 assetsUri={assetsUri}
             >

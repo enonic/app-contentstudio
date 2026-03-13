@@ -1,21 +1,21 @@
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
-import {Styles} from './styles/Styles';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import Q from 'q';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {ProjectHelper} from '../../../settings/data/project/ProjectHelper';
 import {ContentId} from '../../../content/ContentId';
-import {HtmlAreaSanitizer} from './HtmlAreaSanitizer';
 import {type Project} from '../../../settings/data/project/Project';
-import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
+import {ProjectHelper} from '../../../settings/data/project/ProjectHelper';
+import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
+import {HtmlAreaSanitizer} from './HtmlAreaSanitizer';
+import {Styles} from './styles/Styles';
 
 export class HTMLAreaHelper {
 
     private static sourceCodeEditablePromise: Q.Promise<boolean> | undefined;
 
-    private static getConvertedImageSrc(imgSrc: string, contentId: string, project?: Project): string {
+    private static getConvertedImageSrc(imgSrc: string, contentId: string, project?: Readonly<Project>): string {
         const imageId = HTMLAreaHelper.extractImageIdFromImgSrc(imgSrc);
         const styleParameter = '?style=';
 
@@ -62,7 +62,7 @@ export class HTMLAreaHelper {
         return imgSrc.replace(prefix, StringHelper.EMPTY_STRING);
     }
 
-    public static convertRenderSrcToPreviewSrc(value: string, contentId: string, project?: Project): string {
+    public static convertRenderSrcToPreviewSrc(value: string, contentId: string, project?: Readonly<Project>): string {
         if (!value) {
             return '';
         }

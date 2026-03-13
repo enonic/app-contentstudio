@@ -1,21 +1,20 @@
 /*global CKEDITOR*/
 
+import type {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import type {Value} from '@enonic/lib-admin-ui/data/Value';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import type {InputTypeComponentProps} from '@enonic/lib-admin-ui/form2/types';
 import {cn} from '@enonic/ui';
-import {type JSX} from 'react';
-import {useEffect, useRef, useState} from 'react';
 import {useCKEditor} from 'ckeditor4-react';
+import {useEffect, useRef, useState, type JSX} from 'react';
+import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
 import {HTMLAreaHelper} from '../../../../../../app/inputtype/ui/text/HTMLAreaHelper';
 import {HtmlAreaSanitizer} from '../../../../../../app/inputtype/ui/text/HtmlAreaSanitizer';
+import type {Project} from '../../../../../../app/settings/data/project/Project';
 import type {HtmlAreaConfig} from './HtmlAreaConfig';
 import {useHtmlAreaContext} from './HtmlAreaContext';
-import {useCKEditorConfig} from './useCKEditorConfig';
 import {setupEditor} from './setupEditor';
-import type {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import type {Project} from '../../../../../../app/settings/data/project/Project';
+import {useCKEditorConfig} from './useCKEditorConfig';
 
 const sanitizer = new HtmlAreaSanitizer();
 
@@ -28,11 +27,13 @@ type CKEditorWrapperProps = {
     onBlur?: () => void;
     enabled: boolean;
     contentSummary: ContentSummary | undefined;
-    project: Project | undefined;
+    project: Readonly<Project> | undefined;
     applicationKeys: ApplicationKey[];
     assetsUri: string;
     hasError: boolean;
 };
+
+const CKEDITOR_WRAPPER_NAME = 'CKEditorWrapper';
 
 // Inner component — only mounts when editorConfig is ready.
 // This ensures useCKEditor's internal useRef captures the real config
@@ -52,6 +53,7 @@ const CKEditorWrapper = ({
     hasError,
 }: CKEditorWrapperProps): JSX.Element => {
     const [element, setElement] = useState<HTMLTextAreaElement | null>(null);
+    const [focused, setFocused] = useState(false);
     const mountedRef = useRef(true);
     const editorReadyRef = useRef(false);
     const editorInstanceRef = useRef<CKEDITOR.editor | null>(null);
@@ -113,6 +115,14 @@ const CKEditorWrapper = ({
         type: 'classic',
         initContent: previewContent,
     });
+
+    if (status === 'destroyed') {
+        return (
+            <div className="html-area has-error">
+                <p className="text-error">Failed to initialize the editor</p>
+            </div>
+        );
+    }
 
     // Store editor instance
     useEffect(() => {
@@ -177,6 +187,25 @@ const CKEditorWrapper = ({
         return () => observer.disconnect();
     }, [editor, status]);
 
+    // Track editor focus for focus ring
+    useEffect(() => {
+        if (status !== 'ready' || !editor) {
+            setFocused(false);
+            return;
+        }
+
+        const onFocus = () => setFocused(true);
+        const onEditorBlur = () => setFocused(false);
+
+        editor.on('focus', onFocus);
+        editor.on('blur', onEditorBlur);
+
+        return () => {
+            editor.removeListener('focus', onFocus);
+            editor.removeListener('blur', onEditorBlur);
+        };
+    }, [status, editor]);
+
     // Sync read-only state
     useEffect(() => {
         if (editor && status === 'ready') {
@@ -213,18 +242,23 @@ const CKEditorWrapper = ({
     }, []);
 
     return (
-        <div className={cn('html-area', hasError && 'has-error')}>
+        <div data-name={CKEDITOR_WRAPPER_NAME} className={cn(
+            'html-area rounded-sm *:rounded-sm transition-highlight',
+            focused && 'ring-3 ring-offset-3 ring-offset-ring-offset',
+            focused && (hasError ? 'ring-error' : 'ring-ring'),
+            hasError && 'has-error',
+        )}>
             <textarea
+                className="hidden invisible"
                 ref={setElement}
                 id={editorId}
                 name={editorId}
-                className="hidden"
             />
         </div>
     );
 };
 
-CKEditorWrapper.displayName = 'CKEditorWrapper';
+CKEditorWrapper.displayName = CKEDITOR_WRAPPER_NAME;
 
 export const HtmlAreaInput = ({
     value,
@@ -239,12 +273,14 @@ export const HtmlAreaInput = ({
     const {contentSummary, project, applicationKeys, assetsUri} = useHtmlAreaContext();
 
     const editorId = `htmlarea-${input.getName()}-${index}`;
-    const [editableSourceCode, setEditableSourceCode] = useState<boolean | null>(null);
+    const [editableSourceCode, setEditableSourceCode] = useState<boolean | undefined>(undefined);
 
     // Resolve editableSourceCode async (cached after first resolve)
     useEffect(() => {
         HTMLAreaHelper.isSourceCodeEditable().then((editable: boolean) => {
             setEditableSourceCode(editable);
+        }).catch(() => {
+            setEditableSourceCode(false);
         });
     }, []);
 
@@ -263,11 +299,11 @@ export const HtmlAreaInput = ({
         ? HTMLAreaHelper.convertRenderSrcToPreviewSrc(stringValue, contentSummary.getId(), project)
         : stringValue;
 
-    const hasError = errors?.length > 0;
+    const hasError = errors.length > 0;
 
     // Don't mount CKEditorWrapper until config is fully ready (including
     // editableSourceCode) — useCKEditor captures config on first render only.
-    if (!editorConfig || editableSourceCode === null) {
+    if (!editorConfig || editableSourceCode === undefined) {
         return <div className="html-area" />;
     }
 

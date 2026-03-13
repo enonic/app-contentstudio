@@ -31,14 +31,12 @@ export const HtmlAreaDescriptor: InputTypeDescriptor<HtmlAreaConfig> = {
         return {
             enabledTools: parseTools(raw, 'include'),
             disabledTools: parseTools(raw, 'exclude'),
-            allowedHeadings: (raw['allowHeadings']?.[0] as {value: string} | undefined)?.value ?? undefined,
+            allowedHeadings: (raw['allowHeadings']?.[0] as {value: string} | undefined)?.value,
         };
     },
 
     createDefaultValue(raw: unknown): Value {
-        if (typeof raw !== 'string') {
-            return ValueTypes.STRING.newNullValue();
-        }
+        if (typeof raw !== 'string') return ValueTypes.STRING.newNullValue();
         return ValueTypes.STRING.newValue(raw);
     },
 
