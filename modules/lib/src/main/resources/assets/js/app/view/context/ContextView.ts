@@ -62,6 +62,8 @@ export class ContextView
 
     private extensionsUpdateList: Record<string, (key: string, type: ApplicationEventType) => void> = {};
 
+    private extensionKeyToReactivate: string | null = null;
+
     private editorMode: boolean;
 
     private isPageRenderable: boolean = undefined;
@@ -200,7 +202,14 @@ export class ContextView
 
     private handleExtensionUpdate(key: string, type: ApplicationEventType) {
         if (this.isExtensionRemoveEvent(type)) {
-            this.handleExtensionRemoveEvent(key);
+            // App redeploy typically emits STOPPED/STARTED in quick succession. Since these events are debounced,
+            // we may only process STOPPED even if the app is already started again. Remember the active extension
+            // and attempt to restore it once the extension becomes available.
+            if (type === ApplicationEventType.STOPPED && this.isActiveExtension(key)) {
+                this.extensionKeyToReactivate = key;
+            }
+
+            this.handleExtensionRemoveEvent(key, type);
         } else if (this.getExtensionByKey(key)) {
             this.handleExtensionUpdateEvent(key);
         } else {
@@ -215,14 +224,67 @@ export class ContextView
                ].indexOf(type) > -1;
     }
 
-    private handleExtensionRemoveEvent(key: string) {
+    private handleExtensionRemoveEvent(key: string, type: ApplicationEventType) {
+        const wasActive: boolean = this.isActiveExtension(key);
+
+        // During app redeploy we want to keep the selected external extension visible and refresh it once the app is back,
+        // instead of switching away and leaving the user with an empty panel.
+        if (type === ApplicationEventType.STOPPED && wasActive && this.activeExtension?.isExternal()) {
+            const activeExtension = this.activeExtension;
+
+            this.showLoadMask();
+            AppHelper.executeWithRetry(
+                async () => {
+                    await activeExtension.updateExtensionItemViews();
+                    // The container can be reloaded while the extension is active, leaving max-height stuck at 0px.
+                    activeExtension.slideIn();
+                    return true;
+                },
+                1000,
+                30,
+                (result: boolean) => result === true
+            ).finally(() => this.hideLoadMask());
+
+            return;
+        }
+
         this.removeExtensionByKey(key);
 
-        if (this.isActiveExtension(key)) {
+        if (wasActive) {
             this.activateDefaultExtension();
         }
 
         this.updateView();
+
+        // If we ended up here because STOPPED won the debounce race, verify the current server state and re-add
+        // the extension when it's already available (common during app redeploy).
+        if (type === ApplicationEventType.STOPPED) {
+            this.fetchExtensionByKey(key).then((extension: Extension) => {
+                if (!extension) {
+                    return;
+                }
+
+                const extensionView: ExtensionView =
+                    ExtensionView.create().setName(extension.getDisplayName()).setContextView(this).setExtension(extension).build();
+
+                if (this.getExtensionByKey(key)) {
+                    this.updateExtension(extensionView);
+                } else {
+                    this.addExtension(extensionView);
+                }
+
+                this.reactivateExtensionIfPending(key, extensionView);
+
+                this.updateView();
+            });
+        }
+    }
+
+    private reactivateExtensionIfPending(key: string, extensionView: ExtensionView): void {
+        if (this.extensionKeyToReactivate === key && this.defaultExtension?.isActive()) {
+            extensionView.setActive();
+            this.extensionKeyToReactivate = null;
+        }
     }
 
     private isActiveExtensionByType(view: ExtensionView): boolean {
@@ -240,7 +302,6 @@ export class ContextView
             this.updateExtension(extensionView);
 
             if (this.isActiveExtension(key)) {
-                this.resetActiveExtension();
                 extensionView.setActive();
             }
 
@@ -253,6 +314,9 @@ export class ContextView
             const extensionView: ExtensionView =
                 ExtensionView.create().setName(extension.getDisplayName()).setContextView(this).setExtension(extension).build();
             this.addExtension(extensionView);
+
+            this.reactivateExtensionIfPending(key, extensionView);
+
             this.updateView();
         });
     }

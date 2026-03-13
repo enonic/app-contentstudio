@@ -141,7 +141,18 @@ export class ExtensionView
         }
 
         this.containerWidth = this.contextView.getEl().getWidth();
-        return Q.all(promises).finally(() => this.contextView.hideLoadMask());
+        return Q.all(promises)
+            .then((result) => {
+                // Container reload during app redeploy can leave the view stuck collapsed/hidden.
+                // Restore visibility deterministically after a successful refresh.
+                if (this.isActive()) {
+                    this.show();
+                    this.extensionItemViews[0]?.show();
+                    this.getEl().setMaxHeight('none');
+                }
+                return result;
+            })
+            .finally(() => this.contextView.hideLoadMask());
     }
 
     private createDefaultWidgetItemView() {
@@ -199,15 +210,16 @@ export class ExtensionView
     }
 
     slideIn() {
+        this.show();
         if (this.hasDynamicHeight()) {
             this.redoLayout();
         } else {
             this.getEl().setMaxHeightPx(this.getParentElement().getEl().getHeight());
+            this.extensionItemViews[0]?.show();
         }
 
-        setTimeout(() => {
-            this.getEl().setMaxHeight('none');
-        }, 100);
+        // End state must always be expanded; don't rely on timers that may be interrupted by container reloads.
+        this.getEl().setMaxHeight('none');
     }
 
     setActive() {
@@ -273,9 +285,8 @@ export class ExtensionView
         }
         this.getEl().setHeight('');
         firstItemView.hide();
-        setTimeout(() => {
-            firstItemView.show();
-        }, 200);
+        // Use plain timeouts only; "added" events may not fire when the host reconnects existing DOM nodes.
+        setTimeout(() => firstItemView.show(), 200);
     }
 
     private isUrlBased(): boolean {
