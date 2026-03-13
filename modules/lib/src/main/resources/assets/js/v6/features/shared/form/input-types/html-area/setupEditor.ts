@@ -21,11 +21,11 @@ import {HTMLAreaProxy} from '../../../../../../app/inputtype/ui/text/dialog/HTML
 import type {Project} from '../../../../../../app/settings/data/project/Project';
 import type {FullScreenDialogParams, HtmlEditorCursorPosition} from '../../../../../../app/inputtype/ui/text/HtmlEditorTypes';
 
-type eventInfo = CKEDITOR.eventInfo;
+type EventInfo = CKEDITOR.eventInfo;
 
 export type SetupEditorParams = {
     contentSummary: ContentSummary | undefined;
-    project: Project | undefined;
+    project: Readonly<Project> | undefined;
     applicationKeys: ApplicationKey[];
     assetsUri: string;
 };
@@ -46,9 +46,7 @@ function modifyImagePlugin(editor: CKEDITOR.editor): void {
     // Called after editor is ready, so widgetDefinition has already fired.
     // Modify the registered widget definition directly.
     const widgetDef = editor.widgets?.registered?.image;
-    if (!widgetDef) {
-        return;
-    }
+    if (!widgetDef) return;
 
     // Allow figure to have any classes and styles.
     // The allowedContent shape at runtime has element-keyed entries (figure, img),
@@ -123,7 +121,7 @@ function setupDialogsToOpen(editor: CKEDITOR.editor, editorParams: HtmlEditorPar
             const config: FullScreenDialogParams = {
                 editor: ed,
                 editorParams,
-                cursorPosition: getCursorPosition(ed, false),
+                cursorPosition: getCursorPosition(ed),
             };
 
             new CreateHtmlAreaDialogEventGenerator(editorParams).generateFullScreenEventAndFire(config);
@@ -138,18 +136,16 @@ function setupDialogsToOpen(editor: CKEDITOR.editor, editorParams: HtmlEditorPar
         icon: 'maximize',
     });
 
-    editor.on('dialogShow', (dialogShowEvent: eventInfo) => {
+    editor.on('dialogShow', (dialogShowEvent: EventInfo) => {
         new CreateHtmlAreaDialogEventGenerator(editorParams).generateFromEventInfoAndFire(dialogShowEvent);
     });
 }
 
-function getCursorPosition(editor: CKEDITOR.editor, isInline: boolean): HtmlEditorCursorPosition {
+function getCursorPosition(editor: CKEDITOR.editor): HtmlEditorCursorPosition {
     const selection = editor.getSelection();
     const range = selection.getRanges()[0];
 
-    if (!range) {
-        return null;
-    }
+    if (!range) return null;
 
     const isCursorSetOnText = range.startContainer?.$.nodeName === '#text';
 
@@ -197,7 +193,7 @@ function setupKeyboardShortcuts(editor: CKEDITOR.editor): void {
     editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.SHIFT + 57, 'address');
     editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.SHIFT + 32, 'insertNbsp');
 
-    editor.on('key', (evt: eventInfo) => {
+    editor.on('key', (evt: EventInfo) => {
         if (evt.data.keyCode === CKEDITOR.CTRL + 65) {
             if (evt.data.domEvent?.stopPropagation) {
                 evt.data.domEvent.stopPropagation();
@@ -241,7 +237,7 @@ function handleSpacePressed(editor: CKEDITOR.editor): void {
     }
 }
 
-function handleFileUpload(editor: CKEDITOR.editor, contentSummary: ContentSummary | undefined, project: Project | undefined): void {
+function handleFileUpload(editor: CKEDITOR.editor, contentSummary: ContentSummary | undefined, project: Readonly<Project> | undefined): void {
     // Wrapping dropped image into figure element — called after editor is ready,
     // so modify uploadimage widget directly (no instanceReady wrapper needed).
     if (editor.widgets?.registered?.uploadimage) {
@@ -259,12 +255,10 @@ function handleFileUpload(editor: CKEDITOR.editor, contentSummary: ContentSummar
     }
 
     // Validate file doesn't already exist before upload
-    editor.on('fileUploadRequest', (evt: eventInfo) => {
+    editor.on('fileUploadRequest', (evt: EventInfo) => {
         const fileLoader = evt.data.fileLoader;
 
-        if (!contentSummary) {
-            return;
-        }
+        if (!contentSummary) return;
 
         const contentPathAsString =
             ContentPath.create().setElements([contentSummary.getPath().toString(), fileLoader.fileName]).build().toString();
@@ -292,7 +286,7 @@ function handleFileUpload(editor: CKEDITOR.editor, contentSummary: ContentSummar
     });
 
     // Parse image upload response
-    editor.on('fileUploadResponse', (evt: eventInfo) => {
+    editor.on('fileUploadResponse', (evt: EventInfo) => {
         evt.stop();
 
         const data = evt.data;
@@ -320,7 +314,7 @@ function handlePaste(editor: CKEDITOR.editor): void {
     let indexOfNbsp: number;
     let selectedTextElement: Node;
 
-    editor.on('paste', (e: eventInfo) => {
+    editor.on('paste', (e: EventInfo) => {
         isCleanupNbspRequired = false;
 
         if (isPastedFromGoogleDoc(e.data.dataTransfer.getData('text/html'))) {
@@ -390,7 +384,7 @@ function handleTooltipForClickableElements(editor: CKEDITOR.editor): void {
     let tooltipElem: CKEDITOR.dom.element | null = null;
     const tooltipText = i18n('editor.dblclicktoedit');
 
-    const mouseOverHandler = AppHelper.debounce((ev: eventInfo) => {
+    const mouseOverHandler = AppHelper.debounce((ev: EventInfo) => {
         const targetEl = ev.data.getTarget();
         const isClickableElement = targetEl.is('a') || targetEl.is('img');
 
@@ -406,14 +400,14 @@ function handleTooltipForClickableElements(editor: CKEDITOR.editor): void {
         const body = editor.document.getBody();
         tooltipElem = body ? body.getParent() : null;
     } catch {
-        console.log('Failed to init tooltip handler');
+        console.warn('Failed to init tooltip handler');
     }
 
     if (tooltipElem) {
         editor.editable().on('mouseover', mouseOverHandler);
     }
 
-    editor.once('autoGrow', (event: eventInfo) => {
+    editor.once('autoGrow', (event: EventInfo) => {
         event.cancel();
     });
 }
@@ -421,7 +415,7 @@ function handleTooltipForClickableElements(editor: CKEDITOR.editor): void {
 function handleNativeNotifications(editor: CKEDITOR.editor): void {
     const progressNotifications: Record<string, string> = {};
 
-    editor.on('notificationShow', function (evt: eventInfo) {
+    editor.on('notificationShow', function (evt: EventInfo) {
         evt.cancel();
 
         if (evt.editor['disableNotification']) {
@@ -444,7 +438,7 @@ function handleNativeNotifications(editor: CKEDITOR.editor): void {
         }
     });
 
-    editor.on('notificationUpdate', function (evt: eventInfo) {
+    editor.on('notificationUpdate', function (evt: EventInfo) {
         const message = evt.data.options ? evt.data.options.message : evt.data.notification.message;
         const messageId = evt.data.notification.id;
         const type = (evt.data.options?.type) ?? evt.data.notification.type;
@@ -469,7 +463,7 @@ function handleNativeNotifications(editor: CKEDITOR.editor): void {
 }
 
 function handleElementSelection(editor: CKEDITOR.editor): void {
-    editor.on('selectionChange', (e: eventInfo) => {
+    editor.on('selectionChange', (e: EventInfo) => {
         updateDialogButtonStates(editor, e);
         handleImageSelectionIssue(e);
         updateAlignmentButtonStates(editor, e);
@@ -480,7 +474,7 @@ function toggleToolbarButtonState(editor: CKEDITOR.editor, name: string, isActiv
     editor.getCommand(name)?.setState(isActive ? CKEDITOR.TRISTATE_ON : CKEDITOR.TRISTATE_OFF);
 }
 
-function updateDialogButtonStates(editor: CKEDITOR.editor, e: eventInfo): void {
+function updateDialogButtonStates(editor: CKEDITOR.editor, e: EventInfo): void {
     const selectedElement = e.data.path.lastElement;
 
     const isAnchorSelected = selectedElement.hasClass('cke_anchor');
@@ -494,36 +488,24 @@ function updateDialogButtonStates(editor: CKEDITOR.editor, e: eventInfo): void {
     toggleToolbarButtonState(editor, 'image', isImageSelected);
 }
 
-function handleImageSelectionIssue(e: eventInfo): void {
+function handleImageSelectionIssue(e: EventInfo): void {
     const selectedElement = e.data.path.lastElement;
 
-    if (!selectedElement.hasClass('cke_widget_image')) {
-        return;
-    }
-
-    if (selectedElement.hasClass('cke_widget_selected')) {
-        return;
-    }
-
-    if (selectedElement.getPrevious()) {
-        return;
-    }
+    if (!selectedElement.hasClass('cke_widget_image')) return;
+    if (selectedElement.hasClass('cke_widget_selected')) return;
+    if (selectedElement.getPrevious()) return;
 
     e.editor.getSelection().selectElement(selectedElement);
 }
 
-function updateAlignmentButtonStates(editor: CKEDITOR.editor, e: eventInfo): void {
+function updateAlignmentButtonStates(editor: CKEDITOR.editor, e: EventInfo): void {
     const selectedElement = e.data.path.lastElement;
     const isImageSelected = selectedElement.hasClass('cke_widget_image');
 
-    if (!isImageSelected) {
-        return;
-    }
+    if (!isImageSelected) return;
 
     const selectionRange = editor.getSelection().getRanges()[0];
-    if (!selectionRange.startContainer.equals(selectionRange.endContainer)) {
-        return;
-    }
+    if (!selectionRange.startContainer.equals(selectionRange.endContainer)) return;
 
     const figure = selectedElement.findOne('figure');
     doUpdateAlignmentButtonStates(editor, figure);
@@ -559,7 +541,7 @@ function setJustifyButtonActive(editor: CKEDITOR.editor): void {
 }
 
 function handleImageAlignButtonPressed(editor: CKEDITOR.editor): void {
-    editor.on('afterCommandExec', (e: eventInfo) => {
+    editor.on('afterCommandExec', (e: EventInfo) => {
         if (e.data.name.indexOf('justify') !== 0) {
             return;
         }
@@ -622,7 +604,7 @@ function sortFigureClasses(figure: CKEDITOR.dom.element): void {
 }
 
 function handleDataReady(editor: CKEDITOR.editor): void {
-    editor.on('dataReady', (e: eventInfo) => {
+    editor.on('dataReady', (e: EventInfo) => {
         const rootElement = e.editor.document.getBody();
 
         setTimeout(() => {
@@ -635,9 +617,9 @@ function handleDataReady(editor: CKEDITOR.editor): void {
 }
 
 function addCustomLangEntries(editor: CKEDITOR.editor): void {
-    editor.on('langLoaded', (evt: eventInfo) => {
+    editor.on('langLoaded', (evt: EventInfo) => {
         if (evt.editor.lang.format) {
-            evt.editor.lang.format.tag_code = 'Сode';
+            evt.editor.lang.format.tag_code = 'Code';
         }
 
         const tooltipPrefix = BrowserHelper.isOSX() ? '\u2318' : 'Ctrl';
@@ -667,9 +649,7 @@ function removeUnwantedMenuItems(editor: CKEDITOR.editor): void {
 
 function moveSourceButtonToBottomBar(editor: CKEDITOR.editor): void {
     const container = editor.container?.$;
-    if (!container) {
-        return;
-    }
+    if (!container) return;
 
     const sourceButton = container.querySelector('.cke_button__sourcedialog');
     const bottomBar = container.querySelector('.cke_bottom');

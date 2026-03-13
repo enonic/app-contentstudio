@@ -34,6 +34,10 @@ export function useApplicationKeys(): ApplicationKey[] {
                 setNearestSite(site);
                 setSiteLoaded(true);
             }
+        }).catch(() => {
+            if (!cancelled) {
+                setSiteLoaded(true);
+            }
         });
 
         return () => {

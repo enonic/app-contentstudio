@@ -5,7 +5,7 @@ import type {Project} from '../../../../../../app/settings/data/project/Project'
 
 type HtmlAreaContextValue = {
     contentSummary: ContentSummary | undefined;
-    project: Project | undefined;
+    project: Readonly<Project> | undefined;
     applicationKeys: ApplicationKey[];
     assetsUri: string;
 };

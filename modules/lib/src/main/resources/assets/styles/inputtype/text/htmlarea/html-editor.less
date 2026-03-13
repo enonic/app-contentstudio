@@ -362,70 +362,70 @@ html.dark {
 // The 'dark-mode' class is toggled on the iframe body at runtime.
 
 body.cke_editable.dark-mode {
-  background-color: #242829;  // grey-950
-  color: #ffffff;             // main
+  background-color: @cke-dark-surface;
+  color: @cke-dark-text;
 
   a {
-    color: #208ebe;           // fbk-info-subtle
+    color: @cke-dark-link;
   }
 
   a:visited {
-    color: #e46ee4;           // purple-subtle
+    color: @cke-dark-link-visited;
   }
 
   blockquote {
-    border-color: #5b5f60;    // grey-800
+    border-color: @cke-dark-border;
   }
 
   hr {
-    border-top-color: #5b5f60;
+    border-top-color: @cke-dark-border;
   }
 
   figure {
-    outline-color: #5b5f60;
+    outline-color: @cke-dark-border;
     background: rgba(255, 255, 255, 0.05);
   }
 
   img.right,
   img.left {
-    border-color: #5b5f60;
+    border-color: @cke-dark-border;
   }
 
   a > img {
-    outline-color: #208ebe;
+    outline-color: @cke-dark-link;
   }
 
   .marker {
     background-color: #5c4422; // fbk-warn-surface-dark
-    color: #ffffff;
+    color: @cke-dark-text;
   }
 
   table,
   th,
   td {
-    border-color: #5b5f60;
+    border-color: @cke-dark-border;
   }
 
   table.cke_show_border {
-    border-color: #5b5f60 !important;
+    border-color: @cke-dark-border !important;
 
     th,
     td {
-      border-color: #5b5f60 !important;
+      border-color: @cke-dark-border !important;
     }
   }
 
   .cke__highlighted_term {
     background-color: #5c4422;
-    color: #ffffff;
+    color: @cke-dark-text;
   }
 
   .cke__selected_term {
-    outline-color: #b5b9ba;   // grey-400
+    outline-color: @cke-dark-text-subtle;
   }
 
   .image-grayscale {
-    background-color: #3d4142; // grey-900
-    color: #b5b9ba;            // grey-400
+    background-color: @cke-dark-surface-hover;
+    color: @cke-dark-text-subtle;
   }
 }
