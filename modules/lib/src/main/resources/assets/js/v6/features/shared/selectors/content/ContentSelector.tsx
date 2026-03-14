@@ -3,30 +3,40 @@ import type {ReactElement} from 'react';
 import {ContentCombobox} from './combobox';
 import type {ContentSelectorFilterOptions, ContentSelectorMode} from './content-selector.types';
 import {ContentSelection} from './selection';
+import {ContentComboboxRowProps} from './combobox/ContentComboboxRow';
 
 //
 // * Types
 //
-
 export type ContentSelectorProps = {
     /** Selected content IDs */
-    selection: readonly string[];
+    'selection': readonly string[];
     /** Callback when selection changes */
-    onSelectionChange: (selection: readonly string[]) => void;
+    'onSelectionChange': (selection: readonly string[]) => void;
     /** Selection mode */
-    selectionMode?: ContentSelectorMode;
+    'selectionMode'?: ContentSelectorMode;
+    /** List mode */
+    'listMode'?: 'tree' | 'flat';
     /** Whether the selector is disabled */
-    disabled?: boolean;
+    'disabled'?: boolean;
     /** Label for the selector */
-    label?: string;
+    'label'?: string;
     /** Placeholder text for the search input */
-    placeholder?: string;
+    'placeholder'?: string;
     /** Text shown when no results found */
-    emptyLabel?: string;
+    'emptyLabel'?: string;
     /** Additional CSS class for the wrapper */
-    className?: string;
+    'className'?: string;
+    /** Additional CSS class for the input */
+    'inputClassName'?: string;
     /** Aria label for accessibility */
     'aria-label'?: string;
+    /** Whether to hide the toggle icon */
+    'hideToggleIcon'?: boolean;
+    /** Whether the selector has an error */
+    'error'?: boolean;
+    /** Custom row renderer */
+    'rowRenderer'?: (props: ContentComboboxRowProps) => ReactElement;
 } & ContentSelectorFilterOptions;
 
 //
@@ -61,42 +71,45 @@ export const ContentSelector = ({
     placeholder,
     emptyLabel,
     className,
+    inputClassName,
+    hideToggleIcon = false,
+    error = false,
+    listMode,
     'aria-label': ariaLabel,
     contentTypeNames,
     allowedContentPaths,
     contextContent,
     applicationKey,
+    rowRenderer,
 }: ContentSelectorProps): ReactElement => {
     const isSingleMode = selectionMode === 'single';
     const hasSelection = selection.length > 0;
     const hideCombobox = isSingleMode && hasSelection;
 
     return (
-        <div
-            data-component={CONTENT_SELECTOR_NAME}
-            className={cn('flex flex-col gap-2.5', className)}
-        >
+        <div data-component={CONTENT_SELECTOR_NAME} className={cn('flex flex-col gap-2.5', className)}>
             {!hideCombobox && (
                 <ContentCombobox
                     selection={selection}
                     onSelectionChange={onSelectionChange}
                     selectionMode={selectionMode}
+                    listMode={listMode}
                     disabled={disabled}
                     label={label}
                     placeholder={placeholder}
                     emptyLabel={emptyLabel}
+                    hideToggleIcon={hideToggleIcon}
+                    error={error}
                     aria-label={ariaLabel}
                     contentTypeNames={contentTypeNames}
                     allowedContentPaths={allowedContentPaths}
                     contextContent={contextContent}
                     applicationKey={applicationKey}
+                    rowRenderer={rowRenderer}
+                    inputClassName={inputClassName}
                 />
             )}
-            <ContentSelection
-                selection={selection}
-                onSelectionChange={onSelectionChange}
-                disabled={disabled}
-            />
+            <ContentSelection selection={selection} onSelectionChange={onSelectionChange} disabled={disabled} />
         </div>
     );
 };
