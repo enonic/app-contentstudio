@@ -152,6 +152,16 @@ function createDefaultChildOrder(): ChildOrder {
     return fetcher.createRootChildOrder();
 }
 
+function deduplicateById<T extends { getId(): string }>(items: T[]): T[] {
+    const seen = new Set<string>();
+    return items.filter((item) => {
+        const id = item.getId();
+        if (seen.has(id)) return false;
+        seen.add(id);
+        return true;
+    });
+}
+
 /**
  * Creates a stable filter key for dependency tracking.
  * Arrays are sorted to ensure consistent keys regardless of order.
@@ -335,8 +345,9 @@ export function useContentComboboxData(
             request.setChildOrder(createDefaultChildOrder());
             applyContentFilters(request, filtersRef.current);
 
-            const items = await request.sendAndParse();
+            const rawItems = await request.sendAndParse();
             const metadata = request.getMetadata();
+            const items = deduplicateById(rawItems);
 
             // Stale request check
             if (currentRequestId !== treeRequestIdRef.current) return;
@@ -347,7 +358,10 @@ export function useContentComboboxData(
             const nodeOptions = items.map((item) => toNodeOptionsFromTreeItem(item, null));
             treeSetNodes(nodeOptions);
             treeSetRootIds(items.map((item) => item.getId()));
-            setTotalRootChildren(metadata.getTotalHits());
+            // Server totalHits may count matching leaves, not unique parents.
+            // If dedup reduced count, cap total to prevent infinite "load more".
+            const hasDuplicates = items.length < rawItems.length;
+            setTotalRootChildren(hasDuplicates ? items.length : metadata.getTotalHits());
             setTreeInitialized(true);
         } catch (err) {
             if (currentRequestId === treeRequestIdRef.current) {
@@ -380,18 +394,26 @@ export function useContentComboboxData(
             request.setChildOrder(createDefaultChildOrder());
             applyContentFilters(request, filtersRef.current);
 
-            const items = await request.sendAndParse();
+            const rawItems = await request.sendAndParse();
+            const items = deduplicateById(rawItems);
 
             // Stale request check
             if (currentRequestId !== treeRequestIdRef.current) return;
 
             if (!await enrichAndCache(items, currentRequestId)) return;
 
-            // Append to tree state
-            const nodeOptions = items.map((item) => toNodeOptionsFromTreeItem(item, null));
+            // Append to tree state, filtering out IDs already present
+            const existingRootIds = new Set(tree.state.rootIds);
+            const newItems = items.filter((item) => !existingRootIds.has(item.getId()));
+            const nodeOptions = newItems.map((item) => toNodeOptionsFromTreeItem(item, null));
             treeSetNodes(nodeOptions);
-            const newRootIds = [...tree.state.rootIds, ...items.map((item) => item.getId())];
+            const newRootIds = [...tree.state.rootIds, ...newItems.map((item) => item.getId())];
             treeSetRootIds(newRootIds);
+
+            // If dedup or filtering removed items, server total is unreliable — stop pagination
+            if (newItems.length < rawItems.length) {
+                setTotalRootChildren(newRootIds.length);
+            }
         } catch (err) {
             if (currentRequestId === treeRequestIdRef.current) {
                 setError(err instanceof Error ? err : new Error('Failed to load more content'));
@@ -426,9 +448,11 @@ export function useContentComboboxData(
 
             applyContentFilters(request, filtersRef.current);
 
-            const items = await request.sendAndParse();
+            const rawItems = await request.sendAndParse();
             const metadata = request.getMetadata();
-            const totalChildren = metadata.getTotalHits();
+            const items = deduplicateById(rawItems);
+            const hasDuplicates = items.length < rawItems.length;
+            const totalChildren = hasDuplicates ? items.length : metadata.getTotalHits();
 
             // Stale request check
             if (currentRequestId !== treeRequestIdRef.current) return;
@@ -479,17 +503,25 @@ export function useContentComboboxData(
 
             applyContentFilters(request, filtersRef.current);
 
-            const items = await request.sendAndParse();
+            const rawItems = await request.sendAndParse();
+            const items = deduplicateById(rawItems);
 
             // Stale request check
             if (currentRequestId !== treeRequestIdRef.current) return;
 
             if (!await enrichAndCache(items, currentRequestId)) return;
 
-            // Append to tree state
-            const nodeOptions = items.map((item) => toNodeOptionsFromTreeItem(item, parentId));
+            // Append to tree state, filtering out already-known childIds
+            const existingChildIds = new Set(node.childIds);
+            const newItems = items.filter((item) => !existingChildIds.has(item.getId()));
+            const nodeOptions = newItems.map((item) => toNodeOptionsFromTreeItem(item, parentId));
             treeSetNodes(nodeOptions);
-            treeAppendChildren(parentId, items.map((item) => item.getId()));
+            treeAppendChildren(parentId, newItems.map((item) => item.getId()));
+
+            // If dedup or filtering removed items, cap totalChildren to stop pagination
+            if (newItems.length < rawItems.length) {
+                treeSetNode({id: parentId, totalChildren: node.childIds.length + newItems.length});
+            }
         } catch (err) {
             if (currentRequestId === treeRequestIdRef.current) {
                 setError(err instanceof Error ? err : new Error('Failed to load more children'));

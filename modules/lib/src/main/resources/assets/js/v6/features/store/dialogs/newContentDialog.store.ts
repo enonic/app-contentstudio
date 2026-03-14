@@ -5,10 +5,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {listenKeys, map, task} from 'nanostores';
 import {errAsync} from 'neverthrow';
 import {type ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
-import {
-    type AggregateContentTypesResult,
-    type ContentTypeAggregation,
-} from '../../../../app/resource/AggregateContentTypesResult';
+import {type AggregateContentTypesResult, type ContentTypeAggregation} from '../../../../app/resource/AggregateContentTypesResult';
 import {ContentTypesHelper} from '../../../../app/util/ContentTypesHelper';
 import {fetchRootChildrenFiltered} from '../../api/content-fetcher';
 import {
@@ -137,6 +134,7 @@ export const setSelectedTab = (tab: string): void => {
     $newContentDialog.setKey('selectedTab', tab);
 };
 
+// TODO: replace places invoking this function with the useUploadMedia hook
 export async function uploadMediaFiles({dataTransfer, parentContent}: UploadOptions): Promise<void> {
     if (dataTransfer.files.length === 0) return;
 
@@ -160,6 +158,7 @@ export async function uploadMediaFiles({dataTransfer, parentContent}: UploadOpti
     await Promise.all(tasks.map((task) => task.match(onEachSuccess, onEachError)));
 }
 
+// TODO: replace places invoking this function with the useUploadMedia hook
 export async function uploadDragImages({dataTransfer, parentContent}: UploadOptions) {
     const htmlData = dataTransfer.getData('text/html');
     const imgSources = extractImageSources(htmlData);
@@ -202,10 +201,7 @@ function getBaseContentTypes(contentTypes: ContentTypeSummary[]): ContentTypeSum
         .sort((a, b) => a.getDisplayName().localeCompare(b.getDisplayName()));
 }
 
-function getSuggestedContentTypes(
-    contentTypes: ContentTypeSummary[],
-    aggregations: AggregateContentTypesResult
-): ContentTypeSummary[] {
+function getSuggestedContentTypes(contentTypes: ContentTypeSummary[], aggregations: AggregateContentTypesResult): ContentTypeSummary[] {
     const DEFAULT_MAX_ITEMS = 100;
 
     const isAllowedContentType = (contentType: ContentTypeName) =>
@@ -218,9 +214,7 @@ function getSuggestedContentTypes(
     return allowedContentTypeAggregations
         .slice(0, DEFAULT_MAX_ITEMS)
         .sort((a, b) => b.getCount() - a.getCount())
-        .map((aggregation) =>
-            contentTypes.find((type: ContentTypeSummary) => type.getName() === aggregation.getContentType().toString())
-        )
+        .map((aggregation) => contentTypes.find((type: ContentTypeSummary) => type.getName() === aggregation.getContentType().toString()))
         .filter(Boolean);
 }
 
@@ -242,11 +236,11 @@ function onEachSuccess(success: UploadMediaSuccess) {
     removeUpload(success.mediaIdentifier);
     resetTree();
     void fetchRootChildrenFiltered();
-    showSuccess(i18n('dialog.new.upload.success', success.mediaIdentifier));
+    showSuccess(i18n('notify.upload.success', success.mediaIdentifier));
 }
 
 function onEachError(error: UploadMediaError) {
     console.error(error);
     removeUpload(error.mediaIdentifier);
-    showError(i18n('dialog.new.upload.error', error.mediaIdentifier, error.message));
+    showError(i18n('notify.upload.error', error.mediaIdentifier, error.message));
 }

@@ -5,7 +5,7 @@ import type {ListRange, VirtuosoHandle} from 'react-virtuoso';
 import {Virtuoso} from 'react-virtuoso';
 import type {ContentComboboxFlatNode} from '../../../../hooks/useContentComboboxData';
 import {getLoadingNodeParentId} from '../../../../hooks/useContentComboboxData';
-import {ContentComboboxRow} from './ContentComboboxRow';
+import {ContentComboboxRow, ContentComboboxRowProps} from './ContentComboboxRow';
 
 //
 // * Types
@@ -26,6 +26,8 @@ export type ContentComboboxListProps = {
     isLoading: boolean;
     hasMore?: boolean;
     virtuosoRef?: React.RefObject<VirtuosoHandle>;
+    /** Custom row renderer */
+    rowRenderer?: (props: ContentComboboxRowProps) => ReactElement;
 };
 
 //
@@ -64,6 +66,7 @@ export const ContentComboboxList = ({
     isLoading,
     hasMore,
     virtuosoRef,
+    rowRenderer,
 }: ContentComboboxListProps): ReactElement => {
     const {selection, onSelectionChange, selectionMode} = useCombobox();
     const showExpandControl = mode === 'tree';
@@ -81,7 +84,7 @@ export const ContentComboboxList = ({
             });
             onSelectionChange(selectableIds);
         },
-        [onSelectionChange, items],
+        [onSelectionChange, items]
     );
 
     // Trigger load more when loading nodes become visible
@@ -103,21 +106,21 @@ export const ContentComboboxList = ({
                 }
             }
         },
-        [items, onLoadMore],
+        [items, onLoadMore]
     );
 
     if (isLoading) {
         return (
-            <VirtualizedTreeList.RowLoading level={1} className='h-14'>
-                <Loader2 className='ml-2 size-6 animate-spin text-subtle' />
+            <VirtualizedTreeList.RowLoading level={1} className="h-14">
+                <Loader2 className="ml-2 size-6 animate-spin text-subtle" />
             </VirtualizedTreeList.RowLoading>
         );
     }
 
     if (items.length === 0) {
         return (
-            <VirtualizedTreeList.RowPlaceholder level={1} className='h-14'>
-                <span className='ml-2 text-subtle'>{emptyLabel}</span>
+            <VirtualizedTreeList.RowPlaceholder level={1} className="h-14">
+                <span className="ml-2 text-subtle">{emptyLabel}</span>
             </VirtualizedTreeList.RowPlaceholder>
         );
     }
@@ -138,7 +141,7 @@ export const ContentComboboxList = ({
                 onCollapse={onCollapse}
                 virtuosoRef={virtuosoRef}
                 aria-label={ariaLabel}
-                className='h-full'
+                className="h-full"
             >
                 {({items: visibleItems, getItemProps, containerProps}) => (
                     <Virtuoso<ContentComboboxFlatNode>
@@ -146,19 +149,24 @@ export const ContentComboboxList = ({
                         data={visibleItems as ContentComboboxFlatNode[]}
                         components={virtuosoComponents}
                         {...containerProps}
-                        className={cn('h-full', containerProps.className)}
+                        className={cn('h-full @container', containerProps.className)}
                         rangeChanged={mode === 'tree' ? handleRangeChange : undefined}
                         endReached={mode === 'flat' && hasMore ? onEndReached : undefined}
-                        itemContent={(index, node) => (
-                            <ContentComboboxRow
-                                node={node}
-                                itemProps={getItemProps(index, node)}
-                                showExpandControl={showExpandControl}
-                                showStatusBadge
-                                onExpand={onExpand}
-                                onCollapse={onCollapse}
-                            />
-                        )}
+                        itemContent={(index, node) => {
+                            const hasCustomRowRenderer = rowRenderer !== undefined;
+
+                            const props = {
+                                node,
+                                mode,
+                                itemProps: getItemProps(index, node),
+                                showExpandControl,
+                                showStatusBadge: true,
+                                onExpand,
+                                onCollapse,
+                            };
+
+                            return hasCustomRowRenderer ? rowRenderer(props) : <ContentComboboxRow {...props} />;
+                        }}
                     />
                 )}
             </VirtualizedTreeList>

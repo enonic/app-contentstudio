@@ -1,10 +1,6 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {VirtuosoHandle} from 'react-virtuoso';
-import {
-    useContentComboboxData,
-    type ContentFilterOptions,
-    type ContentComboboxFlatNode,
-} from '../../../../hooks/useContentComboboxData';
+import {useContentComboboxData, type ContentFilterOptions, type ContentComboboxFlatNode} from '../../../../hooks/useContentComboboxData';
 import {useDebouncedValue} from '../../../../utils/hooks/useDebouncedValue';
 
 //
@@ -16,6 +12,17 @@ export type UseContentComboboxControllerOptions = {
     filters: ContentFilterOptions;
     /** Debounce delay for search input in milliseconds */
     debounceDelay?: number;
+    /** List mode */
+    listMode?: 'tree' | 'flat';
+    /** Dropdown options */
+    dropdown?: {
+        /** Height for each tree row in pixels */
+        treeRowHeight?: number;
+        /** Height for each flat row in pixels */
+        flatRowHeight?: number;
+        /** Maximum height for the dropdown in pixels */
+        maxHeight?: number;
+    };
 };
 
 export type UseContentComboboxControllerReturn = {
@@ -61,7 +68,8 @@ export type UseContentComboboxControllerReturn = {
 // * Constants
 //
 
-const ROW_HEIGHT = 48;
+const TREE_ROW_HEIGHT = 48;
+const FLAT_ROW_HEIGHT = 48;
 const MAX_HEIGHT = 300;
 const GAP = 6;
 const PADDING = 8;
@@ -76,10 +84,13 @@ const DEFAULT_DEBOUNCE_DELAY = 300;
  * handlers, and derived values. This separates orchestration logic from
  * presentation, making the component more testable and maintainable.
  */
-export function useContentComboboxController(
-    options: UseContentComboboxControllerOptions,
-): UseContentComboboxControllerReturn {
-    const {filters, debounceDelay = DEFAULT_DEBOUNCE_DELAY} = options;
+export function useContentComboboxController(options: UseContentComboboxControllerOptions): UseContentComboboxControllerReturn {
+    const {filters, dropdown, debounceDelay = DEFAULT_DEBOUNCE_DELAY, listMode: externalListMode = 'tree'} = options;
+
+    // Dropdown options
+    const treeRowHeight = dropdown?.treeRowHeight ?? TREE_ROW_HEIGHT;
+    const flatRowHeight = dropdown?.flatRowHeight ?? FLAT_ROW_HEIGHT;
+    const maxHeight = dropdown?.maxHeight ?? MAX_HEIGHT;
 
     // Refs
     const virtuosoRef = useRef<VirtuosoHandle>(null);
@@ -88,7 +99,7 @@ export function useContentComboboxController(
 
     // View state
     const [open, setOpen] = useState(false);
-    const [isTreeView, setIsTreeView] = useState(true);
+    const [isTreeView, setIsTreeView] = useState(externalListMode === 'tree');
     const [inputValue, setInputValue] = useState('');
     const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -96,12 +107,15 @@ export function useContentComboboxController(
     const debouncedQuery = useDebouncedValue(inputValue, debounceDelay);
 
     // Memoize filter options to avoid recreating on every render
-    const filterOptions: ContentFilterOptions = useMemo(() => ({
-        contextContent: filters.contextContent,
-        contentTypeNames: filters.contentTypeNames ? [...filters.contentTypeNames].sort() : undefined,
-        allowedContentPaths: filters.allowedContentPaths ? [...filters.allowedContentPaths].sort() : undefined,
-        applicationKey: filters.applicationKey,
-    }), [filters.contextContent, filters.contentTypeNames, filters.allowedContentPaths, filters.applicationKey]);
+    const filterOptions: ContentFilterOptions = useMemo(
+        () => ({
+            contextContent: filters.contextContent,
+            contentTypeNames: filters.contentTypeNames ? [...filters.contentTypeNames].sort() : undefined,
+            allowedContentPaths: filters.allowedContentPaths ? [...filters.allowedContentPaths].sort() : undefined,
+            applicationKey: filters.applicationKey,
+        }),
+        [filters.contextContent, filters.contentTypeNames, filters.allowedContentPaths, filters.applicationKey]
+    );
 
     // Data hook
     const {
@@ -198,11 +212,12 @@ export function useContentComboboxController(
 
     // Calculate dropdown height based on display items
     const dropdownHeight = useMemo(() => {
+        const rowHeight = isTreeView ? treeRowHeight : flatRowHeight;
         const count = displayItems.length;
-        if (count === 0) return ROW_HEIGHT + PADDING;
-        const contentHeight = count * ROW_HEIGHT + Math.max(count - 1, 0) * GAP + PADDING;
-        return Math.min(contentHeight, MAX_HEIGHT);
-    }, [displayItems.length]);
+        if (count === 0) return rowHeight + PADDING;
+        const contentHeight = count * rowHeight + Math.max(count - 1, 0) * GAP + PADDING;
+        return Math.min(contentHeight, maxHeight);
+    }, [displayItems.length, isTreeView, treeRowHeight, flatRowHeight, maxHeight]);
 
     // Handlers
     const handleOpenChange = useCallback((next: boolean): void => {
@@ -212,6 +227,7 @@ export function useContentComboboxController(
     const handleToggleView = useCallback((pressed: boolean): void => {
         setIsTreeView(pressed);
         setActiveId(null);
+        setOpen(true);
     }, []);
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLElement>): void => {
@@ -221,27 +237,36 @@ export function useContentComboboxController(
         }
     }, []);
 
-    const handleExpand = useCallback((id: string): void => {
-        tree.expand(id);
-        if (tree.needsChildrenLoad(id)) {
-            void loadChildren(id);
-        }
-    }, [tree, loadChildren]);
+    const handleExpand = useCallback(
+        (id: string): void => {
+            tree.expand(id);
+            if (tree.needsChildrenLoad(id)) {
+                void loadChildren(id);
+            }
+        },
+        [tree, loadChildren]
+    );
 
-    const handleCollapse = useCallback((id: string): void => {
-        tree.collapse(id);
-    }, [tree]);
+    const handleCollapse = useCallback(
+        (id: string): void => {
+            tree.collapse(id);
+        },
+        [tree]
+    );
 
-    const handleLoadMore = useCallback((parentId: string | null): void => {
-        if (parentId === null) {
-            void loadMoreRoot();
-            return;
-        }
+    const handleLoadMore = useCallback(
+        (parentId: string | null): void => {
+            if (parentId === null) {
+                void loadMoreRoot();
+                return;
+            }
 
-        if (tree.hasMoreChildren(parentId) && !tree.isLoading(parentId)) {
-            void loadMoreChildren(parentId);
-        }
-    }, [tree, loadMoreChildren, loadMoreRoot]);
+            if (tree.hasMoreChildren(parentId) && !tree.isLoading(parentId)) {
+                void loadMoreChildren(parentId);
+            }
+        },
+        [tree, loadMoreChildren, loadMoreRoot]
+    );
 
     const handleFlatListEndReached = useCallback(() => {
         if (!flatHasMore || isFlatLoading) return;
@@ -249,9 +274,9 @@ export function useContentComboboxController(
     }, [flatHasMore, isFlatLoading, loadMoreFlat]);
 
     // Derived values
-    const isLoading = isFiltering ? isFlatLoading : (isTreeView ? isTreeLoading : isFlatLoading);
-    const hasMore = isFiltering ? flatHasMore : (isTreeView ? treeHasMore : flatHasMore);
-    const listMode = (isTreeView && !isFiltering) ? 'tree' : 'flat';
+    const isLoading = isFiltering ? isFlatLoading : isTreeView ? isTreeLoading : isFlatLoading;
+    const hasMore = isFiltering ? flatHasMore : isTreeView ? treeHasMore : flatHasMore;
+    const listMode = isTreeView && !isFiltering ? 'tree' : 'flat';
 
     return {
         // Refs
