@@ -1,25 +1,12 @@
-import {ListItem, VirtualizedTreeList, type VirtualizedTreeListItemProps} from '@enonic/ui';
+import {ListItem, VirtualizedTreeList} from '@enonic/ui';
 import {Loader2} from 'lucide-react';
 import type {ReactElement} from 'react';
 import {ContentLabel} from '../../../content/ContentLabel';
+import {ContentComboboxRowProps} from '../../content/combobox/ContentComboboxRow';
 import {StatusBadge} from '../../../status/StatusBadge';
-import type {ContentComboboxFlatNode} from '../../../../hooks/useContentComboboxData';
+import {ImageItemView} from '../item';
 
-//
-// * Types
-//
-
-export type ContentComboboxRowProps = {
-    node: ContentComboboxFlatNode;
-    mode?: 'tree' | 'flat';
-    itemProps: VirtualizedTreeListItemProps;
-    /** Whether to show expand control (tree mode) or hide it (flat mode) */
-    showExpandControl?: boolean;
-    /** Whether to show status badge */
-    showStatusBadge?: boolean;
-    onExpand?: (id: string) => void;
-    onCollapse?: (id: string) => void;
-};
+export type ImageComboboxRowProps = ContentComboboxRowProps;
 
 //
 // * Loading Row (pagination placeholder)
@@ -33,9 +20,11 @@ type LoadingRowProps = {
 
 const LoadingRow = ({level, isLoading, showExpandControl = true}: LoadingRowProps): ReactElement => {
     return (
-        <VirtualizedTreeList.RowLoading level={level} className='h-12'>
+        <VirtualizedTreeList.RowLoading level={level} className="h-12">
             {isLoading && (
-                <Loader2 className={showExpandControl ? 'ml-7.5 size-6 animate-spin text-subtle' : 'ml-2 size-6 animate-spin text-subtle'} />
+                <Loader2
+                    className={showExpandControl ? 'ml-7.5 size-6 animate-spin text-subtle' : 'ml-2 size-6 animate-spin text-subtle'}
+                />
             )}
         </VirtualizedTreeList.RowLoading>
     );
@@ -56,20 +45,20 @@ const SkeletonRow = ({level, showExpandControl = true}: SkeletonRowProps): React
             {showExpandControl && (
                 <VirtualizedTreeList.RowLeft>
                     <VirtualizedTreeList.RowLevelSpacer level={level} />
-                    <span className='size-5 shrink-0' />
+                    <span className="size-5 shrink-0" />
                 </VirtualizedTreeList.RowLeft>
             )}
             <VirtualizedTreeList.RowContent>
-                <div className='flex items-center gap-2.5 animate-pulse'>
-                    <div className='size-6 rounded bg-surface-neutral-hover' />
-                    <div className='flex flex-col gap-1 flex-1'>
-                        <div className='h-4 w-32 rounded bg-surface-neutral-hover' />
-                        <div className='h-3 w-24 rounded bg-surface-neutral-hover' />
+                <div className="flex items-center gap-2.5 animate-pulse">
+                    <div className="size-6 rounded bg-surface-neutral-hover" />
+                    <div className="flex flex-col gap-1 flex-1">
+                        <div className="h-4 w-32 rounded bg-surface-neutral-hover" />
+                        <div className="h-3 w-24 rounded bg-surface-neutral-hover" />
                     </div>
                 </div>
             </VirtualizedTreeList.RowContent>
             <VirtualizedTreeList.RowRight>
-                <span className='size-5 shrink-0' />
+                <span className="size-5 shrink-0" />
             </VirtualizedTreeList.RowRight>
         </VirtualizedTreeList.Row>
     );
@@ -79,14 +68,15 @@ const SkeletonRow = ({level, showExpandControl = true}: SkeletonRowProps): React
 // * Main Row Component
 //
 
-export const ContentComboboxRow = ({
+export const ImageComboboxRow = ({
     node,
+    mode,
     itemProps,
     showExpandControl = true,
     showStatusBadge = true,
     onExpand,
     onCollapse,
-}: ContentComboboxRowProps): ReactElement => {
+}: ImageComboboxRowProps): ReactElement => {
     const {id, level, isExpanded, hasChildren, data, nodeType, isLoading} = node;
 
     // Handle loading node (renders spinner when actually loading)
@@ -103,7 +93,7 @@ export const ContentComboboxRow = ({
     const isSelectable = data.selectable;
 
     return (
-        <VirtualizedTreeList.Row {...itemProps}>
+        <VirtualizedTreeList.Row {...itemProps} className="@container">
             {showExpandControl && (
                 <VirtualizedTreeList.RowLeft>
                     <VirtualizedTreeList.RowLevelSpacer level={level} />
@@ -111,15 +101,15 @@ export const ContentComboboxRow = ({
                         rowId={id}
                         expanded={isExpanded}
                         hasChildren={hasChildren}
-                        onToggle={() => isExpanded ? onCollapse?.(id) : onExpand?.(id)}
+                        onToggle={() => (isExpanded ? onCollapse?.(id) : onExpand?.(id))}
                         selected={itemProps.selected}
                     />
                 </VirtualizedTreeList.RowLeft>
             )}
             <VirtualizedTreeList.RowContent>
-                {content ? (
-                    <ListItem className='p-0'>
-                        <ListItem.Left className='flex-1'>
+                {content && mode === 'tree' && (
+                    <ListItem className="p-0">
+                        <ListItem.Left className="flex-1 min-w-0">
                             <ContentLabel content={content} />
                         </ListItem.Left>
                         {showStatusBadge && (
@@ -128,17 +118,21 @@ export const ContentComboboxRow = ({
                             </ListItem.Right>
                         )}
                     </ListItem>
-                ) : (
-                    <Loader2 className='size-5 animate-spin text-subtle' />
                 )}
+                {content && mode === 'flat' && (
+                    <ListItem className="p-0">
+                        <ListItem.Left className="flex-1 min-w-0">
+                            <ImageItemView content={content} hideStatus={!showStatusBadge} />
+                        </ListItem.Left>
+                    </ListItem>
+                )}
+                {!content && <Loader2 className="size-5 animate-spin text-subtle" />}
             </VirtualizedTreeList.RowContent>
             <VirtualizedTreeList.RowRight>
-                {isSelectable && (
-                    <VirtualizedTreeList.RowSelectionControl rowId={id} />
-                )}
+                {isSelectable && <VirtualizedTreeList.RowSelectionControl rowId={id} />}
             </VirtualizedTreeList.RowRight>
         </VirtualizedTreeList.Row>
     );
 };
 
-ContentComboboxRow.displayName = 'ContentComboboxRow';
+ImageComboboxRow.displayName = 'ImageComboboxRow';
