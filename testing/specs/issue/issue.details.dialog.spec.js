@@ -40,8 +40,8 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
             // 1. Verify that Comments tab is active by default
-            let isActive = await issueDetailsDialog.isCommentsTabBarItemActive();
-            assert.ok(isActive, 'Comments Tab should be active');
+            let isActive = await issueDetailsDialog.isTabActive('Comments');
+            assert.ok(isActive, 'Comments Tab should be active by default');
             // 2. Verify that status of the task is 'Open'
             let actualStatus = await issueDetailsDialog.getCurrentStatusInStatusSelector();
             assert.equal(actualStatus, 'Open', "'Open' status should be displayed in status selector button");
@@ -52,7 +52,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             assert.ok(isTextAreaDisplayed, 'Text area for comments should be displayed');
         });
 
-    it(`GIVEN Task Details dialog is opened WHEN comment has been typed in the area THEN Comment button gets enabled`,
+    it(`GIVEN Issue Details dialog is opened WHEN comment has been typed in the area THEN Comment button gets enabled`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -60,13 +60,13 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
+            // Verify that 'Comment' button is disabled because the textarea is empty
+            await commentsTab.waitForCommentButtonDisabled();
             // 1. Fill in the comment textarea
             await commentsTab.typeComment(MY_COMMENT);
-            await studioUtils.saveScreenshot('issue_comment_typed');
+            await studioUtils.saveScreenshot('issue_comment_input_filled');
             // 2. Verify that 'Comment' button gets enabled
             await commentsTab.waitForCommentButtonEnabled();
-            // 3. Verify that "Comment & Close Issue" button gets visible:
-            await commentsTab.waitForCommentAndCloseIssueButtonDisplayed();
         });
 
     //Verify the issue: Issue Details dialog - 'No comments yet' placeholder remains visible after adding a comment #4247
@@ -145,7 +145,7 @@ describe('issue.details.dialog.spec: add a comment and check CommentsTabItem', f
             await commentsTab.clickOnDeleteCommentMenuItem(newText);
             // 3. Confirm the deleting:
             await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.clickOnConfirmButton();
             await confirmationDialog.waitForDialogClosed();
             // 4. Verify that comment is not displayed
             let result = await commentsTab.isCommentPresent(newText);

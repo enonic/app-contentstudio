@@ -60,7 +60,7 @@ describe('site.wizard.select.controller.spec: Saves site-data and selects a cont
             // 4. Click on 'Mark as ready' button:
             await contentWizard.clickOnMarkAsReadyButton();
             await contentPublishDialog.waitForDialogOpened();
-            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.clickOnCloseButton();
             await contentPublishDialog.waitForDialogClosed();
             let workflow = await contentWizard.getContentWorkflowState();
             assert.equal(workflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content gets 'Ready for publishing'");

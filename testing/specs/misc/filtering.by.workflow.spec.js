@@ -56,7 +56,7 @@ describe('filtering.by.workflow.spec: tests for filter panel', function () {
             await contentBrowsePanel.clickOnMarkAsReadyButton();
             await contentBrowsePanel.waitForNotificationMessage();
             await contentPublishDialog.waitForDialogOpened();
-            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.clickOnCloseButton();
             await contentPublishDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot("filtered_by_workflow_content_marked_as_ready");
             //4. Verify that "Work in progress" checkbox gets not visible in Workflow block in Filter Panel

@@ -1,16 +1,24 @@
-import Q from 'q';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {type Element as UiElement} from '@enonic/lib-admin-ui/dom/Element';
-import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {RepositoryId} from '../../repository/RepositoryId';
-import {ProjectContext} from '../../project/ProjectContext';
+import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import Q from 'q';
+import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContextPanelExtensionElement} from '../../extension/ContextPanelExtensionElement';
+import {ProjectContext} from '../../project/ProjectContext';
+import {RepositoryId} from '../../repository/RepositoryId';
+
+export interface ExtensionItemViewType {
+    layout(): Q.Promise<void>;
+    setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<null | void>;
+    fetchExtensionContents(url: string, contentId: string): Q.Promise<void>;
+    hide(): void;
+    show(): void;
+}
 
 export class ExtensionItemView
-    extends DivEl {
+    extends DivEl implements ExtensionItemViewType {
 
     public static debug: boolean = false;
 

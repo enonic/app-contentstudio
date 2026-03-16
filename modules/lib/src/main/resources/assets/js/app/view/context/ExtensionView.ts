@@ -1,12 +1,13 @@
-import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import Q from 'q';
+import type {LucideIcon} from '@enonic/ui';
+import {default as Q} from 'q';
 import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {type ContextView} from './ContextView';
-import {ExtensionItemView} from './ExtensionItemView';
+import {ExtensionItemView, type ExtensionItemViewType} from './ExtensionItemView';
 
 export enum InternalExtensionType {
     INFO,
@@ -25,7 +26,9 @@ export class ExtensionView
 
     private readonly extensionIconClass: string;
 
-    private readonly extensionItemViews: ExtensionItemView[];
+    private readonly extensionIcon: LucideIcon;
+
+    private readonly extensionItemViews: ExtensionItemViewType[];
 
     private contextView: ContextView;
 
@@ -51,12 +54,13 @@ export class ExtensionView
         this.contextView = builder.contextView;
         this.extensionName = builder.name;
         this.extensionIconClass = builder.iconClass;
-        this.extensionDescription = (builder.extension ? builder.extension.getDescription() : builder.description) || noDescription;
+        this.extensionIcon = builder.icon;
+        this.extensionDescription = builder.extension?.getDescription() || builder.description || noDescription;
         this.extensionItemViews = builder.extensionItemViews;
         this.extension = builder.extension;
         this.type = builder.type;
         if (!this.extensionItemViews.length) {
-            this.createDefaultWidgetItemView();
+            this.createDefaultExtensionItemView();
         }
 
         if (!StringHelper.isBlank(builder.extensionClass)) {
@@ -86,7 +90,7 @@ export class ExtensionView
     }
 
     private handleRerenderOnResize() {
-        const updateWidgetItemViewsHandler = () => {
+        const updateExtensionItemViewsHandler = () => {
             const containerWidth = this.contextView.getEl().getWidth();
             if (this.contextView.getItem() && containerWidth !== this.containerWidth) {
                 this.updateExtensionItemViews().catch(DefaultErrorHandler.handle);
@@ -94,10 +98,10 @@ export class ExtensionView
         };
         this.contextView.onPanelSizeChanged(() => {
             if (this.isActive()) {
-                updateWidgetItemViewsHandler();
+                updateExtensionItemViewsHandler();
             } else {
                 const onActivatedHandler = () => {
-                    updateWidgetItemViewsHandler();
+                    updateExtensionItemViewsHandler();
                     this.unActivated(onActivatedHandler);
                 };
                 this.onActivated(onActivatedHandler);
@@ -113,9 +117,9 @@ export class ExtensionView
         const promises = [];
 
         this.url = this.getExtensionUrl();
-        this.extensionItemViews.forEach((widgetItemView: ExtensionItemView) => {
+        this.extensionItemViews.forEach((extensionItemView: ExtensionItemView) => {
             const contentId = this.content ? this.content.getContentId().toString() : null;
-            promises.push(widgetItemView.fetchExtensionContents(this.url, contentId));
+            promises.push(extensionItemView.fetchExtensionContents(this.url, contentId));
         });
 
         return promises;
@@ -141,21 +145,10 @@ export class ExtensionView
         }
 
         this.containerWidth = this.contextView.getEl().getWidth();
-        return Q.all(promises)
-            .then((result) => {
-                // Container reload during app redeploy can leave the view stuck collapsed/hidden.
-                // Restore visibility deterministically after a successful refresh.
-                if (this.isActive()) {
-                    this.show();
-                    this.extensionItemViews[0]?.show();
-                    this.getEl().setMaxHeight('none');
-                }
-                return result;
-            })
-            .finally(() => this.contextView.hideLoadMask());
+        return Q.all(promises).finally(() => this.contextView.hideLoadMask());
     }
 
-    private createDefaultWidgetItemView() {
+    private createDefaultExtensionItemView() {
         this.extensionItemViews.push(new ExtensionItemView());
         if (this.contextView.getItem()) {
             this.updateExtensionItemViews().catch(DefaultErrorHandler.handle);
@@ -188,20 +181,24 @@ export class ExtensionView
         return this.extensionIconClass;
     }
 
+    getExtensionIcon(): LucideIcon {
+        return this.extensionIcon;
+    }
+
     getExtensionKey(): string {
-        return this.extension ? this.extension.getDescriptorKey().getApplicationKey().getName() : null;
+        return this.extension ? this.extension.getDescriptorKey().toString() : null;
     }
 
     getExtensionIconUrl(): string {
-        return this.extension ? this.extension.getFullIconUrl() : null;
+        return this.extension?.getIconUrl() ? this.extension.getFullIconUrl() : null;
     }
 
     isInternal(): boolean {
-        return this.extension == null;
+        return this.extension == null || !this.extension.getUrl();
     }
 
     isExternal(): boolean {
-        return this.extension != null;
+        return !this.isInternal();
     }
 
     slideOut() {
@@ -210,16 +207,15 @@ export class ExtensionView
     }
 
     slideIn() {
-        this.show();
         if (this.hasDynamicHeight()) {
             this.redoLayout();
         } else {
             this.getEl().setMaxHeightPx(this.getParentElement().getEl().getHeight());
-            this.extensionItemViews[0]?.show();
         }
 
-        // End state must always be expanded; don't rely on timers that may be interrupted by container reloads.
-        this.getEl().setMaxHeight('none');
+        setTimeout(() => {
+            this.getEl().setMaxHeight('none');
+        }, 100);
     }
 
     setActive() {
@@ -240,10 +236,7 @@ export class ExtensionView
         }
 
         if (this.isExternal()) {
-            this.extensionItemViews.forEach((itemView: ExtensionItemView) => {
-                itemView.cleanupWidget();
-                itemView.removeChildren();
-            });
+            this.extensionItemViews.forEach((itemView: ExtensionItemView) => itemView.cleanupWidget());
         }
 
         this.contextView.resetActiveExtension();
@@ -266,11 +259,11 @@ export class ExtensionView
         return this.getExtensionKey() != null;
     }
 
-    compareByType(extensionView: ExtensionView): boolean {
-        return extensionView != null && (
-            this === extensionView ||
-            (this.getType() === extensionView.getType() && this.hasType() && extensionView.hasType()) ||
-            (this.getExtensionKey() === extensionView.getExtensionKey() && this.hasKey() && extensionView.hasKey())
+    compareByType(widgetView: ExtensionView): boolean {
+        return widgetView != null && (
+            this === widgetView ||
+                (this.getType() === widgetView.getType() && this.hasType() && widgetView.hasType()) ||
+            (this.getExtensionKey() === widgetView.getExtensionKey() && this.hasKey() && widgetView.hasKey())
         );
     }
 
@@ -285,8 +278,9 @@ export class ExtensionView
         }
         this.getEl().setHeight('');
         firstItemView.hide();
-        // Use plain timeouts only; "added" events may not fire when the host reconnects existing DOM nodes.
-        setTimeout(() => firstItemView.show(), 200);
+        setTimeout(() => {
+            firstItemView.show();
+        }, 200);
     }
 
     private isUrlBased(): boolean {
@@ -320,13 +314,15 @@ export class ExtensionViewBuilder {
 
     contextView: ContextView;
 
-    extensionItemViews: ExtensionItemView[] = [];
+    extensionItemViews: ExtensionItemViewType[] = [];
 
     extension: Extension;
 
     extensionClass: string;
 
     iconClass: string;
+
+    icon: LucideIcon;
 
     type: InternalExtensionType;
 
@@ -345,7 +341,7 @@ export class ExtensionViewBuilder {
         return this;
     }
 
-    public addExtensionItemView(extensionItemView: ExtensionItemView): ExtensionViewBuilder {
+    public addExtensionItemView(extensionItemView: ExtensionItemViewType): ExtensionViewBuilder {
         this.extensionItemViews.push(extensionItemView);
         return this;
     }
@@ -355,7 +351,7 @@ export class ExtensionViewBuilder {
         return this;
     }
 
-    public setExtensionItemViews(extensionItemViews: ExtensionItemView[]): ExtensionViewBuilder {
+    public setExtensionItemViews(extensionItemViews: ExtensionItemViewType[]): ExtensionViewBuilder {
         this.extensionItemViews = extensionItemViews;
         return this;
     }
@@ -367,6 +363,11 @@ export class ExtensionViewBuilder {
 
     public setIconClass(iconClass: string) {
         this.iconClass = iconClass;
+        return this;
+    }
+
+    public setIcon(icon: LucideIcon) {
+        this.icon = icon;
         return this;
     }
 

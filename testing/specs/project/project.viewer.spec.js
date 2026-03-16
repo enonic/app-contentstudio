@@ -122,8 +122,8 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             // 3. Verify that Open button is enabled
             await contentBrowsePanel.waitForOpenButtonEnabled();
-            // 4. Verify that, New, Archive... buttons are disabled:
-            await contentBrowsePanel.waitForArchiveButtonDisabled();
+            // 4. Verify that, New, Delete... buttons are disabled:
+            await contentBrowsePanel.waitForDeleteButtonDisabled();
             await contentBrowsePanel.waitForNewButtonDisabled();
             await contentBrowsePanel.waitForDuplicateButtonDisabled();
             // 5. Open Publish Menu:

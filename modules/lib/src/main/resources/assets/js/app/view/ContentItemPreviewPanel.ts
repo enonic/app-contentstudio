@@ -1,40 +1,49 @@
-import Q from 'q';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ContentItemPreviewToolbar} from './ContentItemPreviewToolbar';
-import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ItemPreviewPanel} from '@enonic/lib-admin-ui/app/view/ItemPreviewPanel';
-import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 import {type ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
-import {ContentSummaryAndCompareStatusHelper} from '../content/ContentSummaryAndCompareStatusHelper';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
 import {type Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ExtensionRenderingHandler, type ExtensionRenderer} from './ExtensionRenderingHandler';
-import {type IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
-import {type DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {type Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
-import {type PreviewModeDropdown} from './toolbar/PreviewModeDropdown';
+import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {cn} from '@enonic/ui';
+import Q from 'q';
+import {$activeWidget} from '../../v6/features/store/liveViewWidgets.store';
+import {PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
+import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentSummaryAndCompareStatusHelper} from '../content/ContentSummaryAndCompareStatusHelper';
+import {ContentResourceRequest} from '../resource/ContentResourceRequest';
+import {type ExtensionRenderer, ExtensionRenderingHandler} from './ExtensionRenderingHandler';
 
+export class ContentItemPreviewPanel extends Panel implements ExtensionRenderer {
 
-export class ContentItemPreviewPanel
-    extends ItemPreviewPanel<ViewItem>
-    implements ExtensionRenderer {
-
+    protected frame: IFrameEl;
+    protected wrapper: DivEl;
+    protected toolbar: PreviewToolbarElement;
+    protected mask: LoadMask;
     protected item: ViewItem;
     protected skipNextSetItemCall: boolean = false;
-
     protected debouncedSetItem: (item: ViewItem) => void;
     protected readonly contentRootPath: string;
-
-    protected extensionRenderingHandler: ExtensionRenderingHandler;
+    private extensionRenderingHandler: ExtensionRenderingHandler;
 
     private previewAction: Action;
 
     constructor(contentRootPath?: string) {
-        super('content-item-preview-panel extension-preview-panel');
+        super('item-preview-panel content-item-preview-panel extension-preview-panel');
+
+        this.toolbar = this.createToolbar();
+        this.mask = new LoadMask(this);
+        this.frame = new IFrameEl();
+        this.wrapper = new DivEl('wrapper');
+        this.wrapper.appendChild(this.frame);
+        this.appendChildren(this.toolbar, this.wrapper, this.mask);
 
         this.contentRootPath = contentRootPath || ContentResourceRequest.CONTENT_PATH;
         this.debouncedSetItem = AppHelper.runOnceAndDebounce(this.doSetItem.bind(this), 300);
 
-        this.extensionRenderingHandler = this.createExtensionRenderingHandler();
+        this.extensionRenderingHandler = new ExtensionRenderingHandler(this);
+        this.extensionRenderingHandler = new ExtensionRenderingHandler(this);
 
         this.setupListeners();
     }
@@ -45,17 +54,11 @@ export class ContentItemPreviewPanel
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
+            this.addClass('bg-surface-neutral');
             this.extensionRenderingHandler.layout();
-            this.mask.addClass('content-item-preview-panel-load-mask');
-            this.getToolbar().setRefreshAction(() => this.refresh());
+            this.mask.addClass(cn('transition-opacity duration-300 opacity-0'));
             return rendered;
         });
-    }
-
-    private refresh(): void {
-        if (this.item) {
-            void this.update(this.viewItemToContent(this.item));
-        }
     }
 
     protected viewItemToContent(item: ViewItem): ContentSummaryAndCompareStatus {
@@ -65,7 +68,7 @@ export class ContentItemPreviewPanel
     protected async doSetItem(item: ViewItem, force: boolean = false) {
         const content = this.viewItemToContent(item);
 
-        this.toolbar.setItem(item);
+        this.toolbar.setItem(item as ContentSummaryAndCompareStatus);
 
         return this.isPreviewUpdateNeeded(content, force).then((updateNeeded) => {
             // only update this.item after the isPreviewUpdateNeeded check because it uses it
@@ -103,7 +106,7 @@ export class ContentItemPreviewPanel
 
     protected async update(item: ContentSummaryAndCompareStatus) {
         const contentSummary = item.getContentSummary();
-        const extension = (this.toolbar as ContentItemPreviewToolbar).getModeSelector().getSelectedMode();
+        const extension = $activeWidget.get();
 
         return this.extensionRenderingHandler.render(contentSummary, extension);
     }
@@ -113,7 +116,7 @@ export class ContentItemPreviewPanel
     }
 
     public clearItem() {
-        (this.toolbar as ContentItemPreviewToolbar).clearItem();
+        this.toolbar.clearItem();
         this.extensionRenderingHandler.empty();
         this.item = undefined;
     }
@@ -131,12 +134,19 @@ export class ContentItemPreviewPanel
         });
     }
 
-    protected getToolbar(): ContentItemPreviewToolbar {
-        return this.toolbar as ContentItemPreviewToolbar;
+    protected getToolbar(): PreviewToolbarElement {
+        return this.toolbar;
     }
 
-    createToolbar(): ContentItemPreviewToolbar {
-        return new ContentItemPreviewToolbar();
+    createToolbar(): PreviewToolbarElement {
+        return new PreviewToolbarElement({});
+    }
+
+    getActions(): Action[] {
+        return [
+            ...super.getActions(),
+            this.getPreviewAction()
+        ];
     }
 
     public getIFrameEl(): IFrameEl {
@@ -159,7 +169,17 @@ export class ContentItemPreviewPanel
         return this.previewAction;
     }
 
-    public getExtensionSelector(): PreviewModeDropdown {
-        return this.getToolbar().getModeSelector();
+    public showMask() {
+        if (this.isVisible()) {
+            this.mask.show();
+            const className = 'opacity-0';
+            this.mask.addClass(className);
+        }
+    }
+
+    public hideMask() {
+        this.mask.hide();
+        const className = 'opacity-0';
+        this.mask.removeClass(className);
     }
 }

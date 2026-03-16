@@ -2,7 +2,7 @@
  * Created on 02.06.2023
  */
 const appConst = require('../../../libs/app_const');
-const lib = require('../../../libs/elements');
+const lib = require('../../../libs/elements-old');
 const BasePageComponentView = require('../../wizardpanel/base.page.components.view');
 const xpath = {
     container: `//div[contains(@id,'PageComponentsWizardStepForm')]`,

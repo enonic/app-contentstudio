@@ -47,7 +47,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             let message = await wizard.waitForNotificationMessage();
             let contentPublishDialog = new ContentPublishDialog();
             await contentPublishDialog.waitForDialogOpened();
-            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.clickOnCloseButton();
             await studioUtils.saveScreenshot('marked_as_ready_workflow_state');
             assert.equal(message, appConst.markedAsReadyMessage(TEST_FOLDER.displayName),
                 "Message: 'Item is marked as ready' should appear");

@@ -1,0 +1,113 @@
+---
+description: Component structure and export conventions
+globs: src/**/*.ts,src/**/*.tsx
+alwaysApply: false
+---
+
+# Component Structure Standards
+
+## Component Folder Structure
+
+When creating a new component, follow this folder structure:
+
+```
+component/
+├── component.stories.tsx
+├── component.tsx
+└── index.ts
+```
+
+**Examples:**
+
+```
+user-card/
+├── user-card.stories.tsx
+├── user-card.tsx
+└── index.ts
+```
+
+## Export Standards
+
+### Component's `index.ts`
+
+Should re-export components/functions on first line, types on second line:
+
+```typescript
+// ❌ Avoid: importing then re-exporting
+import { MyComponent } from './my-component';
+
+// ✅ Endorsed: separate exports - components first, types second
+export { MyComponent } from './my-component';
+export type { MyComponentProps } from './my-component';
+
+// ✅ Another example
+export { Button } from './button';
+export type { ButtonProps } from './button';
+
+// ⚠️ Acceptable: combined export with type keyword (but separate is preferred)
+export { MyComponent, type MyComponentProps } from './my-component';
+
+// ❌ Avoid: missing type export
+export { MyComponent } from './my-component';
+```
+
+### `src/components/index.ts`
+
+Must contain re-export of all component folders:
+
+```typescript
+// ✅ Correct: re-export all components
+export * from './button';
+export * from './modal';
+export * from './user-card';
+
+// ❌ Avoid: missing newly added components
+export * from './button';
+export * from './user-card';
+// modal is missing!
+```
+
+## Context Provider Structure
+
+Extract context providers to `src/providers/` with pattern: context value type, context (default `undefined`), provider component, custom hook.
+
+```typescript
+// ✅ Correct: src/providers/menu-provider.tsx
+import { createContext, type ReactElement, type ReactNode, useContext } from 'react';
+
+export type MenuContextValue = {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+};
+
+const MenuContext = createContext<MenuContextValue | undefined>(undefined);
+
+export type MenuProviderProps = {
+  value: MenuContextValue;
+  children?: ReactNode;
+};
+
+export const MenuProvider = ({ value, children }: MenuProviderProps): ReactElement => {
+  return <MenuContext.Provider value={value}>{children}</MenuContext.Provider>;
+};
+
+export const useMenu = (): MenuContextValue => {
+  const context = useContext(MenuContext);
+  if (!context) {
+    throw new Error('useMenu must be used within a MenuProvider');
+  }
+  return context;
+};
+
+// ❌ Avoid: Context in component file, null default
+const MenuContext = createContext<MenuContextValue | null>(null);
+export const useMenu = () => { /* ... */ };
+```
+
+Add new providers to `src/providers/index.ts`:
+
+```typescript
+export * from './menu-provider';
+export * from './dialog-provider';
+// ... all providers
+```

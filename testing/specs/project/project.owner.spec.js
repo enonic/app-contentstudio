@@ -233,7 +233,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             // 2. The folder has been 'Marked as ready' in browse panel:
             await contentBrowsePanel.clickOnMarkAsReadyButton();
             await contentPublishDialog.waitForDialogOpened();
-            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.clickOnCloseButton();
             await contentPublishDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('project_owner_6');
             // 3. Open Publish Menu:
@@ -263,8 +263,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await createRequestPublishDialog.waitForDialogLoaded();
-            await createRequestPublishDialog.clickOnNextButton();
-            await createRequestPublishDialog.typeInChangesInput('owner request');
+            await createRequestPublishDialog.typeInTitleInput('owner request');
             // 3. Click on 'Create Request' button:
             await createRequestPublishDialog.clickOnCreateRequestButton();
             // 4. Verify that Create Request dialog closes:

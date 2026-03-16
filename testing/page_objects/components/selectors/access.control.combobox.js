@@ -1,23 +1,32 @@
 /**
- * Created on 12.02.2024
+ * Created on 12.02.2024 updated for epic-enonic-ui on 26.02.2026
  */
 const BasDropdown = require('./base.dropdown');
-const XPATH = {
-    container: "//div[contains(@id,'AccessControlComboBox')]",
-};
+const {DROPDOWN} = require('../../../libs/elements');
 
 class AccessControlCombobox extends BasDropdown {
 
-    get container() {
-        return XPATH.container;
+    constructor(parentElementXpath) {
+        super();
+        this._parentContainer = parentElementXpath;
     }
 
-    async selectFilteredPrincipalAndClickOnApply(principal, parentElement) {
+    get container() {
+        return this._parentContainer
+    }
+
+    optionsFilterInput() {
+        return this.container + DROPDOWN.OPTION_FILTER_INPUT;
+    }
+
+    async clickOnFilteredPrincipalAndApply(principal) {
         try {
-            await this.clickOnFilteredByDisplayNameItemAndClickOnApply(principal, parentElement);
+            await this.doFilterItem(principal);
+            await this.clickOnOptionByDisplayName(principal);
+            await this.clickOnApplySelectionButton();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error(`AccessControlComboBox selector - Error during selecting the option, screenshot: ${screenshot} ` + err);
+            await this.handleError(`AccessControlComboBox, tried to click on the option: ${principal} and apply changes`,
+                'err_click_option_apply', err);
         }
     }
 }

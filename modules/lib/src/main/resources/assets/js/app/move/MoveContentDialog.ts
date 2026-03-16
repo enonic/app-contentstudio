@@ -23,6 +23,7 @@ import {ContentAppHelper} from '../wizard/ContentAppHelper';
 import {ContentMoveComboBox} from './ContentMoveComboBox';
 import {ContentMovePromptEvent} from './ContentMovePromptEvent';
 import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {DialogPresetConfirmElement} from '../../v6/features/shared/dialogs/DialogPreset';
 
 export class MoveContentDialog
     extends ModalDialogWithConfirmation
@@ -36,7 +37,7 @@ export class MoveContentDialog
 
     private descriptionHeader: H6El;
 
-    private moveConfirmationDialog: ConfirmationDialog;
+    private moveConfirmationDialog: DialogPresetConfirmElement;
 
     private progressManager: ProgressBarManager;
 
@@ -121,16 +122,19 @@ export class MoveContentDialog
     }
 
     private initMoveConfirmationDialog(): void {
-        this.moveConfirmationDialog = new ConfirmationDialog()
-            .setQuestion(i18n('dialog.confirm.move'))
-            .setYesCallback(() => {
-                this.open(false);
+        this.moveConfirmationDialog = new DialogPresetConfirmElement({
+            // open: true,
+            title: i18n('dialog.confirm.move.title'),
+            description: i18n('dialog.confirm.move.description'),
+            onConfirm: () => {
+                this.moveConfirmationDialog.close();
                 this.doMove();
-            })
-            .setNoCallback(() => {
-                this.open(false);
+            },
+            onCancel: () => {
+                this.moveConfirmationDialog.close();
                 this.moveAction.setEnabled(true);
-            });
+            },
+        });
     }
 
     private initProgressManager(): void {

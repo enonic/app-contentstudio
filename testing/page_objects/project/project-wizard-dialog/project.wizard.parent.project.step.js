@@ -7,7 +7,7 @@ const ProjectsComboBox = require('../../components/projects/projects.combobox');
 const ProjectWizardDialog = require('./project.wizard.dialog');
 
 const XPATH = {
-    container: "//div[contains(@id,'ProjectWizardDialog')]",
+    container: "//div[@role='dialog' and descendant::h2[contains(.,'Optional content layering')]]",
     projectSelectedOptionView: "//div[contains(@id,'ProjectSelectedOptionView')]",
     parentProjectComboboxDiv: "//div[contains(@id,'ProjectsSelector')]",
 };
@@ -15,18 +15,16 @@ const DESCRIPTION = "To set up synchronization of a content with another project
 
 class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
 
-    get projectOptionsFilterInput() {
-        return XPATH.container + lib.OPTION_FILTER_INPUT;
+    get container(){
+        return XPATH.container;
     }
 
-    waitForProjectOptionsFilterInputDisplayed() {
-        return this.waitForElementDisplayed(this.projectOptionsFilterInput, appConst.mediumTimeout);
+    async waitForProjectOptionsFilterInputDisplayed() {
+        let projectsComboBox = new ProjectsComboBox();
+        return await projectsComboBox.waitForSearchInputDisplayed();
     }
 
-    waitForProjectOptionsFilterInputNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.projectOptionsFilterInput, appConst.mediumTimeout);
-    }
-
+    //multiInheritance = true
     async selectParentParentProjects(names) {
         for (let name of names) {
             await this.selectParentProjectMulti(name);
@@ -36,15 +34,16 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
     // Type a text (description) in the filter input then click on filtered item then click on 'OK' button and apply selection
     async typeTextInOptionFilterInputAndSelectOption(text, projectDisplayName) {
         let projectsComboBox = new ProjectsComboBox();
-        await this.typeTextInInput(this.projectOptionsFilterInput, text);
+        await projectsComboBox.typeTextInSearchInput(text);
         await projectsComboBox.clickOnFilteredByDisplayNameItem(projectDisplayName, XPATH.container);
         return await this.pause(400);
     }
 
-    // Type a name (description) in the filter input then click on filtered item then click on OK button and apply selection
+    // Type a name (description) in the filter input then click on the filtered item
     async selectParentProject(projectDisplayName) {
         let projectsComboBox = new ProjectsComboBox();
-        await projectsComboBox.selectFilteredByDisplayName(projectDisplayName);
+        await projectsComboBox.typeTextInSearchInput(projectDisplayName);
+        await projectsComboBox.clickOnFilteredByDisplayNameItem(projectDisplayName);
         console.log("Project Wizard, parent project is selected: " + projectDisplayName);
         return await this.pause(400);
     }
@@ -53,13 +52,7 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
         let projectsComboBox = new ProjectsComboBox();
         await projectsComboBox.selectFilteredByDisplayNameAndClickOnApply(projectDisplayName);
         console.log("Project Wizard, parent project is selected: " + projectDisplayName);
-        return await this.pause(400);
-    }
-
-    async selectParentProjectById(projectId) {
-        let projectsComboBox = new ProjectsComboBox();
-        await projectsComboBox.selectFilteredByIdAndClickOnApply(projectId);
-        return await this.pause(400);
+        return await this.pause(1000);
     }
 
     async getSelectedProjects() {
@@ -116,10 +109,7 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
     }
 
     async waitForLoaded() {
-        await this.getBrowser().waitUntil(async () => {
-            let actualDescription = await this.getStepDescription();
-            return actualDescription.includes(DESCRIPTION);
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Project Wizard Dialog, step 1 is not loaded"});
+        await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
     }
 
     async isSelectedParentProjectDisplayed() {

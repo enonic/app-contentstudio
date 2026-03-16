@@ -8,6 +8,7 @@ import {UpdateContentRequest} from '../resource/UpdateContentRequest';
 import {UpdatePageRequest} from '../resource/UpdatePageRequest';
 import {UpdateWorkflowRequest} from '../resource/UpdateWorkflowRequest';
 import {ContentDiffHelper} from '../util/ContentDiffHelper';
+import {$wizardDraftWorkflowState} from '../../v6/features/store/wizardContent.store';
 import {type ContentWizardPanel} from './ContentWizardPanel';
 import {CreatePageRequest} from './CreatePageRequest';
 import {DeletePageRequest} from './DeletePageRequest';
@@ -21,8 +22,6 @@ export class UpdatePersistedContentRoutine
     private readonly viewedContent: Content;
 
     private requireValid: boolean;
-
-    private workflowState: WorkflowState;
 
     constructor(thisOfProducer: ContentWizardPanel, persistedContent: Content, viewedContent: Content) {
         super(thisOfProducer);
@@ -52,8 +51,9 @@ export class UpdatePersistedContentRoutine
             promise = promise.then(this.doHandlePage.bind(this, context));
         }
 
-        if (this.workflowState === WorkflowState.READY) {
-            promise = promise.then(this.doHandleWorkflowChange.bind(this, context));
+        const workflowState = $wizardDraftWorkflowState.get() ?? undefined;
+        if (workflowState === WorkflowState.READY) {
+            promise = promise.then(this.doHandleWorkflowChange.bind(this, context, workflowState));
         }
 
         return promise.then(() => {
@@ -146,13 +146,8 @@ export class UpdatePersistedContentRoutine
         return this;
     }
 
-    setWorkflowState(state: WorkflowState): UpdatePersistedContentRoutine {
-        this.workflowState = state;
-        return this;
-    }
-
-    private doHandleWorkflowChange(context: RoutineContext): Q.Promise<void> {
-        return new UpdateWorkflowRequest(this.viewedContent.getContentId(), this.workflowState).sendAndParse().then((content) => {
+    private doHandleWorkflowChange(context: RoutineContext, workflowState: WorkflowState): Q.Promise<void> {
+        return new UpdateWorkflowRequest(this.viewedContent.getContentId(), workflowState).sendAndParse().then((content) => {
             context.content = content;
             context.workflowUpdated = true;
         });

@@ -1,9 +1,9 @@
 import {IconUrlResolver} from '@enonic/lib-admin-ui/icon/IconUrlResolver';
-import {StyleHelper} from '../inputtype/ui/text/styles/StyleHelper';
-import {UrlHelper} from './UrlHelper';
 import {type ContentId} from '../content/ContentId';
+import {StyleHelper} from '../inputtype/ui/text/styles/StyleHelper';
 import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 import {type Project} from '../settings/data/project/Project';
+import {UrlHelper} from './UrlHelper';
 
 export class ImageUrlResolver
     extends IconUrlResolver {
@@ -31,9 +31,9 @@ export class ImageUrlResolver
 
     private readonly contentRootPath: string;
 
-    private readonly project: Project;
+    private readonly project: Readonly<Project>;
 
-    constructor(contentRootPath?: string, project?: Project) {
+    constructor(contentRootPath?: string, project?: Readonly<Project>) {
         super();
 
         this.contentRootPath = contentRootPath || ContentResourceRequest.CONTENT_PATH;

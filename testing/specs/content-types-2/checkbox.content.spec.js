@@ -15,23 +15,18 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
+
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
     const CHECKBOX_NAME = contentBuilder.generateRandomName('checkbox');
     const CHECKBOX_NAME_2 = contentBuilder.generateRandomName('checkbox');
 
-    it(`Preconditions: new site should be added`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
 
-    it("GIVEN wizard for new 'checkbox(0:1)' content is opened WHEN the checkbox has been clicked THEN checkbox should be selected",
+    it("GIVEN wizard for new 'checkbox(0:1)' content is opened WHEN the checkbox has been clicked THEN should be checked after clicking on it",
         async () => {
             let checkBoxForm = new CheckBoxForm();
             let contentWizard = new ContentWizard();
             // 1. open new wizard and fill in the name input:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CHECKBOX_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.CHECKBOX_0_1);
             await contentWizard.typeDisplayName(CHECKBOX_NAME);
             // 2. Verify that the checkbox is not selected by default
             let isSelected = await checkBoxForm.isCheckBoxSelected();
@@ -42,13 +37,13 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
             await studioUtils.saveScreenshot('checkbox_2');
             // 4. Verify that the checkbox gets selected:
             isSelected = await checkBoxForm.isCheckBoxSelected();
-            assert.ok(isSelected, "Checkbox should be selected");
+            assert.ok(isSelected, "Checkbox should be checked after clicking on it");
 
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
         });
 
-    it("WHEN existing 'checkbox' content is reopened THEN checkbox should be selected",
+    it("WHEN existing 'checkbox' content has been reopened THEN the checkbox should be selected",
         async () => {
             let checkBoxForm = new CheckBoxForm();
             // 1. open existing checkbox content:
@@ -66,7 +61,7 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
             let checkBoxForm = new CheckBoxForm();
             let contentWizard = new ContentWizard();
             // 1. open new wizard and fill in the name input:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CHECKBOX_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.CHECKBOX_1_1);
             await contentWizard.typeDisplayName(CHECKBOX_NAME_2);
             await contentWizard.pause(1000);
             let isInvalid = await contentWizard.isContentInvalid();

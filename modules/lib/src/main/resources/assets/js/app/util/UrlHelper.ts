@@ -1,8 +1,8 @@
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {ProjectContext} from '../project/ProjectContext';
 import {type Project} from '../settings/data/project/Project';
 import {UrlAction} from '../UrlAction';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export class UrlHelper {
 
@@ -12,12 +12,12 @@ export class UrlHelper {
         return UriHelper.getAdminUri(UriHelper.joinPath('rest-v2', 'cs', UriHelper.relativePath(path)));
     }
 
-    static getCMSPath(contentRootPath?: string, project?: Project): string {
-        const requestProject: Project = project || ProjectContext.get().getProject();
+    static getCMSPath(contentRootPath?: string, project?: Readonly<Project>): string {
+        const requestProject = project || ProjectContext.get().getProject();
         return `cms/${requestProject.getName()}${contentRootPath ? `/${contentRootPath}` : ''}`;
     }
 
-    static getCMSPathForContentRoot(project?: Project): string {
+    static getCMSPathForContentRoot(project?: Readonly<Project>): string {
         return UrlHelper.getCMSPath('content', project);
     }
 

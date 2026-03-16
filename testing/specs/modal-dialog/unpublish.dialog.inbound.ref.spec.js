@@ -68,7 +68,7 @@ describe("unpublish.dialog.inbound.ref.spec - Tests for inbound references in Un
             //assert.ok(refItems.length === 1, `'Not published' referenced content should not be displayed`);
             //assert.equal(refItems[0], SHORTCUT_NAME, 'Only published ref-content should be displayed in the filtered grid ');
             let status = await contentBrowsePanel.getContentStatus(SHORTCUT_NAME);
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, `'Published' status should be displayed for the filtered content`);
+            assert.equal(status, appConst.CONTENT_STATUS.ONLINE, `'Online' status should be displayed for the filtered content`);
         });
 
     it.skip(`GIVEN 'Ignore inbound references' is displayed in Unpublish content dialog WHEN 'Show references' link has been clicked AND referenced content has been unpublished THEN 'Unpublish' button gets enabled`,

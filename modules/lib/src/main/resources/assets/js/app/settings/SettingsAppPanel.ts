@@ -16,22 +16,22 @@ import {type SettingsDataViewItem} from './view/SettingsDataViewItem';
 import {ProjectViewItem} from './view/ProjectViewItem';
 import {ProjectUpdatedEvent} from './event/ProjectUpdatedEvent';
 import {ProjectDeletedEvent} from './event/ProjectDeletedEvent';
-import {ProjectSelectionDialog} from '../dialog/ProjectSelectionDialog';
 import {ProjectCreatedEvent} from './event/ProjectCreatedEvent';
 import {ProjectGetRequest} from './resource/ProjectGetRequest';
 import {ContentAppBar} from '../bar/ContentAppBar';
 import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ProjectsUtil} from './resource/ProjectsUtil';
-import {Projects} from './resource/Projects';
+import {removeProject, upsertProject} from '../../v6/features/store/projects.store';
+import {openEditProjectDialog} from '../../v6/features/store/dialogs/projectDialog.store';
 
-export class SettingsAppPanel
-    extends NavigatedAppPanel {
-
+export class SettingsAppPanel extends NavigatedAppPanel {
     declare protected browsePanel: SettingsBrowsePanel;
 
     private deletedIds: string[] = [];
 
     constructor() {
+        // TODO: Enonic UI
+        // When possible, remove ContentAppBar dependency or migrate to AppBarElement
         super(ContentAppBar.getInstance());
     }
 
@@ -47,7 +47,6 @@ export class SettingsAppPanel
         });
 
         ProjectCreatedEvent.on((event: ProjectCreatedEvent) => {
-            ProjectSelectionDialog.get().setUpdateOnOpen(true);
             this.deletedIds = this.deletedIds.filter((deletedId: string) => deletedId !== event.getProjectName());
         });
 
@@ -56,7 +55,6 @@ export class SettingsAppPanel
                 return;
             }
 
-            ProjectSelectionDialog.get().setUpdateOnOpen(true);
             this.handleItemDeleted(event.getProjectName());
         });
 
@@ -74,21 +72,28 @@ export class SettingsAppPanel
         this.getAppBarTabMenu().deselectNavigationItem();
     }
 
-    private getWizardPanelForEdit(item: SettingsViewItem, tabId: AppBarTabId): SettingsDataItemWizardPanel<SettingsDataViewItem<Equitable>> {
+    private getWizardPanelForEdit(
+        item: SettingsViewItem,
+        tabId: AppBarTabId
+    ): SettingsDataItemWizardPanel<SettingsDataViewItem<Equitable>> {
         if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem)) {
             const projectItem: ProjectViewItem = item as ProjectViewItem;
             const wizard: ProjectWizardPanel = new ProjectWizardPanel({
                 tabId,
                 persistedItem: projectItem,
-                type: projectItem.getType()
+                type: projectItem.getType(),
             });
 
             wizard.setHasChildrenLayers(ProjectsUtil.hasChildren(projectItem.getId()));
 
             if (projectItem.getData()?.hasParents()) {
-                const parentProjects = projectItem.getData().getParents().map(id => {
-                    return (this.browsePanel.getItemById(id) as ProjectViewItem)?.getData();
-                }).filter(pp => !!pp);
+                const parentProjects = projectItem
+                    .getData()
+                    .getParents()
+                    .map((id) => {
+                        return (this.browsePanel.getItemById(id) as ProjectViewItem)?.getData();
+                    })
+                    .filter((pp) => !!pp);
                 wizard.updateParentProjects(parentProjects);
             }
 
@@ -103,6 +108,16 @@ export class SettingsAppPanel
     }
 
     private doHandleItemEdit(item: SettingsViewItem) {
+        if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem)) {
+            const projectItem = item as ProjectViewItem;
+            const project = projectItem.getData();
+            const parentProjects = (project.getParents() ?? [])
+                .map((id) => (this.browsePanel.getItemById(id) as ProjectViewItem)?.getData())
+                .filter(Boolean);
+            void openEditProjectDialog(project, parentProjects);
+            return;
+        }
+
         const tabId: AppBarTabId = AppBarTabId.forEdit(item.getId());
         const tabMenuItem: TabMenuItem = this.getAppBarTabMenu().getNavigationItemById(tabId);
 
@@ -130,9 +145,12 @@ export class SettingsAppPanel
             return;
         }
 
-        new ProjectGetRequest(projectName).sendAndParse().then((updatedProject: Project) => {
-            this.handleProjectUpdated(updatedProject);
-        }).catch(DefaultErrorHandler.handle);
+        new ProjectGetRequest(projectName)
+            .sendAndParse()
+            .then((updatedProject: Project) => {
+                this.handleProjectUpdated(updatedProject);
+            })
+            .catch(DefaultErrorHandler.handle);
     }
 
     private handleProjectUpdated(project: Project) {
@@ -144,11 +162,9 @@ export class SettingsAppPanel
     }
 
     private addNewProject(project: Project) {
-        Projects.get().setProjects([...Projects.get().getProjects().filter(p => p.getName() !== project.getName()), project]);
+        upsertProject(project);
 
-        const item: ProjectViewItem = ProjectViewItem.create()
-            .setData(project)
-            .build();
+        const item: ProjectViewItem = ProjectViewItem.create().setData(project).build();
 
         this.browsePanel.addSettingsItem(item);
         this.getProjectWizards().forEach((wizardPanel: ProjectWizardPanel) => {
@@ -159,11 +175,9 @@ export class SettingsAppPanel
     }
 
     private updateExistingProject(project: Project) {
-        Projects.get().setProjects([...Projects.get().getProjects().filter(p => p.getName() !== project.getName()), project]);
+        upsertProject(project);
 
-        const item: ProjectViewItem = ProjectViewItem.create()
-            .setData(project)
-            .build();
+        const item: ProjectViewItem = ProjectViewItem.create().setData(project).build();
         this.browsePanel.updateSettingsItem(item);
         this.updateProjectWizards(item);
     }
@@ -207,21 +221,22 @@ export class SettingsAppPanel
     }
 
     private handleItemDeleted(itemId: string): void {
-        Projects.get().setProjects(Projects.get().getProjects().filter((project: Project) => project.getName() !== itemId));
+        removeProject(itemId);
         this.deletedIds.push(itemId);
         this.browsePanel.deleteSettingsItem(itemId);
 
-        this.getProjectWizards().filter((p: ProjectWizardPanel) => p.isItemPersisted()).forEach((panel: ProjectWizardPanel) => {
-            if (panel.hasPersistedItemWithId(itemId)) {
-                panel.close();
-            } else if (!ProjectsUtil.hasChildren(panel.getPersistedItem().getId())) {
-                panel.setHasChildrenLayers(false);
-            }
-        });
+        this.getProjectWizards()
+            .filter((p: ProjectWizardPanel) => p.isItemPersisted())
+            .forEach((panel: ProjectWizardPanel) => {
+                if (panel.hasPersistedItemWithId(itemId)) {
+                    panel.close();
+                } else if (!ProjectsUtil.hasChildren(panel.getPersistedItem().getId())) {
+                    panel.setHasChildrenLayers(false);
+                }
+            });
     }
 
     private isItemPresentInBrowsePanel(id: string) {
         return this.browsePanel.hasItemWithId(id);
     }
-
 }

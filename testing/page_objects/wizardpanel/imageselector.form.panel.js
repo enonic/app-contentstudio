@@ -2,7 +2,7 @@
  * Created on 18.12.2017.
  */
 const BaseSelectorForm = require('./base.selector.form');
-const lib = require('../../libs/elements');
+const lib = require('../../libs/elements-old');
 const ImageSelectorDropdown = require('../components/selectors/image.selector.dropdown');
 const appConst = require('../../libs/app_const');
 
@@ -81,8 +81,8 @@ class ImageSelectorForm extends BaseSelectorForm {
     }
 
     async clickOnModeTogglerButton() {
-        let imageSelectorDropdown = new ImageSelectorDropdown();
-        await imageSelectorDropdown.clickOnModeTogglerButton(XPATH.container);
+        let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
+        await imageSelectorDropdown.clickOnModeTogglerButton();
         return await this.pause(1500);
     }
 

@@ -69,7 +69,7 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             await contentWizard.typeDisplayName(displayName);
             await contentWizard.clickOnMarkAsReadyButton(displayName);
             await contentPublishDialog.waitForDialogOpened();
-            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.clickOnCloseButton();
             await contentPublishDialog.waitForDialogClosed();
             // 2. Open Request Publishing dialog and create new request:
             await contentWizard.openPublishMenuAndCreateRequestPublish("my changes");

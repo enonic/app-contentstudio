@@ -223,8 +223,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await createRequestPublishDialog.waitForDialogLoaded();
-            await createRequestPublishDialog.clickOnNextButton();
-            await createRequestPublishDialog.typeInChangesInput('author request');
+            await createRequestPublishDialog.typeInTitleInput('author request');
             // 3. Click on 'Create Request' button:
             await createRequestPublishDialog.clickOnCreateRequestButton();
             // 4. Verify that Create Request dialog closes:

@@ -1,42 +1,3 @@
-import {Component} from '../../page/region/Component';
-import {type ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
-import {ComponentDescriptorUpdatedEvent} from '../../page/region/ComponentDescriptorUpdatedEvent';
-import {ComponentDetachedEvent} from '../../page/region/ComponentDetachedEvent';
-import {ComponentDuplicatedEvent} from '../../page/region/ComponentDuplicatedEvent';
-import {ComponentFragmentCreatedEvent} from '../../page/region/ComponentFragmentCreatedEvent';
-import {ComponentFragmentUpdatedEvent} from '../../page/region/ComponentFragmentUpdatedEvent';
-import {ComponentImageUpdatedEvent} from '../../page/region/ComponentImageUpdatedEvent';
-import {type ComponentPath} from '../../page/region/ComponentPath';
-import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedEvent';
-import {type ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
-import {type Content, type ContentBuilder} from '../../content/Content';
-import {type ContentId} from '../../content/ContentId';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {type ContentType} from '../../inputtype/schema/ContentType';
-import {type CreateHtmlAreaDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
-import {Descriptor} from '../../page/Descriptor';
-import {DescriptorBasedComponent} from '../../page/region/DescriptorBasedComponent';
-import {EditContentEvent} from '../../event/EditContentEvent';
-import {FragmentComponentType} from '../../page/region/FragmentComponentType';
-import {LayoutComponent} from '../../page/region/LayoutComponent';
-import {LayoutComponentType} from '../../page/region/LayoutComponentType';
-import {Page} from '../../page/Page';
-import {PageEventsManager} from '../PageEventsManager';
-import {PageHelper} from '../../util/PageHelper';
-import {type PageItem} from '../../page/region/PageItem';
-import {type PageItemType} from '../../page/region/PageItemType';
-import {type PageNavigationEvent} from '../PageNavigationEvent';
-import {PageNavigationEventData, type PageNavigationEventSource} from '../PageNavigationEventData';
-import {PageNavigationEventType} from '../PageNavigationEventType';
-import {type PageNavigationHandler} from '../PageNavigationHandler';
-import {PageNavigationMediator} from '../PageNavigationMediator';
-import {PageState} from './PageState';
-import {PartComponent} from '../../page/region/PartComponent';
-import {PartComponentType} from '../../page/region/PartComponentType';
-import {Region} from '../../page/region/Region';
-import {type Site} from '../../content/Site';
-import {TextComponent} from '../../page/region/TextComponent';
-import {TextComponentType} from '../../page/region/TextComponentType';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {type DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {type IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
@@ -49,18 +10,59 @@ import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
-import type Q from 'q';
+import type {default as Q} from 'q';
+import {type LiveEditPageInitializationErrorEvent} from '../../../page-editor/event/LiveEditPageInitializationErrorEvent';
+import {type ShowWarningLiveEditEvent} from '../../../page-editor/event/ShowWarningLiveEditEvent';
+import {type LiveEditModel} from '../../../page-editor/LiveEditModel';
+import {$activeWidget} from '../../../v6/features/store/liveViewWidgets.store';
+import {type Content, type ContentBuilder} from '../../content/Content';
+import {type ContentId} from '../../content/ContentId';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {type Site} from '../../content/Site';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
+import {EditContentEvent} from '../../event/EditContentEvent';
 import {InspectEvent} from '../../event/InspectEvent';
+import {type ContentType} from '../../inputtype/schema/ContentType';
+import {type CreateHtmlAreaDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {HTMLAreaProxy} from '../../inputtype/ui/text/dialog/HTMLAreaProxy';
 import {type ModalDialog} from '../../inputtype/ui/text/dialog/ModalDialog';
+import {Descriptor} from '../../page/Descriptor';
+import {Page} from '../../page/Page';
+import {Component} from '../../page/region/Component';
+import {type ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
+import {ComponentDescriptorUpdatedEvent} from '../../page/region/ComponentDescriptorUpdatedEvent';
+import {ComponentDetachedEvent} from '../../page/region/ComponentDetachedEvent';
+import {ComponentDuplicatedEvent} from '../../page/region/ComponentDuplicatedEvent';
+import {ComponentFragmentCreatedEvent} from '../../page/region/ComponentFragmentCreatedEvent';
+import {ComponentFragmentUpdatedEvent} from '../../page/region/ComponentFragmentUpdatedEvent';
+import {ComponentImageUpdatedEvent} from '../../page/region/ComponentImageUpdatedEvent';
+import {type ComponentPath} from '../../page/region/ComponentPath';
+import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedEvent';
+import {type ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
+import {DescriptorBasedComponent} from '../../page/region/DescriptorBasedComponent';
+import {FragmentComponentType} from '../../page/region/FragmentComponentType';
+import {LayoutComponent} from '../../page/region/LayoutComponent';
+import {LayoutComponentType} from '../../page/region/LayoutComponentType';
+import {type PageItem} from '../../page/region/PageItem';
+import {type PageItemType} from '../../page/region/PageItemType';
+import {PartComponent} from '../../page/region/PartComponent';
+import {PartComponentType} from '../../page/region/PartComponentType';
+import {Region} from '../../page/region/Region';
+import {TextComponent} from '../../page/region/TextComponent';
+import {TextComponentType} from '../../page/region/TextComponentType';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
+import {PageHelper} from '../../util/PageHelper';
 import {ContextPanelState} from '../../view/context/ContextPanelState';
 import {ContextPanelMode} from '../../view/context/ContextSplitPanel';
-import {type PreviewModeDropdown} from '../../view/toolbar/PreviewModeDropdown';
 import {type ExtensionRenderer} from '../../view/ExtensionRenderingHandler';
 import {SaveAsTemplateAction} from '../action/SaveAsTemplateAction';
 import {type ContentWizardPanel} from '../ContentWizardPanel';
+import {PageEventsManager} from '../PageEventsManager';
+import {type PageNavigationEvent} from '../PageNavigationEvent';
+import {PageNavigationEventData, type PageNavigationEventSource} from '../PageNavigationEventData';
+import {PageNavigationEventType} from '../PageNavigationEventType';
+import {type PageNavigationHandler} from '../PageNavigationHandler';
+import {PageNavigationMediator} from '../PageNavigationMediator';
 import {ShowContentFormEvent} from '../ShowContentFormEvent';
 import {ShowLiveEditEvent} from '../ShowLiveEditEvent';
 import {WizardExtensionRenderingHandler} from '../WizardExtensionRenderingHandler';
@@ -78,9 +80,7 @@ import {RegionInspectionPanel} from './contextwindow/inspect/region/RegionInspec
 import {TextInspectionPanel} from './contextwindow/inspect/region/TextInspectionPanel';
 import {FrameContainer} from './FrameContainer';
 import {type LiveEditPageProxy} from './LiveEditPageProxy';
-import {type LiveEditModel} from '../../../page-editor/LiveEditModel';
-import {type ShowWarningLiveEditEvent} from '../../../page-editor/event/ShowWarningLiveEditEvent';
-import {type LiveEditPageInitializationErrorEvent} from '../../../page-editor/event/LiveEditPageInitializationErrorEvent';
+import {PageState} from './PageState';
 
 export interface LiveFormPanelConfig {
 
@@ -149,7 +149,7 @@ export class LiveFormPanel
     private showLoadMaskHandler: () => void;
     private hideLoadMaskHandler: () => void;
     private contentUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
-    private contentPermissionsUpdatedHandler: (data: ContentSummaryAndCompareStatus[]) => void;
+    private contentPermissionsUpdatedHandler: (contentIds: ContentId[]) => void;
 
     constructor(config: LiveFormPanelConfig) {
         super('live-form-panel extension-preview-panel');
@@ -180,25 +180,16 @@ export class LiveFormPanel
         return this.contentWizardPanel.getWizardActions().getPreviewAction();
     }
 
-    private refresh(): void {
-        void this.widgetRenderingHandler.render(this.content, this.getExtensionSelector().getSelectedMode());
-    }
-
     getMask(): Mask {
         return this.contentWizardPanel.getLiveMask();
-    }
-
-    getExtensionSelector(): PreviewModeDropdown {
-        return this.frameContainer.getExtensionSelector()
     }
 
     protected initElements(): void {
 
         this.frameContainer = new FrameContainer({
             proxy: this.liveEditPageProxy,
+            wizardActions: this.contentWizardPanel.getWizardActions(),
         });
-
-        this.frameContainer.getToolbar().setRefreshAction(() => this.refresh());
 
         this.liveEditPageProxy.setModifyPermissions(this.modifyPermissions);
         this.contextWindow = this.createContextWindow();
@@ -351,14 +342,14 @@ export class LiveFormPanel
         }
     }
 
-    private handleContentPermissionsUpdate(contents: ContentSummaryAndCompareStatus[]) {
+    private handleContentPermissionsUpdate(contentIds: ContentId[]) {
         if (!this.content) {
             return;
         }
 
         const thisContentId: ContentId = this.content.getContentId();
 
-        if (!ContentSummaryAndCompareStatus.isInArray(thisContentId, contents)) {
+        if (!contentIds.some((id: ContentId) => id.equals(thisContentId))) {
             return;
         }
 
@@ -584,8 +575,7 @@ export class LiveFormPanel
         }
 
         this.pageLoading = true;
-
-        return this.liveEditPageProxy.load(this.widgetRenderingHandler, this.getExtensionSelector().getSelectedMode())
+        return this.liveEditPageProxy.load(this.widgetRenderingHandler, $activeWidget.get())
             .then((loaded) => {
                 if (!loaded) {
                     // no widget was able to render it so there will be no page loaded eventt

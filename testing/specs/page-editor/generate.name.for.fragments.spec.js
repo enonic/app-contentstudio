@@ -257,7 +257,7 @@ describe.skip('Generate name for fragments specification', function () {
             // 5. Click on Mark as ready button and save all:
             await contentWizard.clickOnMarkAsReadyButton();
             await contentWizard.waitForNotificationMessage();
-            await contentPublishDialog.clickOnCancelTopButton();
+            await contentPublishDialog.clickOnCloseButton();
             // 6. Verify the workflow state:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             let state = await contentWizard.getContentWorkflowState();

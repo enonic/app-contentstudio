@@ -59,8 +59,8 @@ export class CreateIssueDialog
 
     protected initStateBar(): void {
         this.stateBar = new DialogStateBar({
-            failText: i18n('dialog.publish.error.loadFailed'),
-            resolvedText: i18n('dialog.publish.error.resolved'),
+            failText: i18n('dialog.statusBar.error.failed.text'),
+            resolvedText: i18n('dialog.statusBar.error.ready.text'),
             hideIfResolved: true,
             edit: {
                 applyHandler: () => {
