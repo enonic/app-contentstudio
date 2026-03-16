@@ -94,6 +94,7 @@ export class ContentBrowsePanel
             duplicateAction: browseActions.getAction(ActionName.DUPLICATE),
             moveAction: browseActions.getAction(ActionName.MOVE),
             sortAction: browseActions.getAction(ActionName.SORT),
+            previewAction: browseActions.getAction(ActionName.PREVIEW),
             publishAction: browseActions.getAction(ActionName.PUBLISH),
             unpublishAction: browseActions.getAction(ActionName.UNPUBLISH),
             publishTreeAction: browseActions.getAction(ActionName.PUBLISH_TREE),
@@ -109,6 +110,7 @@ export class ContentBrowsePanel
             duplicateAction: browseActions.getAction(ActionName.DUPLICATE),
             moveAction: browseActions.getAction(ActionName.MOVE),
             sortAction: browseActions.getAction(ActionName.SORT),
+            previewAction: browseActions.getAction(ActionName.PREVIEW),
             publishAction: browseActions.getAction(ActionName.PUBLISH),
             unpublishAction: browseActions.getAction(ActionName.UNPUBLISH),
         });

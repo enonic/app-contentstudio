@@ -17,6 +17,7 @@ type Props = {
     duplicateAction: Action;
     moveAction: Action;
     sortAction: Action;
+    previewAction: Action;
     publishAction: Action;
     unpublishAction: Action;
     publishTreeAction: Action;
@@ -33,6 +34,7 @@ export const BrowseToolbar = ({
     duplicateAction,
     moveAction,
     sortAction,
+    previewAction,
     publishAction,
     unpublishAction,
     publishTreeAction,
@@ -63,6 +65,7 @@ export const BrowseToolbar = ({
                     <ToolbarActionButton action={duplicateAction} />
                     <ToolbarActionButton action={moveAction} />
                     <ToolbarActionButton action={sortAction} />
+                    <ToolbarActionButton action={previewAction} />
                 </ActionGroup>
                 <div className="flex-1" />
                 <SplitActionButton actions={publishSplitActions} />

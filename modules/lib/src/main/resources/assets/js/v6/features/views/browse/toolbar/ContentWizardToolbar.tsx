@@ -26,6 +26,7 @@ export type ContentWizardToolbarViewProps = {
     archiveAction: Action;
     duplicateAction: Action;
     moveAction: Action;
+    previewAction: Action;
     markAsReadyAction: Action;
     publishAction: Action;
     unpublishAction: Action;
@@ -94,6 +95,7 @@ export const ContentWizardToolbar = ({
                                              archiveAction,
                                              duplicateAction,
                                              moveAction,
+                                             previewAction,
                                              markAsReadyAction,
                                              publishAction,
                                              unpublishAction,
@@ -144,7 +146,8 @@ export const ContentWizardToolbar = ({
         {id: 'archive', action: archiveAction},
         {id: 'duplicate', action: duplicateAction},
         {id: 'move', action: moveAction},
-    ], [archiveAction, duplicateAction, localizeAction, moveAction, resetAction, saveAction]);
+        {id: 'preview', action: previewAction},
+    ], [archiveAction, duplicateAction, localizeAction, moveAction, previewAction, resetAction, saveAction]);
     const toolbarActionsContainerRef = useRef<HTMLDivElement | null>(null);
     const toolbarActionButtonMeasureRefs = useRef<(HTMLDivElement | null)[]>([]);
     const toolbarSplitButtonMeasureRefs = useRef<(HTMLDivElement | null)[]>([]);

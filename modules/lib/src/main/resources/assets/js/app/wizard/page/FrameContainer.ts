@@ -2,13 +2,10 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {PreviewToolbarElement} from '../../../v6/features/views/browse/layout/preview/PreviewToolbar';
-import {RenderingMode} from '../../rendering/RenderingMode';
-import {type ContentWizardActions} from '../action/ContentWizardActions';
 import {type LiveEditPageProxy} from './LiveEditPageProxy';
 
 export interface FrameContainerConfig {
     proxy: LiveEditPageProxy;
-    wizardActions: ContentWizardActions;
 }
 
 export class FrameContainer extends Panel {
@@ -21,11 +18,7 @@ export class FrameContainer extends Panel {
         this.setDoOffset(false);
 
         this.proxy = config.proxy;
-
-        this.toolbar = new PreviewToolbarElement({
-            mode: RenderingMode.EDIT,
-            previewAction: config.wizardActions.getPreviewAction(),
-        });
+        this.toolbar = new PreviewToolbarElement();
 
         this.wrapper = new DivEl('wrapper');
 
