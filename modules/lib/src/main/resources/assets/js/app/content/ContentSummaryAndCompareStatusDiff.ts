@@ -5,5 +5,4 @@ export interface ContentSummaryAndCompareStatusDiff extends Diff {
     uploadItem?: boolean;
     contentSummary?: ContentSummaryDiff;
     compareStatus?: boolean;
-    renderable?: boolean;
 }

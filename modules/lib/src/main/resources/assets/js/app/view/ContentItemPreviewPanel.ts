@@ -42,9 +42,7 @@ export class ContentItemPreviewPanel extends Panel implements ExtensionRenderer 
         this.contentRootPath = contentRootPath || ContentResourceRequest.CONTENT_PATH;
         this.debouncedSetItem = AppHelper.runOnceAndDebounce(this.doSetItem.bind(this), 300);
 
-        this.extensionRenderingHandler = new ExtensionRenderingHandler(this);
-        this.extensionRenderingHandler = new ExtensionRenderingHandler(this);
-
+        this.extensionRenderingHandler = this.createExtensionRenderingHandler();
         this.setupListeners();
     }
 
@@ -57,8 +55,15 @@ export class ContentItemPreviewPanel extends Panel implements ExtensionRenderer 
             this.addClass('bg-surface-neutral');
             this.extensionRenderingHandler.layout();
             this.mask.addClass(cn('transition-opacity duration-300 opacity-0'));
+            this.getToolbar().setRefreshAction(() => this.refresh());
             return rendered;
         });
+    }
+
+    private refresh(): void {
+        if (this.item) {
+            void this.update(this.viewItemToContent(this.item));
+        }
     }
 
     protected viewItemToContent(item: ViewItem): ContentSummaryAndCompareStatus {
@@ -100,7 +105,7 @@ export class ContentItemPreviewPanel extends Panel implements ExtensionRenderer 
 
     private isItemChanged(item: ContentSummaryAndCompareStatus): boolean {
         const diff = ContentSummaryAndCompareStatusHelper.diff(item, this.item as ContentSummaryAndCompareStatus);
-        return diff.renderable || diff.contentSummary.page || !!diff.contentSummary?.path
+        return diff.contentSummary.page || !!diff.contentSummary?.path
                || !!diff.contentSummary?.displayName || !!diff.contentSummary?.name || !!diff.contentSummary?.inherit;
     }
 
@@ -139,14 +144,7 @@ export class ContentItemPreviewPanel extends Panel implements ExtensionRenderer 
     }
 
     createToolbar(): PreviewToolbarElement {
-        return new PreviewToolbarElement({});
-    }
-
-    getActions(): Action[] {
-        return [
-            ...super.getActions(),
-            this.getPreviewAction()
-        ];
+        return new PreviewToolbarElement();
     }
 
     public getIFrameEl(): IFrameEl {

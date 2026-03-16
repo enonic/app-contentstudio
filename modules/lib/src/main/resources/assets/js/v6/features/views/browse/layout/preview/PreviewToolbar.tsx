@@ -1,29 +1,19 @@
-import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Toolbar} from '@enonic/ui';
 import type {ReactElement} from 'react';
-import {PreviewActionHelper} from '../../../../../../app/action/PreviewActionHelper';
 import type {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
-import {RenderingMode} from '../../../../../../app/rendering/RenderingMode';
 import {LegacyElement} from '../../../../shared/LegacyElement';
-import {$activeWidget} from '../../../../store/liveViewWidgets.store';
 import {PreviewToolbarEmulatorSelector} from './PreviewToolbarEmulatorSelector';
-import {PreviewToolbarOpenExternalItem} from './PreviewToolbarOpenExternalItem';
+import {PreviewToolbarRefreshItem} from './PreviewToolbarRefreshItem';
 import {PreviewToolbarVersionHistoryItem} from './PreviewToolbarVersionHistoryItem';
 import {PreviewToolbarWidgetSelector} from './PreviewToolbarWidgetSelector';
 
 type PreviewToolbarProps = {
     item?: ContentSummaryAndCompareStatus | null;
-    previewAction?: Action;
+    onRefresh?: () => void;
 };
 
-type PreviewToolbarElementProps = PreviewToolbarProps & {
-    mode?: RenderingMode;
-};
-
-const PreviewToolbar = ({item = null, previewAction}: PreviewToolbarProps): ReactElement | undefined => {
+const PreviewToolbar = ({item = null, onRefresh}: PreviewToolbarProps): ReactElement | undefined => {
     if (!item) return undefined;
 
     return (
@@ -39,7 +29,7 @@ const PreviewToolbar = ({item = null, previewAction}: PreviewToolbarProps): Reac
                     <PreviewToolbarWidgetSelector />
                 </div>
 
-                <PreviewToolbarOpenExternalItem action={previewAction} />
+                <PreviewToolbarRefreshItem onRefresh={onRefresh} />
             </Toolbar.Container>
         </Toolbar>
     );
@@ -48,20 +38,9 @@ const PreviewToolbar = ({item = null, previewAction}: PreviewToolbarProps): Reac
 PreviewToolbar.displayName = 'PreviewToolbar';
 
 export class PreviewToolbarElement extends LegacyElement<typeof PreviewToolbar, PreviewToolbarProps> {
-    private mode: RenderingMode;
 
-    constructor(props: PreviewToolbarElementProps) {
-        super({previewAction: props.previewAction}, PreviewToolbar);
-
-        this.mode = props.mode || RenderingMode.PREVIEW;
-
-        if (!props.previewAction) {
-            this.setPreviewAction(new WidgetPreviewAction(this));
-        }
-    }
-
-    public getMode(): RenderingMode {
-        return this.mode;
+    constructor() {
+        super({}, PreviewToolbar);
     }
 
     public getItem(): ContentSummaryAndCompareStatus | null {
@@ -77,25 +56,7 @@ export class PreviewToolbarElement extends LegacyElement<typeof PreviewToolbar, 
         this.props.setKey('item', null);
     }
 
-    public getPreviewAction(): Action {
-        return this.props.get().previewAction;
-    }
-
-    public setPreviewAction(action: Action) {
-        this.props.setKey('previewAction', action);
-    }
-}
-
-class WidgetPreviewAction extends Action {
-    constructor(toolbar: PreviewToolbarElement) {
-        super(i18n('action.preview.open'), BrowserHelper.isOSX() ? 'alt+space' : 'mod+alt+space', true);
-
-        this.onExecuted(() => {
-            new PreviewActionHelper().openWindow(
-                toolbar.getItem().getContentSummary(),
-                $activeWidget.get(),
-                toolbar.getMode()
-            );
-        });
+    public setRefreshAction(fn: () => void): void {
+        this.props.setKey('onRefresh', fn);
     }
 }

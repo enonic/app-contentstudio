@@ -2,7 +2,7 @@ import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {getCurrentItems} from '../../../v6/features/store/contentTreeSelection.store';
-import {$activeWidget} from '../../../v6/features/store/sidebarWidgets.store';
+import {$activeWidget} from '../../../v6/features/store/liveViewWidgets.store';
 import {PreviewActionHelper} from '../../action/PreviewActionHelper';
 import {type ContentSummary} from '../../content/ContentSummary';
 import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
