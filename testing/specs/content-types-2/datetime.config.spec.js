@@ -18,7 +18,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
+
     const VALID_DATE_TIME1 = '2015-02-28 19:01';
     const NOT_VALID_DATE_TIME1 = '2015-42-28 19:01';
     const DATE_TIME_NAME_1 = contentBuilder.generateRandomName('datetime');
@@ -32,18 +32,15 @@ describe('datetime.config.spec: tests for datetime content ', function () {
     const DATE_IN_DECEMBER_2 = '1999-12-30';
     const INCORRECT_DAY_DATE = '2015-15-32';
 
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
     it("GIVEN 'now' value is configured in 'dateTime 2:4' WHEN wizard for new 'dateTime 2:4' is opened THEN both inputs with current DateTime should be displayed in the wizard",
         async () => {
             let dateTimeForm = new DateTimeForm();
             // 1. Open wizard for new dateTime 2:4 with configuration:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DATE_TIME_NOW_CONFIG);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.DATE_TIME_NOW_CONFIG);
+            //await dateTimeForm.waitForRedBorderDisplayedInDateTimeInput(0);
+            //let ee = await dateTimeForm.getFormValidationRecording();
             // 2. Get default values in both inputs:
             let values = await dateTimeForm.getDateTimes();
             await studioUtils.saveScreenshot('date_time_configured_now');
@@ -59,7 +56,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             let dateForm = new DateForm();
             let contentWizard = new ContentWizard();
             // 1. Open wizard for new date 1:1
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DATE_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.DATE_1_1);
             // 2. Save a date:
             await contentWizard.typeDisplayName(DATE_NAME);
             await dateForm.typeDate(0, DATE_IN_DECEMBER);
@@ -103,7 +100,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             let dateForm = new DateForm();
             let contentWizard = new ContentWizard();
             // 1. Open wizard for new date 1:1
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DATE_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.DATE_1_1);
             // 2. Type a name and incorrect date:
             await dateForm.typeDate(0, INCORRECT_DAY_DATE);
             await contentWizard.typeDisplayName(DATE_NAME_1);
@@ -121,7 +118,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             let dateTimeForm = new DateTimeForm();
             let dateTimePickerPopup = new DateTimePickerPopup();
             // 1. Open wizard for new dateTime 1:1
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DATE_TIME_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.DATE_TIME_1_1);
             // 2. Click on date time input and show the picker:
             await dateTimeForm.showPicker();
             await dateTimePickerPopup.waitForLoaded();
@@ -135,7 +132,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             let dateTimeForm = new DateTimeForm();
             let contentWizard = new ContentWizard();
             //1. Open wizard for new dateTime 1:1
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DATE_TIME_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.DATE_TIME_1_1);
             //2. Fill in the name input and click on Save button:
             await contentWizard.typeDisplayName(DATE_TIME_NAME_1);
             await contentWizard.waitAndClickOnSave();
@@ -153,7 +150,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             let dateTimeForm = new DateTimeForm();
             let contentWizard = new ContentWizard();
             // 1. Open wizard for new dateTime 1:1
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DATE_TIME_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.DATE_TIME_1_1);
             // 2. Fill in the name input and click on Save button:
             await contentWizard.typeDisplayName(DATE_TIME_NAME_2);
             await dateTimeForm.typeDatetime(0, VALID_DATE_TIME1);
@@ -173,7 +170,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             let dateTimeForm = new DateTimeForm();
             let contentWizard = new ContentWizard();
             // 1. Open wizard for new dateTime 1:1
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DATE_TIME_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.DATE_TIME_1_1);
             // 2. Fill in the name input and click on Save button:
             await contentWizard.typeDisplayName(DATE_TIME_NAME_3);
             await dateTimeForm.typeDatetime(0, NOT_VALID_DATE_TIME1);
@@ -192,7 +189,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             let timeForm = new TimeForm();
             let contentWizard = new ContentWizard();
             // 1. Open wizard for new not required Time 0:1
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.TIME_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.TIME_0_1);
             // 2. FInsert incorrect time:
             await contentWizard.typeDisplayName(TIME_NAME_1);
             await timeForm.typeTime(0, INCORRECT_TIME);

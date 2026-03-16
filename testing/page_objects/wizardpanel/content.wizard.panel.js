@@ -161,7 +161,7 @@ class ContentWizardPanel extends Page {
 
     // Preview button on the previewItemToolbar
     get previewButton() {
-        return XPATH.container + XPATH.toolbar + lib.actionButtonStrict('Preview');
+        return this.previewItemToolbar + BUTTONS.buttonAriaLabel('Preview');
     }
 
     get controllerOptionFilterInput() {

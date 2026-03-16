@@ -1,24 +1,22 @@
 /**
- * Created on 25.12.2017.
+ * Created on 25.12.2017. updated on 12.03.2026
  */
 const OccurrencesFormView = require('./occurrences.form.view');
-const lib = require('../../libs/elements-old');
+const {COMMON} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const XPATH = {
-    doubleInput: `//div[contains(@id,'Double')]`,
-    occurrenceErrorBlock: `//div[contains(@id,'InputOccurrenceView')]//div[contains(@class,'error-block')]`,
-    occurrenceView: "//div[contains(@id,'InputOccurrenceView')]",
+    doubleInputDataComponent: `//input[@data-component='DoubleInput']`,
 };
 
 class DoubleForm extends OccurrencesFormView {
 
     get doubleInput() {
-        return lib.FORM_VIEW + XPATH.doubleInput + lib.TEXT_INPUT;
+        return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + XPATH.doubleInputDataComponent;
     }
 
     get removeInputButton() {
-        return XPATH.doubleInput + XPATH.occurrenceView + lib.REMOVE_BUTTON_2;
+        return this.removeButton;
     }
 
     async typeDouble(value, index) {

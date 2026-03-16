@@ -53,12 +53,21 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return XPATH.toolbarDiv;
     }
 
-    get previewButton() {
-        return XPATH.toolbarDiv + lib.BUTTONS.actionButton('Preview');
+    get selectAllCheckboxLabel() {
+        return XPATH.container + COMMON.SELECT_ALL_CHECKBOX_LABEL;
     }
 
-    get archiveButton() {
-        return XPATH.toolbarDiv + lib.actionButton('Archive...');
+    get previewButton() {
+        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Preview');
+    }
+
+    // expander icon in parent items
+    get expanderButton() {
+        return "//button[contains(@type,'button') and contains(@aria-label,'Expand') or contains (@aria-label,'Collapse')]";
+    }
+
+    get deleteButton() {
+        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Delete');
     }
 
     get moreButton() {
@@ -1029,6 +1038,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async waitForSortIconDisplayed(name) {
         let selector = lib.TREE_GRID.itemTreeGridListElementByName(name) + lib.TREE_GRID.SORT_DIALOG_TOGGLE;
         return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+    }
+
+    async waitForGridRoleAttribute(expectedRole) {
+        let locator = XPATH.treeGrid;
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, 'role');
+            return text === expectedRole;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Role attribute for Grid should set 'grid'"});
     }
 
     async waitForShowIssuesButtonAriaHasPopupAttribute(expectedValue) {

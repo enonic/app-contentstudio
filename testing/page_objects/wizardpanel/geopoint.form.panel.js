@@ -3,24 +3,23 @@
  */
 const OccurrencesFormView = require('./occurrences.form.view');
 const lib = require('../../libs/elements-old');
+const {COMMON} = require('../../libs/elements');
+
 const XPATH = {
-    container: "//div[contains(@id,'GeoPoint')]",
-    locationInput: "//input[contains(@id,'GeoPoint') and @placeholder='latitude,longitude']",
-    occurrenceErrorBlock: `//div[contains(@id,'InputOccurrenceView')]//div[contains(@class,'error-block')]`,
-    occurrenceView: "//div[contains(@id,'InputOccurrenceView')]",
+    dataComponentGeoPointInput: "//div[@role='button']//input[@data-component='GeoPointInput']",
 };
 
 class GeoPointForm extends OccurrencesFormView {
 
     get geoLocationInput() {
-        return XPATH.container + XPATH.locationInput;
+        return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + XPATH.dataComponentGeoPointInput;
     }
 
-    get removeInputButton() {
-        return XPATH.container + XPATH.occurrenceView + lib.REMOVE_BUTTON_2;
+    get removeGeoPointInputButton() {
+        return this.removeButton;
     }
 
-    async typeGeoPoint(value, index) {
+    async typeInGeoPointInput(value, index) {
         index = typeof index !== 'undefined' ? index : 0;
         let locationElements = await this.getDisplayedElements(this.geoLocationInput);
         await locationElements[index].setValue(value);
@@ -47,7 +46,7 @@ class GeoPointForm extends OccurrencesFormView {
     }
 
     async clickOnRemoveIcon(index) {
-        let removeButtons = await this.getDisplayedElements(this.removeInputButton);
+        let removeButtons = await this.getDisplayedElements(this.removeGeoPointInputButton);
         if (removeButtons.length === 0) {
             throw new Error("Geo Point Form - Remove buttons were not found!");
         }

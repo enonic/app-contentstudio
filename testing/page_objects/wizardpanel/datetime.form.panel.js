@@ -3,16 +3,22 @@
  */
 
 const OccurrencesFormView = require('../wizardpanel/occurrences.form.view');
-const lib = require('../../libs/elements-old');
+const {COMMON} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
+
 const XPATH = {
+    dataComponentDateTimeInput: "//div[@role='button']//div[@data-component='DateTimeInput']",
     validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
 };
 
 class DateTimeForm extends OccurrencesFormView {
 
+    get dataComponentContainer() {
+        return XPATH.dataComponentDateTimeInput;
+    }
+
     get dateTimeInput() {
-        return lib.FORM_VIEW + lib.DATE_TIME_PICKER_INPUT;
+        return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + XPATH.dataComponentDateTimeInput + COMMON.INPUTS.INPUT;
     }
 
     get validationRecord() {
@@ -29,13 +35,16 @@ class DateTimeForm extends OccurrencesFormView {
         return await this.waitForRedBorderInInput(index, this.dateTimeInput);
     }
 
+    // Gets array of values from DateTime inputs, if there are more than one
     async getDateTimes() {
         let values = [];
-        let dateTimeElements = await this.getDisplayedElements(this.dateTimeInput);
-        await Promise.all(dateTimeElements.map(async (el) => {
-            const value = await el.getValue();
-            values.push(value);
-        }));
+        let dateTimeElements = await this.findElements(this.dateTimeInput);
+        if (dateTimeElements.length === 0) {
+            throw new Error("Date time Form - DateTime inputs were not found!");
+        }
+        for (const item of dateTimeElements) {
+            values.push(await item.getValue());
+        }
         return values;
     }
 

@@ -22,19 +22,14 @@ describe('geopoint.content.spec: tests for geo point content', function () {
     const GEO_POINT_CONTENT_NAME_2 = contentBuilder.generateRandomName('geopoint');
     const AUTOMATIC_CONTROLLER = appConst.INSPECT_PANEL_TEMPLATE_CONTROLLER.AUTOMATIC;
 
-    it(`Preconditions: new site should be added`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
     it(`GIVEN wizard for 'GeoPoint 0:0' is opened WHEN valid value has been typed THEN validation message should not be present`,
         async () => {
             let geoPoint = new GeoPointForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.GEOPOINT_0_0);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.GEOPOINT_0_0);
             // 1. Type a correct geo point:
-            await geoPoint.typeGeoPoint(VALID_GEO_LOCATION, 0);
+            await geoPoint.typeInGeoPointInput(VALID_GEO_LOCATION, 0);
             await geoPoint.pause(500);
             await studioUtils.saveScreenshot('geo_point_content_valid');
             // 2. Verify that validation message is not displayed:
@@ -47,9 +42,9 @@ describe('geopoint.content.spec: tests for geo point content', function () {
         async () => {
             let geoPoint = new GeoPointForm();
             let contentWizard = new ContentWizardPanel();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.GEOPOINT_0_0);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.GEOPOINT_0_0);
             // 1. Type an incorrect geo point:
-            await geoPoint.typeGeoPoint(INCORRECT_GEO_LOCATION, 0);
+            await geoPoint.typeInGeoPointInput(INCORRECT_GEO_LOCATION, 0);
             await contentWizard.typeDisplayName(GEO_POINT_CONTENT_NAME_1);
             await studioUtils.saveScreenshot('geo_point_content_not_valid');
             // 2. Verify that validation message is displayed: 'Invalid value entered'
@@ -85,9 +80,9 @@ describe('geopoint.content.spec: tests for geo point content', function () {
         async () => {
             let geoPoint = new GeoPointForm();
             let contentWizard = new ContentWizardPanel();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.GEOPOINT_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.GEOPOINT_1_1);
             await contentWizard.typeDisplayName(GEO_POINT_CONTENT_NAME_2);
-            await geoPoint.typeGeoPoint(INCORRECT_GEO_LOCATION, 0);
+            await geoPoint.typeInGeoPointInput(INCORRECT_GEO_LOCATION, 0);
             // 2. Verify the validation message:
             await studioUtils.saveScreenshot('geo_point_content_not_valid_required');
             let recording = await geoPoint.getOccurrenceValidationRecording(0);

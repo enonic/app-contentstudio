@@ -2,8 +2,8 @@
  * Created on 25.12.2017.
  */
 const Page = require('../page');
-const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
+const {COMMON, BUTTONS} = require('../../libs/elements');
 const XPATH = {
     removeButton: "//button[@class='remove-button']",
     hideDetailsButton: "//button[contains(@id,'TogglerButton') and child::span[text()='Hide details']]",
@@ -14,13 +14,15 @@ const XPATH = {
 class OccurrencesFormView extends Page {
 
     get formValidationRecording() {
-        return lib.FORM_VIEW + lib.INPUT_VALIDATION_VIEW;
+        return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + COMMON.INPUTS.VALIDATION_RECORDING;
     }
 
+    //Validation recording
     get hideDetailsButton() {
         return lib.FORM_VIEW + XPATH.validationBlock + XPATH.hideDetailsButton;
     }
 
+    // Validation recording
     get showDetailsButton() {
         return lib.FORM_VIEW + XPATH.validationBlock + XPATH.showDetailsButton;
     }
@@ -30,11 +32,11 @@ class OccurrencesFormView extends Page {
     }
 
     get addButton() {
-        return lib.FORM_VIEW + lib.BUTTONS.ADD_BUTTON;
+        return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + BUTTONS.buttonByLabel('Add');
     }
 
     get removeButton() {
-        return lib.FORM_VIEW + XPATH.removeButton;
+        return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + BUTTONS.buttonAriaLabel('Remove occurrence');
     }
 
     waitForShowDetailsButtonDisplayed() {
@@ -125,9 +127,12 @@ class OccurrencesFormView extends Page {
 
     async waitForRedBorderInInput(index, inputLocator) {
         let inputs = await this.getDisplayedElements(inputLocator);
+        if (!inputs || inputs.length <= index) {
+            throw new Error(`Input element at index ${index} was not found for locator: ${inputLocator}`);
+        }
         await this.getBrowser().waitUntil(async () => {
-            let result = await inputs[index].getAttribute('class');
-            return result.includes('invalid');
+            let result = await inputs[index].getAttribute('aria-invalid');
+            return result === 'true';
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Attribute class  does not contain the value:invalid"});
     }
 
