@@ -116,14 +116,6 @@ const CKEditorWrapper = ({
         initContent: previewContent,
     });
 
-    if (status === 'destroyed') {
-        return (
-            <div className="html-area has-error">
-                <p className="text-error">Failed to initialize the editor</p>
-            </div>
-        );
-    }
-
     // Store editor instance
     useEffect(() => {
         editorInstanceRef.current = editor ?? null;
@@ -240,6 +232,14 @@ const CKEditorWrapper = ({
             editorReadyRef.current = false;
         };
     }, []);
+
+    if (status === 'destroyed') {
+        return (
+            <div className="html-area has-error">
+                <p className="text-error">Failed to initialize the editor</p>
+            </div>
+        );
+    }
 
     return (
         <div data-name={CKEDITOR_WRAPPER_NAME} className={cn(

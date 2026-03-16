@@ -114,7 +114,6 @@ export class ContentBrowsePanel
         });
 
         this.browseToolbar.addActions(browseActions.getAllActionsNoPublish());
-        this.browseToolbar.addActions(this.getBrowseActions().getAllActionsNoPublish());
 
         const previewAction = this.getBrowseActions().getAction(ActionName.PREVIEW) as PreviewContentAction;
         this.getPreviewPanel().setPreviewAction(previewAction);
@@ -151,8 +150,6 @@ export class ContentBrowsePanel
         super.initListeners();
 
         this.filterPanel.onSearchEvent((query?: ContentQuery) => {
-            // this.treeListBox.setTargetBranch(this.filterPanel.getTargetBranch());
-            // this.treeListBox.setFilterQuery(query);
             this.contentTreeList.setFilterQuery(query);
         });
 
@@ -269,7 +266,6 @@ export class ContentBrowsePanel
         this.filterPanel.resetConstraints();
         this.hideFilterPanel();
         super.disableSelectionMode();
-        // this.treeListBox.setFilterQuery(null);
         this.contentTreeList.setFilterQuery(null);
     }
 
@@ -534,7 +530,6 @@ export class ContentBrowsePanel
         });
 
         if (hasFilterSet()) {
-            // this.treeListBox.setFilterQuery(null);
             this.contentTreeList.setFilterQuery(null);
         }
 
