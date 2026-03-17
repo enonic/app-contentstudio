@@ -1,24 +1,14 @@
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const CircularDependencyPlugin = require('circular-dependency-plugin');
-const TerserPlugin = require('terser-webpack-plugin');
-const ProvidePlugin = require('webpack/lib/ProvidePlugin');
+const {rspack} = require('@rspack/core');
 const fs = require('fs');
+const path = require('path');
 
 const swcConfig = JSON.parse(fs.readFileSync('./.swcrc'));
-
-const path = require('path');
+// Remove `module` and `exclude` — Rspack handles module format and file filtering natively
+const {module: _module, exclude: _exclude, ...swcOptions} = swcConfig;
 
 const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
-    cache: {
-        type: 'filesystem',
-        cacheDirectory: path.resolve(__dirname, '.webpack-cache'),
-        buildDependencies: {
-            config: [__filename]
-        }
-    },
     context: path.join(__dirname, '/src/main/resources/assets'),
     entry: {
         'js/main': './js/main.ts',
@@ -49,9 +39,9 @@ module.exports = {
                 test: /\.ts$/,
                 use: [
                     {
-                        loader: 'swc-loader',
+                        loader: 'builtin:swc-loader',
                         options: {
-                            ...swcConfig,
+                            ...swcOptions,
                             sourceMaps: isProd ? false : 'inline',
                             inlineSourcesContent: !isProd,
                         },
@@ -61,11 +51,12 @@ module.exports = {
             {
                 test: /\.(?:less|css)$/,
                 use: [
-                    {loader: MiniCssExtractPlugin.loader},
+                    {loader: rspack.CssExtractRspackPlugin.loader},
                     {loader: 'css-loader', options: {sourceMap: !isProd, importLoaders: 1}},
                     {loader: 'postcss-loader', options: {sourceMap: !isProd}},
                     {loader: 'less-loader', options: {sourceMap: !isProd}},
-                ]
+                ],
+                type: 'javascript/auto',
             },
             {
                 test: /\.(woff|woff2|eot|ttf|otf)$/i,
@@ -78,34 +69,33 @@ module.exports = {
     },
     optimization: {
         minimizer: [
-            new TerserPlugin({
-                terserOptions: {
-                    keep_classnames: true,
-                    keep_fnames: true,
-                    format: {
-                        comments: /webpackIgnore/,
+            new rspack.SwcJsMinimizerRspackPlugin({
+                minimizerOptions: {
+                    mangle: {
+                        keepClassNames: true,
+                        keepFnNames: true,
                     },
-                }
+                },
             })
         ],
     },
     plugins: [
-        new ProvidePlugin({
+        new rspack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery',
             'window.jQuery': 'jquery',
         }),
-        new MiniCssExtractPlugin({
+        new rspack.CssExtractRspackPlugin({
             filename: '[name].css',
             chunkFilename: './styles/[id].css'
         }),
-        new CopyWebpackPlugin({
+        new rspack.CopyRspackPlugin({
             patterns: [
-                {from: 'icons/fonts/icomoon-studio-app.*', to: 'page-editor/fonts/[file]'}
+                {from: 'icons/fonts/icomoon-studio-app.*', to: 'page-editor/fonts/[name][ext]'}
             ]
         }),
-        new CircularDependencyPlugin({
-            exclude: /a\.js|node_modules|v6[\\/]features[\\/]shared[\\/]form[\\/]/,
+        new rspack.CircularDependencyRspackPlugin({
+            exclude: /node_modules|v6[\\/]features[\\/]shared[\\/]form[\\/]/,
             failOnError: true
         }),
     ],
