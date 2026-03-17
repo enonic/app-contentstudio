@@ -39,7 +39,7 @@ public class UnpublishRunnableTask
     @Override
     public void run( final TaskId id, final ProgressReporter progressReporter )
     {
-        final ContentIds contentIds = ContentIds.from( params.getIds() );
+        final ContentIds contentIds = params.getIds().stream().map( ContentId::from ).collect( ContentIds.collector() );
         progressReporter.info( "Unpublishing content" );
 
         final PushContentListener listener = new UnpublishContentProgressListener( progressReporter );

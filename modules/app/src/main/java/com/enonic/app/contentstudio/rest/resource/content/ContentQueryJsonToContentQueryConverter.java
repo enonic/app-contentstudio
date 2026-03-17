@@ -1,6 +1,5 @@
 package com.enonic.app.contentstudio.rest.resource.content;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -9,7 +8,7 @@ import com.google.common.collect.ImmutableList;
 import com.enonic.app.contentstudio.rest.resource.content.json.AggregationQueryJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.ContentQueryJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.filter.FilterJson;
-import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.ContentService;
@@ -76,7 +75,7 @@ public class ContentQueryJsonToContentQueryConverter
         {
             final ContentIds ids = this.contentService.getOutboundDependencies( contentQueryJson.getMustBeReferencedById() );
 
-            final ContentIds existingContentIds = getExistingContentIds( ContentIds.from( ids ) );
+            final ContentIds existingContentIds = getExistingContentIds( ids );
 
             //TODO Delete ContentQueryJsonConvertException after fixing ContentQueryNodeQueryTranslator in 7.0
             if ( existingContentIds.isEmpty() )
@@ -94,9 +93,7 @@ public class ContentQueryJsonToContentQueryConverter
     private ContentIds getExistingContentIds( final ContentIds contentIds )
     {
         final Contents contents = this.contentService.getByIds( GetContentByIdsParams.create().contentIds( contentIds ).build() );
-        final List<ContentId> existingContentIds = new ArrayList<>();
-        contents.forEach( content -> existingContentIds.add( content.getId() ) );
-        return ContentIds.from( existingContentIds );
+        return contents.stream().map( Content::getId ).collect( ContentIds.collector() );
     }
 
     private void addAggregationQueries( final ContentQuery.Builder builder )

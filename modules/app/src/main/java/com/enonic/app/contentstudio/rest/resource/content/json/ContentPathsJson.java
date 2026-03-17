@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentPaths;
 
 public class ContentPathsJson
@@ -12,7 +13,7 @@ public class ContentPathsJson
 
     public ContentPathsJson( @JsonProperty("contentPaths") final List<String> contentPaths )
     {
-        this.contentPaths = ContentPaths.from( contentPaths );
+        this.contentPaths = contentPaths.stream().map( ContentPath::from ).collect( ContentPaths.collector() );
     }
 
     public ContentPaths getContentPaths()

@@ -75,7 +75,7 @@ public class ContentSelectorQueryJsonToContentQueryConverter
             return this.filterContentTypeNames( applicationKey );
         }
 
-        return ContentTypeNames.from( contentTypeNames );
+        return contentTypeNames.stream().map( ContentTypeName::from ).collect( ContentTypeNames.collector() );
     }
 
     private ApplicationKey getApplicationKey()

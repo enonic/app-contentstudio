@@ -13,6 +13,7 @@ import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.data.PropertyArrayJson;
 import com.enonic.xp.data.PropertyTreeJson;
 import com.enonic.xp.descriptor.DescriptorKey;
+import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeNames;
 
 public class CreatePageTemplateJson
@@ -30,7 +31,7 @@ public class CreatePageTemplateJson
             controller( pageDescriptorKey != null ? DescriptorKey.from( pageDescriptorKey ) : null ).
             pageConfig( config != null ? PropertyTreeJson.fromJson( config ) : null ).
                 regions(regions != null ? new PageRegionsJson(regions).getPageRegions() : null).
-            supports( ContentTypeNames.from( supports ) ).
+            supports( supports.stream().map( ContentTypeName::from ).collect( ContentTypeNames.collector() ) ).
             site( ContentPath.from( site ) ).
                 name(ContentName.from("template-" + name)).
             displayName( displayName );

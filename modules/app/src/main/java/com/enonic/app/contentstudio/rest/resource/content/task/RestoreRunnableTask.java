@@ -10,6 +10,7 @@ import com.enonic.xp.archive.RestoreContentException;
 import com.enonic.xp.archive.RestoreContentParams;
 import com.enonic.xp.archive.RestoreContentsResult;
 import com.enonic.xp.content.Content;
+import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
@@ -39,7 +40,7 @@ public class RestoreRunnableTask
     @Override
     public void run( final TaskId id, final ProgressReporter progressReporter )
     {
-        final ContentIds contentToRestoreIds = ContentIds.from( params.getContentIds() );
+        final ContentIds contentToRestoreIds = params.getContentIds().stream().map( ContentId::from ).collect( ContentIds.collector() );
         progressReporter.info( "Restoring content" );
 
         final RestoreContentProgressListener listener = new RestoreContentProgressListener( progressReporter );

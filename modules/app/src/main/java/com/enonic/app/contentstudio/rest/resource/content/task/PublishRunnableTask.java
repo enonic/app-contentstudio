@@ -2,8 +2,8 @@ package com.enonic.app.contentstudio.rest.resource.content.task;
 
 import com.enonic.app.contentstudio.rest.resource.content.PublishContentProgressListener;
 import com.enonic.app.contentstudio.rest.resource.content.json.PublishContentJson;
+import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
-import com.enonic.xp.content.ContentPublishInfo;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.PublishContentResult;
 import com.enonic.xp.content.PushContentParams;
@@ -32,13 +32,9 @@ public class PublishRunnableTask
     @Override
     public void run( final TaskId id, final ProgressReporter progressReporter )
     {
-        final ContentIds contentIds = ContentIds.from( params.getIds() );
-        final ContentIds excludeContentIds = ContentIds.from( params.getExcludedIds() );
-        final ContentIds excludeDescendantsOf = ContentIds.from( params.getExcludeChildrenIds() );
-        final ContentPublishInfo contentPublishInfo = params.getSchedule() == null ? null : ContentPublishInfo.create().
-            from( params.getSchedule().getPublishFrom() ).
-            to( params.getSchedule().getPublishTo() ).
-            build();
+        final ContentIds contentIds = params.getIds().stream().map( ContentId::from ).collect( ContentIds.collector() );
+        final ContentIds excludeContentIds = params.getExcludedIds().stream().map( ContentId::from ).collect( ContentIds.collector() );
+        final ContentIds excludeDescendantsOf = params.getExcludeChildrenIds().stream().map( ContentId::from ).collect( ContentIds.collector() );
         final String message = params.getMessage();
         progressReporter.info( "Publishing content" );
 

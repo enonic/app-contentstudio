@@ -1,7 +1,5 @@
 package com.enonic.app.contentstudio.rest.resource.content.task;
 
-import java.util.stream.Collectors;
-
 import com.enonic.app.contentstudio.rest.resource.content.DuplicateContentProgressListener;
 import com.enonic.app.contentstudio.rest.resource.content.json.DuplicateContentJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.DuplicateContentsJson;
@@ -39,11 +37,12 @@ public class DuplicateRunnableTask
     @Override
     public void run( final TaskId id, final ProgressReporter progressReporter )
     {
-        final ContentIds contentToDuplicateWithChildrenList = ContentIds.from( params.getContents()
+        final ContentIds contentToDuplicateWithChildrenList = params.getContents()
                                                                                    .stream()
                                                                                    .filter( DuplicateContentJson::getIncludeChildren )
                                                                                    .map( DuplicateContentJson::getContentId )
-                                                                                   .collect( Collectors.toList() ) );
+                                                                                   .map( ContentId::from )
+                                                                                   .collect( ContentIds.collector() );
 
         progressReporter.info( "Duplicating content" );
 

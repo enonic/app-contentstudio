@@ -33,7 +33,7 @@ public class MoveRunnableTask
     @Override
     public void run( final TaskId id, final ProgressReporter progressReporter )
     {
-        final ContentIds contentToMoveList = ContentIds.from( params.getContentIds() );
+        final ContentIds contentToMoveList = params.getContentIds().stream().map( ContentId::from ).collect( ContentIds.collector() );
         progressReporter.info( "Moving content" );
 
         final MoveContentProgressListener listener = new MoveContentProgressListener( progressReporter );

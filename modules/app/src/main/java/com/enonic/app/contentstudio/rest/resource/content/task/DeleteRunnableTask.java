@@ -1,7 +1,5 @@
 package com.enonic.app.contentstudio.rest.resource.content.task;
 
-import java.util.stream.Collectors;
-
 import com.enonic.app.contentstudio.rest.resource.content.ContentResource;
 import com.enonic.app.contentstudio.rest.resource.content.DeleteContentProgressListener;
 import com.enonic.app.contentstudio.rest.resource.content.json.DeleteContentJson;
@@ -35,9 +33,9 @@ public class DeleteRunnableTask
 
     private ContentPaths filterChildrenIfParentPresents( final ContentPaths sourceContentPaths )
     {
-        return ContentPaths.from( sourceContentPaths.stream().
+        return sourceContentPaths.stream().
             filter( contentPath -> sourceContentPaths.stream().noneMatch( contentPath::isChildOf ) ).
-            collect( Collectors.toList() ) );
+            collect( ContentPaths.collector() );
     }
 
     private long countContentsToDelete( final ContentPaths contentsToDeleteList )
@@ -74,7 +72,8 @@ public class DeleteRunnableTask
     @Override
     public void run( final TaskId id, final ProgressReporter progressReporter )
     {
-        final ContentPaths contentsToDeleteList = this.filterChildrenIfParentPresents( ContentPaths.from( params.getContentPaths() ) );
+        final ContentPaths contentsToDeleteList = this.filterChildrenIfParentPresents(
+            params.getContentPaths().stream().map( ContentPath::from ).collect( ContentPaths.collector() ) );
         progressReporter.info( "Deleting content" );
 
         final DeleteContentProgressListener listener = new DeleteContentProgressListener( progressReporter );

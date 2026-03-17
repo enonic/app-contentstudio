@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.enonic.app.contentstudio.rest.resource.content.json.DeleteContentJson;
+import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentPath;
@@ -103,8 +104,8 @@ public class DeleteRunnableTaskTest
     public void create_message_single_online()
         throws Exception
     {
-        final ContentPaths contentPaths = ContentPaths.from(
-            contents.subList( 2, 3 ).stream().map( content -> content.getPath().toString() ).collect( Collectors.toSet() ) );
+        final ContentPaths contentPaths =
+            contents.subList( 2, 3 ).stream().map( Content::getPath ).collect( ContentPaths.collector() );
 
         Mockito.when( params.getContentPaths() )
             .thenReturn( contentPaths.stream().map( ContentPath::toString ).collect( Collectors.toSet() ) );

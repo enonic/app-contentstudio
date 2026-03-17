@@ -11,6 +11,7 @@ import com.enonic.app.contentstudio.rest.resource.content.json.filter.FilterJson
 import com.enonic.xp.branch.Branch;
 import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.content.ContentId;
+import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeNames;
 
 public class ContentQueryJson
@@ -55,7 +56,7 @@ public class ContentQueryJson
         this.queryExprString = queryExprString;
         this.from = from;
         this.size = size;
-        this.contentTypeNames = ContentTypeNames.from( contentTypeNameString );
+        this.contentTypeNames = contentTypeNameString.stream().map( ContentTypeName::from ).collect( ContentTypeNames.collector() );
         this.mustBeReferencedById = mustBeReferencedById != null ? ContentId.from( mustBeReferencedById ) : null;
         this.aggregationQueries = aggregationQueries;
         this.queryFilters = queryFilters;

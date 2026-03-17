@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.enonic.xp.branch.Branch;
 import com.enonic.xp.content.ContentConstants;
+import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
 
 public class GetDependenciesJson
@@ -20,7 +21,7 @@ public class GetDependenciesJson
     public GetDependenciesJson( @JsonProperty("contentIds") final List<String> contentIds,
                                 @JsonProperty("target") final String branch)
     {
-        this.contentIds = ContentIds.from( contentIds );
+        this.contentIds = contentIds.stream().map( ContentId::from ).collect( ContentIds.collector() );
         this.branch = branch != null ? Branch.from( branch ) : ContentConstants.BRANCH_DRAFT;
     }
 

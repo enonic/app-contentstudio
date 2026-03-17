@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.security.acl.Permission;
 
@@ -19,7 +20,7 @@ public class ContentIdsPermissionsJson
     public ContentIdsPermissionsJson( @JsonProperty("contentIds") final List<String> contentIds,
                                       @JsonProperty("permissions") final List<String> permissions )
     {
-        this.contentIds = ContentIds.from( contentIds );
+        this.contentIds = contentIds.stream().map( ContentId::from ).collect( ContentIds.collector() );
         this.permissions = permissions.stream().map( Permission::valueOf ).collect( Collectors.toList() );
     }
 

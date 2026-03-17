@@ -8,6 +8,7 @@ import com.enonic.xp.archive.ArchiveContentException;
 import com.enonic.xp.archive.ArchiveContentParams;
 import com.enonic.xp.archive.ArchiveContentsResult;
 import com.enonic.xp.content.Content;
+import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.Contents;
@@ -36,7 +37,7 @@ public class ArchiveRunnableTask
     @Override
     public void run( final TaskId id, final ProgressReporter progressReporter )
     {
-        final ContentIds contentToArchiveIds = ContentIds.from( params.getContentIds() );
+        final ContentIds contentToArchiveIds = params.getContentIds().stream().map( ContentId::from ).collect( ContentIds.collector() );
         progressReporter.info( "Archiving content" );
 
         final ArchiveContentProgressListener listener = new ArchiveContentProgressListener( progressReporter );

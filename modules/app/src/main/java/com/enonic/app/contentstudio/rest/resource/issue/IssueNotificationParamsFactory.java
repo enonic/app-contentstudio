@@ -114,8 +114,8 @@ public class IssueNotificationParamsFactory
         PrincipalKey creatorOrModifierKey =
             preferModifierOverCreator && issue.getModifier() != null ? issue.getModifier() : issue.getCreator();
         final User creatorOrModifier = securityService.getUser( creatorOrModifierKey ).orElse( null );
-        final ContentIds contentIds = ContentIds.from(
-            issue.getPublishRequest().getItems().stream().map( PublishRequestItem::getId ).collect( Collectors.toList() ) );
+        final ContentIds contentIds =
+            issue.getPublishRequest().getItems().stream().map( PublishRequestItem::getId ).collect( ContentIds.collector() );
         final Contents contents = contentService.getByIds( GetContentByIdsParams.create().contentIds( contentIds ).build() );
         final CompareContentResults compareResults =
             contentService.compare( CompareContentsParams.create().contentIds( contentIds ).build() );

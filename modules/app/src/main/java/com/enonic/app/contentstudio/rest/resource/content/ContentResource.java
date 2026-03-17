@@ -625,7 +625,7 @@ public final class ContentResource
     @Path("markAsReady")
     public void markAsReady( final MarkAsReadyJson params )
     {
-        ContentIds.from( params.getContentIds() ).stream().filter( contentService::contentExists ).forEach( this::markContentAsReady );
+        params.getContentIds().stream().map( ContentId::from ).filter( contentService::contentExists ).forEach( this::markContentAsReady );
     }
 
     private void markContentAsReady( final ContentId contentId )
@@ -681,7 +681,7 @@ public final class ContentResource
             childrenIds.addAll( this.contentService.findIdsByParent( params ).getContentIds().getSet() );
         } );
 
-        return FindIdsByParentsResultJson.create().setRequestedContents( ContentIds.from( childrenIds ) ).build();
+        return FindIdsByParentsResultJson.create().setRequestedContents( childrenIds.stream().collect( ContentIds.collector() ) ).build();
     }
 
     @POST
@@ -689,9 +689,9 @@ public final class ContentResource
     public ResolvePublishContentResultJson resolvePublishContent( final ResolvePublishDependenciesJson params )
     {
         //Resolved the requested ContentPublishItem
-        final ContentIds requestedContentIds = ContentIds.from( params.getIds() );
-        final ContentIds excludeContentIds = ContentIds.from( params.getExcludedIds() );
-        final ContentIds excludeDescendantsOf = ContentIds.from( params.getExcludeChildrenIds() );
+        final ContentIds requestedContentIds = params.getIds().stream().map( ContentId::from ).collect( ContentIds.collector() );
+        final ContentIds excludeContentIds = params.getExcludedIds().stream().map( ContentId::from ).collect( ContentIds.collector() );
+        final ContentIds excludeDescendantsOf = params.getExcludeChildrenIds().stream().map( ContentId::from ).collect( ContentIds.collector() );
 
         //Resolves publish dependencies
         final ResolvePublishDependenciesParams resolveParams = ResolvePublishDependenciesParams.create()
@@ -706,7 +706,7 @@ public final class ContentResource
             .stream()
             .filter( contentId -> !requestedContentIds.contains( contentId ) )
             .collect( Collectors.toList() );
-        final ContentIds dependentContentIds = ContentIds.from( contentIds );
+        final ContentIds dependentContentIds = contentIds.stream().collect( ContentIds.collector() );
 
         final ContentIds fullPublishList = ContentIds.create().addAll( dependentContentIds ).addAll( requestedContentIds ).build();
 
@@ -725,14 +725,14 @@ public final class ContentResource
         //check if user has access to publish every content
         final ContentIds notPublishableContentIds = authInfo.hasRole( RoleKeys.ADMIN )
             ? ContentIds.empty()
-            : ContentIds.from( fullPublishList.stream().filter( publishNotAllowedCondition ).collect( Collectors.toList() ) );
+            : fullPublishList.stream().filter( publishNotAllowedCondition ).collect( ContentIds.collector() );
 
         //check that not all contents are pending delete
         final Boolean isSomePublishable = fullPublishList.getSize() > 0;
 
         //filter required dependant ids
-        final ContentIds requiredDependantIds = ContentIds.from(
-            requiredIds.stream().filter( contentId -> !requestedContentIds.contains( contentId ) ).collect( Collectors.toList() ) );
+        final ContentIds requiredDependantIds =
+            requiredIds.stream().filter( contentId -> !requestedContentIds.contains( contentId ) ).collect( ContentIds.collector() );
 
         // Check out content validity
         final ContentValidityResult contentValidity =
@@ -767,7 +767,7 @@ public final class ContentResource
 
     private OutboundDependenciesIds getOutboundDependenciesIds( final ContentIds contentIds )
     {
-        final ContentIds allOutboundIds = ContentIds.from( contentIds.stream().map( id -> {
+        final ContentIds allOutboundIds = contentIds.stream().map( id -> {
             try
             {
                 return this.contentService.getOutboundDependencies( id );
@@ -776,20 +776,19 @@ public final class ContentResource
             {
                 return ContentIds.empty();
             }
-        } ).flatMap( ContentIds::stream ).filter( id -> !contentIds.contains( id ) ).collect( Collectors.toList() ) );
+        } ).flatMap( ContentIds::stream ).filter( id -> !contentIds.contains( id ) ).collect( ContentIds.collector() );
 
         final ContentIds existingOutboundIds = sortContentIds( allOutboundIds, "_path" );
         final ContentIds nonExistingOutboundIds =
-            ContentIds.from( allOutboundIds.stream().filter( id -> !existingOutboundIds.contains( id ) )
-            .collect( Collectors.toList() ) );
+            allOutboundIds.stream().filter( id -> !existingOutboundIds.contains( id ) ).collect( ContentIds.collector() );
 
         final CompareContentResults compareResults =
             contentService.compare( CompareContentsParams.create().contentIds( existingOutboundIds ).build() );
 
-        final ContentIds existingWithoutMoved = ContentIds.from( compareResults.stream()
+        final ContentIds existingWithoutMoved = compareResults.stream()
                                     .filter( result -> result.getCompareStatus() != CompareStatus.EQUAL )
                                     .map( CompareContentResult::getContentId )
-                                    .collect( Collectors.toList() ) );
+                                    .collect( ContentIds.collector() );
 
         return new OutboundDependenciesIds( existingWithoutMoved, nonExistingOutboundIds );
     }
@@ -809,10 +808,10 @@ public final class ContentResource
     private ContentIds problematicDependantsOnTop( final ContentIds dependentContentIdList, final ContentIds requestedContentIds,
                                                    final ContentIds problematicContentIds )
     {
-        return ContentIds.from( Stream.concat( problematicContentIds.stream().filter( ( e ) -> !requestedContentIds.contains( e ) ),
-                                               dependentContentIdList.stream()
-                                                   .filter( ( e ) -> !problematicContentIds.contains( e ) &&
-                                                       !requestedContentIds.contains( e ) ) ).collect( Collectors.toList() ) );
+        return Stream.concat( problematicContentIds.stream().filter( ( e ) -> !requestedContentIds.contains( e ) ),
+                              dependentContentIdList.stream()
+                                  .filter( ( e ) -> !problematicContentIds.contains( e ) &&
+                                      !requestedContentIds.contains( e ) ) ).collect( ContentIds.collector() );
     }
 
     @POST
@@ -1125,7 +1124,7 @@ public final class ContentResource
     @Path("getDescendantsOfContents")
     public List<ContentIdJson> getDescendantsOfContents( final GetDescendantsOfContents json )
     {
-        final ContentPaths contentsPaths = ContentPaths.from( json.getContentPaths() );
+        final ContentPaths contentsPaths = json.getContentPaths().stream().map( ContentPath::from ).collect( ContentPaths.collector() );
 
         FindContentIdsByQueryResult result = ContentQueryWithChildren.create()
             .contentService( this.contentService )
@@ -1237,10 +1236,10 @@ public final class ContentResource
     @Path("countContentsWithDescendants")
     public long countContentsWithDescendants( final GetDescendantsOfContents json )
     {
-        final ContentPaths paths = ContentPaths.from( json.getContentPaths() );
-        List<ContentPath> filteredPaths =
-            paths.stream().filter( contentPath -> paths.stream().noneMatch( contentPath::isChildOf ) ).collect( Collectors.toList() );
-        return this.countContentsAndTheirChildren( ContentPaths.from( filteredPaths ) );
+        final ContentPaths paths = json.getContentPaths().stream().map( ContentPath::from ).collect( ContentPaths.collector() );
+        ContentPaths filteredPaths =
+            paths.stream().filter( contentPath -> paths.stream().noneMatch( contentPath::isChildOf ) ).collect( ContentPaths.collector() );
+        return this.countContentsAndTheirChildren( filteredPaths );
     }
 
     @POST
@@ -1417,7 +1416,7 @@ public final class ContentResource
     @Path("compare")
     public CompareContentResultsJson compare( final CompareContentsJson params )
     {
-        final ContentIds contentIds = ContentIds.from( params.getIds() );
+        final ContentIds contentIds = params.getIds().stream().map( ContentId::from ).collect( ContentIds.collector() );
         final CompareContentResults compareResults =
             contentService.compare( CompareContentsParams.create().contentIds( contentIds ).build() );
         final GetPublishStatusesResult getPublishStatusesResult =

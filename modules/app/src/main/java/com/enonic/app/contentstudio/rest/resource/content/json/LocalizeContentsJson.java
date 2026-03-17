@@ -6,6 +6,7 @@ import java.util.Locale;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -20,7 +21,7 @@ public class LocalizeContentsJson
     public LocalizeContentsJson( @JsonProperty("contentIds") final List<String> contentIds,
                                  @JsonProperty("language") final String language )
     {
-        this.contentIds = ContentIds.from( contentIds );
+        this.contentIds = contentIds.stream().map( ContentId::from ).collect( ContentIds.collector() );
         this.language = isNullOrEmpty( language ) ? null : Locale.forLanguageTag( language );
     }
 
