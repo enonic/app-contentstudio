@@ -35,12 +35,12 @@ module.exports = {
         extensions: ['.tsx', '.ts', '.jsx', '.js', '.less', '.css'],
         conditionNames: ['import', 'node', 'default'],
         alias: {
-            'preact': 'preact',
-            'preact/hooks': 'preact/hooks',
-            'react': 'preact/compat',
-            "react-dom": 'preact/compat',
-            'react/jsx-runtime': 'preact/jsx-runtime',
-            'react/jsx-dev-runtime': 'preact/jsx-dev-runtime'
+            'preact': path.resolve(__dirname, 'node_modules/preact'),
+            'preact/hooks': path.resolve(__dirname, 'node_modules/preact/hooks'),
+            'react': path.resolve(__dirname, 'node_modules/preact/compat'),
+            'react-dom': path.resolve(__dirname, 'node_modules/preact/compat'),
+            'react/jsx-runtime': path.resolve(__dirname, 'node_modules/preact/jsx-runtime'),
+            'react/jsx-dev-runtime': path.resolve(__dirname, 'node_modules/preact/jsx-dev-runtime')
         }
     },
     module: {
