@@ -49,6 +49,10 @@ tasks.named( 'check' ).configure {
     dependsOn tasks.named( 'pnpmTest' )
 }
 
+tasks.named( 'processResources' ).configure {
+    exclude 'assets/js/**'
+}
+
 tasks.register( 'pnpmBuild', PnpmTask ) {
     dependsOn tasks.named( 'pnpmInstall' )
     description = 'Build JS and DTS'
