@@ -109,8 +109,8 @@ tasks.register( 'pnpmBuild', PnpmTask ) {
     args = ['run', 'build']
     inputs.dir '.xp/dev'
     inputs.dir 'src/main/resources/assets'
-    inputs.file 'webpack.config.js'
-    inputs.file 'webpack.worker.config.js'
+    inputs.file 'rspack.config.js'
+    inputs.file 'rspack.worker.config.js'
     outputs.dir "$buildDir/build/resources/main/assets"
 }
 

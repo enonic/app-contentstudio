@@ -9,8 +9,8 @@
   },
   "scripts": {
     "build": "pnpm --color /^build:.*$/",
-    "build:worker": "webpack --config webpack.worker.config.js --color --stats=minimal",
-    "build:client": "webpack --color --stats=minimal",
+    "build:worker": "rspack build --config rspack.worker.config.js",
+    "build:client": "rspack build",
     "build:server": "tsc --project ./src/main/resources/lib/tsconfig.json",
     "check": "pnpm --color /^check:.*$/",
     "check:types": "pnpm --color /^check:types:.*$/",
@@ -60,24 +60,18 @@
     "@types/q": "^1.5.8",
     "autoprefixer": "^10.4.22",
     "browserslist-config-enonic": "^1.0.8",
-    "circular-dependency-plugin": "^5.2.2",
-    "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^7.1.2",
     "cssnano": "^7.1.2",
     "eslint": "^9.39.1",
     "globals": "^15.15.0",
     "less-loader": "^12.3.0",
-    "mini-css-extract-plugin": "^2.9.4",
     "postcss-loader": "^8.2.0",
     "postcss-normalize": "^13.0.1",
     "postcss-sort-media-queries": "^5.2.0",
-    "swc-loader": "^0.2.6",
-    "terser-webpack-plugin": "^5.3.14",
-    "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.47.0",
-    "webpack": "^5.103.0",
-    "webpack-cli": "^6.0.1"
+    "@rspack/cli": "^1.7.8",
+    "@rspack/core": "^1.7.8"
   },
   "browserslist": [
     "extends browserslist-config-enonic"
