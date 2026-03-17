@@ -26,7 +26,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@enonic/ui": "~0.47.0",
+    "@enonic/ui": "~0.47.1",
     "@nanostores/preact": "^1.0.0",
     "ckeditor4-react": "4.3.0",
     "class-variance-authority": "^0.7.1",
@@ -44,7 +44,7 @@
     "nanoid": "~5.1.5",
     "nanostores": "^0.11.4",
     "neverthrow": "^8.2.0",
-    "preact": "^10.27.2",
+    "preact": "^10.29.0",
     "q": "^1.5.1",
     "react-virtuoso": "^4.18.1",
     "sortablejs": "^1.15.6",
