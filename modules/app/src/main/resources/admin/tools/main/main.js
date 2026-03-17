@@ -16,6 +16,9 @@ exports.renderTemplate = function (params) {
     const response = {
         contentType: 'text/html',
         body: mustache.render(view, params),
+        headers: {
+            'Cache-Control': 'no-cache',
+        },
     };
 
     if (enableSecurityPolicy) {
@@ -26,9 +29,7 @@ exports.renderTemplate = function (params) {
         if (!securityPolicy) {
             securityPolicy = `default-src 'self'; connect-src 'self' ws: wss: ${baseMarketUrl}; script-src 'self' 'unsafe-inline'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:`;
         }
-        response.headers = {
-            'Content-Security-Policy': securityPolicy
-        };
+        response.headers['Content-Security-Policy'] = securityPolicy;
     }
 
     return response;
