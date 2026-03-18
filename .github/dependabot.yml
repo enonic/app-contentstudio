@@ -15,6 +15,24 @@ updates:
       - "/testing"
     ignore:
       - dependency-name: "@enonic/lib-admin-ui"
+    groups:
+      tailwindcss:
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/*"
+      enonic-types:
+        patterns:
+          - "@enonic-types/*"
+      rspack:
+        patterns:
+          - "@rspack/*"
+      swc:
+        patterns:
+          - "@swc/*"
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
