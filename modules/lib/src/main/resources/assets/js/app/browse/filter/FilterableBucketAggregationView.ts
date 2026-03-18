@@ -25,6 +25,18 @@ export class FilterableBucketAggregationView
 
     private resolver: AggregationsDisplayNamesResolver;
 
+    private pendingBuckets: Bucket[] = [];
+
+    private loadedCount: number = 0;
+
+    private activeFilter: string = '';
+
+    private scrollSentinel: HTMLElement;
+
+    private sentinelObserver: IntersectionObserver;
+
+    private static readonly PAGE_SIZE = 40;
+
     constructor(bucketAggregation: BucketAggregation) {
         super(bucketAggregation);
 
@@ -40,6 +52,9 @@ export class FilterableBucketAggregationView
             filter: this.filterBuckets,
             maxSelected: 0
         });
+
+        this.scrollSentinel = document.createElement('li');
+        this.scrollSentinel.className = 'scroll-sentinel';
     }
 
     setResolver(resolver: AggregationsDisplayNamesResolver): void {
@@ -86,9 +101,19 @@ export class FilterableBucketAggregationView
         });
 
         this.listBoxDropdown.onDropdownVisibilityChanged((visible: boolean) => {
-            if (!visible || this.aggregationResolved || !this.aggregation) {
+            if (!visible) {
+                this.disconnectSentinelObserver();
                 return;
             }
+
+            if (this.loadedCount === 0) {
+                this.resetAndPopulateListBox();
+            }
+
+            if (this.aggregationResolved || !this.aggregation) {
+                return;
+            }
+
             const loadMask = new LoadMask(this.listBoxDropdown);
             loadMask.show();
             this.resolver.updateUnknownPrincipals(this.aggregation)
@@ -98,10 +123,72 @@ export class FilterableBucketAggregationView
                 })
                 .finally(() => loadMask.hide());
         });
+
+        this.listBoxDropdown.getOptionFilterInput().onValueChanged((event) => {
+            this.activeFilter = event.getNewValue();
+            this.resetAndPopulateListBox();
+        });
+    }
+
+    private getFilteredBuckets(): Bucket[] {
+        if (!this.activeFilter) {
+            return this.pendingBuckets;
+        }
+        return this.pendingBuckets.filter(b => this.filterBuckets(b, this.activeFilter));
+    }
+
+    private resetAndPopulateListBox(): void {
+        this.disconnectSentinelObserver();
+        this.bucketListBox.clearItems();
+        this.loadedCount = 0;
+        this.loadNextPage();
+    }
+
+    private loadNextPage(): void {
+        const filtered = this.getFilteredBuckets();
+        const nextBatch = filtered.slice(this.loadedCount, this.loadedCount + FilterableBucketAggregationView.PAGE_SIZE);
+
+        if (nextBatch.length === 0) {
+            return;
+        }
+
+        this.bucketListBox.addItems(nextBatch);
+        this.loadedCount += nextBatch.length;
+
+        if (this.loadedCount < filtered.length) {
+            this.attachSentinelObserver();
+        }
+    }
+
+    private attachSentinelObserver(): void {
+        this.disconnectSentinelObserver();
+
+        const listEl = this.bucketListBox.getHTMLElement();
+        listEl.appendChild(this.scrollSentinel);
+
+        this.sentinelObserver = new IntersectionObserver((entries) => {
+            if (entries.some(e => e.isIntersecting)) {
+                this.disconnectSentinelObserver();
+                this.loadNextPage();
+            }
+        }, {root: null, threshold: 0});
+
+        this.sentinelObserver.observe(this.scrollSentinel);
+    }
+
+    private disconnectSentinelObserver(): void {
+        if (this.sentinelObserver) {
+            this.sentinelObserver.disconnect();
+            this.sentinelObserver = null;
+        }
+
+        if (this.scrollSentinel.parentNode) {
+            this.scrollSentinel.parentNode.removeChild(this.scrollSentinel);
+        }
     }
 
     protected addBucket(bucket: Bucket, isSelected?: boolean) {
-        this.bucketListBox.addItems(bucket);
+        this.pendingBuckets.push(bucket);
 
         if (isSelected || this.isBucketToBeAlwaysOnTop(bucket)) {
             super.addBucket(bucket, isSelected);
@@ -115,11 +202,14 @@ export class FilterableBucketAggregationView
     removeAll(): void {
         super.removeAll();
         this.listBoxDropdown.deselectAll(true);
+        this.disconnectSentinelObserver();
         this.bucketListBox.clearItems();
+        this.pendingBuckets = [];
+        this.loadedCount = 0;
     }
 
     protected hasNonEmptyBuckets(): boolean {
-        return super.hasNonEmptyBuckets() || this.bucketListBox.getItemCount() > 0;
+        return super.hasNonEmptyBuckets() || this.pendingBuckets.length > 0;
     }
 
     protected addBucketView(bucketView: BucketView) {
@@ -143,7 +233,7 @@ export class FilterableBucketAggregationView
 
         this.idsToKeepOnTop.forEach((id: string) => {
             if (!this.hasBucketWithId(id)) {
-                const bucketToAdd: Bucket = this.bucketListBox.getItem(id);
+                const bucketToAdd: Bucket = this.pendingBuckets.find((b: Bucket) => b.getKey() === id);
 
                 if (bucketToAdd) {
                     super.addBucket(bucketToAdd);
@@ -163,8 +253,12 @@ export class FilterableBucketAggregationView
 
         super.update(aggregation);
 
-        const isEveryListItemOnTop: boolean = this.bucketListBox.getItems().every((bucket: Bucket) => this.isBucketToBeAlwaysOnTop(bucket));
-        this.listBoxDropdown.setVisible(!isEveryListItemOnTop);
+        if (this.listBoxDropdown.isDropdownShown()) {
+            this.resetAndPopulateListBox();
+        }
+
+        const isEveryPendingOnTop: boolean = this.pendingBuckets.every((bucket: Bucket) => this.isBucketToBeAlwaysOnTop(bucket));
+        this.listBoxDropdown.setVisible(!isEveryPendingOnTop);
     }
 
     doRender(): Q.Promise<boolean> {
