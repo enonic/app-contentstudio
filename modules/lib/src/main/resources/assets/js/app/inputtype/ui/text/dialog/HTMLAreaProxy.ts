@@ -1,13 +1,13 @@
 import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../CreateHtmlAreaDialogEvent';
 import {type CreateHtmlAreaMacroDialogEvent} from '../CreateHtmlAreaMacroDialogEvent';
-import {type FullScreenDialogParams, type MacroDialogParams} from '../HtmlEditorTypes';
-import {AnchorModalDialog} from './AnchorModalDialog';
+import {type AnchorDialogParams, type FullScreenDialogParams, type MacroDialogParams} from '../HtmlEditorTypes';
 import {BulletedListModalDialog} from './BulletedListModalDialog';
 import {CodeDialog} from './CodeDialog';
 import {FullscreenDialog} from './FullscreenDialog';
 import {MacroModalDialog} from './MacroModalDialog';
 import {type ModalDialog} from './ModalDialog';
 import {NumberedListModalDialog} from './NumberedListModalDialog';
+import {openAnchorDialog as openV6AnchorDialog} from '../../../../../v6/features/store/dialogs/anchorDialog.store';
 import {openSpecialCharDialog as openV6SpecialCharDialog} from '../../../../../v6/features/store/dialogs/specialCharDialog.store';
 
 import {TableDialog} from './TableDialog';
@@ -46,7 +46,7 @@ export class HTMLAreaProxy {
     }
 
     private static openAnchorDialog(event: CreateHtmlAreaDialogEvent): void {
-        HTMLAreaProxy.openLegacyDialog(new AnchorModalDialog(event.getConfig() as eventInfo));
+        openV6AnchorDialog(event.getConfig() as AnchorDialogParams);
     }
 
     private static openMacroDialog(event: CreateHtmlAreaMacroDialogEvent): void {

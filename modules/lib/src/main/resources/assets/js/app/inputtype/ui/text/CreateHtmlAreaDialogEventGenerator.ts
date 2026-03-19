@@ -2,7 +2,7 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {CreateHtmlAreaContentDialogEvent} from './CreateHtmlAreaContentDialogEvent';
 import {CreateHtmlAreaDialogEvent, type HtmlAreaDialogConfig, HtmlAreaDialogType} from './CreateHtmlAreaDialogEvent';
 import {CreateHtmlAreaMacroDialogEvent} from './CreateHtmlAreaMacroDialogEvent';
-import {type FullScreenDialogParams, type MacroDialogParams, type SpecialCharDialogParams} from './HtmlEditorTypes';
+import {type AnchorDialogParams, type FullScreenDialogParams, type MacroDialogParams, type SpecialCharDialogParams} from './HtmlEditorTypes';
 import {type HtmlEditorParams} from './HtmlEditorParams';
 
 type eventInfo = CKEDITOR.eventInfo;
@@ -32,10 +32,6 @@ export class CreateHtmlAreaDialogEventGenerator {
     }
 
     private getEventType(name: string): HtmlAreaDialogType {
-        if (name === 'anchor') {
-            return HtmlAreaDialogType.ANCHOR;
-        }
-
         if (name === 'sourcedialog') {
             return HtmlAreaDialogType.CODE;
         }
@@ -127,5 +123,9 @@ export class CreateHtmlAreaDialogEventGenerator {
 
     generateSpecialCharEventAndFire(config: SpecialCharDialogParams): void {
         this.doGenerateAndFire(this.createDialogEvent(config, HtmlAreaDialogType.SPECIALCHAR));
+    }
+
+    generateAnchorEventAndFire(config: AnchorDialogParams): void {
+        this.doGenerateAndFire(this.createDialogEvent(config, HtmlAreaDialogType.ANCHOR));
     }
 }

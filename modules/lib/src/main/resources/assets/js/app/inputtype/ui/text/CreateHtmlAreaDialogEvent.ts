@@ -1,7 +1,7 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {type Project} from '../../../settings/data/project/Project';
-import {type FullScreenDialogParams, type MacroDialogParams, type SpecialCharDialogParams} from './HtmlEditorTypes';
+import {type AnchorDialogParams, type FullScreenDialogParams, type MacroDialogParams, type SpecialCharDialogParams} from './HtmlEditorTypes';
 
 type eventInfo = CKEDITOR.eventInfo;
 
@@ -9,7 +9,7 @@ export enum HtmlAreaDialogType {
     ANCHOR, IMAGE, LINK, MACRO, CODE, SPECIALCHAR, FULLSCREEN, TABLE, NUMBERED_LIST, BULLETED_LIST
 }
 
-export type HtmlAreaDialogConfig = eventInfo | MacroDialogParams | FullScreenDialogParams | SpecialCharDialogParams;
+export type HtmlAreaDialogConfig = eventInfo | AnchorDialogParams | MacroDialogParams | FullScreenDialogParams | SpecialCharDialogParams;
 
 export class CreateHtmlAreaDialogEvent
     extends Event {

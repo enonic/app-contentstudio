@@ -15,6 +15,11 @@ export interface FullScreenDialogParams {
     cursorPosition: HtmlEditorCursorPosition
 }
 
+export interface AnchorDialogParams {
+    editor: editor,
+    bookmarks?: ReturnType<CKEDITOR.dom.selection['createBookmarks2']>
+}
+
 export interface SpecialCharDialogParams {
     editor: editor
 }

@@ -158,6 +158,26 @@ export function getEarlyEditorEventHandlers(): Record<string, (e: CKEDITOR.event
 function setupDialogsToOpen(editor: CKEDITOR.editor, editorParams: HtmlEditorParams): void {
     const dialogEventGenerator = new CreateHtmlAreaDialogEventGenerator(editorParams);
 
+    editor.addCommand('anchor', {
+        exec: (ed: CKEDITOR.editor) => {
+            const selection = ed.getSelection();
+            const bookmarks = selection ? selection.createBookmarks2(true) : undefined;
+
+            dialogEventGenerator.generateAnchorEventAndFire({editor: ed, bookmarks});
+
+            return true;
+        },
+    });
+
+    editor.on('doubleclick', (event: EventInfo) => {
+        if (event.data.dialog !== 'anchor') {
+            return;
+        }
+
+        event.data.dialog = null;
+        editor.execCommand('anchor');
+    }, null, null, 30);
+
     editor.addCommand('openMacroDialog', {
         exec: (ed, data) => {
             dialogEventGenerator.generateMacroEventAndFire({editor: ed, macro: data});
