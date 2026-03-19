@@ -99,6 +99,7 @@ module.exports = {
             failOnError: true
         }),
     ],
+    amd: {},
     mode: isProd ? 'production' : 'development',
     devtool: isProd ? false : 'source-map',
     performance: {hints: false}
