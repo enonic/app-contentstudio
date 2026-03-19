@@ -2,11 +2,12 @@ import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {useStore} from '@nanostores/preact';
 import type {ReactElement} from 'react';
 import {start as startSocketService} from './services/socket.service';
+import {AnchorDialog} from './shared/dialogs/AnchorDialog';
 import {LegacyElement} from './shared/LegacyElement';
+import {SpecialCharDialog} from './shared/dialogs/SpecialCharDialog';
 import {$isWizard} from './store/app.store';
 import {BrowsePage} from './views/browse/BrowsePage';
 import {WizardPage} from './views/wizard/WizardPage';
-import {SpecialCharDialog} from './shared/dialogs/SpecialCharDialog';
 
 
 /**
@@ -22,6 +23,7 @@ const App = (): ReactElement => {
     return (
         <>
             {isWizard ? <WizardPage /> : <BrowsePage />}
+            <AnchorDialog />
             <SpecialCharDialog />
         </>
     );

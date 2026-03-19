@@ -615,6 +615,26 @@ export class HtmlEditor {
     private setupDialogsToOpen() {
         const dialogEventGenerator = new CreateHtmlAreaDialogEventGenerator(this.editorParams);
 
+        this.editor.addCommand('anchor', {
+            exec: (editor: editor) => {
+                const selection = editor.getSelection();
+                const bookmarks = selection ? selection.createBookmarks2(true) : undefined;
+
+                dialogEventGenerator.generateAnchorEventAndFire({editor, bookmarks});
+
+                return true;
+            }
+        });
+
+        this.editor.on('doubleclick', (event: eventInfo) => {
+            if (event.data.dialog !== 'anchor') {
+                return;
+            }
+
+            event.data.dialog = null;
+            this.editor.execCommand('anchor');
+        }, null, null, 30);
+
         this.editor.addCommand('openMacroDialog', {
             exec: (editor, data) => {
                 dialogEventGenerator.generateMacroEventAndFire({editor: editor, macro: data});
