@@ -60,7 +60,7 @@ function createDialogHandler(overrides?: DialogOverrides): (event: CreateHtmlAre
             handler(event);
             return;
         }
-        HTMLAreaProxy.createAndOpenDialog(event);
+        HTMLAreaProxy.openDialog(event);
     };
 }
 
@@ -156,9 +156,11 @@ export function getEarlyEditorEventHandlers(): Record<string, (e: CKEDITOR.event
 }
 
 function setupDialogsToOpen(editor: CKEDITOR.editor, editorParams: HtmlEditorParams): void {
+    const dialogEventGenerator = new CreateHtmlAreaDialogEventGenerator(editorParams);
+
     editor.addCommand('openMacroDialog', {
         exec: (ed, data) => {
-            new CreateHtmlAreaDialogEventGenerator(editorParams).generateMacroEventAndFire({editor: ed, macro: data});
+            dialogEventGenerator.generateMacroEventAndFire({editor: ed, macro: data});
             return true;
         },
     });
@@ -171,7 +173,14 @@ function setupDialogsToOpen(editor: CKEDITOR.editor, editorParams: HtmlEditorPar
                 cursorPosition: getCursorPosition(ed),
             };
 
-            new CreateHtmlAreaDialogEventGenerator(editorParams).generateFullScreenEventAndFire(config);
+            dialogEventGenerator.generateFullScreenEventAndFire(config);
+            return true;
+        },
+    });
+
+    editor.addCommand('specialchar', {
+        exec: (ed: CKEDITOR.editor) => {
+            dialogEventGenerator.generateSpecialCharEventAndFire({editor: ed});
             return true;
         },
     });
@@ -184,7 +193,7 @@ function setupDialogsToOpen(editor: CKEDITOR.editor, editorParams: HtmlEditorPar
     });
 
     editor.on('dialogShow', (dialogShowEvent: EventInfo) => {
-        new CreateHtmlAreaDialogEventGenerator(editorParams).generateFromEventInfoAndFire(dialogShowEvent);
+        dialogEventGenerator.generateFromEventInfoAndFire(dialogShowEvent);
     });
 }
 

@@ -2,7 +2,7 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {CreateHtmlAreaContentDialogEvent} from './CreateHtmlAreaContentDialogEvent';
 import {CreateHtmlAreaDialogEvent, type HtmlAreaDialogConfig, HtmlAreaDialogType} from './CreateHtmlAreaDialogEvent';
 import {CreateHtmlAreaMacroDialogEvent} from './CreateHtmlAreaMacroDialogEvent';
-import {type FullScreenDialogParams, type MacroDialogParams} from './HtmlEditorTypes';
+import {type FullScreenDialogParams, type MacroDialogParams, type SpecialCharDialogParams} from './HtmlEditorTypes';
 import {type HtmlEditorParams} from './HtmlEditorParams';
 
 type eventInfo = CKEDITOR.eventInfo;
@@ -16,7 +16,7 @@ export class CreateHtmlAreaDialogEventGenerator {
     }
 
     generateFromEventInfoAndFire(dialogShowEvent: eventInfo): void {
-        this.doGenerateAndFire(this.generateEventFrom(dialogShowEvent), dialogShowEvent);
+        this.doGenerateAndFire(this.generateEventFrom(dialogShowEvent));
     }
 
     private generateEventFrom(dialogShowEvent: eventInfo): CreateHtmlAreaDialogEvent {
@@ -38,10 +38,6 @@ export class CreateHtmlAreaDialogEventGenerator {
 
         if (name === 'sourcedialog') {
             return HtmlAreaDialogType.CODE;
-        }
-
-        if (name === 'specialchar') {
-            return HtmlAreaDialogType.SPECIALCHAR;
         }
 
         if (name === 'link') {
@@ -92,17 +88,8 @@ export class CreateHtmlAreaDialogEventGenerator {
             .build();
     }
 
-    private processOriginalEvent(dialogShowEvent: eventInfo, type: HtmlAreaDialogType): void {
-        if (type === HtmlAreaDialogType.SPECIALCHAR) {
-            dialogShowEvent.data.hide();
-        }
-    }
-
-    private doGenerateAndFire(event: CreateHtmlAreaDialogEvent, dialogShowEvent?: eventInfo): void {
+    private doGenerateAndFire(event: CreateHtmlAreaDialogEvent): void {
         if (event) {
-            if (dialogShowEvent) {
-                this.processOriginalEvent(dialogShowEvent, event.getType());
-            }
             this.publishCreateDialogEvent(event);
         } else {
             this.handleEventNotFound();
@@ -136,5 +123,9 @@ export class CreateHtmlAreaDialogEventGenerator {
 
     generateFullScreenEventAndFire(config: FullScreenDialogParams): void {
         this.doGenerateAndFire(this.createDialogEvent(config, HtmlAreaDialogType.FULLSCREEN));
+    }
+
+    generateSpecialCharEventAndFire(config: SpecialCharDialogParams): void {
+        this.doGenerateAndFire(this.createDialogEvent(config, HtmlAreaDialogType.SPECIALCHAR));
     }
 }

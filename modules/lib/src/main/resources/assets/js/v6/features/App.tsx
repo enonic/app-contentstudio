@@ -6,6 +6,8 @@ import {LegacyElement} from './shared/LegacyElement';
 import {$isWizard} from './store/app.store';
 import {BrowsePage} from './views/browse/BrowsePage';
 import {WizardPage} from './views/wizard/WizardPage';
+import {SpecialCharDialog} from './shared/dialogs/SpecialCharDialog';
+
 
 /**
  * AppShell component that renders the whole application layout.
@@ -20,6 +22,7 @@ const App = (): ReactElement => {
     return (
         <>
             {isWizard ? <WizardPage /> : <BrowsePage />}
+            <SpecialCharDialog />
         </>
     );
 };

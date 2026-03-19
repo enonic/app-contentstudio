@@ -324,7 +324,7 @@ export class HtmlArea
                 .setEditorContainerId(id)
                 .setAssetsUri(CONFIG.getString('assetsUri'))
                 .setInline(false)
-                .setCreateDialogHandler(HTMLAreaProxy.createAndOpenDialog)
+                .setCreateDialogHandler(HTMLAreaProxy.openDialog)
                 .setFocusHandler(focusHandler)
                 .setBlurHandler(blurHandler)
                 .setKeydownHandler(keydownHandler)
