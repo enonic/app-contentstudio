@@ -15,6 +15,10 @@ export interface FullScreenDialogParams {
     cursorPosition: HtmlEditorCursorPosition
 }
 
+export interface SpecialCharDialogParams {
+    editor: editor
+}
+
 export interface Macro {
     name: string;
     attributes: string[];

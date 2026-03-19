@@ -147,7 +147,7 @@ export class TextInspectionPanel
             const htmlEditorParams: HtmlEditorParams = HtmlEditorParams.create()
                 .setEditorContainerId(editorId)
                 .setAssetsUri(CONFIG.getString('assetsUri'))
-                .setCreateDialogHandler(HTMLAreaProxy.createAndOpenDialog)
+                .setCreateDialogHandler(HTMLAreaProxy.openDialog)
                 .setSaveHandler(() => {
                     new ContentRequiresSaveEvent(this.liveEditModel.getContent().getContentId()).fire();
                 })

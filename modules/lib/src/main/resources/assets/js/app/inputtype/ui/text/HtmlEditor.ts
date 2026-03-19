@@ -613,9 +613,11 @@ export class HtmlEditor {
     }
 
     private setupDialogsToOpen() {
+        const dialogEventGenerator = new CreateHtmlAreaDialogEventGenerator(this.editorParams);
+
         this.editor.addCommand('openMacroDialog', {
             exec: (editor, data) => {
-                new CreateHtmlAreaDialogEventGenerator(this.editorParams).generateMacroEventAndFire({editor: editor, macro: data});
+                dialogEventGenerator.generateMacroEventAndFire({editor: editor, macro: data});
                 return true;
             }
         });
@@ -633,7 +635,14 @@ export class HtmlEditor {
                     cursorPosition: this.getCursorPosition()
                 };
 
-                new CreateHtmlAreaDialogEventGenerator(this.editorParams).generateFullScreenEventAndFire(config);
+                dialogEventGenerator.generateFullScreenEventAndFire(config);
+                return true;
+            }
+        });
+
+        this.editor.addCommand('specialchar', {
+            exec: (editor: editor) => {
+                dialogEventGenerator.generateSpecialCharEventAndFire({editor});
                 return true;
             }
         });
@@ -646,7 +655,7 @@ export class HtmlEditor {
         });
 
         this.editor.on('dialogShow', (dialogShowEvent: eventInfo) => {
-            new CreateHtmlAreaDialogEventGenerator(this.editorParams).generateFromEventInfoAndFire(dialogShowEvent);
+            dialogEventGenerator.generateFromEventInfoAndFire(dialogShowEvent);
         });
     }
 

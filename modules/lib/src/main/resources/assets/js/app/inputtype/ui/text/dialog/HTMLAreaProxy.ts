@@ -8,68 +8,77 @@ import {FullscreenDialog} from './FullscreenDialog';
 import {MacroModalDialog} from './MacroModalDialog';
 import {type ModalDialog} from './ModalDialog';
 import {NumberedListModalDialog} from './NumberedListModalDialog';
-import {SpecialCharDialog} from './SpecialCharDialog';
+import {openSpecialCharDialog as openV6SpecialCharDialog} from '../../../../../v6/features/store/dialogs/specialCharDialog.store';
+
 import {TableDialog} from './TableDialog';
+import {type SpecialCharDialogParams} from '../HtmlEditorTypes';
 import eventInfo = CKEDITOR.eventInfo;
 
 export class HTMLAreaProxy {
 
-    static createAndOpenDialog(event: CreateHtmlAreaDialogEvent): ModalDialog | null {
+    static openDialog(event: CreateHtmlAreaDialogEvent): void {
         switch (event.getType()) {
         case HtmlAreaDialogType.ANCHOR:
-            return HTMLAreaProxy.openAnchorDialog(event);
+            HTMLAreaProxy.openAnchorDialog(event);
+            return;
         case HtmlAreaDialogType.MACRO:
-            return HTMLAreaProxy.openMacroDialog(event as CreateHtmlAreaMacroDialogEvent);
+            HTMLAreaProxy.openMacroDialog(event as CreateHtmlAreaMacroDialogEvent);
+            return;
         case HtmlAreaDialogType.CODE:
-            return HTMLAreaProxy.openCodeDialog(event);
+            HTMLAreaProxy.openCodeDialog(event);
+            return;
         case HtmlAreaDialogType.SPECIALCHAR:
-            return HTMLAreaProxy.openSpecialCharDialog(event);
+            HTMLAreaProxy.openSpecialCharDialog(event);
+            return;
         case HtmlAreaDialogType.FULLSCREEN:
-            return HTMLAreaProxy.openFullscreenDialog(event);
+            HTMLAreaProxy.openFullscreenDialog(event);
+            return;
         case HtmlAreaDialogType.TABLE:
-            return HTMLAreaProxy.openTableDialog(event);
+            HTMLAreaProxy.openTableDialog(event);
+            return;
         case HtmlAreaDialogType.NUMBERED_LIST:
-            return HTMLAreaProxy.openNumberedListDialog(event);
+            HTMLAreaProxy.openNumberedListDialog(event);
+            return;
         case HtmlAreaDialogType.BULLETED_LIST:
-            return HTMLAreaProxy.openBulletedListDialog(event);
+            HTMLAreaProxy.openBulletedListDialog(event);
+            return;
         }
     }
 
-    private static openAnchorDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
-        return HTMLAreaProxy.openDialog(new AnchorModalDialog(event.getConfig() as eventInfo));
+    private static openAnchorDialog(event: CreateHtmlAreaDialogEvent): void {
+        HTMLAreaProxy.openLegacyDialog(new AnchorModalDialog(event.getConfig() as eventInfo));
     }
 
-    private static openMacroDialog(event: CreateHtmlAreaMacroDialogEvent): ModalDialog {
-        return HTMLAreaProxy.openDialog(
+    private static openMacroDialog(event: CreateHtmlAreaMacroDialogEvent): void {
+        HTMLAreaProxy.openLegacyDialog(
             new MacroModalDialog(event.getConfig() as MacroDialogParams, event.getContent(), event.getApplicationKeys()));
     }
 
-    private static openCodeDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
-        return HTMLAreaProxy.openDialog(new CodeDialog(event.getConfig() as eventInfo));
+    private static openCodeDialog(event: CreateHtmlAreaDialogEvent): void {
+        HTMLAreaProxy.openLegacyDialog(new CodeDialog(event.getConfig() as eventInfo));
     }
 
-    private static openSpecialCharDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
-        return HTMLAreaProxy.openDialog(new SpecialCharDialog(event.getConfig() as eventInfo));
+    private static openSpecialCharDialog(event: CreateHtmlAreaDialogEvent): void {
+        openV6SpecialCharDialog((event.getConfig() as SpecialCharDialogParams).editor);
     }
 
-    private static openFullscreenDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
-        return HTMLAreaProxy.openDialog(new FullscreenDialog(event.getConfig() as FullScreenDialogParams));
+    private static openFullscreenDialog(event: CreateHtmlAreaDialogEvent): void {
+        HTMLAreaProxy.openLegacyDialog(new FullscreenDialog(event.getConfig() as FullScreenDialogParams));
     }
 
-    private static openTableDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
-        return HTMLAreaProxy.openDialog(new TableDialog(event.getConfig() as eventInfo));
+    private static openTableDialog(event: CreateHtmlAreaDialogEvent): void {
+        HTMLAreaProxy.openLegacyDialog(new TableDialog(event.getConfig() as eventInfo));
     }
 
-    private static openNumberedListDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
-        return HTMLAreaProxy.openDialog(new NumberedListModalDialog(event.getConfig() as eventInfo));
+    private static openNumberedListDialog(event: CreateHtmlAreaDialogEvent): void {
+        HTMLAreaProxy.openLegacyDialog(new NumberedListModalDialog(event.getConfig() as eventInfo));
     }
 
-    private static openBulletedListDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
-        return HTMLAreaProxy.openDialog(new BulletedListModalDialog(event.getConfig() as eventInfo));
+    private static openBulletedListDialog(event: CreateHtmlAreaDialogEvent): void {
+        HTMLAreaProxy.openLegacyDialog(new BulletedListModalDialog(event.getConfig() as eventInfo));
     }
 
-    private static openDialog(dialog: ModalDialog): ModalDialog {
+    private static openLegacyDialog(dialog: ModalDialog): void {
         dialog.open();
-        return dialog;
     }
 }

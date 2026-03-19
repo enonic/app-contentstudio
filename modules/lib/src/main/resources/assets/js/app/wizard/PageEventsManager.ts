@@ -5,8 +5,7 @@ import {type LiveEditPageViewReadyEvent} from '../../page-editor/event/LiveEditP
 import {type LiveEditPageInitializationErrorEvent} from '../../page-editor/event/LiveEditPageInitializationErrorEvent';
 import {type ShowWarningLiveEditEvent} from '../../page-editor/event/ShowWarningLiveEditEvent';
 import {type EditContentEvent} from '../event/EditContentEvent';
-import {type CreateHtmlAreaDialogEvent, type HtmlAreaDialogConfig} from '../inputtype/ui/text/CreateHtmlAreaDialogEvent';
-import {type ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {type CreateHtmlAreaDialogEvent} from '../inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {type ComponentPath} from '../page/region/ComponentPath';
 import {type ComponentType} from '../page/region/ComponentType';
 import {type PageTemplateKey} from '../page/PageTemplateKey';
@@ -66,8 +65,6 @@ export class PageEventsManager {
     private editContentListeners: ((event: EditContentEvent) => void)[] = [];
 
     private createHtmlAreaDialogListeners: ((event: CreateHtmlAreaDialogEvent) => void)[] = [];
-
-    private dialogCreatedListeners: ((modalDialog: ModalDialog, config: HtmlAreaDialogConfig) => void)[] = [];
 
     // Commands
 
@@ -276,18 +273,6 @@ export class PageEventsManager {
 
     notifyLiveEditPageDialogCreate(event: CreateHtmlAreaDialogEvent) {
         this.createHtmlAreaDialogListeners.forEach((listener) => listener(event));
-    }
-
-    onDialogCreated(listener: ((modalDialog: ModalDialog, config: HtmlAreaDialogConfig) => void)) {
-        this.dialogCreatedListeners.push(listener);
-    }
-
-    unDialogCreated(listener: ((modalDialog: ModalDialog, config: HtmlAreaDialogConfig) => void)) {
-        this.dialogCreatedListeners = this.dialogCreatedListeners.filter((curr) => (curr !== listener));
-    }
-
-    notifyDialogCreated(modalDialog: ModalDialog, config: HtmlAreaDialogConfig) {
-        this.dialogCreatedListeners.forEach((listener) => listener(modalDialog, config));
     }
 
     onFragmentLoadError(listener: ((path: ComponentPath) => void)) {

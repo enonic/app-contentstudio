@@ -25,7 +25,6 @@ import {InspectEvent} from '../../event/InspectEvent';
 import {type ContentType} from '../../inputtype/schema/ContentType';
 import {type CreateHtmlAreaDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {HTMLAreaProxy} from '../../inputtype/ui/text/dialog/HTMLAreaProxy';
-import {type ModalDialog} from '../../inputtype/ui/text/dialog/ModalDialog';
 import {Descriptor} from '../../page/Descriptor';
 import {Page} from '../../page/Page';
 import {Component} from '../../page/region/Component';
@@ -659,10 +658,7 @@ export class LiveFormPanel
         });
 
         eventsManager.onLiveEditPageDialogCreate((event: CreateHtmlAreaDialogEvent) => {
-            const modalDialog = HTMLAreaProxy.createAndOpenDialog(event);
-            if (modalDialog) {
-                eventsManager.notifyDialogCreated(modalDialog, event.getConfig());
-            }
+            HTMLAreaProxy.openDialog(event);
         });
 
         eventsManager.onTextComponentEditModeChanged((value: boolean) => {
