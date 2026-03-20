@@ -20,6 +20,11 @@ export interface AnchorDialogParams {
     bookmarks?: ReturnType<CKEDITOR.dom.selection['createBookmarks2']>
 }
 
+export interface CodeDialogParams {
+    editor: editor,
+    initialValue: string
+}
+
 export interface SpecialCharDialogParams {
     editor: editor
 }

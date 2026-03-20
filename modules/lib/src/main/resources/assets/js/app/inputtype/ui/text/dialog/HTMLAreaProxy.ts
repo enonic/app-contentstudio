@@ -1,13 +1,13 @@
 import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../CreateHtmlAreaDialogEvent';
 import {type CreateHtmlAreaMacroDialogEvent} from '../CreateHtmlAreaMacroDialogEvent';
-import {type AnchorDialogParams, type FullScreenDialogParams, type MacroDialogParams} from '../HtmlEditorTypes';
+import {type AnchorDialogParams, type CodeDialogParams, type FullScreenDialogParams, type MacroDialogParams} from '../HtmlEditorTypes';
 import {BulletedListModalDialog} from './BulletedListModalDialog';
-import {CodeDialog} from './CodeDialog';
 import {FullscreenDialog} from './FullscreenDialog';
 import {MacroModalDialog} from './MacroModalDialog';
 import {type ModalDialog} from './ModalDialog';
 import {NumberedListModalDialog} from './NumberedListModalDialog';
 import {openAnchorDialog as openV6AnchorDialog} from '../../../../../v6/features/store/dialogs/anchorDialog.store';
+import {openCodeDialog as openV6CodeDialog} from '../../../../../v6/features/store/dialogs/codeDialog.store';
 import {openSpecialCharDialog as openV6SpecialCharDialog} from '../../../../../v6/features/store/dialogs/specialCharDialog.store';
 
 import {TableDialog} from './TableDialog';
@@ -55,7 +55,7 @@ export class HTMLAreaProxy {
     }
 
     private static openCodeDialog(event: CreateHtmlAreaDialogEvent): void {
-        HTMLAreaProxy.openLegacyDialog(new CodeDialog(event.getConfig() as eventInfo));
+        openV6CodeDialog(event.getConfig() as CodeDialogParams);
     }
 
     private static openSpecialCharDialog(event: CreateHtmlAreaDialogEvent): void {

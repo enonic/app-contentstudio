@@ -165,32 +165,6 @@ const CKEditorWrapper = ({
         };
     }, [status, editor, contentSummary, project, applicationKeys, assetsUri, debouncedOnChange, onBlur]);
 
-    // Sync dark mode class on the editor iframe body
-    useEffect(() => {
-        if (!editor || status !== 'ready') {
-            return;
-        }
-
-        function syncDarkMode(): void {
-            try {
-                const body = editor.document?.getBody()?.$;
-                if (body) {
-                    const isDark = document.documentElement.classList.contains('dark');
-                    body.classList.toggle('dark-mode', isDark);
-                }
-            } catch {
-                // iframe may not be accessible during transitions
-            }
-        }
-
-        syncDarkMode();
-
-        const observer = new MutationObserver(syncDarkMode);
-        observer.observe(document.documentElement, {attributes: true, attributeFilter: ['class']});
-
-        return () => observer.disconnect();
-    }, [editor, status]);
-
     // Track editor focus for focus ring
     useEffect(() => {
         if (status !== 'ready' || !editor) {

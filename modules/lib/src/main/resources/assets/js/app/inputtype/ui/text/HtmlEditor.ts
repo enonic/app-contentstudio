@@ -18,6 +18,7 @@ import {type ContentsExistByPathResult} from '../../../resource/ContentsExistByP
 import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
 import {UrlHelper} from '../../../util/UrlHelper';
 import {CreateHtmlAreaDialogEventGenerator} from './CreateHtmlAreaDialogEventGenerator';
+import {bindEditableBodyRuntimeState} from './EditableBodyRuntimeState';
 import {HTMLAreaHelper} from './HTMLAreaHelper';
 import {type HtmlEditorParams} from './HtmlEditorParams';
 import {StyleHelper} from './styles/StyleHelper';
@@ -25,7 +26,7 @@ import {Styles} from './styles/Styles';
 import {StylesRequest} from './styles/StylesRequest';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
-import {type FullScreenDialogParams, type HtmlEditorCursorPosition, type Macro} from './HtmlEditorTypes';
+import {type CodeDialogParams, type FullScreenDialogParams, type HtmlEditorCursorPosition, type Macro} from './HtmlEditorTypes';
 
 type editor = CKEDITOR.editor;
 type eventInfo = CKEDITOR.eventInfo;
@@ -50,6 +51,7 @@ export class HtmlEditor {
         this.editorParams = htmlEditorParams;
 
         this.createEditor(config);
+        bindEditableBodyRuntimeState(this.editor, {fullscreen: this.editorParams.isFullScreenMode()});
         this.modifyImagePlugin();
         this.listenEditorEvents();
         this.handleFileUpload();
@@ -368,7 +370,6 @@ export class HtmlEditor {
 
         if (this.editorParams.isFullScreenMode()) {
             this.editor.on('instanceReady', () => {
-                this.editor.document.getBody().addClass('fullscreen');
                 this.editor.getCommand('openFullscreenDialog').setState(CKEDITOR.TRISTATE_ON);
             });
         }
@@ -656,6 +657,18 @@ export class HtmlEditor {
                 };
 
                 dialogEventGenerator.generateFullScreenEventAndFire(config);
+                return true;
+            }
+        });
+
+        this.editor.addCommand('sourcedialog', {
+            exec: (editor: editor) => {
+                const config: CodeDialogParams = {
+                    editor,
+                    initialValue: editor.getData(),
+                };
+
+                dialogEventGenerator.generateCodeEventAndFire(config);
                 return true;
             }
         });

@@ -433,8 +433,8 @@ packages:
       typescript: ^5.8.3
       typescript-eslint: ^8.39.0
 
-  '@enonic/ui@0.47.2':
-    resolution: {integrity: sha512-O5OJDnF0Z89Cc8D4u71s9MGmoBgV6zquCOKeh2PrTJR4QxYzrVytkBo3GP6wOYy3ZfJo/wZYFjSCP/+MIM6+pw==}
+  '@enonic/ui@0.47.1':
+    resolution: {integrity: sha512-Jh9gH30WvLsSoJJd6G5L55t8o5ygxFOOKMUnG/iuGXqPO5Dhyap07CPz3xHaiRxKkiv5ylfnsePf0/Wop2gEmQ==}
     engines: {node: '>=24.11.1', npm: '>=11.6.2', pnpm: '>=10.28.0'}
     peerDependencies:
       '@radix-ui/react-slot': ^1.2.0
