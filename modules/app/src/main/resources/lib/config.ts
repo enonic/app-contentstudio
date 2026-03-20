@@ -104,12 +104,11 @@ export function getConfig(locales: string[], aiEnabled: boolean): Record<string,
         sharedSocketUrl: assetUrl({
             path: 'shared-socket.js'
         }),
-        launcherUrl: widgetUrl({
+        menuUrl: widgetUrl({
             application: 'com.enonic.xp.app.main',
-            widget: 'launcher',
+            widget: 'menu',
             params: {
-                appName: app.name,
-                theme,
+                appName: app.name
             }
         }),
         user,
