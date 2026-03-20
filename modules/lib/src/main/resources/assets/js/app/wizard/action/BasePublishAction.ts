@@ -30,13 +30,12 @@ export abstract class BasePublishAction
 
                 this.setEnabled(false);
 
-                const canPublish = !config.markAsReady || $wizardContentState.get() !== 'invalid';
-
                 if (config.markAsReady) {
                     config.wizard.setMarkedAsReady(true);
                 }
 
                 this.config.wizard.saveChanges().then((content) => {
+                    const canPublish = !config.markAsReady || $wizardContentState.get() !== 'invalid';
                     if (content != null && canPublish) {
                         this.firePromptEvent();
                     }
