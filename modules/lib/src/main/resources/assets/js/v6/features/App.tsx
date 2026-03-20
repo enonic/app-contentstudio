@@ -3,6 +3,7 @@ import {useStore} from '@nanostores/preact';
 import type {ReactElement} from 'react';
 import {start as startSocketService} from './services/socket.service';
 import {AnchorDialog} from './shared/dialogs/AnchorDialog';
+import {CodeDialog} from './shared/dialogs/CodeDialog';
 import {LegacyElement} from './shared/LegacyElement';
 import {SpecialCharDialog} from './shared/dialogs/SpecialCharDialog';
 import {$isWizard} from './store/app.store';
@@ -24,6 +25,7 @@ const App = (): ReactElement => {
         <>
             {isWizard ? <WizardPage /> : <BrowsePage />}
             <AnchorDialog />
+            <CodeDialog />
             <SpecialCharDialog />
         </>
     );

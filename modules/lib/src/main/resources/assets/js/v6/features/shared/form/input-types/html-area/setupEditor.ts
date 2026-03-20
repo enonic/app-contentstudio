@@ -13,6 +13,7 @@ import type {ContentSummary} from '../../../../../../app/content/ContentSummary'
 import {ContentsExistByPathRequest} from '../../../../../../app/resource/ContentsExistByPathRequest';
 import type {ContentsExistByPathResult} from '../../../../../../app/resource/ContentsExistByPathResult';
 import {CreateHtmlAreaDialogEventGenerator} from '../../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEventGenerator';
+import {bindEditableBodyRuntimeState} from '../../../../../../app/inputtype/ui/text/EditableBodyRuntimeState';
 import {HTMLAreaHelper} from '../../../../../../app/inputtype/ui/text/HTMLAreaHelper';
 import {HtmlEditorParams} from '../../../../../../app/inputtype/ui/text/HtmlEditorParams';
 import {StyleHelper} from '../../../../../../app/inputtype/ui/text/styles/StyleHelper';
@@ -20,7 +21,7 @@ import {ImageUrlResolver} from '../../../../../../app/util/ImageUrlResolver';
 import {type CreateHtmlAreaDialogEvent, type HtmlAreaDialogType} from '../../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {HTMLAreaProxy} from '../../../../../../app/inputtype/ui/text/dialog/HTMLAreaProxy';
 import type {Project} from '../../../../../../app/settings/data/project/Project';
-import type {FullScreenDialogParams, HtmlEditorCursorPosition} from '../../../../../../app/inputtype/ui/text/HtmlEditorTypes';
+import type {CodeDialogParams, FullScreenDialogParams, HtmlEditorCursorPosition} from '../../../../../../app/inputtype/ui/text/HtmlEditorTypes';
 
 type EventInfo = CKEDITOR.eventInfo;
 
@@ -194,6 +195,18 @@ function setupDialogsToOpen(editor: CKEDITOR.editor, editorParams: HtmlEditorPar
             };
 
             dialogEventGenerator.generateFullScreenEventAndFire(config);
+            return true;
+        },
+    });
+
+    editor.addCommand('sourcedialog', {
+        exec: (ed: CKEDITOR.editor) => {
+            const config: CodeDialogParams = {
+                editor: ed,
+                initialValue: ed.getData(),
+            };
+
+            dialogEventGenerator.generateCodeEventAndFire(config);
             return true;
         },
     });
@@ -738,6 +751,7 @@ function moveSourceButtonToBottomBar(editor: CKEDITOR.editor): void {
 export function setupEditor(editor: CKEDITOR.editor, params: SetupEditorParams): void {
     const editorParams = buildEditorParams(editor, params);
 
+    bindEditableBodyRuntimeState(editor, {fullscreen: editorParams.isFullScreenMode()});
     handleDataReady(editor);
     handlePaste(editor);
     handleElementSelection(editor);
