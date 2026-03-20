@@ -1,8 +1,8 @@
 import {Store} from '@enonic/lib-admin-ui/store/Store';
-import {Button, IconButton} from '@enonic/ui';
+import {Button} from '@enonic/ui';
 import {atom} from 'nanostores';
 import {useStore} from '@nanostores/preact';
-import {ArrowLeftRight, BellDotIcon, BellIcon, LayoutGrid} from 'lucide-react';
+import {ArrowLeftRight, BellDotIcon, BellIcon} from 'lucide-react';
 import {ReactElement} from 'react';
 import {ShowIssuesDialogEvent} from '../../../../../app/browse/ShowIssuesDialogEvent';
 import {useI18n} from '../../../hooks/useI18n';
@@ -36,10 +36,8 @@ export const BrowseAppBar = (): ReactElement => {
     const issuesStatsLabel = useI18n(...createIssuesLabelKeys(stats));
     const projectAriaLabel = useI18n('wcag.appbar.project.label');
     const issuesAriaLabel = useI18n('wcag.appbar.issues.label');
-    const launcherAriaLabel = useI18n('wcag.appbar.launcher.label');
-
     return (
-        <header className="bg-surface-neutral h-15 px-5 py-2 flex items-center gap-2.5 border-b border-bdr-soft">
+        <header className="bg-surface-neutral h-15 px-5 py-2 pr-14 flex items-center gap-2.5 border-b border-bdr-soft">
             {isProjectSelectorVisible ? (
                 <Button
                     className="mr-auto"
@@ -65,17 +63,6 @@ export const BrowseAppBar = (): ReactElement => {
             />
 
             <ThemeSwitcher />
-
-            <IconButton
-                size="sm"
-                icon={LayoutGrid}
-                shape="round"
-                onClick={() => {
-                    // TODO: Enonic UI Hack - Defer the click to the next event loop to prevent the launcher from closing due to its outside-click handler
-                    requestAnimationFrame(() => document.getElementById('launcher-button')?.click());
-                }}
-                aria-label={launcherAriaLabel}
-            />
         </header>
     );
 };
