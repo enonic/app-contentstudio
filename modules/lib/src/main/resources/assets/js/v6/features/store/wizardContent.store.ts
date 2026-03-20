@@ -100,7 +100,7 @@ export const $wizardDraftData = atom<PropertyTree | null>(null);
 
 export const $wizardDataChangedPaths = map<Record<string, number>>({});
 
-const $wizardDataVersion = atom<number>(0);
+export const $wizardDataVersion = atom<number>(0);
 
 export const $wizardPersistedMixins = wizardTrackedState.mixins.persisted;
 

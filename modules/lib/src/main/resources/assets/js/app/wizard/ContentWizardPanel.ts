@@ -66,6 +66,7 @@ import {
     setMixinsDescriptors as setWizardMixinsDescriptors,
     setPersistedContent as setWizardPersistedContent,
 } from '../../v6/features/store/wizardContent.store';
+import {escalateVisibility, initializeValidation, setServerValidationErrors} from '../../v6/features/store/wizardValidation.store';
 import {setWizardToolbarIsPathAvailable} from '../../v6/features/store/wizardToolbar.store';
 import {type PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
 import {ContentWizardTabsToolbarElement} from '../../v6/features/views/wizard/content-wizard-tabs/ContentWizardTabsToolbarElement';
@@ -551,6 +552,7 @@ export class ContentWizardPanel
 
         const publishActionHandler = () => {
             if (this.hasUnsavedChanges()) {
+                escalateVisibility('all');
                 this.contentWizardStepForm.validate();
                 this.displayValidationErrors(!this.isValid());
             }
@@ -926,6 +928,7 @@ export class ContentWizardPanel
                 this.contentType ?? null,
                 [],
             );
+            initializeValidation(this.isNew());
         } else if (this.contentType) {
             setWizardContentType(this.contentType);
         }
@@ -2238,6 +2241,9 @@ export class ContentWizardPanel
         this.updateXDataStepForms(currentContent);
         // sets validation errors on form context
         this.initFormContext();
+
+        escalateVisibility('all');
+        setServerValidationErrors(this.getCurrentItem().getValidationErrors());
 
         if (!this.isRename) {
             this.resetWizard();
