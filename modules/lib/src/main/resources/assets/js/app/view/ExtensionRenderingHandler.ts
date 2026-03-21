@@ -247,13 +247,13 @@ export class ExtensionRenderingHandler {
         }
         for (extension of items) {
             const url = this.previewHelper.getUrl(summary, extension, this.mode) + '&auto=' + isAuto;
-            response = await fetch(url, {method: 'HEAD'});
+            response = await fetch(url, {method: 'HEAD', credentials: 'include'});
 
             data = this.extractPreviewData(response);
             if (data.redirect) {
                 // follow redirect manually to get data headers first
                 try {
-                response = await fetch(data.redirect, {method: 'HEAD'});
+                    response = await fetch(data.redirect, {method: 'HEAD', credentials: 'include'});
                 } catch (e) {
                     response = this.createErrorResponse(e, data.redirect);
                 }
