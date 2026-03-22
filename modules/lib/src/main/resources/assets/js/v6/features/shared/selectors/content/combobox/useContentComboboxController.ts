@@ -20,6 +20,8 @@ export type UseContentComboboxControllerOptions = {
         treeRowHeight?: number;
         /** Height for each flat row in pixels */
         flatRowHeight?: number;
+        /** If set, the flat row height will be calculated as a percentage of the container's width */
+        flatRowHeightRatio?: number;
         /** Maximum height for the dropdown in pixels */
         maxHeight?: number;
     };
@@ -69,7 +71,7 @@ export type UseContentComboboxControllerReturn = {
 //
 
 const TREE_ROW_HEIGHT = 48;
-const FLAT_ROW_HEIGHT = 48;
+const FLAT_ROW_HEIGHT = 270;
 const MAX_HEIGHT = 300;
 const GAP = 6;
 const PADDING = 8;
@@ -90,6 +92,7 @@ export function useContentComboboxController(options: UseContentComboboxControll
     // Dropdown options
     const treeRowHeight = dropdown?.treeRowHeight ?? TREE_ROW_HEIGHT;
     const flatRowHeight = dropdown?.flatRowHeight ?? FLAT_ROW_HEIGHT;
+    const flatRowHeightRatio = dropdown?.flatRowHeightRatio;
     const maxHeight = dropdown?.maxHeight ?? MAX_HEIGHT;
 
     // Refs
@@ -212,12 +215,32 @@ export function useContentComboboxController(options: UseContentComboboxControll
 
     // Calculate dropdown height based on display items
     const dropdownHeight = useMemo(() => {
-        const rowHeight = isTreeView ? treeRowHeight : flatRowHeight;
+        const mode = isTreeView && !isFiltering ? 'tree' : 'flat';
+        const baseHeight = mode === 'tree' ? treeRowHeight : flatRowHeight;
         const count = displayItems.length;
-        if (count === 0) return rowHeight + PADDING;
-        const contentHeight = count * rowHeight + Math.max(count - 1, 0) * GAP + PADDING;
+
+        if (count === 0) return baseHeight + PADDING;
+
+        let contentHeight: number = 0;
+
+        // If flatRowHeightRatio was provided, use it to calculate the row height
+        if (mode === 'flat' && flatRowHeightRatio) {
+            const rowHeight = Math.min(flatRowHeightRatio * Number(inputRef.current?.clientWidth), baseHeight);
+            contentHeight = count * rowHeight + Math.max(count - 1, 0) * GAP + PADDING;
+        } else {
+            contentHeight = count * baseHeight + Math.max(count - 1, 0) * GAP + PADDING;
+        }
+
         return Math.min(contentHeight, maxHeight);
-    }, [displayItems.length, isTreeView, treeRowHeight, flatRowHeight, maxHeight]);
+    }, [
+        displayItems.length,
+        isTreeView,
+        isFiltering,
+        treeRowHeight,
+        flatRowHeight,
+        flatRowHeightRatio,
+        maxHeight,
+    ]);
 
     // Handlers
     const handleOpenChange = useCallback((next: boolean): void => {
@@ -274,8 +297,8 @@ export function useContentComboboxController(options: UseContentComboboxControll
     }, [flatHasMore, isFlatLoading, loadMoreFlat]);
 
     // Derived values
-    const isLoading = isFiltering ? isFlatLoading : isTreeView ? isTreeLoading : isFlatLoading;
-    const hasMore = isFiltering ? flatHasMore : isTreeView ? treeHasMore : flatHasMore;
+    const isLoading = isFiltering || !isTreeView ? isFlatLoading : isTreeLoading;
+    const hasMore = isFiltering || !isTreeView ? flatHasMore : treeHasMore;
     const listMode = isTreeView && !isFiltering ? 'tree' : 'flat';
 
     return {

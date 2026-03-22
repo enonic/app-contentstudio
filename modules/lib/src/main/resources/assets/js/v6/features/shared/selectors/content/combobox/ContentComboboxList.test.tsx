@@ -105,9 +105,9 @@ vi.mock('react-virtuoso', () => ({
     },
 }));
 
-// Mock ContentComboboxRow
-vi.mock('./ContentComboboxRow', () => ({
-    ContentComboboxRow: ({node, showExpandControl}: {node: unknown; showExpandControl?: boolean}) => (
+// Mock ContentRow
+vi.mock('../../shared/combobox/ContentRow', () => ({
+    ContentRow: ({node, showExpandControl}: {node: unknown; showExpandControl?: boolean}) => (
         <div
             data-testid='content-combobox-row'
             data-node-id={(node as ContentComboboxFlatNode).id}

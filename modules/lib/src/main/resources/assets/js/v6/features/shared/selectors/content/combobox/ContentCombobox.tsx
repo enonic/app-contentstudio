@@ -3,11 +3,10 @@ import {Button, Combobox, Toggle, Tooltip, cn} from '@enonic/ui';
 import {AlertCircle, ListTree, RefreshCw} from 'lucide-react';
 import {useId, useMemo, type ReactElement} from 'react';
 import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import type {ContentFilterOptions} from '../../../../hooks/useContentComboboxData';
 import {useI18n} from '../../../../hooks/useI18n';
 import {ContentComboboxList} from './ContentComboboxList';
 import {useContentComboboxController, UseContentComboboxControllerOptions} from './useContentComboboxController';
-import {ContentComboboxRowProps} from './ContentComboboxRow';
+import {ContentRowProps} from '../../shared/combobox/ContentRow';
 
 //
 // * Constants
@@ -24,6 +23,7 @@ export type ContentComboboxProps = {
     'onSelectionChange': (selection: readonly string[]) => void;
     'selectionMode'?: 'single' | 'multiple';
     'listMode'?: 'tree' | 'flat';
+    'closeOnBlur'?: boolean;
     'disabled'?: boolean;
     'label'?: string;
     'placeholder'?: string;
@@ -36,11 +36,13 @@ export type ContentComboboxProps = {
     'aria-label'?: string;
 
     /** Row renderer */
-    'rowRenderer'?: (props: ContentComboboxRowProps) => ReactElement;
+    'rowRenderer'?: (props: ContentRowProps) => ReactElement;
     /** Height for each tree row in pixels */
     'rowTreeHeight'?: number;
     /** Height for each flat row in pixels */
     'rowFlatHeight'?: number;
+    /** If set, the flat row height will be calculated as a percentage of the container's width */
+    'rowFlatHeightRatio'?: number;
     /** Maximum height for the dropdown in pixels */
     'dropdownMaxHeight'?: number;
 
@@ -69,6 +71,7 @@ export const ContentCombobox = ({
     onSelectionChange,
     selectionMode = 'multiple',
     'listMode': externalListMode = 'tree',
+    closeOnBlur = false,
     disabled = false,
     label,
     placeholder,
@@ -82,6 +85,7 @@ export const ContentCombobox = ({
     rowRenderer,
     rowTreeHeight,
     rowFlatHeight,
+    rowFlatHeightRatio,
     dropdownMaxHeight,
     contentTypeNames = EMPTY_STRING_ARRAY,
     allowedContentPaths = EMPTY_STRING_ARRAY,
@@ -114,9 +118,10 @@ export const ContentCombobox = ({
         () => ({
             treeRowHeight: rowTreeHeight,
             flatRowHeight: rowFlatHeight,
+            flatRowHeightRatio: rowFlatHeightRatio,
             maxHeight: dropdownMaxHeight,
         }),
-        [rowTreeHeight, rowFlatHeight, dropdownMaxHeight]
+        [rowTreeHeight, rowFlatHeight, rowFlatHeightRatio, dropdownMaxHeight]
     );
 
     // Controller hook handles all state and logic
@@ -172,7 +177,7 @@ export const ContentCombobox = ({
                 onSelectionChange={onSelectionChange}
                 selectionMode={comboboxSelectionMode}
                 contentType="tree"
-                closeOnBlur={false}
+                closeOnBlur={closeOnBlur}
                 disabled={disabled}
                 error={error}
             >

@@ -8,6 +8,9 @@ import {UploadError} from './errors';
 import {$activeProject} from '../store/projects.store';
 import {generateUniqueName} from '../utils/image/generateUniqueName';
 
+const FORBIDDEN_CHARS = /[/*?|:]/g;
+export const UPLOAD_PROGRESS_CAP = 99;
+
 //
 // * Types
 //
@@ -52,7 +55,7 @@ export function uploadMediaFile({
 
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('name', file.name);
+    formData.append('name', sanitizeName(file.name));
     formData.append('parent', getParentPath(parentContent));
 
     const mediaIdentifier = id;
@@ -64,7 +67,8 @@ export function uploadMediaFile({
             xhr.upload.onprogress = (event) => {
                 if (!event.lengthComputable) return;
 
-                const progress = (event.loaded / event.total) * 100;
+                // ? We cap it to make sure only the onLoad will call onProgress with 100%.
+                const progress = Math.min((event.loaded / event.total) * 100, UPLOAD_PROGRESS_CAP);
                 onProgress?.(id, progress);
             };
 
@@ -73,6 +77,8 @@ export function uploadMediaFile({
             };
 
             xhr.onload = () => {
+                onProgress?.(id, 100);
+
                 if (xhr.status >= 200 && xhr.status < 300) {
                     try {
                         const json = JSON.parse(xhr.responseText);
@@ -82,20 +88,14 @@ export function uploadMediaFile({
                         reject(new UploadError(mediaIdentifier, 'Failed to parse response'));
                     }
                 } else {
-                    reject(
-                        new UploadError(
-                            mediaIdentifier,
-                            JSON.parse(xhr.responseText)?.message || xhr.statusText
-                        )
-                    );
+                    reject(new UploadError(mediaIdentifier, JSON.parse(xhr.responseText)?.message || xhr.statusText));
                 }
             };
 
             xhr.open('POST', endpoint);
             xhr.send(formData);
         }),
-        (error): UploadMediaError =>
-            error instanceof UploadError ? error.toResult() : {mediaIdentifier: '', message: String(error)}
+        (error): UploadMediaError => (error instanceof UploadError ? error.toResult() : {mediaIdentifier: '', message: String(error)})
     );
 }
 
@@ -121,9 +121,7 @@ export function uploadRemoteImage({
     onProgress,
 }: UploadRemoteImageOptions): ResultAsync<UploadMediaSuccess, UploadMediaError> {
     const project = $activeProject.get() as Project;
-    const endpoint = UrlHelper.getCmsRestUri(
-        `${UrlHelper.getCMSPath(null, project)}/content/content/createMediaFromUrl`
-    );
+    const endpoint = UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath(null, project)}/content/content/createMediaFromUrl`);
 
     const mediaIdentifier = id;
 
@@ -140,7 +138,7 @@ export function uploadRemoteImage({
             xhr.upload.onprogress = (event) => {
                 if (!event.lengthComputable) return;
 
-                const progress = (event.loaded / event.total) * 100;
+                const progress = Math.min((event.loaded / event.total) * 100, UPLOAD_PROGRESS_CAP);
                 onProgress?.(id, progress);
             };
 
@@ -149,6 +147,8 @@ export function uploadRemoteImage({
             };
 
             xhr.onload = () => {
+                onProgress?.(id, 100);
+
                 if (xhr.status >= 200 && xhr.status < 300) {
                     try {
                         const json = JSON.parse(xhr.responseText);
@@ -158,12 +158,7 @@ export function uploadRemoteImage({
                         reject(new UploadError(mediaIdentifier, 'Failed to parse response'));
                     }
                 } else {
-                    reject(
-                        new UploadError(
-                            mediaIdentifier,
-                            JSON.parse(xhr.responseText)?.message || xhr.statusText
-                        )
-                    );
+                    reject(new UploadError(mediaIdentifier, JSON.parse(xhr.responseText)?.message || xhr.statusText));
                 }
             };
 
@@ -171,8 +166,7 @@ export function uploadRemoteImage({
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.send(body);
         }),
-        (error): UploadMediaError =>
-            error instanceof UploadError ? error.toResult() : {mediaIdentifier: '', message: String(error)}
+        (error): UploadMediaError => (error instanceof UploadError ? error.toResult() : {mediaIdentifier: '', message: String(error)})
     );
 }
 
@@ -182,4 +176,8 @@ export function uploadRemoteImage({
 
 function getParentPath(parentContent?: ContentSummaryAndCompareStatus): string {
     return parentContent ? parentContent.getContentSummary().getPath().toString() : ContentPath.getRoot().toString();
+}
+
+function sanitizeName(name: string): string {
+    return name.normalize('NFC').replace(FORBIDDEN_CHARS, '_');
 }

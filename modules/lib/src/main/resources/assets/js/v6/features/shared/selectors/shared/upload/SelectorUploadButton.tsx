@@ -1,7 +1,7 @@
-import {Button} from '@enonic/ui';
+import {Button, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {UploadIcon} from 'lucide-react';
-import {ReactElement, useCallback, useEffect, useRef, useState} from 'react';
+import {type ReactElement, useCallback, useEffect, useRef, useState} from 'react';
 import {$contextContent} from '../../../../store/context/contextContent.store';
 import {listenKeys} from 'nanostores';
 import {$uploads, removeUpload} from '../../../../store/uploads.store';
@@ -10,36 +10,43 @@ import {useUploadMedia} from '../../../../hooks/useUploadMedia';
 import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
-export type ImageSelectorUploadButtonProps = {
+export type SelectorUploadButtonProps = {
     selection: readonly string[];
     onSelectionChange: (selection: readonly string[]) => void;
     disabled: boolean;
     multiple: boolean;
+    /** MIME type filter for the file input (e.g. "image/*") */
+    accept?: string;
 };
 
-const IMAGE_SELECTOR_UPLOAD_BUTTON_NAME = 'ImageSelectorUploadButton';
+const SELECTOR_UPLOAD_BUTTON_NAME = 'SelectorUploadButton';
 
-export const ImageSelectorUploadButton = ({
+export const SelectorUploadButton = ({
     selection,
     onSelectionChange,
     disabled,
     multiple,
-}: ImageSelectorUploadButtonProps): ReactElement => {
+    accept,
+}: SelectorUploadButtonProps): ReactElement => {
     const [progress, setProgress] = useState<number>(0);
     const [uploadIds, setUploadIds] = useState<string[]>([]);
+    const [newContentIds, setNewContentIds] = useState<string[]>([]);
     const uploadParent = useStore($contextContent);
     const highestProgress = useRef<number>(0);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const isUploading = uploadIds.length > 0;
 
-    // Selection
-    const selectionRef = useRef(selection);
+    // Update selection when uploads are complete
+    // Tracks progress of all uploads based on the upload ids
     useEffect(() => {
-        selectionRef.current = selection;
-    }, [selection]);
-
-    // Tracking progress of all uploads based on the upload ids
-    useEffect(() => {
-        if (uploadIds.length === 0) return;
+        if (uploadIds.length === 0) {
+            if (newContentIds.length > 0) {
+                onSelectionChange([...selection, ...newContentIds]);
+                setNewContentIds([]);
+            }
+            setProgress(0);
+            return;
+        }
 
         const unlisten = listenKeys($uploads, uploadIds, (uploads) => {
             const activeIds = uploadIds.filter((id) => uploads[id]);
@@ -52,17 +59,13 @@ export const ImageSelectorUploadButton = ({
 
             const progress = activeIds.reduce((acc, id) => acc + uploads[id].progress / activeIds.length, 0);
 
-            if (progress >= 100) {
-                setProgress(0);
-            } else {
-                // Avoid progress decreasing due to completion of other uploads
-                const finalProgress = Math.max(highestProgress.current, progress);
-                highestProgress.current = finalProgress;
-                setProgress(finalProgress);
-            }
+            // Avoid progress decreasing due to completion of other uploads
+            const finalProgress = Math.min(100, Math.max(highestProgress.current, progress));
+            highestProgress.current = finalProgress;
+            setProgress(finalProgress);
         });
         return () => unlisten();
-    }, [uploadIds, setProgress]);
+    }, [uploadIds]);
 
     // Handlers
     const onUploadStart = useCallback(
@@ -72,17 +75,12 @@ export const ImageSelectorUploadButton = ({
         [setUploadIds]
     );
 
-    const onUploadComplete = useCallback(
-        (success: UploadMediaSuccess) => {
-            const uploadedContent = success.content;
-            const updated = [...selectionRef.current, uploadedContent.getId()];
-            selectionRef.current = updated;
-            onSelectionChange(updated);
-            removeUpload(success.mediaIdentifier);
-            setUploadIds((prev) => prev.filter((id) => id !== success.mediaIdentifier));
-        },
-        [onSelectionChange, setUploadIds]
-    );
+    const onUploadComplete = useCallback((success: UploadMediaSuccess) => {
+        const contentId = success.content.getId();
+        setNewContentIds((prev) => [...prev, contentId]);
+        removeUpload(success.mediaIdentifier);
+        setUploadIds((prev) => prev.filter((id) => id !== success.mediaIdentifier));
+    }, []);
 
     const onUploadError = useCallback(
         (error: UploadMediaError) => {
@@ -102,27 +100,33 @@ export const ImageSelectorUploadButton = ({
 
     const handleUploadClick = useCallback(() => {
         fileInputRef.current?.click();
-    }, [setProgress]);
+    }, []);
 
     return (
-        <div data-component={IMAGE_SELECTOR_UPLOAD_BUTTON_NAME} className="flex items-center justify-center self-stretch">
+        <div data-component={SELECTOR_UPLOAD_BUTTON_NAME} className="-ml-px flex items-center justify-center self-stretch">
             <input
                 tabIndex={-1}
                 ref={fileInputRef}
                 type="file"
                 multiple={multiple}
-                accept="image/*"
+                accept={accept}
                 onChange={handleInputChange}
                 className="sr-only"
             />
             <Button
                 onClick={handleUploadClick}
+                variant="solid"
                 disabled={disabled}
-                className="relative bg-surface-primary w-full h-full rounded-none border border-bdr-subtle rounded-tr rounded-br"
+                className={cn(
+                    isUploading && 'pointer-events-none',
+                    'relative w-full h-full rounded-none border border-bdr-subtle rounded-tr rounded-br'
+                )}
             >
-                <div className="absolute top-0 left-0 h-full bg-success-rev opacity-30" style={{width: `${progress}%`}} />
+                <div className="animate-pulse absolute top-0 left-0 h-full bg-success-rev opacity-30" style={{width: `${progress}%`}} />
                 <UploadIcon size={20} absoluteStrokeWidth />
             </Button>
         </div>
     );
 };
+
+SelectorUploadButton.displayName = SELECTOR_UPLOAD_BUTTON_NAME;

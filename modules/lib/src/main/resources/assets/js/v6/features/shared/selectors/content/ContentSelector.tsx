@@ -3,7 +3,7 @@ import type {ReactElement} from 'react';
 import {ContentCombobox} from './combobox';
 import type {ContentSelectorFilterOptions, ContentSelectorMode} from './content-selector.types';
 import {ContentSelection} from './selection';
-import {ContentComboboxRowProps} from './combobox/ContentComboboxRow';
+import {type ContentRowProps} from '../shared/combobox/ContentRow';
 
 //
 // * Types
@@ -17,6 +17,8 @@ export type ContentSelectorProps = {
     'selectionMode'?: ContentSelectorMode;
     /** List mode */
     'listMode'?: 'tree' | 'flat';
+    /** Whether to close the combobox when the input is blurred */
+    'closeOnBlur'?: boolean;
     /** Whether the selector is disabled */
     'disabled'?: boolean;
     /** Label for the selector */
@@ -36,7 +38,7 @@ export type ContentSelectorProps = {
     /** Whether the selector has an error */
     'error'?: boolean;
     /** Custom row renderer */
-    'rowRenderer'?: (props: ContentComboboxRowProps) => ReactElement;
+    'rowRenderer'?: (props: ContentRowProps) => ReactElement;
 } & ContentSelectorFilterOptions;
 
 //
@@ -75,6 +77,7 @@ export const ContentSelector = ({
     hideToggleIcon = false,
     error = false,
     listMode,
+    closeOnBlur = false,
     'aria-label': ariaLabel,
     contentTypeNames,
     allowedContentPaths,

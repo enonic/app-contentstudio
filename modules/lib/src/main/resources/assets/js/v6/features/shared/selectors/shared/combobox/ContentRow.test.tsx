@@ -96,7 +96,7 @@ vi.mock('../../../status/StatusBadge', () => ({
 }));
 
 // Now import the component
-import {ContentComboboxRow, type ContentComboboxRowProps} from './ContentComboboxRow';
+import {ContentRow, type ContentRowProps} from './ContentRow';
 
 // Helper to create mock flat node
 function createMockNode(
@@ -180,18 +180,19 @@ function createMockNode(
 }
 
 // Helper to create default item props
-function createItemProps(overrides: Partial<ContentComboboxRowProps['itemProps']> = {}): ContentComboboxRowProps['itemProps'] {
+function createItemProps(overrides: Partial<ContentRowProps['itemProps']> = {}): ContentRowProps['itemProps'] {
     return {
         role: 'option',
         selected: false,
         active: false,
         ...overrides,
-    } as ContentComboboxRowProps['itemProps'];
+    } as ContentRowProps['itemProps'];
 }
 
-describe('ContentComboboxRow', () => {
-    const defaultProps: ContentComboboxRowProps = {
+describe('ContentRow', () => {
+    const defaultProps: ContentRowProps = {
         node: createMockNode('1'),
+        mode: 'tree',
         itemProps: createItemProps(),
         showExpandControl: true,
         showStatusBadge: true,
@@ -210,7 +211,7 @@ describe('ContentComboboxRow', () => {
             const loadingNode = createMockNode('root', {nodeType: 'loading', isLoading: true});
 
             render(
-                <ContentComboboxRow
+                <ContentRow
                     {...defaultProps}
                     node={loadingNode}
                 />,
@@ -224,7 +225,7 @@ describe('ContentComboboxRow', () => {
             const loadingNode = createMockNode('root', {nodeType: 'loading', isLoading: true});
 
             render(
-                <ContentComboboxRow
+                <ContentRow
                     {...defaultProps}
                     node={loadingNode}
                 />,
@@ -237,7 +238,7 @@ describe('ContentComboboxRow', () => {
             const loadingNode = createMockNode('root', {nodeType: 'loading', isLoading: false});
 
             render(
-                <ContentComboboxRow
+                <ContentRow
                     {...defaultProps}
                     node={loadingNode}
                 />,
@@ -250,7 +251,7 @@ describe('ContentComboboxRow', () => {
             const loadingNode = createMockNode('root', {nodeType: 'loading', isLoading: true});
 
             const {rerender} = render(
-                <ContentComboboxRow
+                <ContentRow
                     {...defaultProps}
                     node={loadingNode}
                     showExpandControl
@@ -261,7 +262,7 @@ describe('ContentComboboxRow', () => {
             expect(iconWithExpand.className).toContain('ml-7.5');
 
             rerender(
-                <ContentComboboxRow
+                <ContentRow
                     {...defaultProps}
                     node={loadingNode}
                     showExpandControl={false}
@@ -278,7 +279,7 @@ describe('ContentComboboxRow', () => {
             const skeletonNode = createMockNode('1', {skeleton: true});
 
             render(
-                <ContentComboboxRow
+                <ContentRow
                     {...defaultProps}
                     node={skeletonNode}
                 />,
@@ -303,7 +304,7 @@ describe('ContentComboboxRow', () => {
             };
 
             render(
-                <ContentComboboxRow
+                <ContentRow
                     {...defaultProps}
                     node={skeletonNode}
                     showExpandControl
@@ -327,7 +328,7 @@ describe('ContentComboboxRow', () => {
             };
 
             render(
-                <ContentComboboxRow
+                <ContentRow
                     {...defaultProps}
                     node={skeletonNode}
                     showExpandControl={false}
@@ -340,14 +341,14 @@ describe('ContentComboboxRow', () => {
 
     describe('normal node', () => {
         it('renders content with ContentLabel', () => {
-            render(<ContentComboboxRow {...defaultProps} />);
+            render(<ContentRow {...defaultProps} />);
 
             expect(screen.getByTestId('content-label')).toBeDefined();
         });
 
         it('shows RowLeft when showExpandControl=true', () => {
             render(
-                <ContentComboboxRow
+                <ContentRow
                     {...defaultProps}
                     showExpandControl
                 />,
@@ -359,7 +360,7 @@ describe('ContentComboboxRow', () => {
 
         it('hides RowLeft when showExpandControl=false', () => {
             render(
-                <ContentComboboxRow
+                <ContentRow
                     {...defaultProps}
                     showExpandControl={false}
                 />,
@@ -373,7 +374,7 @@ describe('ContentComboboxRow', () => {
             const selectableNode = createMockNode('1', {selectable: true});
 
             render(
-                <ContentComboboxRow
+                <ContentRow
                     {...defaultProps}
                     node={selectableNode}
                 />,
@@ -386,7 +387,7 @@ describe('ContentComboboxRow', () => {
             const nonSelectableNode = createMockNode('1', {selectable: false});
 
             render(
-                <ContentComboboxRow
+                <ContentRow
                     {...defaultProps}
                     node={nonSelectableNode}
                 />,
@@ -397,7 +398,7 @@ describe('ContentComboboxRow', () => {
 
         it('shows StatusBadge when showStatusBadge=true', () => {
             render(
-                <ContentComboboxRow
+                <ContentRow
                     {...defaultProps}
                     showStatusBadge
                 />,
@@ -408,7 +409,7 @@ describe('ContentComboboxRow', () => {
 
         it('hides StatusBadge when showStatusBadge=false', () => {
             render(
-                <ContentComboboxRow
+                <ContentRow
                     {...defaultProps}
                     showStatusBadge={false}
                 />,
@@ -424,7 +425,7 @@ describe('ContentComboboxRow', () => {
             const node = createMockNode('1', {hasChildren: true, isExpanded: false});
 
             render(
-                <ContentComboboxRow
+                <ContentRow
                     {...defaultProps}
                     node={node}
                     onExpand={onExpand}
@@ -442,7 +443,7 @@ describe('ContentComboboxRow', () => {
             const node = createMockNode('1', {hasChildren: true, isExpanded: true});
 
             render(
-                <ContentComboboxRow
+                <ContentRow
                     {...defaultProps}
                     node={node}
                     onCollapse={onCollapse}
@@ -459,7 +460,7 @@ describe('ContentComboboxRow', () => {
             const expandedNode = createMockNode('1', {hasChildren: true, isExpanded: true});
 
             render(
-                <ContentComboboxRow
+                <ContentRow
                     {...defaultProps}
                     node={expandedNode}
                 />,
@@ -473,7 +474,7 @@ describe('ContentComboboxRow', () => {
             const nodeWithChildren = createMockNode('1', {hasChildren: true});
 
             render(
-                <ContentComboboxRow
+                <ContentRow
                     {...defaultProps}
                     node={nodeWithChildren}
                 />,
@@ -489,7 +490,7 @@ describe('ContentComboboxRow', () => {
             const node = createMockNode('1', {level: 3});
 
             render(
-                <ContentComboboxRow
+                <ContentRow
                     {...defaultProps}
                     node={node}
                 />,
@@ -503,7 +504,7 @@ describe('ContentComboboxRow', () => {
             const loadingNode = createMockNode('parent', {nodeType: 'loading', level: 2, isLoading: true});
 
             render(
-                <ContentComboboxRow
+                <ContentRow
                     {...defaultProps}
                     node={loadingNode}
                 />,

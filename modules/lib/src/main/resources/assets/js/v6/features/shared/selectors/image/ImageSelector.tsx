@@ -2,10 +2,14 @@ import {type ReactElement} from 'react';
 import {cn} from '@enonic/ui';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {type ImageSelectorFilterOptions, type ImageSelectorMode} from './image-selector.types';
-import {ImageSelection} from './selection';
 import {ContentCombobox} from '../content';
-import {ImageComboboxRow} from './combobox';
-import {ImageSelectorUploadButton} from './upload';
+import {SelectorUploadButton} from '../shared/upload';
+import {SelectorSelection, SelectorSelectionItem} from '../shared/selection';
+import {useStore} from '@nanostores/preact';
+import {$activeProject} from '../../../store/projects.store';
+import {ContentRow, type ContentRowProps} from '../shared/combobox/ContentRow';
+import {ImageSelectorItemView} from './ImageSelectorItemView';
+import {useAcceptMimeTypes} from '../../../hooks/useAcceptMimeTypes';
 
 export type ImageSelectorProps = {
     /** Selected content IDs */
@@ -16,6 +20,8 @@ export type ImageSelectorProps = {
     'selectionMode'?: ImageSelectorMode;
     /** List mode */
     'listMode'?: 'tree' | 'flat';
+    /** Whether to close the combobox when the input is blurred */
+    'closeOnBlur'?: boolean;
     /** Whether the selector is disabled */
     'disabled'?: boolean;
     /** Label for the selector */
@@ -44,6 +50,7 @@ export const ImageSelector = ({
     onSelectionChange,
     selectionMode = 'multiple',
     listMode,
+    closeOnBlur = false,
     disabled = false,
     label,
     placeholder,
@@ -56,46 +63,77 @@ export const ImageSelector = ({
     allowedContentPaths,
     contextContent,
     applicationKey,
-}: ImageSelectorProps): ReactElement => (
-    <div data-component={IMAGE_SELECTOR_NAME} className={cn('flex flex-col gap-2.5', className)}>
-        {/** TODO: htmlFor */}
-        <label className="text-md font-semibold">{label}</label>
+}: ImageSelectorProps): ReactElement => {
+    const activeProject = useStore($activeProject);
+    const acceptMimeTypes = useAcceptMimeTypes(IMAGE_SELECTOR_CONTENT_TYPE_NAMES);
 
-        <div className="flex items-center">
-            <ContentCombobox
-                selection={selection}
-                onSelectionChange={onSelectionChange}
-                selectionMode={selectionMode}
-                listMode={listMode}
-                disabled={disabled}
-                placeholder={placeholder}
-                emptyLabel={emptyLabel}
-                aria-label={ariaLabel}
-                error={error}
-                hideToggleIcon={hideToggleIcon}
-                rowRenderer={ImageComboboxRow}
-                rowTreeHeight={48}
-                rowFlatHeight={270}
-                dropdownMaxHeight={500}
-                contentTypeNames={IMAGE_SELECTOR_CONTENT_TYPE_NAMES}
-                allowedContentPaths={allowedContentPaths}
-                contextContent={contextContent}
-                applicationKey={applicationKey}
-                className="w-full"
-                inputClassName="border-r-0 rounded-tr-none rounded-br-none"
-            />
-            {withUpload && (
-                <ImageSelectorUploadButton
+    return (
+        <div data-component={IMAGE_SELECTOR_NAME} className={cn('flex flex-col gap-2.5', className)}>
+            {/** TODO: htmlFor */}
+            <label className="text-md font-semibold">{label}</label>
+
+            <div className="flex items-center">
+                <ContentCombobox
                     selection={selection}
                     onSelectionChange={onSelectionChange}
+                    selectionMode={selectionMode}
+                    listMode={listMode}
+                    closeOnBlur={closeOnBlur}
                     disabled={disabled}
-                    multiple={selectionMode === 'multiple'}
+                    placeholder={placeholder}
+                    emptyLabel={emptyLabel}
+                    aria-label={ariaLabel}
+                    error={error}
+                    hideToggleIcon={hideToggleIcon}
+                    rowRenderer={ImageComboboxRow}
+                    rowTreeHeight={48}
+                    rowFlatHeight={270}
+                    rowFlatHeightRatio={0.43}
+                    dropdownMaxHeight={500}
+                    contentTypeNames={IMAGE_SELECTOR_CONTENT_TYPE_NAMES}
+                    allowedContentPaths={allowedContentPaths}
+                    contextContent={contextContent}
+                    applicationKey={applicationKey}
+                    className="w-full focus-within:z-10"
+                    inputClassName={cn(withUpload && 'rounded-tr-none rounded-br-none')}
                 />
-            )}
-        </div>
+                {withUpload && (
+                    <SelectorUploadButton
+                        selection={selection}
+                        onSelectionChange={onSelectionChange}
+                        disabled={disabled}
+                        multiple={selectionMode === 'multiple'}
+                        accept={acceptMimeTypes ?? 'image/*'}
+                    />
+                )}
+            </div>
 
-        <ImageSelection selection={selection} onSelectionChange={onSelectionChange} selectionMode={selectionMode} disabled={disabled} />
-    </div>
-);
+            <SelectorSelection
+                selection={selection}
+                onSelectionChange={onSelectionChange}
+                disabled={disabled}
+                renderItem={(context) => (
+                    <SelectorSelectionItem
+                        project={activeProject}
+                        context={context}
+                        disabled={disabled}
+                        selection={selection}
+                        onSelectionChange={onSelectionChange}
+                        renderContent={(content) => <ImageSelectorItemView content={content} />}
+                    />
+                )}
+            />
+        </div>
+    );
+};
 
 ImageSelector.displayName = IMAGE_SELECTOR_NAME;
+
+const ImageComboboxRow = (props: ContentRowProps): ReactElement => (
+    <ContentRow
+        {...props}
+        renderFlatContent={(content, hideStatus) => <ImageSelectorItemView content={content} hideStatus={hideStatus} />}
+    />
+);
+
+ImageComboboxRow.displayName = 'ImageComboboxRow';
