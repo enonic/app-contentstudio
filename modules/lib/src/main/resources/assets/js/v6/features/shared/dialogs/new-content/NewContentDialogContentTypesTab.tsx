@@ -24,8 +24,8 @@ export const NewContentDialogContentTypesTab = ({
     const notFoundLabel = useI18n('dialog.new.notFound');
 
     const handleContentTypeSelected = (contentType: ContentTypeSummary) => {
-        closeNewContentDialog();
         new NewContentEvent(contentType, parentContent?.getContentSummary()).fire();
+        closeNewContentDialog();
     };
 
     return (
