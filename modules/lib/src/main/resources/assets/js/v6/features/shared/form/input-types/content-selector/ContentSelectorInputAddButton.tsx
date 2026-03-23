@@ -1,6 +1,6 @@
 import {Button, cn} from '@enonic/ui';
 import {Plus} from 'lucide-react';
-import {ReactElement, useEffect, useRef, useState} from 'react';
+import {type ReactElement, useEffect, useRef, useState} from 'react';
 import {useStore} from '@nanostores/preact';
 import {listenKeys} from 'nanostores';
 import {$newContentDialog, openNewContentDialog} from '../../../../store/dialogs/newContentDialog.store';
@@ -22,7 +22,7 @@ export const ContentSelectorInputAddButton = ({
     const [progress, setProgress] = useState(0);
     const [uploadIds, setUploadIds] = useState<string[]>([]);
     const contextContent = useStore($contextContent);
-    const parentId = contextContent?.getContentId()?.toString() ?? null;
+    const parentId = contextContent?.getContentId()?.toString() ?? undefined;
 
     // Refs
     const isWaitingForContentCreationRef = useRef(false);

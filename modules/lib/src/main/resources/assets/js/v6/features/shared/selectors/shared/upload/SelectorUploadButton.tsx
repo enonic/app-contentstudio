@@ -1,14 +1,14 @@
+import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Button, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {UploadIcon} from 'lucide-react';
-import {type ReactElement, useCallback, useEffect, useRef, useState} from 'react';
-import {$contextContent} from '../../../../store/context/contextContent.store';
 import {listenKeys} from 'nanostores';
-import {$uploads, removeUpload} from '../../../../store/uploads.store';
-import {UploadMediaError, UploadMediaSuccess} from '../../../../api/uploadMedia';
+import {type ReactElement, useCallback, useEffect, useRef, useState} from 'react';
+import type {UploadMediaError, UploadMediaSuccess} from '../../../../api/uploadMedia';
 import {useUploadMedia} from '../../../../hooks/useUploadMedia';
-import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {$contextContent} from '../../../../store/context/contextContent.store';
+import {$uploads, removeUpload} from '../../../../store/uploads.store';
 
 export type SelectorUploadButtonProps = {
     selection: readonly string[];
@@ -54,7 +54,7 @@ export const SelectorUploadButton = ({
             return;
         }
 
-        const unlisten = listenKeys($uploads, uploadIds, (uploads) => {
+        return listenKeys($uploads, uploadIds, (uploads) => {
             const activeIds = uploadIds.filter((id) => uploads[id]);
 
             if (activeIds.length === 0) {
@@ -70,7 +70,6 @@ export const SelectorUploadButton = ({
             highestProgress.current = finalProgress;
             setProgress(finalProgress);
         });
-        return () => unlisten();
     }, [uploadIds]);
 
     // Handlers
@@ -116,7 +115,7 @@ export const SelectorUploadButton = ({
                 type="file"
                 multiple={multiple}
                 accept={accept}
-                onChange={handleInputChange}
+                onChange={e => void handleInputChange(e)}
                 className="sr-only"
             />
             <Button
@@ -126,8 +125,7 @@ export const SelectorUploadButton = ({
                 className={cn(
                     isUploading && 'pointer-events-none',
                     'relative w-full h-full rounded-none border border-bdr-subtle rounded-tr rounded-br bg-surface-selected',
-                    'hover:outline-1 hover:outline-bdr-subtle',
-                    'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset transition-highlight'
+                    'focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset transition-highlight'
                 )}
             >
                 {isUploading && (

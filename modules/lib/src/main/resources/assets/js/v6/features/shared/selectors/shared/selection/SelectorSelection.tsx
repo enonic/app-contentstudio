@@ -1,23 +1,21 @@
-import {useCallback, useEffect, useRef, useState, type ReactElement} from 'react';
-import {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
-import {fetchContentByIds} from '../../../../api/content-fetcher';
 import {SortableList, type SortableListItemContext} from '@enonic/lib-admin-ui/form2/components';
+import {useCallback, useEffect, useRef, useState, type ReactElement} from 'react';
+import type {MovedContentItem} from '../../../../../../app/browse/MovedContentItem';
+import {CompareStatus} from '../../../../../../app/content/CompareStatus';
+import type {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentServerChangeItem} from '../../../../../../app/event/ContentServerChangeItem';
+import {fetchContentByIds} from '../../../../api/content-fetcher';
 import {
     $contentArchived,
     $contentDeleted,
     $contentMoved,
     $contentPublished,
+    $contentRenamed,
     $contentUnpublished,
     $contentUpdated,
+    type ContentEvent,
+    type ContentRenamedData,
 } from '../../../../store/socket.store';
-import {CompareStatus} from '../../../../../../app/content/CompareStatus';
-
-type ContentUpdatedEvent = Parameters<Parameters<typeof $contentUpdated.listen>[0]>[0];
-type ContentPublishedEvent = Parameters<Parameters<typeof $contentPublished.listen>[0]>[0];
-type ContentUnpublishedEvent = Parameters<Parameters<typeof $contentUnpublished.listen>[0]>[0];
-type ContentMovedEvent = Parameters<Parameters<typeof $contentMoved.listen>[0]>[0];
-type ContentDeletedEvent = Parameters<Parameters<typeof $contentDeleted.listen>[0]>[0];
-type ContentArchivedEvent = Parameters<Parameters<typeof $contentArchived.listen>[0]>[0];
 
 export type SelectorSelectionRenderItem = (context: SortableListItemContext<ContentSummaryAndCompareStatus>) => ReactElement;
 
@@ -89,7 +87,7 @@ export const SelectorSelection = ({
         [onSelectionChange]
     );
     const handleUpdateContents = useCallback(
-        (event: ContentUpdatedEvent | ContentPublishedEvent | ContentUnpublishedEvent) => {
+        (event: ContentEvent | null) => {
             if (!event?.data) return;
             const newContents = contentsRef.current.map((content) => {
                 const updatedContent = event.data.find((item) => item.getId() === content.getId());
@@ -101,7 +99,7 @@ export const SelectorSelection = ({
         [setContents]
     );
     const handleRemoveContents = useCallback(
-        (event: ContentDeletedEvent | ContentArchivedEvent, compareStatus: CompareStatus) => {
+        (event: ContentEvent<ContentServerChangeItem[]> | null, compareStatus: CompareStatus) => {
             if (!event?.data) return;
             const removedContentIds = event.data.map((item) => item.getId());
             const newContents = contentsRef.current.map((content) => {
@@ -114,8 +112,16 @@ export const SelectorSelection = ({
         [setContents]
     );
     const handleMoveContents = useCallback(
-        (event: ContentMovedEvent) => {
+        (event: ContentEvent<MovedContentItem[]> | null) => {
+            if (!event?.data) return;
             handleUpdateContents({...event, data: event.data.map((item) => item.item)});
+        },
+        [handleUpdateContents]
+    );
+    const handleRenameContents = useCallback(
+        (event: ContentEvent<ContentRenamedData> | null) => {
+            if (!event?.data) return;
+            handleUpdateContents({...event, data: event.data.items});
         },
         [handleUpdateContents]
     );
@@ -126,6 +132,7 @@ export const SelectorSelection = ({
         const unlistenPublish = $contentPublished.listen(handleUpdateContents);
         const unlistenUnpublish = $contentUnpublished.listen(handleUpdateContents);
         const unlistenMove = $contentMoved.listen(handleMoveContents);
+        const unlistenRename = $contentRenamed.listen(handleRenameContents);
         const unlistenDelete = $contentDeleted.listen((event) => handleRemoveContents(event, CompareStatus.UNKNOWN));
         const unlistenArchive = $contentArchived.listen((event) => handleRemoveContents(event, CompareStatus.ARCHIVED));
 
@@ -134,10 +141,11 @@ export const SelectorSelection = ({
             unlistenPublish();
             unlistenUnpublish();
             unlistenMove();
+            unlistenRename();
             unlistenDelete();
             unlistenArchive();
         };
-    }, [handleUpdateContents, handleRemoveContents, handleMoveContents]);
+    }, [handleUpdateContents, handleRemoveContents, handleMoveContents, handleRenameContents]);
 
     if (!contents || contents.length === 0) return null;
 

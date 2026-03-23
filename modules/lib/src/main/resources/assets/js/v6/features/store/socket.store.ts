@@ -9,12 +9,12 @@ import type {ContentPath} from '../../../app/content/ContentPath';
 // * Event Types
 //
 
-type ContentEvent<T = ContentSummaryAndCompareStatus[]> = {
+export type ContentEvent<T = ContentSummaryAndCompareStatus[]> = {
     timestamp: number;
     data: T;
 };
 
-type ContentRenamedData = {
+export type ContentRenamedData = {
     items: ContentSummaryAndCompareStatus[];
     oldPaths: ContentPath[];
 };

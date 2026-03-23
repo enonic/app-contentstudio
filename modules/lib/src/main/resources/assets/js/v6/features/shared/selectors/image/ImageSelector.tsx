@@ -69,7 +69,7 @@ export const ImageSelector = ({
 
     return (
         <div data-component={IMAGE_SELECTOR_NAME} className={cn('flex flex-col gap-2.5', className)}>
-            {/** TODO: htmlFor */}
+            {/* TODO: Add htmlFor to associate label with combobox input */}
             {label && <label className="text-md font-semibold">{label}</label>}
 
             <div className="flex items-center">

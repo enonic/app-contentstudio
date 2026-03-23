@@ -1,12 +1,12 @@
-import {type ReactElement} from 'react';
-import {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
-import {StatusBadge} from '../../status/StatusBadge';
 import {Tooltip} from '@enonic/ui';
+import {FileQuestionMarkIcon} from 'lucide-react';
+import {type ReactElement} from 'react';
+import {CompareStatus} from '../../../../../app/content/CompareStatus';
+import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
+import {useI18n} from '../../../hooks/useI18n';
 import {calcContentState} from '../../../utils/cms/content/workflow';
 import {WorkflowContentIcon} from '../../icons/WorkflowContentIcon';
-import {CompareStatus} from '../../../../../app/content/CompareStatus';
-import {useI18n} from '../../../hooks/useI18n';
-import {FileQuestionMarkIcon} from 'lucide-react';
+import {StatusBadge} from '../../status/StatusBadge';
 
 export type MediaSelectorItemViewProps = {
     /** The content to display */
@@ -56,7 +56,7 @@ export const MediaSelectorItemView = ({content, hideStatus = false}: MediaSelect
             </div>
             <div className="min-w-0 w-full">
                 <span className="font-semibold text-base block whitespace-nowrap overflow-hidden text-ellipsis">{displayName}</span>
-                <Tooltip value={subName}>
+                <Tooltip delay={300} value={subName}>
                     <span
                         dir="rtl"
                         className="text-subtle text-sm block whitespace-nowrap overflow-hidden text-ellipsis text-left group-data-[tone=inverse]:text-alt"

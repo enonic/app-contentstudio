@@ -1,7 +1,7 @@
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import type {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {Avatar, Dialog, Tooltip} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {ReactElement} from 'react';
+import type {ReactElement} from 'react';
 import {ProjectAccess} from '../../../../../../app/settings/access/ProjectAccess';
 import {useI18n} from '../../../../hooks/useI18n';
 import {$projectDialog} from '../../../../store/dialogs/projectDialog.store';
@@ -139,7 +139,7 @@ export const ProjectDialogSummaryStepContent = ({locked = false}: ProjectDialogS
                                     const principalKey = p.getKey().toString();
 
                                     return (
-                                        <Tooltip key={principalKey} value={principalDisplayName}>
+                                        <Tooltip delay={150} key={principalKey} value={principalDisplayName}>
                                             <Avatar size="sm" className="size-6 -my-0.5">
                                                 <Avatar.Fallback className="text-alt font-semibold">
                                                     {getInitials(principalDisplayName)}
@@ -165,7 +165,7 @@ export const ProjectDialogSummaryStepContent = ({locked = false}: ProjectDialogS
                                             const principalKey = p.getKey().toString();
 
                                             return (
-                                                <Tooltip key={principalKey} value={principalDisplayName}>
+                                                <Tooltip delay={150} key={principalKey} value={principalDisplayName}>
                                                     <Avatar size="sm" className="size-6 -my-0.5">
                                                         <Avatar.Fallback className="text-alt font-semibold">
                                                             {getInitials(principalDisplayName)}
