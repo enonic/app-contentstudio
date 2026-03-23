@@ -680,6 +680,15 @@ export class HtmlEditor {
             }
         });
 
+        this.editor.addCommand('table', {
+            modes: {wysiwyg: 1},
+            canUndo: false,
+            exec: (editor: editor) => {
+                dialogEventGenerator.generateTableQuicktableEventAndFire({editor});
+                return true;
+            }
+        });
+
         this.editor.ui.addButton('Fullscreen', {
             label: 'Fullscreen',
             command: 'openFullscreenDialog',
@@ -1152,10 +1161,10 @@ class HtmlEditorConfigBuilder {
 
     private getPluginsToRemove(): string {
         if (this.editorParams.isFullScreenMode()) {
-            return 'resize,image,autogrow';
+            return 'resize,image,quicktable,autogrow';
         }
 
-        return 'resize,image';
+        return 'resize,image,quicktable';
     }
 
     private getExtraAllowedContent(): string {

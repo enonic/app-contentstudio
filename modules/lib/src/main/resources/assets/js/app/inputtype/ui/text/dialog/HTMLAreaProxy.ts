@@ -1,6 +1,13 @@
 import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../CreateHtmlAreaDialogEvent';
 import {type CreateHtmlAreaMacroDialogEvent} from '../CreateHtmlAreaMacroDialogEvent';
-import {type AnchorDialogParams, type CodeDialogParams, type FullScreenDialogParams, type MacroDialogParams} from '../HtmlEditorTypes';
+import {
+    type AnchorDialogParams,
+    type CodeDialogParams,
+    type FullScreenDialogParams,
+    type MacroDialogParams,
+    type SpecialCharDialogParams,
+    type TableQuicktablePopupParams,
+} from '../HtmlEditorTypes';
 import {BulletedListModalDialog} from './BulletedListModalDialog';
 import {FullscreenDialog} from './FullscreenDialog';
 import {MacroModalDialog} from './MacroModalDialog';
@@ -9,9 +16,8 @@ import {NumberedListModalDialog} from './NumberedListModalDialog';
 import {openAnchorDialog as openV6AnchorDialog} from '../../../../../v6/features/store/dialogs/anchorDialog.store';
 import {openCodeDialog as openV6CodeDialog} from '../../../../../v6/features/store/dialogs/codeDialog.store';
 import {openSpecialCharDialog as openV6SpecialCharDialog} from '../../../../../v6/features/store/dialogs/specialCharDialog.store';
-
-import {TableDialog} from './TableDialog';
-import {type SpecialCharDialogParams} from '../HtmlEditorTypes';
+import {openTableDialog as openV6TableDialog} from '../../../../../v6/features/store/dialogs/tableDialog.store';
+import {openTableQuicktablePopup as openV6TableQuicktablePopup} from '../../../../../v6/features/store/dialogs/tableQuicktablePopup.store';
 import eventInfo = CKEDITOR.eventInfo;
 
 export class HTMLAreaProxy {
@@ -32,6 +38,9 @@ export class HTMLAreaProxy {
             return;
         case HtmlAreaDialogType.FULLSCREEN:
             HTMLAreaProxy.openFullscreenDialog(event);
+            return;
+        case HtmlAreaDialogType.TABLE_QUICKTABLE:
+            HTMLAreaProxy.openTableQuicktablePopup(event);
             return;
         case HtmlAreaDialogType.TABLE:
             HTMLAreaProxy.openTableDialog(event);
@@ -67,7 +76,11 @@ export class HTMLAreaProxy {
     }
 
     private static openTableDialog(event: CreateHtmlAreaDialogEvent): void {
-        HTMLAreaProxy.openLegacyDialog(new TableDialog(event.getConfig() as eventInfo));
+        openV6TableDialog(event.getConfig() as eventInfo);
+    }
+
+    private static openTableQuicktablePopup(event: CreateHtmlAreaDialogEvent): void {
+        openV6TableQuicktablePopup(event.getConfig() as TableQuicktablePopupParams);
     }
 
     private static openNumberedListDialog(event: CreateHtmlAreaDialogEvent): void {

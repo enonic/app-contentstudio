@@ -6,6 +6,8 @@ import {AnchorDialog} from './shared/dialogs/AnchorDialog';
 import {CodeDialog} from './shared/dialogs/CodeDialog';
 import {LegacyElement} from './shared/LegacyElement';
 import {SpecialCharDialog} from './shared/dialogs/SpecialCharDialog';
+import {TableDialog} from './shared/dialogs/TableDialog';
+import {TableQuicktablePopup} from './shared/dialogs/TableQuicktablePopup';
 import {$isWizard} from './store/app.store';
 import {BrowsePage} from './views/browse/BrowsePage';
 import {WizardPage} from './views/wizard/WizardPage';
@@ -27,6 +29,8 @@ const App = (): ReactElement => {
             <AnchorDialog />
             <CodeDialog />
             <SpecialCharDialog />
+            <TableQuicktablePopup />
+            <TableDialog />
         </>
     );
 };

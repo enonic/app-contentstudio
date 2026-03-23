@@ -8,6 +8,7 @@ import {
     type FullScreenDialogParams,
     type MacroDialogParams,
     type SpecialCharDialogParams,
+    type TableQuicktablePopupParams,
 } from './HtmlEditorTypes';
 import {type HtmlEditorParams} from './HtmlEditorParams';
 
@@ -133,5 +134,9 @@ export class CreateHtmlAreaDialogEventGenerator {
 
     generateCodeEventAndFire(config: CodeDialogParams): void {
         this.doGenerateAndFire(this.createDialogEvent(config, HtmlAreaDialogType.CODE));
+    }
+
+    generateTableQuicktableEventAndFire(config: TableQuicktablePopupParams): void {
+        this.doGenerateAndFire(this.createDialogEvent(config, HtmlAreaDialogType.TABLE_QUICKTABLE));
     }
 }
