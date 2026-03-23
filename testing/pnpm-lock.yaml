@@ -24,8 +24,8 @@ importers:
         specifier: ^9.24.0
         version: 9.24.0
       allure-commandline:
-        specifier: ^2.36.0
-        version: 2.36.0
+        specifier: ^2.38.1
+        version: 2.38.1
       properties-reader:
         specifier: 2.3.0
         version: 2.3.0
@@ -525,8 +525,8 @@ packages:
     resolution: {integrity: sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==}
     engines: {node: '>= 14'}
 
-  allure-commandline@2.36.0:
-    resolution: {integrity: sha512-ls/4fk2Psv2Tu2PbWFrQPmUnm3gmmO9MBan4MuPWwqdkJPEmln2KRwtvtWYr9Av+e5AnFK1fGXWVyxqJIPiPwA==}
+  allure-commandline@2.38.1:
+    resolution: {integrity: sha512-qkoEz8/Y+K6XRlkJFmPEsT4bJFa2nHmYMkp6aEg6HaM4uewpJRI0jJsQhVWl8xZ6k6VtVr3vWnsAMPL5LPthvA==}
     hasBin: true
 
   allure-js-commons@3.4.5:
@@ -646,6 +646,7 @@ packages:
   basic-ftp@5.1.0:
     resolution: {integrity: sha512-RkaJzeJKDbaDWTIPiJwubyljaEPwpVWkm9Rt5h9Nd6h7tEXTJ3VB4qxdZBioV7JO5yLUaOKwz7vDOzlncUsegw==}
     engines: {node: '>=10.0.0'}
+    deprecated: Security vulnerability fixed in 5.2.0, please upgrade
 
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
@@ -2433,7 +2434,7 @@ snapshots:
 
   agent-base@7.1.4: {}
 
-  allure-commandline@2.36.0: {}
+  allure-commandline@2.38.1: {}
 
   allure-js-commons@3.4.5:
     dependencies:
