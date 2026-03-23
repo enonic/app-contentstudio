@@ -15,7 +15,7 @@ describe('occurrences.double.spec: tests for content with Double inputs', functi
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
+
     const VALID_DOUBLE = "123.4";
     const MAX_SAFE_DOUBLE = "9007199254740991";
     const MORE_MAX_SAFE_DOUBLE = "9007199254740991.6";
@@ -25,18 +25,13 @@ describe('occurrences.double.spec: tests for content with Double inputs', functi
     const CONTENT_2 = contentBuilder.generateRandomName('double');
     const INVALID_VALUE = "123q";
 
-    it(`Preconditions: new site should be added`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
     it(`GIVEN wizard for content with a not required 'double' is opened WHEN max safe value has been typed THEN validation message should not be displayed`,
         async () => {
             let doubleForm = new DoubleForm();
             let contentWizard = new ContentWizard();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DOUBLE_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.DOUBLE_0_1);
             // 1. Type max safe value:
             await doubleForm.typeDouble(MAX_SAFE_DOUBLE);
             await contentWizard.typeDisplayName(CONTENT_1);
@@ -82,7 +77,7 @@ describe('occurrences.double.spec: tests for content with Double inputs', functi
             assert.equal(recording, "", 'Input validation recording should be empty');
             // 3. Verify that the content is valid
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.ok(isInvalid === false, "Content should be valid");
+            assert.ok(isInvalid === false, "The double content should be valid");
             // 4. Verify thar red border is not displayed in the double input:
             await doubleForm.waitForRedBorderNotDisplayedInDoubleInput(0);
         });
@@ -101,7 +96,7 @@ describe('occurrences.double.spec: tests for content with Double inputs', functi
             assert.equal(recording, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, 'Input validation recording appears in the input');
             // 3. Verify that the content is valid, the input is not required
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.ok(isInvalid === false, "Content should be valid");
+            assert.ok(isInvalid === false, "The double content should be valid");
             // 4. Verify thar red border appears in the double input:
             await doubleForm.waitForRedBorderInDoubleInput(0);
         });

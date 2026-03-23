@@ -5,7 +5,7 @@ const Page = require('../page');
 const {BUTTONS} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const XPATH = {
-    container: `//div[@role='dialog' and @data-state='open']`,
+    container: `//div[@role='dialog' and @data-state='open' and descendant::h3[contains(.,'Create content')]]`,
     dialogTitle: `//h3[contains(.,'Create content')]`,
     searchInput: `//input[@aria-label='Search']`,
     uploaderButton: "//div[contains(@id,'NewContentUploader')]",
@@ -58,6 +58,7 @@ class NewContentDialog extends Page {
             await this.handleError(`New Content dialog, All button:`, 'err_all_new_content_dlg', err);
         }
     }
+
     async clickOnSuggestedButton() {
         try {
             await this.waitForElementDisplayed(this.suggestedButton, appConst.mediumTimeout);
@@ -112,7 +113,8 @@ class NewContentDialog extends Page {
             await this.pause(100);
             await this.clickOnElement(this.searchInput);
             // Type the remaining text
-            await this.addTextInInput(this.searchInput, remainingText);
+            //await this.addTextInInput(this.searchInput, remainingText);
+            await this.enterTextUsingArray(this.searchInput, remainingText);
             return await this.pause(200);
         } catch (err) {
             await this.handleError('New Content dialog, search input.', 'err_new_content_search', err);

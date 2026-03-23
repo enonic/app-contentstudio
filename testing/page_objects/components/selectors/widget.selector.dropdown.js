@@ -9,7 +9,7 @@ const lib = require('../../../libs/elements-old');
 const XPATH = {
     container: "//button[contains(@id,'WidgetSelector') and @role='combobox']",
     widgetSelectorListbox: "//div[contains(@id,'WidgetsSelector') and @role='listbox']",
-    optionsNameSpan: "//div[contains(@role,'option')]//div[@data-component='WidgetsSelectorItem']//span",
+    optionsNameSpan: "//div[contains(@role,'option')]//span",
 }
 
 class WidgetSelectorDropdown extends Page {
@@ -37,8 +37,8 @@ class WidgetSelectorDropdown extends Page {
     }
 
     async getOptionsName() {
-        let locator = DROPDOWN.SELECTOR_LISTBOX + XPATH.optionsNameSpan;
-        await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
+        let locator = DROPDOWN.COMBOBOX_POPUP + XPATH.optionsNameSpan;
+        await this.waitUntilDisplayed(locator);
         await this.pause(300);
         return await this.getTextInDisplayedElements(locator);
     }

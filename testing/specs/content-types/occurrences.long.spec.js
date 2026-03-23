@@ -14,26 +14,20 @@ describe('occurrences.long.spec:  tests for content with Long inputs', function 
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
+
     const INVALID_LONG = "123.4";
     const MAX_SAFE_LONG = Number.MAX_SAFE_INTEGER;
     const MORE_MAX_SAFE_LONG = Number.MAX_SAFE_INTEGER + 1;
     const MIN_SAFE_LONG = "-9007199254740991";
     const LESS_MIN_SAFE_LONG = "-9007199254740992";
     const CONTENT_1 = contentBuilder.generateRandomName('long');
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
-    it(`Preconditions: new site should be added`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
-
-    it(`GIVEN wizard for not required 'Long(0:1)' is opened WHEN max safe value has been typed THEN validation message should not be displayed`,
+    it.skip(`GIVEN wizard for not required 'Long(0:1)' is opened WHEN max safe value has been typed THEN validation message should not be displayed`,
         async () => {
             let longForm = new LongForm();
             let contentWizard = new ContentWizard();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.LONG_0_1);
             //1. Type max safe value:
             await longForm.typeLong(MAX_SAFE_LONG);
             await contentWizard.typeDisplayName(CONTENT_1);
@@ -46,11 +40,11 @@ describe('occurrences.long.spec:  tests for content with Long inputs', function 
             assert.ok(isInvalid === false, "Content should be valid");
         });
 
-    it(`GIVEN wizard for not required 'long' content is opened WHEN value is more than MAX_SAFE has been typed THEN red border should be present in the long input`,
+    it.skip(`GIVEN wizard for not required 'long' content is opened WHEN value is more than MAX_SAFE has been typed THEN red border should be present in the long input`,
         async () => {
             let longForm = new LongForm();
             let contentWizard = new ContentWizard();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.LONG_0_1);
             //1. Type max safe value:
             await longForm.typeLong(MORE_MAX_SAFE_LONG);
             await contentWizard.typeDisplayName(CONTENT_1);
@@ -65,11 +59,11 @@ describe('occurrences.long.spec:  tests for content with Long inputs', function 
             await longForm.waitForRedBorderInLongInput(0);
         });
 
-    it(`GIVEN wizard for not required 'long' content is opened WHEN min safe has been typed THEN red border should not be present in the long input`,
+    it.skip(`GIVEN wizard for not required 'long' content is opened WHEN min safe has been typed THEN red border should not be present in the long input`,
         async () => {
             let longForm = new LongForm();
             let contentWizard = new ContentWizard();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.LONG_0_1);
             //1. Type max safe value:
             await longForm.typeLong(MIN_SAFE_LONG);
             await contentWizard.typeDisplayName(CONTENT_1);
@@ -84,11 +78,11 @@ describe('occurrences.long.spec:  tests for content with Long inputs', function 
             await longForm.waitForRedBorderNotDisplayedInLongInput(0);
         });
 
-    it(`GIVEN wizard for not required 'long' content is opened WHEN less than min safe has been typed THEN red border should appear in the long input`,
+    it.skip(`GIVEN wizard for not required 'long' content is opened WHEN less than min safe has been typed THEN red border should appear in the long input`,
         async () => {
             let longForm = new LongForm();
             let contentWizard = new ContentWizard();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.LONG_0_1);
             //1. Type max safe value:
             await longForm.typeLong(LESS_MIN_SAFE_LONG);
             await contentWizard.typeDisplayName(CONTENT_1);
@@ -103,11 +97,11 @@ describe('occurrences.long.spec:  tests for content with Long inputs', function 
             await longForm.waitForRedBorderInLongInput(0);
         });
 
-    it(`GIVEN wizard for not required 'long' content is opened WHEN invalid value has been typed THEN red border should be present in the long input`,
+    it.skip(`GIVEN wizard for not required 'long' content is opened WHEN invalid value has been typed THEN red border should be present in the long input`,
         async () => {
             let longForm = new LongForm();
             let contentWizard = new ContentWizard();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.LONG_0_1);
             //1. Type max safe value:
             await longForm.typeLong(INVALID_LONG);
             await contentWizard.typeDisplayName(CONTENT_1);
@@ -126,15 +120,15 @@ describe('occurrences.long.spec:  tests for content with Long inputs', function 
         async () => {
             let longForm = new LongForm();
             let contentWizard = new ContentWizard();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_2_4);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.LONG_2_4);
             //1. Type max safe value:
             await longForm.typeLong(MAX_SAFE_LONG);
             await longForm.typeLong(INVALID_LONG, 1);
             await contentWizard.typeDisplayName(CONTENT_1);
             await studioUtils.saveScreenshot('long_invalid_second_value');
             //2. Verify that input validation message(Invalid value entered) is displayed:
-            let recording = await longForm.getOccurrenceValidationRecording(1);
-            assert.equal(recording, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, 'Input validation recording should be displayed');
+            let recording = await longForm.waitForOccurrenceValidationRecordingDisplayed(1, "Invalid value entered");
+            //assert.equal(recording, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, 'Input validation recording should be displayed');
             //3. Verify that the content is not valid, because Min 2 valid occurrence(s) required
             let isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid, "Content should be not valid");

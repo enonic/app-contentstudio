@@ -1,10 +1,9 @@
 /**
  * Created on 30/07/2018.
  */
-const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
 const BaseContextWindowPanel = require('../../details_panel/base.context.window.panel');
-const {WIZARD} = require('../../../libs/elements');
+const {WIZARD, DROPDOWN} = require('../../../libs/elements');
 
 const xpath = {
     container: `//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'DockedContextPanel') or contains(@id,'FloatingContextPanel')]`,
@@ -18,11 +17,11 @@ class WizardContextWindowPanel extends BaseContextWindowPanel {
     }
 
     get widgetSelectorDropdown() {
-        return xpath.container + WIZARD.CONTEXT_WINDOW_WIDGET_SELECTOR_ITEM
+        return xpath.container + DROPDOWN.WIDGET_COMBOBOX;
     }
 
     get widgetSelectorDropdownHandle() {
-        return xpath.container + lib.DROPDOWN_SELECTOR.WIDGET_FILTER_DROPDOWN + lib.DROP_DOWN_HANDLE;
+        return xpath.container + DROPDOWN.WIDGET_COMBOBOX + "//button[@aria-label='Toggle']";
     }
 
     async isContentInvalid() {
@@ -63,9 +62,6 @@ class WizardContextWindowPanel extends BaseContextWindowPanel {
         } catch (err) {
             //Workaround for issue with the empty selector:
             await this.saveScreenshotUniqueName('err_versions');
-            await this.refresh();
-            await this.pause(4000);
-            await super.openVersionHistory();
         }
     }
 

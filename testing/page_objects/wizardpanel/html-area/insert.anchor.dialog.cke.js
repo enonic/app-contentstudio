@@ -1,5 +1,6 @@
 const Page = require('../../page');
 const lib = require('../../../libs/elements-old');
+const {BUTTONS} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
 const XPATH = {
@@ -11,7 +12,7 @@ const XPATH = {
 class InsertAnchorModalDialog extends Page {
 
     get cancelButton() {
-        return XPATH.container + XPATH.cancelButton;
+        return XPATH.container + BUTTONS.buttonAriaLabel('Cancel');
     }
 
     get cancelButtonTop() {
@@ -19,7 +20,7 @@ class InsertAnchorModalDialog extends Page {
     }
 
     get insertButton() {
-        return `${XPATH.container}` + `${XPATH.insertButton}`;
+        return `${XPATH.container}` + BUTTONS.buttonAriaLabel('Insert');
     }
 
     get textInput() {

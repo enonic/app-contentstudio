@@ -120,14 +120,16 @@ class Page {
         try {
             let inputElement = await this.findElement(selector);
             await inputElement.setValue(text);
-            let value = await inputElement.getValue();
-            // workaround for issue in WebdriverIO
-            if (value === "") {
-                await inputElement.setValue(text);
-            }
             return await this.pause(200);
         } catch (err) {
             throw new Error("Tried to set the value in the input " + err);
+        }
+    }
+
+    async enterTextUsingArray(selector, text) {
+        let inputElement = await this.findElement(selector);
+        for (const ch of text) {
+            await inputElement.addValue(ch);
         }
     }
 
@@ -277,7 +279,7 @@ class Page {
             return this.getDisplayedElements(selector).then(result => {
                 return result.length === 0;
             })
-        }, {timeout: ms, timeoutMsg: `Timeout exception. Element ${selector} still not visible in: ${ms}`});
+        }, {timeout: ms, timeoutMsg: `Timeout exception. Element ${selector} still visible in: ${ms}`});
     }
 
     waitUntilDisplayed(selector, ms = appConst.mediumTimeout) {

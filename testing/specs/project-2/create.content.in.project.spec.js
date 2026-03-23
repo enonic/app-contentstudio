@@ -9,7 +9,7 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const BrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.context.window.panel');
-const ContentWidgetView = require('../../page_objects/browsepanel/detailspanel/content.widget.item.view');
+const DetailsWidgetContentSection = require('../../page_objects/details_panel/details.widget.content.section');
 const EditPermissionsGeneralStep = require('../../page_objects/permissions/edit.permissions.general.step');
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
 const appConst = require('../../libs/app_const');
@@ -116,14 +116,14 @@ describe('create.content.in.project.spec - create new content in the selected co
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let browseDetailsPanel = new BrowseDetailsPanel();
-            let contentWidget = new ContentWidgetView();
+            let detailsWidgetContentSection = new DetailsWidgetContentSection();
             // 1. Select the project in 'Select Context' dialog:
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             // 2. Select the folder and open details panel
             await studioUtils.findAndSelectItem(TEST_FOLDER_NAME);
             await studioUtils.openBrowseDetailsPanel();
-            let contentName = await contentWidget.getContentName();
-            assert.equal(contentName, TEST_FOLDER_NAME, 'Expected name should be displayed in the widget(details panel)');
+            let contentName = await detailsWidgetContentSection.getTextInDisplayNameField();
+            assert.equal(contentName, TEST_FOLDER_NAME, 'Expected display name should be displayed in the widget(details panel)');
             // 3. Switch to 'Default' project:
             await contentBrowsePanel.selectContext('Default');
             // 4.Verify that 'Details Panel' is cleared
@@ -141,7 +141,6 @@ describe('create.content.in.project.spec - create new content in the selected co
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let browseDetailsPanel = new BrowseDetailsPanel();
-            let contentWidget = new ContentWidgetView();
             // 1. Select the just created project in 'Select Context' dialog:
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             // 2. Check the folder in the current context:

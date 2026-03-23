@@ -18,24 +18,17 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
     const EXPECTED_TEXT_TEXT2 = '<p>test text 2</p>';
     const TEXT_1 = 'test text';
     const TEXT_2 = 'test text 2';
-    let htmlAreaContent;
-    let htmlAreaContentEmpty;
-    let SITE;
+    let HTML_AREA_CONTENT2_4;
+    let CONTENT_EMPTY_HTML_AREA;
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
-    it("Preconditions: new site should be created",
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
-
-    it(`GIVEN new wizard for htmlArea 2-4 is opened WHEN name has been typed AND 'Save' pressed THEN content should be saved`,
+    it(`WHEN the only name has been typed AND 'Save' pressed THEN content should be saved`,
         async () => {
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('htmlarea');
-            htmlAreaContentEmpty = contentBuilder.buildHtmlArea(displayName, 'htmlarea2_4', TEXT_1, TEXT_2);
+            CONTENT_EMPTY_HTML_AREA = contentBuilder.buildHtmlArea(displayName, 'htmlarea2_4', TEXT_1, TEXT_2);
             // 1. Open new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_2_4);
             await contentWizard.pause(1000);
             // 2. Type a name and save
             await contentWizard.typeDisplayName(displayName);
@@ -46,12 +39,12 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
             await contentWizard.waitForExpectedNotificationMessage(EXPECTED_MESSAGE);
         });
 
-    it(`GIVEN existing 'htmlArea 2:4'(both areas are empty) WHEN it has been opened THEN validation record should be displayed in the form`,
+    it(`WHEN existing 'htmlArea 2:4'(both areas are empty) has been opened THEN validation recording should be displayed in the form`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
             // 1. Open existing content:
-            await studioUtils.selectContentAndOpenWizard(htmlAreaContentEmpty.displayName);
+            await studioUtils.selectContentAndOpenWizard(CONTENT_EMPTY_HTML_AREA.displayName);
             let result = await htmlAreaForm.getFormValidationRecording();
             await studioUtils.saveScreenshot('htmlarea_2_4_empty_area');
             // 2. Verify that validation record is displayed: 'Min 2 valid occurrence(s) required'
@@ -64,9 +57,11 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
     it(`GIVEN wizard for 'htmlArea 2:4' is opened WHEN html area is empty and the content has been saved THEN red icon should appear, because the input is required`,
         async () => {
             let contentWizard = new ContentWizard();
+            let htmlAreaForm = new HtmlAreaForm();
             // 1. Open new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_2_4);
             await contentWizard.typeDisplayName('test_area2_4');
+            await htmlAreaForm.clickOnAddButton();
             // 2. Type a name and save:
             await contentWizard.waitAndClickOnSave();
             // 3. Verify that red icon gets visible:
@@ -79,7 +74,7 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             // 1. Open new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_2_4);
             // 2. Type a text in the first area
             await htmlAreaForm.typeTextInHtmlArea('test text');
             // 3. Verify that the text is displayed in the first area:
@@ -94,12 +89,12 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('htmlarea');
-            htmlAreaContent = contentBuilder.buildHtmlArea(displayName, 'htmlarea2_4', TEXT_1, TEXT_2);
+            HTML_AREA_CONTENT2_4 = contentBuilder.buildHtmlArea(displayName, 'htmlarea2_4', TEXT_1, TEXT_2);
             // 1. Open new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea2_4');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_2_4);
             await contentWizard.pause(1000);
             // 2. Type a name and insert text in both areas:
-            await contentWizard.typeData(htmlAreaContent);
+            await contentWizard.typeData(HTML_AREA_CONTENT2_4);
             // 3. Save the content:
             await contentWizard.waitAndClickOnSave();
             // 4. Verify the text
@@ -114,7 +109,7 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
             // 1. Open existing content:
-            await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
+            await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT2_4.displayName);
             // 2. Verify the text in both htmlArea
             let actualResult = await htmlAreaForm.getTextFromHtmlArea();
             await studioUtils.saveScreenshot('htmlarea_2_4_check_value');
@@ -131,7 +126,7 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
             // 1. Open existing content:
-            await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
+            await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT2_4.displayName);
             // 2. Clear the first htmlArea
             await htmlAreaForm.clearHtmlArea(0);
             // 3. Verify the text in both htmlArea:

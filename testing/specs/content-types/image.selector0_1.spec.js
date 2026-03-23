@@ -18,16 +18,8 @@ describe('image.selector0_1.spec tests for not required image selector', functio
         webDriverHelper.setupBrowser();
     }
     const CONTENT_NAME = contentBuilder.generateRandomName('content');
-
     const IMAGE_DISPLAY_NAME1 = appConst.TEST_IMAGES.SEVEROMOR;
-    let SITE;
-
-    it(`Precondition: new site should be added`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
-            await studioUtils.doAddSite(SITE);
-        });
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
     it("GIVEN wizard for new Image Selector(0:1) has been opened WHEN image selector has been expanded and one option has been clicked THEN the image should be displayed in the selected options",
         async () => {
@@ -35,7 +27,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             let contentWizard = new ContentWizard();
             let contentPublishDialog = new ContentPublishDialog();
             // 1. Open new wizard
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.IMG_SELECTOR_0_1);
             await contentWizard.typeDisplayName(appConst.generateRandomName('selector'));
             await imageSelectorForm.waitForOptionsFilterInputDisplayed();
             // 2. Expand the image-selector and click on an image-item:
@@ -61,7 +53,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             let imageSelectorForm = new ImageSelectorForm();
             let contentWizard = new ContentWizard();
             // 1. Open new wizard
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.IMG_SELECTOR_0_1);
             // 2. Fill the name input:
             await contentWizard.typeDisplayName(CONTENT_NAME);
             // 3. Verify that options filter input is displayed

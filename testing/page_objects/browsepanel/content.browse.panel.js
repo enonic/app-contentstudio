@@ -17,7 +17,7 @@ const {Key} = require('webdriverio');
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowsePanel')]",
     toolbarDiv: "//div[contains(@aria-label,'Browse view actions toolbar')]",
-    treeGridToolbar: "//div[contains(@id,'ListBoxToolbar') and contains(@class,'tree-grid-toolbar')]",
+    treeGridToolbar: "//div[contains(@id,'TreeListToolbarElement')",
     selectableListBoxPanelDiv: "//div[contains(@id,'SelectableListBoxPanel')]",
     contentsTreeListDiv: "//div[contains(@data-component,'ContentTreeList')]",
     appBar: "//div[contains(@id,'AppBar')]",
@@ -28,7 +28,7 @@ const XPATH = {
     hideSearchPanelButton: "//span[contains(@class, 'hide-filter-panel-button')]",
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]/button",//'Assigned to Me' or 'Show Issues'
     markAsReadyMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Mark as ready']",
-    selectionControllerCheckBox: `//div[contains(@id,'ListSelectionController')]`,
+    resetSelectionCheckbox: `//label[child::input[contains(@aria-label,'Reset selection')]]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     contentSummaryListViewerByName(name) {
         return `//div[contains(@id,'ContentSummaryListViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
@@ -49,16 +49,29 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return XPATH.treeGridToolbar;
     }
 
+    get refreshButton() {
+        return "//svg[contains(@class,'lucide-refresh')]";
+    }
+
     get toolbar() {
         return XPATH.toolbarDiv;
     }
 
-    get previewButton() {
-        return XPATH.toolbarDiv + lib.BUTTONS.actionButton('Preview');
+    get selectAllCheckboxLabel() {
+        return XPATH.container + COMMON.SELECT_ALL_CHECKBOX_LABEL;
     }
 
-    get archiveButton() {
-        return XPATH.toolbarDiv + lib.actionButton('Archive...');
+    get previewButton() {
+        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Preview');
+    }
+
+    // expander icon in parent items
+    get expanderButton() {
+        return "//button[contains(@type,'button') and contains(@aria-label,'Expand') or contains (@aria-label,'Collapse')]";
+    }
+
+    get deleteButton() {
+        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Delete');
     }
 
     get moreButton() {
@@ -121,8 +134,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return "//div[contains(@class,'header-widgets-block')]" + BUTTONS.buttonAriaLabel('View project issues');
     }
 
-    get selectionControllerCheckBox() {
-        return XPATH.treeGridToolbar + XPATH.selectionControllerCheckBox;
+    get resetSelectionCheckbox() {
+        return XPATH.resetSelectionCheckbox;
     }
 
     get selectionPanelToggler() {
@@ -313,7 +326,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async clickOnDetailsPanelToggleButton() {
         try {
-            await this.waitForElementDisplayed(this.contextWindowToggleButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.contextWindowToggleButton);
             await this.clickOnElement(this.contextWindowToggleButton);
             return await this.pause(400);
         } catch (err) {
@@ -376,9 +389,9 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async waitForContentNotDisplayed(contentName) {
-        let locator = XPATH.contentsTreeListDiv + lib.itemByName(contentName)
+        let locator = XPATH.contentsTreeListDiv + TREE_GRID.itemByName(contentName)
         try {
-            await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+            await this.waitForElementNotDisplayed(locator);
         } catch (err) {
             await this.handleError('Content is still displayed', 'err_content_should_not_be_displayed', err);
         }
@@ -393,6 +406,15 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             return await this.waitForElementDisplayed(this.contextWindowToggleButton, appConst.mediumTimeout)
         } catch (err) {
             await this.handleError('Context Window toggle button should be displayed', 'err_context_window_toggle_button', err);
+        }
+    }
+
+    async clickOnHideContextWindowButton() {
+        try {
+            await this.waitForHideContextWindowButtonDisplayed();
+            await this.clickOnElement(this.hideContextWindowButton);
+        }catch (err){
+            await this.handleError('Clicked on Hide Context Window button', 'err_click_hide_context_window_button', err);
         }
     }
 
@@ -441,8 +463,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForLocalizeButtonEnabled() {
         try {
-            await this.waitForElementDisplayed(this.localizeButton, appConst.mediumTimeout);
-            return await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.localizeButton);
+            return await this.waitForElementEnabled(this.localizeButton);
         } catch (err) {
             await this.handleError('Localize button should be enabled', 'err_localize_enabled_button', err);
         }
@@ -450,8 +472,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForLocalizeButtonDisabled() {
         try {
-            await this.waitForElementDisplayed(this.localizeButton, appConst.mediumTimeout);
-            return await this.waitForElementDisabled(this.localizeButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.localizeButton);
+            return await this.waitForElementDisabled(this.localizeButton);
         } catch (err) {
             await this.handleError('Localize button should be disabled', 'err_localize_disabled_button', err);
         }
@@ -459,7 +481,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForOpenButtonEnabled() {
         try {
-            await this.waitForElementDisplayed(this.openButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.openButton);
             return await this.waitForElementEnabled(this.openButton, appConst.mediumTimeout);
         } catch (err) {
             await this.handleError('Open button should be enabled', 'err_open_button_is_not_enabled', err);
@@ -486,7 +508,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForSortButtonEnabled() {
         try {
-            await this.waitForElementEnabled(this.sortButton, appConst.mediumTimeout)
+            await this.waitForElementEnabled(this.sortButton);
         } catch (err) {
             await this.handleError('Sort button should be enabled', 'err_sort_enabled_button', err);
         }
@@ -494,25 +516,24 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForMoveButtonEnabled() {
         try {
-            return await this.waitForElementEnabled(this.moveButton, appConst.mediumTimeout)
+            return await this.waitForElementEnabled(this.moveButton);
         } catch (err) {
             await this.handleError('Move button should be enabled', 'err_move_enabled_button', err);
         }
     }
 
-    // TODO
     async clickOnRowByIndex(rowNumber) {
         try {
-            let locator = XPATH.contentsTreeListDiv + lib.H6_DISPLAY_NAME;
+            let locator = TREE_GRID.TREE_LIST_DIV + TREE_GRID.TREE_ITEM_DIV;
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             let rows = await this.findElements(locator);
-            if (rowNumber > rows.length) {
-                throw new Error('The number of content-rows less than the index');
+            if (rowNumber < 0 || rowNumber >= rows.length) {
+                throw new Error('The number of content-rows is less than the index or index is negative');
             }
             await rows[rowNumber].click();
             return await this.pause(300);
         } catch (err) {
-            await this.handleError(`Tried to click on row by number: ${rowNumber}`, 'err_click_on_row_in_grid');
+            await this.handleError(`Tried to click on row by number: ${rowNumber}`, 'err_click_on_row_in_grid', err);
         }
     }
 
@@ -570,7 +591,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async waitForContentByDisplayNameVisible(displayName) {
         try {
             let treeItemXpath = TREE_GRID.TREE_LIST_DIV + TREE_GRID.itemByDisplayName(displayName);
-            await this.waitForElementDisplayed(treeItemXpath, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(treeItemXpath);
         } catch (err) {
             await this.handleError(`Content was not found by displayName: ${displayName}`, 'err_find_content');
         }
@@ -598,7 +619,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     // TODO
     async getNameInHighlightedRow() {
         try {
-            await this.waitForElementDisplayed(XPATH.highlightedRow, appConst.shortTimeout);
+            await this.waitForElementDisplayed(XPATH.highlightedRow);
             return await this.getText(XPATH.highlightedRow + lib.H6_DISPLAY_NAME);
         } catch (err) {
             await this.handleError(`Tried to count the number of highlighted rows `, 'err_count_highlighted_rows', err);
@@ -632,7 +653,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     // returns number of rows with selected checkbox:
     async getNumberOfCheckedRows() {
         try {
-            let locator = `${TREE_GRID.TREE_ITEM_DIV}${TREE_GRID.TREE_LIST_ITEM_CHECKBOX_LABEL}${COMMON.INPUTS.CHECKBOX_INPUT_CHECKED}`;
+            let locator = `${TREE_GRID.TREE_ITEM_DIV}${TREE_GRID.TREE_LIST_ITEM_CHECKBOX_CHECKED}`;
             let result = await this.findElements(locator);
             return result.length;
         } catch (err) {
@@ -747,7 +768,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForCreateIssueButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.createIssueButton, appConst.longTimeout)
+            return await this.waitForElementDisplayed(this.createIssueButton);
         } catch (err) {
             await this.handleError('Create Issue button should be visible on the Browse toolbar', 'err_create_issue_button', err);
         }
@@ -827,18 +848,21 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async openPublishMenuAndClickOnMarAsReadyAndConfirm() {
         await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.MARK_AS_READY);
         let confirmationDialog = new ConfirmationDialog();
-        return await confirmationDialog.clickOnYesButton();
+        return await confirmationDialog.clickOnConfirmButton();
     }
 
     async getWorkflowStateByDisplayName(displayName) {
         try {
-            // 1. Build XPath for the content summary element by display name
-            const xpath = XPATH.contentsTreeListDiv + TREE_GRID.itemByDisplayName(displayName) + "//svg[@aria-label]";
-            // 2. Wait for the element to be displayed
-            await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
+
+            //const treeItem = await this.findElements(
+            //   "//div[contains(@data-component,'ContentTreeList')]//div[contains(@role,'treeitem') and .//span[contains(text(),'All Content types images')]]");
+            const treeItem = await this.findElements(XPATH.contentsTreeListDiv + TREE_GRID.itemByDisplayName(displayName));
+            const svgElement = await treeItem[0].$("svg[aria-label]");
+            await svgElement.waitForDisplayed({timeout: appConst.mediumTimeout});
+            let attrValue = await svgElement.getAttribute("aria-label");
 
             // 3. Get the class attribute
-            const attrValue = await this.getAttribute(xpath, 'aria-label');
+            //const attrValue = await this.getAttribute(xpath, 'aria-label');
             if (!attrValue) {
                 throw new Error(`No aria-label attribute found for displayName: ${displayName}`);
             }
@@ -989,12 +1013,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return await this.pause(500);
     }
 
-    // TODO
-    getDisplayNameInHighlightedRow() {
-        let locator = XPATH.highlightedRow + lib.H6_DISPLAY_NAME;
-        return this.getText(locator);
-    }
-
     async getNumberInSelectionToggler() {
         await this.waitForElementDisplayed(this.numberInSelectionToggler, appConst.mediumTimeout);
         return await this.getText(this.numberInSelectionToggler);
@@ -1002,12 +1020,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     waitForMoreButtonDisplayed() {
         return this.waitForElementDisplayed(this.moreButton, appConst.mediumTimeout);
-    }
-
-    async clickOnMoreFoldButton() {
-        await this.waitForMoreButtonDisplayed();
-        await this.clickOnElement(this.moreButton);
-        return this.pause(200);
     }
 
     waitForFoldWithNameButtonDisplayed(name) {
@@ -1031,14 +1043,12 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
 
-    async waitForShowIssuesButtonAriaHasPopupAttribute(expectedValue) {
-        let locator = this.showIssuesListButton;
-        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_HAS_POPUP, expectedValue);
-    }
-
-    async waitForPublishMenuRoleAttribute(expectedRole) {
-        let locator = XPATH.contentActionMenuButton;
-        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedRole);
+    async waitForGridRoleAttribute(expectedRole) {
+        let locator = XPATH.treeGrid;
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, 'role');
+            return text === expectedRole;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Role attribute for Grid should set 'grid'"});
     }
 
     async getContentNamesInGrid() {
@@ -1054,6 +1064,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.handleError(`Tried to click on 'Preview' button in the Preview Toolbar: `, 'err_preview_btn', err);
         }
     }
+
     async waitForPreviewButtonNotDisplayed() {
         try {
             return await this.waitForElementNotDisplayed(this.previewButton, appConst.mediumTimeout);
@@ -1084,12 +1095,23 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async waitForPreviewButtonEnabled() {
         try {
             await this.waitForPreviewButtonDisplayed();
-            await this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout)
+            await this.waitForElementEnabled(this.previewButton);
         } catch (err) {
             await this.handleError(`'Preview' button should be displayed and enabled`, 'err_preview_btn_disabled', err);
         }
     }
 
+    async clickOnResetSelectionCheckbox() {
+        try {
+            await this.waitForElementDisplayed(this.resetSelectionCheckbox);
+            return await this.clickOnElement(this.resetSelectionCheckbox);
+        } catch (err) {
+            await this.handleError('Clicked on Reset Selection checkbox', 'err_reset_selection_checkbox', err);
+        }
+    }
+    async waitForReetSelectionCheckboxNotDisplayed() {
+        await this.waitForElementNotDisplayed(this.resetSelectionCheckbox);
+    }
 }
 
 module.exports = ContentBrowsePanel;

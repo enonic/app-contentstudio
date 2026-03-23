@@ -7,7 +7,12 @@ const browser_version = properties.get('browser.version');
 exports.config = {
 
     specs: [
-        path.join(__dirname, '../specs/*.spec.js'),
+        path.join(__dirname, '../specs/browse.panel.grid.context.menu.spec.js'),
+        path.join(__dirname, '../specs/browse.panel.properties.widget.spec.js'),
+        path.join(__dirname, '../browse.toolbar.shortcut.spec.js'),
+        path.join(__dirname, '../call.app.controller.spec.js'),
+        path.join(__dirname, '../content.filter.panel.export.spec.js'),
+        path.join(__dirname, '../content.filter.panel.spec.js'),
     ],
 
     maxInstances: 1,

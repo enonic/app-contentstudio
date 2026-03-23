@@ -16,24 +16,17 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
     }
     const EXPECTED_TEXT_TEXT1 = '<p>test 1</p>';
     const EXPECTED_TEXT_TEXT2 = '<p>test 2</p>';
-    let SITE;
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
     const CONTENT_NAME_1 = contentBuilder.generateRandomName('area');
     const CONTENT_NAME_2 = contentBuilder.generateRandomName('area');
     const CONTENT_NAME_3 = contentBuilder.generateRandomName('area');
-
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
 
     it("GIVEN new wizard for htmlArea(0:0) is opened WHEN button 'Add' clicked 3 times THEN button 'Add' remains visible",
         async () => {
             let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
             // 1. Open wizard for new htmlarea-content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_0);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_0);
             await contentWizard.pause(1000);
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('area'));
             // 2. Click on Add button 3 times:
@@ -54,7 +47,7 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
         async () => {
             let contentWizard = new ContentWizard();
             // 1. Open new wizard
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_1_1);
             // 2. Fill the name input:
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('area'));
             await contentWizard.pause(1000);
@@ -70,7 +63,7 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
             // 1. Open new wizard
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_1_1);
             // 2. Fill the name input:
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('area'));
             // 3. Save the content
@@ -88,7 +81,7 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
             // 1. Open new wizard
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_1_1);
             // 2. Fill the name input:
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('area'));
             // 3. Insert a text in html-area
@@ -110,7 +103,7 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
         async () => {
             let contentWizard = new ContentWizard();
             // 1. Open new wizard
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_2);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_2);
             // 2. Fill the name input:
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('area'));
             await contentWizard.pause(1000);
@@ -126,7 +119,7 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
             // 1. Open new wizard
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_2);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_2);
             // 2. Fill the name input:
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
             // 3. Save the content
@@ -144,7 +137,7 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
             // 1. Open new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_2);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_2);
             // 2. Fill the name input:
             await contentWizard.typeDisplayName(CONTENT_NAME_2);
             // 3. Save the content
@@ -161,7 +154,7 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
             // 1. Open new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_2);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_2);
             await contentWizard.pause(1000);
             // 2. Click on Add button
             await htmlAreaForm.clickOnAddButton();
@@ -178,7 +171,7 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
         async () => {
             let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_2);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_2);
             // 1. content Name has been typed
             await contentWizard.typeDisplayName(CONTENT_NAME_3);
             // 2. Text has been inserted in the first area:

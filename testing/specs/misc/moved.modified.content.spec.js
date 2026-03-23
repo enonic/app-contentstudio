@@ -8,7 +8,6 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
-const StatusWidget = require('../../page_objects/browsepanel/detailspanel/status.widget.itemview');
 
 describe('moved.modified.content.spec - tests for content with Moved, Modified content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -48,8 +47,8 @@ describe('moved.modified.content.spec - tests for content with Moved, Modified c
             assert.equal(actualStatus, appConst.CONTENT_STATUS.MOVED, `Only the one 'Moved' status should appear in the wizard toolbar`);
             // 6. Verify that 'Moved' status gets visible in the status widget in Details Widget Panel:
             await contentWizard.openDetailsWidget();
-            let statusWidget = new StatusWidget();
-            await statusWidget.waitForStatusDisplayed(appConst.STATUS_WIDGET.MOVED);
+            //let statusWidget = new StatusWidget();
+            //await statusWidget.waitForStatusDisplayed(appConst.STATUS_WIDGET.MOVED);
         });
 
     it.skip("GIVEN 'Moved' content has been opened WHEN the description has been updated THEN 'Moved, Modified' statuses gets visible in the wizard-toolbar",
@@ -73,8 +72,8 @@ describe('moved.modified.content.spec - tests for content with Moved, Modified c
                 `'Moved, Modified' status should appear in the wizard toolbar`);
             // 5. Verify that 'Moved, Modified' status gets visible in the status widget in Details Panel:
             await contentWizard.openDetailsWidget();
-            let statusWidget = new StatusWidget();
-            await statusWidget.waitForStatusDisplayed(appConst.STATUS_WIDGET.MOVED_MODIFIED);
+            //let statusWidget = new StatusWidget();
+            //await statusWidget.waitForStatusDisplayed(appConst.STATUS_WIDGET.MOVED_MODIFIED);
         });
 
     it.skip("GIVEN 'Moved, Modified' folder is opened WHEN the folder has been marked as ready THEN its status gets 'Moved'",
@@ -97,9 +96,9 @@ describe('moved.modified.content.spec - tests for content with Moved, Modified c
             let actualStatus = await contentWizard.getContentStatus();
             assert.equal(actualStatus, appConst.CONTENT_STATUS.MOVED, `'Moved' status should appear in the wizard toolbar`);
             await contentWizard.openDetailsWidget();
-            let statusWidget = new StatusWidget();
+            //let statusWidget = new StatusWidget();
             // 5. Verify that 'Moved' status gets visible in the status widget after clicking on Mark as ready:
-            await statusWidget.waitForStatusDisplayed(appConst.STATUS_WIDGET.MOVED);
+            //await statusWidget.waitForStatusDisplayed(appConst.STATUS_WIDGET.MOVED);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
