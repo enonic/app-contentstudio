@@ -1,12 +1,12 @@
 import type {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {Button, Combobox, Toggle, Tooltip, cn} from '@enonic/ui';
+import {Button, cn, Combobox, Toggle, Tooltip} from '@enonic/ui';
 import {AlertCircle, ListTree, RefreshCw} from 'lucide-react';
 import {useId, useMemo, type ReactElement} from 'react';
 import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
 import {useI18n} from '../../../../hooks/useI18n';
+import type {ContentRowProps} from '../../shared/combobox/ContentRow';
 import {ContentComboboxList} from './ContentComboboxList';
-import {useContentComboboxController, UseContentComboboxControllerOptions} from './useContentComboboxController';
-import {ContentRowProps} from '../../shared/combobox/ContentRow';
+import {useContentComboboxController, type UseContentComboboxControllerOptions} from './useContentComboboxController';
 
 //
 // * Constants
@@ -182,16 +182,12 @@ export const ContentCombobox = ({
                 error={error}
             >
                 <Combobox.Content onKeyDown={handleKeyDown}>
-                    <Combobox.Control
-                        className={cn(
-                            withRightButton && 'border-r-0 focus-within:border-r-1 hover:border-r-1 rounded-tr-none rounded-br-none'
-                        )}
-                    >
+                    <Combobox.Control className={cn(withRightButton && 'rounded-tr-none rounded-br-none')}>
                         <Combobox.Search className={cn(!hideToggleIcon && 'pl-0', withRightButton && 'rounded-tr-none rounded-br-none')}>
                             {hideToggleIcon ? (
                                 <Combobox.SearchIcon />
                             ) : (
-                                <Tooltip delay={500} value="⌘/Ctrl+Shift+V">
+                                <Tooltip delay={300} value="⌘/Ctrl+Shift+V">
                                     <Toggle
                                         startIcon={ListTree}
                                         size="sm"

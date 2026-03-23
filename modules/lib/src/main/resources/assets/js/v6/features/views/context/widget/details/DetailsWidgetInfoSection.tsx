@@ -64,7 +64,7 @@ export const DetailsWidgetInfoSection = (): ReactElement => {
                         {displayName}
                     </span>
                     {isId && (
-                        <Tooltip value={copyTooltip} side="left">
+                        <Tooltip delay={150} value={copyTooltip} side="left">
                             <IconButton
                                 className="size-4 shrink-0"
                                 size="sm"

@@ -1,4 +1,4 @@
-import {ResultAsync} from 'neverthrow';
+import {Result, ResultAsync} from 'neverthrow';
 import {type Content, ContentBuilder} from '../../../app/content/Content';
 import {ContentPath} from '../../../app/content/ContentPath';
 import {type ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
@@ -87,7 +87,10 @@ export function uploadMediaFile({
                         reject(new UploadError(mediaIdentifier, 'Failed to parse response'));
                     }
                 } else {
-                    reject(new UploadError(mediaIdentifier, JSON.parse(xhr.responseText)?.message || xhr.statusText));
+                    const message = safeJsonParse(xhr.responseText)
+                        .map((json) => json?.message as string)
+                        .unwrapOr(undefined) ?? xhr.statusText;
+                    reject(new UploadError(mediaIdentifier, message));
                 }
             };
 
@@ -156,7 +159,10 @@ export function uploadRemoteImage({
                         reject(new UploadError(mediaIdentifier, 'Failed to parse response'));
                     }
                 } else {
-                    reject(new UploadError(mediaIdentifier, JSON.parse(xhr.responseText)?.message || xhr.statusText));
+                    const message = safeJsonParse(xhr.responseText)
+                        .map((json) => json?.message as string)
+                        .unwrapOr(undefined) ?? xhr.statusText;
+                    reject(new UploadError(mediaIdentifier, message));
                 }
             };
 
@@ -171,6 +177,11 @@ export function uploadRemoteImage({
 //
 // * Utilities
 //
+
+const safeJsonParse = Result.fromThrowable(
+    (text: string) => JSON.parse(text) as Record<string, unknown>,
+    (e) => e as Error
+);
 
 function getParentPath(parentContent?: ContentSummaryAndCompareStatus): string {
     return parentContent ? parentContent.getContentSummary().getPath().toString() : ContentPath.getRoot().toString();

@@ -1,13 +1,13 @@
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
 import {Avatar, cn, Tooltip} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {ReactElement, useRef} from 'react';
-import {EffectivePermission} from '../../../../../../app/security/EffectivePermission';
+import {type ReactElement, useRef} from 'react';
+import {Access} from '../../../../../../app/security/Access';
+import type {EffectivePermission} from '../../../../../../app/security/EffectivePermission';
+import {useI18n} from '../../../../hooks/useI18n';
 import {useVisibleAvatars} from '../../../../hooks/useVisibleAvatars';
 import {$detailsWidgetEffectivePermissions, sortPrincipals} from '../../../../store/context/detailsWidgets.store';
 import {getInitials} from '../../../../utils/format/initials';
-import {Access} from '../../../../../../app/security/Access';
-import {useI18n} from '../../../../hooks/useI18n';
 
 const AVATAR_OVERFLOW_OFFSET = 50;
 
@@ -44,7 +44,7 @@ const PermissionItem = ({permission}: {permission: EffectivePermission}): ReactE
                     const principalKey = p.getKey().toString();
 
                     return (
-                        <Tooltip key={principalKey} value={p.getDisplayName()}>
+                        <Tooltip delay={300} key={principalKey} value={p.getDisplayName()}>
                             <Avatar
                                 className={cn(
                                     'border-2 border-surface-neutral',

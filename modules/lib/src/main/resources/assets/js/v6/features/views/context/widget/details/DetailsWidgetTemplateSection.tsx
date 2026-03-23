@@ -1,9 +1,9 @@
 import {Link, Separator, Tooltip} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {ReactElement, useEffect, useState} from 'react';
-import {Content} from '../../../../../../app/content/Content';
-import {PageTemplate} from '../../../../../../app/content/PageTemplate';
-import {Descriptor} from '../../../../../../app/page/Descriptor';
+import {type ReactElement, useEffect, useState} from 'react';
+import type {Content} from '../../../../../../app/content/Content';
+import type {PageTemplate} from '../../../../../../app/content/PageTemplate';
+import type {Descriptor} from '../../../../../../app/page/Descriptor';
 import {PageMode} from '../../../../../../app/page/PageMode';
 import {ContentUrlHelper} from '../../../../../../app/util/ContentUrlHelper';
 import {
@@ -104,7 +104,7 @@ export const DetailsWidgetTemplateSection = (): ReactElement => {
                 primary={displayName}
                 secondary={
                     state.template ? (
-                        <Tooltip value={state.template.getPath().toString()}>
+                        <Tooltip delay={150} value={state.template.getPath().toString()}>
                             <Link
                                 target="_blank"
                                 className="text-xs text-subtle truncate"
@@ -115,7 +115,7 @@ export const DetailsWidgetTemplateSection = (): ReactElement => {
                             </Link>
                         </Tooltip>
                     ) : state.descriptor ? (
-                        <Tooltip value={state.descriptor.getKey().toString()}>
+                        <Tooltip delay={150} value={state.descriptor.getKey().toString()}>
                             <span className="text-xs text-subtle truncate" title={state.descriptor.getDisplayName()}>
                                 {state.descriptor.getDisplayName()}
                             </span>

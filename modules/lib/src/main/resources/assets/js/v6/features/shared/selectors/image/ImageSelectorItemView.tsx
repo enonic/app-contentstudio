@@ -1,10 +1,10 @@
-import {type ReactElement} from 'react';
-import {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
-import {ContentIconUrlResolver} from '../../../../../app/content/ContentIconUrlResolver';
-import {StatusBadge} from '../../status/StatusBadge';
 import {Tooltip} from '@enonic/ui';
+import {type ReactElement} from 'react';
 import {CompareStatus} from '../../../../../app/content/CompareStatus';
+import {ContentIconUrlResolver} from '../../../../../app/content/ContentIconUrlResolver';
+import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {useI18n} from '../../../hooks/useI18n';
+import {StatusBadge} from '../../status/StatusBadge';
 
 export type ImageSelectorItemViewProps = {
     /** The content to display */
@@ -48,7 +48,7 @@ export const ImageSelectorItemView = ({content, hideStatus = false}: ImageSelect
 
             <div className="min-w-0">
                 <span className="font-semibold text-base block whitespace-nowrap overflow-hidden text-ellipsis">{displayName}</span>
-                <Tooltip value={subName}>
+                <Tooltip delay={300} value={subName}>
                     <span
                         dir="rtl"
                         className="text-subtle text-sm block whitespace-nowrap overflow-hidden text-ellipsis text-left group-data-[tone=inverse]:text-alt"

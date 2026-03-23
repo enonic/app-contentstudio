@@ -16,6 +16,7 @@ app {
     vendorUrl = 'https://enonic.com'
     devSourcePaths += file( "$rootDir/../lib-admin-ui/src/main/resources" )
     devSourcePaths += file( "../lib/src/main/resources" )
+    instruction '-fixupmessages', 'Unable to determine whether the annotation jakarta*;is:=ignore'
 }
 
 configurations {

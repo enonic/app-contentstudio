@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {type KeyboardEvent, type RefObject, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {VirtuosoHandle} from 'react-virtuoso';
 import {useContentComboboxData, type ContentFilterOptions, type ContentComboboxFlatNode} from '../../../../hooks/useContentComboboxData';
 import {useDebouncedValue} from '../../../../utils/hooks/useDebouncedValue';
@@ -29,8 +29,8 @@ export type UseContentComboboxControllerOptions = {
 
 export type UseContentComboboxControllerReturn = {
     // Refs
-    virtuosoRef: React.RefObject<VirtuosoHandle>;
-    inputRef: React.RefObject<HTMLInputElement | null>;
+    virtuosoRef: RefObject<VirtuosoHandle>;
+    inputRef: RefObject<HTMLInputElement | null>;
 
     // View state
     open: boolean;
@@ -47,7 +47,7 @@ export type UseContentComboboxControllerReturn = {
     // Handlers
     handleOpenChange: (next: boolean) => void;
     handleToggleView: (pressed: boolean) => void;
-    handleKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
+    handleKeyDown: (e: KeyboardEvent<HTMLElement>) => void;
     handleExpand: (id: string) => void;
     handleCollapse: (id: string) => void;
     handleLoadMore: (parentId: string | null) => void;
@@ -253,7 +253,7 @@ export function useContentComboboxController(options: UseContentComboboxControll
         setOpen(true);
     }, []);
 
-    const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLElement>): void => {
+    const handleKeyDown = useCallback((e: KeyboardEvent<HTMLElement>): void => {
         if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'v') {
             e.preventDefault();
             setIsTreeView((prev) => !prev);

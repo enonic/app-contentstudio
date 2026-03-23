@@ -1,6 +1,6 @@
 import {Combobox, VirtualizedTreeList, cn, useCombobox} from '@enonic/ui';
 import {Loader2} from 'lucide-react';
-import {forwardRef, useCallback, type HTMLAttributes, type ReactElement} from 'react';
+import {forwardRef, useCallback, type HTMLAttributes, type ReactElement, type RefObject} from 'react';
 import type {ListRange, VirtuosoHandle} from 'react-virtuoso';
 import {Virtuoso} from 'react-virtuoso';
 import type {ContentComboboxFlatNode} from '../../../../hooks/useContentComboboxData';
@@ -25,7 +25,7 @@ export type ContentComboboxListProps = {
     emptyLabel: string;
     isLoading: boolean;
     hasMore?: boolean;
-    virtuosoRef?: React.RefObject<VirtuosoHandle>;
+    virtuosoRef?: RefObject<VirtuosoHandle>;
     /** Custom row renderer */
     rowRenderer?: (props: ContentRowProps) => ReactElement;
 };

@@ -44,7 +44,7 @@ export function IssueDialogSelector<Option extends IssueDialogSelectorOption>({
 
     return (
         <Selector.Root value={value} disabled={disabled} onValueChange={onValueChange} data-component={ISSUE_DIALOG_SELECTOR_NAME}>
-            <Tooltip value={tooltip} side='top' delay={300} asChild>
+            <Tooltip delay={300} value={tooltip} side='top' asChild>
                 <Selector.Trigger>
                     <Selector.Value placeholder={placeholder}>{valueRenderer}</Selector.Value>
                     <Selector.Icon />
