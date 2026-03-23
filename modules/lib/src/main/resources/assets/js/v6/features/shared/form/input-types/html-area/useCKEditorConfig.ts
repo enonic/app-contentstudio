@@ -154,7 +154,7 @@ function buildConfig(params: UseCKEditorConfigParams, cssPaths: string[]): CKEDI
         keystrokes: [
             [CKEDITOR.CTRL + 76, null], // disable default Link keystroke to remove its wrong tooltip
         ],
-        removePlugins: 'resize,image',
+        removePlugins: 'resize,image,quicktable',
         removeButtons: disabledTools?.join(),
         extraPlugins: 'macro,image2,pasteModeSwitcher,nbsp,colordialog,findAndReplace,language',
         extraAllowedContent: 'strong em u code address dl dt dd blockquote span(!shy);*(*);td{*};*[data-*]',

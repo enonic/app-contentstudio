@@ -29,6 +29,10 @@ export interface SpecialCharDialogParams {
     editor: editor
 }
 
+export interface TableQuicktablePopupParams {
+    editor: editor
+}
+
 export interface Macro {
     name: string;
     attributes: string[];

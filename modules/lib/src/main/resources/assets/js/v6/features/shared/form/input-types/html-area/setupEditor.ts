@@ -218,6 +218,15 @@ function setupDialogsToOpen(editor: CKEDITOR.editor, editorParams: HtmlEditorPar
         },
     });
 
+    editor.addCommand('table', {
+        modes: {wysiwyg: 1},
+        canUndo: false,
+        exec: (ed: CKEDITOR.editor) => {
+            dialogEventGenerator.generateTableQuicktableEventAndFire({editor: ed});
+            return true;
+        },
+    });
+
     editor.ui.addButton('Fullscreen', {
         label: 'Fullscreen',
         command: 'openFullscreenDialog',

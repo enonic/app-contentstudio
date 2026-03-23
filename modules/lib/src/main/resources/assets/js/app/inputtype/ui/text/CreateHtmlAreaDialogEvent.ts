@@ -7,12 +7,13 @@ import {
     type FullScreenDialogParams,
     type MacroDialogParams,
     type SpecialCharDialogParams,
+    type TableQuicktablePopupParams,
 } from './HtmlEditorTypes';
 
 type eventInfo = CKEDITOR.eventInfo;
 
 export enum HtmlAreaDialogType {
-    ANCHOR, IMAGE, LINK, MACRO, CODE, SPECIALCHAR, FULLSCREEN, TABLE, NUMBERED_LIST, BULLETED_LIST
+    ANCHOR, IMAGE, LINK, MACRO, CODE, SPECIALCHAR, FULLSCREEN, TABLE_QUICKTABLE, TABLE, NUMBERED_LIST, BULLETED_LIST
 }
 
 export type HtmlAreaDialogConfig =
@@ -21,7 +22,8 @@ export type HtmlAreaDialogConfig =
     CodeDialogParams |
     MacroDialogParams |
     FullScreenDialogParams |
-    SpecialCharDialogParams;
+    SpecialCharDialogParams |
+    TableQuicktablePopupParams;
 
 export class CreateHtmlAreaDialogEvent
     extends Event {
