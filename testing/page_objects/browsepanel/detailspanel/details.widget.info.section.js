@@ -17,6 +17,15 @@ const xpath = {
     createdDate: "//dt[contains(.,'Created')]/following-sibling::dd[1]/span",
 };
 
+/*
+Example
+Id
+Type checkbox_req
+Application com.enonic.uitest.contenttypes
+Created 2026-03-19 16:45:15 by Super User
+Last Modified 2026-03-19 16:45:18 by Super User
+Owner Super User
+ */
 class DetailsWidgetInfoSection extends Page {
 
     get applicationProperty() {
@@ -82,7 +91,7 @@ class DetailsWidgetInfoSection extends Page {
 
     waitForLanguageNotVisible() {
         try {
-            return this.waitForElementNotDisplayed(this.languageProperty, appConst.shortTimeout)
+            return this.waitForElementNotDisplayed(this.languageProperty);
         } catch (err) {
             throw new Error('Language should not be displayed in the Widget Info Section! ' + err);
         }
@@ -95,7 +104,6 @@ class DetailsWidgetInfoSection extends Page {
             throw new Error('Owner should not be displayed in the Widget Info Section! ' + err);
         }
     }
-
 
     async getLanguage() {
         await this.waitForLanguageVisible();
@@ -141,6 +149,13 @@ class DetailsWidgetInfoSection extends Page {
 
     waitForFirstPublishedDateDisplayed() {
         return this.waitForElementDisplayed(this.firstPublishedProperty, appConst.shortTimeout);
+    }
+    async waitForDisplayed(){
+        await this.waitForElementDisplayed(xpath.container);
+    }
+
+    async waitForNotDisplayed(){
+        await this.waitForElementNotDisplayed(xpath.container);
     }
 }
 

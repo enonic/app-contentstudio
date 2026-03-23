@@ -53,7 +53,7 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             assert.equal(questionTextActual, CONFIRMATION_QUESTION_1, 'Four content items will be exported');
         });
 
-    it(`GIVEN 'Executable' checkbox has been clicked in Filter Panel WHEN 'Clear filter' button has been clicked THEN the grid returns to the initial state`,
+    it(`GIVEN 'Executable' checkbox has been clicked in Filter Panel WHEN Uncheck 'Executable' checkbox THEN the grid returns to the initial state`,
         async () => {
             let filterPanel = new FilterPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -68,10 +68,13 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
 
             // 1. Click on "Executable" checkbox in 'Filter Panel'
             await filterPanel.clickOnCheckboxInContentTypesBlock('Executable');
+            await contentBrowsePanel.pause(1000);
             // 2. 'Clear filter' button has been clicked
-            await filterPanel.clickOnClearLink();
+            //await filterPanel.clickOnClearLink();
+            // 2. Uncheck 'Executable' checkbox in 'Filter Panel'
+            await filterPanel.clickOnCheckboxInContentTypesBlock('Executable');
             await filterPanel.waitForClearLinkNotDisplayed();
-            await contentBrowsePanel.pause(2000);
+            await contentBrowsePanel.pause(1000);
             // 3. Click on 'Export' button:
             await filterPanel.clickOnExportButton();
             // 4. Verify the question returns to the state for the initial grid:

@@ -1,4 +1,5 @@
 const Page = require('../../page');
+const {BUTTONS} = require('../../../libs/elements');
 const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
 const ImageSelectorDropdown = require('../../components/selectors/image.selector.dropdown');
@@ -7,9 +8,6 @@ const ImageStyleSelectorDropdown = require('../../components/selectors/image.sty
 const XPATH = {
     container: `//div[contains(@id,'ImageModalDialog')]`,
     uploadButton: "//div[contains(@id,'ImageUploaderEl')]//button[contains(@id,'upload-button')]",
-    insertButton: `//button[contains(@id,'DialogButton') and child::span[text()='Insert']]`,
-    updateButton: `//button[contains(@id,'DialogButton') and child::span[text()='Update']]`,
-    cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     alignRightButton: "//button[contains(@class,'icon-paragraph-right')]",
     alignJustifyButton: "//button[contains(@class,'icon-paragraph-justify')]",
     alignLeftButton: "//button[contains(@class,'icon-paragraph-left')]",
@@ -74,9 +72,8 @@ class InsertImageDialog extends Page {
         return XPATH.container + XPATH.customWidthCheckbox;
     }
 
-
     get cancelButton() {
-        return XPATH.container + XPATH.cancelButton;
+        return XPATH.container + BUTTONS.buttonAriaLabel('Cancel');
     }
 
     get uploadButton() {
@@ -88,11 +85,11 @@ class InsertImageDialog extends Page {
     }
 
     get insertButton() {
-        return XPATH.container + XPATH.insertButton;
+        return XPATH.container + BUTTONS.buttonByLabel('Insert');
     }
 
     get updateButton() {
-        return XPATH.container + XPATH.updateButton;
+        return XPATH.container + BUTTONS.buttonByLabel('Update');
     }
 
     get styleSelectorDropDownHandle() {
@@ -258,7 +255,9 @@ class InsertImageDialog extends Page {
 
     async waitForDialogVisible() {
         try {
-            await this.waitForElementDisplayed(this.cancelButton, appConst.mediumTimeout)
+            let aa = await this.findElements(XPATH.container);
+            let dd = await this.findElements("//button[@type='button' and contains(.,'Cancel')]");
+            await this.waitForElementDisplayed(this.cancelButton);
             await this.pause(300);
         } catch (err) {
             await this.handleError(`Insert Image Dialog should be opened`, 'err_insert_image_dialog', err);

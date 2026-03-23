@@ -22,7 +22,6 @@ const XPATH = {
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     readyForPublishingText: "//span[contains(@class,'entry-text') and text()='Content is ready for publishing']",
     mainItemDivByName: name => DIALOG_ITEMS.PRIMARY_DATA_COMPONENT + DIALOG_ITEMS.mainItemRowByName(name),
-    // `//div[@data-component='ContentRow' and descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${name}')]]]`,
     inProgressStateEntryDiv: "//div[contains(@data-component,'SelectionStatusBar') and descendant::span[contains(.,'In progress')]]",
     invalidStateEntryDiv: "//div[contains(@id,'DialogStateEntry') and descendant::span[contains(@class,'icon-state-invalid')]]",
     inProgressSpan: "//span[contains(@class,'entry-text') and text()='In progress']",
@@ -258,7 +257,8 @@ class ContentPublishDialog extends Page {
 
     async waitForDialogOpened() {
         try {
-            await this.waitForElementDisplayed(XPATH.dialogTitle, appConst.mediumTimeout);
+            let locator = XPATH.container + XPATH.dialogTitle;
+            await this.waitForElementDisplayed(locator);
             await this.pause(1000);
         } catch (err) {
             await this.handleError(`Publish Dialog, dialog should be opened `, 'err_open_publish_dialog', err);

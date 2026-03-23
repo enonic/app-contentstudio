@@ -34,7 +34,7 @@ class LocaleSelectorDropdown extends BasDropdown {
     }
     // overridden
     async clickOnOptionByDisplayName(language){
-        let optionLocator = this.container + DROPDOWN.languageTreeItemByDisplayName(language);
+        let optionLocator =  DROPDOWN.languageTreeItemByDisplayName(language);
         await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
         await this.clickOnElement(optionLocator);
     }

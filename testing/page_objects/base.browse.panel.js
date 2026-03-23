@@ -14,11 +14,6 @@ const XPATH = {
 
 class BaseBrowsePanel extends Page {
 
-    get refreshButton() {
-        return this.treeGridToolbar + lib.BUTTONS.REFRESH_BUTTON;
-    }
-
-
     //refresh the grid:
     async clickOnRefreshButton() {
         await this.clickOnElement(this.refreshButton);
@@ -51,14 +46,6 @@ class BaseBrowsePanel extends Page {
         return await this.getBrowser().keys(keyCombination);
     }
 
-    async clickOnSelectionControllerCheckbox() {
-        try {
-            await this.clickOnElement(this.selectionControllerCheckBox);
-            return await this.pause(300);
-        } catch (err) {
-            await this.handleError('Browse Panel, click on Selection Controller checkbox. ', 'err_click_on_selection_controller', err);
-        }
-    }
     async clickOnSelectAllCheckbox() {
         try {
             await this.clickOnElement(this.selectAllCheckboxLabel);
@@ -300,28 +287,6 @@ class BaseBrowsePanel extends Page {
     async waitForBrowseToolbarAriaLabelAttribute() {
         let locator = this.toolbar;
         await this.waitForAttributeIsPresent(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL);
-    }
-
-    // check for Accessibility attributes: ContentAppBar role
-    async waitForContentAppBarRoleAttribute(expectedRole) {
-        let locator = lib.DIV.CONTENT_APP_BAR_DIV;
-        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedRole);
-    }
-
-    // check for Accessibility attributes: ContentAppBar aria-label:
-    async waitForContentAppBarAriaLabelAttribute() {
-        let locator = lib.DIV.CONTENT_APP_BAR_DIV;
-        await this.waitForAttributeIsPresent(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL);
-    }
-
-    async waitForProjectViewerRoleAttribute(expectedValue) {
-        let locator = lib.DIV.CONTENT_APP_BAR_DIV + lib.DIV.PROJECT_VIEWER_DIV;
-        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedValue);
-    }
-
-    async waitForProjectViewerAriaHasPopupAttribute(expectedValue) {
-        let locator = lib.DIV.CONTENT_APP_BAR_DIV + lib.DIV.PROJECT_VIEWER_DIV;
-        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_HAS_POPUP, expectedValue);
     }
 }
 

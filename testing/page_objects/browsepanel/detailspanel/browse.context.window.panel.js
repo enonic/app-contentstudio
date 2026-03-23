@@ -16,7 +16,7 @@ class BrowseContextWindowPanel extends BaseContextWindowPanel {
     }
 
     get widgetSelectorDropdownHandle() {
-        return xpath.container + DROPDOWN.WIDGET_COMBOBOX;
+        return xpath.container + DROPDOWN.WIDGET_COMBOBOX + "//button[@aria-label='Toggle']";
     }
 
     get widgetSelectorDropdown() {

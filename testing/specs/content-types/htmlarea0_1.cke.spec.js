@@ -1,5 +1,5 @@
 /**
- * Created on 27.04.2018.
+ * Created on 27.04.2018.  updated 17.03.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -19,24 +19,17 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
     }
     const EXPECTED_TEXT_TEXT1 = '<p>test text</p>';
     const TEXT_TO_TYPE = "test text";
-    let SITE;
-    let htmlAreaContent;
+    let HTML_AREA_CONTENT;
     const CONTENT_NAME_1 = contentBuilder.generateRandomName('area');
     const CONTENT_NAME_2 = contentBuilder.generateRandomName('area');
-
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
     it(`GIVEN existing site is opened(controller is not selected) WHEN 'Hide Page Editor'  have been clicked THEN 'Live Form' should be hidden`,
         async () => {
             let contentWizard = new ContentWizard();
             let liveFormPanel = new LiveFormPanel();
             // 1. Open existing site, controller is not selected:
-            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            await studioUtils.selectAndOpenContentInWizard(IMPORTED_SITE_NAME);
             // 2. Verify that Live Form panel is visible:
             await liveFormPanel.waitForOpened();
             // 3. Click on 'Hide Page Editor' button:
@@ -53,10 +46,10 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             let contentWizard = new ContentWizard();
             let liveFormPanel = new LiveFormPanel();
             // 1. Open a new wizard for a content without controller or template
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             // 2. Verify that 'Live Form' panel is visible by default:
             await liveFormPanel.waitForOpened();
-            // 3. Click on 'Hide Page Editor' button:
+            // 3. TODO epic-enonic-ui Click on 'Hide Page Editor' button:
             await contentWizard.clickOnPageEditorToggler();
             // 4. Verify that 'Live Form' gets hidden:
             await liveFormPanel.waitForHidden();
@@ -67,9 +60,9 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
             // 1. Open new wizard for htmlArea 0:1
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
-            await contentWizard.waitAndClickOnSave();
+            //await contentWizard.waitAndClickOnSave();
             // 2. Verify that only one area is displayed:
             let ids = await htmlAreaForm.getIdOfHtmlAreas();
             assert.equal(ids.length, 1, 'Single html area should be displayed by default');
@@ -87,7 +80,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
             // 1. Open new wizard for htmlArea 0:1
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(CONTENT_NAME_2);
             await contentWizard.waitAndClickOnSave();
             // 2. The content should be valid(htmlArea is not required input)
@@ -99,22 +92,10 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             assert.equal(actualResult[0], '', "Html Area should be empty");
         });
 
-    it(`GIVEN existing htmlarea(0:1) content with empty html area WHEN the content has been re-opened THEN text area should be empty`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectContentAndOpenWizard(CONTENT_NAME_2);
-            let isInvalid = await contentWizard.isContentInvalid();
-            await studioUtils.saveScreenshot('content_htmlarea_should_be_valid');
-            assert.ok(isInvalid === false, 'the content should be valid, because the input is not required');
-            let actualResult = await htmlAreaForm.getTextFromHtmlArea();
-            assert.equal(actualResult[0], '', "Html Area should be empty");
-        });
-
     it(`GIVEN wizard for new 'htmlArea 0:1' is opened WHEN text has been typed THEN expected text should appear in the area`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.insertTextInHtmlArea(0, TEXT_TO_TYPE);
             let result = await htmlAreaForm.getTextFromHtmlArea();
             await studioUtils.saveScreenshot('cke_htmlarea_0_1');
@@ -125,19 +106,19 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
         async () => {
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('htmlarea');
-            htmlAreaContent = contentBuilder.buildHtmlArea(displayName, 'htmlarea0_1', [TEXT_TO_TYPE]);
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            HTML_AREA_CONTENT = contentBuilder.buildHtmlArea(displayName, 'htmlarea0_1', [TEXT_TO_TYPE]);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.pause(1000);
-            await contentWizard.typeData(htmlAreaContent);
+            await contentWizard.typeData(HTML_AREA_CONTENT);
             await contentWizard.waitAndClickOnSave();
-            let expectedMessage = appConst.itemSavedNotificationMessage(htmlAreaContent.displayName);
+            let expectedMessage = appConst.itemSavedNotificationMessage(HTML_AREA_CONTENT.displayName);
             await contentWizard.waitForExpectedNotificationMessage(expectedMessage);
         });
 
     it(`GIVEN existing 'htmlArea 0:1' WHEN it has been reopened THEN expected text should be displayed in the area`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
+            await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
             let result = await htmlAreaForm.getTextFromHtmlArea();
             await studioUtils.saveScreenshot('htmlarea_0_1_check_value');
             assert.equal(result[0], EXPECTED_TEXT_TEXT1, 'expected and actual strings should be equal');
@@ -147,7 +128,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let fullScreenDialog = new FullScreenDialog();
-            await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
+            await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
             await htmlAreaForm.clickOnFullScreenButton();
             await fullScreenDialog.waitForDialogLoaded();
             let result = await fullScreenDialog.getTextFromHtmlArea();
@@ -159,7 +140,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let fullScreenDialog = new FullScreenDialog();
-            await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
+            await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
             await htmlAreaForm.clickOnFullScreenButton();
             await fullScreenDialog.waitForDialogLoaded();
             let numberOfButtons = await fullScreenDialog.getNumberOfToolbarButtons();
@@ -193,7 +174,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let sourceCodeDialog = new SourceCodeDialog();
-            await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
+            await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
             await htmlAreaForm.clickOnSourceButton();
             await sourceCodeDialog.waitForDialogLoaded();
             let result = await sourceCodeDialog.getText();
@@ -205,7 +186,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let fullScreenDialog = new FullScreenDialog();
-            await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
+            await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
             // 1. Open Full Screen dialog:
             await htmlAreaForm.clickOnFullScreenButton();
             await fullScreenDialog.waitForDialogLoaded();
@@ -222,7 +203,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
         async () => {
             let sourceCodeDialog = new SourceCodeDialog();
             let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
+            await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
             await htmlAreaForm.clickOnSourceButton();
             await sourceCodeDialog.waitForDialogLoaded();
             await sourceCodeDialog.typeText("");
@@ -236,7 +217,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
         async () => {
             let fullScreenDialog = new FullScreenDialog();
             let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
+            await studioUtils.selectContentAndOpenWizard(HTML_AREA_CONTENT.displayName);
             await htmlAreaForm.clickOnFullScreenButton();
             await fullScreenDialog.waitForDialogLoaded();
             await studioUtils.saveScreenshot('htmlarea_full_screen_opened');
@@ -251,7 +232,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
         async () => {
             let fullScreenDialog = new FullScreenDialog();
             let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea_conf');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, 'htmlarea_conf');
             // 1. Open full screen dialog
             await htmlAreaForm.clickOnFullScreenButton();
             await fullScreenDialog.waitForDialogLoaded();

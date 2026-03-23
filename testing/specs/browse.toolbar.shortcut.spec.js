@@ -1,5 +1,5 @@
 /**
- * Created on 17.05.2018.
+ * Created on 17.05.2018. updated on 23.03.2026
  */
 const webDriverHelper = require('../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
@@ -32,7 +32,8 @@ describe('Browse toolbar shortcut spec`', function () {
 
     // Enter key doesn't open content for Edit #8756
     // https://github.com/enonic/app-contentstudio/issues/8756
-    it(`GIVEN 2 item are checked in the grid WHEN 'Enter' key has been pressed THEN both folders should be opened in new tabs`,
+    // TODO enonic ui bug
+    it.skip(`GIVEN 2 item are checked in the grid WHEN 'Enter' key has been pressed THEN both folders should be opened in new tabs`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizard = new ContentWizard();

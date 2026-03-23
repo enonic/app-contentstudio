@@ -17,15 +17,10 @@ const XPATH = {
     showLessButton: "//button[child::span[text()='Show less']]",
     selectorOptionCheckbox: "//ul[contains(@id,'BucketListBox')]//div[contains(@id,'Checkbox')]",
     selectorOptionItem: "//ul[contains(@id,'BucketListBox')]//div[contains(@class,'item-view-wrapper')]",
-    selectorOptionItemByLabel: label => `//ul[contains(@id,'BucketListBox')]//div[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name') and contains(.,'${label}')]]`,
     ownerAggregationGroupView: "//div[contains(@id,'FilterableAggregationGroupView') and child::h2[text()='Owner']]",
     lastModifiedByAggregationGroupView: "//div[contains(@id,'FilterableAggregationGroupView') and child::h2[text()='Last Modified by']]",
     aggregationGroupByName: name => `//div[child::h4[text()='${name}']]`,
     aggregationLabelByName: name => `//label[child::input[@type='checkbox'] and descendant::span[contains(.,'${name}')]]`,
-    folderAggregation: () => `//div[contains(@class,'checkbox') and child::label[contains(.,'Folder') and not(contains(.,'Template'))]]//label`,
-    aggregationCheckboxByName: name => `//div[contains(@class,'checkbox') and child::label[contains(.,'${name}')]]` + lib.CHECKBOX_INPUT,
-    lastModifiedAggregationEntry:
-        time => `//div[@class='aggregation-group-view']/h2[text()='Last Modified']/..//div[contains(@class,'checkbox') and child::label]//label[contains(.,'${time}')]`,
 };
 
 class BrowseFilterPanel extends Page {
@@ -239,31 +234,22 @@ class BrowseFilterPanel extends Page {
         }
     }
 
-    // gets a number of items from a checkbox label in Folder aggregation :
-    async getNumberOfItemsInFolderAggregation() {
-        let locator = XPATH.folderAggregation();
-        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
-        let label = await this.getText(locator);
-        let startIndex = label.indexOf('(');
-        let endIndex = label.indexOf(')');
-        return label.substring(startIndex + 1, endIndex);
+    // Gets the count from a label in 'Content Types' aggregation block (e.g. "Image (24)" → "24")
+    async getNumberInAggregationLabel(contentType) {
+        return await this.getNumberOfItemsInAggregationView('Content Types', contentType);
     }
 
-    // Gets display name of items in "Content Types" block:
+    // Gets display names of items in "Content Types" block, without the count suffix (e.g. "Image (24)" → "Image")
     async geContentTypes() {
-        let locator = XPATH.aggregationGroupByName('Content Types') + "//div[contains(@class,'checkbox')]//label";
-        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
-        return await this.getTextInDisplayedElements(locator);
+        let locator = XPATH.aggregationGroupByName('Content Types') + "//label[child::input[@type='checkbox']]";
+        await this.waitForElementDisplayed(locator);
+        let labels = await this.getTextInDisplayedElements(locator);
+        return labels.map(item => item.substring(0, item.indexOf('(')).trim());
     }
 
-    // Gets number of items in "Last Modified" week/day/hour
+    // Gets the count from a label in 'Last Modified' aggregation block (e.g. "< 1 week (41)" → "41")
     async getLastModifiedCount(timestamp) {
-        let locator = XPATH.lastModifiedAggregationEntry(timestamp);
-        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
-        let label = await this.getText(locator);
-        let startIndex = label.indexOf('(');
-        let endIndex = label.indexOf(')');
-        return label.substring(startIndex + 1, endIndex);
+        return await this.getNumberOfItemsInAggregationView('Last Modified', timestamp);
     }
 
     // Expands the 'Owner' dropdown:

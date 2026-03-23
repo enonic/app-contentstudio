@@ -1,5 +1,6 @@
 const Page = require('../../page');
 const lib = require('../../../libs/elements-old');
+const {BUTTONS} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const MacroComboBox = require('../../components/selectors/insert.macro.combobox');
 
@@ -19,7 +20,7 @@ const XPATH = {
 class InsertMacroModalDialog extends Page {
 
     get cancelButton() {
-        return XPATH.container + XPATH.cancelButton;
+        return XPATH.container + BUTTONS.buttonAriaLabel('Cancel');
     }
 
     get cancelButtonTop() {
@@ -27,7 +28,7 @@ class InsertMacroModalDialog extends Page {
     }
 
     get insertButton() {
-        return XPATH.container + XPATH.insertButton;
+        return XPATH.container + BUTTONS.buttonAriaLabel('Insert');
     }
 
     get previewTabItem() {

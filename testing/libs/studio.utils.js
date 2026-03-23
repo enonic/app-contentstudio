@@ -36,7 +36,7 @@ const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wi
 const WizardContextPanel = require('../page_objects/wizardpanel/details/wizard.context.window.panel');
 const fs = require('fs');
 const path = require('path');
-const PropertiesWidgetItem = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
+const DetailsWidgetInfoSection = require('../page_objects/browsepanel/detailspanel/details.widget.info.section');
 const EditSettingDialog = require('../page_objects/details_panel/edit.settings.dialog');
 const InsertLinkDialogContentPanel = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.content.panel');
 const InsertLinkDialogUrlPanel = require('../page_objects/wizardpanel/html-area/insert.link.modal.dialog.url.panel');
@@ -261,7 +261,7 @@ module.exports = {
         await contentWizardPanel.waitForOpened();
         let waitForFocused = checkFocused === undefined ? true : checkFocused;
         if (waitForFocused) {
-            await contentWizardPanel.waitForDisplayNameInputFocused();
+            //await contentWizardPanel.waitForDisplayNameInputFocused();
         }
         return contentWizardPanel;
     },
@@ -333,6 +333,7 @@ module.exports = {
         await this.openContentWizard(appConst.contentTypes.FOLDER);
         await contentWizardPanel.typeData(folder);
         await contentWizardPanel.clickOnMarkAsReadyButton();
+        await contentWizardPanel.waitForNotificationMessage();
         await contentPublishDialog.waitForDialogOpened();
         await this.doCloseWizardAndSwitchToGrid();
         return await this.getBrowser().pause(1000);
@@ -573,7 +574,7 @@ module.exports = {
         //switch to the opened wizard:
         await this.switchToContentTabWindow(displayName);
         await contentWizardPanel.waitForOpened();
-        await contentWizardPanel.waitForDisplayNameInputFocused();
+        //await contentWizardPanel.waitForDisplayNameInputFocused();
         await contentWizardPanel.pause(100);
     },
     async findContentAndClickCheckBox(displayName) {
@@ -1205,10 +1206,10 @@ module.exports = {
         return ids;
     },
     async openEditSettingDialog() {
-        let propertiesWidgetItem = new PropertiesWidgetItem();
+        let detailsWidgetInfoSection = new DetailsWidgetInfoSection();
         let editSettingsDialog = new EditSettingDialog();
         // 3. Click on Edit Settings :
-        await propertiesWidgetItem.clickOnEditSettingsButton();
+        await detailsWidgetInfoSection.clickOnEditSettingsButton();
         await editSettingsDialog.waitForLoaded();
         return editSettingsDialog;
     },

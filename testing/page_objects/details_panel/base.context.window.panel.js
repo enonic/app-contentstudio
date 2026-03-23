@@ -62,11 +62,6 @@ class BaseContextWindowPanel extends Page {
         }
     }
 
-    async waitForApplyButtonInWidgetSelectorNotDisplayed() {
-        let widgetSelectorDropdown = new WidgetSelectorDropdown();
-        return await widgetSelectorDropdown.waitForApplySelectionButtonNotDisplayed(this.container);
-    }
-
     //clicks on dropdown handle and select the 'Version History' menu item
     async openVersionHistory() {
         try {
@@ -116,9 +111,9 @@ class BaseContextWindowPanel extends Page {
         }
     }
 
-    getWidgetSelectorDropdownOptions() {
+    async getWidgetSelectorDropdownOptions() {
         let widgetSelectorDropdown = new WidgetSelectorDropdown();
-        return widgetSelectorDropdown.getOptionsName();
+        return await widgetSelectorDropdown.getOptionsName();
     }
 
     //clicks on dropdown handle and select the 'Dependencies' menu item
@@ -167,8 +162,8 @@ class BaseContextWindowPanel extends Page {
     }
 
     async waitForWidgetSelected(optionName) {
-        let selector = this.widgetSelectorDropdown + lib.itemByDisplayName(optionName);
-        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+        let selector = this.widgetSelectorDropdown + `//button[@type='button' and child::span[text()='${optionName}']]`;
+        await this.waitForElementDisplayed(selector);
     }
 }
 

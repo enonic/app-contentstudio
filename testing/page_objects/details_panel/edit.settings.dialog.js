@@ -3,7 +3,6 @@
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const lib = require('../../libs/elements-old');
 const {BUTTONS} = require('../../libs/elements');
 const LocaleSelectorDropdown = require('../components/selectors/locale.selector.dropdown');
 const PrincipalComboBox = require('../components/selectors/principal.combobox.dropdown')
@@ -11,7 +10,7 @@ const PrincipalComboBox = require('../components/selectors/principal.combobox.dr
 const xpath = {
     container: `//div[@data-component='EditPropertiesDialog']`,
     dialogTitle: "//div[contains(@id,'EditDetailsDialogHeader') and child::h2[@class='title']]",
-    localeCombobox: `//div[contains(@id,'LocaleComboBox')]`,
+    removeLanguageButton: `//div[@data-component="LanguageSelector"]/..//div[@role="grid"]//button[@type="button"]`,
     ownerCombobox: `//div[contains(@id,'PrincipalComboBox')]`,
     selectedOwner: `//div[contains(@class,'selected-options principal-selected-options-view')]`,
     languageSelectedOption: "//div[contains(@id,'LocaleSelectedOptionView')]",
@@ -20,7 +19,8 @@ const xpath = {
     scheduleForm: `//div[contains(@id,'ScheduleWizardStepForm')]`,
 };
 
-class EditSettingDialog extends Page {
+// Language and owner properties
+class EditPropertiesDialog extends Page {
 
     get cancelButton() {
         return xpath.container + BUTTONS.buttonAriaLabel('Cancel');
@@ -31,11 +31,12 @@ class EditSettingDialog extends Page {
     }
 
     get languageFilterInput() {
-        return xpath.container + xpath.localeCombobox + lib.OPTION_FILTER_INPUT;
+        let localeSelectorDropdown = new LocaleSelectorDropdown(xpath.container);
+        return localeSelectorDropdown.optionsFilterInput();
     }
 
     get removeLanguageButton() {
-        return xpath.container + xpath.languageSelectedOption + lib.REMOVE_ICON;
+        return xpath.container + xpath.removeLanguageButton;
     }
 
     get removeOwnerButton() {
@@ -152,4 +153,4 @@ class EditSettingDialog extends Page {
     }
 }
 
-module.exports = EditSettingDialog;
+module.exports = EditPropertiesDialog;

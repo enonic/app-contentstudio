@@ -4,7 +4,6 @@
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
-const contentBuilder = require("../../libs/content.builder");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
@@ -19,25 +18,19 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
+
     const NORWEGIAN_TEXT = "Hej og hå så kan det gå";
     const EXPECTED_URL = '<p><a href="http://google.com">Hej og hå så kan det gå</a></p>';
     const EXPECTED_TEXT_SOFT_HYPHEN = "<p><span class=\"shy\">&shy;</span></p>\n";
     const SOFT_HYPHEN = 'Soft hyphen';
-
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
     it(`GIVEN 'insert special characters' dialog is opened WHEN 'Soft hyphen' special character has been clicked THEN '&shy' should be present in the htmlArea`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertSpecialDialog = new InsertSpecialDialog();
             // 1.  new wizard for htmlArea content is opened:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             // 2. 'Insert Special Character' button has been clicked:
             await htmlAreaForm.showToolbarAndClickOnInsertSpecialCharactersButton();
             await insertSpecialDialog.waitForDialogLoaded();
@@ -55,7 +48,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             // 1.  new wizard for htmlArea content is opened:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             // 2. 'Find and replace' button has been pressed:
             await htmlAreaForm.showToolbarAndClickOnFindAndReplaceButton();
@@ -69,7 +62,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
             // 1.  new wizard for htmlArea content is opened:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await studioUtils.saveScreenshot('cke_insert_image_dialog1');
             // 2. Verify that 'Insert Image Dialog should appear:
@@ -80,7 +73,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertAnchorDialog = new InsertAnchorDialog();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.showToolbarAndClickOnInsertAnchorButton();
             await studioUtils.saveScreenshot('cke_insert_anchor_dialog1');
             // 'Insert Anchor' Dialog should appear:
@@ -91,13 +84,12 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             await insertAnchorDialog.waitForDialogClosed();
         });
 
-
     it(`GIVEN 'insert macro' dialog is opened WHEN 'Cancel' button has been pressed THEN 'Insert Macro Dialog' should be closed`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertMacroDialog = new InsertMacroDialog();
             // 1.  new wizard for htmlArea content is opened:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             // 2.  Insert Macro dialog has been opened:
             await htmlAreaForm.showToolbarAndClickOnInsertMacroButton();
             await insertMacroDialog.waitForDialogLoaded();
@@ -106,10 +98,12 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             await insertMacroDialog.waitForDialogClosed();
         });
 
-    it(`WHEN 'htmlArea' content is opened THEN Increase Indent, Bulleted List, Align Right,Table buttons should be present on the toolbar`,
+    // BUG B/U/I buttons should not be displayed in HtmlArea toolbar #10055
+    it.skip(`WHEN 'htmlArea' content is opened THEN Increase Indent, Bulleted List, Align Right,Table buttons should be present on the toolbar`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
+            await htmlAreaForm.insertTextInHtmlArea(0,'hello');
             await htmlAreaForm.showToolbar();
             // Verify that B/U/I are not displayed in the htmlArea toolbar(they are present only in Full screen dialog)
             await htmlAreaForm.waitForBoldButtonNotDisplayed();
@@ -140,7 +134,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
             let insertLinkDialogUrlPanel = new InsertLinkDialogUrlPanel();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.pause(1000);
             // 1. Open Insert Link dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
@@ -162,7 +156,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
     it("GIVEN wizard for 'htmlArea' is opened WHEN 'format-dropdown' handle has been clicked THEN expected options should appear",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             await htmlAreaForm.showToolbarAndClickOnFormatDropDownHandle();
             let result = await htmlAreaForm.getFormatOptions();
@@ -178,7 +172,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             // 1. Open new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             await htmlAreaForm.typeTextInHtmlArea('test');
             // 2. Click on the dropdown handle:
@@ -195,7 +189,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             // new wizard is opened:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             // Insert Table button has been pressed:
             await htmlAreaForm.showToolbarAndClickOnTableButton();

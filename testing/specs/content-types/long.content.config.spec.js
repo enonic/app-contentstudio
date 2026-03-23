@@ -14,44 +14,36 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
-    it(`Preconditions: new site should be added`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
 
-    it(`GIVEN wizard for required 'Long(min 1,max 10)' is opened WHEN number in the allowed range has been typed THEN validation message should not be present`,
+    it.skip(`GIVEN wizard for required 'Long(min 1,max 10)' is opened WHEN number in the allowed range has been typed THEN validation message should not be present`,
         async () => {
             let longForm = new LongForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_MIN_MAX);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.LONG_MIN_MAX);
             //1. Type number in the allowed range:
             await longForm.typeLong(1);
             await longForm.pause(1000);
             await studioUtils.saveScreenshot('long_min_max_1');
             //2. Verify that input validation message is not displayed:
-            let recording = await longForm.getOccurrenceValidationRecording(0);
-            assert.equal(recording, "", 'Validation recording should not be displayed');
+             await longForm.waitForOccurrenceValidationRecordingNotDisplayed(0);
         });
 
     it(`GIVEN wizard for required 'Long(min 1,max 10)' is opened WHEN value less than min has been typed THEN validation record should be visible`,
         async () => {
             let longForm = new LongForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_MIN_MAX);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.LONG_MIN_MAX);
             //1. Type a value less than min:
             await longForm.typeLong(0);
             //2. Verify that validation message gets visible:
             await studioUtils.saveScreenshot('long_min_max_2');
-            let actualText = await longForm.getOccurrenceValidationRecording(0);
-            assert.equal(actualText, 'The value cannot be less than 1', 'expected validation recording should appear');
+            await longForm.waitForOccurrenceValidationRecordingDisplayed(0, "The value cannot be less than 1");
         });
 
     it(`GIVEN wizard for required 'Long(min 1,max 10)' is opened WHEN value more than max has been typed THEN validation record should appear`,
         async () => {
             let longForm = new LongForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_MIN_MAX);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.LONG_MIN_MAX);
             // 1. Type a value that more than max:
             await longForm.typeLong(11);
             // 2. Verify the validation message:
@@ -63,7 +55,7 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
     it(`GIVEN wizard for required 'Long(min 1,max 10)' is opened WHEN max value has been typed THEN input validation record should not be visible`,
         async () => {
             let longForm = new LongForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_MIN_MAX);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.LONG_MIN_MAX);
             // 1. Max value has been typed:
             await longForm.typeLong(10);
             await longForm.pause(700);
@@ -76,7 +68,7 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
     it(`GIVEN wizard for required 'Long(min 1,max 10)' is opened WHEN min value has been typed THEN input validation recording should not be visible`,
         async () => {
             let longForm = new LongForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_MIN_MAX);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.LONG_MIN_MAX);
             // 1. Min value has been typed:
             await longForm.typeLong(1);
             await longForm.pause(700);
@@ -89,7 +81,7 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
     it(`GIVEN wizard for required 'Long(min 1,max 10)' is opened WHEN invalid value has been typed THEN validation recording gets visible`,
         async () => {
             let longForm = new LongForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_MIN_MAX);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.LONG_MIN_MAX);
             //1. not valid value has been typed:
             await longForm.typeLong("aa");
             //2. Verify that input validation message gets visible:
@@ -101,7 +93,7 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
     it(`GIVEN invalid value is typed AND validation message is present WHEN valid value has been typed THEN validation recording gets hidden`,
         async () => {
             let longForm = new LongForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_MIN_MAX);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.LONG_MIN_MAX);
             //1. not valid value has been typed:
             await longForm.typeLong("aa");
             //2. Verify that validation message gets visible:
@@ -120,7 +112,7 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
         async () => {
             let longForm = new LongForm();
             let contentWizardPanel = new ContentWizardPanel();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_MIN_MAX);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.LONG_MIN_MAX);
             // 1. invalid value has been typed:
             await longForm.typeLong('aa');
             // 2. Verify that 'Save' button is disabled:

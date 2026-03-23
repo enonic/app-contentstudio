@@ -4,6 +4,7 @@ const appConst = require('../../../libs/app_const');
 
 const XPATH = {
     container: `//div[contains(@id,'SpecialCharDialog')]`,
+    title: "//h2[text()='Special character']",
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     spanChar: char => `//span[contains(@class, 'chars-block__char') and text()='${char}']`,
     spanCharByTitle: title => `//span[contains(@class, 'chars-block__char') and @title='${title}']`,
@@ -36,26 +37,23 @@ class InsertSpecialCharacterDialog extends Page {
             await this.clickOnElement(locator);
             return await this.waitForClosed();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_spec_chars_dialog');
-            throw new Error('Insert Special Chars dialog, error after clicking on the special char, screenshot  ' + screenshot + ' ' + err);
+            await this.handleError('Insert Special Chars dialog, error after clicking on the special char with title ' + title, 'err_spec_chars_dialog', err);
         }
     }
 
     async waitForDialogLoaded() {
         try {
-            return await this.waitForElementDisplayed(this.cancelButton, appConst.shortTimeout)
+            return await this.waitForElementDisplayed(XPATH.title);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_open_insert_anchor_dialog');
-            throw new Error('Insert Special Character Dialog should be opened! screenshot: ' + screenshot + '  ' + err);
+            await this.handleError('Insert Special Character Dialog was not loaded', 'err_insert_spec_char_dlg', err);
         }
     }
 
     async waitForClosed() {
         try {
-            return await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
+            return await this.waitForElementNotDisplayed(XPATH.title);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('spec_char_dlg_closed');
-            throw new Error("Insert Special Character is not closed, screenshot: " + screenshot + '  ' + err);
+            await this.handleError('Insert Special Character Dialog was not closed', 'err_insert_spec_char_dlg_closed', err);
         }
     }
 }

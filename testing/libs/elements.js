@@ -17,11 +17,48 @@ const COMMON = {
 
     INPUTS: {
         CHECKBOX_INPUT: "//input[@type='checkbox']",
+        FORM_RENDERER_DATA_COMPONENT:"//div[@data-component='FormRenderer']",
+        OCCURRENCES_DATA_COMPONENT: "//div[@data-component='OccurrenceList']",
+        VALIDATION_RECORDING:"//div[contains(@class,'text-error')]",
         CHECKBOX_INPUT_CHECKED: "//input[@type='checkbox' and @aria-checked='true']",
         TEXT: "//input[@type='text']",
         INPUT: "//input",
         textAreaByName: (name) => `//textarea[@name='${name}']`,
         inputByAriaLabel: (ariaLabel) => `//input[@aria-label='${ariaLabel}']`,
+    },
+    CKE:{
+        textAreaElement:"//textarea[contains(@id,'htmlarea')]",
+        TEXTAREA_DIV: "//div[contains(@id,'cke_TextArea')]",
+        insertTableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
+        pasteModeButton: `//a[contains(@class,'cke_button') and contains(@title,'Paste mode')]`,
+        insertLinkButton: `//a[contains(@class,'cke_button') and contains(@title,'Link')]`,
+        unlinkButton: `//a[contains(@class,'cke_button') and contains(@title,'Unlink')]`,
+        insertAnchorButton: `//a[contains(@class,'cke_button') and @title='Anchor']`,
+        findAndReplaceButton: "//a[contains(@class,'cke_button') and @title='Find and replace']",
+        insertImageButton: `//a[contains(@class,'cke_button') and contains(@title,'Image')]`,
+        insertMacroButton: `//a[contains(@class,'cke_button') and @title='Insert macro']`,
+        insertSpecialCharacter: "//a[contains(@class,'cke_button') and @title='Insert Special Character']",
+        italicButton: `//a[contains(@class,'cke_button') and contains(@title,'Italic')]`,
+        boldButton: `//a[contains(@class,'cke_button') and contains(@title,'Bold')]`,
+        underlineButton: `//a[contains(@class,'cke_button') and contains(@title,'Underline')]`,
+        subscriptButton: `//a[contains(@class,'cke_button') and contains(@title,'Subscript')]`,
+        superScriptButton: `//a[contains(@class,'cke_button') and contains(@title,'Superscript')]`,
+        wrapCodeButton: `//a[contains(@class,'cke_button') and contains(@title,'Wrap code')]`,
+        blockQuoteButton: `//a[contains(@class,'cke_button') and contains(@title,'Block Quote')]`,
+        alignLeftButton: `//a[contains(@class,'cke_button') and contains(@title,'Align Left')]`,
+        alignRightButton: `//a[contains(@class,'cke_button') and contains(@title,'Align Right')]`,
+        centerButton: `//a[contains(@class,'cke_button') and contains(@title,'Center')]`,
+        justifyButton: `//a[contains(@class,'cke_button') and contains(@title,'Justify')]`,
+        bulletedButton: `//a[contains(@class,'cke_button') and contains(@title,'Bulleted List')]`,
+        numberedButton: `//a[contains(@class,'cke_button') and contains(@title,'Numbered List')]`,
+        sourceButton: `//a[contains(@class,'cke_button__sourcedialog') and @title='Source']`,
+        fullScreen: `//a[contains(@class,'cke_button__fullscreen')  and @title='Fullscreen']`,
+        tableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
+        finAndReplaceButton: `//a[contains(@class,'cke_button') and contains(@title,'Find and replace')]`,
+        strikethroughButton: `//a[contains(@class,'cke_button') and contains(@title,'Strikethrough')]`,
+        increaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Increase Indent')]`,
+        decreaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Decrease Indent')]`,
+        formatDropDownHandle: `//span[contains(@class,'cke_combo__styles') and descendant::a[@class='cke_combo_button']]`,
     }
 };
 const WIZARD = {
@@ -38,7 +75,7 @@ const BUTTONS = {
     SELECTION_PANEL_TOGGLER: `//button[contains(@id,'SelectionPanelToggler')]`,
     SELECTOR_MODE_TOGGLER: "//button[contains(@id,'ModeTogglerButton')]",
     UPLOAD_BUTTON: "//button[contains(@class,'upload-button')]",
-    buttonByLabel: (label) => `//button[contains(@type,'button') and contains(.,'${label}')]`,
+    buttonByLabel: (label) => `//button[@type='button' and contains(.,'${label}')]`,
     BUTTON_MENU_POPUP: "//button[@aria-haspopup='menu']",
     buttonAriaLabel: (ariaLabel) => `//button[contains(@type,'button') and contains(@aria-label,'${ariaLabel}')]`,
     buttonStatusBar: (label) => `//button[@data-component='StatusBarEntryButton' and contains(.,'${label}')]`,
@@ -71,14 +108,15 @@ const TREE_GRID = {
     TREE_LIST_DIV: "//div[contains(@id,'tree-list')]",
     TREE_LIST_ITEM_DIV: "//div[contains(@role,'listitem')]",
     CONTENT_ITEM_CONTEXT_MENU: "//div[@role='menu' and contains(@id,'content')]",
-    TREE_ITEM_DIV: "//div[contains(@role,'treeitem') and descendant::small[contains(@class,'t-subtle')]]",
+    TREE_ITEM_DIV: "//div[contains(@role,'treeitem') and descendant::small]",
     TREE_LIST_ITEM_CHECKBOX_LABEL: "//div[@role='checkbox']",
+    TREE_LIST_ITEM_CHECKBOX_CHECKED: "//div[@role='checkbox' and @aria-checked='true']",
     CONTENT_STATUS: "//span[contains(@data-component,'StatusBadge')]",
     SORT_DIALOG_TOGGLE: "//div[contains(@class,'sort-dialog-trigger')]",
     EXPANDER_ICON_DIV: "//div[contains(@class,'toggle icon-arrow_drop_up')]",
     listItemByDisplayName: displayName => `//div[@role='listitem' and @data-component='ContentListItemWithReference' and (descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]])]`,
     listItemByDisplayNameAndDataComponent: (dataComponent,
-        displayName) => `//div[@role='listitem' and @data-component='${dataComponent}' and (descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]])]`,
+                                            displayName) => `//div[@role='listitem' and @data-component='${dataComponent}' and (descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]])]`,
     // Block that contains: name, displayName, icon...
     CONTENT_LABEL_BLOCK: "//div[@data-component='ContentLabel']",
     itemContextMenuItemByName: (name) => {
@@ -95,7 +133,7 @@ const TREE_GRID = {
     },
 }
 const DROPDOWN = {
-    MODE_TOGGLE: "//button[@aria-label='Tree view' or @aria-label='List view']",
+    MODE_TOGGLE:"//button[@aria-label='Tree view' or @aria-label='List view']",
     DROPDOWN_LIST_ITEM_DISPLAY_NAME: `//div[@role='option']//div[1]//span[1]`,
     CONTENT_LABEL_OPTIONS_NAME: "//div[@role='treeitem']//div[@data-component='ContentLabel']/div[2]/span",
     COMBOBOX_POPUP: "//div[@data-combobox-popup='' or @data-combobox-popup]",
@@ -119,7 +157,7 @@ const DROPDOWN = {
         return `//div[@role='option']//span[contains(.,'${optionName}')]`;
     },
     SELECTOR_LISTBOX: "//div[contains(@role,'listbox')]",
-    WIDGET_COMBOBOX: "//button[contains(@id,'WidgetsSelector') and @role='combobox']",
+    WIDGET_COMBOBOX: "//div[@data-component='WidgetsSelector']",
     OPTION_FILTER_INPUT: "//input[@role='combobox']",
 };
 const DROPDOWN_OLD = {
@@ -135,10 +173,10 @@ const DROPDOWN_OLD = {
     APPLY_SELECTION_BUTTON: "//button[contains(@class,'apply-selection-button')]",
     flatModeDropdownImgItemByDisplayName: (container, displayName) => {
         return container +
-            `//*[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]//img`;
+               `//*[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]//img`;
     },
     IMG_DROPDOWN_OPT_DISPLAY_NAME_FLAT_MODE: "//li[contains(@class,'item-view-wrapper')]" +
-        "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",
+                                             "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",
 };
 const ISSUE = {
     contentRowByName: displayName => `//div[@data-component='ContentRow' and (descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]])]`,
@@ -148,12 +186,12 @@ const DIALOG_ITEMS = {
     SECONDARY_DATA_COMPONENT_DIV: "//div[@data-component='SplitList.Secondary']",
     INCLUDE_CHILDREN_CHECKBOX: "/following::div[contains(@id,'children') and descendant::span[contains(.,'Include children')]]//label",
     CONTENT_ROW: "//div[@data-component='ContentRow' and (not(@aria-disabled) or @aria-disabled!='true')]",
-    CONTENT_REMOVE_BUTTON: "//div[@data-component='ContentRowRemoveButton' ]//button",
+    CONTENT_REMOVE_BUTTON:"//div[@data-component='ContentRowRemoveButton' ]//button",
     mainItemRowByName: name => `//div[@data-component='ContentRow' and descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${name}')]]]`,
     contentRowByName: displayName => `//div[@data-component='ContentRow' and (not(@aria-disabled) or @aria-disabled!='true') and (descendant::div[@data-component='ContentRowLabel' and descendant::span[contains(.,'${displayName}')]])]`,
     ITEMS_NAME_SPAN: "//div[@data-component='ContentRowLabel']//div[@data-component='ContentLabel']//div[2]//span",
     contentCheckboxInputByName: name => DIALOG_ITEMS.contentRowByName(name) +
-        `//div[@data-component='ContentRowCheckbox']//input[@type='checkbox']`,
+                                        `//div[@data-component='ContentRowCheckbox']//input[@type='checkbox']`,
     contentCheckboxLabelByName: name => DIALOG_ITEMS.contentRowByName(name) + `//div[@data-component='ContentRowCheckbox']//label`,
     mainItemDivByName: name => DIALOG_ITEMS.PRIMARY_DATA_COMPONENT + DIALOG_ITEMS.mainItemRowByName(name),
 };

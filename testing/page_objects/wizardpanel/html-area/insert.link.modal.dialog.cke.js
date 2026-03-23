@@ -1,4 +1,5 @@
 const Page = require('../../page');
+const {BUTTONS} = require('../../../libs/elements');
 const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
 
@@ -9,7 +10,6 @@ const XPATH = {
     urlPanel: "//div[contains(@id,'DockedPanel')]//div[contains(@id,'Panel') and contains(@class,'panel url-panel')]",
     emailPanel: "//div[contains(@id,'DockedPanel')]//div[contains(@id,'Panel') and @class='panel']",
     urlTypeButton: "//div[contains(@id,'MenuButton')]//button[contains(@id,'ActionButton') and child::span[text()='Type']]",
-    menuItemByName: optionName => `//div[contains(@id,'MenuButton')]//li[text()='${optionName}']`,
     anchorFormItem: "//div[contains(@class,'anchor-form-item')]",
     parametersFormItem: "//div[contains(@id,'FormItem') and descendant::label[text()='Parameters']]",
 };
@@ -41,7 +41,7 @@ class InsertLinkDialog extends Page {
     }
 
     get cancelButton() {
-        return XPATH.container + lib.dialogButton('Cancel');
+        return XPATH.container + BUTTONS.buttonAriaLabel('Cancel');
     }
 
     get cancelButtonTop() {
@@ -49,25 +49,26 @@ class InsertLinkDialog extends Page {
     }
 
     get insertButton() {
-        return XPATH.container + lib.dialogButton('Insert');
+        return XPATH.container + BUTTONS.buttonAriaLabel('Insert');
     }
 
     // types text in link text input
-    typeInLinkTextInput(text) {
-        return this.typeTextInInput(this.linkTextInput, text).catch(err => {
-            this.saveScreenshot('err_type_link_text');
-            throw new Error('error when type text in link-text input ' + err);
-        });
+    async typeInLinkTextInput(text) {
+        try {
+            await this.waitForElementDisplayed(this.linkTextInput);
+            await this.typeTextInInput(this.linkTextInput, text);
+        } catch (err) {
+            await this.handleError('Insert Link Dialog- error when type text in link-text input', 'err_type_link_text', err);
+        }
     }
 
     // types text in link tooltip input
     async typeInLinkTooltip(text) {
         try {
-            await this.waitForElementDisplayed(this.linkTooltipInput, appConst.mediumTimeout);
-            return await this.typeTextInInput(this.linkTooltipInput, text)
+            await this.waitForElementDisplayed(this.linkTooltipInput);
+            return await this.typeTextInInput(this.linkTooltipInput, text);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_tooltip_link'));
-            throw new Error('error when type text in link-text input ' + err);
+            await this.handleError('Insert Link Dialog- error when type text in link-tooltip input', 'err_type_link_tooltip', err);
         }
     }
 
@@ -77,12 +78,11 @@ class InsertLinkDialog extends Page {
 
     async typeTextInEmailInput(email) {
         try {
-            await this.waitForElementDisplayed(XPATH.emailPanel, appConst.shortTimeout);
+            await this.waitForElementDisplayed(XPATH.emailPanel);
             let res = await this.findElements(this.emailInput);
             await this.typeTextInInput(this.emailInput, email);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_email'));
-            throw new Error('error when type in email input, Insert Link modal dialog ' + err);
+            await this.handleError('Insert Link Dialog- error when type text in email input', 'err_type_email_input', err);
         }
     }
 
@@ -92,7 +92,7 @@ class InsertLinkDialog extends Page {
     }
 
     async clickOnInsertButton() {
-        await this.waitForElementDisplayed(this.insertButton, appConst.shortTimeout);
+        await this.waitForElementDisplayed(this.insertButton);
         await this.clickOnElement(this.insertButton);
         return await this.pause(500);
     }
@@ -108,15 +108,14 @@ class InsertLinkDialog extends Page {
 
     async waitForDialogLoaded() {
         try {
-            return await this.waitForElementDisplayed(this.cancelButton, appConst.shortTimeout)
+            return await this.waitForElementDisplayed(this.cancelButton);
         } catch (err) {
-            await this.saveScreenshot('err_open_insert_link_dialog');
-            throw new Error('Insert Link Dialog should be open!' + err);
+            await this.handleError('Insert Link Dialog should be open!', 'err_open_insert_link_dialog', err);
         }
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
+        return this.waitForElementNotDisplayed(XPATH.container);
     }
 
     async clickOnBarItem(name) {
@@ -126,8 +125,7 @@ class InsertLinkDialog extends Page {
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_bar_item'));
-            throw new Error('Insert Link Dialog-  error when click on the bar item ' + err);
+            await this.handleError('Insert Link Dialog- error when click on the bar item' , 'err_click_bar_item', err);
         }
     }
 

@@ -103,7 +103,7 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
             await editSettingsDialog.clickOnRemoveOwner();
             // 4. Click on Apply button:
             await editSettingsDialog.clickOnApplyButton();
-            // 5. Verify that 'owner property' is not displayed in the extension-properties now
+            // 5. Verify that 'owner property' is not displayed in the properties-widget now
             await propertiesWidget.waitForOwnerNotVisible();
         });
 
