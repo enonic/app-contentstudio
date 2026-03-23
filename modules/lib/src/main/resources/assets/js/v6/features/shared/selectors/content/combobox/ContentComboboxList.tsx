@@ -5,7 +5,7 @@ import type {ListRange, VirtuosoHandle} from 'react-virtuoso';
 import {Virtuoso} from 'react-virtuoso';
 import type {ContentComboboxFlatNode} from '../../../../hooks/useContentComboboxData';
 import {getLoadingNodeParentId} from '../../../../hooks/useContentComboboxData';
-import {ContentComboboxRow, ContentComboboxRowProps} from './ContentComboboxRow';
+import {ContentRow, type ContentRowProps} from '../../shared/combobox/ContentRow';
 
 //
 // * Types
@@ -27,7 +27,7 @@ export type ContentComboboxListProps = {
     hasMore?: boolean;
     virtuosoRef?: React.RefObject<VirtuosoHandle>;
     /** Custom row renderer */
-    rowRenderer?: (props: ContentComboboxRowProps) => ReactElement;
+    rowRenderer?: (props: ContentRowProps) => ReactElement;
 };
 
 //
@@ -165,7 +165,7 @@ export const ContentComboboxList = ({
                                 onCollapse,
                             };
 
-                            return hasCustomRowRenderer ? rowRenderer(props) : <ContentComboboxRow {...props} />;
+                            return hasCustomRowRenderer ? rowRenderer(props) : <ContentRow {...props} />;
                         }}
                     />
                 )}

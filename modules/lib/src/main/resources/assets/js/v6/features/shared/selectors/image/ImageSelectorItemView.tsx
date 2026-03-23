@@ -1,0 +1,66 @@
+import {type ReactElement} from 'react';
+import {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
+import {ContentIconUrlResolver} from '../../../../../app/content/ContentIconUrlResolver';
+import {StatusBadge} from '../../status/StatusBadge';
+import {Tooltip} from '@enonic/ui';
+import {CompareStatus} from '../../../../../app/content/CompareStatus';
+import {useI18n} from '../../../hooks/useI18n';
+
+export type ImageSelectorItemViewProps = {
+    /** The content to display */
+    content: ContentSummaryAndCompareStatus;
+    /** Whether to hide the status */
+    hideStatus?: boolean;
+};
+
+const IMAGE_SELECTOR_ITEM_VIEW = 'ImageSelectorItemView';
+
+// Gets an image content and render its image within a squared box, with its name and path to the side of the box.
+// The squared box adjusts its size to be 36% of the element's width. For that, add @container class to the element you want to use as reference for the box size.
+export const ImageSelectorItemView = ({content, hideStatus = false}: ImageSelectorItemViewProps): ReactElement => {
+    const imageNotAvailableLabel = useI18n('text.image.notavailable');
+
+    const isRemoved = [CompareStatus.UNKNOWN, CompareStatus.ARCHIVED].includes(content.getCompareStatus());
+
+    const contentId = content.getId();
+    const displayName = content.getDisplayName() || content.getType()?.getLocalName();
+    const subName = content.getPath() ? content.getPath().toString() : '';
+    const iconUrl = new ContentIconUrlResolver().setContent(content.getContentSummary()).resolve() + '&size=270';
+
+    if (isRemoved) {
+        return (
+            <div data-component={IMAGE_SELECTOR_ITEM_VIEW} className="flex items-center gap-2.5 min-w-0">
+                <div className="relative aspect-square w-[36cqw] max-w-[270px] border border-bdr-subtle group-data-[tone=inverse]:border-alt flex items-center justify-center shrink-0">
+                    <span className="text-sm text-error text-center m-1">{imageNotAvailableLabel}</span>
+                </div>
+                <div className="min-w-0">
+                    <span className="font-semibold text-base block whitespace-nowrap overflow-hidden text-ellipsis">{contentId}</span>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div data-component={IMAGE_SELECTOR_ITEM_VIEW} className="flex items-center gap-2.5 min-w-0">
+            <div className="relative aspect-square w-[36cqw] max-w-[270px] border border-bdr-subtle group-data-[tone=inverse]:border-alt flex items-center justify-center shrink-0">
+                <img src={iconUrl} alt={displayName} className="object-contain object-center max-w-full max-h-full" />
+            </div>
+
+            <div className="min-w-0">
+                <span className="font-semibold text-base block whitespace-nowrap overflow-hidden text-ellipsis">{displayName}</span>
+                <Tooltip value={subName}>
+                    <span
+                        dir="rtl"
+                        className="text-subtle text-sm block whitespace-nowrap overflow-hidden text-ellipsis text-left group-data-[tone=inverse]:text-alt"
+                    >
+                        <bdi>{subName}</bdi>
+                    </span>
+                </Tooltip>
+
+                {!hideStatus && <StatusBadge status={content.getPublishStatus()} />}
+            </div>
+        </div>
+    );
+};
+
+ImageSelectorItemView.displayName = IMAGE_SELECTOR_ITEM_VIEW;

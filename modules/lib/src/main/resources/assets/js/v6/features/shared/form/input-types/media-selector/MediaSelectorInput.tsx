@@ -1,18 +1,19 @@
 import type {SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
-import type {ImageSelectorConfig} from './ImageSelectorConfig';
+import type {MediaSelectorConfig} from './MediaSelectorConfig';
 import type {ReactElement} from 'react';
-import {ImageSelector} from '../../../selectors/image';
+import {MediaSelector} from '../../../selectors/media';
 import {useSelectorInput} from '../../../../hooks/useSelectorInput';
 
-export const ImageSelectorInput = (props: SelfManagedComponentProps<ImageSelectorConfig>): ReactElement => {
+export const MediaSelectorInput = (props: SelfManagedComponentProps<MediaSelectorConfig>): ReactElement => {
     const {contextContent, selectionMode, hasErrors, hideToggleIcon, listMode, selection, placeholder, emptyLabel, handleSelectionChange} =
         useSelectorInput(props);
 
+    const contentTypeNames = props.config.allowContentType;
     const allowedContentPaths = props.config.allowPath;
     const disabled = !props.enabled;
 
     return (
-        <ImageSelector
+        <MediaSelector
             selection={selection}
             onSelectionChange={handleSelectionChange}
             selectionMode={selectionMode}
@@ -20,14 +21,15 @@ export const ImageSelectorInput = (props: SelfManagedComponentProps<ImageSelecto
             emptyLabel={emptyLabel}
             error={hasErrors}
             hideToggleIcon={hideToggleIcon}
+            contentTypeNames={contentTypeNames}
             allowedContentPaths={allowedContentPaths}
             contextContent={contextContent?.getContentSummary()}
             listMode={listMode}
             disabled={disabled}
-            closeOnBlur
             withUpload
+            closeOnBlur
         />
     );
 };
 
-ImageSelectorInput.displayName = 'ImageSelectorInput';
+MediaSelectorInput.displayName = 'MediaSelectorInput';

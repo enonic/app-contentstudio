@@ -1,12 +1,30 @@
-import {ListItem, VirtualizedTreeList} from '@enonic/ui';
+import {ListItem, VirtualizedTreeList, type VirtualizedTreeListItemProps} from '@enonic/ui';
 import {Loader2} from 'lucide-react';
 import type {ReactElement} from 'react';
+import type {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
 import {ContentLabel} from '../../../content/ContentLabel';
-import {ContentComboboxRowProps} from '../../content/combobox/ContentComboboxRow';
 import {StatusBadge} from '../../../status/StatusBadge';
-import {ImageItemView} from '../item';
+import type {ContentComboboxFlatNode} from '../../../../hooks/useContentComboboxData';
 
-export type ImageComboboxRowProps = ContentComboboxRowProps;
+//
+// * Types
+//
+
+export type ContentRowProps = {
+    node: ContentComboboxFlatNode;
+    mode?: 'tree' | 'flat';
+    itemProps: VirtualizedTreeListItemProps;
+    /** Whether to show expand control (tree mode) or hide it (flat mode) */
+    showExpandControl?: boolean;
+    /** Whether to show status badge */
+    showStatusBadge?: boolean;
+    /** Optional custom renderer for tree mode content. Defaults to ContentLabel + StatusBadge. */
+    renderTreeContent?: (content: ContentSummaryAndCompareStatus, hideStatus: boolean) => ReactElement;
+    /** Optional custom renderer for flat mode content. Defaults to ContentLabel + StatusBadge. */
+    renderFlatContent?: (content: ContentSummaryAndCompareStatus, hideStatus: boolean) => ReactElement;
+    onExpand?: (id: string) => void;
+    onCollapse?: (id: string) => void;
+};
 
 //
 // * Loading Row (pagination placeholder)
@@ -18,7 +36,7 @@ type LoadingRowProps = {
     showExpandControl?: boolean;
 };
 
-const LoadingRow = ({level, isLoading, showExpandControl = true}: LoadingRowProps): ReactElement => {
+export const LoadingRow = ({level, isLoading, showExpandControl = true}: LoadingRowProps): ReactElement => {
     return (
         <VirtualizedTreeList.RowLoading level={level} className="h-12">
             {isLoading && (
@@ -30,6 +48,8 @@ const LoadingRow = ({level, isLoading, showExpandControl = true}: LoadingRowProp
     );
 };
 
+LoadingRow.displayName = 'LoadingRow';
+
 //
 // * Skeleton Row (data not loaded yet)
 //
@@ -39,7 +59,7 @@ type SkeletonRowProps = {
     showExpandControl?: boolean;
 };
 
-const SkeletonRow = ({level, showExpandControl = true}: SkeletonRowProps): ReactElement => {
+export const SkeletonRow = ({level, showExpandControl = true}: SkeletonRowProps): ReactElement => {
     return (
         <VirtualizedTreeList.Row active={false} selected={false}>
             {showExpandControl && (
@@ -64,19 +84,36 @@ const SkeletonRow = ({level, showExpandControl = true}: SkeletonRowProps): React
     );
 };
 
+SkeletonRow.displayName = 'SkeletonRow';
+
 //
 // * Main Row Component
 //
 
-export const ImageComboboxRow = ({
+const DefaultRow = (content: ContentSummaryAndCompareStatus, hideStatus: boolean): ReactElement => (
+    <ListItem className="p-0">
+        <ListItem.Left className="flex-1">
+            <ContentLabel content={content} />
+        </ListItem.Left>
+        {!hideStatus && (
+            <ListItem.Right>
+                <StatusBadge status={content.getPublishStatus()} />
+            </ListItem.Right>
+        )}
+    </ListItem>
+);
+
+export const ContentRow = ({
     node,
     mode,
     itemProps,
     showExpandControl = true,
     showStatusBadge = true,
+    renderTreeContent,
+    renderFlatContent,
     onExpand,
     onCollapse,
-}: ImageComboboxRowProps): ReactElement => {
+}: ContentRowProps): ReactElement => {
     const {id, level, isExpanded, hasChildren, data, nodeType, isLoading} = node;
 
     // Handle loading node (renders spinner when actually loading)
@@ -91,9 +128,12 @@ export const ImageComboboxRow = ({
 
     const content = data.item;
     const isSelectable = data.selectable;
+    const hideStatus = !showStatusBadge;
+    const renderTree = renderTreeContent ?? DefaultRow;
+    const renderFlat = renderFlatContent ?? DefaultRow;
 
     return (
-        <VirtualizedTreeList.Row {...itemProps} className="@container">
+        <VirtualizedTreeList.Row {...itemProps} className={mode === 'flat' ? '@container' : undefined}>
             {showExpandControl && (
                 <VirtualizedTreeList.RowLeft>
                     <VirtualizedTreeList.RowLevelSpacer level={level} />
@@ -107,25 +147,8 @@ export const ImageComboboxRow = ({
                 </VirtualizedTreeList.RowLeft>
             )}
             <VirtualizedTreeList.RowContent>
-                {content && mode === 'tree' && (
-                    <ListItem className="p-0">
-                        <ListItem.Left className="flex-1 min-w-0">
-                            <ContentLabel content={content} />
-                        </ListItem.Left>
-                        {showStatusBadge && (
-                            <ListItem.Right>
-                                <StatusBadge status={content.getPublishStatus()} />
-                            </ListItem.Right>
-                        )}
-                    </ListItem>
-                )}
-                {content && mode === 'flat' && (
-                    <ListItem className="p-0">
-                        <ListItem.Left className="flex-1 min-w-0">
-                            <ImageItemView content={content} hideStatus={!showStatusBadge} />
-                        </ListItem.Left>
-                    </ListItem>
-                )}
+                {content && mode === 'tree' && renderTree(content, hideStatus)}
+                {content && mode === 'flat' && renderFlat(content, hideStatus)}
                 {!content && <Loader2 className="size-5 animate-spin text-subtle" />}
             </VirtualizedTreeList.RowContent>
             <VirtualizedTreeList.RowRight>
@@ -135,4 +158,4 @@ export const ImageComboboxRow = ({
     );
 };
 
-ImageComboboxRow.displayName = 'ImageComboboxRow';
+ContentRow.displayName = 'ContentRow';

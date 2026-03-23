@@ -14,6 +14,18 @@ import {type ChildOrder} from '../../../app/resource/order/ChildOrder';
 import type {CreateNodeOptions, FlatNode, UseTreeStoreReturn} from '../lib/tree-store';
 import {getLoadingNodeParentId, LOADING_NODE_PREFIX, useTreeStore} from '../lib/tree-store';
 import {getContent, setContents} from '../store/content.store';
+import {
+    $contentArchived,
+    $contentCreated,
+    $contentDeleted,
+    $contentDuplicated,
+    $contentMoved,
+    $contentPublished,
+    $contentRenamed,
+    $contentSorted,
+    $contentUnpublished,
+    $contentUpdated,
+} from '../store/socket.store';
 import {applyContentFilters, type ContentFilterOptions} from '../utils/cms/content/applyContentFilters';
 import type {ContentState} from '../../../app/content/ContentState';
 import {resolveDisplayName, resolveSubName} from '../utils/cms/content/prettify';
@@ -136,10 +148,7 @@ function toNodeDataFromTreeItem(item: ContentTreeSelectorItem): ContentComboboxN
     };
 }
 
-function toNodeOptionsFromTreeItem(
-    item: ContentTreeSelectorItem,
-    parentId: string | null,
-): CreateNodeOptions<ContentComboboxNodeData> {
+function toNodeOptionsFromTreeItem(item: ContentTreeSelectorItem, parentId: string | null): CreateNodeOptions<ContentComboboxNodeData> {
     return {
         id: item.getId(),
         data: toNodeDataFromTreeItem(item),
@@ -152,7 +161,7 @@ function createDefaultChildOrder(): ChildOrder {
     return fetcher.createRootChildOrder();
 }
 
-function deduplicateById<T extends { getId(): string }>(items: T[]): T[] {
+function deduplicateById<T extends {getId(): string}>(items: T[]): T[] {
     const seen = new Set<string>();
     return items.filter((item) => {
         const id = item.getId();
@@ -183,9 +192,7 @@ function createFilterKey(filters: ContentFilterOptions): string {
  * Hook for managing content combobox data loading.
  * Handles tree and flat list data, pagination, search, and error handling.
  */
-export function useContentComboboxData(
-    options: UseContentComboboxDataOptions,
-): UseContentComboboxDataReturn {
+export function useContentComboboxData(options: UseContentComboboxDataOptions): UseContentComboboxDataReturn {
     const {filters, isOpen} = options;
 
     // Create stable filter key for dependency tracking
@@ -227,46 +234,46 @@ export function useContentComboboxData(
     // Request tracking for stale request handling
     const treeRequestIdRef = useRef(0);
     const flatRequestIdRef = useRef(0);
-    const enrichTreeContents = useCallback(async (
-        contents: ContentSummaryAndCompareStatus[],
-        requestId: number,
-    ): Promise<ContentSummaryAndCompareStatus[]> => {
-        if (contents.length === 0) {
-            return contents;
-        }
-
-        const summaries = contents
-            .map((content) => content?.getContentSummary())
-            .filter((summary): summary is ContentSummary => !!summary);
-
-        if (summaries.length === 0) {
-            return contents;
-        }
-
-        try {
-            const enriched = await fetcher.updateReadonlyAndCompareStatus(summaries);
-            if (requestId !== treeRequestIdRef.current) {
+    const enrichTreeContents = useCallback(
+        async (contents: ContentSummaryAndCompareStatus[], requestId: number): Promise<ContentSummaryAndCompareStatus[]> => {
+            if (contents.length === 0) {
                 return contents;
             }
-            return enriched;
-        } catch (error) {
-            console.error(error);
-            return contents;
-        }
-    }, []);
 
-    const enrichAndCache = useCallback(async (
-        items: ContentTreeSelectorItem[],
-        requestId: number,
-    ): Promise<boolean> => {
-        const contents = items
-            .map((item) => item.getContent())
-            .filter((content): content is ContentSummaryAndCompareStatus => !!content);
-        const contentsWithStatus = await enrichTreeContents(contents, requestId);
-        if (requestId !== treeRequestIdRef.current) return false;
-        setContents(contentsWithStatus);
-        return true;
-    }, [enrichTreeContents]);
+            const summaries = contents
+                .map((content) => content?.getContentSummary())
+                .filter((summary): summary is ContentSummary => !!summary);
+
+            if (summaries.length === 0) {
+                return contents;
+            }
+
+            try {
+                const enriched = await fetcher.updateReadonlyAndCompareStatus(summaries);
+                if (requestId !== treeRequestIdRef.current) {
+                    return contents;
+                }
+                return enriched;
+            } catch (error) {
+                console.error(error);
+                return contents;
+            }
+        },
+        []
+    );
+
+    const enrichAndCache = useCallback(
+        async (items: ContentTreeSelectorItem[], requestId: number): Promise<boolean> => {
+            const contents = items
+                .map((item) => item.getContent())
+                .filter((content): content is ContentSummaryAndCompareStatus => !!content);
+            const contentsWithStatus = await enrichTreeContents(contents, requestId);
+            if (requestId !== treeRequestIdRef.current) return false;
+            setContents(contentsWithStatus);
+            return true;
+        },
+        [enrichTreeContents]
+    );
 
     // Error state
     const [error, setError] = useState<Error | null>(null);
@@ -280,7 +287,7 @@ export function useContentComboboxData(
 
     const flatHasMore = useMemo(() => {
         if (flatTotalHits === undefined) return false;
-        const nodeCount = flatItems.filter(item => item.nodeType === 'node').length;
+        const nodeCount = flatItems.filter((item) => item.nodeType === 'node').length;
         return nodeCount < flatTotalHits;
     }, [flatItems, flatTotalHits]);
 
@@ -352,7 +359,7 @@ export function useContentComboboxData(
             // Stale request check
             if (currentRequestId !== treeRequestIdRef.current) return;
 
-            if (!await enrichAndCache(items, currentRequestId)) return;
+            if (!(await enrichAndCache(items, currentRequestId))) return;
 
             // Update local tree state
             const nodeOptions = items.map((item) => toNodeOptionsFromTreeItem(item, null));
@@ -400,7 +407,7 @@ export function useContentComboboxData(
             // Stale request check
             if (currentRequestId !== treeRequestIdRef.current) return;
 
-            if (!await enrichAndCache(items, currentRequestId)) return;
+            if (!(await enrichAndCache(items, currentRequestId))) return;
 
             // Append to tree state, filtering out IDs already present
             const existingRootIds = new Set(tree.state.rootIds);
@@ -427,112 +434,124 @@ export function useContentComboboxData(
     }, [enrichAndCache, tree.state.rootIds, treeHasMore, treeIsLoading, treeSetLoading, treeSetNodes, treeSetRootIds]);
 
     // Load children for a parent node
-    const loadChildren = useCallback(async (parentId: string): Promise<void> => {
-        const currentRequestId = ++treeRequestIdRef.current;
-        treeSetLoading(parentId, true);
-        setError(null);
+    const loadChildren = useCallback(
+        async (parentId: string): Promise<void> => {
+            const currentRequestId = ++treeRequestIdRef.current;
+            treeSetLoading(parentId, true);
+            setError(null);
 
-        try {
-            const parentNode = treeGetNode(parentId);
-            const parentContent = parentNode?.data?.item?.getContentSummary();
+            try {
+                const parentNode = treeGetNode(parentId);
+                const parentContent = parentNode?.data?.item?.getContentSummary();
 
-            const request = new ContentTreeSelectorQueryRequest<ContentTreeSelectorItem>();
-            request.setFrom(0);
-            request.setSize(BATCH_SIZE);
-            request.setExpand(Expand.SUMMARY);
+                const request = new ContentTreeSelectorQueryRequest<ContentTreeSelectorItem>();
+                request.setFrom(0);
+                request.setSize(BATCH_SIZE);
+                request.setExpand(Expand.SUMMARY);
 
-            if (parentContent) {
-                request.setParentPath(parentContent.getPath());
-                request.setChildOrder(parentContent.getChildOrder());
+                if (parentContent) {
+                    request.setParentPath(parentContent.getPath());
+                    request.setChildOrder(parentContent.getChildOrder());
+                }
+
+                applyContentFilters(request, filtersRef.current);
+
+                const rawItems = await request.sendAndParse();
+                const metadata = request.getMetadata();
+                const items = deduplicateById(rawItems);
+                const hasDuplicates = items.length < rawItems.length;
+                const totalChildren = hasDuplicates ? items.length : metadata.getTotalHits();
+
+                // Stale request check
+                if (currentRequestId !== treeRequestIdRef.current) return;
+
+                if (!(await enrichAndCache(items, currentRequestId))) return;
+
+                // Update tree state
+                const nodeOptions = items.map((item) => toNodeOptionsFromTreeItem(item, parentId));
+                treeSetNodes(nodeOptions);
+                treeSetChildren(
+                    parentId,
+                    items.map((item) => item.getId())
+                );
+                treeSetNode({id: parentId, totalChildren});
+            } catch (err) {
+                if (currentRequestId === treeRequestIdRef.current) {
+                    setError(err instanceof Error ? err : new Error('Failed to load children'));
+                    lastActionRef.current = () => loadChildren(parentId);
+                }
+            } finally {
+                if (currentRequestId === treeRequestIdRef.current) {
+                    treeSetLoading(parentId, false);
+                }
             }
-
-            applyContentFilters(request, filtersRef.current);
-
-            const rawItems = await request.sendAndParse();
-            const metadata = request.getMetadata();
-            const items = deduplicateById(rawItems);
-            const hasDuplicates = items.length < rawItems.length;
-            const totalChildren = hasDuplicates ? items.length : metadata.getTotalHits();
-
-            // Stale request check
-            if (currentRequestId !== treeRequestIdRef.current) return;
-
-            if (!await enrichAndCache(items, currentRequestId)) return;
-
-            // Update tree state
-            const nodeOptions = items.map((item) => toNodeOptionsFromTreeItem(item, parentId));
-            treeSetNodes(nodeOptions);
-            treeSetChildren(parentId, items.map((item) => item.getId()));
-            treeSetNode({id: parentId, totalChildren});
-        } catch (err) {
-            if (currentRequestId === treeRequestIdRef.current) {
-                setError(err instanceof Error ? err : new Error('Failed to load children'));
-                lastActionRef.current = () => loadChildren(parentId);
-            }
-        } finally {
-            if (currentRequestId === treeRequestIdRef.current) {
-                treeSetLoading(parentId, false);
-            }
-        }
-    }, [enrichAndCache, treeSetLoading, treeGetNode, treeSetNodes, treeSetChildren, treeSetNode]);
+        },
+        [enrichAndCache, treeSetLoading, treeGetNode, treeSetNodes, treeSetChildren, treeSetNode]
+    );
 
     // Load more children for pagination
-    const loadMoreChildren = useCallback(async (parentId: string): Promise<void> => {
-        if (!treeHasMoreChildren(parentId) || treeIsLoading(parentId)) return;
+    const loadMoreChildren = useCallback(
+        async (parentId: string): Promise<void> => {
+            if (!treeHasMoreChildren(parentId) || treeIsLoading(parentId)) return;
 
-        const node = treeGetNode(parentId);
-        if (!node) return;
+            const node = treeGetNode(parentId);
+            if (!node) return;
 
-        const currentRequestId = ++treeRequestIdRef.current;
-        treeSetLoading(parentId, true);
-        setError(null);
+            const currentRequestId = ++treeRequestIdRef.current;
+            treeSetLoading(parentId, true);
+            setError(null);
 
-        try {
-            const offset = node.childIds.length;
-            const parentContent = node.data?.item?.getContentSummary();
+            try {
+                const offset = node.childIds.length;
+                const parentContent = node.data?.item?.getContentSummary();
 
-            const request = new ContentTreeSelectorQueryRequest<ContentTreeSelectorItem>();
-            request.setFrom(offset);
-            request.setSize(BATCH_SIZE);
-            request.setExpand(Expand.SUMMARY);
+                const request = new ContentTreeSelectorQueryRequest<ContentTreeSelectorItem>();
+                request.setFrom(offset);
+                request.setSize(BATCH_SIZE);
+                request.setExpand(Expand.SUMMARY);
 
-            if (parentContent) {
-                request.setParentPath(parentContent.getPath());
-                request.setChildOrder(parentContent.getChildOrder());
+                if (parentContent) {
+                    request.setParentPath(parentContent.getPath());
+                    request.setChildOrder(parentContent.getChildOrder());
+                }
+
+                applyContentFilters(request, filtersRef.current);
+
+                const rawItems = await request.sendAndParse();
+                const items = deduplicateById(rawItems);
+
+                // Stale request check
+                if (currentRequestId !== treeRequestIdRef.current) return;
+
+                if (!(await enrichAndCache(items, currentRequestId))) return;
+
+                // Append to tree state, filtering out already-known childIds
+                const existingChildIds = new Set(node.childIds);
+                const newItems = items.filter((item) => !existingChildIds.has(item.getId()));
+                const nodeOptions = newItems.map((item) => toNodeOptionsFromTreeItem(item, parentId));
+                treeSetNodes(nodeOptions);
+                treeAppendChildren(
+                    parentId,
+                    newItems.map((item) => item.getId())
+                );
+
+                // If dedup or filtering removed items, cap totalChildren to stop pagination
+                if (newItems.length < rawItems.length) {
+                    treeSetNode({id: parentId, totalChildren: node.childIds.length + newItems.length});
+                }
+            } catch (err) {
+                if (currentRequestId === treeRequestIdRef.current) {
+                    setError(err instanceof Error ? err : new Error('Failed to load more children'));
+                    lastActionRef.current = () => loadMoreChildren(parentId);
+                }
+            } finally {
+                if (currentRequestId === treeRequestIdRef.current) {
+                    treeSetLoading(parentId, false);
+                }
             }
-
-            applyContentFilters(request, filtersRef.current);
-
-            const rawItems = await request.sendAndParse();
-            const items = deduplicateById(rawItems);
-
-            // Stale request check
-            if (currentRequestId !== treeRequestIdRef.current) return;
-
-            if (!await enrichAndCache(items, currentRequestId)) return;
-
-            // Append to tree state, filtering out already-known childIds
-            const existingChildIds = new Set(node.childIds);
-            const newItems = items.filter((item) => !existingChildIds.has(item.getId()));
-            const nodeOptions = newItems.map((item) => toNodeOptionsFromTreeItem(item, parentId));
-            treeSetNodes(nodeOptions);
-            treeAppendChildren(parentId, newItems.map((item) => item.getId()));
-
-            // If dedup or filtering removed items, cap totalChildren to stop pagination
-            if (newItems.length < rawItems.length) {
-                treeSetNode({id: parentId, totalChildren: node.childIds.length + newItems.length});
-            }
-        } catch (err) {
-            if (currentRequestId === treeRequestIdRef.current) {
-                setError(err instanceof Error ? err : new Error('Failed to load more children'));
-                lastActionRef.current = () => loadMoreChildren(parentId);
-            }
-        } finally {
-            if (currentRequestId === treeRequestIdRef.current) {
-                treeSetLoading(parentId, false);
-            }
-        }
-    }, [enrichAndCache, treeHasMoreChildren, treeIsLoading, treeGetNode, treeSetLoading, treeSetNodes, treeAppendChildren]);
+        },
+        [enrichAndCache, treeHasMoreChildren, treeIsLoading, treeGetNode, treeSetLoading, treeSetNodes, treeAppendChildren]
+    );
 
     // Search / load flat list content
     const search = useCallback(async (query: string): Promise<void> => {
@@ -639,7 +658,7 @@ export function useContentComboboxData(
             }));
 
             flatFromRef.current += metadata.getHits();
-            setFlatItems(prev => [...prev.filter(n => n.nodeType === 'node'), ...flatNodes]);
+            setFlatItems((prev) => [...prev.filter((n) => n.nodeType === 'node'), ...flatNodes]);
         } catch (err) {
             if (currentRequestId === flatRequestIdRef.current) {
                 setError(err instanceof Error ? err : new Error('Failed to load more'));
@@ -682,6 +701,112 @@ export function useContentComboboxData(
             void loadTree();
         }
     }, [isOpen, treeInitialized, loadTree]);
+
+    // Socket sync: update existing nodes in tree and flat list
+    const applyInPlaceUpdates = useCallback(
+        (items: ContentSummaryAndCompareStatus[]) => {
+            for (const item of items) {
+                const id = item.getId();
+                const existing = treeGetNode(id);
+                if (existing) {
+                    tree.setNodeData(id, toNodeData(item, existing.data?.selectable ?? true));
+                }
+            }
+
+            setFlatItems((prev) => {
+                const updatedIds = new Map(items.map((item) => [item.getId(), item]));
+                let changed = false;
+                const next = prev.map((node) => {
+                    const updated = updatedIds.get(node.id);
+                    if (updated && node.data) {
+                        changed = true;
+                        return {...node, data: toNodeData(updated, node.data.selectable)};
+                    }
+                    return node;
+                });
+                return changed ? next : prev;
+            });
+        },
+        [tree, treeGetNode]
+    );
+
+    // Socket sync: remove deleted/archived nodes from tree and flat list
+    const removeFromDropdown = useCallback(
+        (ids: string[]) => {
+            tree.removeNodes(ids, true);
+
+            setFlatItems((prev) => {
+                const idSet = new Set(ids);
+                const next = prev.filter((node) => !idSet.has(node.id));
+                return next.length === prev.length ? prev : next;
+            });
+        },
+        [tree]
+    );
+
+    // Socket sync: invalidate tree on structural changes (create/move/sort/duplicate)
+    const invalidateTree = useCallback(() => {
+        treeRequestIdRef.current++;
+        treeClear();
+        setTotalRootChildren(undefined);
+        setTreeInitialized(false);
+    }, [treeClear]);
+
+    // Subscribe to socket events for live dropdown sync
+    useEffect(() => {
+        // In-place data updates
+        const unlistenUpdated = $contentUpdated.listen((event) => {
+            if (event?.data) applyInPlaceUpdates(event.data);
+        });
+        const unlistenPublished = $contentPublished.listen((event) => {
+            if (event?.data) applyInPlaceUpdates(event.data);
+        });
+        const unlistenUnpublished = $contentUnpublished.listen((event) => {
+            if (event?.data) applyInPlaceUpdates(event.data);
+        });
+        const unlistenRenamed = $contentRenamed.listen((event) => {
+            if (event?.data?.items) applyInPlaceUpdates(event.data.items);
+        });
+
+        // Remove from tree + flat
+        const unlistenDeleted = $contentDeleted.listen((event) => {
+            if (event?.data) {
+                removeFromDropdown(event.data.map((item) => item.getContentId().toString()));
+            }
+        });
+        const unlistenArchived = $contentArchived.listen((event) => {
+            if (event?.data) {
+                removeFromDropdown(event.data.map((item) => item.getContentId().toString()));
+            }
+        });
+
+        // Invalidate tree (structural changes)
+        const unlistenCreated = $contentCreated.listen((event) => {
+            if (event?.data) invalidateTree();
+        });
+        const unlistenDuplicated = $contentDuplicated.listen((event) => {
+            if (event?.data) invalidateTree();
+        });
+        const unlistenMoved = $contentMoved.listen((event) => {
+            if (event?.data) invalidateTree();
+        });
+        const unlistenSorted = $contentSorted.listen((event) => {
+            if (event?.data) invalidateTree();
+        });
+
+        return () => {
+            unlistenUpdated();
+            unlistenPublished();
+            unlistenUnpublished();
+            unlistenRenamed();
+            unlistenDeleted();
+            unlistenArchived();
+            unlistenCreated();
+            unlistenDuplicated();
+            unlistenMoved();
+            unlistenSorted();
+        };
+    }, [applyInPlaceUpdates, removeFromDropdown, invalidateTree]);
 
     return {
         tree,

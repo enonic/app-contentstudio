@@ -3,7 +3,7 @@ import type {ReactElement} from 'react';
 import {ContentCombobox} from './combobox';
 import type {ContentSelectorFilterOptions, ContentSelectorMode} from './content-selector.types';
 import {ContentSelection} from './selection';
-import {ContentComboboxRowProps} from './combobox/ContentComboboxRow';
+import {type ContentRowProps} from '../shared/combobox/ContentRow';
 
 //
 // * Types
@@ -17,6 +17,8 @@ export type ContentSelectorProps = {
     'selectionMode'?: ContentSelectorMode;
     /** List mode */
     'listMode'?: 'tree' | 'flat';
+    /** Whether to close the combobox when the input is blurred */
+    'closeOnBlur'?: boolean;
     /** Whether the selector is disabled */
     'disabled'?: boolean;
     /** Label for the selector */
@@ -27,8 +29,6 @@ export type ContentSelectorProps = {
     'emptyLabel'?: string;
     /** Additional CSS class for the wrapper */
     'className'?: string;
-    /** Additional CSS class for the input */
-    'inputClassName'?: string;
     /** Aria label for accessibility */
     'aria-label'?: string;
     /** Whether to hide the toggle icon */
@@ -36,7 +36,7 @@ export type ContentSelectorProps = {
     /** Whether the selector has an error */
     'error'?: boolean;
     /** Custom row renderer */
-    'rowRenderer'?: (props: ContentComboboxRowProps) => ReactElement;
+    'rowRenderer'?: (props: ContentRowProps) => ReactElement;
 } & ContentSelectorFilterOptions;
 
 //
@@ -71,10 +71,10 @@ export const ContentSelector = ({
     placeholder,
     emptyLabel,
     className,
-    inputClassName,
     hideToggleIcon = false,
     error = false,
     listMode,
+    closeOnBlur = false,
     'aria-label': ariaLabel,
     contentTypeNames,
     allowedContentPaths,
@@ -106,7 +106,7 @@ export const ContentSelector = ({
                     contextContent={contextContent}
                     applicationKey={applicationKey}
                     rowRenderer={rowRenderer}
-                    inputClassName={inputClassName}
+                    closeOnBlur={closeOnBlur}
                 />
             )}
             <ContentSelection selection={selection} onSelectionChange={onSelectionChange} disabled={disabled} />
