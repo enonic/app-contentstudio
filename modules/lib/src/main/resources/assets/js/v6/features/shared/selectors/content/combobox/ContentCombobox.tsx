@@ -3,11 +3,10 @@ import {Button, Combobox, Toggle, Tooltip, cn} from '@enonic/ui';
 import {AlertCircle, ListTree, RefreshCw} from 'lucide-react';
 import {useId, useMemo, type ReactElement} from 'react';
 import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import type {ContentFilterOptions} from '../../../../hooks/useContentComboboxData';
 import {useI18n} from '../../../../hooks/useI18n';
 import {ContentComboboxList} from './ContentComboboxList';
 import {useContentComboboxController, UseContentComboboxControllerOptions} from './useContentComboboxController';
-import {ContentComboboxRowProps} from './ContentComboboxRow';
+import {ContentRowProps} from '../../shared/combobox/ContentRow';
 
 //
 // * Constants
@@ -24,23 +23,26 @@ export type ContentComboboxProps = {
     'onSelectionChange': (selection: readonly string[]) => void;
     'selectionMode'?: 'single' | 'multiple';
     'listMode'?: 'tree' | 'flat';
+    'closeOnBlur'?: boolean;
     'disabled'?: boolean;
     'label'?: string;
     'placeholder'?: string;
     'searchPlaceholder'?: string;
     'emptyLabel'?: string;
-    'inputClassName'?: string;
+    'withRightButton'?: boolean;
     'className'?: string;
     'hideToggleIcon'?: boolean;
     'error'?: boolean;
     'aria-label'?: string;
 
     /** Row renderer */
-    'rowRenderer'?: (props: ContentComboboxRowProps) => ReactElement;
+    'rowRenderer'?: (props: ContentRowProps) => ReactElement;
     /** Height for each tree row in pixels */
     'rowTreeHeight'?: number;
     /** Height for each flat row in pixels */
     'rowFlatHeight'?: number;
+    /** If set, the flat row height will be calculated as a percentage of the container's width */
+    'rowFlatHeightRatio'?: number;
     /** Maximum height for the dropdown in pixels */
     'dropdownMaxHeight'?: number;
 
@@ -69,12 +71,13 @@ export const ContentCombobox = ({
     onSelectionChange,
     selectionMode = 'multiple',
     'listMode': externalListMode = 'tree',
+    closeOnBlur = false,
     disabled = false,
     label,
     placeholder,
     searchPlaceholder,
     emptyLabel,
-    inputClassName,
+    withRightButton = false,
     className,
     error = false,
     hideToggleIcon = false,
@@ -82,6 +85,7 @@ export const ContentCombobox = ({
     rowRenderer,
     rowTreeHeight,
     rowFlatHeight,
+    rowFlatHeightRatio,
     dropdownMaxHeight,
     contentTypeNames = EMPTY_STRING_ARRAY,
     allowedContentPaths = EMPTY_STRING_ARRAY,
@@ -114,9 +118,10 @@ export const ContentCombobox = ({
         () => ({
             treeRowHeight: rowTreeHeight,
             flatRowHeight: rowFlatHeight,
+            flatRowHeightRatio: rowFlatHeightRatio,
             maxHeight: dropdownMaxHeight,
         }),
-        [rowTreeHeight, rowFlatHeight, dropdownMaxHeight]
+        [rowTreeHeight, rowFlatHeight, rowFlatHeightRatio, dropdownMaxHeight]
     );
 
     // Controller hook handles all state and logic
@@ -172,13 +177,17 @@ export const ContentCombobox = ({
                 onSelectionChange={onSelectionChange}
                 selectionMode={comboboxSelectionMode}
                 contentType="tree"
-                closeOnBlur={false}
+                closeOnBlur={closeOnBlur}
                 disabled={disabled}
                 error={error}
             >
                 <Combobox.Content onKeyDown={handleKeyDown}>
-                    <Combobox.Control className={inputClassName}>
-                        <Combobox.Search className={cn(!hideToggleIcon && 'pl-0')}>
+                    <Combobox.Control
+                        className={cn(
+                            withRightButton && 'border-r-0 focus-within:border-r-1 hover:border-r-1 rounded-tr-none rounded-br-none'
+                        )}
+                    >
+                        <Combobox.Search className={cn(!hideToggleIcon && 'pl-0', withRightButton && 'rounded-tr-none rounded-br-none')}>
                             {hideToggleIcon ? (
                                 <Combobox.SearchIcon />
                             ) : (

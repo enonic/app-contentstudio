@@ -1,23 +1,23 @@
 import {type ReactElement} from 'react';
 import {cn} from '@enonic/ui';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {type ImageSelectorFilterOptions, type ImageSelectorMode} from './image-selector.types';
+import {type MediaSelectorFilterOptions, type MediaSelectorMode} from './media-selector.types';
 import {ContentCombobox} from '../content';
 import {SelectorUploadButton} from '../shared/upload';
 import {SelectorSelection, SelectorSelectionItem} from '../shared/selection';
 import {useStore} from '@nanostores/preact';
 import {$activeProject} from '../../../store/projects.store';
-import {ContentRow, type ContentRowProps} from '../shared/combobox/ContentRow';
-import {ImageSelectorItemView} from './ImageSelectorItemView';
+import {ContentRow} from '../shared/combobox/ContentRow';
+import {MediaSelectorItemView} from './MediaSelectorItemView';
 import {useAcceptMimeTypes} from '../../../hooks/useAcceptMimeTypes';
 
-export type ImageSelectorProps = {
+export type MediaSelectorProps = {
     /** Selected content IDs */
     'selection': readonly string[];
     /** Callback when selection changes */
     'onSelectionChange': (selection: readonly string[]) => void;
     /** Selection mode */
-    'selectionMode'?: ImageSelectorMode;
+    'selectionMode'?: MediaSelectorMode;
     /** List mode */
     'listMode'?: 'tree' | 'flat';
     /** Whether to close the combobox when the input is blurred */
@@ -40,12 +40,27 @@ export type ImageSelectorProps = {
     'aria-label'?: string;
     /** Whether to show the upload button */
     'withUpload'?: boolean;
-} & ImageSelectorFilterOptions;
+} & MediaSelectorFilterOptions;
 
-const IMAGE_SELECTOR_NAME = 'ImageSelector';
-const IMAGE_SELECTOR_CONTENT_TYPE_NAMES = [ContentTypeName.IMAGE.toString(), ContentTypeName.MEDIA_VECTOR.toString()];
+const MEDIA_SELECTOR_NAME = 'MediaSelector';
+const MEDIA_SELECTOR_CONTENT_TYPE_NAMES = [
+    ContentTypeName.MEDIA.toString(),
+    ContentTypeName.MEDIA_TEXT.toString(),
+    ContentTypeName.MEDIA_DATA.toString(),
+    ContentTypeName.MEDIA_AUDIO.toString(),
+    ContentTypeName.MEDIA_VIDEO.toString(),
+    ContentTypeName.MEDIA_IMAGE.toString(),
+    ContentTypeName.MEDIA_VECTOR.toString(),
+    ContentTypeName.MEDIA_ARCHIVE.toString(),
+    ContentTypeName.MEDIA_DOCUMENT.toString(),
+    ContentTypeName.MEDIA_SPREADSHEET.toString(),
+    ContentTypeName.MEDIA_PRESENTATION.toString(),
+    ContentTypeName.MEDIA_CODE.toString(),
+    ContentTypeName.MEDIA_EXECUTABLE.toString(),
+    ContentTypeName.MEDIA_UNKNOWN.toString(),
+];
 
-export const ImageSelector = ({
+export const MediaSelector = ({
     selection,
     onSelectionChange,
     selectionMode = 'multiple',
@@ -60,15 +75,17 @@ export const ImageSelector = ({
     hideToggleIcon = false,
     'aria-label': ariaLabel,
     withUpload = false,
+    contentTypeNames,
     allowedContentPaths,
     contextContent,
     applicationKey,
-}: ImageSelectorProps): ReactElement => {
+}: MediaSelectorProps): ReactElement => {
+    const resolvedContentTypeNames = contentTypeNames && contentTypeNames.length > 0 ? contentTypeNames : MEDIA_SELECTOR_CONTENT_TYPE_NAMES;
     const activeProject = useStore($activeProject);
-    const acceptMimeTypes = useAcceptMimeTypes(IMAGE_SELECTOR_CONTENT_TYPE_NAMES);
+    const acceptMimeTypes = useAcceptMimeTypes(resolvedContentTypeNames);
 
     return (
-        <div data-component={IMAGE_SELECTOR_NAME} className={cn('flex flex-col gap-2.5', className)}>
+        <div data-component={MEDIA_SELECTOR_NAME} className={cn('flex flex-col gap-2.5', className)}>
             {/** TODO: htmlFor */}
             {label && <label className="text-md font-semibold">{label}</label>}
 
@@ -85,12 +102,8 @@ export const ImageSelector = ({
                     aria-label={ariaLabel}
                     error={error}
                     hideToggleIcon={hideToggleIcon}
-                    rowRenderer={ImageComboboxRow}
-                    rowTreeHeight={48}
-                    rowFlatHeight={270}
-                    rowFlatHeightRatio={0.43}
-                    dropdownMaxHeight={500}
-                    contentTypeNames={IMAGE_SELECTOR_CONTENT_TYPE_NAMES}
+                    rowRenderer={ContentRow}
+                    contentTypeNames={resolvedContentTypeNames}
                     allowedContentPaths={allowedContentPaths}
                     contextContent={contextContent}
                     applicationKey={applicationKey}
@@ -103,7 +116,7 @@ export const ImageSelector = ({
                         onSelectionChange={onSelectionChange}
                         disabled={disabled}
                         multiple={selectionMode === 'multiple'}
-                        accept={acceptMimeTypes ?? 'image/*'}
+                        accept={acceptMimeTypes}
                     />
                 )}
             </div>
@@ -112,6 +125,7 @@ export const ImageSelector = ({
                 selection={selection}
                 onSelectionChange={onSelectionChange}
                 disabled={disabled}
+                className={className}
                 renderItem={(context) => (
                     <SelectorSelectionItem
                         project={activeProject}
@@ -119,7 +133,7 @@ export const ImageSelector = ({
                         disabled={disabled}
                         selection={selection}
                         onSelectionChange={onSelectionChange}
-                        renderContent={(content) => <ImageSelectorItemView content={content} />}
+                        renderContent={(content) => <MediaSelectorItemView content={content} />}
                     />
                 )}
             />
@@ -127,13 +141,4 @@ export const ImageSelector = ({
     );
 };
 
-ImageSelector.displayName = IMAGE_SELECTOR_NAME;
-
-const ImageComboboxRow = (props: ContentRowProps): ReactElement => (
-    <ContentRow
-        {...props}
-        renderFlatContent={(content, hideStatus) => <ImageSelectorItemView content={content} hideStatus={hideStatus} />}
-    />
-);
-
-ImageComboboxRow.displayName = 'ImageComboboxRow';
+MediaSelector.displayName = MEDIA_SELECTOR_NAME;

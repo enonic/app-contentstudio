@@ -1,4 +1,4 @@
-import {type TargetedEvent, useCallback} from 'react';
+import {type TargetedEvent, useCallback, useMemo, useRef} from 'react';
 import {type ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
 import {type UploadMediaError, uploadMediaFile, type UploadMediaSuccess} from '../api/uploadMedia';
 import {addUpload, completeUpload, failUpload, updateUploadProgress} from '../store/uploads.store';
@@ -6,6 +6,7 @@ import {addUpload, completeUpload, failUpload, updateUploadProgress} from '../st
 //
 // * Types
 //
+
 export type UseUploadMediaOptions = {
     parentContent?: ContentSummaryAndCompareStatus;
     onUploadStart?: (file: File) => void;
@@ -19,57 +20,62 @@ export type UseUploadMediaReturn = {
 };
 
 //
-// * TODO: convert it to a hook
+// * Hook
 //
+
+const NOOP = () => {};
+
 export const useUploadMedia = ({
     parentContent,
-    onUploadStart = () => {},
-    onUploadProgress = () => {},
-    onUploadComplete = () => {},
-    onUploadError = () => {},
+    onUploadStart = NOOP,
+    onUploadProgress = NOOP,
+    onUploadComplete = NOOP,
+    onUploadError = NOOP,
 }: UseUploadMediaOptions): UseUploadMediaReturn => {
-    const resolvedOnUploadStart = (file: File) => {
-        addUpload(file.name, file.name, parentContent?.getId() ?? null);
-        onUploadStart(file);
-    };
+    const ref = useRef({parentContent, onUploadStart, onUploadProgress, onUploadComplete, onUploadError});
+    ref.current = {parentContent, onUploadStart, onUploadProgress, onUploadComplete, onUploadError};
 
-    const resolvedOnUploadProgress = (mediaIdentifier: string, progress: number) => {
-        updateUploadProgress(mediaIdentifier, progress);
-        onUploadProgress(mediaIdentifier, progress);
-    };
-
-    const resolvedOnUploadComplete = (success: UploadMediaSuccess) => {
-        completeUpload(success.mediaIdentifier);
-        onUploadComplete(success);
-    };
-
-    const resolvedOnUploadError = (error: UploadMediaError) => {
-        failUpload(error.mediaIdentifier, error.message);
-        onUploadError(error);
-    };
-
-    const handleInputChange = async (event: TargetedEvent<HTMLInputElement>) => {
+    const handleInputChange = useCallback(async (event: TargetedEvent<HTMLInputElement>) => {
         const {files} = event.currentTarget;
 
         if (!files || files.length === 0) return;
+
+        const {parentContent, onUploadStart} = ref.current;
 
         const dataTransfer = new DataTransfer();
 
         Array.from(files).forEach((file) => dataTransfer.items.add(file));
 
         const tasks = Array.from(dataTransfer.files).map((file) => {
-            resolvedOnUploadStart(file);
+            addUpload(file.name, file.name, parentContent?.getId() ?? null);
+            onUploadStart(file);
 
             return uploadMediaFile({
                 id: file.name,
-                file: file,
+                file,
                 parentContent,
-                onProgress: resolvedOnUploadProgress,
+                onProgress: (mediaIdentifier, progress) => {
+                    updateUploadProgress(mediaIdentifier, progress);
+                    ref.current.onUploadProgress(mediaIdentifier, progress);
+                },
             });
         });
 
-        await Promise.all(tasks.map((task) => task.match(resolvedOnUploadComplete, resolvedOnUploadError)));
-    };
+        await Promise.all(
+            tasks.map((task) =>
+                task.match(
+                    (success) => {
+                        completeUpload(success.mediaIdentifier);
+                        ref.current.onUploadComplete(success);
+                    },
+                    (error) => {
+                        failUpload(error.mediaIdentifier, error.message);
+                        ref.current.onUploadError(error);
+                    }
+                )
+            )
+        );
+    }, []);
 
-    return {handleInputChange};
+    return useMemo(() => ({handleInputChange}), [handleInputChange]);
 };
