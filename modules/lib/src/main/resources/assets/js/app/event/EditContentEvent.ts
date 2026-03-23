@@ -9,13 +9,13 @@ export class EditContentEvent
 
     private readonly model: ContentSummaryAndCompareStatus[];
 
-    private readonly project: Project;
+    private readonly project: Readonly<Project>;
 
     private displayAsNew: boolean = false;
 
     private localized: boolean = false;
 
-    constructor(model: ContentSummaryAndCompareStatus[], project?: Project) {
+    constructor(model: ContentSummaryAndCompareStatus[], project?: Readonly<Project>) {
         super();
         this.model = model;
         this.project = project ? project : ProjectContext.get().getProject();
@@ -34,7 +34,7 @@ export class EditContentEvent
         return this.model;
     }
 
-    getProject(): Project {
+    getProject(): Readonly<Project> {
         return this.project;
     }
 

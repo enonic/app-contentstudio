@@ -17,61 +17,116 @@ import {HTMLAreaHelper} from '../../../../../../app/inputtype/ui/text/HTMLAreaHe
 import {HtmlEditorParams} from '../../../../../../app/inputtype/ui/text/HtmlEditorParams';
 import {StyleHelper} from '../../../../../../app/inputtype/ui/text/styles/StyleHelper';
 import {ImageUrlResolver} from '../../../../../../app/util/ImageUrlResolver';
+import {type CreateHtmlAreaContentDialogEvent} from '../../../../../../app/inputtype/ui/text/CreateHtmlAreaContentDialogEvent';
+import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {HTMLAreaProxy} from '../../../../../../app/inputtype/ui/text/dialog/HTMLAreaProxy';
 import type {Project} from '../../../../../../app/settings/data/project/Project';
 import type {FullScreenDialogParams, HtmlEditorCursorPosition} from '../../../../../../app/inputtype/ui/text/HtmlEditorTypes';
+import type {OpenHtmlAreaImageDialogParams} from '../../../dialogs/htmlarea-image/HtmlAreaImageDialogContext';
 
 type EventInfo = CKEDITOR.eventInfo;
+
+type AllowedContentRule = {
+    classes?: string[];
+    styles?: string[];
+};
+
+type ImageWidgetData = {
+    name: 'image';
+    allowedContent?: {
+        figure?: AllowedContentRule;
+        img?: AllowedContentRule;
+    };
+    upcast: (el: CKEDITOR.htmlParser.element, data: Record<string, unknown>) => CKEDITOR.htmlParser.element;
+    downcast: (el: CKEDITOR.htmlParser.element) => CKEDITOR.htmlParser.element;
+};
+
+function isImageWidgetData(data: Record<string, unknown>): data is ImageWidgetData {
+    return data.name === 'image';
+}
 
 export type SetupEditorParams = {
     contentSummary: ContentSummary | undefined;
     project: Readonly<Project> | undefined;
     applicationKeys: ApplicationKey[];
     assetsUri: string;
+    onOpenImageDialog?: (params: OpenHtmlAreaImageDialogParams) => void;
 };
 
 function buildEditorParams(editor: CKEDITOR.editor, params: SetupEditorParams): HtmlEditorParams {
+    const dialogHandler = params.onOpenImageDialog
+        ? createWrappedDialogHandler(params.onOpenImageDialog)
+        : HTMLAreaProxy.createAndOpenDialog;
+
     return HtmlEditorParams.create()
         .setEditorContainerId(editor.name)
         .setAssetsUri(params.assetsUri)
         .setInline(false)
-        .setCreateDialogHandler(HTMLAreaProxy.createAndOpenDialog)
+        .setCreateDialogHandler(dialogHandler)
         .setContent(params.contentSummary)
         .setApplicationKeys(params.applicationKeys)
         .setProject(params.project)
         .build();
 }
 
-function modifyImagePlugin(editor: CKEDITOR.editor): void {
-    // Called after editor is ready, so widgetDefinition has already fired.
-    // Modify the registered widget definition directly.
-    const widgetDef = editor.widgets?.registered?.image;
-    if (!widgetDef) return;
+function createWrappedDialogHandler(
+    onOpenImageDialog: (params: OpenHtmlAreaImageDialogParams) => void,
+): (event: CreateHtmlAreaDialogEvent) => ReturnType<typeof HTMLAreaProxy.createAndOpenDialog> {
+    return (event: CreateHtmlAreaDialogEvent) => {
+        if (event.getType() === HtmlAreaDialogType.IMAGE) {
+            const contentEvent = event as CreateHtmlAreaContentDialogEvent;
+            const config = contentEvent.getConfig() as EventInfo;
+            const editor = config.editor;
+            const editorWidth = editor.element.$.clientWidth || editor.element.getParent().$.clientWidth;
+
+            onOpenImageDialog({
+                ckeDialog: config.data,
+                ckeEditor: editor,
+                editorWidth,
+                content: contentEvent.getContent(),
+                project: contentEvent.getProject(),
+            });
+
+            return null;
+        }
+
+        return HTMLAreaProxy.createAndOpenDialog(event);
+    };
+}
+
+/**
+ * Modifies the image2 widget definition to support custom alignment classes and styles.
+ * Must be called via the `widgetDefinition` event (before content loads) so that upcast/downcast
+ * modifications are in place when initial content is processed.
+ */
+function modifyImageWidgetDefinition(e: CKEDITOR.eventInfo): void {
+    const data: Record<string, unknown> = e.data;
+
+    if (!isImageWidgetData(data)) {
+        return;
+    }
 
     // Allow figure to have any classes and styles.
-    // The allowedContent shape at runtime has element-keyed entries (figure, img),
-    // but the CKEditor type declarations don't model this — use type assertion.
-    const allowedContent = widgetDef.allowedContent as Record<string, Record<string, unknown>>;
-    if (allowedContent?.figure) {
-        allowedContent.figure.classes = ['*'];
-        allowedContent.figure.styles = ['*'];
+    if (data.allowedContent?.figure) {
+        data.allowedContent.figure.classes = ['*'];
+        data.allowedContent.figure.styles = ['*'];
     }
-    if (allowedContent?.img) {
-        allowedContent.img.styles = ['*'];
+    if (data.allowedContent?.img) {
+        data.allowedContent.img.styles = ['*'];
     }
 
     // Modify upcast function
-    const originalUpcast = widgetDef.upcast as unknown as (el: CKEDITOR.htmlParser.element, data) => CKEDITOR.htmlParser.element;
-    widgetDef.upcast = function (el: CKEDITOR.htmlParser.element, data) {
-        const result = originalUpcast.call(this, el, data);
+    const originalUpcast = data.upcast;
+    data.upcast = function (el: CKEDITOR.htmlParser.element, upcastData: Record<string, unknown>) {
+        const result = originalUpcast.call(this, el, upcastData);
 
         if (el.name === 'figure') {
             if (el.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS)) {
-                data.align = 'center';
+                upcastData.align = 'center';
             } else if (el.hasClass(StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS)) {
-                data.align = 'left';
+                upcastData.align = 'left';
             } else if (el.hasClass(StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS)) {
-                data.align = 'right';
+                upcastData.align = 'right';
             }
         }
 
@@ -95,8 +150,8 @@ function modifyImagePlugin(editor: CKEDITOR.editor): void {
     };
 
     // Modify downcast function
-    const originalDowncast = widgetDef.downcast as (el: CKEDITOR.htmlParser.element) => CKEDITOR.htmlParser.element;
-    widgetDef.downcast = function (el: CKEDITOR.htmlParser.element) {
+    const originalDowncast = data.downcast;
+    data.downcast = function (el: CKEDITOR.htmlParser.element) {
         if (el.name === 'figure' && (
             el.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS) ||
             el.hasClass(StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS) ||
@@ -105,6 +160,16 @@ function modifyImagePlugin(editor: CKEDITOR.editor): void {
         }
 
         return originalDowncast.call(this, el);
+    };
+}
+
+/**
+ * Returns CKEditor config `on` handlers that must run before content is loaded.
+ * Attach these to the config object so they fire during plugin initialization.
+ */
+export function getEarlyEditorEventHandlers(): Record<string, (e: CKEDITOR.eventInfo) => void> {
+    return {
+        widgetDefinition: modifyImageWidgetDefinition,
     };
 }
 
@@ -662,7 +727,6 @@ function moveSourceButtonToBottomBar(editor: CKEDITOR.editor): void {
 export function setupEditor(editor: CKEDITOR.editor, params: SetupEditorParams): void {
     const editorParams = buildEditorParams(editor, params);
 
-    modifyImagePlugin(editor);
     handleDataReady(editor);
     handlePaste(editor);
     handleElementSelection(editor);

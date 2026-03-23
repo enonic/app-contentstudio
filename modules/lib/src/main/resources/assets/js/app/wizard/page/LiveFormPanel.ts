@@ -659,8 +659,10 @@ export class LiveFormPanel
         });
 
         eventsManager.onLiveEditPageDialogCreate((event: CreateHtmlAreaDialogEvent) => {
-            const modalDialog: ModalDialog = HTMLAreaProxy.createAndOpenDialog(event);
-            eventsManager.notifyDialogCreated(modalDialog, event.getConfig());
+            const modalDialog = HTMLAreaProxy.createAndOpenDialog(event);
+            if (modalDialog) {
+                eventsManager.notifyDialogCreated(modalDialog, event.getConfig());
+            }
         });
 
         eventsManager.onTextComponentEditModeChanged((value: boolean) => {

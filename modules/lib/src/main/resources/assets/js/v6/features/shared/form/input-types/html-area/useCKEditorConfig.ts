@@ -11,6 +11,7 @@ import {UrlHelper} from '../../../../../../app/util/UrlHelper';
 import type {HtmlAreaConfig} from './HtmlAreaConfig';
 import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
 import type {Project} from '../../../../../../app/settings/data/project/Project';
+import {getEarlyEditorEventHandlers} from './setupEditor';
 
 type UseCKEditorConfigParams = {
     config: HtmlAreaConfig;
@@ -187,6 +188,8 @@ function buildConfig(params: UseCKEditorConfigParams, cssPaths: string[]): CKEDI
     config['qtRows'] = 10;
     config['qtColumns'] = 10;
     config['qtWidth'] = '100%';
+
+    config.on = getEarlyEditorEventHandlers();
 
     return config;
 }

@@ -5,7 +5,7 @@ import {ProjectContext} from '../project/ProjectContext';
 export class ContentEditParams {
     private readonly contentId: ContentId;
 
-    private readonly project: Project;
+    private readonly project: Readonly<Project>;
 
     private readonly localized: boolean = false;
 
@@ -30,7 +30,7 @@ export class ContentEditParams {
         return this.displayAsNew;
     }
 
-    getProject(): Project {
+    getProject(): Readonly<Project> {
         return this.project;
     }
 
@@ -42,7 +42,7 @@ export class ContentEditParams {
 export class ContentEditParamsBuilder {
     contentId: ContentId;
 
-    project: Project;
+    project: Readonly<Project>;
 
     localized: boolean = false;
 
@@ -57,7 +57,7 @@ export class ContentEditParamsBuilder {
         return this;
     }
 
-    setProject(value: Project): this {
+    setProject(value: Readonly<Project>): this {
         this.project = value;
         return this;
     }

@@ -13,6 +13,8 @@ import type {ContentSummary} from '../../../../../../app/content/ContentSummary'
 import {HTMLAreaHelper} from '../../../../../../app/inputtype/ui/text/HTMLAreaHelper';
 import {HtmlAreaSanitizer} from '../../../../../../app/inputtype/ui/text/HtmlAreaSanitizer';
 import type {Project} from '../../../../../../app/settings/data/project/Project';
+import {HtmlAreaImageDialog} from '../../../dialogs/htmlarea-image/HtmlAreaImageDialog';
+import type {OpenHtmlAreaImageDialogParams} from '../../../dialogs/htmlarea-image/HtmlAreaImageDialogContext';
 import type {HtmlAreaConfig} from './HtmlAreaConfig';
 import {useHtmlAreaContext} from './HtmlAreaContext';
 import {setupEditor} from './setupEditor';
@@ -56,6 +58,7 @@ const CKEditorWrapper = ({
 }: CKEditorWrapperProps): JSX.Element => {
     const [element, setElement] = useState<HTMLTextAreaElement | null>(null);
     const [focused, setFocused] = useState(false);
+    const openImageDialogRef = useRef<((params: OpenHtmlAreaImageDialogParams) => void) | undefined>(undefined);
     const mountedRef = useRef(true);
     const editorReadyRef = useRef(false);
     const editorInstanceRef = useRef<CKEDITOR.editor | null>(null);
@@ -137,6 +140,7 @@ const CKEditorWrapper = ({
                 project,
                 applicationKeys,
                 assetsUri,
+                onOpenImageDialog: (params) => openImageDialogRef.current?.(params),
             });
         }
 
@@ -244,19 +248,22 @@ const CKEditorWrapper = ({
     }
 
     return (
-        <div data-name={CKEDITOR_WRAPPER_NAME} className={cn(
-            'html-area rounded-sm *:rounded-sm transition-highlight',
-            focused && 'ring-3 ring-offset-3 ring-offset-ring-offset',
-            focused && (hasError ? 'ring-error' : 'ring-ring'),
-            hasError && 'has-error [&_.cke_chrome]:!border-error',
-        )}>
-            <textarea
-                className="hidden invisible"
-                ref={setElement}
-                id={editorId}
-                name={editorId}
-            />
-        </div>
+        <>
+            <div data-name={CKEDITOR_WRAPPER_NAME} className={cn(
+                'html-area rounded-sm *:rounded-sm transition-highlight',
+                focused && 'ring-3 ring-offset-3 ring-offset-ring-offset',
+                focused && (hasError ? 'ring-error' : 'ring-ring'),
+                hasError && 'has-error [&_.cke_chrome]:!border-error',
+            )}>
+                <textarea
+                    className="hidden invisible"
+                    ref={setElement}
+                    id={editorId}
+                    name={editorId}
+                />
+            </div>
+            <HtmlAreaImageDialog openRef={openImageDialogRef} />
+        </>
     );
 };
 

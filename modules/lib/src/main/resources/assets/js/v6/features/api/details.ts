@@ -11,7 +11,7 @@ import {getCmsApiUrl, getCmsRestUri} from '../utils/url/cms';
 /**
  * Parse ContentJson to the appropriate Content subtype.
  */
-function parseContent(json: ContentJson): Content {
+export function parseContent(json: ContentJson): Content {
     const type = new ContentTypeName(json.type);
 
     if (type.isSite()) {
