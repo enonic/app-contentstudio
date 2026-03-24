@@ -1,5 +1,5 @@
 /**
- * Created on 09.09.2019.
+ * Created on 09.09.2019. updated on 23.03.2026 for epic-enonic-ui
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -38,13 +38,13 @@ describe('browse.panel.mark.as.ready.single.content.spec - tests for Request Pub
             // 6. Click on 'Mark as ready' button in the modal dialog:
             await contentPublishDialog.clickOnMarkAsReadyButton();
             await contentPublishDialog.waitForPublishNowButtonEnabled();
-            let state = await contentPublishDialog.getWorkflowState(name);
+            let status = await contentPublishDialog.getContentStatus(name);
             await studioUtils.saveScreenshot('content_gets_ready_to_publish');
-            assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content gets 'Ready for publishing'");
+            assert.equal(status, 'Offline New', "The content gets 'Ready for publishing'");
+            let numberItems = await contentPublishDialog.getNumberItemsToPublish();
+            assert.equal(numberItems,'', "Number of items to publish should not be displayed when the single content is selected");
         });
 
-    // verifies https://github.com/enonic/app-contentstudio/issues/2736
-    // "Request Publishing" wizard is missing "Mark as ready" menu action #2736
     it(`WHEN 'Work in progress' folder is selected AND 'Request Publishing...' menu item has been clicked THEN request publish dialog should be opened AND the folder gets Ready to publish`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -57,16 +57,19 @@ describe('browse.panel.mark.as.ready.single.content.spec - tests for Request Pub
             await studioUtils.findContentAndClickCheckBox(name);
             // 3. Click on 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
+            await createRequestPublishDialog.typeInTitleInput('test request publish');
             // 4. Verify that the modal dialog is loaded:
             await createRequestPublishDialog.waitForDialogLoaded();
-            await createRequestPublishDialog.waitForNextButtonDisabled();
+            await createRequestPublishDialog.waitForCreateRequestButtonDisabled();
             // 5. Click on 'Mark as Ready' button in the modal dialog:
             await createRequestPublishDialog.clickOnMarkAsReadyButton();
             // 6. Verify that 'Next' button is enabled:
-            await createRequestPublishDialog.waitForNextButtonEnabled();
-            let state = await createRequestPublishDialog.getWorkflowState(name);
+            await createRequestPublishDialog.waitForCreateRequestButtonEnabled();
+            let workflow = await createRequestPublishDialog.getWorkflowIconState(name);
+            assert(workflow === 'ready', "Workflow icon should be 'Ready for publishing'");
+            let state = await createRequestPublishDialog.getContentStatus(name);
             await studioUtils.saveScreenshot('ready_to_publish_via_menu_action');
-            assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content gets 'Ready for publishing'");
+            assert(state === appConst.CONTENT_STATUS.OFFLINE_NEW, 'Offline New status should be displayed for the content');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

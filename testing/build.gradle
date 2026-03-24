@@ -218,7 +218,7 @@ tasks.register('generateReport', PnpmTask) {
 }
 
 // Test tasks
-tasks.register('w_testInputTypes', PnpmTask) {
+tasks.register('testInputTypes', PnpmTask) {
     group = 'verification'
     description = 'Run input types tests'
 
@@ -235,7 +235,7 @@ tasks.register('w_testInputTypes', PnpmTask) {
     finalizedBy tasks.named('stopServer')
 }
 
-tasks.register('w_testInputTypesLocal', PnpmTask) {
+tasks.register('testInputTypesLocal', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
 
     group = 'verification'
@@ -243,7 +243,7 @@ tasks.register('w_testInputTypesLocal', PnpmTask) {
     args = ['run-script', 'test_input_types:wdio_chrome']
 }
 
-tasks.register('w_testInputTypes_2', PnpmTask) {
+tasks.register('testInputTypes_2', PnpmTask) {
     group = 'verification'
     description = 'Run input types 2 tests'
     args = ['run-script', 'test_input_types_2:wdio_chrome']
@@ -259,7 +259,7 @@ tasks.register('w_testInputTypes_2', PnpmTask) {
     finalizedBy tasks.named('stopServer')
 }
 
-tasks.register('w_testInputTypes_2_Local', PnpmTask) {
+tasks.register('testInputTypes_2_Local', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
 
     group = 'verification'
@@ -267,7 +267,7 @@ tasks.register('w_testInputTypes_2_Local', PnpmTask) {
     args = ['run-script', 'test_input_types_2:wdio_chrome']
 }
 
-tasks.register('w_testModalDialog', PnpmTask) {
+tasks.register('testModalDialog', PnpmTask) {
     group = 'verification'
     description = 'Run modal dialog tests'
 
@@ -284,7 +284,7 @@ tasks.register('w_testModalDialog', PnpmTask) {
     finalizedBy tasks.named('stopServer')
 }
 
-tasks.register('w_testModalDialogLocal', PnpmTask) {
+tasks.register('testModalDialogLocal', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
 
     group = 'verification'
@@ -292,7 +292,7 @@ tasks.register('w_testModalDialogLocal', PnpmTask) {
     args = ['run-script', 'test_modal_dialog:wdio_chrome']
 }
 
-tasks.register('w_testWizardsGrid', PnpmTask) {
+tasks.register('testWizardsGrid', PnpmTask) {
     group = 'verification'
     description = 'Run wizards grid tests'
 
@@ -309,7 +309,7 @@ tasks.register('w_testWizardsGrid', PnpmTask) {
     finalizedBy tasks.named('stopServer')
 }
 
-tasks.register('w_testWizardsGridLocal', PnpmTask) {
+tasks.register('testWizardsGridLocal', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
 
     group = 'verification'
@@ -317,7 +317,7 @@ tasks.register('w_testWizardsGridLocal', PnpmTask) {
     args = ['run-script', 'test_wizards_grid:wdio_chrome']
 }
 
-tasks.register('w_testPublishIssues', PnpmTask) {
+tasks.register('testPublishIssues', PnpmTask) {
     group = 'verification'
     description = 'Run publish issues tests'
 
@@ -334,7 +334,7 @@ tasks.register('w_testPublishIssues', PnpmTask) {
     finalizedBy tasks.named('stopServer')
 }
 
-tasks.register('w_testPublishIssuesLocal', PnpmTask) {
+tasks.register('testPublishIssuesLocal', PnpmTask) {
     group = 'verification'
     description = 'Run publish issues tests locally'
 
@@ -351,7 +351,7 @@ tasks.register('w_testPublishIssuesLocal', PnpmTask) {
     finalizedBy tasks.named('stopServer')
 }
 
-tasks.register('w_testProjects', PnpmTask) {
+tasks.register('testProjects', PnpmTask) {
     group = 'verification'
     description = 'Run project tests'
 
@@ -368,7 +368,7 @@ tasks.register('w_testProjects', PnpmTask) {
     finalizedBy tasks.named('stopServer')
 }
 
-tasks.register('w_miscTests', PnpmTask) {
+tasks.register('miscTests', PnpmTask) {
     group = 'verification'
     description = 'Run miscellaneous tests'
 
@@ -385,7 +385,7 @@ tasks.register('w_miscTests', PnpmTask) {
     finalizedBy tasks.named('stopServer')
 }
 
-tasks.register('w_testProjects_2', PnpmTask) {
+tasks.register('testProjects_2', PnpmTask) {
     group = 'verification'
     description = 'Run project 2 tests'
 
@@ -419,7 +419,7 @@ tasks.register('testProjects_multi', PnpmTask) {
     finalizedBy tasks.named('stopServer')
 }
 
-tasks.register('w_testProjectsLocal', PnpmTask) {
+tasks.register('testProjectsLocal', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
 
     group = 'verification'
@@ -427,7 +427,7 @@ tasks.register('w_testProjectsLocal', PnpmTask) {
     args = ['run-script', 'test_project:wdio_chrome']
 }
 
-tasks.register('w_testPageEditor', PnpmTask) {
+tasks.register('testPageEditor', PnpmTask) {
     group = 'verification'
     description = 'Run page editor tests'
 
@@ -444,7 +444,7 @@ tasks.register('w_testPageEditor', PnpmTask) {
     finalizedBy tasks.named('stopServer')
 }
 
-tasks.register('w_testPageEditorLocal', PnpmTask) {
+tasks.register('testPageEditorLocal', PnpmTask) {
     dependsOn tasks.named('pnpmInstall')
 
     group = 'verification'
@@ -452,7 +452,7 @@ tasks.register('w_testPageEditorLocal', PnpmTask) {
     args = ['run-script', 'test_page_editor:wdio_chrome']
 }
 
-tasks.register('w_testExcludeDependencies', PnpmTask) {
+tasks.register('testExcludeDependencies', PnpmTask) {
     group = 'verification'
     description = 'Run exclude dependencies tests'
 

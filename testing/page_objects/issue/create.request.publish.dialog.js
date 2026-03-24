@@ -4,13 +4,15 @@ const {BUTTONS, DIALOG_ITEMS, SELECTION_STATUS_BAR} = require('./../../libs/elem
 const PrincipalComboBox = require('../components/selectors/principal.combobox.dropdown');
 const DependantsControls = require('./dependant.controls');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
+const DiffStatusBadge = require('../components/diff.status.badge');
 
 const xpath = {
     container: `//div[@data-component='RequestPublishDialogContent']`,
     titleInput: "//div[descendant::div[text()='Title']]/following-sibling::div[1]//input[contains(@class,'text')]",
     commentTextArea: "//div[descendant::div[text()='Add a comment']]/following-sibling::div[1]//textarea",
     invalidItemsDiv: "//div[@data-component='SelectionStatusBar' and descendant::span[contains(.,'Invalid items')]]",
-    //publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
+    mainItemDivByName: name => DIALOG_ITEMS.PRIMARY_DATA_COMPONENT + DIALOG_ITEMS.mainItemRowByName(name),
+    dependantItemDivByName: name => DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + DIALOG_ITEMS.mainItemRowByName(name),
     warningMessagePart1: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part1']",
     warningMessagePart2: "//div[contains(@id,'PublishIssuesStateBar')]/span[@class='part2']",
     invalidIcon: "//span[contains(@class,'icon-state-invalid')]",
@@ -89,8 +91,7 @@ class CreateRequestPublishDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.dependantsBlock, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dependencies_block');
-            throw new Error(`Dependencies block is not displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError(`Dependencies block should be displayed`, 'err_dependencies_block', err);
         }
     }
 
@@ -102,7 +103,7 @@ class CreateRequestPublishDialog extends Page {
     // dialog-state-bar:
     async waitForMarkAsReadyButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.markAsReadyButton, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.markAsReadyButton);
         } catch (err) {
             await this.handleError(`Request Publishing, Mark as ready button should be visible`, 'err_mark_as_ready_btn', err);
         }
@@ -119,24 +120,24 @@ class CreateRequestPublishDialog extends Page {
 
     // dialog-state-bar
     waitForExcludeItemsInProgressButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.excludeItemsInProgressButton, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(this.excludeItemsInProgressButton);
     }
 
     // dialog-state-bar
     waitForExcludeItemsInProgressButtonDisplayed() {
-        return this.waitForElementDisplayed(this.excludeItemsInProgressButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.excludeItemsInProgressButton);
     }
 
     // dialog-state-bar
     async clickOnExcludeItemsInProgressButton() {
-        await this.waitForElementDisplayed(this.excludeItemsInProgressButton, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.excludeItemsInProgressButton);
         await this.clickOnElement(this.excludeItemsInProgressButton);
         return await this.pause(500);
     }
 
     // dialog-state-bar
     async clickOnExcludeInvalidItemsButton() {
-        await this.waitForElementDisplayed(this.excludeInvalidItemsButton, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.excludeInvalidItemsButton);
         await this.clickOnElement(this.excludeInvalidItemsButton);
         return await this.pause(500);
     }
@@ -170,12 +171,19 @@ class CreateRequestPublishDialog extends Page {
         return await contentSelector.clickOnExpanderIconInOptionsList(optionName);
     }
 
-    // TODO epic-enonic-ui
-    async clickOnItemToPublishAndSwitchToWizard(displayName) {
-        let selector = xpath.publishItemList + xpath.itemToRequest(displayName);
+    //
+    async clickOnMainItemAndSwitchToWizard(contentName) {
+        let selector = xpath.container + xpath.mainItemDivByName(contentName);
         await this.clickOnElement(selector);
         await this.pause(900);
-        return await this.getBrowser().switchWindow(displayName);
+        return await this.getBrowser().switchWindow(contentName);
+    }
+
+    async clickOnDependantItemAndSwitchToWizard(contentName) {
+        let selector = xpath.container + xpath.dependantItemDivByName();
+        await this.clickOnElement(selector);
+        await this.pause(900);
+        return await this.getBrowser().switchWindow(contentName);
     }
 
     async waitForDialogLoaded() {
@@ -229,10 +237,10 @@ class CreateRequestPublishDialog extends Page {
         }
     }
 
-    getContentStatus(name) {
-        let selector = xpath.contentStatus(name);
-        return this.getText(selector);
-    }
+    // getContentStatus(name) {
+    //     let selector = xpath.contentStatus(name);
+    //     return this.getText(selector);
+    // }
 
     async selectUserInAssignees(userName) {
         try {
@@ -272,20 +280,30 @@ class CreateRequestPublishDialog extends Page {
         }
     }
 
-    async getWorkflowState(displayName) {
-        let selector = xpath.contentSummaryByDisplayName(displayName);
-        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
-        let result = await this.getAttribute(selector, 'class');
-        if (result.includes('in-progress')) {
-            return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
-        } else if (result.includes('ready')) {
-            return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
-        } else if (result === 'viewer content-summary-and-compare-status-viewer') {
-            return appConst.WORKFLOW_STATE.PUBLISHED;
+    async getContentStatus(contentName) {
+        const rowXpath = xpath.container + xpath.mainItemDivByName(contentName);
+        const diffStatusBadge = new DiffStatusBadge(rowXpath);
+        return await diffStatusBadge.getStatusText();
+    }
 
-        } else {
-            throw new Error("Error during getting the content's state, class is:" + result);
-        }
+    // Returns 'ready', 'in-progress', or '' — read from aria-label of the SVG icon inside ContentLabel
+    async getWorkflowIconState(contentName) {
+        const rowXpath = xpath.container + xpath.mainItemDivByName(contentName);
+        const diffStatusBadge = new DiffStatusBadge(rowXpath);
+        return await diffStatusBadge.getWorkflowIconState();
+    }
+
+    async getDependantWorkflowState(contentName) {
+        const rowXpath = xpath.container + xpath.dependantItemDivByName(contentName);
+        const diffStatusBadge = new DiffStatusBadge(rowXpath);
+        return await diffStatusBadge.getStatusText();
+    }
+
+    // Returns 'ready', 'in-progress', or '' for a dependant item
+    async getDependantWorkflowIconState(contentName) {
+        const rowXpath = xpath.container + xpath.dependantItemDivByName(contentName);
+        const diffStatusBadge = new DiffStatusBadge(rowXpath);
+        return await diffStatusBadge.getWorkflowIconState();
     }
 
     isWarningMessageDisplayed() {

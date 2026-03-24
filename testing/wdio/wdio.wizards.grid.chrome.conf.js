@@ -13,6 +13,8 @@ exports.config = {
         path.join(__dirname, '../specs/call.app.controller.spec.js'),
         path.join(__dirname, '../specs/content.filter.panel.export.spec.js'),
         path.join(__dirname, '../specs/content.filter.panel.spec.js'),
+        path.join(__dirname, '../content.item.preview.spec.js'),
+        path.join(__dirname, 'content.toggle.icon.spec.js'),
     ],
 
     maxInstances: 1,

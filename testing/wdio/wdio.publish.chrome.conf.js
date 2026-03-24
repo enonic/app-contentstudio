@@ -7,8 +7,10 @@ const browser_version = properties.get('browser.version');
 exports.config = {
 
     specs: [
-        path.join(__dirname, '../specs/publish/*.spec.js'),
-        path.join(__dirname, '../specs/issue/*.spec.js')
+        //path.join(__dirname, '../specs/publish/*.spec.js'),
+        //path.join(__dirname, '../specs/issue/*.spec.js')
+        path.join(__dirname, '../specs/publish/refresh.request.publishing.dialog.spec.js'),
+        path.join(__dirname, '../specs/publish/browse.panel.mark.as.ready.single.content.spec.js'),
     ],
 
     maxInstances: 1,

@@ -8,7 +8,7 @@ const xpath = {
     container: `//section[@data-component='DetailsWidgetContentSection']`,
     pathProperty: "//dt[contains(.,'Path')]/following-sibling::dd[1]",
     displayNameProperty: "//dt[contains(.,'Display name')]/following-sibling::dd[1]",
-    statusPublishStatus: `//dt[contains(.,'Status')]/following-sibling::dd[1]//span[@data-component='DiffStatusBadge']/span[1]`,
+    publishStatus: `//dt[contains(.,'Status')]/following-sibling::dd[1]//span[@data-component='DiffStatusBadge']/span[1]`,
     statusDiffStatus: `//dt[contains(.,'Status')]/following-sibling::dd[1]//span[@data-component='DiffStatusBadge']/span[2]`,
     statusValidity: `//dt[contains(.,'Status')]/following-sibling::dd[1]//span[@data-component='DiffStatusBadge']//span[contains(@class,'truncate')]`,
 };
@@ -56,14 +56,15 @@ class DetailsWidgetContentSection extends Page {
         return await this.getText(this.displayNameProperty);
     }
 
-    get statusPublishStatus() {
-        return xpath.container + xpath.statusPublishStatus;
+    get publishStatus() {
+        return xpath.container + xpath.publishStatus;
     }
 
     get statusDiffStatus() {
         return xpath.container + xpath.statusDiffStatus;
     }
 
+    // Workflow and validation status are displayed in the same element, so we need to check both of them to get the full status info
     get statusValidity() {
         return xpath.container + xpath.statusValidity;
     }
@@ -79,8 +80,8 @@ class DetailsWidgetContentSection extends Page {
     }
 
     async getStatusText() {
-        await this.waitForElementDisplayed(this.statusPublishStatus);
-        const publishStatus = await this.getText(this.statusPublishStatus);
+        await this.waitForElementDisplayed(this.publishStatus);
+        const publishStatus = await this.getText(this.publishStatus);
         const diffStatusElements = await this.findElements(this.statusDiffStatus);
         const diffStatus = diffStatusElements.length > 0 ? await diffStatusElements[0].getText() : '';
         const validityElements = await this.findElements(this.statusValidity);
