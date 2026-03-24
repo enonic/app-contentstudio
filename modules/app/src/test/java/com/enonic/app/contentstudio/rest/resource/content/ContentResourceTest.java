@@ -1088,8 +1088,8 @@ public class ContentResourceTest
     public void find_ids_by_parents()
         throws Exception
     {
-        final ContentId childId1 = ContentId.from( "childId1" );
-        final ContentId childId2 = ContentId.from( "childId2" );
+        final ContentId childId1 = ContentId.from( "child-id-1" );
+        final ContentId childId2 = ContentId.from( "child-id-2" );
         final ContentIds childrenIds = ContentIds.from( childId1, childId2 );
 
         when( contentService.findIdsByParent( isA( FindContentByParentParams.class ) ) ).thenReturn(
@@ -1108,11 +1108,11 @@ public class ContentResourceTest
     public void resolve_publish_contents()
         throws Exception
     {
-        final ContentId requestedId = ContentId.from( "requested-contentId" );
-        final ContentId dependantId = ContentId.from( "dependant-contentId" );
-        final ContentId requiredId = ContentId.from( "required-contentId" );
-        final ContentId nextMissingId = ContentId.from( "next-missing-contentId" );
-        final ContentId nextId = ContentId.from( "next-contentId" );
+        final ContentId requestedId = ContentId.from( "requested-content-id" );
+        final ContentId dependantId = ContentId.from( "dependant-content-id" );
+        final ContentId requiredId = ContentId.from( "required-content-id" );
+        final ContentId nextMissingId = ContentId.from( "next-missing-content-id" );
+        final ContentId nextId = ContentId.from( "next-content-id" );
         final Content nextContent = mock( Content.class );
         when( nextContent.getId() ).thenReturn( nextId );
         when( nextContent.getPermissions() ).thenReturn( AccessControlList.empty() );
@@ -2432,7 +2432,7 @@ public class ContentResourceTest
     public void testRestoreInherit()
     {
         final ContentResource instance = getResourceInstance();
-        final ResetContentInheritJson params = new ResetContentInheritJson( "contentId", "test-project", List.of( "NAME", "PARENT" ) );
+        final ResetContentInheritJson params = new ResetContentInheritJson( "content-id", "test-project", List.of( "NAME", "PARENT" ) );
 
         final ArgumentCaptor<ResetContentInheritParams> captor = ArgumentCaptor.forClass( ResetContentInheritParams.class );
 

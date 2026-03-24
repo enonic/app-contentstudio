@@ -57,7 +57,7 @@ public class ComponentDisplayNameResolverImplTest
     public void testResolveMissingImageComponent()
         throws Exception
     {
-        final ContentId imageComponentId = ContentId.from( "imageCompId" );
+        final ContentId imageComponentId = ContentId.from( "image-comp-id" );
         final ImageComponent imageComponent = ImageComponent.create().image( imageComponentId ).build();
 
         Mockito.when( contentService.getById( imageComponent.getImage() ) )
@@ -97,7 +97,7 @@ public class ComponentDisplayNameResolverImplTest
     public void testResolveMissingFragmentComponent()
         throws Exception
     {
-        final ContentId fragmentComponentId = ContentId.from( "fragmentCompId" );
+        final ContentId fragmentComponentId = ContentId.from( "fragment-comp-id" );
         final FragmentComponent fragmentComponent = FragmentComponent.create().fragment( fragmentComponentId ).build();
 
         Mockito.when( contentService.getById( fragmentComponent.getFragment() ) )
