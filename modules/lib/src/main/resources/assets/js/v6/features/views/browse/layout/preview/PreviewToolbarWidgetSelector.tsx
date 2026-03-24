@@ -7,6 +7,8 @@ import {ViewExtensionEvent} from '../../../../../../app/event/ViewExtensionEvent
 import {useI18n} from '../../../../hooks/useI18n';
 import {$activeWidget, $liveViewWidgets, setActiveWidget} from '../../../../store/liveViewWidgets.store';
 
+const COMPONENT_NAME = 'PreviewToolbarWidgetSelector';
+
 function getWidgetKey(widget: Extension): string {
     return widget.getDescriptorKey().toString();
 }
@@ -15,7 +17,7 @@ export const PreviewToolbarWidgetSelector = (): ReactElement => {
     const activeWidget = useStore($activeWidget);
     const {widgets} = useStore($liveViewWidgets);
     const [isOpen, setIsOpen] = useState(false);
-    const [radioControlKey, setRadioControlKey] = useState(getWidgetKey(activeWidget));
+    const radioControlKey = activeWidget ? getWidgetKey(activeWidget) : '';
 
     // First trigger is needed in order to make ContentWizardPanel add 'rendered' class, allowing ContentActionCycleButton to be displayed
     useEffect(() => {
@@ -23,16 +25,18 @@ export const PreviewToolbarWidgetSelector = (): ReactElement => {
         new ViewExtensionEvent(activeWidget).fire();
     }, []);
 
-    const handleWidgetClick = useCallback((widget: Extension) => {
+    const handleWidgetChange = useCallback((key: string) => {
+        const widget = widgets.find((w) => getWidgetKey(w) === key);
+        if (!widget) return;
         setIsOpen(false);
         setActiveWidget(widget);
         new ViewExtensionEvent(widget).fire();
-    }, []);
+    }, [widgets]);
 
     if (!activeWidget) return <></>;
 
     return (
-        <Menu open={isOpen} onOpenChange={setIsOpen}>
+        <Menu data-component={COMPONENT_NAME} open={isOpen} onOpenChange={setIsOpen}>
             <Toolbar.Item asChild>
                 <Menu.Trigger asChild>
                     <Button
@@ -52,12 +56,11 @@ export const PreviewToolbarWidgetSelector = (): ReactElement => {
             </Toolbar.Item>
             <Menu.Portal>
                 <Menu.Content>
-                    <Menu.RadioGroup value={radioControlKey} onValueChange={setRadioControlKey}>
+                    <Menu.RadioGroup value={radioControlKey} onValueChange={handleWidgetChange}>
                         {widgets.map((widget) => (
                             <Menu.RadioItem
                                 key={getWidgetKey(widget)}
                                 value={getWidgetKey(widget)}
-                                onClick={() => handleWidgetClick(widget)}
                             >
                                 <Menu.ItemIndicator>
                                     <img
@@ -81,4 +84,4 @@ export const PreviewToolbarWidgetSelector = (): ReactElement => {
     );
 };
 
-PreviewToolbarWidgetSelector.displayName = 'PreviewToolbarWidgetSelector';
+PreviewToolbarWidgetSelector.displayName = COMPONENT_NAME;
