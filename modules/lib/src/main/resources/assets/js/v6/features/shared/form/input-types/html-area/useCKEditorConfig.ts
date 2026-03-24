@@ -1,9 +1,9 @@
 /*global CKEDITOR*/
 
-import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {useEffect, useMemo, useState} from 'react';
 import {ContentResourceRequest} from '../../../../../../app/resource/ContentResourceRequest';
+import {getHtmlAreaLangDirection} from '../../../../../../app/inputtype/ui/text/HtmlAreaLangDirection';
 import {StyleHelper} from '../../../../../../app/inputtype/ui/text/styles/StyleHelper';
 import {Styles} from '../../../../../../app/inputtype/ui/text/styles/Styles';
 import {StylesRequest} from '../../../../../../app/inputtype/ui/text/styles/StylesRequest';
@@ -97,16 +97,27 @@ function buildToolbar(inputConfig: HtmlAreaConfig, editableSourceCode: boolean):
         enabledTools.push('Fullscreen');
     }
 
-    // Add Strike/Superscript/Subscript to first group, others to new group
+    // Add Strike/Superscript/Subscript to first group, others to a trailing group after the paste-mode separator.
     const toolsToAdd: string[] = [];
     for (const tool of enabledTools) {
+        if (tool === 'Fullscreen') {
+            continue;
+        }
+
         if (tool === 'Strike' || tool === 'Superscript' || tool === 'Subscript') {
             tools[0].push(tool);
         } else {
             toolsToAdd.push(tool);
         }
     }
-    tools.push(toolsToAdd);
+
+    if (enabledTools.includes('Fullscreen')) {
+        toolsToAdd.push('Fullscreen');
+    }
+
+    if (toolsToAdd.length > 0) {
+        tools.push(toolsToAdd);
+    }
 
     return {tools, disabledTools, enabledTools};
 }
@@ -180,10 +191,7 @@ function buildConfig(params: UseCKEditorConfigParams, cssPaths: string[]): CKEDI
         ],
     };
 
-    const contentLang = params.contentSummary?.getLanguage();
-    if (contentLang && Locale.supportsRtl(contentLang)) {
-        config.contentsLangDirection = 'rtl';
-    }
+    config.contentsLangDirection = getHtmlAreaLangDirection(params.contentSummary?.getLanguage());
 
     config['qtRows'] = 10;
     config['qtColumns'] = 10;

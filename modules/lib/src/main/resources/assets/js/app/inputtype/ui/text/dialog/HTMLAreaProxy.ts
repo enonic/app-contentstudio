@@ -9,12 +9,12 @@ import {
     type TableQuicktablePopupParams,
 } from '../HtmlEditorTypes';
 import {BulletedListModalDialog} from './BulletedListModalDialog';
-import {FullscreenDialog} from './FullscreenDialog';
 import {MacroModalDialog} from './MacroModalDialog';
 import {type ModalDialog} from './ModalDialog';
 import {NumberedListModalDialog} from './NumberedListModalDialog';
 import {openAnchorDialog as openV6AnchorDialog} from '../../../../../v6/features/store/dialogs/anchorDialog.store';
 import {openCodeDialog as openV6CodeDialog} from '../../../../../v6/features/store/dialogs/codeDialog.store';
+import {openFullscreenDialog as openV6FullscreenDialog} from '../../../../../v6/features/store/dialogs/fullscreenDialog.store';
 import {openSpecialCharDialog as openV6SpecialCharDialog} from '../../../../../v6/features/store/dialogs/specialCharDialog.store';
 import {openTableDialog as openV6TableDialog} from '../../../../../v6/features/store/dialogs/tableDialog.store';
 import {openTableQuicktablePopup as openV6TableQuicktablePopup} from '../../../../../v6/features/store/dialogs/tableQuicktablePopup.store';
@@ -72,7 +72,7 @@ export class HTMLAreaProxy {
     }
 
     private static openFullscreenDialog(event: CreateHtmlAreaDialogEvent): void {
-        HTMLAreaProxy.openLegacyDialog(new FullscreenDialog(event.getConfig() as FullScreenDialogParams));
+        openV6FullscreenDialog(event.getConfig() as FullScreenDialogParams);
     }
 
     private static openTableDialog(event: CreateHtmlAreaDialogEvent): void {
