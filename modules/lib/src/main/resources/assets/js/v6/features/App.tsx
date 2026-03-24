@@ -4,6 +4,7 @@ import type {ReactElement} from 'react';
 import {start as startSocketService} from './services/socket.service';
 import {AnchorDialog} from './shared/dialogs/AnchorDialog';
 import {CodeDialog} from './shared/dialogs/CodeDialog';
+import {FullscreenDialog} from './shared/dialogs/FullscreenDialog';
 import {LegacyElement} from './shared/LegacyElement';
 import {SpecialCharDialog} from './shared/dialogs/SpecialCharDialog';
 import {TableDialog} from './shared/dialogs/TableDialog';
@@ -28,6 +29,7 @@ const App = (): ReactElement => {
             {isWizard ? <WizardPage /> : <BrowsePage />}
             <AnchorDialog />
             <CodeDialog />
+            <FullscreenDialog />
             <SpecialCharDialog />
             <TableQuicktablePopup />
             <TableDialog />

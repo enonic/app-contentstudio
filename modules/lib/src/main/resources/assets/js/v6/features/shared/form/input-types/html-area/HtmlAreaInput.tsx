@@ -19,13 +19,14 @@ import {createLinkDialogOverride, HtmlAreaLinkDialog} from '../../../dialogs/htm
 import type {OpenHtmlAreaLinkDialogParams} from '../../../dialogs/htmlarea-link/HtmlAreaLinkDialogContext';
 import type {HtmlAreaConfig} from './HtmlAreaConfig';
 import {useHtmlAreaContext} from './HtmlAreaContext';
-import {setupEditor} from './setupEditor';
+import {setupEditor, setupEditorUi} from './setupEditor';
 import {useCKEditorConfig} from './useCKEditorConfig';
 
 const sanitizer = new HtmlAreaSanitizer();
 
 type CKEditorWrapperProps = {
     editorConfig: CKEDITOR.config;
+    htmlAreaConfig: HtmlAreaConfig;
     editorId: string;
     previewContent: string;
     stringValue: string;
@@ -37,6 +38,7 @@ type CKEditorWrapperProps = {
     applicationKeys: ApplicationKey[];
     assetsUri: string;
     hasError: boolean;
+    editableSourceCode: boolean;
 };
 
 const CKEDITOR_WRAPPER_NAME = 'CKEditorWrapper';
@@ -46,6 +48,7 @@ const CKEDITOR_WRAPPER_NAME = 'CKEditorWrapper';
 // on first render (the hook never updates its config ref after init).
 const CKEditorWrapper = ({
     editorConfig,
+    htmlAreaConfig,
     editorId,
     previewContent,
     stringValue,
@@ -57,11 +60,13 @@ const CKEditorWrapper = ({
     applicationKeys,
     assetsUri,
     hasError,
+    editableSourceCode,
 }: CKEditorWrapperProps): JSX.Element => {
     const [element, setElement] = useState<HTMLTextAreaElement | null>(null);
     const [focused, setFocused] = useState(false);
     const openImageDialogRef = useRef<((params: OpenHtmlAreaImageDialogParams) => void) | undefined>(undefined);
     const mountedRef = useRef(true);
+    const editorUiReadyRef = useRef(false);
     const editorReadyRef = useRef(false);
     const editorInstanceRef = useRef<CKEDITOR.editor | null>(null);
     // Track the last value we sent via onChange to avoid external sync conflicts
@@ -129,6 +134,35 @@ const CKEditorWrapper = ({
         editorInstanceRef.current = editor ?? null;
     }, [editor]);
 
+    useEffect(() => {
+        if (!editor || editorUiReadyRef.current) {
+            return;
+        }
+
+        editorUiReadyRef.current = true;
+
+        setupEditorUi(editor, {
+            contentSummary,
+            project,
+            applicationKeys,
+            assetsUri,
+            enabledTools: htmlAreaConfig.enabledTools,
+            disabledTools: htmlAreaConfig.disabledTools,
+            allowedHeadings: htmlAreaConfig.allowedHeadings,
+            editableSourceCode,
+        });
+    }, [
+        editor,
+        contentSummary,
+        project,
+        applicationKeys,
+        assetsUri,
+        htmlAreaConfig.enabledTools,
+        htmlAreaConfig.disabledTools,
+        htmlAreaConfig.allowedHeadings,
+        editableSourceCode,
+    ]);
+
     // Setup editor when ready + register listeners with proper cleanup
     useEffect(() => {
         if (status !== 'ready' || !editor) {
@@ -143,6 +177,10 @@ const CKEditorWrapper = ({
                 project,
                 applicationKeys,
                 assetsUri,
+                enabledTools: htmlAreaConfig.enabledTools,
+                disabledTools: htmlAreaConfig.disabledTools,
+                allowedHeadings: htmlAreaConfig.allowedHeadings,
+                editableSourceCode,
                 dialogOverrides: {
                     ...createImageDialogOverride(openImageDialogRef),
                     ...createLinkDialogOverride(openLinkDialogRef),
@@ -163,7 +201,20 @@ const CKEditorWrapper = ({
                 editor.removeListener('blur', onBlur);
             }
         };
-    }, [status, editor, contentSummary, project, applicationKeys, assetsUri, debouncedOnChange, onBlur]);
+    }, [
+        status,
+        editor,
+        contentSummary,
+        project,
+        applicationKeys,
+        assetsUri,
+        htmlAreaConfig.enabledTools,
+        htmlAreaConfig.disabledTools,
+        htmlAreaConfig.allowedHeadings,
+        editableSourceCode,
+        debouncedOnChange,
+        onBlur,
+    ]);
 
     // Track editor focus for focus ring
     useEffect(() => {
@@ -215,6 +266,7 @@ const CKEditorWrapper = ({
     // Reset ready flag on unmount
     useEffect(() => {
         return () => {
+            editorUiReadyRef.current = false;
             editorReadyRef.current = false;
         };
     }, []);
@@ -301,6 +353,7 @@ export const HtmlAreaInput = ({
         <>
             <CKEditorWrapper
                 editorConfig={editorConfig}
+                htmlAreaConfig={config}
                 editorId={editorId}
                 previewContent={previewContent}
                 stringValue={stringValue}
@@ -312,6 +365,7 @@ export const HtmlAreaInput = ({
                 applicationKeys={applicationKeys}
                 assetsUri={assetsUri}
                 hasError={hasError}
+                editableSourceCode={editableSourceCode}
             />
             <FieldError message={getFirstError(errors)} />
         </>

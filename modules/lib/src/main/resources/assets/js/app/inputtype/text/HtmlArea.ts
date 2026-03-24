@@ -8,12 +8,11 @@ import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Element, LangDirection} from '@enonic/lib-admin-ui/dom/Element';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {FormEl} from '@enonic/lib-admin-ui/dom/FormEl';
 import {type FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
 import {BaseInputTypeNotManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeNotManagingAdd';
-import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
@@ -32,6 +31,7 @@ import {ProjectContext} from '../../project/ProjectContext';
 import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {HTMLAreaProxy} from '../ui/text/dialog/HTMLAreaProxy';
 import {HTMLAreaHelper} from '../ui/text/HTMLAreaHelper';
+import {getHtmlAreaLangDirection} from '../ui/text/HtmlAreaLangDirection';
 import {HtmlEditor} from '../ui/text/HtmlEditor';
 import {HtmlEditorParams} from '../ui/text/HtmlEditorParams';
 import {StylesRequest} from '../ui/text/styles/StylesRequest';
@@ -339,7 +339,7 @@ export class HtmlArea
                 .setAllowedHeadings(this.allowHeadingsConfig)
                 .setEditableSourceCode(editableSourceCode)
                 .setCustomStylesToBeUsed(true)
-                .setLangDirection(this.getLangDirection())
+                .setLangDirection(getHtmlAreaLangDirection(this.getContext().formContext?.getLanguage()))
                 .setProject(this.context.project)
                 .setLabel(this.getInput().getLabel())
                 .build();
@@ -598,16 +598,6 @@ export class HtmlArea
 
     private getEditorInfo(id: string): HtmlAreaOccurrenceInfo {
         return ArrayHelper.findElementByFieldValue(this.editors, 'id', id);
-    }
-
-    private getLangDirection(): LangDirection {
-        const lang: string = this.getContext().formContext?.getLanguage();
-
-        if (Locale.supportsRtl(lang)) {
-            return LangDirection.RTL;
-        }
-
-        return LangDirection.AUTO;
     }
 
     updateInputOccurrenceElement(occurrence: TextAreaWrapper, property: Property, unchangedOnly?: boolean) {

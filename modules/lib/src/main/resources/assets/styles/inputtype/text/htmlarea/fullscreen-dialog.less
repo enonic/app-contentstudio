@@ -1,97 +1,50 @@
-.html-area-modal-dialog.fullscreen-modal-dialog {
-  width: 100vw;
-  max-width: 1700px;
+.html-area-fullscreen-dialog {
+  inset: 0;
+  transform: none;
 
-  .modal-dialog-wrapper {
-    .modal-dialog-header {
-      display: none;
+  .custom-html-editor-container {
+    background-color: white;
+
+    .cke {
+      height: 100%;
     }
 
-    .modal-dialog-body {
-      padding-bottom: 30px;
+    .cke_chrome {
+      border: 0;
       height: 100%;
+    }
 
-      .dialog-content {
-        padding: 0;
+    .cke_inner {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
 
-        .cke_chrome {
-          border: 0;
-          height: 100%;
+    .cke_top {
+      display: block;
+      text-align: center;
+      flex-shrink: 0;
 
-          .cke_inner {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-
-            .cke_top {
-              text-align: center;
-              flex-shrink: 0;
-
-              .cke_toolbox {
-                display: inline-block;
-              }
-            }
-
-            .cke_contents {
-              flex-grow: 1;
-            }
-          }
-        }
-
-        .autosize-attendant {
-          display: none;
-        }
+      .cke_toolbox {
+        display: inline-block;
       }
     }
 
-    .modal-dialog-footer {
+    .cke_bottom {
+      display: block;
+      flex-shrink: 0;
+    }
+
+    .cke_button__fullscreen {
       display: none;
     }
-  }
 
-  &.hide-bold {
-    .cke_button__bold {
+    .cke_contents {
+      flex-grow: 1;
+    }
+
+    .autosize-attendant {
       display: none;
     }
-  }
-
-  &.hide-italic {
-    .cke_button__italic {
-      display: none;
-    }
-  }
-
-  &.hide-underline {
-    .cke_button__underline {
-      display: none;
-    }
-  }
-
-  &.masked {
-    border: 1px solid;
-
-    .cancel-button-top {
-      opacity: 0.25;
-    }
-
-    &::after {
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 100%;
-      background-color: black;
-      opacity: 0.5;
-      content: "";
-      position: absolute;
-    }
-  }
-}
-
-&._0-240,
-&._240-360,
-&._360-540,
-&._540-720 {
-  .html-area-modal-dialog.fullscreen-modal-dialog .modal-dialog-wrapper .modal-dialog-body {
-    padding-bottom: 30px;
   }
 }

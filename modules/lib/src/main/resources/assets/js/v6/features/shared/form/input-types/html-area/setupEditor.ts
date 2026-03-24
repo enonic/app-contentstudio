@@ -10,6 +10,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ContentPath} from '../../../../../../app/content/ContentPath';
 import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
+import {normalizeHtmlAreaLangDirection} from '../../../../../../app/inputtype/ui/text/HtmlAreaLangDirection';
 import {ContentsExistByPathRequest} from '../../../../../../app/resource/ContentsExistByPathRequest';
 import type {ContentsExistByPathResult} from '../../../../../../app/resource/ContentsExistByPathResult';
 import {CreateHtmlAreaDialogEventGenerator} from '../../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEventGenerator';
@@ -51,6 +52,10 @@ export type SetupEditorParams = {
     project: Readonly<Project> | undefined;
     applicationKeys: ApplicationKey[];
     assetsUri: string;
+    enabledTools: string[];
+    disabledTools: string[];
+    allowedHeadings: string | undefined;
+    editableSourceCode: boolean;
     dialogOverrides?: DialogOverrides;
 };
 
@@ -73,8 +78,49 @@ function buildEditorParams(editor: CKEDITOR.editor, params: SetupEditorParams): 
         .setCreateDialogHandler(createDialogHandler(params.dialogOverrides))
         .setContent(params.contentSummary)
         .setApplicationKeys(params.applicationKeys)
+        .setEnabledTools(params.enabledTools)
+        .setDisabledTools(params.disabledTools)
+        .setAllowedHeadings(params.allowedHeadings)
+        .setEditableSourceCode(params.editableSourceCode)
+        .setCustomStylesToBeUsed(true)
+        .setLangDirection(normalizeHtmlAreaLangDirection(editor.config.contentsLangDirection))
         .setProject(params.project)
         .build();
+}
+
+function setupFullscreenDialogToOpen(editor: CKEDITOR.editor, editorParams: HtmlEditorParams): void {
+    const dialogEventGenerator = new CreateHtmlAreaDialogEventGenerator(editorParams);
+
+    editor.addCommand('openFullscreenDialog', {
+        exec: (ed: CKEDITOR.editor) => {
+            if (editorParams.isFullScreenMode()) {
+                ed.fire('closeFullscreenDialog');
+                return true;
+            }
+
+            const config: FullScreenDialogParams = {
+                editor: ed,
+                editorParams,
+                cursorPosition: getCursorPosition(ed),
+            };
+
+            dialogEventGenerator.generateFullScreenEventAndFire(config);
+            return true;
+        },
+    });
+
+    editor.ui.addButton('Fullscreen', {
+        label: 'Fullscreen',
+        command: 'openFullscreenDialog',
+        toolbar: 'tools,10',
+        icon: 'maximize',
+    });
+}
+
+export function setupEditorUi(editor: CKEDITOR.editor, params: SetupEditorParams): void {
+    const editorParams = buildEditorParams(editor, params);
+
+    setupFullscreenDialogToOpen(editor, editorParams);
 }
 
 /**
@@ -186,19 +232,6 @@ function setupDialogsToOpen(editor: CKEDITOR.editor, editorParams: HtmlEditorPar
         },
     });
 
-    editor.addCommand('openFullscreenDialog', {
-        exec: (ed: CKEDITOR.editor) => {
-            const config: FullScreenDialogParams = {
-                editor: ed,
-                editorParams,
-                cursorPosition: getCursorPosition(ed),
-            };
-
-            dialogEventGenerator.generateFullScreenEventAndFire(config);
-            return true;
-        },
-    });
-
     editor.addCommand('sourcedialog', {
         exec: (ed: CKEDITOR.editor) => {
             const config: CodeDialogParams = {
@@ -225,13 +258,6 @@ function setupDialogsToOpen(editor: CKEDITOR.editor, editorParams: HtmlEditorPar
             dialogEventGenerator.generateTableQuicktableEventAndFire({editor: ed});
             return true;
         },
-    });
-
-    editor.ui.addButton('Fullscreen', {
-        label: 'Fullscreen',
-        command: 'openFullscreenDialog',
-        toolbar: 'tools,10',
-        icon: 'maximize',
     });
 
     editor.on('dialogShow', (dialogShowEvent: EventInfo) => {

@@ -293,7 +293,7 @@ export const TableQuicktablePopup = (): ReactElement | null => {
             data-component={TABLE_QUICKTABLE_POPUP_NAME}
             data-side={position?.side}
             className={cn(
-                'fixed z-40 flex flex-col gap-3 rounded-sm border border-bdr-subtle bg-surface-neutral p-3 shadow-lg outline-none',
+                'fixed z-50 flex flex-col gap-3 rounded-sm border border-bdr-subtle bg-surface-neutral p-3 shadow-lg outline-none',
                 'data-[side=top]:origin-bottom data-[side=bottom]:origin-top',
                 'data-[side=top]:animate-in data-[side=bottom]:animate-in',
                 'data-[side=top]:fade-in-0 data-[side=bottom]:fade-in-0',

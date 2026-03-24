@@ -615,17 +615,74 @@ export class HtmlEditor {
 
     private setupDialogsToOpen() {
         const dialogEventGenerator = new CreateHtmlAreaDialogEventGenerator(this.editorParams);
+        const registerDialogCommands = () => {
+            this.editor.addCommand('anchor', {
+                exec: (editor: editor) => {
+                    const selection = editor.getSelection();
+                    const bookmarks = selection ? selection.createBookmarks2(true) : undefined;
 
-        this.editor.addCommand('anchor', {
-            exec: (editor: editor) => {
-                const selection = editor.getSelection();
-                const bookmarks = selection ? selection.createBookmarks2(true) : undefined;
+                    dialogEventGenerator.generateAnchorEventAndFire({editor, bookmarks});
 
-                dialogEventGenerator.generateAnchorEventAndFire({editor, bookmarks});
+                    return true;
+                }
+            });
 
-                return true;
-            }
-        });
+            this.editor.addCommand('openMacroDialog', {
+                exec: (editor, data) => {
+                    dialogEventGenerator.generateMacroEventAndFire({editor: editor, macro: data});
+                    return true;
+                }
+            });
+
+            this.editor.addCommand('openFullscreenDialog', {
+                exec: (editor: editor) => {
+                    if (this.editorParams.isFullScreenMode()) {
+                        editor.fire('closeFullscreenDialog');
+                        return;
+                    }
+
+                    const config: FullScreenDialogParams = {
+                        editor: editor,
+                        editorParams: this.editorParams,
+                        cursorPosition: this.getCursorPosition()
+                    };
+
+                    dialogEventGenerator.generateFullScreenEventAndFire(config);
+                    return true;
+                }
+            });
+
+            this.editor.addCommand('sourcedialog', {
+                exec: (editor: editor) => {
+                    const config: CodeDialogParams = {
+                        editor,
+                        initialValue: editor.getData(),
+                    };
+
+                    dialogEventGenerator.generateCodeEventAndFire(config);
+                    return true;
+                }
+            });
+
+            this.editor.addCommand('specialchar', {
+                exec: (editor: editor) => {
+                    dialogEventGenerator.generateSpecialCharEventAndFire({editor});
+                    return true;
+                }
+            });
+
+            this.editor.addCommand('table', {
+                modes: {wysiwyg: 1},
+                canUndo: false,
+                exec: (editor: editor) => {
+                    dialogEventGenerator.generateTableQuicktableEventAndFire({editor});
+                    return true;
+                }
+            });
+        };
+
+        registerDialogCommands();
+        this.editor.on('instanceReady', registerDialogCommands, null, null, 9999);
 
         this.editor.on('doubleclick', (event: eventInfo) => {
             if (event.data.dialog !== 'anchor') {
@@ -635,59 +692,6 @@ export class HtmlEditor {
             event.data.dialog = null;
             this.editor.execCommand('anchor');
         }, null, null, 30);
-
-        this.editor.addCommand('openMacroDialog', {
-            exec: (editor, data) => {
-                dialogEventGenerator.generateMacroEventAndFire({editor: editor, macro: data});
-                return true;
-            }
-        });
-
-        this.editor.addCommand('openFullscreenDialog', {
-            exec: (editor: editor) => {
-                if (this.editorParams.isFullScreenMode()) {
-                    editor.fire('closeFullscreenDialog');
-                    return;
-                }
-
-                const config: FullScreenDialogParams = {
-                    editor: editor,
-                    editorParams: this.editorParams,
-                    cursorPosition: this.getCursorPosition()
-                };
-
-                dialogEventGenerator.generateFullScreenEventAndFire(config);
-                return true;
-            }
-        });
-
-        this.editor.addCommand('sourcedialog', {
-            exec: (editor: editor) => {
-                const config: CodeDialogParams = {
-                    editor,
-                    initialValue: editor.getData(),
-                };
-
-                dialogEventGenerator.generateCodeEventAndFire(config);
-                return true;
-            }
-        });
-
-        this.editor.addCommand('specialchar', {
-            exec: (editor: editor) => {
-                dialogEventGenerator.generateSpecialCharEventAndFire({editor});
-                return true;
-            }
-        });
-
-        this.editor.addCommand('table', {
-            modes: {wysiwyg: 1},
-            canUndo: false,
-            exec: (editor: editor) => {
-                dialogEventGenerator.generateTableQuicktableEventAndFire({editor});
-                return true;
-            }
-        });
 
         this.editor.ui.addButton('Fullscreen', {
             label: 'Fullscreen',
