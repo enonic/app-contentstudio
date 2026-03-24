@@ -37,7 +37,7 @@ Start ui-tests on your local environment:
     ],```
 
 5. go to `app-contentstudio` and run the command:
-    ```gradlew w_testInputTypesLocal```  run ui-tests for Input Types
+    ```gradlew testInputTypesLocal```  run ui-tests for Input Types
 
 6. If you want to see how tests are executed in the browser, then remove ``headless`` option in `wdio.input_types.chrome.conf.js`
 
@@ -51,23 +51,23 @@ Start ui-tests on your local environment:
             ]
 ```
 
-```gradlew w_testInputTypes_2_Local``` run ui-tests for Input Types(the second part)
-```gradlew w_testModalDialogLocal```   run ui-tests for common modal dialogs
-```gradlew w_testWizardsGridLocal```   run ui-tests for Content Wizard and content grid
-```gradlew w_testPublishIssuesLocal``` run ui-tests for creating issues, requests and Publish wizard
-```gradlew w_testPageEditorLocal```    run ui-tests for Page Editor
-```gradlew w_testProjectsLocal```      run ui-tests for Projects
-```w_testExcludeDependencies```           run ui-tests with `settings.hideDefaultProject=true publishingWizard.excludeDependencies=true` properties
+```gradlew testInputTypes_2_Local``` run ui-tests for Input Types(the second part)
+```gradlew testModalDialogLocal```   run ui-tests for common modal dialogs
+```gradlew testWizardsGridLocal```   run ui-tests for Content Wizard and content grid
+```gradlew testPublishIssuesLocal``` run ui-tests for creating issues, requests and Publish wizard
+```gradlew testPageEditorLocal```    run ui-tests for Page Editor
+```gradlew testProjectsLocal```      run ui-tests for Projects
+```testExcludeDependencies```           run ui-tests with `settings.hideDefaultProject=true publishingWizard.excludeDependencies=true` properties
 
 
 
 Start ui-tests on GitHub environment,  go to `app-contentstudio`:
  All these commands downloads XP distro, unpacks and starts the server(test apps will be copied to the `deploy` folder before the starting)
-```gradlew w_testInputTypes```       run ui-tests for Input Types
-```gradlew w_testInputTypes_2```     run ui-tests for Input Types(the second part)
-```gradlew w_testModalDialog```      run ui-tests common modal dialogs
-```gradlew w_testPageEditor```       run ui-tests for Page Editor
-```gradlew w_testProjects```         run ui-tests for Projects
+```gradlew testInputTypes```       run ui-tests for Input Types
+```gradlew testInputTypes_2```     run ui-tests for Input Types(the second part)
+```gradlew testModalDialog```      run ui-tests common modal dialogs
+```gradlew testPageEditor```       run ui-tests for Page Editor
+```gradlew testProjects```         run ui-tests for Projects
 
 
 Specify all these tests-configs in ``gradle.yml``
@@ -77,7 +77,7 @@ selenium-test:
         strategy:
             fail-fast: false
             matrix:
-                suite: [ w_testProjects, w_testProjects_2, w_testPageEditor, w_testInputTypes, w_testInputTypes_2, w_testWizardsGrid, w_testPublishIssues, w_testModalDialog, w_testExcludeDependencies ]
+                suite: [ testProjects, testProjects_2, testPageEditor, testInputTypes, testInputTypes_2, testWizardsGrid, testPublishIssues, testModalDialog, testExcludeDependencies ]
 ```
 
 Test reports and screenshot you can find in the folder: ```app-contentstudio\testing\build\reports\```

@@ -413,7 +413,7 @@ class ContentWizardPanel extends Page {
 
     async waitForSaveButtonDisabled() {
         try {
-            await this.waitForElementDisabled(this.saveButton, appConst.mediumTimeout);
+            await this.waitForElementDisabled(this.saveButton);
         } catch (err) {
             await this.handleError(`'Save' button should be disabled in the Content Wizard`, 'err_save_button_disabled', err);
         }

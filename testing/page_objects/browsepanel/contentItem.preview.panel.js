@@ -14,8 +14,11 @@ const xpath = {
     issueMenuButton: `//div[contains(@id,'MenuButton')]`,
     showChangesButtonToolbar: "//button[contains(@class,'show-changes') and @title='Show changes']",
     previewNotAvailableSpan: "//div[@class='no-preview-message']//span[text()='Preview not available']",
-    noPreviewMessageSpan: "//div[@class='no-preview-message']//span",
+    noPreviewMessageSpan: "//div[@data-component='PreviewLabel'][.//*[name()='svg' and contains(@class,'lucide-eye-off')]]//span",
     iframe: "//iframe[contains(@src,'contentstudio/site/')]",
+    previewToolbarMenuItem: (optionName) => {
+        return `//div[contains(@id,'PreviewToolbar') and @role='menu']//div[@role='menuitemradio' and descendant::span[text()='${optionName}']]`
+    },
 };
 
 // Browse Panel -> Content Item Preview Panel
@@ -177,7 +180,7 @@ class ContentItemPreviewPanel extends Page {
     async getTextInAttachmentPreview() {
         try {
             let textLocator = '//body/pre';
-            await this.waitForElementDisplayed(textLocator, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(textLocator);
             return await this.getText(textLocator);
         } catch (err) {
             await this.handleError(`Tried to get the text in attachment preview: `, 'err_attachment_preview', err)
@@ -185,9 +188,13 @@ class ContentItemPreviewPanel extends Page {
     }
 
     async getNoPreviewMessage() {
-        let locator = xpath.noPreviewMessageSpan;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getTextInDisplayedElements(locator);
+        try {
+            let locator = xpath.container + xpath.noPreviewMessageSpan;
+            await this.waitForElementDisplayed(locator);
+            return await this.getTextInDisplayedElements(locator);
+        }catch(err){
+            await this.handleError(`Tried to get the 'No preview available' message in Preview Panel: `, 'err_no_preview_msg', err)
+        }
     }
 
     async get500ErrorText() {
@@ -252,7 +259,7 @@ class ContentItemPreviewPanel extends Page {
             await this.waitForPreviewWidgetDropdownDisplayed();
             await this.clickOnElement(this.previewWidgetDropdown);
             let optionSelector = xpath.previewToolbarMenuItem(optionName);
-            await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(optionSelector);
             await this.clickOnElement(optionSelector);
             await this.pause(200);
         } catch (err) {

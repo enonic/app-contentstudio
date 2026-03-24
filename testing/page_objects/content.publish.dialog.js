@@ -5,6 +5,7 @@ const {BUTTONS, DIALOG_ITEMS, COMMON, LIVE_VIEW, WIZARD} = require('../libs/elem
 const DateTimeRange = require('../page_objects/components/datetime.range');
 const DependantsControls = require('./issue/dependant.controls');
 const DateTimePickerPopup = require('../page_objects/wizardpanel/time/date.time.picker.popup');
+const DiffStatusBadge = require('./components/diff.status.badge');
 
 const XPATH = {
     container: "//div[contains(@role,'dialog') and descendant::h2[contains(.,'Publishing Wizard')]]",
@@ -94,7 +95,7 @@ class ContentPublishDialog extends Page {
     }
 
     get markAsReadyButton() {
-        return XPATH.container + XPATH.inProgressStateEntryDiv + BUTTONS.button('Mark as ready');
+        return XPATH.container + XPATH.inProgressStateEntryDiv + BUTTONS.buttonByLabel('Mark as ready');
     }
 
     // Invalid item(s) Exclude button:
@@ -225,7 +226,7 @@ class ContentPublishDialog extends Page {
 
     async waitForMarkAsReadyButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.markAsReadyButton, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.markAsReadyButton);
         } catch (err) {
             await this.handleError(`Publish Dialog, 'Mark as ready' button should be displayed, `, 'err_mark_as_ready_btn', err);
         }
@@ -382,31 +383,23 @@ class ContentPublishDialog extends Page {
 
     async waitForScheduleButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.scheduleButton, appConst.shortTimeout)
+            return await this.waitForElementDisplayed(this.scheduleButton);
         } catch (err) {
             throw new Error("'Schedule' button should be visible!" + err);
         }
     }
 
-    async getContentStatus(name) {
-        let locator = XPATH.contentStatus(name);
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getText(locator);
+    async getContentStatus(contentName) {
+        const rowXpath = XPATH.container + XPATH.mainItemDivByName(contentName);
+        const diffStatusBadge = new DiffStatusBadge(rowXpath);
+        return await diffStatusBadge.getStatusText();
     }
 
-    async getWorkflowState(displayName) {
-        let xpath = XPATH.contentSummaryByDisplayName(displayName);
-        await this.waitForElementDisplayed(xpath, appConst.mediumTimeout);
-        let result = await this.getAttribute(xpath, 'class');
-        if (result.includes('in-progress')) {
-            return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
-        } else if (result.includes('ready')) {
-            return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
-        } else if (result === 'viewer content-summary-and-compare-status-viewer') {
-            return appConst.WORKFLOW_STATE.PUBLISHED;
-        } else {
-            throw new Error("Error when getting content's state, actual result is:" + result);
-        }
+    async getDependantWorkflowState(contentName) {
+        const rowXpath = XPATH.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV +
+                         DIALOG_ITEMS.contentRowByName(contentName);
+        const diffStatusBadge = new DiffStatusBadge(rowXpath);
+        return await diffStatusBadge.getStatusText();
     }
 
     async typeTextInChangeLog(text) {
@@ -504,19 +497,18 @@ class ContentPublishDialog extends Page {
         }
     }
 
-    // TODO epic-enonic-ui
     async getNumberItemsToPublish() {
         let selector = this.publishNowButton;
-        let number = await this.getText(selector);
-        let startIndex = number.indexOf('(');
+        let text = await this.getText(selector);
+        let startIndex = text.indexOf('(');
         if (startIndex === -1) {
-            throw new Error(`Content Publish Dialog - error when get a number in  'Publish now' button  `);
+            return '';
         }
-        let endIndex = number.indexOf(')');
+        let endIndex = text.indexOf(')');
         if (endIndex === -1) {
-            throw new Error("Content Publish Dialog - error when get a number in  'Publish now' button ");
+            return '';
         }
-        return number.substring(startIndex + 1, endIndex);
+        return text.substring(startIndex + 1, endIndex);
     }
 
     async clickOnCheckboxInDependentItem(displayName) {

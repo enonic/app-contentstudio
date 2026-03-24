@@ -488,6 +488,7 @@ module.exports = Object.freeze({
         MOVED_MODIFIED: 'MOVED, MODIFIED',
     },
     CONTENT_STATUS: {
+        OFFLINE_NEW: 'Offline New',
         OFFLINE: 'Offline',
         ONLINE:'Online',
         UNPUBLISHED: 'Unpublished',
@@ -576,7 +577,7 @@ module.exports = Object.freeze({
     },
     PREVIEW_PANEL_MESSAGE: {
         CAN_NOT_RENDER_NON_MEDIA: 'Can not render non-media content',
-        PREVIEW_NOT_AVAILABLE: 'Preview not available',
+        PREVIEW_NOT_AVAILABLE: 'No preview available',
         CAN_NOT_RENDER_WITH_SITE_ENGINE: 'Can not render with site engine',
         PREVIEW_NOT_AVAILABLE_ADD_APP: 'Please add an application to your site to enable preview'
     },

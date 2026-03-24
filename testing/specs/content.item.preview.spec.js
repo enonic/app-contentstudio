@@ -1,5 +1,5 @@
 /**
- * Created on 22.03.2019.
+ * Created on 22.03.2019. updated 23.03.2026 for epic-enonic-ui
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
