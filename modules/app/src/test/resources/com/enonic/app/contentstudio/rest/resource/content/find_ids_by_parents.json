@@ -1,10 +1,10 @@
 {
   "ids": [
     {
-      "id": "childId1"
+      "id": "child-id-1"
     },
     {
-      "id": "childId2"
+      "id": "child-id-2"
     }
   ]
 }

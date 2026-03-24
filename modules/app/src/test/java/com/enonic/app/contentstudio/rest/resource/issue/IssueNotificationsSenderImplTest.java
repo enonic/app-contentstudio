@@ -283,7 +283,7 @@ public class IssueNotificationsSenderImplTest
 
         final CompareContentResults compareResults = CompareContentResults.create().
             add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "aaa" ) ) ).
-            add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "contentId2" ) ) ).
+            add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "content-id-2" ) ) ).
             build();
 
         when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
@@ -332,7 +332,7 @@ public class IssueNotificationsSenderImplTest
 
         final CompareContentResults compareResults = CompareContentResults.create().
             add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "aaa" ) ) ).
-            add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "contentId2" ) ) ).
+            add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "content-id-2" ) ) ).
             build();
 
         when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
@@ -380,7 +380,7 @@ public class IssueNotificationsSenderImplTest
 
         final CompareContentResults compareResults = CompareContentResults.create().
             add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "aaa" ) ) ).
-            add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "contentId2" ) ) ).
+            add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "content-id-2" ) ) ).
             build();
 
         when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
@@ -431,7 +431,7 @@ public class IssueNotificationsSenderImplTest
         final Contents contents = Contents.from( content );
         final CompareContentResults compareResults = CompareContentResults.create().
             add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "aaa" ) ) ).
-            add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "contentId2" ) ) ).
+            add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "content-id-2" ) ) ).
             build();
 
         when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
@@ -480,7 +480,7 @@ public class IssueNotificationsSenderImplTest
         final Contents contents = Contents.from( content );
         final CompareContentResults compareResults = CompareContentResults.create().
             add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "aaa" ) ) ).
-            add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "contentId2" ) ) ).
+            add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "content-id-2" ) ) ).
             build();
 
         when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
@@ -528,7 +528,7 @@ public class IssueNotificationsSenderImplTest
         final Contents contents = Contents.from( content );
         final CompareContentResults compareResults = CompareContentResults.create().
             add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "aaa" ) ) ).
-            add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "contentId2" ) ) ).
+            add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "content-id-2" ) ) ).
             build();
 
         when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
@@ -643,7 +643,7 @@ public class IssueNotificationsSenderImplTest
         final Contents contents = Contents.from( content );
         final CompareContentResults compareResults = CompareContentResults.create().
             add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "aaa" ) ) ).
-            add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "contentId2" ) ) ).
+            add( new CompareContentResult( CompareStatus.NEW, ContentId.from( "content-id-2" ) ) ).
             build();
 
         when( securityService.getUser( issue.getCreator() ) ).thenReturn( Optional.of( creator ) );
@@ -725,6 +725,7 @@ public class IssueNotificationsSenderImplTest
             text( "Comment One" ).
             creator( creator ).
             creatorDisplayName( "Creator" ).
+            created( Instant.now() ).
             build();
         return List.of( comment );
     }

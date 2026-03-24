@@ -3,41 +3,41 @@
   "containsNotReady": false,
   "dependentContents": [
     {
-      "id": "dependant-contentId"
+      "id": "dependant-content-id"
     }
   ],
   "invalidContents": [
     {
-      "id": "dependant-contentId"
+      "id": "dependant-content-id"
     }
   ],
     "nextDependentContents": [
         {
-            "id": "next-contentId"
+            "id": "next-content-id"
         }
     ],
     "notFoundOutboundContents": [
         {
-            "id": "next-missing-contentId"
+            "id": "next-missing-content-id"
         }
     ],
   "notPublishableContents" : [
     {
-      "id" : "dependant-contentId"
+      "id" : "dependant-content-id"
     },
     {
-      "id" : "requested-contentId"
+      "id" : "requested-content-id"
     }
   ],
   "notReadyContents": [],
   "requestedContents": [
     {
-      "id": "requested-contentId"
+      "id": "requested-content-id"
     }
   ],
   "requiredContents": [
     {
-      "id": "required-contentId"
+      "id": "required-content-id"
     }
   ],
     "somePublishable": true

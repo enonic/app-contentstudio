@@ -68,8 +68,8 @@ public class ContentQueryJsonToContentQueryConverterTest
     public void testOutboundContentIdsQuery()
     {
         final PropertyTree data = new PropertyTree();
-        final Content folderRefContent1 = createContent( "folderRefContent1", data, ContentTypeName.folder() );
-        final Content folderRefContent2 = createContent( "folderRefContent2", data, ContentTypeName.folder() );
+        final Content folderRefContent1 = createContent( "folder-ref-content1", data, ContentTypeName.folder() );
+        final Content folderRefContent2 = createContent( "folder-ref-content2", data, ContentTypeName.folder() );
 
         data.addReference( "myRef1", Reference.from( folderRefContent1.getId().toString() ) );
         data.addReference( "myRef2", Reference.from( folderRefContent2.getId().toString() ) );

@@ -122,8 +122,8 @@ public class MixinsContextResourceTest
 
         when( cmsService.getDescriptor( contentType.getName().getApplicationKey() ) ).thenReturn( cmsDescriptor );
 
-        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
-        when( contentService.getNearestSite( ContentId.from( "contentId" ) ) ).thenReturn( site );
+        when( contentService.getById( ContentId.from( "content-id" ) ) ).thenReturn( content );
+        when( contentService.getNearestSite( ContentId.from( "content-id" ) ) ).thenReturn( site );
 
         when( mixinService.getByNames( MixinNames.from( mixinDescriptor.getName() ) ) ).thenReturn(
             MixinDescriptors.from( mixinDescriptor ) );
@@ -137,7 +137,7 @@ public class MixinsContextResourceTest
             MixinOptions.create().add( new MixinOption( mixinDescriptor, true ) ).build() );
 
         String result = request().path( "cms/default/content/schema/mixins/getContentMixins" ).
-            queryParam( "contentId", "contentId" ).get().getAsString();
+            queryParam( "contentId", "content-id" ).get().getAsString();
 
         assertJson( "get_content_mixins_duplicated_config.json", result );
     }
@@ -160,8 +160,8 @@ public class MixinsContextResourceTest
             .build();
 
         when( cmsService.getDescriptor( contentType.getName().getApplicationKey() ) ).thenReturn( siteDescriptor );
-        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
-        when( contentService.getNearestSite( ContentId.from( "contentId" ) ) ).thenReturn( site );
+        when( contentService.getById( ContentId.from( "content-id" ) ) ).thenReturn( content );
+        when( contentService.getNearestSite( ContentId.from( "content-id" ) ) ).thenReturn( site );
         when( mixinService.getByName( mixinDescriptor1.getName() ) ).thenReturn( mixinDescriptor1 );
         when( mixinService.getByName( mixinDescriptor2.getName() ) ).thenReturn( mixinDescriptor2 );
 
@@ -174,7 +174,7 @@ public class MixinsContextResourceTest
 
         String result =
             request().path( "cms/default/content/schema/mixins/getContentMixins" ).
-                queryParam( "contentId", "contentId" ).get().getAsString();
+                queryParam( "contentId", "content-id" ).get().getAsString();
 
         assertJson( "get_content_mixins.json", result );
     }
@@ -189,8 +189,8 @@ public class MixinsContextResourceTest
         final Site site = createSite( contentType.getName().getApplicationKey() );
 
         when( cmsService.getDescriptor( contentType.getName().getApplicationKey() ) ).thenReturn( null );
-        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
-        when( contentService.getNearestSite( ContentId.from( "contentId" ) ) ).thenReturn( site );
+        when( contentService.getById( ContentId.from( "content-id" ) ) ).thenReturn( content );
+        when( contentService.getNearestSite( ContentId.from( "content-id" ) ) ).thenReturn( site );
         when( mixinService.getByName( mixinDescriptor1.getName() ) ).thenReturn( mixinDescriptor1 );
 
         when( siteConfigService.getSiteConfigs( any() ) ).thenReturn( SiteConfigs.from(
@@ -200,7 +200,7 @@ public class MixinsContextResourceTest
 
         String result =
             request().path( "cms/default/content/schema/mixins/getContentMixins" ).
-                queryParam( "contentId", "contentId" ).get().getAsString();
+                queryParam( "contentId", "content-id" ).get().getAsString();
 
         assertJson( "get_content_mixins_no_site_descriptor.json", result );
     }
@@ -232,7 +232,7 @@ public class MixinsContextResourceTest
 
         when( cmsService.getDescriptor( ApplicationKey.from( "myapplication" ) ) ).thenReturn( cmsDescriptor );
 
-        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( content );
+        when( contentService.getById( ContentId.from( "content-id" ) ) ).thenReturn( content );
 
         when( mixinService.getByNames( MixinNames.from( descriptor1.getName() ) ) ).thenReturn( MixinDescriptors.from( descriptor1 ) );
         when( mixinService.getByNames( MixinNames.from( descriptor2.getName() ) ) ).thenReturn( MixinDescriptors.from( descriptor2 ) );
@@ -250,7 +250,7 @@ public class MixinsContextResourceTest
             .repositoryId( project.getName().getRepoId() )
             .build()
             .callWith( () -> request().path( "cms/myproject1/content/schema/mixins/getContentMixins" )
-                .queryParam( "contentId", "contentId" )
+                .queryParam( "contentId", "content-id" )
                 .get()
                 .getAsString() );
 
@@ -385,7 +385,7 @@ public class MixinsContextResourceTest
         when( content.getType() ).thenReturn( contentTypeName );
         when( content.getName() ).thenReturn( ContentName.from( "content1" ) );
         when( content.getPath() ).thenReturn( ContentPath.from( ContentPath.ROOT, "content1" ) );
-        when( content.getId() ).thenReturn( ContentId.from( "contentId" ) );
+        when( content.getId() ).thenReturn( ContentId.from( "content-id" ) );
         return content;
     }
 
