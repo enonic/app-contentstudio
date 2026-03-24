@@ -3,7 +3,9 @@
 import type {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import type {Value} from '@enonic/lib-admin-ui/data/Value';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
+import {FieldError} from '@enonic/lib-admin-ui/form2/components/field-error';
 import type {InputTypeComponentProps} from '@enonic/lib-admin-ui/form2/types';
+import {getFirstError} from '@enonic/lib-admin-ui/form2/utils/validation';
 import {cn} from '@enonic/ui';
 import {useCKEditor} from 'ckeditor4-react';
 import {useEffect, useRef, useState, type JSX} from 'react';
@@ -246,7 +248,7 @@ const CKEditorWrapper = ({
             'html-area rounded-sm *:rounded-sm transition-highlight',
             focused && 'ring-3 ring-offset-3 ring-offset-ring-offset',
             focused && (hasError ? 'ring-error' : 'ring-ring'),
-            hasError && 'has-error',
+            hasError && 'has-error [&_.cke_chrome]:!border-error',
         )}>
             <textarea
                 className="hidden invisible"
@@ -308,20 +310,23 @@ export const HtmlAreaInput = ({
     }
 
     return (
-        <CKEditorWrapper
-            editorConfig={editorConfig}
-            editorId={editorId}
-            previewContent={previewContent}
-            stringValue={stringValue}
-            onChange={onChange}
-            onBlur={onBlur}
-            enabled={enabled}
-            contentSummary={contentSummary}
-            project={project}
-            applicationKeys={applicationKeys}
-            assetsUri={assetsUri}
-            hasError={hasError}
-        />
+        <>
+            <CKEditorWrapper
+                editorConfig={editorConfig}
+                editorId={editorId}
+                previewContent={previewContent}
+                stringValue={stringValue}
+                onChange={onChange}
+                onBlur={onBlur}
+                enabled={enabled}
+                contentSummary={contentSummary}
+                project={project}
+                applicationKeys={applicationKeys}
+                assetsUri={assetsUri}
+                hasError={hasError}
+            />
+            <FieldError message={getFirstError(errors)} />
+        </>
     );
 };
 
