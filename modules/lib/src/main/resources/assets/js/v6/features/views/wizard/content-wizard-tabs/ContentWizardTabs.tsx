@@ -1,6 +1,6 @@
 import {Tab} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {type ReactElement} from 'react';
+import {type ReactElement, useEffect, useState} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {
     $contentTypeDisplayName,
@@ -29,12 +29,21 @@ export const ContentWizardTabs = ({tabListAction}: ContentWizardTabsProps): Reac
     const xDataTabs = useStore($mixinsTabs);
     const pageTabLabel = useI18n('field.page');
 
+    const [activeTab, setActiveTab] = useState('content');
+
+    useEffect(() => {
+        const validTabs = ['content', ...(hasPage ? ['page'] : []), ...xDataTabs.map((tab) => tab.name)];
+        if (!validTabs.includes(activeTab)) {
+            setActiveTab('content');
+        }
+    }, [hasPage, xDataTabs, activeTab]);
+
     if (!isExpanded) {
         return <CollapsedFormPanel data-component={CONTENT_WIZARD_TABS_NAME} displayName={displayName || contentTypeDisplayName} />;
     }
 
     return (
-        <Tab.Root data-component={CONTENT_WIZARD_TABS_NAME} defaultValue="content" className="flex flex-col gap-7.5">
+        <Tab.Root data-component={CONTENT_WIZARD_TABS_NAME} value={activeTab} onValueChange={setActiveTab} className="flex flex-col gap-7.5">
             <div className="flex items-center gap-1.5">
                 <Tab.ListOverflow className="min-w-0 flex-1">
                     <Tab.List>
