@@ -620,6 +620,53 @@ $wizardDraftData.subscribe((tree) => {
     }
 });
 
+// Extract app keys currently selected in site config from draft data.
+const $siteConfigAppKeys = computed(
+    [$wizardDraftData, $wizardDataVersion],
+    (data): Set<string> => {
+        const keys = new Set<string>();
+        if (!data) return keys;
+
+        const configs = data.getPropertySets(SITE_CONFIG_PROP);
+        for (const config of configs) {
+            const key = config.getString(APPLICATION_KEY_PROP);
+            if (key) {
+                keys.add(key);
+            }
+        }
+        return keys;
+    },
+);
+
+// When an app is removed from site config, drop its mixin descriptors and data.
+let previousAppKeys = new Set<string>();
+
+$siteConfigAppKeys.subscribe((currentKeys) => {
+    for (const key of previousAppKeys) {
+        if (!currentKeys.has(key)) {
+            const descriptors = $mixinsDescriptors.get();
+            const filtered = descriptors.filter(d => d.getMixinName().getApplicationKey().toString() !== key);
+
+            if (filtered.length !== descriptors.length) {
+                const removedNames = new Set(
+                    descriptors
+                        .filter(d => d.getMixinName().getApplicationKey().toString() === key)
+                        .map(d => d.getName()),
+                );
+
+                $mixinsDescriptors.set(filtered);
+
+                const currentMixins = $wizardDraftMixins.get();
+                const filteredMixins = currentMixins.filter(m => !removedNames.has(m.getName().toString()));
+                if (filteredMixins.length !== currentMixins.length) {
+                    $wizardDraftMixins.set(filteredMixins);
+                }
+            }
+        }
+    }
+    previousAppKeys = currentKeys;
+});
+
 export function resetWizardContent(): void {
     $wizardPersistedDisplayName.set('');
     $wizardDraftDisplayName.set('');
