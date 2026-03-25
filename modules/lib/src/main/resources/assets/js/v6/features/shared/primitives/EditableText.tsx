@@ -39,6 +39,7 @@ export type EditableTextProps = {
     onEditingChange?: (isEditing: boolean) => void;
     allowEmpty?: boolean;
     fullWidth?: boolean;
+    error?: boolean;
 } & VariantProps<typeof editableTextVariants>
     & Omit<ComponentPropsWithoutRef<'input'>, 'value' | 'onChange' | 'type' | 'size'>;
 
@@ -56,6 +57,7 @@ export const EditableText = forwardRef<HTMLInputElement, EditableTextProps>(({
     allowEmpty = true,
     size,
     fullWidth = false,
+    error,
     className,
     onFocus,
     onBlur,
@@ -198,6 +200,7 @@ export const EditableText = forwardRef<HTMLInputElement, EditableTextProps>(({
                 type="text"
                 value={draft}
                 placeholder={placeholder}
+                aria-invalid={error || undefined}
                 onChange={(e) => {
                     const nextValue = e.currentTarget.value;
                     setDraft(nextValue);
@@ -212,6 +215,7 @@ export const EditableText = forwardRef<HTMLInputElement, EditableTextProps>(({
                     fullWidth ? 'w-full' : 'min-w-6 max-w-full',
                     !isFocused && !fullWidth && 'truncate',
                     className,
+                    error && 'focus:ring-error',
                 )}
                 {...props}
             />
