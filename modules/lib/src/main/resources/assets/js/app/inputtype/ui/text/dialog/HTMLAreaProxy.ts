@@ -6,7 +6,6 @@ import {AnchorModalDialog} from './AnchorModalDialog';
 import {BulletedListModalDialog} from './BulletedListModalDialog';
 import {CodeDialog} from './CodeDialog';
 import {FullscreenDialog} from './FullscreenDialog';
-import {ImageModalDialog} from './image/ImageModalDialog';
 import {LinkModalDialog} from './LinkModalDialog';
 import {MacroModalDialog} from './MacroModalDialog';
 import {type ModalDialog} from './ModalDialog';
@@ -17,12 +16,10 @@ import eventInfo = CKEDITOR.eventInfo;
 
 export class HTMLAreaProxy {
 
-    static createAndOpenDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
+    static createAndOpenDialog(event: CreateHtmlAreaDialogEvent): ModalDialog | null {
         switch (event.getType()) {
         case HtmlAreaDialogType.ANCHOR:
             return HTMLAreaProxy.openAnchorDialog(event);
-        case HtmlAreaDialogType.IMAGE:
-            return HTMLAreaProxy.openImageDialog(event as CreateHtmlAreaContentDialogEvent);
         case HtmlAreaDialogType.LINK:
             return HTMLAreaProxy.openLinkDialog(event as CreateHtmlAreaContentDialogEvent);
         case HtmlAreaDialogType.MACRO:
@@ -44,10 +41,6 @@ export class HTMLAreaProxy {
 
     private static openLinkDialog(event: CreateHtmlAreaContentDialogEvent): ModalDialog {
         return HTMLAreaProxy.openDialog(new LinkModalDialog(event.getConfig() as eventInfo, event.getContent(), event.getProject()));
-    }
-
-    private static openImageDialog(event: CreateHtmlAreaContentDialogEvent): ModalDialog {
-        return HTMLAreaProxy.openDialog(new ImageModalDialog(event.getConfig() as eventInfo, event.getContent(), event.getProject()));
     }
 
     private static openAnchorDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {

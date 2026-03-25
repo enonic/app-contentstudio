@@ -36,7 +36,7 @@ export const SelectorSelectionItem = ({
     const isRemoved = [CompareStatus.UNKNOWN, CompareStatus.ARCHIVED].includes(content.getCompareStatus());
 
     const handleEdit = useCallback(() => {
-        new EditContentEvent([content], project as Project).fire();
+        new EditContentEvent([content], project).fire();
     }, [content, project]);
 
     const handleRemove = useCallback(() => {

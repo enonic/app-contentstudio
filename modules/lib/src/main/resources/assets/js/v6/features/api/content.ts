@@ -1,4 +1,7 @@
+import {ResultAsync} from 'neverthrow';
+import {type Content} from '../../../app/content/Content';
 import {type ContentId} from '../../../app/content/ContentId';
+import {type ContentJson} from '../../../app/content/ContentJson';
 import {CompareStatus} from '../../../app/content/CompareStatus';
 import {ContentSummary} from '../../../app/content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
@@ -6,6 +9,8 @@ import {type ContentSummaryJson} from '../../../app/content/ContentSummaryJson';
 import {PublishStatus} from '../../../app/publish/PublishStatus';
 import {type CompareContentResultJson} from '../../../app/resource/json/CompareContentResultJson';
 import {type ListContentResult} from '../../../app/resource/ListContentResult';
+import {parseContent} from './details';
+import {AppError} from './errors';
 import {getCmsApiUrl} from '../utils/url/cms';
 
 type CompareContentResultsJson = {
@@ -73,6 +78,21 @@ async function compareContent(contentIds: string[]): Promise<Map<string, {compar
     }
 
     return resultMap;
+}
+
+export function fetchContentById(contentId: string, projectName?: string): ResultAsync<Content, AppError> {
+    const url = `${getCmsApiUrl('', projectName)}?id=${encodeURIComponent(contentId)}`;
+
+    return ResultAsync.fromPromise(
+        fetch(url).then(async (response) => {
+            if (!response.ok) {
+                throw new AppError(response.statusText);
+            }
+            const json: ContentJson = await response.json();
+            return parseContent(json);
+        }),
+        (error): AppError => error instanceof AppError ? error : new AppError(String(error)),
+    );
 }
 
 export async function fetchContentSummariesWithStatus(contentIds: ContentId[]): Promise<ContentSummaryAndCompareStatus[]> {
