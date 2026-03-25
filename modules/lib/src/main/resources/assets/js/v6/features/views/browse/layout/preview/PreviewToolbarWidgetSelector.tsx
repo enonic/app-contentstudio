@@ -10,7 +10,7 @@ import {$activeWidget, $liveViewWidgets, setActiveWidget} from '../../../../stor
 const COMPONENT_NAME = 'PreviewToolbarWidgetSelector';
 
 function getWidgetKey(widget: Extension): string {
-    return widget.getDescriptorKey().toString();
+    return widget?.getDescriptorKey().toString();
 }
 
 export const PreviewToolbarWidgetSelector = (): ReactElement => {
