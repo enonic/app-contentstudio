@@ -22,7 +22,7 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
     it(`WHEN do right click on an existing folder(New) THEN expected menu items should be shown`,
         async () => {
             let displayName = contentBuilder.generateRandomName('folder');
-            TEST_FOLDER_1 = contentBuilder.buildFolder(displayName, null);
+            TEST_FOLDER_1 = contentBuilder.buildFolder(displayName);
             await studioUtils.doAddReadyFolder(TEST_FOLDER_1);
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select an existing folder:
@@ -47,7 +47,7 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('folder');
-            TEST_FOLDER_2 = contentBuilder.buildFolder(displayName, null);
+            TEST_FOLDER_2 = contentBuilder.buildFolder(displayName);
             await studioUtils.doAddFolder(TEST_FOLDER_2);
             // 1. Select 2 folders:
             await studioUtils.findContentAndClickCheckBox(TEST_FOLDER_2.displayName);

@@ -11,19 +11,22 @@ const xpath = {
     container: `//div[@data-component='EditPropertiesDialog']`,
     dialogTitle: "//div[contains(@id,'EditDetailsDialogHeader') and child::h2[@class='title']]",
     removeLanguageButton: `//div[@data-component="LanguageSelector"]/..//div[@role="grid"]//button[@type="button"]`,
+    removeOwnerButton: `//div[@data-component="PrincipalSelector"]/..//div[@role="grid"]//button[@type="button"]`,
     ownerCombobox: `//div[contains(@id,'PrincipalComboBox')]`,
-    selectedOwner: `//div[contains(@class,'selected-options principal-selected-options-view')]`,
-    languageSelectedOption: "//div[contains(@id,'LocaleSelectedOptionView')]",
-    ownerSelectedOption: "//div[contains(@id,'PrincipalSelectedOptionView')]",
-    removedPrincipal: "//div[contains(@id,'RemovedPrincipalSelectedOptionView')]",
+    // span with language display text — aria-hidden ancestor excludes the flag icon
+    languageSelectedText: `//div[@data-component='LanguageSelector']/..//div[@role='grid']//span[not(ancestor::*[@aria-hidden='true'])]`,
+    // grid row — used for waitForSelectedLanguageNotDisplayed after removal
+    languageGridRow: `//div[@data-component='LanguageSelector']/..//div[@role='grid']//div[@role='row']`,
+    // display-name span inside ItemLabel — leading-5.5 distinguishes it from the "SU" avatar span (text-xs)
+    ownerDisplayName: `//div[@data-component='PrincipalSelector']/..//div[@role='grid']//span[contains(@class,'leading-5.5')]`,
     scheduleForm: `//div[contains(@id,'ScheduleWizardStepForm')]`,
 };
 
 // Language and owner properties
 class EditPropertiesDialog extends Page {
 
-    get cancelButton() {
-        return xpath.container + BUTTONS.buttonAriaLabel('Cancel');
+    get closeButton() {
+        return xpath.container + BUTTONS.buttonAriaLabel('Close');
     }
 
     get applyButton() {
@@ -40,12 +43,12 @@ class EditPropertiesDialog extends Page {
     }
 
     get removeOwnerButton() {
-        return xpath.container + xpath.ownerSelectedOption + lib.REMOVE_ICON;
+        return xpath.container + xpath.removeOwnerButton;
     }
 
-    async clickOnCancelButton() {
-        await this.waitForElementDisplayed(this.cancelButton, appConst.mediumTimeout);
-        await this.clickOnElement(this.cancelButton);
+    async clickOnCloseButton() {
+        await this.waitForElementDisplayed(this.closeButton);
+        await this.clickOnElement(this.closeButton);
         await this.pause(300);
     }
 
@@ -70,8 +73,8 @@ class EditPropertiesDialog extends Page {
         }
     }
 
-    waitForClosed() {
-        this.waitForElementNotDisplayed(xpath.container, appConst.mediumTimeout);
+    async waitForClosed() {
+        await this.waitForElementNotDisplayed(xpath.container);
     }
 
     async clickOnApplyButton() {
@@ -79,7 +82,7 @@ class EditPropertiesDialog extends Page {
         await this.waitForApplyButtonEnabled();
         await this.clickOnElement(this.applyButton);
         await this.waitForClosed();
-        return await this.pause(200);
+        return await this.pause(700);
     }
 
     async filterOptionsAndSelectLanguage(language) {
@@ -103,7 +106,7 @@ class EditPropertiesDialog extends Page {
 
     async getSelectedLanguage() {
         try {
-            let selector = xpath.container + xpath.languageSelectedOption + lib.H6_DISPLAY_NAME;
+            let selector = xpath.container + xpath.languageSelectedText;
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getText(selector);
         } catch (err) {
@@ -112,18 +115,13 @@ class EditPropertiesDialog extends Page {
     }
 
     waitForSelectedLanguageNotDisplayed() {
-        let selector = xpath.container + xpath.languageSelectedOption + lib.H6_DISPLAY_NAME;
+        let selector = xpath.container + xpath.languageGridRow;
         return this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
     }
 
-    getSelectedOwner() {
-        let selector = xpath.container + xpath.selectedOwner + lib.H6_DISPLAY_NAME;
+    async getSelectedOwner() {
+        let selector = xpath.container + xpath.ownerDisplayName;
         return this.getText(selector);
-    }
-
-    async waitForOwnerRemoved() {
-        await this.waitForElementDisplayed(xpath.removedPrincipal, appConst.mediumTimeout);
-        return await this.getText(xpath.removedPrincipal + lib.P_SUB_NAME);
     }
 
     async clickOnRemoveLanguage() {

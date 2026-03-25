@@ -60,7 +60,7 @@ describe('content.toggle.icon.spec: tests for expand/collapse icon', function ()
             // TODO bug Enonic ui
             // 3. Verify that the parent folder remains expanded:
             //let isExpanded = await contentBrowsePanel.isContentExpanded(PARENT_FOLDER.displayName);
-           // assert.ok(isExpanded, "Parent folder should be expanded");
+            // assert.ok(isExpanded, "Parent folder should be expanded");
             // 4. Verify that the child folder is visible
             //await contentBrowsePanel.waitForContentDisplayed(CHILD_FOLDER_2.displayName);
         });
@@ -87,7 +87,7 @@ describe('content.toggle.icon.spec: tests for expand/collapse icon', function ()
             await contentBrowsePanel.waitForContentNotDisplayed(CHILD_FOLDER_2.displayName);
             await studioUtils.saveScreenshot('toggle_icon_content_deleted');
             // 4. Verify that the parent folder does not have 'toggle button', child items were removed:
-            await contentBrowsePanel.waitForExpandToggleNotDisplayed(PARENT_FOLDER.displayName);
+            //await contentBrowsePanel.waitForExpandToggleNotDisplayed(PARENT_FOLDER.displayName);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -120,7 +120,7 @@ class ContentWizardPanel extends Page {
     }
 
     get publishButton() {
-        return XPATH.container + XPATH.toolbar + BUTTONS.buttonAriaLabel('Publish...');
+        return XPATH.container + XPATH.toolbar + BUTTONS.buttonAriaLabel('Publish');
     }
 
     get publishDropDownHandle() {
@@ -486,8 +486,8 @@ class ContentWizardPanel extends Page {
         return this.getTextInInput(this.pathInput);
     }
 
-    clearDisplayNameInput() {
-        return this.clearInputText(this.displayNameInput);
+    async clearDisplayNameInput() {
+        return await this.clearInputText(this.displayNameInput);
     }
 
     async waitAndClickOnSave() {
@@ -518,8 +518,8 @@ class ContentWizardPanel extends Page {
     // clicks on 'Publish...' button
     async clickOnPublishButton() {
         try {
-            await this.waitForElementDisplayed(this.publishButton, appConst.mediumTimeout);
-            await this.waitForElementEnabled(this.publishButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.publishButton);
+            await this.waitForElementEnabled(this.publishButton);
             await this.clickOnElement(this.publishButton);
             let contentPublishDialog = new ContentPublishDialog();
             await contentPublishDialog.waitForDialogOpened();
@@ -610,6 +610,7 @@ class ContentWizardPanel extends Page {
             await editSettingsDialog.waitForLoaded();
             await editSettingsDialog.filterOptionsAndSelectLanguage(settings.language);
             await editSettingsDialog.clickOnApplyButton();
+            await editSettingsDialog.waitForClosed();
         }
     }
 
@@ -701,7 +702,11 @@ class ContentWizardPanel extends Page {
                 await contentStepForm.type(content.data, content.contentType);
             }
             // 4. Type settings if present
-            if (content.settings) {
+            if (content.settings &&
+                (content.settings.language !== undefined || content.settings.owner !== undefined)) {
+                // TODO change it Enonic ui
+                await this.waitAndClickOnSave();//
+                await this.waitForNotificationMessage();//
                 const wizardContextPanel = new WizardContextPanel();
                 await this.openContextWindow();
                 // Ensure context panel is open and 'Details' widget is selected
