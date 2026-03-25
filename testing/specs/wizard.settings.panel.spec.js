@@ -61,7 +61,6 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
     // Language field keeps previous search #3950
     it(`WHEN a language has been updated THEN the updated language should be displayed in browse details panel`,
         async () => {
-            let contentWizard = new ContentWizard();
             let detailsWidgetInfoSection = new DetailsWidgetInfoSection();
             // 1. Select the existing folder with En language
             await studioUtils.findAndSelectItem(FOLDER_DISPLAY_NAME);
@@ -71,7 +70,9 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
             await editSettingsDialog.clickOnRemoveLanguage();
             await editSettingsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.DEUTSCH_DE);
             await editSettingsDialog.clickOnApplyButton();
-            await contentWizard.waitForNotificationMessage();
+            await editSettingsDialog.waitForNotificationMessage();
+            await editSettingsDialog.waitForClosed();
+            await editSettingsDialog.removeNotificationMessage();
             await studioUtils.saveScreenshot('language_updated_properties_widget');
             // 3. Verify that expected language should be displayed in Browse Details Panel
             let actualLanguage = await detailsWidgetInfoSection.getLanguage();

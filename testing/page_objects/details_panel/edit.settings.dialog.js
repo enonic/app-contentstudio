@@ -82,7 +82,7 @@ class EditPropertiesDialog extends Page {
         await this.waitForApplyButtonEnabled();
         await this.clickOnElement(this.applyButton);
         await this.waitForClosed();
-        return await this.pause(200);
+        return await this.pause(700);
     }
 
     async filterOptionsAndSelectLanguage(language) {

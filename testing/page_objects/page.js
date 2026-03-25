@@ -336,7 +336,7 @@ class Page {
 
     async removeNotificationMessage() {
         try {
-            let selector = "//div[contains(@id,'NotificationContainer')]//span[contains(@class,'notification-remove')]";
+            let selector = "//div[@class='notification-wrapper']//button[@aria-label='Close notification']";
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
