@@ -18,6 +18,7 @@ import {
     $wizardDataChangedPaths,
     $wizardChangedSections,
     $wizardDraftData,
+    $wizardDraftMixins,
     $wizardHasChanges,
     $wizardSectionChanges,
     initializeWizardContentState,
@@ -513,5 +514,66 @@ describe('wizardContent.store', () => {
 
         toggleContentFormExpanded();
         expect($isContentFormExpanded.get()).toBe(true);
+    });
+
+    it('marks data as changed when draft PropertyTree is mutated in-place', () => {
+        const persistedData = new PropertyTree();
+        persistedData.addString('title', 'Original');
+        initializeWizardContentState(createContent({data: persistedData}), null, [], WorkflowState.IN_PROGRESS);
+
+        const draftData = $wizardDraftData.get();
+        draftData.setStringByPath(PropertyPath.fromString('title'), 'Mutated');
+
+        expect($wizardSectionChanges.get().data).toBe(true);
+        expect($wizardHasChanges.get()).toBe(true);
+    });
+
+    it('marks mixins as changed when mixin PropertyTree is mutated in-place', () => {
+        const descriptor = createMixinDescriptor('app:seo', true);
+        const mixin = new Mixin(new MixinName('app:seo'), new PropertyTree());
+        initializeWizardContentState(createContent({mixins: [mixin]}), null, [descriptor], WorkflowState.IN_PROGRESS);
+
+        const draftMixin = $wizardDraftMixins.get().find((m) => m.getName().toString() === 'app:seo');
+        draftMixin.getData().addString('title', 'SEO Title');
+
+        expect($wizardSectionChanges.get().mixins).toBe(true);
+        expect($wizardHasChanges.get()).toBe(true);
+    });
+
+    it('marks mixins as changed when any of multiple mixin PropertyTrees is mutated in-place', () => {
+        const seoDescriptor = createMixinDescriptor('app:seo', true);
+        const ogDescriptor = createMixinDescriptor('app:og', true);
+        const seoMixin = new Mixin(new MixinName('app:seo'), new PropertyTree());
+        const ogMixin = new Mixin(new MixinName('app:og'), new PropertyTree());
+        initializeWizardContentState(
+            createContent({mixins: [seoMixin, ogMixin]}),
+            null,
+            [seoDescriptor, ogDescriptor],
+            WorkflowState.IN_PROGRESS,
+        );
+
+        const draftOg = $wizardDraftMixins.get().find((m) => m.getName().toString() === 'app:og');
+        draftOg.getData().addString('image', 'og-image.png');
+
+        expect($wizardSectionChanges.get().mixins).toBe(true);
+        expect($wizardChangedSections.get()).toContain('mixins');
+    });
+
+    it('marks mixins as changed when a re-enabled mixin PropertyTree is mutated in-place', () => {
+        const descriptor = createMixinDescriptor('app:seo', true);
+        const mixin = new Mixin(new MixinName('app:seo'), new PropertyTree());
+        initializeWizardContentState(createContent({mixins: [mixin]}), null, [descriptor], WorkflowState.IN_PROGRESS);
+
+        setDraftMixinEnabled('app:seo', false);
+        expect($wizardSectionChanges.get().mixins).toBe(true);
+
+        setDraftMixinEnabled('app:seo', true);
+        expect($wizardSectionChanges.get().mixins).toBe(false);
+
+        const draftMixin = $wizardDraftMixins.get().find((m) => m.getName().toString() === 'app:seo');
+        draftMixin.getData().addString('title', 'SEO Title');
+
+        expect($wizardSectionChanges.get().mixins).toBe(true);
+        expect($wizardHasChanges.get()).toBe(true);
     });
 });

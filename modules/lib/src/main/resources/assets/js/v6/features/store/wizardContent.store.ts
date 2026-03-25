@@ -106,6 +106,8 @@ export const $wizardPersistedMixins = wizardTrackedState.mixins.persisted;
 
 export const $wizardDraftMixins = wizardTrackedState.mixins.draft;
 
+export const $wizardMixinsVersion = atom<number>(0);
+
 export const $wizardPersistedPage = wizardTrackedState.page.persisted;
 
 export const $wizardDraftPage = wizardTrackedState.page.draft;
@@ -150,7 +152,7 @@ const $wizardNameChanged = computed(
 );
 
 const $wizardMixinsChanged = computed(
-    [$wizardPersistedMixins, $wizardDraftMixins],
+    [$wizardPersistedMixins, $wizardDraftMixins, $wizardMixinsVersion],
     (persistedMixins, draftMixins): boolean => !mixinsEqual(persistedMixins, draftMixins),
 );
 
@@ -366,6 +368,10 @@ function bumpDraftDataVersion(): void {
     $wizardDataVersion.set($wizardDataVersion.get() + 1);
 }
 
+function bumpMixinsVersion(): void {
+    $wizardMixinsVersion.set($wizardMixinsVersion.get() + 1);
+}
+
 function cloneMixins(mixins: Mixin[]): Mixin[] {
     return mixins.map((mixin) => mixin.clone());
 }
@@ -431,6 +437,7 @@ function applyPersistedSectionsSnapshot(snapshot: WizardPersistedSectionsSnapsho
 
     $wizardPersistedMixins.set(snapshot.mixins);
     $wizardDraftMixins.set(cloneMixins(snapshot.mixins));
+    $wizardMixinsVersion.set(0);
 
     $wizardPersistedPage.set(snapshot.page);
     $wizardDraftPage.set(clonePage(snapshot.page));
@@ -667,6 +674,25 @@ $siteConfigAppKeys.subscribe((currentKeys) => {
     previousAppKeys = currentKeys;
 });
 
+let cleanupMixinTreeListeners: (() => void)[] = [];
+
+$wizardDraftMixins.subscribe((mixins) => {
+    cleanupMixinTreeListeners.forEach((cleanup) => cleanup());
+    cleanupMixinTreeListeners = [];
+
+    const handler = () => {
+        bumpMixinsVersion();
+    };
+
+    for (const mixin of mixins) {
+        const tree = mixin.getData();
+        if (tree) {
+            tree.onChanged(handler);
+            cleanupMixinTreeListeners.push(() => tree.unChanged(handler));
+        }
+    }
+});
+
 export function resetWizardContent(): void {
     $wizardPersistedDisplayName.set('');
     $wizardDraftDisplayName.set('');
@@ -681,6 +707,7 @@ export function resetWizardContent(): void {
 
     $wizardPersistedMixins.set([]);
     $wizardDraftMixins.set([]);
+    $wizardMixinsVersion.set(0);
 
     $wizardPersistedPage.set(null);
     $wizardDraftPage.set(null);
