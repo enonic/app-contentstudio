@@ -91,12 +91,17 @@ class BrowseFilterPanel extends Page {
     }
 
     async waitForOpened() {
-        await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(XPATH.container);
+        await this.pause(300);
+    }
+
+    async waitForClosed() {
+        await this.waitForElementNotDisplayed(XPATH.container);
         await this.pause(300);
     }
 
     waitForShowMoreButtonDisplayed() {
-        return this.waitForElementDisplayed(this.showMoreButton, appConst.shortTimeout);
+        return this.waitForElementDisplayed(this.showMoreButton);
     }
 
     waitForShowMoreButtonNotDisplayed() {

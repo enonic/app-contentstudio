@@ -25,7 +25,8 @@ const XPATH = {
     highlightedRow: `//div[contains(@class,'checkbox-left selected') and not(contains(@class,'checked')) ]`,
     checkedRowLi: `//div[contains(@class,'checkbox-left selected checked')]`,
     searchButton: "//button[contains(@aria-label, 'search panel')]",
-    hideSearchPanelButton: "//span[contains(@class, 'hide-filter-panel-button')]",
+    hideSearchPanelButton: "//button[contains(@aria-label, 'Hide search panel')]",
+    showSearchPanelButton: "//button[contains(@aria-label, 'Show search panel')]",
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]/button",//'Assigned to Me' or 'Show Issues'
     markAsReadyMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Mark as ready']",
     resetSelectionCheckbox: `//label[child::input[contains(@aria-label,'Reset selection')]]`,
@@ -103,7 +104,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get hideSearchPanelButton() {
-        return "//div[contains(@id,'ContentBrowseFilterPanel')]" + XPATH.hideSearchPanelButton;
+        return XPATH.toolbarDiv + XPATH.hideSearchPanelButton;
+    }
+
+    get showSearchPanelButton() {
+        return XPATH.toolbarDiv + XPATH.showSearchPanelButton;
     }
 
     get contextWindowToggleButton() {
@@ -358,8 +363,21 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async clickOnHideSearchPanelButton() {
-        await this.waitForElementDisplayed(this.hideSearchPanelButton, appConst.mediumTimeout);
-        return await this.clickOnElement(this.hideSearchPanelButton);
+        try {
+            await this.waitForElementDisplayed(this.hideSearchPanelButton);
+            return await this.clickOnElement(this.hideSearchPanelButton);
+        } catch (err) {
+            await this.handleError('Clicked on Hide Search Panel button', 'err_click_hide_search_panel_button', err);
+        }
+    }
+
+    async clickOnShowSearchPanelButton() {
+        try {
+            await this.waitForElementDisplayed(this.showSearchPanelButton);
+            return await this.clickOnElement(this.showSearchPanelButton);
+        } catch (err) {
+            await this.handleError('Clicked on Show Search Panel button', 'err_click_show_search_panel_button', err);
+        }
     }
 
     // clicks on 'Duplicate button' and waits until modal dialog appears
@@ -413,7 +431,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         try {
             await this.waitForHideContextWindowButtonDisplayed();
             await this.clickOnElement(this.hideContextWindowButton);
-        }catch (err){
+        } catch (err) {
             await this.handleError('Clicked on Hide Context Window button', 'err_click_hide_context_window_button', err);
         }
     }
@@ -1109,6 +1127,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.handleError('Clicked on Reset Selection checkbox', 'err_reset_selection_checkbox', err);
         }
     }
+
     async waitForReetSelectionCheckboxNotDisplayed() {
         await this.waitForElementNotDisplayed(this.resetSelectionCheckbox);
     }

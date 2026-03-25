@@ -25,7 +25,7 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             let filterPanel = new FilterPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Open Filter Panel:
-            await contentBrowsePanel.clickOnSearchButton();
+            await contentBrowsePanel.clickOnShowSearchPanelButton();
             await filterPanel.waitForOpened();
             // 2. Verify that Export button is displayed in the filter panel:
             await filterPanel.waitForExportButtonDisplayed();
@@ -41,7 +41,7 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             let filterPanel = new FilterPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
             let confirmationDialog = new ConfirmationDialog();
-            await contentBrowsePanel.clickOnSearchButton();
+            await contentBrowsePanel.clickOnShowSearchPanelButton();
             await filterPanel.waitForOpened();
             // 1. Click on "Executable" checkbox in Filter Panel
             await filterPanel.clickOnCheckboxInContentTypesBlock('Executable');
@@ -58,7 +58,7 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             let filterPanel = new FilterPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
             let confirmationDialog = new ConfirmationDialog();
-            await contentBrowsePanel.clickOnSearchButton();
+            await contentBrowsePanel.clickOnShowSearchPanelButton();
             await filterPanel.waitForOpened();
             // precondition - save the question for the initial grid:
             await filterPanel.clickOnExportButton();
@@ -89,7 +89,7 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             let filterPanel = new FilterPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
             let confirmationDialog = new ConfirmationDialog();
-            await contentBrowsePanel.clickOnSearchButton();
+            await contentBrowsePanel.clickOnShowSearchPanelButton();
             await filterPanel.waitForOpened();
             // 1. Click on "Executable" and 'Document' checkboxes in Filter Panel
             await filterPanel.clickOnCheckboxInContentTypesBlock('Executable');
@@ -107,7 +107,7 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             let filterPanel = new FilterPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
             let confirmationDialog = new ConfirmationDialog();
-            await contentBrowsePanel.clickOnSearchButton();
+            await contentBrowsePanel.clickOnShowSearchPanelButton();
             await filterPanel.waitForOpened();
             // 1. Click on Export button:
             await filterPanel.clickOnExportButton();
@@ -119,6 +119,8 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             await studioUtils.saveScreenshot('export_csv_saved');
             // 4. Verify that 'Export' button remains visible in Filter Panel
             await filterPanel.waitForExportButtonDisplayed();
+            await contentBrowsePanel.clickOnHideSearchPanelButton();
+            await filterPanel.waitForClosed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

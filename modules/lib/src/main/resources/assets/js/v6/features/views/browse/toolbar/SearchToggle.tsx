@@ -18,7 +18,7 @@ export const SearchToggle = ({action, className}: Props): ReactElement => {
 
     const showReachLabel = useI18n('action.search.show');
     const hideReachLabel = useI18n('action.search.hide');
-    const searchLabel = label || (isContentFilterOpen ? showReachLabel : hideReachLabel);
+    const searchLabel = label || (isContentFilterOpen ? hideReachLabel : showReachLabel);
 
     return (
         <Tooltip delay={300} value={searchLabel} asChild>
