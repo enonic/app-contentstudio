@@ -6,7 +6,7 @@ const webDriverHelper = require('../libs/WebDriverHelper');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const appConst = require('../libs/app_const');
-const PropertiesWidget = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
+const DetailsWidgetInfoSection = require('../page_objects/browsepanel/detailspanel/details.widget.info.section');
 
 describe('wizard.setting.panel.spec:  test for Owner and Language selectors', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -28,16 +28,20 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
             assert.equal(actualOwner, appConst.systemUsersDisplayName.SUPER_USER, 'Expected owner should be present');
             // 4. Language filter input should be displayed:
             await editSettingsDialog.waitForLanguageOptionsFilterDisplayed();
+            await editSettingsDialog.clickOnCloseButton();
+            await editSettingsDialog.waitForClosed();
         });
 
     it(`WHEN folder-wizard is opened WHEN a language has been selected THEN the same language should be present in the Wizard Details Panel`,
         async () => {
             let contentWizard = new ContentWizard();
-            let propertiesWidget = new PropertiesWidget();
+            let detailsWidgetInfoSection = new DetailsWidgetInfoSection();
             // 1. Open new folder wizard
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.openContextWindow();
             await contentWizard.typeDisplayName(FOLDER_DISPLAY_NAME);
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
             // 2. Open 'Edit Settings' modal dialog and select the language:
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             // 3. Select the language then click on Apply button and close the dialog:
@@ -46,9 +50,10 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
             await contentWizard.waitForNotificationMessage();
             await contentWizard.pause(300);
             // 4. Click on 'Save' button:
-            await contentWizard.waitAndClickOnSave();
+            // TODO bug in Enonic ui
+            //await contentWizard.waitAndClickOnSave();
             // 3. Verify that expected language should be displayed in Details Panel
-            let actualLanguage = await propertiesWidget.getLanguage();
+            let actualLanguage = await detailsWidgetInfoSection.getLanguage();
             assert.equal(actualLanguage, 'en', 'expected language should be present in the widget');
         });
 
@@ -57,7 +62,7 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
     it(`WHEN a language has been updated THEN the updated language should be displayed in browse details panel`,
         async () => {
             let contentWizard = new ContentWizard();
-            let propertiesWidget = new PropertiesWidget();
+            let detailsWidgetInfoSection = new DetailsWidgetInfoSection();
             // 1. Select the existing folder with En language
             await studioUtils.findAndSelectItem(FOLDER_DISPLAY_NAME);
             // 2. Open 'Edit Settings' modal dialog in Browse Panel:
@@ -69,13 +74,13 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
             await contentWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot('language_updated_properties_widget');
             // 3. Verify that expected language should be displayed in Browse Details Panel
-            let actualLanguage = await propertiesWidget.getLanguage();
+            let actualLanguage = await detailsWidgetInfoSection.getLanguage();
             assert.equal(actualLanguage, 'de', 'expected language should be present in the widget');
         });
 
     it(`WHEN existing folder is opened WHEN the selected language has been removed THEN the language should not be displayed in the properties widget`,
         async () => {
-            let propertiesWidget = new PropertiesWidget();
+            let detailsWidgetInfoSection = new DetailsWidgetInfoSection();
             let contentWizard = new ContentWizard();
             // 1. existing folder is opened:
             await studioUtils.selectAndOpenContentInWizard(FOLDER_DISPLAY_NAME);
@@ -86,25 +91,25 @@ describe('wizard.setting.panel.spec:  test for Owner and Language selectors', fu
             await editSettingsDialog.clickOnRemoveLanguage();
             await editSettingsDialog.clickOnApplyButton();
             // 4. Verify that 'language property' is not displayed in the properties widget now:
-            await propertiesWidget.waitForLanguageNotVisible();
+            await detailsWidgetInfoSection.waitForLanguageNotVisible();
         });
 
     it(`WHEN folder-wizard is opened WHEN the default owner has been removed THEN owner property gets not visible in the property widget`,
         async () => {
             let contentWizard = new ContentWizard();
-            let propertiesWidget = new PropertiesWidget();
+            let detailsWidgetInfoSection = new DetailsWidgetInfoSection();
             // 1. Open wizard for new folder:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             // 2. Verify the owner property in the widget
             await contentWizard.openContextWindow();
-            await propertiesWidget.waitForOwnerDisplayed();
+            await detailsWidgetInfoSection.waitForOwnerDisplayed();
             // 3. default owner has been removed
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             await editSettingsDialog.clickOnRemoveOwner();
             // 4. Click on Apply button:
             await editSettingsDialog.clickOnApplyButton();
             // 5. Verify that 'owner property' is not displayed in the properties-widget now
-            await propertiesWidget.waitForOwnerNotVisible();
+            await detailsWidgetInfoSection.waitForOwnerNotVisible();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

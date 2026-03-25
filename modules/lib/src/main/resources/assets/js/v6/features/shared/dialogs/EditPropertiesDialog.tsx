@@ -85,7 +85,7 @@ export const EditPropertiesDialog = (): ReactElement => {
                     className="sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220 w-full h-full gap-7.5"
                     data-component={EDIT_PROPERTIES_DIALOG_NAME}
                 >
-                    <Dialog.DefaultHeader title={title} description={path} />
+                    <Dialog.DefaultHeader title={title} description={path} withClose />
                     <Dialog.Body className="flex flex-col gap-7.5 p-2 -m-2">
                         {/* Language selector */}
                         <div>
