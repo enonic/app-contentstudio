@@ -4,6 +4,41 @@ const widgetLib = require('/lib/export/widget');
 
 const bean = __.newBean('com.enonic.app.contentstudio.widget.MediaRenderingBean');
 
+// MIME types that browsers can render inline without downloading
+const BROWSER_RENDERABLE_TYPES = [
+    'application/pdf',
+    'application/json',
+    'application/javascript',
+    'application/ecmascript',
+    'video/mp4', 'video/webm', 'video/ogg',
+    'audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/webm', 'audio/aac', 'audio/flac', 'audio/mp4',
+];
+
+// MIME types that should not be previewed despite matching a renderable prefix
+var BROWSER_NON_RENDERABLE_TYPES = [
+    'text/csv',
+];
+
+function isBrowserRenderable(mimeType) {
+    if (!mimeType) {
+        return false;
+    }
+
+    if (BROWSER_NON_RENDERABLE_TYPES.indexOf(mimeType) >= 0) {
+        return false;
+    }
+
+    if (mimeType.indexOf('image/') === 0) {
+        return true;
+    }
+
+    if (mimeType.indexOf('text/') === 0) {
+        return true;
+    }
+
+    return BROWSER_RENDERABLE_TYPES.indexOf(mimeType) >= 0;
+}
+
 exports.get = function (req) {
 
     let params;
@@ -48,9 +83,26 @@ exports.canRender = function (req) {
         const canRender = __.toNativeObject(
             bean.canRender(params.id, params.repository, params.branch, params.archive, params.mode === 'edit'));
 
-        log.debug(`Media [CAN_RENDER]: ${canRender}`);
+        if (!canRender) {
+            log.debug('Media [CAN_RENDER]: false');
+            return false;
+        }
 
-        return canRender;
+        // Images are always browser-renderable, skip MIME type check
+        if (bean.isImageContent(params.type)) {
+            log.debug('Media [CAN_RENDER]: true (image)');
+            return true;
+        }
+
+        // For non-image media, verify the MIME type is browser-renderable
+        const mimeType = __.toNativeObject(
+            bean.resolveMimeType(params.id, params.repository, params.branch, params.archive));
+
+        const renderable = isBrowserRenderable(mimeType);
+
+        log.debug(`Media [CAN_RENDER]: ${renderable} (mimeType: ${mimeType})`);
+
+        return renderable;
     } catch (e) {
         log.error(`Media [CAN_RENDER] error: ${e.message}`);
         return false;

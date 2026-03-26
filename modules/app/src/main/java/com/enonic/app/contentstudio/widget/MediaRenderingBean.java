@@ -95,6 +95,11 @@ public class MediaRenderingBean
         return runInAdminContext( repository, branch, archive, () -> canRenderInContext( contentId, editMode ) );
     }
 
+    public String resolveMimeType( final String contentId, final String repository, final String branch, final boolean archive )
+    {
+        return runInAdminContext( repository, branch, archive, () -> resolveMimeTypeInContext( contentId ) );
+    }
+
     public boolean isImageContent( final String contentType )
     {
         final ContentTypeName name = ContentTypeName.from( contentType );
@@ -153,6 +158,17 @@ public class MediaRenderingBean
             .repositoryId( repository )
             .authInfo( authInfo )
             .build().callWith( func );
+    }
+
+    private String resolveMimeTypeInContext( final String contentId )
+    {
+        final Content content = contentServiceSupplier.get().getById( ContentId.from( contentId ) );
+        if ( content == null )
+        {
+            return null;
+        }
+        final Attachment attachment = resolveAttachment( null, content );
+        return attachment != null ? attachment.getMimeType() : null;
     }
 
     private boolean canRenderInContext( final String contentId, final boolean editMode )
