@@ -27,7 +27,6 @@ describe('Browse panel, properties widget, language spec', function () {
     it(`WHEN existing image has been selected THEN expected properties should be displayed in the Widget Info Section`,
         async () => {
             let detailsWidgetInfoSection = new DetailsWidgetInfoSection();
-            let editSettingsDialog = new EditSettingDialog();
             // 1. Select an image:
             await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.WHALE);
             await studioUtils.saveScreenshot('details_panel_media_content');

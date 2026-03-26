@@ -31,14 +31,13 @@ describe('hidden.schedule.icon.spec:  tests for archiving content', function () 
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             await contentWizard.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
-            await contentPublishDialog.waitForAddScheduleIconDisplayed();
+            await contentPublishDialog.waitForScheduleButtonDisplayed();
             await contentPublishDialog.clickOnPublishNowButton();
             await contentPublishDialog.waitForDialogClosed();
         });
 
     it(`WHEN a language has been selected for the 'published' folder THEN 'Unpublish' button remains visible in the wizard toolbar, only metadata was updated`,
         async () => {
-            let contentPublishDialog = new ContentPublishDialog();
             let contentWizard = new ContentWizard();
             // 1. Open the published folder:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
@@ -62,6 +61,7 @@ describe('hidden.schedule.icon.spec:  tests for archiving content', function () 
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             await contentWizard.openContextWindow();
             // 2. Update the display name:
+            await contentWizard.clearDisplayNameInput();
             await contentWizard.typeDisplayName(NEW_DISPLAY_NAME);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -69,7 +69,8 @@ describe('hidden.schedule.icon.spec:  tests for archiving content', function () 
             await contentWizard.clickOnMarkAsReadyButton();
             // 4. Verify that calendar-icon is not displayed in the Publish dialog:
             await contentPublishDialog.waitForDialogOpened();
-            await contentPublishDialog.waitForAddScheduleIconNotDisplayed();
+            // TODO bug Enonic ui -
+            await contentPublishDialog.waitForScheduleButtonNotDisplayed();
         });
 
     it(`Precondition: Ready to publish child folder has been added`,

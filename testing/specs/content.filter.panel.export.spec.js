@@ -9,7 +9,7 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const FilterPanel = require("../page_objects/browsepanel/content.filter.panel");
 const ConfirmationDialog = require('../page_objects/confirmation.dialog');
 
-describe('content.filter.panel.spec: tests for filter panel', function () {
+describe('content.filter.panel.export.spec: tests for Export button in filter panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();

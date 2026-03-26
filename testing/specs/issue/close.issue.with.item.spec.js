@@ -1,5 +1,5 @@
 /**
- * Created on 13.07.2018.
+ * Created on 13.07.2018. updated on 25.03.2026
  */
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');

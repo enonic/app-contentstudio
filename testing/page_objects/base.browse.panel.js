@@ -14,11 +14,6 @@ const XPATH = {
 
 class BaseBrowsePanel extends Page {
 
-    //refresh the grid:
-    async clickOnRefreshButton() {
-        await this.clickOnElement(this.refreshButton);
-        return await this.pause(1000);
-    }
 
     async waitForGridLoaded(ms) {
         try {

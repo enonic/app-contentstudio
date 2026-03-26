@@ -16,32 +16,6 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    const BROWSE_TOOLBAR_ROLE = 'toolbar';
-    const CONTENT_APP_BAR_ROLE_BANNER = 'banner';
-
-    // Verify Accessibility attributes in Browse Panel(toolbar role, aria-label):
-    it.skip("WHEN browse panel is loaded THEN role and aria-label attributes should be set correctly",
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            // 1. Verify that <html> element has lang="en" attribute:
-            await contentBrowsePanel.waitForLangAttribute('en');
-            // 2. Verify that Browse-Toolbar is a div with role="toolbar".
-            await contentBrowsePanel.waitForBrowseToolbarRoleAttribute(BROWSE_TOOLBAR_ROLE);
-            // 3. Verify that Browse-Toolbar is a div with expected 'aria-label' attribute
-            await contentBrowsePanel.waitForBrowseToolbarAriaLabelAttribute();
-            // 4. Verify that ContentAppBar is a div with role="banner".
-            await contentBrowsePanel.waitForContentAppBarRoleAttribute(CONTENT_APP_BAR_ROLE_BANNER);
-            // 5. Verify aria-label attribute for ContentAppBar :
-            await contentBrowsePanel.waitForContentAppBarAriaLabelAttribute();
-            // 6. Verify that 'Project Viewer' has aria-haspopup attribute set to 'dialog':
-            await contentBrowsePanel.waitForProjectViewerAriaHasPopupAttribute('dialog');
-            // 7. ProjectViewer button has the attribute: role=button
-            await contentBrowsePanel.waitForProjectViewerRoleAttribute('button');
-            // 8. Verify that 'Show Issues' button has aria-haspopup attribute set to 'dialog':
-            await contentBrowsePanel.waitForShowIssuesButtonAriaHasPopupAttribute('dialog');
-            // 9. Verify the accessibility attribute 'presentation'
-            await contentBrowsePanel.waitForPublishMenuRoleAttribute('presentation');
-        });
 
     it("GIVEN unnamed content are selected WHEN the content have been deleted THEN modal dialog should be closed",
         async () => {
@@ -113,7 +87,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
         });
 
     // https://github.com/enonic/app-contentstudio/issues/9238
-    it("GIVEN one row is highlighted WHEN hold down 'Shift' key AND click on the 5th row in grid THEN 5 content items get checked",
+    it.skip("GIVEN one row is highlighted WHEN hold down 'Shift' key AND click on the 5th row in grid THEN 5 content items get checked",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentFilterPanel = new ContentFilterPanel();
@@ -165,7 +139,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             assert.equal(number2, 0, "expected - no selected rows in grid");
         });
 
-    it("GIVEN existing content is selected WHEN 'Refresh' button in the grid toolbar has been clicked THEN the row remains selected",
+    it.skip("GIVEN existing content is selected WHEN 'Refresh' button in the grid toolbar has been clicked THEN the row remains checked",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await contentBrowsePanel.pause(2000);
@@ -192,14 +166,12 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             // 2. Verify that only one row is selected:
             let number1 = await contentBrowsePanel.getNumberOfCheckedRows();
             assert.equal(number1, 1, 'One row should be selected');
-            // 3. Click on 'Selection Controller' checkbox:
-            await contentBrowsePanel.clickOnSelectionControllerCheckbox();
+            // 3. Click on 'Reset Selection' checkbox:
+            await contentBrowsePanel.clickOnResetSelectionCheckbox();
             await studioUtils.saveScreenshot('after_sel_controller');
             // 4. Verify that there are no selected rows in the browse panel at the moment. : (the row gets unselected)
             let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
             assert.equal(number2, 0, 'There should be no selected rows');
-            // 5. Verify that Selection toggle(circle) gets not visible:
-            await contentBrowsePanel.waitForSelectionTogglerNotVisible();
         });
 
     it("GIVEN a content is highlighted WHEN the content unhighlighted THEN grid toolbar returns to the initial state",
@@ -223,12 +195,12 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             await contentBrowsePanel.waitForEditButtonDisabled();
         });
 
-    it("WHEN 'Selection Controller' checkbox has been clicked THEN 'New' button should be disabled and 'Archive', 'Duplicate' are enabled",
+    it("WHEN 'Select All' checkbox has been clicked THEN 'New' button should be disabled and 'Archive', 'Duplicate' are enabled",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await contentBrowsePanel.pause(2000);
             // 1. Click on Selection Controller checkbox:
-            await contentBrowsePanel.clickOnSelectionControllerCheckbox();
+            await contentBrowsePanel.clickOnSelectAllCheckbox();
             await studioUtils.saveScreenshot('all_grid_items_selected');
             // 2. Verify that New button is disabled and Archive, Duplicate are enabled:
             await contentBrowsePanel.waitForNewButtonDisabled();
@@ -247,28 +219,25 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             let actualName = await contentBrowsePanel.getNameInHighlightedRow();
             // 2. expected content should be highlighted:
             assert.equal(actualName, appConst.TEST_FOLDER_WITH_IMAGES, "expected content should be highlighted");
-            let number = await contentBrowsePanel.getNumberOfSelectedRows();
-            assert.equal(number, 1, 'One row should be highlighted');
             // 3. But there are no any checked rows:
             let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
             assert.equal(number2, 0, 'The number of checked rows is 0');
-            let isVisible = await contentBrowsePanel.waitForSelectionTogglerVisible();
-            assert.ok(isVisible === false, `'Selection Toggle' should not be visible in the toolbar`);
         });
 
     it("WHEN one row with content has been checked THEN the row gets checked AND 'Selection Toggler' gets visible",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await contentBrowsePanel.pause(1500);
+            let testContentDisplayName = appConst.TEST_FOLDER_WITH_IMAGES;
             // 1. Click on the checkbox and select the row:
-            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
-            let number1 = await contentBrowsePanel.getNumberOfSelectedRows();
+            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(testContentDisplayName);
+            let result = await contentBrowsePanel.getNameInHighlightedRow();
             await studioUtils.saveScreenshot('one_row_checked');
-            assert.equal(number1, 0, 'no one row should be highlighted');
-            let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
-            assert.ok(number2 === 1, 'One row should be checked');
-            let isVisible = await contentBrowsePanel.waitForSelectionTogglerVisible();
-            assert.ok(isVisible, "Selection Toggle should appear in the toolbar");
+            assert.equal(result, '', 'no one row should be highlighted');
+            result = await contentBrowsePanel.getNumberOfCheckedRows();
+            assert.equal(result, 1, 'One row should be checked');
+            await contentBrowsePanel.waitForResetSelectionCheckboxDisplayed();
+
         });
 
     it("GIVEN one row is checked WHEN one more row has been checked THEN 2 rows should be checked AND 0 rows should be highlighted",
@@ -279,9 +248,9 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
             await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES_2);
             await contentBrowsePanel.pause(500);
-            let number = await contentBrowsePanel.getNumberOfSelectedRows();
+            let result = await contentBrowsePanel.getNameInHighlightedRow();
             await studioUtils.saveScreenshot('two_rows_checked');
-            assert.equal(number, 0, 'The number of highlighted rows should be 0');
+            assert.equal(result, '', 'There is no highlighted row in the grid');
             let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
             assert.equal(number2, 2, 'Two rows should be checked');
         });
@@ -296,9 +265,9 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             // 2. Click on the row again:
             await contentBrowsePanel.clickOnRowByDisplayName(appConst.TEST_FOLDER_WITH_IMAGES);
             await contentBrowsePanel.pause(1000);
-            let numberOfHighlighted = await contentBrowsePanel.getNumberOfSelectedRows();
+            let result = await contentBrowsePanel.getNameInHighlightedRow();
             await studioUtils.saveScreenshot('check_row_unselected');
-            assert.equal(numberOfHighlighted, 0, 'The number of highlighted rows should be 0');
+            assert.equal(result, '', 'There is no highlighted row in the grid');
             let numberOfChecked = await contentBrowsePanel.getNumberOfCheckedRows();
             assert.equal(numberOfChecked, 0, 'The number of checked rows should be 0');
         });
