@@ -1,50 +1,51 @@
 const Page = require('../../page');
-const lib = require('../../../libs/elements-old');
 const {BUTTONS} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
-const MacroComboBox = require('../../components/selectors/insert.macro.combobox');
 
 const XPATH = {
-    container: `//div[contains(@id,'MacroModalDialog')]`,
-    insertButton: `//button[contains(@id,'DialogButton') and child::span[text()='Insert']]`,
-    cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
-    configurationTab: "//div[@class='panel macro-config-panel']",
-    previewTab: "//div[@class='panel macro-preview-panel']",
+    container: `//div[@role='dialog' and @data-component='HtmlAreaMacroDialog']`,
+    configPanel: "//div[@data-component='MacroConfigPanel']",
+    previewPanel: "//div[@data-component='MacroPreviewPanel']",
     textInPreviewTab: "//div[contains(@class,'preview-content')]",
     embedPreview: "//div[contains(@class,'embed-preview')]",
     warningInPreviewTab: "//div[contains(@class,'preview-message')]",
-    previewTabItem: "//li[contains(@id,'TabBarItem') and child::a[text()='Preview']]",
-    configurationTabItem: "//li[contains(@id,'TabBarItem') and @title='Configuration']",
+    tabTriggerByName: name => `//button[@role='tab' and contains(.,'${name}')]`,
+    macroSelector: "//div[@data-component='MacroSelector']",
+    validationError: "//span[contains(@class,'text-error')]",
 };
 
 class InsertMacroModalDialog extends Page {
 
     get cancelButton() {
-        return XPATH.container + BUTTONS.buttonAriaLabel('Cancel');
+        return XPATH.container + "//button[@aria-label='Close']";
     }
 
     get cancelButtonTop() {
-        return `${XPATH.container}` + `${lib.CANCEL_BUTTON_TOP}`;
+        return XPATH.container + "//button[@aria-label='Close']";
     }
 
     get insertButton() {
-        return XPATH.container + BUTTONS.buttonAriaLabel('Insert');
+        return XPATH.container + BUTTONS.buttonByLabel('Insert');
+    }
+
+    get updateButton() {
+        return XPATH.container + BUTTONS.buttonByLabel('Update');
     }
 
     get previewTabItem() {
-        return XPATH.container + XPATH.previewTabItem;
+        return XPATH.container + XPATH.tabTriggerByName('Preview');
     }
 
     get configTabItem() {
-        return XPATH.container + XPATH.configurationTabItem;
+        return XPATH.container + XPATH.tabTriggerByName('Configuration');
     }
 
     get configTextArea() {
-        return XPATH.configurationTab + lib.TEXT_AREA;
+        return XPATH.container + XPATH.configPanel + "//textarea";
     }
 
     get optionFilterInput() {
-        return XPATH.container + lib.TEXT_INPUT;
+        return XPATH.container + XPATH.macroSelector + "//input";
     }
 
     async typeTextInConfigurationTextArea(text) {
@@ -60,8 +61,19 @@ class InsertMacroModalDialog extends Page {
     }
 
     async selectOption(option) {
-        let macroComboBox = new MacroComboBox();
-        return await macroComboBox.selectFilteredByDisplayNameItem(option, XPATH.container);
+        try {
+            let filterInput = this.optionFilterInput;
+            await this.waitForElementDisplayed(filterInput, appConst.mediumTimeout);
+            await this.typeTextInInput(filterInput, option);
+            await this.pause(500);
+            let optionLocator = `//div[@role='listbox']//div[@role='option' and contains(.,'${option}')]`;
+            await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
+            await this.clickOnElement(optionLocator);
+            return await this.pause(500);
+        } catch (err) {
+            let screenshot = await this.saveScreenshot('err_select_macro_option');
+            throw new Error(`Error selecting macro option '${option}', screenshot: ${screenshot} ` + err);
+        }
     }
 
     clickOnCancelButton() {
@@ -73,7 +85,7 @@ class InsertMacroModalDialog extends Page {
             await this.waitForElementDisplayed(this.previewTabItem, appConst.mediumTimeout);
             await this.pause(500);
             await this.clickOnElement(this.previewTabItem);
-            return await this.waitForElementDisplayed(XPATH.previewTab, appConst.mediumTimeout);
+            return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshot('err_click_on_preview_tab');
             throw new Error(`Error occurred during clicking on Preview Tab Item! screenshot: ${screenshot} ` + err);
@@ -101,30 +113,30 @@ class InsertMacroModalDialog extends Page {
     }
 
     async getTextInPreviewTab() {
-        let locator = XPATH.previewTab + XPATH.textInPreviewTab;
+        let locator = XPATH.container + XPATH.textInPreviewTab;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
     }
 
     async waitForIframeDisplayed(url) {
-        let locator = XPATH.previewTab + `//iframe[@src='${url}']`;
+        let locator = XPATH.container + `//iframe[@src='${url}']`;
         return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
     async getTextInEmbedPreview() {
-        let locator = XPATH.previewTab + XPATH.embedPreview;
+        let locator = XPATH.container + XPATH.embedPreview;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return this.getText(locator);
     }
 
     async getWarningInPreviewTab() {
-        let locator = XPATH.previewTab + XPATH.warningInPreviewTab;
+        let locator = XPATH.container + XPATH.warningInPreviewTab;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return this.getText(locator);
     }
 
     async getValidationRecording() {
-        let locator = XPATH.container + lib.INPUT_VALIDATION_VIEW;
+        let locator = XPATH.container + XPATH.validationError;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return this.getText(locator);
     }
