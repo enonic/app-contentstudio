@@ -1,55 +1,38 @@
 const Page = require('../../page');
 const {BUTTONS} = require('../../../libs/elements');
-const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
 
 const XPATH = {
-    container: `//div[contains(@id,'LinkModalDialog')]`,
-    linkTextFieldset: `//fieldset[contains(@id,'Fieldset') and descendant::span[text()='Text']]`,
-    linkTooltipFieldset: `//fieldset[contains(@id,'Fieldset') and descendant::span[text()='Tooltip']]`,
-    urlPanel: "//div[contains(@id,'DockedPanel')]//div[contains(@id,'Panel') and contains(@class,'panel url-panel')]",
-    emailPanel: "//div[contains(@id,'DockedPanel')]//div[contains(@id,'Panel') and @class='panel']",
-    urlTypeButton: "//div[contains(@id,'MenuButton')]//button[contains(@id,'ActionButton') and child::span[text()='Type']]",
-    anchorFormItem: "//div[contains(@class,'anchor-form-item')]",
-    parametersFormItem: "//div[contains(@id,'FormItem') and descendant::label[text()='Parameters']]",
+    container: `//div[@role='dialog' and @data-component='HtmlAreaLinkDialog']`,
+    emailPanel: "//div[@data-component='EmailTabPanel']",
+    tabTriggerByName: name => `//button[@role='tab' and contains(.,'${name}')]`,
+    errorMessage: "//div[contains(@class,'text-error')]",
 };
 
 class InsertLinkDialog extends Page {
 
-    get linkTooltipInput() {
-        return XPATH.container + XPATH.linkTooltipFieldset + lib.TEXT_INPUT;
-    }
-
     get linkTextInput() {
-        return XPATH.container + XPATH.linkTextFieldset + lib.TEXT_INPUT;
+        return XPATH.container + "//label[contains(.,'Text')]/ancestor::div[2]//input";
     }
 
-    get linkTextInputValidationRecording() {
-        return XPATH.container + XPATH.linkTextFieldset + lib.VALIDATION_RECORDING_VIEWER;
-    }
-
-    get emailInputValidationRecording() {
-        return XPATH.container + XPATH.emailPanel + lib.VALIDATION_RECORDING_VIEWER;
-    }
-
-    get emailInput() {
-        return XPATH.container + XPATH.emailPanel + "//fieldset[descendant::span[text()='Email']]" + lib.TEXT_INPUT;
-    }
-
-    get subjectInput() {
-        return XPATH.container + XPATH.emailPanel + "//fieldset[descendant::label[text()='Subject']]" + lib.TEXT_INPUT;
+    get linkTooltipInput() {
+        return XPATH.container + "//label[contains(.,'Tooltip')]/ancestor::div[2]//input";
     }
 
     get cancelButton() {
-        return XPATH.container + BUTTONS.buttonAriaLabel('Cancel');
+        return XPATH.container + BUTTONS.buttonByLabel('Cancel');
     }
 
     get cancelButtonTop() {
-        return XPATH.container + lib.CANCEL_BUTTON_TOP;
+        return XPATH.container + "//button[@aria-label='Close']";
     }
 
     get insertButton() {
-        return XPATH.container + BUTTONS.buttonAriaLabel('Insert');
+        return XPATH.container + BUTTONS.buttonByLabel('Insert');
+    }
+
+    get updateButton() {
+        return XPATH.container + BUTTONS.buttonByLabel('Update');
     }
 
     // types text in link text input
@@ -76,18 +59,8 @@ class InsertLinkDialog extends Page {
         return this.getTextInInput(this.linkTooltipInput);
     }
 
-    async typeTextInEmailInput(email) {
-        try {
-            await this.waitForElementDisplayed(XPATH.emailPanel);
-            let res = await this.findElements(this.emailInput);
-            await this.typeTextInInput(this.emailInput, email);
-        } catch (err) {
-            await this.handleError('Insert Link Dialog- error when type text in email input', 'err_type_email_input', err);
-        }
-    }
-
     async clickOnCancelButton() {
-        await this.clickOnElement(this.cancelButton);
+        await this.clickOnElement(this.cancelButtonTop);
         return await this.pause(300);
     }
 
@@ -108,7 +81,7 @@ class InsertLinkDialog extends Page {
 
     async waitForDialogLoaded() {
         try {
-            return await this.waitForElementDisplayed(this.cancelButton);
+            return await this.waitForElementDisplayed(this.insertButton);
         } catch (err) {
             await this.handleError('Insert Link Dialog should be open!', 'err_open_insert_link_dialog', err);
         }
@@ -120,42 +93,61 @@ class InsertLinkDialog extends Page {
 
     async clickOnBarItem(name) {
         try {
-            let selector = XPATH.container + lib.tabBarItemByName(name);
+            let selector = XPATH.container + XPATH.tabTriggerByName(name);
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError('Insert Link Dialog- error when click on the bar item' , 'err_click_bar_item', err);
+            await this.handleError('Insert Link Dialog- error when click on the bar item', 'err_click_bar_item', err);
         }
     }
 
-    isTabActive(name) {
-        let barItem = XPATH.container + lib.tabBarItemByName(name);
-        return this.getAttribute(barItem, "class").then(result => {
-            return result.includes('active');
-        });
+    async isTabActive(name) {
+        let tabTrigger = XPATH.container + XPATH.tabTriggerByName(name);
+        let attr = await this.getAttribute(tabTrigger, 'data-state');
+        return attr === 'active';
     }
 
-    waitForValidationMessageForTextInputDisplayed() {
-        return this.waitForElementDisplayed(this.linkTextInputValidationRecording, appConst.mediumTimeout);
+    get emailInput() {
+        return XPATH.container + XPATH.emailPanel + "//label[contains(.,'Email')]/ancestor::div[2]//input";
+    }
+
+    get subjectInput() {
+        return XPATH.container + XPATH.emailPanel + "//label[contains(.,'Subject')]/ancestor::div[2]//input";
+    }
+
+    get emailInputValidationMessage() {
+        return XPATH.container + XPATH.emailPanel + "//div[contains(@class,'text-error')]";
+    }
+
+    async typeTextInEmailInput(email) {
+        try {
+            await this.waitForElementDisplayed(this.emailInput);
+            await this.typeTextInInput(this.emailInput, email);
+        } catch (err) {
+            await this.handleError('Insert Link Dialog- error when type text in email input', 'err_type_email_input', err);
+        }
+    }
+
+    async waitForValidationMessageForEmailInputDisplayed() {
+        return this.waitForElementDisplayed(this.emailInputValidationMessage, appConst.mediumTimeout);
+    }
+
+    async getEmailInputValidationMessage() {
+        await this.waitForValidationMessageForEmailInputDisplayed();
+        return await this.getText(this.emailInputValidationMessage);
+    }
+
+    async waitForValidationMessageForTextInputDisplayed() {
+        let locator = XPATH.container + "//label[contains(.,'Text')]/ancestor::div[2]//div[contains(@class,'text-error')]";
+        return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
     async getTextInputValidationMessage() {
         await this.waitForValidationMessageForTextInputDisplayed();
-        return await this.getText(this.linkTextInputValidationRecording);
-    }
-
-    waitForValidationMessageForEmailInputDisplayed() {
-        return this.waitForElementDisplayed(this.emailInputValidationRecording, appConst.mediumTimeout);
-    }
-
-
-    async getEmailInputValidationMessage() {
-        await this.waitForValidationMessageForEmailInputDisplayed();
-        return await this.getText(this.emailInputValidationRecording);
+        let locator = XPATH.container + "//label[contains(.,'Text')]/ancestor::div[2]//div[contains(@class,'text-error')]";
+        return await this.getText(locator);
     }
 }
 
 module.exports = InsertLinkDialog;
-
-

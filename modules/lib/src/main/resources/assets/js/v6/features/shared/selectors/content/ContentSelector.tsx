@@ -35,6 +35,8 @@ export type ContentSelectorProps = {
     'hideToggleIcon'?: boolean;
     /** Whether the selector has an error */
     'error'?: boolean;
+    /** Whether a button is placed to the right (removes right-side border radius) */
+    'withRightButton'?: boolean;
     /** Custom row renderer */
     'rowRenderer'?: (props: ContentRowProps) => ReactElement;
 } & ContentSelectorFilterOptions;
@@ -73,6 +75,7 @@ export const ContentSelector = ({
     className,
     hideToggleIcon = false,
     error = false,
+    withRightButton = false,
     listMode,
     closeOnBlur = false,
     'aria-label': ariaLabel,
@@ -107,6 +110,7 @@ export const ContentSelector = ({
                     applicationKey={applicationKey}
                     rowRenderer={rowRenderer}
                     closeOnBlur={closeOnBlur}
+                    withRightButton={withRightButton}
                 />
             )}
             <ContentSelection selection={selection} onSelectionChange={onSelectionChange} disabled={disabled} />

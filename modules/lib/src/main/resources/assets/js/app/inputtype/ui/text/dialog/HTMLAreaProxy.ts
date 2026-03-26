@@ -1,4 +1,3 @@
-import {type CreateHtmlAreaContentDialogEvent} from '../CreateHtmlAreaContentDialogEvent';
 import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../CreateHtmlAreaDialogEvent';
 import {type CreateHtmlAreaMacroDialogEvent} from '../CreateHtmlAreaMacroDialogEvent';
 import {type FullScreenDialogParams, type MacroDialogParams} from '../HtmlEditorTypes';
@@ -6,7 +5,6 @@ import {AnchorModalDialog} from './AnchorModalDialog';
 import {BulletedListModalDialog} from './BulletedListModalDialog';
 import {CodeDialog} from './CodeDialog';
 import {FullscreenDialog} from './FullscreenDialog';
-import {LinkModalDialog} from './LinkModalDialog';
 import {MacroModalDialog} from './MacroModalDialog';
 import {type ModalDialog} from './ModalDialog';
 import {NumberedListModalDialog} from './NumberedListModalDialog';
@@ -20,8 +18,6 @@ export class HTMLAreaProxy {
         switch (event.getType()) {
         case HtmlAreaDialogType.ANCHOR:
             return HTMLAreaProxy.openAnchorDialog(event);
-        case HtmlAreaDialogType.LINK:
-            return HTMLAreaProxy.openLinkDialog(event as CreateHtmlAreaContentDialogEvent);
         case HtmlAreaDialogType.MACRO:
             return HTMLAreaProxy.openMacroDialog(event as CreateHtmlAreaMacroDialogEvent);
         case HtmlAreaDialogType.CODE:
@@ -37,10 +33,6 @@ export class HTMLAreaProxy {
         case HtmlAreaDialogType.BULLETED_LIST:
             return HTMLAreaProxy.openBulletedListDialog(event);
         }
-    }
-
-    private static openLinkDialog(event: CreateHtmlAreaContentDialogEvent): ModalDialog {
-        return HTMLAreaProxy.openDialog(new LinkModalDialog(event.getConfig() as eventInfo, event.getContent(), event.getProject()));
     }
 
     private static openAnchorDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {

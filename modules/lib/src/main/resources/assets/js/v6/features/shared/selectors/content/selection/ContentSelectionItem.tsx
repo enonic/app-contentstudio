@@ -70,19 +70,21 @@ export const ContentSelectionItem = ({
                 <StatusBadge status={content.getPublishStatus()} />
             </GridList.Cell>
             <GridList.Cell>
-                <IconButton
-                    icon={X}
-                    size='sm'
-                    variant='text'
-                    iconSize={18}
-                    iconStrokeWidth={2}
-                    onClick={(event) => {
-                        event.stopPropagation();
-                        onRemove?.(id);
-                    }}
-                    disabled={disabled}
-                    aria-label={removeLabel || 'Remove'}
-                />
+                <GridList.Action>
+                    <IconButton
+                        icon={X}
+                        size='sm'
+                        variant='text'
+                        iconSize={18}
+                        iconStrokeWidth={2}
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            onRemove?.(id);
+                        }}
+                        disabled={disabled}
+                        aria-label={removeLabel || 'Remove'}
+                    />
+                </GridList.Action>
             </GridList.Cell>
         </GridList.Row>
     );

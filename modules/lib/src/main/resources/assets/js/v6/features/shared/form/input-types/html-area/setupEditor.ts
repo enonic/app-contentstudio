@@ -17,12 +17,10 @@ import {HTMLAreaHelper} from '../../../../../../app/inputtype/ui/text/HTMLAreaHe
 import {HtmlEditorParams} from '../../../../../../app/inputtype/ui/text/HtmlEditorParams';
 import {StyleHelper} from '../../../../../../app/inputtype/ui/text/styles/StyleHelper';
 import {ImageUrlResolver} from '../../../../../../app/util/ImageUrlResolver';
-import {type CreateHtmlAreaContentDialogEvent} from '../../../../../../app/inputtype/ui/text/CreateHtmlAreaContentDialogEvent';
-import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import {type CreateHtmlAreaDialogEvent, type HtmlAreaDialogType} from '../../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {HTMLAreaProxy} from '../../../../../../app/inputtype/ui/text/dialog/HTMLAreaProxy';
 import type {Project} from '../../../../../../app/settings/data/project/Project';
 import type {FullScreenDialogParams, HtmlEditorCursorPosition} from '../../../../../../app/inputtype/ui/text/HtmlEditorTypes';
-import type {OpenHtmlAreaImageDialogParams} from '../../../dialogs/htmlarea-image/HtmlAreaImageDialogContext';
 
 type EventInfo = CKEDITOR.eventInfo;
 
@@ -45,53 +43,37 @@ function isImageWidgetData(data: Record<string, unknown>): data is ImageWidgetDa
     return data.name === 'image';
 }
 
+export type DialogOverrides = Partial<Record<HtmlAreaDialogType, (event: CreateHtmlAreaDialogEvent) => void>>;
+
 export type SetupEditorParams = {
     contentSummary: ContentSummary | undefined;
     project: Readonly<Project> | undefined;
     applicationKeys: ApplicationKey[];
     assetsUri: string;
-    onOpenImageDialog?: (params: OpenHtmlAreaImageDialogParams) => void;
+    dialogOverrides?: DialogOverrides;
 };
 
-function buildEditorParams(editor: CKEDITOR.editor, params: SetupEditorParams): HtmlEditorParams {
-    const dialogHandler = params.onOpenImageDialog
-        ? createWrappedDialogHandler(params.onOpenImageDialog)
-        : HTMLAreaProxy.createAndOpenDialog;
+function createDialogHandler(overrides?: DialogOverrides): (event: CreateHtmlAreaDialogEvent) => void {
+    return (event: CreateHtmlAreaDialogEvent) => {
+        const handler = overrides?.[event.getType()];
+        if (handler) {
+            handler(event);
+            return;
+        }
+        HTMLAreaProxy.createAndOpenDialog(event);
+    };
+}
 
+function buildEditorParams(editor: CKEDITOR.editor, params: SetupEditorParams): HtmlEditorParams {
     return HtmlEditorParams.create()
         .setEditorContainerId(editor.name)
         .setAssetsUri(params.assetsUri)
         .setInline(false)
-        .setCreateDialogHandler(dialogHandler)
+        .setCreateDialogHandler(createDialogHandler(params.dialogOverrides))
         .setContent(params.contentSummary)
         .setApplicationKeys(params.applicationKeys)
         .setProject(params.project)
         .build();
-}
-
-function createWrappedDialogHandler(
-    onOpenImageDialog: (params: OpenHtmlAreaImageDialogParams) => void,
-): (event: CreateHtmlAreaDialogEvent) => ReturnType<typeof HTMLAreaProxy.createAndOpenDialog> {
-    return (event: CreateHtmlAreaDialogEvent) => {
-        if (event.getType() === HtmlAreaDialogType.IMAGE) {
-            const contentEvent = event as CreateHtmlAreaContentDialogEvent;
-            const config = contentEvent.getConfig() as EventInfo;
-            const editor = config.editor;
-            const editorWidth = editor.element.$.clientWidth || editor.element.getParent().$.clientWidth;
-
-            onOpenImageDialog({
-                ckeDialog: config.data,
-                ckeEditor: editor,
-                editorWidth,
-                content: contentEvent.getContent(),
-                project: contentEvent.getProject(),
-            });
-
-            return null;
-        }
-
-        return HTMLAreaProxy.createAndOpenDialog(event);
-    };
 }
 
 /**

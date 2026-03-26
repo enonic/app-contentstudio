@@ -1,5 +1,8 @@
 import {Button, Dialog} from '@enonic/ui';
 import {type ReactElement} from 'react';
+import {type CreateHtmlAreaContentDialogEvent} from '../../../../../app/inputtype/ui/text/CreateHtmlAreaContentDialogEvent';
+import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import type {DialogOverrides} from '../../form/input-types/html-area/setupEditor';
 import {useI18n} from '../../../hooks/useI18n';
 import {
     HtmlAreaImageDialogProvider,
@@ -16,8 +19,6 @@ const HtmlAreaImageDialogInner = (): ReactElement => {
     const title = useI18n('dialog.image.title');
     const insertLabel = useI18n('action.insert');
     const updateLabel = useI18n('action.update');
-    const cancelLabel = useI18n('action.cancel');
-
     return (
         <Dialog.Root
             open={open}
@@ -45,12 +46,6 @@ const HtmlAreaImageDialogInner = (): ReactElement => {
                             disabled={!canSubmit}
                             onClick={submit}
                         />
-                        <Button
-                            size='lg'
-                            variant='outline'
-                            label={cancelLabel}
-                            onClick={close}
-                        />
                     </Dialog.Footer>
                 </Dialog.Content>
             </Dialog.Portal>
@@ -71,3 +66,24 @@ export const HtmlAreaImageDialog = ({openRef}: HtmlAreaImageDialogProps): ReactE
 };
 
 HtmlAreaImageDialog.displayName = DIALOG_NAME;
+
+export function createImageDialogOverride(
+    openRef: { current: ((params: OpenHtmlAreaImageDialogParams) => void) | undefined },
+): DialogOverrides {
+    return {
+        [HtmlAreaDialogType.IMAGE]: (event: CreateHtmlAreaDialogEvent) => {
+            const contentEvent = event as CreateHtmlAreaContentDialogEvent;
+            const config = contentEvent.getConfig() as CKEDITOR.eventInfo;
+            const editor = config.editor;
+            const editorWidth = editor.element.$.clientWidth || editor.element.getParent().$.clientWidth;
+
+            openRef.current?.({
+                ckeDialog: config.data,
+                ckeEditor: editor,
+                editorWidth,
+                content: contentEvent.getContent(),
+                project: contentEvent.getProject(),
+            });
+        },
+    };
+}
