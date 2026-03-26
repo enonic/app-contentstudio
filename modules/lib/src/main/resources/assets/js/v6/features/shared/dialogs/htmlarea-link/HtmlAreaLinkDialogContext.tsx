@@ -8,7 +8,9 @@ import {HTMLAreaHelper} from '../../../../../app/inputtype/ui/text/HTMLAreaHelpe
 import {type Project} from '../../../../../app/settings/data/project/Project';
 import {fetchContentById} from '../../../api/content';
 
-// ── Types ──
+//
+// * Types
+//
 
 export type LinkType = 'content' | 'url' | 'email' | 'anchor';
 export type MediaOption = 'open' | 'download' | 'link';
@@ -45,7 +47,7 @@ export type HtmlAreaLinkDialogState = {
     anchors: string[];
     // UI
     isEditing: boolean;
-    showValidation: boolean;
+    touchedFields: Readonly<Record<string, true>>;
 };
 
 export type OpenHtmlAreaLinkDialogParams = {
@@ -81,10 +83,17 @@ const CLOSED_STATE: HtmlAreaLinkDialogState = {
     anchorValue: '',
     anchors: [],
     isEditing: false,
-    showValidation: false,
+    touchedFields: {},
 };
 
-// ── Constants ──
+const ALL_TOUCHED: Readonly<Record<string, true>> = {
+    linkText: true, content: true, queryParams: true,
+    url: true, email: true, anchor: true,
+};
+
+//
+// * Constants
+//
 
 const CONTENT_PREFIX = 'content://';
 const MEDIA_DOWNLOAD_PREFIX = 'media://download/';
@@ -95,7 +104,9 @@ const ANCHOR_PREFIX = '#';
 const FRAGMENT_PREFIX = 'fragment=';
 const QUERY_PARAMS_PREFIX = 'query=';
 
-// ── Validators ──
+//
+// * Validators
+//
 
 const PORT_RE = '(:[0-9]+)?';
 const PATH_RE = String.raw`((\/)+([A-z0-9\-\%\.\…\:\§\,\+()!@]+\/{0,2})*)?`;
@@ -198,7 +209,9 @@ function computeValidationErrors(state: HtmlAreaLinkDialogState): Record<string,
     return errors;
 }
 
-// ── CKE helpers ──
+//
+// * CKE Helpers
+//
 
 function getOriginalLinkTypeElem(ckeDialog: CKEDITOR.dialog): CKEDITOR.ui.dialog.uiElement {
     return ckeDialog.getContentElement('info', 'linkType');
@@ -255,7 +268,9 @@ function getAnchorsFromEditor(editor: CKEDITOR.editor): string[] {
         .filter((item: string, pos: number, self: string[]) => self.indexOf(item) === pos);
 }
 
-// ── URL/link detection ──
+//
+// * URL/Link Detection
+//
 
 type DetectedLink = {
     tab: LinkType;
@@ -396,7 +411,9 @@ function detectProtocol(value: string): UrlProtocol {
     return '';
 }
 
-// ── Open state computation ──
+//
+// * Open State
+//
 
 function computeOpenState(params: OpenHtmlAreaLinkDialogParams): HtmlAreaLinkDialogState {
     const {ckeDialog, ckeEditor, content, project} = params;
@@ -445,7 +462,7 @@ function computeOpenState(params: OpenHtmlAreaLinkDialogParams): HtmlAreaLinkDia
         anchorValue: detected.tab === 'anchor' ? detected.anchorValue : '',
         anchors,
         isEditing: hasExistingLink,
-        showValidation: false,
+        touchedFields: {},
     };
 }
 
@@ -454,7 +471,9 @@ function performOpenSideEffects(params: OpenHtmlAreaLinkDialogParams): void {
     params.ckeEditor.focusManager.add(new CKEDITOR.dom.element(document.body), true);
 }
 
-// ── Submit helpers ──
+//
+// * Submit Helpers
+//
 
 function buildQueryParamsString(params: {key: string; value: string}[]): string {
     const filtered = params.filter(p => !StringHelper.isBlank(p.key));
@@ -517,7 +536,9 @@ function writeAnchorLink(state: HtmlAreaLinkDialogState, ckeDialog: CKEDITOR.dia
     getOriginalAnchorElem(ckeDialog).setValue(state.anchorValue, false);
 }
 
-// ── Context ──
+//
+// * Context
+//
 
 type HtmlAreaLinkDialogContextValue = {
     state: HtmlAreaLinkDialogState;
@@ -528,7 +549,6 @@ type HtmlAreaLinkDialogContextValue = {
     setActiveTab: (tab: LinkType) => void;
     setLinkText: (text: string) => void;
     setTooltip: (text: string) => void;
-    selectContent: (content: ContentSummary) => void;
     selectContentById: (id: string) => void;
     deselectContent: () => void;
     setMediaOption: (opt: MediaOption) => void;
@@ -548,7 +568,7 @@ type HtmlAreaLinkDialogContextValue = {
     setAnchorValue: (val: string) => void;
 };
 
-const HtmlAreaLinkDialogContext = createContext<HtmlAreaLinkDialogContextValue | null>(null);
+const HtmlAreaLinkDialogContext = createContext<HtmlAreaLinkDialogContextValue | undefined>(undefined);
 
 export function useHtmlAreaLinkDialogContext(): HtmlAreaLinkDialogContextValue {
     const ctx = useContext(HtmlAreaLinkDialogContext);
@@ -558,7 +578,9 @@ export function useHtmlAreaLinkDialogContext(): HtmlAreaLinkDialogContextValue {
     return ctx;
 }
 
-// ── Provider ──
+//
+// * Provider
+//
 
 type HtmlAreaLinkDialogProviderProps = {
     children: ReactNode;
@@ -602,11 +624,16 @@ export function HtmlAreaLinkDialogProvider({children, openRef}: HtmlAreaLinkDial
         [state.open, state.activeTab, state.selectedContentId, state.selectedContent, validationErrors],
     );
 
-    const visibleValidationErrors = useMemo<Record<string, string>>(
-        () => state.showValidation ? validationErrors : {},
-        // showValidation is set by user field interactions and submit attempts
-        [state.showValidation, validationErrors],
-    );
+    const visibleValidationErrors = useMemo<Record<string, string>>(() => {
+        const touched = state.touchedFields;
+        const result: Record<string, string> = {};
+        for (const [key, error] of Object.entries(validationErrors)) {
+            if (touched[key]) {
+                result[key] = error;
+            }
+        }
+        return result;
+    }, [state.touchedFields, validationErrors]);
 
     // Load content when editing existing content link
 
@@ -653,7 +680,7 @@ export function HtmlAreaLinkDialogProvider({children, openRef}: HtmlAreaLinkDial
 
         const errors = computeValidationErrors(s);
         if (Object.keys(errors).length > 0) {
-            setState(prev => ({...prev, showValidation: true}));
+            setState(prev => ({...prev, touchedFields: ALL_TOUCHED}));
             return;
         }
 
@@ -697,25 +724,11 @@ export function HtmlAreaLinkDialogProvider({children, openRef}: HtmlAreaLinkDial
     }, []);
 
     const setLinkText = useCallback((text: string) => {
-        setState(prev => prev.open ? {...prev, linkText: text, showValidation: true} : prev);
+        setState(prev => prev.open ? {...prev, linkText: text, touchedFields: {...prev.touchedFields, linkText: true}} : prev);
     }, []);
 
     const setTooltip = useCallback((text: string) => {
-        setState(prev => prev.open ? {...prev, tooltip: text, showValidation: true} : prev);
-    }, []);
-
-    const selectContent = useCallback((content: ContentSummary) => {
-        setState(prev => {
-            if (!prev.open) {
-                return prev;
-            }
-            return {
-                ...prev,
-                selectedContentId: content.getContentId().toString(),
-                selectedContent: content,
-                showValidation: true,
-            };
-        });
+        setState(prev => prev.open ? {...prev, tooltip: text} : prev);
     }, []);
 
     const selectContentById = useCallback((id: string) => {
@@ -727,7 +740,7 @@ export function HtmlAreaLinkDialogProvider({children, openRef}: HtmlAreaLinkDial
                 ...prev,
                 selectedContentId: id,
                 selectedContent: undefined,
-                showValidation: true,
+                touchedFields: {...prev.touchedFields, content: true},
             };
         });
     }, []);
@@ -746,13 +759,13 @@ export function HtmlAreaLinkDialogProvider({children, openRef}: HtmlAreaLinkDial
                 fragment: '',
                 fragmentVisible: false,
                 queryParams: [],
-                showValidation: true,
+                touchedFields: {...prev.touchedFields, content: true},
             };
         });
     }, []);
 
     const setMediaOption = useCallback((opt: MediaOption) => {
-        setState(prev => prev.open ? {...prev, mediaOption: opt, showValidation: true} : prev);
+        setState(prev => prev.open ? {...prev, mediaOption: opt} : prev);
     }, []);
 
     const setShowAllContent = useCallback((val: boolean) => {
@@ -760,11 +773,11 @@ export function HtmlAreaLinkDialogProvider({children, openRef}: HtmlAreaLinkDial
     }, []);
 
     const setContentTarget = useCallback((val: boolean) => {
-        setState(prev => prev.open ? {...prev, contentTarget: val, showValidation: true} : prev);
+        setState(prev => prev.open ? {...prev, contentTarget: val} : prev);
     }, []);
 
     const setFragment = useCallback((val: string) => {
-        setState(prev => prev.open ? {...prev, fragment: val, showValidation: true} : prev);
+        setState(prev => prev.open ? {...prev, fragment: val} : prev);
     }, []);
 
     const toggleFragmentVisible = useCallback(() => {
@@ -776,7 +789,6 @@ export function HtmlAreaLinkDialogProvider({children, openRef}: HtmlAreaLinkDial
                 ...prev,
                 fragmentVisible: !prev.fragmentVisible,
                 fragment: prev.fragmentVisible ? '' : prev.fragment,
-                showValidation: true,
             };
         });
     }, []);
@@ -786,7 +798,7 @@ export function HtmlAreaLinkDialogProvider({children, openRef}: HtmlAreaLinkDial
             if (!prev.open) {
                 return prev;
             }
-            return {...prev, queryParams: [...prev.queryParams, {key: '', value: ''}], showValidation: true};
+            return {...prev, queryParams: [...prev.queryParams, {key: '', value: ''}], touchedFields: {...prev.touchedFields, queryParams: true}};
         });
     }, []);
 
@@ -795,7 +807,7 @@ export function HtmlAreaLinkDialogProvider({children, openRef}: HtmlAreaLinkDial
             if (!prev.open) {
                 return prev;
             }
-            return {...prev, queryParams: prev.queryParams.filter((_, i) => i !== index), showValidation: true};
+            return {...prev, queryParams: prev.queryParams.filter((_, i) => i !== index), touchedFields: {...prev.touchedFields, queryParams: true}};
         });
     }, []);
 
@@ -808,7 +820,7 @@ export function HtmlAreaLinkDialogProvider({children, openRef}: HtmlAreaLinkDial
             if (params[index]) {
                 params[index] = {...params[index], key};
             }
-            return {...prev, queryParams: params, showValidation: true};
+            return {...prev, queryParams: params, touchedFields: {...prev.touchedFields, queryParams: true}};
         });
     }, []);
 
@@ -821,7 +833,7 @@ export function HtmlAreaLinkDialogProvider({children, openRef}: HtmlAreaLinkDial
             if (params[index]) {
                 params[index] = {...params[index], value};
             }
-            return {...prev, queryParams: params, showValidation: true};
+            return {...prev, queryParams: params, touchedFields: {...prev.touchedFields, queryParams: true}};
         });
     }, []);
 
@@ -839,28 +851,28 @@ export function HtmlAreaLinkDialogProvider({children, openRef}: HtmlAreaLinkDial
                 newUrlValue = protocol + newUrlValue;
             }
 
-            return {...prev, urlProtocol: protocol, urlValue: newUrlValue, showValidation: true};
+            return {...prev, urlProtocol: protocol, urlValue: newUrlValue, touchedFields: {...prev.touchedFields, url: true}};
         });
     }, []);
 
     const setUrlValue = useCallback((val: string) => {
-        setState(prev => prev.open ? {...prev, urlValue: val, urlProtocol: detectProtocol(val), showValidation: true} : prev);
+        setState(prev => prev.open ? {...prev, urlValue: val, urlProtocol: detectProtocol(val), touchedFields: {...prev.touchedFields, url: true}} : prev);
     }, []);
 
     const setUrlTarget = useCallback((val: boolean) => {
-        setState(prev => prev.open ? {...prev, urlTarget: val, showValidation: true} : prev);
+        setState(prev => prev.open ? {...prev, urlTarget: val} : prev);
     }, []);
 
     const setEmail = useCallback((val: string) => {
-        setState(prev => prev.open ? {...prev, email: val, showValidation: true} : prev);
+        setState(prev => prev.open ? {...prev, email: val, touchedFields: {...prev.touchedFields, email: true}} : prev);
     }, []);
 
     const setEmailSubject = useCallback((val: string) => {
-        setState(prev => prev.open ? {...prev, emailSubject: val, showValidation: true} : prev);
+        setState(prev => prev.open ? {...prev, emailSubject: val} : prev);
     }, []);
 
     const setAnchorValue = useCallback((val: string) => {
-        setState(prev => prev.open ? {...prev, anchorValue: val, showValidation: true} : prev);
+        setState(prev => prev.open ? {...prev, anchorValue: val, touchedFields: {...prev.touchedFields, anchor: true}} : prev);
     }, []);
 
     // Context value
@@ -874,7 +886,6 @@ export function HtmlAreaLinkDialogProvider({children, openRef}: HtmlAreaLinkDial
         setActiveTab,
         setLinkText,
         setTooltip,
-        selectContent,
         selectContentById,
         deselectContent,
         setMediaOption,
@@ -895,7 +906,7 @@ export function HtmlAreaLinkDialogProvider({children, openRef}: HtmlAreaLinkDial
     }), [
         state, visibleValidationErrors, canSubmit,
         close, submit, setActiveTab, setLinkText, setTooltip,
-        selectContent, selectContentById, deselectContent,
+        selectContentById, deselectContent,
         setMediaOption, setShowAllContent, setContentTarget,
         setFragment, toggleFragmentVisible,
         addQueryParam, removeQueryParam, setQueryParamKey, setQueryParamValue,
