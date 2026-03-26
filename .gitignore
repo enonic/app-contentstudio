@@ -28,6 +28,7 @@ testing/allure-results
 .bin
 .pnpm-store
 **/.webpack-cache
+**/.rspack-cache
 
 # AI Assistant
 settings.local.json
