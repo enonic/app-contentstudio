@@ -5,6 +5,7 @@ const path = require('path');
 const isDev = true;
 
 module.exports = {
+    cache: true,
     mode: isDev ? 'development' : 'production',
 
     entry: path.resolve(__dirname, 'src/main/resources/assets/shared-socket/index.ts'),
@@ -20,6 +21,14 @@ module.exports = {
 
     experiments: {
         outputModule: true,
+        cache: {
+            type: 'persistent',
+            buildDependencies: [__filename],
+            storage: {
+                type: 'filesystem',
+                directory: path.resolve(__dirname, 'node_modules/.cache/rspack-worker'),
+            },
+        },
     },
 
     devtool: isDev ? 'inline-source-map' : false,

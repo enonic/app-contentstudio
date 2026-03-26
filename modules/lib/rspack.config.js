@@ -1,23 +1,24 @@
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CircularDependencyPlugin = require('circular-dependency-plugin');
-const TerserPlugin = require('terser-webpack-plugin');
-const ProvidePlugin = require('webpack/lib/ProvidePlugin');
-const path = require('path');
+const {rspack} = require('@rspack/core');
 const fs = require('fs');
+const path = require('path');
 
 const swcConfig = JSON.parse(fs.readFileSync('./.swcrc'));
-
-const MiniCssExtractPluginCleanup = require('./util/MiniCssExtractPluginCleanup');
+// Remove `module` and `exclude` — Rspack handles module format and file filtering natively
+const {module: _module, exclude: _exclude, ...swcOptions} = swcConfig;
 
 const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
-    cache: {
-        type: 'filesystem',
-        cacheDirectory: path.resolve(__dirname, '.webpack-cache'),
-        buildDependencies: {
-            config: [__filename]
-        }
+    cache: true,
+    experiments: {
+        cache: {
+            type: 'persistent',
+            buildDependencies: [__filename],
+            storage: {
+                type: 'filesystem',
+                directory: path.resolve(__dirname, 'node_modules/.cache/rspack'),
+            },
+        },
     },
     context: path.join(__dirname, '/src/main/resources/assets'),
     entry: {
@@ -34,6 +35,7 @@ module.exports = {
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.jsx', '.js', '.less', '.css'],
+        conditionNames: ['import', 'node', 'default'],
         alias: {
             'preact': path.resolve(__dirname, 'node_modules/preact'),
             'preact/hooks': path.resolve(__dirname, 'node_modules/preact/hooks'),
@@ -49,9 +51,9 @@ module.exports = {
                 test: /\.ts$/,
                 use: [
                     {
-                        loader: 'swc-loader',
+                        loader: 'builtin:swc-loader',
                         options: {
-                            ...swcConfig,
+                            ...swcOptions,
                             sourceMaps: isProd ? false : 'inline',
                             inlineSourcesContent: !isProd,
                         },
@@ -59,13 +61,13 @@ module.exports = {
                 ],
             },
             {
-                test: /\.less$/,
+                test: /\.(?:less|css)$/,
                 use: [
-                    {loader: MiniCssExtractPlugin.loader, options: {publicPath: '../'}},
+                    {loader: rspack.CssExtractRspackPlugin.loader, options: {publicPath: '../'}},
                     {loader: 'css-loader', options: {sourceMap: !isProd, importLoaders: 1}},
-                    {loader: 'postcss-loader', options: {sourceMap: !isProd}},
                     {loader: 'less-loader', options: {sourceMap: !isProd}},
-                ]
+                ],
+                type: 'javascript/auto',
             },
             {
                 test: /^((?!icomoon-studio-lib|flag-icons).)*\.(svg|png|jpg|gif)$/,
@@ -80,45 +82,48 @@ module.exports = {
                 generator: {
                     filename: 'images/flags/[name][ext]'
                 }
+            },
+            {
+                test: /\.(woff|woff2)$/i,
+                type: 'asset/resource',
+                generator: {
+                    filename: 'fonts/[name][ext][query]'
+                }
             }
         ]
     },
     optimization: {
         minimizer: [
-            new TerserPlugin({
-                terserOptions: {
-                    keep_classnames: true,
-                    keep_fnames: true,
-                    format: {
-                        comments: /webpackIgnore/,
+            new rspack.SwcJsMinimizerRspackPlugin({
+                // Exclude pre-built CKEditor — already minified, re-minimizing
+                // breaks it (SWC adds "use strict" + mangles names into collisions)
+                exclude: /ckeditor\.js$/,
+                minimizerOptions: {
+                    mangle: {
+                        keepClassNames: true,
+                        keepFnNames: true,
                     },
-                }
+                },
             })
         ],
     },
     plugins: [
-        new ProvidePlugin({
+        new rspack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery',
             'window.jQuery': 'jquery',
         }),
-        new MiniCssExtractPlugin({
+        new rspack.CssExtractRspackPlugin({
             filename: '[name].css',
             chunkFilename: './styles/[id].css'
         }),
-        new MiniCssExtractPluginCleanup([/main\.(lite\.)?js(\.map)?$/]),
-        new CircularDependencyPlugin({
+        new rspack.CircularDependencyRspackPlugin({
             exclude: /a\.js|node_modules/,
             failOnError: true
         }),
     ],
+    amd: {},
     mode: isProd ? 'production' : 'development',
     devtool: isProd ? false : 'source-map',
-    performance: {
-        hints: false,
-    },
-    stats: {
-        assets: false,
-        modules: false,
-    }
+    performance: {hints: false}
 };

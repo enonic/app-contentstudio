@@ -9,6 +9,17 @@ const {module: _module, exclude: _exclude, ...swcOptions} = swcConfig;
 const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
+    cache: true,
+    experiments: {
+        cache: {
+            type: 'persistent',
+            buildDependencies: [__filename],
+            storage: {
+                type: 'filesystem',
+                directory: path.resolve(__dirname, 'node_modules/.cache/rspack'),
+            },
+        },
+    },
     context: path.join(__dirname, '/src/main/resources/assets'),
     entry: {
         'js/main': './js/main.ts',
@@ -52,8 +63,9 @@ module.exports = {
                 test: /\.(?:less|css)$/,
                 use: [
                     {loader: rspack.CssExtractRspackPlugin.loader},
-                    {loader: 'css-loader', options: {sourceMap: !isProd, importLoaders: 1}},
-                    {loader: 'postcss-loader', options: {sourceMap: !isProd}},
+                    {loader: 'css-loader', options: {sourceMap: !isProd, importLoaders: isProd ? 2 : 1}},
+                    // PostCSS (autoprefixer, normalize, media query sorting) only needed for production
+                    ...(isProd ? [{loader: 'postcss-loader'}] : []),
                     {loader: 'less-loader', options: {sourceMap: !isProd}},
                 ],
                 type: 'javascript/auto',
