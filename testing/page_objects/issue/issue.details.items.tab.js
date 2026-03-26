@@ -243,6 +243,10 @@ class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
         let locator = xpath.container + xpath.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER;
         return await this.waitForElementNotDisplayed(locator);
     }
+    // TODO
+    async getSelectedItems(){
+
+    }
 }
 
 module.exports = IssueDetailsDialogItemsTab;

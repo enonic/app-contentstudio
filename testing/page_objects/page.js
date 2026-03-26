@@ -157,14 +157,19 @@ class Page {
         return await inputElement.getValue();
     }
 
+    // clearValue() does not trigger React synthetic events (onChange/onInput), so the component
+    // state is not updated. Simulating Ctrl+A → Delete fires the full keyboard event chain
+    // that React listens to, reliably clearing both the DOM value and the component state.
     async clearInputText(selector) {
         try {
             let inputElement = await this.findElement(selector);
             await inputElement.waitForDisplayed({timeout: 2000});
-            await inputElement.clearValue();
-            return await this.pause(1000);
+            await inputElement.click();
+            await this.browser.keys([Key.Ctrl, 'a']);
+            await this.browser.keys('Delete');
+            return await this.pause(300);
         } catch (err) {
-            throw new Error('Tried to clear the value in the input' + err);
+            throw new Error('Tried to clear the value in the input: ' + err);
         }
     }
 

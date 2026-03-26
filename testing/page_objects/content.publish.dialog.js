@@ -26,11 +26,8 @@ const XPATH = {
     inProgressStateEntryDiv: "//div[contains(@data-component,'SelectionStatusBar') and descendant::span[contains(.,'In progress')]]",
     invalidStateEntryDiv: "//div[contains(@id,'DialogStateEntry') and descendant::span[contains(@class,'icon-state-invalid')]]",
     inProgressSpan: "//span[contains(@class,'entry-text') and text()='In progress']",
-    contentSummaryByDisplayName: displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     dependentItemToPublish: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
-    dependentItemContentStatus: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     contentStatus: displayName => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/div[contains(@class,'status')][2]`,
-    removeItemIconByName: name => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]//div[@class='icon remove']`,
     excludedItemsNote: "//span[@class='excluded-items-note']",
     publishChangeLogInput: "//input[contains(@placeholder,'Describe changes that will')]",
 };
@@ -83,11 +80,11 @@ class ContentPublishDialog extends Page {
     }
 
     get addScheduleIcon() {
-        return XPATH.container + XPATH.addScheduleIcon;
+        return XPATH.container + BUTTONS.buttonByLabel('Schedule');
     }
 
     get scheduleButton() {
-        return XPATH.container + XPATH.scheduleButton;
+        return XPATH.container + BUTTONS.buttonByLabel('Schedule');
     }
 
     get includeChildrenToogler() {
@@ -311,6 +308,13 @@ class ContentPublishDialog extends Page {
         }
     }
 
+    waitForScheduleButtonDisplayed() {
+        return this.waitForElementEnabled(this.scheduleButton, appConst.mediumTimeout);
+    }
+
+    waitForScheduleButtonNotDisplayed(){
+        return this.waitForElementNotDisplayed(this.scheduleButton, appConst.mediumTimeout);
+    }
     waitForScheduleButtonEnabled() {
         return this.waitForElementEnabled(this.scheduleButton, appConst.mediumTimeout);
     }
@@ -412,10 +416,13 @@ class ContentPublishDialog extends Page {
         return await this.getTextInInput(this.changeLogInput);
     }
 
-    waitForAddScheduleIconDisplayed() {
-        return this.waitForElementDisplayed(this.addScheduleIcon, appConst.shortTimeout).catch(err => {
-            throw new Error("'Add Schedule' button is not displayed " + err);
-        })
+    async waitForAddScheduleIconDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.addScheduleIcon, appConst.shortTimeout)
+        } catch (err) {
+            await this.handleError(`Publish Dialog, 'Add Schedule' button should be displayed, `, 'err_add_schedule_icon', err);
+
+        }
     }
 
     async waitForAddScheduleIconNotDisplayed() {
@@ -516,13 +523,13 @@ class ContentPublishDialog extends Page {
     }
 
     async getItemsToPublish() {
-        let selector = XPATH.container + XPATH.publishItemList + lib.H6_DISPLAY_NAME;
+        //let selector = XPATH.container + XPATH.publishItemList + lib.H6_DISPLAY_NAME;
         let result = await this.getTextInElements(selector);
         return [].concat(result);
     }
 
     async clickOnMainItemAndSwitchToWizard(displayName) {
-        let selector = XPATH.publishItemList + XPATH.mainItemDivByName(displayName);
+        let selector = XPATH.container + XPATH.mainItemDivByName(displayName);
         await this.clickOnElement(selector);
         await this.pause(1000);
         return await this.getBrowser().switchWindow(displayName);
@@ -651,6 +658,14 @@ class ContentPublishDialog extends Page {
             await this.handleError(`Publish Dialog, click on 'Update Scheduled' button `, 'err_click_update_scheduled_button', err);
         }
     }
+
+    // Returns 'ready', 'in-progress', or '' — read from aria-label of the SVG icon inside ContentLabel
+    async getWorkflowIconState(contentName) {
+        const rowXpath = XPATH.container + XPATH.mainItemDivByName(contentName);
+        const diffStatusBadge = new DiffStatusBadge(rowXpath);
+        return await diffStatusBadge.getWorkflowIconState();
+    }
+
 }
 
 module.exports = ContentPublishDialog;

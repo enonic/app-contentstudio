@@ -24,6 +24,8 @@ const XPATH = {
     projectViewerButton: "//div[contains(@id,'ProjectViewer')]",
     highlightedRow: `//div[contains(@class,'checkbox-left selected') and not(contains(@class,'checked')) ]`,
     checkedRowLi: `//div[contains(@class,'checkbox-left selected checked')]`,
+    // v6: treeitem highlighted (bg-surface-selected) with checkbox not checked (aria-checked='false')
+    highlightedRowNotChecked: `//div[@role='treeitem' and contains(@class,'bg-surface-selected') and descendant::div[@role='checkbox' and @aria-checked='false']]`,
     searchButton: "//button[contains(@aria-label, 'search panel')]",
     hideSearchPanelButton: "//button[contains(@aria-label, 'Hide search panel')]",
     showSearchPanelButton: "//button[contains(@aria-label, 'Show search panel')]",
@@ -48,10 +50,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     get treeGridToolbar() {
         return XPATH.treeGridToolbar;
-    }
-
-    get refreshButton() {
-        return "//svg[contains(@class,'lucide-refresh')]";
     }
 
     get toolbar() {
@@ -635,16 +633,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     // TODO
-    async getNameInHighlightedRow() {
-        try {
-            await this.waitForElementDisplayed(XPATH.highlightedRow);
-            return await this.getText(XPATH.highlightedRow + lib.H6_DISPLAY_NAME);
-        } catch (err) {
-            await this.handleError(`Tried to count the number of highlighted rows `, 'err_count_highlighted_rows', err);
-        }
-    }
-
-    // TODO
     async getSortingIcon(contentName) {
 
         let selector = this.treeGrid + TREE_GRID.itemByName(contentName) + "//div[contains(@class,'content-tree-grid-sort')]";
@@ -679,14 +667,18 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    // One or zero highlighted rows:
-    async getNumberOfSelectedRows() {
+    // Returns the display name of the highlighted (but not checked) row, or '' when no such row exists.
+    async getNameInHighlightedRow() {
         try {
-            let locator = XPATH.contentsTreeListDiv + XPATH.highlightedRow;
-            let result = await this.findElements(locator);
-            return result.length;
+            const locator = XPATH.contentsTreeListDiv + XPATH.highlightedRowNotChecked +
+                TREE_GRID.CONTENT_LABEL_BLOCK + '//div[2]//span';
+            const elements = await this.getDisplayedElements(locator);
+            if (elements.length === 0) {
+                return '';
+            }
+            return await elements[0].getText();
         } catch (err) {
-            throw new Error(`Error when getting highlighted rows ` + err);
+            await this.handleError(`Tried to get name in highlighted row `, 'err_get_name_in_highlighted_row', err);
         }
     }
 
@@ -1119,9 +1111,16 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
+    async waitForResetSelectionCheckboxDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.resetSelectionCheckbox);
+        } catch (err) {
+            await this.handleError('Reset Selection checkbox should be displayed', 'err_reset_selection_checkbox', err);
+        }
+    }
     async clickOnResetSelectionCheckbox() {
         try {
-            await this.waitForElementDisplayed(this.resetSelectionCheckbox);
+            await this.waitForResetSelectionCheckboxDisplayed()
             return await this.clickOnElement(this.resetSelectionCheckbox);
         } catch (err) {
             await this.handleError('Clicked on Reset Selection checkbox', 'err_reset_selection_checkbox', err);
@@ -1130,6 +1129,13 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForReetSelectionCheckboxNotDisplayed() {
         await this.waitForElementNotDisplayed(this.resetSelectionCheckbox);
+    }
+    async clickOnRefreshButton() {
+        let locator = "//div[contains(@id,'TreeListToolbarElement')]//button";
+        let btn=await this.findElement(locator);
+        const svgElement = await btn.$("//svg[@stroke-linecap='round']");
+        await this.clickOnElement(locator);
+        return await this.pause(1000);
     }
 }
 

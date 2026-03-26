@@ -10,7 +10,7 @@ const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialo
 const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
-const PropertiesWidget = require('../../page_objects/browsepanel/detailspanel/properties.widget.itemview');
+const DetailsWidgetInfoSection = require('../../page_objects/browsepanel/detailspanel/details.widget.info.section');
 const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspanel/browse.versions.widget');
 
@@ -127,7 +127,7 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
         "GIVEN the user has selected the folder WHEN the folder has been duplicated THEN expected owner should be displayed for this folder in Properties Widget",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            let propertiesWidget = new PropertiesWidget();
+            let detailsWidgetInfoSection = new DetailsWidgetInfoSection();
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
             // 1. user is logged in:
@@ -141,7 +141,7 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName + '-copy');
             await studioUtils.saveScreenshot('owner_copy_folder');
             // 4. Verify the owner name in the Properties widget:
-            let owner = await propertiesWidget.getOwnerName();
+            let owner = await detailsWidgetInfoSection.getOwnerName();
             assert.equal(owner, USER.displayName, 'Expected user should be displayed in the widget');
             // 5. Open Versions widget:
             await contentBrowseDetailsPanel.openVersionHistory();

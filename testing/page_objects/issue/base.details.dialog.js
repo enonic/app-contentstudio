@@ -80,6 +80,14 @@ class BaseIssueDetailsDialog extends Page {
         }
     }
 
+    async waitForBackToIssuesButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.backButton);
+        } catch (err) {
+            await this.handleError('Issue Details Dialog, Back to Issues button not displayed', 'err_back_to_issues_btn', err);
+        }
+    }
+
     async clickOnEditTitle() {
         await this.clickOnElement(this.issueTitleInputToggle);
         return await this.pause(500);
@@ -183,6 +191,7 @@ class BaseIssueDetailsDialog extends Page {
                 err);
         }
     }
+
     async clickOnIncludeChildrenCheckbox(displayName) {
         try {
             let includeIcon = ISSUE.contentRowByName(displayName) + "/following-sibling::div[contains(@id,'children')]//label";

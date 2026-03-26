@@ -8,18 +8,20 @@ const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog');
 const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const appConst = require('../../libs/app_const');
+const IssueDetailsDialogItemsTab = require('../../page_objects/issue/issue.details.items.tab');
 
-describe('close.issue.without.items.spec: create an issue without items, close the issue and reopen it again', function () {
+describe('close.issue.no.items.spec: create an issue than does not have items, close the issue and reopen it again', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let issueTitle = appConst.generateRandomName('issue');
 
-    it(`WHEN new issue without items has been created THEN 'No items to publish' should be displayed in the Items-tab`,
+    it(`WHEN new issue without items has been created THEN 'Back To Issues Button' should be displayed in the Items-tab`,
         async () => {
             let createIssueDialog = new CreateIssueDialog();
             let issueDetailsDialog = new IssueDetailsDialog();
+            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
             // 1. Open Create Issue dialog:
             await studioUtils.openCreateIssueDialog();
             await createIssueDialog.typeTitle(issueTitle);
@@ -28,9 +30,8 @@ describe('close.issue.without.items.spec: create an issue without items, close t
             await issueDetailsDialog.waitForDialogLoaded();
             // Click on Items-tab:
             await issueDetailsDialog.clickOnItemsTabItem();
-            // TODO epic-enonic-ui  add check for 'No items to publish' label in the Items tab
-            let result = await issueDetailsDialog.isNoActionLabelPresent();
-            //assert.ok(result, `No items to publish' should be displayed, because items were not selected`);
+            //await issueDetailsDialogItemsTab.getSelectedItems();
+            await issueDetailsDialog.waitForBackToIssuesButtonDisplayed();
         });
 
     it(`GIVEN existing 'open' issue is clicked and Issue Details dialog is opened WHEN 'Close Issue' button has been pressed THEN the issue gets 'Closed'`,

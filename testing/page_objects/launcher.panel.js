@@ -124,7 +124,7 @@ class LauncherPanel extends Page {
 
     async clickOnLauncherToggler() {
         try {
-            await this.waitForElementDisplayed(this.launcherToggler, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.launcherToggler);
             await this.clickOnElement(this.launcherToggler);
             return await this.pause(200);
         } catch (err) {

@@ -998,7 +998,7 @@ module.exports = {
     async navigateToUsersApp(userName, password) {
         try {
             let launcherPanel = new LauncherPanel();
-            let isDisplayed = await launcherPanel.isDisplayed(appConst.mediumTimeout);
+            let isDisplayed = await launcherPanel.isDisplayed(1500);
             if (isDisplayed) {
                 console.log('Launcher Panel is opened, click on the `Users` link...');
                 await launcherPanel.pause(300);

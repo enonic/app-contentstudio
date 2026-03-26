@@ -79,7 +79,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             // 2. Open 'Details widget' then open 'Edit Setting' modal dialog:
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
             let language = await editSettingsDialog.getSelectedLanguage();
-            await editSettingsDialog.clickOnCancelButton();
+            await editSettingsDialog.clickOnCloseButton();
             await studioUtils.saveScreenshot('reset_not_confirmed');
             // 5. Verify that site is not reverted to initial inherited state:
             assert.equal(language, appConst.LANGUAGES.EN, `layer's data should not be reset`);
@@ -104,7 +104,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await studioUtils.saveScreenshot('reset_language_confirmed');
             // 5. Verify that  content is reverted to the inherited state (no languages is selected in the parent project):
             await editSettingsDialog.waitForSelectedLanguageNotDisplayed();
-            await editSettingsDialog.clickOnCancelButton();
+            await editSettingsDialog.clickOnCloseButton();
             await editSettingsDialog.waitForClosed();
             // 6. Verify that 'Reset' button is not displayed in the wizard toolbar:
             await contentWizard.waitForResetButtonNotDisplayed();

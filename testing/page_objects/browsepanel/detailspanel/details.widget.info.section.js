@@ -132,7 +132,7 @@ class DetailsWidgetInfoSection extends Page {
 
     async waitForOwnerDisplayed() {
         try {
-            await this.waitForElementDisplayed(this.ownerProperty, appConst.shortTimeout);
+            await this.waitForElementDisplayed(this.ownerProperty);
         } catch (err) {
             await this.handleError('Properties Widget, owner is not displayed', 'err_owner_displayed', err,);
         }

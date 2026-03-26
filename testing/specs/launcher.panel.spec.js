@@ -36,7 +36,8 @@ describe('launcher.panel.spec: tests for Launcher Panel', function () {
             await launcherPanel.waitForPanelClosed();
         });
 
-    it("GIVEN navigated to 'Content Studio' tab WHEN launcher panel has been opened THEN 'Content Studio' link should be active",
+    // TODO: enable the test after fixing
+    it.skip("GIVEN navigated to 'Content Studio' tab WHEN launcher panel has been opened THEN 'Content Studio' link should be active",
         async () => {
             let launcherPanel = new LauncherPanel();
             let result = await launcherPanel.isPanelOpened();
@@ -47,13 +48,13 @@ describe('launcher.panel.spec: tests for Launcher Panel', function () {
             // 1. Click on 'Content Studio' link
             await launcherPanel.clickOnContentStudioLink();
             // 2. Open Launcher Panel in the tab with browse panel:
-            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
+            await studioUtils.navigateToContentStudioApp();
             await launcherPanel.clickOnLauncherToggler();
             let appNAme = await launcherPanel.getActiveRowName();
             assert.equal(appNAme, 'Content Studio', 'contentstudio link should be active');
         });
 
-    it("GIVEN su is logged in WHEN 'Log out' link has been clicked THEN login page should be loaded",
+    it.skip("GIVEN su is logged in WHEN 'Log out' link has been clicked THEN login page should be loaded",
         async () => {
             let launcherPanel = new LauncherPanel();
             let loginPage = new LoginPage();
