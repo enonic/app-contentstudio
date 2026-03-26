@@ -13,8 +13,10 @@ import type {ContentSummary} from '../../../../../../app/content/ContentSummary'
 import {HTMLAreaHelper} from '../../../../../../app/inputtype/ui/text/HTMLAreaHelper';
 import {HtmlAreaSanitizer} from '../../../../../../app/inputtype/ui/text/HtmlAreaSanitizer';
 import type {Project} from '../../../../../../app/settings/data/project/Project';
-import {HtmlAreaImageDialog} from '../../../dialogs/htmlarea-image/HtmlAreaImageDialog';
+import {createImageDialogOverride, HtmlAreaImageDialog} from '../../../dialogs/htmlarea-image/HtmlAreaImageDialog';
 import type {OpenHtmlAreaImageDialogParams} from '../../../dialogs/htmlarea-image/HtmlAreaImageDialogContext';
+import {createLinkDialogOverride, HtmlAreaLinkDialog} from '../../../dialogs/htmlarea-link/HtmlAreaLinkDialog';
+import type {OpenHtmlAreaLinkDialogParams} from '../../../dialogs/htmlarea-link/HtmlAreaLinkDialogContext';
 import type {HtmlAreaConfig} from './HtmlAreaConfig';
 import {useHtmlAreaContext} from './HtmlAreaContext';
 import {setupEditor} from './setupEditor';
@@ -64,6 +66,7 @@ const CKEditorWrapper = ({
     const editorInstanceRef = useRef<CKEDITOR.editor | null>(null);
     // Track the last value we sent via onChange to avoid external sync conflicts
     const lastSentValueRef = useRef<string>(stringValue);
+    const openLinkDialogRef = useRef<((params: OpenHtmlAreaLinkDialogParams) => void) | undefined>(undefined);
 
     // Mark unmounted to prevent debounced callbacks from firing
     useEffect(() => {
@@ -140,7 +143,10 @@ const CKEditorWrapper = ({
                 project,
                 applicationKeys,
                 assetsUri,
-                onOpenImageDialog: (params) => openImageDialogRef.current?.(params),
+                dialogOverrides: {
+                    ...createImageDialogOverride(openImageDialogRef),
+                    ...createLinkDialogOverride(openLinkDialogRef),
+                },
             });
         }
 
@@ -263,6 +269,7 @@ const CKEditorWrapper = ({
                 />
             </div>
             <HtmlAreaImageDialog openRef={openImageDialogRef} />
+            <HtmlAreaLinkDialog openRef={openLinkDialogRef} />
         </>
     );
 };

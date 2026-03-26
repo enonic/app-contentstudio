@@ -203,7 +203,7 @@ class InsertImageDialog extends Page {
     }
 
     clickOnCancelButton() {
-        return this.clickOnElement(this.cancelButton);
+        return this.clickOnElement(this.cancelButtonTop);
     }
 
     async clickOnInsertButton() {
@@ -228,7 +228,7 @@ class InsertImageDialog extends Page {
 
     async waitForDialogVisible() {
         try {
-            await this.waitForElementDisplayed(this.cancelButton);
+            await this.waitForElementDisplayed(this.insertButton);
             await this.pause(300);
         } catch (err) {
             await this.handleError(`Insert Image Dialog should be opened`, 'err_insert_image_dialog', err);
