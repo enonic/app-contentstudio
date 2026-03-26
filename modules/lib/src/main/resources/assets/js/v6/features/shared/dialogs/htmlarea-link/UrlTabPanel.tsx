@@ -5,7 +5,7 @@ import {type UrlProtocol, useHtmlAreaLinkDialogContext} from './HtmlAreaLinkDial
 
 const COMPONENT_NAME = 'UrlTabPanel';
 
-const PROTOCOLS: Array<{value: UrlProtocol; label: string}> = [
+const PROTOCOLS: {value: UrlProtocol; label: string}[] = [
     {value: 'https://', label: 'Https'},
     {value: 'http://', label: 'Http'},
     {value: 'ftp://', label: 'Ftp'},

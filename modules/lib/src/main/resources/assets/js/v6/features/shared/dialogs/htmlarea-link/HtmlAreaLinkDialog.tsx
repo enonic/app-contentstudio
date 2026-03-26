@@ -13,6 +13,8 @@ import {HtmlAreaLinkDialogContent} from './HtmlAreaLinkDialogContent';
 
 const DIALOG_NAME = 'HtmlAreaLinkDialog';
 
+const INNER_NAME = `${DIALOG_NAME}Inner`;
+
 const HtmlAreaLinkDialogInner = (): ReactElement => {
     const {state: {open, isEditing}, canSubmit, close, submit} = useHtmlAreaLinkDialogContext();
 
@@ -57,6 +59,8 @@ const HtmlAreaLinkDialogInner = (): ReactElement => {
         </Dialog.Root>
     );
 };
+
+HtmlAreaLinkDialogInner.displayName = INNER_NAME;
 
 type HtmlAreaLinkDialogProps = {
     openRef: { current: ((params: OpenHtmlAreaLinkDialogParams) => void) | undefined };
