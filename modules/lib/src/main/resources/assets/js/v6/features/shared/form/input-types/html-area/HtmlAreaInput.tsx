@@ -28,6 +28,8 @@ import {createImageDialogOverride, HtmlAreaImageDialog} from '../../../dialogs/h
 import type {OpenHtmlAreaImageDialogParams} from '../../../dialogs/htmlarea-image/HtmlAreaImageDialogContext';
 import {createLinkDialogOverride, HtmlAreaLinkDialog} from '../../../dialogs/htmlarea-link/HtmlAreaLinkDialog';
 import type {OpenHtmlAreaLinkDialogParams} from '../../../dialogs/htmlarea-link/HtmlAreaLinkDialogContext';
+import {createMacroDialogOverride, HtmlAreaMacroDialog} from '../../../dialogs/htmlarea-macro/HtmlAreaMacroDialog';
+import type {OpenHtmlAreaMacroDialogParams} from '../../../dialogs/htmlarea-macro/HtmlAreaMacroDialogContext';
 import type {HtmlAreaConfig} from './HtmlAreaConfig';
 import {useHtmlAreaContext} from './HtmlAreaContext';
 import {setupEditor, setupEditorUi, type DialogOverrides} from './setupEditor';
@@ -77,6 +79,7 @@ const CKEditorWrapper = ({
     const [focused, setFocused] = useState(false);
     const openImageDialogRef = useRef<((params: OpenHtmlAreaImageDialogParams) => void) | undefined>(undefined);
     const openLinkDialogRef = useRef<((params: OpenHtmlAreaLinkDialogParams) => void) | undefined>(undefined);
+    const openMacroDialogRef = useRef<((params: OpenHtmlAreaMacroDialogParams) => void) | undefined>(undefined);
     const mountedRef = useRef(true);
     const editorUiReadyRef = useRef(false);
     const editorReadyRef = useRef(false);
@@ -87,6 +90,7 @@ const CKEditorWrapper = ({
     const dialogOverridesRef = useRef<DialogOverrides>({
         ...createImageDialogOverride(openImageDialogRef),
         ...createLinkDialogOverride(openLinkDialogRef),
+        ...createMacroDialogOverride(openMacroDialogRef),
         ...createAnchorDialogOverride(),
         ...createBulletedListDialogOverride(),
         ...createCodeDialogOverride(),
@@ -331,6 +335,7 @@ const CKEditorWrapper = ({
             </div>
             <HtmlAreaImageDialog openRef={openImageDialogRef} />
             <HtmlAreaLinkDialog openRef={openLinkDialogRef} />
+            <HtmlAreaMacroDialog openRef={openMacroDialogRef} />
             <HtmlAreaDialogs editorId={editorId} />
         </>
     );
