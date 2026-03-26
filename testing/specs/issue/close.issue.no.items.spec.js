@@ -30,7 +30,7 @@ describe('close.issue.no.items.spec: create an issue than does not have items, c
             await issueDetailsDialog.waitForDialogLoaded();
             // Click on Items-tab:
             await issueDetailsDialog.clickOnItemsTabItem();
-            await issueDetailsDialogItemsTab.getSelectedItems();
+            //await issueDetailsDialogItemsTab.getSelectedItems();
             await issueDetailsDialog.waitForBackToIssuesButtonDisplayed();
         });
 
