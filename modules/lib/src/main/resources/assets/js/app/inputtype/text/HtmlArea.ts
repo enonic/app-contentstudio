@@ -32,6 +32,7 @@ import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {HTMLAreaProxy} from '../ui/text/dialog/HTMLAreaProxy';
 import {HTMLAreaHelper} from '../ui/text/HTMLAreaHelper';
 import {getHtmlAreaLangDirection} from '../ui/text/HtmlAreaLangDirection';
+import {shouldIgnoreHtmlAreaBlur} from '../ui/text/HtmlAreaOverlayState';
 import {HtmlEditor} from '../ui/text/HtmlEditor';
 import {HtmlEditorParams} from '../ui/text/HtmlEditorParams';
 import {StylesRequest} from '../ui/text/styles/StylesRequest';
@@ -243,11 +244,17 @@ export class HtmlArea
         };
 
         const blurHandler = (e) => {
-            //checking if remove occurence button clicked or not
-            AppHelper.dispatchCustomEvent('focusout', this);
-            textAreaWrapper.getHTMLElement().dispatchEvent(new CustomEvent('focusout')); // for AI Assistant
+            requestAnimationFrame(() => {
+                if (shouldIgnoreHtmlAreaBlur(CKEDITOR.instances[id])) {
+                    return;
+                }
 
-            this.notifyBlurred(e);
+                //checking if remove occurence button clicked or not
+                AppHelper.dispatchCustomEvent('focusout', this);
+                textAreaWrapper.getHTMLElement().dispatchEvent(new CustomEvent('focusout')); // for AI Assistant
+
+                this.notifyBlurred(e);
+            });
         };
 
         const keydownHandler = (e: KeyboardEvent) => {

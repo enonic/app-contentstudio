@@ -167,7 +167,7 @@ function buildConfig(params: UseCKEditorConfigParams, cssPaths: string[]): CKEDI
         ],
         removePlugins: 'resize,image,quicktable',
         removeButtons: disabledTools?.join(),
-        extraPlugins: 'macro,image2,pasteModeSwitcher,nbsp,colordialog,findAndReplace,language',
+        extraPlugins: 'macro,image2,pasteModeSwitcher,nbsp,colordialog,language',
         extraAllowedContent: 'strong em u code address dl dt dd blockquote span(!shy);*(*);td{*};*[data-*]',
         stylesSet: styleSetId,
         image2_disableResizer: true,

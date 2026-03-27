@@ -11,6 +11,7 @@ import {useCKEditor} from 'ckeditor4-react';
 import {useEffect, useRef, useState, type JSX} from 'react';
 import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
 import {HTMLAreaHelper} from '../../../../../../app/inputtype/ui/text/HTMLAreaHelper';
+import {shouldIgnoreHtmlAreaBlur} from '../../../../../../app/inputtype/ui/text/HtmlAreaOverlayState';
 import {HtmlAreaSanitizer} from '../../../../../../app/inputtype/ui/text/HtmlAreaSanitizer';
 import type {Project} from '../../../../../../app/settings/data/project/Project';
 import {createImageDialogOverride, HtmlAreaImageDialog} from '../../../dialogs/htmlarea-image/HtmlAreaImageDialog';
@@ -189,16 +190,28 @@ const CKEditorWrapper = ({
         }
 
         const changeHandler = debouncedOnChange.trigger;
+        const blurHandler = onBlur
+            ? () => {
+                requestAnimationFrame(() => {
+                    if (!mountedRef.current || shouldIgnoreHtmlAreaBlur(editor)) {
+                        return;
+                    }
+
+                    onBlur();
+                });
+            }
+            : undefined;
+
         editor.on('change', changeHandler);
 
-        if (onBlur) {
-            editor.on('blur', onBlur);
+        if (blurHandler) {
+            editor.on('blur', blurHandler);
         }
 
         return () => {
             editor.removeListener('change', changeHandler);
-            if (onBlur) {
-                editor.removeListener('blur', onBlur);
+            if (blurHandler) {
+                editor.removeListener('blur', blurHandler);
             }
         };
     }, [

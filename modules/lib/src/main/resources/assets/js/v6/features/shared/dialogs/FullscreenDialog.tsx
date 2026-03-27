@@ -8,6 +8,7 @@ import {
     closeFullscreenDialog,
     initializeFullscreenDialogEditor,
 } from '../../store/dialogs/fullscreenDialog.store';
+import {$searchPopup} from '../../store/dialogs/searchPopup.store';
 import {$specialCharDialog} from '../../store/dialogs/specialCharDialog.store';
 import {$tableDialog} from '../../store/dialogs/tableDialog.store';
 import {$tableQuicktablePopup} from '../../store/dialogs/tableQuicktablePopup.store';
@@ -17,6 +18,7 @@ const FULLSCREEN_DIALOG_NAME = 'FullscreenDialog';
 const isOtherHtmlAreaDialogOpen = (): boolean => {
     return $anchorDialog.get().open ||
         $codeDialog.get().open ||
+        $searchPopup.get().open ||
         $specialCharDialog.get().open ||
         $tableDialog.get().open ||
         $tableQuicktablePopup.get().open ||

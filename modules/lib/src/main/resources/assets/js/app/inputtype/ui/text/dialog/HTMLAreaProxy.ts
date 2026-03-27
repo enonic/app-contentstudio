@@ -5,6 +5,7 @@ import {
     type CodeDialogParams,
     type FullScreenDialogParams,
     type MacroDialogParams,
+    type SearchPopupParams,
     type SpecialCharDialogParams,
     type TableQuicktablePopupParams,
 } from '../HtmlEditorTypes';
@@ -15,6 +16,7 @@ import {NumberedListModalDialog} from './NumberedListModalDialog';
 import {openAnchorDialog as openV6AnchorDialog} from '../../../../../v6/features/store/dialogs/anchorDialog.store';
 import {openCodeDialog as openV6CodeDialog} from '../../../../../v6/features/store/dialogs/codeDialog.store';
 import {openFullscreenDialog as openV6FullscreenDialog} from '../../../../../v6/features/store/dialogs/fullscreenDialog.store';
+import {openSearchPopup as openV6SearchPopup} from '../../../../../v6/features/store/dialogs/searchPopup.store';
 import {openSpecialCharDialog as openV6SpecialCharDialog} from '../../../../../v6/features/store/dialogs/specialCharDialog.store';
 import {openTableDialog as openV6TableDialog} from '../../../../../v6/features/store/dialogs/tableDialog.store';
 import {openTableQuicktablePopup as openV6TableQuicktablePopup} from '../../../../../v6/features/store/dialogs/tableQuicktablePopup.store';
@@ -38,6 +40,9 @@ export class HTMLAreaProxy {
             return;
         case HtmlAreaDialogType.FULLSCREEN:
             HTMLAreaProxy.openFullscreenDialog(event);
+            return;
+        case HtmlAreaDialogType.SEARCH_POPUP:
+            HTMLAreaProxy.openSearchPopup(event);
             return;
         case HtmlAreaDialogType.TABLE_QUICKTABLE:
             HTMLAreaProxy.openTableQuicktablePopup(event);
@@ -73,6 +78,10 @@ export class HTMLAreaProxy {
 
     private static openFullscreenDialog(event: CreateHtmlAreaDialogEvent): void {
         openV6FullscreenDialog(event.getConfig() as FullScreenDialogParams);
+    }
+
+    private static openSearchPopup(event: CreateHtmlAreaDialogEvent): void {
+        openV6SearchPopup(event.getConfig() as SearchPopupParams);
     }
 
     private static openTableDialog(event: CreateHtmlAreaDialogEvent): void {
