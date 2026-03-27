@@ -84,20 +84,23 @@ public class MediaRenderingBean
 
         ).filter( t -> !t.equals( "video/avi" ) ).collect( Collectors.toSet() );
 
+    // Subset of MEDIA_ATTACHMENT_TYPES that browsers can render inline (won't trigger a download)
+    private static final Set<String> BROWSER_RENDERABLE_TYPES = Set.of(
+        "application/pdf",
+        "application/json", "application/javascript", "application/ecmascript",
+        "text/javascript", "text/html", "text/css", "text/plain", "text/xml",
+        "video/mp4", "video/webm", "video/ogg",
+        "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm", "audio/aac", "audio/flac", "audio/mp4"
+    );
+
     private static final Set<String> SKIP_IMAGE_MIME_TYPES = Set.of( "image/webp", "image/avif", "image/gif", "image/svg+xml" );
 
     private static final ContentTypeNames IMAGE_CONTENT_TYPES =
         ContentTypeNames.from( ContentTypeName.imageMedia(), ContentTypeName.vectorMedia() );
 
-    public boolean canRender( final String contentId, final String repository, final String branch, final boolean archive,
-                              final boolean editMode )
+    public boolean canRender( final String contentId, final String repository, final String branch, final boolean archive )
     {
-        return runInAdminContext( repository, branch, archive, () -> canRenderInContext( contentId, editMode ) );
-    }
-
-    public String resolveMimeType( final String contentId, final String repository, final String branch, final boolean archive )
-    {
-        return runInAdminContext( repository, branch, archive, () -> resolveMimeTypeInContext( contentId ) );
+        return runInAdminContext( repository, branch, archive, () -> canRenderInContext( contentId ) );
     }
 
     public boolean isImageContent( final String contentType )
@@ -160,18 +163,17 @@ public class MediaRenderingBean
             .build().callWith( func );
     }
 
-    private String resolveMimeTypeInContext( final String contentId )
+    private static boolean isBrowserRenderable( final String mimeType )
     {
-        final Content content = contentServiceSupplier.get().getById( ContentId.from( contentId ) );
-        if ( content == null )
+        if ( mimeType.startsWith( "image/" ) )
         {
-            return null;
+            return true;
         }
-        final Attachment attachment = resolveAttachment( null, content );
-        return attachment != null ? attachment.getMimeType() : null;
+
+        return BROWSER_RENDERABLE_TYPES.contains( mimeType );
     }
 
-    private boolean canRenderInContext( final String contentId, final boolean editMode )
+    private boolean canRenderInContext( final String contentId )
     {
         final Content content = contentServiceSupplier.get().getById( ContentId.from( contentId ) );
         // don't render image preview in edit mode, because image editor is part of the form
@@ -186,7 +188,7 @@ public class MediaRenderingBean
         }
 
         final Attachment attachment = resolveAttachment( null, content );
-        return ( attachment != null && MEDIA_ATTACHMENT_TYPES.contains( attachment.getMimeType() ) );
+        return ( attachment != null && MEDIA_ATTACHMENT_TYPES.contains( attachment.getMimeType() ) && isBrowserRenderable( attachment.getMimeType() ) );
     }
 
     private Object serveImage( final String id, final Integer size,
