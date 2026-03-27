@@ -9,11 +9,11 @@ import {
     type SpecialCharDialogParams,
     type TableQuicktablePopupParams,
 } from '../HtmlEditorTypes';
-import {BulletedListModalDialog} from './BulletedListModalDialog';
 import {MacroModalDialog} from './MacroModalDialog';
 import {type ModalDialog} from './ModalDialog';
 import {NumberedListModalDialog} from './NumberedListModalDialog';
 import {openAnchorDialog as openV6AnchorDialog} from '../../../../../v6/features/store/dialogs/anchorDialog.store';
+import {openBulletedListDialog as openV6BulletedListDialog} from '../../../../../v6/features/store/dialogs/bulletedListDialog.store';
 import {openCodeDialog as openV6CodeDialog} from '../../../../../v6/features/store/dialogs/codeDialog.store';
 import {openFullscreenDialog as openV6FullscreenDialog} from '../../../../../v6/features/store/dialogs/fullscreenDialog.store';
 import {openSearchPopup as openV6SearchPopup} from '../../../../../v6/features/store/dialogs/searchPopup.store';
@@ -97,7 +97,7 @@ export class HTMLAreaProxy {
     }
 
     private static openBulletedListDialog(event: CreateHtmlAreaDialogEvent): void {
-        HTMLAreaProxy.openLegacyDialog(new BulletedListModalDialog(event.getConfig() as eventInfo));
+        openV6BulletedListDialog(event.getConfig() as eventInfo);
     }
 
     private static openLegacyDialog(dialog: ModalDialog): void {

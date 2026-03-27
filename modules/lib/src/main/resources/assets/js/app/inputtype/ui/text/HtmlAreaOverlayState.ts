@@ -1,4 +1,5 @@
 import {$anchorDialog} from '../../../../v6/features/store/dialogs/anchorDialog.store';
+import {$bulletedListDialog} from '../../../../v6/features/store/dialogs/bulletedListDialog.store';
 import {$codeDialog} from '../../../../v6/features/store/dialogs/codeDialog.store';
 import {$fullscreenDialog} from '../../../../v6/features/store/dialogs/fullscreenDialog.store';
 import {$searchPopup} from '../../../../v6/features/store/dialogs/searchPopup.store';
@@ -8,6 +9,7 @@ import {$tableQuicktablePopup} from '../../../../v6/features/store/dialogs/table
 
 const HTMLAREA_OVERLAY_SELECTOR = [
     '[data-component="AnchorDialog"]',
+    '[data-component="BulletedListDialog"]',
     '[data-component="CodeDialog"]',
     '[data-component="FullscreenDialog"]',
     '[data-component="SearchPopup"]',
@@ -66,6 +68,7 @@ export const suppressHtmlAreaBlur = (editor?: CKEDITOR.editor, duration = 300): 
 
 export const isHtmlAreaOverlayOpen = (editor?: CKEDITOR.editor): boolean => {
     return isMatchingDialogState($anchorDialog.get(), editor) ||
+        isMatchingDialogState($bulletedListDialog.get(), editor) ||
         isMatchingDialogState($codeDialog.get(), editor) ||
         isMatchingDialogState($fullscreenDialog.get(), editor) ||
         isMatchingDialogState($searchPopup.get(), editor) ||
