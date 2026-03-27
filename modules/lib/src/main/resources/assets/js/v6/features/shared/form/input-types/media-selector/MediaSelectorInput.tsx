@@ -3,8 +3,10 @@ import type {MediaSelectorConfig} from './MediaSelectorConfig';
 import type {ReactElement} from 'react';
 import {MediaSelector} from '../../../selectors/media';
 import {useSelectorInput} from '../../../../hooks/useSelectorInput';
+import {useFormRender} from '../../FormRenderContext';
 
 export const MediaSelectorInput = (props: SelfManagedComponentProps<MediaSelectorConfig>): ReactElement => {
+    const {applicationKey} = useFormRender();
     const {contextContent, selectionMode, hasErrors, hideToggleIcon, listMode, selection, placeholder, emptyLabel, handleSelectionChange} =
         useSelectorInput(props);
 
@@ -24,6 +26,7 @@ export const MediaSelectorInput = (props: SelfManagedComponentProps<MediaSelecto
             contentTypeNames={contentTypeNames}
             allowedContentPaths={allowedContentPaths}
             contextContent={contextContent?.getContentSummary()}
+            applicationKey={applicationKey}
             listMode={listMode}
             disabled={disabled}
             withUpload

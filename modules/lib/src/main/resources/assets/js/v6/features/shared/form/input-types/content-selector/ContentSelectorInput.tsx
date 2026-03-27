@@ -3,6 +3,7 @@ import type {ReactElement} from 'react';
 import {useStore} from '@nanostores/preact';
 import {$activeProject} from '../../../../store/projects.store';
 import {useSelectorInput} from '../../../../hooks/useSelectorInput';
+import {useFormRender} from '../../FormRenderContext';
 import {ContentCombobox} from '../../../selectors/content';
 import {ContentRow} from '../../../selectors/shared/combobox/ContentRow';
 import {SelectorSelection, SelectorSelectionItem} from '../../../selectors/shared/selection';
@@ -15,6 +16,7 @@ import {ContentSelectorInputAddButton} from './ContentSelectorInputAddButton';
  */
 export const ContentSelectorInput = (props: SelfManagedComponentProps<ContentSelectorConfig>): ReactElement => {
     const activeProject = useStore($activeProject);
+    const {applicationKey} = useFormRender();
 
     const {
         contextContent: selectorContextContent,
@@ -46,6 +48,7 @@ export const ContentSelectorInput = (props: SelfManagedComponentProps<ContentSel
                     contentTypeNames={contentTypeNames}
                     allowedContentPaths={allowedContentPaths}
                     contextContent={selectorContextContent?.getContentSummary()}
+                    applicationKey={applicationKey}
                     listMode={listMode}
                     disabled={disabled}
                     rowRenderer={ContentRow}
