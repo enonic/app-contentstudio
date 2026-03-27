@@ -114,9 +114,48 @@ body.cke_editable {
   float: right;
 }
 
-.cke_panel_container {
+.cke_panel.cke_combopanel__styles,
+.cke_panel.htmlarea-styles-popup {
+  background-color: #ffffff;
+  border-color: #b2b2b2;
+}
+
+html.cke_panel_container.cke_combopanel__styles,
+html.cke_panel_container.htmlarea-styles-popup {
   font-family: @admin-font-family;
   font-size: 14px;
+
+  --cke-popup-bg: #ffffff;
+  --cke-popup-bg-hover: #f1f5f6;
+  --cke-popup-border: #b2b2b2;
+  --cke-popup-text: #000000;
+  --cke-popup-text-subtle: #5b5f60;
+
+  body.cke_ltr,
+  body.cke_rtl,
+  .cke_panel_block,
+  .cke_panel_list {
+    background-color: var(--cke-popup-bg);
+    color: var(--cke-popup-text);
+  }
+
+  .cke_panel_grouptitle {
+    background-color: var(--cke-popup-bg);
+    border-bottom-color: var(--cke-popup-border);
+    color: var(--cke-popup-text-subtle);
+  }
+
+  .cke_panel_listItem a {
+    color: var(--cke-popup-text);
+  }
+
+  .cke_panel_listItem a:hover,
+  .cke_panel_listItem a:focus,
+  .cke_panel_listItem a:active,
+  .cke_panel_listItem.cke_selected a {
+    background-color: var(--cke-popup-bg-hover);
+    color: var(--cke-popup-text);
+  }
 }
 
 .cke_combo_button {
@@ -279,23 +318,11 @@ html.dark {
     border-top-color: @cke-dark-text-subtle;
   }
 
-  // Dropdown panels (Styles list, color picker, etc.)
-  .cke_panel {
+  // Dropdown panel (Styles list only)
+  .cke_panel.cke_combopanel__styles,
+  .cke_panel.htmlarea-styles-popup {
     background-color: @cke-dark-surface;
     border-color: @cke-dark-border;
-  }
-
-  .cke_panel_listItem a:hover,
-  .cke_panel_listItem a:focus,
-  .cke_panel_listItem a:active,
-  .cke_panel_listItem.cke_selected a {
-    background-color: @cke-dark-surface-hover;
-  }
-
-  .cke_panel_grouptitle {
-    color: @cke-dark-text-subtle;
-    border-bottom-color: @cke-dark-border;
-    background: @cke-dark-surface;
   }
 
   // Context menu
@@ -355,6 +382,15 @@ html.dark {
     border-color: @cke-dark-link;
     background-color: @cke-dark-surface-hover;
   }
+}
+
+html.dark.cke_panel_container.cke_combopanel__styles,
+html.dark.cke_panel_container.htmlarea-styles-popup {
+  --cke-popup-bg: @cke-dark-surface;
+  --cke-popup-bg-hover: @cke-dark-surface-hover;
+  --cke-popup-border: @cke-dark-border;
+  --cke-popup-text: @cke-dark-text;
+  --cke-popup-text-subtle: @cke-dark-text-subtle;
 }
 
 // ── Dark mode: editor iframe content ──
