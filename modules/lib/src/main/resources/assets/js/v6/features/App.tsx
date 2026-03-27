@@ -3,6 +3,7 @@ import {useStore} from '@nanostores/preact';
 import type {ReactElement} from 'react';
 import {start as startSocketService} from './services/socket.service';
 import {AnchorDialog} from './shared/dialogs/AnchorDialog';
+import {BulletedListDialog} from './shared/dialogs/BulletedListDialog';
 import {CodeDialog} from './shared/dialogs/CodeDialog';
 import {FullscreenDialog} from './shared/dialogs/FullscreenDialog';
 import {LegacyElement} from './shared/LegacyElement';
@@ -29,6 +30,7 @@ const App = (): ReactElement => {
         <>
             {isWizard ? <WizardPage /> : <BrowsePage />}
             <AnchorDialog />
+            <BulletedListDialog />
             <CodeDialog />
             <FullscreenDialog />
             <SearchPopup />
