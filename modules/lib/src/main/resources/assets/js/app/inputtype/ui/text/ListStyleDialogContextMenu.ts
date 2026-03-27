@@ -1,4 +1,6 @@
 type CkEditorBookmarks = ReturnType<CKEDITOR.dom.selection['createBookmarks2']>;
+type ListStyleDialogName = 'bulletedListStyle' | 'numberedListStyle';
+
 interface CkEditorContextMenu {
     open: (
         target?: CKEDITOR.dom.element,
@@ -8,16 +10,21 @@ interface CkEditorContextMenu {
     ) => void;
 }
 
-interface PendingBulletedListContextMenuTarget {
+interface PendingListStyleContextMenuTarget {
     target: CKEDITOR.dom.element;
     timestamp: number;
 }
 
+interface ListStyleTargetMatch {
+    dialogName: ListStyleDialogName;
+    listElement: CKEDITOR.dom.element;
+}
+
 const CONTEXT_MENU_TARGET_MAX_AGE = 1000;
 
-const pendingBulletedListContextMenuTargets = new WeakMap<CKEDITOR.editor, PendingBulletedListContextMenuTarget>();
-const pendingBulletedListDialogBookmarks = new WeakMap<CKEDITOR.editor, CkEditorBookmarks | undefined>();
-const bulletedListContextMenuOverrides = new WeakSet<CKEDITOR.editor>();
+const pendingListStyleContextMenuTargets = new WeakMap<CKEDITOR.editor, PendingListStyleContextMenuTarget>();
+const pendingListStyleDialogBookmarks = new WeakMap<CKEDITOR.editor, CkEditorBookmarks | undefined>();
+const listStyleContextMenuOverrides = new WeakSet<CKEDITOR.editor>();
 
 const now = (): number => Date.now();
 
@@ -35,7 +42,7 @@ const getNearestListElement = (target: CKEDITOR.dom.element): CKEDITOR.dom.eleme
     return undefined;
 };
 
-const isBlockedBulletedListContextTarget = (element: CKEDITOR.dom.element): boolean => {
+const isBlockedListStyleContextTarget = (element: CKEDITOR.dom.element): boolean => {
     return element.is('a', 'img', 'figure', 'table', 'tbody', 'thead', 'tfoot', 'tr', 'td', 'th', 'input', 'textarea', 'select', 'button') ||
         element.hasClass('cke_anchor') ||
         element.hasClass('cke_widget_wrapper') ||
@@ -46,51 +53,54 @@ const isBlockedBulletedListContextTarget = (element: CKEDITOR.dom.element): bool
         element.hasAttribute('data-cke-real-element-type');
 };
 
-const getBulletedListElement = (target: CKEDITOR.dom.element | undefined): CKEDITOR.dom.element | undefined => {
+const getListStyleDialogTarget = (target: CKEDITOR.dom.element | undefined): ListStyleTargetMatch | undefined => {
     if (!target) {
         return undefined;
     }
 
     const listElement = getNearestListElement(target);
 
-    if (!listElement || !listElement.is('ul')) {
+    if (!listElement || (!listElement.is('ul') && !listElement.is('ol'))) {
         return undefined;
     }
 
     let currentElement: CKEDITOR.dom.element | null = target;
 
     while (currentElement && !currentElement.equals(listElement)) {
-        if (isBlockedBulletedListContextTarget(currentElement)) {
+        if (isBlockedListStyleContextTarget(currentElement)) {
             return undefined;
         }
 
         currentElement = currentElement.getParent();
     }
 
-    return listElement;
+    return {
+        dialogName: listElement.is('ul') ? 'bulletedListStyle' : 'numberedListStyle',
+        listElement,
+    };
 };
 
-const setPendingBulletedListContextMenuTarget = (
+const setPendingListStyleContextMenuTarget = (
     editor: CKEDITOR.editor,
     target: CKEDITOR.dom.element | undefined,
 ): void => {
     if (!target) {
-        pendingBulletedListContextMenuTargets.delete(editor);
+        pendingListStyleContextMenuTargets.delete(editor);
         return;
     }
 
-    pendingBulletedListContextMenuTargets.set(editor, {
+    pendingListStyleContextMenuTargets.set(editor, {
         target,
         timestamp: now(),
     });
 };
 
-const consumePendingBulletedListContextMenuTarget = (
+const consumePendingListStyleContextMenuTarget = (
     editor: CKEDITOR.editor,
 ): CKEDITOR.dom.element | undefined => {
-    const pendingTarget = pendingBulletedListContextMenuTargets.get(editor);
+    const pendingTarget = pendingListStyleContextMenuTargets.get(editor);
 
-    pendingBulletedListContextMenuTargets.delete(editor);
+    pendingListStyleContextMenuTargets.delete(editor);
 
     if (!pendingTarget || now() - pendingTarget.timestamp > CONTEXT_MENU_TARGET_MAX_AGE) {
         return undefined;
@@ -99,8 +109,8 @@ const consumePendingBulletedListContextMenuTarget = (
     return pendingTarget.target;
 };
 
-const overrideBulletedListContextMenuOpen = (editor: CKEDITOR.editor): void => {
-    if (bulletedListContextMenuOverrides.has(editor)) {
+const overrideListStyleContextMenuOpen = (editor: CKEDITOR.editor): void => {
+    if (listStyleContextMenuOverrides.has(editor)) {
         return;
     }
 
@@ -113,30 +123,31 @@ const overrideBulletedListContextMenuOpen = (editor: CKEDITOR.editor): void => {
     const originalOpen = contextMenu.open.bind(contextMenu);
 
     contextMenu.open = (target, corner, offsetX, offsetY): void => {
-        const pendingTarget = consumePendingBulletedListContextMenuTarget(editor);
-        const listElement = getBulletedListElement(pendingTarget);
+        const pendingTarget = consumePendingListStyleContextMenuTarget(editor);
+        const match = getListStyleDialogTarget(pendingTarget);
 
-        if (listElement && !listElement.isReadOnly()) {
-            openBulletedListDialog(editor, listElement);
+        if (match && !match.listElement.isReadOnly()) {
+            openListStyleDialog(editor, match.listElement, match.dialogName);
             return;
         }
 
         originalOpen(target, corner, offsetX, offsetY);
     };
 
-    bulletedListContextMenuOverrides.add(editor);
+    listStyleContextMenuOverrides.add(editor);
 };
 
-const openBulletedListDialog = (
+const openListStyleDialog = (
     editor: CKEDITOR.editor,
     listElement: CKEDITOR.dom.element,
+    dialogName: ListStyleDialogName,
 ): void => {
     if (editor['destroyed'] || editor.readOnly || editor.mode !== 'wysiwyg') {
         return;
     }
 
     editor.focus();
-    pendingBulletedListDialogBookmarks.set(editor, editor.getSelection()?.createBookmarks2(true));
+    pendingListStyleDialogBookmarks.set(editor, editor.getSelection()?.createBookmarks2(true));
 
     const range = editor.createRange();
 
@@ -145,18 +156,18 @@ const openBulletedListDialog = (
 
     window.setTimeout(() => {
         if (!editor['destroyed']) {
-            editor.openDialog('bulletedListStyle', undefined);
+            editor.openDialog(dialogName, undefined);
         }
     }, 0);
 };
 
-export const bindBulletedListDialogContextMenu = (editor: CKEDITOR.editor): void => {
+export const bindListStyleDialogContextMenu = (editor: CKEDITOR.editor): void => {
     let boundEditable: CKEDITOR.editable | undefined;
     let webkitContextMenuModifierPressed = false;
     let geckoSkipNextContextMenu = false;
 
-    const clearPendingBulletedListContextMenuTarget = (): void => {
-        setPendingBulletedListContextMenuTarget(editor, undefined);
+    const clearPendingListStyleContextMenuTarget = (): void => {
+        setPendingListStyleContextMenuTarget(editor, undefined);
     };
 
     const resetWebkitContextMenuModifier = (): void => {
@@ -182,11 +193,11 @@ export const bindBulletedListDialogContextMenu = (editor: CKEDITOR.editor): void
         const domEvent = event.data.$ as MouseEvent | KeyboardEvent;
 
         if (isBrowserContextMenuModifierPressed(domEvent) || geckoSkipNextContextMenu) {
-            clearPendingBulletedListContextMenuTarget();
+            clearPendingListStyleContextMenuTarget();
             return;
         }
 
-        setPendingBulletedListContextMenuTarget(editor, event.data.getTarget());
+        setPendingListStyleContextMenuTarget(editor, event.data.getTarget());
     };
 
     const bind = (): void => {
@@ -216,7 +227,7 @@ export const bindBulletedListDialogContextMenu = (editor: CKEDITOR.editor): void
         }
     };
 
-    overrideBulletedListContextMenuOpen(editor);
+    overrideListStyleContextMenuOpen(editor);
 
     if (editor.status === 'ready') {
         bind();
@@ -225,12 +236,12 @@ export const bindBulletedListDialogContextMenu = (editor: CKEDITOR.editor): void
     editor.on('contentDom', bind);
 };
 
-export const consumeBulletedListDialogSelectionBookmarks = (
+export const consumeListStyleDialogSelectionBookmarks = (
     editor: CKEDITOR.editor,
 ): CkEditorBookmarks | undefined => {
-    const bookmarks = pendingBulletedListDialogBookmarks.get(editor);
+    const bookmarks = pendingListStyleDialogBookmarks.get(editor);
 
-    pendingBulletedListDialogBookmarks.delete(editor);
+    pendingListStyleDialogBookmarks.delete(editor);
 
     return bookmarks;
 };

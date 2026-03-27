@@ -2,6 +2,7 @@ import {$anchorDialog} from '../../../../v6/features/store/dialogs/anchorDialog.
 import {$bulletedListDialog} from '../../../../v6/features/store/dialogs/bulletedListDialog.store';
 import {$codeDialog} from '../../../../v6/features/store/dialogs/codeDialog.store';
 import {$fullscreenDialog} from '../../../../v6/features/store/dialogs/fullscreenDialog.store';
+import {$numberedListDialog} from '../../../../v6/features/store/dialogs/numberedListDialog.store';
 import {$searchPopup} from '../../../../v6/features/store/dialogs/searchPopup.store';
 import {$specialCharDialog} from '../../../../v6/features/store/dialogs/specialCharDialog.store';
 import {$tableDialog} from '../../../../v6/features/store/dialogs/tableDialog.store';
@@ -12,6 +13,7 @@ const HTMLAREA_OVERLAY_SELECTOR = [
     '[data-component="BulletedListDialog"]',
     '[data-component="CodeDialog"]',
     '[data-component="FullscreenDialog"]',
+    '[data-component="NumberedListDialog"]',
     '[data-component="SearchPopup"]',
     '[data-component="SpecialCharDialog"]',
     '[data-component="TableDialog"]',
@@ -71,6 +73,7 @@ export const isHtmlAreaOverlayOpen = (editor?: CKEDITOR.editor): boolean => {
         isMatchingDialogState($bulletedListDialog.get(), editor) ||
         isMatchingDialogState($codeDialog.get(), editor) ||
         isMatchingDialogState($fullscreenDialog.get(), editor) ||
+        isMatchingDialogState($numberedListDialog.get(), editor) ||
         isMatchingDialogState($searchPopup.get(), editor) ||
         isMatchingDialogState($specialCharDialog.get(), editor) ||
         isMatchingDialogState($tableDialog.get(), editor) ||

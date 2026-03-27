@@ -18,7 +18,7 @@ import {type ContentsExistByPathResult} from '../../../resource/ContentsExistByP
 import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
 import {UrlHelper} from '../../../util/UrlHelper';
 import {CreateHtmlAreaDialogEventGenerator} from './CreateHtmlAreaDialogEventGenerator';
-import {bindBulletedListDialogContextMenu} from './BulletedListDialogContextMenu';
+import {bindListStyleDialogContextMenu} from './ListStyleDialogContextMenu';
 import {bindEditableBodyRuntimeState} from './EditableBodyRuntimeState';
 import {HTMLAreaHelper} from './HTMLAreaHelper';
 import {type HtmlEditorParams} from './HtmlEditorParams';
@@ -726,7 +726,7 @@ export class HtmlEditor {
             dialogEventGenerator.generateFromEventInfoAndFire(dialogShowEvent);
         });
 
-        bindBulletedListDialogContextMenu(this.editor);
+        bindListStyleDialogContextMenu(this.editor);
     }
 
     getName(): string {
