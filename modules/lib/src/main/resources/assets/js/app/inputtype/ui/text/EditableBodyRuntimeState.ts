@@ -1,3 +1,5 @@
+import {ensureStylesComboPopupRuntimeState, syncStylesComboPopupRuntimeState} from './StylesComboPopupRuntimeState';
+
 interface EditableBodyRuntimeStateOptions {
     fullscreen?: boolean;
 }
@@ -33,6 +35,8 @@ export const syncEditableBodyRuntimeState = (
     } catch {
         // The editable body may be unavailable while CKEditor recreates it.
     }
+
+    syncStylesComboPopupRuntimeState();
 };
 
 const syncAllBindings = (): void => {
@@ -84,6 +88,7 @@ export const bindEditableBodyRuntimeState = (
     };
 
     bindings.add(binding);
+    ensureStylesComboPopupRuntimeState();
     ensureThemeObserver();
     sync();
 
