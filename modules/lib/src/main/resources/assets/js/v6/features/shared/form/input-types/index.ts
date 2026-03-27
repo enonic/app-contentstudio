@@ -1,4 +1,5 @@
 import {InputTypeRegistry} from '@enonic/lib-admin-ui/form2';
+import {ContentTypeFilterDescriptor, ContentTypeFilterInput} from './content-type-filter';
 import {HtmlAreaDescriptor, HtmlAreaInput} from './html-area/';
 import {ImageSelectorDescriptor, ImageSelectorInput} from './image-selector';
 import {MediaSelectorDescriptor, MediaSelectorInput} from './media-selector';
@@ -11,4 +12,5 @@ export function registerContentStudioInputTypes(): void {
     InputTypeRegistry.registerType({mode: 'internal', descriptor: MediaSelectorDescriptor, component: MediaSelectorInput}, true);
     InputTypeRegistry.registerType({mode: 'internal', descriptor: ContentSelectorDescriptor, component: ContentSelectorInput}, true);
     InputTypeRegistry.registerType({mode: 'internal', descriptor: SiteConfiguratorDescriptor, component: SiteConfiguratorInput}, true);
+    InputTypeRegistry.registerType({mode: 'internal', descriptor: ContentTypeFilterDescriptor, component: ContentTypeFilterInput}, true);
 }
