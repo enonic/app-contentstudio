@@ -25,12 +25,12 @@ export const ImageSelectorItemView = ({content, hideStatus = false}: ImageSelect
     const contentId = content.getId();
     const displayName = content.getDisplayName() || content.getType()?.getLocalName();
     const subName = content.getPath() ? content.getPath().toString() : '';
-    const iconUrl = new ContentIconUrlResolver().setContent(content.getContentSummary()).resolve() + '&size=270';
+    const iconUrl = new ContentIconUrlResolver().setContent(content.getContentSummary()).resolve() + '&size=240';
 
     if (isRemoved) {
         return (
             <div data-component={IMAGE_SELECTOR_ITEM_VIEW} className="flex items-center gap-2.5 min-w-0">
-                <div className="relative aspect-square w-[36cqw] max-w-[270px] border border-bdr-subtle group-data-[tone=inverse]:border-alt flex items-center justify-center shrink-0">
+                <div className="relative w-[36cqw] max-w-[240px] flex items-center justify-center shrink-0">
                     <span className="text-sm text-error text-center m-1">{imageNotAvailableLabel}</span>
                 </div>
                 <div className="min-w-0">
@@ -42,8 +42,8 @@ export const ImageSelectorItemView = ({content, hideStatus = false}: ImageSelect
 
     return (
         <div data-component={IMAGE_SELECTOR_ITEM_VIEW} className="flex items-center gap-2.5 min-w-0">
-            <div className="relative aspect-square w-[36cqw] max-w-[270px] border border-bdr-subtle group-data-[tone=inverse]:border-alt flex items-center justify-center shrink-0">
-                <img src={iconUrl} alt={displayName} className="object-contain object-center max-w-full max-h-full" />
+            <div className="relative w-[36cqw] max-w-[240px] flex items-center justify-center shrink-0">
+                <img src={iconUrl} alt={displayName} className="object-contain object-center w-full max-h-[240px]" />
             </div>
 
             <div className="min-w-0">
