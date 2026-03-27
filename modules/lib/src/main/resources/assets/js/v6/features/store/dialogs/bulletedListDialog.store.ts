@@ -1,5 +1,5 @@
 import {map} from 'nanostores';
-import {consumeBulletedListDialogSelectionBookmarks} from '../../../../app/inputtype/ui/text/BulletedListDialogContextMenu';
+import {consumeListStyleDialogSelectionBookmarks} from '../../../../app/inputtype/ui/text/ListStyleDialogContextMenu';
 import eventInfo = CKEDITOR.eventInfo;
 
 export type BulletedListDialogType = 'notset' | 'circle' | 'disc' | 'square';
@@ -122,7 +122,7 @@ export const openBulletedListDialog = (config: eventInfo): void => {
         typeOptions: getBulletedListDialogOptions(config.editor),
         editor: config.editor,
         dialog,
-        selectionBookmarks: consumeBulletedListDialogSelectionBookmarks(config.editor),
+        selectionBookmarks: consumeListStyleDialogSelectionBookmarks(config.editor),
     });
 };
 

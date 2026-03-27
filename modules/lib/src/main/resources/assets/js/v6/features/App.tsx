@@ -7,6 +7,7 @@ import {BulletedListDialog} from './shared/dialogs/BulletedListDialog';
 import {CodeDialog} from './shared/dialogs/CodeDialog';
 import {FullscreenDialog} from './shared/dialogs/FullscreenDialog';
 import {LegacyElement} from './shared/LegacyElement';
+import {NumberedListDialog} from './shared/dialogs/NumberedListDialog';
 import {SearchPopup} from './shared/dialogs/SearchPopup';
 import {SpecialCharDialog} from './shared/dialogs/SpecialCharDialog';
 import {TableDialog} from './shared/dialogs/TableDialog';
@@ -33,6 +34,7 @@ const App = (): ReactElement => {
             <BulletedListDialog />
             <CodeDialog />
             <FullscreenDialog />
+            <NumberedListDialog />
             <SearchPopup />
             <SpecialCharDialog />
             <TableQuicktablePopup />

@@ -14,7 +14,7 @@ import {normalizeHtmlAreaLangDirection} from '../../../../../../app/inputtype/ui
 import {ContentsExistByPathRequest} from '../../../../../../app/resource/ContentsExistByPathRequest';
 import type {ContentsExistByPathResult} from '../../../../../../app/resource/ContentsExistByPathResult';
 import {CreateHtmlAreaDialogEventGenerator} from '../../../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEventGenerator';
-import {bindBulletedListDialogContextMenu} from '../../../../../../app/inputtype/ui/text/BulletedListDialogContextMenu';
+import {bindListStyleDialogContextMenu} from '../../../../../../app/inputtype/ui/text/ListStyleDialogContextMenu';
 import {bindEditableBodyRuntimeState} from '../../../../../../app/inputtype/ui/text/EditableBodyRuntimeState';
 import {HTMLAreaHelper} from '../../../../../../app/inputtype/ui/text/HTMLAreaHelper';
 import {HtmlEditorParams} from '../../../../../../app/inputtype/ui/text/HtmlEditorParams';
@@ -291,7 +291,7 @@ function setupDialogsToOpen(editor: CKEDITOR.editor, editorParams: HtmlEditorPar
         dialogEventGenerator.generateFromEventInfoAndFire(dialogShowEvent);
     });
 
-    bindBulletedListDialogContextMenu(editor);
+    bindListStyleDialogContextMenu(editor);
 }
 
 function getCursorPosition(editor: CKEDITOR.editor): HtmlEditorCursorPosition {
