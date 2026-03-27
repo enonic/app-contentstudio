@@ -664,6 +664,20 @@ export class HtmlEditor {
                 }
             });
 
+            this.editor.addCommand('toggleFind', {
+                exec: (editor: editor) => {
+                    dialogEventGenerator.generateSearchPopupEventAndFire({editor, mode: 'find'});
+                    return true;
+                }
+            });
+
+            this.editor.addCommand('toggleFindAndReplace', {
+                exec: (editor: editor) => {
+                    dialogEventGenerator.generateSearchPopupEventAndFire({editor, mode: 'replace'});
+                    return true;
+                }
+            });
+
             this.editor.addCommand('specialchar', {
                 exec: (editor: editor) => {
                     dialogEventGenerator.generateSpecialCharEventAndFire({editor});
@@ -698,6 +712,13 @@ export class HtmlEditor {
             command: 'openFullscreenDialog',
             toolbar: 'tools,10',
             icon: 'maximize'
+        });
+
+        this.editor.ui.addButton('FindAndReplace', {
+            label: i18n('dialog.search.title'),
+            command: 'toggleFind',
+            toolbar: 'find,1',
+            icon: 'find'
         });
 
         this.editor.on('dialogShow', (dialogShowEvent: eventInfo) => {
@@ -1086,7 +1107,7 @@ class HtmlEditorConfigBuilder {
             ],
             removePlugins: this.getPluginsToRemove(),
             removeButtons: this.disabledTools?.join(),
-            extraPlugins: 'macro,image2,pasteModeSwitcher,nbsp,colordialog,findAndReplace,language',
+            extraPlugins: 'macro,image2,pasteModeSwitcher,nbsp,colordialog,language',
             extraAllowedContent: this.getExtraAllowedContent(),
             stylesSet: `custom-${this.editorParams.getEditorContainerId()}`,
             image2_disableResizer: true,

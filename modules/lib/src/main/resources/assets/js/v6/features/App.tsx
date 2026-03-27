@@ -6,6 +6,7 @@ import {AnchorDialog} from './shared/dialogs/AnchorDialog';
 import {CodeDialog} from './shared/dialogs/CodeDialog';
 import {FullscreenDialog} from './shared/dialogs/FullscreenDialog';
 import {LegacyElement} from './shared/LegacyElement';
+import {SearchPopup} from './shared/dialogs/SearchPopup';
 import {SpecialCharDialog} from './shared/dialogs/SpecialCharDialog';
 import {TableDialog} from './shared/dialogs/TableDialog';
 import {TableQuicktablePopup} from './shared/dialogs/TableQuicktablePopup';
@@ -30,6 +31,7 @@ const App = (): ReactElement => {
             <AnchorDialog />
             <CodeDialog />
             <FullscreenDialog />
+            <SearchPopup />
             <SpecialCharDialog />
             <TableQuicktablePopup />
             <TableDialog />

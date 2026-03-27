@@ -117,10 +117,36 @@ function setupFullscreenDialogToOpen(editor: CKEDITOR.editor, editorParams: Html
     });
 }
 
+function setupSearchPopupToOpen(editor: CKEDITOR.editor, editorParams: HtmlEditorParams): void {
+    const dialogEventGenerator = new CreateHtmlAreaDialogEventGenerator(editorParams);
+
+    editor.addCommand('toggleFind', {
+        exec: (ed: CKEDITOR.editor) => {
+            dialogEventGenerator.generateSearchPopupEventAndFire({editor: ed, mode: 'find'});
+            return true;
+        },
+    });
+
+    editor.addCommand('toggleFindAndReplace', {
+        exec: (ed: CKEDITOR.editor) => {
+            dialogEventGenerator.generateSearchPopupEventAndFire({editor: ed, mode: 'replace'});
+            return true;
+        },
+    });
+
+    editor.ui.addButton('FindAndReplace', {
+        label: i18n('dialog.search.title'),
+        command: 'toggleFind',
+        toolbar: 'find,1',
+        icon: 'find',
+    });
+}
+
 export function setupEditorUi(editor: CKEDITOR.editor, params: SetupEditorParams): void {
     const editorParams = buildEditorParams(editor, params);
 
     setupFullscreenDialogToOpen(editor, editorParams);
+    setupSearchPopupToOpen(editor, editorParams);
 }
 
 /**

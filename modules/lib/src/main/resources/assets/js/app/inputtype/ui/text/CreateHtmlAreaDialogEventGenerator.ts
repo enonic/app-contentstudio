@@ -7,6 +7,7 @@ import {
     type CodeDialogParams,
     type FullScreenDialogParams,
     type MacroDialogParams,
+    type SearchPopupParams,
     type SpecialCharDialogParams,
     type TableQuicktablePopupParams,
 } from './HtmlEditorTypes';
@@ -126,6 +127,10 @@ export class CreateHtmlAreaDialogEventGenerator {
 
     generateSpecialCharEventAndFire(config: SpecialCharDialogParams): void {
         this.doGenerateAndFire(this.createDialogEvent(config, HtmlAreaDialogType.SPECIALCHAR));
+    }
+
+    generateSearchPopupEventAndFire(config: SearchPopupParams): void {
+        this.doGenerateAndFire(this.createDialogEvent(config, HtmlAreaDialogType.SEARCH_POPUP));
     }
 
     generateAnchorEventAndFire(config: AnchorDialogParams): void {

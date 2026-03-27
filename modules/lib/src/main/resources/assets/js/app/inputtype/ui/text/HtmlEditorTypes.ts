@@ -29,6 +29,13 @@ export interface SpecialCharDialogParams {
     editor: editor
 }
 
+export type SearchPopupMode = 'find' | 'replace';
+
+export interface SearchPopupParams {
+    editor: editor,
+    mode: SearchPopupMode
+}
+
 export interface TableQuicktablePopupParams {
     editor: editor
 }
