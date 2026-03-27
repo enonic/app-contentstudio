@@ -9,13 +9,13 @@ import {$activeWidget, $liveViewWidgets, setActiveWidget} from '../../../../stor
 
 const COMPONENT_NAME = 'PreviewToolbarWidgetSelector';
 
-function getWidgetKey(widget: Extension): string {
-    return widget?.getDescriptorKey().toString();
+function getWidgetKey(widget: Extension): string | undefined {
+    return widget.getDescriptorKey().toString();
 }
 
 export const PreviewToolbarWidgetSelector = (): ReactElement => {
     const activeWidget = useStore($activeWidget);
-    const {widgets} = useStore($liveViewWidgets);
+    const {widgets} = useStore($liveViewWidgets, {keys: ['widgets']});
     const [isOpen, setIsOpen] = useState(false);
     const radioControlKey = activeWidget ? getWidgetKey(activeWidget) : '';
 
@@ -33,6 +33,8 @@ export const PreviewToolbarWidgetSelector = (): ReactElement => {
         new ViewExtensionEvent(widget).fire();
     }, [widgets]);
 
+    const widgetSelectorLabel = useI18n('wcag.preview.toolbar.widgetSelector.label');
+
     if (!activeWidget) return <></>;
 
     return (
@@ -43,7 +45,7 @@ export const PreviewToolbarWidgetSelector = (): ReactElement => {
                         className="group"
                         endIcon={isOpen ? ChevronUp : ChevronDown}
                         size="sm"
-                        aria-label={useI18n('wcag.preview.toolbar.widgetSelector.label')}
+                        aria-label={widgetSelectorLabel}
                     >
                         <img
                             className="size-3.5 @sm:hidden group-data-[active=true]:invert-100 dark:invert-100"

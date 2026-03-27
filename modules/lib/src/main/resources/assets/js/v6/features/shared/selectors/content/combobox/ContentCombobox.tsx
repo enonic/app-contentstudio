@@ -101,7 +101,7 @@ export const ContentCombobox = ({
     const treeViewLabel = useI18n('field.view.tree');
     const listViewLabel = useI18n('field.view.list');
     const errorLabel = useI18n('field.error.loadFailed');
-    const retryLabel = useI18n('field.error.retry');
+    const retryLabel = useI18n('action.retry');
 
     // Memoize filter options to avoid recreating on every render
     const filterOptions: UseContentComboboxControllerOptions['filters'] = useMemo(

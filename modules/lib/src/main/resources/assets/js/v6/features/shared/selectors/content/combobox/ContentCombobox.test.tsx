@@ -94,7 +94,7 @@ vi.mock('@enonic/ui', () => {
         cn: (...args: unknown[]) => args.filter(Boolean).join(' '),
         useCombobox: () => ({
             selection: [],
-            onSelectionChange: () => {},
+            onSelectionChange: () => { },
             selectionMode: 'multiple',
         }),
     };
@@ -127,7 +127,7 @@ vi.mock('../../../../hooks/useI18n', () => ({
             'field.view.tree': 'Tree view',
             'field.view.list': 'List view',
             'field.error.loadFailed': 'Failed to load',
-            'field.error.retry': 'Retry',
+            'action.retry': 'Retry',
         };
         return translations[key] ?? key;
     }),
