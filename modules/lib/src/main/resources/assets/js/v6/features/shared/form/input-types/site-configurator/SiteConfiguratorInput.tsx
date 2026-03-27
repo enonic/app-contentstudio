@@ -1,6 +1,7 @@
 import {type Application} from '@enonic/lib-admin-ui/application/Application';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 import {type PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
@@ -364,6 +365,11 @@ const SiteConfiguratorDialog = ({
     onConfirmDiscard,
     onDirtyChange,
 }: SiteConfiguratorDialogProps): ReactElement | null => {
+    const applicationKey = useMemo(
+        () => editing ? ApplicationKey.fromString(editing.appKey) : undefined,
+        [editing?.appKey],
+    );
+
     if (!editing) return null;
 
     return (
@@ -396,6 +402,7 @@ const SiteConfiguratorDialog = ({
                                 form={form}
                                 propertySet={editing.editingSet}
                                 enabled={!disabled}
+                                applicationKey={applicationKey}
                             />
                         </Dialog.Body>
 

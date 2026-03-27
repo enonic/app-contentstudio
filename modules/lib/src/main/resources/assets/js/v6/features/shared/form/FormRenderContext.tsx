@@ -1,18 +1,21 @@
+import type {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {type ReactElement, type ReactNode, createContext, useContext, useMemo} from 'react';
 
 type FormRenderContextValue = {
     enabled: boolean;
+    applicationKey?: ApplicationKey;
 };
 
 const FormRenderContext = createContext<FormRenderContextValue | undefined>(undefined);
 
 type FormRenderProviderProps = {
     enabled: boolean;
+    applicationKey?: ApplicationKey;
     children: ReactNode;
 };
 
-export const FormRenderProvider = ({enabled, children}: FormRenderProviderProps): ReactElement => {
-    const value = useMemo(() => ({enabled}), [enabled]);
+export const FormRenderProvider = ({enabled, applicationKey, children}: FormRenderProviderProps): ReactElement => {
+    const value = useMemo(() => ({enabled, applicationKey}), [enabled, applicationKey]);
 
     return (
         <FormRenderContext.Provider value={value}>

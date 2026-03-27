@@ -3,8 +3,10 @@ import type {ImageSelectorConfig} from './ImageSelectorConfig';
 import type {ReactElement} from 'react';
 import {ImageSelector} from '../../../selectors/image';
 import {useSelectorInput} from '../../../../hooks/useSelectorInput';
+import {useFormRender} from '../../FormRenderContext';
 
 export const ImageSelectorInput = (props: SelfManagedComponentProps<ImageSelectorConfig>): ReactElement => {
+    const {applicationKey} = useFormRender();
     const {contextContent, selectionMode, hasErrors, hideToggleIcon, listMode, selection, placeholder, emptyLabel, handleSelectionChange} =
         useSelectorInput(props);
 
@@ -22,6 +24,7 @@ export const ImageSelectorInput = (props: SelfManagedComponentProps<ImageSelecto
             hideToggleIcon={hideToggleIcon}
             allowedContentPaths={allowedContentPaths}
             contextContent={contextContent?.getContentSummary()}
+            applicationKey={applicationKey}
             listMode={listMode}
             disabled={disabled}
             closeOnBlur
