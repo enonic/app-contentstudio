@@ -1,31 +1,29 @@
-import type {SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
-import {FieldError, getFirstError, validateForm} from '@enonic/lib-admin-ui/form2';
-import type {SiteConfiguratorConfig} from './SiteConfiguratorConfig';
-import type {ReactElement} from 'react';
-import {useCallback, useEffect, useMemo, useState} from 'react';
-import {useStore} from '@nanostores/preact';
-import {Button, Dialog, IconButton} from '@enonic/ui';
-import {type SortableListItemContext, SortableList} from '@enonic/lib-admin-ui/form2/components';
-import {Pencil, X} from 'lucide-react';
 import {type Application} from '@enonic/lib-admin-ui/application/Application';
-import {type Form} from '@enonic/lib-admin-ui/form/Form';
 import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
+import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 import {type PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {type PropertyArrayJson} from '@enonic/lib-admin-ui/data/PropertyArrayJson';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
-import {$applications, loadApplications} from '../../../../store/applications.store';
-import {ApplicationSelector} from '../../../selectors/ApplicationSelector';
+import {type Form} from '@enonic/lib-admin-ui/form/Form';
+import type {SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
+import {FieldError, getFirstError, validateForm} from '@enonic/lib-admin-ui/form2';
+import {type SortableListItemContext, SortableList} from '@enonic/lib-admin-ui/form2/components';
+import {Button, Dialog, IconButton} from '@enonic/ui';
+import {useStore} from '@nanostores/preact';
+import {Pencil, X} from 'lucide-react';
+import type {ReactElement} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {ProjectHelper} from '../../../../../../app/settings/data/project/ProjectHelper';
+import {useI18n} from '../../../../hooks/useI18n';
+import {$applications, loadApplications, reloadApplications} from '../../../../store/applications.store';
+import {ConfirmationDialog} from '../../../dialogs/ConfirmationDialog';
 import {ApplicationIcon} from '../../../icons/ApplicationIcon';
 import {ItemLabel} from '../../../ItemLabel';
+import {ApplicationSelector} from '../../../selectors/ApplicationSelector';
 import {FormRenderer} from '../../FormRenderer';
-import {ConfirmationDialog} from '../../../dialogs/ConfirmationDialog';
-import {useI18n} from '../../../../hooks/useI18n';
-import {ProjectHelper} from '../../../../../../app/settings/data/project/ProjectHelper';
-import {GetApplicationRequest} from '../../../../../../app/resource/GetApplicationRequest';
+import type {SiteConfiguratorConfig} from './SiteConfiguratorConfig';
 
 const COMPONENT_NAME = 'SiteConfiguratorInput';
 
@@ -33,7 +31,6 @@ type EditingState = {
     appKey: string;
     valueIndex: number;
     editingSet: PropertySet;
-    baseline: string;
 };
 
 type AppItem = {
@@ -43,10 +40,12 @@ type AppItem = {
 
 export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfiguratorConfig>): ReactElement => {
     const {values, onAdd, onRemove, onMove, enabled, errors} = props;
-    const {applications} = useStore($applications);
+    const {applications} = useStore($applications, {keys: ['applications']});
     const [isReadOnly, setIsReadOnly] = useState(!AuthHelper.isContentAdmin());
     const [editing, setEditing] = useState<EditingState | null>(null);
     const [view, setView] = useState<'main' | 'confirmation'>('main');
+    const dirtyRef = useRef(false);
+    const baselineRef = useRef<string | null>(null);
 
     const placeholder = useI18n('field.search.placeholder');
     const emptyLabel = useI18n('dialog.project.wizard.application.noApplicationsFound');
@@ -70,7 +69,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
                 setIsReadOnly(!isOwner);
             }
         });
-        return () => { cancelled = true; };
+        return () => {cancelled = true;};
     }, []);
 
     const selectedKeys = useMemo(() => {
@@ -143,8 +142,10 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
     const openConfigDialog = useCallback((key: string, index: number) => {
         const configSet = getConfigPropertySet(index);
         const json = configSet ? configSet.toJson() : [];
-        const clonedTree = PropertyTree.fromJson(json as PropertyArrayJson[]);
-        setEditing({appKey: key, valueIndex: index, editingSet: clonedTree.getRoot(), baseline: ''});
+        const clonedTree = PropertyTree.fromJson(json);
+        baselineRef.current = null;
+        dirtyRef.current = false;
+        setEditing({appKey: key, valueIndex: index, editingSet: clonedTree.getRoot()});
         setView('main');
     }, [getConfigPropertySet]);
 
@@ -153,7 +154,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
         const configSet = getConfigPropertySet(editing.valueIndex);
         if (!configSet) return;
 
-        const appliedJson = editing.editingSet.toJson() as PropertyArrayJson[];
+        const appliedJson = editing.editingSet.toJson();
         const appliedTree = PropertyTree.fromJson(appliedJson);
         const appliedRoot = appliedTree.getRoot();
 
@@ -171,10 +172,9 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
         setView('main');
     }, []);
 
-    const isEditingDirty = useCallback((): boolean => {
-        if (!editing) return false;
-        return JSON.stringify(editing.editingSet.toJson()) !== editing.baseline;
-    }, [editing]);
+    const handleDirtyChange = useCallback((dirty: boolean) => {
+        dirtyRef.current = dirty;
+    }, []);
 
     const handleDialogOpenChange = useCallback((open: boolean) => {
         if (open) return;
@@ -184,13 +184,12 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
             return;
         }
 
-        if (isEditingDirty()) {
+        if (dirtyRef.current) {
             setView('confirmation');
-            return;
+        } else {
+            closeDialog();
         }
-
-        closeDialog();
-    }, [view, isEditingDirty, closeDialog]);
+    }, [view, closeDialog]);
 
     useEffect(() => {
         const handler = (event: ApplicationEvent) => {
@@ -198,20 +197,12 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
                 return;
             }
 
-            const eventKey = event.getApplicationKey();
-            const isSelected = selectedKeys.some(key => key === eventKey.toString());
-
-            if (isSelected) {
-                new GetApplicationRequest(eventKey, true).sendAndParse()
-                    .catch(() => undefined);
-            }
-
-            void loadApplications();
+            void reloadApplications();
         };
 
         ApplicationEvent.on(handler);
         return () => ApplicationEvent.un(handler);
-    }, [selectedKeys]);
+    }, []);
 
     const disabled = !enabled || isReadOnly;
 
@@ -266,9 +257,11 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
                 applyLabel={applyLabel}
                 confirmTitle={confirmTitle}
                 confirmDescription={confirmDescription}
+                baselineRef={baselineRef}
                 onOpenChange={handleDialogOpenChange}
                 onApply={applyConfig}
                 onConfirmDiscard={closeDialog}
+                onDirtyChange={handleDirtyChange}
             />
         </div>
     );
@@ -276,7 +269,9 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
 
 SiteConfiguratorInput.displayName = COMPONENT_NAME;
 
-// -- Row component --
+//
+// * Row component
+//
 
 type SiteConfiguratorRowProps = {
     context: SortableListItemContext<AppItem>;
@@ -293,11 +288,14 @@ const SiteConfiguratorRow = ({context, applications, errors, disabled, onEdit, o
     const hasForm = application?.getForm()?.getFormItems().length > 0;
     const hasError = errors[item.index]?.validationResults.length > 0;
 
+    const stoppedLabel = useI18n('text.application.is.stopped', item.key);
+    const unavailableLabel = useI18n('text.application.not.available', item.key);
+
     const name = application?.getDisplayName() ?? item.key;
     const description = application?.isStopped()
-        ? useI18n('text.application.is.stopped', item.key)
+        ? stoppedLabel
         : !application?.getState()
-            ? useI18n('text.application.not.available', item.key)
+            ? unavailableLabel
             : application?.getDescription();
 
     return (
@@ -331,7 +329,9 @@ const SiteConfiguratorRow = ({context, applications, errors, disabled, onEdit, o
 
 SiteConfiguratorRow.displayName = 'SiteConfiguratorRow';
 
-// -- Dialog component --
+//
+// * Dialog component
+//
 
 type SiteConfiguratorDialogProps = {
     editing: EditingState | null;
@@ -342,9 +342,11 @@ type SiteConfiguratorDialogProps = {
     applyLabel: string;
     confirmTitle: string;
     confirmDescription: string;
+    baselineRef: React.RefObject<string | null>;
     onOpenChange: (open: boolean) => void;
     onApply: () => void;
     onConfirmDiscard: () => void;
+    onDirtyChange: (dirty: boolean) => void;
 };
 
 const SiteConfiguratorDialog = ({
@@ -356,9 +358,11 @@ const SiteConfiguratorDialog = ({
     applyLabel,
     confirmTitle,
     confirmDescription,
+    baselineRef,
     onOpenChange,
     onApply,
     onConfirmDiscard,
+    onDirtyChange,
 }: SiteConfiguratorDialogProps): ReactElement | null => {
     if (!editing) return null;
 
@@ -400,7 +404,9 @@ const SiteConfiguratorDialog = ({
                                 label={applyLabel}
                                 editing={editing}
                                 form={form}
+                                baselineRef={baselineRef}
                                 onApply={onApply}
+                                onDirtyChange={onDirtyChange}
                             />
                         </Dialog.Footer>
                     </Dialog.Content>
@@ -418,38 +424,52 @@ const SiteConfiguratorDialog = ({
 
 SiteConfiguratorDialog.displayName = 'SiteConfiguratorDialog';
 
-// -- Apply button that captures baseline after form renders defaults --
+//
+// * Apply button
+//
 
 type SiteConfigApplyButtonProps = {
     label: string;
     editing: EditingState;
     form: Form;
+    baselineRef: React.RefObject<string | null>;
     onApply: () => void;
+    onDirtyChange: (dirty: boolean) => void;
 };
 
-const SiteConfigApplyButton = ({label, editing, form, onApply}: SiteConfigApplyButtonProps): ReactElement => {
+const SiteConfigApplyButton = ({label, editing, form, baselineRef, onApply, onDirtyChange}: SiteConfigApplyButtonProps): ReactElement => {
     const [dirty, setDirty] = useState(false);
     const [valid, setValid] = useState(true);
 
     useEffect(() => {
-        // Capture baseline after FormRenderer has populated defaults, then listen for changes
-        const frameId = requestAnimationFrame(() => {
-            editing.baseline = JSON.stringify(editing.editingSet.toJson());
-        });
-
-        const handler = () => {
+        const check = () => {
+            if (baselineRef.current == null) return;
             const current = JSON.stringify(editing.editingSet.toJson());
-            setDirty(current !== editing.baseline);
+            const isDirty = current !== baselineRef.current;
+            setDirty(isDirty);
+            onDirtyChange(isDirty);
             setValid(validateForm(form, editing.editingSet).isValid);
         };
 
-        editing.editingSet.onChanged(handler);
+        let frameId: number | undefined;
+        if (baselineRef.current == null) {
+            frameId = requestAnimationFrame(() => {
+                baselineRef.current = JSON.stringify(editing.editingSet.toJson());
+                frameId = undefined;
+            });
+        } else {
+            check();
+        }
+
+        editing.editingSet.onChanged(check);
 
         return () => {
-            cancelAnimationFrame(frameId);
-            editing.editingSet.unChanged(handler);
+            if (frameId != null) {
+                cancelAnimationFrame(frameId);
+            }
+            editing.editingSet.unChanged(check);
         };
-    }, [editing, form]);
+    }, [editing, form, baselineRef, onDirtyChange]);
 
     return (
         <Dialog.Close asChild>

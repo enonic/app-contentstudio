@@ -29,19 +29,32 @@ export const $applications = map<ApplicationsStoreState>(structuredClone(initial
 // * API
 //
 
-export function loadApplications(): Promise<void> {
+export async function loadApplications(): Promise<void> {
     const {loading, loaded} = $applications.get();
 
-    // Skip if already loaded or currently loading
     if (loaded || loading) {
         return;
     }
 
+    await fetchApplications();
+}
+
+export async function reloadApplications(): Promise<void> {
+    const {loading} = $applications.get();
+
+    if (loading) {
+        return;
+    }
+
+    await fetchApplications();
+}
+
+async function fetchApplications(): Promise<void> {
     $applications.setKey('loading', true);
 
     const request = new ListSiteApplicationsRequest();
 
-    ResultAsync.fromPromise(request.sendAndParse(), (error) => {
+    await ResultAsync.fromPromise(request.sendAndParse(), (error) => {
         console.error('Failed to load applications:', error);
     }).map((applications) => {
         const sorted = applications.sort((a, b) => a.getDisplayName().localeCompare(b.getDisplayName()));
