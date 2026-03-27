@@ -24,7 +24,7 @@
     "@wdio/mocha-framework": "^9.27.0",
     "@wdio/spec-reporter": "^9.27.0",
     "allure-commandline": "^2.38.1",
-    "properties-reader": "2.3.0",
+    "properties-reader": "3.0.1",
     "webdriverio": "9.27.0"
   },
   "engines": {
