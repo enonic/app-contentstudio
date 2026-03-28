@@ -14,13 +14,23 @@ import {HTMLAreaHelper} from '../../../../../../app/inputtype/ui/text/HTMLAreaHe
 import {shouldIgnoreHtmlAreaBlur} from '../../../../../../app/inputtype/ui/text/HtmlAreaOverlayState';
 import {HtmlAreaSanitizer} from '../../../../../../app/inputtype/ui/text/HtmlAreaSanitizer';
 import type {Project} from '../../../../../../app/settings/data/project/Project';
+import {createAnchorDialogOverride} from '../../../dialogs/AnchorDialog';
+import {createBulletedListDialogOverride} from '../../../dialogs/BulletedListDialog';
+import {createCodeDialogOverride} from '../../../dialogs/CodeDialog';
+import {createFullscreenDialogOverride} from '../../../dialogs/FullscreenDialog';
+import {HtmlAreaDialogs} from '../../../dialogs/HtmlAreaDialogs';
+import {createNumberedListDialogOverride} from '../../../dialogs/NumberedListDialog';
+import {createSearchPopupOverride} from '../../../dialogs/SearchPopup';
+import {createSpecialCharDialogOverride} from '../../../dialogs/SpecialCharDialog';
+import {createTableDialogOverride} from '../../../dialogs/TableDialog';
+import {createTableQuicktablePopupOverride} from '../../../dialogs/TableQuicktablePopup';
 import {createImageDialogOverride, HtmlAreaImageDialog} from '../../../dialogs/htmlarea-image/HtmlAreaImageDialog';
 import type {OpenHtmlAreaImageDialogParams} from '../../../dialogs/htmlarea-image/HtmlAreaImageDialogContext';
 import {createLinkDialogOverride, HtmlAreaLinkDialog} from '../../../dialogs/htmlarea-link/HtmlAreaLinkDialog';
 import type {OpenHtmlAreaLinkDialogParams} from '../../../dialogs/htmlarea-link/HtmlAreaLinkDialogContext';
 import type {HtmlAreaConfig} from './HtmlAreaConfig';
 import {useHtmlAreaContext} from './HtmlAreaContext';
-import {setupEditor, setupEditorUi} from './setupEditor';
+import {setupEditor, setupEditorUi, type DialogOverrides} from './setupEditor';
 import {useCKEditorConfig} from './useCKEditorConfig';
 
 const sanitizer = new HtmlAreaSanitizer();
@@ -66,13 +76,27 @@ const CKEditorWrapper = ({
     const [element, setElement] = useState<HTMLTextAreaElement | null>(null);
     const [focused, setFocused] = useState(false);
     const openImageDialogRef = useRef<((params: OpenHtmlAreaImageDialogParams) => void) | undefined>(undefined);
+    const openLinkDialogRef = useRef<((params: OpenHtmlAreaLinkDialogParams) => void) | undefined>(undefined);
     const mountedRef = useRef(true);
     const editorUiReadyRef = useRef(false);
     const editorReadyRef = useRef(false);
     const editorInstanceRef = useRef<CKEDITOR.editor | null>(null);
     // Track the last value we sent via onChange to avoid external sync conflicts
     const lastSentValueRef = useRef<string>(stringValue);
-    const openLinkDialogRef = useRef<((params: OpenHtmlAreaLinkDialogParams) => void) | undefined>(undefined);
+
+    const dialogOverridesRef = useRef<DialogOverrides>({
+        ...createImageDialogOverride(openImageDialogRef),
+        ...createLinkDialogOverride(openLinkDialogRef),
+        ...createAnchorDialogOverride(),
+        ...createBulletedListDialogOverride(),
+        ...createCodeDialogOverride(),
+        ...createFullscreenDialogOverride(),
+        ...createNumberedListDialogOverride(),
+        ...createSearchPopupOverride(),
+        ...createSpecialCharDialogOverride(),
+        ...createTableDialogOverride(),
+        ...createTableQuicktablePopupOverride(),
+    });
 
     // Mark unmounted to prevent debounced callbacks from firing
     useEffect(() => {
@@ -151,6 +175,7 @@ const CKEditorWrapper = ({
             disabledTools: htmlAreaConfig.disabledTools,
             allowedHeadings: htmlAreaConfig.allowedHeadings,
             editableSourceCode,
+            dialogOverrides: dialogOverridesRef.current,
         });
     }, [
         editor,
@@ -182,10 +207,7 @@ const CKEditorWrapper = ({
                 disabledTools: htmlAreaConfig.disabledTools,
                 allowedHeadings: htmlAreaConfig.allowedHeadings,
                 editableSourceCode,
-                dialogOverrides: {
-                    ...createImageDialogOverride(openImageDialogRef),
-                    ...createLinkDialogOverride(openLinkDialogRef),
-                },
+                dialogOverrides: dialogOverridesRef.current,
             });
         }
 
@@ -309,6 +331,7 @@ const CKEditorWrapper = ({
             </div>
             <HtmlAreaImageDialog openRef={openImageDialogRef} />
             <HtmlAreaLinkDialog openRef={openLinkDialogRef} />
+            <HtmlAreaDialogs editorId={editorId} />
         </>
     );
 };

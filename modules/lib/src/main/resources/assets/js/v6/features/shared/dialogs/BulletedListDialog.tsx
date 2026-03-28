@@ -1,11 +1,14 @@
 import {Button, Dialog, Selector} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {type FormEvent, type ReactElement, useLayoutEffect, useRef} from 'react';
+import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import type {DialogOverrides} from '../form/input-types/html-area/setupEditor';
 import {useI18n} from '../../hooks/useI18n';
 import {
     $bulletedListDialog,
     closeBulletedListDialog,
     finalizeBulletedListDialogClose,
+    openBulletedListDialog,
     setBulletedListDialogType,
     submitBulletedListDialog,
     type BulletedListDialogType,
@@ -145,3 +148,11 @@ export const BulletedListDialog = (): ReactElement => {
 };
 
 BulletedListDialog.displayName = BULLETED_LIST_DIALOG_NAME;
+
+export function createBulletedListDialogOverride(): DialogOverrides {
+    return {
+        [HtmlAreaDialogType.BULLETED_LIST]: (event: CreateHtmlAreaDialogEvent) => {
+            openBulletedListDialog(event.getConfig() as CKEDITOR.eventInfo);
+        },
+    };
+}

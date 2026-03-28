@@ -3,6 +3,8 @@ import type {Value} from '@enonic/lib-admin-ui/data/Value';
 import {LongInput} from '@enonic/lib-admin-ui/form2';
 import {useStore} from '@nanostores/preact';
 import {type FormEvent, type ReactElement, useLayoutEffect, useRef} from 'react';
+import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import type {DialogOverrides} from '../form/input-types/html-area/setupEditor';
 import {useI18n} from '../../hooks/useI18n';
 import {
     $tableDialog,
@@ -13,6 +15,7 @@ import {
     closeTableDialog,
     finalizeTableDialogClose,
     isTableDialogSubmittable,
+    openTableDialog,
     setTableDialogCaption,
     setTableDialogCols,
     setTableDialogHeaders,
@@ -267,3 +270,11 @@ export const TableDialog = (): ReactElement => {
 };
 
 TableDialog.displayName = TABLE_DIALOG_NAME;
+
+export function createTableDialogOverride(): DialogOverrides {
+    return {
+        [HtmlAreaDialogType.TABLE]: (event: CreateHtmlAreaDialogEvent) => {
+            openTableDialog(event.getConfig() as CKEDITOR.eventInfo);
+        },
+    };
+}

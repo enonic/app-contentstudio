@@ -1,10 +1,14 @@
 import {Button, Dialog} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {type ReactElement, useEffect, useLayoutEffect, useRef, useState} from 'react';
+import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import type {SpecialCharDialogParams} from '../../../../app/inputtype/ui/text/HtmlEditorTypes';
+import type {DialogOverrides} from '../form/input-types/html-area/setupEditor';
 import {useI18n} from '../../hooks/useI18n';
 import {
     $specialCharDialog,
     closeSpecialCharDialog,
+    openSpecialCharDialog,
     submitSpecialCharDialog,
 } from '../../store/dialogs/specialCharDialog.store';
 
@@ -180,3 +184,11 @@ export const SpecialCharDialog = (): ReactElement => {
 };
 
 SpecialCharDialog.displayName = SPECIAL_CHAR_DIALOG_NAME;
+
+export function createSpecialCharDialogOverride(): DialogOverrides {
+    return {
+        [HtmlAreaDialogType.SPECIALCHAR]: (event: CreateHtmlAreaDialogEvent) => {
+            openSpecialCharDialog((event.getConfig() as SpecialCharDialogParams).editor);
+        },
+    };
+}

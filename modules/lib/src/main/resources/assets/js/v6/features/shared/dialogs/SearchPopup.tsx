@@ -11,7 +11,10 @@ import {
     useRef,
     useState,
 } from 'react';
+import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {suppressHtmlAreaBlur} from '../../../../app/inputtype/ui/text/HtmlAreaOverlayState';
+import type {SearchPopupParams} from '../../../../app/inputtype/ui/text/HtmlEditorTypes';
+import type {DialogOverrides} from '../form/input-types/html-area/setupEditor';
 import {useI18n} from '../../hooks/useI18n';
 import {
     $searchPopup,
@@ -19,6 +22,7 @@ import {
     getSearchPopupTriggerElement,
     goToNextSearchPopupResult,
     goToPreviousSearchPopupResult,
+    openSearchPopup,
     replaceAllSearchPopupResults,
     replaceCurrentSearchPopupResult,
     setSearchPopupFindValue,
@@ -518,3 +522,11 @@ export const SearchPopup = (): ReactElement | null => {
 };
 
 SearchPopup.displayName = SEARCH_POPUP_NAME;
+
+export function createSearchPopupOverride(): DialogOverrides {
+    return {
+        [HtmlAreaDialogType.SEARCH_POPUP]: (event: CreateHtmlAreaDialogEvent) => {
+            openSearchPopup(event.getConfig() as SearchPopupParams);
+        },
+    };
+}
