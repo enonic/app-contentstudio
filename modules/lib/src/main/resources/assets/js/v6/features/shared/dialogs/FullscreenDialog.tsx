@@ -1,12 +1,16 @@
 import {cn, Dialog} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {type ReactElement, useLayoutEffect, useRef} from 'react';
+import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import type {FullScreenDialogParams} from '../../../../app/inputtype/ui/text/HtmlEditorTypes';
+import type {DialogOverrides} from '../form/input-types/html-area/setupEditor';
 import {$anchorDialog} from '../../store/dialogs/anchorDialog.store';
 import {$codeDialog} from '../../store/dialogs/codeDialog.store';
 import {
     $fullscreenDialog,
     closeFullscreenDialog,
     initializeFullscreenDialogEditor,
+    openFullscreenDialog,
 } from '../../store/dialogs/fullscreenDialog.store';
 import {$searchPopup} from '../../store/dialogs/searchPopup.store';
 import {$specialCharDialog} from '../../store/dialogs/specialCharDialog.store';
@@ -122,3 +126,11 @@ export const FullscreenDialog = (): ReactElement => {
 };
 
 FullscreenDialog.displayName = FULLSCREEN_DIALOG_NAME;
+
+export function createFullscreenDialogOverride(): DialogOverrides {
+    return {
+        [HtmlAreaDialogType.FULLSCREEN]: (event: CreateHtmlAreaDialogEvent) => {
+            openFullscreenDialog(event.getConfig() as FullScreenDialogParams);
+        },
+    };
+}

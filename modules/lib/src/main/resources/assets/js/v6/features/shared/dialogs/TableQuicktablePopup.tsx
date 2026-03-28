@@ -10,11 +10,15 @@ import {
     useRef,
     useState,
 } from 'react';
+import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import type {TableQuicktablePopupParams} from '../../../../app/inputtype/ui/text/HtmlEditorTypes';
+import type {DialogOverrides} from '../form/input-types/html-area/setupEditor';
 import {
     $tableQuicktablePopup,
     closeTableQuicktablePopup,
     getTableQuicktableTriggerElement,
     openTableQuicktableDialog,
+    openTableQuicktablePopup,
     setTableQuicktablePreview,
     submitTableQuicktablePopup,
 } from '../../store/dialogs/tableQuicktablePopup.store';
@@ -358,3 +362,11 @@ export const TableQuicktablePopup = (): ReactElement | null => {
 };
 
 TableQuicktablePopup.displayName = TABLE_QUICKTABLE_POPUP_NAME;
+
+export function createTableQuicktablePopupOverride(): DialogOverrides {
+    return {
+        [HtmlAreaDialogType.TABLE_QUICKTABLE]: (event: CreateHtmlAreaDialogEvent) => {
+            openTableQuicktablePopup(event.getConfig() as TableQuicktablePopupParams);
+        },
+    };
+}

@@ -1,11 +1,15 @@
 import {Button, Dialog, TextArea} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {type FormEvent, type ReactElement, useLayoutEffect, useRef} from 'react';
+import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import type {CodeDialogParams} from '../../../../app/inputtype/ui/text/HtmlEditorTypes';
+import type {DialogOverrides} from '../form/input-types/html-area/setupEditor';
 import {useI18n} from '../../hooks/useI18n';
 import {
     $codeDialog,
     closeCodeDialog,
     finalizeCodeDialogClose,
+    openCodeDialog,
     setCodeDialogValue,
     submitCodeDialog,
 } from '../../store/dialogs/codeDialog.store';
@@ -120,3 +124,11 @@ export const CodeDialog = (): ReactElement => {
 };
 
 CodeDialog.displayName = CODE_DIALOG_NAME;
+
+export function createCodeDialogOverride(): DialogOverrides {
+    return {
+        [HtmlAreaDialogType.CODE]: (event: CreateHtmlAreaDialogEvent) => {
+            openCodeDialog(event.getConfig() as CodeDialogParams);
+        },
+    };
+}

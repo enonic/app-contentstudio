@@ -1,11 +1,15 @@
 import {Button, Dialog, Input} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {type FormEvent, type ReactElement, useLayoutEffect, useRef} from 'react';
+import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import type {AnchorDialogParams} from '../../../../app/inputtype/ui/text/HtmlEditorTypes';
+import type {DialogOverrides} from '../form/input-types/html-area/setupEditor';
 import {useI18n} from '../../hooks/useI18n';
 import {
     $anchorDialog,
     closeAnchorDialog,
     finalizeAnchorDialogClose,
+    openAnchorDialog,
     setAnchorDialogName,
     submitAnchorDialog,
     validateAnchorDialog,
@@ -128,3 +132,11 @@ export const AnchorDialog = (): ReactElement => {
 };
 
 AnchorDialog.displayName = ANCHOR_DIALOG_NAME;
+
+export function createAnchorDialogOverride(): DialogOverrides {
+    return {
+        [HtmlAreaDialogType.ANCHOR]: (event: CreateHtmlAreaDialogEvent) => {
+            openAnchorDialog(event.getConfig() as AnchorDialogParams);
+        },
+    };
+}

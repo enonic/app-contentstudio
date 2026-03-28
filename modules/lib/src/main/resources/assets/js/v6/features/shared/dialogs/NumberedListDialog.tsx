@@ -1,11 +1,14 @@
 import {Button, Dialog, Input, Selector} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {type FormEvent, type ReactElement, useLayoutEffect, useRef} from 'react';
+import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
+import type {DialogOverrides} from '../form/input-types/html-area/setupEditor';
 import {useI18n} from '../../hooks/useI18n';
 import {
     $numberedListDialog,
     closeNumberedListDialog,
     finalizeNumberedListDialogClose,
+    openNumberedListDialog,
     setNumberedListDialogStart,
     setNumberedListDialogType,
     submitNumberedListDialog,
@@ -165,3 +168,11 @@ export const NumberedListDialog = (): ReactElement => {
 };
 
 NumberedListDialog.displayName = NUMBERED_LIST_DIALOG_NAME;
+
+export function createNumberedListDialogOverride(): DialogOverrides {
+    return {
+        [HtmlAreaDialogType.NUMBERED_LIST]: (event: CreateHtmlAreaDialogEvent) => {
+            openNumberedListDialog(event.getConfig() as CKEDITOR.eventInfo);
+        },
+    };
+}
