@@ -4,23 +4,23 @@ const {BUTTONS} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
 const XPATH = {
-    container: `//div[contains(@id,'AnchorModalDialog')]`,
-    insertButton: `//button[contains(@id,'DialogButton') and child::span[text()='Insert']]`,
-    cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
+    container: `//div[@data-component='AnchorDialog']`,
+    insertButton: `//button[@aria-label='Insert']`,
+    cancelButton: `//button[@data-area='close']`,
 };
 
 class InsertAnchorModalDialog extends Page {
 
     get cancelButton() {
-        return XPATH.container + BUTTONS.buttonAriaLabel('Cancel');
+        return XPATH.container + XPATH.cancelButton;
     }
 
     get cancelButtonTop() {
-        return XPATH.container + lib.CANCEL_BUTTON_TOP;
+        return XPATH.container + XPATH.cancelButton;
     }
 
     get insertButton() {
-        return `${XPATH.container}` + BUTTONS.buttonAriaLabel('Insert');
+        return XPATH.container + XPATH.insertButton;
     }
 
     get textInput() {
@@ -55,7 +55,7 @@ class InsertAnchorModalDialog extends Page {
 
     async waitForValidationMessage() {
         try {
-            let locator = XPATH.container + lib.VALIDATION_RECORDING_VIEWER;
+            let locator = XPATH.container + "//div[contains(@class,'text-error')]";
             return await this.waitForElementDisplayed(locator, appConst.shortTimeout)
         } catch (err) {
             await this.handleError(`Insert Anchor Dialog`, 'err_wait_for_validation_message', err);
@@ -63,7 +63,7 @@ class InsertAnchorModalDialog extends Page {
     }
 
     async getValidationMessage() {
-        let locator = XPATH.container + lib.VALIDATION_RECORDING_VIEWER;
+        let locator = XPATH.container + "//div[contains(@class,'text-error')]";
         await this.waitForValidationMessage();
         return await this.getText(locator);
     }
