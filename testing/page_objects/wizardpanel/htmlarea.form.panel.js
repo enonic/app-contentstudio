@@ -277,15 +277,13 @@ class HtmlAreaForm extends OccurrencesFormView {
     }
 
     async isTableMenuItemVisible() {
-        let table = '//table';
-        await this.switchToFrame("//iframe[@class='cke_panel_frame']");
-        return await this.waitForElementDisplayed(table, appConst.shortTimeout);
+        let locator = "//div[@data-component='TableQuicktablePopup']";
+        return await this.waitForElementDisplayed(locator, appConst.shortTimeout);
     }
 
     async waitForReplaceGroupVisible() {
         try {
-            let locator = "//div[@title='Find and replace']";
-            await this.switchToFrame("//iframe[@class='cke_panel_frame']");
+            let locator = "//div[@data-component='SearchPopup']";
             return await this.waitForElementDisplayed(locator, appConst.shortTimeout);
         } catch (err) {
             await this.handleError('HtmlArea toolbar - Replace group', 'err_replace_group', err);

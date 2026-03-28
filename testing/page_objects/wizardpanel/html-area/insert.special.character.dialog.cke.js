@@ -3,11 +3,11 @@ const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
 
 const XPATH = {
-    container: `//div[contains(@id,'SpecialCharDialog')]`,
+    container: `//div[@data-component='SpecialCharDialog']`,
     title: "//h2[text()='Special character']",
-    cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
-    spanChar: char => `//span[contains(@class, 'chars-block__char') and text()='${char}']`,
-    spanCharByTitle: title => `//span[contains(@class, 'chars-block__char') and @title='${title}']`,
+    cancelButton: `//button[@data-area='close']`,
+    spanChar: char => `//button[@title and text()='${char}']`,
+    spanCharByTitle: title => `//button[@title='${title}']`,
 };
 
 class InsertSpecialCharacterDialog extends Page {
@@ -17,7 +17,7 @@ class InsertSpecialCharacterDialog extends Page {
     }
 
     get cancelButtonTop() {
-        return XPATH.container + lib.CANCEL_BUTTON_TOP;
+        return XPATH.container + XPATH.cancelButton;
     }
 
     clickOnCancelButton() {
@@ -25,7 +25,7 @@ class InsertSpecialCharacterDialog extends Page {
     }
 
     async getCharsInDialog() {
-        let locator = XPATH.container + "//span[contains(@class, 'chars-block__char')]";
+        let locator = XPATH.container + "//button[@title]";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInElements(locator);
     }
