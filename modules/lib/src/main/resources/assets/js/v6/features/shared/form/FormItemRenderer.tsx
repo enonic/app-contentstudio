@@ -22,8 +22,6 @@ const FORM_ITEM_RENDERER_NAME = 'FormItemRenderer';
 export const FormItemRenderer = ({formItem, propertySet}: FormItemRendererProps): ReactElement => {
     const {enabled} = useFormRender();
 
-    // TODO: Move to lib-admin-ui
-
     if (instanceOf(formItem, Input)) {
         return <InputField input={formItem} propertySet={propertySet} enabled={enabled} />;
     }
@@ -31,10 +29,10 @@ export const FormItemRenderer = ({formItem, propertySet}: FormItemRendererProps)
         return <FieldSetView fieldSet={formItem} propertySet={propertySet} />;
     }
     if (instanceOf(formItem, FormItemSet)) {
-        return <ItemSetView name={formItem.getName()} />;
+        return <ItemSetView itemSet={formItem} propertySet={propertySet} />;
     }
     if (instanceOf(formItem, FormOptionSet)) {
-        return <OptionSetView name={formItem.getName()} />;
+        return <OptionSetView optionSet={formItem} propertySet={propertySet} />;
     }
     return (
         <div data-component={FORM_ITEM_RENDERER_NAME} className="rounded border border-dashed border-bdr-subtle px-3 py-2 text-xs text-subtle">
