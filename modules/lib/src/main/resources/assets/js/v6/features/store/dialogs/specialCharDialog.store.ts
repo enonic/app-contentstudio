@@ -98,7 +98,11 @@ const restoreEditorSelection = (
         return;
     }
 
-    editor.getSelection().selectBookmarks(bookmarks);
+    try {
+        editor.getSelection()?.selectBookmarks(bookmarks);
+    } catch {
+        // Bookmarks may become invalid if the DOM changed between capture and restore
+    }
 };
 
 export const submitSpecialCharDialog = (value: string): void => {
