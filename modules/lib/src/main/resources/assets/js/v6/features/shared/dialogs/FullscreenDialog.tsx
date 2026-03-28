@@ -91,7 +91,7 @@ export const FullscreenDialog = (): ReactElement => {
                     ref={contentRef}
                     onOpenAutoFocus={preventAutoFocus}
                     onCloseAutoFocus={preventAutoFocus}
-                    className='html-area-fullscreen-dialog w-full h-full max-w-full max-h-98/100 gap-0 overflow-hidden p-0'
+                    className='html-area-fullscreen-dialog w-full h-full max-w-[1600px] max-h-98/100 gap-0 overflow-hidden p-0'
                     data-component={FULLSCREEN_DIALOG_NAME}
                 >
                     <Dialog.DefaultClose
