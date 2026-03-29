@@ -5,14 +5,17 @@ import {
     type KeyboardEvent,
     type MouseEvent,
     type ReactElement,
+    useCallback,
     useEffect,
-    useLayoutEffect,
     useRef,
-    useState,
 } from 'react';
 import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import type {TableQuicktablePopupParams} from '../../../../app/inputtype/ui/text/HtmlEditorTypes';
 import type {DialogOverrides} from '../form/input-types/html-area/setupEditor';
+import {clamp} from '../../store/dialogs/ckeditorDialogUtils';
+import {useCkEditorFocusManager} from '../../hooks/htmlarea/useCkEditorFocusManager';
+import {usePopupDismiss} from '../../hooks/htmlarea/usePopupDismiss';
+import {usePopupPosition} from '../../hooks/htmlarea/usePopupPosition';
 import {
     $tableQuicktablePopup,
     closeTableQuicktablePopup,
@@ -24,16 +27,6 @@ import {
 } from '../../store/dialogs/tableQuicktablePopup.store';
 
 const TABLE_QUICKTABLE_POPUP_NAME = 'TableQuicktablePopup';
-const POPUP_OFFSET = 8;
-const VIEWPORT_OFFSET = 8;
-
-type PopupPosition = {
-    top: number;
-    left: number;
-    side: 'top' | 'bottom';
-};
-
-const clamp = (value: number, min: number, max: number): number => Math.max(min, Math.min(value, max));
 
 export const TableQuicktablePopup = (): ReactElement | null => {
     const {
@@ -68,7 +61,6 @@ export const TableQuicktablePopup = (): ReactElement | null => {
     const popupRef = useRef<HTMLDivElement | null>(null);
     const moreButtonRef = useRef<HTMLButtonElement | null>(null);
     const cellRefs = useRef<(HTMLButtonElement | null)[]>([]);
-    const [position, setPosition] = useState<PopupPosition | null>(null);
 
     const cellCount = gridRows * gridCols;
     const activeIndex = (previewRows - 1) * gridCols + previewCols - 1;
@@ -76,138 +68,34 @@ export const TableQuicktablePopup = (): ReactElement | null => {
 
     cellRefs.current.length = cellCount;
 
-    useLayoutEffect(() => {
-        if (!open || !popupRef.current || !editor || editor['destroyed']) {
-            return;
-        }
+    const getAnchorElement = useCallback(
+        () => getTableQuicktableTriggerElement(triggerButtonId, editor),
+        [triggerButtonId, editor],
+    );
 
-        const elements = [
-            popupRef.current,
-            moreButtonRef.current,
-            ...cellRefs.current,
-        ].filter((element): element is HTMLDivElement | HTMLButtonElement => !!element);
+    useCkEditorFocusManager(
+        editor,
+        [popupRef, moreButtonRef, ...cellRefs.current],
+        [open, cellCount],
+    );
 
-        const ckElements = elements.map((element) => new CKEDITOR.dom.element(element));
+    const position = usePopupPosition({
+        open,
+        popupRef,
+        getAnchorElement,
+        isRtl: editor?.lang.dir === 'rtl',
+        deps: [triggerButtonId, gridRows, gridCols],
+        onMissingAnchor: closeTableQuicktablePopup,
+    });
 
-        ckElements.forEach((element) => editor.focusManager.add(element, true));
-
-        return () => {
-            if (editor['destroyed']) {
-                return;
-            }
-
-            ckElements.forEach((element) => editor.focusManager.remove(element));
-        };
-    }, [open, editor, cellCount]);
-
-    useEffect(() => {
-        if (!open) {
-            setPosition(null);
-            return;
-        }
-
-        const popupElement = popupRef.current;
-        const anchorElement = getTableQuicktableTriggerElement(triggerButtonId, editor);
-
-        if (!popupElement || !anchorElement) {
-            closeTableQuicktablePopup();
-            return;
-        }
-
-        const updatePosition = (): void => {
-            if (!popupRef.current) {
-                return;
-            }
-
-            const nextAnchorElement = getTableQuicktableTriggerElement(triggerButtonId, editor);
-
-            if (!nextAnchorElement) {
-                closeTableQuicktablePopup();
-                return;
-            }
-
-            const popupRect = popupRef.current.getBoundingClientRect();
-            const anchorRect = nextAnchorElement.getBoundingClientRect();
-            const maxLeft = Math.max(VIEWPORT_OFFSET, window.innerWidth - popupRect.width - VIEWPORT_OFFSET);
-            const left = clamp(
-                editor?.lang.dir === 'rtl' ? anchorRect.right - popupRect.width : anchorRect.left,
-                VIEWPORT_OFFSET,
-                maxLeft,
-            );
-            const placeAbove =
-                window.innerHeight - anchorRect.bottom < popupRect.height + POPUP_OFFSET &&
-                anchorRect.top > popupRect.height + POPUP_OFFSET;
-            const top = placeAbove
-                ? Math.max(VIEWPORT_OFFSET, anchorRect.top - popupRect.height - POPUP_OFFSET)
-                : Math.min(window.innerHeight - popupRect.height - VIEWPORT_OFFSET, anchorRect.bottom + POPUP_OFFSET);
-
-            setPosition({
-                top,
-                left,
-                side: placeAbove ? 'top' : 'bottom',
-            });
-        };
-
-        updatePosition();
-
-        window.addEventListener('resize', updatePosition);
-        window.addEventListener('scroll', updatePosition, true);
-
-        return () => {
-            window.removeEventListener('resize', updatePosition);
-            window.removeEventListener('scroll', updatePosition, true);
-        };
-    }, [open, editor, triggerButtonId, gridRows, gridCols]);
-
-    useEffect(() => {
-        if (!open) {
-            return;
-        }
-
-        const editable = editor?.editable();
-
-        const handleClose = (): void => {
-            closeTableQuicktablePopup();
-        };
-
-        const handleFocusIn = (event: FocusEvent): void => {
-            const target = event.target as Node | null;
-            const popupElement = popupRef.current;
-            const anchorElement = getTableQuicktableTriggerElement(triggerButtonId, editor);
-
-            if (!target || popupElement?.contains(target) || anchorElement?.contains(target)) {
-                return;
-            }
-
-            handleClose();
-        };
-
-        const handlePointerDown = (event: PointerEvent): void => {
-            const target = event.target as Node | null;
-            const popupElement = popupRef.current;
-            const anchorElement = getTableQuicktableTriggerElement(triggerButtonId, editor);
-
-            if (!target || popupElement?.contains(target) || anchorElement?.contains(target)) {
-                return;
-            }
-
-            handleClose();
-        };
-
-        document.addEventListener('focusin', handleFocusIn);
-        document.addEventListener('pointerdown', handlePointerDown);
-        window.addEventListener('blur', handleClose);
-        editable?.on('mousedown', handleClose);
-        editor?.on('destroy', handleClose);
-
-        return () => {
-            document.removeEventListener('focusin', handleFocusIn);
-            document.removeEventListener('pointerdown', handlePointerDown);
-            window.removeEventListener('blur', handleClose);
-            editable?.removeListener('mousedown', handleClose);
-            editor?.removeListener('destroy', handleClose);
-        };
-    }, [open, editor, triggerButtonId]);
+    usePopupDismiss({
+        open,
+        popupRef,
+        editor,
+        getAnchorElement,
+        onClose: closeTableQuicktablePopup,
+        deps: [triggerButtonId],
+    });
 
     useEffect(() => {
         if (!open) {

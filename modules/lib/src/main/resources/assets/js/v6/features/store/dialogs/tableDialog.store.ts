@@ -7,6 +7,11 @@ import type {NumberConfig} from '@enonic/lib-admin-ui/form2/descriptor/InputType
 import type {ValidationResult} from '@enonic/lib-admin-ui/form2/descriptor/ValidationResult';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {map} from 'nanostores';
+import {
+    getDialogElement,
+    hideOriginalDialog,
+    restoreOriginalDialogVisibility,
+} from './ckeditorDialogUtils';
 import eventInfo = CKEDITOR.eventInfo;
 import type {
     TableDialogHeaderValue,
@@ -108,35 +113,6 @@ const resetTableDialog = (): void => {
 
 const getMode = (dialog: CKEDITOR.dialog): TableDialogMode => {
     return dialog.getName() === 'table' ? 'table' : 'tableProperties';
-};
-
-const hideOriginalDialog = (dialog: CKEDITOR.dialog): void => {
-    const dialogElement = dialog.getElement()?.$;
-    const backgroundCover = dialogElement?.ownerDocument.getElementsByClassName('cke_dialog_background_cover')[0] as HTMLElement | undefined;
-
-    if (dialogElement) {
-        dialogElement.style.display = 'none';
-    }
-
-    if (backgroundCover) {
-        backgroundCover.style.left = '-10000px';
-    }
-};
-
-const restoreOriginalDialogVisibility = (dialog?: CKEDITOR.dialog): void => {
-    const dialogElement = dialog?.getElement()?.$;
-
-    if (dialogElement) {
-        dialogElement.style.display = 'block';
-    }
-};
-
-const getDialogElement = (
-    dialog: CKEDITOR.dialog,
-    pageId: string,
-    elementId: string,
-): CKEDITOR.ui.dialog.uiElement => {
-    return dialog.getContentElement(pageId, elementId);
 };
 
 const getDialogValue = (

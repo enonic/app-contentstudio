@@ -6,16 +6,18 @@ import {
     type KeyboardEvent,
     type MouseEvent,
     type ReactElement,
+    useCallback,
     useEffect,
-    useLayoutEffect,
     useRef,
-    useState,
 } from 'react';
 import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import {suppressHtmlAreaBlur} from '../../../../app/inputtype/ui/text/HtmlAreaOverlayState';
 import type {SearchPopupParams} from '../../../../app/inputtype/ui/text/HtmlEditorTypes';
 import type {DialogOverrides} from '../form/input-types/html-area/setupEditor';
+import {useCkEditorFocusManager} from '../../hooks/htmlarea/useCkEditorFocusManager';
 import {useI18n} from '../../hooks/useI18n';
+import {usePopupDismiss} from '../../hooks/htmlarea/usePopupDismiss';
+import {usePopupPosition} from '../../hooks/htmlarea/usePopupPosition';
 import {
     $searchPopup,
     closeSearchPopup,
@@ -33,16 +35,6 @@ import {
 } from '../../store/dialogs/searchPopup.store';
 
 const SEARCH_POPUP_NAME = 'SearchPopup';
-const POPUP_OFFSET = 8;
-const VIEWPORT_OFFSET = 8;
-
-type PopupPosition = {
-    top: number;
-    left: number;
-    side: 'top' | 'bottom';
-};
-
-const clamp = (value: number, min: number, max: number): number => Math.max(min, Math.min(value, max));
 
 const getCheckboxElement = (container: HTMLDivElement | null): HTMLButtonElement | HTMLInputElement | null => {
     const element = container?.querySelector('button, input, [role="checkbox"]');
@@ -99,7 +91,6 @@ export const SearchPopup = (): ReactElement | null => {
     const replaceInputRef = useRef<HTMLInputElement | null>(null);
     const replaceButtonRef = useRef<HTMLButtonElement | null>(null);
     const replaceAllButtonRef = useRef<HTMLButtonElement | null>(null);
-    const [position, setPosition] = useState<PopupPosition | null>(null);
 
     const title = useI18n('dialog.search.title');
     const findLabel = useI18n('dialog.search.find');
@@ -112,169 +103,54 @@ export const SearchPopup = (): ReactElement | null => {
     const previousLabel = useI18n('dialog.search.find.previous');
     const nextLabel = useI18n('dialog.search.find.next');
     const switchLabel = useI18n('dialog.search.switch');
-    const counterLabel = replacedCount != null
-        ? useI18n('dialog.search.result.replaced', replacedCount)
-        : total === 0
-            ? useI18n('dialog.search.result.noResults')
-            : useI18n('dialog.search.result.entries', currentIndex + 1, total);
+    const replacedLabel = useI18n('dialog.search.result.replaced', replacedCount ?? 0);
+    const noResultsLabel = useI18n('dialog.search.result.noResults');
+    const entriesLabel = useI18n('dialog.search.result.entries', currentIndex + 1, total);
+    const counterLabel = replacedCount != null ? replacedLabel : total === 0 ? noResultsLabel : entriesLabel;
     const isReplaceMode = mode === 'replace';
     const isPreviousDisabled = total === 0 || currentIndex === 0;
     const isNextDisabled = total === 0 || currentIndex >= total - 1;
     const isReplaceDisabled = total === 0;
 
-    const isWithinPopupContext = (target: Node | null): boolean => {
-        if (!target) {
-            return false;
-        }
+    const getAnchorElement = useCallback(
+        () => getSearchPopupTriggerElement(triggerButtonId, editor),
+        [triggerButtonId, editor],
+    );
 
-        const anchorElement = getSearchPopupTriggerElement(triggerButtonId, editor);
-        const editorContainer = editor?.container?.$;
-
-        return popupRef.current?.contains(target) ||
-            anchorElement?.contains(target) ||
-            editorContainer?.contains(target) ||
-            false;
-    };
-
-    useLayoutEffect(() => {
-        if (!open || !popupRef.current || !editor || editor['destroyed']) {
-            return;
-        }
-
-        const elements = [
-            popupRef.current,
-            toggleModeButtonRef.current,
-            findInputRef.current,
+    useCkEditorFocusManager(
+        editor,
+        [
+            popupRef,
+            toggleModeButtonRef,
+            findInputRef,
             getCheckboxElement(matchCaseRef.current),
             getCheckboxElement(wholeWordsRef.current),
-            previousButtonRef.current,
-            nextButtonRef.current,
-            replaceInputRef.current,
-            replaceButtonRef.current,
-            replaceAllButtonRef.current,
-        ].filter((element): element is HTMLDivElement | HTMLButtonElement | HTMLInputElement => !!element);
+            previousButtonRef,
+            nextButtonRef,
+            replaceInputRef,
+            replaceButtonRef,
+            replaceAllButtonRef,
+        ],
+        [open, isReplaceMode],
+    );
 
-        const ckElements = elements.map((element) => new CKEDITOR.dom.element(element));
+    const position = usePopupPosition({
+        open,
+        popupRef,
+        getAnchorElement,
+        isRtl: editor?.lang.dir === 'rtl',
+        deps: [triggerButtonId, isReplaceMode],
+        onMissingAnchor: closeSearchPopup,
+    });
 
-        ckElements.forEach((element) => editor.focusManager.add(element, true));
-
-        return () => {
-            if (editor['destroyed']) {
-                return;
-            }
-
-            ckElements.forEach((element) => editor.focusManager.remove(element));
-        };
-    }, [open, editor, isReplaceMode]);
-
-    useEffect(() => {
-        if (!open) {
-            setPosition(null);
-            return;
-        }
-
-        const popupElement = popupRef.current;
-        const anchorElement = getSearchPopupTriggerElement(triggerButtonId, editor);
-
-        if (!popupElement || !anchorElement) {
-            closeSearchPopup();
-            return;
-        }
-
-        const updatePosition = (): void => {
-            if (!popupRef.current) {
-                return;
-            }
-
-            const nextAnchorElement = getSearchPopupTriggerElement(triggerButtonId, editor);
-
-            if (!nextAnchorElement) {
-                closeSearchPopup();
-                return;
-            }
-
-            const popupRect = popupRef.current.getBoundingClientRect();
-            const anchorRect = nextAnchorElement.getBoundingClientRect();
-            const maxLeft = Math.max(VIEWPORT_OFFSET, window.innerWidth - popupRect.width - VIEWPORT_OFFSET);
-            const left = clamp(
-                editor?.lang.dir === 'rtl' ? anchorRect.right - popupRect.width : anchorRect.left,
-                VIEWPORT_OFFSET,
-                maxLeft,
-            );
-            const placeAbove =
-                window.innerHeight - anchorRect.bottom < popupRect.height + POPUP_OFFSET &&
-                anchorRect.top > popupRect.height + POPUP_OFFSET;
-            const top = placeAbove
-                ? Math.max(VIEWPORT_OFFSET, anchorRect.top - popupRect.height - POPUP_OFFSET)
-                : Math.min(window.innerHeight - popupRect.height - VIEWPORT_OFFSET, anchorRect.bottom + POPUP_OFFSET);
-
-            setPosition({
-                top,
-                left,
-                side: placeAbove ? 'top' : 'bottom',
-            });
-        };
-
-        updatePosition();
-
-        window.addEventListener('resize', updatePosition);
-        window.addEventListener('scroll', updatePosition, true);
-
-        return () => {
-            window.removeEventListener('resize', updatePosition);
-            window.removeEventListener('scroll', updatePosition, true);
-        };
-    }, [open, editor, triggerButtonId, isReplaceMode]);
-
-    useEffect(() => {
-        if (!open) {
-            return;
-        }
-
-        const editable = editor?.editable();
-
-        const handleClose = (): void => {
-            closeSearchPopup();
-        };
-
-        const handleFocusIn = (event: FocusEvent): void => {
-            const target = event.target as Node | null;
-
-            if (!target || isWithinPopupContext(target)) {
-                return;
-            }
-
-            handleClose();
-        };
-
-        const handlePointerDown = (event: PointerEvent): void => {
-            const target = event.target as Node | null;
-
-            if (!target || isWithinPopupContext(target)) {
-                return;
-            }
-
-            handleClose();
-        };
-
-        const handleWindowBlur = (): void => {
-            handleClose();
-        };
-
-        document.addEventListener('focusin', handleFocusIn);
-        document.addEventListener('pointerdown', handlePointerDown);
-        window.addEventListener('blur', handleWindowBlur);
-        editable?.on('mousedown', handleClose);
-        editor?.on('destroy', handleClose);
-
-        return () => {
-            document.removeEventListener('focusin', handleFocusIn);
-            document.removeEventListener('pointerdown', handlePointerDown);
-            window.removeEventListener('blur', handleWindowBlur);
-            editable?.removeListener('mousedown', handleClose);
-            editor?.removeListener('destroy', handleClose);
-        };
-    }, [open, editor, triggerButtonId]);
+    usePopupDismiss({
+        open,
+        popupRef,
+        editor,
+        getAnchorElement,
+        onClose: closeSearchPopup,
+        deps: [triggerButtonId],
+    });
 
     useEffect(() => {
         if (!open) {

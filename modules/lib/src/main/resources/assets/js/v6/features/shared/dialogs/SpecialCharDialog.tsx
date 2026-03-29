@@ -1,9 +1,10 @@
 import {Button, Dialog} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {type ReactElement, useEffect, useLayoutEffect, useRef, useState} from 'react';
+import {type ReactElement, useEffect, useRef, useState} from 'react';
 import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import type {SpecialCharDialogParams} from '../../../../app/inputtype/ui/text/HtmlEditorTypes';
 import type {DialogOverrides} from '../form/input-types/html-area/setupEditor';
+import {useCkEditorFocusManager} from '../../hooks/htmlarea/useCkEditorFocusManager';
 import {useI18n} from '../../hooks/useI18n';
 import {
     $specialCharDialog,
@@ -32,35 +33,9 @@ export const SpecialCharDialog = (): ReactElement => {
         }
     }, [open, items.length]);
 
-    useLayoutEffect(() => {
-        if (!open || !contentRef.current) {
-            return;
-        }
+    const editor = open ? $specialCharDialog.get().editor : undefined;
 
-        const {editor} = $specialCharDialog.get();
-
-        if (!editor || editor['destroyed']) {
-            return;
-        }
-
-        const elements = [
-            contentRef.current,
-            closeButtonRef.current,
-            ...buttonRefs.current,
-        ].filter((element): element is HTMLDivElement | HTMLButtonElement => !!element);
-
-        const ckElements = elements.map((element) => new CKEDITOR.dom.element(element));
-
-        ckElements.forEach((element) => editor.focusManager.add(element, true));
-
-        return () => {
-            if (editor['destroyed']) {
-                return;
-            }
-
-            ckElements.forEach((element) => editor.focusManager.remove(element));
-        };
-    }, [open, items.length]);
+    useCkEditorFocusManager(editor, [contentRef, closeButtonRef, ...buttonRefs.current], [open, items.length]);
 
     const moveFocusTo = (nextIndex: number): void => {
         const clampedIndex = Math.max(0, Math.min(nextIndex, items.length - 1));

@@ -1,8 +1,8 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {map} from 'nanostores';
+import {type CkEditorBookmarks, captureEditorBookmarks, restoreEditorSelectionSafe} from './ckeditorDialogUtils';
 
 type CkEditorSpecialChar = string | [string, string];
-type CkEditorBookmarks = ReturnType<CKEDITOR.dom.selection['createBookmarks2']>;
 
 const SPECIAL_CHAR_NBSP = '(_)';
 const SPECIAL_CHAR_SHY = '(-)';
@@ -47,7 +47,7 @@ const toDialogItem = (
         };
     }
 
-    const name = specialChar.replace('&', '').replace(';', '').replace('#', '');
+    const name = specialChar.replace(/[&;#]/g, '');
 
     return {
         value: decodeSpecialChar(specialChar),
@@ -60,12 +60,6 @@ const getDialogItems = (editor: CKEDITOR.editor): SpecialCharDialogItem[] => {
     const lang = editor.lang.specialchar as Record<string, string | undefined>;
 
     return specialChars.map((specialChar) => toDialogItem(specialChar, lang));
-};
-
-const captureEditorBookmarks = (editor: CKEDITOR.editor): CkEditorBookmarks | undefined => {
-    const selection = editor.getSelection();
-
-    return selection ? selection.createBookmarks2(true) : undefined;
 };
 
 export const openSpecialCharDialog = (editor: CKEDITOR.editor): void => {
@@ -90,21 +84,6 @@ export const closeSpecialCharDialog = (): void => {
     $specialCharDialog.set(structuredClone(initialState));
 };
 
-const restoreEditorSelection = (
-    editor: CKEDITOR.editor,
-    bookmarks?: CkEditorBookmarks,
-): void => {
-    if (!bookmarks) {
-        return;
-    }
-
-    try {
-        editor.getSelection()?.selectBookmarks(bookmarks);
-    } catch {
-        // Bookmarks may become invalid if the DOM changed between capture and restore
-    }
-};
-
 export const submitSpecialCharDialog = (value: string): void => {
     const {editor, bookmarks} = $specialCharDialog.get();
 
@@ -113,7 +92,7 @@ export const submitSpecialCharDialog = (value: string): void => {
     }
 
     editor.focus();
-    restoreEditorSelection(editor, bookmarks);
+    restoreEditorSelectionSafe(editor, bookmarks);
 
     if (value === SPECIAL_CHAR_NBSP) {
         editor.insertHtml('&nbsp;', 'text');

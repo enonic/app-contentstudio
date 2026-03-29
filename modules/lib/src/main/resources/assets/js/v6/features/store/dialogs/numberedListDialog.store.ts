@@ -1,6 +1,13 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {map} from 'nanostores';
 import {consumeListStyleDialogSelectionBookmarks} from '../../../../app/inputtype/ui/text/ListStyleDialogContextMenu';
+import {
+    type CkEditorBookmarks,
+    getDialogElement,
+    hideOriginalDialog,
+    restoreEditorSelection,
+    restoreOriginalDialogVisibility,
+} from './ckeditorDialogUtils';
 import eventInfo = CKEDITOR.eventInfo;
 
 export type NumberedListDialogType =
@@ -10,8 +17,6 @@ export type NumberedListDialogType =
     'lower-alpha' |
     'upper-alpha' |
     'decimal';
-
-type CkEditorBookmarks = ReturnType<CKEDITOR.dom.selection['createBookmarks2']>;
 
 type NumberedListDialogOption = {
     value: NumberedListDialogType;
@@ -44,35 +49,6 @@ export const $numberedListDialog = map<NumberedListDialogStore>(structuredClone(
 
 const resetNumberedListDialog = (): void => {
     $numberedListDialog.set(structuredClone(initialState));
-};
-
-const hideOriginalDialog = (dialog: CKEDITOR.dialog): void => {
-    const dialogElement = dialog.getElement()?.$;
-    const backgroundCover = dialogElement?.ownerDocument.getElementsByClassName('cke_dialog_background_cover')[0] as HTMLElement | undefined;
-
-    if (dialogElement) {
-        dialogElement.style.display = 'none';
-    }
-
-    if (backgroundCover) {
-        backgroundCover.style.left = '-10000px';
-    }
-};
-
-const restoreOriginalDialogVisibility = (dialog?: CKEDITOR.dialog): void => {
-    const dialogElement = dialog?.getElement()?.$;
-
-    if (dialogElement) {
-        dialogElement.style.display = 'block';
-    }
-};
-
-const getDialogElement = (
-    dialog: CKEDITOR.dialog,
-    pageId: string,
-    elementId: string,
-): CKEDITOR.ui.dialog.uiElement => {
-    return dialog.getContentElement(pageId, elementId);
 };
 
 const getDialogValue = (
@@ -120,17 +96,6 @@ const getNumberedListDialogStartError = (value: string): string | undefined => {
     }
 
     return undefined;
-};
-
-const restoreEditorSelection = (
-    editor: CKEDITOR.editor,
-    bookmarks?: CkEditorBookmarks,
-): void => {
-    if (!bookmarks) {
-        return;
-    }
-
-    editor.getSelection()?.selectBookmarks(bookmarks);
 };
 
 const getNumberedListDialogOptions = (editor: CKEDITOR.editor): NumberedListDialogOption[] => {

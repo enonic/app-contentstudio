@@ -33,10 +33,10 @@ const initialState: FullscreenDialogStore = {
 
 let fullscreenDialogRequestId = 0;
 
-export const $fullscreenDialog = map<FullscreenDialogStore>({...initialState});
+export const $fullscreenDialog = map<FullscreenDialogStore>(structuredClone(initialState));
 
 const resetFullscreenDialog = (): void => {
-    $fullscreenDialog.set({...initialState});
+    $fullscreenDialog.set(structuredClone(initialState));
 };
 
 const isAllTools = (tools: string[] | undefined): boolean => {

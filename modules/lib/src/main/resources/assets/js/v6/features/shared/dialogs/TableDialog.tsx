@@ -2,9 +2,10 @@ import {Button, Dialog, Input, Selector} from '@enonic/ui';
 import type {Value} from '@enonic/lib-admin-ui/data/Value';
 import {LongInput} from '@enonic/lib-admin-ui/form2';
 import {useStore} from '@nanostores/preact';
-import {type FormEvent, type ReactElement, useLayoutEffect, useRef} from 'react';
+import {type FormEvent, type ReactElement, useRef} from 'react';
 import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import type {DialogOverrides} from '../form/input-types/html-area/setupEditor';
+import {useCkEditorFocusManager} from '../../hooks/htmlarea/useCkEditorFocusManager';
 import {useI18n} from '../../hooks/useI18n';
 import {
     $tableDialog,
@@ -89,39 +90,21 @@ export const TableDialog = (): ReactElement => {
     const headerOptions = Object.entries(headerLabels).map(([value, label]) => ({value, label}));
     const selectedHeaderValue = toInternalTableDialogHeaderValue(headers);
 
-    useLayoutEffect(() => {
-        if (!open || !contentRef.current) {
-            return;
-        }
+    const editor = open ? $tableDialog.get().editor : undefined;
 
-        const {editor} = $tableDialog.get();
-
-        if (!editor || editor['destroyed']) {
-            return;
-        }
-
-        const elements = [
-            contentRef.current,
-            closeButtonRef.current,
+    useCkEditorFocusManager(
+        editor,
+        [
+            contentRef,
+            closeButtonRef,
             getLongInputElement(rowsInputContainerRef.current),
             getLongInputElement(colsInputContainerRef.current),
             headersTriggerRef.current,
             captionInputRef.current,
             submitButtonRef.current,
-        ].filter((element): element is HTMLDivElement | HTMLButtonElement | HTMLInputElement => !!element);
-
-        const ckElements = elements.map((element) => new CKEDITOR.dom.element(element));
-
-        ckElements.forEach((element) => editor.focusManager.add(element, true));
-
-        return () => {
-            if (editor['destroyed']) {
-                return;
-            }
-
-            ckElements.forEach((element) => editor.focusManager.remove(element));
-        };
-    }, [open, isPropertiesMode]);
+        ],
+        [open, isPropertiesMode],
+    );
 
     const focusInitialElement = (): void => {
         if (isPropertiesMode) {

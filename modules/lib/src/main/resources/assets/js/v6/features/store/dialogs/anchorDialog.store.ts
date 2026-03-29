@@ -1,8 +1,8 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {map} from 'nanostores';
 import {type AnchorDialogParams} from '../../../../app/inputtype/ui/text/HtmlEditorTypes';
+import {type CkEditorBookmarks, restoreEditorSelection} from './ckeditorDialogUtils';
 
-type CkEditorBookmarks = ReturnType<CKEDITOR.dom.selection['createBookmarks2']>;
 type CkEditorElement = CKEDITOR.dom.element;
 type CkEditorRange = CKEDITOR.dom.range;
 type EditorWithFakeElement = CKEDITOR.editor & {
@@ -94,21 +94,6 @@ const getAnchorModel = (editor: CKEDITOR.editor): CkEditorElement | undefined =>
            (element.data('cke-real-element-type') === 'anchor' || element.is('a'))
         ? element
         : undefined;
-};
-
-const restoreEditorSelection = (
-    editor: CKEDITOR.editor,
-    bookmarks?: CkEditorBookmarks,
-): void => {
-    if (!bookmarks) {
-        return;
-    }
-
-    const selection = editor.getSelection();
-
-    if (selection) {
-        selection.selectBookmarks(bookmarks);
-    }
 };
 
 const getCurrentAnchor = (editor: CKEDITOR.editor): CkEditorElement | undefined => {
