@@ -1,6 +1,7 @@
 import {cn, Dialog} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {type ReactElement, useLayoutEffect, useRef} from 'react';
+import {type ReactElement, useLayoutEffect, useMemo, useRef} from 'react';
+import {useCkEditorFocusManager} from '../../hooks/htmlarea/useCkEditorFocusManager';
 import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import type {FullScreenDialogParams} from '../../../../app/inputtype/ui/text/HtmlEditorTypes';
 import type {DialogOverrides} from '../form/input-types/html-area/setupEditor';
@@ -44,34 +45,12 @@ export const FullscreenDialog = (): ReactElement => {
         initializeFullscreenDialogEditor();
     }, [open, initializing, editorContainerId]);
 
-    useLayoutEffect(() => {
-        if (!open || !editorContainerId || !contentRef.current) {
-            return;
-        }
+    const fullscreenCkEditor = useMemo(
+        () => open && editorContainerId ? CKEDITOR.instances[editorContainerId] : undefined,
+        [open, initializing, editorContainerId],
+    );
 
-        const editor = CKEDITOR.instances[editorContainerId];
-
-        if (!editor || editor['destroyed']) {
-            return;
-        }
-
-        const elements = [
-            contentRef.current,
-            closeButtonRef.current,
-        ].filter((element): element is HTMLDivElement | HTMLButtonElement => !!element);
-
-        const ckElements = elements.map((element) => new CKEDITOR.dom.element(element));
-
-        ckElements.forEach((element) => editor.focusManager.add(element, true));
-
-        return () => {
-            if (editor['destroyed']) {
-                return;
-            }
-
-            ckElements.forEach((element) => editor.focusManager.remove(element));
-        };
-    }, [open, initializing, editorContainerId]);
+    useCkEditorFocusManager(fullscreenCkEditor, [contentRef, closeButtonRef], [open, initializing, editorContainerId]);
 
     const handleOpenChange = (nextOpen: boolean): void => {
         if (!nextOpen && isOtherHtmlAreaDialogOpen()) {

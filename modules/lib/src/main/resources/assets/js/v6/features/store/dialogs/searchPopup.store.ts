@@ -1,5 +1,6 @@
 import {map} from 'nanostores';
 import type {SearchPopupMode, SearchPopupParams} from '../../../../app/inputtype/ui/text/HtmlEditorTypes';
+import {getTriggerButtonId, getTriggerElement} from './ckeditorDialogUtils';
 
 type SearchHighlight = CKEDITOR.dom.node;
 type SearchNode = CKEDITOR.dom.node;
@@ -21,12 +22,6 @@ type SearchPopupStore = {
 
 type CloseSearchPopupOptions = {
     focusTrigger?: boolean;
-};
-
-type CkEditorToolbarButton = {
-    _: {
-        id?: string;
-    };
 };
 
 const HIGHLIGHT_CLASS = 'cke__highlighted_term';
@@ -322,21 +317,11 @@ const applySearchPopupEditorMutation = (editor: CKEDITOR.editor, mutation: () =>
     editor.fire('change');
 };
 
-const getTriggerButtonId = (editor: CKEDITOR.editor): string | undefined => {
-    const searchButton = editor.ui.get('FindAndReplace') as unknown as CkEditorToolbarButton | undefined;
-
-    return searchButton?._?.id;
-};
-
 export const getSearchPopupTriggerElement = (
     triggerButtonId: string | undefined,
     editor: CKEDITOR.editor | undefined,
 ): HTMLElement | null => {
-    if (triggerButtonId) {
-        return document.getElementById(triggerButtonId);
-    }
-
-    return editor?.container?.$?.querySelector?.('.cke_button__findandreplace');
+    return getTriggerElement(triggerButtonId, editor, '.cke_button__findandreplace');
 };
 
 const focusTriggerButton = (state: SearchPopupStore): void => {
@@ -345,7 +330,7 @@ const focusTriggerButton = (state: SearchPopupStore): void => {
 
 export const openSearchPopup = ({editor, mode}: SearchPopupParams): void => {
     const state = $searchPopup.get();
-    const triggerButtonId = getTriggerButtonId(editor);
+    const triggerButtonId = getTriggerButtonId(editor, 'FindAndReplace');
 
     if (state.open && state.editor === editor && state.triggerButtonId === triggerButtonId) {
         if (state.mode === mode) {

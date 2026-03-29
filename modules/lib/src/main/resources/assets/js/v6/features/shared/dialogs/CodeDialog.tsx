@@ -1,9 +1,10 @@
 import {Button, Dialog, TextArea} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {type FormEvent, type ReactElement, useLayoutEffect, useRef} from 'react';
+import {type FormEvent, type ReactElement, useRef} from 'react';
 import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import type {CodeDialogParams} from '../../../../app/inputtype/ui/text/HtmlEditorTypes';
 import type {DialogOverrides} from '../form/input-types/html-area/setupEditor';
+import {useCkEditorFocusManager} from '../../hooks/htmlarea/useCkEditorFocusManager';
 import {useI18n} from '../../hooks/useI18n';
 import {
     $codeDialog,
@@ -26,36 +27,9 @@ export const CodeDialog = (): ReactElement => {
     const title = useI18n('dialog.sourcecode.title');
     const submitLabel = useI18n('action.ok');
 
-    useLayoutEffect(() => {
-        if (!open || !contentRef.current) {
-            return;
-        }
+    const editor = open ? $codeDialog.get().editor : undefined;
 
-        const {editor} = $codeDialog.get();
-
-        if (!editor || editor['destroyed']) {
-            return;
-        }
-
-        const elements = [
-            contentRef.current,
-            closeButtonRef.current,
-            textAreaRef.current,
-            submitButtonRef.current,
-        ].filter((element): element is HTMLDivElement | HTMLButtonElement | HTMLTextAreaElement => !!element);
-
-        const ckElements = elements.map((element) => new CKEDITOR.dom.element(element));
-
-        ckElements.forEach((element) => editor.focusManager.add(element, true));
-
-        return () => {
-            if (editor['destroyed']) {
-                return;
-            }
-
-            ckElements.forEach((element) => editor.focusManager.remove(element));
-        };
-    }, [open]);
+    useCkEditorFocusManager(editor, [contentRef, closeButtonRef, textAreaRef, submitButtonRef], [open]);
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
         event.preventDefault();

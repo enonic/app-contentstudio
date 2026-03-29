@@ -1,8 +1,9 @@
 import {Button, Dialog, Input, Selector} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {type FormEvent, type ReactElement, useLayoutEffect, useRef} from 'react';
+import {type FormEvent, type ReactElement, useRef} from 'react';
 import {type CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from '../../../../app/inputtype/ui/text/CreateHtmlAreaDialogEvent';
 import type {DialogOverrides} from '../form/input-types/html-area/setupEditor';
+import {useCkEditorFocusManager} from '../../hooks/htmlarea/useCkEditorFocusManager';
 import {useI18n} from '../../hooks/useI18n';
 import {
     $numberedListDialog,
@@ -34,37 +35,9 @@ export const NumberedListDialog = (): ReactElement => {
     const submitLabel = useI18n('action.ok');
     const typeLabels = Object.fromEntries(typeOptions.map((option) => [option.value, option.label]));
 
-    useLayoutEffect(() => {
-        if (!open || !contentRef.current) {
-            return;
-        }
+    const editor = open ? $numberedListDialog.get().editor : undefined;
 
-        const {editor} = $numberedListDialog.get();
-
-        if (!editor || editor['destroyed']) {
-            return;
-        }
-
-        const elements = [
-            contentRef.current,
-            closeButtonRef.current,
-            startInputRef.current,
-            typeTriggerRef.current,
-            submitButtonRef.current,
-        ].filter((element): element is HTMLDivElement | HTMLButtonElement | HTMLInputElement => !!element);
-
-        const ckElements = elements.map((element) => new CKEDITOR.dom.element(element));
-
-        ckElements.forEach((element) => editor.focusManager.add(element, true));
-
-        return () => {
-            if (editor['destroyed']) {
-                return;
-            }
-
-            ckElements.forEach((element) => editor.focusManager.remove(element));
-        };
-    }, [open]);
+    useCkEditorFocusManager(editor, [contentRef, closeButtonRef, startInputRef, typeTriggerRef, submitButtonRef], [open]);
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
         event.preventDefault();

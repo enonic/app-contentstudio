@@ -1,8 +1,14 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {map} from 'nanostores';
 import type {TableQuicktablePopupParams} from '../../../../app/inputtype/ui/text/HtmlEditorTypes';
-
-type CkEditorBookmarks = ReturnType<CKEDITOR.dom.selection['createBookmarks2']>;
+import {
+    type CkEditorBookmarks,
+    captureEditorBookmarks,
+    clamp,
+    getTriggerButtonId,
+    getTriggerElement,
+    restoreEditorSelectionSafe,
+} from './ckeditorDialogUtils';
 
 type TableQuicktablePopupStore = {
     open: boolean;
@@ -68,8 +74,6 @@ const resetTableQuicktablePopup = (): void => {
     $tableQuicktablePopup.set(structuredClone(initialState));
 };
 
-const clamp = (value: number, min: number, max: number): number => Math.max(min, Math.min(value, max));
-
 const getPositiveNumberConfig = (value: unknown, fallback: number): number => {
     const parsedValue = Number.parseInt(String(value ?? ''), 10);
 
@@ -102,45 +106,11 @@ const getOptionalStyleConfig = (value: unknown): Record<string, string> | undefi
     );
 };
 
-const captureEditorBookmarks = (editor: CKEDITOR.editor): CkEditorBookmarks | undefined => {
-    const selection = editor.getSelection();
-
-    return selection ? selection.createBookmarks2(true) : undefined;
-};
-
-const restoreEditorSelection = (editor: CKEDITOR.editor, bookmarks?: CkEditorBookmarks): void => {
-    if (!bookmarks) {
-        return;
-    }
-
-    try {
-        editor.getSelection()?.selectBookmarks(bookmarks);
-    } catch {
-        // Bookmarks may become invalid if the DOM changed between capture and restore
-    }
-};
-
-type CkEditorToolbarButton = {
-    _: {
-        id?: string;
-    };
-};
-
-const getTriggerButtonId = (editor: CKEDITOR.editor): string | undefined => {
-    const tableButton = editor.ui.get('Table') as unknown as CkEditorToolbarButton | undefined;
-
-    return tableButton?._?.id;
-};
-
 export const getTableQuicktableTriggerElement = (
     triggerButtonId: string | undefined,
     editor: CKEDITOR.editor | undefined,
 ): HTMLElement | null => {
-    if (triggerButtonId) {
-        return document.getElementById(triggerButtonId);
-    }
-
-    return editor?.container?.$?.querySelector?.('.cke_button__table');
+    return getTriggerElement(triggerButtonId, editor, '.cke_button__table');
 };
 
 const focusTriggerButton = (state: TableQuicktablePopupStore): void => {
@@ -209,7 +179,7 @@ const getMoreLabel = (editor: CKEDITOR.editor): string => {
 
 export const openTableQuicktablePopup = ({editor}: TableQuicktablePopupParams): void => {
     const state = $tableQuicktablePopup.get();
-    const triggerButtonId = getTriggerButtonId(editor);
+    const triggerButtonId = getTriggerButtonId(editor, 'Table');
 
     if (state.open && state.editor === editor && state.triggerButtonId === triggerButtonId) {
         resetTableQuicktablePopup();
@@ -279,7 +249,7 @@ export const submitTableQuicktablePopup = (rows: number, cols: number): void => 
     const nextCols = clamp(cols, 1, state.gridCols);
 
     editor.focus();
-    restoreEditorSelection(editor, bookmarks);
+    restoreEditorSelectionSafe(editor, bookmarks);
     editor.fire('saveSnapshot');
     insertQuicktable(editor, state, nextRows, nextCols);
 
@@ -302,7 +272,7 @@ export const openTableQuicktableDialog = (): void => {
     }
 
     editor.focus();
-    restoreEditorSelection(editor, bookmarks);
+    restoreEditorSelectionSafe(editor, bookmarks);
     resetTableQuicktablePopup();
     editor.openDialog('table', undefined);
 };
