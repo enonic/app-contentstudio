@@ -8,6 +8,8 @@ export const CustomSelectorItemView = ({item, listMode}: {item: CustomSelectorIt
     return listMode === 'list' ? <CustomSelectorItemListView item={item} /> : <CustomSelectorItemFlatView item={item} />;
 };
 
+CustomSelectorItemView.displayName = 'CustomSelectorItemView';
+
 const CustomSelectorItemListView = ({item: {displayName, description, icon, iconUrl}}: {item: CustomSelectorItem}): ReactElement => {
     const hasIcon = icon || iconUrl;
 

@@ -46,3 +46,5 @@ export const CustomSelectorInputComboboxList = ({
         </Combobox.ListContent>
     );
 };
+
+CustomSelectorInputComboboxList.displayName = 'CustomSelectorInputComboboxList';
