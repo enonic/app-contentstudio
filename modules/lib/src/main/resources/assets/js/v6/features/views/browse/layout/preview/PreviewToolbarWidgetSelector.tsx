@@ -2,7 +2,7 @@ import type {Extension} from '@enonic/lib-admin-ui/extension/Extension';
 import {Button, Menu, Toolbar} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ChevronDown, ChevronUp} from 'lucide-react';
-import {type ReactElement, useCallback, useEffect, useState} from 'react';
+import {type ReactElement, useCallback, useEffect, useRef, useState} from 'react';
 import {ViewExtensionEvent} from '../../../../../../app/event/ViewExtensionEvent';
 import {useI18n} from '../../../../hooks/useI18n';
 import {$activeWidget, $liveViewWidgets, setActiveWidget} from '../../../../store/liveViewWidgets.store';
@@ -18,12 +18,14 @@ export const PreviewToolbarWidgetSelector = (): ReactElement => {
     const {widgets} = useStore($liveViewWidgets, {keys: ['widgets']});
     const [isOpen, setIsOpen] = useState(false);
     const radioControlKey = activeWidget ? getWidgetKey(activeWidget) : '';
+    const hasFiredInitial = useRef(false);
 
     // First trigger is needed in order to make ContentWizardPanel add 'rendered' class, allowing ContentActionCycleButton to be displayed
     useEffect(() => {
-        if (!activeWidget) return;
+        if (!activeWidget || hasFiredInitial.current) return;
+        hasFiredInitial.current = true;
         new ViewExtensionEvent(activeWidget).fire();
-    }, []);
+    }, [activeWidget]);
 
     const handleWidgetChange = useCallback((key: string) => {
         const widget = widgets.find((w) => getWidgetKey(w) === key);
