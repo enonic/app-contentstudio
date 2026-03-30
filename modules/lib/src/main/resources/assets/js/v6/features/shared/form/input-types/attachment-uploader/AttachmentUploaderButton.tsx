@@ -1,8 +1,15 @@
+import {type ReactElement} from 'react';
 import {Button, cn} from '@enonic/ui';
 import {UploadIcon} from 'lucide-react';
 import {useI18n} from '../../../../hooks/useI18n';
 
-export const AttachmentUploaderButton = ({disabled, progress, onClick}: {disabled: boolean; progress: number; onClick: () => void}) => {
+export type AttachmentUploaderButtonProps = {
+    disabled: boolean;
+    progress: number;
+    onClick: () => void;
+};
+
+export const AttachmentUploaderButton = ({disabled, progress, onClick}: AttachmentUploaderButtonProps): ReactElement => {
     const uploadLabel = useI18n('action.upload');
 
     return (

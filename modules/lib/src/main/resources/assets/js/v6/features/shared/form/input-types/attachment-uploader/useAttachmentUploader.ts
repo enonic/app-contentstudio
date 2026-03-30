@@ -12,14 +12,18 @@ import {
 import {$uploads, addUpload, completeUpload, failUpload, updateUploadProgress} from '../../../../store/uploads.store';
 import {listenKeys} from 'nanostores';
 import {$contextContent} from '../../../../store/context/contextContent.store';
+import {$wizardDraftPage} from '../../../../store/wizardContent.store';
+import {isAttachmentInUse} from '../../../../utils/page/isAttachmentInUse';
 import {ContentRequiresSaveEvent} from '../../../../../../app/event/ContentRequiresSaveEvent';
 import {ContentId} from '../../../../../../app/content/ContentId';
+import {showError, showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 //
 // * Types
 //
 
-export type UploadingItem = {
+type UploadingItem = {
     id: string;
     name: string;
     progress: number;
@@ -30,13 +34,14 @@ type UseAttachmentUploaderOptions = {
     onAdd: SelfManagedComponentProps['onAdd'];
     onRemove: SelfManagedComponentProps['onRemove'];
     occurrences: Occurrences;
+    inputName: string;
 };
 
 //
 // * Hook
 //
 
-export const useAttachmentUploader = ({values, onAdd, onRemove, occurrences}: UseAttachmentUploaderOptions) => {
+export const useAttachmentUploader = ({values, onAdd, onRemove, occurrences, inputName}: UseAttachmentUploaderOptions) => {
     const [progress, setProgress] = useState<number>(0);
     const [uploads, setUploads] = useState<UploadingItem[]>([]);
     const [contentId, setContentId] = useState<string>();
@@ -102,35 +107,38 @@ export const useAttachmentUploader = ({values, onAdd, onRemove, occurrences}: Us
 
             setUploads((prev) => [...prev, ...newUploading]);
 
-            const tasks = filesToUpload.map((file, index) => {
-                const uploadId = newUploading[index].id;
-                addUpload(uploadId, file.name, contentId);
-
-                return uploadAttachmentFile({
-                    id: uploadId,
-                    file,
-                    contentId,
-                    onProgress: (id, progress) => {
-                        updateUploadProgress(id, progress);
-                        setUploads((prev) => prev.map((item) => (item.id === id ? {...item, progress} : item)));
-                    },
-                });
-            });
-
             await Promise.all(
-                tasks.map((task) =>
-                    task.match(
+                filesToUpload.map((file, index) => {
+                    const uploadId = newUploading[index].id;
+                    addUpload(uploadId, file.name, contentId);
+
+                    return uploadAttachmentFile({
+                        id: uploadId,
+                        file,
+                        contentId,
+                        onProgress: (id, progress) => {
+                            updateUploadProgress(id, progress);
+                            setUploads((prev) => prev.map((item) => (item.id === id ? {...item, progress} : item)));
+                        },
+                    }).match(
                         (success: UploadAttachmentSuccess) => {
                             completeUpload(success.identifier);
                             setUploads((prev) => prev.filter((item) => item.id !== success.identifier));
-                            onAdd(ValueTypes.STRING.newValue(success.attachment.name));
+
+                            const isDuplicate = values.some((v) => v.getString() === success.attachment.name);
+                            if (!isDuplicate) {
+                                onAdd(ValueTypes.STRING.newValue(success.attachment.name));
+                            }
+
+                            showFeedback(i18n('notify.upload.success', success.attachment.name));
                         },
                         (error: UploadAttachmentError) => {
                             failUpload(error.identifier, error.message);
                             setUploads((prev) => prev.filter((item) => item.id !== error.identifier));
+                            showError(i18n('notify.upload.error', file.name, error.message));
                         }
-                    )
-                )
+                    );
+                })
             ).then(() => {
                 fireContentRequiresSaveEvent(contentId);
             });
@@ -144,6 +152,14 @@ export const useAttachmentUploader = ({values, onAdd, onRemove, occurrences}: Us
 
             if (!contentId || !attachmentName) return;
 
+            const inUse = isAttachmentInUse($wizardDraftPage.get(), inputName, attachmentName);
+
+            if (inUse) {
+                onRemove(index);
+                fireContentRequiresSaveEvent(contentId);
+                return;
+            }
+
             const result = await deleteAttachment({contentId, attachmentNames: [attachmentName]});
 
             result.match(
@@ -152,14 +168,14 @@ export const useAttachmentUploader = ({values, onAdd, onRemove, occurrences}: Us
                     fireContentRequiresSaveEvent(contentId);
                 },
                 (error) => {
-                    console.error('Failed to delete attachment:', error.message);
+                    showError(error.message);
                 }
             );
         },
-        [values, onRemove, contentId]
+        [values, onRemove, contentId, inputName]
     );
 
-    return {progress, canUpload, isUploading, isMultiple, handleFiles, handleRemove};
+    return {progress, canUpload, isUploading, isMultiple, contentId, handleFiles, handleRemove};
 };
 
 // Utilities

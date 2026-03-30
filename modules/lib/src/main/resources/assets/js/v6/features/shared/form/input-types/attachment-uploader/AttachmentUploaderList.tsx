@@ -1,15 +1,16 @@
+import {type ReactElement} from 'react';
 import {cn, GridList, IconButton, Link} from '@enonic/ui';
 import {X} from 'lucide-react';
 import {getCmsApiUrl} from '../../../../utils/url/cms';
 
-type AttachmentUploaderListProps = {
+export type AttachmentUploaderListProps = {
     names: string[];
-    contentId: string;
+    contentId: string | undefined;
     onRemove: (index: number) => void;
     disabled: boolean;
 };
 
-export const AttachmentUploaderList = ({contentId, names, onRemove, disabled}: AttachmentUploaderListProps) => {
+export const AttachmentUploaderList = ({contentId, names, onRemove, disabled}: AttachmentUploaderListProps): ReactElement => {
     if (names.length === 0) return null;
 
     return (

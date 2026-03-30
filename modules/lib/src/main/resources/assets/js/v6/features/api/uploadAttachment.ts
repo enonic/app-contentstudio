@@ -46,8 +46,6 @@ export function uploadAttachmentFile({
     formData.append('name', sanitizeName(file.name));
     formData.append('id', contentId);
 
-    const identifier = id;
-
     return ResultAsync.fromPromise(
         new Promise<UploadAttachmentSuccess>((resolve, reject) => {
             const xhr = new XMLHttpRequest();
@@ -60,7 +58,7 @@ export function uploadAttachmentFile({
             };
 
             xhr.onerror = () => {
-                reject(new UploadError(identifier, 'Network error'));
+                reject(new UploadError(id, 'Network error'));
             };
 
             xhr.onload = () => {
@@ -68,16 +66,16 @@ export function uploadAttachmentFile({
                     onProgress?.(id, 100);
                     try {
                         const attachment: AttachmentJson = JSON.parse(xhr.responseText);
-                        resolve({identifier, attachment});
+                        resolve({identifier: id, attachment});
                     } catch {
-                        reject(new UploadError(identifier, 'Failed to parse response'));
+                        reject(new UploadError(id, 'Failed to parse response'));
                     }
                 } else {
                     const message =
                         safeJsonParse(xhr.responseText)
                             .map((json) => json?.message as string)
                             .unwrapOr(undefined) ?? xhr.statusText;
-                    reject(new UploadError(identifier, message));
+                    reject(new UploadError(id, message));
                 }
             };
 
