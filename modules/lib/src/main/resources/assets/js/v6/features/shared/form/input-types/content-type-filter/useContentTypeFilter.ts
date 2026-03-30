@@ -2,8 +2,9 @@ import {type SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ResultAsync} from 'neverthrow';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useStore} from '@nanostores/preact';
+import {okAsync, ResultAsync} from 'neverthrow';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import type {Site} from '../../../../../../app/content/Site';
 import {GetAllContentTypesRequest} from '../../../../../../app/resource/GetAllContentTypesRequest';
 import {GetContentTypesByContentRequest} from '../../../../../../app/resource/GetContentTypesByContentRequest';
@@ -12,9 +13,6 @@ import {$contextContent} from '../../../../store/context/contextContent.store';
 import {$activeProject} from '../../../../store/projects.store';
 import {$contentType} from '../../../../store/wizardContent.store';
 import {formatError} from '../../../../utils/format/error';
-import type {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
-import type {Project} from '../../../../../../app/settings/data/project/Project';
-import type {ContentType} from '../../../../../../app/inputtype/schema/ContentType';
 import type {ContentTypeFilterConfig} from './ContentTypeFilterConfig';
 
 const TYPES_ALLOWED_EVERYWHERE = new Set([
@@ -26,7 +24,7 @@ const TYPES_ALLOWED_EVERYWHERE = new Set([
 type UseContentTypeFilterOptions = {
     config: ContentTypeFilterConfig;
     selection: string[];
-    query: string;
+    query: string | undefined;
     onAdd: SelfManagedComponentProps['onAdd'];
     onRemove: SelfManagedComponentProps['onRemove'];
 };
@@ -36,10 +34,10 @@ export const useContentTypeFilter = ({config, selection, query, onAdd, onRemove}
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
 
-    // Refs
-    const contentRef = useRef<ContentSummaryAndCompareStatus>();
-    const contentTypeRef = useRef<ContentType>();
-    const projectRef = useRef<Readonly<Project>>();
+    // Stores
+    const contextContent = useStore($contextContent);
+    const contentType = useStore($contentType);
+    const project = useStore($activeProject);
 
     // Memoized values
     const filteredContentTypes = useMemo(
@@ -47,19 +45,11 @@ export const useContentTypeFilter = ({config, selection, query, onAdd, onRemove}
         [allContentTypes, query]
     );
 
-    // Get the context content and active project on mount.
-    useEffect(() => {
-        contentRef.current = $contextContent.get();
-        contentTypeRef.current = $contentType.get();
-        projectRef.current = $activeProject.get();
-    }, []);
-
     const fetchContentTypes = useCallback(async () => {
-        const contentId = contentRef.current?.getContentSummary().getContentId();
-        const isPageTemplate = contentTypeRef.current?.getContentTypeName()?.isPageTemplate();
-        const project = projectRef.current;
+        const contentId = contextContent?.getContentSummary().getContentId();
+        const isPageTemplate = contentType?.getContentTypeName()?.isPageTemplate();
 
-        if (!contentId || !project) return;
+        if (!contentId || !project) return okAsync<ContentTypeSummary[], Error>([]);
 
         const allContentTypes = () => ResultAsync.fromPromise(new GetAllContentTypesRequest().sendAndParse(), formatError);
         const site = () =>
@@ -82,7 +72,7 @@ export const useContentTypeFilter = ({config, selection, query, onAdd, onRemove}
         return allContentTypes()
             .map((types) => types.sort(sortByDisplayName))
             .mapErr((error) => new Error(`Error fetching all content types. ${error.message}`));
-    }, [config, contentTypeRef.current, contentRef.current, projectRef.current]);
+    }, [config, contextContent, contentType, project]);
 
     // Fetch content types on mount.
     useEffect(() => {

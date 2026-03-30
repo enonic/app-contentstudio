@@ -44,7 +44,7 @@ export const ContentTypeFilterInput = ({
         if (isLoading) return loadingLabel;
         if (hasError) return errorLabel;
         if (filteredContentTypes.length === 0) return emptyLabel;
-        return null;
+        return undefined;
     }, [isLoading, loadingLabel, hasError, errorLabel, filteredContentTypes.length, emptyLabel]);
 
     // Memoized values

@@ -7,6 +7,8 @@ type ContentTypeFilterComboboxListProps = {
     items: ContentTypeSummary[];
 };
 
+const COMPONENT_NAME = 'ContentTypeFilterComboboxList';
+
 export const ContentTypeFilterComboboxList = ({items}: ContentTypeFilterComboboxListProps): ReactElement => {
     const {selection, selectionMode} = useCombobox();
 
@@ -27,3 +29,5 @@ export const ContentTypeFilterComboboxList = ({items}: ContentTypeFilterCombobox
         </Combobox.ListContent>
     );
 };
+
+ContentTypeFilterComboboxList.displayName = COMPONENT_NAME;
