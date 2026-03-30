@@ -89,7 +89,6 @@ export function useOptionSetSelection(
                 // Multi: add and sort
                 const alreadySelected = selectedNames.includes(name);
                 if (!alreadySelected) {
-                    selectedArray.add(new Value(name, ValueTypes.STRING));
                     // Sort alphabetically by rebuilding array
                     const allNames = [...selectedNames, name].sort();
                     // Remove all and re-add sorted

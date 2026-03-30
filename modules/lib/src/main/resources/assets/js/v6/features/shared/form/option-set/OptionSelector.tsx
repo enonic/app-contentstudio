@@ -1,6 +1,6 @@
-import {Checkbox, RadioGroup} from '@enonic/ui';
 import type {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
 import type {FormOptionSetOption} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSetOption';
+import {Checkbox, RadioGroup} from '@enonic/ui';
 import {type ReactElement, useCallback, useMemo} from 'react';
 
 type OptionSelectorProps = {
@@ -18,7 +18,6 @@ export const OptionSelector = ({
     selectedNames,
     isSelected,
     onSelect,
-    onDeselect,
     onToggle,
     enabled,
 }: OptionSelectorProps): ReactElement => {

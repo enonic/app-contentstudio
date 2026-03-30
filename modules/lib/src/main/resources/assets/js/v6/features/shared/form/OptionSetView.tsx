@@ -64,7 +64,7 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
     }, [move, propertyArray]);
 
     const isMultiple = occurrences.multiple();
-    const showAddButton = enabled && state.canAdd && isMultiple;
+    const showAddButton = enabled && state.canAdd;
 
     // Single-occurrence OptionSet (most common case: 0:1 or 1:1)
     if (!isMultiple) {
@@ -79,6 +79,9 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
                         enabled={enabled}
                     />
                 ))}
+                {showAddButton && (
+                    <SetAddButton label={t('action.add')} onClick={handleAdd} disabled={!state.canAdd} />
+                )}
             </div>
         );
     }

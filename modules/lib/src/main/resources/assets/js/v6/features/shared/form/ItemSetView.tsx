@@ -65,7 +65,7 @@ export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElem
     }, [move, propertyArray]);
 
     const isMultiple = occurrences.multiple();
-    const showAddButton = enabled && state.canAdd && isMultiple;
+    const showAddButton = enabled && state.canAdd;
 
     return (
         <div className="flex flex-col gap-3" data-component="ItemSetView">

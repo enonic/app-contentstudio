@@ -1,6 +1,7 @@
-import {IconButton} from '@enonic/ui';
+import {cn, IconButton} from '@enonic/ui';
 import {ChevronRight, X} from 'lucide-react';
 import {type ReactElement, type ReactNode, useCallback, useState} from 'react';
+import {useI18n} from '../../../hooks/useI18n';
 
 type SetOccurrenceViewProps = {
     label?: string;
@@ -27,6 +28,8 @@ export const SetOccurrenceView = ({
         onRemove(index);
     }, [onRemove, index]);
 
+    const removeLabel = useI18n('action.remove')
+
     return (
         <div className="rounded border border-bdr-soft" data-component="SetOccurrenceView">
             <button
@@ -37,7 +40,7 @@ export const SetOccurrenceView = ({
             >
                 <ChevronRight
                     size={16}
-                    className={`shrink-0 transition-transform ${expanded ? 'rotate-90' : ''}`}
+                    className={cn('shrink-0 transition-transform', expanded && 'rotate-90')}
                 />
                 <span className="flex-1 truncate text-sm font-medium">
                     {label || `#${index + 1}`}
@@ -47,7 +50,7 @@ export const SetOccurrenceView = ({
                         variant="text"
                         icon={X}
                         size="sm"
-                        aria-label="Remove"
+                        aria-label={removeLabel}
                         onClick={(e) => {
                             e.stopPropagation();
                             handleRemove();
