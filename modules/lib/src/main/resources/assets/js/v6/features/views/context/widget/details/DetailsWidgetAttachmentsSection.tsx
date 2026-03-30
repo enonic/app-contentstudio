@@ -11,7 +11,6 @@ import {getCmsApiUrl} from '../../../../utils/url/cms';
 
 function getAttachmentUrl(contentId: ContentId, attachmentName: AttachmentName) {
     return getCmsApiUrl(`media/${contentId}/${encodeURIComponent(attachmentName.toString())}`);
-
 }
 
 const DETAILS_WIDGET_ATTACHMENTS_SECTION_NAME = 'DetailsWidgetAttachmentsSection';
