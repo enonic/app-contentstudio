@@ -2,16 +2,16 @@ import {Link, Separator} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Paperclip} from 'lucide-react';
 import {ReactElement} from 'react';
-import {Attachment} from '../../../../../../app/attachment/Attachment';
 import {AttachmentName} from '../../../../../../app/attachment/AttachmentName';
 import {ContentId} from '../../../../../../app/content/ContentId';
-import {ContentPath} from '../../../../../../app/content/ContentPath';
 import {useI18n} from '../../../../hooks/useI18n';
 import {$contextContent} from '../../../../store/context/contextContent.store';
 import {$detailsWidgetAttachments} from '../../../../store/context/detailsWidgets.store';
+import {getCmsApiUrl} from '../../../../utils/url/cms';
 
 function getAttachmentUrl(contentId: ContentId, attachmentName: AttachmentName) {
-    return Attachment.getUrl(contentId.toString(), attachmentName.toString(), ContentPath.CONTENT_ROOT);
+    return getCmsApiUrl(`media/${contentId}/${encodeURIComponent(attachmentName.toString())}`);
+
 }
 
 const DETAILS_WIDGET_ATTACHMENTS_SECTION_NAME = 'DetailsWidgetAttachmentsSection';

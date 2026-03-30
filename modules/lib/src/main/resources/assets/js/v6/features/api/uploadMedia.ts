@@ -7,9 +7,9 @@ import {UrlHelper} from '../../../app/util/UrlHelper';
 import {UploadError} from './errors';
 import {$activeProject} from '../store/projects.store';
 import {generateUniqueName} from '../utils/image/generateUniqueName';
+import {sanitizeName} from '../utils/upload/upload';
 
-const FORBIDDEN_CHARS = /[/*?|:]/g;
-export const UPLOAD_PROGRESS_CAP = 99;
+const UPLOAD_PROGRESS_CAP = 99;
 
 //
 // * Types
@@ -87,9 +87,10 @@ export function uploadMediaFile({
                         reject(new UploadError(mediaIdentifier, 'Failed to parse response'));
                     }
                 } else {
-                    const message = safeJsonParse(xhr.responseText)
-                        .map((json) => json?.message as string)
-                        .unwrapOr(undefined) ?? xhr.statusText;
+                    const message =
+                        safeJsonParse(xhr.responseText)
+                            .map((json) => json?.message as string)
+                            .unwrapOr(undefined) ?? xhr.statusText;
                     reject(new UploadError(mediaIdentifier, message));
                 }
             };
@@ -159,9 +160,10 @@ export function uploadRemoteImage({
                         reject(new UploadError(mediaIdentifier, 'Failed to parse response'));
                     }
                 } else {
-                    const message = safeJsonParse(xhr.responseText)
-                        .map((json) => json?.message as string)
-                        .unwrapOr(undefined) ?? xhr.statusText;
+                    const message =
+                        safeJsonParse(xhr.responseText)
+                            .map((json) => json?.message as string)
+                            .unwrapOr(undefined) ?? xhr.statusText;
                     reject(new UploadError(mediaIdentifier, message));
                 }
             };
@@ -185,8 +187,4 @@ const safeJsonParse = Result.fromThrowable(
 
 function getParentPath(parentContent?: ContentSummaryAndCompareStatus): string {
     return parentContent ? parentContent.getContentSummary().getPath().toString() : ContentPath.getRoot().toString();
-}
-
-function sanitizeName(name: string): string {
-    return name.normalize('NFC').replace(FORBIDDEN_CHARS, '_');
 }
