@@ -11,6 +11,8 @@ type ContentTypeFilterSelectionItemViewProps = {
     className?: string;
 };
 
+const COMPONENT_NAME = 'ContentTypeFilterSelectionItemView';
+
 export const ContentTypeFilterSelectionItemView = ({
     context,
     onRemove,
@@ -25,3 +27,5 @@ export const ContentTypeFilterSelectionItemView = ({
         </div>
     );
 };
+
+ContentTypeFilterSelectionItemView.displayName = COMPONENT_NAME;
