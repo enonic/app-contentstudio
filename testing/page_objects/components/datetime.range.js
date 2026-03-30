@@ -34,7 +34,7 @@ class DateTimeRange extends Page {
     }
 
     clearOnlineFrom() {
-        return this.clearTextInput(this.parentContainer + this.onlineFromDateTimeInput);
+        return this.clearInputText(this.parentContainer + this.onlineFromDateTimeInput);
     }
 
     async showOnlineToPickerPopup() {

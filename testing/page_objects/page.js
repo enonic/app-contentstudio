@@ -111,10 +111,6 @@ class Page {
         return results;
     }
 
-    async clearTextInput(locator) {
-        let inputElement = await this.findElement(locator);
-        return await inputElement.setValue("");
-    }
 
     async typeTextInInput(selector, text) {
         try {
@@ -165,6 +161,16 @@ class Page {
             let inputElement = await this.findElement(selector);
             await inputElement.waitForDisplayed({timeout: 2000});
             await inputElement.click();
+            await this.browser.keys([Key.Ctrl, 'a']);
+            await this.browser.keys('Delete');
+            return await this.pause(300);
+        } catch (err) {
+            throw new Error('Tried to clear the value in the input: ' + err);
+        }
+    }
+    async clearInputTextElement(element) {
+        try {
+            await element.click();
             await this.browser.keys([Key.Ctrl, 'a']);
             await this.browser.keys('Delete');
             return await this.pause(300);

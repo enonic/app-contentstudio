@@ -1,5 +1,5 @@
 const BaseIssueDetailsDialog = require('./base.details.dialog');
-const {DROPDOWN, COMMON, BUTTONS,ISSUE} = require('../../libs/elements');
+const {DROPDOWN, COMMON, BUTTONS, ISSUE, DIALOG_ITEMS, TREE_GRID} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const DependantsControls = require('./dependant.controls');
@@ -7,20 +7,8 @@ const ContentSelectorDropdown = require('../components/selectors/content.selecto
 
 const xpath = {
     container: `//div[@data-component='IssueDialogDetailsContent' and @role='dialog']`,
-    panelItemsDiv: `//div[contains(@id,'panel-items')]`,
+    mainItemDivByName: name => DIALOG_ITEMS.PRIMARY_DATA_COMPONENT + DIALOG_ITEMS.mainItemRowByName(name),
     includeChildrenToggler: `//div[contains(@id,'IncludeChildrenToggler')]`,
-    itemsToPublish: `//div[contains(@id,'TogglableStatusSelectionItem')]`,
-    dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
-    dependantsDiv: "//div[@class='dependants']",
-    editEntry: "//div[contains(@id,'DialogStateEntry') and contains(@class,'edit-entry')]",
-    selectionItemByDisplayName:
-        text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${text}')]]`,
-
-    dependantSelectionItemByDisplayName:
-        text => `//ul[contains(@id,'PublishDialogDependantList')]//div[contains(@id,'StatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${text}')]]`,
-
-    selectionItemStatusByDisplayName:
-        text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and text()='${text}']]//div[@class='status']`,
 };
 
 class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
@@ -36,14 +24,6 @@ class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
 
     get showExcludedItemsButton() {
         return xpath.container + lib.togglerButton('Show excluded');
-    }
-
-    get publishNowButton() {
-        return xpath.container + COMMON.FOOTER_ELEMENT + BUTTONS.buttonByLabel('Publish now');
-    }
-
-    get itemNamesToPublish() {
-        return xpath.container + xpath.itemsToPublish + lib.H6_DISPLAY_NAME;
     }
 
     // clicks on Publish... button and  opens 'Publishing Wizard'
@@ -85,12 +65,12 @@ class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
     }
 
     async waitForPublishButtonEnabled() {
-        return await this.waitForElementEnabled(this.publishNowButton, appConst.mediumTimeout);
+        return await this.waitForElementEnabled(this.publishNowButton);
     }
 
     async waitForPublishButtonDisabled() {
         try {
-            return await this.waitForElementNotClickable(this.publishNowButton, appConst.mediumTimeout);
+            return await this.waitForElementNotClickable(this.publishNowButton);
         } catch (err) {
             await this.handleError(`Items tab - 'Publish now'  should be disabled`, 'err_issue_publish_btn', err);
         }
@@ -114,28 +94,29 @@ class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
         }
     }
 
-    getItemDisplayNames() {
-        return this.getTextInElements(this.itemNamesToPublish).catch(err => {
-            throw new Error('Items Tab:error when getting display names of items: ' + err)
-        })
+    async getMainItemsToPublishDisplayName() {
+        const locator = xpath.container + DIALOG_ITEMS.PRIMARY_DATA_COMPONENT + DIALOG_ITEMS.ITEMS_NAME_SPAN;
+        return await this.getTextInDisplayedElements(locator);
     }
 
-    async getContentStatus(displayName) {
-        let selector = xpath.selectionItemByDisplayName(displayName) + `//div[contains(@class,'status')][last()]`;
-        let result = await this.getDisplayedElements(selector);
-        return await this.getBrowser().getElementText(result[0].elementId);
+    async getDependantItemsToPublishName() {
+        const locator = xpath.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + DIALOG_ITEMS.ITEMS_NAME_SPAN;
+        return await this.getTextInDisplayedElements(locator);
+    }
+
+    // return content status for the Primary item with such name in the dialog
+    async getContentStatus(name) {
+        const locator = xpath.container + DIALOG_ITEMS.PRIMARY_DATA_COMPONENT +
+            DIALOG_ITEMS.mainItemRowByName(name) + TREE_GRID.CONTENT_STATUS;
+        return await this.getText(locator);
     }
 
 
-    async excludeItem(displayName) {
-        let removeIcon = xpath.selectionItemByDisplayName(displayName) + "//div[contains(@class,'icon remove')]";
-        try {
-            await this.waitForElementDisplayed(removeIcon, appConst.shortTimeout);
-            await this.clickOnElement(removeIcon)
-            return await this.pause(700);
-        } catch (err) {
-            throw new Error("error during clicking on 'remove' icon: " + err)
-        }
+    async excludeMainItem(name) {
+        const locator = xpath.container + DIALOG_ITEMS.PRIMARY_DATA_COMPONENT +
+            DIALOG_ITEMS.mainItemRowByName(name) + BUTTONS.buttonAriaLabel('Remove from list');
+        await this.clickOnElement(locator);
+        return await this.pause(300);
     }
 
 
@@ -235,17 +216,13 @@ class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
     }
 
     async waitForDependenciesListDisplayed() {
-        let locator = xpath.container + xpath.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER;
+        const locator = xpath.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + DIALOG_ITEMS.ITEMS_NAME_SPAN;
         return await this.waitForElementDisplayed(locator);
     }
 
     async waitForDependenciesListNotDisplayed() {
-        let locator = xpath.container + xpath.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER;
+        const locator = xpath.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + DIALOG_ITEMS.ITEMS_NAME_SPAN;
         return await this.waitForElementNotDisplayed(locator);
-    }
-    // TODO
-    async getSelectedItems(){
-
     }
 }
 

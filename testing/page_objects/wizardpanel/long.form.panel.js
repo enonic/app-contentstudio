@@ -29,24 +29,23 @@ class LongForm extends OccurrencesFormView {
     async typeLong(value, index) {
         index = typeof index !== 'undefined' ? index : 0;
         let longElements = await this.getDisplayedElements(this.longInput);
+        for (const ch of String(value)) {
+            await longElements[index].addValue(ch);
+        }
+        return await this.pause(300);
+    }
+
+    async setLong(value, index) {
+        index = typeof index !== 'undefined' ? index : 0;
+        let longElements = await this.getDisplayedElements(this.longInput);
         await longElements[index].setValue(value);
         return await this.pause(300);
     }
 
-    async waitForRedBorderInLongInput(index) {
-        try {
-            return await this.waitForRedBorderInInput(index, this.longInput)
-        } catch (err) {
-            await this.handleError('Long form, red border should be displayed','err_red_border_long', err);
-        }
-    }
-
-    async waitForRedBorderNotDisplayedInLongInput(index) {
-        try {
-            return await this.waitForRedBorderNotDisplayedInInput(index, this.longInput)
-        } catch (err) {
-            await this.handleError('Long form, red border should not be displayed','err_red_border_long', err);
-        }
+    async clearLongInput(index) {
+        index = typeof index !== 'undefined' ? index : 0;
+        let longElements = await this.getDisplayedElements(this.longInput);
+        await this.clearInputTextElement(longElements[index]);
     }
 }
 

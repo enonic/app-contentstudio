@@ -4,7 +4,7 @@
 const ContentSelectorDropdown = require('./content.selector.dropdown');
 const appConst = require('../../../libs/app_const');
 const {DROPDOWN} = require('../../../libs/elements');
-const PrincipalComboBox = require('./principal.combobox.dropdown');
+const AssigneeSelectorDropdown = require('./assignee.selector.dropdown');
 
 const XPATH = {
     principalViewerDiv: "//div[contains(@id,'PrincipalViewer')]",
@@ -49,7 +49,7 @@ class IssueItemsSelector extends ContentSelectorDropdown {
     }
 
     async getPrincipalsDisplayNameInOptions() {
-        let principalComboBox = new PrincipalComboBox();
+        let principalComboBox = new AssigneeSelectorDropdown();
         return await principalComboBox.getPrincipalsDisplayNameInOptions();
     }
 }

@@ -20,50 +20,12 @@ const xpath = {
 
 class WizardVersionsWidget extends BaseVersionsWidget {
 
-    get versionsWidget() {
-        return xpath.widget;
+    constructor() {
+        super();
+        this._parentElement = "//div[contains(@id,'ContentWizardPanel')]";
     }
 
     //Gets items with all headers - Edited, Sorted, Marked as Ready,Created...
-    get versionItems() {
-        return this.versionsWidget + xpath.versionsList + xpath.versionsListItem;
-    }
-
-    get publishedItems() {
-        return this.versionsWidget + xpath.versionsList + xpath.publishedListItem;
-    }
-
-    get markedAsReadyItems() {
-        return this.versionsWidget + xpath.versionsList + xpath.markedAsReadyListItem;
-    }
-
-    get unpublishedItems() {
-        return this.versionsWidget + xpath.versionsList + xpath.unpublishedListItem;
-    }
-
-    //Gets items with headers - Sorted
-    get sortedItems() {
-        return this.versionsWidget + xpath.versionsList + xpath.sortedListItem;
-    }
-
-    get editedItems() {
-        return this.versionsWidget + xpath.versionsList + xpath.editedListItem;
-    }
-
-    get createdItems() {
-        return this.versionsWidget + xpath.versionsList + xpath.createdListItem;
-    }
-
-    get permissionsUpdatedItems() {
-        return this.versionsWidget + xpath.versionsList + xpath.permissionsUpdatedListItem;
-    }
-
-    get movedItems() {
-        return this.versionsWidget + xpath.versionsList + xpath.movedListItem;
-    }
-    get renamedItems() {
-        return this.versionsWidget + xpath.versionsList + xpath.renamedListItem;
-    }
 }
 
 module.exports = WizardVersionsWidget;

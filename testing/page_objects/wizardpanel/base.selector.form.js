@@ -31,7 +31,7 @@ class BaseSelectorForm extends Page {
     }
 
     async clearOptionsFilterInput(){
-        await this.clearTextInput(this.optionsFilterInput);
+        await this.clearInputText(this.optionsFilterInput);
         await this.pause(1000);
     }
 

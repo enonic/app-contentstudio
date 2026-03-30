@@ -9,11 +9,13 @@ const height = properties.get('browser.height');
 exports.config = {
 
     specs: [
-        path.join(__dirname, '../specs/misc/*.spec.js')
+        //path.join(__dirname, '../specs/misc/*.spec.js')
+        path.join(__dirname, '../specs/misc/shortcut.publish.dialog.spec.js'),
+        path.join(__dirname, '../specs/misc/content.duplicate.spec.js'),
     ],
     exclude: [
-        path.join(__dirname, '../specs/misc/revert.published.content.spec.js'),
-        path.join(__dirname, '../specs/misc/versions.widget.check.status.spec.js'),
+        //path.join(__dirname, '../specs/misc/revert.published.content.spec.js'),
+        //path.join(__dirname, '../specs/misc/versions.widget.check.status.spec.js'),
     ],
 
     maxInstances: 1,

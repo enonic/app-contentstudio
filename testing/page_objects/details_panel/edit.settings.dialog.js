@@ -2,7 +2,6 @@
  * Created  on 22.02.2023
  */
 const Page = require('../page');
-const appConst = require('../../libs/app_const');
 const {BUTTONS} = require('../../libs/elements');
 const LocaleSelectorDropdown = require('../components/selectors/locale.selector.dropdown');
 const PrincipalComboBox = require('../components/selectors/principal.combobox.dropdown')
@@ -12,7 +11,6 @@ const xpath = {
     dialogTitle: "//div[contains(@id,'EditDetailsDialogHeader') and child::h2[@class='title']]",
     removeLanguageButton: `//div[@data-component="LanguageSelector"]/..//div[@role="grid"]//button[@type="button"]`,
     removeOwnerButton: `//div[@data-component="PrincipalSelector"]/..//div[@role="grid"]//button[@type="button"]`,
-    ownerCombobox: `//div[contains(@id,'PrincipalComboBox')]`,
     // span with language display text — aria-hidden ancestor excludes the flag icon
     languageSelectedText: `//div[@data-component='LanguageSelector']/..//div[@role='grid']//span[not(ancestor::*[@aria-hidden='true'])]`,
     // grid row — used for waitForSelectedLanguageNotDisplayed after removal
@@ -52,16 +50,16 @@ class EditPropertiesDialog extends Page {
         await this.pause(300);
     }
 
-    waitForApplyButtonDisplayed() {
-        return this.waitForElementDisplayed(this.applyButton, appConst.mediumTimeout);
+    async waitForApplyButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.applyButton);
     }
 
     waitForApplyButtonEnabled() {
-        return this.waitForElementEnabled(this.applyButton, appConst.mediumTimeout);
+        return this.waitForElementEnabled(this.applyButton);
     }
 
     waitForApplyButtonDisabled() {
-        return this.waitForElementDisabled(this.applyButton, appConst.mediumTimeout);
+        return this.waitForElementDisabled(this.applyButton);
     }
 
     async waitForLoaded() {
@@ -96,8 +94,8 @@ class EditPropertiesDialog extends Page {
 
     async filterOptionsAndSelectOwner(owner) {
         try {
-            let principalComboBox = new PrincipalComboBox();
-            await principalComboBox.selectFilteredUser(owner, xpath.container);
+            let principalComboBox = new PrincipalComboBox(xpath.container);
+            await principalComboBox.selectFilteredUser(owner);
             return await this.pause(200);
         } catch (err) {
             await this.handleError('Edit Setting dialog, owner selector', 'err_owner_option', err);
@@ -107,21 +105,21 @@ class EditPropertiesDialog extends Page {
     async getSelectedLanguage() {
         try {
             let selector = xpath.container + xpath.languageSelectedText;
-            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(selector);
             return await this.getText(selector);
         } catch (err) {
             await this.handleError('Edit Setting dialog, the selected language is not displayed', 'err_lang_display', err);
         }
     }
 
-    waitForSelectedLanguageNotDisplayed() {
+    async waitForSelectedLanguageNotDisplayed() {
         let selector = xpath.container + xpath.languageGridRow;
-        return this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
+        return await this.waitForElementNotDisplayed(selector);
     }
 
     async getSelectedOwner() {
         let selector = xpath.container + xpath.ownerDisplayName;
-        return this.getText(selector);
+        return await this.getText(selector);
     }
 
     async clickOnRemoveLanguage() {
@@ -146,8 +144,8 @@ class EditPropertiesDialog extends Page {
         return this.isElementDisplayed(this.languageFilterInput);
     }
 
-    waitForLanguageOptionsFilterDisplayed() {
-        return this.waitForElementDisplayed(this.languageFilterInput, appConst.mediumTimeout);
+   async waitForLanguageOptionsFilterDisplayed() {
+        return await this.waitForElementDisplayed(this.languageFilterInput);
     }
 }
 

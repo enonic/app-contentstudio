@@ -1,7 +1,7 @@
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const {BUTTONS, DIALOG_ITEMS, SELECTION_STATUS_BAR} = require('./../../libs/elements');
-const PrincipalComboBox = require('../components/selectors/principal.combobox.dropdown');
+const AssigneeSelectorDropdown = require('../components/selectors/assignee.selector.dropdown');
 const DependantsControls = require('./dependant.controls');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 const DiffStatusBadge = require('../components/diff.status.badge');
@@ -254,7 +254,7 @@ class CreateRequestPublishDialog extends Page {
 
     async clickOnDropDownHandleInAssigneesCombobox() {
         try {
-            let principalComboBox = new PrincipalComboBox(this.container);
+            let principalComboBox = new AssigneeSelectorDropdown(this.container);
             await principalComboBox.clickOnDropdownHandle();
             return await this.pause(300);
         } catch (err) {
@@ -264,7 +264,7 @@ class CreateRequestPublishDialog extends Page {
 
     // TODO: Refactor this method for epic-enonic-ui
     async getOptionsInAssigneesDropdownList() {
-        let principalComboBox = new PrincipalComboBox(xpath.container);
+        let principalComboBox = new AssigneeSelectorDropdown(xpath.container);
         return await principalComboBox.getPrincipalsDisplayNameInOptions();
     }
 

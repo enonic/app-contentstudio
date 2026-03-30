@@ -518,6 +518,11 @@ module.exports = Object.freeze({
         PUBLISH: 'Publish',
         UNPUBLISH: 'Unpublish'
     },
+    ICON_WORKFLOW_STATE: {
+        IN_PROGRESS: 'in-progress',
+        READY_FOR_PUBLISHING: 'ready',
+        INVALID: 'invalid'
+    },
     WORKFLOW_STATE: {
         WORK_IN_PROGRESS: 'Work in progress',
         READY_FOR_PUBLISHING: 'Ready for publishing',

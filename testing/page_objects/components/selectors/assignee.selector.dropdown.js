@@ -9,14 +9,14 @@ const XPATH = {
     principalViewerDiv: "//div[contains(@id,'PrincipalViewer')]",
 };
 
-class PrincipalSelector extends BasDropdown {
+class AssigneeSelector extends BasDropdown {
 
     constructor(parentElementXpath='') {
         super();
         this._container = parentElementXpath;
     }
 
-    optionsFilterInput(ariaLabel = 'Search') {
+    optionsFilterInput(ariaLabel = 'Assignees') {
         return super.optionsFilterInput(ariaLabel);
     }
 
@@ -25,7 +25,7 @@ class PrincipalSelector extends BasDropdown {
     }
 
     get dataComponentDiv() {
-        return "//div[contains(@data-component,'PrincipalSelector')]";
+        return "//div[contains(@data-component,'AssigneeSelector')]";
     }
 
     async selectFilteredUser(userDisplayName) {
@@ -46,4 +46,4 @@ class PrincipalSelector extends BasDropdown {
     }
 }
 
-module.exports = PrincipalSelector;
+module.exports = AssigneeSelector;

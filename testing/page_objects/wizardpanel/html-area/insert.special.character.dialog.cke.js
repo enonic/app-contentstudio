@@ -1,5 +1,5 @@
 const Page = require('../../page');
-const lib = require('../../../libs/elements-old');
+const {BUTTONS} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
 const XPATH = {
@@ -12,16 +12,12 @@ const XPATH = {
 
 class InsertSpecialCharacterDialog extends Page {
 
-    get cancelButton() {
-        return XPATH.container + XPATH.cancelButton;
+    get closeButton() {
+        return XPATH.container + BUTTONS.buttonAriaLabel('Close');
     }
 
-    get cancelButtonTop() {
-        return XPATH.container + XPATH.cancelButton;
-    }
-
-    clickOnCancelButton() {
-        return this.clickOnElement(this.cancelButton);
+    clickOnCloseButton() {
+        return this.clickOnElement(this.closeButton);
     }
 
     async getCharsInDialog() {
@@ -37,7 +33,8 @@ class InsertSpecialCharacterDialog extends Page {
             await this.clickOnElement(locator);
             return await this.waitForClosed();
         } catch (err) {
-            await this.handleError('Insert Special Chars dialog, error after clicking on the special char with title ' + title, 'err_spec_chars_dialog', err);
+            await this.handleError('Insert Special Chars dialog, error after clicking on the special char with title ' + title,
+                'err_spec_chars_dialog', err);
         }
     }
 

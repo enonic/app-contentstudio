@@ -4,7 +4,7 @@
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const {BUTTONS, ISSUE} = require('../../libs/elements');
-const PrincipalComboBox = require('../components/selectors/principal.combobox.dropdown');
+const AssigneeSelectorDropdown = require('../components/selectors/assignee.selector.dropdown');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 const DependantsControls = require('./dependant.controls');
 const IssueItemsSelector = require('../components/selectors/issue.items.selector');
@@ -15,7 +15,6 @@ const xpath = {
     titleInput: "//div[descendant::div[text()='Title']]/following-sibling::div[1]//input[contains(@class,'text')]",
     descriptionTextArea: "//div[descendant::div[text()='Description']]/following-sibling::div/textarea",
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
-    dependentItemToPublish: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     selectionItemByDisplayName:
         text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::span[contains(@class,'display-name') and text()='${text}']]`,
 };
@@ -120,11 +119,9 @@ class CreateIssueDialog extends Page {
         return this.waitForElementNotDisplayed(xpath.container, appConst.mediumTimeout);
     }
 
-
     isTitleInputDisplayed() {
         return this.isElementDisplayed(this.titleInput);
     }
-
 
     isDescriptionTextAreaDisplayed() {
         return this.isElementDisplayed(this.descriptionTextArea);
@@ -133,17 +130,17 @@ class CreateIssueDialog extends Page {
     // Content selector -  items to publish :
     async isItemsOptionFilterDisplayed() {
         let contentSelector = new ContentSelectorDropdown();
-        return await contentSelector.isOptionsFilterInputDisplayed(XPATH.container)
+        return await contentSelector.isOptionsFilterInputDisplayed(this.container)
     }
 
     async isAssigneesOptionFilterDisplayed() {
-        let principalComboBox = new PrincipalComboBox();
-        return await principalComboBox.isOptionsFilterInputDisplayed(XPATH.container);
+        let principalComboBox = new AssigneeSelectorDropdown();
+        return await principalComboBox.isOptionsFilterInputDisplayed(this.container);
     }
 
     async selectUserInAssignees(userName) {
         try {
-            let principalComboBox = new PrincipalComboBox(this.container);
+            let principalComboBox = new AssigneeSelectorDropdown(this.container);
             await principalComboBox.selectFilteredUser(userName);
             await principalComboBox.clickOnApplySelectionButton();
         } catch (err) {
@@ -172,13 +169,14 @@ class CreateIssueDialog extends Page {
     }
 
     async clickOnModeToggleInItemsSelector(){
-        let contentSelectorDropdown = new ContentSelectorDropdown(xpath.container);
+        let contentSelectorDropdown = new ContentSelectorDropdown(this.container);
         await contentSelectorDropdown.clickOnModeTogglerButton();
     }
+
     // filters and selects the item in Items combobox(clicks on Apply button too)
     async selectItemInContentCombobox(displayName) {
         try {
-            let contentSelectorDropdown = new ContentSelectorDropdown(xpath.container);
+            let contentSelectorDropdown = new ContentSelectorDropdown(this.container);
             await contentSelectorDropdown.selectFilteredByDisplayNameContent(displayName);
         } catch (err) {
             await this.handleError(`Create issue dialog, tried to select the item in Items combobox: ${displayName}`,
@@ -208,7 +206,7 @@ class CreateIssueDialog extends Page {
 
     async waitForShowExcludedItemsButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
+            return await this.waitForElementDisplayed(this.showExcludedItemsButton);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
             throw new Error(`Create Issue, 'Show excluded button' should be visible! screenshot: ${screenshot} ` + err)
@@ -217,7 +215,7 @@ class CreateIssueDialog extends Page {
 
     async waitForShowExcludedItemsButtonNotDisplayed() {
         try {
-            return await this.waitForElementNotDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
+            return await this.waitForElementNotDisplayed(this.showExcludedItemsButton);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_should_be_hidden');
             throw new Error(`'Show excluded items' button should not be visible! screenshot: ${screenshot} ` + err);
@@ -237,16 +235,16 @@ class CreateIssueDialog extends Page {
 
     async waitForHideExcludedItemsButtonNotDisplayed() {
         try {
-            return this.waitForElementNotDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
+            return this.waitForElementNotDisplayed(this.hideExcludedItemsButton);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
             throw new Error(`'Hide excluded items' button should be hidden! screenshot: ${screenshot} ` + err)
         }
     }
 
+    // TODO
     async getDisplayNameInDependentItems() {
-        let locator = xpath.container + xpath.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER + lib.H6_DISPLAY_NAME;
-        return await this.getTextInElements(locator);
+
     }
 
     async isDependantCheckboxSelected(displayName) {

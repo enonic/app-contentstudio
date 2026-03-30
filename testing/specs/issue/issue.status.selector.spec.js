@@ -1,5 +1,5 @@
 /**
- * Created on 08.07.2018.
+ * Created on 08.07.2018. updated for epic-enonic-ui on 28.03.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -18,23 +18,24 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
     }
     const ISSUE_TITLE = appConst.generateRandomName('issue');
     const newTitle = 'new title';
-
     let TEST_FOLDER;
-    it(`Precondition: create a folder and create new issue`, async () => {
-        let issueDetailsDialog = new IssueDetailsDialog();
-        let createIssueDialog = new CreateIssueDialog();
-        let contentBrowsePanel = new ContentBrowsePanel();
-        let displayName = contentBuilder.generateRandomName('folder');
-        TEST_FOLDER = contentBuilder.buildFolder(displayName);
-        await studioUtils.doAddReadyFolder(TEST_FOLDER);
-        await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-        // open 'Create Issue' dialog and create new issue:
-        await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
-        await createIssueDialog.typeTitle(ISSUE_TITLE);
-        await createIssueDialog.clickOnCreateIssueButton();
-        // issue details dialog should be loaded
-        await issueDetailsDialog.waitForDialogLoaded();
-    });
+
+    it(`Precondition: create a folder and create new issue`,
+        async () => {
+            let issueDetailsDialog = new IssueDetailsDialog();
+            let createIssueDialog = new CreateIssueDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let displayName = contentBuilder.generateRandomName('folder');
+            TEST_FOLDER = contentBuilder.buildFolder(displayName);
+            await studioUtils.doAddReadyFolder(TEST_FOLDER);
+            await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            // open 'Create Issue' dialog and create new issue:
+            await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();
+            await createIssueDialog.typeTitle(ISSUE_TITLE);
+            await createIssueDialog.clickOnCreateIssueButton();
+            // issue details dialog should be loaded
+            await issueDetailsDialog.waitForDialogLoaded();
+        });
 
     it(`GIVEN existing 'open' issue AND Issue Details Dialog is opened WHEN 'Status menu' has been expanded and 'Closed'-item selected THEN issue gets 'Closed' and 'Reopen Issue' button gets visible`,
         async () => {
@@ -68,7 +69,7 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             await issueDetailsDialog.waitForIssueTitleInputNotEditable();
         });
 
-    it(`GIVEN existing 'closed' task AND 'Details Dialog' is opened WHEN 'Status menu' has been opened and 'Open' item selected THEN the task gets 'open'`,
+    it(`GIVEN existing 'closed' issue AND 'Details Dialog' is opened WHEN 'Status menu' has been opened and 'Open' item selected THEN the issue becomes 'open'`,
         async () => {
             let taskDetailsDialog = new IssueDetailsDialog();
             let issueListDialog = new IssueListDialog();
@@ -88,8 +89,7 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             assert.equal(actualStatus, 'Open', "'Open' status should be displayed in the status selector button");
         });
 
-    it.skip(
-        `GIVEN existing 'open' issue has been clicked AND Details Dialog is opened WHEN 'issue-title' has been updated NEW new title should be displayed in the dialog`,
+    it(`GIVEN existing 'open' issue has been clicked AND Details Dialog is opened WHEN 'issue-title' has been updated NEW new title should be displayed in the dialog`,
         async () => {
             let issueDetailsDialog = new IssueDetailsDialog();
             let issueListDialog = new IssueListDialog();
@@ -98,15 +98,15 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             await issueDetailsDialog.waitForDialogLoaded();
 
-            await issueDetailsDialog.clickOnEditTitle();
-            await issueDetailsDialog.pause(5000);
+            await issueDetailsDialog.clickOnTitleInput();
+            await issueDetailsDialog.pause(1000);
             await issueDetailsDialog.updateTitle(newTitle);
 
             //just for closing edit mode in title-input:
             await issueDetailsDialog.clickOnCommentsTabItem();
             let result = await issueDetailsDialog.waitForNotificationMessage();
             await studioUtils.saveScreenshot('issue_title_updated');
-            assert.equal(result, 'Issue has been updated.', 'Expected notification should appear');
+            assert.equal(result, 'The issue has been updated.', 'Expected notification should appear');
 
             let actualTitle = await issueDetailsDialog.getIssueTitle();
             assert.equal(actualTitle, newTitle, 'Expected and actual title should be equal');
