@@ -12,6 +12,14 @@ import {markAsReady, resolvePublishDependencies} from '../../api/publish';
 import {buildItems, dedupeItems, getItemIds} from '../../utils/cms/content/buildItems';
 import {hasContentIdInIds, uniqueIds} from '../../utils/cms/content/ids';
 import {createDebounce} from '../../utils/timing/createDebounce';
+import {
+    $contentArchived,
+    $contentCreated,
+    $contentDeleted,
+    $contentPublished,
+    $contentRenamed,
+    $contentUpdated,
+} from '../socket.store';
 
 const DEPENDENCY_RELOAD_DELAY_MS = 150;
 
@@ -132,6 +140,68 @@ const patchItemsWithUpdates = (
     updates.forEach(item => updateMap.set(item.getId(), item));
 
     return items.map(item => updateMap.get(item.getId()) ?? item);
+};
+
+const isRequestPublishDialogActive = (): boolean => {
+    const {open, items} = $requestPublishDialog.get();
+    return open && items.length > 0;
+};
+
+const patchTrackedRequestPublishItems = (
+    updates: ContentSummaryAndCompareStatus[],
+): {updatedMain: boolean; updatedDependants: boolean} => {
+    if (updates.length === 0) {
+        return {updatedMain: false, updatedDependants: false};
+    }
+
+    const updateIds = new Set(updates.map(item => item.getId()));
+    const state = $requestPublishDialog.get();
+    const updatedMain = state.items.some(item => updateIds.has(item.getId()));
+    const updatedDependants = state.dependants.some(item => updateIds.has(item.getId()));
+
+    if (!updatedMain && !updatedDependants) {
+        return {updatedMain, updatedDependants};
+    }
+
+    $requestPublishDialog.set({
+        ...state,
+        items: updatedMain ? patchItemsWithUpdates(state.items, updates) : state.items,
+        dependants: updatedDependants ? patchItemsWithUpdates(state.dependants, updates) : state.dependants,
+    });
+
+    return {updatedMain, updatedDependants};
+};
+
+const removeTrackedRequestPublishItems = (
+    idsToRemove: Set<string>,
+): {removedMain: boolean; removedDependants: boolean} => {
+    const state = $requestPublishDialog.get();
+    const items = state.items.filter(item => !idsToRemove.has(item.getContentId().toString()));
+    const dependants = state.dependants.filter(item => !idsToRemove.has(item.getContentId().toString()));
+    const excludeChildrenIds = state.excludeChildrenIds.filter(id => !idsToRemove.has(id.toString()));
+    const excludedDependantIds = state.excludedDependantIds.filter(id => !idsToRemove.has(id.toString()));
+    const requiredDependantIds = state.requiredDependantIds.filter(id => !idsToRemove.has(id.toString()));
+
+    const removedMain = items.length !== state.items.length;
+    const removedDependants = dependants.length !== state.dependants.length;
+    const exclusionsChanged = excludeChildrenIds.length !== state.excludeChildrenIds.length ||
+        excludedDependantIds.length !== state.excludedDependantIds.length ||
+        requiredDependantIds.length !== state.requiredDependantIds.length;
+
+    if (!removedMain && !removedDependants && !exclusionsChanged) {
+        return {removedMain, removedDependants};
+    }
+
+    $requestPublishDialog.set({
+        ...state,
+        items,
+        dependants,
+        excludeChildrenIds,
+        excludedDependantIds,
+        requiredDependantIds,
+    });
+
+    return {removedMain, removedDependants};
 };
 
 const resetDependenciesState = (state: RequestPublishDialogStore): RequestPublishDialogStore => {
@@ -506,3 +576,88 @@ const markIdsReady = async (ids: ContentId[]): Promise<ContentId[]> => {
         return [];
     }
 };
+
+$contentCreated.subscribe((event) => {
+    if (!event || !isRequestPublishDialogActive()) {
+        return;
+    }
+
+    reloadDependenciesDebounced();
+});
+
+$contentUpdated.subscribe((event) => {
+    if (!event || !isRequestPublishDialogActive()) {
+        return;
+    }
+
+    const {updatedMain, updatedDependants} = patchTrackedRequestPublishItems(event.data);
+
+    if (updatedMain || updatedDependants) {
+        reloadDependenciesDebounced();
+    }
+});
+
+$contentRenamed.subscribe((event) => {
+    if (!event || !isRequestPublishDialogActive()) {
+        return;
+    }
+
+    patchTrackedRequestPublishItems(event.data.items);
+});
+
+$contentDeleted.subscribe((event) => {
+    if (!event || !isRequestPublishDialogActive()) {
+        return;
+    }
+
+    const {removedMain, removedDependants} = removeTrackedRequestPublishItems(
+        new Set(event.data.map(item => item.getContentId().toString())),
+    );
+
+    if ($requestPublishDialog.get().items.length === 0) {
+        resetRequestPublishDialogContext();
+        return;
+    }
+
+    if (removedMain || removedDependants) {
+        reloadDependenciesDebounced();
+    }
+});
+
+$contentArchived.subscribe((event) => {
+    if (!event || !isRequestPublishDialogActive()) {
+        return;
+    }
+
+    const {removedMain, removedDependants} = removeTrackedRequestPublishItems(
+        new Set(event.data.map(item => item.getContentId().toString())),
+    );
+
+    if ($requestPublishDialog.get().items.length === 0) {
+        resetRequestPublishDialogContext();
+        return;
+    }
+
+    if (removedMain || removedDependants) {
+        reloadDependenciesDebounced();
+    }
+});
+
+$contentPublished.subscribe((event) => {
+    if (!event || !isRequestPublishDialogActive()) {
+        return;
+    }
+
+    const {removedMain, removedDependants} = removeTrackedRequestPublishItems(
+        new Set(event.data.map(item => item.getContentId().toString())),
+    );
+
+    if ($requestPublishDialog.get().items.length === 0) {
+        resetRequestPublishDialogContext();
+        return;
+    }
+
+    if (removedMain || removedDependants) {
+        reloadDependenciesDebounced();
+    }
+});

@@ -801,7 +801,7 @@ $contentCreated.subscribe((event) => {
     reloadPublishDialogDataDebounced();
 });
 
-// Handle content updates: patch main items, reload if dependants affected
+// Handle content updates: patch visible items and reload checks if tracked content changed
 $contentUpdated.subscribe((event) => {
     if (!event || !isDialogActive()) return;
 
@@ -809,11 +809,11 @@ $contentUpdated.subscribe((event) => {
     const updatedIds = new Set(event.data.map(item => item.getId()));
 
     // Patch main items immutably
-    patchItemsWithUpdates(event.data);
+    const hasUpdatedMainItems = patchItemsWithUpdates(event.data);
 
-    // Reload when dependants change - dependency graph might have changed
+    // Reload when tracked items change so SelectionStatusBar stays in sync.
     const hasUpdatedDependants = dependantItems.some(item => updatedIds.has(item.getId()));
-    if (hasUpdatedDependants) {
+    if (hasUpdatedMainItems || hasUpdatedDependants) {
         reloadPublishDialogDataDebounced();
     }
 });
