@@ -52,6 +52,7 @@ import {openRenameContentDialog} from '../../v6/features/store/dialogs/renameCon
 import {
     $displayName,
     $isContentFormExpanded,
+    $isFormValid,
     $wizardContentState,
     $wizardDraftName,
     $wizardHasChanges,
@@ -66,8 +67,8 @@ import {
     setMixinsDescriptors as setWizardMixinsDescriptors,
     setPersistedContent as setWizardPersistedContent,
 } from '../../v6/features/store/wizardContent.store';
-import {escalateVisibility, initializeValidation, setServerValidationErrors} from '../../v6/features/store/wizardValidation.store';
 import {setWizardToolbarIsPathAvailable} from '../../v6/features/store/wizardToolbar.store';
+import {escalateVisibility, initializeValidation, setServerValidationErrors} from '../../v6/features/store/wizardValidation.store';
 import {type PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
 import {ContentWizardTabsToolbarElement} from '../../v6/features/views/wizard/content-wizard-tabs/ContentWizardTabsToolbarElement';
 import {Permission} from '../access/Permission';
@@ -291,6 +292,9 @@ export class ContentWizardPanel
     private contentFormExpandedUnsubscribe?: () => void;
 
     private contentStateUnsubscribe?: () => void;
+
+    private formValidUnsubscribe?: () => void;
+
 
     constructor(params: ContentWizardPanelParams, cls?: string) {
         super(params);
@@ -865,14 +869,15 @@ export class ContentWizardPanel
                 this.contentFormExpandedUnsubscribe = undefined;
                 this.contentStateUnsubscribe?.();
                 this.contentStateUnsubscribe = undefined;
+                this.formValidUnsubscribe?.();
+                this.formValidUnsubscribe = undefined;
                 resetWizardContent();
             });
 
             const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
 
             this.onValidityChanged((event: ValidityChangedEvent) => {
-                const isThisValid: boolean = this.isValid();
-                this.isContentFormValid = isThisValid;
+                this.isContentFormValid = this.isValid() && $isFormValid.get();
 
                 if (!this.getPersistedItem()) {
                     return;
@@ -880,11 +885,24 @@ export class ContentWizardPanel
 
                 this.wizardActions
                     .setContentCanBePublished(this.checkContentCanBePublished())
-                    .setIsValid(isThisValid)
+                    .setIsValid(this.isContentFormValid)
                     .refreshState();
                 if (!this.isNew()) {
-                    this.displayValidationErrors(!(isThisValid && event.isValid()));
+                    this.displayValidationErrors(!(this.isContentFormValid && event.isValid()));
                 }
+            });
+
+            this.formValidUnsubscribe = $isFormValid.subscribe((isValid, previous) => {
+                if (previous === undefined) return;
+
+                const isThisValid = this.isValid();
+                this.isContentFormValid = isThisValid && isValid;
+                this.wizardActions
+                    .setFormValid(isValid)
+                    .setContentCanBePublished(this.checkContentCanBePublished())
+                    .setIsValid(this.isContentFormValid)
+                    .refreshState();
+                this.notifyDataChanged();
             });
 
             thumbnailUploader.setEnabled(this.contentType ? !this.contentType?.isImage() : false);
@@ -932,6 +950,8 @@ export class ContentWizardPanel
         } else if (this.contentType) {
             setWizardContentType(this.contentType);
         }
+
+        initializeValidation(this.isNew());
 
         if (!this.wizardHasChangesUnsubscribe) {
             this.wizardHasChangesUnsubscribe = $wizardHasChanges.subscribe((hasChanges, previousHasChanges) => {

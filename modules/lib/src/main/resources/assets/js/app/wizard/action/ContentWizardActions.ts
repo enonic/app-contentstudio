@@ -1,7 +1,3 @@
-import {type AccessControlList} from '../../access/AccessControlList';
-import {type Content} from '../../content/Content';
-import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {Permission} from '../../access/Permission';
 import {CloseAction} from '@enonic/lib-admin-ui/app/wizard/CloseAction';
 import {WizardActions} from '@enonic/lib-admin-ui/app/wizard/WizardActions';
 import {type ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
@@ -12,11 +8,15 @@ import {type ActionsMap, type ActionsState, ActionsStateManager} from '@enonic/l
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
+import {type AccessControlList} from '../../access/AccessControlList';
+import {Permission} from '../../access/Permission';
+import {type Content} from '../../content/Content';
+import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {GetContentByPathRequest} from '../../resource/GetContentByPathRequest';
 import {GetContentPermissionsByIdRequest} from '../../resource/GetContentPermissionsByIdRequest';
 import {GetContentRootPermissionsRequest} from '../../resource/GetContentRootPermissionsRequest';
-import {type ContentWizardPanel} from '../ContentWizardPanel';
 import {AccessControlHelper} from '../AccessControlHelper';
+import {type ContentWizardPanel} from '../ContentWizardPanel';
 import {ArchiveContentAction} from './ArchiveContentAction';
 import {ContentSaveAction} from './ContentSaveAction';
 import {CreateIssueAction} from './CreateIssueAction';
@@ -68,6 +68,8 @@ export class ContentWizardActions
     private userCanModify: boolean = true;
 
     private isContentValid: boolean = false;
+
+    private isFormValid: boolean = true;
 
     private hasPublishRequest: boolean = false;
 
@@ -213,6 +215,7 @@ export class ContentWizardActions
 
     private doCheckSaveActionStateHandler(): void {
         let isEnabled: boolean = this.wizardPanel.hasUnsavedChanges() &&
+                                 this.isFormValid &&
                                  (this.isUnnamedContent() || this.wizardPanel.isHeaderValidForSaving());
 
         if (this.persistedContent) {
@@ -374,6 +377,11 @@ export class ContentWizardActions
         return this;
     }
 
+    setFormValid(value: boolean): ContentWizardActions {
+        this.isFormValid = value;
+        return this;
+    }
+
     setContentCanBeMarkedAsReady(value: boolean): ContentWizardActions {
         this.contentCanBeMarkedAsReady = value;
         return this;
@@ -396,7 +404,7 @@ export class ContentWizardActions
         const canBePublished: boolean = this.canBePublished();
         const canBeUnpublished: boolean = this.content.isPublished() && this.userCanPublish;
         const canBeMarkedAsReady: boolean = this.contentCanBeMarkedAsReady && this.userCanModify;
-        const canBeRequestedPublish: boolean = this.isContentValid && !this.content.isOnline();
+        const canBeRequestedPublish: boolean = this.isContentValid && this.isFormValid && !this.content.isOnline();
         const isInheritedItem: boolean = this.wizardPanel.isContentExistsInParentProject() && this.content.hasOriginProject();
         const canBeReset: boolean = isInheritedItem && !this.content.isFullyInherited();
         const canBeLocalized: boolean = isInheritedItem && this.content.isDataInherited();

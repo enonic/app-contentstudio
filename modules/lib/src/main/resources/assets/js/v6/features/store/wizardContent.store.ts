@@ -5,6 +5,7 @@ import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {atom, batched, computed, map} from 'nanostores';
 import type {Content} from '../../../app/content/Content';
 import type {ContentName} from '../../../app/content/ContentName';
+import type {ContentState} from '../../../app/content/ContentState';
 import {ContentUnnamed} from '../../../app/content/ContentUnnamed';
 import {Mixin} from '../../../app/content/Mixin';
 import type {MixinDescriptor} from '../../../app/content/MixinDescriptor';
@@ -13,7 +14,6 @@ import {WorkflowState} from '../../../app/content/WorkflowState';
 import type {ContentType} from '../../../app/inputtype/schema/ContentType';
 import type {Page} from '../../../app/page/Page';
 import {ContentDiffHelper} from '../../../app/util/ContentDiffHelper';
-import type {ContentState} from '../../../app/content/ContentState';
 import {
     addStringOccurrence,
     removeStringOccurrence,
@@ -123,6 +123,10 @@ export const $mixinsDescriptors = atom<MixinDescriptor[]>([]);
 export const $wizardDataValidation = map<FormDataValidation>({});
 
 export const $isContentFormExpanded = atom<boolean>(true);
+
+export const $isFormValid = computed($wizardDataValidation, (validation): boolean => {
+    return !Object.values(validation).some(msgs => Array.isArray(msgs) && msgs.length > 0);
+});
 
 //
 // * Derived
