@@ -23,6 +23,8 @@ export const CustomSelectorSelectionItemView = ({
     const {index, item: content} = context;
     const item = items.find((item) => item.id === content.getId());
 
+    if (!item) return null;
+
     return (
         <div className={cn('flex items-center gap-2.5 w-full min-w-0', className)}>
             <CustomSelectorItemView item={item} listMode={listMode} />
@@ -30,3 +32,5 @@ export const CustomSelectorSelectionItemView = ({
         </div>
     );
 };
+
+CustomSelectorSelectionItemView.displayName = 'CustomSelectorSelectionItemView';

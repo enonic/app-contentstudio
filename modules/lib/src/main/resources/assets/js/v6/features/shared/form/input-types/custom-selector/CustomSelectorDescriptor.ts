@@ -23,7 +23,7 @@ export const CustomSelectorDescriptor: InputTypeDescriptor<CustomSelectorConfig>
         };
     },
 
-    createDefaultValue(raw: unknown): Value {
+    createDefaultValue(_raw: unknown): Value {
         return ValueTypes.STRING.newNullValue();
     },
 

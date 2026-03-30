@@ -51,8 +51,9 @@ export const useCustomSelector = ({config, selection, query, count = DEFAULT_SIZ
     const [itemsMap, setItemsMap] = useState<Map<string, CustomSelectorItem[]>>(new Map());
     const [startMap, setStartMap] = useState<Map<string, number>>(new Map());
     const [totalMap, setTotalMap] = useState<Map<string, number>>(new Map());
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [loadingCount, setLoadingCount] = useState(0);
     const [hasError, setHasError] = useState<boolean>(false);
+    const isLoading = loadingCount > 0;
 
     // Memoized values
     const key = useMemo(() => query || '', [query]);
@@ -109,7 +110,7 @@ export const useCustomSelector = ({config, selection, query, count = DEFAULT_SIZ
                     return error;
                 });
         },
-        [config, setIsLoading, setHasError]
+        [config]
     );
 
     const processResponse = useCallback(
@@ -147,17 +148,17 @@ export const useCustomSelector = ({config, selection, query, count = DEFAULT_SIZ
 
         if (!requestUrl) return;
 
-        setIsLoading(true);
+        setLoadingCount((c) => c + 1);
 
         (await fetchItems(requestUrl)).match(
             (data) => {
                 processResponse(data, PRELOAD_KEY);
-                setIsLoading(false);
+                setLoadingCount((c) => c - 1);
                 setHasError(false);
             },
             (error) => {
                 console.error(error.message);
-                setIsLoading(false);
+                setLoadingCount((c) => c - 1);
                 setHasError(true);
             }
         );
@@ -181,17 +182,17 @@ export const useCustomSelector = ({config, selection, query, count = DEFAULT_SIZ
 
         if (!requestUrl) return;
 
-        setIsLoading(true);
+        setLoadingCount((c) => c + 1);
 
         (await fetchItems(requestUrl)).match(
             (data) => {
                 processResponse(data);
-                setIsLoading(false);
+                setLoadingCount((c) => c - 1);
                 setHasError(false);
             },
             (error) => {
                 console.error(error.message);
-                setIsLoading(false);
+                setLoadingCount((c) => c - 1);
                 setHasError(true);
             }
         );
