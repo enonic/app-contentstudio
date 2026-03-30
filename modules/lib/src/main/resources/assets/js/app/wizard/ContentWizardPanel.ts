@@ -119,7 +119,6 @@ import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {GetContentMixinsRequest} from '../resource/GetContentMixinsRequest';
 import {GetPageTemplateByKeyRequest} from '../resource/GetPageTemplateByKeyRequest';
 import {Router} from '../Router';
-import {ProjectHelper} from '../settings/data/project/ProjectHelper';
 import {ProjectDeletedEvent} from '../settings/event/ProjectDeletedEvent';
 import {type ApplicationRemovedEvent} from '../site/ApplicationRemovedEvent';
 import {SiteModel} from '../site/SiteModel';
@@ -159,7 +158,6 @@ import {PageComponentsWizardStepForm} from './PageComponentsWizardStepForm';
 import {PageEventsManager} from './PageEventsManager';
 import {PageNavigationEventSource} from './PageNavigationEventData';
 import {PersistNewContentRoutine} from './PersistNewContentRoutine';
-import {SiteContentWizardStepForm} from './SiteContentWizardStepForm';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
 import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
 import {UpdatePersistedContentWithStoreRoutine} from './UpdatePersistedContentWithStoreRoutine';
@@ -2027,17 +2025,7 @@ export class ContentWizardPanel
     }
 
     private createContentWizardStepForm(): Q.Promise<ContentWizardStepForm> {
-        if (this.getContentTypeName().isSite()) {
-            return this.isAdminOrOwner().then((isAdminOrOwner: boolean) => {
-                return isAdminOrOwner ? new SiteContentWizardStepForm() : new ContentWizardStepForm();
-            });
-        }
-
         return Q(new ContentWizardStepForm());
-    }
-
-    private isAdminOrOwner(): Q.Promise<boolean> {
-        return AuthHelper.isContentAdmin() ? Q(true) :  ProjectHelper.isUserProjectOwner();
     }
 
     private createXDataWizardStepForms(xDatas: MixinDescriptor[]): XDataWizardStepForm[] {
@@ -3020,9 +3008,7 @@ export class ContentWizardPanel
     }
 
     private createEmptyStepForm(): ContentWizardStepForm {
-        return (this.contentWizardStepForm instanceof SiteContentWizardStepForm)
-                     ? new SiteContentWizardStepForm()
-                     : new ContentWizardStepForm();
+        return new ContentWizardStepForm();
     }
 
     private createEmptyXDataWizardStepForms(): Q.Promise<XDataWizardStepForm[]> {
