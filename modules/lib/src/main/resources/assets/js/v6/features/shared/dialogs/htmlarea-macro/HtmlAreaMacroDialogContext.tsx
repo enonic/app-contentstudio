@@ -277,12 +277,17 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
     const stateRef = useRef(state);
     stateRef.current = state;
 
+    // Session counter to reject async responses from a previous open/close cycle
+    const sessionIdRef = useRef(0);
+    // Preview request counter to reject stale preview responses within a single session
+    const previewRequestIdRef = useRef(0);
+
     // Data PropertySet change listener — invalidates preview
     const dataChangeListenerRef = useRef<(() => void) | undefined>(undefined);
 
     const attachDataListener = useCallback((data: PropertySet) => {
         const listener = () => {
-            setState(prev => prev.open ? {...prev, previewResolved: false, dataVersion: prev.dataVersion + 1} : prev);
+            setState(prev => prev.open ? {...prev, previewResolved: false, previewMacroString: '', dataVersion: prev.dataVersion + 1} : prev);
         };
         dataChangeListenerRef.current = listener;
         data.onChanged(listener);
@@ -297,6 +302,8 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
 
     const open = useCallback((params: OpenHtmlAreaMacroDialogParams) => {
         const {ckeEditor, content, project, applicationKeys, macro} = params;
+
+        sessionIdRef.current += 1;
 
         ckeEditor.focusManager.add(new CKEDITOR.dom.element(document.body), true);
         ckeEditor.focusManager.lock();
@@ -328,8 +335,14 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
             return;
         }
 
+        const requestSessionId = sessionIdRef.current;
+
         fetchMacros(state.applicationKeys, state.project?.getName()).match(
             (macros) => {
+                if (sessionIdRef.current !== requestSessionId) {
+                    return;
+                }
+
                 setState(prev => {
                     if (!prev.open) {
                         return prev;
@@ -361,6 +374,9 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
                 });
             },
             (error) => {
+                if (sessionIdRef.current !== requestSessionId) {
+                    return;
+                }
                 DefaultErrorHandler.handle(error);
                 setState(prev => prev.open ? {...prev, macrosLoading: false} : prev);
             },
@@ -481,6 +497,8 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
         const macroKey = s.selectedDescriptor.getKey().getRefString();
         const contentPath = s.content?.getPath()?.toString() ?? '';
         const isEmbedMacro = getMacroName(s.selectedDescriptor) === 'SYSTEM:EMBED';
+        const requestSessionId = sessionIdRef.current;
+        const requestPreviewId = ++previewRequestIdRef.current;
 
         setState(prev => prev.open ? {...prev, previewLoading: true} : prev);
 
@@ -491,6 +509,10 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
             s.project?.getName(),
         ).match(
             (preview) => {
+                if (sessionIdRef.current !== requestSessionId || previewRequestIdRef.current !== requestPreviewId) {
+                    return;
+                }
+
                 setState(prev => {
                     if (!prev.open) {
                         return prev;
@@ -508,12 +530,17 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
                 });
             },
             (error) => {
+                if (sessionIdRef.current !== requestSessionId || previewRequestIdRef.current !== requestPreviewId) {
+                    return;
+                }
+
                 DefaultErrorHandler.handle(error);
                 setState(prev => prev.open ? {
                     ...prev,
                     previewResolved: true,
                     previewLoading: false,
                     previewHtml: `<div class='preview-message'>${i18n('dialog.macro.tab.preview.loaderror')}</div>`,
+                    previewMacroString: '',
                 } : prev);
             },
         );
@@ -569,6 +596,8 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
         if (s.previewResolved && s.previewMacroString) {
             doInsert(s.previewMacroString);
         } else {
+            const requestSessionId = sessionIdRef.current;
+
             setState(prev => prev.open ? {...prev, configLoading: true} : prev);
 
             fetchMacroPreviewString(
@@ -577,9 +606,15 @@ export function HtmlAreaMacroDialogProvider({children, openRef}: HtmlAreaMacroDi
                 s.project?.getName(),
             ).match(
                 (macroString) => {
+                    if (sessionIdRef.current !== requestSessionId) {
+                        return;
+                    }
                     doInsert(StringHelper.htmlToString(macroString));
                 },
                 (error) => {
+                    if (sessionIdRef.current !== requestSessionId) {
+                        return;
+                    }
                     DefaultErrorHandler.handle(error);
                     showError(i18n('dialog.macro.error'));
                     setState(prev => prev.open ? {...prev, configLoading: false} : prev);

@@ -86,6 +86,9 @@ const CKEditorWrapper = ({
     const editorInstanceRef = useRef<CKEDITOR.editor | null>(null);
     // Track the last value we sent via onChange to avoid external sync conflicts
     const lastSentValueRef = useRef<string>(stringValue);
+    // Keep onChange ref fresh so debounced callback always uses the latest closure
+    const onChangeRef = useRef(onChange);
+    onChangeRef.current = onChange;
 
     const dialogOverridesRef = useRef<DialogOverrides>({
         ...createImageDialogOverride(openImageDialogRef),
@@ -123,7 +126,7 @@ const CKEditorWrapper = ({
                 const sanitized = sanitizer.sanitize(rawData);
                 const renderSrc = HTMLAreaHelper.convertPreviewSrcToRenderSrc(sanitized);
                 lastSentValueRef.current = renderSrc;
-                onChange(ValueTypes.STRING.newValue(renderSrc));
+                onChangeRef.current(ValueTypes.STRING.newValue(renderSrc));
             };
 
             fn.trigger = () => {
