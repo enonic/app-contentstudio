@@ -9,7 +9,11 @@ const height = properties.get('browser.height');
 exports.config = {
 
     specs: [
-        path.join(__dirname, '../specs/content-types/htmlarea.cke.toolbar.spec.js')
+        path.join(__dirname, '../specs/content-types/htmlarea.cke.toolbar.spec.js'),
+        path.join(__dirname, '../specs/content-types/occurrences.long.spec.js'),
+        path.join(__dirname, '../specs/content-types/long.content.config.spec.js'),
+        path.join(__dirname, '../specs/content-types/geopoint.content.spec.js'),
+
     ],
 
     maxInstances: 1,
