@@ -40,8 +40,8 @@ public class MacroDescriptorJson
 
         this.key = builder.macroDescriptor.getKey().toString();
         this.name = builder.macroDescriptor.getName();
-        this.displayName = builder.macroDescriptor.getDisplayName();
-        this.displayNameI18nKey = builder.macroDescriptor.getDisplayNameI18nKey();
+        this.displayName = builder.macroDescriptor.getTitle();
+        this.displayNameI18nKey = builder.macroDescriptor.getTitleI18nKey();
         this.descriptionI18nKey = builder.macroDescriptor.getDescriptionI18nKey();
         this.description = builder.macroDescriptor.getDescription();
         this.form = new FormJson( builder.macroDescriptor.getForm(), builder.localeMessageResolver, builder.inlineMixinResolver );

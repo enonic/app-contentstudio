@@ -5,12 +5,12 @@
       "allowChildContent": true,
       "allowChildContentType" : [ ],
       "deletable": false,
-      "displayName": "My type",
       "editable": false,
       "final": true,
       "iconUrl": "/admin/rest-v2/cs/schema/content/icon/application:test-type?hash=f95b70fdc3088560732a5ac135644506",
       "name": "application:test-type",
-      "superType": "base:structured"
+      "superType": "base:structured",
+      "title": "My type"
     }
   ],
   "total": 1

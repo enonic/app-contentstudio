@@ -51,13 +51,13 @@ public abstract class DescriptorJson
 
     public String getDisplayName()
     {
-        if ( !nullToEmpty( descriptor.getDisplayNameI18nKey() ).isBlank() )
+        if ( !nullToEmpty( descriptor.getTitleI18nKey() ).isBlank() )
         {
-            return localeMessageResolver.localizeMessage( descriptor.getDisplayNameI18nKey(), descriptor.getDisplayName() );
+            return localeMessageResolver.localizeMessage( descriptor.getTitleI18nKey(), descriptor.getTitle() );
         }
         else
         {
-            return descriptor.getDisplayName();
+            return descriptor.getTitle();
         }
     }
 

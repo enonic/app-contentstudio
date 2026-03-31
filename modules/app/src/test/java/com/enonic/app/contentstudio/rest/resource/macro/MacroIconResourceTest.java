@@ -66,7 +66,7 @@ public class MacroIconResourceTest
         final MacroDescriptor macroDescriptor = MacroDescriptor.create().
             key( MacroKey.from( "myapp:macro1" ) ).
             description( "my description" ).
-            displayName( "my macro1 name" ).
+            title( "my macro1 name" ).
             form( Form.create().build() ).
             icon( icon ).
             build();
