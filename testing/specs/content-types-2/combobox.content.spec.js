@@ -91,8 +91,7 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             // 3. Verify that Options filter Input remains visible/disabled after selecting 2 options
             await comboBoxForm.waitForOptionFilterInputDisplayed();
             // 4. Verify that the content gets valid even before clicking on the 'Save' button
-            let isInValid = await contentWizard.isContentInvalid();
-            assert.ok(isInValid === false, 'the content should be valid, because 2 options are selected');
+            let isInValid = await contentWizard.waitUntilInvalidIconDisappears();
             // 5. Click on 'Mark as Ready' button and save the content
             await contentWizard.clickOnMarkAsReadyButton();
             await contentWizard.waitForNotificationMessage();
