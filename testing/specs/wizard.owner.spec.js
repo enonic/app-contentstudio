@@ -8,7 +8,7 @@ const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
-const PropertiesWidget = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
+const DetailsWidgetInfoSection = require('../page_objects/browsepanel/detailspanel/details.widget.info.section');
 
 describe('wizard.owner.spec - update and revert owner in wizard`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -28,7 +28,7 @@ describe('wizard.owner.spec - update and revert owner in wizard`', function () {
         async () => {
             let contentWizard = new ContentWizard();
             let wizardVersionsWidget = new WizardVersionsWidget();
-            let propertiesWidget = new PropertiesWidget();
+            let propertiesWidget = new DetailsWidgetInfoSection();
             // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             await contentWizard.openContextWindow();

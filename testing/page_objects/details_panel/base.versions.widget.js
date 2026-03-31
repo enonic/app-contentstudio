@@ -3,13 +3,15 @@
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const lib = require('../../libs/elements-old');
+const {BUTTONS} = require('../../libs/elements');
 
 const xpath = {
-    versionsList: "//ul[contains(@id,'VersionHistoryList')]",
+    extensionViewDiv: "//div[contains(@id,'ExtensionView') and contains (@class,'versions-widget')]",
+    versionsListComponent: "//div[@data-component='VersionsListContent']",
+    versionsListItemComponent: "//div[@data-component='VersionsListItem']",
+
     versionItemExpanded: "//li[contains(@class,'version-list-item expanded')]",
     versionItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action')) ] and not(descendant::h6[contains(.,'Permissions updated')])]",
-    itemByDisplayName: displayName => `${lib.itemByDisplayName(displayName)}`,
     anyItemByHeader: header => `//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'${header}')]]`,
     compareVersionsDiv: ".//div[@name='compare-version-checkbox']",
     publishMessageDiv: "//div[contains(@class, 'publish-message')]",
@@ -17,16 +19,57 @@ const xpath = {
 
 class BaseVersionsWidget extends Page {
 
-    get compareVersionsButton() {
-        return this.versionsWidget + lib.actionButton('Compare versions');
+    get extensionView() {
+        return this._parentElement + xpath.extensionViewDiv;
     }
 
-    get compareWithCurrentVersionButton() {
-        return this.versionsWidget + lib.VERSIONS_SHOW_CHANGES_BUTTON;
+    get showChangesButton() {
+        return this.extensionView + BUTTONS.buttonByLabel('Show changes');
+    }
+
+    get versionItems() {
+        return this.extensionView + xpath.versionsList + xpath.versionsListItem;
+    }
+
+    get publishedItems() {
+        return this.extensionView + xpath.versionsList + xpath.publishedListItem;
+    }
+
+    get markedAsReadyItems() {
+        return this.extensionView + xpath.versionsList + xpath.markedAsReadyListItem;
+    }
+
+    get unpublishedItems() {
+        return this.extensionView + xpath.versionsList + xpath.unpublishedListItem;
+    }
+
+    //Gets items with headers - Sorted
+    get sortedItems() {
+        return this.extensionView + xpath.versionsList + xpath.sortedListItem;
+    }
+
+    get editedItems() {
+        return this.extensionView + xpath.versionsList + xpath.editedListItem;
+    }
+
+    get createdItems() {
+        return this.extensionView + xpath.versionsList + xpath.createdListItem;
+    }
+
+    get permissionsUpdatedItems() {
+        return this.extensionView + xpath.versionsList + xpath.permissionsUpdatedListItem;
+    }
+
+    get movedItems() {
+        return this.extensionView + xpath.versionsList + xpath.movedListItem;
+    }
+
+    get renamedItems() {
+        return this.extensionView + xpath.versionsList + xpath.renamedListItem;
     }
 
     get restoreButton() {
-        return this.versionsWidget + xpath.versionItemExpanded + "//button[child::span[text()='Restore']]";
+        return this.extensionView + xpath.versionItemExpanded + "//button[child::span[text()='Restore']]";
     }
 
     //Count version items that contain 'Revert' button
@@ -172,24 +215,26 @@ class BaseVersionsWidget extends Page {
     }
 
     // waits for Version Widget is loaded, Exception will be thrown after the timeout exceeded
-    async waitForVersionsLoaded() {
+    async waitForLoaded() {
         try {
-            await this.waitForElementDisplayed(this.versionsWidget, appConst.mediumTimeout)
+            await this.waitForElementDisplayed(this.extensionView);
         } catch (err) {
             await this.handleError('Version Widget was not loaded', 'err_load_versions_widget', err);
         }
     }
 
     // waits for Version Widget is loaded, returns false after the timeout exceeded
-    isWidgetLoaded() {
-        return this.waitForElementDisplayed(this.versionsWidget, appConst.mediumTimeout).catch(err => {
+    async isWidgetLoaded() {
+        try {
+            return await this.waitForElementDisplayed(this.extensionView);
+        } catch (err) {
             return false;
-        });
+        }
     }
 
     async waitForRestoreButtonNotDisplayed() {
         try {
-            return await this.waitForElementNotDisplayed(this.restoreButton, appConst.mediumTimeout);
+            return await this.waitForElementNotDisplayed(this.restoreButton);
         } catch (err) {
             await this.handleError('Restore button should not be displayed', 'err_restore_button', err);
         }
@@ -241,7 +286,7 @@ class BaseVersionsWidget extends Page {
 
     async getContentStatus() {
         let locator = this.versionsWidget + "/div[contains(@class,'status')]";
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(locator);
         return await this.getText(locator);
     }
 
@@ -293,7 +338,8 @@ class BaseVersionsWidget extends Page {
             }
             return await buttonElements[0].$('input').isSelected();
         } catch (err) {
-            await this.handleError('Versions Widget, tried to check if Show changes checkbox is selected...', 'err_check_show_changes_selected', err);
+            await this.handleError('Versions Widget, tried to check if Show changes checkbox is selected...',
+                'err_check_show_changes_selected', err);
         }
     }
 

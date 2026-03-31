@@ -863,9 +863,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async getWorkflowStateByDisplayName(displayName) {
         try {
-
-            //const treeItem = await this.findElements(
-            //   "//div[contains(@data-component,'ContentTreeList')]//div[contains(@role,'treeitem') and .//span[contains(text(),'All Content types images')]]");
             const treeItem = await this.findElements(XPATH.contentsTreeListDiv + TREE_GRID.itemByDisplayName(displayName));
             const svgElement = await treeItem[0].$("svg[aria-label]");
             await svgElement.waitForDisplayed({timeout: appConst.mediumTimeout});
@@ -893,21 +890,28 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    // finds workflow state by a name  TODO
     async getWorkflowStateByName(name) {
-        let xpath = XPATH.selectableListBoxPanelDiv + lib.TREE_GRID.contentSummaryByName(name);
-        await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
-        let result = await this.getAttribute(xpath, 'class');
-        if (result.includes('in-progress')) {
-            // yellow circle icon in grid:
-            return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
-        } else if (result.includes('ready')) {
-            // green circle icon in grid
-            return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
-        } else if (result.includes('viewer content-summary-and-compare-status-viewer')) {
-            return appConst.WORKFLOW_STATE.PUBLISHED;
-        } else {
-            throw new Error(`Error during checking the content's workflow, @class:` + result);
+        try {
+            const treeItem = await this.findElements(XPATH.contentsTreeListDiv + TREE_GRID.itemByName(name));
+            const svgElement = await treeItem[0].$('svg[aria-label]');
+            await svgElement.waitForDisplayed({timeout: appConst.mediumTimeout});
+            let attrValue = await svgElement.getAttribute('aria-label');
+            if (!attrValue) {
+                throw new Error(`No aria-label attribute found for name: ${name}`);
+            }
+            if (attrValue === 'in-progress') {
+                return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
+            }
+            if (attrValue.includes('ready')) {
+                return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
+            }
+            if (attrValue.includes('published')) {
+                return appConst.WORKFLOW_STATE.PUBLISHED;
+            }
+            throw new Error(`Unknown workflow state for name: ${name}, aria-label: ${attrValue}`);
+        } catch (err) {
+            await this.handleError(`Workflow state by name: ${name}`, 'err_get_workflow_state_by_name', err);
+            throw err;
         }
     }
 

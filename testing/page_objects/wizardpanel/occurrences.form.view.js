@@ -91,26 +91,44 @@ class OccurrencesFormView extends Page {
         }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Form Validation recording should not be displayed'});
     }
 
-    async waitForOccurrenceValidationRecordingDisplayed(index, expectedMessage) {
+    // async waitForOccurrenceValidationRecordingDisplayed(index, expectedMessage) {
+    //     try {
+    //         await this.getBrowser().waitUntil(async () => {
+    //             let elements = await this.findElements(this.inputOccurrenceErrorRecording);
+    //             if (elements.length <= index) {
+    //                 return false;
+    //             }
+    //             let text = await elements[index].getText();
+    //             return text === expectedMessage;
+    //         }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Occurrence Validation recording should be displayed'});
+    //     } catch (err) {
+    //         await this.handleError('Occurrence Validation recording should be displayed', 'err_occurrence_valid_recording', err);
+    //     }
+    // }
+
+    async waitForOccurrenceValidationRecordingNotDisplayedAt(index) {
         try {
+            let occurrenceSelector = `(${COMMON.INPUTS.OCCURRENCES_DATA_COMPONENT}//div[contains(@class,'w-full')])[${index + 1}]`;
+            let errorSelector = occurrenceSelector + "//div[contains(@class,'text-error')]";
+            return await this.waitForElementNotDisplayed(errorSelector);
+        } catch (err) {
+            await this.handleError('Occurrence Validation record should not be displayed', 'err_occurrence_valid_recording', err);
+        }
+    }
+    async waitForOccurrenceValidationRecordingDisplayedAt(index, expectedMessage) {
+        try {
+            let occurrenceSelector = `(${COMMON.INPUTS.OCCURRENCES_DATA_COMPONENT}//div[contains(@class,'w-full')])[${index + 1}]`;
+            let errorSelector = occurrenceSelector + "//div[contains(@class,'text-error')]";
             await this.getBrowser().waitUntil(async () => {
-                let elements = await this.findElements(this.inputOccurrenceErrorRecording);
-                if (elements.length <= index) {
+                let elements = await this.findElements(errorSelector);
+                if (elements.length === 0) {
                     return false;
                 }
-                let text = await elements[index].getText();
+                let text = await elements[0].getText();
                 return text === expectedMessage;
             }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Occurrence Validation recording should be displayed'});
         } catch (err) {
             await this.handleError('Occurrence Validation recording should be displayed', 'err_occurrence_valid_recording', err);
-        }
-    }
-
-    async waitForOccurrenceValidationRecordingNotDisplayed() {
-        try {
-            return await this.waitForElementNotDisplayed(this.inputOccurrenceErrorRecording);
-        } catch (err) {
-            await this.handleError('Occurrence Validation record should not be displayed', 'err_occurrence_valid_recording', err);
         }
     }
 
@@ -127,19 +145,19 @@ class OccurrencesFormView extends Page {
     }
 
     waitForAddButtonDisplayed() {
-        return this.waitUntilDisplayed(this.addButton, appConst.mediumTimeout);
+        return this.waitUntilDisplayed(this.addButton);
     }
 
     waitForRemoveButtonDisplayed() {
-        return this.waitUntilDisplayed(this.removeButton, appConst.mediumTimeout);
+        return this.waitUntilDisplayed(this.removeButton);
     }
 
     waitForRemoveButtonNotDisplayed() {
-        this.waitForElementNotDisplayed(this.removeButton, appConst.mediumTimeout);
+        this.waitForElementNotDisplayed(this.removeButton);
     }
 
-    waitForAddButtonNotDisplayed() {
-        this.waitForElementNotDisplayed(this.addButton, appConst.mediumTimeout);
+    async waitForAddButtonNotDisplayed() {
+        await this.waitForElementNotDisplayed(this.addButton);
     }
 
     async clickOnAddButton() {
@@ -148,24 +166,6 @@ class OccurrencesFormView extends Page {
         return await result[0].click();
     }
 
-    async waitForRedBorderInInput(index, inputLocator) {
-        let inputs = await this.getDisplayedElements(inputLocator);
-        if (!inputs || inputs.length <= index) {
-            throw new Error(`Input element at index ${index} was not found for locator: ${inputLocator}`);
-        }
-        await this.getBrowser().waitUntil(async () => {
-            let result = await inputs[index].getAttribute('aria-invalid');
-            return result === 'true';
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Attribute class  does not contain the value:invalid"});
-    }
-
-    async waitForRedBorderNotDisplayedInInput(index, inputLocator) {
-        let inputs = await this.getDisplayedElements(inputLocator);
-        await this.getBrowser().waitUntil(async () => {
-            let result = await inputs[index].getAttribute('class');
-            return !result.includes('invalid');
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Attribute class still contain the value:invalid"});
-    }
 }
 
 module.exports = OccurrencesFormView;

@@ -15,7 +15,7 @@ describe('geopoint.content.spec: tests for geo point content', function () {
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
+
     const INCORRECT_GEO_LOCATION = '1,181';
     const VALID_GEO_LOCATION = '1,1';
     const GEO_POINT_CONTENT_NAME_1 = contentBuilder.generateRandomName('geopoint');
@@ -33,7 +33,7 @@ describe('geopoint.content.spec: tests for geo point content', function () {
             await geoPoint.pause(500);
             await studioUtils.saveScreenshot('geo_point_content_valid');
             // 2. Verify that validation message is not displayed:
-           await geoPoint.waitForOccurrenceValidationRecordingNotDisplayed();
+           await geoPoint.waitForOccurrenceValidationRecordingNotDisplayedAt(0);
         });
 
     it.skip(`GIVEN wizard for 'GeoPoint 0:0' is opened WHEN not valid value has been typed THEN validation message should be present`,
@@ -83,12 +83,10 @@ describe('geopoint.content.spec: tests for geo point content', function () {
             await geoPoint.typeInGeoPointInput(INCORRECT_GEO_LOCATION, 0);
             // 2. Verify the validation message:
             await studioUtils.saveScreenshot('geo_point_content_invalid_required');
-            let recording = await geoPoint.getOccurrenceValidationRecording(0);
-            assert.equal(recording, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, 'Validation recording should be displayed');
-            await geoPoint.waitForOccurrenceValidationRecordingDisplayed();
-            // 3. Verify that the content is not valid, because geo point input is required
-            //let result = await contentWizard.isContentInvalid();
-            //assert.ok(result, 'This content should be invalid');
+            let recording = await geoPoint.waitForOccurrenceValidationRecordingDisplayedAt(0, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED);
+            // 3. Verify that the becomes invalid
+            let result = await contentWizard.isContentInvalid();
+            assert.ok(result, 'This content should be invalid');
             // 4. Verify that 'Add' button is not displayed
             await geoPoint.waitForAddButtonNotDisplayed();
         });

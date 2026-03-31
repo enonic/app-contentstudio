@@ -20,44 +20,9 @@ const XPATH = {
 
 class BrowseVersionsWidget extends BaseVersionsWidget {
 
-    get versionsWidget() {
-        return XPATH.widget;
-    }
-
-    get versionItems() {
-        return this.versionsWidget + XPATH.versionsList + XPATH.versionsListItem;
-    }
-
-    get publishedItems() {
-        return this.versionsWidget + XPATH.versionsList + XPATH.publishedListItem;
-    }
-
-    get unpublishedItems() {
-        return this.versionsWidget + XPATH.versionsList + XPATH.unpublishedListItem;
-    }
-
-    //Gets items with headers - Sorted
-    get sortedItems() {
-        return this.versionsWidget + XPATH.versionsList + XPATH.sortedListItem;
-    }
-
-    get editedItems() {
-        return this.versionsWidget + XPATH.versionsList + XPATH.editedListItem;
-    }
-
-    get createdItems() {
-        return this.versionsWidget + XPATH.versionsList + XPATH.createdListItem;
-    }
-
-    get permissionsUpdatedItems() {
-        return this.versionsWidget + XPATH.versionsList + XPATH.permissionsUpdatedListItem;
-    }
-
-    get movedItems() {
-        return this.versionsWidget + XPATH.versionsList + XPATH.movedListItem;
-    }
-    get renamedItems() {
-        return this.versionsWidget + XPATH.versionsList + XPATH.renamedListItem;
+    constructor() {
+        super();
+        this._parentElement = "//div[contains(@id,'ContentBrowsePanel')]";
     }
 }
 

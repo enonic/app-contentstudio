@@ -4,7 +4,7 @@ const appConst = require('../../libs/app_const');
 
 const XPATH = {
     container: `//div[@data-component='IssueDialogDetailsContent' and @role='dialog']`,
-
+    titleInput: "//div[@data-component='EditableText']//input[@aria-label='Title']",
     toIssueList: "//a[@title='To the Issue List']",
     issueNameInPlaceInput: `//div[contains(@id,'IssueDetailsInPlaceTextInput')]`,
     editIssueTitleToggle: `//h2[@class='inplace-text' and @title='Click to  edit']`,
@@ -18,8 +18,6 @@ const XPATH = {
     issueCommentsListItem: `//div[contains(@id,'IssueCommentsListItem')]`,
     noActionLabel: `//div[@class='no-action-message']`,
     tabByLabel: label => `//button[contains(@role,'tab') and child::span[contains(.,'${label}')]]`,
-    issueStatusMenuItem:
-        menuItem => `//ul[contains(@class,'menu')]/li[contains(@id,'TabMenuItem') and child::a[text()='${menuItem}']]`,
 };
 
 class BaseIssueDetailsDialog extends Page {
@@ -29,7 +27,7 @@ class BaseIssueDetailsDialog extends Page {
     }
 
     get titleInput() {
-        return XPATH.container + XPATH.issueNameInPlaceInput + '//input';
+        return XPATH.container + XPATH.titleInput;
     }
 
     get issueTitleInputToggle() {
@@ -62,7 +60,7 @@ class BaseIssueDetailsDialog extends Page {
 
     async clickOnCloseButton() {
         try {
-            await this.waitForElementDisplayed(this.closeButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.closeButton);
             await this.clickOnElement(this.closeButton);
             return await this.pause(500);
         } catch (err) {
@@ -73,7 +71,7 @@ class BaseIssueDetailsDialog extends Page {
     // Click on "To Issues list"
     async clickOnBackToIssuesButton() {
         try {
-            await this.waitForElementDisplayed(this.backButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.backButton);
             return this.clickOnElement(this.backButton);
         } catch (err) {
             await this.handleError('Issue Details Dialog, tried to click on Back to Issues button', 'err_click_back_to_issues_btn', err);
@@ -88,8 +86,8 @@ class BaseIssueDetailsDialog extends Page {
         }
     }
 
-    async clickOnEditTitle() {
-        await this.clickOnElement(this.issueTitleInputToggle);
+    async clickOnTitleInput() {
+        await this.clickOnElement(this.titleInput);
         return await this.pause(500);
     }
 
@@ -105,23 +103,23 @@ class BaseIssueDetailsDialog extends Page {
 
     async updateTitle(newTitle) {
         try {
+            await this.clearInputText(this.titleInput);
             await this.addTextInInput(this.titleInput, newTitle);
             await this.pause(400);
+            await this.clickOnElement(XPATH.container);
         } catch (err) {
-            await this.saveScreenshot('err_type_issue_title');
-            throw new Error('error during update the issue-title ' + err);
+            await this.handleError('Issue Details Dialog, tried to update the issue title', 'err_update_issue_title', err);
         }
     }
 
-    waitForIssueTitleInputNotEditable() {
-        return this.getBrowser().waitUntil(() => {
-            return this.isElementDisplayed(`//div[contains(@id,'IssueDetailsInPlaceTextInput') and contains (@class,'disabled')]`);
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Issue details dialog - title should not be editable!"});
+    async waitForIssueTitleInputNotEditable() {
+        let locator = XPATH.container + "//div[@data-component='EditableText']//input[@aria-label='Title']";
+        await this.waitForElementDisabled(locator);
     }
 
     async clickOnStatusSelectorMenu() {
         let statusSelectorButton = this.issueStatusSelector;
-        await this.waitForElementDisplayed(statusSelectorButton, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(statusSelectorButton);
         await this.clickOnElement(statusSelectorButton);
         return await this.pause(100);
     }
@@ -132,7 +130,7 @@ class BaseIssueDetailsDialog extends Page {
             await this.clickOnStatusSelectorMenu();
             let optionItemLocator = DROPDOWN.listboxOptionByText(appConst.ISSUES.STATUS_CLOSED);
             // click on the 'Closed' option item:
-            await this.waitForElementDisplayed(optionItemLocator, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(optionItemLocator);
             await this.clickOnElement(optionItemLocator);
             return await this.waitForNotificationMessage();
         } catch (err) {
@@ -145,7 +143,7 @@ class BaseIssueDetailsDialog extends Page {
         // expand the menu:
         await this.clickOnStatusSelectorMenu();
         // click on the menu item:
-        await this.waitForElementDisplayed(optionItemLocator, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(optionItemLocator);
         await this.clickOnElement(optionItemLocator);
         return await this.waitForNotificationMessage();
     }
@@ -163,7 +161,7 @@ class BaseIssueDetailsDialog extends Page {
     async isTabActive(tabName) {
         try {
             let tabLocator = XPATH.tabByLabel(tabName);
-            await this.waitForElementDisplayed(tabLocator, appConst.shortTimeout);
+            await this.waitForElementDisplayed(tabLocator);
             let value = await this.getAttribute(tabLocator, 'data-state');
             return value === 'active';
         } catch (err) {
@@ -184,7 +182,7 @@ class BaseIssueDetailsDialog extends Page {
     async getCurrentStatusInStatusSelector() {
         try {
             let locator = this.issueStatusSelector + "//span[2]";
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(locator);
             return await this.getText(locator);
         } catch (err) {
             await this.handleError('Issue Details Dialog, tried to get the current status in status selector', 'err_get_current_status',

@@ -70,9 +70,7 @@ class IssueDetailsDialog extends BaseDetailsDialog {
 
 
     async getIssueTitle() {
-        let result = await this.getText(XPATH.issueNameInPlaceInput + '/h2');
-        let endIndex = result.indexOf('#');
-        return result.substring(0, endIndex).trim();
+        return await this.getTextInInput(this.titleInput);
     }
 
     async isItemsTabItemActive() {

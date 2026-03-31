@@ -1,5 +1,5 @@
 /**
- * Created on 16.05.2018.
+ * Created on 16.05.2018. updated on 28.03.2026 for epic-enonic-ui
  */
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -15,7 +15,6 @@ describe('Browse Panel - Keyboard shortcut to publish content', function () {
     }
     let FOLDER_1;
 
-    // verifies : app-contentstudio#72 Keyboard shortcut to publish content(s)
     it(`GIVEN content is selected WHEN 'Ctrl+Alt+P' have been pressed THEN Publish Dialog should appear`,
         async () => {
             let contentPublishDialog = new ContentPublishDialog();
@@ -28,7 +27,7 @@ describe('Browse Panel - Keyboard shortcut to publish content', function () {
             await studioUtils.findAndSelectItem(FOLDER_1.displayName);
             await contentBrowsePanel.hotKeyPublish();
             await contentPublishDialog.waitForDialogOpened();
-            // Publish button should be enabled, because this content automatically gets "Ready to Publish"
+            // 'Publish' button should be enabled, because this content automatically gets "Ready to Publish"
             await contentPublishDialog.waitForPublishNowButtonEnabled();
         });
 
@@ -44,9 +43,10 @@ describe('Browse Panel - Keyboard shortcut to publish content', function () {
             await studioUtils.findContentAndClickCheckBox(FOLDER_1.displayName);
             await studioUtils.findContentAndClickCheckBox(folder2.displayName);
 
+            // const keyCombination = isMacOS ? [Key.Command, Key.Alt, 'p'] : [Key.Ctrl, Key.Alt, 'p'];
             await contentBrowsePanel.hotKeyPublish();
             await contentPublishDialog.waitForDialogOpened();
-            // Publish button should be disabled, because one content is "Work in progress"
+            // 'Publish' button should be disabled, because one content is "Work in progress"
             await contentPublishDialog.waitForPublishNowButtonDisabled();
         });
 

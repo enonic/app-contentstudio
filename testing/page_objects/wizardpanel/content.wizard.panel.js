@@ -28,6 +28,8 @@ const XPATH = {
     toolbar: `//div[contains(@id,'ContentWizardToolbar') and @role='toolbar']`,
     contentItemPreviewToolbar: `//div[contains(@id,'PreviewToolbar')]`,
     toolbarStateIcon: `//div[contains(@class,'toolbar-state-icon')]`,
+    // v6: workflow state SVG in the toolbar — aria-label is 'invalid', 'in-progress', or 'ready'
+    toolbarWorkflowStateIcon: `//svg[@aria-label and not(@aria-hidden='true')]`,
     publishMenuButton: "//div[contains(@id,'ContentWizardPublishMenuButton')]",
     toolbarPublish: "//div[contains(@id,'ContentWizardToolbarPublishControls')]",
     createIssueButton: "//button[contains(@id,'ActionButton') and child::span[text()='Create Issue...']]",
@@ -404,8 +406,7 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForSaveButtonVisible();
             let elements = await this.getDisplayedElements(this.saveButton);
-            await elements[0].waitForEnabled();
-            //return await this.waitForElementEnabled(this.saveButton, appConst.mediumTimeout);
+            await elements[0].waitForEnabled({timeout: appConst.shortTimeout});
         } catch (err) {
             await this.handleError(`'Save' button should be enabled in the Content Wizard`, 'err_save_button_enabled', err);
         }
@@ -574,9 +575,7 @@ class ContentWizardPanel extends Page {
 
     async isContentInvalid() {
         try {
-            let locator = this.workflowIconAndValidation;
-            let result = await this.getAttribute(locator, 'class');
-            return result.includes('invalid');
+            return await this.getContentWorkflowState() === 'invalid';
         } catch (err) {
             await this.handleError(`Error when trying to check if content is invalid`, 'err_wizard_validation', err);
         }
@@ -584,22 +583,16 @@ class ContentWizardPanel extends Page {
 
     async waitUntilInvalidIconAppears() {
         try {
-            let locator = this.workflowIconAndValidation;
-            await this.waitUntilInvalid(locator);
+            const locator = XPATH.container + XPATH.toolbar + "//svg[@aria-label='invalid']";
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
             await this.handleError('Validation Error: invalid-icon did not appear in content-wizard', 'err_wizard_validation', err);
         }
     }
 
     async waitUntilInvalidIconDisappears() {
-        let locator = this.workflowIconAndValidation;
-        await this.getBrowser().waitUntil(async () => {
-            let result = await this.getAttribute(locator, 'class');
-            return !result.includes('invalid');
-        }, {
-            timeout: appConst.mediumTimeout,
-            timeoutMsg: 'Validation Error: Red icon is still displayed in the wizard after 3 seconds'
-        });
+        const locator = XPATH.container + XPATH.toolbar + "//svg[@aria-label='invalid']";
+        await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
     }
 
     async typeSettings(settings) {
@@ -956,12 +949,16 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    // Gets workflow state in the wizard toolbar or null
+    // Returns 'invalid', 'in-progress', 'ready', or '' when the icon is absent (e.g. Published)
     async getContentWorkflowState() {
-        let locator = this.workflowIconAndValidation;
-        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
-        let result = await this.getAttribute(locator, 'title');
-        return result;
+        try {
+            const toolbar = XPATH.container + XPATH.toolbar+"//*[@data-component='StatusIcon']";
+            let result = await this.getDisplayedElements(toolbar);
+            let value =    await result[0].getAttribute('aria-label');
+            return value;
+        } catch (err) {
+           await this.handleError(`Tried to get content workflow state from the toolbar`, 'err_get_workflow_state', err);
+        }
     }
 
     // Clicks on Page Editor toggle (monitor icon). Show Page Editor

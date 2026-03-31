@@ -1,5 +1,5 @@
 /**
- * Created on 31.05.2018.
+ * Created on 31.05.2018. updated on 27.03.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -47,10 +47,10 @@ describe('content.duplicate.spec: Select and duplicate 2 folders', function () {
             let contentDuplicateDialog = new ContentDuplicateDialog();
             await studioUtils.findContentAndClickCheckBox(folder1.displayName);
             await studioUtils.findContentAndClickCheckBox(folder2.displayName);
-            //Click on Duplicate... button in the toolbar:
+            // Click on Duplicate... button in the toolbar:
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
             await studioUtils.saveScreenshot('folders_to_duplicate');
-            //Click on Duplicate button in the dialog:
+            // Click on Duplicate button in the dialog:
             await contentDuplicateDialog.clickOnDuplicateButton();
             let result = await contentBrowsePanel.waitForNotificationMessage();
             await studioUtils.saveScreenshot('folders_were_duplicated2');

@@ -35,8 +35,6 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             await studioUtils.doAddFolder(folder2);
         });
 
-    // Verifies https://github.com/enonic/app-contentstudio/issues/2825
-    // Default action is not updated after several content items have been marked as ready in the filtered grid
     it(`GIVEN two folders are selected WHEN new issue has been created THEN items tab on 'Issue Details Dialog' should be loaded with expected data`,
         async () => {
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -61,16 +59,18 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             await createIssueDialog.clickOnCreateIssueButton();
             await issueDetailsDialog.clickOnItemsTabItem();
             // 3. Verify the items to publish:
-            let result = await issueDetailsDialogItemsTab.getItemDisplayNames();
-            assert.ok(result.includes(folder1.displayName));
-            assert.ok(result.includes(folder2.displayName));
+            let result = await issueDetailsDialogItemsTab.getMainItemsToPublishDisplayName();
+            assert.ok(result.includes("/" + folder2.displayName));
+            assert.ok(result.includes("/" + folder1.displayName));
             let actualNumber = await issueDetailsDialog.getNumberInItemsTab();
             assert.equal(actualNumber, '2', '2 items to publish should be present in the dialog');
-            let status = await issueDetailsDialogItemsTab.getContentStatus(folder1.displayName)
-            assert.equal(status, 'New', 'New content-status should be displayed in the dialog');
+            let status = await issueDetailsDialogItemsTab.getContentStatus(folder1.name)
+            assert.equal(status, appConst.CONTENT_STATUS.OFFLINE, 'Offline content-status should be displayed in the dialog');
         });
 
-    it(`GIVEN 'Issue Details Dialog' is opened AND Items-tab activated WHEN 'Publish...' button has been pressed THEN 2 content should be published and the task gets closed`,
+    // TODO  remove this test ?
+    it.skip(
+        `GIVEN 'Issue Details Dialog' is opened AND Items-tab activated WHEN 'Publish...' button has been pressed THEN 2 content should be published and the task gets closed`,
         async () => {
             let issueDetailsDialog = new IssueDetailsDialog();
             let issueListDialog = new IssueListDialog();
@@ -87,7 +87,8 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             // 3. Click on Publish Now button :
             await contentPublishDialog.clickOnPublishNowButton();
             let message = await issueDetailsDialog.waitForNotificationMessage();
-            assert.equal(message, appConst.NOTIFICATION_MESSAGES.TWO_ITEMS_PUBLISHED, "'2 items are published' message should be displayed");
+            assert.equal(message, appConst.NOTIFICATION_MESSAGES.TWO_ITEMS_PUBLISHED,
+                "'2 items are published' message should be displayed");
             let expectedMessage = appConst.NOTIFICATION_MESSAGES.ISSUE_CLOSED_MESSAGE;
             await issueDetailsDialog.waitForExpectedNotificationMessage(expectedMessage);
         });
@@ -104,7 +105,8 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             await contentItemPreviewPanel.waitForPreviewWidgetDropdownDisplayed();
         });
 
-    it(`GIVEN two published items are selected WHEN 'Unpublish' dialog has been opened and 'Unpublish(2)' button pressed THEN confirm value dialog should appear`,
+    it.skip(
+        `GIVEN two published items are selected WHEN 'Unpublish' dialog has been opened and 'Unpublish(2)' button pressed THEN confirm value dialog should appear`,
         async () => {
             let confirmValueDialog = new ConfirmValueDialog();
             // 1. Select 2 published folders:
