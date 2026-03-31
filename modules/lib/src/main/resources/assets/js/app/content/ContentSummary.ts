@@ -59,6 +59,8 @@ export class ContentSummary {
 
     private readonly publishToTime: Date;
 
+    private readonly publishTime: Date;
+
     private readonly deletable: boolean;
 
     private readonly editable: boolean;
@@ -109,6 +111,7 @@ export class ContentSummary {
         this.publishFromTime = builder.publishFromTime;
         this.publishToTime = builder.publishToTime;
         this.publishFirstTime = builder.publishFirstTime;
+        this.publishTime = builder.publishTime;
         this.deletable = builder.deletable;
         this.editable = builder.editable;
         this.childOrder = builder.childOrder;
@@ -279,6 +282,10 @@ export class ContentSummary {
         return this.publishToTime;
     }
 
+    getPublishTime(): Date {
+        return this.publishTime;
+    }
+
     isDeletable(): boolean {
         return this.deletable;
     }
@@ -434,6 +441,8 @@ export class ContentSummaryBuilder {
 
     publishToTime: Date;
 
+    publishTime: Date;
+
     deletable: boolean;
 
     editable: boolean;
@@ -483,6 +492,7 @@ export class ContentSummaryBuilder {
             this.publishFromTime = source.getPublishFromTime();
             this.publishToTime = source.getPublishToTime();
             this.publishFirstTime = source.getPublishFirstTime();
+            this.publishTime = source.getPublishTime();
             this.deletable = source.isDeletable();
             this.editable = source.isEditable();
             this.childOrder = source.getChildOrder();
@@ -546,6 +556,10 @@ export class ContentSummaryBuilder {
         this.publishToTime =
             json.publish && json.publish.to
             ? new Date(Date.parse(json.publish.to))
+            : null;
+        this.publishTime =
+            json.publish && json.publish.time
+            ? new Date(Date.parse(json.publish.time))
             : null;
 
         this.deletable = json.deletable;
@@ -645,6 +659,11 @@ export class ContentSummaryBuilder {
 
     setPublishFirstTime(value: Date): ContentSummaryBuilder {
         this.publishFirstTime = value;
+        return this;
+    }
+
+    setPublishTime(value: Date): ContentSummaryBuilder {
+        this.publishTime = value;
         return this;
     }
 
