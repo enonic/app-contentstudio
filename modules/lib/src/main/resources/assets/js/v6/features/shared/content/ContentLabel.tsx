@@ -32,12 +32,14 @@ export const ContentLabel = ({
     const isCompact = variant === 'compact';
     const showFullPath = variant === 'compact' || variant === 'detailed';
 
-    const status = hideStatus ? null : calcContentState(content.getContentSummary());
+    const summary = content.getContentSummary();
+    const statusHidden = hideStatus || !!summary.getPublishTime();
+    const status = statusHidden ? null : calcContentState(summary);
     const Icon = (
         <WorkflowContentIcon
             status={status}
             contentType={content.getType().toString()}
-            url={content.getContentSummary().getIconUrl()}
+            url={summary.getIconUrl()}
         />
     );
 

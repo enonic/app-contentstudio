@@ -27,7 +27,9 @@ export const MediaSelectorItemView = ({content, hideStatus = false}: MediaSelect
     const contentId = content.getId();
     const displayName = content.getDisplayName() || content.getType()?.getLocalName();
     const subName = content.getPath() ? content.getPath().toString() : '';
-    const status = hideStatus ? null : calcContentState(content.getContentSummary());
+    const summary = content.getContentSummary();
+    const statusHidden = hideStatus || !!summary.getPublishTime();
+    const status = statusHidden ? null : calcContentState(summary);
 
     if (isRemoved) {
         return (
@@ -51,7 +53,7 @@ export const MediaSelectorItemView = ({content, hideStatus = false}: MediaSelect
                 <WorkflowContentIcon
                     status={status}
                     contentType={content.getType().toString()}
-                    url={content.getContentSummary().getIconUrl()}
+                    url={summary.getIconUrl()}
                 />
             </div>
             <div className="min-w-0 w-full">

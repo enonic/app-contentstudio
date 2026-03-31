@@ -6,4 +6,6 @@ export interface ContentPublishInfoJson {
 
     to: string;
 
+    time: string;
+
 }

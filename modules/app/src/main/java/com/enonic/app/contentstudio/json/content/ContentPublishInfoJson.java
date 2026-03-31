@@ -12,14 +12,14 @@ public class ContentPublishInfoJson
 
     private final Instant first;
 
-    private final Instant published;
+    private final Instant time;
 
     public ContentPublishInfoJson( final ContentPublishInfo publishInfo )
     {
         this.from = publishInfo.from();
         this.to = publishInfo.to();
         this.first = publishInfo.first();
-        this.published = publishInfo.time();
+        this.time = publishInfo.time();
     }
 
     @SuppressWarnings("unused")
@@ -41,8 +41,8 @@ public class ContentPublishInfoJson
     }
 
     @SuppressWarnings("unused")
-    public Instant getPublished()
+    public Instant getTime()
     {
-        return published;
+        return time;
     }
 }
