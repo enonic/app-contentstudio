@@ -13,6 +13,9 @@ const XPATH = {
         return `//div[contains(@id,'NamesView') and child::p[contains(@class,'sub-name') and contains(.,'${name}')]]` +
                `//ancestor::li[contains(@id,'ContentListElement')]//div[contains(@class,'toggle icon-arrow_drop_up')]`;
     },
+    // v6: text span inside each selected option row in SortableList
+    sortableListSelectedOptionText:
+        `//div[@data-component='SortableList']//div[@role='button' and @aria-roledescription='sortable']//span[contains(@class,'truncate')]`,
 }
 
 class BaseDropdown extends Page {
@@ -40,8 +43,12 @@ class BaseDropdown extends Page {
         return (this.dataComponentDiv ? this.dataComponentDiv : '') + COMMON.INPUTS.inputByAriaLabel(ariaLabel);
     }
 
-    waitForOptionFilterInputDisplayed() {
-        return this.waitForElementDisplayed(this.optionsFilterInput(), appConst.mediumTimeout);
+    async waitForOptionFilterInputDisplayed() {
+        return await this.waitForElementDisplayed(this.optionsFilterInput());
+    }
+
+    async waitForOptionFilterInputNotDisplayed() {
+        return await this.waitForElementNotDisplayed(this.optionsFilterInput());
     }
 
     async waitForOptionFilterInputDisabled(parentLocator = '') {
@@ -206,15 +213,6 @@ class BaseDropdown extends Page {
         }
     }
 
-    // Click on option-item by display name:
-    async clickOnOptionByDisplayName_old(optionDisplayName, parentLocator = '') {
-        let optionLocator = this.buildLocatorForOptionByDisplayName(optionDisplayName, parentLocator);
-        //  Wait for the required option is displayed:
-        await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-        // Click on the item:
-        await this.clickOnElement(optionLocator);
-    }
-
     // 1. Insert a text in Filter input
     // 2. Click on the filtered by name item (p[contains(@class,'sub-name'))
     // 3. Click on OK button and apply the selection.
@@ -288,7 +286,8 @@ class BaseDropdown extends Page {
     }
 
     async getSelectedOptionsDisplayName() {
-        let locator = this.container + "//li[contains(@class,'item-view-wrapper') and contains(@class,'selected')]" + lib.H6_DISPLAY_NAME;
+        const base = this.dataComponentDiv ? this.container + this.dataComponentDiv : this.container;
+        const locator = base + XPATH.sortableListSelectedOptionText;
         return await this.getTextInDisplayedElements(locator);
     }
 

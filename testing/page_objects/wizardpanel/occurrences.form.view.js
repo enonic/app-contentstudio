@@ -91,21 +91,6 @@ class OccurrencesFormView extends Page {
         }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Form Validation recording should not be displayed'});
     }
 
-    // async waitForOccurrenceValidationRecordingDisplayed(index, expectedMessage) {
-    //     try {
-    //         await this.getBrowser().waitUntil(async () => {
-    //             let elements = await this.findElements(this.inputOccurrenceErrorRecording);
-    //             if (elements.length <= index) {
-    //                 return false;
-    //             }
-    //             let text = await elements[index].getText();
-    //             return text === expectedMessage;
-    //         }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Occurrence Validation recording should be displayed'});
-    //     } catch (err) {
-    //         await this.handleError('Occurrence Validation recording should be displayed', 'err_occurrence_valid_recording', err);
-    //     }
-    // }
-
     async waitForOccurrenceValidationRecordingNotDisplayedAt(index) {
         try {
             let occurrenceSelector = `(${COMMON.INPUTS.OCCURRENCES_DATA_COMPONENT}//div[contains(@class,'w-full')])[${index + 1}]`;
@@ -129,18 +114,6 @@ class OccurrencesFormView extends Page {
             }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Occurrence Validation recording should be displayed'});
         } catch (err) {
             await this.handleError('Occurrence Validation recording should be displayed', 'err_occurrence_valid_recording', err);
-        }
-    }
-
-    async getOccurrenceValidationRecording(index) {
-        try {
-            let elements = await this.findElements(this.inputOccurrenceErrorRecording);
-            if (elements.length === 0) {
-                throw new Error('occurrences form - Element was not found:' + this.inputOccurrenceErrorRecording);
-            }
-            return await elements[index].getText();
-        } catch (err) {
-            await this.handleError('Occurrence Validation record', 'err_occurrence_valid_recording', err);
         }
     }
 

@@ -31,7 +31,7 @@ class WidgetSelectorDropdown extends Page {
     async clickOnOptionByDisplayName(optionDisplayName, parentLocator = '') {
         let optionLocator = DROPDOWN.selectorListOptionByName(optionDisplayName);//"//div[contains(@id,'WidgetsSelector') and @role='listbox']" ;
         //  Wait for the required option is displayed:
-        await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(optionLocator);
         // Click on the item:
         await this.clickOnElement(optionLocator);
     }
@@ -44,7 +44,7 @@ class WidgetSelectorDropdown extends Page {
     }
 
     async clickOnDropdownHandle(parentLocator = '') {
-        await this.waitForElementDisplayed(parentLocator + this.dropdownHandle, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(parentLocator + this.dropdownHandle);
         return await this.clickOnElement(parentLocator + this.dropdownHandle);
     }
 }

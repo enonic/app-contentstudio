@@ -1,5 +1,6 @@
 const COMMON = {
     DISPLAY_NAME_INPUT: "//input[@name='displayName']",
+    CONTENT_WIZARD_DATA_COMPONENT: "//div[@data-component='ContentWizardTabs']",
     FOOTER_ELEMENT: `//footer`,
     CSS_POINTER_EVENTS: 'pointer-events-none',
     NOTIFICATION_TEXT: "//div[@class='notification-wrapper']//p",
