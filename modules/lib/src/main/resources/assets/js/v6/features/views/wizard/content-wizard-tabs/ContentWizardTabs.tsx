@@ -9,6 +9,7 @@ import {
     $isContentFormExpanded,
     $mixinsTabs,
 } from '../../../store/wizardContent.store';
+import {$invalidTabs, $validationVisibility} from '../../../store/wizardValidation.store';
 import {CollapsedFormPanel} from './CollapsedFormPanel';
 import {ContentDataView} from './ContentDataView';
 import {MixinView} from './MixinView';
@@ -27,9 +28,11 @@ export const ContentWizardTabs = ({tabListAction}: ContentWizardTabsProps): Reac
     const displayName = useStore($displayName);
     const hasPage = useStore($hasPage);
     const xDataTabs = useStore($mixinsTabs);
+    const invalidTabs = useStore($invalidTabs);
+    const validationVisibility = useStore($validationVisibility);
     const pageTabLabel = useI18n('field.page');
-
     const [activeTab, setActiveTab] = useState('content');
+    const showErrors = validationVisibility === 'all';
 
     useEffect(() => {
         const validTabs = ['content', ...(hasPage ? ['page'] : []), ...xDataTabs.map((tab) => tab.name)];
@@ -47,10 +50,10 @@ export const ContentWizardTabs = ({tabListAction}: ContentWizardTabsProps): Reac
             <div className="flex items-center gap-1.5">
                 <Tab.ListOverflow className="min-w-0 flex-1">
                     <Tab.List>
-                        <Tab.DefaultTrigger value="content">{contentTypeDisplayName}</Tab.DefaultTrigger>
+                        <Tab.DefaultTrigger value="content" error={showErrors && invalidTabs.has('content')}>{contentTypeDisplayName}</Tab.DefaultTrigger>
                         {hasPage && <Tab.DefaultTrigger value="page">{pageTabLabel}</Tab.DefaultTrigger>}
                         {xDataTabs.map((tab) => (
-                            <Tab.DefaultTrigger key={tab.name} value={tab.name}>
+                            <Tab.DefaultTrigger key={tab.name} value={tab.name} error={showErrors && invalidTabs.has(tab.name)}>
                                 {tab.displayName}
                             </Tab.DefaultTrigger>
                         ))}
