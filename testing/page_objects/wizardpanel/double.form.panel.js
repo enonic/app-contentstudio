@@ -3,7 +3,6 @@
  */
 const OccurrencesFormView = require('./occurrences.form.view');
 const {COMMON} = require('../../libs/elements');
-const appConst = require('../../libs/app_const');
 
 const XPATH = {
     doubleInputDataComponent: `//input[@data-component='DoubleInput']`,
@@ -21,13 +20,22 @@ class DoubleForm extends OccurrencesFormView {
 
     async typeDouble(value, index) {
         index = typeof index !== 'undefined' ? index : 0;
+        let inputs = await this.getDisplayedElements(this.doubleInput);
+        for (const ch of String(value)) {
+            await inputs[index].addValue(ch);
+        }
+        return await this.pause(300);
+    }
+
+    async setDouble(value, index) {
+        index = typeof index !== 'undefined' ? index : 0;
         let doubleElements = await this.getDisplayedElements(this.doubleInput);
         await doubleElements[index].setValue(value);
         return await this.pause(300);
     }
 
-    getNumberOfInputs() {
-        return this.getDisplayedElements(this.doubleInput);
+    async getNumberOfInputs() {
+        return await this.getDisplayedElements(this.doubleInput);
     }
 
     async isInvalidValue(index) {
@@ -48,40 +56,10 @@ class DoubleForm extends OccurrencesFormView {
         return await this.pause(500);
     }
 
-    async waitForRedBorderInDoubleInput(index) {
-        try {
-            return await this.waitForRedBorderInInput(index, this.doubleInput);
-        } catch (err) {
-            await this.handleError('Red border should be displayed - Double input', 'err_red_border_double', err);
-        }
-    }
-
-    async waitForRedBorderNotDisplayedInDoubleInput(index) {
-        try {
-            return await this.waitForRedBorderNotDisplayedInInput(index, this.doubleInput);
-        } catch (err) {
-            await this.handleError('Red border should not be displayed - Double input', 'err_red_border_not_double', err);
-        }
-    }
-
-    // help-text togler should not be displayed for Double input
-    async waitForHelpTextToggleNotDisplayed() {
-        try {
-            let locator = lib.CONTENT_WIZARD_STEP_FORM + lib.HELP_TEXT.TOGGLE;
-            return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
-        } catch (err) {
-            await this.handleError('Help texts toggle button should not be displayed for Double input', 'err_help_text_toggle');
-        }
-    }
-
-    async getHelpText(inputLabel) {
-        try {
-            let locator = lib.CONTENT_WIZARD_STEP_FORM + lib.HELP_TEXT.TEXT;
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-            return await this.getText(locator);
-        } catch (err) {
-            await this.handleError('getting help-text in double form', 'err_help_text');
-        }
+    async clearDoubleInput(index) {
+        index = typeof index !== 'undefined' ? index : 0;
+        let inputs = await this.getDisplayedElements(this.doubleInput);
+        await this.clearInputTextElement(inputs[index]);
     }
 }
 

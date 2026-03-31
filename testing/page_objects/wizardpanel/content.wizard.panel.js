@@ -583,16 +583,22 @@ class ContentWizardPanel extends Page {
 
     async waitUntilInvalidIconAppears() {
         try {
-            const locator = XPATH.container + XPATH.toolbar + "//svg[@aria-label='invalid']";
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            const locator = XPATH.container + XPATH.toolbar +"//*[@data-component='StatusIcon']";
+            await this.getBrowser().waitUntil(async () => {
+                let text = await this.getAttribute(locator, 'aria-label');
+                return text === 'invalid';
+            }, {timeout: appConst.shortTimeout, timeoutMsg: "Content wizard - invalid icon should appear"});
         } catch (err) {
             await this.handleError('Validation Error: invalid-icon did not appear in content-wizard', 'err_wizard_validation', err);
         }
     }
 
     async waitUntilInvalidIconDisappears() {
-        const locator = XPATH.container + XPATH.toolbar + "//svg[@aria-label='invalid']";
-        await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+        const locator = XPATH.container + XPATH.toolbar +"//*[@data-component='StatusIcon']";
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(locator, 'aria-label');
+            return text !== 'invalid';
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Content wizard - invalid icon should disappear"});
     }
 
     async typeSettings(settings) {

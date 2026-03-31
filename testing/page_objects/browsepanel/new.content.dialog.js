@@ -10,7 +10,7 @@ const XPATH = {
     searchInput: `//input[@aria-label='Search']`,
     uploaderButton: "//div[contains(@id,'NewContentUploader')]",
     header: `//div[contains(@id,'NewContentDialogHeader')]`,
-    typesList: `//ul[contains(@id,'FilterableItemsList')]`,
+    typesList: `//ul//div[@data-component='ItemLabel']//span`,
     mostPopularBlock: "//div[contains(@id,'MostPopularItemsBlock')]",
     emptyViewDiv: "//div[contains(@class,'empty-view')]",
     contentTypeByName(name) {
@@ -146,7 +146,7 @@ class NewContentDialog extends Page {
     }
 
     async getItems() {
-        let locator = XPATH.typesList + lib.H6_DISPLAY_NAME;
+        let locator = XPATH.typesList
         return await this.getTextInElements(locator);
     }
 

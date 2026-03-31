@@ -4,51 +4,66 @@
 const BasDropdown = require('./base.dropdown');
 const appConst = require('../../../libs/app_const');
 const XPATH = {
-    container: "//div[contains(@id,'ComboBox')]",
+    dataComponent: "//div[@data-component='ComboBoxInput']",
     comboBoxListInput: "//div[contains(@id,'ComboBoxListInput')]",
     listItemViewer: "//div[contains(@id,'ComboBoxDisplayValueViewer')]",
     comboboxList: "//ul[contains(@id,'ComboBoxList))",
     optionByText: text => {
         return `//div[contains(@id,'ComboBoxDisplayValueViewer') and text()='${text}']`
     },
+    sortableItemByText: text =>
+        `//div[@role='button' and @aria-roledescription='sortable' and descendant::span[text()='${text}']]`,
+    removeOccurrenceButton: `//button[@aria-label='Remove occurrence']`,
 };
 
 class ComboBoxListInput extends BasDropdown {
 
+    constructor(parentElementXpath = '') {
+        super();
+        this._container = parentElementXpath;
+    }
+
     get container() {
-        return XPATH.container;
+        return this._container;
+    }
+
+    get dataComponentDiv() {
+        return XPATH.dataComponent;
     }
 
     async selectFilteredOptionAndClickOnApply(option) {
         try {
-            await this.filterItem(option, this.container);
+            await this.doFilterItem(option);
             // 2. Wait for the required option is displayed then click on it:
-            await this.clickOnOptionByDisplayName(option, this.container);
+            await this.clickOnOptionByDisplayName(option);
             // 3. Click on 'OK' button:
-            return await this.clickOnApplySelectionButton(this.container);
+            return await this.clickOnApplySelectionButton();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('Error occurred in ComboBoxListInput, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError(`ComboBoxListInput, tried to click on the option: ${option} `, 'err_combobox_dropdown', err);
         }
     }
 
     async selectFilteredOption(option) {
         try {
-            await this.filterItem(option, this.container);
+            await this.doFilterItem(option);
             // 2. Wait for the required option is displayed then click on it:
-            await this.clickOnOptionByDisplayName(option, this.container);
+            await this.clickOnOptionByDisplayName(option);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_cocmbobox_dropdown');
-            throw new Error('Error occurred in ComboBoxListInput, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError(`ComboBoxListInput, tried to click on the option: ${option} `, 'err_combobox_dropdown', err);
         }
     }
 
-    async clickOnOptionByDisplayName(option) {
-        let optionLocator = XPATH.optionByText(option);
-        //  Wait for the required option is displayed:
-        await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-        // Click on the item:
-        await this.clickOnElement(optionLocator);
+    async clickOnRemoveSelectedOptionButton(optionName) {
+        try {
+            const locator = this._container + XPATH.dataComponent +
+                            XPATH.sortableItemByText(optionName) + XPATH.removeOccurrenceButton;
+            await this.waitForElementDisplayed(locator);
+            await this.clickOnElement(locator);
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError(`ComboBoxListInput - failed to remove option: ${optionName}`,
+                'err_combobox_remove_option', err);
+        }
     }
 }
 
