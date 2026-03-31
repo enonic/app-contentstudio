@@ -10,7 +10,7 @@ const appConst = require('../../libs/app_const');
 
 describe('long.content.config.spec:  verifies `Min/max value config for Long`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    if (typeof browser === "undefined") {
+    if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
@@ -47,7 +47,7 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
             await longForm.typeLong(11, 0);
             // 2. Verify the validation message:
             await studioUtils.saveScreenshot('long_min_max_3');
-            let actualText = await longForm.getOccurrenceValidationRecording(0);
+            let actualText = await longForm.getFormValidationRecording();
             assert.equal(actualText, 'The value cannot be greater than 10', 'Validation recording should appear');
         });
 
