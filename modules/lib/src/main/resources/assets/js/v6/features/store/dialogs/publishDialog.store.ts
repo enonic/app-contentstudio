@@ -9,8 +9,11 @@ import {hasUnpublishedChildren} from '../../api/hasUnpublishedChildren';
 import {findIdsByParents, markAsReady, publishContent, resolvePublishDependencies as resolvePublishDeps} from '../../api/publish';
 import {cleanupTask, trackTask} from '../../services/task.service';
 import {hasContentById, hasContentIdInIds, isIdsEqual, uniqueIds} from '../../utils/cms/content/ids';
+import {patchItemsById} from '../../utils/cms/content/patchItemsById';
+import {findContentIdsWithCreatedDescendants} from '../../utils/cms/content/paths';
+import {createGuardedSocketHandler} from '../../utils/store/createGuardedSocketHandler';
 import {createDebounce} from '../../utils/timing/createDebounce';
-import {$contentArchived, $contentCreated, $contentDeleted, $contentPublished, $contentUpdated} from '../socket.store';
+import {$contentArchived, $contentCreated, $contentDeleted, $contentPublished, $contentRenamed, $contentUpdated} from '../socket.store';
 import type {TaskResultState} from '../task.store';
 
 //
@@ -721,6 +724,12 @@ const isDialogActive = (): boolean => {
     return open && items.length > 0;
 };
 
+const onPublishSocketEvent = createGuardedSocketHandler(isDialogActive);
+const onIdlePublishSocketEvent = createGuardedSocketHandler(() => {
+    const {submitting} = $publishDialogPending.get();
+    return !submitting && isDialogActive();
+});
+
 /** Remove items by IDs from both main items and dependant items */
 const removeItemsByIds = (idsToRemove: Set<string>): {removedMain: boolean; removedDependant: boolean} => {
     const {items} = $publishDialog.get();
@@ -742,17 +751,62 @@ const removeItemsByIds = (idsToRemove: Set<string>): {removedMain: boolean; remo
     return {removedMain, removedDependant};
 };
 
-/** Patch items with updated data, keeping items not in the update */
-const patchItemsWithUpdates = (updates: ContentSummaryAndCompareStatus[]): boolean => {
+const handleRemovedPublishItems = (idsToRemove: Set<string>): void => {
+    const {removedMain, removedDependant} = removeItemsByIds(idsToRemove);
+
+    if ($publishDialog.get().items.length === 0) {
+        resetPublishDialogContext();
+        return;
+    }
+
+    if (removedMain || removedDependant) {
+        reloadPublishDialogDataDebounced();
+    }
+};
+
+const patchTrackedPublishItems = (
+    updates: ContentSummaryAndCompareStatus[],
+): {updatedMain: boolean; updatedDependants: boolean} => {
+    if (updates.length === 0) {
+        return {updatedMain: false, updatedDependants: false};
+    }
+
     const {items} = $publishDialog.get();
-    const updateMap = new Map(updates.map(u => [u.getId(), u]));
+    const dependantItems = $publishDialogDependants.get();
+    const patchedItems = patchItemsById(items, updates);
+    const patchedDependants = patchItemsById(dependantItems, updates);
+    const updatedMain = patchedItems.changed;
+    const updatedDependants = patchedDependants.changed;
 
-    const hasUpdates = items.some(item => updateMap.has(item.getId()));
-    if (!hasUpdates) return false;
+    if (updatedMain) {
+        $publishDialog.setKey('items', patchedItems.items);
+    }
 
-    const patchedItems = items.map(item => updateMap.get(item.getId()) ?? item);
-    $publishDialog.setKey('items', patchedItems);
-    return true;
+    if (updatedDependants) {
+        $publishDialogDependants.set(patchedDependants.items);
+    }
+
+    return {updatedMain, updatedDependants};
+};
+
+const refreshPublishDialogMainItems = async (ids: ContentId[]): Promise<void> => {
+    if (ids.length === 0) {
+        return;
+    }
+
+    try {
+        const updatedItems = await fetchContentSummariesWithStatus(ids);
+        if (updatedItems.length > 0) {
+            const {items} = $publishDialog.get();
+            const patchedItems = patchItemsById(items, updatedItems);
+
+            if (patchedItems.changed) {
+                $publishDialog.setKey('items', patchedItems.items);
+            }
+        }
+    } catch (error) {
+        console.error(error);
+    }
 };
 
 //
@@ -794,85 +848,46 @@ $publishDialog.subscribe((state, oldState) => {
 //
 
 // Handle content created: reload dependencies as new content might be a child or dependency
-$contentCreated.subscribe((event) => {
-    if (!event || !isDialogActive()) return;
+$contentCreated.subscribe(onPublishSocketEvent((event) => {
+    const mainItemIds = findContentIdsWithCreatedDescendants($publishDialog.get().items, event.data);
+    if (mainItemIds.length === 0) return;
 
-    // New content could be a child of items with "include children" or a new dependency
-    reloadPublishDialogDataDebounced();
-});
+    void refreshPublishDialogMainItems(mainItemIds).finally(() => {
+        reloadPublishDialogDataDebounced();
+    });
+}));
 
 // Handle content updates: patch visible items and reload checks if tracked content changed
-$contentUpdated.subscribe((event) => {
-    if (!event || !isDialogActive()) return;
-
-    const dependantItems = $publishDialogDependants.get();
-    const updatedIds = new Set(event.data.map(item => item.getId()));
-
-    // Patch main items immutably
-    const hasUpdatedMainItems = patchItemsWithUpdates(event.data);
+$contentUpdated.subscribe(onPublishSocketEvent((event) => {
+    const {updatedMain, updatedDependants} = patchTrackedPublishItems(event.data);
 
     // Reload when tracked items change so SelectionStatusBar stays in sync.
-    const hasUpdatedDependants = dependantItems.some(item => updatedIds.has(item.getId()));
-    if (hasUpdatedMainItems || hasUpdatedDependants) {
+    if (updatedMain || updatedDependants) {
         reloadPublishDialogDataDebounced();
     }
-});
+}));
+
+// Handle content renames: patch tracked rows without forcing dependency resolution
+$contentRenamed.subscribe(onPublishSocketEvent((event) => {
+    patchTrackedPublishItems(event.data.items);
+}));
 
 // Handle content deletion: remove from lists, close if no items left, reload if needed
-$contentDeleted.subscribe((event) => {
-    if (!event || !isDialogActive()) return;
-
-    const deletedIds = new Set(event.data.map(item => item.getContentId().toString()));
-    const {removedMain, removedDependant} = removeItemsByIds(deletedIds);
-
-    // Close dialog if all main items were deleted
-    const {items} = $publishDialog.get();
-    if (items.length === 0) {
-        resetPublishDialogContext();
-        return;
-    }
-
-    // Reload dependencies if any items were removed
-    if (removedMain || removedDependant) {
-        reloadPublishDialogDataDebounced();
-    }
-});
+$contentDeleted.subscribe(onPublishSocketEvent((event) => {
+    handleRemovedPublishItems(new Set(event.data.map(item => item.getContentId().toString())));
+}));
 
 // Handle content archived: same as delete
-$contentArchived.subscribe((event) => {
-    if (!event || !isDialogActive()) return;
-
-    const archivedIds = new Set(event.data.map(item => item.getContentId().toString()));
-    const {removedMain, removedDependant} = removeItemsByIds(archivedIds);
-
-    // Close dialog if all main items were archived
-    const {items} = $publishDialog.get();
-    if (items.length === 0) {
-        resetPublishDialogContext();
-        return;
-    }
-
-    // Reload dependencies if any items were removed
-    if (removedMain || removedDependant) {
-        reloadPublishDialogDataDebounced();
-    }
-});
+$contentArchived.subscribe(onPublishSocketEvent((event) => {
+    handleRemovedPublishItems(new Set(event.data.map(item => item.getContentId().toString())));
+}));
 
 //
 // * Completion Handling
 //
 
 // Handle content published: close dialog if all main items were published
-$contentPublished.subscribe((event) => {
-    if (!event) return;
-
-    // Skip if dialog is submitting - task service handles completion
-    const {submitting} = $publishDialogPending.get();
-    if (submitting) return;
-
-    // Handle dialog-open state updates
-    if (!isDialogActive()) return;
-
+$contentPublished.subscribe(onIdlePublishSocketEvent((event) => {
     const {items} = $publishDialog.get();
     const publishedIds = new Set(event.data.map(item => item.getId()));
 
@@ -885,7 +900,7 @@ $contentPublished.subscribe((event) => {
 
     // Otherwise reload to update status
     reloadPublishDialogDataDebounced();
-});
+}));
 
 // TODO: Use AbortController to cancel the request if the instanceId changes
 
