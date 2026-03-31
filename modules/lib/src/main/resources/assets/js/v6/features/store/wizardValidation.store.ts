@@ -9,6 +9,7 @@ import {
     $mixinsDescriptors,
     $wizardDataVersion,
     $wizardDraftData,
+    $wizardDraftDisplayName,
     $wizardDraftMixins,
     onWizardContentReset,
     setWizardFormValidation,
@@ -20,6 +21,9 @@ import {createDebounce} from '../utils/timing/createDebounce';
 //
 
 export const $validationVisibility = atom<ValidationVisibility>('none');
+
+// Tracks which tabs have invalid forms. Values are tab keys: 'content' or mixin name.
+export const $invalidTabs = atom<ReadonlySet<string>>(new Set());
 
 const $serverErrors = atom<ValidationError[]>([]);
 
@@ -43,6 +47,7 @@ function runValidation(): void {
 
     if (!contentType || !draftData) {
         setWizardFormValidation(true);
+        $invalidTabs.set(new Set());
         return;
     }
 
@@ -50,6 +55,13 @@ function runValidation(): void {
         rawValues: contentRawValueMap,
         serverErrors,
     });
+
+    const nextInvalidTabs = new Set<string>();
+    const hasInvalidDisplayName = $wizardDraftDisplayName.get().trim().length === 0;
+
+    if (!contentResult.isValid || hasInvalidDisplayName) {
+        nextInvalidTabs.add('content');
+    }
 
     let allMixinsValid = true;
 
@@ -70,10 +82,13 @@ function runValidation(): void {
 
         if (!mixinResult.isValid) {
             allMixinsValid = false;
+            nextInvalidTabs.add(name);
         }
     }
 
+    $invalidTabs.set(nextInvalidTabs);
     setWizardFormValidation(contentResult.isValid && allMixinsValid);
+
 }
 
 const debouncedRunValidation = createDebounce(runValidation, DEBOUNCE_DELAY);
@@ -97,6 +112,12 @@ function setupSubscriptions(): void {
 
     subscriptions.push(
         $contentType.subscribe(() => {
+            debouncedRunValidation();
+        }),
+    );
+
+    subscriptions.push(
+        $wizardDraftDisplayName.subscribe(() => {
             debouncedRunValidation();
         }),
     );
@@ -183,6 +204,7 @@ export function resetValidation(): void {
     subscriptions.length = 0;
 
     $validationVisibility.set('none');
+    $invalidTabs.set(new Set());
     $serverErrors.set([]);
     contentRawValueMap.clear();
     mixinRawValueMaps.clear();

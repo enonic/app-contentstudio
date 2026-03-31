@@ -1,6 +1,6 @@
 import {Button, FilledSquareCheck, IconButton, Menu, useActiveItemFocus, useMenu} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {Ellipsis, Square} from 'lucide-react';
+import {Ellipsis, OctagonAlert, Square} from 'lucide-react';
 import {type ReactElement, useCallback, useEffect, useRef, useState} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {
@@ -8,6 +8,7 @@ import {
     $mixinsMenuItems,
     setDraftMixinEnabled,
 } from '../../../store/wizardContent.store';
+import {$invalidTabs, $validationVisibility} from '../../../store/wizardValidation.store';
 
 type ConfirmMenuItemProps = {
     disabled: boolean;
@@ -54,10 +55,13 @@ ConfirmMenuItem.displayName = 'ConfirmMenuItem';
 export const MixinMenu = (): ReactElement => {
     const hasPage = useStore($hasPage);
     const menuItems = useStore($mixinsMenuItems);
+    const invalidTabs = useStore($invalidTabs);
+    const validationVisibility = useStore($validationVisibility);
 
     const [pendingChanges, setPendingChanges] = useState<Map<string, boolean>>(new Map());
     const [open, setOpen] = useState(false);
 
+    const showErrors = validationVisibility === 'all';
     const hasPendingChanges = pendingChanges.size > 0;
     const showMenu = hasPage || menuItems.length > 0;
 
@@ -123,6 +127,9 @@ export const MixinMenu = (): ReactElement => {
                                 }}
                             >
                                 <span className="flex-1 truncate">{item.displayName}</span>
+                                {showErrors && effectiveEnabled && invalidTabs.has(item.name) && (
+                                    <OctagonAlert className="size-3 shrink-0 text-error" strokeWidth={2.5}/>
+                                )}
                                 {effectiveEnabled ? <FilledSquareCheck className="size-4"/> : <Square className="size-4"/>}
                             </Menu.Item>
                         );
