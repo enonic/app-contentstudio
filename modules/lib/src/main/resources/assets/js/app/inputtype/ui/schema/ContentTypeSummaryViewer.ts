@@ -13,7 +13,7 @@ export class ContentTypeSummaryViewer
     }
 
     resolveDisplayName(object: ContentTypeSummary): string {
-        return object.getDisplayName();
+        return object.getTitle();
     }
 
     resolveSubName(object: ContentTypeSummary): string {

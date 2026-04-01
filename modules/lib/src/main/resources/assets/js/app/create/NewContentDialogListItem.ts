@@ -19,7 +19,7 @@ export class NewContentDialogListItem {
         this.contentType = contentType;
 
         this.name = contentType.getName();
-        this.displayName = contentType.getDisplayName();
+        this.displayName = contentType.getTitle();
         this.iconUrl = contentType.getIconUrl();
         this.description = contentType.getDescription() ? contentType.getDescription() : `<${i18n('text.noDescription')}>`;
         this.searchIndex = `${this.name.toLowerCase()}:${this.displayName.toLowerCase()}`;

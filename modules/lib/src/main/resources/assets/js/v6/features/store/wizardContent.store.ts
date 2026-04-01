@@ -132,7 +132,7 @@ export const $displayName = $wizardDraftDisplayName;
 
 export const $hasPage = computed($wizardDraftPage, (page) => page != null);
 
-export const $contentTypeDisplayName = computed($contentType, (contentType) => contentType?.getDisplayName() ?? '');
+export const $contentTypeDisplayName = computed($contentType, (contentType) => contentType?.getTitle() ?? '');
 
 const $wizardDataChanged = computed(
     [$wizardPersistedData, $wizardDraftData, $wizardDataVersion],
@@ -298,7 +298,7 @@ export const $mixinsTabs = computed([$enabledMixinsNames, $mixinsDescriptors], (
         .filter((schema) => enabledNames.has(schema.getName()))
         .map((schema) => ({
             name: schema.getName(),
-            displayName: schema.getDisplayName() ?? schema.getName(),
+            displayName: schema.getTitle() ?? schema.getName(),
         }));
 });
 
@@ -312,7 +312,7 @@ export type MixinMenuItem = {
 export const $mixinsMenuItems = computed([$mixinsDescriptors, $enabledMixinsNames], (schemas, enabledNames): MixinMenuItem[] => {
     return schemas.map((schema) => ({
         name: schema.getName(),
-        displayName: schema.getDisplayName() ?? schema.getName(),
+        displayName: schema.getTitle() ?? schema.getName(),
         isOptional: schema.isOptional(),
         isEnabled: enabledNames.has(schema.getName()),
     }));

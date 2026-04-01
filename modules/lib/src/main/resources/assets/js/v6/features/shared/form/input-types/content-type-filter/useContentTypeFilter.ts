@@ -136,14 +136,14 @@ function filterForPageTemplate(contentTypes: ContentTypeSummary[], site: Site): 
 }
 
 function sortByDisplayName(a: ContentTypeSummary, b: ContentTypeSummary): number {
-    return a.getDisplayName().localeCompare(b.getDisplayName());
+    return a.getTitle().localeCompare(b.getTitle());
 }
 
 function matchesSearch(contentType: ContentTypeSummary, search: string): boolean {
     if (!search) return true;
 
     return (
-        contentType.getDisplayName().toLowerCase().includes(search.toLowerCase()) ||
+        contentType.getTitle().toLowerCase().includes(search.toLowerCase()) ||
         contentType.getContentTypeName().toString().toLowerCase().includes(search.toLowerCase())
     );
 }

@@ -9,10 +9,10 @@ export class ContentTypeComparator
     }
 
     static compareItems(item1: ContentTypeSummary, item2: ContentTypeSummary): number {
-        if (item1.getDisplayName().toLowerCase() > item2.getDisplayName().toLowerCase()) {
+        if (item1.getTitle().toLowerCase() > item2.getTitle().toLowerCase()) {
             return 1;
         }
-        if (item1.getDisplayName().toLowerCase() < item2.getDisplayName().toLowerCase()) {
+        if (item1.getTitle().toLowerCase() < item2.getTitle().toLowerCase()) {
             return -1;
         }
         if (item1.getName() > item2.getName()) {

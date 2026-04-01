@@ -17,7 +17,7 @@ export class ContentTypeSummaryLoader
         if (searchString.length === 0) {
             return true;
         }
-        return contentType.getDisplayName().toLowerCase().indexOf(searchString) !== -1 ||
+        return contentType.getTitle().toLowerCase().indexOf(searchString) !== -1 ||
                 contentType.getContentTypeName().toString().indexOf(searchString) !== -1;
     }
 

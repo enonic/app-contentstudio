@@ -19,7 +19,7 @@ export class ContentTypeSelectedOptionsView
 
     getEmptyDisplayValue(id: string): ContentTypeSummary {
         return new SchemaBuilder()
-            .setDisplayName(id)
+            .setTitle(id)
             .setName(id)
             .build() as ContentTypeSummary;
     }
@@ -37,7 +37,7 @@ export class ContentTypeSelectedOptionView
     }
 
     resolveTitle(content: ContentTypeSummary): string {
-        return content.getDisplayName().toString();
+        return content.getTitle().toString();
     }
 
     resolveSubTitle(content: ContentTypeSummary): string {
