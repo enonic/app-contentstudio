@@ -46,13 +46,13 @@ public class MixinDescriptorJson
 
     public String getDisplayName()
     {
-        if ( !nullToEmpty( mixinDescriptor.getDisplayNameI18nKey() ).isBlank() )
+        if ( !nullToEmpty( mixinDescriptor.getTitleI18nKey() ).isBlank() )
         {
-            return localeMessageResolver.localizeMessage( mixinDescriptor.getDisplayNameI18nKey(), mixinDescriptor.getDisplayName() );
+            return localeMessageResolver.localizeMessage( mixinDescriptor.getTitleI18nKey(), mixinDescriptor.getTitle() );
         }
         else
         {
-            return mixinDescriptor.getDisplayName();
+            return mixinDescriptor.getTitle();
         }
     }
 

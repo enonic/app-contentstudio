@@ -6,7 +6,7 @@ export class XDataWizardStep
     extends ContentWizardStep {
 
     constructor(stepForm: XDataWizardStepForm, iconCls?: string) {
-        super(stepForm.getXData().getDisplayName(), stepForm, iconCls);
+        super(stepForm.getXData().getTitle(), stepForm, iconCls);
     }
 
     getStepForm(): XDataWizardStepForm {

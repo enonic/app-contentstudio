@@ -338,7 +338,7 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
     {
         return ContentType.create()
             .superType( ContentTypeName.structured() )
-            .displayName( "My type" )
+            .title( "My type" )
             .name( name )
             .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
             .build();

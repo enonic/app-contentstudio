@@ -82,7 +82,7 @@ class FilterByContentResourceTest
     {
         final ContentType contentTypeToMap = ContentType.create()
             .superType( ContentTypeName.structured() )
-            .displayName( "My type" )
+            .title( "My type" )
             .name( "application:test-type" )
             .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
             .build();
@@ -102,7 +102,7 @@ class FilterByContentResourceTest
     {
         final ContentType contentTypeToMap = ContentType.create()
             .superType( ContentTypeName.structured() )
-            .displayName( "My type" )
+            .title( "My type" )
             .name( "application:test-type" )
             .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
             .build();
@@ -125,7 +125,7 @@ class FilterByContentResourceTest
             .build();
 
         final LayoutDescriptor layoutDescriptor = LayoutDescriptor.create()
-            .displayName( "Fancy layout" )
+            .title( "Fancy layout" )
             .config( layoutForm )
             .regions( RegionDescriptors.create().build() )
             .key( DescriptorKey.from( "module:fancy-layout" ) )
@@ -147,7 +147,7 @@ class FilterByContentResourceTest
             .build();
 
         final PartDescriptor layoutDescriptor =
-            PartDescriptor.create().displayName( "Fancy part" ).config( form ).key( DescriptorKey.from( "module:fancy-part" ) ).build();
+            PartDescriptor.create().title( "Fancy part" ).config( form ).key( DescriptorKey.from( "module:fancy-part" ) ).build();
 
         when( filterByContentResolver.parts( ContentId.from( "test" ) ) ).thenReturn( Stream.of( layoutDescriptor ) );
         String jsonString =
@@ -164,7 +164,7 @@ class FilterByContentResourceTest
             .addFormItem( Input.create().name( "columns" ).label( "columns" ).inputType( InputTypeName.DOUBLE ).build() ).build();
 
         final PageDescriptor layoutDescriptor = PageDescriptor.create()
-            .displayName( "Fancy page" )
+            .title( "Fancy page" )
             .config( form )
             .regions( RegionDescriptors.create().build() )
             .key( DescriptorKey.from( "module:fancy-page" ) )

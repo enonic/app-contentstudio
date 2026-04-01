@@ -1,4 +1,5 @@
-displayName:
+kind: "AdminExtension"
+title:
   text: "Automatic"
   i18n: "widget.liveview.automatic.name"
 description:

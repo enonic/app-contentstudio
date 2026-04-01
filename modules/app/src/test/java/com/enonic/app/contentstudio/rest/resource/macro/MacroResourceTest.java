@@ -165,7 +165,7 @@ public class MacroResourceTest
         final MacroDescriptor macroDescriptor = MacroDescriptor.create().
             key( MacroKey.from( "test:uppercase" ) ).
             description( "Uppercase macro" ).
-            displayName( "Uppercase macro" ).
+            title( "Uppercase macro" ).
             form( form ).
             build();
 
@@ -208,7 +208,7 @@ public class MacroResourceTest
         final MacroDescriptor macroDescriptor = MacroDescriptor.create().
             key( MacroKey.from( "test:uppercase" ) ).
             description( "Uppercase macro" ).
-            displayName( "Uppercase macro" ).
+            title( "Uppercase macro" ).
             form( form ).
             build();
 
@@ -226,8 +226,8 @@ public class MacroResourceTest
         final MacroDescriptor macroDescriptor = MacroDescriptor.create().
             key( MacroKey.from( key ) ).
             description( "my description" ).
-            displayName( name ).
-            displayNameI18nKey( nameI18nKey ).
+            title( name ).
+            titleI18nKey( nameI18nKey ).
             form( config ).
             build();
 
@@ -243,8 +243,8 @@ public class MacroResourceTest
             key( MacroKey.from( key ) ).
             description( "my description" ).
             descriptionI18nKey( descriptionI18nKey ).
-            displayName( name ).
-            displayNameI18nKey( nameI18nKey ).
+            title( name ).
+            titleI18nKey( nameI18nKey ).
             form( config ).
             build();
 

@@ -92,9 +92,9 @@ public final class ComponentDisplayNameResolverImpl
 
     private String doGenerateDisplayName( final ComponentDescriptor componentDescriptor, final String defaultName )
     {
-        if ( componentDescriptor != null && componentDescriptor.getDisplayName() != null )
+        if ( componentDescriptor != null && componentDescriptor.getTitle() != null )
         {
-            return componentDescriptor.getDisplayName();
+            return componentDescriptor.getTitle();
         }
 
         return defaultName;
