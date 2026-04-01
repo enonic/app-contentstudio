@@ -2,16 +2,20 @@ import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryA
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {RestoreInheritRequest} from '../../resource/RestoreInheritRequest';
-import {type ContentWizardPanel} from '../ContentWizardPanel';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentInheritType} from '../../content/ContentInheritType';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {DialogPresetConfirmElement} from '../../../v6/features/shared/dialogs/DialogPreset';
+import {$wizardContentSummary} from '../../../v6/features/store/wizardSave.store';
+
+export interface ResetUIBridge {
+    setEnabled(value: boolean): void;
+}
 
 export class ResetContentAction
     extends Action {
 
-    constructor(wizardPanel: ContentWizardPanel) {
+    constructor(uiBridge: ResetUIBridge) {
         super(i18n('action.reset'));
 
         this.onExecuted(() => {
@@ -21,7 +25,7 @@ export class ResetContentAction
                 description: i18n('dialog.confirm.resetInheritance'),
                 onConfirm: () => {
                     dialog.close();
-                    this.restoreContentInheritance(wizardPanel);
+                    this.restoreContentInheritance(uiBridge);
                 },
                 onCancel: () => dialog.close()
             });
@@ -29,14 +33,19 @@ export class ResetContentAction
         });
     }
 
-    private restoreContentInheritance(wizardPanel: ContentWizardPanel) {
+    private restoreContentInheritance(uiBridge: ResetUIBridge) {
+        const contentSummary = $wizardContentSummary.get();
+        if (!contentSummary) {
+            return;
+        }
+
         new RestoreInheritRequest()
-            .setContentId(wizardPanel.getContent().getContentId())
-            .setInherit(this.getInheritTypesToRestore(wizardPanel.getContent()))
+            .setContentId(contentSummary.getContentId())
+            .setInherit(this.getInheritTypesToRestore(contentSummary))
             .sendAndParse()
             .then(() => {
                 showFeedback(i18n('notify.content.reset'));
-                wizardPanel.setEnabled(false);
+                uiBridge.setEnabled(false);
             })
             .catch(DefaultErrorHandler.handle);
     }

@@ -5,25 +5,36 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {type ContentId} from '../../content/ContentId';
 import {ProjectContext} from '../../project/ProjectContext';
 import {LocalizeContentsRequest} from '../../resource/LocalizeContentsRequest';
-import {type ContentWizardPanel} from '../ContentWizardPanel';
+import {$wizardContentSummary} from '../../../v6/features/store/wizardSave.store';
+
+export interface LocalizeUIBridge {
+    setEnabled(value: boolean): void;
+    unLockPage(): void;
+    renderAndOpenTranslatorDialog(): void;
+}
 
 export class LocalizeContentAction
     extends Action {
 
-    constructor(wizardPanel: ContentWizardPanel) {
+    constructor(uiBridge: LocalizeUIBridge) {
         super(i18n('action.translate'));
 
         this.onExecuted(() => {
-            const contentId: ContentId = wizardPanel.getContent().getContentId();
+            const contentSummary = $wizardContentSummary.get();
+            if (!contentSummary) {
+                return;
+            }
+
+            const contentId: ContentId = contentSummary.getContentId();
             const language: string = ProjectContext.get().getProject().getLanguage();
 
             this.setEnabled(false);
 
             new LocalizeContentsRequest([contentId], language).sendAndParse().then(() => {
                 NotifyManager.get().showFeedback(i18n('notify.content.localized'));
-                wizardPanel.setEnabled(true);
-                wizardPanel.unLockPage();
-                wizardPanel.renderAndOpenTranslatorDialog();
+                uiBridge.setEnabled(true);
+                uiBridge.unLockPage();
+                uiBridge.renderAndOpenTranslatorDialog();
             }).catch(DefaultErrorHandler.handle);
         });
     }

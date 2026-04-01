@@ -9,7 +9,6 @@ import {UpdatePageRequest} from '../resource/UpdatePageRequest';
 import {UpdateWorkflowRequest} from '../resource/UpdateWorkflowRequest';
 import {ContentDiffHelper} from '../util/ContentDiffHelper';
 import {$wizardDraftWorkflowState} from '../../v6/features/store/wizardContent.store';
-import {type ContentWizardPanel} from './ContentWizardPanel';
 import {CreatePageRequest} from './CreatePageRequest';
 import {DeletePageRequest} from './DeletePageRequest';
 import {Flow, RoutineContext} from './Flow';
@@ -23,8 +22,8 @@ export class UpdatePersistedContentRoutine
 
     private requireValid: boolean;
 
-    constructor(thisOfProducer: ContentWizardPanel, persistedContent: Content, viewedContent: Content) {
-        super(thisOfProducer);
+    constructor(persistedContent: Content, viewedContent: Content) {
+        super();
         this.persistedContent = persistedContent;
         this.viewedContent = viewedContent;
     }

@@ -1,5 +1,4 @@
 import Q from 'q';
-import {type ContentWizardPanel} from './ContentWizardPanel';
 import {type CreateContentRequest} from '../resource/CreateContentRequest';
 import {Flow, RoutineContext} from './Flow';
 import {type Content} from '../content/Content';
@@ -10,10 +9,6 @@ export class PersistNewContentRoutine
     private createContentRequestProducer: () => Q.Promise<CreateContentRequest | null>;
 
     private doneHandledContent: boolean = false;
-
-    constructor(thisOfProducer: ContentWizardPanel) {
-        super(thisOfProducer);
-    }
 
     public setCreateContentRequestProducer(producer: () => Q.Promise<CreateContentRequest | null>): PersistNewContentRoutine {
         this.createContentRequestProducer = producer;
@@ -45,7 +40,7 @@ export class PersistNewContentRoutine
 
         if (this.createContentRequestProducer != null) {
 
-            return this.createContentRequestProducer.call(this.getThisOfProducer()).then((createContentRequest: CreateContentRequest) => {
+            return this.createContentRequestProducer().then((createContentRequest: CreateContentRequest) => {
 
                 return createContentRequest.sendAndParse().then((content: Content): void => {
 

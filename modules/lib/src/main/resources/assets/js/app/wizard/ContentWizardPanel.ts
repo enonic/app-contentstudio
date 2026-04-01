@@ -67,6 +67,14 @@ import {
     setPersistedContent as setWizardPersistedContent,
 } from '../../v6/features/store/wizardContent.store';
 import {escalateVisibility, initializeValidation, setServerValidationErrors} from '../../v6/features/store/wizardValidation.store';
+import {
+    setSavePersistedContent,
+    setWizardCompareStatus,
+    setWizardContentExistsInParentProject,
+    setWizardIsNew,
+    setWizardPublishStatus,
+    setWizardRequireValid,
+} from '../../v6/features/store/wizardSave.store';
 import {setWizardToolbarIsPathAvailable} from '../../v6/features/store/wizardToolbar.store';
 import {type PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
 import {ContentWizardTabsToolbarElement} from '../../v6/features/views/wizard/content-wizard-tabs/ContentWizardTabsToolbarElement';
@@ -598,6 +606,12 @@ export class ContentWizardPanel
                 this.persistedPublishStatus = loader.publishStatus;
                 this.currentCompareStatus = loader.compareStatus;
                 this.currentPublishStatus = loader.publishStatus;
+
+                setSavePersistedContent(loader.content ?? null);
+                setWizardCompareStatus(loader.compareStatus ?? null);
+                setWizardPublishStatus(loader.publishStatus ?? null);
+                setWizardContentExistsInParentProject(!!loader.contentExistsInParentProject);
+                setWizardIsNew(this.formState.isNew());
 
                 this.wizardHeader.setPlaceholder(this.contentType?.getDisplayNamePlaceholder());
                 this.wizardHeader.setPersistedPath(this.isItemPersisted() ? this.getPersistedItem() : null);
@@ -1555,7 +1569,9 @@ export class ContentWizardPanel
             });
 
             if (currentItem) {
-                this.wizardActions.setContent(currentItem).refreshState();
+                setWizardCompareStatus(currentItem.getCompareStatus() ?? null);
+                setWizardPublishStatus(currentItem.getPublishStatus() ?? null);
+                this.wizardActions.refreshState();
                 this.contextView.setItem(currentItem);
             }
         };
@@ -1655,6 +1671,7 @@ export class ContentWizardPanel
                     .sendAndParse()
                     .then((result: ContentsExistResult) => {
                         this.contentExistsInParentProject = !!result.getContentsExistMap().get(thisContentIdAsString);
+                        setWizardContentExistsInParentProject(this.contentExistsInParentProject);
 
                         if (!this.contentExistsInParentProject) {
                             this.wizardActions.refreshState();
@@ -1720,6 +1737,8 @@ export class ContentWizardPanel
     private updateWithContentSummary(updatedContent: ContentSummaryAndCompareStatus) {
         this.currentCompareStatus = updatedContent.getCompareStatus();
         this.currentPublishStatus = updatedContent.getPublishStatus();
+        setWizardCompareStatus(this.currentCompareStatus ?? null);
+        setWizardPublishStatus(this.currentPublishStatus ?? null);
         this.setPersistedContent(updatedContent);
         this.getContentWizardToolbar().setItem(updatedContent);
         this.getWidgetToolbar().setItem(updatedContent);
@@ -2166,9 +2185,11 @@ export class ContentWizardPanel
     }
 
     persistNewItem(): Q.Promise<Content> {
-        return new PersistNewContentRoutine(this).setCreateContentRequestProducer(this.produceCreateContentRequest).execute().then(
+        return new PersistNewContentRoutine().setCreateContentRequestProducer(() => this.produceCreateContentRequest()).execute().then(
             (context: RoutineContext) => {
                 showFeedback(i18n('notify.content.created'));
+                setSavePersistedContent(context.content);
+                setWizardIsNew(false);
                 return context.content;
             });
     }
@@ -2193,9 +2214,8 @@ export class ContentWizardPanel
         const isInherited: boolean = persistedContent.isDataInherited();
         const hasStoreChanges = $wizardHasChanges.get();
         const updateContentRoutine = hasStoreChanges
-            ? new UpdatePersistedContentWithStoreRoutine(this, persistedContent)
+            ? new UpdatePersistedContentWithStoreRoutine(persistedContent)
             : new UpdatePersistedContentRoutine(
-                this,
                 persistedContent,
                 this.assembleViewedContent(persistedContent.newBuilder(), true, this.isRename).build(),
             );
@@ -2205,6 +2225,7 @@ export class ContentWizardPanel
         return updateContentRoutine.execute().then((context: RoutineContext) => {
             const content: Content = context.content;
             this.wizardFormUpdatedDuringSave = context.dataUpdated;
+            setSavePersistedContent(content);
 
             if (persistedContent.getName().isUnnamed() && !content.getName().isUnnamed()) {
                 this.notifyContentNamed(content);
@@ -2277,13 +2298,11 @@ export class ContentWizardPanel
             return false;
         }
 
-        const persistedContent: Content = this.getPersistedItem();
-
-        if (persistedContent == null) {
+        if (this.getPersistedItem() == null) {
             return true;
         }
 
-        return this.hasContentChanged() || $wizardHasChanges.get();
+        return $wizardHasChanges.get();
     }
 
     private enableDisplayNameScriptExecution(formView: FormView) {
@@ -2381,6 +2400,7 @@ export class ContentWizardPanel
 
     setRequireValid(requireValid: boolean) {
         this.requireValid = requireValid;
+        setWizardRequireValid(requireValid);
     }
 
     setMarkedAsReady(value: boolean) {
@@ -2405,13 +2425,6 @@ export class ContentWizardPanel
 
     private isLiveView(): boolean {
         return this.splitPanel && this.splitPanel.hasClass('toggle-live');
-    }
-
-    hasContentChanged(): boolean {
-        const contentBuilder: ContentBuilder = this.getPersistedItem().newBuilderWithoutProperties();
-        const viewedContent = this.assembleViewedContent(contentBuilder).build();
-
-        return !viewedContent.equals(this.contentAfterLayout);
     }
 
     assembleViewedContent(viewedContentBuilder: ContentBuilder, cleanFormRedundantData: boolean = false,
@@ -2610,8 +2623,10 @@ export class ContentWizardPanel
                     this.currentCompareStatus = CompareStatus.NEWER;
                 }
             }
+            setWizardCompareStatus(this.currentCompareStatus ?? null);
+            setWizardPublishStatus(this.currentPublishStatus ?? null);
             this.getContentWizardToolbar().setItem(this.getContent());
-            this.wizardActions.setContent(this.getContent()).refreshState();
+            this.wizardActions.refreshState();
         }
     }
 

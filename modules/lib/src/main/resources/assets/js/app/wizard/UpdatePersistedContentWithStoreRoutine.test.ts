@@ -15,7 +15,6 @@ import {
     resetWizardContent,
     setDraftStringByPath,
 } from '../../v6/features/store/wizardContent.store';
-import {type ContentWizardPanel} from './ContentWizardPanel';
 import {UpdatePersistedContentWithStoreRoutine} from './UpdatePersistedContentWithStoreRoutine';
 
 function createContent(data: PropertyTree): Content {
@@ -42,7 +41,7 @@ function addSiteConfig(data: PropertyTree, applicationKey: string, config: Recor
 }
 
 function buildViewedContentFromStore(content: Content): Content {
-    const routine = new UpdatePersistedContentWithStoreRoutine({} as ContentWizardPanel, content);
+    const routine = new UpdatePersistedContentWithStoreRoutine(content);
     return (routine as unknown as {buildViewedContentFromStore: () => Content}).buildViewedContentFromStore();
 }
 
