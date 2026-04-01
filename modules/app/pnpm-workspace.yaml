@@ -12,3 +12,4 @@ minimumReleaseAge: 1440
 
 minimumReleaseAgeExclude:
   - '@enonic/ui'
+  - '@enonic/page-editor'

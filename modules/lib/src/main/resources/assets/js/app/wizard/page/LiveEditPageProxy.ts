@@ -130,7 +130,7 @@ export class LiveEditPageProxy
     private createLiveEditIFrame(): IFrameEl {
         const liveEditIFrame = new IFrameEl('live-edit-frame');
 
-        IframeEventBus.get().setId('studio-bus');
+        IframeEventBus.get().setId('wizard-bus');
 
         // Register events coming from iframe here to be able to revive them in CS
         IframeEventBus.get().registerClass('IframeEvent', IframeEvent);

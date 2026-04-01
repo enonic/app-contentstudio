@@ -6,7 +6,6 @@ import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
 import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {type Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {listenKeys} from 'nanostores';
 import Q from 'q';
 import {PreviewLabelElement} from '../../v6/features/shared/PreviewLabel';
@@ -18,7 +17,6 @@ import {PreviewActionHelper} from '../action/PreviewActionHelper';
 import {type ContentSummary} from '../content/ContentSummary';
 import {ViewExtensionEvent} from '../event/ViewExtensionEvent';
 import {RenderingMode} from '../rendering/RenderingMode';
-import {ContentPreviewPathChangedEvent} from './ContentPreviewPathChangedEvent';
 import {EmulatorDevice} from './context/extension/emulator/EmulatorDevice';
 
 export enum PREVIEW_TYPE {
@@ -370,47 +368,12 @@ export class ExtensionRenderingHandler {
                     this.applyImageStyles(frameWindow);
                     break;
                 case 'text':
-                    try {
-                        frameWindow.addEventListener('click', (event) => this.frameClickHandler(frameWindow, event));
-                } catch (error) { /* error */ }
                     break;
                 default:
                     break;
             }
         });
         iframe.unLoaded(() => unsubscribeTheme?.());
-    }
-
-    private frameClickHandler(frameWindow: Window, event: MouseEvent) {
-        const clickedLink: string = this.getClickedLink(event);
-        if (clickedLink) {
-            if (!!frameWindow && !UriHelper.isNavigatingOutsideOfXP(clickedLink, frameWindow)) {
-                const contentPreviewPath = UriHelper.trimUrlParams(
-                    UriHelper.trimAnchor(UriHelper.trimWindowProtocolAndPortFromHref(clickedLink,
-                        frameWindow)));
-                if (!UriHelper.isNavigatingWithinSamePage(contentPreviewPath, frameWindow) &&
-                    !UriHelper.isDownloadLink(contentPreviewPath)) {
-                    new ContentPreviewPathChangedEvent(contentPreviewPath).fire();
-                }
-            }
-        }
-    }
-
-    private getClickedLink(event: UIEvent): string {
-        if (event.target && (event.target as HTMLElement).tagName.toLowerCase() === 'a') {
-            return (event.target as HTMLLinkElement).href;
-        }
-
-        let el = event.target as HTMLElement;
-        if (el) {
-            while (el.parentNode) {
-                el = el.parentNode as HTMLElement;
-                if (el.tagName && el.tagName.toLowerCase() === 'a') {
-                    return (el as HTMLLinkElement).href;
-                }
-            }
-        }
-        return '';
     }
 
     public showMask() {
