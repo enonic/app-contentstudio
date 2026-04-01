@@ -26,6 +26,11 @@ export const ContentForm = (): ReactElement | null => {
         [contextContent],
     );
 
+    const applicationKey = useMemo(
+        () => contentType?.getContentTypeName().getApplicationKey(),
+        [contentType],
+    );
+
     const assetsUri = CONFIG.getString('assetsUri');
 
     if (!contentType || !draftData) {
@@ -46,6 +51,7 @@ export const ContentForm = (): ReactElement | null => {
                         <FormRenderer
                             form={contentType.getForm()}
                             propertySet={draftData.getRoot()}
+                            applicationKey={applicationKey}
                         />
                     </HtmlAreaProvider>
                 </RawValueProvider>
