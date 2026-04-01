@@ -44,6 +44,11 @@ export const MixinView = ({mixinName, displayName}: MixinViewProps): ReactElemen
 
     const form = useMemo(() => descriptor?.toForm(), [descriptor]);
 
+    const applicationKey = useMemo(
+        () => descriptor?.getMixinName().getApplicationKey(),
+        [descriptor],
+    );
+
     if (!form || form.getFormItems().length === 0 || !mixinData) {
         return <p className="text-subtle">{displayName} configuration</p>;
     }
@@ -60,6 +65,7 @@ export const MixinView = ({mixinName, displayName}: MixinViewProps): ReactElemen
                     <FormRenderer
                         form={form}
                         propertySet={mixinData.getRoot()}
+                        applicationKey={applicationKey}
                     />
                 </HtmlAreaProvider>
             </RawValueProvider>
