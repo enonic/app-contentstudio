@@ -26,10 +26,12 @@ export const ProgressDialogContent = ({
                 'w-full h-full gap-7.5 sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220',
                 className,
             )}
+            onEscapeKeyDown={(e) => e.preventDefault()}
+            onPointerDownOutside={(e) => e.preventDefault()}
             {...props}
             data-component={componentName}
         >
-            <Dialog.DefaultHeader title={title} description={description} withClose />
+            <Dialog.DefaultHeader title={title} description={description} />
             <Dialog.Body className='flex flex-col pb-10'>
                 <ProgressBar value={progress} />
             </Dialog.Body>
