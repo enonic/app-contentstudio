@@ -599,7 +599,7 @@ export class ContentWizardPanel
                 this.currentCompareStatus = loader.compareStatus;
                 this.currentPublishStatus = loader.publishStatus;
 
-                this.wizardHeader.setPlaceholder(this.contentType?.getDisplayNameLabel());
+                this.wizardHeader.setPlaceholder(this.contentType?.getDisplayNamePlaceholder());
                 this.wizardHeader.setPersistedPath(this.isItemPersisted() ? this.getPersistedItem() : null);
 
                 AI.get().setContentType(this.contentType);
@@ -1444,7 +1444,7 @@ export class ContentWizardPanel
 
         const steps: ContentWizardStep[] =
             [this.dataWizardStep =
-                new ContentWizardStep(this.contentType?.getDisplayName() || this.getCurrentItem().getType().getLocalName(),this.contentWizardStepForm)];
+                new ContentWizardStep(this.contentType?.getTitle() || this.getCurrentItem().getType().getLocalName(),this.contentWizardStepForm)];
 
         if (this.isPageComponentsViewRequired()) {
             steps.push(this.initPageComponentsWizardStep());
@@ -2871,7 +2871,7 @@ export class ContentWizardPanel
         }
 
         if (this.contentType?.isPageTemplate()) {
-            return this.contentType.getDisplayName();
+            return this.contentType.getTitle();
         }
 
         return i18n('field.page');

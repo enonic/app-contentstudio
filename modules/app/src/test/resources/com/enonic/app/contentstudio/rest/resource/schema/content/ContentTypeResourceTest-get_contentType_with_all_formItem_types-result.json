@@ -4,7 +4,6 @@
   "allowChildContentType" : [ ],
   "createdTime": "2013-01-01T12:00:00Z",
   "deletable": false,
-  "displayName": "my_cty",
   "editable": false,
   "final": true,
   "form": {
@@ -145,5 +144,6 @@
   },
   "iconUrl": "/admin/rest-v2/cs/schema/content/icon/myapplication:my_cty?hash=f95b70fdc3088560732a5ac135644506",
   "name": "myapplication:my_cty",
-  "superType": "base:unstructured"
+  "superType": "base:unstructured",
+  "title": "my_cty"
 }

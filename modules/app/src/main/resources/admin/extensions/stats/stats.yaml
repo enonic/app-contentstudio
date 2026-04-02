@@ -1,4 +1,5 @@
-displayName: "Content Studio"
+kind: "AdminExtension"
+title: "Content Studio"
 interfaces:
   - "admin.dashboard"
 config:

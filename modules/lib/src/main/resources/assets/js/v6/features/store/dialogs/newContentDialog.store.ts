@@ -99,10 +99,10 @@ listenKeys($newContentDialog, ['inputValue'], ({inputValue, baseContentTypes, su
     }
 
     const filteredBaseContentTypes = baseContentTypes.filter((contentType) =>
-        contentType.getDisplayName().toLowerCase().includes(inputValue.toLowerCase())
+        contentType.getTitle().toLowerCase().includes(inputValue.toLowerCase())
     );
     const filteredSuggestedContentTypes = suggestedContentTypes.filter((contentType) =>
-        contentType.getDisplayName().toLowerCase().includes(inputValue.toLowerCase())
+        contentType.getTitle().toLowerCase().includes(inputValue.toLowerCase())
     );
 
     $newContentDialog.setKey('filteredBaseContentTypes', filteredBaseContentTypes);
@@ -198,7 +198,7 @@ export async function uploadDragImages({dataTransfer, parentContent}: UploadOpti
 function getBaseContentTypes(contentTypes: ContentTypeSummary[]): ContentTypeSummary[] {
     return contentTypes
         .filter((contentType) => !contentType.getContentTypeName().isDescendantOfMedia())
-        .sort((a, b) => a.getDisplayName().localeCompare(b.getDisplayName()));
+        .sort((a, b) => a.getTitle().localeCompare(b.getTitle()));
 }
 
 function getSuggestedContentTypes(contentTypes: ContentTypeSummary[], aggregations: AggregateContentTypesResult): ContentTypeSummary[] {

@@ -139,7 +139,7 @@ export class AggregationsDisplayNamesResolver {
             this.contentTypes = new Map<string, string>();
 
             items.forEach((item: ContentTypeSummary) => {
-                this.contentTypes.set(item.getName().toLowerCase(), item.getDisplayName());
+                this.contentTypes.set(item.getName().toLowerCase(), item.getTitle());
             });
 
             return this.updateContentTypeAggregation(aggregation);

@@ -1,4 +1,5 @@
-displayName:
+kind: "AdminExtension"
+title:
   text: "Settings"
   i18n: "admin.tool.settings.displayName"
 description:

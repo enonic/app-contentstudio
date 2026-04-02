@@ -78,7 +78,7 @@ public class LayoutDescriptorResourceTest
             build();
 
         final LayoutDescriptor layoutDescriptor = LayoutDescriptor.create().
-            displayName( "Fancy layout" ).
+            title( "Fancy layout" ).
             description( "description" ).
             config( layoutForm ).
             regions( RegionDescriptors.create().
@@ -113,8 +113,8 @@ public class LayoutDescriptorResourceTest
             build();
 
         final LayoutDescriptor layoutDescriptor = LayoutDescriptor.create().
-            displayName( "Fancy layout" ).
-            displayNameI18nKey( "key.display-name" ).
+            title( "Fancy layout" ).
+            titleI18nKey( "key.display-name" ).
             description( "description" ).
             descriptionI18nKey( "key.description" ).
             config( layoutForm ).
@@ -151,7 +151,7 @@ public class LayoutDescriptorResourceTest
             build();
 
         final LayoutDescriptor layoutDescriptor1 = LayoutDescriptor.create().
-            displayName( "Fancy layout" ).
+            title( "Fancy layout" ).
             description( "description 1" ).
             config( layoutForm ).
             regions( RegionDescriptors.create().
@@ -162,7 +162,7 @@ public class LayoutDescriptorResourceTest
             build();
 
         final LayoutDescriptor layoutDescriptor2 = LayoutDescriptor.create()
-            .displayName( "Putty layout" )
+            .title( "Putty layout" )
             .description( "description 2" )
             .config( layoutForm )
             .regions( RegionDescriptors.create()

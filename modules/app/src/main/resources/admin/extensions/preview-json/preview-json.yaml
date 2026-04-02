@@ -1,4 +1,5 @@
-displayName:
+kind: "AdminExtension"
+title:
   text: "JSON"
   i18n: "widget.liveview.json.name"
 description:

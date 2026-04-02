@@ -107,7 +107,7 @@ public class ContentTypeResourceTest
             name( MY_CTY_QUALIFIED_NAME ).
             createdTime( SOME_DATE ).
             superType( ContentTypeName.unstructured() ).
-            displayName( "My ContentType" ).
+            title( "My ContentType" ).
             description( "My description" ).
             icon( Icon.from( new byte[]{123}, "image/gif", SOME_DATE ) ).
             addFormItem( Input.create().
@@ -140,7 +140,7 @@ public class ContentTypeResourceTest
             name( MY_CTY_QUALIFIED_NAME ).
             createdTime( SOME_DATE ).
             superType( ContentTypeName.unstructured() ).
-            displayName( "My ContentType" ).
+            title( "My ContentType" ).
             description( "My description" ).
             icon( Icon.from( new byte[]{123}, "image/gif", SOME_DATE ) ).
             addFormItem( FieldSet.create().
@@ -185,7 +185,7 @@ public class ContentTypeResourceTest
             name( MY_CTY_QUALIFIED_NAME ).
             createdTime( SOME_DATE ).
             superType( ContentTypeName.unstructured() ).
-            displayName( "My ContentType" ).
+            title( "My ContentType" ).
             description( "My description" ).
             icon( Icon.from( new byte[]{123}, "image/gif", SOME_DATE ) ).
             addFormItem( FormItemSet.create().
@@ -231,7 +231,7 @@ public class ContentTypeResourceTest
             name( MY_CTY_QUALIFIED_NAME ).
             createdTime( SOME_DATE ).
             superType( ContentTypeName.unstructured() ).
-            displayName( "My ContentType" ).
+            title( "My ContentType" ).
             description( "My description" ).
             icon( Icon.from( new byte[]{123}, "image/gif", SOME_DATE ) ).
             addFormItem( FormOptionSet.create().
@@ -286,16 +286,12 @@ public class ContentTypeResourceTest
             name( MY_CTY_QUALIFIED_NAME ).
             createdTime( SOME_DATE ).
             superType( ContentTypeName.unstructured() ).
-            displayName( "My ContentType" ).
-            displayNameI18nKey( "key.display-name" ).
+            title( "My ContentType" ).
+            titleI18nKey( "key.display-name" ).
             description( "My description" ).
             descriptionI18nKey( "key.description" ).
-            schemaConfig( GenericValue.newObject().
-                put( "displayNamePlaceholder",
-                     GenericValue.newObject().
-                         put( "text", "My Display Name Label" ).
-                         put( "i18n", "key.displayNameLabel" ).build()
-                ).build() ).
+            displayNamePlaceholder( "My Display Name Label" ).
+            displayNamePlaceholderI18nKey( "key.displayNameLabel" ).
             icon( Icon.from( new byte[]{123}, "image/gif", SOME_DATE ) ).
             addFormItem( Input.create().
                 name( "myTextLine" ).
@@ -468,7 +464,7 @@ public class ContentTypeResourceTest
 
         final ContentType contentType = ContentType.create().
             name( "myapplication:my_content_type" ).
-            displayName( "My content type" ).superType( ContentTypeName.from( "myapplication:unstructured" ) ).icon( schemaIcon ).build();
+            title( "My content type" ).superType( ContentTypeName.from( "myapplication:unstructured" ) ).icon( schemaIcon ).build();
         setupContentType( contentType );
 
         // exercise
@@ -494,7 +490,7 @@ public class ContentTypeResourceTest
 
         final ContentType contentType = ContentType.create().
             name( "myapplication:icon_svg_test" ).
-            displayName( "My content type" ).
+            title( "My content type" ).
             superType( ContentTypeName.from( "myapplication:unstructured" ) ).
             icon( schemaIcon ).
             build();
@@ -523,13 +519,13 @@ public class ContentTypeResourceTest
         final ContentType systemContentType = ContentType.create().
             superType( ContentTypeName.structured() ).
             name( "myapplication:unstructured" ).
-            displayName( "Unstructured" ).
+            title( "Unstructured" ).
             icon( schemaIcon ).
             build();
         setupContentType( systemContentType );
 
         final ContentType contentType = ContentType.create().
-            name( "myapplication:my_content_type" ).displayName( "My content type" ).superType( systemContentType.getName() ).build();
+            name( "myapplication:my_content_type" ).title( "My content type" ).superType( systemContentType.getName() ).build();
         setupContentType( contentType );
 
         // exercise

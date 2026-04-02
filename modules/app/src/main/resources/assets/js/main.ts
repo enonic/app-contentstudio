@@ -236,7 +236,7 @@ function preLoadApplication() {
             } else {
                 new GetContentTypeByNameRequest(wizardParams.contentTypeName).sendAndParse().then(
                     (contentType) => {
-                        updateTabTitle(NamePrettyfier.prettifyUnnamed(contentType.getDisplayName()));
+                        updateTabTitle(NamePrettyfier.prettifyUnnamed(contentType.getTitle()));
                     });
             }
         }
@@ -426,7 +426,7 @@ async function startContentWizard() {
 
         }
         if (!dataPreloaded) {
-            updateTabTitle(content.getDisplayName() || NamePrettyfier.prettifyUnnamed(contentType.getDisplayName()));
+            updateTabTitle(content.getDisplayName() || NamePrettyfier.prettifyUnnamed(contentType.getTitle()));
         }
     });
     wizard.onWizardHeaderCreated(() => {
@@ -434,7 +434,7 @@ async function startContentWizard() {
         wizard.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
             if (event.getPropertyName() === 'displayName') {
                 let contentType = wizard.getContentType();
-                let name = event.getNewValue() as string || NamePrettyfier.prettifyUnnamed(contentType.getDisplayName());
+                let name = event.getNewValue() as string || NamePrettyfier.prettifyUnnamed(contentType.getTitle());
 
                 updateTabTitle(name);
             }

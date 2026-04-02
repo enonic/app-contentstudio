@@ -345,7 +345,7 @@ export class AI {
     private createContentSchema(): ContentSchema | undefined {
         return this.contentType && {
             form: this.contentType.getForm().toJson(),
-            name: this.contentType.getDisplayName(),
+            name: this.contentType.getTitle(),
         };
     }
 

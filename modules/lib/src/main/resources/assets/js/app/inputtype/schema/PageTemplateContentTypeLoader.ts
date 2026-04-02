@@ -26,7 +26,7 @@ export class PageTemplateContentTypeLoader
     filterFn(contentType: ContentTypeSummary) {
         const searchString = this.getSearchString().toLowerCase();
         return contentType.getContentTypeName().toString().indexOf(searchString) !== -1 ||
-               contentType.getDisplayName().toString().toLowerCase().indexOf(searchString) !== -1;
+               contentType.getTitle().toString().toLowerCase().indexOf(searchString) !== -1;
     }
 
     sendRequest(): Q.Promise<ContentTypeSummary[]> {

@@ -117,7 +117,7 @@ class FilterByContentResolverTest
         final ContentType contentType = ContentType.create()
             .superType( ContentTypeName.structured() )
             .allowChildContent( true )
-            .displayName( "My type" )
+            .title( "My type" )
             .name( "application:test-type" )
             .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
             .build();
@@ -145,7 +145,7 @@ class FilterByContentResolverTest
         final ContentType contentType = ContentType.create()
             .superType( ContentTypeName.structured() )
             .allowChildContent( true )
-            .displayName( "My type" )
+            .title( "My type" )
             .name( "application:test-type" )
             .allowChildContentType( List.of( "${app}:*", "base:folder" ) )
             .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
@@ -171,7 +171,7 @@ class FilterByContentResolverTest
             ContentType.create()
                 .superType( ContentTypeName.structured() )
                 .allowChildContent( false ) // this makes result empty
-                .displayName( "My type" )
+                .title( "My type" )
                 .name( "application:test-type" )
                 .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
                 .build();
@@ -213,7 +213,7 @@ class FilterByContentResolverTest
         final ContentType content = ContentType.create()
             .superType( ContentTypeName.structured() )
             .allowChildContent( true )
-            .displayName( "My type" )
+            .title( "My type" )
             .name( "application:test-type" )
             .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
             .build();
@@ -222,7 +222,7 @@ class FilterByContentResolverTest
             .superType( ContentTypeName.structured() )
             .setAbstract()
             .allowChildContent( true )
-            .displayName( "My type" )
+            .title( "My type" )
             .name( "application:test-type-abstract" )
             .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
             .build();
@@ -254,7 +254,7 @@ class FilterByContentResolverTest
         final ContentType content = ContentType.create()
             .superType( ContentTypeName.structured() )
             .allowChildContent( true )
-            .displayName( "My type" )
+            .title( "My type" )
             .name( "application:test-type" )
             .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
             .build();
@@ -263,7 +263,7 @@ class FilterByContentResolverTest
             .superType( ContentTypeName.structured() )
             .schemaConfig( GenericValue.newObject().put( "allowNewContent", false ).build() )
             .allowChildContent( true )
-            .displayName( "My type" )
+            .title( "My type" )
             .name( "application:test-type-disabled" )
             .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
             .build();
@@ -295,7 +295,7 @@ class FilterByContentResolverTest
         final ContentType content1 = ContentType.create()
             .superType( ContentTypeName.structured() )
             .allowChildContent( true )
-            .displayName( "My type" )
+            .title( "My type" )
             .name( "application1:test-type" )
             .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
             .build();
@@ -303,7 +303,7 @@ class FilterByContentResolverTest
         final ContentType content2 = ContentType.create()
             .superType( ContentTypeName.structured() )
             .allowChildContent( true )
-            .displayName( "My type" )
+            .title( "My type" )
             .name( "application2:test-type" )
             .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
             .build();
@@ -346,7 +346,7 @@ class FilterByContentResolverTest
         final ContentType contentType = ContentType.create()
             .superType( ContentTypeName.structured() )
             .allowChildContent( true )
-            .displayName( "My type" )
+            .title( "My type" )
             .name( "application:test-type" )
             .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
             .build();
@@ -375,7 +375,7 @@ class FilterByContentResolverTest
         when( contentService.getNearestSite( ContentId.from( "test" ) ) ).thenReturn( someSite() );
 
         final LayoutDescriptor disallowedLayout = LayoutDescriptor.create()
-            .displayName( "Disallowed layout" )
+            .title( "Disallowed layout" )
             .schemaConfig( GenericValue.newObject().put( "allowOnContentType", "some.different.app:*" ).build()  )
             .config( Form.create().build() )
             .regions( RegionDescriptors.create().build() )
@@ -383,14 +383,14 @@ class FilterByContentResolverTest
             .build();
 
         final LayoutDescriptor allowedByDefaultLayout = LayoutDescriptor.create()
-            .displayName( "Allowed By Default layout" )
+            .title( "Allowed By Default layout" )
             .config( Form.create().build() )
             .regions( RegionDescriptors.create().build() )
             .key( DescriptorKey.from( "module:allowed-by-default-layout" ) )
             .build();
 
         final LayoutDescriptor allowedLayout = LayoutDescriptor.create()
-            .displayName( "Allowed" )
+            .title( "Allowed" )
             .schemaConfig( GenericValue.newObject().put( "allowOnContentType", "application:test-type" ).build() )
             .config( Form.create().build() )
             .regions( RegionDescriptors.create().build() )
@@ -413,20 +413,20 @@ class FilterByContentResolverTest
         when( contentService.getNearestSite( ContentId.from( "test" ) ) ).thenReturn( someSite() );
 
         final PartDescriptor disallowedPart = PartDescriptor.create()
-            .displayName( "Disallowed" )
+            .title( "Disallowed" )
             .schemaConfig( GenericValue.newObject().put( "allowOnContentType", "some.different.app:*" ).build()  )
             .config( Form.create().build() )
             .key( DescriptorKey.from( "module:disallowed" ) )
             .build();
 
         final PartDescriptor allowedByDefaultLayout = PartDescriptor.create()
-            .displayName( "Allowed By Default layout" )
+            .title( "Allowed By Default layout" )
             .config( Form.create().build() )
             .key( DescriptorKey.from( "module:allowed-by-default" ) )
             .build();
 
         final PartDescriptor allowedLayout = PartDescriptor.create()
-            .displayName( "Allowed" )
+            .title( "Allowed" )
             .schemaConfig( GenericValue.newObject().put( "allowOnContentType", "application:test-type" ).build()  )
             .config( Form.create().build() )
             .key( DescriptorKey.from( "module:allowed" ) )
@@ -448,21 +448,21 @@ class FilterByContentResolverTest
         when( contentService.getNearestSite( ContentId.from( "test" ) ) ).thenReturn( someSite() );
 
         final PageDescriptor disallowedPage = PageDescriptor.create()
-            .displayName( "Disallowed" )
+            .title( "Disallowed" )
             .schemaConfig( GenericValue.newObject().put( "allowOnContentType", "some.different.app:*" ).build() )
             .regions( RegionDescriptors.create().build() )
             .key( DescriptorKey.from( "module:disallowed" ) )
             .build();
 
         final PageDescriptor allowedByDefaultPage = PageDescriptor.create()
-            .displayName( "Allowed By Default" )
+            .title( "Allowed By Default" )
             .config( Form.create().build() )
             .regions( RegionDescriptors.create().build() )
             .key( DescriptorKey.from( "module:allowed-by-default" ) )
             .build();
 
         final PageDescriptor allowedPage = PageDescriptor.create()
-            .displayName( "Allowed" )
+            .title( "Allowed" )
             .schemaConfig( GenericValue.newObject().put( "allowOnContentType", "application:test-type" ).build() )
             .config( Form.create().build() )
             .regions( RegionDescriptors.create().build() )

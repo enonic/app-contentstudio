@@ -392,7 +392,7 @@ public class ContentResourceTest
         when( partDescriptorService.getByKey( DescriptorKey.from( "mainapplication:partTemplateName" ) ) ).thenReturn(
             PartDescriptor.create()
                 .key( DescriptorKey.from( "mainapplication:partTemplateName" ) )
-                .displayName( "my-component" )
+                .title( "my-component" )
                 .config( Form.create().build() )
                 .build() );
 
@@ -522,7 +522,7 @@ public class ContentResourceTest
         when( partDescriptorService.getByKey( DescriptorKey.from( "mainapplication:partTemplateName" ) ) ).thenReturn(
             PartDescriptor.create()
                 .key( DescriptorKey.from( "mainapplication:partTemplateName" ) )
-                .displayName( "my-component" )
+                .title( "my-component" )
                 .config( Form.create().build() )
                 .build() );
 
@@ -2539,7 +2539,7 @@ public class ContentResourceTest
     {
         return ContentType.create()
             .superType( ContentTypeName.structured() )
-            .displayName( "My type" )
+            .title( "My type" )
             .name( name )
             .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
             .build();

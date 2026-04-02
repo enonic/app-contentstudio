@@ -9,9 +9,7 @@ import com.enonic.app.contentstudio.json.ChangeTraceableJson;
 import com.enonic.app.contentstudio.json.ItemJson;
 import com.enonic.app.contentstudio.rest.resource.schema.content.ContentTypeIconUrlResolver;
 import com.enonic.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
-import com.enonic.xp.schema.LocalizedText;
 import com.enonic.xp.schema.content.ContentType;
-import com.enonic.xp.util.GenericValue;
 
 import static com.google.common.base.Strings.nullToEmpty;
 
@@ -38,15 +36,15 @@ public class ContentTypeSummaryJson
         return contentType.getName() != null ? contentType.getName().toString() : null;
     }
 
-    public String getDisplayName()
+    public String getTitle()
     {
-        if ( !nullToEmpty( contentType.getDisplayNameI18nKey() ).isBlank() )
+        if ( !nullToEmpty( contentType.getTitleI18nKey() ).isBlank() )
         {
-            return localeMessageResolver.localizeMessage( contentType.getDisplayNameI18nKey(), contentType.getDisplayName() );
+            return localeMessageResolver.localizeMessage( contentType.getTitleI18nKey(), contentType.getTitle() );
         }
         else
         {
-            return contentType.getDisplayName();
+            return contentType.getTitle();
         }
     }
 
@@ -62,24 +60,16 @@ public class ContentTypeSummaryJson
         }
     }
 
-    public String getDisplayNameLabel()
+    public String getDisplayNamePlaceholder()
     {
-        final GenericValue displayNamePlaceholder = contentType.getSchemaConfig().optional( "displayNamePlaceholder" ).orElse( null );
-
-        if ( displayNamePlaceholder == null )
+        if ( !nullToEmpty( contentType.getDisplayNamePlaceholderI18nKey() ).isBlank() )
         {
-            return null;
-        }
-
-        final LocalizedText localizedText = LocalizedText.from( displayNamePlaceholder );
-
-        if ( localizedText.i18n() != null )
-        {
-            return localeMessageResolver.localizeMessage( localizedText.i18n(), localizedText.text() );
+            return localeMessageResolver.localizeMessage( contentType.getDisplayNamePlaceholderI18nKey(),
+                                                          contentType.getDisplayNamePlaceholder() );
         }
         else
         {
-            return localizedText.text();
+            return contentType.getDisplayNamePlaceholder();
         }
     }
 
@@ -102,7 +92,7 @@ public class ContentTypeSummaryJson
 
     public String getDisplayNameExpression()
     {
-        return contentType.getSchemaConfig().optional( "displayNameExpression" ).map( GenericValue::asString ).orElse( null );
+        return contentType.getDisplayNameExpression();
     }
 
     public String getSuperType()
