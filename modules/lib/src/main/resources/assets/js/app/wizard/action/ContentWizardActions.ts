@@ -1,8 +1,6 @@
-import {type AccessControlList} from '../../access/AccessControlList';
 import {type Content} from '../../content/Content';
 import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {Permission} from '../../access/Permission';
-import {CloseAction} from '@enonic/lib-admin-ui/app/wizard/CloseAction';
 import {WizardActions} from '@enonic/lib-admin-ui/app/wizard/WizardActions';
 import {type ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
 import {ManagedActionManager} from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
@@ -11,12 +9,10 @@ import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {type ActionsMap, type ActionsState, ActionsStateManager} from '@enonic/lib-admin-ui/ui/ActionsStateManager';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
-import {GetContentByPathRequest} from '../../resource/GetContentByPathRequest';
-import {GetContentPermissionsByIdRequest} from '../../resource/GetContentPermissionsByIdRequest';
-import {GetContentRootPermissionsRequest} from '../../resource/GetContentRootPermissionsRequest';
-import {type ContentWizardPanel} from '../ContentWizardPanel';
+import {fetchContentByPath, fetchContentPermissions, fetchRootPermissions} from '../../../v6/features/api/content';
 import {AccessControlHelper} from '../AccessControlHelper';
 import {ArchiveContentAction} from './ArchiveContentAction';
+import {ContentCloseAction} from './ContentCloseAction';
 import {ContentSaveAction} from './ContentSaveAction';
 import {CreateIssueAction} from './CreateIssueAction';
 import {DuplicateContentAction} from './DuplicateContentAction';
@@ -78,9 +74,9 @@ export class ContentWizardActions
 
     private storeUnsubscribers: (() => void)[] = [];
 
-    constructor(wizardPanel: ContentWizardPanel) {
-        const contentSaveAction = new ContentSaveAction(wizardPanel);
-        const resetContentAction = new ResetContentAction(wizardPanel);
+    constructor() {
+        const contentSaveAction = new ContentSaveAction();
+        const resetContentAction = new ResetContentAction();
         const archiveContentAction = new ArchiveContentAction();
         const duplicateContentAction = new DuplicateContentAction();
         const moveContentAction = new MoveContentAction();
@@ -92,11 +88,11 @@ export class ContentWizardActions
         const markAsReadyAction = new MarkAsReadyAction();
         const requestPublishAction = new RequestPublishAction();
         const openRequestAction = new OpenRequestAction();
-        const closeAction = new CloseAction(wizardPanel);
-        const showLiveEditAction = new ShowLiveEditAction(wizardPanel);
-        const showFormAction = new ShowFormAction(wizardPanel);
-        const saveAndCloseAction = new SaveAndCloseAction(wizardPanel);
-        const localizeContentAction = new LocalizeContentAction(wizardPanel);
+        const closeAction = new ContentCloseAction();
+        const showLiveEditAction = new ShowLiveEditAction();
+        const showFormAction = new ShowFormAction();
+        const saveAndCloseAction = new SaveAndCloseAction();
+        const localizeContentAction = new LocalizeContentAction();
 
         super(
             contentSaveAction,
@@ -327,28 +323,19 @@ export class ContentWizardActions
             });
         }
 
-        if (existing.hasParent()) {
-            new GetContentByPathRequest(existing.getPath().getParentPath()).sendAndParse().then(
-                (parent: Content) => {
-                    new GetContentPermissionsByIdRequest(parent.getContentId()).sendAndParse().then(
-                        (accessControlList: AccessControlList) => {
-                            const hasParentCreatePermission = AccessControlHelper.hasPermission(Permission.CREATE, accessControlList);
+        const permissionsResult = existing.hasParent()
+            ? fetchContentByPath(existing.getPath().getParentPath())
+                .andThen((parent) => fetchContentPermissions(parent.getContentId()))
+            : fetchRootPermissions();
 
-                            if (!hasParentCreatePermission) {
-                                this.enableActions({DUPLICATE: false});
-                            }
-                        });
-                });
-        } else {
-            new GetContentRootPermissionsRequest().sendAndParse().then(
-                (accessControlList: AccessControlList) => {
-                    const hasParentCreatePermission = AccessControlHelper.hasPermission(Permission.CREATE, accessControlList);
-
-                    if (!hasParentCreatePermission) {
-                        this.enableActions({DUPLICATE: false});
-                    }
-                });
-        }
+        permissionsResult.match(
+            (acl) => {
+                if (!AccessControlHelper.hasPermission(Permission.CREATE, acl)) {
+                    this.enableActions({DUPLICATE: false});
+                }
+            },
+            () => { /* ignore permission fetch errors */ },
+        );
     }
 
     setContent(content: ContentSummaryAndCompareStatus): ContentWizardActions {

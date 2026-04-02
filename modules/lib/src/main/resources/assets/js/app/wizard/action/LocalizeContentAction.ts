@@ -1,22 +1,16 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
+import {showError, showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {type ContentId} from '../../content/ContentId';
 import {ProjectContext} from '../../project/ProjectContext';
-import {LocalizeContentsRequest} from '../../resource/LocalizeContentsRequest';
+import {localizeContents} from '../../../v6/features/api/inherit';
 import {$wizardContentSummary} from '../../../v6/features/store/wizardSave.store';
-
-export interface LocalizeUIBridge {
-    setEnabled(value: boolean): void;
-    unLockPage(): void;
-    renderAndOpenTranslatorDialog(): void;
-}
+import {notifyWizardLocalized} from '../../../v6/features/store/wizardCommands.store';
 
 export class LocalizeContentAction
     extends Action {
 
-    constructor(uiBridge: LocalizeUIBridge) {
+    constructor() {
         super(i18n('action.translate'));
 
         this.onExecuted(() => {
@@ -30,12 +24,15 @@ export class LocalizeContentAction
 
             this.setEnabled(false);
 
-            new LocalizeContentsRequest([contentId], language).sendAndParse().then(() => {
-                NotifyManager.get().showFeedback(i18n('notify.content.localized'));
-                uiBridge.setEnabled(true);
-                uiBridge.unLockPage();
-                uiBridge.renderAndOpenTranslatorDialog();
-            }).catch(DefaultErrorHandler.handle);
+            localizeContents([contentId], language).match(
+                () => {
+                    showFeedback(i18n('notify.content.localized'));
+                    notifyWizardLocalized();
+                },
+                (error) => {
+                    showError(error.message);
+                },
+            );
         });
     }
 }

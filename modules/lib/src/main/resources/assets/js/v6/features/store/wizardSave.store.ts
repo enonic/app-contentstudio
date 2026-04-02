@@ -1,4 +1,5 @@
 import {atom, computed} from 'nanostores';
+import type Q from 'q';
 import type {Content} from '../../../app/content/Content';
 import type {CompareStatus} from '../../../app/content/CompareStatus';
 import type {PublishStatus} from '../../../app/publish/PublishStatus';
@@ -98,6 +99,24 @@ export async function saveWizardContent(): Promise<RoutineContext> {
     return context;
 }
 
+/**
+ * Handler for the full wizard save flow (data + UI work).
+ * Registered by ContentWizardPanel at initialization.
+ */
+export const $wizardFullSaveHandler = atom<((clearInspection?: boolean) => Q.Promise<Content>) | null>(null);
+
+export function setWizardFullSaveHandler(handler: (clearInspection?: boolean) => Q.Promise<Content>): void {
+    $wizardFullSaveHandler.set(handler);
+}
+
+export function requestFullWizardSave(clearInspection?: boolean): Q.Promise<Content> {
+    const handler = $wizardFullSaveHandler.get();
+    if (!handler) {
+        throw new Error('No save handler registered');
+    }
+    return handler(clearInspection);
+}
+
 export function resetWizardSave(): void {
     $wizardPersistedContent.set(null);
     $wizardCompareStatus.set(null);
@@ -105,4 +124,5 @@ export function resetWizardSave(): void {
     $wizardRequireValid.set(false);
     $wizardIsNew.set(true);
     $wizardContentExistsInParentProject.set(false);
+    $wizardFullSaveHandler.set(null);
 }

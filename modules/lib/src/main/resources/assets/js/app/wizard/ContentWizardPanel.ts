@@ -68,6 +68,8 @@ import {
 } from '../../v6/features/store/wizardContent.store';
 import {escalateVisibility, initializeValidation, setServerValidationErrors} from '../../v6/features/store/wizardValidation.store';
 import {
+    saveWizardContent,
+    setWizardFullSaveHandler,
     setSavePersistedContent,
     setWizardCompareStatus,
     setWizardContentExistsInParentProject,
@@ -75,6 +77,8 @@ import {
     setWizardPublishStatus,
     setWizardRequireValid,
 } from '../../v6/features/store/wizardSave.store';
+import {setWizardCloseHandler, $wizardLocalizeCompleted, $wizardResetCompleted} from '../../v6/features/store/wizardCommands.store';
+import {$wizardViewMode, setWizardInMobileViewMode} from '../../v6/features/store/wizardViewMode.store';
 import {setWizardToolbarIsPathAvailable} from '../../v6/features/store/wizardToolbar.store';
 import {type PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
 import {ContentWizardTabsToolbarElement} from '../../v6/features/views/wizard/content-wizard-tabs/ContentWizardTabsToolbarElement';
@@ -167,8 +171,6 @@ import {PageEventsManager} from './PageEventsManager';
 import {PageNavigationEventSource} from './PageNavigationEventData';
 import {PersistNewContentRoutine} from './PersistNewContentRoutine';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
-import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
-import {UpdatePersistedContentWithStoreRoutine} from './UpdatePersistedContentWithStoreRoutine';
 import {XDataWizardStep} from './XDataWizardStep';
 import {XDataWizardStepForm} from './XDataWizardStepForm';
 import {XDataWizardStepForms} from './XDataWizardStepForms';
@@ -297,6 +299,12 @@ export class ContentWizardPanel
     private contentFormExpandedUnsubscribe?: () => void;
 
     private contentStateUnsubscribe?: () => void;
+
+    private viewModeUnsubscribe?: () => void;
+
+    private localizeUnsubscribe?: () => void;
+
+    private resetUnsubscribe?: () => void;
 
     constructor(params: ContentWizardPanelParams, cls?: string) {
         super(params);
@@ -554,7 +562,7 @@ export class ContentWizardPanel
     }
 
     protected createWizardActions(): ContentWizardActions {
-        const wizardActions: ContentWizardActions = new ContentWizardActions(this);
+        const wizardActions: ContentWizardActions = new ContentWizardActions();
 
         const publishActionHandler = () => {
             if (this.hasUnsavedChanges()) {
@@ -865,6 +873,8 @@ export class ContentWizardPanel
 
             this.inMobileViewMode = false;
 
+            this.registerStoreHandlers();
+
             ResponsiveManager.onAvailableSizeChanged(this, this.availableSizeChangedHandler.bind(this));
 
             this.onRemoved(() => {
@@ -877,6 +887,12 @@ export class ContentWizardPanel
                 this.contentFormExpandedUnsubscribe = undefined;
                 this.contentStateUnsubscribe?.();
                 this.contentStateUnsubscribe = undefined;
+                this.viewModeUnsubscribe?.();
+                this.viewModeUnsubscribe = undefined;
+                this.localizeUnsubscribe?.();
+                this.localizeUnsubscribe = undefined;
+                this.resetUnsubscribe?.();
+                this.resetUnsubscribe = undefined;
                 resetWizardContent();
             });
 
@@ -1065,6 +1081,7 @@ export class ContentWizardPanel
             this.updateStickyToolbar();
             if (item.isInRangeOrSmaller(ResponsiveRanges._720_960)) {
                 this.inMobileViewMode = true;
+                setWizardInMobileViewMode(true);
                 if (this.isSplitView()) {
                     if (this.isMinimized()) {
                         this.toggleMinimize();
@@ -1074,10 +1091,12 @@ export class ContentWizardPanel
             } else {
                 if (this.inMobileViewMode && this.isLiveView()) {
                     this.inMobileViewMode = false;
+                    setWizardInMobileViewMode(false);
                     this.showLiveEdit();
                 }
 
                 this.inMobileViewMode = false;
+                setWizardInMobileViewMode(false);
             }
         }
     }
@@ -2212,20 +2231,10 @@ export class ContentWizardPanel
     updatePersistedItem(): Q.Promise<Content> {
         const persistedContent: Content = this.getPersistedItem();
         const isInherited: boolean = persistedContent.isDataInherited();
-        const hasStoreChanges = $wizardHasChanges.get();
-        const updateContentRoutine = hasStoreChanges
-            ? new UpdatePersistedContentWithStoreRoutine(persistedContent)
-            : new UpdatePersistedContentRoutine(
-                persistedContent,
-                this.assembleViewedContent(persistedContent.newBuilder(), true, this.isRename).build(),
-            );
 
-        updateContentRoutine.setRequireValid(this.requireValid);
-
-        return updateContentRoutine.execute().then((context: RoutineContext) => {
+        return Q(saveWizardContent()).then((context: RoutineContext) => {
             const content: Content = context.content;
             this.wizardFormUpdatedDuringSave = context.dataUpdated;
-            setSavePersistedContent(content);
 
             if (persistedContent.getName().isUnnamed() && !content.getName().isUnnamed()) {
                 this.notifyContentNamed(content);
@@ -2425,6 +2434,63 @@ export class ContentWizardPanel
 
     private isLiveView(): boolean {
         return this.splitPanel && this.splitPanel.hasClass('toggle-live');
+    }
+
+    private registerStoreHandlers(): void {
+        setWizardFullSaveHandler((clearInspection?: boolean) => this.saveChanges(clearInspection));
+        setWizardCloseHandler((checkCanClose?: boolean) => this.close(checkCanClose));
+
+        this.viewModeUnsubscribe = $wizardViewMode.listen((mode) => {
+            this.applyViewMode(mode);
+        });
+
+        this.localizeUnsubscribe = $wizardLocalizeCompleted.listen((completed) => {
+            if (!completed) {
+                return;
+            }
+            $wizardLocalizeCompleted.set(false);
+            this.setEnabled(true);
+            this.unLockPage();
+            this.renderAndOpenTranslatorDialog();
+        });
+
+        this.resetUnsubscribe = $wizardResetCompleted.listen((completed) => {
+            if (!completed) {
+                return;
+            }
+            $wizardResetCompleted.set(false);
+            this.setEnabled(false);
+        });
+    }
+
+    private applyViewMode(mode: 'form' | 'split' | 'live'): void {
+        if (!this.splitPanel) {
+            return;
+        }
+
+        if (mode === 'form') {
+            this.splitPanel.addClass('toggle-form').removeClass('toggle-live toggle-split');
+            this.getMainToolbar().toggleClass('live', false);
+            this.toggleClass('form', true);
+
+            this.splitPanel.hideSecondPanel();
+            this.hideMinimizeEditButton();
+
+            if (this.liveMask?.isVisible()) {
+                this.liveMask.hide();
+            }
+
+            if (this.isMinimized()) {
+                this.toggleMinimize();
+            }
+        } else {
+            this.splitPanel.addClass(`toggle-${mode}`).removeClass(`toggle-form toggle-${mode === 'split' ? 'live' : 'split'}`);
+            this.getMainToolbar().toggleClass('live', true);
+            this.toggleClass('form', false);
+
+            this.splitPanel.showSecondPanel();
+            this.showMinimizeEditButton();
+        }
     }
 
     assembleViewedContent(viewedContentBuilder: ContentBuilder, cleanFormRedundantData: boolean = false,

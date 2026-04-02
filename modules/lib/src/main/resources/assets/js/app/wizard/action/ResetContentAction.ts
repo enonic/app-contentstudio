@@ -1,21 +1,17 @@
-import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {showError, showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {RestoreInheritRequest} from '../../resource/RestoreInheritRequest';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentInheritType} from '../../content/ContentInheritType';
-import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {restoreInherit} from '../../../v6/features/api/inherit';
 import {DialogPresetConfirmElement} from '../../../v6/features/shared/dialogs/DialogPreset';
 import {$wizardContentSummary} from '../../../v6/features/store/wizardSave.store';
-
-export interface ResetUIBridge {
-    setEnabled(value: boolean): void;
-}
+import {notifyWizardReset} from '../../../v6/features/store/wizardCommands.store';
 
 export class ResetContentAction
     extends Action {
 
-    constructor(uiBridge: ResetUIBridge) {
+    constructor() {
         super(i18n('action.reset'));
 
         this.onExecuted(() => {
@@ -25,7 +21,7 @@ export class ResetContentAction
                 description: i18n('dialog.confirm.resetInheritance'),
                 onConfirm: () => {
                     dialog.close();
-                    this.restoreContentInheritance(uiBridge);
+                    this.restoreContentInheritance();
                 },
                 onCancel: () => dialog.close()
             });
@@ -33,21 +29,24 @@ export class ResetContentAction
         });
     }
 
-    private restoreContentInheritance(uiBridge: ResetUIBridge) {
+    private restoreContentInheritance() {
         const contentSummary = $wizardContentSummary.get();
         if (!contentSummary) {
             return;
         }
 
-        new RestoreInheritRequest()
-            .setContentId(contentSummary.getContentId())
-            .setInherit(this.getInheritTypesToRestore(contentSummary))
-            .sendAndParse()
-            .then(() => {
+        restoreInherit(
+            contentSummary.getContentId(),
+            this.getInheritTypesToRestore(contentSummary),
+        ).match(
+            () => {
                 showFeedback(i18n('notify.content.reset'));
-                uiBridge.setEnabled(false);
-            })
-            .catch(DefaultErrorHandler.handle);
+                notifyWizardReset();
+            },
+            (error) => {
+                showError(error.message);
+            },
+        );
     }
 
     private getInheritTypesToRestore(content: ContentSummaryAndCompareStatus): ContentInheritType[] {
