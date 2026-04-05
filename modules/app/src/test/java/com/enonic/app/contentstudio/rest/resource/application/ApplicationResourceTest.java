@@ -221,10 +221,6 @@ public class ApplicationResourceTest
         final Application application = mock( Application.class );
         when( application.getKey() ).thenReturn( ApplicationKey.from( "testapplication" ) );
         when( application.getVersion() ).thenReturn( Version.parseVersion( "1.0.0" ) );
-        when( application.getDisplayName() ).thenReturn( "application display name" );
-        when( application.getUrl() ).thenReturn( "http://enonic.net" );
-        when( application.getVendorName() ).thenReturn( "Enonic" );
-        when( application.getVendorUrl() ).thenReturn( "https://www.enonic.com" );
         when( application.getMinSystemVersion() ).thenReturn( "5.0" );
         when( application.getMaxSystemVersion() ).thenReturn( "5.1" );
         when( application.isStarted() ).thenReturn( true );
@@ -242,7 +238,11 @@ public class ApplicationResourceTest
     {
         return ApplicationDescriptor.create().
             key( ApplicationKey.from( "testapplication" ) ).
+            title( "application display name" ).
             description( "Application description" ).
+            url( "http://enonic.net" ).
+            vendorName( "Enonic" ).
+            vendorUrl( "https://www.enonic.com" ).
             icon( icon ).
             build();
     }

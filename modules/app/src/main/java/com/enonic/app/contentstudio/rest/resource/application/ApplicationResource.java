@@ -1,8 +1,9 @@
 package com.enonic.app.contentstudio.rest.resource.application;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -125,12 +126,9 @@ public final class ApplicationResource
     @Path("getSiteApplications")
     public ListApplicationJson getSiteApplications( @QueryParam("query") final String query, @Context HttpServletRequest request )
     {
-        final ListApplicationJson json = new ListApplicationJson();
+        final Applications applications = this.applicationService.list();
 
-        Applications applications = this.applicationService.list();
-
-        applications = this.filterApplications( applications, query );
-        applications = this.sortApplications( applications );
+        final List<ApplicationJson> result = new ArrayList<>();
 
         for ( final Application application : applications )
         {
@@ -143,19 +141,26 @@ public final class ApplicationResource
                 final boolean localApplication = this.applicationService.isLocalApplication( applicationKey );
                 final ApplicationDescriptor appDescriptor = this.applicationDescriptorService.get( applicationKey );
 
-                json.add( ApplicationJson.create()
-                              .setApplication( application )
-                              .setLocal( localApplication )
-                              .setApplicationDescriptor( appDescriptor )
-                              .setCmsDescriptor( cmsDescriptor )
-                              .setIdProviderDescriptor( idProviderDescriptor )
-                              .setIconUrlResolver( new ApplicationIconUrlResolver( request ) )
-                              .setLocaleMessageResolver(
-                                  new LocaleMessageResolver( this.localeService, applicationKey, request.getLocales() ) )
-                              .setFormFragmentResolver( new CmsFormFragmentResolver( this.formFragmentService ) )
-                              .build() );
+                result.add( ApplicationJson.create()
+                                .setApplication( application )
+                                .setLocal( localApplication )
+                                .setApplicationDescriptor( appDescriptor )
+                                .setCmsDescriptor( cmsDescriptor )
+                                .setIdProviderDescriptor( idProviderDescriptor )
+                                .setIconUrlResolver( new ApplicationIconUrlResolver( request ) )
+                                .setLocaleMessageResolver(
+                                    new LocaleMessageResolver( this.localeService, applicationKey, request.getLocales() ) )
+                                .setFormFragmentResolver( new CmsFormFragmentResolver( this.formFragmentService ) )
+                                .build() );
             }
         }
+
+        final ListApplicationJson json = new ListApplicationJson();
+        result.stream()
+            .filter( app -> matchesQuery( app, query ) )
+            .sorted( Comparator.comparing( ApplicationJson::getDisplayName ) )
+            .forEach( json::add );
+
         return json;
     }
 
@@ -195,30 +200,19 @@ public final class ApplicationResource
         responseBuilder.cacheControl( cacheControl );
     }
 
-    private Applications sortApplications( final Applications applications )
+    private boolean matchesQuery( final ApplicationJson app, final String query )
     {
-        return Applications.from(
-            applications.stream().sorted( Comparator.comparing( Application::getDisplayName ) ).collect( Collectors.toList() ) );
-    }
-
-    private Applications filterApplications( final Applications applications, final String query )
-    {
-        if ( !nullToEmpty( query ).isBlank() )
+        if ( nullToEmpty( query ).isBlank() )
         {
-            final String queryLowercase = query.toLowerCase();
-            return Applications.from( applications.stream()
-                                          .filter( application -> nullToEmpty( application.getDisplayName() ).toLowerCase()
-                                              .contains( queryLowercase ) ||
-                                              nullToEmpty( application.getMaxSystemVersion() ).toLowerCase().contains( queryLowercase ) ||
-                                              nullToEmpty( application.getMinSystemVersion() ).toLowerCase().contains( queryLowercase ) ||
-                                              nullToEmpty( application.getSystemVersion() ).toLowerCase().contains( queryLowercase ) ||
-                                              nullToEmpty( application.getUrl() ).toLowerCase().contains( queryLowercase ) ||
-                                              nullToEmpty( application.getVendorName() ).toLowerCase().contains( queryLowercase ) ||
-                                              nullToEmpty( application.getVendorUrl() ).toLowerCase().contains( queryLowercase ) )
-                                          .collect( Collectors.toList() ) );
+            return true;
         }
 
-        return applications;
+        final String queryLowercase = query.toLowerCase();
+        return nullToEmpty( app.getDisplayName() ).toLowerCase().contains( queryLowercase ) ||
+            nullToEmpty( app.getKey() ).toLowerCase().contains( queryLowercase ) ||
+            nullToEmpty( app.getVendorName() ).toLowerCase().contains( queryLowercase ) ||
+            nullToEmpty( app.getVendorUrl() ).toLowerCase().contains( queryLowercase ) ||
+            nullToEmpty( app.getUrl() ).toLowerCase().contains( queryLowercase );
     }
 
     @Reference

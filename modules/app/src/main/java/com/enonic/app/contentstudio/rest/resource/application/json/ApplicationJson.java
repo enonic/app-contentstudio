@@ -74,7 +74,8 @@ public class ApplicationJson
 
     public String getDisplayName()
     {
-        return application.getDisplayName();
+        final String title = applicationDescriptor == null ? null : applicationDescriptor.getTitle();
+        return title != null ? title : application.getKey().toString();
     }
 
     public String getMaxSystemVersion()
@@ -89,17 +90,17 @@ public class ApplicationJson
 
     public String getUrl()
     {
-        return application.getUrl();
+        return applicationDescriptor == null ? "" : applicationDescriptor.getUrl();
     }
 
     public String getVendorName()
     {
-        return application.getVendorName();
+        return applicationDescriptor == null ? "" : applicationDescriptor.getVendorName();
     }
 
     public String getVendorUrl()
     {
-        return application.getVendorUrl();
+        return applicationDescriptor == null ? "" : applicationDescriptor.getVendorUrl();
     }
 
     public Instant getModifiedTime()
