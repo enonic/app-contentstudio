@@ -8,7 +8,7 @@ import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {cn} from '@enonic/ui';
-import {History, Link, List} from 'lucide-react';
+import {History, Link, List, SquareChartGantt} from 'lucide-react';
 import Q from 'q';
 import {PreviewLabelElement} from '../../../v6/features/shared/PreviewLabel';
 import {setActiveWidgetId as setActiveExtensionId} from '../../../v6/features/store/contextWidgets.store';
@@ -16,6 +16,7 @@ import {APP_NAME} from '../../../v6/features/utils/cms/app/app';
 import {VERSIONS_WIDGET_KEY} from '../../../v6/features/utils/widget/versions/versions';
 import {DependenciesWidgetElement} from '../../../v6/features/views/context/widget/dependencies';
 import {DetailsWidgetElement} from '../../../v6/features/views/context/widget/details';
+import {PageEditorExtensionElement} from '../../../v6/features/views/context/widget/page-editor';
 import {VersionsWidgetElement} from '../../../v6/features/views/context/widget/versions/VersionsWidget';
 import WidgetsSelectorElement from '../../../v6/features/views/context/widget/WidgetsSelector';
 import {CompareStatus} from '../../content/CompareStatus';
@@ -24,13 +25,11 @@ import type {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryA
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {InspectEvent} from '../../event/InspectEvent';
 import {GetExtensionsByInterfaceRequest} from '../../resource/GetExtensionsByInterfaceRequest';
-import type {ContextWindow} from '../../wizard/page/contextwindow/ContextWindow';
 import {PageEventsManager} from '../../wizard/PageEventsManager';
 import type {PageNavigationEvent} from '../../wizard/PageNavigationEvent';
 import {PageNavigationEventType} from '../../wizard/PageNavigationEventType';
 import type {PageNavigationHandler} from '../../wizard/PageNavigationHandler';
 import {PageNavigationMediator} from '../../wizard/PageNavigationMediator';
-import {ExtensionPageEditorItemView} from './extension/pageeditor/ExtensionPageEditorItemView';
 import {ExtensionView, InternalExtensionType} from './ExtensionView';
 import {ReloadActiveExtensionEvent} from './ReloadActiveExtensionEvent';
 
@@ -51,11 +50,9 @@ export class ContextView
     private defaultExtensionView: ExtensionView;
 
     protected extensionPageEditorView?: ExtensionView;
-    protected extensionPageEditorItemView?: ExtensionPageEditorItemView;
     protected extensionPropertiesView: ExtensionView;
     protected extensionVersionsView: ExtensionView;
 
-    protected contextWindow?: ContextWindow;
     protected alreadyFetchedCustomExtensions: boolean;
 
     private sizeChangedListeners: (() => void)[] = [];
@@ -394,27 +391,22 @@ export class ContextView
     }
 
     private createPageEditorExtensionView(): ExtensionView {
-        this.extensionPageEditorItemView = new ExtensionPageEditorItemView();
-        this.extensionPageEditorItemView.appendContextWindow(this.contextWindow);
-
-        const pageEditorExtensionView = ExtensionView.create()
-            .setExtension(Extension.create().setExtensionDescriptorKey(`${APP_NAME}:page`).build())
-            .setName(i18n('field.contextPanel.pageEditor'))
-            .setDescription(i18n('field.contextPanel.pageEditor.description'))
-            .setExtensionClass('page-editor-widget')
-            .setIconClass('icon-puzzle')
-            .addExtensionItemView(this.extensionPageEditorItemView)
-            .setContextView(this)
-            .setType(InternalExtensionType.COMPONENTS)
-            .build();
-
         InspectEvent.on((event: InspectEvent) => {
             if (event.isShowExtension() && this.activeExtension !== this.extensionVersionsView &&
                 this.extensionPageEditorView.compareByType(this.defaultExtensionView)) {
                 this.activateDefaultExtension();
             }
         });
-        return pageEditorExtensionView;
+
+        return ExtensionView.create()
+            .setExtension(Extension.create().setExtensionDescriptorKey(`${APP_NAME}:page`).build())
+            .setName(i18n('field.contextPanel.pageEditor'))
+            .setDescription(i18n('field.contextPanel.pageEditor.description'))
+            .setIcon(SquareChartGantt)
+            .addExtensionItemView(new PageEditorExtensionElement())
+            .setContextView(this)
+            .setType(InternalExtensionType.COMPONENTS)
+            .build();
     }
 
     protected createVersionsExtensionView(): ExtensionView {
@@ -579,9 +571,8 @@ export class ContextView
         this.sizeChangedListeners.forEach((listener: () => void) => listener());
     }
 
-    appendContextWindow(contextWindow: ContextWindow) {
-        this.contextWindow = contextWindow;
-        this.extensionPageEditorItemView?.appendContextWindow(this.contextWindow);
+    appendContextWindow(): void {
+        // No-op: the Preact ContextWindowElement is created in createPageEditorExtensionView()
     }
 
     isVisible(): boolean {
