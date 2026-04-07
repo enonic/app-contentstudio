@@ -14,6 +14,8 @@ import type {default as Q} from 'q';
 import {type LiveEditPageInitializationErrorEvent} from '../../../page-editor/event/LiveEditPageInitializationErrorEvent';
 import {type ShowWarningLiveEditEvent} from '../../../page-editor/event/ShowWarningLiveEditEvent';
 import {type LiveEditModel} from '../../../page-editor/LiveEditModel';
+import {cleanupPageEditorBridge, initPageEditorBridge} from '../../../v6/features/store/pageEditor.store';
+import {clearInspection, inspectComponent} from '../../../v6/features/store/pageEditorInspect.store';
 import {$activeWidget} from '../../../v6/features/store/liveViewWidgets.store';
 import {type Content, type ContentBuilder} from '../../content/Content';
 import {type ContentId} from '../../content/ContentId';
@@ -547,6 +549,10 @@ export class LiveFormPanel
 
         this.liveEditPageProxy.setModel(liveEditModel);
         this.availableInspectPanels.forEach((panel) => panel.setModel(liveEditModel));
+
+        initPageEditorBridge({
+            hasDefaultPageTemplate: liveEditModel.getDefaultModels()?.hasDefaultPageTemplate() ?? false,
+        });
     }
 
     public getModel(): LiveEditModel {
@@ -728,6 +734,7 @@ export class LiveFormPanel
 
         if (this.liveEditModel?.getDefaultModels()?.hasDefaultPageTemplate() || customizedWithController || isFragmentContent) {
             this.contextWindow.clearSelection(showInsertables);
+            clearInspection();
             return true;
         }
 
@@ -776,6 +783,7 @@ export class LiveFormPanel
 
         if (inspectionPanel instanceof ComponentInspectionPanel) {
             showInspectionPanel(inspectionPanel);
+            inspectComponent(component.getPath());
             if (focus) {
                 setTimeout(() => inspectionPanel.focus(), 200);
             }
@@ -855,6 +863,7 @@ export class LiveFormPanel
         this.availableInspectPanels.forEach(
             (panel) => panel instanceof DescriptorBasedComponentInspectionPanel && panel.unbindSiteModelListeners());
         this.liveEditModel = null;
+        cleanupPageEditorBridge();
     }
 
     getContextWindow(): ContextWindow {
@@ -864,6 +873,7 @@ export class LiveFormPanel
     handle(event: PageNavigationEvent): void {
         if (event.getType() === PageNavigationEventType.DESELECT) {
             this.contextWindow.clearSelection(true);
+            clearInspection();
             return;
         }
 

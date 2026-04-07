@@ -284,7 +284,7 @@ export class ExtensionView
     }
 
     private isUrlBased(): boolean {
-        return !!this.extension && !!this.getExtensionUrl();
+        return !!this.extension && !!this.extension.getUrl();
     }
 
     notifyActivated() {

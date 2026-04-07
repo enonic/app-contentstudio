@@ -698,7 +698,7 @@ export class ContentWizardPanel
     }
 
     protected createWizardAndDetailsSplitPanel(leftPanel: Panel): SplitPanel {
-        this.contextView = new ContextView(false); // don't show the widget until it is fixed
+        this.contextView = new ContextView(!!this.livePanel);
 
         this.contextView.setItem(this.getContent());
         setWizardContent(this.getContent());
@@ -737,7 +737,6 @@ export class ContentWizardPanel
 
         if (this.livePanel) {
             this.splitPanel.onPanelResized(() => this.updateStickyToolbar());
-            this.contextView.appendContextWindow(this.getLivePanel().getContextWindow());
             this.livePanel.setContextPanelState(this.contextSplitPanel.getState());
             this.livePanel.setToggleContextPanelHandler(() => {
                this.contextSplitPanel.toggleContextPanel();
