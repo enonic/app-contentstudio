@@ -6,6 +6,8 @@ import React, {type ReactElement, useLayoutEffect, useMemo, useRef, useState} fr
 import {useI18n} from '../../../hooks/useI18n';
 import {LegacyElement} from '../../../shared/LegacyElement';
 import {ProjectIcon} from '../../../shared/icons/ProjectIcon';
+import {StatusIcon} from '../../../shared/icons/StatusIcon';
+import {StatusBadge} from '../../../shared/status/StatusBadge';
 import {$wizardToolbar} from '../../../store/wizardToolbar.store';
 import {getInitials} from '../../../utils/format/initials';
 import {createThrottle} from '../../../utils/timing/createThrottle';
@@ -13,10 +15,8 @@ import {ActionGroup} from './ActionGroup';
 import {ContextToggle} from './ContextToggle';
 import {SplitActionButton, type SplitActionButtonAction} from './SplitActionButton';
 import {ToolbarActionButton} from './ToolbarActionButton';
-import {StatusBadge} from '../../../shared/status/StatusBadge';
-import {StatusIcon} from '../../../shared/icons/StatusIcon';
 
-export type ContentWizardToolbarViewProps = {
+export type ContentWizardToolbarProps = {
     onProjectBack?: () => void;
     onLayersClick?: () => void;
     onContentPathClick?: () => void;
@@ -33,7 +33,7 @@ export type ContentWizardToolbarViewProps = {
     requestPublishAction: Action;
     openRequestAction: Action;
     createIssueAction: Action;
-
+    className?: string;
 };
 
 const CONTENT_WIZARD_TOOLBAR_NAME = 'ContentWizardToolbar';
@@ -86,23 +86,24 @@ const useElementVisibility = <T extends HTMLElement>(): [React.RefObject<T | nul
 };
 
 export const ContentWizardToolbar = ({
-                                             onProjectBack,
-                                             onLayersClick,
-                                             onContentPathClick,
-                                             saveAction,
-                                             resetAction,
-                                             localizeAction,
-                                             archiveAction,
-                                             duplicateAction,
-                                             moveAction,
-                                             previewAction,
-                                             markAsReadyAction,
-                                             publishAction,
-                                             unpublishAction,
-                                             requestPublishAction,
-                                             openRequestAction,
-                                             createIssueAction,
-                                         }: ContentWizardToolbarViewProps): ReactElement => {
+    onProjectBack,
+    onLayersClick,
+    onContentPathClick,
+    saveAction,
+    resetAction,
+    localizeAction,
+    archiveAction,
+    duplicateAction,
+    moveAction,
+    previewAction,
+    markAsReadyAction,
+    publishAction,
+    unpublishAction,
+    requestPublishAction,
+    openRequestAction,
+    createIssueAction,
+    className,
+}: ContentWizardToolbarProps): ReactElement => {
     const {
         projectLabel,
         projectName,
@@ -255,7 +256,7 @@ export const ContentWizardToolbar = ({
         <Toolbar data-component={CONTENT_WIZARD_TOOLBAR_NAME}>
             <Toolbar.Container
                 aria-label={toolbarLabel}
-                className={'w-full h-15 px-2 md:pl-2 md:pr-5 py-1.75 flex items-center border-b border-bdr-soft bg-surface-neutral'}
+                className={cn('w-full h-15 px-2 md:pl-2 md:pr-5 py-1.75 flex items-center border-b border-bdr-soft bg-surface-neutral', className)}
             >
                 <div className='flex min-w-fit max-w-fit items-center gap-2.5 sm:min-w-0 sm:max-w-none sm:flex-1 sm:basis-0'>
                     <Toolbar.Item asChild>
@@ -271,7 +272,7 @@ export const ContentWizardToolbar = ({
                                 language={projectLanguage || undefined}
                                 hasIcon={projectHasIcon}
                                 isLayer={isLayerProject}
-                                className='size-6 sm:size-8 shrink-0 flex lg:hidden'/>
+                                className='size-6 sm:size-8 shrink-0 flex lg:hidden' />
                             <span className='hidden lg:flex'>{projectViewLabel}</span>
                         </Button>
                     </Toolbar.Item>
@@ -283,12 +284,12 @@ export const ContentWizardToolbar = ({
                         />
                     </div>
                     <div ref={toolbarActionsContainerRef}
-                         className='hidden sm:flex min-w-0 flex-1'>
+                        className='hidden sm:flex min-w-0 flex-1'>
                         <div className='flex items-center gap-2 min-w-0'>
                             {visibleToolbarActions.length > 0 && (
                                 <ActionGroup>
                                     {visibleToolbarActions.map(({id, action}) => (
-                                        <ToolbarActionButton key={id} action={action} disabled={!isToolbarActionsVisible}/>
+                                        <ToolbarActionButton key={id} action={action} disabled={!isToolbarActionsVisible} />
                                     ))}
                                 </ActionGroup>
                             )}
@@ -309,19 +310,19 @@ export const ContentWizardToolbar = ({
                     <div className='flex items-center gap-2'>
                         {toolbarActions.map(({id, action}, index) => (
                             <div key={`measure-button-${id}`}
-                                 ref={(element) => {
-                                     toolbarActionButtonMeasureRefs.current[index] = element;
-                                 }}>
-                                <ToolbarActionButton action={action} disabled={true}/>
+                                ref={(element) => {
+                                    toolbarActionButtonMeasureRefs.current[index] = element;
+                                }}>
+                                <ToolbarActionButton action={action} disabled={true} />
                             </div>
                         ))}
                     </div>
                     <div className='flex items-center gap-2'>
                         {toolbarActions.map(({id}, index) => (
                             <div key={`measure-split-${id}`}
-                                 ref={(element) => {
-                                     toolbarSplitButtonMeasureRefs.current[index] = element;
-                                 }}>
+                                ref={(element) => {
+                                    toolbarSplitButtonMeasureRefs.current[index] = element;
+                                }}>
                                 <SplitActionButton
                                     actions={toolbarActions.slice(index).map(({action}) => ({action}))}
                                     disabled={true}
@@ -343,7 +344,7 @@ export const ContentWizardToolbar = ({
                         </Toolbar.Item>
                     )}
                     {contentState && (
-                        <StatusIcon status={contentState} className='size-3.5 my-auto mx-1.5 md:mx-2.75 shrink-0'/>
+                        <StatusIcon status={contentState} className='size-3.5 my-auto mx-1.5 md:mx-2.75 shrink-0' />
                     )}
                     <div ref={desktopPathRef} className='hidden md:flex min-w-0'>
                         <Toolbar.Item asChild disabled={!isDesktopPathVisible}>
@@ -417,14 +418,14 @@ export const ContentWizardToolbar = ({
                             )}
                         </div>
                     )}
-                    <StatusBadge status={publishStatus} className='my-auto px-1.5 md:px-2.75 shrink-0 relative z-0'/>
+                    <StatusBadge status={publishStatus} className='my-auto px-1.5 md:px-2.75 shrink-0 relative z-0' />
                     <div ref={desktopPublishSplitRef} className='hidden sm:flex shrink-0 min-w-fit relative z-1'>
                         <SplitActionButton
                             actions={publishSplitActions}
                             disabled={!isDesktopPublishSplitVisible}
                         />
                     </div>
-                    <ContextToggle className='shrink-0'/>
+                    <ContextToggle className='shrink-0' />
                 </div>
             </Toolbar.Container>
         </Toolbar>
@@ -434,8 +435,8 @@ export const ContentWizardToolbar = ({
 ContentWizardToolbar.displayName = CONTENT_WIZARD_TOOLBAR_NAME;
 
 export class ContentWizardToolbarElement
-    extends LegacyElement<typeof ContentWizardToolbar, ContentWizardToolbarViewProps> {
-    constructor(props: ContentWizardToolbarViewProps) {
+    extends LegacyElement<typeof ContentWizardToolbar, ContentWizardToolbarProps> {
+    constructor(props: ContentWizardToolbarProps) {
         super(props, ContentWizardToolbar);
     }
 }
