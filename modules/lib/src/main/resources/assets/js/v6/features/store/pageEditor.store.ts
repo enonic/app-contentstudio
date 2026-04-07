@@ -49,7 +49,7 @@ export const $isFragment = computed(
 export const $isInsertTabAvailable = computed(
     [$pageEditorLifecycle, $hasControllerOrTemplate, $hasDefaultPageTemplate],
     (lifecycle, hasControllerOrTemplate, hasDefaultTemplate): boolean => {
-        if (lifecycle.isPageLocked || !lifecycle.isPageRenderable) {
+        if (!lifecycle.isPageReady || lifecycle.isPageLocked || !lifecycle.isPageRenderable) {
             return false;
         }
         return hasControllerOrTemplate || hasDefaultTemplate;

@@ -244,6 +244,10 @@ export class ContentWizardPanel
 
     private minimized: boolean = false;
 
+    private minimizedFromFormOnly: boolean = false;
+
+    private isTogglingMinimize: boolean = false;
+
     private scrollPosition: number = 0;
 
     private dataChangedHandler: () => void;
@@ -515,9 +519,17 @@ export class ContentWizardPanel
 
         new MinimizeWizardPanelEvent().fire();
 
+        this.isTogglingMinimize = true;
+
         if (this.minimized) {
             this.stepNavigator.setScrollEnabled(false);
             this.formPanel.addClass('border-r border-bdr-soft');
+
+            this.minimizedFromFormOnly = this.splitPanel.hasClass('toggle-form');
+            if (this.minimizedFromFormOnly) {
+                this.splitPanel.removeClass('toggle-form').addClass('toggle-split');
+                this.splitPanel.showSecondPanel();
+            }
 
             this.scrollPosition = scroll;
             this.splitPanel.savePanelSizesAndDistribute(SplitPanelSize.PIXELS(60));
@@ -525,6 +537,12 @@ export class ContentWizardPanel
             this.stepNavigator.onNavigationItemActivated(this.toggleMinimizeListener);
             this.undockPCV();
         } else {
+            if (this.minimizedFromFormOnly) {
+                this.splitPanel.removeClass('toggle-split').addClass('toggle-form');
+                this.splitPanel.hideSecondPanel();
+                this.minimizedFromFormOnly = false;
+            }
+
             this.splitPanel.loadPanelSizesAndDistribute();
             this.formPanel.removeClass('border-r border-bdr-soft');
 
@@ -545,6 +563,11 @@ export class ContentWizardPanel
         }
 
         setContentFormExpanded(!this.minimized);
+
+        // Reset after a tick so the debounced resize handler from distribute() is suppressed
+        setTimeout(() => {
+            this.isTogglingMinimize = false;
+        });
     }
 
     protected createWizardActions(): ContentWizardActions {
@@ -1052,6 +1075,8 @@ export class ContentWizardPanel
     }
 
     private availableSizeChangedHandler(item: ResponsiveItem) {
+        if (this.isTogglingMinimize) return;
+
         if (this.isVisible()) {
             this.updateStickyToolbar();
             if (item.isInRangeOrSmaller(ResponsiveRanges._720_960)) {
