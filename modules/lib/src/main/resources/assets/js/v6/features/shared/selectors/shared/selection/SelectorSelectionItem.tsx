@@ -65,12 +65,12 @@ export const SelectorSelectionItem = ({
                             />
                         </Tooltip>
                     )}
-                    <Tooltip delay={300} value={removeLabel || 'Remove'}>
+                    <Tooltip delay={300} value={removeLabel}>
                         <IconButton
                             icon={XIcon}
                             onClick={handleRemove}
                             disabled={disabled}
-                            aria-label={removeLabel || 'Remove'}
+                            aria-label={removeLabel}
                             className={'bg-transparent group-data-[tone=inverse]:text-alt'}
                         />
                     </Tooltip>
