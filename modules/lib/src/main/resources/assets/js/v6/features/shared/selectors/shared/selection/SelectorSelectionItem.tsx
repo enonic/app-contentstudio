@@ -1,5 +1,6 @@
-import {IconButton, ListItem} from '@enonic/ui';
+import {IconButton, ListItem, Tooltip} from '@enonic/ui';
 import {useCallback, type ReactElement} from 'react';
+import {useI18n} from '../../../../hooks/useI18n';
 import {type ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
 import {PenIcon, XIcon} from 'lucide-react';
 import {EditContentEvent} from '../../../../../../app/event/EditContentEvent';
@@ -35,6 +36,9 @@ export const SelectorSelectionItem = ({
 }: SelectorSelectionItemProps): ReactElement => {
     const isRemoved = [CompareStatus.UNKNOWN, CompareStatus.ARCHIVED].includes(content.getCompareStatus());
 
+    const removeLabel = useI18n('action.remove');
+    const editLabel = useI18n('action.edit');
+
     const handleEdit = useCallback(() => {
         new EditContentEvent([content], project).fire();
     }, [content, project]);
@@ -51,19 +55,25 @@ export const SelectorSelectionItem = ({
 
                 <ListItem.Right className="gap-0.5 ml-0 @min-[400px]:ml-2.5 @min-[560px]:ml-5">
                     {!isRemoved && (
+                        <Tooltip delay={300} value={editLabel || 'Edit'}>
+                            <IconButton
+                                icon={PenIcon}
+                                onClick={handleEdit}
+                                disabled={disabled}
+                                aria-label={editLabel || 'Edit'}
+                                className={'bg-transparent group-data-[tone=inverse]:text-alt'}
+                            />
+                        </Tooltip>
+                    )}
+                    <Tooltip delay={300} value={removeLabel || 'Remove'}>
                         <IconButton
-                            icon={PenIcon}
-                            onClick={handleEdit}
+                            icon={XIcon}
+                            onClick={handleRemove}
                             disabled={disabled}
+                            aria-label={removeLabel || 'Remove'}
                             className={'bg-transparent group-data-[tone=inverse]:text-alt'}
                         />
-                    )}
-                    <IconButton
-                        icon={XIcon}
-                        onClick={handleRemove}
-                        disabled={disabled}
-                        className={'bg-transparent group-data-[tone=inverse]:text-alt'}
-                    />
+                    </Tooltip>
                 </ListItem.Right>
             </ListItem>
         </div>
