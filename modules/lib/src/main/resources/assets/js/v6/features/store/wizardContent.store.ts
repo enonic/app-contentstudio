@@ -273,7 +273,7 @@ $wizardHasContentChanges.subscribe((hasChanges) => {
 
 export type MixinTabInfo = {
     name: string;
-    displayName: string;
+    title: string;
 };
 
 export const $enabledMixinsNames = computed(
@@ -298,7 +298,7 @@ export const $mixinsTabs = computed([$enabledMixinsNames, $mixinsDescriptors], (
         .filter((schema) => enabledNames.has(schema.getName()))
         .map((schema) => ({
             name: schema.getName(),
-            displayName: schema.getTitle() ?? schema.getName(),
+            title: schema.getTitle() ?? schema.getName(),
         }));
 });
 

@@ -44,7 +44,7 @@ public class MixinDescriptorJson
         return mixinDescriptor.getName() != null ? mixinDescriptor.getName().toString() : null;
     }
 
-    public String getDisplayName()
+    public String getTitle()
     {
         if ( !nullToEmpty( mixinDescriptor.getTitleI18nKey() ).isBlank() )
         {

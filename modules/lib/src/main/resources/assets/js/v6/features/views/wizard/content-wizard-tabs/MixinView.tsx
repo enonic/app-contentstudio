@@ -12,10 +12,10 @@ import {useApplicationKeys} from './useApplicationKeys';
 
 type MixinViewProps = {
     mixinName: string;
-    displayName: string;
+    title: string;
 };
 
-export const MixinView = ({mixinName, displayName}: MixinViewProps): ReactElement => {
+export const MixinView = ({mixinName, title}: MixinViewProps): ReactElement => {
     const descriptors = useStore($mixinsDescriptors);
     const draftMixins = useStore($wizardDraftMixins);
     const contextContent = useStore($contextContent);
@@ -50,7 +50,7 @@ export const MixinView = ({mixinName, displayName}: MixinViewProps): ReactElemen
     );
 
     if (!form || form.getFormItems().length === 0 || !mixinData) {
-        return <p className="text-subtle">{displayName} configuration</p>;
+        return <p className="text-subtle">{title} configuration</p>;
     }
 
     return (
