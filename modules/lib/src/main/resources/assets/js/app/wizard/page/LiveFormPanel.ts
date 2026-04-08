@@ -14,8 +14,9 @@ import type {default as Q} from 'q';
 import {type LiveEditPageInitializationErrorEvent} from '../../../page-editor/event/LiveEditPageInitializationErrorEvent';
 import {type ShowWarningLiveEditEvent} from '../../../page-editor/event/ShowWarningLiveEditEvent';
 import {type LiveEditModel} from '../../../page-editor/LiveEditModel';
-import {cleanupPageEditorBridge, initPageEditorBridge} from '../../../v6/features/store/pageEditor.store';
+import {cleanupPageEditorBridge, initPageEditorBridge, syncInitialRenderable} from '../../../v6/features/store/pageEditor.store';
 import {clearInspection, inspectItem} from '../../../v6/features/store/pageEditorInspect.store';
+import {cleanupPageInspection, initPageInspectionService} from '../../../v6/features/store/pageInspection.store';
 import {$activeWidget} from '../../../v6/features/store/liveViewWidgets.store';
 import {type Content, type ContentBuilder} from '../../content/Content';
 import {type ContentId} from '../../content/ContentId';
@@ -550,8 +551,31 @@ export class LiveFormPanel
         this.liveEditPageProxy.setModel(liveEditModel);
         this.availableInspectPanels.forEach((panel) => panel.setModel(liveEditModel));
 
+        const content = liveEditModel.getContent();
+        const siteModel = liveEditModel.getSiteModel();
+        const controller = PageState.getState()?.getController();
+
+        const defaultModels = liveEditModel.getDefaultModels();
+
         initPageEditorBridge({
-            hasDefaultPageTemplate: liveEditModel.getDefaultModels()?.hasDefaultPageTemplate() ?? false,
+            hasDefaultPageTemplate: defaultModels?.hasDefaultPageTemplate() ?? false,
+            defaultPageTemplateName: defaultModels?.getDefaultPageTemplate()?.getDisplayName() ?? null,
+            contentContext: {
+                contentId: content.getContentId(),
+                contentTypeName: content.getType(),
+                siteId: siteModel?.getSiteId() ?? null,
+                isPageTemplate: content.isPageTemplate(),
+                isInherited: content.isInherited(),
+                isDataInherited: content.isDataInherited(),
+                applicationKey: controller?.getApplicationKey() ?? null,
+            },
+        });
+
+        initPageInspectionService();
+
+        // Sync renderable state that may have been set before bridge init
+        void this.widgetRenderingHandler.isItemRenderable().then((isRenderable: boolean) => {
+            syncInitialRenderable(isRenderable);
         });
     }
 
@@ -865,6 +889,7 @@ export class LiveFormPanel
         this.availableInspectPanels.forEach(
             (panel) => panel instanceof DescriptorBasedComponentInspectionPanel && panel.unbindSiteModelListeners());
         this.liveEditModel = null;
+        cleanupPageInspection();
         cleanupPageEditorBridge();
     }
 

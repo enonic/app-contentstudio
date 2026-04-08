@@ -200,7 +200,7 @@ export const LanguageSelector = ({
                 disabled={disabled}
                 closeOnBlur={closeOnBlur}
             >
-                <Combobox.Content className="relative">
+                <Combobox.Content>
                     <Combobox.Control>
                         <Combobox.Search>
                             <Combobox.SearchIcon />

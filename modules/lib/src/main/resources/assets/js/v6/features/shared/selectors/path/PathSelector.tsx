@@ -1,29 +1,19 @@
-import {
-    Combobox,
-    IconButton,
-} from '@enonic/ui';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {Combobox, IconButton} from '@enonic/ui';
 import {X} from 'lucide-react';
-import {
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-    type ReactElement,
-} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState, type ReactElement} from 'react';
 import type {VirtuosoHandle} from 'react-virtuoso';
 import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
-import type {ContentTreeSelectorItem} from '../../../../../app/item/ContentTreeSelectorItem';
 import {ContentSummaryOptionDataLoader} from '../../../../../app/inputtype/ui/selector/ContentSummaryOptionDataLoader';
-import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import type {ContentTreeSelectorItem} from '../../../../../app/item/ContentTreeSelectorItem';
 import {useI18n} from '../../../hooks/useI18n';
 import {useTreeSelectorLayout} from '../../../hooks/useTreeSelectorLayout';
 import {useTreeStore} from '../../../lib/tree-store';
 import {createDebounce} from '../../../utils/timing/createDebounce';
 import {ContentLabel} from '../../content/ContentLabel';
 import {StatusBadge} from '../../status/StatusBadge';
+import {createRootContent, isRootContent, ROOT_ID, RootLabel} from './PathSelectorRoot';
 import {PathSelectorTree} from './PathSelectorTree';
-import {RootLabel, createRootContent, isRootContent, ROOT_ID} from './PathSelectorRoot';
 import {getFilterContentPaths, getFilterExactPaths, isInvalidMoveTarget} from './pathSelectorFilters';
 
 export type PathSelectorProps = {
@@ -368,7 +358,7 @@ export const PathSelector = ({
                 contentType='tree'
                 disabled={disabled}
             >
-                <Combobox.Content className='relative'>
+                <Combobox.Content>
                     <Combobox.Control>
                         <Combobox.Search>
                             <Combobox.SearchIcon />

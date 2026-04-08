@@ -61,7 +61,7 @@ export const MacroSelector = (): ReactElement => {
                     selectionMode='single'
                     contentType='listbox'
                 >
-                    <Combobox.Content className='relative'>
+                    <Combobox.Content>
                         <Combobox.Control>
                             <Combobox.Search>
                                 <Combobox.SearchIcon />

@@ -59,7 +59,7 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
                 selectionMode={selectionMode}
                 closeOnBlur={closeOnBlur}
             >
-                <Combobox.Content className="relative">
+                <Combobox.Content>
                     <Combobox.Control>
                         <Combobox.Search>
                             <Combobox.SearchIcon />

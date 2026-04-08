@@ -256,7 +256,10 @@ export const ContentWizardToolbar = ({
         <Toolbar data-component={CONTENT_WIZARD_TOOLBAR_NAME}>
             <Toolbar.Container
                 aria-label={toolbarLabel}
-                className={cn('w-full h-15 px-2 md:pl-2 md:pr-5 py-1.75 flex items-center border-b border-bdr-soft bg-surface-neutral', className)}
+                className={cn(
+                    'content-wizard-toolbar w-full h-15 px-2 md:pl-2 md:pr-5 py-1.75 flex items-center border-b border-bdr-soft bg-surface-neutral',
+                    className
+                )}
             >
                 <div className='flex min-w-fit max-w-fit items-center gap-2.5 sm:min-w-0 sm:max-w-none sm:flex-1 sm:basis-0'>
                     <Toolbar.Item asChild>
@@ -437,6 +440,6 @@ ContentWizardToolbar.displayName = CONTENT_WIZARD_TOOLBAR_NAME;
 export class ContentWizardToolbarElement
     extends LegacyElement<typeof ContentWizardToolbar, ContentWizardToolbarProps> {
     constructor(props: ContentWizardToolbarProps) {
-        super(props, ContentWizardToolbar);
+        super({className: '', ...props}, ContentWizardToolbar);
     }
 }
