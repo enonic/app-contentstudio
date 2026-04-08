@@ -3,7 +3,6 @@
     {
       "createdTime": "2013-01-01T12:00:00Z",
       "deletable": false,
-      "displayName": "input_text_1",
       "editable": false,
       "form": {
         "formItems": [
@@ -23,7 +22,8 @@
         ]
       },
       "isOptional": true,
-      "name": "myapplication:input_text_1"
+      "name": "myapplication:input_text_1",
+      "title" : "input_text_1"
     }
   ]
 }

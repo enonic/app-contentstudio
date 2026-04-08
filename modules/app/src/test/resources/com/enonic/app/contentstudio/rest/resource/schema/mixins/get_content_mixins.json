@@ -3,7 +3,6 @@
         {
             "createdTime": "2013-01-01T12:00:00Z",
             "deletable": false,
-            "displayName": "input_text_1",
             "editable": false,
             "form": {
                 "formItems": [
@@ -23,12 +22,12 @@
                 ]
             },
             "isOptional": false,
-            "name": "myapplication:input_text_1"
+            "name": "myapplication:input_text_1",
+            "title": "input_text_1"
         },
         {
             "createdTime": "2013-01-01T12:00:00Z",
             "deletable": false,
-            "displayName": "text_area_2",
             "editable": false,
             "form": {
                 "formItems": [
@@ -48,7 +47,8 @@
                 ]
             },
             "isOptional": false,
-            "name": "myapplication:text_area_2"
+            "name": "myapplication:text_area_2",
+            "title": "text_area_2"
         }
     ]
 }

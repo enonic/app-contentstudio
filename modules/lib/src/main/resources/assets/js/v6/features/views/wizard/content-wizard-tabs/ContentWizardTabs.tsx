@@ -54,7 +54,7 @@ export const ContentWizardTabs = ({tabListAction}: ContentWizardTabsProps): Reac
                         {hasPage && <Tab.DefaultTrigger value="page">{pageTabLabel}</Tab.DefaultTrigger>}
                         {xDataTabs.map((tab) => (
                             <Tab.DefaultTrigger key={tab.name} value={tab.name} error={showErrors && invalidTabs.has(tab.name)}>
-                                {tab.displayName}
+                                {tab.title}
                             </Tab.DefaultTrigger>
                         ))}
                     </Tab.List>
@@ -75,7 +75,7 @@ export const ContentWizardTabs = ({tabListAction}: ContentWizardTabsProps): Reac
 
             {xDataTabs.map((tab) => (
                 <Tab.Content key={tab.name} value={tab.name}>
-                    <MixinView mixinName={tab.name} displayName={tab.displayName} />
+                    <MixinView mixinName={tab.name} title={tab.title} />
                 </Tab.Content>
             ))}
         </Tab.Root>
