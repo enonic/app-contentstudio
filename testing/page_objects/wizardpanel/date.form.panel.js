@@ -1,7 +1,6 @@
 /**
  * Created on 12.03.2026
  */
-
 const OccurrencesFormView = require('../wizardpanel/occurrences.form.view');
 const {COMMON} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
@@ -32,10 +31,6 @@ class DateForm extends OccurrencesFormView {
         //     el.dispatchEvent(new Event('change', { bubbles: true }));
         // }, dateElements[index], value);
         return await this.pause(300);
-    }
-
-    async waitForRedBorderDisplayedInDateTimeInput(index) {
-        return await this.waitForRedBorderInInput(index, this.dateInput);
     }
 
     // Gets array of values from DateTime inputs, if there are more than one

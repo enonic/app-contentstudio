@@ -84,14 +84,14 @@ class BaseDropdown extends Page {
         }
     }
 
-    async clickOnDropdownHandle(parentLocator = '') {
-        let locator = parentLocator + this.dropdownHandle;
+    async clickOnDropdownHandle() {
+        let locator = this.dropdownHandle;
         await this.waitForElementDisplayed(locator);
         return await this.clickOnElement(locator);
     }
 
     async waitForApplySelectionButtonDisplayed() {
-        await this.waitUntilDisplayed(this.applySelectionButton, appConst.shortTimeout);
+        await this.waitUntilDisplayed(this.applySelectionButton);
         await this.pause(100);
     }
 
@@ -200,6 +200,16 @@ class BaseDropdown extends Page {
                 'err_click_filtered_option', err);
         }
     }
+    async clickOnListItemOptionByDisplayName(optionDisplayName) {
+        try {
+            let optionLocator = DROPDOWN.listItemOptionByDisplayName(optionDisplayName);
+            await this.waitForElementDisplayed(optionLocator);
+            await this.clickOnElement(optionLocator);
+        } catch (err) {
+            await this.handleError(`Dropdown Selector, tried to click on filtered by display name option: ${optionDisplayName}`,
+                'err_click_filtered_option', err);
+        }
+    }
 
     // epic-enonic-ui
     async clickOnTreeItemOptionByDisplayName(optionDisplayName) {
@@ -279,10 +289,10 @@ class BaseDropdown extends Page {
     }
 
     // tree mode if 'active' is present in @class attribute
-    async getMode(xpath) {
-        let attr = await this.getAttribute(xpath + this.modeTogglerButton, 'class');
+    async getMode() {
+        let attr = await this.getAttribute(this.modeTogglerButton, 'aria-label');
         //return attr.includes('active') ? 'tree' : 'flat';
-        return attr.includes('folder-closed') ? 'flat' : 'tree';
+        return attr.includes('List view') ? 'flat' : 'tree';
     }
 
     async getSelectedOptionsDisplayName() {

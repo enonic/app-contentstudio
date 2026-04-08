@@ -4,9 +4,11 @@
 const BaseDropdown = require('./base.dropdown');
 const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
+const {DROPDOWN} = require('../../../libs/elements');
 const XPATH = {
     contentListBoxUL: "//ul[contains(@id,'ContentListBox')]",
     contentsTreeListUL: "//ul[contains(@id,'ContentsTreeList')]",
+    selectionItemDisplayName: "//div[@data-component='SelectorSelectionItem']//div[@data-component='MediaSelectorItemView']//span[contains(@class,'font-semibold')]",
 };
 
 class ContentSelectorDropdown extends BaseDropdown {
@@ -16,17 +18,21 @@ class ContentSelectorDropdown extends BaseDropdown {
         this._container = parentElementXpath;
     }
 
-    // get dataComponent() {
-    //     return "//div[contains(@data-component,'AssigneeSelector')]";
-    // }
-
     // returns the element that contains the dropdown:
     get container() {
         return this._container;
     }
+    optionsFilterInput() {
+        return this.dataComponentDiv + DROPDOWN.OPTION_FILTER_INPUT;
+    }
 
     get dataComponentDiv() {
         return "//div[contains(@data-component,'ContentCombobox')]";
+    }
+
+    async getSelectedOptionsDisplayName() {
+        const locator = this.container + XPATH.selectionItemDisplayName;
+        return await this.getTextInDisplayedElements(locator);
     }
 
     // selects a tree option by display name .
@@ -49,6 +55,7 @@ class ContentSelectorDropdown extends BaseDropdown {
         }
     }
 
+    // TODO
     async getOptionsDisplayNameInTreeMode(parentXpath) {
         let locator = XPATH.contentsTreeListUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);

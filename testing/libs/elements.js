@@ -19,6 +19,8 @@ const COMMON = {
     INPUTS: {
         CHECKBOX_INPUT: "//input[@type='checkbox']",
         FORM_RENDERER_DATA_COMPONENT:"//div[@data-component='FormRenderer']",
+        DATA_COMPONENT_INPUT_FIELD:"//div[@data-component='InputField']",
+        inputFieldByLabel:(label)=>`//div[@data-component='InputField' and descendant::div[@data-component='InputLabel' and contains(.,'${label}')]]`,
         OCCURRENCES_DATA_COMPONENT: "//div[@data-component='OccurrenceList']",
         VALIDATION_RECORDING:"//div[contains(@class,'text-error')]",
         CHECKBOX_INPUT_CHECKED: "//input[@type='checkbox' and @aria-checked='true']",
@@ -70,6 +72,7 @@ const WIZARD = {
 };
 const BUTTONS = {
     BUTTON_REMOVE_ICON: "//button[@aria-label='Remove']",
+    BUTTON_EDIT_ICON: "//button[@aria-label='Edit']",
     BUTTON_WITH_SPAN_ADD: "//button[child::span[text()='Add']]",
     NEW_CONTENT_BUTTON: "//button[contains(@class,'new-content-button')]",
     REFRESH_BUTTON: "//button[contains(@class,'icon-loop')]",
@@ -144,6 +147,7 @@ const DROPDOWN = {
     LISTBOX_OPTIONS_DIV: "//div[contains(@role,'listbox')]",
     listboxOptionByText: (text) => `//div[contains(@role,'option')  and descendant::span[text()='${text}']]`,
     optionByDisplayName: (displayName) => `//div[contains(@id,'listbox-option')  and descendant::span[contains(.,'${displayName}')]]`,
+    listItemOptionByDisplayName: (displayName) => `//div[@role='listitem'  and descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]]]`,
     treeItemByDisplayName: (displayName) => `//div[@role='treeitem']//div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]]`,
     treeItemExpanderByDisplayName: (displayName) => `//div[@role='treeitem' and descendant::span[contains(.,'${displayName}')]]//button[@aria-label='Expand']`,
     treeItemCheckboxByDisplayName: (displayName) => `//div[@role='treeitem' and descendant::span[contains(.,'${displayName}')]]//div[@role='checkbox']`,

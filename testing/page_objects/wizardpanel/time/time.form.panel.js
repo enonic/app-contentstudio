@@ -4,28 +4,33 @@
 const OccurrencesFormView = require('../../wizardpanel/occurrences.form.view');
 const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
+const {COMMON} = require('../../../libs/elements');
+
 const XPATH = {
-    validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
+    dataComponentInput: "//div[@data-component='TimeInput']",
 };
 
 class TimeForm extends OccurrencesFormView {
 
     get timeInput() {
-        return lib.FORM_VIEW + lib.TIME_PICKER_INPUT;
+        return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + XPATH.dataComponentInput + COMMON.INPUTS.INPUT;
     }
 
     get validationRecord() {
         return lib.FORM_VIEW + XPATH.validationRecording;
     }
 
-    async typeTime(index, value) {
+    async setTime(index, value) {
         let timeElements = await this.getDisplayedElements(this.timeInput);
         await timeElements[index].setValue(value);
         return await this.pause(300);
     }
 
-    async waitForRedBorderDisplayedInTimeInput(index) {
-        return await this.waitForRedBorderInInput(index, this.timeInput);
+    async typeTime(index, value) {
+        let timeElements = await this.getDisplayedElements(this.timeInput);
+        for (const ch of value) {
+            await timeElements[index].addValue(ch);
+        }
     }
 
     async getTimes() {

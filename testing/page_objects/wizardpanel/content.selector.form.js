@@ -1,22 +1,24 @@
 /**
  * Created on 09.07.2020.
  */
-const lib = require('../../libs/elements-old');
+const {COMMON} = require('../../libs/elements');
 const BaseSelectorForm = require('./base.selector.form');
 const appConst = require('../../libs/app_const');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 
 const XPATH = {
-    container: lib.FORM_VIEW + "//div[contains(@id,'ContentSelector')]",
-    selectedOptionByName: option => {
-        return `//div[contains(@id,'ContentSelector') and descendant::h6[contains(@class,'main-name') and text()='${option}']]`
-    },
+    container: "//div[@data-component='FormRenderer']",
+    selectorSelectionDiv: "//div[@data-component='SelectorSelection']",
+    removeButtonByDisplayName: (displayName) =>
+        `//div[@data-component='SelectorSelectionItem' and descendant::span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]` +
+        `//button[@aria-label='Remove']`,
 };
 
 class ContentSelectorForm extends BaseSelectorForm {
 
     get optionsFilterInput() {
-        return XPATH.container + lib.OPTION_FILTER_INPUT;
+        let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
+        return contentSelectorDropdown.optionsFilterInput();
     }
 
     get dropdownHandle() {
@@ -32,20 +34,20 @@ class ContentSelectorForm extends BaseSelectorForm {
     }
 
     async clickOnModeTogglerButton() {
-        await this.waitForElementDisplayed(this.modeTogglerButton, appConst.mediumTimeout);
-        await this.clickOnElement(this.modeTogglerButton);
-        await this.pause(500);
+        let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
+        await contentSelectorDropdown.clickOnModeTogglerButton();
+        await this.pause(200);
     }
 
     async clickOnDropdownHandle() {
-        await this.waitForElementDisplayed(this.dropdownHandle, appConst.mediumTimeout);
-        await this.clickOnElement(this.dropdownHandle);
-        await this.pause(1000);
+        let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
+        await contentSelectorDropdown.clickOnDropdownHandle();
+        await this.pause(500);
     }
 
     async clickOnCheckboxInDropdown(index) {
-        let contentSelectorDropdown = new ContentSelectorDropdown();
-        await contentSelectorDropdown.clickOnCheckboxInDropdown(index, XPATH.container);
+        let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
+        await contentSelectorDropdown.clickOnCheckboxInDropdown(index);
         await this.pause(500);
     }
 
@@ -53,9 +55,9 @@ class ContentSelectorForm extends BaseSelectorForm {
         return `//div[contains(@id,'ContentSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${displayName}']]`;
     }
 
-    getSelectedOptions() {
-        let selector = "//div[contains(@id,'ContentSelectedOptionView')]//h6[contains(@class,'main-name')]";
-        return this.getTextInElements(selector);
+    async getSelectedOptions() {
+        let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
+        return await contentSelectorDropdown.getSelectedOptionsDisplayName();
     }
 
     getNameOfSelectedOptions() {
@@ -65,7 +67,7 @@ class ContentSelectorForm extends BaseSelectorForm {
 
     async waitForAddNewContentButtonDisplayed() {
         try {
-            await this.waitForElementDisplayed(this.addNewContentButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.addNewContentButton);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_add_new_btn');
             throw new Error(`'Add new' button is not displayed, screenshot:${screenshot} ` + err);
@@ -74,10 +76,10 @@ class ContentSelectorForm extends BaseSelectorForm {
 
     async waitForAddNewContentButtonNotDisplayed() {
         try {
-            await this.waitForElementNotDisplayed(this.addNewContentButton, appConst.mediumTimeout);
+            await this.waitForElementNotDisplayed(this.addNewContentButton);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_add_new_btn');
-            throw new Error(`'Add new' button should not be displayed, screenshot:${screenshot} `  + err);
+            throw new Error(`'Add new' button should not be displayed, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -89,11 +91,13 @@ class ContentSelectorForm extends BaseSelectorForm {
     // Selects an option by the display-name then click on Apply selection  button:
     async clickOnOptionByDisplayNameAndApply(optionDisplayName) {
         try {
-            let contentSelectorDropdown = new ContentSelectorDropdown();
-            await contentSelectorDropdown.clickOnFilteredByDisplayNameItemAndClickOnApply(optionDisplayName);
+            let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
+            await contentSelectorDropdown.doFilterItem(optionDisplayName);
+            await contentSelectorDropdown.clickOnListItemOptionByDisplayName(optionDisplayName);
+            await contentSelectorDropdown.clickOnApplySelectionButton();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_combobox');
-            throw new Error(`Error occurred in content combobox, screenshot:${screenshot} `  + err)
+            await this.handleError(
+                `Content selector, tried to click on the option: ${optionDisplayName} and click on Apply button`, 'err_combobox', err);
         }
     }
 
@@ -101,15 +105,15 @@ class ContentSelectorForm extends BaseSelectorForm {
     // Insert a text in Filter input, switches to flat mode, then click on the filtered by displayName item
     async doFilterOptionInTreeModeAndApply(optionDisplayName) {
         try {
-            let contentSelectorDropdown = new ContentSelectorDropdown();
-            await contentSelectorDropdown.filterItem(optionDisplayName, XPATH.container);
+            let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
+            await contentSelectorDropdown.filterItem(optionDisplayName);
             await contentSelectorDropdown.pause(1000);
             let mode = await this.getOptionsMode();
             // TODO check the mode
             // 2. Wait for the required option is displayed then click on it:
-            await contentSelectorDropdown.clickOnOptionByDisplayName(optionDisplayName, XPATH.container);
+            await contentSelectorDropdown.clickOnOptionByDisplayName(optionDisplayName);
             // 3. Click on 'Apply' button:
-            return await contentSelectorDropdown.clickOnApplySelectionButton(XPATH.container);
+            return await contentSelectorDropdown.clickOnApplySelectionButton();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_combobox');
             throw new Error(`Error occurred in content combobox, screenshot:${screenshot} ` + err)
@@ -123,34 +127,40 @@ class ContentSelectorForm extends BaseSelectorForm {
             await contentSelector.clickOnApplySelectionButton();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
-            throw new Error(`Error occurred in Content combobox, OK button, screenshot:${screenshot} `  + err);
+            throw new Error(`Error occurred in Content combobox, OK button, screenshot:${screenshot} ` + err);
         }
     }
 
     async getOptionsDisplayNameInTreeMode() {
-        let contentSelector = new ContentSelectorDropdown();
-        return await contentSelector.getOptionsDisplayNameInTreeMode(XPATH.container);
+        let contentSelector = new ContentSelectorDropdown(XPATH.container);
+        return await contentSelector.getOptionsDisplayNameInTreeMode();
     }
 
     async getOptionsDisplayNameInFlatMode() {
-        let contentSelector = new ContentSelectorDropdown();
-        return await contentSelector.getOptionsDisplayNameInFlatMode(XPATH.container);
+        let contentSelector = new ContentSelectorDropdown(XPATH.container);
+        return await contentSelector.getOptionsDisplayNameInFlatMode();
     }
 
-    async removeSelectedOption(option) {
-        let locator = XPATH.selectedOptionByName(option) + lib.REMOVE_ICON;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.clickOnElement(locator);
-        return await this.pause(500);
+    async removeSelectedOption(displayName) {
+        try {
+            const locator = XPATH.container + XPATH.removeButtonByDisplayName(displayName);
+            await this.waitForElementDisplayed(locator);
+            await this.clickOnElement(locator);
+            return await this.pause(500);
+        } catch (err) {
+            await this.handleError(
+                `Content selector form, tried to remove the selected option: ${displayName}`, 'err_remove_option', err);
+        }
     }
 
     async getOptionsMode() {
-        let contentSelector = new ContentSelectorDropdown();
-        return await contentSelector.getMode(XPATH.container);
+        let contentSelector = new ContentSelectorDropdown(XPATH.container);
+        return await contentSelector.getMode();
     }
+
     async getCheckedOptionsDisplayNameInDropdownList() {
-        let contentSelector = new ContentSelectorDropdown();
-        return await contentSelector.getCheckedOptionsDisplayNameInDropdownList(XPATH.container);
+        let contentSelector = new ContentSelectorDropdown(XPATH.container);
+        return await contentSelector.getCheckedOptionsDisplayNameInDropdownList();
     }
 }
 

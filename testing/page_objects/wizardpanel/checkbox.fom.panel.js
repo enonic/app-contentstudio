@@ -20,7 +20,7 @@ class CheckBoxForm extends Page {
     }
 
     get formValidationRecording() {
-        return lib.FORM_VIEW + lib.INPUT_VALIDATION_VIEW;
+        return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + COMMON.INPUTS.VALIDATION_RECORDING;
     }
 
     async clickOnCheckbox() {
@@ -56,8 +56,6 @@ class CheckBoxForm extends Page {
             return elements.length === 0;
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Form Validation recording should not be displayed"});
     }
-
-
 }
 
 module.exports = CheckBoxForm;

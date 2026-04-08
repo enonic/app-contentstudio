@@ -39,10 +39,6 @@ class DateTimeForm extends OccurrencesFormView {
         return await this.pause(300);
     }
 
-    async waitForRedBorderDisplayedInDateTimeInput(index) {
-        return await this.waitForRedBorderInInput(index, this.dateTimeInput);
-    }
-
     // Gets array of values from DateTime inputs, if there are more than one
     async getDateTimes() {
         let values = [];
