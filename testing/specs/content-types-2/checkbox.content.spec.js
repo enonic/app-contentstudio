@@ -81,8 +81,7 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
             // 5. Verify that validation recording gets not visible
             await checkBoxForm.waitForFormValidationRecordingNotDisplayed();
             // 6. The content gets valid
-            isInvalid = await contentWizard.isContentInvalid();
-            assert.ok(isInvalid === false, "Content should be valid");
+            await contentWizard.waitUntilInvalidIconDisappears();
             // 7. Click on Save button:
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
