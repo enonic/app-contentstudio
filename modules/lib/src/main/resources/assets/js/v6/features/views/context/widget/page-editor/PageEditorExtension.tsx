@@ -10,8 +10,8 @@ import {$activeWidgetId, $isContextOpen} from '../../../../store/contextWidgets.
 import {$isInsertTabAvailable} from '../../../../store/pageEditor.store';
 import {$isInspecting} from '../../../../store/pageEditorInspect.store';
 import {PAGE_EDITOR_WIDGET_KEY} from '../../../../utils/widget/pageEditor';
-import {InsertPanel} from './InsertPanel';
-import {InspectPanel} from './InspectPanel';
+import {InsertPanel} from './insert';
+import {InspectPanel} from './inspect';
 
 const PAGE_EDITOR_EXTENSION_NAME = 'PageEditorExtension';
 
@@ -45,18 +45,14 @@ export const PageEditorExtension = (): ReactElement => {
     return (
         <Tab.Root data-component={PAGE_EDITOR_EXTENSION_NAME} value={activeTab} onValueChange={setActiveTab} className="flex flex-col -mt-4">
             <Tab.List>
-                {isInsertTabAvailable && (
-                    <Tab.DefaultTrigger value="insert">{insertLabel}</Tab.DefaultTrigger>
-                )}
+                <Tab.DefaultTrigger value="insert" disabled={!isInsertTabAvailable}>{insertLabel}</Tab.DefaultTrigger>
                 <Tab.DefaultTrigger value="inspect">{inspectLabel}</Tab.DefaultTrigger>
             </Tab.List>
 
-            {isInsertTabAvailable && (
-                <Tab.Content value="insert">
-                    <InsertPanel className="mt-5" />
-                </Tab.Content>
-            )}
-            <Tab.Content value="inspect">
+            <Tab.Content value="insert" className="mt-5">
+                <InsertPanel />
+            </Tab.Content>
+            <Tab.Content value="inspect" className="mt-0">
                 <InspectPanel />
             </Tab.Content>
         </Tab.Root>

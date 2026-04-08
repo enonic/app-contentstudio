@@ -215,7 +215,7 @@ export const AssigneeSelector = ({
                 }}
                 disabled={disabled}
             >
-                <Combobox.Content className='relative'>
+                <Combobox.Content>
                     <Combobox.Control>
                         <Combobox.Search>
                             <Combobox.SearchIcon />

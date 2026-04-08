@@ -44,7 +44,7 @@ export const ApplicationSelector = (props: ApplicationSelectorProps): ReactEleme
                 closeOnBlur={closeOnBlur}
                 contentType="listbox"
             >
-                <Combobox.Content className="relative">
+                <Combobox.Content>
                     <Combobox.Control>
                         <Combobox.Search>
                             <Combobox.SearchIcon />

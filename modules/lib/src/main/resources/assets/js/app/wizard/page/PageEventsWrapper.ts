@@ -26,6 +26,10 @@ export class PageEventsWrapper extends ComponentEventsWrapper {
         this.eventsHolder.unPageReset(listener);
     }
 
+    notifyPageReset(): void {
+        this.eventsHolder.notifyPageReset();
+    }
+
     onPageConfigUpdated(listener: PageConfigUpdateHandler): void {
         this.eventsHolder.onPageConfigUpdated(listener);
     }

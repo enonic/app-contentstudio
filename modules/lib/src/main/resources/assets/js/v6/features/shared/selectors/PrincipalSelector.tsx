@@ -74,7 +74,7 @@ export const PrincipalSelector = ({
                 disabled={disabled}
                 contentType="listbox"
             >
-                <Combobox.Content className="relative">
+                <Combobox.Content>
                     <Combobox.Control>
                         <Combobox.Search>
                             <Combobox.SearchIcon />

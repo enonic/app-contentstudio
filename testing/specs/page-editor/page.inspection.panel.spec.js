@@ -88,7 +88,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             // Verify - 'Save' button remains enabled after switching templates #6484
             await contentWizard.waitForSaveButtonDisabled();
             await wizardContextWindow.getSelectedOptionInWidgetSelectorDropdown();
-            // 6. Verify that 'Details' widget loads after selecting 'Automatic'(no default template) controller:
+            // 6. Verify that 'Details' widget loads after selecting 'Automatic' "No default template" controller:
             let selectedOption = await wizardContextWindow.getSelectedOptionInWidgetSelectorDropdown();
             assert.equal(selectedOption, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS, `'Details' widget should be in the widget selector`);
         });

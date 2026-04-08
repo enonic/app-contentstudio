@@ -79,7 +79,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             let actualOptions = await pageInspectionPanel.getOptionsDescriptionInPageTemplateDropdown();
             // 6. Verify actual options:
             await studioUtils.saveScreenshot('site_inspect_panel_template_dropdown');
-            let expectedOption = `( no default template found )`;
+            let expectedOption = 'No default template found';
             assert.equal(actualOptions[0], expectedOption, 'name of automatic template should be displayed');
             assert.equal(actualOptions[1], 'test region', 'expected option should be present');
             assert.ok(actualOptions.includes('home page') , 'expected option should be present');

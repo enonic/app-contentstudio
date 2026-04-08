@@ -1,10 +1,14 @@
+import type {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import type {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {atom, computed, map} from 'nanostores';
+import type {ContentId} from '../../../app/content/ContentId';
 import type {Page} from '../../../app/page/Page';
 import type {ComponentPath} from '../../../app/page/region/ComponentPath';
 import type {ComponentType} from '../../../app/page/region/ComponentType';
 import type {ComponentTextUpdatedOrigin} from '../../../app/page/region/ComponentTextUpdatedOrigin';
 import type {DescriptorKey} from '../../../app/page/DescriptorKey';
 import type {PageTemplateKey} from '../../../app/page/PageTemplateKey';
+import {PageStateEvent} from '../../../page-editor/event/incoming/common/PageStateEvent';
 import {PageEventsManager} from '../../../app/wizard/PageEventsManager';
 import {PageState} from '../../../app/wizard/page/PageState';
 
@@ -18,6 +22,16 @@ type PageEditorLifecycle = {
     isPageReady: boolean;
 };
 
+export type PageEditorContentContext = {
+    contentId: ContentId;
+    contentTypeName: ContentTypeName;
+    siteId: ContentId | null;
+    isPageTemplate: boolean;
+    isInherited: boolean;
+    isDataInherited: boolean;
+    applicationKey: ApplicationKey | null;
+};
+
 export const $pageEditorLifecycle = map<PageEditorLifecycle>({
     isPageLocked: false,
     isPageRenderable: undefined,
@@ -29,6 +43,10 @@ export const $page = atom<Page | null>(null);
 export const $pageVersion = atom<number>(0);
 
 export const $hasDefaultPageTemplate = atom<boolean>(false);
+
+export const $defaultPageTemplateName = atom<string | null>(null);
+
+export const $contentContext = atom<PageEditorContentContext | null>(null);
 
 //
 // * Computed
@@ -80,6 +98,14 @@ export function setHasDefaultPageTemplate(value: boolean): void {
     $hasDefaultPageTemplate.set(value);
 }
 
+// ? Used by LiveFormPanel to sync renderable state that
+// ? may have been set before the bridge was initialized.
+export function syncInitialRenderable(isRenderable: boolean): void {
+    if ($pageEditorLifecycle.get().isPageRenderable === undefined) {
+        $pageEditorLifecycle.setKey('isPageRenderable', isRenderable);
+    }
+}
+
 //
 // * Actions — command dispatch
 //
@@ -98,6 +124,14 @@ export function requestCustomizePage(): void {
 
 export function requestPageReset(): void {
     PageEventsManager.get().notifyPageResetRequested();
+}
+
+// ? Performs the page reset directly, bypassing the legacy
+// ? confirmation dialog in PageState.onPageResetRequested.
+export function executePageReset(): void {
+    PageState.setState(null);
+    new PageStateEvent(null).fire();
+    PageState.getEvents().notifyPageReset();
 }
 
 export function requestSetComponentDescriptor(path: ComponentPath, descriptorKey: DescriptorKey): void {
@@ -138,6 +172,8 @@ const cleanups: Unsubscribe[] = [];
 
 export type InitPageEditorBridgeOptions = {
     hasDefaultPageTemplate?: boolean;
+    defaultPageTemplateName?: string | null;
+    contentContext?: PageEditorContentContext;
 };
 
 export function initPageEditorBridge(options?: InitPageEditorBridgeOptions): void {
@@ -204,6 +240,14 @@ export function initPageEditorBridge(options?: InitPageEditorBridgeOptions): voi
     if (options?.hasDefaultPageTemplate != null) {
         $hasDefaultPageTemplate.set(options.hasDefaultPageTemplate);
     }
+
+    if (options?.defaultPageTemplateName !== undefined) {
+        $defaultPageTemplateName.set(options.defaultPageTemplateName ?? null);
+    }
+
+    if (options?.contentContext) {
+        $contentContext.set(options.contentContext);
+    }
 }
 
 export function cleanupPageEditorBridge(): void {
@@ -220,4 +264,6 @@ export function cleanupPageEditorBridge(): void {
     $page.set(null);
     $pageVersion.set(0);
     $hasDefaultPageTemplate.set(false);
+    $defaultPageTemplateName.set(null);
+    $contentContext.set(null);
 }
