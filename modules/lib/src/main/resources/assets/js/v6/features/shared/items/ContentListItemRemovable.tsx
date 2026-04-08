@@ -5,6 +5,7 @@ import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSum
 import {EditContentEvent} from '../../../../app/event/EditContentEvent';
 import {ContentLabel} from '../content/ContentLabel';
 import {DiffStatusBadge} from '../status/DiffStatusBadge';
+import {calcContentState} from '../../utils/cms/content/workflow';
 
 export type ContentListItemRemovableProps = {
     content: ContentSummaryAndCompareStatus;
@@ -66,6 +67,7 @@ export const ContentListItemRemovable = ({
                 {status && <DiffStatusBadge
                     publishStatus={content.getPublishStatus()}
                     compareStatus={content.getCompareStatus()}
+                    contentState={calcContentState(content.getContentSummary())}
                     wasPublished={!!content.getContentSummary().getPublishFirstTime()} />}
             </ListItem.Right>
         </ListItem>

@@ -168,3 +168,5 @@ export class AiContentDataHelper {
         return `__${key}__/${pathParts.slice(3).join('/')}`;
     }
 }
+
+export const AI_CONTENT_TOPIC_PATH = `/${AiContentDataHelper.TOPIC}`;

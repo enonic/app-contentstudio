@@ -227,7 +227,7 @@ html.dark {
 
   .cke_top,
   .cke_bottom {
-    background: @cke-dark-surface-hover !important;
+    background: @cke-dark-surface !important;
     border-color: @cke-dark-border;
   }
 
@@ -239,7 +239,7 @@ html.dark {
   // Reset text color for all skin elements
   .cke_reset_all,
   .cke_reset_all * {
-    color: @cke-dark-text-subtle;
+    color: @cke-dark-text !important;
   }
 
   // Toolbar buttons
@@ -263,11 +263,11 @@ html.dark {
 
   // Invert toolbar icons (PNG sprite, black on transparent)
   .cke_button_icon {
-    filter: invert(0.85);
+    filter: brightness(0) invert(1);
   }
 
   .cke_button__sourcedialog_icon {
-    filter: invert(0.85);
+    filter: brightness(0) invert(1);
   }
 
   // Toolbar separators and group dividers

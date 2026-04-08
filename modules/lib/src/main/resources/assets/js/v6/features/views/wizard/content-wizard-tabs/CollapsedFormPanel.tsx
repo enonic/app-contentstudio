@@ -1,5 +1,5 @@
 import {IconButton} from '@enonic/ui';
-import {PanelRightClose} from 'lucide-react';
+import {ChevronRight} from 'lucide-react';
 import {type ReactElement} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {setContentFormExpanded} from '../../../store/wizardContent.store';
@@ -18,11 +18,12 @@ export const CollapsedFormPanel = ({displayName}: CollapsedFormPanelProps): Reac
     return (
         <div className="flex flex-col items-center pt-1 gap-3 h-full">
             <IconButton
-                icon={PanelRightClose}
-                size="md"
-                variant="text"
+                icon={ChevronRight}
+                size="sm"
+                variant="filled"
                 aria-label={expandLabel}
                 onClick={handleExpand}
+                className="rounded-full"
             />
             <span
                 className="text-lg font-semibold text-subtle whitespace-nowrap overflow-hidden text-ellipsis max-h-full [writing-mode:vertical-lr]"

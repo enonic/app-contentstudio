@@ -325,7 +325,7 @@ const CKEditorWrapper = ({
         <>
             <div data-name={CKEDITOR_WRAPPER_NAME} className={cn(
                 'html-area rounded-sm *:rounded-sm transition-highlight',
-                focused && 'ring-3 ring-offset-3 ring-offset-ring-offset',
+                focused && 'ring-2 ring-offset-0 ring-offset-ring-offset',
                 focused && (hasError ? 'ring-error' : 'ring-ring'),
                 hasError && 'has-error [&_.cke_chrome]:!border-error',
             )}>

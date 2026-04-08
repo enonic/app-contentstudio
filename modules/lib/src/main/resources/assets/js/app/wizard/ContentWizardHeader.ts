@@ -12,7 +12,7 @@ import {type Content} from '../content/Content';
 import {ContentPath} from '../content/ContentPath';
 import {ContentExistsByPathRequest} from '../resource/ContentExistsByPathRequest';
 import {AiStateTool} from '@enonic/lib-admin-ui/ai/tool/AiStateTool';
-import {AiContentDataHelper} from '../ai/AiContentDataHelper';
+import {AiContentDataHelper, AI_CONTENT_TOPIC_PATH} from '../ai/AiContentDataHelper';
 import {AiAnimationTool} from '@enonic/lib-admin-ui/ai/tool/AiAnimationTool';
 import {AI} from '../ai/AI';
 import {AiDialogIconTool} from '@enonic/lib-admin-ui/ai/tool/AiDialogIconTool';
@@ -311,6 +311,6 @@ export class ContentWizardHeader
     }
 
     private getAiDataPath(): PropertyPath {
-        return PropertyPath.fromString(`/${AiContentDataHelper.TOPIC}`);
+        return PropertyPath.fromString(AI_CONTENT_TOPIC_PATH);
     }
 }

@@ -2,6 +2,7 @@ import {GridList} from '@enonic/ui';
 import type {ReactElement} from 'react';
 import {DiffStatusBadge} from '../../status/DiffStatusBadge';
 import {StatusBadge} from '../../status/StatusBadge';
+import {calcContentState} from '../../../utils/cms/content/workflow';
 import {useContentRow} from './ContentRowContext';
 import type {ContentRowStatusProps} from './types';
 
@@ -23,6 +24,7 @@ export const ContentRowStatus = ({
                 <DiffStatusBadge
                     publishStatus={content.getPublishStatus()}
                     compareStatus={content.getCompareStatus()}
+                    contentState={calcContentState(content.getContentSummary())}
                     wasPublished={!!content.getContentSummary().getPublishFirstTime()}
                 />
             ) : (

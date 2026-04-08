@@ -1,4 +1,5 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import type {ContentState} from './ContentState';
 
 export enum CompareStatus {
     NEW = 'new',
@@ -70,5 +71,9 @@ export class CompareStatusChecker {
 
     public static isMoved(compareStatus: CompareStatus): boolean {
         return compareStatus === CompareStatus.MOVED;
+    }
+
+    public static isMovedAndModified(compareStatus: CompareStatus, contentState?: ContentState | null): boolean {
+        return this.isMoved(compareStatus) && (contentState === 'in-progress' || contentState === 'ready');
     }
 }

@@ -282,7 +282,13 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     }
 
     isMovedAndModified(): boolean {
-        return CompareStatusChecker.isMoved(this.getCompareStatus()) && this.contentSummary?.isInProgress();
+        const contentState = this.contentSummary?.isReady()
+            ? 'ready'
+            : this.contentSummary?.isInProgress()
+                ? 'in-progress'
+                : null;
+
+        return CompareStatusChecker.isMovedAndModified(this.getCompareStatus(), contentState);
     }
 
     canBeMarkedAsReady(): boolean {

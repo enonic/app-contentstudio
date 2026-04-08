@@ -1159,9 +1159,17 @@ export class ContentWizardPanel
     }
 
     giveInitialFocus() {
-        if (this.canModify) {
-            super.giveInitialFocus();
+        if (!this.canModify) {
+            return;
         }
+
+        this.whenRendered(() => {
+            if (!this.contentWizardTabsElement?.focusDisplayNameInput()) {
+                this.getWizardHeader().giveFocus();
+            }
+
+            this.startRememberFocus();
+        });
     }
 
 
