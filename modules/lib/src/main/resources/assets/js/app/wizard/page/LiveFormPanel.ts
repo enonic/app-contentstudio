@@ -15,7 +15,7 @@ import {type LiveEditPageInitializationErrorEvent} from '../../../page-editor/ev
 import {type ShowWarningLiveEditEvent} from '../../../page-editor/event/ShowWarningLiveEditEvent';
 import {type LiveEditModel} from '../../../page-editor/LiveEditModel';
 import {cleanupPageEditorBridge, initPageEditorBridge} from '../../../v6/features/store/pageEditor.store';
-import {clearInspection, inspectComponent} from '../../../v6/features/store/pageEditorInspect.store';
+import {clearInspection, inspectItem} from '../../../v6/features/store/pageEditorInspect.store';
 import {$activeWidget} from '../../../v6/features/store/liveViewWidgets.store';
 import {type Content, type ContentBuilder} from '../../content/Content';
 import {type ContentId} from '../../content/ContentId';
@@ -37,7 +37,7 @@ import {ComponentDuplicatedEvent} from '../../page/region/ComponentDuplicatedEve
 import {ComponentFragmentCreatedEvent} from '../../page/region/ComponentFragmentCreatedEvent';
 import {ComponentFragmentUpdatedEvent} from '../../page/region/ComponentFragmentUpdatedEvent';
 import {ComponentImageUpdatedEvent} from '../../page/region/ComponentImageUpdatedEvent';
-import {type ComponentPath} from '../../page/region/ComponentPath';
+import {ComponentPath} from '../../page/region/ComponentPath';
 import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedEvent';
 import {type ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
 import {DescriptorBasedComponent} from '../../page/region/DescriptorBasedComponent';
@@ -711,6 +711,7 @@ export class LiveFormPanel
     }
 
     private inspectPage(params: InspectPageParams): void {
+        inspectItem(ComponentPath.root());
         const pagePanel = this.availableInspectPanels.get('page') as PageInspectionPanel;
         this.contextWindow?.showInspectionPanel(
             getInspectParameters({
@@ -752,6 +753,7 @@ export class LiveFormPanel
 
     private inspectRegion(regionPath: ComponentPath, source?: PageNavigationEventSource): void {
         const region: Region = PageState.getState().getComponentByPath(regionPath) as Region;
+        inspectItem(regionPath);
         const regionInspectionPanel = this.availableInspectPanels.get('region') as RegionInspectionPanel;
         regionInspectionPanel?.setRegion(region);
 
@@ -783,7 +785,7 @@ export class LiveFormPanel
 
         if (inspectionPanel instanceof ComponentInspectionPanel) {
             showInspectionPanel(inspectionPanel);
-            inspectComponent(component.getPath());
+            inspectItem(component.getPath());
             if (focus) {
                 setTimeout(() => inspectionPanel.focus(), 200);
             }

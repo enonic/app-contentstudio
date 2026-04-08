@@ -1,5 +1,5 @@
 import {cn} from '@enonic/ui';
-import {ComponentPropsWithoutRef, ReactElement, ReactNode} from 'react';
+import type {ComponentPropsWithoutRef, ReactElement, ReactNode} from 'react';
 
 const ITEM_LABEL_NAME = 'ItemLabel';
 

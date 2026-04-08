@@ -1,10 +1,29 @@
-import type {ReactElement} from 'react';
+import {cn} from '@enonic/ui';
+import {useStore} from '@nanostores/preact';
+import type {FC, ReactElement} from 'react';
+import {$inspectedItemType} from '../../../../store/pageEditorInspect.store';
+import {RegionInspectionPanel} from './RegionInspectionPanel';
+
+// TODO: add page, part, layout, text, fragment panels
+const PANEL_BY_TYPE: Record<string, FC> = {
+    region: RegionInspectionPanel,
+};
+
+export type InspectPanelProps = {
+    className?: string;
+};
 
 const INSPECT_PANEL_NAME = 'InspectPanel';
 
-export const InspectPanel = (): ReactElement => {
+export const InspectPanel = ({className}: InspectPanelProps): ReactElement => {
+    const itemType = useStore($inspectedItemType);
+    const key = itemType?.toString();
+    const Panel = key ? PANEL_BY_TYPE[key] : undefined;
+
     return (
-        <div data-component={INSPECT_PANEL_NAME} />
+        <div data-component={INSPECT_PANEL_NAME} className={cn('flex flex-col', className)}>
+            {Panel && <Panel />}
+        </div>
     );
 };
 

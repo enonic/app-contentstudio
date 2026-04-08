@@ -80,6 +80,26 @@ Wrapped.displayName = `withAuth(${Component.displayName || Component.name})`;
 export function UserCard({ name }: Props) { return <div>{name}</div>; }
 ```
 
+## Conditional Rendering by Type
+
+```typescript
+// ✅ 1-2 branches: inline conditional
+{isRegion && <RegionPanel />}
+
+// ✅ 3+ branches: component map outside the component
+const PANEL_BY_TYPE: Partial<Record<ItemType, ComponentType>> = {
+    region: RegionPanel,
+    page: PagePanel,
+};
+
+// In component:
+const Panel = type ? PANEL_BY_TYPE[type] : undefined;
+return Panel ? <Panel /> : null;
+
+// ❌ Switch/if-else inside render or inner render function
+// ❌ Nested ternaries
+```
+
 ## useEffect — Correct Uses Only
 
 ```typescript
