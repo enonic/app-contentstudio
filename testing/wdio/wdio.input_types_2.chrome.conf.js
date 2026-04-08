@@ -12,6 +12,8 @@ exports.config = {
         //path.join(__dirname, '../specs/content-types-2/*.spec.js')
         path.join(__dirname, '../specs/content-types-2/combobox.content.spec.js'),
         path.join(__dirname, '../specs/content-types-2/occurrences.double.spec.js'),
+        path.join(__dirname, '../specs/content-types-2/checkbox.content.spec.js'),
+        path.join(__dirname, '../specs/content-types-2/double.content.config.spec.js'),
     ],
     exclude: [
         //path.join(__dirname, '../specs/content-types-2/revert.zoomed.image.spec.js'),

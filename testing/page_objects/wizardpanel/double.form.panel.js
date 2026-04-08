@@ -34,9 +34,18 @@ class DoubleForm extends OccurrencesFormView {
         return await this.pause(300);
     }
 
-    async getNumberOfInputs() {
+    async getDoubleInputs() {
         return await this.getDisplayedElements(this.doubleInput);
     }
+
+    async getValueFromInput(index) {
+        let doubleInputElements = await this.findElements(this.doubleInput);
+        if (doubleInputElements.length === 0) {
+            throw new Error('Double Form - inputs were not found!');
+        }
+       return await doubleInputElements[index].getValue();
+    }
+
 
     async isInvalidValue(index) {
         let inputs = await this.getDisplayedElements(this.doubleInput);

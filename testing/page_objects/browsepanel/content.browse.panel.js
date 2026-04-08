@@ -33,9 +33,6 @@ const XPATH = {
     markAsReadyMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Mark as ready']",
     resetSelectionCheckbox: `//label[child::input[contains(@aria-label,'Reset selection')]]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
-    contentSummaryListViewerByName(name) {
-        return `//div[contains(@id,'ContentSummaryListViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
-    },
     publishMenuItemByName(name) {
         return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
     },
@@ -671,7 +668,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async getNameInHighlightedRow() {
         try {
             const locator = XPATH.contentsTreeListDiv + XPATH.highlightedRowNotChecked +
-                TREE_GRID.CONTENT_LABEL_BLOCK + '//div[2]//span';
+                            TREE_GRID.CONTENT_LABEL_BLOCK + '//div[2]//span';
             const elements = await this.getDisplayedElements(locator);
             if (elements.length === 0) {
                 return '';
@@ -733,18 +730,21 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     // this method does not wait, it just checks the attribute
-    isRedIconDisplayed(contentName) {
-        let xpath = XPATH.contentSummaryListViewerByName(contentName);
-        return this.getAttribute(xpath, 'class').then(result => {
-            return result.includes('invalid');
-        });
+    async isRedIconDisplayed(contentName) {
+        let locator = XPATH.container + TREE_GRID.itemByName(contentName) + "//*[@data-component='StatusIcon']";
+        let result = await this.getAttribute(locator, 'aria-label');
+        return result.includes('invalid');
     }
 
     // this method waits until 'invalid' appears in the @class
     async waitForRedIconDisplayed(contentName) {
         try {
-            let xpath = XPATH.contentSummaryListViewerByName(contentName);
-            return await this.waitUntilInvalid(xpath);
+            let locator = XPATH.container + TREE_GRID.itemByName(contentName) + "//*[@data-component='StatusIcon']";
+            await this.getBrowser().waitUntil(async () => {
+                let text = await this.getAttribute(locator, 'aria-label');
+                return text === 'invalid';
+            }, {timeout: appConst.shortTimeout, timeoutMsg: "Content wizard - invalid icon should appear"});
+            return await this.waitForElementDisplayed(locator);
         } catch (err) {
             await this.handleError(`Red icon should be displayed for content: ${contentName}`, 'err_red_icon_displayed', err);
         }
@@ -1122,6 +1122,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.handleError('Reset Selection checkbox should be displayed', 'err_reset_selection_checkbox', err);
         }
     }
+
     async clickOnResetSelectionCheckbox() {
         try {
             await this.waitForResetSelectionCheckboxDisplayed()
@@ -1134,9 +1135,10 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async waitForReetSelectionCheckboxNotDisplayed() {
         await this.waitForElementNotDisplayed(this.resetSelectionCheckbox);
     }
+
     async clickOnRefreshButton() {
         let locator = "//div[contains(@id,'TreeListToolbarElement')]//button";
-        let btn=await this.findElement(locator);
+        let btn = await this.findElement(locator);
         const svgElement = await btn.$("//svg[@stroke-linecap='round']");
         await this.clickOnElement(locator);
         return await this.pause(1000);
