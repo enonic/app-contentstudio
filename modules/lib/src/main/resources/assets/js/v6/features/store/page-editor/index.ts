@@ -1,9 +1,10 @@
-// Read: computed stores
+// Read: stores
+export {$contentContext, $defaultPageTemplateName, $pageEditorLifecycle} from './store';
 export {$hasControllerOrTemplate, $isFragment, $isInsertTabAvailable} from './store';
 export {$isInspecting, $inspectedItem, $inspectedItemType} from './store';
 
 // Read: hooks
-export {usePageState, useContentContext, usePageEditorLifecycle, useDefaultPageTemplateName, useInspectedItem, useInspectedItemType} from './hooks';
+export {usePageState} from './hooks';
 
 // Write: commands
 export {

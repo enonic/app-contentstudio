@@ -2,13 +2,16 @@ import {cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import type {FC, ReactElement} from 'react';
 import {$inspectedItemType} from '../../../../../store/page-editor';
+import {LayoutInspectionPanel, PartInspectionPanel} from './component';
 import {PageInspectionPanel} from './page';
 import {RegionInspectionPanel} from './region';
 
-// TODO: add part, layout, text, fragment panels
+// TODO: add text, fragment panels
 const PANEL_BY_TYPE: Record<string, FC> = {
     page: PageInspectionPanel,
     region: RegionInspectionPanel,
+    part: PartInspectionPanel,
+    layout: LayoutInspectionPanel,
 };
 
 

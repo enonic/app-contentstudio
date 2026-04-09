@@ -14,7 +14,7 @@ export const RegionInspectionPanel = (): ReactElement | null => {
     if (!(item instanceof Region)) return null;
 
     return (
-        <div data-component={REGION_INSPECTION_PANEL_NAME}>
+        <div data-component={REGION_INSPECTION_PANEL_NAME} className="mt-8">
             <ItemLabel
                 icon={<Blocks />}
                 primary={capitalize(item.getName())}

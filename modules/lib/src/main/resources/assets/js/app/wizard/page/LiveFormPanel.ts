@@ -15,6 +15,7 @@ import {type LiveEditPageInitializationErrorEvent} from '../../../page-editor/ev
 import {type ShowWarningLiveEditEvent} from '../../../page-editor/event/ShowWarningLiveEditEvent';
 import {type LiveEditModel} from '../../../page-editor/LiveEditModel';
 import {cleanupPageEditorBridge, clearInspection, initPageEditorBridge, inspectItem, syncInitialRenderable} from '../../../v6/features/store/page-editor';
+import {cleanupComponentInspection, initComponentInspectionService} from '../../../v6/features/store/component-inspection';
 import {cleanupPageInspection, initPageInspectionService} from '../../../v6/features/store/page-inspection';
 import {$activeWidget} from '../../../v6/features/store/liveViewWidgets.store';
 import {type Content, type ContentBuilder} from '../../content/Content';
@@ -571,6 +572,7 @@ export class LiveFormPanel
         });
 
         initPageInspectionService();
+        initComponentInspectionService();
 
         // Sync renderable state that may have been set before bridge init
         void this.widgetRenderingHandler.isItemRenderable().then((isRenderable: boolean) => {
@@ -888,6 +890,7 @@ export class LiveFormPanel
         this.availableInspectPanels.forEach(
             (panel) => panel instanceof DescriptorBasedComponentInspectionPanel && panel.unbindSiteModelListeners());
         this.liveEditModel = null;
+        cleanupComponentInspection();
         cleanupPageInspection();
         cleanupPageEditorBridge();
     }
