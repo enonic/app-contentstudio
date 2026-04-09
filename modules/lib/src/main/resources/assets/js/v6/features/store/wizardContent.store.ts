@@ -5,6 +5,7 @@ import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {atom, batched, computed, map} from 'nanostores';
 import type {Content} from '../../../app/content/Content';
 import type {ContentName} from '../../../app/content/ContentName';
+import type {ContentState} from '../../../app/content/ContentState';
 import {ContentUnnamed} from '../../../app/content/ContentUnnamed';
 import {Mixin} from '../../../app/content/Mixin';
 import type {MixinDescriptor} from '../../../app/content/MixinDescriptor';
@@ -13,7 +14,6 @@ import {WorkflowState} from '../../../app/content/WorkflowState';
 import type {ContentType} from '../../../app/inputtype/schema/ContentType';
 import type {Page} from '../../../app/page/Page';
 import {ContentDiffHelper} from '../../../app/util/ContentDiffHelper';
-import type {ContentState} from '../../../app/content/ContentState';
 import {
     addStringOccurrence,
     removeStringOccurrence,
@@ -101,6 +101,17 @@ export const $wizardDraftData = atom<PropertyTree | null>(null);
 export const $wizardDataChangedPaths = map<Record<string, number>>({});
 
 export const $wizardDataVersion = atom<number>(0);
+
+const $needsRenderedSnapshot = atom<boolean>(false);
+
+// Mixins that have not yet mounted and may need snapshotting when they do.
+// Populated at init, entries removed when the mixin tab mounts.
+const $mixinsPendingMount = atom<Set<string>>(new Set());
+
+// Mixins whose tab has mounted and whose snapshot window is open.
+// Entries are added by notifyMixinMounted and removed by snapshotMixinBaseline
+// or by a per-mixin auto-disarm timeout.
+const $mixinsNeedingSnapshot = atom<Set<string>>(new Set());
 
 export const $wizardPersistedMixins = wizardTrackedState.mixins.persisted;
 
@@ -267,11 +278,16 @@ export const $wizardContentState = batched(
     },
 );
 
-// Reset workflow to IN_PROGRESS when READY content is edited.
+// Downgrade READY → IN_PROGRESS when content is edited, restore when reverted.
 // Separate from $wizardContentState to avoid circular dependency.
 $wizardHasContentChanges.subscribe((hasChanges) => {
-    if (hasChanges && $wizardDraftWorkflowState.get() === WorkflowState.READY) {
+    const persisted = $wizardPersistedWorkflowState.get();
+    const draft = $wizardDraftWorkflowState.get();
+
+    if (hasChanges && draft === WorkflowState.READY) {
         setDraftWorkflowState(WorkflowState.IN_PROGRESS);
+    } else if (!hasChanges && persisted === WorkflowState.READY && draft === WorkflowState.IN_PROGRESS) {
+        setDraftWorkflowState(WorkflowState.READY);
     }
 });
 
@@ -408,7 +424,7 @@ function mixinsEqual(a: Mixin[], b: Mixin[]): boolean {
             return false;
         }
 
-        if (!ContentDiffHelper.dataEquals(leftMixin.getData(), rightMixin.getData(), true)) {
+        if (!ContentDiffHelper.dataEquals(leftMixin.getData(), rightMixin.getData(), false)) {
             return false;
         }
     }
@@ -450,6 +466,23 @@ function applyPersistedSectionsSnapshot(snapshot: WizardPersistedSectionsSnapsho
     $wizardDraftWorkflowState.set(snapshot.workflow);
 }
 
+let contentDisarmTimer: ReturnType<typeof setTimeout> | null = null;
+const mixinDisarmTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+function armRenderedSnapshot(content: Content): void {
+    if (contentDisarmTimer != null) {
+        clearTimeout(contentDisarmTimer);
+        contentDisarmTimer = null;
+    }
+
+    $needsRenderedSnapshot.set(true);
+
+    // Mixins go into pending — they will be armed individually when their
+    // lazy Tab.Content mounts and calls notifyMixinMounted().
+    $mixinsPendingMount.set(new Set(content.getMixins().map((m) => m.getName().toString())));
+    $mixinsNeedingSnapshot.set(new Set());
+}
+
 //
 // * Actions
 //
@@ -466,6 +499,20 @@ export function setWizardFormValidation(isValid: boolean): void {
 export function setPersistedContent(content: Content): void {
     applyPersistedSectionsSnapshot(buildPersistedSectionsSnapshot(content));
     $wizardDataValidation.set({});
+
+    // After save, newly persisted mixins may not have been mounted yet.
+    // Seed them into pending so their first lazy mount snapshots enrichment.
+    const currentPending = $mixinsPendingMount.get();
+    const mixinNames = content.getMixins().map((m) => m.getName().toString());
+    const newPending = new Set(currentPending);
+    for (const name of mixinNames) {
+        if (!currentPending.has(name)) {
+            newPending.add(name);
+        }
+    }
+    if (newPending.size !== currentPending.size) {
+        $mixinsPendingMount.set(newPending);
+    }
 }
 
 export function initializeWizardContentState(
@@ -482,6 +529,8 @@ export function initializeWizardContentState(
         $wizardPersistedWorkflowState.set(workflowState);
         $wizardDraftWorkflowState.set(workflowState);
     }
+
+    armRenderedSnapshot(content);
 }
 
 export function setDraftDisplayName(value: string): void {
@@ -610,6 +659,65 @@ export function clearDisplayNameInputFocusRequest(): void {
     $displayNameInputFocusRequested.set(false);
 }
 
+export function notifyContentFormMounted(): void {
+    if (!$needsRenderedSnapshot.get()) {
+        return;
+    }
+
+    // Child InputField effects have already completed (React fires child
+    // effects before parent effects), so enrichment is done. Schedule
+    // snapshot to capture the enriched state immediately.
+    queueMicrotask(() => {
+        snapshotContentBaseline();
+    });
+
+    // Auto-disarm after render window closes, in case no enrichment
+    // occurred and the snapshot was a no-op.
+    if (contentDisarmTimer != null) {
+        clearTimeout(contentDisarmTimer);
+    }
+    contentDisarmTimer = setTimeout(() => {
+        contentDisarmTimer = null;
+        $needsRenderedSnapshot.set(false);
+    }, 0);
+}
+
+export function notifyMixinMounted(name: string): void {
+    const pending = $mixinsPendingMount.get();
+    if (!pending.has(name)) {
+        return;
+    }
+
+    // Move from pending to armed
+    const nextPending = new Set(pending);
+    nextPending.delete(name);
+    $mixinsPendingMount.set(nextPending);
+
+    const needed = new Set($mixinsNeedingSnapshot.get());
+    needed.add(name);
+    $mixinsNeedingSnapshot.set(needed);
+
+    // Child InputField effects have already completed (React fires child
+    // effects before parent effects), so enrichment is done. Schedule
+    // snapshot to capture the enriched state immediately.
+    queueMicrotask(() => {
+        snapshotMixinBaseline(name);
+    });
+
+    // Auto-disarm after render window closes, in case no enrichment
+    // occurred and the snapshot was a no-op.
+    const timer = setTimeout(() => {
+        mixinDisarmTimers.delete(name);
+        const current = $mixinsNeedingSnapshot.get();
+        if (current.has(name)) {
+            const next = new Set(current);
+            next.delete(name);
+            $mixinsNeedingSnapshot.set(next);
+        }
+    }, 0);
+    mixinDisarmTimers.set(name, timer);
+}
+
 export function setDraftMixinEnabled(name: string, enabled: boolean): void {
     const mixinDescriptor = $mixinsDescriptors.get().find((descriptor) => descriptor.getName() === name);
     if (mixinDescriptor && !mixinDescriptor.isOptional()) {
@@ -708,16 +816,86 @@ $wizardDraftMixins.subscribe((mixins) => {
     cleanupMixinTreeListeners.forEach((cleanup) => cleanup());
     cleanupMixinTreeListeners = [];
 
-    const handler = () => {
-        bumpMixinsVersion();
-    };
-
     for (const mixin of mixins) {
         const tree = mixin.getData();
         if (tree) {
+            const mixinName = mixin.getName().toString();
+            let snapshotScheduled = false;
+            const handler = () => {
+                bumpMixinsVersion();
+                if (!snapshotScheduled && $mixinsNeedingSnapshot.get().has(mixinName)) {
+                    snapshotScheduled = true;
+                    queueMicrotask(() => {
+                        snapshotScheduled = false;
+                        snapshotMixinBaseline(mixinName);
+                    });
+                }
+            };
             tree.onChanged(handler);
             cleanupMixinTreeListeners.push(() => tree.unChanged(handler));
         }
+    }
+});
+
+//
+// * Rendered baseline snapshots
+//
+// Form rendering enriches draft trees with empty PropertyArrays and seeded null values
+// (via InputField). These structural additions are not user changes. After rendering
+// settles, copy the enriched draft back to persisted so the comparison baseline matches.
+
+function snapshotContentBaseline(): void {
+    if (!$needsRenderedSnapshot.get()) {
+        return;
+    }
+
+    const draftData = $wizardDraftData.get();
+    if (!draftData) {
+        $needsRenderedSnapshot.set(false);
+        return;
+    }
+
+    $wizardPersistedData.set(draftData.copy());
+    $wizardDataChangedPaths.set({});
+    $needsRenderedSnapshot.set(false);
+}
+
+function snapshotMixinBaseline(mixinName: string): void {
+    const needed = $mixinsNeedingSnapshot.get();
+    if (!needed.has(mixinName)) {
+        return;
+    }
+
+    const draftMixin = $wizardDraftMixins.get().find((m) => m.getName().toString() === mixinName);
+    if (!draftMixin) {
+        const next = new Set(needed);
+        next.delete(mixinName);
+        $mixinsNeedingSnapshot.set(next);
+        return;
+    }
+
+    $wizardPersistedMixins.set($wizardPersistedMixins.get().map((m) => {
+        if (m.getName().toString() === mixinName) {
+            return new Mixin(m.getName(), draftMixin.getData().copy());
+        }
+        return m;
+    }));
+
+    const next = new Set(needed);
+    next.delete(mixinName);
+    $mixinsNeedingSnapshot.set(next);
+}
+
+// Schedule content baseline after rendering enriches the draft tree.
+let contentSnapshotScheduled = false;
+
+$wizardDataVersion.subscribe(() => {
+    if (!contentSnapshotScheduled && $needsRenderedSnapshot.get()) {
+        contentSnapshotScheduled = true;
+        queueMicrotask(() => {
+            contentSnapshotScheduled = false;
+            snapshotContentBaseline();
+        });
     }
 });
 
@@ -732,10 +910,23 @@ export function resetWizardContent(): void {
     $wizardDraftData.set(null);
     $wizardDataChangedPaths.set({});
     $wizardDataVersion.set(0);
+    $needsRenderedSnapshot.set(false);
+
+    if (contentDisarmTimer != null) {
+        clearTimeout(contentDisarmTimer);
+        contentDisarmTimer = null;
+    }
+
+    for (const timer of mixinDisarmTimers.values()) {
+        clearTimeout(timer);
+    }
+    mixinDisarmTimers.clear();
 
     $wizardPersistedMixins.set([]);
     $wizardDraftMixins.set([]);
     $wizardMixinsVersion.set(0);
+    $mixinsPendingMount.set(new Set());
+    $mixinsNeedingSnapshot.set(new Set());
 
     $wizardPersistedPage.set(null);
     $wizardDraftPage.set(null);

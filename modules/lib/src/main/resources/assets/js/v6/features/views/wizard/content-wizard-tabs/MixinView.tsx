@@ -1,10 +1,10 @@
 import {useStore} from '@nanostores/preact';
-import {type ReactElement, useMemo} from 'react';
+import {type ReactElement, useEffect, useMemo} from 'react';
 import {RawValueProvider, ValidationVisibilityProvider} from '@enonic/lib-admin-ui/form2';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {$contextContent} from '../../../store/context/contextContent.store';
 import {$activeProject} from '../../../store/projects.store';
-import {$mixinsDescriptors, $wizardDraftMixins} from '../../../store/wizardContent.store';
+import {$mixinsDescriptors, $wizardDraftMixins, notifyMixinMounted} from '../../../store/wizardContent.store';
 import {$validationVisibility, getMixinRawValueMap} from '../../../store/wizardValidation.store';
 import {FormRenderer} from '../../../shared/form';
 import {HtmlAreaProvider} from '../../../shared/form/input-types/html-area';
@@ -18,6 +18,10 @@ type MixinViewProps = {
 export const MixinView = ({mixinName, title}: MixinViewProps): ReactElement => {
     const descriptors = useStore($mixinsDescriptors);
     const draftMixins = useStore($wizardDraftMixins);
+
+    useEffect(() => {
+        notifyMixinMounted(mixinName);
+    }, [mixinName]);
     const contextContent = useStore($contextContent);
     const activeProject = useStore($activeProject);
     const visibility = useStore($validationVisibility);
