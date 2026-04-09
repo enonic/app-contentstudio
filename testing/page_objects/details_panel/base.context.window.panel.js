@@ -23,9 +23,9 @@ class BaseContextWindowPanel extends Page {
 
     async getSelectedOptionInWidgetSelectorDropdown() {
         try {
-            let selector = this.container + COMMON.CONTEXT_WINDOW_WIDGET_SELECTOR_ITEM;
-            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
-            return await this.getText(selector);
+            let selector = this.container + COMMON.CONTEXT_WINDOW_WIDGET_SELECTOR_SEARCH_INPUT;
+            await this.waitForElementDisplayed(selector);
+            return await this.getTextInInput(selector);
         }catch (err){
             await this.handleError('Cannot get selected option in widget selector dropdown', 'err_get_selected_option_widget_selector', err);
         }
@@ -162,8 +162,11 @@ class BaseContextWindowPanel extends Page {
     }
 
     async waitForWidgetSelected(optionName) {
-        let selector = this.widgetSelectorDropdown + `//button[@type='button' and child::span[text()='${optionName}']]`;
-        await this.waitForElementDisplayed(selector);
+        let widgetSelectorDropdown  = new WidgetSelectorDropdown();
+        await this.getBrowser().waitUntil(async () => {
+            let result = await widgetSelectorDropdown.getSelectedOption();
+            return result === optionName;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: `Option ${optionName} was not selected in widget selector dropdown`});
     }
 }
 

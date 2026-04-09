@@ -114,8 +114,12 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return XPATH.container + BUTTONS.buttonAriaLabel('Hide context panel');
     }
 
-    get showContextWindowButton() {
+    get showContextPanelButton() {
         return XPATH.container + BUTTONS.buttonAriaLabel('Show context panel');
+    }
+
+    async isShowContextPanelButtonDisplayed(){
+        return await this.isElementDisplayed(this.showContextPanelButton);
     }
 
     get showPublishMenuButton() {
@@ -336,7 +340,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForShowContextWindowButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.showContextWindowButton, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.showContextPanelButton);
         } catch (err) {
             await this.handleError('Show Context Window button should be displayed', 'err_show_context_window_button', err);
         }
@@ -917,8 +921,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async openContextWindow() {
         let browseContextWindow = new BrowseContextWindowPanel();
-        let result = await browseContextWindow.isPanelVisible();
-        if (!result) {
+        let isDisplayed = await this.isShowContextPanelButtonDisplayed();
+        if (isDisplayed) {
             await this.clickOnDetailsPanelToggleButton();
         }
         await browseContextWindow.waitForLoaded();

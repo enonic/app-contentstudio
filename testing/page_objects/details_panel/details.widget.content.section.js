@@ -47,8 +47,12 @@ class DetailsWidgetContentSection extends Page {
     }
 
     async getTextInPathField() {
-        await this.waitForPathPropertyDisplayed();
-        return await this.getText(this.pathProperty);
+        try {
+            await this.waitForPathPropertyDisplayed();
+            return await this.getText(this.pathProperty);
+        } catch (err) {
+            await this.handleError('Cannot get text in path field of WidgetContentSection', 'err_get_text_path_field', err);
+        }
     }
 
     async getTextInDisplayNameField() {
