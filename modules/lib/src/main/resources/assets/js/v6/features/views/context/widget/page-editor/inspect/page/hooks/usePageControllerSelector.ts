@@ -17,7 +17,7 @@ import {
     $pageControllerOptions,
     $pageTemplateOptions,
     $selectedPageOptionKey,
-} from '../../../../../../../store/page-inspection';
+} from '../../../../../../../store/page-inspection.store';
 
 const AUTO_KEY = '__auto__';
 

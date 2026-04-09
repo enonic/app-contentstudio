@@ -9,7 +9,7 @@ import {
     $layoutDescriptorOptions,
     $partDescriptorOptions,
     $selectedComponentDescriptorKey,
-} from '../../../../../../../store/component-inspection';
+} from '../../../../../../../store/component-inspection.store';
 
 export type ComponentOption = {
     key: string;
