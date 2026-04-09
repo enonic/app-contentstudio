@@ -23,6 +23,8 @@ export class AiContentDataHelper {
 
     public static TOPIC = '__topic__';
 
+    public static TOPIC_PATH = `/${AiContentDataHelper.TOPIC}`;
+
     private static CONFIG_PREFIX = '__config__';
 
     private data: PropertyTree;
@@ -168,5 +170,3 @@ export class AiContentDataHelper {
         return `__${key}__/${pathParts.slice(3).join('/')}`;
     }
 }
-
-export const AI_CONTENT_TOPIC_PATH = `/${AiContentDataHelper.TOPIC}`;

@@ -13,6 +13,7 @@ import {ContentIconUrlResolver} from './ContentIconUrlResolver';
 import {ContentId} from './ContentId';
 import {ContentInheritType} from './ContentInheritType';
 import {type ContentPath} from './ContentPath';
+import {type ContentState} from './ContentState';
 import {ContentSummary, ContentSummaryBuilder} from './ContentSummary';
 import {ContentSummaryAndCompareStatusHelper} from './ContentSummaryAndCompareStatusHelper';
 
@@ -282,13 +283,19 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     }
 
     isMovedAndModified(): boolean {
-        const contentState = this.contentSummary?.isReady()
-            ? 'ready'
-            : this.contentSummary?.isInProgress()
-                ? 'in-progress'
-                : null;
+        return CompareStatusChecker.isMovedAndModified(this.getCompareStatus(), this.getContentState());
+    }
 
-        return CompareStatusChecker.isMovedAndModified(this.getCompareStatus(), contentState);
+    private getContentState(): ContentState | null {
+        if (this.contentSummary?.isReady()) {
+            return 'ready';
+        }
+
+        if (this.contentSummary?.isInProgress()) {
+            return 'in-progress';
+        }
+
+        return null;
     }
 
     canBeMarkedAsReady(): boolean {

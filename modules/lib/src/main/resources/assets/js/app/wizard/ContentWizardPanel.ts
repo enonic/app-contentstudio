@@ -51,12 +51,15 @@ import {$isContextOpen, setContextOpen} from '../../v6/features/store/contextWid
 import {openRenameContentDialog} from '../../v6/features/store/dialogs/renameContentDialog.store';
 import {
     $displayName,
+    $displayNameInputFocusRequested,
     $isContentFormExpanded,
     $wizardContentState,
     $wizardDraftName,
     $wizardHasChanges,
     $wizardIsMarkedAsReady,
+    clearDisplayNameInputFocusRequest,
     initializeWizardContentState,
+    requestDisplayNameInputFocus,
     resetWizardContent,
     setContentFormExpanded,
     setDraftName,
@@ -65,6 +68,7 @@ import {
     setWizardMarkedAsReady,
     setMixinsDescriptors as setWizardMixinsDescriptors,
     setPersistedContent as setWizardPersistedContent,
+    setWizardReadOnly,
 } from '../../v6/features/store/wizardContent.store';
 import {escalateVisibility, initializeValidation, setServerValidationErrors} from '../../v6/features/store/wizardValidation.store';
 import {setWizardToolbarIsPathAvailable} from '../../v6/features/store/wizardToolbar.store';
@@ -279,8 +283,6 @@ export class ContentWizardPanel
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
     private isRename: boolean;
-
-    private contentWizardTabsElement: ContentWizardTabsToolbarElement;
 
     private wizardDisplayNameUnsubscribe?: () => void;
 
@@ -953,8 +955,12 @@ export class ContentWizardPanel
             });
         }
 
-        this.contentWizardTabsElement = new ContentWizardTabsToolbarElement();
-        this.formPanel.prependChild(this.contentWizardTabsElement);
+        setWizardReadOnly(this.isReadOnly());
+        if ($displayNameInputFocusRequested.get()) {
+            clearDisplayNameInputFocusRequest();
+        }
+
+        this.formPanel.prependChild(new ContentWizardTabsToolbarElement());
 
         this.onPageStateChanged(() => this.updateTabsElement());
 
@@ -1160,11 +1166,16 @@ export class ContentWizardPanel
 
     giveInitialFocus() {
         if (!this.canModify) {
+            clearDisplayNameInputFocusRequest();
             return;
         }
 
         this.whenRendered(() => {
-            if (!this.contentWizardTabsElement?.focusDisplayNameInput()) {
+            clearDisplayNameInputFocusRequest();
+
+            if ($isContentFormExpanded.get()) {
+                requestDisplayNameInputFocus();
+            } else {
                 this.getWizardHeader().giveFocus();
             }
 
@@ -2756,6 +2767,7 @@ export class ContentWizardPanel
     protected handleCanModify(canModify: boolean): void {
         super.handleCanModify(canModify);
 
+        setWizardReadOnly(!canModify);
         this.updateUrlAction();
     }
 

@@ -2,20 +2,32 @@ import {cn} from '@enonic/ui';
 import {AiContentOperatorSetContextEvent} from '@enonic/lib-admin-ui/ai/event/AiContentOperatorSetContextEvent';
 import {FieldError} from '@enonic/lib-admin-ui/form2/components/field-error';
 import {useStore} from '@nanostores/preact';
-import {type FocusEvent, useCallback, useState, type ReactElement} from 'react';
-import {AI_CONTENT_TOPIC_PATH} from '../../../../../app/ai/AiContentDataHelper';
+import {useLayoutEffect, useRef, useState, type ReactElement} from 'react';
+import {AiContentDataHelper} from '../../../../../app/ai/AiContentDataHelper';
 import {useI18n} from '../../../hooks/useI18n';
 import {EditableText} from '../../../shared/primitives/EditableText';
-import {$displayName, setDraftDisplayName} from '../../../store/wizardContent.store';
+import {
+    $displayName,
+    $displayNameInputFocusRequested,
+    $wizardReadOnly,
+    clearDisplayNameInputFocusRequest,
+    setDraftDisplayName,
+} from '../../../store/wizardContent.store';
 import {$validationVisibility} from '../../../store/wizardValidation.store';
 
-export const DISPLAY_NAME_INPUT_NAME = 'DisplayNameInput';
-export const DISPLAY_NAME_INPUT_SELECTOR = `input[data-component="${DISPLAY_NAME_INPUT_NAME}"]`;
+const DISPLAY_NAME_INPUT_NAME = 'DisplayNameInput';
+
+function setAIContext(): void {
+    new AiContentOperatorSetContextEvent(AiContentDataHelper.TOPIC_PATH).fire();
+}
 
 export const DisplayNameInput = (): ReactElement => {
     const displayName = useStore($displayName);
+    const shouldFocus = useStore($displayNameInputFocusRequested);
     const visibility = useStore($validationVisibility);
+    const readOnly = useStore($wizardReadOnly);
     const [touched, setTouched] = useState(false);
+    const inputRef = useRef<HTMLInputElement | null>(null);
 
     const placeholder = useI18n('field.displayName');
     const errorMessage = useI18n('field.displayName.required');
@@ -31,13 +43,19 @@ export const DisplayNameInput = (): ReactElement => {
         }
     };
 
-    const handleFocus = useCallback((_event: FocusEvent<HTMLInputElement>): void => {
-        new AiContentOperatorSetContextEvent(AI_CONTENT_TOPIC_PATH).fire();
-    }, []);
+    useLayoutEffect(() => {
+        if (!shouldFocus || readOnly || !inputRef.current) {
+            return;
+        }
+
+        inputRef.current.focus();
+        clearDisplayNameInputFocusRequest();
+    }, [shouldFocus, readOnly, inputRef.current]);
 
     return (
         <div>
             <EditableText
+                ref={inputRef}
                 data-component={DISPLAY_NAME_INPUT_NAME}
                 size="xl"
                 value={displayName}
@@ -45,7 +63,8 @@ export const DisplayNameInput = (): ReactElement => {
                 onValueChange={setDraftDisplayName}
                 onCommit={setDraftDisplayName}
                 onEditingChange={handleEditingChange}
-                onFocus={handleFocus}
+                onFocus={setAIContext}
+                disabled={readOnly}
                 error={showError}
                 className={cn(
                     'min-w-64 border-0 border-l-1 [&:hover,&:focus]:border-l-4 pl-4.5 [&:hover,&:focus]:pl-3.75 placeholder:text-subtle/50 rounded-none',

@@ -1,5 +1,5 @@
 import {GridList} from '@enonic/ui';
-import type {ReactElement} from 'react';
+import {type ReactElement, useMemo} from 'react';
 import {DiffStatusBadge} from '../../status/DiffStatusBadge';
 import {StatusBadge} from '../../status/StatusBadge';
 import {calcContentState} from '../../../utils/cms/content/workflow';
@@ -13,6 +13,8 @@ export const ContentRowStatus = ({
     className,
 }: ContentRowStatusProps): ReactElement | null => {
     const {content} = useContentRow();
+    const contentSummary = content.getContentSummary();
+    const contentState = useMemo(() => calcContentState(contentSummary), [contentSummary]);
 
     if (variant === 'none') {
         return null;
@@ -24,8 +26,8 @@ export const ContentRowStatus = ({
                 <DiffStatusBadge
                     publishStatus={content.getPublishStatus()}
                     compareStatus={content.getCompareStatus()}
-                    contentState={calcContentState(content.getContentSummary())}
-                    wasPublished={!!content.getContentSummary().getPublishFirstTime()}
+                    contentState={contentState}
+                    wasPublished={!!contentSummary.getPublishFirstTime()}
                 />
             ) : (
                 <StatusBadge status={content.getPublishStatus()} />
