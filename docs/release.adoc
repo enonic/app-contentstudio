@@ -67,7 +67,7 @@ image::rich-text-editor-image-dialog.png[Insert Image dialog, 75%]
 
 image::pubwiz-online-from.png[Default Online From time in the Publishing Wizard, 75%]
 
-Default Online From time in the Publishing Wizard can now be configured in Content Studio's <<config#default_online_from_time,config file>>. If no config is set, the default time will be set to 12:00.
+Default Online From time in the Publishing Wizard can now be configured in Content Studio's <<config#default_online_from_time,config file>>. If no config is set, the default time will be set to 12:00
 
 === Page Components view
 
@@ -179,10 +179,8 @@ upgrading to Content Studio 5), enable it via Content Studio's <<config#enable_d
 Page Components View, which used to be a floating modal window inside Page Editor, is now made a part
 of the <<editor/content-form#page_components_tree,Content Editor form>>. It will be automatically undocked whenever the Content Form is collapsed.
 
-:imagesdir: editor/images
-
-image::wizard-component-view-collapsed.png[Page Components view - Docked, 75%]
-image::wizard-component-view-floating.png[Page Components view - Floating, 75%]
+image::../../editor/images/wizard-component-view-collapsed.png[Page Components view - Docked, 75%]
+image::../../editor/images/wizard-component-view-floating.png[Page Components view - Floating, 75%]
 
 === Publishing Wizard improvements
 
