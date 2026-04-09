@@ -3,10 +3,10 @@ import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {computed, map} from 'nanostores';
 import {ContentId} from '../../../../app/content/ContentId';
-import {type ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../app/content/ContentSummary';
 import {PublishRequest} from '../../../../app/issue/PublishRequest';
 import {CreateIssueRequest} from '../../../../app/issue/resource/CreateIssueRequest';
-import {fetchContentSummariesWithStatus} from '../../api/content';
+import {fetchContentSummaries} from '../../api/content';
 import {resolvePublishDependencies} from '../../api/publish';
 import {buildItems, dedupeItems, getItemIds} from '../../utils/cms/content/buildItems';
 import {hasContentIdInIds, uniqueIds} from '../../utils/cms/content/ids';
@@ -20,9 +20,9 @@ type NewIssueDialogStore = {
     title: string;
     description: string;
     assigneeIds: string[];
-    items: ContentSummaryAndCompareStatus[];
+    items: ContentSummary[];
     excludeChildrenIds: ContentId[];
-    dependants: ContentSummaryAndCompareStatus[];
+    dependants: ContentSummary[];
     excludedDependantIds: ContentId[];
     requiredDependantIds: ContentId[];
     loading: boolean;
@@ -79,7 +79,7 @@ export const resetNewIssueDialogContext = (): void => {
     $newIssueDialog.set(structuredClone(initialState));
 };
 
-export const openNewIssueDialog = (items?: ContentSummaryAndCompareStatus[]): void => {
+export const openNewIssueDialog = (items?: ContentSummary[]): void => {
     resetNewIssueDialogContext();
     if (items && items.length > 0) {
         setNewIssueItems(items);
@@ -104,7 +104,7 @@ export const setNewIssueAssignees = (assigneeIds: string[]): void => {
     $newIssueDialog.setKey('assigneeIds', [...assigneeIds]);
 };
 
-export const setNewIssueItems = (items: ContentSummaryAndCompareStatus[]): void => {
+export const setNewIssueItems = (items: ContentSummary[]): void => {
     const nextItems = dedupeItems(items);
 
     if (nextItems.length === 0) {
@@ -125,7 +125,7 @@ export const setNewIssueItems = (items: ContentSummaryAndCompareStatus[]): void 
     reloadDependenciesDebounced();
 };
 
-export const addNewIssueItems = (items: ContentSummaryAndCompareStatus[]): void => {
+export const addNewIssueItems = (items: ContentSummary[]): void => {
     if (items.length === 0) {
         return;
     }
@@ -161,7 +161,7 @@ export const addNewIssueItemsByIds = async (ids: string[]): Promise<void> => {
         return;
     }
 
-    const items = await fetchContentSummariesWithStatus(newIds);
+    const items = await fetchContentSummaries(newIds);
     addNewIssueItems(items);
 };
 
@@ -302,7 +302,7 @@ const reloadNewIssueDependencies = async (): Promise<void> => {
 
         const dependantIds = result.getDependants()
             .filter(id => !hasContentIdInIds(id, itemIds));
-        const dependants = await fetchContentSummariesWithStatus(dependantIds);
+        const dependants = await fetchContentSummaries(dependantIds);
 
         if (currentInstance !== instanceId) {
             return;

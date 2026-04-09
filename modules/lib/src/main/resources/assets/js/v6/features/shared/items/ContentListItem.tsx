@@ -1,13 +1,13 @@
 import {Button, cn, ListItem, type ListItemProps} from '@enonic/ui';
 import React, {type ReactNode} from 'react';
-import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../app/content/ContentSummary';
 import {EditContentEvent} from '../../../../app/event/EditContentEvent';
 import {ContentLabel, type ContentLabelVariant} from '../content/ContentLabel';
 import {LegacyElement} from '../LegacyElement';
-import {StatusBadge} from '../status/StatusBadge';
+import {DiffStatusBadge} from '../status/DiffStatusBadge';
 
 export type ContentItemProps = {
-    content: ContentSummaryAndCompareStatus;
+    content: ContentSummary;
     variant?: ContentLabelVariant;
     rightSlotOrder?: 'before-status' | 'after-status';
     'data-component'?: string;
@@ -41,7 +41,7 @@ export const ContentListItem = ({
             </ListItem.Content>
             <ListItem.Right>
                 {rightSlotOrder === 'before-status' && children}
-                <StatusBadge status={content.getPublishStatus()}/>
+                <DiffStatusBadge contentSummary={content}/>
                 {rightSlotOrder === 'after-status' && children}
             </ListItem.Right>
         </ListItem>
@@ -56,7 +56,7 @@ export class ContentListItemElement
         super({...props}, ContentListItem);
     }
 
-    getItem(): ContentSummaryAndCompareStatus {
+    getItem(): ContentSummary {
         return this.props.get().content;
     }
 

@@ -1,7 +1,7 @@
 import {Button, Dialog} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {type ReactElement} from 'react';
-import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../../app/content/ContentSummary';
 import {useI18n} from '../../../hooks/useI18n';
 import {
     $isSortDialogReady,
@@ -77,7 +77,7 @@ export const SortDialogMainContent = (): ReactElement => {
                         onDragIntent={startSortDialogManualReorder}
                         onReorder={reorderSortDialogItems}
                         getItemAriaLabel={(item) => item.getDisplayName()}
-                        renderItem={(item: ContentSummaryAndCompareStatus, {isFocused, isMovable, interactionProps}) => (
+                        renderItem={(item: ContentSummary, {isFocused, isMovable, interactionProps}) => (
                             <SortContentListItem
                                 key={`sort-item-${item.getId()}`}
                                 content={item}

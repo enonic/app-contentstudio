@@ -7,7 +7,7 @@ import {useI18n} from './useI18n';
 import {useStore} from '@nanostores/preact';
 import {$contextContent} from '../store/context/contextContent.store';
 import {SITE_PATH} from '../utils/form/form';
-import {type ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
+import {type ContentSummary} from '../../../app/content/ContentSummary';
 
 export type GeneralSelectorConfig = {
     allowContentType: string[];
@@ -29,7 +29,7 @@ export const useSelectorInput = <T extends Omit<GeneralSelectorConfig, 'allowCon
     const contextContent = useStore($contextContent);
 
     // Constants
-    const resolvedContextContent: ContentSummaryAndCompareStatus | undefined = config.allowPath.some((path) => path !== SITE_PATH)
+    const resolvedContextContent: ContentSummary | undefined = config.allowPath.some((path) => path !== SITE_PATH)
         ? contextContent
         : undefined;
     const resolvedSelectionMode: 'single' | 'multiple' = occurrences.getMaximum() === 1 ? 'single' : 'multiple';

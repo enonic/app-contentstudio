@@ -3,11 +3,11 @@ import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {computed, map} from 'nanostores';
 import {type ContentId} from '../../../../app/content/ContentId';
-import {type ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../app/content/ContentSummary';
 import {IssueType} from '../../../../app/issue/IssueType';
 import {PublishRequest} from '../../../../app/issue/PublishRequest';
 import {CreateIssueRequest} from '../../../../app/issue/resource/CreateIssueRequest';
-import {fetchContentSummariesWithStatus} from '../../api/content';
+import {fetchContentSummaries} from '../../api/content';
 import {markAsReady, resolvePublishDependencies} from '../../api/publish';
 import {buildItems, dedupeItems, getItemIds} from '../../utils/cms/content/buildItems';
 import {hasContentIdInIds, uniqueIds} from '../../utils/cms/content/ids';
@@ -31,9 +31,9 @@ type RequestPublishDialogStore = {
     title: string;
     description: string;
     assigneeIds: string[];
-    items: ContentSummaryAndCompareStatus[];
+    items: ContentSummary[];
     excludeChildrenIds: ContentId[];
-    dependants: ContentSummaryAndCompareStatus[];
+    dependants: ContentSummary[];
     excludedDependantIds: ContentId[];
     requiredDependantIds: ContentId[];
     loading: boolean;
@@ -184,7 +184,7 @@ const onRequestPublishSocketEvent = <T>(
 };
 
 const patchTrackedRequestPublishItems = (
-    updates: ContentSummaryAndCompareStatus[],
+    updates: ContentSummary[],
 ): {updatedMain: boolean; updatedDependants: boolean} => {
     if (updates.length === 0) {
         return {updatedMain: false, updatedDependants: false};
@@ -215,7 +215,7 @@ const refreshRequestPublishMainItems = async (ids: ContentId[]): Promise<void> =
     }
 
     try {
-        const updatedItems = await fetchContentSummariesWithStatus(ids);
+        const updatedItems = await fetchContentSummaries(ids);
         if (updatedItems.length > 0) {
             patchTrackedRequestPublishItems(updatedItems);
         }
@@ -248,7 +248,7 @@ const syncQueuedRequestPublishSocketChanges = async (): Promise<void> => {
     const itemIds = getItemIds($requestPublishDialog.get().items);
     if (itemIds.length > 0) {
         try {
-            const updatedItems = await fetchContentSummariesWithStatus(itemIds);
+            const updatedItems = await fetchContentSummaries(itemIds);
             if (updatedItems.length > 0) {
                 patchTrackedRequestPublishItems(updatedItems);
             }
@@ -333,7 +333,7 @@ export const resetRequestPublishDialogContext = (): void => {
 };
 
 export const openRequestPublishDialog = (
-    items?: ContentSummaryAndCompareStatus[],
+    items?: ContentSummary[],
     includeChildren = false,
 ): void => {
     resetRequestPublishDialogContext();
@@ -358,7 +358,7 @@ export const setRequestPublishAssignees = (assigneeIds: string[]): void => {
 };
 
 export const setRequestPublishItems = (
-    items: ContentSummaryAndCompareStatus[],
+    items: ContentSummary[],
     includeChildren = false,
 ): void => {
     const nextItems = dedupeItems(items);
@@ -521,7 +521,7 @@ export const markAllAsReadyInProgressRequestPublishItems = async (): Promise<voi
     await reloadRequestPublishDependencies();
 
     try {
-        const updatedItems = await fetchContentSummariesWithStatus(ids);
+        const updatedItems = await fetchContentSummaries(ids);
         if (updatedItems.length > 0) {
             patchTrackedRequestPublishItems(updatedItems);
         }
@@ -609,7 +609,7 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
 
         const dependantIds = result.getDependants()
             .filter(id => !hasContentIdInIds(id, itemIds));
-        const dependants = await fetchContentSummariesWithStatus(dependantIds);
+        const dependants = await fetchContentSummaries(dependantIds);
 
         if (currentInstance !== instanceId) {
             return;

@@ -1,5 +1,5 @@
 import {map} from 'nanostores';
-import {type ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../app/content/ContentSummary';
 
 type CompareVersionsDialogState = {
     open: boolean;
@@ -21,7 +21,7 @@ const initialState: CompareVersionsDialogState = {
 
 export const $compareVersionsDialog = map<CompareVersionsDialogState>({...initialState});
 
-export const openCompareVersionsDialog = (content: ContentSummaryAndCompareStatus, versionIds: string[]): void => {
+export const openCompareVersionsDialog = (content: ContentSummary, versionIds: string[]): void => {
     if (!content || versionIds.length !== 2) {
         return;
     }

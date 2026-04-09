@@ -1,5 +1,6 @@
 import {atom, computed} from 'nanostores';
-import type {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
+import {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../app/content/ContentSummary';
 import {$activeRawFlatNodes, $isFilterActive} from './active-tree.store';
 import {$contentCache} from './content.store';
 import {$filterTreeState} from './filter-tree.store';
@@ -22,11 +23,11 @@ export const $selectAllMode = atom<boolean>(false);
 // Computed State
 //
 
-/** Selected items as ContentSummaryAndCompareStatus objects */
+/** Selected items as ContentSummary objects */
 export const $selectedItems = computed([$contentCache, $selection], (cache, selection) => {
     return Array.from(selection)
         .map((id) => cache[id])
-        .filter((item): item is ContentSummaryAndCompareStatus => item !== undefined);
+        .filter((item): item is ContentSummary => item !== undefined);
 });
 
 /** Number of selected items */
@@ -75,7 +76,7 @@ export const $currentIds = computed([$selection, $activeId], (selection, activeI
 export const $currentItems = computed(
     [$currentIds, $contentCache],
     (currentIds, cache) => {
-        return currentIds.map((id) => cache[id]).filter((item): item is ContentSummaryAndCompareStatus => item !== undefined);
+        return currentIds.map((id) => cache[id]).filter((item): item is ContentSummary => item !== undefined);
     }
 );
 
@@ -141,15 +142,20 @@ export function isSelected(id: string): boolean {
     return $selection.get().has(id);
 }
 
-/** Get current items (selected OR active) as ContentSummaryAndCompareStatus objects */
-export function getCurrentItems(): readonly ContentSummaryAndCompareStatus[] {
+/** Get current items (selected OR active) as ContentSummary objects */
+export function getCurrentItems(): readonly ContentSummary[] {
     return $currentItems.get();
 }
 
 /** @deprecated Use getCurrentItems() instead. Returns selected items only. */
-export function getSelectedItems(): readonly ContentSummaryAndCompareStatus[] {
+export function getSelectedItems(): readonly ContentSummary[] {
     // For backwards compatibility, return current items (selected OR active)
     return getCurrentItems();
+}
+
+/** Get current items wrapped as CSCS for legacy code */
+export function getCurrentItemsAsCSCS(): readonly ContentSummaryAndCompareStatus[] {
+    return $currentItems.get().map((item) => ContentSummaryAndCompareStatus.fromContentSummary(item));
 }
 
 /** Check if any items are selected */

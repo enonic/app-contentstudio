@@ -4,6 +4,7 @@ import {LazyListBox} from '@enonic/lib-admin-ui/ui/selector/list/LazyListBox';
 import {cn} from '@enonic/ui';
 import {type ContentListItemElement} from '../../v6/features/shared/items/ContentListItem';
 import {type ContentId} from '../content/ContentId';
+import type {ContentSummary} from '../content/ContentSummary';
 import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {StatusCheckableItem} from './StatusCheckableItem';
@@ -104,7 +105,7 @@ export class DialogDependantItemsList<View extends StatusCheckableItem | Content
         return statusItem;
     }
 
-    getItemId(item: ContentSummaryAndCompareStatus): string {
+    getItemId(item: ContentSummary | ContentSummaryAndCompareStatus): string {
         return item.getContentId().toString();
     }
 

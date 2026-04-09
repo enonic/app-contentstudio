@@ -1,13 +1,20 @@
 import {cn} from '@enonic/ui';
 import {atom, WritableAtom} from 'nanostores';
 import {ContentId} from '../../../../../app/content/ContentId';
-import {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../../app/content/ContentSummary';
+import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {ContentListItemSelectableWithChildren} from '../../items/ContentListItemSelectableWithChildren';
 import {LegacyElement} from '../../LegacyElement';
 
+type ContentSummaryInput = ContentSummary | ContentSummaryAndCompareStatus;
+
+function toContentSummary(item: ContentSummaryInput): ContentSummary {
+    return 'getContentSummary' in item ? (item as ContentSummaryAndCompareStatus).getContentSummary() : item;
+}
+
 export type Props = {
     className?: string;
-    items: ContentSummaryAndCompareStatus[];
+    items: ContentSummary[];
     onCheckedChange: (contentId: ContentId, enabled: boolean) => void;
     includeChildren?: boolean;
     onIncludeChildrenChange: (contentId: ContentId, enabled: boolean) => void;
@@ -90,7 +97,7 @@ export class PublishItemsListElement
     // * Compatibility methods
     //
 
-    onItemsAdded(listener: (items: ContentSummaryAndCompareStatus[]) => void) {
+    onItemsAdded(listener: (items: ContentSummary[]) => void) {
         this.$excludedIds.listen((value, oldValue) => {
             const addedIds = oldValue.filter(id => !value.includes(id));
             const addedItems = this.props.get().items.filter(item => addedIds.includes(item.getContentId()));
@@ -100,7 +107,7 @@ export class PublishItemsListElement
         });
     }
 
-    onItemsRemoved(listener: (items: ContentSummaryAndCompareStatus[]) => void) {
+    onItemsRemoved(listener: (items: ContentSummary[]) => void) {
         this.$excludedIds.listen((value, oldValue) => {
             const removedIds = value.filter(id => !oldValue.includes(id));
             const removedItems = this.props.get().items.filter(item => removedIds.includes(item.getContentId()));
@@ -130,7 +137,7 @@ export class PublishItemsListElement
         // noop
     }
 
-    getItems(): ContentSummaryAndCompareStatus[] {
+    getItems(): ContentSummary[] {
         return this.props.get().items.filter(item => !this.$excludedIds.get().includes(item.getContentId()));
     }
 
@@ -157,16 +164,17 @@ export class PublishItemsListElement
         this.props.setKey('readOnly', false);
     }
 
-    setItems(items: ContentSummaryAndCompareStatus[], _?: boolean): void {
-        this.props.setKey('items', items);
+    setItems(items: ContentSummaryInput[], _?: boolean): void {
+        this.props.setKey('items', items.map(toContentSummary));
     }
 
-    addItems(items: ContentSummaryAndCompareStatus[], _?: boolean): void {
-        this.props.setKey('items', [...this.props.get().items, ...items]);
+    addItems(items: ContentSummaryInput[], _?: boolean): void {
+        this.props.setKey('items', [...this.props.get().items, ...items.map(toContentSummary)]);
     }
 
-    removeItems(items: ContentSummaryAndCompareStatus[], _?: boolean): void {
-        this.props.setKey('items', this.props.get().items.filter(item => !items.includes(item)));
+    removeItems(items: ContentSummaryInput[], _?: boolean): void {
+        const removeIds = new Set(items.map(item => toContentSummary(item).getId()));
+        this.props.setKey('items', this.props.get().items.filter(item => !removeIds.has(item.getId())));
     }
 
     removeItemsByIds(ids: ContentId[]): void {

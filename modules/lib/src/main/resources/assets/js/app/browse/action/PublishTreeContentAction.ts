@@ -1,8 +1,6 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {type ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 import {PublishContentAction} from './PublishContentAction';
-import {type SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
-import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 
 export class PublishTreeContentAction extends PublishContentAction {
 

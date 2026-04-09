@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,7 +43,9 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import com.enonic.app.contentstudio.json.content.CompareContentResultJson;
 import com.enonic.app.contentstudio.json.content.CompareContentResultsJson;
+import com.enonic.app.contentstudio.json.content.ContentDiffField;
 import com.enonic.app.contentstudio.json.content.ContentIdJson;
 import com.enonic.app.contentstudio.json.content.ContentJson;
 import com.enonic.app.contentstudio.json.content.ContentListJson;
@@ -1133,18 +1136,8 @@ public final class ContentResource
             .build()
             .find();
 
-        final boolean isFilterNeeded = json.getFilterStatuses() != null && !json.getFilterStatuses().isEmpty();
+        return result.getContentIds().stream().map( ContentIdJson::new ).collect( Collectors.toList() );
 
-        if ( isFilterNeeded )
-        {
-            return this.filterIdsByStatus( result.getContentIds(), json.getFilterStatuses() )
-                .map( ContentIdJson::new )
-                .collect( Collectors.toList() );
-        }
-        else
-        {
-            return result.getContentIds().stream().map( ContentIdJson::new ).collect( Collectors.toList() );
-        }
     }
 
     @POST
@@ -1221,16 +1214,6 @@ public final class ContentResource
             .build();
     }
 
-    private Stream<ContentId> filterIdsByStatus( final ContentIds ids, final Set<CompareStatus> statuses )
-    {
-        final CompareContentResults compareResults =
-            contentService.compare( CompareContentsParams.create().contentIds( ids ).build() );
-
-        return compareResults
-                .stream()
-                .filter( entry -> statuses.contains(entry.getCompareStatus() ) )
-                .map( CompareContentResult::getContentId );
-    }
 
     @POST
     @Path("countContentsWithDescendants")
@@ -1417,11 +1400,72 @@ public final class ContentResource
     public CompareContentResultsJson compare( final CompareContentsJson params )
     {
         final ContentIds contentIds = params.getIds().stream().map( ContentId::from ).collect( ContentIds.collector() );
-        final CompareContentResults compareResults =
-            contentService.compare( CompareContentsParams.create().contentIds( contentIds ).build() );
-        final GetPublishStatusesResult getPublishStatusesResult =
-            contentService.getPublishStatuses( GetPublishStatusesParams.create().contentIds( contentIds ).build() );
-        return new CompareContentResultsJson( compareResults, getPublishStatusesResult );
+
+        final Map<ContentId, Content> draftById = toContentMap(
+            contentService.getByIds( GetContentByIdsParams.create().contentIds( contentIds ).build() ) );
+
+        final Map<ContentId, Content> masterById = ContextBuilder.from( ContextAccessor.current() )
+            .branch( ContentConstants.BRANCH_MASTER )
+            .attribute( "ignorePublishTimes", Boolean.TRUE )
+            .build()
+            .callWith( () -> toContentMap(
+                contentService.getByIds( GetContentByIdsParams.create().contentIds( contentIds ).build() ) ) );
+
+        final Set<CompareContentResultJson> results = new HashSet<>();
+
+        for ( final String id : params.getIds() )
+        {
+            final ContentId contentId = ContentId.from( id );
+            results.add( new CompareContentResultJson( id, diffFields( draftById.get( contentId ), masterById.get( contentId ) ) ) );
+        }
+
+        return new CompareContentResultsJson( results );
+    }
+
+    private static Map<ContentId, Content> toContentMap( final Contents contents )
+    {
+        return contents.stream().collect( Collectors.toMap( Content::getId, Function.identity() ) );
+    }
+
+    private static Set<String> diffFields( final Content draft, final Content master )
+    {
+        if ( draft == null || master == null )
+        {
+            return Set.of();
+        }
+
+        final Set<String> diff = new HashSet<>();
+
+        if ( !draft.getPath().equals( master.getPath() ) )
+        {
+            diff.add( ContentDiffField.PATH.getJsonName() );
+        }
+        if ( !Objects.equals( draft.getDisplayName(), master.getDisplayName() ) )
+        {
+            diff.add( ContentDiffField.DISPLAY_NAME.getJsonName() );
+        }
+        if ( !Objects.equals( draft.getData(), master.getData() ) )
+        {
+            diff.add( ContentDiffField.DATA.getJsonName() );
+        }
+        if ( !Objects.equals( draft.getMixins(), master.getMixins() ) )
+        {
+            diff.add( ContentDiffField.MIXINS.getJsonName() );
+        }
+        if ( !Objects.equals( draft.getLanguage(), master.getLanguage() ) )
+        {
+            diff.add( ContentDiffField.LANGUAGE.getJsonName() );
+        }
+        if ( !Objects.equals( draft.getOwner(), master.getOwner() ) )
+        {
+            diff.add( ContentDiffField.OWNER.getJsonName() );
+        }
+        if ( !Objects.equals( draft.getInherit(), master.getInherit() ) )
+        {
+            diff.add( ContentDiffField.INHERIT.getJsonName() );
+        }
+
+        return Set.copyOf( diff );
     }
 
     @POST

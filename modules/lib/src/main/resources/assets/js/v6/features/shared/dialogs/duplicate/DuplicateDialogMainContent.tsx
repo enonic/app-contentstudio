@@ -1,7 +1,7 @@
 import {Button, Dialog, Separator, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {useMemo, useRef, type ReactElement} from 'react';
-import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../../app/content/ContentSummary';
 import {useI18n} from '../../../hooks/useI18n';
 import {useOnceWhen} from '../../../hooks/useOnce';
 import {
@@ -102,7 +102,7 @@ export const DuplicateDialogMainContent = ({
                 <div className={cn('flex flex-col gap-y-7.5', dependants.length === 0 && 'hidden')}>
                     <Separator className="pr-1" label={dependantsLabel} />
                     <ul className="flex flex-col gap-y-1.5">
-                        {dependants.map((item: ContentSummaryAndCompareStatus) => (
+                        {dependants.map((item: ContentSummary) => (
                             <ContentListItem
                                 key={`dep-${item.getId()}`}
                                 content={item}

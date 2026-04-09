@@ -3,9 +3,9 @@ import {ContentId} from '../../../app/content/ContentId';
 import {ContentQuery} from '../../../app/content/ContentQuery';
 import type {ContentSummary} from '../../../app/content/ContentSummary';
 import type {ContentSummaryJson} from '../../../app/content/ContentSummaryJson';
-import type {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
 import {ContentQueryRequest} from '../../../app/resource/ContentQueryRequest';
 import {ContentSummaryAndCompareStatusFetcher} from '../../../app/resource/ContentSummaryAndCompareStatusFetcher';
+import {ListContentByIdRequest} from '../../../app/resource/ListContentByIdRequest';
 import {type ChildOrder} from '../../../app/resource/order/ChildOrder';
 import {Branch} from '../../../app/versioning/Branch';
 import {setContents, getMissingIds, getContents} from '../store/content.store';
@@ -23,6 +23,7 @@ import {
 } from '../store/tree-list.store';
 import type {CreateNodeOptions} from '../lib/tree-store';
 import {calcContentState} from '../utils/cms/content/workflow';
+import {calcTreePublishStatus} from '../utils/cms/content/status';
 import {resolveDisplayName, resolveSubName} from '../utils/cms/content/prettify';
 
 //
@@ -74,24 +75,25 @@ export function clearFilterQuery(): void {
 //
 
 /**
- * Converts ContentSummaryAndCompareStatus to tree node data.
+ * Converts ContentSummary to tree node data.
  */
-function toTreeNodeData(content: ContentSummaryAndCompareStatus): ContentTreeNodeData {
+function toTreeNodeData(content: ContentSummary): ContentTreeNodeData {
     return {
         id: content.getId(),
         displayName: resolveDisplayName(content),
         name: resolveSubName(content),
-        publishStatus: content.getPublishStatus(),
-        contentState: calcContentState(content.getContentSummary()),
+        publishStatus: calcTreePublishStatus(content),
+        contentState: calcContentState(content),
         contentType: content.getType(),
-        iconUrl: content.getContentSummary().getIconUrl(),
+        iconUrl: content.getIconUrl(),
+        item: content,
     };
 }
 
 /**
  * Creates tree node options from content.
  */
-function toNodeOptions(content: ContentSummaryAndCompareStatus, parentId: string | null): CreateNodeOptions<ContentTreeNodeData> {
+function toNodeOptions(content: ContentSummary, parentId: string | null): CreateNodeOptions<ContentTreeNodeData> {
     return {
         id: content.getId(),
         data: toTreeNodeData(content),
@@ -149,23 +151,30 @@ export async function fetchChildren(
 
     try {
         const parentContentId = parentId ? new ContentId(parentId) : null;
-        const response = await fetcher.fetchChildren(parentContentId, offset, size, childOrder);
+        const response = await new ListContentByIdRequest(parentContentId)
+            .setFrom(offset)
+            .setSize(size)
+            .setOrder(childOrder)
+            .sendAndParse();
 
-        const contents = response.getContents();
+        const summaries = response.getContents();
         const metadata = response.getMetadata();
         const total = metadata.getTotalHits();
-        const hasMore = offset + contents.length < total;
+        const hasMore = offset + summaries.length < total;
+
+        // Update readonly status
+        await fetcher.updateReadOnly(summaries);
 
         // Update content cache
-        setContents(contents);
+        setContents(summaries);
 
         // Create tree nodes
-        const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = contents.map((content) => toNodeOptions(content, parentId));
+        const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map((content) => toNodeOptions(content, parentId));
 
         // Update tree
         addTreeNodes(nodeOptions);
 
-        const childIds = contents.map((c) => c.getId());
+        const childIds = summaries.map((c) => c.getId());
 
         if (offset === 0) {
             // First batch - set children
@@ -247,18 +256,18 @@ export async function fetchFilteredRootChildren(
         const total = metadata.getTotalHits();
         const hasMore = offset + summaries.length < total;
 
-        // Update readonly and compare status for the summaries
-        const contents = await fetcher.updateReadonlyAndCompareStatus(summaries);
+        // Update readonly status
+        await fetcher.updateReadOnly(summaries);
 
         // Update content cache
-        setContents(contents);
+        setContents(summaries);
 
         // Create tree nodes (all as root since it's a flat query result)
-        const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = contents.map((content) => toNodeOptions(content, null));
+        const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map((content) => toNodeOptions(content, null));
 
         addTreeNodes(nodeOptions);
 
-        const childIds = contents.map((c) => c.getId());
+        const childIds = summaries.map((c) => c.getId());
 
         if (offset === 0) {
             setTreeChildren(null, childIds);
@@ -282,7 +291,7 @@ export async function fetchFilteredRootChildren(
  * @param ids - Content IDs to fetch
  * @returns All requested content (from cache + freshly fetched)
  */
-export async function fetchContentByIds(ids: string[]): Promise<ContentSummaryAndCompareStatus[]> {
+export async function fetchContentByIds(ids: string[]): Promise<ContentSummary[]> {
     if (ids.length === 0) return [];
 
     // Check what's missing from cache
@@ -291,7 +300,8 @@ export async function fetchContentByIds(ids: string[]): Promise<ContentSummaryAn
     // Fetch missing content
     if (missingIds.length > 0) {
         const contentIds = missingIds.map((id) => new ContentId(id));
-        const fetched = await fetcher.fetchAndCompareStatus(contentIds);
+        const fetched = await fetcher.fetchByIds(contentIds);
+        await fetcher.updateReadOnly(fetched);
         setContents(fetched);
     }
 
@@ -308,19 +318,21 @@ export async function fetchMissingContent(ids: string[]): Promise<void> {
     if (missingIds.length === 0) return;
 
     const contentIds = missingIds.map((id) => new ContentId(id));
-    const fetched = await fetcher.fetchAndCompareStatus(contentIds);
+    const fetched = await fetcher.fetchByIds(contentIds);
+    await fetcher.updateReadOnly(fetched);
     setContents(fetched);
 }
 
 /**
  * Force refreshes a single content item in the cache.
  */
-export async function refreshContent(id: string): Promise<ContentSummaryAndCompareStatus | undefined> {
+export async function refreshContent(id: string): Promise<ContentSummary | undefined> {
     const contentId = new ContentId(id);
-    const contents = await fetcher.fetchAndCompareStatus([contentId]);
-    if (contents.length > 0) {
-        setContents(contents);
-        return contents[0];
+    const summaries = await fetcher.fetchByIds([contentId]);
+    if (summaries.length > 0) {
+        await fetcher.updateReadOnly(summaries);
+        setContents(summaries);
+        return summaries[0];
     }
     return undefined;
 }
@@ -328,13 +340,14 @@ export async function refreshContent(id: string): Promise<ContentSummaryAndCompa
 /**
  * Force refreshes multiple content items in the cache.
  */
-export async function refreshContents(ids: string[]): Promise<ContentSummaryAndCompareStatus[]> {
+export async function refreshContents(ids: string[]): Promise<ContentSummary[]> {
     if (ids.length === 0) return [];
 
     const contentIds = ids.map((id) => new ContentId(id));
-    const contents = await fetcher.fetchAndCompareStatus(contentIds);
-    setContents(contents);
-    return contents;
+    const summaries = await fetcher.fetchByIds(contentIds);
+    await fetcher.updateReadOnly(summaries);
+    setContents(summaries);
+    return summaries;
 }
 
 /**
@@ -704,15 +717,16 @@ export async function fetchVisibleContentData(ids: string[]): Promise<void> {
             if (!isBatchReady(visibleDataBatchState, batch, Date.now())) continue;
             const contentIds = batch.map((id) => new ContentId(id));
             try {
-                const contents = await fetcher.fetchAndCompareStatus(contentIds);
-                const fetchedIds = new Set(contents.map((content) => content.getId()));
+                const summaries = await fetcher.fetchByIds(contentIds);
+                await fetcher.updateReadOnly(summaries);
+                const fetchedIds = new Set(summaries.map((content) => content.getId()));
                 const unresolvedIds = batch.filter((id) => !fetchedIds.has(id));
 
                 // Update content cache
-                setContents(contents);
+                setContents(summaries);
 
                 // Update tree node data
-                updateTreeNodesWithData(contents);
+                updateTreeNodesWithData(summaries);
                 clearBatchFailure(visibleDataBatchState, visibleDataFailedIds, [...fetchedIds]);
 
                 // Retry unresolved IDs with backoff up to max attempts
@@ -733,7 +747,7 @@ export async function fetchVisibleContentData(ids: string[]): Promise<void> {
  * Updates tree nodes with fetched content data.
  * Called after content is fetched to populate placeholder nodes.
  */
-function updateTreeNodesWithData(contents: ContentSummaryAndCompareStatus[]): void {
+function updateTreeNodesWithData(contents: ContentSummary[]): void {
     const updates: CreateNodeOptions<ContentTreeNodeData>[] = contents.map((content) => ({
         id: content.getId(),
         data: toTreeNodeData(content),
@@ -843,18 +857,18 @@ async function fetchFilteredContentForFilterTree(
     const total = metadata.getTotalHits();
     const hasMore = offset + summaries.length < total;
 
-    // Update readonly and compare status for the summaries
-    const contents = await fetcher.updateReadonlyAndCompareStatus(summaries);
+    // Update readonly status
+    await fetcher.updateReadOnly(summaries);
 
     // Update content cache
-    setContents(contents);
+    setContents(summaries);
 
     // Create filter tree nodes (all as root since it's a flat query result)
-    const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = contents.map((content) => toNodeOptions(content, null));
+    const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map((content) => toNodeOptions(content, null));
 
     addFilterNodes(nodeOptions);
 
-    const childIds = contents.map((c) => c.getId());
+    const childIds = summaries.map((c) => c.getId());
 
     return {ids: childIds, hasMore, total};
 }
@@ -954,15 +968,16 @@ export async function fetchVisibleFilterContentData(ids: string[]): Promise<void
             if (!isBatchReady(visibleFilterDataBatchState, batch, Date.now())) continue;
             const contentIds = batch.map((id) => new ContentId(id));
             try {
-                const contents = await fetcher.fetchAndCompareStatus(contentIds);
-                const fetchedIds = new Set(contents.map((content) => content.getId()));
+                const summaries = await fetcher.fetchByIds(contentIds);
+                await fetcher.updateReadOnly(summaries);
+                const fetchedIds = new Set(summaries.map((content) => content.getId()));
                 const unresolvedIds = batch.filter((id) => !fetchedIds.has(id));
 
                 // Update content cache
-                setContents(contents);
+                setContents(summaries);
 
                 // Update filter tree node data
-                const updates: CreateNodeOptions<ContentTreeNodeData>[] = contents.map((content) => ({
+                const updates: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map((content) => ({
                     id: content.getId(),
                     data: toTreeNodeData(content),
                     hasChildren: content.hasChildren(),

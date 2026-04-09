@@ -1,12 +1,12 @@
 import {useMemo} from 'react';
 
 import type {ContentId} from '../../../../../../app/content/ContentId';
-import type {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
 import {hasContentIdInIds, uniqueIds} from '../../../../utils/cms/content/ids';
 
 export const useIssuePublishTargetIds = (
-    items: ContentSummaryAndCompareStatus[],
-    dependants: ContentSummaryAndCompareStatus[],
+    items: ContentSummary[],
+    dependants: ContentSummary[],
     excludedDependantIds: ContentId[],
 ): ContentId[] => {
     return useMemo(() => {

@@ -4,7 +4,7 @@ import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {computed, map} from 'nanostores';
 import {type ContentId} from '../../../../app/content/ContentId';
-import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../app/content/ContentSummary';
 import {IssueStatus} from '../../../../app/issue/IssueStatus';
 import {IssueType} from '../../../../app/issue/IssueType';
 import {PublishRequest} from '../../../../app/issue/PublishRequest';
@@ -16,7 +16,7 @@ import {ListIssueCommentsRequest} from '../../../../app/issue/resource/ListIssue
 import {UpdateIssueCommentRequest} from '../../../../app/issue/resource/UpdateIssueCommentRequest';
 import {UpdateIssueRequest} from '../../../../app/issue/resource/UpdateIssueRequest';
 import {GetPrincipalsByKeysRequest} from '../../../../app/security/GetPrincipalsByKeysRequest';
-import {fetchContentSummariesWithStatus} from '../../api/content';
+import {fetchContentSummaries} from '../../api/content';
 import {resolvePublishDependencies} from '../../api/publish';
 import {hasContentIdInIds, isIdsEqual, uniqueIds} from '../../utils/cms/content/ids';
 import {$issueDialog, loadIssueDialogList} from './issueDialog.store';
@@ -49,9 +49,9 @@ type IssueDialogDetailsStore = {
     itemsUpdating: boolean;
     itemsLoading: boolean;
     itemsError: boolean;
-    items: ContentSummaryAndCompareStatus[];
+    items: ContentSummary[];
     excludeChildrenIds: ContentId[];
-    dependants: ContentSummaryAndCompareStatus[];
+    dependants: ContentSummary[];
     excludedDependantIds: ContentId[];
     requiredDependantIds: ContentId[];
 };
@@ -196,7 +196,7 @@ export const loadIssueDialogItems = async (
 
     try {
         const items = shouldFetchItems
-                      ? await fetchContentSummariesWithStatus(itemIds)
+                      ? await fetchContentSummaries(itemIds)
                       : currentState.items;
         if (requestId !== dependenciesRequestId) {
             return;
@@ -212,7 +212,7 @@ export const loadIssueDialogItems = async (
 
         const dependantIds = result.getDependants()
             .filter(id => !hasContentIdInIds(id, itemIds));
-        const dependants = await fetchContentSummariesWithStatus(dependantIds);
+        const dependants = await fetchContentSummaries(dependantIds);
         if (requestId !== dependenciesRequestId) {
             return;
         }

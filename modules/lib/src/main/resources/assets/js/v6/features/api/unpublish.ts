@@ -1,7 +1,6 @@
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {type TaskIdJson} from '@enonic/lib-admin-ui/task/TaskIdJson';
 import {ContentId} from '../../../app/content/ContentId';
-import {type ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
 import {type ContentIdBaseItemJson} from '../../../app/resource/json/ContentIdBaseItemJson';
 import {type InboundDependenciesJson} from '../../../app/resource/json/InboundDependenciesJson';
 import {getCmsApiUrl} from '../utils/url/cms';
@@ -59,28 +58,12 @@ export type UnpublishOptions = {
     includeChildren?: boolean;
 };
 
-export async function unpublishContent(options: UnpublishOptions): Promise<TaskId>;
-export async function unpublishContent(items: ContentSummaryAndCompareStatus[], includeChildren?: boolean): Promise<TaskId>;
-export async function unpublishContent(
-    optionsOrItems: UnpublishOptions | ContentSummaryAndCompareStatus[],
-    includeChildren = true,
-): Promise<TaskId> {
+export async function unpublishContent(options: UnpublishOptions): Promise<TaskId> {
     const url = getCmsApiUrl('unpublish');
 
-    let ids: string[];
-    let includeChildrenFlag: boolean;
-
-    if (Array.isArray(optionsOrItems)) {
-        ids = optionsOrItems.map(item => item.getContentId().toString());
-        includeChildrenFlag = includeChildren;
-    } else {
-        ids = optionsOrItems.contentIds.map(id => id.toString());
-        includeChildrenFlag = optionsOrItems.includeChildren ?? true;
-    }
-
     const payload = {
-        ids,
-        includeChildren: includeChildrenFlag,
+        ids: options.contentIds.map(id => id.toString()),
+        includeChildren: options.includeChildren ?? true,
     };
 
     const response = await fetch(url, {

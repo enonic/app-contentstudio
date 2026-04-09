@@ -1,7 +1,7 @@
 import {Button, Dialog, Separator, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {useMemo, useRef, type ReactElement} from 'react';
-import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../../app/content/ContentSummary';
 import {Branch} from '../../../../../app/versioning/Branch';
 import {useI18n} from '../../../hooks/useI18n';
 import {useOnceWhen} from '../../../hooks/useOnce';
@@ -32,7 +32,7 @@ export const DeleteDialogMainContent = ({
     const total = useStore($deleteItemsCount);
     const inboundIds = useStore($deleteInboundIds);
     const inboundSet = useMemo(() => new Set(inboundIds), [inboundIds]);
-    const isInbound = (content: ContentSummaryAndCompareStatus) => inboundSet.has(content.getContentId().toString());
+    const isInbound = (content: ContentSummary) => inboundSet.has(content.getContentId().toString());
 
     const single = useI18n('dialog.delete.single');
     const multiple = useI18n('dialog.delete.multiple');

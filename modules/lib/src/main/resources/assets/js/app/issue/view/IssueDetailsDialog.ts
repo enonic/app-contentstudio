@@ -930,7 +930,7 @@ export class IssueDetailsDialog
         const excludedIds = this.publishProcessor.getExcludedIds();
         const message = this.issue.getTitle();
 
-        openPublishDialog(contents, false, excludedIds);
+        openPublishDialog(contents.map(item => item.getContentSummary()), false, excludedIds);
         // TODO: Enonic UI - Use other props
         // new ContentPublishPromptEvent({
         //     model: contents,

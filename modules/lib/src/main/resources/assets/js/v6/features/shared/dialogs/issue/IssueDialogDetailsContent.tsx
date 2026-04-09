@@ -794,7 +794,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                                             disabled={isItemsDisabled || itemsLoading}
                                                         >
                                                             <ContentRow.Label action="edit" />
-                                                            <ContentRow.Status variant="simple" />
+                                                            <ContentRow.Status />
                                                             <ContentRow.RemoveButton
                                                                 onRemove={() => handleItemRemoved(item.getContentId())}
                                                                 disabled={isItemsDisabled || itemsLoading || items.length === 1}
@@ -854,7 +854,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                                             }
                                                         />
                                                         <ContentRow.Label action="edit" />
-                                                        <ContentRow.Status variant={isPublishRequest ? "diff" : "simple"} />
+                                                        <ContentRow.Status />
                                                     </ContentRow>
                                                 );
                                             }}

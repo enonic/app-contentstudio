@@ -1,7 +1,7 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export enum PublishStatus {
-    ONLINE = 'online', PENDING = 'pending', EXPIRED = 'expired'
+    ONLINE = 'online', PENDING = 'pending', EXPIRED = 'expired', OFFLINE = 'offline'
 }
 
 export class PublishStatusFormatter {
@@ -16,6 +16,9 @@ export class PublishStatusFormatter {
             break;
         case PublishStatus.EXPIRED:
             return i18n('status.expired');
+            break;
+        case PublishStatus.OFFLINE:
+            return i18n('status.offline');
             break;
         default:
             return i18n('status.unknown');
@@ -35,5 +38,9 @@ export class PublishStatusChecker {
 
     public static isExpired(publishStatus: PublishStatus): boolean {
         return publishStatus === PublishStatus.EXPIRED;
+    }
+
+    static isOffline(status: PublishStatus): boolean {
+        return status === PublishStatus.OFFLINE;
     }
 }

@@ -1,9 +1,14 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
-import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentId} from '../../../../../app/content/ContentId';
 import {hasUnpublishedChildren} from '../../../api/hasUnpublishedChildren';
 
-export const useItemsWithUnpublishedChildren = (
-    items: ContentSummaryAndCompareStatus[],
+type ItemWithChildren = {
+    getContentId(): ContentId;
+    hasChildren(): boolean;
+};
+
+export const useItemsWithUnpublishedChildren = <T extends ItemWithChildren>(
+    items: readonly T[],
 ): Set<string> | null => {
     const [itemsWithUnpublishedChildren, setItemsWithUnpublishedChildren] = useState<Set<string> | null>(null);
     const requestIdRef = useRef(0);

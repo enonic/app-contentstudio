@@ -1,11 +1,11 @@
 import {ListItem, type ListItemProps, cn} from '@enonic/ui';
 import {GripVertical} from 'lucide-react';
 import {type ReactElement} from 'react';
-import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../app/content/ContentSummary';
 import {ContentLabel, type ContentLabelVariant} from '../content/ContentLabel';
 
 export type SortContentListItemProps = {
-    content: ContentSummaryAndCompareStatus;
+    content: ContentSummary;
     variant?: ContentLabelVariant;
     dragEnabled?: boolean;
     isFocused?: boolean;

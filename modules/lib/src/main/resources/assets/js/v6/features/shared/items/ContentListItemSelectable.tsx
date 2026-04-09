@@ -1,14 +1,13 @@
 import {Button, Checkbox, type CheckboxProps, cn, ListItem} from '@enonic/ui';
-import {type ComponentPropsWithoutRef, useMemo} from 'react';
-import {type ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import {type ComponentPropsWithoutRef} from 'react';
+import {type ContentSummary} from '../../../../app/content/ContentSummary';
 import {EditContentEvent} from '../../../../app/event/EditContentEvent';
 import {ContentLabel} from '../content/ContentLabel';
 import {LegacyElement} from '../LegacyElement';
 import {DiffStatusBadge} from '../status/DiffStatusBadge';
-import {calcContentState} from '../../utils/cms/content/workflow';
 
 export type ContentListItemSelectableProps = {
-    content: ContentSummaryAndCompareStatus;
+    content: ContentSummary;
     id?: string;
     status?: boolean;
     /**
@@ -36,12 +35,6 @@ export const ContentListItemSelectable = ({
     tabIndex,
     ...props
 }: ContentListItemSelectableProps): React.ReactElement => {
-    const contentSummary = content.getContentSummary();
-
-    const contentState = useMemo(() => {
-        return calcContentState(contentSummary);
-    }, [contentSummary]);
-
     const checkboxId = `${CONTENT_LIST_ITEM_SELECTABLE_NAME}-${id || content.getId()}-checkbox`;
 
     const handleClick = () => {
@@ -71,11 +64,7 @@ export const ContentListItemSelectable = ({
                 </Button>
             </ListItem.Content>
             <ListItem.Right>
-                {status && <DiffStatusBadge
-                    publishStatus={content.getPublishStatus()}
-                    compareStatus={content.getCompareStatus()}
-                    contentState={contentState}
-                    wasPublished={!!content.getContentSummary().getPublishFirstTime()} />}
+                {status && <DiffStatusBadge contentSummary={content} />}
             </ListItem.Right>
         </ListItem>
     );
@@ -96,7 +85,7 @@ export class ContentListItemSelectableElement
         }, ContentListItemSelectable);
     }
 
-    getItem(): ContentSummaryAndCompareStatus {
+    getItem(): ContentSummary {
         return this.props.get().content;
     }
 

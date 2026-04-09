@@ -1,19 +1,21 @@
-import {atom, onMount} from 'nanostores';
+import {atom, computed, onMount} from 'nanostores';
 import {$currentItem as $treeContent} from '../contentTreeSelection.store';
 import {$mode, getMode} from '../mode.store';
-import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../app/content/ContentSummary';
+import {type CompareResult, compareContent} from '../../api/compare';
+import {calcSecondaryStatus, calcTreePublishStatus} from '../../utils/cms/content/status';
 import {$contentMoved, $contentPublished, $contentUnpublished, $contentUpdated} from '../socket.store';
 
-const $wizardContent = atom<ContentSummaryAndCompareStatus | null>(null);
+const $wizardContent = atom<ContentSummary | null>(null);
 
-export const $contextContent = atom<ContentSummaryAndCompareStatus | null>(null);
+export const $contextContent = atom<ContentSummary | null>(null);
 
 //
 // * Public API
 //
 
 
-export const setWizardContent = (content: ContentSummaryAndCompareStatus): void => {
+export const setWizardContent = (content: ContentSummary): void => {
     $wizardContent.set(content);
 };
 
@@ -57,7 +59,7 @@ onMount($contextContent, () => {
 // Update wizard content when content changes come through socket events.
 // Only relevant in wizard mode, since browser mode derives context from the tree selection store.
 
-const updateWizardContentFromEvent = (data: ContentSummaryAndCompareStatus[] | undefined): void => {
+const updateWizardContentFromEvent = (data: ContentSummary[] | undefined): void => {
     if (!data?.length || getMode() !== 'wizard') return;
 
     const contextContent = $contextContent.get();
@@ -75,4 +77,47 @@ $contentPublished.subscribe((event) => updateWizardContentFromEvent(event?.data)
 
 $contentUnpublished.subscribe((event) => updateWizardContentFromEvent(event?.data));
 
-$contentMoved.subscribe((event) => updateWizardContentFromEvent(event?.data?.map((moved) => moved.item)));
+$contentMoved.subscribe((event) => updateWizardContentFromEvent(event?.data?.map((moved) => moved.item.getContentSummary())));
+
+//
+// * Compare status verification
+//
+
+const $contextCompareResult = atom<CompareResult | undefined>(undefined);
+const $contextCompareLoading = atom<boolean>(false);
+
+export const $contextContentCompareResult = computed($contextCompareResult, (result) => result);
+export const $isContextCompareLoading = computed($contextCompareLoading, (loading) => loading);
+
+function needsCompareVerification(content: Readonly<ContentSummary>): boolean {
+    const publishStatus = calcTreePublishStatus(content as ContentSummary);
+    return calcSecondaryStatus(publishStatus, content as ContentSummary) === 'modified';
+}
+
+async function fetchContextCompareStatus(content: Readonly<ContentSummary>): Promise<void> {
+    $contextCompareLoading.set(true);
+
+    try {
+        const result = await compareContent([content.getId()]);
+
+        // Verify content hasn't changed while request was in-flight
+        if ($contextContent.get()?.getId() !== content.getId()) return;
+
+        $contextCompareResult.set(result.get(content.getId()));
+    } catch (error) {
+        console.error(error);
+    } finally {
+        $contextCompareLoading.set(false);
+    }
+}
+
+$contextContent.subscribe((content) => {
+    $contextCompareResult.set(undefined);
+
+    if (!content || !needsCompareVerification(content)) {
+        $contextCompareLoading.set(false);
+        return;
+    }
+
+    void fetchContextCompareStatus(content);
+});

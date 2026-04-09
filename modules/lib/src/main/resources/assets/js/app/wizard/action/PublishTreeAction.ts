@@ -1,7 +1,7 @@
 import {BasePublishAction} from './BasePublishAction';
 import {type ContentWizardPanel} from '../ContentWizardPanel';
 import {ContentPublishPromptEvent} from '../../browse/ContentPublishPromptEvent';
-import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../content/ContentSummary';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {openPublishDialog} from '../../../v6/features/store/dialogs/publishDialog.store';
 
@@ -11,7 +11,7 @@ export class PublishTreeAction extends BasePublishAction {
         this.setClass('publish-tree');
     }
 
-    protected createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void {
+    protected createPromptEvent(summary: ContentSummary[]): void {
         openPublishDialog(summary, true);
     }
 }

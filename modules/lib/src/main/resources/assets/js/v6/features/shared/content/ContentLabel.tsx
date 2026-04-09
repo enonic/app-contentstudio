@@ -1,5 +1,5 @@
 import {ReactElement} from 'react';
-import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../app/content/ContentSummary';
 import {resolveDisplayName, resolvePath} from '../../utils/cms/content/prettify';
 import {calcContentState} from '../../utils/cms/content/workflow';
 import {ItemLabel, ItemLabelProps} from '../ItemLabel';
@@ -10,7 +10,7 @@ const CONTENT_LABEL_NAME = 'ContentLabel';
 export type ContentLabelVariant = 'compact' | 'normal' | 'detailed';
 
 export type ContentLabelProps = {
-    content: ContentSummaryAndCompareStatus;
+    content: ContentSummary;
     /**
      * Display variant:
      * - `compact` - Single line showing full path (for list items, space-constrained contexts)
@@ -32,24 +32,24 @@ export const ContentLabel = ({
     const isCompact = variant === 'compact';
     const showFullPath = variant === 'compact' || variant === 'detailed';
 
-    const summary = content.getContentSummary();
-    const statusHidden = hideStatus || !!summary.getPublishTime();
-    const status = statusHidden ? null : calcContentState(summary);
+    const statusHidden = hideStatus || !!content.getPublishTime();
+    const status = statusHidden ? null : calcContentState(content);
     const Icon = (
         <WorkflowContentIcon
             status={status}
             contentType={content.getType().toString()}
-            url={summary.getIconUrl()}
+            url={content.getIconUrl()}
         />
     );
 
+    const pathStr = resolvePath(content, showFullPath);
+
     const primaryText = isCompact
-        // Don't prettify the path when it is used as title for better readability
-        ? resolvePath(content, showFullPath, false)
+        ? pathStr
         : resolveDisplayName(content);
     const secondaryText = isCompact
         ? undefined
-        : resolvePath(content, showFullPath);
+        : pathStr;
 
     return (
         <ItemLabel

@@ -3,7 +3,7 @@ import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DialogPresetConfirmElement} from '../../../v6/features/shared/dialogs/DialogPreset';
-import {getCurrentItems} from '../../../v6/features/store/contentTreeSelection.store';
+import {getCurrentItemsAsCSCS} from '../../../v6/features/store/contentTreeSelection.store';
 import {openPublishDialog} from '../../../v6/features/store/dialogs/publishDialog.store';
 import type {ContentId} from '../../content/ContentId';
 import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
@@ -26,8 +26,8 @@ export class MarkAsReadyContentAction
     }
 
     protected handleExecuted() {
-        const content: ContentSummaryAndCompareStatus[] = [...getCurrentItems()];
-        const contentToMarkAsReady: ContentSummaryAndCompareStatus[] = [...getCurrentItems()]
+        const content: ContentSummaryAndCompareStatus[] = [...getCurrentItemsAsCSCS()];
+        const contentToMarkAsReady: ContentSummaryAndCompareStatus[] = [...getCurrentItemsAsCSCS()]
             .filter((item: ContentSummaryAndCompareStatus) => item.canBeMarkedAsReady());
         const isSingleItem: boolean = contentToMarkAsReady.length === 1;
 
@@ -64,7 +64,7 @@ export class MarkAsReadyContentAction
             }
         }).then(() => {
             if (this.canPublish) {
-                openPublishDialog(contentToPublish);
+                openPublishDialog(contentToPublish.map(item => item.getContentSummary()));
             }
         }).catch(DefaultErrorHandler.handle);
     }

@@ -1,6 +1,7 @@
 import {Separator} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import React, {type ReactElement, useEffect, useState} from 'react';
+import {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
 import {ExtensionOnlinePropertiesItemViewHelper} from '../../../../../../app/view/context/extension/details/ExtensionOnlinePropertiesItemViewHelper';
 import type {ExtensionPropertiesItemViewValue} from '../../../../../../app/view/context/extension/details/ExtensionPropertiesItemViewValue';
 import {useI18n} from '../../../../hooks/useI18n';
@@ -21,7 +22,7 @@ export const DetailsWidgetScheduleSection = (): ReactElement => {
     useEffect(() => {
         if (!content) return;
 
-        helper.setItem(content);
+        helper.setItem(ContentSummaryAndCompareStatus.fromContentSummary(content));
         helper.generateProps().then((props) => {
             setProps(props);
             setPropsHasValue(Array.from(props.values()).some((value) => Boolean(value.getDisplayName())));

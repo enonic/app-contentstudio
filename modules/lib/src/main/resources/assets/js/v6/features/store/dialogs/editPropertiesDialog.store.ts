@@ -3,7 +3,7 @@ import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {map} from 'nanostores';
-import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../app/content/ContentSummary';
 import {ContentLanguageUpdatedEvent} from '../../../../app/event/ContentLanguageUpdatedEvent';
 import {GetContentByIdRequest} from '../../../../app/resource/GetContentByIdRequest';
 import {UpdateContentMetadataRequest} from '../../../../app/resource/UpdateContentMetadataRequest';
@@ -16,7 +16,7 @@ import {loadPrincipalsByKeys} from '../principals.store';
 
 type EditPropertiesDialogStore = {
     open: boolean;
-    content?: ContentSummaryAndCompareStatus;
+    content?: ContentSummary;
     languageSelection: readonly string[];
     ownerSelection: readonly string[];
     saving: boolean;
@@ -51,16 +51,15 @@ const resetEditPropertiesDialog = (): void => {
 // * Public API
 //
 
-export const openEditPropertiesDialog = (content: ContentSummaryAndCompareStatus): void => {
-    const contentSummary = content?.getContentSummary();
-    if (!contentSummary) {
+export const openEditPropertiesDialog = (content: ContentSummary): void => {
+    if (!content) {
         return;
     }
 
     instanceId += 1;
 
-    const language = contentSummary.getLanguage();
-    const ownerKey = contentSummary.getOwner()?.toString();
+    const language = content.getLanguage();
+    const ownerKey = content.getOwner()?.toString();
 
     $editPropertiesDialog.set({
         ...structuredClone(initialState),
@@ -94,7 +93,7 @@ export const setEditPropertiesDialogOwnerSelection = (selection: readonly string
 
 export const applyEditPropertiesDialog = async (): Promise<void> => {
     const state = $editPropertiesDialog.get();
-    const contentSummary = state.content?.getContentSummary();
+    const contentSummary = state.content;
 
     if (!contentSummary || state.saving) {
         return;

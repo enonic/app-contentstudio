@@ -135,6 +135,8 @@ import {ContextPanelState} from '../view/context/ContextPanelState';
 import {type ContextPanelMode} from '../view/context/ContextSplitPanel';
 import {ContextView} from '../view/context/ContextView';
 import {DockedContextPanel} from '../view/context/DockedContextPanel';
+import {compareContent} from '../../v6/features/api/compare';
+import {calcTreePublishStatus, calcSecondaryStatus} from '../../v6/features/utils/cms/content/status';
 import {AccessControlHelper} from './AccessControlHelper';
 import {type ContentSaveAction} from './action/ContentSaveAction';
 import {ContentWizardActions} from './action/ContentWizardActions';
@@ -724,7 +726,7 @@ export class ContentWizardPanel
         this.contextView = new ContextView(!!this.livePanel);
 
         this.contextView.setItem(this.getContent());
-        setWizardContent(this.getContent());
+        setWizardContent(this.getContent().getContentSummary());
 
         const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
         const contextToggleButton = new NonMobileContextPanelToggleButton();
@@ -1767,6 +1769,7 @@ export class ContentWizardPanel
         this.getContentWizardToolbar().setItem(updatedContent);
         this.getWidgetToolbar().setItem(updatedContent);
         this.wizardActions.setContent(updatedContent).refreshState();
+        this.fetchCompareAndRefreshActions();
 
         const isUpdatedAndRenamed = this.isContentUpdatedAndRenamed(updatedContent);
         if (!isUpdatedAndRenamed || this.isFirstUpdateAndRenameEventSkiped) {
@@ -2655,6 +2658,22 @@ export class ContentWizardPanel
             }
             this.getContentWizardToolbar().setItem(this.getContent());
             this.wizardActions.setContent(this.getContent()).refreshState();
+        }
+    }
+
+    private fetchCompareAndRefreshActions(): void {
+        const content = this.getPersistedItem();
+        if (!content) return;
+
+        const contentId = content.getContentId().toString();
+        const publishStatus = calcTreePublishStatus(content);
+        const secondaryStatus = calcSecondaryStatus(publishStatus, content);
+
+        if (secondaryStatus === 'modified') {
+            compareContent([contentId]).then(result => {
+                const compareResult = result.get(contentId);
+                this.wizardActions.setCompareResult(compareResult).refreshState();
+            }).catch(DefaultErrorHandler.handle);
         }
     }
 

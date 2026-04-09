@@ -1,7 +1,8 @@
 import {BasePublishAction} from './BasePublishAction';
 import {type ContentWizardPanel} from '../ContentWizardPanel';
 import {CreateIssuePromptEvent} from '../../browse/CreateIssuePromptEvent';
-import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../content/ContentSummary';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class CreateIssueAction extends BasePublishAction {
@@ -10,7 +11,7 @@ export class CreateIssueAction extends BasePublishAction {
         this.setClass('create-issue');
     }
 
-    protected createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void {
-        new CreateIssuePromptEvent(summary).fire();
+    protected createPromptEvent(summary: ContentSummary[]): void {
+        new CreateIssuePromptEvent(summary.map(s => ContentSummaryAndCompareStatus.fromContentSummary(s))).fire();
     }
 }

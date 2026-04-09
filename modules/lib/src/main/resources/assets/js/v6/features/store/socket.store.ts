@@ -1,6 +1,6 @@
 import {atom} from 'nanostores';
 import type {ContentId} from '../../../app/content/ContentId';
-import type {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../app/content/ContentSummary';
 import type {ContentServerChangeItem} from '../../../app/event/ContentServerChangeItem';
 import type {MovedContentItem} from '../../../app/browse/MovedContentItem';
 import type {ContentPath} from '../../../app/content/ContentPath';
@@ -9,13 +9,13 @@ import type {ContentPath} from '../../../app/content/ContentPath';
 // * Event Types
 //
 
-export type ContentEvent<T = ContentSummaryAndCompareStatus[]> = {
+export type ContentEvent<T = ContentSummary[]> = {
     timestamp: number;
     data: T;
 };
 
 export type ContentRenamedData = {
-    items: ContentSummaryAndCompareStatus[];
+    items: ContentSummary[];
     oldPaths: ContentPath[];
 };
 
@@ -67,11 +67,11 @@ export const setSocketConnected = (connected: boolean): void => {
     $socketConnected.set(connected);
 };
 
-export const emitContentCreated = (data: ContentSummaryAndCompareStatus[]): void => {
+export const emitContentCreated = (data: ContentSummary[]): void => {
     $contentCreated.set({timestamp: Date.now(), data});
 };
 
-export const emitContentUpdated = (data: ContentSummaryAndCompareStatus[]): void => {
+export const emitContentUpdated = (data: ContentSummary[]): void => {
     $contentUpdated.set({timestamp: Date.now(), data});
 };
 
@@ -83,7 +83,7 @@ export const emitContentMoved = (data: MovedContentItem[]): void => {
     $contentMoved.set({timestamp: Date.now(), data});
 };
 
-export const emitContentRenamed = (items: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]): void => {
+export const emitContentRenamed = (items: ContentSummary[], oldPaths: ContentPath[]): void => {
     $contentRenamed.set({timestamp: Date.now(), data: {items, oldPaths}});
 };
 
@@ -91,19 +91,19 @@ export const emitContentArchived = (data: ContentServerChangeItem[]): void => {
     $contentArchived.set({timestamp: Date.now(), data});
 };
 
-export const emitContentPublished = (data: ContentSummaryAndCompareStatus[]): void => {
+export const emitContentPublished = (data: ContentSummary[]): void => {
     $contentPublished.set({timestamp: Date.now(), data});
 };
 
-export const emitContentUnpublished = (data: ContentSummaryAndCompareStatus[]): void => {
+export const emitContentUnpublished = (data: ContentSummary[]): void => {
     $contentUnpublished.set({timestamp: Date.now(), data});
 };
 
-export const emitContentDuplicated = (data: ContentSummaryAndCompareStatus[]): void => {
+export const emitContentDuplicated = (data: ContentSummary[]): void => {
     $contentDuplicated.set({timestamp: Date.now(), data});
 };
 
-export const emitContentSorted = (data: ContentSummaryAndCompareStatus[]): void => {
+export const emitContentSorted = (data: ContentSummary[]): void => {
     $contentSorted.set({timestamp: Date.now(), data});
 };
 

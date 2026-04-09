@@ -56,14 +56,9 @@ export type TextEditorProps = {
 const TEXT_EDITOR_NAME = 'TextEditor';
 
 export const TextEditor = ({textComponent, disabled}: TextEditorProps): JSX.Element => {
-    const contextContent = useStore($contextContent);
+    const contentSummary = useStore($contextContent);
     const activeProject = useStore($activeProject);
     const applicationKeys = useApplicationKeys();
-
-    const contentSummary = useMemo(
-        () => contextContent?.getContentSummary(),
-        [contextContent],
-    );
 
     const assetsUri = CONFIG.getString('assetsUri');
     const editorId = `text-inspection-editor-${textComponent.getPath().toString()}`;

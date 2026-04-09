@@ -1,14 +1,14 @@
 import {Tooltip} from '@enonic/ui';
 import {type ReactElement} from 'react';
-import {CompareStatus} from '../../../../../app/content/CompareStatus';
+import type {ContentSummary} from '../../../../../app/content/ContentSummary';
 import {ContentIconUrlResolver} from '../../../../../app/content/ContentIconUrlResolver';
-import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {useI18n} from '../../../hooks/useI18n';
+import {calcTreePublishStatus} from '../../../utils/cms/content/status';
 import {StatusBadge} from '../../status/StatusBadge';
 
 export type ImageSelectorItemViewProps = {
     /** The content to display */
-    content: ContentSummaryAndCompareStatus;
+    content: ContentSummary;
     /** Whether to hide the status */
     hideStatus?: boolean;
 };
@@ -20,12 +20,13 @@ const IMAGE_SELECTOR_ITEM_VIEW = 'ImageSelectorItemView';
 export const ImageSelectorItemView = ({content, hideStatus = false}: ImageSelectorItemViewProps): ReactElement => {
     const imageNotAvailableLabel = useI18n('text.image.notavailable');
 
-    const isRemoved = [CompareStatus.UNKNOWN, CompareStatus.ARCHIVED].includes(content.getCompareStatus());
+    // Content without a path is considered removed (deleted or archived)
+    const isRemoved = !content.getPath();
 
     const contentId = content.getId();
     const displayName = content.getDisplayName() || content.getType()?.getLocalName();
     const subName = content.getPath() ? content.getPath().toString() : '';
-    const iconUrl = new ContentIconUrlResolver().setContent(content.getContentSummary()).resolve() + '&size=240';
+    const iconUrl = new ContentIconUrlResolver().setContent(content).resolve() + '&size=240';
 
     if (isRemoved) {
         return (
@@ -57,7 +58,7 @@ export const ImageSelectorItemView = ({content, hideStatus = false}: ImageSelect
                     </span>
                 </Tooltip>
 
-                {!hideStatus && <StatusBadge status={content.getPublishStatus()} />}
+                {!hideStatus && <StatusBadge status={calcTreePublishStatus(content)} />}
             </div>
         </div>
     );

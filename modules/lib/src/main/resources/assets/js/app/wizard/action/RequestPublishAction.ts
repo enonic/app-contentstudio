@@ -2,7 +2,8 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {type ContentWizardPanel} from '../ContentWizardPanel';
 import {RequestContentPublishPromptEvent} from '../../browse/RequestContentPublishPromptEvent';
 import {BasePublishAction} from './BasePublishAction';
-import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../content/ContentSummary';
 
 export class RequestPublishAction
     extends BasePublishAction {
@@ -18,7 +19,7 @@ export class RequestPublishAction
         this.wizard = wizard;
     }
 
-    protected createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void {
-        new RequestContentPublishPromptEvent(summary).fire();
+    protected createPromptEvent(summary: ContentSummary[]): void {
+        new RequestContentPublishPromptEvent(summary.map(s => ContentSummaryAndCompareStatus.fromContentSummary(s))).fire();
     }
 }

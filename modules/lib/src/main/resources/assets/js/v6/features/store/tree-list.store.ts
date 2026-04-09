@@ -1,8 +1,8 @@
 import {atom, computed} from 'nanostores';
 import {$contentDeleted, $contentArchived, $contentCreated, $contentDuplicated} from './socket.store';
-import type {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../app/content/ContentSummary';
 import {calcContentState} from '../utils/cms/content/workflow';
-import {resolveDisplayName, resolveSubName} from '../utils/cms/content/prettify';
+import {calcTreePublishStatus} from '../utils/cms/content/status';
 import {
     createEmptyState,
     setNode,
@@ -319,20 +319,20 @@ $contentArchived.subscribe((event) => {
 });
 
 // Helper: Convert content to tree node data
-function toTreeNodeData(content: ContentSummaryAndCompareStatus): ContentTreeNodeData {
+function toTreeNodeData(summary: ContentSummary): ContentTreeNodeData {
     return {
-        id: content.getId(),
-        displayName: resolveDisplayName(content),
-        name: resolveSubName(content),
-        publishStatus: content.getPublishStatus(),
-        contentState: calcContentState(content.getContentSummary()),
-        contentType: content.getType(),
-        iconUrl: content.getContentSummary().getIconUrl(),
+        id: summary.getId(),
+        displayName: summary.getDisplayName(),
+        name: summary.getName().toString(),
+        publishStatus: calcTreePublishStatus(summary),
+        contentState: calcContentState(summary),
+        contentType: summary.getType(),
+        iconUrl: summary.getIconUrl(),
     };
 }
 
 // Helper: Find parent ID by path (O(1) lookup via path index)
-function findParentIdByPath(content: ContentSummaryAndCompareStatus): string | null {
+function findParentIdByPath(content: ContentSummary): string | null {
     const path = content.getPath();
     if (!path?.hasParentContent()) return null;
 
@@ -347,7 +347,7 @@ function findParentIdByPath(content: ContentSummaryAndCompareStatus): string | n
 
 // Helper: Add newly created content to tree
 // Uses single state update to avoid stale state race conditions
-function addContentToTree(content: ContentSummaryAndCompareStatus): void {
+function addContentToTree(content: ContentSummary): void {
     updateTreeState((state) => {
         const id = content.getId();
         if (state.nodes.has(id)) return state; // Already in tree

@@ -1,7 +1,7 @@
 import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {type ContentWizardPanel} from '../ContentWizardPanel';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../content/ContentSummary';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {$wizardContentState} from '../../../v6/features/store/wizardContent.store';
 
@@ -52,9 +52,7 @@ export abstract class BasePublishAction
     }
 
     private firePromptEvent(): void {
-        const content = ContentSummaryAndCompareStatus.fromContentSummary(this.config.wizard.getPersistedItem());
-        content.setCompareStatus(this.config.wizard.getCompareStatus()).setPublishStatus(this.config.wizard.getPublishStatus());
-        this.createPromptEvent([content]);
+        this.createPromptEvent([this.config.wizard.getPersistedItem()]);
     }
 
     private checkOnExecuted(callback: () => void) {
@@ -66,7 +64,7 @@ export abstract class BasePublishAction
         }
     }
 
-    protected abstract createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void;
+    protected abstract createPromptEvent(summary: ContentSummary[]): void;
 
     mustSaveBeforeExecution(): boolean {
         const isReadyStateChanged = this.config.markAsReady && !this.config.wizard.isMarkedAsReady();

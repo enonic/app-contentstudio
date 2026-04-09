@@ -4,7 +4,6 @@ import {CustomSelectorConfig} from './CustomSelectorConfig';
 import {cn, Combobox} from '@enonic/ui';
 import {useI18n} from '../../../../hooks/useI18n';
 import {SortableList} from '@enonic/lib-admin-ui/form2/components';
-import {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
 import {ContentId} from '../../../../../../app/content/ContentId';
 import {ContentSummary, ContentSummaryBuilder} from '../../../../../../app/content/ContentSummary';
 import {CustomSelectorInputComboboxList} from './CustomSelectorComboboxList';
@@ -145,12 +144,10 @@ CustomSelectorInput.displayName = CUSTOM_SELECTOR_INPUT_NAME;
 //
 // * Helpers
 //
-function itemToContent(item: CustomSelectorItem): ContentSummaryAndCompareStatus {
+function itemToContent(item: CustomSelectorItem): ContentSummary {
     const contentId = new ContentId(item.id);
 
-    const contentSummary = new ContentSummary(
+    return new ContentSummary(
         new ContentSummaryBuilder().setId(contentId.toString()).setContentId(contentId).setDisplayName(item.displayName)
     );
-
-    return ContentSummaryAndCompareStatus.fromContentSummary(contentSummary);
 }

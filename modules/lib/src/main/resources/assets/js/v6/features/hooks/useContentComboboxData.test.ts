@@ -37,7 +37,7 @@ vi.mock('../../../app/resource/ContentSelectorQueryRequest', () => ({
 vi.mock('../../../app/resource/ContentSummaryAndCompareStatusFetcher', () => ({
     ContentSummaryAndCompareStatusFetcher: class {
         createRootChildOrder = vi.fn(() => ({}));
-        updateReadonlyAndCompareStatus = vi.fn((items) => Promise.resolve(items));
+        updateReadOnly = vi.fn((items) => Promise.resolve(items));
     },
 }));
 

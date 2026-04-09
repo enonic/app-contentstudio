@@ -26,7 +26,7 @@ import {
 
 const {
     mockCreateIssueSendAndParse,
-    mockFetchContentSummariesWithStatus,
+    mockFetchContentSummaries,
     mockMarkAsReady,
     mockResolvePublishDependencies,
     mockShowError,
@@ -35,7 +35,7 @@ const {
     mockShowWarning,
 } = vi.hoisted(() => ({
     mockCreateIssueSendAndParse: vi.fn(),
-    mockFetchContentSummariesWithStatus: vi.fn(),
+    mockFetchContentSummaries: vi.fn(),
     mockMarkAsReady: vi.fn(),
     mockResolvePublishDependencies: vi.fn(),
     mockShowError: vi.fn(),
@@ -45,7 +45,7 @@ const {
 }));
 
 vi.mock('../../api/content', () => ({
-    fetchContentSummariesWithStatus: mockFetchContentSummariesWithStatus,
+    fetchContentSummaries: mockFetchContentSummaries,
 }));
 
 vi.mock('../../api/publish', () => ({
@@ -115,7 +115,7 @@ describe('requestPublishDialog.store', () => {
     beforeEach(() => {
         vi.useFakeTimers();
         resetRequestPublishDialogContext();
-        mockFetchContentSummariesWithStatus.mockReset().mockResolvedValue([]);
+        mockFetchContentSummaries.mockReset().mockResolvedValue([]);
         mockCreateIssueSendAndParse.mockReset();
         mockMarkAsReady.mockReset();
         mockResolvePublishDependencies.mockReset().mockResolvedValue(createResolveResult({}));
@@ -176,7 +176,7 @@ describe('requestPublishDialog.store', () => {
         const unrelated = createMockContent('item-2', {displayName: 'Elsewhere', path: '/other/child'});
         const child = createMockContent('item-3', {displayName: 'Child', path: '/parent/child'});
 
-        mockFetchContentSummariesWithStatus.mockImplementation((ids: ContentId[]) => {
+        mockFetchContentSummaries.mockImplementation((ids: ContentId[]) => {
             return ids.some(id => id.toString() === 'item-1') ? [updatedParent] : [];
         });
 
@@ -277,7 +277,7 @@ describe('requestPublishDialog.store', () => {
         const updatedItem = createMockContent('item-1', {displayName: 'Updated item'});
         const submitRequestDeferred = createDeferredPromise<never>();
 
-        mockFetchContentSummariesWithStatus.mockImplementation((ids: ContentId[]) => {
+        mockFetchContentSummaries.mockImplementation((ids: ContentId[]) => {
             return ids.some(id => id.toString() === 'item-1') ? [updatedItem] : [];
         });
 

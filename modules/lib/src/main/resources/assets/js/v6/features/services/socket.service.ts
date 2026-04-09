@@ -44,22 +44,29 @@ type Listeners = {
 };
 
 //
+// * Helpers
+//
+
+const extractSummaries = (items: ContentSummaryAndCompareStatus[]) =>
+    items.map(item => item.getContentSummary());
+
+//
 // * State
 //
 
 let initialized = false;
 
 const listeners: Listeners = {
-    created: (data) => emitContentCreated(data),
-    updated: (data) => emitContentUpdated(data),
+    created: (data) => emitContentCreated(extractSummaries(data)),
+    updated: (data) => emitContentUpdated(extractSummaries(data)),
     deleted: (data) => emitContentDeleted(data),
     moved: (data) => emitContentMoved(data),
-    renamed: (data, oldPaths) => emitContentRenamed(data, oldPaths),
+    renamed: (data, oldPaths) => emitContentRenamed(extractSummaries(data), oldPaths),
     archived: (data) => emitContentArchived(data),
-    published: (data) => emitContentPublished(data),
-    unpublished: (data) => emitContentUnpublished(data),
-    duplicated: (data) => emitContentDuplicated(data),
-    sorted: (data) => emitContentSorted(data),
+    published: (data) => emitContentPublished(extractSummaries(data)),
+    unpublished: (data) => emitContentUnpublished(extractSummaries(data)),
+    duplicated: (data) => emitContentDuplicated(extractSummaries(data)),
+    sorted: (data) => emitContentSorted(extractSummaries(data)),
     permissionsUpdated: (data) => emitContentPermissionsUpdated(data),
 };
 

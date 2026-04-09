@@ -8,8 +8,6 @@ public class GetDescendantsOfContents
 {
     private Set<String> contentPaths;
 
-    private Set<CompareStatus> filterStatuses;
-
     public Set<String> getContentPaths()
     {
         return contentPaths;
@@ -19,15 +17,4 @@ public class GetDescendantsOfContents
     {
         this.contentPaths = contentPaths;
     }
-
-    public Set<CompareStatus> getFilterStatuses()
-    {
-        return filterStatuses;
-    }
-
-    public void setFilterStatuses( final Set<CompareStatus> filterStatuses )
-    {
-        this.filterStatuses = filterStatuses;
-    }
-
 }

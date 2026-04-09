@@ -1,7 +1,7 @@
 import {Listbox} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import type {KeyboardEvent, ReactElement, RefObject} from 'react';
-import {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
 import {ContentVersion} from '../../../../../../app/ContentVersion';
 import {$versionsDisplayMode} from '../../../../store/context/versionStore';
 import {VersionsListItem} from './VersionsListItem';
@@ -9,7 +9,7 @@ import {VersionsListItem} from './VersionsListItem';
 const COMPONENT_NAME = 'VersionsListContent';
 
 type VersionsListContentProps = {
-    content: ContentSummaryAndCompareStatus;
+    content: ContentSummary;
     versionsByDate: Record<string, ContentVersion[]>;
     activeVersionId: string | null;
     expandedVersionId: string | null;

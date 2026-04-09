@@ -1,7 +1,7 @@
 import {useStore} from '@nanostores/preact';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {type ContentId} from '../../../../../../../app/content/ContentId';
-import {type ContentSummaryAndCompareStatus} from '../../../../../../../app/content/ContentSummaryAndCompareStatus';
+import {type ContentSummary} from '../../../../../../../app/content/ContentSummary';
 import {
     $allVersionsLoaded,
     appendSyntheticCreateVersion,
@@ -23,7 +23,7 @@ type UseVersionsDataResult = {
     loadMore: () => Promise<void>;
 }
 
-export const useVersionsData = (content: ContentSummaryAndCompareStatus | null): UseVersionsDataResult => {
+export const useVersionsData = (content: ContentSummary | null): UseVersionsDataResult => {
     const [hasMore, setHasMore] = useState(true);
     const [cursor, setCursor] = useState<string | undefined>();
     const [isLoading, setIsLoading] = useState(false);
@@ -73,7 +73,7 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
             return;
         }
 
-        loadInitialVersions(content.getContentId(), content.getContentSummary().getCreatedTime());
+        loadInitialVersions(content.getContentId(), content.getCreatedTime());
     }, [content, loadInitialVersions]);
 
     // Reload when cache is invalidated for the current content
@@ -81,7 +81,7 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
         if (!cacheInvalidated || !content) return;
         if (cacheInvalidated.id !== content.getId()) return;
 
-        loadInitialVersions(content.getContentId(), content.getContentSummary().getCreatedTime());
+        loadInitialVersions(content.getContentId(), content.getCreatedTime());
     }, [cacheInvalidated, content, loadInitialVersions]);
 
     const loadMore = useCallback(async () => {
@@ -96,7 +96,7 @@ export const useVersionsData = (content: ContentSummaryAndCompareStatus | null):
             setHasMore(result.hasMore);
             $allVersionsLoaded.set(!result.hasMore);
             if (!result.hasMore && content) {
-                appendSyntheticCreateVersion(content.getContentSummary().getCreatedTime());
+                appendSyntheticCreateVersion(content.getCreatedTime());
             }
             setCursor(result.cursor);
         } catch (err) {

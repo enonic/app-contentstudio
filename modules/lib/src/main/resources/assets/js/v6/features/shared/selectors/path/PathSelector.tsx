@@ -3,9 +3,9 @@ import {Combobox, IconButton} from '@enonic/ui';
 import {X} from 'lucide-react';
 import {useCallback, useEffect, useMemo, useRef, useState, type ReactElement} from 'react';
 import type {VirtuosoHandle} from 'react-virtuoso';
-import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
-import {ContentSummaryOptionDataLoader} from '../../../../../app/inputtype/ui/selector/ContentSummaryOptionDataLoader';
+import type {ContentSummary} from '../../../../../app/content/ContentSummary';
 import type {ContentTreeSelectorItem} from '../../../../../app/item/ContentTreeSelectorItem';
+import {ContentSummaryOptionDataLoader} from '../../../../../app/inputtype/ui/selector/ContentSummaryOptionDataLoader';
 import {useI18n} from '../../../hooks/useI18n';
 import {useTreeSelectorLayout} from '../../../hooks/useTreeSelectorLayout';
 import {useTreeStore} from '../../../lib/tree-store';
@@ -13,6 +13,7 @@ import {createDebounce} from '../../../utils/timing/createDebounce';
 import {ContentLabel} from '../../content/ContentLabel';
 import {StatusBadge} from '../../status/StatusBadge';
 import {createRootContent, isRootContent, ROOT_ID, RootLabel} from './PathSelectorRoot';
+import {calcTreePublishStatus} from '../../../utils/cms/content/status';
 import {PathSelectorTree} from './PathSelectorTree';
 import {getFilterContentPaths, getFilterExactPaths, isInvalidMoveTarget} from './pathSelectorFilters';
 
@@ -21,10 +22,10 @@ export type PathSelectorProps = {
     selectedId: string | null;
     excludedIds?: readonly string[];
     hideRoot?: boolean;
-    filterItems?: readonly ContentSummaryAndCompareStatus[];
+    filterItems?: readonly ContentSummary[];
     disabled?: boolean;
     onSelectionChange: (id: string | null) => void;
-    onItemChange?: (item: ContentSummaryAndCompareStatus | null) => void;
+    onItemChange?: (item: ContentSummary | null) => void;
 };
 
 const PATH_SELECTOR_NAME = 'PathSelector';
@@ -54,7 +55,7 @@ export const PathSelector = ({
     const [open, setOpen] = useState(false);
     const [inputValue, setInputValue] = useState('');
     const [activeId, setActiveId] = useState<string | null>(null);
-    const [selectedItem, setSelectedItem] = useState<ContentSummaryAndCompareStatus | null>(null);
+    const [selectedItem, setSelectedItem] = useState<ContentSummary | null>(null);
     const virtuosoRef = useRef<VirtuosoHandle>(null);
     const loaderRef = useRef<ContentSummaryOptionDataLoader<ContentTreeSelectorItem> | null>(null);
     const rootRequestId = useRef(0);
@@ -284,7 +285,7 @@ export const PathSelector = ({
             return;
         }
         const node = getNode(nextId);
-        const item = node?.data?.getContent();
+        const item = node?.data?.getContentSummary();
         if (!item) {
             setSelectedItem(null);
             onItemChange?.(null);
@@ -335,7 +336,7 @@ export const PathSelector = ({
             return;
         }
         const node = getNode(selectedId);
-        const item = node?.data?.getContent();
+        const item = node?.data?.getContentSummary();
         if (item) {
             setSelectedItem(item);
             onItemChange?.(item);
@@ -406,7 +407,7 @@ export const PathSelector = ({
                             <ContentLabel content={selectedItem} variant='detailed' className='flex-1 min-w-0' />
                         )}
                         {!isRootContent(selectedItem) && (
-                            <StatusBadge status={selectedItem.getPublishStatus()} />
+                            <StatusBadge status={calcTreePublishStatus(selectedItem)} />
                         )}
                         <IconButton
                             icon={X}

@@ -1,15 +1,18 @@
 import {ContentId} from "../../../../../app/content/ContentId";
-import {type ContentSummaryAndCompareStatus} from "../../../../../app/content/ContentSummaryAndCompareStatus";
 
-export const hasContentById = (id: ContentId, items: ContentSummaryAndCompareStatus[]) => {
+type HasContentId = {
+    getContentId(): ContentId;
+};
+
+export const hasContentById = <T extends HasContentId>(id: ContentId, items: readonly T[]) => {
     return items.some(i => i.getContentId().equals(id));
 };
 
-export const hasContentIdInIds = (id: ContentId, ids: ContentId[]) => {
+export const hasContentIdInIds = (id: ContentId, ids: readonly ContentId[]) => {
     return ids.some(i => i.equals(id));
 };
 
-export const isIdsEqual = (ids1: ContentId[], ids2: ContentId[]): boolean => {
+export const isIdsEqual = (ids1: readonly ContentId[], ids2: readonly ContentId[]): boolean => {
     if (ids1 === ids2) return true;
     if (ids1.length !== ids2.length) return false;
 
@@ -35,7 +38,7 @@ export const isIdsEqual = (ids1: ContentId[], ids2: ContentId[]): boolean => {
     return counts.size === 0;
 };
 
-export const uniqueIds = (ids: ContentId[]): ContentId[] => {
+export const uniqueIds = (ids: readonly ContentId[]): ContentId[] => {
     const uniqueList = new Set<string>(ids.map(id => id.toString()));
     return Array.from(uniqueList).map(id => new ContentId(id));
 };

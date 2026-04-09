@@ -327,7 +327,7 @@ export abstract class DependantItemsDialog<Item extends StatusCheckableItem | Co
     }
 
     protected getContentsToLoad(): ContentSummaryAndCompareStatus[] {
-        return this.getItemList().getItems();
+        return this.getItemList().getItems() as ContentSummaryAndCompareStatus[];
     }
 
     protected loadDescendantIds(): Q.Promise<void> {

@@ -1,16 +1,16 @@
 import {Tooltip} from '@enonic/ui';
 import {FileQuestionMarkIcon} from 'lucide-react';
 import {type ReactElement} from 'react';
-import {CompareStatus} from '../../../../../app/content/CompareStatus';
-import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../../app/content/ContentSummary';
 import {useI18n} from '../../../hooks/useI18n';
 import {calcContentState} from '../../../utils/cms/content/workflow';
+import {calcTreePublishStatus} from '../../../utils/cms/content/status';
 import {WorkflowContentIcon} from '../../icons/WorkflowContentIcon';
 import {StatusBadge} from '../../status/StatusBadge';
 
 export type MediaSelectorItemViewProps = {
     /** The content to display */
-    content: ContentSummaryAndCompareStatus;
+    content: ContentSummary;
     /** Whether to hide the status */
     hideStatus?: boolean;
 };
@@ -22,14 +22,14 @@ const MEDIA_SELECTOR_ITEM_VIEW = 'MediaSelectorItemView';
 export const MediaSelectorItemView = ({content, hideStatus = false}: MediaSelectorItemViewProps): ReactElement => {
     const contentNotAvailableLabel = useI18n('text.content.not.found');
 
-    const isRemoved = [CompareStatus.UNKNOWN, CompareStatus.ARCHIVED].includes(content.getCompareStatus());
+    // Content without a path is considered removed (deleted or archived)
+    const isRemoved = !content.getPath();
 
     const contentId = content.getId();
     const displayName = content.getDisplayName() || content.getType()?.getLocalName();
     const subName = content.getPath() ? content.getPath().toString() : '';
-    const summary = content.getContentSummary();
-    const statusHidden = hideStatus || !!summary.getPublishTime();
-    const status = statusHidden ? null : calcContentState(summary);
+    const statusHidden = hideStatus || !!content.getPublishTime();
+    const status = statusHidden ? null : calcContentState(content);
 
     if (isRemoved) {
         return (
@@ -53,7 +53,7 @@ export const MediaSelectorItemView = ({content, hideStatus = false}: MediaSelect
                 <WorkflowContentIcon
                     status={status}
                     contentType={content.getType().toString()}
-                    url={summary.getIconUrl()}
+                    url={content.getIconUrl()}
                 />
             </div>
             <div className="min-w-0 w-full">
@@ -68,7 +68,7 @@ export const MediaSelectorItemView = ({content, hideStatus = false}: MediaSelect
                 </Tooltip>
             </div>
 
-            {!hideStatus && <StatusBadge status={content.getPublishStatus()} />}
+            {!hideStatus && <StatusBadge status={calcTreePublishStatus(content)} />}
         </div>
     );
 };

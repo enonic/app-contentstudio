@@ -1,6 +1,6 @@
 import {cn, GridList} from '@enonic/ui';
 import {useCallback, useEffect, useRef, useState, type ReactElement} from 'react';
-import type {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
 import {fetchContentByIds} from '../../../../api/content-fetcher';
 import {useI18n} from '../../../../hooks/useI18n';
 import {ContentSelectionItem} from './ContentSelectionItem';
@@ -69,7 +69,7 @@ export const ContentSelection = ({
     disabled = false,
     className,
 }: ContentSelectionProps): ReactElement | null => {
-    const [loadedItems, setLoadedItems] = useState<ContentSummaryAndCompareStatus[]>([]);
+    const [loadedItems, setLoadedItems] = useState<ContentSummary[]>([]);
     const [loading, setLoading] = useState(false);
     const requestIdRef = useRef(0);
     const selectedItemsLabel = useI18n('field.treeListToolbar.selected');
@@ -90,7 +90,7 @@ export const ContentSelection = ({
                 const itemMap = new Map(items.map(item => [item.getId(), item]));
                 const ordered = selection
                     .map(id => itemMap.get(id))
-                    .filter((item): item is ContentSummaryAndCompareStatus => item != null);
+                    .filter((item): item is ContentSummary => item != null);
                 setLoadedItems(ordered);
             })
             .finally(() => {

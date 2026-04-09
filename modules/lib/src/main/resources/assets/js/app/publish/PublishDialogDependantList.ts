@@ -42,7 +42,7 @@ export class PublishDialogDependantList
         const className = this.isItemHidden(content) ? 'hidden' : undefined;
 
         return new ContentListItemSelectableElement({
-            content,
+            content: content.getContentSummary(),
             className,
             readOnly: readOnly || !this.isItemExcludable(content),
             checked: this.mustSelectItem(content),

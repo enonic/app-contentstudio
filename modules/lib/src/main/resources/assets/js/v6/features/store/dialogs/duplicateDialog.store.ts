@@ -3,9 +3,9 @@ import type {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {atom, computed, map} from 'nanostores';
 import {type ContentId} from '../../../../app/content/ContentId';
-import {type ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../app/content/ContentSummary';
 import {EditContentEvent} from '../../../../app/event/EditContentEvent';
-import {fetchContentSummariesWithStatus} from '../../api/content';
+import {fetchContentSummaries} from '../../api/content';
 import {duplicateContent, type DuplicateContentParams, getDescendantsOfContents} from '../../api/duplicate';
 import {cleanupTask, trackTask} from '../../services/task.service';
 import {hasContentIdInIds, isIdsEqual} from '../../utils/cms/content/ids';
@@ -21,8 +21,8 @@ type DuplicateDialogStore = {
     open: boolean;
     loading: boolean;
     failed: boolean;
-    items: ContentSummaryAndCompareStatus[];
-    dependants: ContentSummaryAndCompareStatus[];
+    items: ContentSummary[];
+    dependants: ContentSummary[];
     includeChildrenIds: ContentId[];
     submitting: boolean;
     pendingIds: string[];
@@ -77,7 +77,7 @@ export const $duplicateTaskId = computed($duplicateDialog, ({taskId}) => taskId)
 // * Public API
 //
 
-export const openDuplicateDialog = (items: ContentSummaryAndCompareStatus[]): void => {
+export const openDuplicateDialog = (items: ContentSummary[]): void => {
     if (items.length === 0) {
         return;
     }
@@ -272,7 +272,7 @@ const removeItemsByIds = (ids: Set<string>): {removedMain: boolean; removedDepen
 };
 
 /** Patch items with updated data, keeping items not in the update */
-const patchItemsWithUpdates = (updates: ContentSummaryAndCompareStatus[]): {patchedMain: boolean; patchedDependants: boolean} => {
+const patchItemsWithUpdates = (updates: ContentSummary[]): {patchedMain: boolean; patchedDependants: boolean} => {
     const {items, dependants} = $duplicateDialog.get();
     const updateMap = new Map(updates.map(update => [update.getId(), update]));
 
@@ -432,12 +432,12 @@ async function reloadDuplicateDialogData(): Promise<void> {
     $duplicateDialog.setKey('failed', false);
 
     try {
-        const paths = rootsWithChildren.map(item => item.getContentSummary().getPath());
+        const paths = rootsWithChildren.map(item => item.getPath());
         const ids = await getDescendantsOfContents(paths);
         if (currentInstance !== instanceId) return;
 
         const dependants = ids.length > 0
-            ? await fetchContentSummariesWithStatus(ids)
+            ? await fetchContentSummaries(ids)
             : [];
 
         if (currentInstance !== instanceId) return;

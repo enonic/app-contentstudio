@@ -1,8 +1,8 @@
 import type {ReactNode} from 'react';
-import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../../app/content/ContentSummary';
 
 export type ContentRowProps = {
-    content: ContentSummaryAndCompareStatus;
+    content: ContentSummary;
     id: string;
     disabled?: boolean;
     className?: string;
@@ -10,7 +10,7 @@ export type ContentRowProps = {
 };
 
 export type ContentRowContextValue = {
-    content: ContentSummaryAndCompareStatus;
+    content: ContentSummary;
     disabled: boolean;
 };
 

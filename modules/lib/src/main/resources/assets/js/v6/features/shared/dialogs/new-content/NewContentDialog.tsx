@@ -33,7 +33,7 @@ export const NewContentDialog = (): ReactElement => {
     const mediaTabLabel = useI18n('dialog.new.tab.media');
     const hintLabel = useI18n('dialog.new.hint.filter');
 
-    const dialogDescriptionLabel = parentContent ? parentContent?.getContentSummary().getPath().toString() + '/' : '/';
+    const dialogDescriptionLabel = parentContent ? parentContent?.getPath().toString() + '/' : '/';
 
     const handleOpenChange = (open: boolean) => {
         if (open) return;

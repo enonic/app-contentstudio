@@ -26,7 +26,7 @@ import {
 } from './dialog.store.test.utils';
 
 const {
-    mockFetchContentSummariesWithStatus,
+    mockFetchContentSummaries,
     mockHasUnpublishedChildren,
     mockFindIdsByParents,
     mockMarkAsReady,
@@ -34,8 +34,9 @@ const {
     mockResolvePublishDependencies,
     mockCleanupTask,
     mockTrackTask,
+    mockCompareContent,
 } = vi.hoisted(() => ({
-    mockFetchContentSummariesWithStatus: vi.fn(),
+    mockFetchContentSummaries: vi.fn(),
     mockHasUnpublishedChildren: vi.fn(),
     mockFindIdsByParents: vi.fn(),
     mockMarkAsReady: vi.fn(),
@@ -43,10 +44,15 @@ const {
     mockResolvePublishDependencies: vi.fn(),
     mockCleanupTask: vi.fn(),
     mockTrackTask: vi.fn(),
+    mockCompareContent: vi.fn(),
 }));
 
 vi.mock('../../api/content', () => ({
-    fetchContentSummariesWithStatus: mockFetchContentSummariesWithStatus,
+    fetchContentSummaries: mockFetchContentSummaries,
+}));
+
+vi.mock('../../api/compare', () => ({
+    compareContent: mockCompareContent,
 }));
 
 vi.mock('../../api/hasUnpublishedChildren', () => ({
@@ -88,8 +94,9 @@ describe('publishDialog.store', () => {
     beforeEach(() => {
         vi.useFakeTimers();
         resetPublishDialogContext();
-        mockFetchContentSummariesWithStatus.mockReset().mockResolvedValue([]);
+        mockFetchContentSummaries.mockReset().mockResolvedValue([]);
         mockHasUnpublishedChildren.mockReset().mockResolvedValue(new Map());
+        mockCompareContent.mockReset().mockResolvedValue(new Map());
         mockFindIdsByParents.mockReset().mockResolvedValue([]);
         mockMarkAsReady.mockReset();
         mockPublishContent.mockReset();
@@ -140,7 +147,7 @@ describe('publishDialog.store', () => {
         mockResolvePublishDependencies.mockImplementation(() => {
             return createResolveResult({dependants: [dependantId]});
         });
-        mockFetchContentSummariesWithStatus.mockImplementation((ids: ContentId[]) => {
+        mockFetchContentSummaries.mockImplementation((ids: ContentId[]) => {
             return ids.some(id => id.equals(dependantId)) ? [dependantOriginal] : [];
         });
 
@@ -162,7 +169,7 @@ describe('publishDialog.store', () => {
         const unrelated = createMockContent('item-2', {displayName: 'Elsewhere', path: '/other/child'});
         const child = createMockContent('item-3', {displayName: 'Child', path: '/parent/child'});
 
-        mockFetchContentSummariesWithStatus.mockImplementation((ids: ContentId[]) => {
+        mockFetchContentSummaries.mockImplementation((ids: ContentId[]) => {
             return ids.some(id => id.toString() === 'item-1') ? [updatedParent] : [];
         });
 

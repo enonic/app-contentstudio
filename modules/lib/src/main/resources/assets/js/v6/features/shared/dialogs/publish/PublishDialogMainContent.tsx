@@ -28,6 +28,7 @@ import {
 } from '../../../store/dialogs/publishDialog.store';
 import {ContentRow, SplitList} from '../../lists';
 import {SelectionStatusBar} from '../status-bar/SelectionStatusBar';
+import {PublishDialogItemStatus} from './PublishDialogItemStatus';
 import {PublishScheduleForm} from './PublishScheduleForm';
 
 type PublishDialogMainContentProps = {
@@ -174,7 +175,7 @@ export const PublishDialogMainContent = ({
                                         disabled={loading}
                                     >
                                         <ContentRow.Label action="edit" />
-                                        <ContentRow.Status variant="diff" />
+                                        <PublishDialogItemStatus />
                                         <ContentRow.RemoveButton
                                             onRemove={() => removePublishDialogItem(item.content.getContentId())}
                                             disabled={item.required || loading || mainItems.length === 1}
@@ -234,7 +235,7 @@ export const PublishDialogMainContent = ({
                                     disabled={item.required || loading}
                                 />
                                 <ContentRow.Label action="edit" />
-                                <ContentRow.Status variant="diff" />
+                                <PublishDialogItemStatus />
                             </ContentRow>
                         )}
                     />

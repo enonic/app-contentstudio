@@ -1,6 +1,6 @@
 import {VirtualizedTreeList, type FlatNode as VirtualizedTreeListNode} from '@enonic/ui';
 import {useCallback, type ReactElement} from 'react';
-import type {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../app/content/ContentSummary';
 import type {ContentTreeSelectorItem} from '../../../app/item/ContentTreeSelectorItem';
 
 type UseVirtualizedTreeListNodeContentParams = {
@@ -13,7 +13,7 @@ type UseVirtualizedTreeListNodeContentParams = {
 
 type UseVirtualizedTreeListNodeContentResult = {
     renderLoadingNode: (node: VirtualizedTreeListNode<ContentTreeSelectorItem>) => ReactElement | null;
-    getNodeContent: (node: VirtualizedTreeListNode<ContentTreeSelectorItem>) => ContentSummaryAndCompareStatus | null;
+    getNodeContent: (node: VirtualizedTreeListNode<ContentTreeSelectorItem>) => ContentSummary | null;
 };
 
 export function useVirtualizedTreeListNodeContent({
@@ -55,7 +55,7 @@ export function useVirtualizedTreeListNodeContent({
         if (!item) {
             return null;
         }
-        const content = item.getContent();
+        const content = item.getContentSummary();
         if (!content) {
             return null;
         }

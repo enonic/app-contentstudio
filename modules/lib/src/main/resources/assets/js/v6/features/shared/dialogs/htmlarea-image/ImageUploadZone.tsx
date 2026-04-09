@@ -1,7 +1,6 @@
 import {Image} from 'lucide-react';
 import {type ReactElement, useCallback} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
-import {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {useHtmlAreaImageDialogContext} from './HtmlAreaImageDialogContext';
 import {uploadMediaFile} from '../../../api/uploadMedia';
 import {DropZone} from '../../DropZone';
@@ -26,14 +25,10 @@ export const ImageUploadZone = (): ReactElement => {
 
         const id = `upload-${Date.now()}`;
 
-        const parentItem = parentContent
-            ? ContentSummaryAndCompareStatus.fromContentSummary(parentContent)
-            : undefined;
-
         uploadMediaFile({
             id,
             file,
-            parentContent: parentItem,
+            parentContent: parentContent ?? undefined,
             onProgress: (_id, progress) => {
                 setUploadState(true, progress, undefined);
             },

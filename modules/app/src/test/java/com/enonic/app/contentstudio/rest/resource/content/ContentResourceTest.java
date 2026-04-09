@@ -1764,7 +1764,6 @@ public class ContentResourceTest
         GetDescendantsOfContents params = new GetDescendantsOfContents();
         // TODO Unfortunately test relies on order paths in Set.  Replace with Set.of then assertion is fixed.
         params.setContentPaths( ImmutableSet.of( content1.getPath().toString(), content2.getPath().toString() ) );
-        params.setFilterStatuses( Collections.singleton( CompareStatus.NEW ) );
 
         final ArgumentCaptor<ContentQuery> argumentCaptor = ArgumentCaptor.forClass( ContentQuery.class );
 
@@ -1788,7 +1787,7 @@ public class ContentResourceTest
             argumentCaptor.getValue().getQueryExpr().toString() );
 
         assertTrue( result.contains( new ContentIdJson( content1.getId() ) ) );
-        assertEquals( 1, result.size() );
+        assertEquals( 2, result.size() );
     }
 
     @Test
@@ -1959,21 +1958,12 @@ public class ContentResourceTest
         CompareContentsJson params = new CompareContentsJson();
         params.ids = Collections.singleton( content.getId().toString() );
 
-        CompareContentResult compareContentResult = new CompareContentResult( CompareStatus.NEW, content.getId() );
-
-        when( contentService.compare( any( CompareContentsParams.class ) ) ).thenReturn(
-            CompareContentResults.create().add( new CompareContentResult( CompareStatus.NEW, content.getId() ) ).build() );
-
-        GetPublishStatusResult getPublishStatusResult = new GetPublishStatusResult( content.getId(), PublishStatus.ONLINE );
-
-        when( contentService.getPublishStatuses( any( GetPublishStatusesParams.class ) ) ).thenReturn(
-            GetPublishStatusesResult.create().add( getPublishStatusResult ).build() );
+        when( contentService.getByIds( any( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( content ) );
 
         CompareContentResultsJson result = contentResource.compare( params );
 
-        assertTrue(
-            result.getCompareContentResults().contains( new CompareContentResultJson( compareContentResult, getPublishStatusResult ) ) );
-
+        assertTrue( result.compareContentResults().contains(
+            new CompareContentResultJson( content.getId().toString(), Set.of() ) ) );
     }
 
     @Test

@@ -1,49 +1,47 @@
 import {useStore} from '@nanostores/preact';
 import {type ReactElement} from 'react';
-import {CompareStatus, CompareStatusChecker} from '../../../../../../app/content/CompareStatus';
-import {PublishStatus} from '../../../../../../app/publish/PublishStatus';
-import {type ContentSummaryAndCompareStatus} from 'src/main/resources/assets/js/app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
 import {useI18n} from '../../../../hooks/useI18n';
 import {ContentIcon} from '../../../../shared/icons/ContentIcon';
-import {StatusIcon} from '../../../../shared/icons/StatusIcon';
 import {DiffStatusBadge} from '../../../../shared/status/DiffStatusBadge';
-import {$contextContent} from '../../../../store/context/contextContent.store';
-import {createContentStateKey} from '../../../../utils/cms/content/status';
-import {calcContentState} from '../../../../utils/cms/content/workflow';
+import {$contextContent, $contextContentCompareResult, $isContextCompareLoading} from '../../../../store/context/contextContent.store';
+import {formatCompareResult} from '../../../../utils/cms/content/formatCompareResult';
+import {calcSecondaryStatus, calcTreePublishStatus} from '../../../../utils/cms/content/status';
 
-function createDisplayName(content: ContentSummaryAndCompareStatus): string {
-    const contentSummary = content.getContentSummary();
-    if (contentSummary) {
-        return contentSummary.getDisplayName();
-    }
-    return content.getUploadItem()?.getName() ?? '';
+function createDisplayName(content: ContentSummary): string {
+    return content.getDisplayName() ?? '';
 }
 
 const DETAILS_WIDGET_CONTENT_SECTION_NAME = 'DetailsWidgetContentSection';
 
 export const DetailsWidgetContentSection = (): ReactElement => {
     const content = useStore($contextContent);
-
-    const contentSummary = content?.getContentSummary();
-    const publishStatus = content?.getPublishStatus();
-    const compareStatus = content?.getCompareStatus();
-    const contentState = calcContentState(contentSummary);
-    const isMovedAndModified = CompareStatusChecker.isMovedAndModified(compareStatus, contentState);
-    const shouldHideReadyState = publishStatus === PublishStatus.ONLINE
-        && contentState === 'ready'
-        && compareStatus !== CompareStatus.NEWER
-        && !isMovedAndModified;
-    const showContentState = contentState != null && !shouldHideReadyState;
+    const compareResult = useStore($contextContentCompareResult);
+    const compareLoading = useStore($isContextCompareLoading);
 
     const iconLabel = useI18n('field.contextPanel.details.sections.content.icon');
     const statusLabel = useI18n('field.contextPanel.details.sections.content.status');
     const displayNameLabel = useI18n('field.contextPanel.details.sections.content.displayName');
     const pathLabel = useI18n('field.contextPanel.details.sections.content.path');
+    const loadingLabel = useI18n('action.loading');
+    const movedLabel = useI18n('status.moved');
+    const modifiedLabel = useI18n('status.modified');
     const contentStateLabel = useI18n(showContentState ? createContentStateKey(contentState) : '');
 
     if (!content) return null;
 
     const displayName = createDisplayName(content);
+
+    const needsCompare = calcSecondaryStatus(calcTreePublishStatus(content), content) === 'modified';
+
+    let secondaryOverride: string | undefined;
+    if (needsCompare) {
+        if (compareLoading && !compareResult) {
+            secondaryOverride = loadingLabel;
+        } else if (compareResult) {
+            secondaryOverride = formatCompareResult(compareResult, movedLabel, modifiedLabel);
+        }
+    }
 
     return (
         <section data-component={DETAILS_WIDGET_CONTENT_SECTION_NAME}>
@@ -51,18 +49,14 @@ export const DetailsWidgetContentSection = (): ReactElement => {
                 <div className="flex flex-col gap-1">
                     <dt className="text-xs text-subtle">{iconLabel}</dt>
                     <dd>
-                        <ContentIcon contentType={String(content.getType())} url={contentSummary.getIconUrl()} />
+                        <ContentIcon contentType={String(content.getType())} url={content.getIconUrl()} />
                     </dd>
                 </div>
 
                 <div className="flex flex-col gap-1">
                     <dt className="text-xs text-subtle">{statusLabel}</dt>
                     <dd className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-                        <DiffStatusBadge
-                            publishStatus={publishStatus}
-                            compareStatus={compareStatus}
-                            contentState={contentState}
-                            wasPublished={!!contentSummary.getPublishFirstTime()} />
+                        <DiffStatusBadge contentSummary={content} secondaryStatusOverride={secondaryOverride} />
                         {showContentState && (
                             <span className="inline-flex max-w-full items-center gap-x-1 overflow-hidden border-l-1 border-bdr-subtle pl-2 text-nowrap">
                                 <StatusIcon status={contentState} aria-label={contentStateLabel} className="shrink-0" />

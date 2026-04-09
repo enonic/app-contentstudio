@@ -23,8 +23,7 @@ const PreviewToolbar = ({item = null, onRefresh}: PreviewToolbarProps): ReactEle
                 className="@container bg-surface-neutral h-15 px-5 py-3.75 flex items-center justify-between border-b border-bdr-soft"
             >
                 <PreviewToolbarVersionHistoryItem
-                    compareStatus={item.getCompareStatus()}
-                    isMovedAndModified={item.isMovedAndModified()}
+                    contentSummary={item.getContentSummary()}
                 />
 
                 <div className="flex gap-2 @md:gap-5 flex-nowrap flex-shrink-0">

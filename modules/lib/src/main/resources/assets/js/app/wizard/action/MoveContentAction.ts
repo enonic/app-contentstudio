@@ -1,7 +1,6 @@
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {openMoveDialog} from '../../../v6/features/store/dialogs/moveDialog.store';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {type ContentWizardPanel} from '../ContentWizardPanel';
 
 export class MoveContentAction
@@ -14,11 +13,7 @@ export class MoveContentAction
             if (!content) {
                 return;
             }
-            openMoveDialog([new ContentSummaryAndCompareStatus()
-                .setContentSummary(content)
-                .setCompareStatus(wizardPanel.getCompareStatus())
-                .setPublishStatus(wizardPanel.getPublishStatus())
-            ]);
+            openMoveDialog([content]);
         });
     }
 }

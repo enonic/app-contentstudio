@@ -29,10 +29,7 @@ export const MixinView = ({mixinName, title}: MixinViewProps): ReactElement => {
 
     const rawValueMap = useMemo(() => getMixinRawValueMap(mixinName), [mixinName]);
 
-    const contentSummary = useMemo(
-        () => contextContent?.getContentSummary(),
-        [contextContent],
-    );
+    const contentSummary = contextContent ?? undefined;
 
     const assetsUri = CONFIG.getString('assetsUri');
 

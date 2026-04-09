@@ -46,7 +46,7 @@ export const useContentTypeFilter = ({config, selection, query, onAdd, onRemove}
     );
 
     const fetchContentTypes = useCallback(async () => {
-        const contentId = contextContent?.getContentSummary().getContentId();
+        const contentId = contextContent?.getContentId();
         const isPageTemplate = contentType?.getContentTypeName()?.isPageTemplate();
 
         if (!contentId || !project) return okAsync<ContentTypeSummary[], Error>([]);
