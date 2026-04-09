@@ -1,9 +1,11 @@
-import {IconButton} from '@enonic/ui';
+import {cn, IconButton} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {ChevronRight, ChevronLeft} from 'lucide-react';
+import {ChevronLeft, ChevronRight} from 'lucide-react';
 import {type ReactElement} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {$isContentFormExpanded, toggleContentFormExpanded} from '../../../store/wizardContent.store';
+
+const TOGGLE_FORM_BUTTON_NAME = 'ToggleFormButton';
 
 export const ToggleFormButton = (): ReactElement => {
     const isContentFormExpanded = useStore($isContentFormExpanded);
@@ -12,20 +14,20 @@ export const ToggleFormButton = (): ReactElement => {
     const contentFormLabel = isContentFormExpanded ? collapseLabel : expandLabel;
     const ContentFormIcon = isContentFormExpanded ? ChevronLeft : ChevronRight;
 
-    const handleClick = (): void => {
-        toggleContentFormExpanded();
-    };
-
     return (
         <IconButton
+            data-component={TOGGLE_FORM_BUTTON_NAME}
             icon={ContentFormIcon}
-            className="shrink-0 rounded-full"
+            iconClassName={cn(isContentFormExpanded ? '-ml-0.5' : 'ml-0.5')}
+            className="shrink-0"
             size="sm"
+            iconSize="md"
+            shape="round"
             variant="filled"
             aria-label={contentFormLabel}
-            onClick={handleClick}
+            onClick={toggleContentFormExpanded}
         />
     );
 };
 
-ToggleFormButton.displayName = 'ToggleFormButton';
+ToggleFormButton.displayName = TOGGLE_FORM_BUTTON_NAME;
