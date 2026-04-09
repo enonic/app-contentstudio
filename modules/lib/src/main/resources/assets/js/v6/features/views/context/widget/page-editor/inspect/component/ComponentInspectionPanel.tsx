@@ -3,7 +3,7 @@ import type {ReactElement} from 'react';
 import {DescriptorBasedComponent} from '../../../../../../../../app/page/region/DescriptorBasedComponent';
 import {FormRenderer} from '../../../../../../shared/form/FormRenderer';
 import {$contentContext, $inspectedItem, $pageEditorLifecycle} from '../../../../../../store/page-editor';
-import {$componentConfigDescriptor} from '../../../../../../store/component-inspection';
+import {$componentConfigDescriptor} from '../../../../../../store/component-inspection.store';
 import {ComponentDescriptorSelector} from './ComponentDescriptorSelector';
 
 type ComponentInspectionPanelProps = {

@@ -5,7 +5,7 @@ import {useI18n} from '../../../../../../hooks/useI18n';
 import {ConfirmationDialog} from '../../../../../../shared/dialogs/ConfirmationDialog';
 import {FormRenderer} from '../../../../../../shared/form/FormRenderer';
 import {$contentContext, $pageEditorLifecycle, requestCustomizePage, usePageState} from '../../../../../../store/page-editor';
-import {$isCustomizeVisible, $pageConfigDescriptor} from '../../../../../../store/page-inspection';
+import {$isCustomizeVisible, $pageConfigDescriptor} from '../../../../../../store/page-inspection.store';
 import {PageControllerSelector} from "./PageControllerSelector";
 
 type ConfirmDialogState = {

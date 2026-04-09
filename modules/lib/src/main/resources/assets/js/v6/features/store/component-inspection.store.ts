@@ -1,13 +1,33 @@
-import {computed} from 'nanostores';
-import {DescriptorBasedComponent} from '../../../../app/page/region/DescriptorBasedComponent';
-import {$contentContext} from '../page-editor/store';
-import {$inspectedItem, $pageVersion} from '../page-editor/store';
-import {
-    $componentConfigDescriptor,
-    $isComponentInspectionLoading,
-    $layoutDescriptorOptions,
-    $partDescriptorOptions,
-} from './store';
+import {atom, computed} from 'nanostores';
+import type {Descriptor} from '../../../app/page/Descriptor';
+import {DescriptorBasedComponent} from '../../../app/page/region/DescriptorBasedComponent';
+import {$contentContext, $inspectedItem, $pageVersion} from './page-editor/store';
+
+//
+// * State
+//
+
+export const $partDescriptorOptions = atom<Descriptor[]>([]);
+
+export const $layoutDescriptorOptions = atom<Descriptor[]>([]);
+
+export const $componentConfigDescriptor = atom<Descriptor | null>(null);
+
+export const $isComponentInspectionLoading = atom<boolean>(false);
+
+//
+// * Computed
+//
+
+export const $selectedComponentDescriptorKey = computed(
+    [$inspectedItem, $pageVersion],
+    (item): string | null => {
+        if (item instanceof DescriptorBasedComponent && item.hasDescriptor()) {
+            return item.getDescriptorKey().toString();
+        }
+        return null;
+    },
+);
 
 //
 // * Service
@@ -31,7 +51,7 @@ export function initComponentInspectionService(): void {
 
         void (async () => {
             try {
-                const {loadComponentDescriptors} = await import('../../api/componentInspection');
+                const {loadComponentDescriptors} = await import('../api/componentInspection');
 
                 const [parts, layouts] = await Promise.all([
                     loadComponentDescriptors('part', ctx.contentId),
@@ -80,7 +100,7 @@ export function initComponentInspectionService(): void {
 
         void (async () => {
             try {
-                const {loadComponentDescriptor} = await import('../../api/componentInspection');
+                const {loadComponentDescriptor} = await import('../api/componentInspection');
                 const descriptor = await loadComponentDescriptor(info.componentType, info.descriptorKey);
                 $componentConfigDescriptor.set(descriptor ?? null);
             } catch {

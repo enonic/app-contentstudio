@@ -15,8 +15,9 @@ import {type LiveEditPageInitializationErrorEvent} from '../../../page-editor/ev
 import {type ShowWarningLiveEditEvent} from '../../../page-editor/event/ShowWarningLiveEditEvent';
 import {type LiveEditModel} from '../../../page-editor/LiveEditModel';
 import {cleanupPageEditorBridge, clearInspection, initPageEditorBridge, inspectItem, syncInitialRenderable} from '../../../v6/features/store/page-editor';
-import {cleanupComponentInspection, initComponentInspectionService} from '../../../v6/features/store/component-inspection';
-import {cleanupPageInspection, initPageInspectionService} from '../../../v6/features/store/page-inspection';
+import {cleanupComponentInspection, initComponentInspectionService} from '../../../v6/features/store/component-inspection.store';
+import {cleanupFragmentInspection, initFragmentInspectionService} from '../../../v6/features/store/fragment-inspection.store';
+import {cleanupPageInspection, initPageInspectionService} from '../../../v6/features/store/page-inspection.store';
 import {$activeWidget} from '../../../v6/features/store/liveViewWidgets.store';
 import {type Content, type ContentBuilder} from '../../content/Content';
 import {type ContentId} from '../../content/ContentId';
@@ -564,6 +565,7 @@ export class LiveFormPanel
                 contentId: content.getContentId(),
                 contentTypeName: content.getType(),
                 siteId: siteModel?.getSiteId() ?? null,
+                sitePath: siteModel?.getSite().getPath().toString() ?? null,
                 isPageTemplate: content.isPageTemplate(),
                 isInherited: content.isInherited(),
                 isDataInherited: content.isDataInherited(),
@@ -573,6 +575,7 @@ export class LiveFormPanel
 
         initPageInspectionService();
         initComponentInspectionService();
+        initFragmentInspectionService();
 
         // Sync renderable state that may have been set before bridge init
         void this.widgetRenderingHandler.isItemRenderable().then((isRenderable: boolean) => {
@@ -891,6 +894,7 @@ export class LiveFormPanel
             (panel) => panel instanceof DescriptorBasedComponentInspectionPanel && panel.unbindSiteModelListeners());
         this.liveEditModel = null;
         cleanupComponentInspection();
+        cleanupFragmentInspection();
         cleanupPageInspection();
         cleanupPageEditorBridge();
     }

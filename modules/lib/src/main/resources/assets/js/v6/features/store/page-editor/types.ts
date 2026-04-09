@@ -12,6 +12,7 @@ export type PageEditorContentContext = {
     contentId: ContentId;
     contentTypeName: ContentTypeName;
     siteId: ContentId | null;
+    sitePath: string | null;
     isPageTemplate: boolean;
     isInherited: boolean;
     isDataInherited: boolean;

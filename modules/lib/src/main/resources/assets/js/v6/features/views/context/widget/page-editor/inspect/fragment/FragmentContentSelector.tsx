@@ -1,21 +1,12 @@
 import {Combobox, Listbox} from '@enonic/ui';
-import {Box, Columns2} from 'lucide-react';
+import {FileChartPie} from 'lucide-react';
 import type {ReactElement} from 'react';
 import {useI18n} from '../../../../../../hooks/useI18n';
-import {useComponentDescriptorSelector} from './hooks/useComponentDescriptorSelector';
+import {useFragmentContentSelector} from './hooks/useFragmentContentSelector';
 
-const COMPONENT_TYPE_ICON = {
-    part: Box,
-    layout: Columns2,
-} as const;
+const FRAGMENT_CONTENT_SELECTOR_NAME = 'FragmentContentSelector';
 
-type ComponentDescriptorSelectorProps = {
-    componentType: 'part' | 'layout';
-};
-
-const COMPONENT_DESCRIPTOR_SELECTOR_NAME = 'ComponentDescriptorSelector';
-
-export const ComponentDescriptorSelector = ({componentType}: ComponentDescriptorSelectorProps): ReactElement | null => {
+export const FragmentContentSelector = (): ReactElement | null => {
     const {
         filteredOptions,
         selectedOption,
@@ -25,12 +16,11 @@ export const ComponentDescriptorSelector = ({componentType}: ComponentDescriptor
         handleSelectionChange,
         isLoading,
         isEmpty,
-    } = useComponentDescriptorSelector(componentType);
+        disabled,
+    } = useFragmentContentSelector();
 
-    const label = useI18n(componentType === 'part' ? 'field.part' : 'field.layout');
+    const label = useI18n('field.fragment');
     const searchPlaceholder = useI18n('field.option.placeholder');
-
-    const Icon = COMPONENT_TYPE_ICON[componentType];
 
     if (isLoading) return null;
 
@@ -39,20 +29,21 @@ export const ComponentDescriptorSelector = ({componentType}: ComponentDescriptor
     }
 
     return (
-        <div className="flex flex-col gap-2.5" data-component={COMPONENT_DESCRIPTOR_SELECTOR_NAME}>
+        <div className="flex flex-col gap-2.5" data-component={FRAGMENT_CONTENT_SELECTOR_NAME}>
             <span className="font-semibold">{label}</span>
             <Combobox.Root
                 value={searchValue}
                 onChange={setSearchValue}
                 selection={selection}
                 onSelectionChange={handleSelectionChange}
+                disabled={disabled}
             >
                 <Combobox.Content>
                     <Combobox.Control>
                         <Combobox.Search>
                             {selectedOption && (
                                 <Combobox.Value className="gap-2 w-full">
-                                    <Icon className="size-4 shrink-0" strokeWidth={1.75} />
+                                    <FileChartPie className="size-4 shrink-0" strokeWidth={1.75} />
                                     <span className="leading-5.5 font-semibold truncate">
                                         {selectedOption.label}
                                     </span>
@@ -84,4 +75,4 @@ export const ComponentDescriptorSelector = ({componentType}: ComponentDescriptor
     );
 };
 
-ComponentDescriptorSelector.displayName = COMPONENT_DESCRIPTOR_SELECTOR_NAME;
+FragmentContentSelector.displayName = FRAGMENT_CONTENT_SELECTOR_NAME;
