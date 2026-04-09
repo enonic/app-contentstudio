@@ -1,1 +1,2 @@
-export {PageEditorExtension, PageEditorExtensionElement} from './PageEditorExtension';
+export {PageEditorExtension} from './PageEditorExtension';
+export {PageEditorExtensionElement} from './PageEditorExtensionElement';

@@ -1,41 +1,11 @@
-import {atom, computed} from 'nanostores';
-import type {PageTemplate} from '../../../app/content/PageTemplate';
-import type {Descriptor} from '../../../app/page/Descriptor';
-import {$contentContext, $page, $pageEditorLifecycle, $pageVersion} from './pageEditor.store';
-
-//
-// * State
-//
-
-export const $pageTemplateOptions = atom<PageTemplate[]>([]);
-
-export const $pageControllerOptions = atom<Descriptor[]>([]);
-
-export const $pageConfigDescriptor = atom<Descriptor | null>(null);
-
-export const $isPageInspectionLoading = atom<boolean>(false);
-
-//
-// * Computed
-//
-
-export const $selectedPageOptionKey = computed(
-    [$page, $pageVersion],
-    (page): string | null => {
-        if (!page) return '__auto__';
-        if (page.hasController()) return page.getController().toString();
-        if (page.hasTemplate()) return page.getTemplate().toString();
-        return '__auto__';
-    },
-);
-
-export const $isCustomizeVisible = computed(
-    [$pageEditorLifecycle, $contentContext],
-    (lifecycle, ctx): boolean => {
-        if (!ctx || !lifecycle.isPageLocked || !lifecycle.isPageRenderable) return false;
-        return !ctx.isInherited || !ctx.isDataInherited;
-    },
-);
+import {computed} from 'nanostores';
+import {$contentContext, $page, $pageVersion} from '../page-editor/store';
+import {
+    $isPageInspectionLoading,
+    $pageConfigDescriptor,
+    $pageControllerOptions,
+    $pageTemplateOptions,
+} from './store';
 
 //
 // * Service
@@ -57,7 +27,7 @@ export function initPageInspectionService(): void {
 
         void (async () => {
             try {
-                const {loadPageTemplatesByCanRender, loadPageControllers} = await import('../api/pageInspection');
+                const {loadPageTemplatesByCanRender, loadPageControllers} = await import('../../api/pageInspection');
 
                 const [templates, controllers] = await Promise.all([
                     ctx.siteId ? loadPageTemplatesByCanRender(ctx.siteId, ctx.contentTypeName) : Promise.resolve([]),
@@ -93,7 +63,7 @@ export function initPageInspectionService(): void {
 
         void (async () => {
             try {
-                const {loadPageDescriptor} = await import('../api/pageInspection');
+                const {loadPageDescriptor} = await import('../../api/pageInspection');
                 const descriptor = await loadPageDescriptor(controllerKey);
                 $pageConfigDescriptor.set(descriptor ?? null);
             } catch {

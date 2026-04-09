@@ -3,7 +3,7 @@ import {useStore} from '@nanostores/preact';
 import {Box, Columns2, Layers, PenLine} from 'lucide-react';
 import type {ReactElement} from 'react';
 import {useI18n} from '../../../../../hooks/useI18n';
-import {$isFragment} from '../../../../../store/pageEditor.store';
+import {$isFragment} from '../../../../../store/page-editor';
 import {InsertableItem} from './InsertableItem';
 
 type Props = {
