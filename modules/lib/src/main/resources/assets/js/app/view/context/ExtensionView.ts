@@ -2,12 +2,12 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import type {LucideIcon} from '@enonic/ui';
 import {default as Q} from 'q';
 import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {type ContextView} from './ContextView';
 import {ExtensionItemView, type ExtensionItemViewType} from './ExtensionItemView';
+import {isBlank} from '../../../v6/features/utils/format/isBlank';
 
 export enum InternalExtensionType {
     INFO,
@@ -63,7 +63,7 @@ export class ExtensionView
             this.createDefaultExtensionItemView();
         }
 
-        if (!StringHelper.isBlank(builder.extensionClass)) {
+        if (!isBlank(builder.extensionClass)) {
             this.addClass(builder.extensionClass);
         }
 

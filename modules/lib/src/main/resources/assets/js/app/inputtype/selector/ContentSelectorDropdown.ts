@@ -7,7 +7,7 @@ import {
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../../v6/features/utils/format/isBlank';
 import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import Q from 'q';
 import {ContentId} from '../../content/ContentId';
@@ -113,7 +113,7 @@ export class ContentSelectorDropdown
     }
 
     protected preSelectItems(): void {
-        const ids = this.getSelectedItemsHandler().filter(id => !StringHelper.isBlank(id)).map(id => new ContentId(id));
+        const ids = this.getSelectedItemsHandler().filter(id => !isBlank(id)).map(id => new ContentId(id));
 
         if (ids.length > 0) {
             this.fetchPreselectedItems(ids).then((contents) => {

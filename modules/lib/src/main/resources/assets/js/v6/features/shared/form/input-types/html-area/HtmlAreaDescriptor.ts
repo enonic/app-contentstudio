@@ -4,7 +4,7 @@ import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import type {RawInputConfig} from '@enonic/lib-admin-ui/form/Input';
 import type {InputTypeDescriptor} from '@enonic/lib-admin-ui/form2/descriptor/InputTypeDescriptor';
 import type {ValidationResult} from '@enonic/lib-admin-ui/form2/descriptor/ValidationResult';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../../../utils/format/isBlank';
 import type {HtmlAreaConfig} from './HtmlAreaConfig';
 
 function parseTools(raw: RawInputConfig, key: string): string[] {
@@ -45,6 +45,6 @@ export const HtmlAreaDescriptor: InputTypeDescriptor<HtmlAreaConfig> = {
     },
 
     valueBreaksRequired(value: Value): boolean {
-        return value.isNull() || !value.getType().equals(ValueTypes.STRING) || StringHelper.isBlank(value.getString());
+        return value.isNull() || !value.getType().equals(ValueTypes.STRING) || isBlank(value.getString());
     },
 };

@@ -1,6 +1,7 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../../utils/format/isBlank';
 import {createContext, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {ReactNode} from 'react';
 import {type ContentSummary} from '../../../../../app/content/ContentSummary';
@@ -150,7 +151,7 @@ function isValidEmail(value: string): boolean {
 }
 
 function validateUrlValue(value: string, protocol: UrlProtocol): string | undefined {
-    if (StringHelper.isBlank(value)) {
+    if (isBlank(value)) {
         return i18n('field.value.required');
     }
 
@@ -172,7 +173,7 @@ function validateUrlValue(value: string, protocol: UrlProtocol): string | undefi
 function computeValidationErrors(state: HtmlAreaLinkDialogState): Record<string, string> {
     const errors: Record<string, string> = {};
 
-    if (state.linkTextEditable && StringHelper.isBlank(state.linkText)) {
+    if (state.linkTextEditable && isBlank(state.linkText)) {
         errors.linkText = i18n('field.value.required');
     }
 
@@ -181,7 +182,7 @@ function computeValidationErrors(state: HtmlAreaLinkDialogState): Record<string,
         if (!state.selectedContentId) {
             errors.content = i18n('field.value.required');
         }
-        if (state.queryParams.some(p => StringHelper.isBlank(p.key))) {
+        if (state.queryParams.some(p => isBlank(p.key))) {
             errors.queryParams = i18n('dialog.link.queryparams.empty');
         }
         break;
@@ -193,14 +194,14 @@ function computeValidationErrors(state: HtmlAreaLinkDialogState): Record<string,
         break;
     }
     case 'email':
-        if (StringHelper.isBlank(state.email)) {
+        if (isBlank(state.email)) {
             errors.email = i18n('field.value.required');
         } else if (!isValidEmail(state.email)) {
             errors.email = i18n('field.value.invalid');
         }
         break;
     case 'anchor':
-        if (StringHelper.isBlank(state.anchorValue)) {
+        if (isBlank(state.anchorValue)) {
             errors.anchor = i18n('field.value.required');
         }
         break;
@@ -476,7 +477,7 @@ function performOpenSideEffects(params: OpenHtmlAreaLinkDialogParams): void {
 //
 
 function buildQueryParamsString(params: {key: string; value: string}[]): string {
-    const filtered = params.filter(p => !StringHelper.isBlank(p.key));
+    const filtered = params.filter(p => !isBlank(p.key));
     if (filtered.length === 0) {
         return '';
     }

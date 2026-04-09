@@ -1,7 +1,7 @@
 import {OptionDataLoader, OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
 import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import Q from 'q';
+import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
 import {type Project} from '../../../../data/project/Project';
 import {ProjectListRequest} from '../../../../resource/ProjectListRequest';
 
@@ -17,7 +17,7 @@ export class ProjectOptionDataLoader
     filterFn(project: Project): boolean {
         const searchString: string = this.getSearchString().toLowerCase();
 
-        if (StringHelper.isBlank(searchString)) {
+        if (isBlank(searchString)) {
             return true;
         }
 

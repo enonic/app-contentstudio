@@ -2,6 +2,7 @@ import Q from 'q';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../v6/features/utils/format/isBlank';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {KeyBindings} from '@enonic/lib-admin-ui/ui/KeyBindings';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
@@ -440,7 +441,7 @@ export class NewContentDialogHeader
     }
 
     setPath(path: string) {
-        this.pathEl.setHtml(path).setVisible(!StringHelper.isBlank(path));
+        this.pathEl.setHtml(path).setVisible(!isBlank(path));
     }
 
     appendToTitle(element: Element) {

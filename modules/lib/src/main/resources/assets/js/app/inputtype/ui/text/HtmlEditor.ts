@@ -9,6 +9,7 @@ import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveMa
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../../../v6/features/utils/format/isBlank';
 import Q from 'q';
 import {ContentPath} from '../../../content/ContentPath';
 import {type ContentSummary} from '../../../content/ContentSummary';
@@ -835,7 +836,7 @@ export class HtmlEditor {
             const nextChar = range.getNextNode()?.getText()[0];
 
             // checking that cursor position is surrounded by non-whitespace characters
-            if (ObjectHelper.bothDefined(prevChar, nextChar) && !StringHelper.isBlank(prevChar) && !StringHelper.isBlank(nextChar)) {
+            if (ObjectHelper.bothDefined(prevChar, nextChar) && !isBlank(prevChar) && !isBlank(nextChar)) {
                 setTimeout(() => { // setting timeout to allow space to be replaced with nbsp by browser/editor
                     const selection: CKEDITOR.dom.selection = this.editor.getSelection();
                     const range: CKEDITOR.dom.range = selection.getRanges()[0];

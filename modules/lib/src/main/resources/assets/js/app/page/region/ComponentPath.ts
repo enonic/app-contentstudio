@@ -1,5 +1,5 @@
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {isBlank} from '../../../v6/features/utils/format/isBlank';
 import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 
 export class ComponentPath
@@ -53,7 +53,7 @@ export class ComponentPath
     }
 
     static fromString(path: string): ComponentPath {
-        if (StringHelper.isBlank(path) || path === ComponentPath.DIVIDER) {
+        if (isBlank(path) || path === ComponentPath.DIVIDER) {
             return ComponentPath.root();
         }
 

@@ -2,8 +2,8 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {SettingsDataItemWizardPanel} from './SettingsDataItemWizardPanel';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {isBlank} from '../../../../v6/features/utils/format/isBlank';
 import {ProjectUpdateRequest} from '../../resource/ProjectUpdateRequest';
 import {ProjectDeleteRequest} from '../../resource/ProjectDeleteRequest';
 import {type WizardHeaderWithDisplayNameAndName} from '@enonic/lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
@@ -396,7 +396,7 @@ export class ProjectWizardPanel
     }
 
     isValid(): boolean {
-        return super.isValid() && !StringHelper.isBlank(this.getDisplayName());
+        return super.isValid() && !isBlank(this.getDisplayName());
     }
 
     protected setPersistedItem(newPersistedItem: ProjectViewItem) {

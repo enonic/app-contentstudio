@@ -2,7 +2,7 @@ import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {type TaskIdJson} from '@enonic/lib-admin-ui/task/TaskIdJson';
 import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../v6/features/utils/format/isBlank';
 import {type ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
@@ -40,7 +40,7 @@ export class ArchiveContentRequest extends CmsContentResourceRequest<TaskId> {
 
         return {
             contentIds: this.contentIds.map(fn),
-            message: StringHelper.isBlank(this.message) ? null : this.message,
+            message: isBlank(this.message) ? null : this.message,
         };
     }
 

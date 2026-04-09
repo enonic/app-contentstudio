@@ -1,5 +1,5 @@
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
+import {isBlank} from '../../../../../v6/features/utils/format/isBlank';
 import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {type ProjectViewItem} from '../../../view/ProjectViewItem';
 import Q from 'q';
@@ -49,7 +49,7 @@ export class ProjectApplicationsWizardStepForm
     }
 
     updateBaseUrlInSiteConfig(baseUrl: string): void {
-        if (StringHelper.isBlank(baseUrl)) {
+        if (isBlank(baseUrl)) {
             this.applicationsFormItem.getComboBox().removePortalApp();
         } else {
             this.applicationsFormItem.getComboBox().addAndUpdatePortalApp(baseUrl);

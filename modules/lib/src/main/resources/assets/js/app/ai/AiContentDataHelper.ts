@@ -2,7 +2,6 @@ import {XDataWizardStepForm} from '../wizard/XDataWizardStepForm';
 import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
 import {type Property} from '@enonic/lib-admin-ui/data/Property';
 import {Value} from '@enonic/lib-admin-ui/data/Value';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {PageState} from '../wizard/page/PageState';
 import {type PageItem} from '../page/region/PageItem';
 import {ComponentPath} from '../page/region/ComponentPath';
@@ -12,6 +11,7 @@ import {type PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {type ContentWizardHeader} from '../wizard/ContentWizardHeader';
 import {type CompareStatus, CompareStatusChecker} from '../content/CompareStatus';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {isBlank} from '../../v6/features/utils/format/isBlank';
 
 export class AiContentDataHelper {
 
@@ -61,7 +61,7 @@ export class AiContentDataHelper {
     }
 
     private isAllowedToChangeName(text: string): boolean {
-        return !StringHelper.isBlank(text) && !ObjectHelper.stringEquals(text?.trim(), this.contentHeader.getDisplayName()) &&
+        return !isBlank(text) && !ObjectHelper.stringEquals(text?.trim(), this.contentHeader.getDisplayName()) &&
                CompareStatusChecker.isNew(this.compareStatus);
     }
 
@@ -138,7 +138,7 @@ export class AiContentDataHelper {
         const dataPath = parts[1];
         const propPath = PropertyPath.fromString(this.replaceSlashesWithDots(dataPath));
 
-        if (StringHelper.isBlank(configComponentPath)) {
+        if (isBlank(configComponentPath)) {
             const prop = PageState.getState()?.getConfig().getRoot().getPropertyByPath(propPath);
             prop?.setValue(new Value(text, prop.getType()));
         } else {

@@ -1,5 +1,6 @@
 import Q from 'q';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../../v6/features/utils/format/isBlank';
 import {type PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
 import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {type ValueType} from '@enonic/lib-admin-ui/data/ValueType';
@@ -211,7 +212,7 @@ export class CustomSelector
     }
 
     private getSelectedItemsIds(): string[] {
-        return this.getValueFromPropertyArray(this.getPropertyArray()).split(';').filter((id) => !StringHelper.isBlank(id));
+        return this.getValueFromPropertyArray(this.getPropertyArray()).split(';').filter((id) => !isBlank(id));
     }
 
     protected getNumberOfValids(): number {

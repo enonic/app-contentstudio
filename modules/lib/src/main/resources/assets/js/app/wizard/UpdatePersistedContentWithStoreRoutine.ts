@@ -1,7 +1,6 @@
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import type {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {type PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import Q from 'q';
 import {
     $wizardDraftData,
@@ -14,6 +13,7 @@ import {type Content} from '../content/Content';
 import {Flow, type RoutineContext} from './Flow';
 import {type ContentWizardPanel} from './ContentWizardPanel';
 import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
+import {isBlank} from '../../v6/features/utils/format/isBlank';
 
 export class UpdatePersistedContentWithStoreRoutine
     extends Flow {
@@ -92,7 +92,7 @@ export class UpdatePersistedContentWithStoreRoutine
     }
 
     private syncPortalBaseUrlInSiteConfig(data: PropertyTree, baseUrl: string | null): void {
-        if (baseUrl == null || StringHelper.isBlank(baseUrl)) {
+        if (baseUrl == null || isBlank(baseUrl)) {
             this.removePortalBaseUrlFromSiteConfig(data);
             return;
         }

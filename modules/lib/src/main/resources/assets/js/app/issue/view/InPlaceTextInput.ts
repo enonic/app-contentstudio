@@ -1,5 +1,5 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../../v6/features/utils/format/isBlank';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {CompositeFormInputEl} from '@enonic/lib-admin-ui/dom/CompositeFormInputEl';
 import {H2El} from '@enonic/lib-admin-ui/dom/H2El';
@@ -71,7 +71,7 @@ export class InPlaceTextInput
     }
 
     private isInputValid(): boolean {
-        return !StringHelper.isBlank(this.input.getValue());
+        return !isBlank(this.input.getValue());
     }
 
     public setEditMode(enableEdit: boolean, cancel?: boolean) {

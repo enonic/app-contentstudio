@@ -8,6 +8,7 @@ import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../../../utils/format/isBlank';
 import {ContentPath} from '../../../../../../app/content/ContentPath';
 import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
 import {normalizeHtmlAreaLangDirection} from '../../../../../../app/inputtype/ui/text/HtmlAreaLangDirection';
@@ -369,7 +370,7 @@ function handleSpacePressed(editor: CKEDITOR.editor): void {
         const prevChar = startNode.getText()[range.startOffset - 1];
         const nextChar = range.getNextNode()?.getText()[0];
 
-        if (ObjectHelper.bothDefined(prevChar, nextChar) && !StringHelper.isBlank(prevChar) && !StringHelper.isBlank(nextChar)) {
+        if (ObjectHelper.bothDefined(prevChar, nextChar) && !isBlank(prevChar) && !isBlank(nextChar)) {
             setTimeout(() => {
                 const selection = editor.getSelection();
                 const newRange = selection.getRanges()[0];

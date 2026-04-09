@@ -6,7 +6,7 @@ import Q from 'q';
 import {ProjectAccessDialogStepData} from '../data/ProjectAccessDialogStepData';
 import {ProjectReadAccessType} from '../../../../data/project/ProjectReadAccessType';
 import {ProjectReadAccessFormItem} from '../../../../wizard/panel/form/element/ProjectReadAccessFormItem';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
 
 export class ProjectAccessDialogStep
     extends ProjectDialogStep {
@@ -35,7 +35,7 @@ export class ProjectAccessDialogStep
         const data: ProjectAccessDialogStepData = new ProjectAccessDialogStepData();
         const readAccessString: string = this.readAccessFormItem?.getRadioGroup().getValue();
 
-        if (StringHelper.isBlank(readAccessString)) {
+        if (isBlank(readAccessString)) {
             return data;
         }
 

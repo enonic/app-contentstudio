@@ -9,7 +9,7 @@ import {ContentSummaryOptionDataLoader} from '../inputtype/ui/selector/ContentSu
 import {type ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {ContentSelectorDropdown} from '../inputtype/selector/ContentSelectorDropdown';
 import {ContentsTreeList} from '../browse/ContentsTreeList';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../v6/features/utils/format/isBlank';
 
 export class ContentMoveComboBox
     extends ContentSelectorDropdown {
@@ -101,7 +101,7 @@ export class ContentMoveComboBox
     }
 
     protected search(value?: string): void {
-        if (StringHelper.isBlank(value)) {
+        if (isBlank(value)) {
             this.listBox.clearItems();
             (this.listBox as ContentsTreeList).load();
         } else {

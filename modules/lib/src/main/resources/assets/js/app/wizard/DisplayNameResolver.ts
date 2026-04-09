@@ -1,4 +1,3 @@
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {Input} from '@enonic/lib-admin-ui/form/Input';
 import {type DisplayNameGenerator} from '@enonic/lib-admin-ui/app/wizard/DisplayNameGenerator';
 import {type FormView} from '@enonic/lib-admin-ui/form/FormView';
@@ -11,7 +10,8 @@ import {FormOptionSetOption} from '@enonic/lib-admin-ui/form/set/optionset/FormO
 import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {type InputTypeName} from '@enonic/lib-admin-ui/form/InputTypeName';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import * as _ from 'lodash';
+import {camelCase} from '../../v6/features/utils/format/camelCase';
+import {isBlank} from '../../v6/features/utils/format/isBlank';
 
 export class DisplayNameResolver
     implements DisplayNameGenerator {
@@ -33,7 +33,7 @@ export class DisplayNameResolver
     }
 
     hasExpression(): boolean {
-        return !StringHelper.isBlank(this.expression);
+        return !isBlank(this.expression);
     }
 
     execute(): string {
@@ -86,7 +86,7 @@ export class DisplayNameResolver
     private sanitiseName(name: string): string {
         return name
                 .split('.')
-                .map((namePart: string) => _.camelCase(namePart))
+                .map((namePart: string) => camelCase(namePart))
                 .join('_');
     }
 

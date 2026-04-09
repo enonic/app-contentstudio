@@ -8,7 +8,7 @@ import {GetPrincipalsByKeysRequest} from '../../security/GetPrincipalsByKeysRequ
 import Q from 'q';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {capitalize} from '../../../v6/features/utils/format/capitalize';
 import {GetLocalesRequest} from '../../resource/GetLocalesRequest';
 import {type Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {GetAllContentTypesRequest} from '../../resource/GetAllContentTypesRequest';
@@ -53,7 +53,7 @@ export class AggregationsDisplayNamesResolver {
     updateKnownPrincipals(principalsAggregation: BucketAggregation): void {
         principalsAggregation.getBuckets().forEach((bucket: Bucket) => {
             const displayName: string = bucket.getKey() === this.currentUserId
-                                        ? StringHelper.capitalize(i18n('field.me'))
+                                        ? capitalize(i18n('field.me'))
                                         : this.principals.get(bucket.getKey());
             bucket.setDisplayName(displayName || bucket.getKey());
         });

@@ -1,5 +1,5 @@
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {isBlank} from '../../v6/features/utils/format/isBlank';
 import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ProjectContext} from '../project/ProjectContext';
 
@@ -20,7 +20,7 @@ export class RepositoryId
     }
 
     static isValidRepositoryId(id: string): boolean {
-        return !StringHelper.isBlank(id) && RepositoryId.VALID_REPOSITORY_ID_REGEX.test(id);
+        return !isBlank(id) && RepositoryId.VALID_REPOSITORY_ID_REGEX.test(id);
     }
 
     static fromProjectName(projectName: string): RepositoryId {

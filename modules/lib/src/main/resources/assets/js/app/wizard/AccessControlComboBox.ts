@@ -12,11 +12,11 @@ import {
 import {AccessControlListBox} from './AccessControlListBox';
 import {type LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import Q from 'q';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
+import {isBlank} from '../../v6/features/utils/format/isBlank';
 
 interface AccessControlComboBoxOptions extends ListBoxInputOptions<AccessControlEntry> {
     loader: CSPrincipalLoader;
@@ -66,7 +66,7 @@ export class AccessControlComboBox extends FilterableListBoxWrapperWithSelectedV
 
     protected loadListOnShown(): void {
         // if not empty then search will be performed after finished typing
-        if (StringHelper.isBlank(this.optionFilterInput.getValue())) {
+        if (isBlank(this.optionFilterInput.getValue())) {
             this.search(this.optionFilterInput.getValue());
         }
     }

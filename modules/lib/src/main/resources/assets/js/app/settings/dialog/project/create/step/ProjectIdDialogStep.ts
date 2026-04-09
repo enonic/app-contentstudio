@@ -6,7 +6,7 @@ import {ProjectDialogStep} from './ProjectDialogStep';
 import {type FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import Q from 'q';
 import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
 import {ProjectListRequest} from '../../../../resource/ProjectListRequest';
 import {type Project} from '../../../../data/project/Project';
 import {ProjectNameFormItem} from '../../../../wizard/panel/form/element/ProjectNameFormItem';
@@ -98,9 +98,9 @@ export class ProjectIdDialogStep
 
         const data: ProjectIdDialogStepData = this.getData();
 
-        return !StringHelper.isBlank(data.getName()) ||
-               !StringHelper.isBlank(data.getDisplayName()) ||
-               !StringHelper.isBlank(data.getDescription());
+        return !isBlank(data.getName()) ||
+               !isBlank(data.getDisplayName()) ||
+               !isBlank(data.getDescription());
     }
 
     isValid(): Q.Promise<boolean> {
@@ -123,7 +123,7 @@ export class ProjectIdDialogStep
     }
 
     private isNameOrDisplayNameMissing(): boolean {
-        return StringHelper.isBlank(this.displayNameInput.getValue()) || StringHelper.isBlank(this.nameFormItem.getValue());
+        return isBlank(this.displayNameInput.getValue()) || isBlank(this.nameFormItem.getValue());
     }
 
     getName(): string {

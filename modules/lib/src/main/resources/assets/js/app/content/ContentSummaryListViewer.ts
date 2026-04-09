@@ -1,7 +1,6 @@
 import Q from 'q';
 import {ContentSummaryAndCompareStatusViewer} from './ContentSummaryAndCompareStatusViewer';
 import {type ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {Request} from '@enonic/lib-admin-ui/rest/Request';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
@@ -11,6 +10,7 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
 import {Element, NewElementBuilder} from '@enonic/lib-admin-ui/dom/Element';
 import {StatusCode} from '@enonic/lib-admin-ui/rest/StatusCode';
+import {isBlank} from '../../v6/features/utils/format/isBlank';
 
 export class ContentSummaryListViewer
     extends ContentSummaryAndCompareStatusViewer {
@@ -52,7 +52,7 @@ export class ContentSummaryListViewer
     private checkAndSetImageUrlAsync(object: ContentSummaryAndCompareStatus) {
         const url: string = super.resolveIconUrl(object);
 
-        if (!StringHelper.isBlank(url)) {
+        if (!isBlank(url)) {
             if (!this.iconWrapperId) {
                 const iconWrapper: Element =
                     new Element(new NewElementBuilder().setTagName('div').setGenerateId(true).setClassName('icon-spinner icon-wrapper'));

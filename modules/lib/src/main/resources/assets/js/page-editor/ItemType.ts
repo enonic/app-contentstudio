@@ -1,6 +1,6 @@
 import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../v6/features/utils/format/isBlank';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {type ItemTypeConfig} from './ItemTypeConfig';
 import {ComponentType} from '../app/page/region/ComponentType';
@@ -81,9 +81,9 @@ export class ItemType
 
     static fromHTMLElement(element: HTMLElement): ItemType {
         let typeAsString = element.getAttribute('data-' + ItemType.ATTRIBUTE_TYPE);
-        if (StringHelper.isBlank(typeAsString)) {
+        if (isBlank(typeAsString)) {
             const regionName = element.getAttribute('data-' + ItemType.ATTRIBUTE_REGION_NAME);
-            if (!StringHelper.isBlank(regionName)) {
+            if (!isBlank(regionName)) {
                 typeAsString = 'region';
             }
         }

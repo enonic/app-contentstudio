@@ -3,7 +3,7 @@ import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
 import {ProjectFormItem, ProjectFormItemBuilder} from './ProjectFormItem';
 
 export class ProjectNameFormItem
@@ -24,7 +24,7 @@ export class ProjectNameFormItem
     }
 
     private validateProjectName(): string {
-        if (StringHelper.isBlank(this.getValue())) {
+        if (isBlank(this.getValue())) {
             return i18n('field.value.required');
         }
 
