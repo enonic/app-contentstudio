@@ -7,6 +7,7 @@ import {ContentSelectorDescriptor, ContentSelectorInput} from './content-selecto
 import {SiteConfiguratorDescriptor, SiteConfiguratorInput} from './site-configurator';
 import {AttachmentUploaderDescriptor, AttachmentUploaderInput} from './attachment-uploader';
 import {CustomSelectorDescriptor, CustomSelectorInput} from './custom-selector';
+import {ImageUploaderDescriptor, ImageUploaderInput} from './image-uploader';
 
 export function registerContentStudioInputTypes(): void {
     InputTypeRegistry.registerType({mode: 'list', descriptor: HtmlAreaDescriptor, component: HtmlAreaInput}, true);
@@ -17,4 +18,5 @@ export function registerContentStudioInputTypes(): void {
     InputTypeRegistry.registerType({mode: 'internal', descriptor: ContentTypeFilterDescriptor, component: ContentTypeFilterInput}, true);
     InputTypeRegistry.registerType({mode: 'internal', descriptor: AttachmentUploaderDescriptor, component: AttachmentUploaderInput}, true);
     InputTypeRegistry.registerType({mode: 'internal', descriptor: CustomSelectorDescriptor, component: CustomSelectorInput}, true);
+    InputTypeRegistry.registerType({mode: 'internal', descriptor: ImageUploaderDescriptor, component: ImageUploaderInput}, true);
 }
