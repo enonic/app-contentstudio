@@ -1,6 +1,7 @@
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
+import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {ContentBuilder, type Content} from '../../../app/content/Content';
@@ -34,6 +35,8 @@ import {
     setContentFormExpanded,
     toggleContentFormExpanded,
     setPersistedContent,
+    notifyContentFormMounted,
+    notifyMixinMounted,
 } from './wizardContent.store';
 import {getMixinDataContext} from './wizardMixinData.store';
 
@@ -575,5 +578,163 @@ describe('wizardContent.store', () => {
 
         expect($wizardSectionChanges.get().mixins).toBe(true);
         expect($wizardHasChanges.get()).toBe(true);
+    });
+
+    describe('rendered baseline snapshot', () => {
+        beforeEach(() => {
+            vi.useFakeTimers();
+        });
+
+        afterEach(() => {
+            vi.useRealTimers();
+        });
+
+        it('should snapshot enrichment from InputField rendering as not-changed', async () => {
+            const content = createContent();
+            initializeWizardContentState(content, null, [], WorkflowState.IN_PROGRESS);
+
+            // Simulate React effect ordering: child effects (InputField) before parent (ContentForm)
+            const draftData = $wizardDraftData.get();
+            draftData.setProperty('description', 0, ValueTypes.STRING.newNullValue());
+            notifyContentFormMounted();
+
+            // Flush microtask (snapshot) + setTimeout (disarm)
+            await vi.advanceTimersByTimeAsync(0);
+
+            expect($wizardSectionChanges.get().data).toBe(false);
+            expect($wizardHasChanges.get()).toBe(false);
+        });
+
+        it('should not swallow genuine user edit when no enrichment occurs', async () => {
+            const data = new PropertyTree();
+            data.setString('title', 0, 'Hello');
+            const content = createContent({data});
+            initializeWizardContentState(content, null, [], WorkflowState.IN_PROGRESS);
+
+            // No enrichment — ContentForm mount triggers disarm
+            notifyContentFormMounted();
+            await vi.advanceTimersByTimeAsync(0);
+
+            // Now a real user edit should be detected as a change
+            const draftData = $wizardDraftData.get();
+            draftData.setString('title', 0, 'Updated');
+
+            // Flush microtask
+            await vi.advanceTimersByTimeAsync(0);
+
+            expect($wizardSectionChanges.get().data).toBe(true);
+            expect($wizardHasChanges.get()).toBe(true);
+        });
+
+        it('should not re-arm snapshot flags after save (setPersistedContent)', async () => {
+            const content = createContent();
+            initializeWizardContentState(content, null, [], WorkflowState.IN_PROGRESS);
+
+            // Simulate enrichment + mount + snapshot
+            const draftData = $wizardDraftData.get();
+            draftData.setProperty('description', 0, ValueTypes.STRING.newNullValue());
+            notifyContentFormMounted();
+            await vi.advanceTimersByTimeAsync(0);
+
+            // Simulate a user edit
+            draftData.setString('title', 0, 'User edit');
+            await vi.advanceTimersByTimeAsync(0);
+            expect($wizardSectionChanges.get().data).toBe(true);
+
+            // Simulate save — setPersistedContent should NOT arm snapshot flags
+            setPersistedContent(content);
+            await vi.advanceTimersByTimeAsync(0);
+
+            // A new edit after save should be detected
+            const freshDraft = $wizardDraftData.get();
+            freshDraft.setString('title', 0, 'Post-save edit');
+            await vi.advanceTimersByTimeAsync(0);
+
+            expect($wizardSectionChanges.get().data).toBe(true);
+            expect($wizardHasChanges.get()).toBe(true);
+        });
+
+        it('should preserve READY workflow state when enrichment occurs', async () => {
+            const content = createContent({workflowState: WorkflowState.READY});
+            initializeWizardContentState(content, null, [], WorkflowState.READY);
+
+            // Simulate InputField enrichment + ContentForm mount
+            const draftData = $wizardDraftData.get();
+            draftData.setProperty('description', 0, ValueTypes.STRING.newNullValue());
+            notifyContentFormMounted();
+
+            // Flush — snapshot should restore READY if it was downgraded
+            await vi.advanceTimersByTimeAsync(0);
+
+            expect($wizardSectionChanges.get().data).toBe(false);
+            expect($wizardSectionChanges.get().workflow).toBe(false);
+        });
+
+        it('should snapshot mixin enrichment as not-changed', async () => {
+            const mixin = new Mixin(new MixinName('app:seo'), new PropertyTree());
+            const descriptor = createMixinDescriptor('app:seo', false);
+            const content = createContent({mixins: [mixin]});
+            initializeWizardContentState(content, null, [descriptor], WorkflowState.IN_PROGRESS);
+
+            // Simulate lazy tab mount
+            notifyMixinMounted('app:seo');
+
+            // Simulate InputField enrichment on mixin tree
+            const draftMixin = $wizardDraftMixins.get().find((m) => m.getName().toString() === 'app:seo');
+            draftMixin.getData().setProperty('metaTitle', 0, ValueTypes.STRING.newNullValue());
+
+            // Flush microtask
+            await vi.advanceTimersByTimeAsync(0);
+
+            expect($wizardSectionChanges.get().mixins).toBe(false);
+            expect($wizardHasChanges.get()).toBe(false);
+        });
+
+        it('should snapshot lazy-mounted mixin even after content disarm timer fires', async () => {
+            const mixin = new Mixin(new MixinName('app:seo'), new PropertyTree());
+            const descriptor = createMixinDescriptor('app:seo', false);
+            const content = createContent({mixins: [mixin]});
+            initializeWizardContentState(content, null, [descriptor], WorkflowState.IN_PROGRESS);
+
+            // ContentForm mounts and disarm timer fires — mixin tab has not mounted yet
+            notifyContentFormMounted();
+            await vi.advanceTimersByTimeAsync(0);
+
+            // Later, user clicks mixin tab — lazy mount triggers
+            notifyMixinMounted('app:seo');
+
+            // InputField enrichment on the now-mounted mixin
+            const draftMixin = $wizardDraftMixins.get().find((m) => m.getName().toString() === 'app:seo');
+            draftMixin.getData().setProperty('metaTitle', 0, ValueTypes.STRING.newNullValue());
+
+            // Flush microtask + mixin auto-disarm
+            await vi.advanceTimersByTimeAsync(0);
+
+            expect($wizardSectionChanges.get().mixins).toBe(false);
+            expect($wizardHasChanges.get()).toBe(false);
+        });
+
+        it('should not swallow real mixin edit when no enrichment occurs', async () => {
+            const mixinData = new PropertyTree();
+            mixinData.setString('metaTitle', 0, 'Existing');
+            const mixin = new Mixin(new MixinName('app:seo'), mixinData);
+            const descriptor = createMixinDescriptor('app:seo', false);
+            const content = createContent({mixins: [mixin]});
+            initializeWizardContentState(content, null, [descriptor], WorkflowState.IN_PROGRESS);
+
+            // Lazy mount — no enrichment happens (field already exists)
+            notifyMixinMounted('app:seo');
+            await vi.advanceTimersByTimeAsync(0);
+
+            // Real user edit after disarm
+            const draftMixin = $wizardDraftMixins.get().find((m) => m.getName().toString() === 'app:seo');
+            draftMixin.getData().setString('metaTitle', 0, 'Updated');
+
+            // Flush
+            await vi.advanceTimersByTimeAsync(0);
+
+            expect($wizardSectionChanges.get().mixins).toBe(true);
+            expect($wizardHasChanges.get()).toBe(true);
+        });
     });
 });

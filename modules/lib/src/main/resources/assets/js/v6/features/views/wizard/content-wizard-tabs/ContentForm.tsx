@@ -1,10 +1,10 @@
 import {useStore} from '@nanostores/preact';
-import {type ReactElement, useMemo} from 'react';
+import {type ReactElement, useEffect, useMemo} from 'react';
 import {RawValueProvider, ValidationVisibilityProvider} from '@enonic/lib-admin-ui/form2';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {$contextContent} from '../../../store/context/contextContent.store';
 import {$activeProject} from '../../../store/projects.store';
-import {$contentType, $wizardDraftData} from '../../../store/wizardContent.store';
+import {$contentType, $wizardDraftData, notifyContentFormMounted} from '../../../store/wizardContent.store';
 import {$validationVisibility, getContentRawValueMap} from '../../../store/wizardValidation.store';
 import {FormRenderer} from '../../../shared/form';
 import {HtmlAreaProvider} from '../../../shared/form/input-types/html-area';
@@ -18,6 +18,14 @@ export const ContentForm = (): ReactElement | null => {
     const activeProject = useStore($activeProject);
     const visibility = useStore($validationVisibility);
     const applicationKeys = useApplicationKeys();
+
+    const isReady = contentType != null && draftData != null;
+
+    useEffect(() => {
+        if (isReady) {
+            notifyContentFormMounted();
+        }
+    }, [isReady]);
 
     const rawValueMap = useMemo(() => getContentRawValueMap(), []);
 
@@ -33,7 +41,7 @@ export const ContentForm = (): ReactElement | null => {
 
     const assetsUri = CONFIG.getString('assetsUri');
 
-    if (!contentType || !draftData) {
+    if (!isReady) {
         return null;
     }
 
