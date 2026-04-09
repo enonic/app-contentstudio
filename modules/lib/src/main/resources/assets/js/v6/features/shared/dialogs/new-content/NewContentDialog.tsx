@@ -1,6 +1,6 @@
 import {cn, Dialog, Tab} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {KeyboardEvent, ReactElement, useEffect, useRef, useState} from 'react';
+import {type KeyboardEvent, type ReactElement, useEffect, useRef, useState} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {
     $newContentDialog,
@@ -83,6 +83,14 @@ export const NewContentDialog = (): ReactElement => {
         });
     };
 
+    const handleTabListKeyDownCapture = (event: KeyboardEvent<HTMLDivElement>) => {
+        if (event.key !== 'Escape') return;
+
+        event.preventDefault();
+        event.stopPropagation();
+        closeNewContentDialog();
+    };
+
     const handleDragEnter = () => {
         setIsDragging(true);
         setSelectedTab('media');
@@ -147,7 +155,7 @@ export const NewContentDialog = (): ReactElement => {
                                 <Dialog.DefaultClose />
                             </div>
 
-                            <Tab.List>
+                            <Tab.List onKeyDownCapture={handleTabListKeyDownCapture}>
                                 <Tab.Trigger value="all">{allTabLabel}</Tab.Trigger>
                                 <Tab.Trigger value="suggested">{suggestedTabLabel}</Tab.Trigger>
                                 <Tab.Trigger value="media">{mediaTabLabel}</Tab.Trigger>

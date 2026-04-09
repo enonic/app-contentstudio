@@ -1,18 +1,33 @@
 import {cn} from '@enonic/ui';
+import {AiContentOperatorSetContextEvent} from '@enonic/lib-admin-ui/ai/event/AiContentOperatorSetContextEvent';
 import {FieldError} from '@enonic/lib-admin-ui/form2/components/field-error';
 import {useStore} from '@nanostores/preact';
-import {useState, type ReactElement} from 'react';
+import {useLayoutEffect, useRef, useState, type ReactElement} from 'react';
+import {AiContentDataHelper} from '../../../../../app/ai/AiContentDataHelper';
 import {useI18n} from '../../../hooks/useI18n';
 import {EditableText} from '../../../shared/primitives/EditableText';
-import {$displayName, setDraftDisplayName} from '../../../store/wizardContent.store';
+import {
+    $displayName,
+    $displayNameInputFocusRequested,
+    $wizardReadOnly,
+    clearDisplayNameInputFocusRequest,
+    setDraftDisplayName,
+} from '../../../store/wizardContent.store';
 import {$validationVisibility} from '../../../store/wizardValidation.store';
 
 const DISPLAY_NAME_INPUT_NAME = 'DisplayNameInput';
 
+function setAIContext(): void {
+    new AiContentOperatorSetContextEvent(AiContentDataHelper.TOPIC_PATH).fire();
+}
+
 export const DisplayNameInput = (): ReactElement => {
     const displayName = useStore($displayName);
+    const shouldFocus = useStore($displayNameInputFocusRequested);
     const visibility = useStore($validationVisibility);
+    const readOnly = useStore($wizardReadOnly);
     const [touched, setTouched] = useState(false);
+    const inputRef = useRef<HTMLInputElement | null>(null);
 
     const placeholder = useI18n('field.displayName');
     const errorMessage = useI18n('field.displayName.required');
@@ -28,9 +43,19 @@ export const DisplayNameInput = (): ReactElement => {
         }
     };
 
+    useLayoutEffect(() => {
+        if (!shouldFocus || readOnly || !inputRef.current) {
+            return;
+        }
+
+        inputRef.current.focus();
+        clearDisplayNameInputFocusRequest();
+    }, [shouldFocus, readOnly, inputRef.current]);
+
     return (
         <div>
             <EditableText
+                ref={inputRef}
                 data-component={DISPLAY_NAME_INPUT_NAME}
                 size="xl"
                 value={displayName}
@@ -38,10 +63,13 @@ export const DisplayNameInput = (): ReactElement => {
                 onValueChange={setDraftDisplayName}
                 onCommit={setDraftDisplayName}
                 onEditingChange={handleEditingChange}
+                onFocus={setAIContext}
+                disabled={readOnly}
                 error={showError}
                 className={cn(
-                    'min-w-64 px-5 placeholder:text-subtle/50 rounded-xs focus:border-transparent',
-                    showError ? 'border-l-error' : 'border-l-bdr-subtle',
+                    'min-w-64 border-0 border-l-1 [&:hover,&:focus]:border-l-4 pl-4.5 [&:hover,&:focus]:pl-3.75 placeholder:text-subtle/50 rounded-none',
+                    'focus:ring-0 focus:ring-offset-0 focus:border-transparent',
+                    showError ? 'border-l-error focus:border-l-error' : 'border-l-bdr-subtle focus:border-l-ring',
                 )}
             />
             <FieldError className="mt-2" message={showError ? errorMessage : undefined} />

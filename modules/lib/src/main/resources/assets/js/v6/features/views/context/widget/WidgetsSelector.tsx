@@ -1,5 +1,5 @@
-import {Combobox, Listbox} from '@enonic/ui';
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {cn, Combobox, Listbox} from '@enonic/ui';
+import {useCallback, useEffect, useMemo, useState, type FocusEvent} from 'react';
 import type {ExtensionView} from '../../../../../app/view/context/ExtensionView';
 import {useI18n} from '../../../hooks/useI18n';
 import {WidgetIcon} from '../../../shared/icons/WidgetIcon';
@@ -15,16 +15,19 @@ const WIDGETS_SELECTOR_NAME = 'WidgetsSelector';
 const WidgetsSelector = ({widgetViews = [], externalSelectedWidgetView = undefined}: WidgetsSelectorProps) => {
     const placeholder = useI18n('field.option.placeholder');
     const notFoundLabel = useI18n('field.contextPanel.selector.notfound');
+    const [isOpen, setIsOpen] = useState(false);
     const [searchValue, setSearchValue] = useState<string | undefined>();
     const [selectedWidgetKey, setSelectedWidgetKey] = useState<readonly string[]>([]);
 
     const filteredWidgetViews = useMemo(() => {
-        if (!searchValue) return widgetViews;
+        if (!isOpen || !searchValue) return widgetViews;
 
         return widgetViews.filter((widgetView) => widgetView.getExtensionName().toLowerCase().includes(searchValue.toLowerCase()));
-    }, [searchValue, widgetViews]);
+    }, [isOpen, searchValue, widgetViews]);
 
     const selectedWidgetView = useMemo(() => getWidgetViewFromKey(widgetViews, selectedWidgetKey?.[0]), [widgetViews, selectedWidgetKey]);
+    const selectedWidgetLabel = selectedWidgetView?.getExtensionName();
+    const inputValue = isOpen ? searchValue : selectedWidgetLabel;
 
     // TODO: Enonic UI - backwards compatibility due to the active widget being handled by ContextView
     useEffect(() => {
@@ -49,27 +52,45 @@ const WidgetsSelector = ({widgetViews = [], externalSelectedWidgetView = undefin
         [widgetViews]
     );
 
+    const handleOpenChange = useCallback((open: boolean) => {
+        setIsOpen(open);
+
+        if (!open) {
+            setSearchValue(undefined);
+        }
+    }, []);
+
+    const handleInputFocus = useCallback((event: FocusEvent<HTMLInputElement>): void => {
+        if (!isOpen && event.currentTarget.value) {
+            event.currentTarget.select();
+        }
+    }, [isOpen]);
+
     return (
         <div
             data-component={WIDGETS_SELECTOR_NAME}
             className="h-15 p-1.5 border-b border-bdr-soft">
             <Combobox.Root
-                value={searchValue}
+                value={inputValue}
                 onChange={setSearchValue}
+                onOpenChange={handleOpenChange}
                 selection={selectedWidgetKey}
                 onSelectionChange={handleSelectionChange}
-                closeOnBlur={false}
+                closeOnBlur={true}
             >
                 <Combobox.Content className="h-12 w-full">
                     <Combobox.Control className="border-none">
-                        <Combobox.Search>
-                            {selectedWidgetView && (
-                                <Combobox.Value className="gap-2 w-full">
+                        <Combobox.Search className="relative">
+                            {selectedWidgetView && !isOpen && (
+                                <div className="pointer-events-none absolute inset-y-0 left-4.5 flex items-center">
                                     <WidgetIcon widgetView={selectedWidgetView} className="size-4 shrink-0" />
-                                    <span className="h-6 leading-5.5 font-semibold truncate">{selectedWidgetView.getExtensionName()}</span>
-                                </Combobox.Value>
+                                </div>
                             )}
-                            <Combobox.Input placeholder={placeholder} />
+                            <Combobox.Input
+                                placeholder={placeholder}
+                                onFocus={handleInputFocus}
+                                className={cn(selectedWidgetView && !isOpen && 'pl-10 font-semibold')}
+                            />
                             <Combobox.Toggle />
                         </Combobox.Search>
                     </Combobox.Control>

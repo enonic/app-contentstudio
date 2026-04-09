@@ -257,7 +257,7 @@ export const ContentWizardToolbar = ({
                 aria-label={toolbarLabel}
                 className={'w-full h-15 px-2 md:pl-2 md:pr-5 py-1.75 flex items-center border-b border-bdr-soft bg-surface-neutral'}
             >
-                <div className='flex min-w-fit max-w-fit items-center gap-0 sm:min-w-0 sm:max-w-none sm:flex-1 sm:basis-0 sm:gap-0.5 md:gap-1 lg:gap-2.5'>
+                <div className='flex min-w-fit max-w-fit items-center gap-2.5 sm:min-w-0 sm:max-w-none sm:flex-1 sm:basis-0'>
                     <Toolbar.Item asChild>
                         <Button
                             size='sm'
@@ -275,6 +275,13 @@ export const ContentWizardToolbar = ({
                             <span className='hidden lg:flex'>{projectViewLabel}</span>
                         </Button>
                     </Toolbar.Item>
+                    <div ref={mobileActionsSplitRef} className='sm:hidden shrink-0 min-w-fit'>
+                        <SplitActionButton
+                            actions={mobileSplitActions}
+                            disabled={!isMobileActionsSplitVisible}
+                            triggerClassName='mr-1.5 sm:mr-0 w-6 sm:size-9'
+                        />
+                    </div>
                     <div ref={toolbarActionsContainerRef}
                          className='hidden sm:flex min-w-0 flex-1'>
                         <div className='flex items-center gap-2 min-w-0'>
@@ -374,7 +381,7 @@ export const ContentWizardToolbar = ({
                         <div className='-space-x-2 items-center px-3.5 hidden md:flex shrink-0'>
                             {collaborators[0] && (
                                 <Tooltip key={collaborators[0].key} value={collaborators[0].label}>
-                                    <Avatar className={cn('ring-2 ring-surface-neutral', collaborators[0].isCurrent && 'ring-info')}>
+                                    <Avatar className={cn('ring-2 ring-surface-neutral size-7', collaborators[0].isCurrent && 'ring-info')}>
                                         <Avatar.Fallback className='text-alt font-semibold'>
                                             <span>{getInitials(collaborators[0].label)}</span>
                                         </Avatar.Fallback>
@@ -384,7 +391,7 @@ export const ContentWizardToolbar = ({
 
                             {collaborators[1] && (
                                 <Tooltip key={collaborators[1].key} value={collaborators[1].label}>
-                                    <Avatar className={cn('hidden xl:inline-flex ring-2 ring-surface-neutral z-10',
+                                    <Avatar className={cn('hidden xl:inline-flex ring-2 ring-surface-neutral size-7 z-10',
                          collaborators[1].isCurrent && 'ring-info')}>
                                         <Avatar.Fallback className='text-alt font-semibold'>
                                             <span>{getInitials(collaborators[1].label)}</span>
@@ -394,7 +401,7 @@ export const ContentWizardToolbar = ({
                             )}
 
                             {collaborators.length > 1 && (
-                                <Avatar className='xl:hidden ring-2 ring-surface-neutral text-alt font-semibold'>
+                                <Avatar className='xl:hidden ring-2 ring-surface-neutral size-7 text-alt font-semibold'>
                                     <Avatar.Fallback>
                                         <span>+{collaborators.length - 1}</span>
                                     </Avatar.Fallback>
@@ -402,7 +409,7 @@ export const ContentWizardToolbar = ({
                             )}
 
                             {collaborators.length > 2 && (
-                                <Avatar className='hidden xl:inline-flex ring-2 ring-surface-neutral text-alt font-semibold'>
+                                <Avatar className='hidden xl:inline-flex ring-2 ring-surface-neutral size-7 text-alt font-semibold'>
                                     <Avatar.Fallback>
                                         <span>+{collaborators.length - 2}</span>
                                     </Avatar.Fallback>
@@ -415,13 +422,6 @@ export const ContentWizardToolbar = ({
                         <SplitActionButton
                             actions={publishSplitActions}
                             disabled={!isDesktopPublishSplitVisible}
-                        />
-                    </div>
-                    <div ref={mobileActionsSplitRef} className='sm:hidden shrink-0 min-w-fit'>
-                        <SplitActionButton
-                            actions={mobileSplitActions}
-                            disabled={!isMobileActionsSplitVisible}
-                            triggerClassName='mr-1.5 sm:mr-0 w-6 sm:size-9'
                         />
                     </div>
                     <ContextToggle className='shrink-0'/>

@@ -23,6 +23,8 @@ export class AiContentDataHelper {
 
     public static TOPIC = '__topic__';
 
+    public static TOPIC_PATH = `/${AiContentDataHelper.TOPIC}`;
+
     private static CONFIG_PREFIX = '__config__';
 
     private data: PropertyTree;

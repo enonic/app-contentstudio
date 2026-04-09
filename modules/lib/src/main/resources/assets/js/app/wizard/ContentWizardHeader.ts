@@ -311,6 +311,6 @@ export class ContentWizardHeader
     }
 
     private getAiDataPath(): PropertyPath {
-        return PropertyPath.fromString(`/${AiContentDataHelper.TOPIC}`);
+        return PropertyPath.fromString(AiContentDataHelper.TOPIC_PATH);
     }
 }

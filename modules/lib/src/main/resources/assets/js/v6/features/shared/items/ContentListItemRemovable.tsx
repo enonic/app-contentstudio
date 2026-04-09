@@ -1,10 +1,11 @@
 import {Button, cn, IconButton, ListItem} from '@enonic/ui';
 import {X} from 'lucide-react';
-import {type ComponentPropsWithoutRef, type ReactElement} from 'react';
-import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import {type ComponentPropsWithoutRef, type ReactElement, useMemo} from 'react';
+import {type ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../../../app/event/EditContentEvent';
 import {ContentLabel} from '../content/ContentLabel';
 import {DiffStatusBadge} from '../status/DiffStatusBadge';
+import {calcContentState} from '../../utils/cms/content/workflow';
 
 export type ContentListItemRemovableProps = {
     content: ContentSummaryAndCompareStatus;
@@ -30,6 +31,12 @@ export const ContentListItemRemovable = ({
     tabIndex,
     ...props
 }: ContentListItemRemovableProps): ReactElement => {
+    const contentSummary = content.getContentSummary();
+
+    const contentState = useMemo(() => {
+        return calcContentState(contentSummary);
+    }, [contentSummary]);
+
     const handleClick = () => {
         new EditContentEvent([content]).fire();
     };
@@ -66,6 +73,7 @@ export const ContentListItemRemovable = ({
                 {status && <DiffStatusBadge
                     publishStatus={content.getPublishStatus()}
                     compareStatus={content.getCompareStatus()}
+                    contentState={contentState}
                     wasPublished={!!content.getContentSummary().getPublishFirstTime()} />}
             </ListItem.Right>
         </ListItem>

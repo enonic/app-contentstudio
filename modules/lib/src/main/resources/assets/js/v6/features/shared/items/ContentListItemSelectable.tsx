@@ -1,10 +1,11 @@
-import {Button, Checkbox, CheckboxProps, cn, ListItem} from '@enonic/ui';
-import {ComponentPropsWithoutRef} from 'react';
-import {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import {Button, Checkbox, type CheckboxProps, cn, ListItem} from '@enonic/ui';
+import {type ComponentPropsWithoutRef, useMemo} from 'react';
+import {type ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../../../app/event/EditContentEvent';
 import {ContentLabel} from '../content/ContentLabel';
 import {LegacyElement} from '../LegacyElement';
 import {DiffStatusBadge} from '../status/DiffStatusBadge';
+import {calcContentState} from '../../utils/cms/content/workflow';
 
 export type ContentListItemSelectableProps = {
     content: ContentSummaryAndCompareStatus;
@@ -35,6 +36,12 @@ export const ContentListItemSelectable = ({
     tabIndex,
     ...props
 }: ContentListItemSelectableProps): React.ReactElement => {
+    const contentSummary = content.getContentSummary();
+
+    const contentState = useMemo(() => {
+        return calcContentState(contentSummary);
+    }, [contentSummary]);
+
     const checkboxId = `${CONTENT_LIST_ITEM_SELECTABLE_NAME}-${id || content.getId()}-checkbox`;
 
     const handleClick = () => {
@@ -67,6 +74,7 @@ export const ContentListItemSelectable = ({
                 {status && <DiffStatusBadge
                     publishStatus={content.getPublishStatus()}
                     compareStatus={content.getCompareStatus()}
+                    contentState={contentState}
                     wasPublished={!!content.getContentSummary().getPublishFirstTime()} />}
             </ListItem.Right>
         </ListItem>

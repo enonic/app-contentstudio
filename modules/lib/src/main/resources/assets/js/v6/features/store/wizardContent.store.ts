@@ -124,6 +124,10 @@ export const $wizardDataValidation = map<FormDataValidation>({});
 
 export const $isContentFormExpanded = atom<boolean>(true);
 
+export const $wizardReadOnly = atom<boolean>(true);
+
+export const $displayNameInputFocusRequested = atom<boolean>(false);
+
 //
 // * Derived
 //
@@ -582,6 +586,30 @@ export const toggleContentFormExpanded = (): void => {
     $isContentFormExpanded.set(!$isContentFormExpanded.get());
 };
 
+export function setWizardReadOnly(readOnly: boolean): void {
+    if ($wizardReadOnly.get() === readOnly) {
+        return;
+    }
+
+    $wizardReadOnly.set(readOnly);
+}
+
+export function requestDisplayNameInputFocus(): void {
+    if ($displayNameInputFocusRequested.get()) {
+        return;
+    }
+
+    $displayNameInputFocusRequested.set(true);
+}
+
+export function clearDisplayNameInputFocusRequest(): void {
+    if (!$displayNameInputFocusRequested.get()) {
+        return;
+    }
+
+    $displayNameInputFocusRequested.set(false);
+}
+
 export function setDraftMixinEnabled(name: string, enabled: boolean): void {
     const mixinDescriptor = $mixinsDescriptors.get().find((descriptor) => descriptor.getName() === name);
     if (mixinDescriptor && !mixinDescriptor.isOptional()) {
@@ -719,6 +747,8 @@ export function resetWizardContent(): void {
     $contentType.set(null);
     $mixinsDescriptors.set([]);
     $isContentFormExpanded.set(true);
+    $wizardReadOnly.set(true);
+    $displayNameInputFocusRequested.set(false);
 
     for (const callback of resetCallbacks) {
         callback();
