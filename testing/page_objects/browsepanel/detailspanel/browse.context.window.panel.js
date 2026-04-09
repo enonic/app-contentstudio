@@ -23,8 +23,8 @@ class BrowseContextWindowPanel extends BaseContextWindowPanel {
         return xpath.container + DROPDOWN.WIDGET_COMBOBOX;
     }
 
-    isPanelVisible() {
-        return this.isElementDisplayed(xpath.container);
+    async isPanelVisible() {
+        return await this.isElementDisplayed(xpath.container +"//div[contains(@id,'ContextView')]");
     }
 
     async waitForDetailsPanelClosed() {

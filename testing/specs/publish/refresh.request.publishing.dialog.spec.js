@@ -45,7 +45,7 @@ describe('refresh.request.publish.dialog.spec - opens request publish modal dial
             // TODO: Enonic ui bug
             //await createRequestPublishDialog.waitForCreateRequestButtonEnabled();
             let contentStatus = await createRequestPublishDialog.getContentStatus(FOLDER1.displayName);
-            assert.equal(contentStatus, appConst.CONTENT_STATUS.OFFLINE_NEW,
+            assert.equal(contentStatus, appConst.CONTENT_STATUS.OFFLINE_NEW_READY,
                 "'Ready for publishing' status should be in the modal dialog");
             let workflow = await createRequestPublishDialog.getWorkflowIconState(FOLDER1.displayName);
             // TODO: Enonic ui bug

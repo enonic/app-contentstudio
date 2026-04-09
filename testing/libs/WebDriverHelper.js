@@ -28,11 +28,11 @@ WebDriverHelper.prototype.setupBrowser = function setupBrowser(w, h) {
     let ww = w;
     let hh = h;
     before(async function () {
-        let PropertiesReader = require('properties-reader');
+        let { propertiesReader } = require('properties-reader');
         let path = require('path');
         let webdriverio = require('webdriverio');
         let file = path.join(__dirname, '/../browser.properties');
-        let properties = PropertiesReader(file);
+        let properties = propertiesReader({ sourceFile: file });
         let browser_name = properties.get('browser.name');
         let browser_version = properties.get('browser.version');
         let baseUrl = properties.get('base.url');

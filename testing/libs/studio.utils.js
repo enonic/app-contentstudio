@@ -230,8 +230,8 @@ module.exports = {
     async openBrowseDetailsPanel() {
         let browsePanel = new BrowsePanel();
         let browseContextWindow = new BrowseContextWindowPanel();
-        let result = await browseContextWindow.isPanelVisible();
-        if (!result) {
+        let result = await browsePanel.isShowContextPanelButtonDisplayed();
+        if (result) {
             await browsePanel.clickOnDetailsPanelToggleButton();
         }
         await browseContextWindow.waitForLoaded();

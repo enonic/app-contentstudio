@@ -106,19 +106,19 @@ class ContentWizardPanel extends Page {
     }
 
     get saveButton() {
-        return XPATH.container + XPATH.toolbar + BUTTONS.buttonAriaLabel('Save');
+        return XPATH.container + XPATH.toolbar + BUTTONS.toolbarButtonAriaLabel('Save');
     }
 
     get resetButton() {
-        return XPATH.container + XPATH.toolbar + BUTTONS.buttonAriaLabel('Reset');
+        return XPATH.container + XPATH.toolbar + BUTTONS.toolbarButtonAriaLabel('Reset');
     }
 
     get savedButton() {
-        return XPATH.container + XPATH.toolbar + BUTTONS.buttonAriaLabel('Saved');
+        return XPATH.container + XPATH.toolbar + BUTTONS.toolbarButtonAriaLabel('Saved');
     }
 
     get savingButton() {
-        return XPATH.container + XPATH.toolbar + BUTTONS.buttonAriaLabel('Saving...');
+        return XPATH.container + XPATH.toolbar + BUTTONS.toolbarButtonAriaLabel('Saving...');
     }
 
     get publishButton() {
@@ -583,7 +583,7 @@ class ContentWizardPanel extends Page {
 
     async waitUntilInvalidIconAppears() {
         try {
-            const locator = XPATH.container + XPATH.toolbar +"//*[@data-component='StatusIcon']";
+            const locator = XPATH.container + XPATH.toolbar + "//*[@data-component='StatusIcon']";
             await this.getBrowser().waitUntil(async () => {
                 let text = await this.getAttribute(locator, 'aria-label');
                 return text === 'invalid';
@@ -594,7 +594,7 @@ class ContentWizardPanel extends Page {
     }
 
     async waitUntilInvalidIconDisappears() {
-        const locator = XPATH.container + XPATH.toolbar +"//*[@data-component='StatusIcon']";
+        const locator = XPATH.container + XPATH.toolbar + "//*[@data-component='StatusIcon']";
         await this.getBrowser().waitUntil(async () => {
             let text = await this.getAttribute(locator, 'aria-label');
             return text !== 'invalid';
@@ -958,12 +958,12 @@ class ContentWizardPanel extends Page {
     // Returns 'invalid', 'in-progress', 'ready', or '' when the icon is absent (e.g. Published)
     async getContentWorkflowState() {
         try {
-            const toolbar = XPATH.container + XPATH.toolbar+"//*[@data-component='StatusIcon']";
+            const toolbar = XPATH.container + XPATH.toolbar + "//*[@data-component='StatusIcon']";
             let result = await this.getDisplayedElements(toolbar);
-            let value =    await result[0].getAttribute('aria-label');
+            let value = await result[0].getAttribute('aria-label');
             return value;
         } catch (err) {
-           await this.handleError(`Tried to get content workflow state from the toolbar`, 'err_get_workflow_state', err);
+            await this.handleError(`Tried to get content workflow state from the toolbar`, 'err_get_workflow_state', err);
         }
     }
 

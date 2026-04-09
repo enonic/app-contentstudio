@@ -27,8 +27,10 @@ describe('Browse panel, properties widget, language spec', function () {
     it(`WHEN existing image has been selected THEN expected properties should be displayed in the Widget Info Section`,
         async () => {
             let detailsWidgetInfoSection = new DetailsWidgetInfoSection();
+            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select an image:
             await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.WHALE);
+            await contentBrowsePanel.openContextWindow();
             await studioUtils.saveScreenshot('details_panel_media_content');
             // 2. Application should be 'media'
             let application = await detailsWidgetInfoSection.getApplication();
@@ -47,11 +49,13 @@ describe('Browse panel, properties widget, language spec', function () {
 
     it(`GIVEN existing folder(English (en)) WHEN the folder has been selected THEN expected language should be displayed in Properties Widget`,
         async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName, null, appConst.LANGUAGES.EN);
             await studioUtils.doAddReadyFolder(TEST_FOLDER);
             // 1. Select the existing folder(En)
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            await contentBrowsePanel.openContextWindow();
             await studioUtils.saveScreenshot('details_panel_language_en');
             let propertiesWidget = new DetailsWidgetInfoSection();
             // 2. Verify that expected language should be displayed in Properties widget:
@@ -73,8 +77,10 @@ describe('Browse panel, properties widget, language spec', function () {
 
     it(`WHEN the folder has been selected THEN expected workflow state should be displayed in DetailsWidgetContentSection`,
         async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the existing folder
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            await contentBrowsePanel.openContextWindow();
             let contentSection = new DetailsWidgetContentSection();
             let pathText = await contentSection.getTextInPathField();
             assert.equal(pathText, `/${TEST_FOLDER.displayName}`, "path in content section should be equal to the expected path");
@@ -94,6 +100,7 @@ describe('Browse panel, properties widget, language spec', function () {
             let publishContentDialog = new PublishContentDialog();
             // 1. Select and publish the folder:
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            await contentBrowsePanel.openContextWindow();
             await contentBrowsePanel.clickOnPublishButton();
             await publishContentDialog.waitForDialogOpened();
             await publishContentDialog.clickOnPublishNowButton();
@@ -106,8 +113,10 @@ describe('Browse panel, properties widget, language spec', function () {
     it(`WHEN existing image is selected THEN expected properties should be displayed in the Properties Widget`,
         async () => {
             let detailsWidgetInfoSection = new DetailsWidgetInfoSection();
+            let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select an image:
             await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.WHALE);
+            await contentBrowsePanel.openContextWindow();
             await studioUtils.saveScreenshot('details_panel_media_content');
             // 2. Application should be 'media'
             let application = await detailsWidgetInfoSection.getApplication();
@@ -119,9 +128,9 @@ describe('Browse panel, properties widget, language spec', function () {
 
     it(`GIVEN existing folder is selected WHEN 'Hide Context Panel' button has been clicked THEN Context panel should be hidden`,
         async () => {
-            let browseContextWindow = new BrowseContextWindow();
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            await contentBrowsePanel.openContextWindow();
             // 1. Click on Hide Context Panel button:
             await contentBrowsePanel.clickOnHideContextWindowButton();
             await studioUtils.saveScreenshot('details_panel_hidden');
@@ -133,7 +142,9 @@ describe('Browse panel, properties widget, language spec', function () {
     it(`GIVEN existing folder is selected WHEN widget dropdown selector has been clicked THEN expected 4 options should be displayed in the dropdown list`,
         async () => {
             let browseContextWindow = new BrowseContextWindow();
+            let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            await contentBrowsePanel.openContextWindow();
             // 1. Click on the dropdown handler:
             await browseContextWindow.clickOnWidgetSelectorDropdownHandle();
             let actualOptions = await browseContextWindow.getWidgetSelectorDropdownOptions();
@@ -149,8 +160,10 @@ describe('Browse panel, properties widget, language spec', function () {
     it(`GIVEN existing folder is opened WHEN tried to deselect the single selected item THEN the same widgets are displayed after clicking on the selected option in the list`,
         async () => {
             let wizardContextWindow = new WizardContextPanel();
+            let contentWizard = new ContentWizard();
             let propertiesWidgetItem = new DetailsWidgetInfoSection();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+            await contentWizard.openContextWindow();
             // 1. Click on the dropdown handler, expand the list of options and try to deselect the single selected item
             await wizardContextWindow.clickOnWidgetSelectorDropdownOption(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
             // 2. Verify that 'Edit Settings' button remains visible in the context window:
@@ -160,7 +173,9 @@ describe('Browse panel, properties widget, language spec', function () {
     it("GIVEN existing folder is selected WHEN custom widget item has been selected in widget-selector THEN expected text gets visible in the widget-view",
         async () => {
             let contentBrowseContextWindow = new ContentBrowseContextWindow();
+            let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            await contentBrowsePanel.openContextWindow();
             await contentBrowseContextWindow.waitForWidgetSelected(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
             // 1. Select the custom widget in the dropdown selector:
             await contentBrowseContextWindow.selectItemInWidgetSelector(TEST_WIDGET_TITLE);
@@ -176,6 +191,7 @@ describe('Browse panel, properties widget, language spec', function () {
             let contentWizard = new ContentWizard();
             // 1. Open the folder:
             await studioUtils.selectContentAndOpenWizard(TEST_FOLDER.displayName);
+            await contentWizard.openContextWindow();
             // 2. Open 'Edit Settings' modal dialog:
             await contentWizard.openContextWindow();
             let editSettingsDialog = await studioUtils.openEditSettingDialog();
@@ -202,6 +218,7 @@ describe('Browse panel, properties widget, language spec', function () {
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Click on row and select a folder:
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            await contentBrowsePanel.openContextWindow();
             await studioUtils.saveScreenshot('details_panel_folder_selected');
             let actualType = await detailsWidgetInfoSection.getType();
             assert.equal(actualType, 'folder', 'Expected DetailsWidgetInfoSection should be displayed');
