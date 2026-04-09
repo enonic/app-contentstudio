@@ -40,11 +40,11 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {assert} from '@enonic/lib-admin-ui/util/Assert';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ValidationErrorHelper} from '@enonic/lib-admin-ui/ValidationErrorHelper';
 import {type ValidityChangedEvent} from '@enonic/lib-admin-ui/ValidityChangedEvent';
 import Q from 'q';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
+import {isBlank} from '../../v6/features/utils/format/isBlank';
 import {DialogPresetConfirmElement} from '../../v6/features/shared/dialogs/DialogPreset';
 import {setWizardContent} from '../../v6/features/store/context/contextContent.store';
 import {$isContextOpen, setContextOpen} from '../../v6/features/store/contextWidgets.store';
@@ -2406,7 +2406,7 @@ export class ContentWizardPanel
     }
 
     private resolveContentNameForUpdateRequest(): ContentName {
-        if (StringHelper.isBlank(this.getWizardHeader().getName())) {
+        if (isBlank(this.getWizardHeader().getName())) {
             if (this.getPersistedItem().getName().isUnnamed()) {
                 return this.getPersistedItem().getName();
             } else {

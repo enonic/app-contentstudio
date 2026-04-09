@@ -1,7 +1,7 @@
 import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {type Reference} from '@enonic/lib-admin-ui/util/Reference';
+import {isBlank} from '../../v6/features/utils/format/isBlank';
 
 export class ContentId
     implements Equitable {
@@ -16,7 +16,7 @@ export class ContentId
     }
 
     static isValidContentId(id: string): boolean {
-        return !StringHelper.isEmpty(id) && !StringHelper.isBlank(id);
+        return !isBlank(id);
     }
 
     static fromReference(reference: Reference) {

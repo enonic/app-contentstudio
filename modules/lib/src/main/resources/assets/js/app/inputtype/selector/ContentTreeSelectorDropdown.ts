@@ -5,7 +5,7 @@ import {type ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import type Q from 'q';
 import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentTreeSelectionWrapper} from './ContentTreeSelectionWrapper';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../../v6/features/utils/format/isBlank';
 import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {type SelectionDeltaItem} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
@@ -70,7 +70,7 @@ export class ContentTreeSelectorDropdown
 
         this.modeButton.onActiveChanged((active: boolean) => {
             const searchValue = this.optionFilterInput.getValue();
-            const hasSearchText = !StringHelper.isBlank(searchValue);
+            const hasSearchText = !isBlank(searchValue);
             this.applyButton.hide();
 
             if (hasSearchText) {
@@ -212,7 +212,7 @@ export class ContentTreeSelectorDropdown
     }
 
     protected handleDebouncedSearchValueChange(): void {
-        const hasSearchText = !StringHelper.isBlank(this.searchValue);
+        const hasSearchText = !isBlank(this.searchValue);
 
         if (hasSearchText) {
             if (this.isInTreeMode()) {
@@ -257,7 +257,7 @@ export class ContentTreeSelectorDropdown
     }
 
     protected loadListOnShown(): void {
-        if (StringHelper.isBlank(this.optionFilterInput.getValue())) {
+        if (isBlank(this.optionFilterInput.getValue())) {
             this.search(this.optionFilterInput.getValue());
         }
     }

@@ -14,7 +14,7 @@ import {type PrincipalComboBox, PrincipalComboBoxWrapper} from '@enonic/lib-admi
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../v6/features/utils/format/isBlank';
 import type Q from 'q';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {type ContentId} from '../content/ContentId';
@@ -301,7 +301,7 @@ export class RequestContentPublishDialog
 
         const canPublish: boolean = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
         const scheduleValid: boolean = this.isScheduleFormValid();
-        const detailsValid: boolean = !this.detailsFormItem.getError() && !StringHelper.isBlank(this.getDetailsText());
+        const detailsValid: boolean = !this.detailsFormItem.getError() && !isBlank(this.getDetailsText());
 
         this.requestPublishAction.setEnabled(canPublish && scheduleValid && detailsValid);
         this.nextAction.setEnabled(canPublish);

@@ -1,9 +1,9 @@
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {type FragmentDropdown} from './FragmentDropdown';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
 import {FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
 
 export class FragmentSelectorForm
     extends Form {
@@ -13,7 +13,7 @@ export class FragmentSelectorForm
 
         const fieldSet = new Fieldset();
         const wrapper = new FragmentSelectorFormWrapper(fragmentSelector);
-        const label = StringHelper.isBlank(title) ? null : title;
+        const label = isBlank(title) ? null : title;
 
         fieldSet.add(new FormItemBuilder(wrapper).setLabel(label).build());
 

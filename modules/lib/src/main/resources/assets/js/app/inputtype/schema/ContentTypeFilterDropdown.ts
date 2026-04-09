@@ -6,7 +6,7 @@ import {ContentTypeSelectedOptionsView} from './ContentTypeComboBox';
 import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {GetContentTypeByNameRequest} from '../../resource/GetContentTypeByNameRequest';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../../v6/features/utils/format/isBlank';
 import {FilterableListBoxWrapperWithSelectedView} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapperWithSelectedView';
 import {type SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import Q from 'q';
@@ -68,7 +68,7 @@ export class ContentTypeFilterDropdown
     }
 
     private preSelectItems(): void {
-        const ids = this.getSelectedItemsHandler().filter(id => !StringHelper.isBlank(id));
+        const ids = this.getSelectedItemsHandler().filter(id => !isBlank(id));
 
         if (ids.length > 0) {
             this.fetchItems(ids).then((contentTypes) => {

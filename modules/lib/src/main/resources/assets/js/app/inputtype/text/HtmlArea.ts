@@ -20,7 +20,7 @@ import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../../v6/features/utils/format/isBlank';
 import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import * as $ from 'jquery';
 import 'jquery-simulate/jquery.simulate.js';
@@ -528,7 +528,7 @@ export class HtmlArea
     }
 
     valueBreaksRequiredContract(value: Value): boolean {
-        return value.isNull() || !value.getType().equals(ValueTypes.STRING) || StringHelper.isBlank(value.getString());
+        return value.isNull() || !value.getType().equals(ValueTypes.STRING) || isBlank(value.getString());
     }
 
     handleDnDStart(ui: JQueryUI.SortableUIParams): void {

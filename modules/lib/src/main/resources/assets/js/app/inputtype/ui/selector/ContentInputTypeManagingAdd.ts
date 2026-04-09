@@ -1,4 +1,4 @@
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../../../v6/features/utils/format/isBlank';
 import {type SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {type SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 import {type ContentInputTypeViewContext} from '../../ContentInputTypeViewContext';
@@ -58,7 +58,7 @@ export abstract class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
                 .map((cfg) => cfg['value'] as string)
                 .filter((val) => !!val);
         }
-        if (!StringHelper.isBlank(this.getDefaultAllowPath())) {
+        if (!isBlank(this.getDefaultAllowPath())) {
             return [this.getDefaultAllowPath()];
         }
 

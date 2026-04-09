@@ -17,7 +17,7 @@ import {Class} from '@enonic/lib-admin-ui/Class';
 import {type ContentId} from '../../content/ContentId';
 import {ContentTypeFilterDropdown} from './ContentTypeFilterDropdown';
 import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../../v6/features/utils/format/isBlank';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class ContentTypeFilter
@@ -127,7 +127,7 @@ export class ContentTypeFilter
     }
 
     private getSelectedItemsIds(): string[] {
-        return this.getValueFromPropertyArray(this.getPropertyArray()).split(';').filter((id) => !StringHelper.isBlank(id));
+        return this.getValueFromPropertyArray(this.getPropertyArray()).split(';').filter((id) => !isBlank(id));
     }
 
     update(propertyArray: PropertyArray, unchangedOnly: boolean): Q.Promise<void> {

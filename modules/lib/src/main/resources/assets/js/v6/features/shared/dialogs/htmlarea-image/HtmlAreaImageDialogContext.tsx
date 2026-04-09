@@ -1,6 +1,5 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {createContext, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {ReactNode} from 'react';
@@ -14,6 +13,7 @@ import {StylesRequest} from '../../../../../app/inputtype/ui/text/styles/StylesR
 import {type Project} from '../../../../../app/settings/data/project/Project';
 import {ImageHelper} from '../../../../../app/util/ImageHelper';
 import {ImageUrlResolver} from '../../../../../app/util/ImageUrlResolver';
+import {isBlank} from '../../../utils/format/isBlank';
 import {fetchContentById} from '../../../api/content';
 
 //
@@ -130,11 +130,11 @@ function computeValidationErrors(state: HtmlAreaImageDialogState): Record<string
         errors.image = i18n('field.value.required');
     }
 
-    if (StringHelper.isBlank(state.accessibility)) {
+    if (isBlank(state.accessibility)) {
         errors.accessibility = i18n('field.value.required');
     }
 
-    if (state.accessibility === 'informative' && StringHelper.isBlank(state.altText)) {
+    if (state.accessibility === 'informative' && isBlank(state.altText)) {
         errors.altText = i18n('dialog.image.accessibility.alttext.empty');
     }
 
@@ -330,7 +330,7 @@ function computeOpenState(params: OpenHtmlAreaImageDialogParams): HtmlAreaImageD
         }
 
         const presetAltText = getOriginalAltTextElem(ckeDialog).getValue() as string;
-        if (StringHelper.isBlank(presetAltText)) {
+        if (isBlank(presetAltText)) {
             accessibility = 'decorative';
         } else {
             accessibility = 'informative';
@@ -688,7 +688,7 @@ export function HtmlAreaImageDialogProvider({children, openRef}: HtmlAreaImageDi
         const dataSrc = urlResolver.resolveForRender(processingStyle ? processingStyle.getName() : '');
 
         const altTextValue = s.accessibility === 'informative' ? s.altText : '';
-        const noCaption = StringHelper.isBlank(s.caption);
+        const noCaption = isBlank(s.caption);
 
         const ckeAlignmentValue = s.alignment === 'justify' ? 'none' : s.alignment;
 

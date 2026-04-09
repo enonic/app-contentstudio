@@ -4,7 +4,7 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {type Element} from '@enonic/lib-admin-ui/dom/Element';
 import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {AutosizeTextInput} from '@enonic/lib-admin-ui/ui/text/AutosizeTextInput';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../v6/features/utils/format/isBlank';
 import type Q from 'q';
 
 export class ContentDialogSubTitleOptions {
@@ -104,7 +104,7 @@ export class ContentDialogSubTitle
 
         const clickHandler = (event: MouseEvent) => {
             if (this.input.isVisible()
-                && StringHelper.isBlank(this.input.getValue())
+                && isBlank(this.input.getValue())
                 && event.target !== this.input.getHTMLElement()) {
 
                 this.toggleInput(false);

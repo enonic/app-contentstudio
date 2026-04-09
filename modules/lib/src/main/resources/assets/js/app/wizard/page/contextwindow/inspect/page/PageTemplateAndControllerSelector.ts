@@ -26,9 +26,9 @@ import {PageTemplateUpdatedEvent} from '../../../../../page/event/PageTemplateUp
 import {type Page} from '../../../../../page/Page';
 import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
 import {PageOptionsList} from './PageOptionsList';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
 
 export class PageTemplateAndControllerSelector
     extends FilterableListBoxWrapper<PageTemplateAndControllerOption> {
@@ -385,7 +385,7 @@ export class PageTemplateAndControllerSelector
     }
 
     private static filterFunction(item: PageTemplateAndControllerOption, searchString: string): boolean {
-        return !StringHelper.isBlank(searchString) &&
+        return !isBlank(searchString) &&
                item.getData().getName().toString().toLowerCase().indexOf(searchString.toLowerCase()) >= 0 ||
                item.getData().getDisplayName().toString().toLowerCase().indexOf(searchString.toLowerCase()) >= 0;
     }

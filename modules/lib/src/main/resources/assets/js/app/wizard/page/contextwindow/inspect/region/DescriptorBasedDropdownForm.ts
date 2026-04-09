@@ -1,9 +1,9 @@
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
 import {FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
 import {type ComponentDescriptorsDropdown} from './ComponentDescriptorsDropdown';
 import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
 
 export class DescriptorBasedDropdownForm
     extends Form {
@@ -16,7 +16,7 @@ export class DescriptorBasedDropdownForm
         const wrapper = new ComponentDescriptorsDropdownWrapper(templateSelector);
 
         const fieldSet = new Fieldset();
-        const label = StringHelper.isBlank(title) ? null : title;
+        const label = isBlank(title) ? null : title;
         fieldSet.add(new FormItemBuilder(wrapper).setLabel(label).build());
 
         this.add(fieldSet);

@@ -1,4 +1,4 @@
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {capitalize} from '../../../v6/features/utils/format/capitalize';
 import {ComponentName} from './ComponentName';
 
 export abstract class ComponentType {
@@ -21,7 +21,7 @@ export abstract class ComponentType {
     }
 
     getDefaultName(): ComponentName {
-        return new ComponentName(StringHelper.capitalize(StringHelper.removeWhitespaces(this.shortName)));
+        return new ComponentName(capitalize(this.shortName.replace(/\s/g, '')));
     }
 
     getIconCls(): string {

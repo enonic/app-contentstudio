@@ -1,4 +1,5 @@
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../../../v6/features/utils/format/isBlank';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {TagRemovedEvent} from './TagRemovedEvent';
@@ -126,7 +127,7 @@ export class Tags
         this.textInput.onValueChanged((event: ValueChangedEvent) => {
             const searchString = event.getNewValue();
 
-            if (StringHelper.isBlank(searchString)) {
+            if (isBlank(searchString)) {
                 this.tagSuggestions.hide();
             } else {
                 searchSuggestionHandler(searchString);
@@ -255,7 +256,7 @@ export class Tags
         const tagsToAdd = (isHtmlText && parsedTags.length === 1) ? parsedTags[0].split(',') : parsedTags;
 
         tagsToAdd.forEach((tag) => {
-            if (!StringHelper.isBlank(tag) && !this.isMaxTagsReached()) {
+            if (!isBlank(tag) && !this.isMaxTagsReached()) {
                 this.doAddTag(tag.trim());
             }
         });

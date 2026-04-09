@@ -1,5 +1,5 @@
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {isBlank} from '../../../v6/features/utils/format/isBlank';
 import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {Component, ComponentBuilder} from './Component';
 import {type ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
@@ -29,7 +29,7 @@ export class TextComponent
     }
 
     setText(value?: string, silent?: boolean, origin?: ComponentTextUpdatedOrigin) {
-        this.text = StringHelper.isBlank(value) ? undefined : value;
+        this.text = isBlank(value) ? undefined : value;
 
         if (!silent) {
             this.notifyComponentUpdated(new ComponentTextUpdatedEvent(this.getPath(), value, origin));
@@ -41,7 +41,7 @@ export class TextComponent
     }
 
     isEmpty(): boolean {
-        return StringHelper.isBlank(this.text);
+        return isBlank(this.text);
     }
 
     toJson(): ComponentTypeWrapperJson {

@@ -1,6 +1,6 @@
 import {type OptionDataHelper} from '@enonic/lib-admin-ui/ui/selector/OptionDataHelper';
 import {type Project} from '../../../../data/project/Project';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
 
 export class ProjectOptionDataHelper
     implements OptionDataHelper<Project> {
@@ -53,7 +53,7 @@ export class ProjectOptionDataHelper
     }
 
     private doFilter(project: Project): boolean {
-        if (StringHelper.isBlank(this.searchString)) {
+        if (isBlank(this.searchString)) {
             return true;
         }
 

@@ -1,8 +1,8 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {type LucideIcon, Monitor, Smartphone, Tablet, TvMinimal} from 'lucide-react';
+import {isBlank} from '../../../../../v6/features/utils/format/isBlank';
 
 enum DeviceType {
     MONITOR,
@@ -108,7 +108,7 @@ export class EmulatorDevice implements Equitable {
     }
 
     isValid(): boolean {
-        return this.width > 0 && this.height > 0 && !StringHelper.isBlank(this.units);
+        return this.width > 0 && this.height > 0 && !isBlank(this.units);
     }
 
     equals(o: Equitable): boolean {

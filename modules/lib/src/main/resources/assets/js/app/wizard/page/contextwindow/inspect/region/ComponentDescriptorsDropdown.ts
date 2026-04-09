@@ -10,7 +10,7 @@ import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {FilterableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/FilterableListBoxWrapper';
 import {DescriptorListBox} from './DescriptorListBox';
 import {type DescriptorKey} from '../../../../../page/DescriptorKey';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
 
 export class ComponentDescriptorsDropdown
     extends FilterableListBoxWrapper<Descriptor> {
@@ -159,7 +159,7 @@ export class ComponentDescriptorsDropdown
     }
 
     private static filterFunction(item: Descriptor, searchString: string): boolean {
-        return !StringHelper.isBlank(searchString) &&
+        return !isBlank(searchString) &&
                item.getDisplayName().toLowerCase().indexOf(searchString.toLowerCase()) >= 0 ||
                item.getName().toString().toLowerCase().indexOf(searchString.toLowerCase()) >= 0;
     }

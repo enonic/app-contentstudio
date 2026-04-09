@@ -3,8 +3,8 @@ import {Message, MessageType} from '@enonic/lib-admin-ui/notify/Message';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {isBlank} from '../../v6/features/utils/format/isBlank';
 
 interface MarketResponse {
     data?: {
@@ -39,7 +39,7 @@ export class VersionHelper {
                 (version: string) => ObjectHelper.isDefined(version)
             )
                 .then((newestVersion: string) => {
-                    if (!StringHelper.isBlank(newestVersion)) {
+                    if (!isBlank(newestVersion)) {
                         const lastDismissedVersion = CONFIG.getString('lastDismissedVersion');
                         if (!lastDismissedVersion || VersionHelper.isVersionGreater(newestVersion, lastDismissedVersion)) {
                             VersionHelper.notifyAboutNewerVersion(newestVersion);
@@ -86,7 +86,7 @@ export class VersionHelper {
 
             const latestVersion = VersionHelper.findLatestVersion(responseAsJson.data.market.queryDsl[0].data.version);
 
-            if (!StringHelper.isBlank(latestVersion) && VersionHelper.isMinorVersionGreater(latestVersion, appVersion)) {
+            if (!isBlank(latestVersion) && VersionHelper.isMinorVersionGreater(latestVersion, appVersion)) {
                 return latestVersion;
             }
 

@@ -8,8 +8,8 @@ import {WizardHeaderWithDisplayNameAndName} from '@enonic/lib-admin-ui/app/wizar
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {type FormIcon} from '@enonic/lib-admin-ui/app/wizard/FormIcon';
 import {type SettingDataItemWizardStepForm} from './form/SettingDataItemWizardStepForm';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {isBlank} from '../../../../v6/features/utils/format/isBlank';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {type ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
@@ -312,7 +312,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     protected isNewItemChanged(): boolean {
-        return !StringHelper.isBlank(this.wizardHeader.getDisplayName());
+        return !isBlank(this.wizardHeader.getDisplayName());
     }
 
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {

@@ -59,7 +59,7 @@ import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
 import {type Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
 import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import eventInfo = CKEDITOR.eventInfo;
 
@@ -216,7 +216,7 @@ export class ImageModalDialog
         this.presetImageId = this.extractImageId();
         const altTextValue = this.getOriginalAltTextElem().getValue();
 
-        if (StringHelper.isBlank(altTextValue)) {
+        if (isBlank(altTextValue)) {
             this.getImageAltTextRadioInput().setValue(ImageAccessibilityType.DECORATIVE);
         } else {
             this.imageAltTextInput.setValue(this.getOriginalAltTextElem().getValue());
@@ -314,7 +314,7 @@ export class ImageModalDialog
                     this.config.project).sendAndParse().then((content: Content) => {
                         const altTextValue = ImageHelper.getImageAltText(content);
 
-                    if (!StringHelper.isBlank(altTextValue)) {
+                    if (!isBlank(altTextValue)) {
                         this.imageAltTextInput.setValue(altTextValue, true);
                     }
 
@@ -380,14 +380,14 @@ export class ImageModalDialog
     private validateImageAccessibility(input: RadioGroup): string {
         const value = input.getValue();
 
-        if (StringHelper.isBlank(value)) {
+        if (isBlank(value)) {
             return i18n('field.value.required');
         }
 
         if (value === ImageAccessibilityType.INFORMATIVE.toString()) {
             const altText = this.imageAltTextInput.getValue();
 
-            if (StringHelper.isBlank(altText)) {
+            if (isBlank(altText)) {
                 return i18n('dialog.image.accessibility.alttext.empty');
             }
         }
@@ -673,7 +673,7 @@ export class ImageModalDialog
         const src: string = image.getEl().getAttribute('src');
         const altText: string = this.getAltTextFieldValue();
         const alignment: string = this.imageToolbar.getAlignment();
-        const noCaption = StringHelper.isBlank(this.getCaptionFieldValue());
+        const noCaption = isBlank(this.getCaptionFieldValue());
 
         this.getOriginalUrlElem().setValue(src, true);
         this.getOriginalAltTextElem().setValue(altText, false);

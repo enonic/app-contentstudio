@@ -4,7 +4,7 @@ import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../v6/features/utils/format/isBlank';
 import type Q from 'q';
 import {PublishItemsListElement} from '../../v6/features/shared/dialogs/publish/PublishItemsList';
 import {openPublishDialog} from '../../v6/features/store/dialogs/publishDialog.store';
@@ -164,7 +164,7 @@ export class ContentPublishDialog
 
         const publishRequest = new PublishContentRequest()
             .setIds(selectedIds)
-            .setMessage(!StringHelper.isBlank(publishMessage) ? publishMessage : undefined)
+            .setMessage(!isBlank(publishMessage) ? publishMessage : undefined)
             .setExcludedIds(this.getExcludedIds())
             .setExcludeChildrenIds(this.getItemList().getExcludeChildrenIds());
 

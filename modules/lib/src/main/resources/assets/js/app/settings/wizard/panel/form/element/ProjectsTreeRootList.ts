@@ -1,7 +1,7 @@
 import {ProjectsTreeList, type ProjectsTreeListParams, ProjectTreeListElement} from './ProjectsTreeList';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {isBlank} from '../../../../../../v6/features/utils/format/isBlank';
 import {type Project} from '../../../../data/project/Project';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
@@ -72,6 +72,6 @@ export class ProjectsTreeRootList extends ProjectsTreeList {
     }
 
     protected isFilterMode(): boolean {
-        return !StringHelper.isBlank(this.searchString);
+        return !isBlank(this.searchString);
     }
 }
