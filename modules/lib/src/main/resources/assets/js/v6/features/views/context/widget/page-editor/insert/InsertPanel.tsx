@@ -25,7 +25,7 @@ export const InsertPanel = ({className}: Props): ReactElement => {
     const fragmentDescription = useI18n('field.fragment.help');
 
     return (
-        <ul data-component={INSERT_PANEL_NAME} className={cn('flex flex-col -mx-4 px-2 gap-y-2.5', className)}>
+        <ul data-component={INSERT_PANEL_NAME} className={cn('flex flex-col -mx-3 mt-5 px-2 gap-y-2.5', className)}>
             <InsertableItem name="part" icon={Box} displayName={partLabel} description={partDescription} />
             {!isFragment && (
                 <InsertableItem name="layout" icon={Columns2} displayName={layoutLabel} description={layoutDescription} />

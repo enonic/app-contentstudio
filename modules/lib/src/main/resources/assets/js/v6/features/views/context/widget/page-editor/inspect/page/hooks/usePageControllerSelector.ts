@@ -5,18 +5,18 @@ import {useCallback, useMemo, useState} from 'react';
 import type {PageTemplate} from '../../../../../../../../../app/content/PageTemplate';
 import {useI18n} from '../../../../../../../hooks/useI18n';
 import {
+    $contentContext,
+    $defaultPageTemplateName,
     executePageReset,
     requestSetPageController,
     requestSetPageTemplate,
-    useContentContext,
-    useDefaultPageTemplateName,
     usePageState,
 } from '../../../../../../../store/page-editor';
 import {
+    $isPageInspectionLoading,
+    $pageControllerOptions,
+    $pageTemplateOptions,
     $selectedPageOptionKey,
-    useIsPageInspectionLoading,
-    usePageControllerOptions,
-    usePageTemplateOptions,
 } from '../../../../../../../store/page-inspection';
 
 const AUTO_KEY = '__auto__';
@@ -56,12 +56,12 @@ type UsePageControllerSelectorResult = {
 
 export function usePageControllerSelector(): UsePageControllerSelectorResult {
     const page = usePageState();
-    const ctx = useContentContext();
-    const defaultTemplateName = useDefaultPageTemplateName();
-    const templates = usePageTemplateOptions();
-    const controllers = usePageControllerOptions();
+    const ctx = useStore($contentContext);
+    const defaultTemplateName = useStore($defaultPageTemplateName);
+    const templates = useStore($pageTemplateOptions);
+    const controllers = useStore($pageControllerOptions);
     const selectedKey = useStore($selectedPageOptionKey);
-    const isLoading = useIsPageInspectionLoading();
+    const isLoading = useStore($isPageInspectionLoading);
 
     const autoLabel = useI18n('widget.pagetemplate.automatic');
     const noDefaultLabel = useI18n('field.page.template.noDefault');

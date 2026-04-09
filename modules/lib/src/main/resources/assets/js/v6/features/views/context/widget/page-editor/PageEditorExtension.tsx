@@ -31,7 +31,7 @@ export const PageEditorExtension = (): ReactElement => {
                 <Tab.DefaultTrigger value="inspect">{inspectLabel}</Tab.DefaultTrigger>
             </Tab.List>
 
-            <Tab.Content value="insert" className="mt-5">
+            <Tab.Content value="insert">
                 <InsertPanel />
             </Tab.Content>
             <Tab.Content value="inspect" className="mt-0">

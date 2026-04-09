@@ -1,8 +1,6 @@
-// Read: computed stores
+// Read: stores
+export {$isPageInspectionLoading, $pageConfigDescriptor, $pageControllerOptions, $pageTemplateOptions} from './store';
 export {$selectedPageOptionKey, $isCustomizeVisible} from './store';
-
-// Read: hooks
-export {usePageTemplateOptions, usePageControllerOptions, usePageConfigDescriptor, useIsPageInspectionLoading} from './hooks';
 
 // Lifecycle
 export {initPageInspectionService, cleanupPageInspection} from './service';
