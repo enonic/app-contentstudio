@@ -1,20 +1,11 @@
-import {Button} from "@enonic/ui";
-import {useStore} from "@nanostores/preact";
-import {type ReactElement, useCallback, useState} from "react";
-import {useI18n} from "../../../../../../hooks/useI18n";
-import {ConfirmationDialog} from "../../../../../../shared/dialogs/ConfirmationDialog";
-import {FormRenderer} from "../../../../../../shared/form/FormRenderer";
-import {
-    $contentContext,
-    $page,
-    $pageEditorLifecycle,
-    $pageVersion,
-    requestCustomizePage,
-} from "../../../../../../store/pageEditor.store";
-import {
-    $isCustomizeVisible,
-    $pageConfigDescriptor,
-} from "../../../../../../store/pageInspection.store";
+import {Button} from '@enonic/ui';
+import {useStore} from '@nanostores/preact';
+import {type ReactElement, useCallback, useState} from 'react';
+import {useI18n} from '../../../../../../hooks/useI18n';
+import {ConfirmationDialog} from '../../../../../../shared/dialogs/ConfirmationDialog';
+import {FormRenderer} from '../../../../../../shared/form/FormRenderer';
+import {requestCustomizePage, useContentContext, usePageEditorLifecycle, usePageState} from '../../../../../../store/page-editor';
+import {$isCustomizeVisible, usePageConfigDescriptor} from '../../../../../../store/page-inspection';
 import {PageControllerSelector} from "./PageControllerSelector";
 
 type ConfirmDialogState = {
@@ -25,11 +16,10 @@ type ConfirmDialogState = {
 const PAGE_INSPECTION_PANEL_NAME = "PageInspectionPanel";
 
 export const PageInspectionPanel = (): ReactElement => {
-    const page = useStore($page);
-    useStore($pageVersion);
-    const ctx = useStore($contentContext);
-    const lifecycle = useStore($pageEditorLifecycle);
-    const descriptor = useStore($pageConfigDescriptor);
+    const page = usePageState();
+    const ctx = useContentContext();
+    const lifecycle = usePageEditorLifecycle();
+    const descriptor = usePageConfigDescriptor();
     const isCustomizeVisible = useStore($isCustomizeVisible);
 
     const customizeLabel = useI18n("action.page.customize");
