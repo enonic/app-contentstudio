@@ -1,8 +1,8 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 
 export class ContentPreviewPathChangedEvent
-    extends Event {
+    extends IframeEvent {
 
     private previewPath: string;
 
@@ -16,10 +16,10 @@ export class ContentPreviewPathChangedEvent
     }
 
     static on(handler: (event: ContentPreviewPathChangedEvent) => void, contextWindow: Window = window) {
-        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: ContentPreviewPathChangedEvent) => void, contextWindow: Window = window) {
-        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
+        IframeEvent.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

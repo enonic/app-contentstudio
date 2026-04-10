@@ -55,6 +55,7 @@ import {SearchAndExpandItemEvent} from './SearchAndExpandItemEvent';
 import {State} from './State';
 import {ToggleSearchPanelEvent} from './ToggleSearchPanelEvent';
 import {ToggleSearchPanelWithDependenciesEvent} from './ToggleSearchPanelWithDependenciesEvent';
+import {IframeEventBus} from '@enonic/lib-admin-ui/event/IframeEventBus';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -150,6 +151,9 @@ export class ContentBrowsePanel
 
     protected initListeners() {
         super.initListeners();
+
+        IframeEventBus.get().setId('browse-bus');
+        IframeEventBus.get().registerClass('ContentPreviewPathChangedEvent', ContentPreviewPathChangedEvent);
 
         this.filterPanel.onSearchEvent((query?: ContentQuery) => {
             this.contentTreeList.setFilterQuery(query);
@@ -371,7 +375,9 @@ export class ContentBrowsePanel
     }
 
     private getPathFromInlinePath(contentPreviewPath: string): string {
-        return UriHelper.getPathFromPortalInlineUri(contentPreviewPath, RenderingMode.INLINE);
+        // if contentPreviewPath is a portal uri, get the content path from it,
+        // otherwise assume it's a content path (i.e. came from 3rd party rendering engines)
+        return UriHelper.getPathFromPortalInlineUri(contentPreviewPath, RenderingMode.INLINE) || contentPreviewPath;
     }
 
     private expandToListElementByPath(list: ContentsTreeGridList, itemPath: ContentPath, targetPath: ContentPath): void {

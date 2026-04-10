@@ -25,6 +25,7 @@ module.exports = {
         'js/main': './js/main.ts',
         'js/settings': './js/settings.ts',
         'page-editor/js/editor': './js/page-editor.ts',
+        'page-editor/js/viewer': './js/page-viewer.ts',
         'styles/extensions/stats': './styles/extensions/stats.less'
     },
     output: {

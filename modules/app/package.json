@@ -24,7 +24,7 @@
   "dependencies": {
     "@enonic/lib-admin-ui": "workspace:*",
     "@enonic/lib-contentstudio": "workspace:*",
-    "@enonic/page-editor": "^0.0.5",
+    "@enonic/page-editor": "^0.0.6",
     "@radix-ui/react-slot": "^1.2.3",
     "chart.js": "^4.5.1",
     "dompurify": "^3.3.1",
@@ -53,6 +53,8 @@
     "@enonic-types/lib-value": "7.15.3",
     "@enonic-types/lib-websocket": "7.15.3",
     "@enonic/eslint-config": "^2.1.0",
+    "@rspack/cli": "^1.7.8",
+    "@rspack/core": "^1.7.8",
     "@swc/core": "^1.15.2",
     "@types/ckeditor": "^4.9.10",
     "@types/jquery": "^3.5.33",
@@ -69,9 +71,7 @@
     "postcss-normalize": "^13.0.1",
     "postcss-sort-media-queries": "^5.2.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.47.0",
-    "@rspack/cli": "^1.7.8",
-    "@rspack/core": "^1.7.8"
+    "typescript-eslint": "^8.47.0"
   },
   "browserslist": [
     "extends browserslist-config-enonic"

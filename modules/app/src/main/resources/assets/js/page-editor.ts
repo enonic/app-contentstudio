@@ -2,8 +2,8 @@ import {PageEditor, EditorEvents, EditorEvent, type ItemView} from '@enonic/page
 import '@enonic/page-editor/styles.css';
 import {EditorEventHandler} from './EditorEventHandler';
 
-PageEditor.init();
-console.info('Page editor started.');
+PageEditor.init(true);
+// console.info('Page editor started in edit mode.');
 
 const eventHandler = new EditorEventHandler();
 

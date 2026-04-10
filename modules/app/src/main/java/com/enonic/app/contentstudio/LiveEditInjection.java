@@ -44,11 +44,14 @@ public final class LiveEditInjection
 
     private final PortalUrlService portalUrlService;
 
+    private final String inlineBodyEndTemplate;
+
     @Activate
     public LiveEditInjection( AdminRestConfig config, @Reference PortalUrlService portalUrlService )
     {
         this.headBeginTemplate = loadTemplate( "liveEditHeadBegin.html" );
         this.bodyEndTemplate = loadTemplate( "liveEditBodyEnd.html" );
+        this.inlineBodyEndTemplate = loadTemplate( "liveViewBodyEnd.html" );
         this.cspMetaTemplate = loadTemplate( "liveEditCSP.html" );
         this.config = config;
         this.portalUrlService = portalUrlService;
@@ -57,11 +60,20 @@ public final class LiveEditInjection
     @Override
     public List<String> inject( final PortalRequest portalRequest, final PortalResponse portalResponse, final HtmlTag htmlTag )
     {
-        if ( RenderMode.EDIT != portalRequest.getMode() )
+        if ( RenderMode.INLINE == portalRequest.getMode() )
         {
-            return null;
+            return injectInlineContributions( portalRequest, htmlTag );
+        }
+        else if ( RenderMode.EDIT == portalRequest.getMode() )
+        {
+            return injectEditContributions( portalRequest, htmlTag );
         }
 
+        return null;
+    }
+
+    private List<String> injectEditContributions( final PortalRequest portalRequest, final HtmlTag htmlTag )
+    {
         PortalRequestAccessor.set( portalRequest );
         try
         {
@@ -79,7 +91,23 @@ public final class LiveEditInjection
         {
             PortalRequestAccessor.remove();
         }
+        return null;
+    }
 
+    private List<String> injectInlineContributions( final PortalRequest portalRequest, final HtmlTag htmlTag )
+    {
+        PortalRequestAccessor.set( portalRequest );
+        try
+        {
+            if ( htmlTag == HtmlTag.BODY_END )
+            {
+                return Collections.singletonList( injectUsingTemplate( this.inlineBodyEndTemplate, makeModelForInjection() ) );
+            }
+        }
+        finally
+        {
+            PortalRequestAccessor.remove();
+        }
         return null;
     }
 
@@ -90,13 +118,13 @@ public final class LiveEditInjection
         {
             finalTemplate += this.cspMetaTemplate;
         }
-        finalTemplate += injectUsingTemplate( this.headBeginTemplate, makeModelForHeadBegin() );
+        finalTemplate += injectUsingTemplate( this.headBeginTemplate, makeModelForInjection() );
         return finalTemplate;
     }
 
     private String injectBodyEnd()
     {
-        return injectUsingTemplate( this.bodyEndTemplate, makeModelForBodyEnd() );
+        return injectUsingTemplate( this.bodyEndTemplate, makeModelForInjection() );
     }
 
     private String injectUsingTemplate( final String template, final Map<String, String> model )
@@ -104,18 +132,13 @@ public final class LiveEditInjection
         return new StringSubstitutor( model, PREFIX, SUFFIX, ESCAPE ).replace( template );
     }
 
-    private Map<String, String> makeModelForHeadBegin()
+    private Map<String, String> makeModelForInjection()
     {
         final Map<String, String> map = Maps.newHashMap();
         final AssetUrlParams params = new AssetUrlParams();
         params.application( "com.enonic.app.contentstudio" );
         map.put( "assetsUrl", portalUrlService.assetUrl( params ) );
         return map;
-    }
-
-    private Map<String, String> makeModelForBodyEnd()
-    {
-        return makeModelForHeadBegin();
     }
 
     public String loadTemplate( final String name )
