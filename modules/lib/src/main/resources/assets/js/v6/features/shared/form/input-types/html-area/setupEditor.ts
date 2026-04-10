@@ -295,7 +295,7 @@ function setupDialogsToOpen(editor: CKEDITOR.editor, editorParams: HtmlEditorPar
     bindListStyleDialogContextMenu(editor);
 }
 
-function getCursorPosition(editor: CKEDITOR.editor): HtmlEditorCursorPosition {
+export function getCursorPosition(editor: CKEDITOR.editor): HtmlEditorCursorPosition {
     const selection = editor.getSelection();
     const range = selection.getRanges()[0];
 

@@ -6,14 +6,15 @@ import {LayoutInspectionPanel, PartInspectionPanel} from './component';
 import {FragmentInspectionPanel} from './fragment';
 import {PageInspectionPanel} from './page';
 import {RegionInspectionPanel} from './region';
+import {TextInspectionPanel} from './text';
 
-// TODO: add text panel
 const PANEL_BY_TYPE: Record<string, FC> = {
     page: PageInspectionPanel,
     region: RegionInspectionPanel,
     part: PartInspectionPanel,
     layout: LayoutInspectionPanel,
     fragment: FragmentInspectionPanel,
+    text: TextInspectionPanel,
 };
 
 
