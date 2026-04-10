@@ -171,7 +171,7 @@ export const PublishDialogMainContent = ({
                                         key={item.id}
                                         content={item.content}
                                         id={item.id}
-                                        disabled={item.required || loading}
+                                        disabled={loading}
                                     >
                                         <ContentRow.Label action="edit" />
                                         <ContentRow.Status variant="diff" />
@@ -184,7 +184,7 @@ export const PublishDialogMainContent = ({
                                     {showChildrenCheckbox && (
                                         <GridList.Row
                                             id={`${item.id}-children`}
-                                            disabled={item.required || loading || !item.included}
+                                            disabled={loading || !item.included}
                                             className="gap-3 px-2.5 -mt-1"
                                         >
                                             <GridList.Cell className="pl-2.5 flex items-center gap-2.5">
@@ -226,11 +226,12 @@ export const PublishDialogMainContent = ({
                                 key={item.id}
                                 content={item.content}
                                 id={item.id}
-                                disabled={item.required || loading}
+                                disabled={loading}
                             >
                                 <ContentRow.Checkbox
                                     checked={item.included}
                                     onCheckedChange={(checked) => setPublishDialogDependantItemSelected(item.content.getContentId(), checked)}
+                                    disabled={item.required || loading}
                                 />
                                 <ContentRow.Label action="edit" />
                                 <ContentRow.Status variant="diff" />

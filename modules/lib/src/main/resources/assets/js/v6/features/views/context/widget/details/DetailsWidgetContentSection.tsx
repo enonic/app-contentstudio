@@ -1,10 +1,15 @@
 import {useStore} from '@nanostores/preact';
-import {ReactElement} from 'react';
-import {ContentSummaryAndCompareStatus} from 'src/main/resources/assets/js/app/content/ContentSummaryAndCompareStatus';
+import {type ReactElement} from 'react';
+import {CompareStatus, CompareStatusChecker} from '../../../../../../app/content/CompareStatus';
+import type {ContentState} from '../../../../../../app/content/ContentState';
+import {PublishStatus} from '../../../../../../app/publish/PublishStatus';
+import {type ContentSummaryAndCompareStatus} from 'src/main/resources/assets/js/app/content/ContentSummaryAndCompareStatus';
 import {useI18n} from '../../../../hooks/useI18n';
 import {ContentIcon} from '../../../../shared/icons/ContentIcon';
+import {StatusIcon} from '../../../../shared/icons/StatusIcon';
 import {DiffStatusBadge} from '../../../../shared/status/DiffStatusBadge';
 import {$contextContent} from '../../../../store/context/contextContent.store';
+import {createContentStateKey} from '../../../../utils/cms/content/status';
 import {calcContentState} from '../../../../utils/cms/content/workflow';
 
 function createDisplayName(content: ContentSummaryAndCompareStatus): string {
@@ -15,20 +20,46 @@ function createDisplayName(content: ContentSummaryAndCompareStatus): string {
     return content.getUploadItem()?.getName() ?? '';
 }
 
+function getVisibleContentState(
+    publishStatus: PublishStatus,
+    compareStatus: CompareStatus,
+    contentState: ContentState | null,
+): ContentState | null {
+    if (!contentState) {
+        return null;
+    }
+
+    const isModified = compareStatus === CompareStatus.NEWER;
+    const isMovedAndModified = CompareStatusChecker.isMovedAndModified(compareStatus, contentState);
+    const shouldHideReadyState = publishStatus === PublishStatus.ONLINE
+        && contentState === 'ready'
+        && !isModified
+        && !isMovedAndModified;
+
+    return shouldHideReadyState ? null : contentState;
+}
+
 const DETAILS_WIDGET_CONTENT_SECTION_NAME = 'DetailsWidgetContentSection';
 
 export const DetailsWidgetContentSection = (): ReactElement => {
     const content = useStore($contextContent);
 
+    const contentSummary = content?.getContentSummary();
+    const publishStatus = content?.getPublishStatus();
+    const compareStatus = content?.getCompareStatus();
+    const contentState = contentSummary ? calcContentState(contentSummary) : null;
+    const visibleContentState = publishStatus != null && compareStatus != null
+        ? getVisibleContentState(publishStatus, compareStatus, contentState)
+        : null;
+
     const iconLabel = useI18n('field.contextPanel.details.sections.content.icon');
     const statusLabel = useI18n('field.contextPanel.details.sections.content.status');
     const displayNameLabel = useI18n('field.contextPanel.details.sections.content.displayName');
     const pathLabel = useI18n('field.contextPanel.details.sections.content.path');
+    const contentStateLabel = useI18n(visibleContentState ? createContentStateKey(visibleContentState) : '');
 
     if (!content) return null;
 
-    const contentSummary = content.getContentSummary();
-    const contentState = calcContentState(contentSummary);
     const displayName = createDisplayName(content);
 
     return (
@@ -45,10 +76,16 @@ export const DetailsWidgetContentSection = (): ReactElement => {
                     <dt className="text-xs text-subtle">{statusLabel}</dt>
                     <dd className="flex gap-2 items-center">
                         <DiffStatusBadge
-                            publishStatus={content.getPublishStatus()}
-                            compareStatus={content.getCompareStatus()}
+                            publishStatus={publishStatus}
+                            compareStatus={compareStatus}
                             contentState={contentState}
                             wasPublished={!!contentSummary.getPublishFirstTime()} />
+                        {visibleContentState && (
+                            <span className="inline-flex items-center gap-x-1 overflow-hidden border-l-1 border-bdr-subtle pl-2 text-nowrap">
+                                <StatusIcon status={visibleContentState} aria-label={contentStateLabel} className="shrink-0" />
+                                <span className="text-nowrap truncate">{contentStateLabel}</span>
+                            </span>
+                        )}
                     </dd>
                 </div>
 

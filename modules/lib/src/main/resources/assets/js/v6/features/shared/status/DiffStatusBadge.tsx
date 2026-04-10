@@ -3,8 +3,7 @@ import {CompareStatus, CompareStatusChecker} from '../../../../app/content/Compa
 import {PublishStatus} from '../../../../app/publish/PublishStatus';
 import {useI18n} from '../../hooks/useI18n';
 import type {ContentState} from '../../../../app/content/ContentState';
-import {createCompareStatusKey, createPublishStatusKey, createContentStateKey} from '../../utils/cms/content/status';
-import {StatusIcon} from '../icons/StatusIcon';
+import {createCompareStatusKey, createPublishStatusKey} from '../../utils/cms/content/status';
 
 type Props = {
     publishStatus: PublishStatus;
@@ -16,16 +15,19 @@ type Props = {
 
 const DIFF_STATUS_BADGE_NAME = 'DiffStatusBadge';
 
-export const DiffStatusBadge = ({publishStatus, compareStatus, contentState, wasPublished, className}: Props) => {
+export const DiffStatusBadge = ({
+    publishStatus,
+    compareStatus,
+    contentState,
+    wasPublished,
+    className,
+}: Props) => {
     const isOnline = publishStatus === PublishStatus.ONLINE;
-    const isModified = compareStatus === CompareStatus.NEWER;
     const isMovedAndModified = CompareStatusChecker.isMovedAndModified(compareStatus, contentState);
     const hasDiff = compareStatus !== CompareStatus.EQUAL;
-    const hideContentState = isOnline && contentState === 'ready' && !isModified && !isMovedAndModified;
 
     const publishStatusLabel = useI18n(createPublishStatusKey(publishStatus));
     const modifiedLabel = useI18n('status.modified');
-    const contentStateLabel = useI18n(createContentStateKey(contentState));
     const compareStatusLabel = useI18n(createCompareStatusKey(compareStatus, wasPublished));
     const compareStatusLabels = isMovedAndModified ? `${modifiedLabel}, ${compareStatusLabel}` : compareStatusLabel;
 
@@ -36,12 +38,6 @@ export const DiffStatusBadge = ({publishStatus, compareStatus, contentState, was
             </span>
             {hasDiff && (
                 <span className='text-subtle group-data-[tone=inverse]:text-alt italic capitalize border-l-1 border-bdr-subtle pl-2'>{compareStatusLabels}</span>
-            )}
-            {contentState && !hideContentState && (
-                <span className="inline-flex items-center gap-x-1 overflow-hidden border-l-1 border-bdr-subtle pl-2 text-nowrap">
-                    <StatusIcon status={contentState} aria-label={contentStateLabel} className="shrink-0" />
-                    <span className="text-nowrap truncate">{contentStateLabel}</span>
-                </span>
             )}
         </span>
     );
