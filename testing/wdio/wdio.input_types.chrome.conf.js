@@ -1,5 +1,6 @@
 const path = require('path');
-const { propertiesReader } = require('properties-reader');
+const propertiesReaderModule = require('properties-reader');
+const propertiesReader = propertiesReaderModule.propertiesReader || propertiesReaderModule.default || propertiesReaderModule;
 const file = path.join(__dirname, '/../browser.properties');
 const properties = propertiesReader({ sourceFile: file });
 const browser_version = properties.get('browser.version');
