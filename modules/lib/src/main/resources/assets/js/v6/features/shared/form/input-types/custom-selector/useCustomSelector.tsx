@@ -13,6 +13,7 @@ import {type SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
 import {errAsync, okAsync, ResultAsync} from 'neverthrow';
 import {formatError} from '../../../../utils/format/error';
 import {parseNumber} from '../../../../utils/format/values';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 const PRELOAD_KEY = 'CUSTOM_SELECTOR_PRELOAD_KEY';
 const DEFAULT_SIZE = 10;
@@ -91,7 +92,10 @@ export const useCustomSelector = ({config, selection, query, count = DEFAULT_SIZ
         async (requestUrl: string) => {
             return ResultAsync.fromPromise(fetch(requestUrl), formatError)
                 .andThen((response) => {
-                    if (!response.ok) return errAsync(new Error(`Error fetching ${config.service} service items.`));
+                    if (!response.ok) {
+                        return errAsync(new Error(
+                            `Error fetching ${config.extension ? config.extension + ' extension' : config.service + ' service'} items.`));
+                    }
 
                     return ResultAsync.fromPromise(response.json(), formatError);
                 })
@@ -101,7 +105,8 @@ export const useCustomSelector = ({config, selection, query, count = DEFAULT_SIZ
                     const isTotalValid = parseNumber(data?.['total']) !== undefined;
 
                     if (!isHitsValid || !isTotalValid || !isCountValid) {
-                        return errAsync(new Error(`Invalid ${config.service} service response.`));
+                        return errAsync(new Error(
+                            `Invalid ${config.extension ? config.extension + ' extension' : config.service + ' service'} response.`));
                     }
 
                     return okAsync(data as ServiceResponse);
@@ -134,9 +139,13 @@ export const useCustomSelector = ({config, selection, query, count = DEFAULT_SIZ
 
     // Used to load the items that are already selected
     const preLoad = useCallback(async () => {
-        if (!projectIdRef.current || !contentIdRef.current || !config.service || !selection || selection?.length === 0) return;
+        if (!projectIdRef.current || !contentIdRef.current || (!config.extension && !config.service) || !selection || selection?.length ===
+            0) {
+            return;
+        }
 
         const requestUrl = buildRequestUrl({
+            extension: config.extension,
             service: config.service,
             configParams: config.params,
             projectId: projectIdRef.current,
@@ -166,9 +175,10 @@ export const useCustomSelector = ({config, selection, query, count = DEFAULT_SIZ
 
     // Used to load more items
     const load = useCallback(async () => {
-        if (!projectIdRef.current || !contentIdRef.current || !config.service) return;
+        if (!projectIdRef.current || !contentIdRef.current || (!config.extension && !config.service)) return;
 
         const requestUrl = buildRequestUrl({
+            extension: config.extension,
             service: config.service,
             configParams: config.params,
             projectId: projectIdRef.current,
@@ -234,19 +244,28 @@ export const useCustomSelector = ({config, selection, query, count = DEFAULT_SIZ
 //
 
 type BuildRequestUrlProps = {
-    service: string;
+    extension?: string;
+    service?: string;
     projectId: string;
     contentId: string;
     configParams: CustomSelectorConfig['params'];
     requestParams: RequestParams;
 };
 
-function buildRequestUrl({service, configParams, projectId, contentId, requestParams}: BuildRequestUrlProps): string {
+function buildRequestUrl({extension, service, configParams, projectId, contentId, requestParams}: BuildRequestUrlProps): string {
     const params = (configParams ?? []).reduce<Record<string, string>>((acc, {label, value}) => ({...acc, [label]: value}), {});
-    const servicePrefix = UriHelper.addSitePrefix(`/${UrlAction.EDIT}/${projectId}/${Branch.DRAFT}/${contentId}/_/service`);
-    const serviceUrl = `${servicePrefix}/${LibUriHelper.appendUrlParams(service, params)}`;
-
-    return LibUriHelper.appendUrlParams(serviceUrl, requestParams);
+    let url = '';
+    if (extension) {
+        const extensionBaseUrl = (CONFIG.getString('extensionApiUrl') || '').replace(/\/+$/, '');
+        const extensionPrefix = `${extensionBaseUrl}/${extension}/`;
+        url = LibUriHelper.appendUrlParams(extensionPrefix, params);
+    } else if (service) {
+        const servicePrefix = UriHelper.addSitePrefix(`/${UrlAction.EDIT}/${projectId}/${Branch.DRAFT}/${contentId}/_/service`);
+        url = `${servicePrefix}/${LibUriHelper.appendUrlParams(service, params)}`;
+    } else {
+        return '';
+    }
+    return LibUriHelper.appendUrlParams(url, requestParams);
 }
 
 function hitToItem(hit: CustomSelectorItem): CustomSelectorItem {

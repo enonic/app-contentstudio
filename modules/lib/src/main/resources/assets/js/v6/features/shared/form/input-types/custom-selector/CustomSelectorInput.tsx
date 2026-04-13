@@ -53,18 +53,18 @@ export const CustomSelectorInput = ({
     const emptyLabel: string = useI18n('field.option.noitems');
     const loadingLabel: string = useI18n('field.search.loading');
     const errorLabel: string = useI18n('field.search.error');
-    const noServiceLabel: string = useI18n('field.customSelector.noService');
+    const noExtensionOrServiceLabel: string = useI18n('field.customSelector.noService');
 
     // Constants
     const resolvedSelectionMode = occurrences.getMaximum() === 1 ? 'single' : 'staged';
     const resolvedListMode = config.galleryMode ? 'flat' : 'list';
     const resolvedPopupLabel = useMemo(() => {
-        if (!config.service) return noServiceLabel;
+        if (!config.extension && !config.service) return noExtensionOrServiceLabel;
         if (isLoading) return loadingLabel;
         if (hasError) return errorLabel;
         if (filteredItems.length === 0) return emptyLabel;
         return null;
-    }, [config.service, noServiceLabel, isLoading, loadingLabel, hasError, errorLabel, filteredItems.length, emptyLabel]);
+    }, [config.extension, config.service, noExtensionOrServiceLabel, isLoading, loadingLabel, hasError, errorLabel, filteredItems.length, emptyLabel]);
     const resolvedHasErrors = errors.some((error) => error.breaksRequired || error.validationResults.length > 0);
     const disabled = !enabled;
 
