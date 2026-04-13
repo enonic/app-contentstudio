@@ -409,25 +409,10 @@ async function startContentWizard() {
 
     const {ContentWizardPanel} = await import('@enonic/lib-contentstudio/app/wizard/ContentWizardPanel');
     const {setMode} = await import('@enonic/lib-contentstudio/v6/features/store/mode.store');
-    const {$wizardDraftDisplayName, $wizardPersistedDisplayName} = await import(
-        '@enonic/lib-contentstudio/v6/features/store/wizardContent.store'
-    );
 
     const wizardParams = ContentAppHelper.createWizardParamsFromUrl();
     const wizard = new ContentWizardPanel(wizardParams, getTheme());
     setMode('wizard');
-
-    const updateTitleFromDisplayName = (displayName: string, previousDisplayName: string | undefined): void => {
-        if (previousDisplayName === undefined) {
-            return;
-        }
-
-        const contentType = wizard.getContentType();
-        updateTabTitle(displayName || NamePrettyfier.prettifyUnnamed(contentType?.getTitle() ?? ''));
-    };
-
-    $wizardDraftDisplayName.subscribe(updateTitleFromDisplayName);
-    $wizardPersistedDisplayName.subscribe(updateTitleFromDisplayName);
 
     wizard.onDataLoaded((content: Content) => {
         let contentType = wizard.getContentType();
@@ -443,6 +428,17 @@ async function startContentWizard() {
         if (!dataPreloaded) {
             updateTabTitle(content.getDisplayName() || NamePrettyfier.prettifyUnnamed(contentType.getTitle()));
         }
+    });
+    wizard.onWizardHeaderCreated(() => {
+        // header will be ready after rendering is complete
+        wizard.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
+            if (event.getPropertyName() === 'displayName') {
+                let contentType = wizard.getContentType();
+                let name = event.getNewValue() as string || NamePrettyfier.prettifyUnnamed(contentType.getTitle());
+
+                updateTabTitle(name);
+            }
+        });
     });
 
     WindowDOM.get().onBeforeUnload((event: UIEvent) => {

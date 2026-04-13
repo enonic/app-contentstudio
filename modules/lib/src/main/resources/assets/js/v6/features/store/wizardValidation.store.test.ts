@@ -43,6 +43,7 @@ const MOCK_FORM = {getFormItems: () => []};
 function createMockContentType(): ContentType {
     return {
         getDisplayName: () => 'Article',
+        getTitle: () => 'Article',
         getForm: () => MOCK_FORM,
     } as unknown as ContentType;
 }

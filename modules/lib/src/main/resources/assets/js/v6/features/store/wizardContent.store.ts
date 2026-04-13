@@ -1,5 +1,6 @@
 import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import type {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
+import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {atom, batched, computed, map} from 'nanostores';
@@ -898,6 +899,40 @@ $wizardDataVersion.subscribe(() => {
         });
     }
 });
+
+//
+// * Tab title sync
+//
+
+// Lazily-captured " / AppName" suffix, extracted from the initial document title
+// set by preLoadApplication() before the first display-name change fires.
+let wizardTitleSuffix: string | undefined;
+
+function getWizardTitleSuffix(): string {
+    if (wizardTitleSuffix === undefined) {
+        const idx = document.title.indexOf(' / ');
+        wizardTitleSuffix = idx >= 0 ? document.title.slice(idx) : '';
+    }
+
+    return wizardTitleSuffix;
+}
+
+function applyDisplayNameToTitle(displayName: string, previousDisplayName: string | undefined): void {
+    if (previousDisplayName === undefined) {
+        return;
+    }
+
+    const contentType = $contentType.get();
+    const name = displayName || NamePrettyfier.prettifyUnnamed(contentType?.getTitle() ?? '');
+    document.title = name + getWizardTitleSuffix();
+}
+
+// Typing: fires on every keystroke via setDraftDisplayName.
+$wizardDraftDisplayName.subscribe(applyDisplayNameToTitle);
+
+// Save: persisted changes even when draft already held the typed value,
+// so this covers the case where the draft subscription is a no-op.
+$wizardPersistedDisplayName.subscribe(applyDisplayNameToTitle);
 
 export function resetWizardContent(): void {
     $wizardPersistedDisplayName.set('');
