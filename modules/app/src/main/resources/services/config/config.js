@@ -62,10 +62,10 @@ function handleGet(request) {
                 appServiceUrl: portal.serviceUrl({service: 'applications'}),
                 exportServiceUrl: portal.serviceUrl({service: 'export'}),
                 dismissNotificationUrl: portal.serviceUrl({service: 'dismiss-notification'}),
-                aiContentOperatorWsServiceUrl: portal.serviceUrl({service: 'ws', application: 'com.enonic.app.ai.contentoperator', type: 'websocket'}),
+                aiContentOperatorWsServiceUrl: portal.serviceUrl({service: 'ws', application: 'com.enonic.app.ai.contentoperator', type: 'server'}),
                 aiTranslatorLicenseServiceUrl: portal.serviceUrl({service: 'license', application: 'com.enonic.app.ai.translator'}),
                 aiTranslatorWsServiceUrl: portal.serviceUrl(
-                    {service: 'ws', application: 'com.enonic.app.ai.translator', type: 'websocket'}),
+                    {service: 'ws', application: 'com.enonic.app.ai.translator', type: 'server'}),
             },
             sharedSocketUrl: portal.assetUrl({path: 'shared-socket.js'}),
             aiEnabled,
