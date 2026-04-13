@@ -11,9 +11,11 @@ export function usePageEditorTabs(
 ): UsePageEditorTabsResult {
     const [activeTab, setActiveTab] = useState<string>('inspect');
 
-    // Auto-select Insert tab when not inspecting and insert is available
+    // Auto-switch tabs based on inspection state
     useEffect(() => {
-        if (!isInspecting && isInsertTabAvailable) {
+        if (isInspecting) {
+            setActiveTab('inspect');
+        } else if (isInsertTabAvailable) {
             setActiveTab('insert');
         }
     }, [isInspecting, isInsertTabAvailable]);
