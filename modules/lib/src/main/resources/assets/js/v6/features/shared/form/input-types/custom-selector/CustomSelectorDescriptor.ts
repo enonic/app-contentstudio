@@ -14,6 +14,7 @@ export const CustomSelectorDescriptor: InputTypeDescriptor<CustomSelectorConfig>
 
     readConfig(raw: RawInputConfig): CustomSelectorConfig {
         return {
+            extension: raw?.['extension']?.[0]?.value as string,
             service: raw?.['service']?.[0]?.value as string,
             params: Object.entries((raw?.['params']?.[0]?.value || {}) as Record<string, string>).map(([key, value]) => ({
                 label: key,
