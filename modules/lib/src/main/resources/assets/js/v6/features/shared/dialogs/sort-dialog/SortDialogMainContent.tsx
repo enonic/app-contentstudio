@@ -76,10 +76,10 @@ export const SortDialogMainContent = (): ReactElement => {
                         enabled={isManualSorting}
                         onDragIntent={startSortDialogManualReorder}
                         onReorder={reorderSortDialogItems}
+                        getItemId={(item) => item.getId()}
                         getItemAriaLabel={(item) => item.getDisplayName()}
                         renderItem={(item: ContentSummaryAndCompareStatus, {isFocused, isMovable, interactionProps}) => (
                             <SortContentListItem
-                                key={`sort-item-${item.getId()}`}
                                 content={item}
                                 variant='detailed'
                                 dragEnabled={isManualSorting}

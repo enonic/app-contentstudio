@@ -1,15 +1,15 @@
 import {Dialog, GridList, IconButton, ListItem, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {GripVertical, X} from 'lucide-react';
-import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
-import {SortableList} from '../../../lists/SortableList';
+import {type ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
+import {SortableList} from '../../../lists';
 import {useI18n} from '../../../../hooks/useI18n';
 import {
     $projectDialog,
     setProjectDialogDefaultLanguage,
     setProjectDialogParentProjects,
 } from '../../../../store/dialogs/projectDialog.store';
-import {$languages, LanguageOption} from '../../../../store/languages.store';
+import {$languages, type LanguageOption} from '../../../../store/languages.store';
 import {$projects} from '../../../../store/projects.store';
 import {ProjectLabel} from '../../../project/ProjectLabel';
 import {ProjectSelector} from '../../../selectors/ProjectSelector';
@@ -146,15 +146,15 @@ export const ProjectDialogParentStepContent = (): ReactElement => {
                     {mode === 'create' && projectSelection.length > 1 && isMultiInheritance && (
                         <SortableList
                             items={Array.from(projectSelection).filter((name) => projects.some((p) => p.getName() === name))}
+                            getItemId={(projectName) => projectName}
                             enabled
                             onReorder={handleReorder}
                             className="rounded-md py-2.5 px-1"
                             renderItem={(projectName, {interactionProps, isMovable, isFocused}) => {
-                                const project = projects.find((p) => p.getName() === projectName)!;
+                                const project = projects.find((p) => p.getName() === projectName);
 
                                 return (
                                     <ListItem
-                                        key={projectName}
                                         selected={isMovable}
                                         className={cn(
                                             'pl-0 py-0',

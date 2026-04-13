@@ -1,17 +1,10 @@
 import {cn} from '@enonic/ui';
-import {
-    type DragEvent,
-    type FocusEvent,
-    type KeyboardEvent,
-    type ReactNode,
-    useEffect,
-    useLayoutEffect,
-    useRef,
-    useState,
-} from 'react';
+import {closestCenter, DndContext, type DragEndEvent, PointerSensor, useSensor, useSensors,} from '@dnd-kit/core';
+import {SortableContext, verticalListSortingStrategy} from '@dnd-kit/sortable';
+import {type FocusEvent, type KeyboardEvent, type ReactNode, useEffect, useLayoutEffect, useRef, useState,} from 'react';
+import {SortableListRow} from './SortableListRow';
 
 export type SortableListItemInteractionProps = {
-    draggable: boolean;
     tabIndex: number;
     role?: 'option';
     'aria-selected'?: boolean;
@@ -21,10 +14,6 @@ export type SortableListItemInteractionProps = {
     onFocus: (event: FocusEvent<HTMLElement>) => void;
     onClick: () => void;
     onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
-    onDragStart: (event: DragEvent<HTMLElement>) => void;
-    onDragOver: (event: DragEvent<HTMLElement>) => void;
-    onDrop: (event: DragEvent<HTMLElement>) => void;
-    onDragEnd: () => void;
 };
 
 export type SortableListItemRenderContext = {
@@ -34,11 +23,14 @@ export type SortableListItemRenderContext = {
     interactionProps: SortableListItemInteractionProps;
 };
 
+type SortableItemId = string | number;
+
 export type SortableListProps<Item> = {
     items: readonly Item[];
     enabled: boolean;
     onDragIntent?: () => void;
     onReorder: (fromIndex: number, toIndex: number) => void;
+    getItemId: (item: Item, index: number) => SortableItemId;
     getItemAriaLabel?: (item: Item, index: number) => string;
     renderItem: (item: Item, context: SortableListItemRenderContext) => ReactNode;
     className?: string;
@@ -46,21 +38,24 @@ export type SortableListProps<Item> = {
 
 const SORTABLE_LIST_NAME = 'SortableList';
 
-export const SortableList = <Item,>({
-    items,
-    enabled,
-    onDragIntent,
-    onReorder,
-    getItemAriaLabel,
-    className,
-    renderItem,
-}: SortableListProps<Item>): ReactNode => {
+export const SortableList = <Item, >({
+                                         items,
+                                         enabled,
+                                         onDragIntent,
+                                         getItemId,
+                                         onReorder,
+                                         getItemAriaLabel,
+                                         className,
+                                         renderItem,
+                                     }: SortableListProps<Item>): ReactNode => {
     const [focusedItemIndex, setFocusedItemIndex] = useState(0);
     const [pickedItemIndex, setPickedItemIndex] = useState<number | undefined>(undefined);
     const [isListFocused, setIsListFocused] = useState(false);
 
+    const ids = items.map((item, index) => getItemId(item, index));
+    const sensors = useSensors(useSensor(PointerSensor, {activationConstraint: {distance: 5}}));
+
     const listRef = useRef<HTMLUListElement | null>(null);
-    const dragSourceIndexRef = useRef<number | null>(null);
     const focusedItemIndexRef = useRef(0);
     const pickedItemIndexRef = useRef<number | null>(null);
     const pendingFocusIndexRef = useRef<number | null>(null);
@@ -113,8 +108,8 @@ export const SortableList = <Item,>({
         }
 
         const nextPickedIndex = pickedItemIndexRef.current === null
-            ? undefined
-            : Math.min(pickedItemIndexRef.current, items.length - 1);
+                                ? undefined
+                                : Math.min(pickedItemIndexRef.current, items.length - 1);
         if (nextPickedIndex !== pickedItemIndexRef.current) {
             setPickedIndex(nextPickedIndex);
         }
@@ -150,44 +145,27 @@ export const SortableList = <Item,>({
         };
     }, []);
 
-    const handleDragStart = (index: number) => (event: DragEvent<HTMLElement>) => {
-        dragSourceIndexRef.current = index;
+    const handleDndDragStart = (): void => {
         onDragIntent?.();
-        event.dataTransfer.effectAllowed = 'move';
-        // Required for cross-browser HTML DnD activation.
-        event.dataTransfer.setData('text/plain', String(index));
     };
 
-    const handleDragOver = (event: DragEvent<HTMLElement>) => {
-        event.preventDefault();
-        event.dataTransfer.dropEffect = 'move';
-    };
-
-    const handleDrop = (targetIndex: number) => (event: DragEvent<HTMLElement>) => {
-        event.preventDefault();
-        const sourceIndex = dragSourceIndexRef.current;
-        dragSourceIndexRef.current = null;
-        if (sourceIndex === null) {
+    const handleDndDragEnd = (event: DragEndEvent): void => {
+        const {active, over} = event;
+        if (over == null || active.id === over.id) {
             return;
         }
 
-        const isWithinBounds = sourceIndex >= 0
-            && targetIndex >= 0
-            && sourceIndex < items.length
-            && targetIndex < items.length;
-        if (!isWithinBounds || sourceIndex === targetIndex) {
+        const fromIndex = ids.indexOf(active.id);
+        const toIndex = ids.indexOf(over.id);
+        if (fromIndex === -1 || toIndex === -1) {
             return;
         }
 
-        onReorder(sourceIndex, targetIndex);
-        if (pickedItemIndexRef.current === sourceIndex) {
-            setPickedIndex(targetIndex);
+        onReorder(fromIndex, toIndex);
+        if (pickedItemIndexRef.current === fromIndex) {
+            setPickedIndex(toIndex);
         }
-        moveFocusTo(targetIndex, true);
-    };
-
-    const handleDragEnd = () => {
-        dragSourceIndexRef.current = null;
+        moveFocusTo(toIndex, true);
     };
 
     const handleItemFocus = (index: number) => () => {
@@ -259,62 +237,58 @@ export const SortableList = <Item,>({
     }
 
     return (
-        <ul
-            ref={listRef}
-            data-component={SORTABLE_LIST_NAME}
-            className={cn(
-                'flex flex-col gap-y-2.5',
-                className,
-            )}
-            role={enabled ? 'listbox' : undefined}
-            aria-orientation={enabled ? 'vertical' : undefined}
-            onFocusCapture={() => {
-                if (enabled) {
-                    setIsListFocused(true);
-                }
-            }}
-            onBlurCapture={() => {
-                if (blurTimeoutIdRef.current !== null) {
-                    window.clearTimeout(blurTimeoutIdRef.current);
-                }
-
-                blurTimeoutIdRef.current = window.setTimeout(() => {
-                    const activeElement = document.activeElement;
-                    if (!activeElement || !listRef.current?.contains(activeElement)) {
-                        setIsListFocused(false);
-                    }
-                }, 0);
-            }}
+        <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDndDragStart}
+            onDragEnd={handleDndDragEnd}
         >
-            {items.map((item, index) => {
-                const isFocused = enabled && isListFocused && focusedItemIndex === index;
-                const isMovable = enabled && pickedItemIndex === index;
+            <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+                <ul
+                    ref={listRef}
+                    data-component={SORTABLE_LIST_NAME}
+                    className={cn('flex flex-col gap-y-2.5', className)}
+                    role={enabled ? 'listbox' : undefined}
+                    aria-orientation={enabled ? 'vertical' : undefined}
+                    onFocusCapture={() => {
+                        if (enabled) {
+                            setIsListFocused(true);
+                        }
+                    }}
+                    onBlurCapture={() => {
+                        if (blurTimeoutIdRef.current !== null) {
+                            window.clearTimeout(blurTimeoutIdRef.current);
+                        }
 
-                const interactionProps: SortableListItemInteractionProps = {
-                    draggable: items.length > 1,
-                    tabIndex: enabled ? (focusedItemIndex === index ? 0 : -1) : -1,
-                    role: enabled ? 'option' : undefined,
-                    'aria-selected': enabled ? focusedItemIndex === index : undefined,
-                    'aria-grabbed': enabled ? pickedItemIndex === index : undefined,
-                    'aria-label': getItemAriaLabel ? getItemAriaLabel(item, index) : undefined,
-                    'data-sort-index': index,
-                    onFocus: handleItemFocus(index),
-                    onClick: handleItemClick(index),
-                    onKeyDown: handleItemKeyDown,
-                    onDragStart: handleDragStart(index),
-                    onDragOver: handleDragOver,
-                    onDrop: handleDrop(index),
-                    onDragEnd: handleDragEnd,
-                };
-
-                return renderItem(item, {
-                    index,
-                    isFocused,
-                    isMovable,
-                    interactionProps,
-                });
-            })}
-        </ul>
+                        blurTimeoutIdRef.current = window.setTimeout(() => {
+                            const activeElement = document.activeElement;
+                            if (!activeElement || !listRef.current?.contains(activeElement)) {
+                                setIsListFocused(false);
+                            }
+                        }, 0);
+                    }}
+                >
+                    {items.map((item, index) => (
+                        <SortableListRow
+                            key={ids[index]}
+                            id={ids[index]}
+                            item={item}
+                            index={index}
+                            enabled={enabled}
+                            isListFocused={isListFocused}
+                            focusedItemIndex={focusedItemIndex}
+                            pickedItemIndex={pickedItemIndex}
+                            itemCount={items.length}
+                            getItemAriaLabel={getItemAriaLabel}
+                            renderItem={renderItem}
+                            handleItemFocus={handleItemFocus}
+                            handleItemClick={handleItemClick}
+                            handleItemKeyDown={handleItemKeyDown}
+                        />
+                    ))}
+                </ul>
+            </SortableContext>
+        </DndContext>
     );
 };
 
