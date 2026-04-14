@@ -37,7 +37,7 @@ export const BrowseAppBar = (): ReactElement => {
     const projectAriaLabel = useI18n('wcag.appbar.project.label');
     const issuesAriaLabel = useI18n('wcag.appbar.issues.label');
     return (
-        <header className="bg-surface-neutral h-15 px-5 py-2 pr-14 flex items-center gap-2.5 border-b border-bdr-soft">
+        <header className="bg-surface-neutral h-15 px-5 py-2 pr-24 flex items-center gap-2.5 border-b border-bdr-soft">
             {isProjectSelectorVisible ? (
                 <Button
                     className="mr-auto"

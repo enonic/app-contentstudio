@@ -8,9 +8,11 @@ const xpath = {
     container: `//section[@data-component='DetailsWidgetContentSection']`,
     pathProperty: "//dt[contains(.,'Path')]/following-sibling::dd[1]",
     displayNameProperty: "//dt[contains(.,'Display name')]/following-sibling::dd[1]",
+    statusProperty: "//dt[contains(.,'Status')]/following-sibling::dd[1]",
+    diffStatusBadge: `//dt[contains(.,'Status')]/following-sibling::dd[1]//span[@data-component='DiffStatusBadge']`,
     publishStatus: `//dt[contains(.,'Status')]/following-sibling::dd[1]//span[@data-component='DiffStatusBadge']/span[1]`,
     statusDiffStatus: `//dt[contains(.,'Status')]/following-sibling::dd[1]//span[@data-component='DiffStatusBadge']/span[2]`,
-    statusValidity: `//dt[contains(.,'Status')]/following-sibling::dd[1]//span[@data-component='DiffStatusBadge']//span[contains(@class,'truncate')]`,
+    statusValidity: `//dt[contains(.,'Status')]/following-sibling::dd[1]//span[child::*[@data-component='StatusIcon']]`,
 };
 
 /*
@@ -64,6 +66,14 @@ class DetailsWidgetContentSection extends Page {
         return xpath.container + xpath.publishStatus;
     }
 
+    get statusProperty() {
+        return xpath.container + xpath.statusProperty;
+    }
+
+    get diffStatusBadge() {
+        return xpath.container + xpath.diffStatusBadge;
+    }
+
     get statusDiffStatus() {
         return xpath.container + xpath.statusDiffStatus;
     }
@@ -88,9 +98,51 @@ class DetailsWidgetContentSection extends Page {
         const publishStatus = await this.getText(this.publishStatus);
         const diffStatusElements = await this.findElements(this.statusDiffStatus);
         const diffStatus = diffStatusElements.length > 0 ? await diffStatusElements[0].getText() : '';
-        const validityElements = await this.findElements(this.statusValidity);
-        const validity = validityElements.length > 0 ? await validityElements[0].getText() : '';
-        return [publishStatus, diffStatus, validity].filter(t => t).join(' ');
+        return [publishStatus, diffStatus].filter(t => t).join(' ');
+    }
+
+    async getWorkflowOrValidityStatus() {
+        try {
+            await this.waitForElementDisplayed(this.statusValidity);
+            return await this.getText(this.statusValidity);
+        } catch (err) {
+            await this.handleError('Cannot get workflow or validity status text of WidgetContentSection', 'err_get_workflow_status', err);
+        }
+    }
+
+    async setStatusWidth(widthPx) {
+        const statusProperty = await this.findElement(this.statusProperty);
+        await this.getBrowser().execute((element, width) => {
+            element.style.width = width;
+            element.style.maxWidth = width;
+        }, statusProperty, `${widthPx}px`);
+    }
+
+    async clearStatusWidth() {
+        const statusProperty = await this.findElement(this.statusProperty);
+        await this.getBrowser().execute((element) => {
+            element.style.width = '';
+            element.style.maxWidth = '';
+        }, statusProperty);
+    }
+
+    async isWorkflowStatusWrapped() {
+        await this.waitForElementDisplayed(this.diffStatusBadge);
+        await this.waitForElementDisplayed(this.statusValidity);
+        const diffStatusBadge = await this.findElement(this.diffStatusBadge);
+        const workflowStatus = await this.findElement(this.statusValidity);
+        const diffStatusBadgeY = await diffStatusBadge.getLocation('y');
+        const workflowStatusY = await workflowStatus.getLocation('y');
+        return workflowStatusY > diffStatusBadgeY;
+    }
+
+    async waitForWorkflowStatusWrapped() {
+        await this.getBrowser().waitUntil(async () => {
+            return await this.isWorkflowStatusWrapped();
+        }, {
+            timeout: 4000,
+            timeoutMsg: 'Workflow status should wrap to the next line in DetailsWidgetContentSection',
+        });
     }
 }
 

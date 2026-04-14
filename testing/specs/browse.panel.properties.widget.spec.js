@@ -89,8 +89,34 @@ describe('Browse panel, properties widget, language spec', function () {
                 "display name in content section should be equal to the folder display name");
 
             let statusActual = await contentSection.getStatusText();
-            assert.equal(statusActual, 'Offline New Ready for publishing', 'Offline New Ready for publishing');
+            assert.equal(statusActual, 'Offline New', 'Offline New status should be displayed for the content');
+            let workflow = await contentSection.getWorkflowOrValidityStatus();
+            assert.equal(workflow, 'Ready for publishing', 'Ready for publishing workflow icon should be displayed for the content');
 
+        });
+
+    it(`WHEN the details widget status row is constrained THEN 'Ready for publishing' should wrap to the next line`,
+        async () => {
+            const contentBrowsePanel = new ContentBrowsePanel();
+            const contentSection = new DetailsWidgetContentSection();
+
+            await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            await contentBrowsePanel.openContextWindow();
+
+            try {
+                await contentSection.setStatusWidth(220);
+                await contentSection.waitForWorkflowStatusWrapped();
+                await studioUtils.saveScreenshot('details_panel_status_wrapped');
+
+                const status = await contentSection.getStatusText();
+                assert.equal(status, appConst.CONTENT_STATUS.OFFLINE_NEW, 'Offline New status should stay on the first line');
+
+                const workflow = await contentSection.getWorkflowOrValidityStatus();
+                assert.equal(workflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, 'Ready for publishing should remain visible');
+                assert.equal(await contentSection.isWorkflowStatusWrapped(), true, 'Ready for publishing should wrap below the diff status');
+            } finally {
+                await contentSection.clearStatusWidth();
+            }
         });
 
     it(`WHEN existing folder has been published THEN 'First Published' date gets visible in Properties Widget`,

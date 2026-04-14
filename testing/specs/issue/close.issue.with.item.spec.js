@@ -19,17 +19,6 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
     const ISSUE_TITLE = appConst.generateRandomName('issue');
     let TEST_FOLDER;
 
-    // verifies https://github.com/enonic/app-contentstudio/issues/356
-    // Endless spinner after clicking on Create Issue button
-    it(`GIVEN no selections in the grid WHEN 'Create Issue...' button has been pressed  THEN Create Issue dialog should appear`,
-        async () => {
-            let createIssueDialog = new CreateIssueDialog();
-            let contentBrowsePanel = new ContentBrowsePanel();
-            await contentBrowsePanel.clickOnCreateIssueButton();
-            await createIssueDialog.waitForDialogLoaded();
-            await createIssueDialog.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
-        });
-
     it('Precondition: new folder and new issue have been created',
         async () => {
             let createIssueDialog = new CreateIssueDialog();
@@ -47,6 +36,17 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
             // 3. Save the issue:
             await createIssueDialog.clickOnCreateIssueButton();
             await issueDetailsDialog.waitForDialogLoaded();
+        });
+
+    // verifies https://github.com/enonic/app-contentstudio/issues/356
+    // Endless spinner after clicking on Create Issue button
+    it(`GIVEN no selections in the grid WHEN 'Create Issue...' button has been pressed  THEN Create Issue dialog should appear`,
+        async () => {
+            let createIssueDialog = new CreateIssueDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            await contentBrowsePanel.clickOnCreateIssueButton();
+            await createIssueDialog.waitForDialogLoaded();
+            await createIssueDialog.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
         });
 
     it(`GIVEN folder is selected AND 'Issue Details Dialog' is opened WHEN 'Closed' tab menu button has been pressed THEN issue-menu button gets not visible in Preview Panel`,
