@@ -761,6 +761,16 @@ class Page {
         const status = await this.getBrowserStatus();
         return status.os.name.includes('Mac');
     }
+
+    async getXpMenuShadowHost() {
+        try {
+            const host = await this.findElement('xp-menu');
+            await host.waitForExist({timeout: appConst.mediumTimeout});
+            return host;
+        } catch (err) {
+            await this.handleError('Home page, xp menu - failed to get shadow root', 'err_home_page_shadow', err);
+        }
+    }
 }
 
 module.exports = Page;

@@ -52,18 +52,6 @@ class LauncherPanel extends Page {
         return await this.pause(200);
     }
 
-    async clickOnContentStudioLink() {
-        try {
-            await this.waitForElementDisplayed(this.contentStudioLink, appConst.longTimeout);
-            await this.waitForElementEnabled(this.contentStudioLink, appConst.mediumTimeout);
-            await this.pause(300);
-            await this.clickOnElement(this.contentStudioLink);
-            return await this.pause(500);
-        } catch (err) {
-            await this.handleError('Launcher Panel: tried to click on Content Studio link', 'err_click_content_studio_link', err);
-        }
-    }
-
     clickOnLogoutLink() {
         return this.clickOnElement(this.logoutLink);
     }
