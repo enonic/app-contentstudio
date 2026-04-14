@@ -1,4 +1,7 @@
 const COMMON = {
+    SHADOW_SELECTORS:{
+        XP_MENU_BUTTON:`button#menu-button`
+    },
     DISPLAY_NAME_INPUT: "//input[@name='displayName']",
     CONTENT_WIZARD_DATA_COMPONENT: "//div[@data-component='ContentWizardTabs']",
     FOOTER_ELEMENT: `//footer`,

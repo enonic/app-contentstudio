@@ -13,6 +13,7 @@ const BaseBrowsePanel = require('../base.browse.panel');
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 const ContentUnpublishDialog = require('../content.unpublish.dialog');
 const {Key} = require('webdriverio');
+const HomePage = require('../home.page');
 
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowsePanel')]",
@@ -1146,6 +1147,15 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         const svgElement = await btn.$("//svg[@stroke-linecap='round']");
         await this.clickOnElement(locator);
         return await this.pause(1000);
+    }
+    async clickOnShowXpMenuButton(){
+        let host = await this.getXpMenuShadowHost();
+        const button = await host.shadow$(COMMON.SHADOW_SELECTORS.XP_MENU_BUTTON);
+        await button.waitForDisplayed({timeout: appConst.mediumTimeout});
+        await button.click();
+        await this.pause(500);
+        let homePage = new HomePage();
+        await homePage.waitForContentLinkDisplayed();
     }
 }
 

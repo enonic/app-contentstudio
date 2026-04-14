@@ -7,7 +7,6 @@ const LoginPage = require('../page_objects/login.page');
 const BrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const FilterPanel = require("../page_objects/browsepanel/content.filter.panel");
 const appConst = require("./app_const");
-const lib = require("./elements-old");
 const {BUTTONS, COMMON} = require("./elements");
 const NewContentDialog = require('../page_objects/browsepanel/new.content.dialog');
 const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.panel');
@@ -671,8 +670,10 @@ module.exports = {
     },
     async navigateToContentStudioApp(userName, password) {
         try {
-            await this.clickOnContentStudioLink(userName, password);
-            await this.doSwitchToContentBrowsePanelAndSelectDefaultContext();
+            await this.doLogin(userName, password);
+            let homePage = new HomePage();
+            await homePage.clickOnContentStudioLink();
+            await this.waitForBrowsePanelAndSelectDefaultContext();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_navigate_cs');
             throw new Error(`Error occurred after clicking on Content Studio link in Launcher Panel,  screenshot:${screenshot}  ` + err);
@@ -695,17 +696,16 @@ module.exports = {
             throw new Error(`Error when navigating to Content Studio, screenshot: ${screenshot} ` + err);
         }
     },
-    async clickOnContentStudioLink(userName, password) {
-        let launcherPanel = new LauncherPanel();
-        let result = await launcherPanel.isDisplayed(500);
-        console.log('Launcher Panel is opened, click on the `Content Studio` link...');
+    async doLogin(userName, password) {
+        let loginPage = new LoginPage();
+        let result = await loginPage.isLoaded();
         if (result) {
-            await launcherPanel.clickOnContentStudioLink();
-        } else {
-            console.log('Login Page is opened, type a password and name...');
-            return await this.doLoginAndClickOnContentStudio(userName, password);
+            await loginPage.doLogin(userName, password);
         }
+        let homePage = new HomePage();
+        await homePage.waitForContentLinkDisplayed();
     },
+
     async navigateToContentStudioCloseProjectSelectionDialog(userName, password) {
         try {
             await this.clickOnContentStudioLink(userName, password);
@@ -744,13 +744,7 @@ module.exports = {
             return await this.getBrowser().pause(200);
         }
     },
-    async doLoginAndClickOnContentStudio(userName, password) {
-        let loginPage = new LoginPage();
-        await loginPage.doLogin(userName, password);
-        let launcherPanel = new LauncherPanel();
-        return await launcherPanel.clickOnContentStudioLink();
 
-    },
     async doSwitchToContentBrowsePanel() {
         try {
             let browsePanel = new BrowsePanel();
@@ -784,12 +778,10 @@ module.exports = {
         }
         throw new Error('Browser tab with title ' + text + ' was not found');
     },
-    async doSwitchToContentBrowsePanelAndSelectDefaultContext() {
+    async waitForBrowsePanelAndSelectDefaultContext() {
         try {
             let projectSelectionDialog = new ProjectSelectionDialog();
             let browsePanel = new BrowsePanel();
-            await this.switchToTab(appConst.BROWSER_XP_TITLES.CONTENT_STUDIO);
-            console.log('switched to content browse panel...');
             let isLoaded = await projectSelectionDialog.isDialogLoaded();
             if (isLoaded) {
                 await projectSelectionDialog.selectContext('Default');
@@ -797,17 +789,19 @@ module.exports = {
                 await projectSelectionDialog.waitForDialogClosed();
                 return await this.getBrowser().pause(200);
             }
+            console.log('Content browse panel loads...');
             await browsePanel.waitForGridLoaded(appConst.longTimeout);
             return browsePanel;
         } catch (err) {
             throw new Error('Error when navigating to Content Studio(selecting Default context)' + err);
         }
     },
-    async doSwitchToHome() {
+
+    async clickOnXpMenuButton() {
         console.log('testUtils:switching to Home page...');
         let homePage = new HomePage();
-        await this.switchToTab(appConst.BROWSER_XP_TITLES.XP_HOME);
-        return await homePage.waitForLoaded(appConst.mediumTimeout);
+        let host = await homePage.getXpMenuShadowHost();
+
 
     },
     async doCloseWindowTabAndSwitchToBrowsePanel() {
@@ -900,12 +894,13 @@ module.exports = {
     async doCloseAllWindowTabsAndSwitchToHome() {
         let handles = await this.getBrowser().getWindowHandles();
         for (const item of handles) {
-            let result = await this.switchAndCheckTitle(item, "Enonic XP Home");
+            let result = await this.switchAndCheckTitle(item, "Enonic XP Admin");
             if (!result) {
                 await this.getBrowser().closeWindow();
             }
         }
-        return this.doSwitchToHome();
+        let contentBrowsePanel = new ContentBrowsePanel();
+        await contentBrowsePanel.clickOnShowXpMenuButton();
     },
     async switchAndCheckTitle(handle, reqTitle) {
         try {
@@ -1223,5 +1218,9 @@ module.exports = {
     },
     async saveScreen(name) {
         await this.getBrowser().saveScreen();
-    }
+    },
+
+    // async clickOnContentStudioInInXpMenu() {
+    //
+    // }
 };

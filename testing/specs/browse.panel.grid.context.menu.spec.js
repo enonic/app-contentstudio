@@ -73,7 +73,7 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
             // 1. Select a folder and click on Mark as Ready button:
-            await studioUtils.findContentAndClickCheckBox(TEST_FOLDER_1.displayName);//TEST_FOLDER_1.displayName);
+            await studioUtils.findContentAndClickCheckBox(TEST_FOLDER_1.displayName);
             // 2. Do the right click on the selected folder and click on Publish menu item :
             await contentBrowsePanel.rightClickOnItemByDisplayName(TEST_FOLDER_1.displayName);
             await contentBrowsePanel.clickOnMenuItem(appConst.GRID_CONTEXT_MENU.PUBLISH);
