@@ -103,8 +103,7 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
             let isSelected = await checkBoxForm.isCheckBoxSelected();
             assert.ok(isSelected === false, "CheckBox should be unselected");
             // 4. The content gets invalid now:
-            let isInvalid = await contentWizard.isContentInvalid();
-            assert.ok(isInvalid, "Content should be invalid");
+            await contentWizard.waitUntilInvalidIconAppears();
             // 5. Save the invalid content and close the wizard:
             await studioUtils.saveAndCloseWizard();
             // 6. Verify that the content is invalid in the grid:

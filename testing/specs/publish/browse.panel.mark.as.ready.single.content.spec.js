@@ -40,7 +40,7 @@ describe('browse.panel.mark.as.ready.single.content.spec - tests for Request Pub
             await contentPublishDialog.waitForPublishNowButtonEnabled();
             let status = await contentPublishDialog.getContentStatus(name);
             await studioUtils.saveScreenshot('content_gets_ready_to_publish');
-            assert.equal(status, appConst.CONTENT_STATUS.OFFLINE_NEW_READY, "The content gets 'Ready for publishing'");
+            assert.equal(status, appConst.CONTENT_STATUS.OFFLINE_NEW, "The content gets 'Ready for publishing'");
             let numberItems = await contentPublishDialog.getNumberItemsToPublish();
             assert.equal(numberItems,'', "Number of items to publish should not be displayed when the single content is selected");
         });
@@ -69,7 +69,7 @@ describe('browse.panel.mark.as.ready.single.content.spec - tests for Request Pub
             assert(workflow === 'ready', "Workflow icon should be 'Ready for publishing'");
             let state = await createRequestPublishDialog.getContentStatus(name);
             await studioUtils.saveScreenshot('ready_to_publish_via_menu_action');
-            assert(state === appConst.CONTENT_STATUS.OFFLINE_NEW_READY, 'Offline New status should be displayed for the content');
+            assert(state === appConst.CONTENT_STATUS.OFFLINE_NEW, 'Offline New status should be displayed for the content');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
