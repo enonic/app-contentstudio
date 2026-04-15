@@ -26,7 +26,6 @@ export const DetailsWidgetContentSection = (): ReactElement => {
     const loadingLabel = useI18n('action.loading');
     const movedLabel = useI18n('status.moved');
     const modifiedLabel = useI18n('status.modified');
-    const contentStateLabel = useI18n(showContentState ? createContentStateKey(contentState) : '');
 
     if (!content) return null;
 
@@ -57,12 +56,6 @@ export const DetailsWidgetContentSection = (): ReactElement => {
                     <dt className="text-xs text-subtle">{statusLabel}</dt>
                     <dd className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                         <DiffStatusBadge contentSummary={content} secondaryStatusOverride={secondaryOverride} />
-                        {showContentState && (
-                            <span className="inline-flex max-w-full items-center gap-x-1 overflow-hidden border-l-1 border-bdr-subtle pl-2 text-nowrap">
-                                <StatusIcon status={contentState} aria-label={contentStateLabel} className="shrink-0" />
-                                <span className="text-sm text-nowrap truncate">{contentStateLabel}</span>
-                            </span>
-                        )}
                     </dd>
                 </div>
 
