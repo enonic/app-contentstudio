@@ -1,5 +1,4 @@
 import {type Content} from '../content/Content';
-import {type ContentWizardPanel} from './ContentWizardPanel';
 
 export class RoutineContext {
 
@@ -13,16 +12,6 @@ export class RoutineContext {
 }
 
 export class Flow {
-
-    private readonly thisOfProducer: ContentWizardPanel;
-
-    constructor(thisOfProducer: ContentWizardPanel) {
-        this.thisOfProducer = thisOfProducer;
-    }
-
-    getThisOfProducer(): ContentWizardPanel {
-        return this.thisOfProducer;
-    }
 
     public doExecute(context: RoutineContext): Q.Promise<RoutineContext> {
         return this.doExecuteNext(context);

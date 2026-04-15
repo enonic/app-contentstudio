@@ -1,27 +1,17 @@
-import Q from 'q';
-import {CloseAction} from '@enonic/lib-admin-ui/app/wizard/CloseAction';
-import {SaveAction} from '@enonic/lib-admin-ui/app/wizard/SaveAction';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {type ContentWizardPanel} from '../ContentWizardPanel';
+import {requestFullWizardSave} from '../../../v6/features/store/wizardSave.store';
+import {requestWizardClose} from '../../../v6/features/store/wizardCommands.store';
 
 export class SaveAndCloseAction
     extends Action {
 
-    constructor(wizardPanel: ContentWizardPanel) {
+    constructor() {
         super('SaveAndClose', 'mod+enter', true);
 
         this.onExecuted(() => {
-
-            const deferred = Q.defer();
-
-            const saveAction = new SaveAction(wizardPanel);
-            saveAction.onAfterExecute(() => {
-                new CloseAction(wizardPanel).execute();
-                deferred.resolve(null);
+            return requestFullWizardSave().then(() => {
+                requestWizardClose(false);
             });
-            saveAction.execute();
-
-            return deferred.promise;
         });
     }
 }

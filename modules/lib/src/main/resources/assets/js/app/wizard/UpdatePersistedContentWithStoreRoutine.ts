@@ -11,7 +11,6 @@ import {
 } from '../../v6/features/store/wizardContent.store';
 import {type Content} from '../content/Content';
 import {Flow, type RoutineContext} from './Flow';
-import {type ContentWizardPanel} from './ContentWizardPanel';
 import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
 import {isBlank} from '../../v6/features/utils/format/isBlank';
 
@@ -34,8 +33,8 @@ export class UpdatePersistedContentWithStoreRoutine
 
     private requireValid: boolean;
 
-    constructor(thisOfProducer: ContentWizardPanel, persistedContent: Content) {
-        super(thisOfProducer);
+    constructor(persistedContent: Content) {
+        super();
         this.persistedContent = persistedContent;
     }
 
@@ -46,7 +45,7 @@ export class UpdatePersistedContentWithStoreRoutine
     private async executeAsync(): Promise<RoutineContext> {
         const viewedContent = this.buildViewedContentFromStore();
 
-        const routine = new UpdatePersistedContentRoutine(this.getThisOfProducer(), this.persistedContent, viewedContent)
+        const routine = new UpdatePersistedContentRoutine(this.persistedContent, viewedContent)
             .setRequireValid(this.requireValid);
 
         return await routine.execute();

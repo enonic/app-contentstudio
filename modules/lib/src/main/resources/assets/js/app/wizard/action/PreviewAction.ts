@@ -1,23 +1,21 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {type ContentWizardPanel} from '../ContentWizardPanel';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {PreviewActionHelper} from '../../action/PreviewActionHelper';
 import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {$activeWidget} from '../../../v6/features/store/liveViewWidgets.store';
+import {$wizardHasChanges} from '../../../v6/features/store/wizardContent.store';
+import {$wizardPersistedContent, saveWizardContent, setWizardRequireValid} from '../../../v6/features/store/wizardSave.store';
 
 export class PreviewAction
     extends Action {
 
     private writePermissions: boolean = false;
 
-    private wizard: ContentWizardPanel;
-
     private helper: PreviewActionHelper;
 
-    constructor(wizard: ContentWizardPanel) {
+    constructor() {
         super(i18n('action.preview'), BrowserHelper.isOSX() ? 'alt+space' : 'mod+alt+space', true);
-        this.wizard = wizard;
         this.helper = new PreviewActionHelper();
         this.setEnabled(false);
 
@@ -26,12 +24,12 @@ export class PreviewAction
 
     protected handleExecuted() {
         const widget = $activeWidget.get();
-        if (this.writePermissions && this.wizard.hasUnsavedChanges()) {
-            this.wizard.setRequireValid(true);
-            this.wizard.saveChanges().then(content => this.helper.openWindow(content, widget)).catch(
-                (reason) => DefaultErrorHandler.handle(reason)).done();
+        if (this.writePermissions && $wizardHasChanges.get()) {
+            setWizardRequireValid(true);
+            saveWizardContent().then((context) => this.helper.openWindow(context.content, widget)).catch(
+                (reason) => DefaultErrorHandler.handle(reason));
         } else {
-            this.helper.openWindow(this.wizard.getPersistedItem(), widget);
+            this.helper.openWindow($wizardPersistedContent.get(), widget);
         }
     }
 

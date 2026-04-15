@@ -1,20 +1,24 @@
-import type Q from 'q';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {SaveAction} from '@enonic/lib-admin-ui/app/wizard/SaveAction';
-import {type ContentWizardPanel} from '../ContentWizardPanel';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {requestFullWizardSave} from '../../../v6/features/store/wizardSave.store';
 
 export class ContentSaveAction
-    extends SaveAction {
+    extends Action {
 
     private static CLASS_NAME_SAVED: string = 'saved';
 
     private locked: boolean = false;
 
-    constructor(wizardPanel: ContentWizardPanel, label: string = i18n('action.save')) {
-        super(wizardPanel, label);
+    constructor(label: string = i18n('action.save')) {
+        super(label, 'mod+s', true);
 
         this.setEnabled(false);
+
+        this.onExecuted(() => {
+            this.setEnabled(false);
+            return this.saveChanges();
+        });
     }
 
     isSavedStateEnabled(): boolean {
@@ -33,10 +37,10 @@ export class ContentSaveAction
         return super.setEnabled(value) as ContentSaveAction;
     }
 
-    protected saveChanges(wizardPanel: ContentWizardPanel): Q.Promise<void> {
+    private saveChanges() {
         this.setLabel(i18n('action.saving'));
 
-        return wizardPanel.saveChanges().then(() => {
+        return requestFullWizardSave().then(() => {
             this.setLabel(i18n('action.saved'));
 
             this.toggleIconClass(ContentSaveAction.CLASS_NAME_SAVED, true);

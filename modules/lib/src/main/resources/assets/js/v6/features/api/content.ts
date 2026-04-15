@@ -1,7 +1,10 @@
 import {ResultAsync} from 'neverthrow';
+import {AccessControlList} from '../../../app/access/AccessControlList';
+import {type PermissionsJson} from '../../../app/access/PermissionsJson';
 import {type Content} from '../../../app/content/Content';
 import {type ContentId} from '../../../app/content/ContentId';
 import {type ContentJson} from '../../../app/content/ContentJson';
+import {type ContentPath} from '../../../app/content/ContentPath';
 import {type Site} from '../../../app/content/Site';
 import {CompareStatus} from '../../../app/content/CompareStatus';
 import {ContentSummary} from '../../../app/content/ContentSummary';
@@ -151,4 +154,61 @@ export async function fetchContentSummariesWithStatus(contentIds: ContentId[]): 
         console.error(error);
         return [];
     }
+}
+
+export function fetchContentByPath(path: ContentPath): ResultAsync<Content, AppError> {
+    const url = getCmsApiUrl('bypath');
+
+    return ResultAsync.fromPromise(
+        fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({path: path.toString()}),
+        }).then(async (response) => {
+            if (!response.ok) {
+                throw new AppError(response.statusText);
+            }
+            const json: ContentJson = await response.json();
+            return parseContent(json);
+        }),
+        (error): AppError => error instanceof AppError ? error : new AppError(String(error)),
+    );
+}
+
+export function fetchContentPermissions(contentId: ContentId): ResultAsync<AccessControlList, AppError> {
+    const url = getCmsApiUrl('contentPermissions');
+
+    return ResultAsync.fromPromise(
+        fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({id: contentId.toString()}),
+        }).then(async (response) => {
+            if (!response.ok) {
+                throw new AppError(response.statusText);
+            }
+            const json: PermissionsJson = await response.json();
+            return AccessControlList.fromJson(json);
+        }),
+        (error): AppError => error instanceof AppError ? error : new AppError(String(error)),
+    );
+}
+
+export function fetchRootPermissions(): ResultAsync<AccessControlList, AppError> {
+    const url = getCmsApiUrl('rootPermissions');
+
+    return ResultAsync.fromPromise(
+        fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({}),
+        }).then(async (response) => {
+            if (!response.ok) {
+                throw new AppError(response.statusText);
+            }
+            const json: PermissionsJson = await response.json();
+            return AccessControlList.fromJson(json);
+        }),
+        (error): AppError => error instanceof AppError ? error : new AppError(String(error)),
+    );
 }
