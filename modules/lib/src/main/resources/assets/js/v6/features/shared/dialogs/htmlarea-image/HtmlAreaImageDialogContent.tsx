@@ -2,7 +2,6 @@ import {IconButton, Input} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {PenIcon, XIcon} from 'lucide-react';
 import {type ReactElement, useCallback, useMemo} from 'react';
-import {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../../../../app/event/EditContentEvent';
 import {useI18n} from '../../../hooks/useI18n';
 import {$activeProject} from '../../../store/projects.store';
@@ -39,8 +38,7 @@ export const HtmlAreaImageDialogContent = (): ReactElement => {
 
     const handleEdit = useCallback(() => {
         if (selectedImageContent) {
-            const item = ContentSummaryAndCompareStatus.fromContentSummary(selectedImageContent);
-            new EditContentEvent([item], activeProject).fire();
+            new EditContentEvent([selectedImageContent], activeProject).fire();
         }
     }, [selectedImageContent, activeProject]);
 

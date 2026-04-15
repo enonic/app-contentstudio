@@ -1,6 +1,6 @@
 import {Button} from '@enonic/ui';
 import React, {useCallback} from 'react';
-import type {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
 import {useI18n} from '../../../../hooks/useI18n';
 import {resetVersionsSelection} from '../../../../store/context/versionStore';
 import {openCompareVersionsDialog} from '../../../../store/dialogs/compareVersionsDialog.store';
@@ -14,7 +14,7 @@ const COMPONENT_NAME = 'VersionSelectionToolbar';
 interface VersionSelectionToolbarProps {
     selectionSize: number;
     selectedVersionIds: string[];
-    content?: ContentSummaryAndCompareStatus | null;
+    content?: ContentSummary | null;
     onCancel?: () => void;
 }
 

@@ -601,7 +601,7 @@ export class PublishProcessor {
     }
 
     countParent(): number {
-        return this.countToPublish(this.itemList.getItems());
+        return this.countToPublish(this.itemList.getItems() as ContentSummaryAndCompareStatus[]);
     }
 
     countTotal(): number {

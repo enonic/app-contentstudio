@@ -4,7 +4,7 @@ import {type Content} from '../../../../app/content/Content';
 import {type EffectivePermission} from '../../../../app/security/EffectivePermission';
 import {type Attachments} from '../../../../app/attachment/Attachments';
 import {ContentPath} from '../../../../app/content/ContentPath';
-import {type ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import {type ContentSummary} from '../../../../app/content/ContentSummary';
 import {GetContentByIdRequest} from '../../../../app/resource/GetContentByIdRequest';
 import {GetContentAttachmentsRequest} from '../../../../app/resource/GetContentAttachmentsRequest';
 import {GetEffectivePermissionsRequest} from '../../../../app/resource/GetEffectivePermissionsRequest';
@@ -108,7 +108,7 @@ function filterEffectivePermissions(content: Content, permissions: EffectivePerm
     );
 }
 
-async function loadContent(contentSummary: Readonly<ContentSummaryAndCompareStatus>): Promise<Content | undefined> {
+async function loadContent(contentSummary: Readonly<ContentSummary>): Promise<Content | undefined> {
     try {
         const request = new GetContentByIdRequest(contentSummary.getContentId());
 

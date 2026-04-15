@@ -1,9 +1,18 @@
-import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import type {ContentId} from '../../../../../app/content/ContentId';
+import type {ContentPath} from '../../../../../app/content/ContentPath';
 
-export const sortDependantsByInbound = (dependants: ContentSummaryAndCompareStatus[], inboundTargets: ContentId[]): ContentSummaryAndCompareStatus[] => {
+type SortableDependant = {
+    getContentId(): ContentId;
+    getDisplayName(): string;
+    getPath(): ContentPath | null;
+};
+
+export const sortDependantsByInbound = <T extends SortableDependant>(
+    dependants: readonly T[],
+    inboundTargets: readonly ContentId[],
+): T[] => {
     if (dependants.length === 0 || inboundTargets.length === 0) {
-        return dependants;
+        return [...dependants];
     }
     const inboundSet = new Set(inboundTargets.map(id => id.toString()));
     return [...dependants].sort((a, b) => {

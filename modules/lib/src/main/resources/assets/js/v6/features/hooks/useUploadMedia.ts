@@ -1,5 +1,5 @@
 import {type TargetedEvent, useCallback, useMemo, useRef} from 'react';
-import {type ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
+import {type ContentSummary} from '../../../app/content/ContentSummary';
 import {type UploadMediaError, uploadMediaFile, type UploadMediaSuccess} from '../api/uploadMedia';
 import {addUpload, completeUpload, failUpload, updateUploadProgress} from '../store/uploads.store';
 
@@ -8,7 +8,7 @@ import {addUpload, completeUpload, failUpload, updateUploadProgress} from '../st
 //
 
 export type UseUploadMediaOptions = {
-    parentContent?: ContentSummaryAndCompareStatus;
+    parentContent?: ContentSummary;
     onUploadStart?: (file: File) => void;
     onUploadProgress?: (mediaIdentifier: string, progress: number) => void;
     onUploadComplete?: (success: UploadMediaSuccess) => void;

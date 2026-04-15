@@ -151,9 +151,19 @@ function createMockNode(
         };
     }
 
-    const mockContent = {
+    const mockSummary = {
         getId: () => id,
-        getPublishStatus: () => 'ONLINE',
+        getPublishFromTime: () => new Date(),
+        getPublishToTime: () => null,
+        getDisplayName: () => `Display ${id}`,
+        getType: () => ({getLocalName: () => 'page'}),
+        getPath: () => null,
+        getIconUrl: () => null,
+    };
+
+    const mockContent = {
+        ...mockSummary,
+        getContentSummary: () => mockSummary,
     };
 
     return {

@@ -1,8 +1,7 @@
 import {SortableList, type SortableListItemContext} from '@enonic/lib-admin-ui/form2/components';
 import {useCallback, useEffect, useRef, useState, type ReactElement} from 'react';
 import type {MovedContentItem} from '../../../../../../app/browse/MovedContentItem';
-import {CompareStatus} from '../../../../../../app/content/CompareStatus';
-import type {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
 import type {ContentServerChangeItem} from '../../../../../../app/event/ContentServerChangeItem';
 import {fetchContentByIds} from '../../../../api/content-fetcher';
 import {
@@ -17,7 +16,7 @@ import {
     type ContentRenamedData,
 } from '../../../../store/socket.store';
 
-export type SelectorSelectionRenderItem = (context: SortableListItemContext<ContentSummaryAndCompareStatus>) => ReactElement;
+export type SelectorSelectionRenderItem = (context: SortableListItemContext<ContentSummary>) => ReactElement;
 
 export type SelectorSelectionProps = {
     /** Selected content IDs */
@@ -45,8 +44,8 @@ export const SelectorSelection = ({
 }: SelectorSelectionProps): ReactElement | null => {
     const requestIdRef = useRef(0);
 
-    const [contents, setContents] = useState<ContentSummaryAndCompareStatus[]>([]);
-    const contentsRef = useRef<ContentSummaryAndCompareStatus[]>([]);
+    const [contents, setContents] = useState<ContentSummary[]>([]);
+    const contentsRef = useRef<ContentSummary[]>([]);
 
     const selectionRef = useRef<readonly string[]>(selection);
     selectionRef.current = selection;
@@ -66,7 +65,7 @@ export const SelectorSelection = ({
             if (requestId !== requestIdRef.current) return;
             // Preserve selection order
             const itemMap = new Map(items.map((item) => [item.getId(), item]));
-            const ordered = contentIds.map((id) => itemMap.get(id)).filter((item): item is ContentSummaryAndCompareStatus => item != null);
+            const ordered = contentIds.map((id) => itemMap.get(id)).filter((item): item is ContentSummary => item != null);
             setContents(ordered);
             contentsRef.current = ordered;
         });
@@ -90,8 +89,8 @@ export const SelectorSelection = ({
         (event: ContentEvent | null) => {
             if (!event?.data) return;
             const newContents = contentsRef.current.map((content) => {
-                const updatedContent = event.data.find((item) => item.getId() === content.getId());
-                return updatedContent || content;
+                const updatedItem = event.data.find((item) => item.getId() === content.getId());
+                return updatedItem || content;
             });
             setContents(newContents);
             contentsRef.current = newContents;
@@ -99,13 +98,10 @@ export const SelectorSelection = ({
         [setContents]
     );
     const handleRemoveContents = useCallback(
-        (event: ContentEvent<ContentServerChangeItem[]> | null, compareStatus: CompareStatus) => {
+        (event: ContentEvent<ContentServerChangeItem[]> | null) => {
             if (!event?.data) return;
-            const removedContentIds = event.data.map((item) => item.getId());
-            const newContents = contentsRef.current.map((content) => {
-                const removedContent = removedContentIds.includes(content.getId());
-                return removedContent ? content.setCompareStatus(compareStatus) : content;
-            });
+            const removedContentIds = new Set(event.data.map((item) => item.getId()));
+            const newContents = contentsRef.current.filter((content) => !removedContentIds.has(content.getId()));
             setContents(newContents);
             contentsRef.current = newContents;
         },
@@ -114,7 +110,7 @@ export const SelectorSelection = ({
     const handleMoveContents = useCallback(
         (event: ContentEvent<MovedContentItem[]> | null) => {
             if (!event?.data) return;
-            handleUpdateContents({...event, data: event.data.map((item) => item.item)});
+            handleUpdateContents({...event, data: event.data.map((item) => item.item.getContentSummary())});
         },
         [handleUpdateContents]
     );
@@ -133,8 +129,8 @@ export const SelectorSelection = ({
         const unlistenUnpublish = $contentUnpublished.listen(handleUpdateContents);
         const unlistenMove = $contentMoved.listen(handleMoveContents);
         const unlistenRename = $contentRenamed.listen(handleRenameContents);
-        const unlistenDelete = $contentDeleted.listen((event) => handleRemoveContents(event, CompareStatus.UNKNOWN));
-        const unlistenArchive = $contentArchived.listen((event) => handleRemoveContents(event, CompareStatus.ARCHIVED));
+        const unlistenDelete = $contentDeleted.listen(handleRemoveContents);
+        const unlistenArchive = $contentArchived.listen(handleRemoveContents);
 
         return () => {
             unlistenUpdate();

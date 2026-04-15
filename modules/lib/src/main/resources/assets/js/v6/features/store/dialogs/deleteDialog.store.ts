@@ -3,9 +3,9 @@ import type {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {computed, map} from 'nanostores';
 import {type ContentId} from '../../../../app/content/ContentId';
-import {type ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../app/content/ContentSummary';
 import {type ContentServerChangeItem} from '../../../../app/event/ContentServerChangeItem';
-import {fetchContentSummariesWithStatus} from '../../api/content';
+import {fetchContentSummaries} from '../../api/content';
 import {archiveContent, resolveForDelete} from '../../api/delete';
 import {trackTask, cleanupTask} from '../../services/task.service';
 import {hasContentIdInIds} from '../../utils/cms/content/ids';
@@ -27,8 +27,8 @@ type DeleteDialogStore = {
     loading: boolean;
     failed: boolean;
     // Content
-    items: ContentSummaryAndCompareStatus[];
-    dependants: ContentSummaryAndCompareStatus[];
+    items: ContentSummary[];
+    dependants: ContentSummary[];
     archiveMessage: string;
     // Validation
     inboundTargets: ContentId[];
@@ -65,7 +65,7 @@ export const $deleteDialog = map<DeleteDialogStore>(structuredClone(initialState
 export const $deleteItemsCount = computed($deleteDialog, ({items, dependants}) => items.length + dependants.length);
 
 export const $isDeleteTargetSite = computed($deleteDialog, ({items, dependants}) => {
-    return [...items, ...dependants].some(item => item.getContentSummary().isSite());
+    return [...items, ...dependants].some(item => item.isSite());
 });
 
 export const $isDeleteBlockedByInbound = computed($deleteDialog, ({inboundTargets, inboundIgnored}) => {
@@ -91,7 +91,7 @@ const getAllTargetIds = (): ContentId[] => {
     return [...items, ...dependants].map(item => item.getContentId());
 };
 
-const getArchiveContentIds = (items: ContentSummaryAndCompareStatus[]): ContentId[] => {
+const getArchiveContentIds = (items: ContentSummary[]): ContentId[] => {
     return items.map(item => item.getContentId());
 };
 
@@ -99,7 +99,7 @@ const getArchiveContentIds = (items: ContentSummaryAndCompareStatus[]): ContentI
 // * Public API
 //
 
-export const openDeleteDialog = (items: ContentSummaryAndCompareStatus[]): void => {
+export const openDeleteDialog = (items: ContentSummary[]): void => {
     if (items.length === 0) {
         return;
     }
@@ -214,7 +214,7 @@ const reloadDeleteDialogData = async (): Promise<void> => {
 
         const dependantIds = result.getContentIds().filter(id => !hasContentIdInIds(id, ids));
         const dependants = dependantIds.length > 0
-            ? await fetchContentSummariesWithStatus(dependantIds)
+            ? await fetchContentSummaries(dependantIds)
             : [];
 
         if (currentInstance !== instanceId) return;
@@ -245,7 +245,7 @@ const reloadDeleteDialogDataDebounced = createDebounce(() => {
 }, 100);
 
 /** Patch items with updated data, keeping items not in the update */
-const patchItemsWithUpdates = (updates: ContentSummaryAndCompareStatus[]): boolean => {
+const patchItemsWithUpdates = (updates: ContentSummary[]): boolean => {
     const {items} = $deleteDialog.get();
     const updateMap = new Map(updates.map(u => [u.getId(), u]));
 

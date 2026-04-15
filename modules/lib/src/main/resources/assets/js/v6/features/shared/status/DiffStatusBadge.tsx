@@ -1,43 +1,36 @@
 import {cn} from '@enonic/ui';
-import {CompareStatus, CompareStatusChecker} from '../../../../app/content/CompareStatus';
+import type {ContentSummary} from '../../../../app/content/ContentSummary';
 import {PublishStatus} from '../../../../app/publish/PublishStatus';
 import {useI18n} from '../../hooks/useI18n';
-import type {ContentState} from '../../../../app/content/ContentState';
-import {createCompareStatusKey, createPublishStatusKey} from '../../utils/cms/content/status';
+import {calcSecondaryStatus, calcTreePublishStatus, createPublishStatusKey, createSecondaryStatusKey} from '../../utils/cms/content/status';
 
 type Props = {
-    publishStatus: PublishStatus;
-    compareStatus: CompareStatus;
-    contentState?: ContentState;
-    wasPublished: boolean;
+    contentSummary: ContentSummary;
+    secondaryStatusOverride?: string;
     className?: string;
 }
 
 const DIFF_STATUS_BADGE_NAME = 'DiffStatusBadge';
 
-export const DiffStatusBadge = ({
-    publishStatus,
-    compareStatus,
-    contentState,
-    wasPublished,
-    className,
-}: Props) => {
+export const DiffStatusBadge = ({contentSummary, secondaryStatusOverride, className}: Props) => {
+    const publishStatus = calcTreePublishStatus(contentSummary);
     const isOnline = publishStatus === PublishStatus.ONLINE;
-    const isMovedAndModified = CompareStatusChecker.isMovedAndModified(compareStatus, contentState);
-    const hasDiff = compareStatus !== CompareStatus.EQUAL;
+    const secondaryStatus = calcSecondaryStatus(publishStatus, contentSummary);
+    const effectiveSecondaryLabel = secondaryStatusOverride ?? undefined;
 
     const publishStatusLabel = useI18n(createPublishStatusKey(publishStatus));
-    const modifiedLabel = useI18n('status.modified');
-    const compareStatusLabel = useI18n(createCompareStatusKey(compareStatus, wasPublished));
-    const compareStatusLabels = isMovedAndModified ? `${modifiedLabel}, ${compareStatusLabel}` : compareStatusLabel;
+    const secondaryStatusLabel = useI18n(secondaryStatus ? createSecondaryStatusKey(secondaryStatus) : '');
+
+    const displaySecondaryLabel = effectiveSecondaryLabel ?? secondaryStatusLabel;
+    const hasSecondary = secondaryStatusOverride != null || secondaryStatus != null;
 
     return (
         <span data-component={DIFF_STATUS_BADGE_NAME} className={cn('flex items-center gap-x-2 text-sm overflow-hidden', className)}>
             <span className={cn('capitalize group-data-[tone=inverse]:text-alt', isOnline && 'text-success', className)}>
                 {publishStatusLabel}
             </span>
-            {hasDiff && (
-                <span className='text-subtle group-data-[tone=inverse]:text-alt italic capitalize border-l-1 border-bdr-subtle pl-2'>{compareStatusLabels}</span>
+            {hasSecondary && (
+                <span className='text-subtle group-data-[tone=inverse]:text-alt italic capitalize border-l-1 border-bdr-subtle pl-2'>{displaySecondaryLabel}</span>
             )}
         </span>
     );

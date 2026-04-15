@@ -1,7 +1,7 @@
 import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import {Button, Tab} from '@enonic/ui';
 import {ReactElement} from 'react';
-import {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../../app/content/ContentSummary';
 import {NewContentEvent} from '../../../../../app/create/NewContentEvent';
 import {useI18n} from '../../../hooks/useI18n';
 import {closeNewContentDialog} from '../../../store/dialogs/newContentDialog.store';
@@ -13,7 +13,7 @@ const NEW_CONTENT_DIALOG_CONTENT_TYPES_TAB_NAME = 'NewContentDialogContentTypesT
 type NewContentDialogContentTypesTabProps = {
     tabName: string;
     contentTypes: ContentTypeSummary[];
-    parentContent: ContentSummaryAndCompareStatus;
+    parentContent: ContentSummary;
 };
 
 export const NewContentDialogContentTypesTab = ({
@@ -24,7 +24,7 @@ export const NewContentDialogContentTypesTab = ({
     const notFoundLabel = useI18n('dialog.new.notFound');
 
     const handleContentTypeSelected = (contentType: ContentTypeSummary) => {
-        new NewContentEvent(contentType, parentContent?.getContentSummary()).fire();
+        new NewContentEvent(contentType, parentContent).fire();
         closeNewContentDialog();
     };
 

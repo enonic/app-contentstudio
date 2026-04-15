@@ -1,13 +1,24 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../content/ContentSummary';
+import type {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {type Project} from '../settings/data/project/Project';
 import {ProjectContext} from '../project/ProjectContext';
+
+type EditContentModel = ContentSummary | ContentSummaryAndCompareStatus;
+
+const toContentSummary = (item: EditContentModel): ContentSummary | null => {
+    if ('getContentSummary' in item) {
+        return item.getContentSummary();
+    }
+
+    return item;
+};
 
 export class EditContentEvent
     extends Event {
 
-    private readonly model: ContentSummaryAndCompareStatus[];
+    private readonly model: ContentSummary[];
 
     private readonly project: Readonly<Project>;
 
@@ -15,9 +26,11 @@ export class EditContentEvent
 
     private localized: boolean = false;
 
-    constructor(model: ContentSummaryAndCompareStatus[], project?: Readonly<Project>) {
+    constructor(model: EditContentModel[], project?: Readonly<Project>) {
         super();
-        this.model = model;
+        this.model = model
+            .map(toContentSummary)
+            .filter((item): item is ContentSummary => !!item);
         this.project = project ? project : ProjectContext.get().getProject();
     }
 
@@ -30,7 +43,7 @@ export class EditContentEvent
         return this.displayAsNew;
     }
 
-    getModels(): ContentSummaryAndCompareStatus[] {
+    getModels(): ContentSummary[] {
         return this.model;
     }
 

@@ -1,6 +1,5 @@
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import type {ContentPath} from '../../../../../app/content/ContentPath';
-import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import type {ContentTreeSelectorItem} from '../../../../../app/item/ContentTreeSelectorItem';
 
 const INVALID_TARGET_TYPES = [
@@ -22,7 +21,7 @@ const INVALID_TARGET_TYPES = [
 ];
 
 export const getFilterContentPaths = (
-    items: readonly ContentSummaryAndCompareStatus[],
+    items: readonly {getPath(): ContentPath | null}[],
 ): ContentPath[] => {
     return items
         .map((item) => item.getPath())

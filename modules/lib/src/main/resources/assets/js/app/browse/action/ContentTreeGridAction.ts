@@ -1,7 +1,5 @@
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {type ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {type SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
-import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 
 export class ContentTreeGridAction extends Action {
 

@@ -1,9 +1,10 @@
 import {ListItem, VirtualizedTreeList, type VirtualizedTreeListItemProps} from '@enonic/ui';
 import {Loader2} from 'lucide-react';
 import type {ReactElement} from 'react';
-import type {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
 import {ContentLabel} from '../../../content/ContentLabel';
 import {StatusBadge} from '../../../status/StatusBadge';
+import {calcTreePublishStatus} from '../../../../utils/cms/content/status';
 import type {ContentComboboxFlatNode} from '../../../../hooks/useContentComboboxData';
 
 //
@@ -19,9 +20,9 @@ export type ContentRowProps = {
     /** Whether to show status badge */
     showStatusBadge?: boolean;
     /** Optional custom renderer for tree mode content. Defaults to ContentLabel + StatusBadge. */
-    renderTreeContent?: (content: ContentSummaryAndCompareStatus, hideStatus: boolean) => ReactElement;
+    renderTreeContent?: (content: ContentSummary, hideStatus: boolean) => ReactElement;
     /** Optional custom renderer for flat mode content. Defaults to ContentLabel + StatusBadge. */
-    renderFlatContent?: (content: ContentSummaryAndCompareStatus, hideStatus: boolean) => ReactElement;
+    renderFlatContent?: (content: ContentSummary, hideStatus: boolean) => ReactElement;
     onExpand?: (id: string) => void;
     onCollapse?: (id: string) => void;
 };
@@ -90,14 +91,14 @@ SkeletonRow.displayName = 'SkeletonRow';
 // * Main Row Component
 //
 
-const DefaultRow = (content: ContentSummaryAndCompareStatus, hideStatus: boolean): ReactElement => (
+const DefaultRow = (content: ContentSummary, hideStatus: boolean): ReactElement => (
     <ListItem className="p-0">
         <ListItem.Left className="flex-1">
             <ContentLabel content={content} />
         </ListItem.Left>
         {!hideStatus && (
             <ListItem.Right>
-                <StatusBadge status={content.getPublishStatus()} />
+                <StatusBadge status={calcTreePublishStatus(content)} />
             </ListItem.Right>
         )}
     </ListItem>

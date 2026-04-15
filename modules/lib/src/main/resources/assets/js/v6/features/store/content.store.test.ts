@@ -20,19 +20,19 @@ import {
     emitContentArchived,
     emitContentPublished,
 } from './socket.store';
-import type {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../app/content/ContentSummary';
 
-// Mock ContentSummaryAndCompareStatus
-function createMockContent(id: string, displayName?: string): ContentSummaryAndCompareStatus {
+// Mock ContentSummary
+function createMockContent(id: string, displayName?: string): ContentSummary {
     return {
         getId: () => id,
         getDisplayName: () => displayName ?? `Content ${id}`,
         getPath: () => null,
-    } as ContentSummaryAndCompareStatus;
+    } as unknown as ContentSummary;
 }
 
-// Mock ContentSummaryAndCompareStatus with path
-function createMockContentWithPath(id: string, pathStr: string, displayName?: string): ContentSummaryAndCompareStatus {
+// Mock ContentSummary with path
+function createMockContentWithPath(id: string, pathStr: string, displayName?: string): ContentSummary {
     return {
         getId: () => id,
         getDisplayName: () => displayName ?? `Content ${id}`,
@@ -50,7 +50,7 @@ function createMockContentWithPath(id: string, pathStr: string, displayName?: st
             isRoot: () => false,
             equals: (other: {toString: () => string}) => pathStr === other.toString(),
         }),
-    } as ContentSummaryAndCompareStatus;
+    } as unknown as ContentSummary;
 }
 
 // Mock ContentServerChangeItem for delete/archive events
@@ -251,14 +251,14 @@ describe('content.store', () => {
 
         it('updates cache on contentUpdated event', () => {
             const content = createMockContent('1', 'Updated');
-            emitContentUpdated([content] as ContentSummaryAndCompareStatus[]);
+            emitContentUpdated([content]);
 
             expect(getContent('1')?.getDisplayName()).toBe('Updated');
         });
 
         it('adds to cache on contentCreated event', () => {
             const content = createMockContent('1', 'New');
-            emitContentCreated([content] as ContentSummaryAndCompareStatus[]);
+            emitContentCreated([content]);
 
             expect(getContent('1')?.getDisplayName()).toBe('New');
         });
@@ -281,7 +281,7 @@ describe('content.store', () => {
 
         it('updates cache on contentPublished event', () => {
             const content = createMockContent('1', 'Published');
-            emitContentPublished([content] as ContentSummaryAndCompareStatus[]);
+            emitContentPublished([content]);
 
             expect(getContent('1')?.getDisplayName()).toBe('Published');
         });

@@ -66,13 +66,13 @@ export const MoveDialog = (): ReactElement => {
         }
 
         const targetContentId = destinationItem.getContentId();
-        const targetSite = destinationItem.getContentSummary().isSite()
-            ? destinationItem.getContentSummary()
+        const targetSite = destinationItem.isSite()
+            ? destinationItem
             : await new GetNearestSiteRequest(targetContentId).sendAndParse();
         const targetSiteId = targetSite?.getId() ?? null;
 
         const parentSitePromises = items.map((item) => {
-            if (item.getContentSummary().isSite()) {
+            if (item.isSite()) {
                 return Promise.resolve(null);
             }
             return new GetNearestSiteRequest(item.getContentId()).sendAndParse();

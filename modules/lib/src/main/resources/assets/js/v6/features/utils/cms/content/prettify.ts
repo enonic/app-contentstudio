@@ -2,23 +2,10 @@ import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {type ContentPath} from '../../../../../app/content/ContentPath';
 import type {ContentSummary} from '../../../../../app/content/ContentSummary';
-import {type ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {ContentUnnamed} from '../../../../../app/content/ContentUnnamed';
 
-export function resolveDisplayName(object: ContentSummaryAndCompareStatus): string {
-    return getDisplayName(object) || normalizeDisplayName(resolveUnnamedDisplayName(object));
-}
-
-function getDisplayName(object: ContentSummaryAndCompareStatus): string {
-    if (object.hasContentSummary()) {
-        return object.getContentSummary().getDisplayName();
-    }
-
-    if (object.hasUploadItem()) {
-        return object.getUploadItem().getName();
-    }
-
-    return '';
+export function resolveDisplayName(summary: ContentSummary): string {
+    return summary.getDisplayName() || normalizeDisplayName(resolveUnnamedDisplayName(summary));
 }
 
 function normalizeDisplayName(displayName: string): string {
@@ -28,26 +15,12 @@ function normalizeDisplayName(displayName: string): string {
     return NamePrettyfier.prettifyUnnamed(displayName);
 }
 
-function resolveUnnamedDisplayName(object: ContentSummaryAndCompareStatus): string {
-    const contentSummary: ContentSummary = object.getContentSummary();
-    return (contentSummary && contentSummary.getType()) ? contentSummary.getType().getLocalName() : '';
+function resolveUnnamedDisplayName(summary: ContentSummary): string {
+    return summary.getType() ? summary.getType().getLocalName() : '';
 }
 
-export function resolveSubName(object: ContentSummaryAndCompareStatus): string {
-    if (object.hasContentSummary()) {
-        return resolveSubNameForContentSummary(object);
-    }
-
-    if (object.hasUploadItem()) {
-        return object.getUploadItem().getName();
-    }
-
-    return '';
-}
-
-function resolveSubNameForContentSummary(object: ContentSummaryAndCompareStatus): string {
-    const contentSummary: ContentSummary = object.getContentSummary();
-    const contentName = contentSummary.getName();
+export function resolveSubName(summary: ContentSummary): string {
+    const contentName = summary.getName();
 
     return !contentName.isUnnamed() ? contentName.toString() :
            NamePrettyfier.prettifyUnnamed();
@@ -55,12 +28,12 @@ function resolveSubNameForContentSummary(object: ContentSummaryAndCompareStatus)
 
 /**
  * Resolves path for display, prettifying any unnamed elements.
- * @param content - Content to resolve path for
+ * @param summary - Content to resolve path for
  * @param full - If true, returns full path; if false, returns just the name portion
  * @returns Prettified path string
  */
-export function resolvePath(content: ContentSummaryAndCompareStatus, full = false, pretty = true): string {
-    const path = content.getPath();
+export function resolvePath(summary: ContentSummary, full = false, pretty = true): string {
+    const path = summary.getPath();
 
     if (full) {
         return pretty ? prettifyPathElements(path) : '/' + path.getElements().join('/');

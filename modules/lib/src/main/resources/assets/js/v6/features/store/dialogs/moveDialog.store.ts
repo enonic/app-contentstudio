@@ -3,7 +3,7 @@ import type {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {computed, map} from 'nanostores';
 import {ContentIds} from '../../../../app/content/ContentIds';
-import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../app/content/ContentSummary';
 import {MoveContentRequest} from '../../../../app/resource/MoveContentRequest';
 import {cleanupTask, trackTask} from '../../services/task.service';
 import {$isWizard} from '../app.store';
@@ -14,10 +14,10 @@ import {$isWizard} from '../app.store';
 
 type MoveDialogStore = {
     open: boolean;
-    items: readonly ContentSummaryAndCompareStatus[];
+    items: readonly ContentSummary[];
     submitting: boolean;
     destinationId: string | null;
-    destinationItem: ContentSummaryAndCompareStatus | null;
+    destinationItem: ContentSummary | null;
     destinationPath: string | null;
     excludedIds: string[];
     taskId?: TaskId;
@@ -63,7 +63,7 @@ let moveCompletionHandled = false;
 // * Public API
 //
 
-export const openMoveDialog = (items: ContentSummaryAndCompareStatus[]): void => {
+export const openMoveDialog = (items: readonly ContentSummary[]): void => {
     if (items.length === 0) {
         return;
     }
@@ -108,7 +108,7 @@ export const setMoveDestinationId = (destinationId: string | null): void => {
     }
 };
 
-export const setMoveDestinationItem = (item: ContentSummaryAndCompareStatus | null): void => {
+export const setMoveDestinationItem = (item: ContentSummary | null): void => {
     $moveDialog.setKey('destinationItem', item);
     $moveDialog.setKey('destinationId', item ? item.getContentId().toString() : null);
     $moveDialog.setKey('destinationPath', item?.getPath()?.toString() ?? null);

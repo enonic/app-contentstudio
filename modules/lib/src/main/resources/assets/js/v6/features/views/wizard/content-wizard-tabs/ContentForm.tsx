@@ -29,10 +29,7 @@ export const ContentForm = (): ReactElement | null => {
 
     const rawValueMap = useMemo(() => getContentRawValueMap(), []);
 
-    const contentSummary = useMemo(
-        () => contextContent?.getContentSummary(),
-        [contextContent],
-    );
+    const contentSummary = contextContent ?? undefined;
 
     const applicationKey = useMemo(
         () => contentType?.getContentTypeName().getApplicationKey(),

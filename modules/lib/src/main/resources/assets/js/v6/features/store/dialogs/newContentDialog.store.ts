@@ -4,7 +4,7 @@ import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/Conte
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {listenKeys, map, task} from 'nanostores';
 import {errAsync} from 'neverthrow';
-import {type ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import {type ContentSummary} from '../../../../app/content/ContentSummary';
 import {type AggregateContentTypesResult, type ContentTypeAggregation} from '../../../../app/resource/AggregateContentTypesResult';
 import {ContentTypesHelper} from '../../../../app/util/ContentTypesHelper';
 import {fetchRootChildrenFiltered} from '../../api/content-fetcher';
@@ -22,7 +22,7 @@ import {addUpload, removeUpload, updateUploadProgress} from '../uploads.store';
 
 type UploadOptions = {
     dataTransfer: DataTransfer;
-    parentContent?: ContentSummaryAndCompareStatus;
+    parentContent?: ContentSummary;
 };
 
 //
@@ -37,7 +37,7 @@ type NewContentDialogStore = {
     inputValue: string;
     selectedTab: string;
     // Content
-    parentContent?: ContentSummaryAndCompareStatus;
+    parentContent?: ContentSummary;
     baseContentTypes: ContentTypeSummary[];
     suggestedContentTypes: ContentTypeSummary[];
     filteredBaseContentTypes: ContentTypeSummary[];
@@ -75,7 +75,7 @@ listenKeys($newContentDialog, ['open', 'parentContent'], ({open, parentContent})
         });
 
         const aggregatedContentTypes = await ContentTypesHelper.getAggregatedTypesByContent(
-            parentContent?.getContentSummary(),
+            parentContent,
             activeProject
         );
 
@@ -114,7 +114,7 @@ listenKeys($newContentDialog, ['inputValue'], ({inputValue, baseContentTypes, su
 // * Public API
 //
 
-export const openNewContentDialog = (parentContent?: ContentSummaryAndCompareStatus): void => {
+export const openNewContentDialog = (parentContent?: ContentSummary): void => {
     $newContentDialog.set({
         ...structuredClone(initialState),
         open: true,

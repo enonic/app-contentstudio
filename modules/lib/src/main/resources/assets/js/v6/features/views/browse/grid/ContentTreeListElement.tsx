@@ -1,7 +1,7 @@
 import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ContentQuery} from '../../../../../app/content/ContentQuery';
-import {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../../app/content/ContentSummary';
 import {activateFilter, deactivateFilter, getFilterQuery} from '../../../api/content-fetcher';
 import {$isFilterActive} from '../../../store/active-tree.store';
 import {getContent} from '../../../store/content.store';
@@ -11,7 +11,7 @@ import {ContentTreeContextMenuProps} from './ContentTreeContextMenu';
 import {ContentTreeList, ContentTreeListProps} from './ContentTreeList';
 
 export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList, ContentTreeListProps> {
-    private selectionChangedListeners: ((selectionChange: SelectionChange<ContentSummaryAndCompareStatus>) => void)[] =
+    private selectionChangedListeners: ((selectionChange: SelectionChange<ContentSummary>) => void)[] =
         [];
 
     constructor() {
@@ -46,13 +46,13 @@ export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList
         });
     }
 
-    onSelectionChanged(listener: (selectionChange: SelectionChange<ContentSummaryAndCompareStatus>) => void): void {
+    onSelectionChanged(listener: (selectionChange: SelectionChange<ContentSummary>) => void): void {
         this.selectionChangedListeners.push(listener);
     }
 
-    protected notifySelectionChanged(selectionChange: SelectionChange<ContentSummaryAndCompareStatus>): void {
+    protected notifySelectionChanged(selectionChange: SelectionChange<ContentSummary>): void {
         this.selectionChangedListeners.forEach(
-            (listener: (selectionChange: SelectionChange<ContentSummaryAndCompareStatus>) => void) =>
+            (listener: (selectionChange: SelectionChange<ContentSummary>) => void) =>
                 listener(selectionChange)
         );
     }
@@ -60,8 +60,8 @@ export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList
     private getSelectionChange(
         newSelection: ReadonlySet<string>,
         oldSelection: ReadonlySet<string>
-    ): SelectionChange<ContentSummaryAndCompareStatus> {
-        const selected: ContentSummaryAndCompareStatus[] = [];
+    ): SelectionChange<ContentSummary> {
+        const selected: ContentSummary[] = [];
 
         newSelection.forEach((id) => {
             if (!oldSelection.has(id)) {
@@ -72,7 +72,7 @@ export class ContentTreeListElement extends LegacyElement<typeof ContentTreeList
             }
         });
 
-        const deselected: ContentSummaryAndCompareStatus[] = [];
+        const deselected: ContentSummary[] = [];
 
         oldSelection.forEach((id) => {
             if (!newSelection.has(id)) {

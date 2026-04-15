@@ -1,6 +1,6 @@
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {beforeEach, describe, expect, it} from 'vitest';
-import type {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../app/content/ContentSummary';
 import {PublishStatus} from '../../../app/publish/PublishStatus';
 import {setFilterActive} from './active-tree.store';
 import {clearContentCache, setContent} from './content.store';
@@ -45,11 +45,11 @@ function createMockNodeData(id: string): ContentTreeNodeData {
 }
 
 // Mock content
-function createMockContent(id: string, name?: string): ContentSummaryAndCompareStatus {
+function createMockContent(id: string, name?: string): ContentSummary {
     return {
         getId: () => id,
         getDisplayName: () => name ?? `Content ${id}`,
-    } as ContentSummaryAndCompareStatus;
+    } as unknown as ContentSummary;
 }
 
 describe('contentTreeSelection.store', () => {

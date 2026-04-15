@@ -13,7 +13,7 @@ export function useApplicationKeys(): ApplicationKey[] {
     const [siteLoaded, setSiteLoaded] = useState(false);
 
     const contentId = useMemo(
-        () => contextContent?.getContentSummary()?.getContentId(),
+        () => contextContent?.getContentId(),
         [contextContent],
     );
 

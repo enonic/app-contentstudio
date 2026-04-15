@@ -3,7 +3,6 @@ import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
 import type {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {ContentSummary} from '../../../app/content/ContentSummary';
-import type {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
 import type {ContentSummaryJson} from '../../../app/content/ContentSummaryJson';
 import type {ContentTreeSelectorItem} from '../../../app/item/ContentTreeSelectorItem';
 import type {PublishStatus} from '../../../app/publish/PublishStatus';
@@ -30,6 +29,7 @@ import {applyContentFilters, type ContentFilterOptions} from '../utils/cms/conte
 import type {ContentState} from '../../../app/content/ContentState';
 import {resolveDisplayName, resolveSubName} from '../utils/cms/content/prettify';
 import {calcContentState} from '../utils/cms/content/workflow';
+import {calcTreePublishStatus} from '../utils/cms/content/status';
 
 //
 // * Types
@@ -49,7 +49,7 @@ export type ContentComboboxNodeData = {
     contentState: ContentState | null;
     contentType: ContentTypeName;
     iconUrl: string | null;
-    item: ContentSummaryAndCompareStatus;
+    item: ContentSummary;
     /** Whether this item can be selected (based on server-side filtering logic) */
     selectable: boolean;
 };
@@ -118,32 +118,32 @@ const fetcher = new ContentSummaryAndCompareStatusFetcher();
 // * Helpers
 //
 
-function toNodeData(content: ContentSummaryAndCompareStatus, selectable = true): ContentComboboxNodeData {
+function toNodeData(summary: ContentSummary, selectable = true): ContentComboboxNodeData {
     return {
-        id: content.getId(),
-        displayName: resolveDisplayName(content),
-        name: resolveSubName(content),
-        publishStatus: content.getPublishStatus(),
-        contentState: calcContentState(content.getContentSummary()),
-        contentType: content.getType(),
-        iconUrl: content.getContentSummary().getIconUrl(),
-        item: content,
+        id: summary.getId(),
+        displayName: resolveDisplayName(summary),
+        name: resolveSubName(summary),
+        publishStatus: calcTreePublishStatus(summary),
+        contentState: calcContentState(summary),
+        contentType: summary.getType(),
+        iconUrl: summary.getIconUrl(),
+        item: summary,
         selectable,
     };
 }
 
 function toNodeDataFromTreeItem(item: ContentTreeSelectorItem): ContentComboboxNodeData {
     const cachedContent = getContent(item.getId());
-    const content = cachedContent ?? item.getContent();
+    const summary = cachedContent ?? item.getContent()?.getContentSummary() ?? item.getContentSummary();
     return {
         id: item.getId(),
         displayName: item.getDisplayName(),
         name: item.getName()?.toString() ?? '',
-        publishStatus: content?.getPublishStatus() ?? item.getPublishStatus(),
-        contentState: calcContentState(content?.getContentSummary() ?? item.getContentSummary()),
-        contentType: content?.getType() ?? item.getType(),
-        iconUrl: content?.getContentSummary()?.getIconUrl() ?? item.getIconUrl(),
-        item: content ?? item.getContent(),
+        publishStatus: summary ? calcTreePublishStatus(summary) : item.getPublishStatus(),
+        contentState: calcContentState(summary ?? item.getContentSummary()),
+        contentType: summary?.getType() ?? item.getType(),
+        iconUrl: summary?.getIconUrl() ?? item.getIconUrl(),
+        item: summary ?? item.getContentSummary(),
         selectable: item.isSelectable(),
     };
 }
@@ -234,29 +234,21 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
     // Request tracking for stale request handling
     const treeRequestIdRef = useRef(0);
     const flatRequestIdRef = useRef(0);
-    const enrichTreeContents = useCallback(
-        async (contents: ContentSummaryAndCompareStatus[], requestId: number): Promise<ContentSummaryAndCompareStatus[]> => {
-            if (contents.length === 0) {
-                return contents;
-            }
-
-            const summaries = contents
-                .map((content) => content?.getContentSummary())
-                .filter((summary): summary is ContentSummary => !!summary);
-
+    const enrichReadonly = useCallback(
+        async (summaries: ContentSummary[], requestId: number): Promise<ContentSummary[]> => {
             if (summaries.length === 0) {
-                return contents;
+                return summaries;
             }
 
             try {
-                const enriched = await fetcher.updateReadonlyAndCompareStatus(summaries);
+                const enriched = await fetcher.updateReadOnly(summaries);
                 if (requestId !== treeRequestIdRef.current) {
-                    return contents;
+                    return summaries;
                 }
                 return enriched;
             } catch (error) {
                 console.error(error);
-                return contents;
+                return summaries;
             }
         },
         []
@@ -264,15 +256,15 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
 
     const enrichAndCache = useCallback(
         async (items: ContentTreeSelectorItem[], requestId: number): Promise<boolean> => {
-            const contents = items
-                .map((item) => item.getContent())
-                .filter((content): content is ContentSummaryAndCompareStatus => !!content);
-            const contentsWithStatus = await enrichTreeContents(contents, requestId);
+            const summaries = items
+                .map((item) => item.getContent()?.getContentSummary())
+                .filter((summary): summary is ContentSummary => !!summary);
+            const enriched = await enrichReadonly(summaries, requestId);
             if (requestId !== treeRequestIdRef.current) return false;
-            setContents(contentsWithStatus);
+            setContents(enriched);
             return true;
         },
-        [enrichTreeContents]
+        [enrichReadonly]
     );
 
     // Error state
@@ -442,7 +434,7 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
 
             try {
                 const parentNode = treeGetNode(parentId);
-                const parentContent = parentNode?.data?.item?.getContentSummary();
+                const parentContent = parentNode?.data?.item;
 
                 const request = new ContentTreeSelectorQueryRequest<ContentTreeSelectorItem>();
                 request.setFrom(0);
@@ -503,7 +495,7 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
 
             try {
                 const offset = node.childIds.length;
-                const parentContent = node.data?.item?.getContentSummary();
+                const parentContent = node.data?.item;
 
                 const request = new ContentTreeSelectorQueryRequest<ContentTreeSelectorItem>();
                 request.setFrom(offset);
@@ -577,17 +569,17 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
             // Stale request check
             if (currentRequestId !== flatRequestIdRef.current) return;
 
-            const contentsWithStatus = await fetcher.updateReadonlyAndCompareStatus(contents);
+            const summaries = await fetcher.updateReadOnly(contents);
 
             if (currentRequestId !== flatRequestIdRef.current) return;
 
             // Update global cache
-            setContents(contentsWithStatus);
+            setContents(summaries);
 
             // Convert to flat nodes
-            const flatNodes: ContentComboboxFlatNode[] = contentsWithStatus.map((content) => ({
-                id: content.getId(),
-                data: toNodeData(content, true),
+            const flatNodes: ContentComboboxFlatNode[] = summaries.map((summary) => ({
+                id: summary.getId(),
+                data: toNodeData(summary, true),
                 level: 0,
                 parentId: null,
                 hasChildren: false,
@@ -637,17 +629,17 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
             // Stale request check
             if (currentRequestId !== flatRequestIdRef.current) return;
 
-            const contentsWithStatus = await fetcher.updateReadonlyAndCompareStatus(contents);
+            const summaries = await fetcher.updateReadOnly(contents);
 
             if (currentRequestId !== flatRequestIdRef.current) return;
 
             // Update global cache
-            setContents(contentsWithStatus);
+            setContents(summaries);
 
             // Convert to flat nodes
-            const flatNodes: ContentComboboxFlatNode[] = contentsWithStatus.map((content) => ({
-                id: content.getId(),
-                data: toNodeData(content, true),
+            const flatNodes: ContentComboboxFlatNode[] = summaries.map((summary) => ({
+                id: summary.getId(),
+                data: toNodeData(summary, true),
                 level: 0,
                 parentId: null,
                 hasChildren: false,
@@ -704,7 +696,7 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
 
     // Socket sync: update existing nodes in tree and flat list
     const applyInPlaceUpdates = useCallback(
-        (items: ContentSummaryAndCompareStatus[]) => {
+        (items: ContentSummary[]) => {
             for (const item of items) {
                 const id = item.getId();
                 const existing = treeGetNode(id);
@@ -714,7 +706,9 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
             }
 
             setFlatItems((prev) => {
-                const updatedIds = new Map(items.map((item) => [item.getId(), item]));
+                const updatedIds = new Map(
+                    items.map((item) => [item.getId(), item] as const)
+                );
                 let changed = false;
                 const next = prev.map((node) => {
                     const updated = updatedIds.get(node.id);

@@ -1,5 +1,6 @@
 import {vi} from 'vitest';
 import {ContentId} from '../../../../app/content/ContentId';
+import type {ContentSummary} from '../../../../app/content/ContentSummary';
 import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
 import type {ContentServerChangeItem} from '../../../../app/event/ContentServerChangeItem';
 
@@ -18,6 +19,8 @@ type MockContentOptions = {
     isOnline?: boolean;
 };
 
+// Returns an object that satisfies both ContentSummary and ContentSummaryAndCompareStatus
+// by including getContentSummary() that returns a ContentSummary view of itself.
 export function createMockContent(
     id: string,
     {
@@ -26,17 +29,24 @@ export function createMockContent(
         hasChildren = false,
         isOnline = false,
     }: MockContentOptions = {},
-): ContentSummaryAndCompareStatus {
+): ContentSummary & ContentSummaryAndCompareStatus {
     const contentId = new ContentId(id);
+    const publishFromTime = isOnline ? new Date() : undefined;
+    const publishTime = isOnline ? new Date() : undefined;
 
-    return {
+    const summary = {
         getId: () => id,
         getContentId: () => contentId,
         getDisplayName: () => displayName,
         getPath: () => path ? {toString: () => path} : undefined,
         hasChildren: () => hasChildren,
-        isOnline: () => isOnline,
-    } as ContentSummaryAndCompareStatus;
+        getPublishFromTime: () => publishFromTime,
+        getPublishTime: () => publishTime,
+        getPublishFirstTime: () => publishTime,
+        getContentSummary: () => summary as unknown as ContentSummary,
+    };
+
+    return summary as unknown as ContentSummary & ContentSummaryAndCompareStatus;
 }
 
 export function createMockChangeItem(id: string): ContentServerChangeItem {

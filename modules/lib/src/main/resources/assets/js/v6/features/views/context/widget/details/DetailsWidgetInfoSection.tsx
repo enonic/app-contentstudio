@@ -2,6 +2,7 @@ import {Button, IconButton, Separator, Tooltip} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Copy} from 'lucide-react';
 import {type ReactElement, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
 import {ExtensionBasePropertiesItemViewHelper} from '../../../../../../app/view/context/extension/details/ExtensionBasePropertiesItemViewHelper';
 import type {ExtensionPropertiesItemViewValue} from '../../../../../../app/view/context/extension/details/ExtensionPropertiesItemViewValue';
 import {PropertiesWizardStepFormType} from '../../../../../../app/view/context/extension/details/PropertiesWizardStepFormFactory';
@@ -44,7 +45,7 @@ export const DetailsWidgetInfoSection = (): ReactElement => {
         }
         prevContentId.current = contentId;
 
-        helper.setItem(content);
+        helper.setItem(ContentSummaryAndCompareStatus.fromContentSummary(content));
         void helper.generateProps().then(setProps);
         void helper.getAllowedForms([PropertiesWizardStepFormType.SETTINGS]).then((allowedForms) => {
             setCanEditSettings(allowedForms.length > 0);

@@ -1,6 +1,6 @@
 import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {type PublishStatus} from 'src/main/resources/assets/js/app/publish/PublishStatus';
-import {type ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
+import {type ContentSummary} from '../../../../../app/content/ContentSummary';
 import type {FlatNode} from '../../../lib/tree-store';
 import {type ContentUploadData} from './ContentUploadData';
 import type {ContentState} from '../../../../../app/content/ContentState';
@@ -14,7 +14,7 @@ export type ContentData = {
     contentType: ContentTypeName;
     iconUrl: string | null;
     hasChildren: boolean;
-    item: ContentSummaryAndCompareStatus; // Full content data from cache
+    item: ContentSummary; // Full content data from cache
 };
 
 export function isFlatTreeItemContentData(

@@ -4,7 +4,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentId} from '../../../../../app/content/ContentId';
 import {ContentName} from '../../../../../app/content/ContentName';
 import {ContentPath} from '../../../../../app/content/ContentPath';
-import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../../app/content/ContentSummary';
 import {ContentSummaryBuilder} from '../../../../../app/content/ContentSummary';
 import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ItemLabel} from '../../ItemLabel';
@@ -24,11 +24,11 @@ export const createRootContent = () => new ContentSummaryBuilder()
     .setType(ContentTypeName.FOLDER)
     .build();
 
-export const isRootContent = (content: ContentSummaryAndCompareStatus): boolean =>
+export const isRootContent = (content: ContentSummary): boolean =>
     content.getContentId()?.toString() === ROOT_ID;
 
 type RootLabelProps = {
-    content: ContentSummaryAndCompareStatus;
+    content: ContentSummary;
     className?: string;
 };
 

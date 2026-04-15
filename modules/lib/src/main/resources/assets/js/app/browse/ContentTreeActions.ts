@@ -11,7 +11,8 @@ import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {type TreeGridActions} from '@enonic/lib-admin-ui/ui/treegrid/actions/TreeGridActions';
 import {Permission} from '../access/Permission';
 import {type ContentId} from '../content/ContentId';
-import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../content/ContentSummary';
+import type {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {type ContentType} from '../inputtype/schema/ContentType';
 import {GetContentTypeByNameRequest} from '../resource/GetContentTypeByNameRequest';
 import {GetPermittedActionsRequest} from '../resource/GetPermittedActionsRequest';
@@ -173,8 +174,14 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
 
         this.getAction(ActionName.TOGGLE_SEARCH_PANEL).setVisible(false);
 
+        if (items.some((item: ContentSummaryAndCompareStatus) => item.hasUploadItem())) {
+            return Q<void>(null);
+        }
+
+        const summaries: ContentSummary[] = items.map((item: ContentSummaryAndCompareStatus) => item.getContentSummary());
+
         const parallelPromises: Q.Promise<void>[] = [
-            this.doUpdateActionsEnabledState(items)
+            this.doUpdateActionsEnabledState(summaries)
         ];
 
         return Q.all(parallelPromises).catch(DefaultErrorHandler.handle);
@@ -194,7 +201,7 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
         defaultActions.forEach(action => action.setVisible(true));
     }
 
-    private doUpdateActionsEnabledState(items: ContentSummaryAndCompareStatus[]): Q.Promise<void> {
+    private doUpdateActionsEnabledState(items: ContentSummary[]): Q.Promise<void> {
         return this.getAllowedPermissions(items).then((permissions: Permission[]) => {
             const state: ContentTreeGridItemsState = new ContentTreeGridItemsState(items, permissions);
             this.toggleActions(state);
@@ -209,17 +216,13 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
         });
     }
 
-    private getAllowedPermissions(items: ContentSummaryAndCompareStatus[]): Q.Promise<Permission[]> {
-        if (items.some((item: ContentSummaryAndCompareStatus) => item.hasUploadItem())) {
-            return Q([]);
-        }
-
+    private getAllowedPermissions(items: ContentSummary[]): Q.Promise<Permission[]> {
         const request: GetPermittedActionsRequest = new GetPermittedActionsRequest();
 
         if (items.length === 0) {
             request.addPermissionsToBeChecked(Permission.CREATE);
         } else {
-            const contentIds: ContentId[] = items.map((item: ContentSummaryAndCompareStatus) => item.getContentId());
+            const contentIds: ContentId[] = items.map((item: ContentSummary) => item.getContentId());
             request.addContentIds(...contentIds);
             request.addPermissionsToBeChecked(Permission.CREATE, Permission.DELETE, Permission.PUBLISH, Permission.MODIFY);
         }
@@ -244,9 +247,9 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
         this.showDefaultActions();
     }
 
-    private handleContentTypeNotFound(selectedItem: ContentSummaryAndCompareStatus) {
+    private handleContentTypeNotFound(selectedItem: ContentSummary) {
         NotifyManager.get().showWarning(
-            i18n('notify.contentType.notFound', selectedItem.getContentSummary().getType().getLocalName()));
+            i18n('notify.contentType.notFound', selectedItem.getType().getLocalName()));
 
         this.getAction(ActionName.PUBLISH).setEnabled(false);
         this.getAction(ActionName.PUBLISH_TREE).setEnabled(false);
@@ -254,7 +257,7 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
         this.showDefaultActions();
     }
 
-    private updateDefaultActionsMultipleItemsSelected(items: ContentSummaryAndCompareStatus[]): Q.Promise<void> {
+    private updateDefaultActionsMultipleItemsSelected(items: ContentSummary[]): Q.Promise<void> {
         const promises: Q.Promise<void>[] = [];
 
         if (items.length === 1 &&
@@ -274,8 +277,8 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
         return Q.all(promises).thenResolve(null);
     }
 
-    private updatePublishTreeAction(items: ContentSummaryAndCompareStatus[]): Q.Promise<void> {
-        return new HasUnpublishedChildrenRequest(items.map((item: ContentSummaryAndCompareStatus) => item.getContentId()))
+    private updatePublishTreeAction(items: ContentSummary[]): Q.Promise<void> {
+        return new HasUnpublishedChildrenRequest(items.map((item: ContentSummary) => item.getContentId()))
             .sendAndParse().then((hasUnpublishedChildrenResult: HasUnpublishedChildrenResult) => {
                 const hasUnpublishedChildren: boolean =
                     hasUnpublishedChildrenResult.getResult().some((item: HasUnpublishedChildren) => item.getHasChildren());
@@ -284,10 +287,10 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
             }).catch(reason => DefaultErrorHandler.handle(reason));
     }
 
-    private checkIsChildrenAllowedByContentType(selectedItem: ContentSummaryAndCompareStatus): Q.Promise<boolean> {
+    private checkIsChildrenAllowedByContentType(selectedItem: ContentSummary): Q.Promise<boolean> {
         const deferred = Q.defer<boolean>();
 
-        new GetContentTypeByNameRequest(selectedItem.getContentSummary().getType())
+        new GetContentTypeByNameRequest(selectedItem.getType())
             .sendAndParse()
             .then((contentType: ContentType) =>
                 deferred.resolve(contentType && contentType.isAllowChildContent())

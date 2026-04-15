@@ -16,7 +16,7 @@ export const ContentListItemWithReference = ({
     'data-component': componentName = CONTENT_LIST_ITEM_WITH_REFERENCE_NAME,
     ...props
 }: ContentListItemWithReferenceProps): React.ReactElement => {
-    const contentId = content.getContentSummary().getContentId().toString();
+    const contentId = content.getContentId().toString();
     return (
         <ContentListItem content={content} data-component={componentName} {...props}>
             {hasInbound && <ContentReferencesLink contentId={contentId} branch={branch} />}

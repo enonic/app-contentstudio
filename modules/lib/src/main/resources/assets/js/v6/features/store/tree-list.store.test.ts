@@ -1,6 +1,6 @@
 import {describe, it, expect, beforeEach} from 'vitest';
 import {PublishStatus} from '../../../app/publish/PublishStatus';
-import type {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../app/content/ContentSummary';
 import {
     $treeState,
     $flatNodes,
@@ -52,8 +52,8 @@ function createNodeData(id: string, displayName?: string): ContentTreeNodeData {
 function createMockContent(
     id: string,
     displayName?: string,
-    publishStatus: PublishStatus | 'missing' = PublishStatus.ONLINE
-): ContentSummaryAndCompareStatus {
+    publishFromTime: Date | null = new Date()
+): ContentSummary {
     const mockName = {
         isUnnamed: () => false,
         toString: () => id,
@@ -75,30 +75,25 @@ function createMockContent(
         getId: () => id,
         getDisplayName: () => displayName ?? `Content ${id}`,
         getType: () => mockType,
-        getPublishStatus: () => (publishStatus === 'missing' ? undefined : publishStatus),
+        getPublishFromTime: () => publishFromTime,
+        getPublishToTime: () => null,
         hasChildren: () => false,
-        hasContentSummary: () => true,
-        hasUploadItem: () => false,
         getPath: () => mockPath,
-        getContentSummary: () => ({
-            getIconUrl: () => null,
-            getDisplayName: () => displayName ?? `Content ${id}`,
-            getName: () => mockName,
-            getType: () => mockType,
-            isValid: () => true,
-            isReady: () => false,
-            isInProgress: () => false,
-        }),
-    } as unknown as ContentSummaryAndCompareStatus;
+        getName: () => mockName,
+        getIconUrl: () => null,
+        isValid: () => true,
+        isReady: () => false,
+        isInProgress: () => false,
+    } as unknown as ContentSummary;
 }
 
-// Mock ContentSummaryAndCompareStatus with parent path for socket events
+// Mock ContentSummary with parent path for socket events
 function createMockContentWithParent(
     id: string,
     parentPath: string,
     hasChildrenValue = false,
     displayName?: string
-): ContentSummaryAndCompareStatus {
+): ContentSummary {
     const mockName = {
         isUnnamed: () => false,
         toString: () => id,
@@ -129,25 +124,22 @@ function createMockContentWithParent(
         getLocalName: () => 'page',
     };
 
-    return {
+    const summary = {
         getId: () => id,
         getDisplayName: () => displayName ?? `Content ${id}`,
         getType: () => mockType,
-        getPublishStatus: () => PublishStatus.ONLINE,
+        getPublishFromTime: () => new Date(),
+        getPublishToTime: () => null,
         hasChildren: () => hasChildrenValue,
-        hasContentSummary: () => true,
-        hasUploadItem: () => false,
         getPath: () => mockPath,
-        getContentSummary: () => ({
-            getIconUrl: () => null,
-            getDisplayName: () => displayName ?? `Content ${id}`,
-            getName: () => mockName,
-            getType: () => mockType,
-            isValid: () => true,
-            isReady: () => false,
-            isInProgress: () => false,
-        }),
-    } as unknown as ContentSummaryAndCompareStatus;
+        getName: () => mockName,
+        getIconUrl: () => null,
+        isValid: () => true,
+        isReady: () => false,
+        isInProgress: () => false,
+    } as unknown as ContentSummary;
+
+    return summary;
 }
 
 // Mock ContentServerChangeItem for delete events
@@ -485,17 +477,17 @@ describe('tree-list.store', () => {
             expect(data && 'item' in data ? data.item?.getDisplayName() : undefined).toBe('Cache Name');
         });
 
-        it('uses cache publish status even when unpublished payload has no publish status', () => {
+        it('derives publish status from content publish times', () => {
             addTreeNodes([{id: '1', data: createNodeData('1', 'Tree Name')}]);
             setTreeRootIds(['1']);
-            setContent(createMockContent('1', 'Cache Name', PublishStatus.ONLINE));
+            setContent(createMockContent('1', 'Cache Name', new Date()));
 
-            // Unpublish event payloads may carry compare status changes with publishStatus unset.
-            setContents([createMockContent('1', 'Cache Name', 'missing')]);
+            // Unpublish event payloads carry content with no publish times — status becomes OFFLINE.
+            setContents([createMockContent('1', 'Cache Name', null)]);
 
             const merged = $mergedFlatNodes.get();
             const data = merged[0].data;
-            expect(data && 'publishStatus' in data ? data.publishStatus : PublishStatus.ONLINE).toBeUndefined();
+            expect(data && 'publishStatus' in data ? data.publishStatus : undefined).toBe(PublishStatus.OFFLINE);
         });
 
         it('injects uploads at parent position', () => {
@@ -546,7 +538,7 @@ describe('tree-list.store', () => {
 
                 // Emit: child content created under parent
                 const childContent = createMockContentWithParent('child', '/parent', false, 'New Child');
-                emitContentCreated([childContent] as ContentSummaryAndCompareStatus[]);
+                emitContentCreated([childContent]);
 
                 // Assert: child appears in tree
                 expect(hasTreeNode('child')).toBe(true);
@@ -564,7 +556,7 @@ describe('tree-list.store', () => {
 
                 // Emit: child content created under parent
                 const childContent = createMockContentWithParent('child', '/parent', false, 'New Child');
-                emitContentCreated([childContent] as ContentSummaryAndCompareStatus[]);
+                emitContentCreated([childContent]);
 
                 // Assert: child appears in tree
                 expect(!hasTreeNode('child')).toBe(true);
@@ -578,7 +570,7 @@ describe('tree-list.store', () => {
 
                 // Emit: content created with non-existent parent
                 const content = createMockContentWithParent('child', '/non-existent');
-                emitContentCreated([content] as ContentSummaryAndCompareStatus[]);
+                emitContentCreated([content]);
 
                 // Assert: content not added to tree
                 expect(hasTreeNode('child')).toBe(false);
@@ -595,7 +587,7 @@ describe('tree-list.store', () => {
 
                 // Emit: child content created under parent
                 const childContent = createMockContentWithParent('child', '/parent');
-                emitContentCreated([childContent] as ContentSummaryAndCompareStatus[]);
+                emitContentCreated([childContent]);
 
                 // Assert: child should not be inserted as root while parent is missing
                 expect(hasTreeNode('child')).toBe(false);
@@ -609,7 +601,7 @@ describe('tree-list.store', () => {
 
                 // Emit: root-level content created (no parent or root parent)
                 const rootContent = createMockContentWithParent('new-root', '/');
-                emitContentCreated([rootContent] as ContentSummaryAndCompareStatus[]);
+                emitContentCreated([rootContent]);
 
                 // Assert: new item prepended to rootIds
                 const state = $treeState.get();
@@ -629,7 +621,7 @@ describe('tree-list.store', () => {
 
                 // Emit: first child created
                 const childContent = createMockContentWithParent('child', '/parent');
-                emitContentCreated([childContent] as ContentSummaryAndCompareStatus[]);
+                emitContentCreated([childContent]);
 
                 // Assert: parent.hasChildren becomes true
                 expect(getTreeNode('parent')?.hasChildren).toBe(true);
@@ -726,7 +718,7 @@ describe('tree-list.store', () => {
 
                 // Emit: duplicated content
                 const duplicatedContent = createMockContentWithParent('duplicate', '/parent', false, 'Duplicated');
-                emitContentDuplicated([duplicatedContent] as ContentSummaryAndCompareStatus[]);
+                emitContentDuplicated([duplicatedContent]);
 
                 // Assert: duplicate appears in tree
                 expect(hasTreeNode('duplicate')).toBe(true);
@@ -744,7 +736,7 @@ describe('tree-list.store', () => {
 
                 // Emit: duplicated content
                 const duplicatedContent = createMockContentWithParent('duplicate', '/parent', false, 'Duplicated');
-                emitContentDuplicated([duplicatedContent] as ContentSummaryAndCompareStatus[]);
+                emitContentDuplicated([duplicatedContent]);
 
                 // Assert: duplicate appears in tree
                 expect(hasTreeNode('duplicate')).not.toBe(true);
@@ -758,7 +750,7 @@ describe('tree-list.store', () => {
 
                 // Emit: duplicated content with non-existent parent
                 const content = createMockContentWithParent('duplicate', '/non-existent');
-                emitContentDuplicated([content] as ContentSummaryAndCompareStatus[]);
+                emitContentDuplicated([content]);
 
                 // Assert: content not added
                 expect(hasTreeNode('duplicate')).toBe(false);

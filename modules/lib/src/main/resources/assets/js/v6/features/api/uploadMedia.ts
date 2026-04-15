@@ -1,7 +1,7 @@
 import {Result, ResultAsync} from 'neverthrow';
 import {type Content, ContentBuilder} from '../../../app/content/Content';
 import {ContentPath} from '../../../app/content/ContentPath';
-import {type ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
+import {type ContentSummary} from '../../../app/content/ContentSummary';
 import {type Project} from '../../../app/settings/data/project/Project';
 import {UrlHelper} from '../../../app/util/UrlHelper';
 import {UploadError} from './errors';
@@ -21,7 +21,7 @@ export type UploadMediaError = {mediaIdentifier: string; message: string};
 export type UploadMediaFileOptions = {
     id: string;
     file: File;
-    parentContent?: ContentSummaryAndCompareStatus;
+    parentContent?: ContentSummary;
     onProgress?: (id: string, progress: number) => void;
 };
 
@@ -29,14 +29,14 @@ export type UploadDataUrlImageOptions = {
     id: string;
     imageSource: string;
     name: string;
-    parentContent?: ContentSummaryAndCompareStatus;
+    parentContent?: ContentSummary;
     onProgress?: (id: string, progress: number) => void;
 };
 
 export type UploadRemoteImageOptions = {
     id: string;
     imageSource: string;
-    parentContent?: ContentSummaryAndCompareStatus;
+    parentContent?: ContentSummary;
     onProgress?: (id: string, progress: number) => void;
 };
 
@@ -185,6 +185,6 @@ const safeJsonParse = Result.fromThrowable(
     (e) => e as Error
 );
 
-function getParentPath(parentContent?: ContentSummaryAndCompareStatus): string {
-    return parentContent ? parentContent.getContentSummary().getPath().toString() : ContentPath.getRoot().toString();
+function getParentPath(parentContent?: ContentSummary): string {
+    return parentContent ? parentContent.getPath().toString() : ContentPath.getRoot().toString();
 }

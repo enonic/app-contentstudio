@@ -38,13 +38,12 @@ export const EditPropertiesDialog = (): ReactElement => {
     const ownerLabel = useI18n('field.owner');
     const searchPlaceholder = useI18n('field.search.placeholder');
 
-    const contentSummary = content?.getContentSummary();
-    const path = contentSummary?.getPath()?.toString();
-    const initialLanguage = contentSummary?.getLanguage() ?? '';
-    const initialOwner = contentSummary?.getOwner()?.toString() ?? '';
+    const path = content?.getPath()?.toString();
+    const initialLanguage = content?.getLanguage() ?? '';
+    const initialOwner = content?.getOwner()?.toString() ?? '';
     const selectedLanguage = languageSelection[0] ?? '';
     const selectedOwner = ownerSelection[0] ?? '';
-    const hasChanges = !!contentSummary && (selectedLanguage !== initialLanguage || selectedOwner !== initialOwner);
+    const hasChanges = !!content && (selectedLanguage !== initialLanguage || selectedOwner !== initialOwner);
     const canApply = hasChanges && !saving;
 
     // Memoized values

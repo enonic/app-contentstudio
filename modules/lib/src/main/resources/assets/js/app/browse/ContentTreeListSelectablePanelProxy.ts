@@ -4,11 +4,12 @@ import {type SelectableListBoxWrapper, SelectionMode} from '@enonic/lib-admin-ui
 import {type DataChangedEvent} from '@enonic/lib-admin-ui/ui/treegrid/DataChangedEvent';
 import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import Q from 'q';
-import {getContent} from '../../v6/features/store/content.store';
-import {getCurrentItems} from '../../v6/features/store/contentTreeSelection.store';
+import {getContentAsCSCS} from '../../v6/features/store/content.store';
+import {getCurrentItemsAsCSCS} from '../../v6/features/store/contentTreeSelection.store';
 import {$treeState} from '../../v6/features/store/tree-list.store';
 import {type ContentTreeListElement} from '../../v6/features/views/browse/grid/ContentTreeListElement';
 import {TreeListToolbarElement} from '../../v6/features/views/browse/tree/TreeListToolbar';
+import {type ContentSummary} from '../content/ContentSummary';
 import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class ContentTreeListSelectablePanelProxy extends SelectableListBoxPanel<ContentSummaryAndCompareStatus> {
@@ -30,11 +31,11 @@ export class ContentTreeListSelectablePanelProxy extends SelectableListBoxPanel<
     }
 
     onSelectionChanged(listener: (selectionChange: SelectionChange<ContentSummaryAndCompareStatus>) => void): void {
-        this.contentTreeList.onSelectionChanged(listener);
+        this.contentTreeList.onSelectionChanged(listener as unknown as (selectionChange: SelectionChange<ContentSummary>) => void);
     }
 
     getSelectedItems(): ContentSummaryAndCompareStatus[] {
-        return [...getCurrentItems()];
+        return [...getCurrentItemsAsCSCS()];
     }
 
     getLastSelectedItem(): ContentSummaryAndCompareStatus | undefined {
@@ -55,7 +56,7 @@ export class ContentTreeListSelectablePanelProxy extends SelectableListBoxPanel<
     }
 
     getItem(id: string): ContentSummaryAndCompareStatus | undefined {
-        return getContent(id);
+        return getContentAsCSCS(id);
     }
 
     getWrapper(): SelectableListBoxWrapper<ContentSummaryAndCompareStatus> {

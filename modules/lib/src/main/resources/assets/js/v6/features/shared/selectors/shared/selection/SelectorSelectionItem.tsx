@@ -1,12 +1,11 @@
 import {IconButton, ListItem, Tooltip} from '@enonic/ui';
 import {useCallback, type ReactElement} from 'react';
 import {useI18n} from '../../../../hooks/useI18n';
-import {type ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
+import {type ContentSummary} from '../../../../../../app/content/ContentSummary';
 import {PenIcon, XIcon} from 'lucide-react';
 import {EditContentEvent} from '../../../../../../app/event/EditContentEvent';
 import {type Project} from '../../../../../../app/settings/data/project/Project';
 import {type SortableListItemContext} from '@enonic/lib-admin-ui/form2/components';
-import {CompareStatus} from '../../../../../../app/content/CompareStatus';
 
 export type SelectorSelectionItemProps = {
     /** The current active project */
@@ -16,11 +15,11 @@ export type SelectorSelectionItemProps = {
     /** Callback when selection changes */
     onSelectionChange: (selection: readonly string[]) => void;
     /** Render callback for the item content */
-    renderContent: (content: ContentSummaryAndCompareStatus) => ReactElement;
+    renderContent: (content: ContentSummary) => ReactElement;
     /** Whether the interactive buttons are disabled */
     disabled?: boolean;
     /** The context of the item */
-    context: SortableListItemContext<ContentSummaryAndCompareStatus>;
+    context: SortableListItemContext<ContentSummary>;
 };
 
 const SELECTOR_SELECTION_ITEM_NAME = 'SelectorSelectionItem';
@@ -34,7 +33,8 @@ export const SelectorSelectionItem = ({
     disabled,
     context: {item: content},
 }: SelectorSelectionItemProps): ReactElement => {
-    const isRemoved = [CompareStatus.UNKNOWN, CompareStatus.ARCHIVED].includes(content.getCompareStatus());
+    // Content without a path is considered removed (deleted or archived)
+    const isRemoved = !content.getPath();
 
     const removeLabel = useI18n('action.remove');
     const editLabel = useI18n('action.edit');

@@ -1,6 +1,8 @@
-import {CompareStatus} from '../../../../../app/content/CompareStatus';
+import type {ContentSummary} from '../../../../../app/content/ContentSummary';
 import {PublishStatus} from '../../../../../app/publish/PublishStatus';
 import type {ContentState} from '../../../../../app/content/ContentState';
+
+export type SecondaryStatus = 'modified' | 'new' | 'unpublished';
 
 export function createPublishStatusKey(status: PublishStatus): string {
     switch (status) {
@@ -10,28 +12,44 @@ export function createPublishStatusKey(status: PublishStatus): string {
             return 'status.scheduled';
         case PublishStatus.EXPIRED:
             return 'status.expired';
+        case PublishStatus.OFFLINE:
+            return 'status.offline';
         default:
             return 'status.offline';
     }
 }
 
-export function createCompareStatusKey(status: CompareStatus, wasPublished: boolean): string {
+export function createSecondaryStatusKey(status: SecondaryStatus): string {
     switch (status) {
-        case CompareStatus.NEW:
-            return wasPublished ? 'status.unpublished' : 'status.new';
-        case CompareStatus.NEWER:
+        case 'modified':
             return 'status.modified';
-        case CompareStatus.OLDER:
-            return 'status.outofdate';
-        case CompareStatus.EQUAL:
-            return 'status.published';
-        case CompareStatus.MOVED:
-            return 'status.moved';
-        case CompareStatus.ARCHIVED:
-            return 'status.archived';
-        default:
-            return 'status.unknown';
+        case 'new':
+            return 'status.new';
+        case 'unpublished':
+            return 'status.unpublished';
     }
+}
+
+export function calcTreePublishStatus(summary: ContentSummary): PublishStatus {
+    const from = summary.getPublishFromTime();
+    if (!from) return PublishStatus.OFFLINE;
+    const now = Date.now();
+    if (from.getTime() > now) return PublishStatus.PENDING;
+    const to = summary.getPublishToTime();
+    if (to && to.getTime() < now) return PublishStatus.EXPIRED;
+    return PublishStatus.ONLINE;
+}
+
+export function calcSecondaryStatus(publishStatus: PublishStatus, summary: ContentSummary): SecondaryStatus | undefined {
+    if (publishStatus === PublishStatus.OFFLINE) {
+        return summary.getPublishFirstTime() ? 'unpublished' : 'new';
+    }
+
+    if (!summary.getPublishTime()) {
+        return 'modified';
+    }
+
+    return undefined;
 }
 
 export function createContentStateKey(contentState: ContentState): string {

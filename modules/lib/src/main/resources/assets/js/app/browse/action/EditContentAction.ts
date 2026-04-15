@@ -1,7 +1,7 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {getCurrentItems} from '../../../v6/features/store/contentTreeSelection.store';
+import {getCurrentItemsAsCSCS} from '../../../v6/features/store/contentTreeSelection.store';
 import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {ContentLocalizer} from './ContentLocalizer';
@@ -24,7 +24,7 @@ export class EditContentAction
     }
 
     protected handleExecuted() {
-        const contents = [...getCurrentItems()];
+        const contents = [...getCurrentItemsAsCSCS()];
 
         if (contents.length > EditContentAction.MAX_ITEMS_TO_EDIT) {
             showWarning(i18n('notify.edit.tooMuch'));

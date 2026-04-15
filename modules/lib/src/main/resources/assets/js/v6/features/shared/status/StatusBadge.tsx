@@ -13,9 +13,10 @@ const STATUS_BADGE_NAME = 'StatusBadge';
 export const StatusBadge = ({status, className}: Props) => {
     const label = useI18n(createPublishStatusKey(status));
     const isOnline = status === PublishStatus.ONLINE;
+    const isOffline = status === PublishStatus.OFFLINE;
 
     return (
-        <span data-component={STATUS_BADGE_NAME} className={cn('text-sm capitalize group-data-[tone=inverse]:text-alt', isOnline && 'text-success', className)}>
+        <span data-component={STATUS_BADGE_NAME} className={cn('text-sm capitalize group-data-[tone=inverse]:text-alt', isOnline && 'text-success', isOffline && 'text-muted', className)}>
             {label}
         </span>
     );

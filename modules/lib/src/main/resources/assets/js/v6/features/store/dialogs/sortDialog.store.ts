@@ -2,7 +2,7 @@ import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {QueryField} from '@enonic/lib-admin-ui/query/QueryField';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {computed, map} from 'nanostores';
-import type {ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../app/content/ContentSummary';
 import {ContentSummaryAndCompareStatusFetcher} from '../../../../app/resource/ContentSummaryAndCompareStatusFetcher';
 import {OrderChildContentRequest} from '../../../../app/resource/OrderChildContentRequest';
 import {OrderContentRequest} from '../../../../app/resource/OrderContentRequest';
@@ -23,8 +23,8 @@ type SortDialogStore = {
     loading: boolean;
     submitting: boolean;
     failed: boolean;
-    parent: ContentSummaryAndCompareStatus | undefined;
-    items: ContentSummaryAndCompareStatus[];
+    parent: ContentSummary | undefined;
+    items: ContentSummary[];
     selectedOptionId: SortOrderOptionId;
     initialOptionId: SortOrderOptionId;
     hasManualChanges: boolean;
@@ -70,10 +70,10 @@ const fetcher = new ContentSummaryAndCompareStatusFetcher();
 let instanceId = 0;
 
 const moveItem = (
-    items: ContentSummaryAndCompareStatus[],
+    items: ContentSummary[],
     fromIndex: number,
     toIndex: number
-): ContentSummaryAndCompareStatus[] => {
+): ContentSummary[] => {
     if (fromIndex === toIndex) {
         return items;
     }
@@ -85,7 +85,7 @@ const moveItem = (
 };
 
 const createManualMovement = (
-    items: readonly ContentSummaryAndCompareStatus[],
+    items: readonly ContentSummary[],
     fromIndex: number,
     toIndex: number
 ): SortManualMovement => {
@@ -181,7 +181,7 @@ async function reloadSortDialogItems(): Promise<void> {
 
         $sortDialog.set({
             ...$sortDialog.get(),
-            items: response.getContents(),
+            items: response.getContents().map(c => c.getContentSummary()),
             loading: false,
             failed: false,
         });
@@ -295,8 +295,8 @@ export const submitSortDialogAction = async (): Promise<boolean> => {
     }
 };
 
-export const openSortDialog = (parent: ContentSummaryAndCompareStatus): void => {
-    const initialOptionId = toSortOrderOptionIdFromChildOrder(parent.getContentSummary()?.getChildOrder());
+export const openSortDialog = (parent: ContentSummary): void => {
+    const initialOptionId = toSortOrderOptionIdFromChildOrder(parent.getChildOrder());
 
     $sortDialog.set({
         ...structuredClone(initialState),

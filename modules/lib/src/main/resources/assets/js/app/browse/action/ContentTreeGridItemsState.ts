@@ -1,10 +1,24 @@
-import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../content/ContentSummary';
 import {ManagedActionManager} from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
 import {Permission} from '../../access/Permission';
+import {PublishStatus} from '../../publish/PublishStatus';
+import {calcTreePublishStatus, calcSecondaryStatus} from '../../../v6/features/utils/cms/content/status';
+
+function isOnline(content: ContentSummary): boolean {
+    return calcTreePublishStatus(content) === PublishStatus.ONLINE && !calcSecondaryStatus(PublishStatus.ONLINE, content);
+}
+
+function isPublished(content: ContentSummary): boolean {
+    return !!content.getPublishFirstTime();
+}
+
+function canBeMarkedAsReady(content: ContentSummary): boolean {
+    return !isOnline(content) && content.isValid() && !content.isReady();
+}
 
 export class ContentTreeGridItemsState {
 
-    private items: ContentSummaryAndCompareStatus[] = [];
+    private items: ContentSummary[] = [];
 
     private allowedPermissions: Permission[] = [];
 
@@ -44,11 +58,11 @@ export class ContentTreeGridItemsState {
 
     private managedActionExecuting: boolean = false;
 
-    constructor(items: ContentSummaryAndCompareStatus[], allowedPermissions: Permission[]) {
+    constructor(items: ContentSummary[], allowedPermissions: Permission[]) {
         this.setItems(items, allowedPermissions);
     }
 
-    setItems(items: ContentSummaryAndCompareStatus[], allowedPermissions: Permission[]) {
+    setItems(items: ContentSummary[], allowedPermissions: Permission[]) {
         this.items = items;
         this.allowedPermissions = allowedPermissions;
         this.reset();
@@ -78,8 +92,10 @@ export class ContentTreeGridItemsState {
         this.modifyAllowed = this.isModifyAllowed();
         this.publishAllowed = this.isPublishAllowed();
 
-        this.items.forEach((content: ContentSummaryAndCompareStatus) => {
-            if (!content.isOnline()) {
+        this.items.forEach((content: ContentSummary) => {
+            const online = isOnline(content);
+
+            if (!online) {
                 this.allOnline = false;
 
                 if (content.isValid()) {
@@ -95,7 +111,7 @@ export class ContentTreeGridItemsState {
                 this.anyEditable = true;
             }
 
-            if (content.isPublished()) {
+            if (isPublished(content)) {
                 this.anyPublished = true;
             }
 
@@ -109,7 +125,7 @@ export class ContentTreeGridItemsState {
                 this.allInherited = false;
             }
 
-            if (content.canBeMarkedAsReady()) {
+            if (canBeMarkedAsReady(content)) {
                 this.anyCanBeMarkedAsReady = true;
             }
 
@@ -117,7 +133,7 @@ export class ContentTreeGridItemsState {
                 this.anyDeletable = true;
             }
 
-            if (content.getContentSummary()?.isInProgress()) {
+            if (content.isInProgress()) {
                 this.anyInProgress = true;
             }
 

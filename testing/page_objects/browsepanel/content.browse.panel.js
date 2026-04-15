@@ -40,7 +40,7 @@ const XPATH = {
     defaultActionByName: name => `//button[contains(@id, 'ActionButton') and child::span[contains(.,'${name}')]]`,
     foldButtonByName: name => `//div[contains(@id,'ContentBrowseToolbar')]//span[text()='${name}']`,
     browseToolbarMenuItem: (optionName) => {
-        return `//div[contains(@id,'BrowseToolbar') and @role='menu']//div[@role='menuitem' and child::span[text()='${optionName}']]`
+        return `//div[@role='menu']//div[@role='menuitem' and child::span[text()='${optionName}']]`
     },
 };
 

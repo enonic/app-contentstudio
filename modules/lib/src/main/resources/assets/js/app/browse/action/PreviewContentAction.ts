@@ -5,7 +5,6 @@ import {getCurrentItems} from '../../../v6/features/store/contentTreeSelection.s
 import {$activeWidget} from '../../../v6/features/store/liveViewWidgets.store';
 import {PreviewActionHelper} from '../../action/PreviewActionHelper';
 import {type ContentSummary} from '../../content/ContentSummary';
-import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {type ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 
@@ -29,8 +28,7 @@ export class PreviewContentAction
     protected handleExecuted() {
         if (this.totalSelected < PreviewContentAction.BLOCK_COUNT) {
             const widget = $activeWidget.get();
-            const contentSummaries: ContentSummary[] = getCurrentItems()
-                .map((data: ContentSummaryAndCompareStatus) => data.getContentSummary());
+            const contentSummaries: ContentSummary[] = [...getCurrentItems()];
 
             this.helper.openWindows(contentSummaries, widget);
         } else {

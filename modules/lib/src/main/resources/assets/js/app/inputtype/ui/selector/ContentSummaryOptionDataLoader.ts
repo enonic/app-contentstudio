@@ -7,9 +7,6 @@ import {type ContentSummary} from '../../../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
 import {type ContentSummaryJson} from '../../../content/ContentSummaryJson';
 import {ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
-import {CompareContentRequest} from '../../../resource/CompareContentRequest';
-import {type CompareContentResult} from '../../../resource/CompareContentResult';
-import {type CompareContentResults} from '../../../resource/CompareContentResults';
 import {ContentSelectorQueryRequest} from '../../../resource/ContentSelectorQueryRequest';
 import {type ContentSelectorRequest} from '../../../resource/ContentSelectorRequest';
 import {ContentSummaryFetcher} from '../../../resource/ContentSummaryFetcher';
@@ -205,19 +202,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
     }
 
     private loadStatuses(contents: DATA[]): Q.Promise<DATA[]> {
-        return CompareContentRequest.fromContentSummaries(contents.map(item => item.getContent().getContentSummary())).setRequestProject(
-            this.project).sendAndParse().then(
-            (compareResults: CompareContentResults) => {
-
-                return contents.map(item => {
-                    const compareResult: CompareContentResult = compareResults.get(item.getId());
-                    const contentAndCompareStatus = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
-                        item.getContent().getContentSummary(), compareResult.getCompareStatus(), compareResult.getPublishStatus());
-
-                    return ContentTreeSelectorItem.create().setContent(contentAndCompareStatus).setSelectable(
-                        item.isSelectable()).build() as DATA;
-                });
-            });
+        return Q(contents);
     }
 
     private notifyLoadModeChanged(isTreeMode: boolean) {

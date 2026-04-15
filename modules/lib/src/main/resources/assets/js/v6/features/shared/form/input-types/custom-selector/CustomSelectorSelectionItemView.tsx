@@ -1,14 +1,14 @@
 import {type ReactElement} from 'react';
 import {CustomSelectorItemView} from './CustomSelectorItemView';
 import {SortableListItemContext} from '@enonic/lib-admin-ui/form2/components';
-import {type ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
+import {type ContentSummary} from '../../../../../../app/content/ContentSummary';
 import {CustomSelectorItem} from './CustomSelectorInput';
 import {X} from 'lucide-react';
 import {cn, IconButton} from '@enonic/ui';
 
 type CustomSelectorSelectionItemViewProps = {
     items: CustomSelectorItem[];
-    context: SortableListItemContext<ContentSummaryAndCompareStatus>;
+    context: SortableListItemContext<ContentSummary>;
     listMode: 'list' | 'flat';
     onRemove: (index: number) => void;
     className?: string;

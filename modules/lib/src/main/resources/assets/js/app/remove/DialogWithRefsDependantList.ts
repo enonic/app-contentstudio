@@ -23,7 +23,7 @@ export class DialogWithRefsDependantList
 
     createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): ContentListItemElement {
         return new ContentListItemElement({
-            content: item,
+            content: item.getContentSummary(),
             selected: false,
             className: 'archive-item',
             onClick: readOnly ? undefined : () => new EditContentEvent([item]).fire(),

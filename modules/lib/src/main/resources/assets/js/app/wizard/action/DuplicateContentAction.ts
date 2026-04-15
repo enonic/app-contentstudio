@@ -1,6 +1,4 @@
 import {type Content} from '../../content/Content';
-import {ContentDuplicatePromptEvent} from '../../browse/ContentDuplicatePromptEvent';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {type WizardPanel} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
@@ -12,8 +10,7 @@ export class DuplicateContentAction
     constructor(wizardPanel: WizardPanel<Content>) {
         super(i18n('action.duplicate'));
         this.onExecuted(() => {
-            const content = ContentSummaryAndCompareStatus.fromContentSummary(wizardPanel.getPersistedItem());
-            openDuplicateDialog([content]);
+            openDuplicateDialog([wizardPanel.getPersistedItem()]);
         });
     }
 }

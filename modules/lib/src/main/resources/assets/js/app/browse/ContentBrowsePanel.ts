@@ -634,7 +634,7 @@ export class ContentBrowsePanel
         this.updateContextPanel(data);
 
         data.forEach((newItem: ContentSummaryAndCompareStatus) => {
-            setContent(newItem);
+            setContent(newItem.getContentSummary());
         });
 
         this.refreshFilterWithDelay();

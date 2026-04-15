@@ -2,7 +2,7 @@ import {openSortDialog} from '../v6/features/store/dialogs/sortDialog.store';
 import {type ShowDependenciesEvent} from './browse/ShowDependenciesEvent';
 import {type SortContentEvent} from './browse/sort/SortContentEvent';
 import {type ContentSummary} from './content/ContentSummary';
-import {type ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
+import type {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
 import {type NewContentEvent} from './create/NewContentEvent';
 import {type ContentUpdatedEvent} from './event/ContentUpdatedEvent';
 import {type EditContentEvent} from './event/EditContentEvent';
@@ -23,10 +23,7 @@ export class ContentEventsProcessor {
 
     static handleEdit(event: EditContentEvent): void {
         event.getModels()
-            .filter((item: ContentSummaryAndCompareStatus) => item?.getContentSummary())
-            .forEach((content: ContentSummaryAndCompareStatus) => {
-            const contentSummary: ContentSummary = content.getContentSummary();
-
+            .forEach((contentSummary: ContentSummary) => {
             const editParams: ContentEditParams = ContentEditParams.create()
                 .setContentId(contentSummary.getContentId())
                 .setProject(event.getProject())
@@ -48,7 +45,7 @@ export class ContentEventsProcessor {
 
         if (!firstContent) return;
 
-        openSortDialog(firstContent);
+        openSortDialog(firstContent.getContentSummary());
     }
 
     static handleShowDependencies(event: ShowDependenciesEvent): void {

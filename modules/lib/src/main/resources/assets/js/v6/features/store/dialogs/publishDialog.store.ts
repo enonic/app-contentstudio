@@ -3,8 +3,10 @@ import type {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {atom, computed, map} from 'nanostores';
 import {type ContentId} from '../../../../app/content/ContentId';
-import {type ContentSummaryAndCompareStatus} from '../../../../app/content/ContentSummaryAndCompareStatus';
-import {fetchContentSummariesWithStatus} from '../../api/content';
+import type {ContentSummary} from '../../../../app/content/ContentSummary';
+import {fetchContentSummaries} from '../../api/content';
+import {type CompareResult, compareContent} from '../../api/compare';
+import {calcSecondaryStatus, calcTreePublishStatus} from '../../utils/cms/content/status';
 import {hasUnpublishedChildren} from '../../api/hasUnpublishedChildren';
 import {findIdsByParents, markAsReady, publishContent, resolvePublishDependencies as resolvePublishDeps} from '../../api/publish';
 import {cleanupTask, trackTask} from '../../services/task.service';
@@ -22,7 +24,7 @@ import type {TaskResultState} from '../task.store';
 
 type MainItem = {
     id: string;
-    content: ContentSummaryAndCompareStatus;
+    content: ContentSummary;
     included: boolean;
     childrenIncluded: boolean;
     required: boolean;
@@ -31,7 +33,7 @@ type MainItem = {
 
 type DependantItem = {
     id: string;
-    content: ContentSummaryAndCompareStatus;
+    content: ContentSummary;
     included: boolean;
     required: boolean;
     excludedByDefault: boolean;
@@ -65,7 +67,7 @@ type PublishDialogStore = {
     open: boolean;
     failed: boolean;
     // Content
-    items: ContentSummaryAndCompareStatus[];
+    items: ContentSummary[];
     // dependantItems moved to $publishDialogDependants
     message?: string;
     schedule?: PublishSchedule;
@@ -146,12 +148,17 @@ export const $draftPublishDialogSelection = map<PublishDialogSelectionStore>(str
 const $publishChecks = map<PublishChecksStore>(structuredClone(initialChecksState));
 
 // Store for resolved dependencies (output of reloadPublishDialogData)
-const $publishDialogDependants = atom<ContentSummaryAndCompareStatus[]>([]);
+const $publishDialogDependants = atom<ContentSummary[]>([]);
 
 export const $publishDialogPending = map<PublishDialogPendingStore>(initialPendingState);
 
 // Store for IDs of items that have unpublished children
 const $hasUnpublishedChildrenIds = atom<Set<string>>(new Set());
+
+// Store for verified compare statuses of online+modified items
+const $compareStatuses = atom<Map<string, CompareResult>>(new Map());
+const $compareStatusesLoading = atom<boolean>(false);
+let compareInstanceId = 0;
 
 // Store for schedule field errors
 const $publishScheduleErrors = map<PublishScheduleErrors>({});
@@ -211,7 +218,7 @@ export const $dependantPublishItems = computed(
 
 export const $publishableIds = computed([$mainPublishItems, $dependantPublishItems], (mainItems, dependantItems): ContentId[] => {
     return [...mainItems, ...dependantItems].filter(item => {
-        return item.included && !item.content.isOnline();
+        return item.included && calcSecondaryStatus(calcTreePublishStatus(item.content), item.content) != null;
     }).map(item => item.content.getContentId());
 });
 
@@ -239,6 +246,10 @@ export const $publishCheckErrors = computed([$publishChecks], (state): PublishCh
 export const $isPublishChecking = computed([$publishChecks], ({loading}): boolean => {
     return loading;
 });
+
+export const $publishCompareStatuses = computed($compareStatuses, (map) => map);
+
+export const $isCompareStatusesLoading = computed($compareStatusesLoading, (loading) => loading);
 
 export const $isScheduleValid = computed([$publishDialog, $publishScheduleErrors], ({schedule}, errors): boolean => {
     if (errors.from || errors.to || errors.range) {
@@ -292,7 +303,7 @@ export const syncPublishDialogContext = async ({
     message,
     schedule,
 }: {
-    items: ContentSummaryAndCompareStatus[];
+    items: ContentSummary[];
     excludeChildrenIds?: ContentId[];
     excludedDependantIds?: ContentId[];
     message?: string;
@@ -330,7 +341,7 @@ export const syncPublishDialogContext = async ({
 
 // OPEN & RESET
 
-export const openPublishDialog = (items: ContentSummaryAndCompareStatus[], includeChildItems = false, excludedIds: ContentId[] = []) => {
+export const openPublishDialog = (items: ContentSummary[], includeChildItems = false, excludedIds: ContentId[] = []) => {
     const current = $publishDialog.value;
 
     if (current.open || items.length === 0) return;
@@ -357,7 +368,7 @@ export const openPublishDialog = (items: ContentSummaryAndCompareStatus[], inclu
     });
 };
 
-export const openPublishDialogWithState = (items: ContentSummaryAndCompareStatus[], excludedIds: ContentId[], message?: string) => {
+export const openPublishDialogWithState = (items: ContentSummary[], excludedIds: ContentId[], message?: string) => {
     openPublishDialog(items, false, excludedIds);
     if (message) {
         $publishDialog.setKey('message', message);
@@ -366,6 +377,7 @@ export const openPublishDialogWithState = (items: ContentSummaryAndCompareStatus
 
 export const resetPublishDialogContext = () => {
     instanceId += 1;
+    compareInstanceId += 1;
     const {taskId} = $publishDialogPending.get();
     if (taskId) {
         cleanupTask(taskId);
@@ -376,6 +388,8 @@ export const resetPublishDialogContext = () => {
     $publishDialogDependants.set([]);
     $publishDialogPending.set(initialPendingState);
     $hasUnpublishedChildrenIds.set(new Set());
+    $compareStatuses.set(new Map());
+    $compareStatusesLoading.set(false);
     $publishScheduleErrors.set({});
 };
 
@@ -554,6 +568,9 @@ export const removePublishDialogItem = (id: ContentId): void => {
 // DATA
 
 async function reloadPublishDialogData(): Promise<void> {
+    $compareStatuses.set(new Map());
+    $compareStatusesLoading.set(false);
+
     try {
         $publishChecks.setKey('loading', true);
 
@@ -586,6 +603,9 @@ async function reloadPublishDialogData(): Promise<void> {
         // Fetch unpublished children status
         const {items} = $publishDialog.get();
         await fetchHasUnpublishedChildren(items);
+
+        // Verify compare status for online+modified items (non-blocking)
+        void fetchCompareStatuses([...items, ...dependantItems]);
     } catch (error) {
         $publishDialog.setKey('failed', true);
         // TODO: Notify error
@@ -705,7 +725,7 @@ export const publishItems = async (
 // * Utilities
 //
 
-const filterItemsWithChildren = (items: ContentSummaryAndCompareStatus[]): ContentSummaryAndCompareStatus[] => {
+const filterItemsWithChildren = (items: ContentSummary[]): ContentSummary[] => {
     return items.filter(item => item.hasChildren());
 };
 
@@ -765,7 +785,7 @@ const handleRemovedPublishItems = (idsToRemove: Set<string>): void => {
 };
 
 const patchTrackedPublishItems = (
-    updates: ContentSummaryAndCompareStatus[],
+    updates: ContentSummary[],
 ): {updatedMain: boolean; updatedDependants: boolean} => {
     if (updates.length === 0) {
         return {updatedMain: false, updatedDependants: false};
@@ -795,7 +815,7 @@ const refreshPublishDialogMainItems = async (ids: ContentId[]): Promise<void> =>
     }
 
     try {
-        const updatedItems = await fetchContentSummariesWithStatus(ids);
+        const updatedItems = await fetchContentSummaries(ids);
         if (updatedItems.length > 0) {
             const {items} = $publishDialog.get();
             const patchedItems = patchItemsById(items, updatedItems);
@@ -905,7 +925,7 @@ $contentPublished.subscribe(onIdlePublishSocketEvent((event) => {
 // TODO: Use AbortController to cancel the request if the instanceId changes
 
 type ResolvePublishDependenciesResult = {
-    dependantItems: ContentSummaryAndCompareStatus[];
+    dependantItems: ContentSummary[];
     excludedItemsIds: ContentId[];
     excludedDependantItemsIds: ContentId[];
     requiredIds: ContentId[];
@@ -971,14 +991,9 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
     const allDependantIds = maxResult.getDependants();
 
     // TODO: Cache dependant items
-    const dependantItems = await fetchContentSummariesWithStatus(allDependantIds);
+    const dependantItems = await fetchContentSummaries(allDependantIds);
 
     if (currentInstanceId !== instanceId) return;
-
-    // const publishedDependantItems = dependantItems.filter(item => item.isPublished() && item.isOnline());
-    // const publishedDependantItemsIds = publishedDependantItems.map(item => item.getContentId());
-
-    // const filteredChildren = childrenIds.filter(id => !hasContentIdInIds(id, publishedDependantItemsIds));
 
     const newExcludedItemsIds = items.filter(item =>
         hasContentIdInIds(item.getContentId(), fullExcludedIds) ||
@@ -1092,7 +1107,7 @@ async function sendPublishRequest(): Promise<TaskId | undefined> {
     }
 }
 
-async function fetchHasUnpublishedChildren(items: ContentSummaryAndCompareStatus[]): Promise<void> {
+async function fetchHasUnpublishedChildren(items: ContentSummary[]): Promise<void> {
     const itemsWithChildren = items.filter(item => item.hasChildren());
     if (itemsWithChildren.length === 0) {
         $hasUnpublishedChildrenIds.set(new Set());
@@ -1109,4 +1124,36 @@ async function fetchHasUnpublishedChildren(items: ContentSummaryAndCompareStatus
         }
     }
     $hasUnpublishedChildrenIds.set(set);
+}
+
+async function fetchCompareStatuses(allItems: ContentSummary[]): Promise<void> {
+    const idsToCompare = allItems
+        .filter(item => {
+            const publishStatus = calcTreePublishStatus(item);
+            return calcSecondaryStatus(publishStatus, item) === 'modified';
+        })
+        .map(item => item.getId());
+
+    if (idsToCompare.length === 0) {
+        $compareStatuses.set(new Map());
+        $compareStatusesLoading.set(false);
+        return;
+    }
+
+    const callId = ++compareInstanceId;
+    $compareStatusesLoading.set(true);
+
+    try {
+        const result = await compareContent(idsToCompare);
+        if (callId !== compareInstanceId) return;
+        $compareStatuses.set(result);
+    } catch (error) {
+        if (callId !== compareInstanceId) return;
+        console.error(error);
+        $compareStatuses.set(new Map());
+    } finally {
+        if (callId === compareInstanceId) {
+            $compareStatusesLoading.set(false);
+        }
+    }
 }

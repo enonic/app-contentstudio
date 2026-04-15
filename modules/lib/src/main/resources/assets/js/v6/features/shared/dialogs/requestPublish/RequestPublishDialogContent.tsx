@@ -221,7 +221,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
                                                 disabled={isItemsDisabled}
                                             >
                                                 <ContentRow.Label action="edit" />
-                                                <ContentRow.Status variant="diff" />
+                                                <ContentRow.Status />
                                                 <ContentRow.RemoveButton
                                                     onRemove={() => removeRequestPublishItem(item.getContentId())}
                                                     disabled={isItemsDisabled || items.length === 1}
@@ -282,7 +282,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
                                             }
                                         />
                                         <ContentRow.Label action="edit" />
-                                        <ContentRow.Status variant="diff" />
+                                        <ContentRow.Status />
                                     </ContentRow>
                                 );
                             }}

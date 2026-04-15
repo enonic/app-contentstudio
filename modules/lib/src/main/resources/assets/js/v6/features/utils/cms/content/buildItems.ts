@@ -1,20 +1,23 @@
 import {type ContentId} from '../../../../../app/content/ContentId';
-import {type ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {PublishRequestItem} from '../../../../../app/issue/PublishRequestItem';
 import {hasContentIdInIds} from './ids';
 
-export const getItemIds = (items: ContentSummaryAndCompareStatus[]): ContentId[] => {
+type HasContentId = {
+    getContentId(): ContentId;
+};
+
+export const getItemIds = <T extends HasContentId>(items: readonly T[]): ContentId[] => {
     return items.map(item => item.getContentId());
 };
 
-export const dedupeItems = (items: ContentSummaryAndCompareStatus[]): ContentSummaryAndCompareStatus[] => {
-    const deduped = new Map<string, ContentSummaryAndCompareStatus>();
+export const dedupeItems = <T extends HasContentId>(items: readonly T[]): T[] => {
+    const deduped = new Map<string, T>();
     items.forEach(item => deduped.set(item.getContentId().toString(), item));
     return Array.from(deduped.values());
 };
 
-export const buildItems = (
-    items: ContentSummaryAndCompareStatus[],
+export const buildItems = <T extends HasContentId>(
+    items: readonly T[],
     excludeChildrenIds: ContentId[],
 ): PublishRequestItem[] => {
     return items.map(item =>

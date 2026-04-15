@@ -73,7 +73,6 @@ export async function duplicateContent(params: DuplicateContentParams[]): Promis
  */
 export async function getDescendantsOfContents(
     contentPaths: ContentPath[],
-    filterStatuses?: CompareStatus[],
 ): Promise<ContentId[]> {
     if (contentPaths.length === 0) {
         return [];
@@ -83,7 +82,6 @@ export async function getDescendantsOfContents(
 
     const payload = {
         contentPaths: contentPaths.map(path => path.toString()),
-        filterStatuses: filterStatuses?.map(status => CompareStatus[status]) ?? [],
     };
 
     const response = await fetch(url, {

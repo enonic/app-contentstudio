@@ -1,11 +1,12 @@
 import {GridList, IconButton} from '@enonic/ui';
 import {X} from 'lucide-react';
 import type {ReactElement} from 'react';
-import type {ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
 import {EditContentEvent} from '../../../../../../app/event/EditContentEvent';
 import {ContentButton} from '../../../content/ContentButton';
 import {StatusBadge} from '../../../status/StatusBadge';
 import {useI18n} from '../../../../hooks/useI18n';
+import {calcTreePublishStatus} from '../../../../utils/cms/content/status';
 
 //
 // * Types
@@ -13,7 +14,7 @@ import {useI18n} from '../../../../hooks/useI18n';
 
 export type ContentSelectionItemProps = {
     /** The content item to display */
-    content: ContentSummaryAndCompareStatus;
+    content: ContentSummary;
     /** Callback when remove is clicked */
     onRemove?: (id: string) => void;
     /** Whether interactions are disabled */
@@ -67,7 +68,7 @@ export const ContentSelectionItem = ({
                 </GridList.Action>
             </GridList.Cell>
             <GridList.Cell>
-                <StatusBadge status={content.getPublishStatus()} />
+                <StatusBadge status={calcTreePublishStatus(content)} />
             </GridList.Cell>
             <GridList.Cell>
                 <GridList.Action>

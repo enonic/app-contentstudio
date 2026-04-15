@@ -1,5 +1,6 @@
 import {map} from 'nanostores';
-import type {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../app/content/ContentSummary';
+import {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
 import {
     $contentArchived,
     $contentCreated,
@@ -17,7 +18,7 @@ import {
 // * Types
 //
 
-type ContentCacheState = Record<string, ContentSummaryAndCompareStatus>;
+type ContentCacheState = Record<string, ContentSummary>;
 
 //
 // * Store
@@ -33,7 +34,7 @@ const $pathToId = map<Record<string, string>>({});
 // * Actions
 //
 
-export function setContent(content: ContentSummaryAndCompareStatus): void {
+export function setContent(content: ContentSummary): void {
     const id = content.getId();
     const path = content.getPath?.()?.toString();
     $contentCache.setKey(id, content);
@@ -46,7 +47,7 @@ export function setContent(content: ContentSummaryAndCompareStatus): void {
  * Adds or updates multiple content items in the cache.
  * More efficient than calling setContent multiple times.
  */
-export function setContents(contents: ContentSummaryAndCompareStatus[]): void {
+export function setContents(contents: ContentSummary[]): void {
     if (contents.length === 0) return;
 
     const currentCache = $contentCache.get();
@@ -120,7 +121,7 @@ export function clearContentCache(): void {
  * Gets content by ID from cache (synchronous).
  * Returns undefined if not in cache.
  */
-export function getContent(id: string): ContentSummaryAndCompareStatus | undefined {
+export function getContent(id: string): ContentSummary | undefined {
     return $contentCache.get()[id];
 }
 
@@ -128,9 +129,15 @@ export function getContent(id: string): ContentSummaryAndCompareStatus | undefin
  * Gets multiple content items by IDs from cache (synchronous).
  * Missing items are not included in the result.
  */
-export function getContents(ids: string[]): ContentSummaryAndCompareStatus[] {
+export function getContents(ids: string[]): ContentSummary[] {
     const cache = $contentCache.get();
     return ids.map((id) => cache[id]).filter(Boolean);
+}
+
+/** Get content wrapped as CSCS for legacy code that requires ContentSummaryAndCompareStatus */
+export function getContentAsCSCS(id: string): ContentSummaryAndCompareStatus | undefined {
+    const summary = getContent(id);
+    return summary ? ContentSummaryAndCompareStatus.fromContentSummary(summary) : undefined;
 }
 
 export function hasContent(id: string): boolean {

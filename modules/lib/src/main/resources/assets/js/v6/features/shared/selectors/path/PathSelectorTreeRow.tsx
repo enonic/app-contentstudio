@@ -5,11 +5,12 @@ import {
     type VirtualizedTreeListItemProps,
 } from '@enonic/ui';
 import {type ReactElement} from 'react';
-import type {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
+import type {ContentSummary} from '../../../../../app/content/ContentSummary';
 import type {ContentTreeSelectorItem} from '../../../../../app/item/ContentTreeSelectorItem';
 import {useVirtualizedTreeListRowClick} from '../../../hooks/useVirtualizedTreeListRowClick';
 import {ContentLabel} from '../../content/ContentLabel';
 import {StatusBadge} from '../../status/StatusBadge';
+import {calcTreePublishStatus} from '../../../utils/cms/content/status';
 import {RootLabel, isRootContent} from './PathSelectorRoot';
 
 type PathSelectorTreeRowProps = {
@@ -17,7 +18,7 @@ type PathSelectorTreeRowProps = {
     index: number;
     itemProps: VirtualizedTreeListItemProps;
     selectable: boolean;
-    content: ContentSummaryAndCompareStatus;
+    content: ContentSummary;
     onExpand: (id: string) => void;
     onCollapse: (id: string) => void;
 };
@@ -69,7 +70,7 @@ export const PathSelectorTreeRow = ({
             <VirtualizedTreeList.RowRight
                 className={cn('flex items-center gap-2.5', isDisabled && 'opacity-50 pointer-events-none')}
             >
-                {!isRoot && <StatusBadge status={content.getPublishStatus()} />}
+                {!isRoot && <StatusBadge status={calcTreePublishStatus(content)} />}
             </VirtualizedTreeList.RowRight>
         </VirtualizedTreeList.Row>
     );

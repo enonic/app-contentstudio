@@ -1,10 +1,8 @@
-import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {getCurrentItems} from '../../../v6/features/store/contentTreeSelection.store';
+import {getCurrentItemsAsCSCS} from '../../../v6/features/store/contentTreeSelection.store';
 import {CreateIssuePromptEvent} from '../CreateIssuePromptEvent';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {type ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {type SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class CreateIssueAction extends ContentTreeGridAction {
 
@@ -15,10 +13,10 @@ export class CreateIssueAction extends ContentTreeGridAction {
     }
 
     protected handleExecuted() {
-        new CreateIssuePromptEvent([...getCurrentItems()]).fire();
+        new CreateIssuePromptEvent([...getCurrentItemsAsCSCS()]).fire();
     }
 
-    isToBeEnabled(state: ContentTreeGridItemsState): boolean {
-        return !getCurrentItems().some(item => item.hasUploadItem());
+    isToBeEnabled(_state: ContentTreeGridItemsState): boolean {
+        return true;
     }
 }

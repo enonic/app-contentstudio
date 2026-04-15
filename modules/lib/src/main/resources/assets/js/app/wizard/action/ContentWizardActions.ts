@@ -2,6 +2,9 @@ import {type AccessControlList} from '../../access/AccessControlList';
 import {type Content} from '../../content/Content';
 import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {Permission} from '../../access/Permission';
+import {PublishStatus} from '../../publish/PublishStatus';
+import {type CompareResult} from '../../../v6/features/api/compare';
+import {calcTreePublishStatus, calcSecondaryStatus} from '../../../v6/features/utils/cms/content/status';
 import {CloseAction} from '@enonic/lib-admin-ui/app/wizard/CloseAction';
 import {WizardActions} from '@enonic/lib-admin-ui/app/wizard/WizardActions';
 import {type ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
@@ -74,6 +77,8 @@ export class ContentWizardActions
     private contentCanBeMarkedAsReady: boolean = false;
 
     private content: ContentSummaryAndCompareStatus;
+
+    private compareResult: CompareResult | undefined;
 
     private wizardPanel: ContentWizardPanel;
 
@@ -351,6 +356,12 @@ export class ContentWizardActions
 
     setContent(content: ContentSummaryAndCompareStatus): ContentWizardActions {
         this.content = content;
+        this.compareResult = undefined;
+        return this;
+    }
+
+    setCompareResult(result: CompareResult | undefined): ContentWizardActions {
+        this.compareResult = result;
         return this;
     }
 
@@ -394,9 +405,9 @@ export class ContentWizardActions
 
     private doRefreshState() {
         const canBePublished: boolean = this.canBePublished();
-        const canBeUnpublished: boolean = this.content.isPublished() && this.userCanPublish;
+        const canBeUnpublished: boolean = !!this.content.getContentSummary().getPublishFirstTime() && this.userCanPublish;
         const canBeMarkedAsReady: boolean = this.contentCanBeMarkedAsReady && this.userCanModify;
-        const canBeRequestedPublish: boolean = this.isContentValid && !this.content.isOnline();
+        const canBeRequestedPublish: boolean = this.isContentValid && !this.isOnline();
         const isInheritedItem: boolean = this.wizardPanel.isContentExistsInParentProject() && this.content.hasOriginProject();
         const canBeReset: boolean = isInheritedItem && !this.content.isFullyInherited();
         const canBeLocalized: boolean = isInheritedItem && this.content.isDataInherited();
@@ -438,7 +449,25 @@ export class ContentWizardActions
     }
 
     isOnline(): boolean {
-        return !!this.content && this.content.isOnline();
+        if (!this.content) return false;
+
+        // If CSCS has compare status (e.g., locally set to NEWER on edit), use it
+        if (this.content.getCompareStatus() != null) {
+            return this.content.isOnline();
+        }
+
+        // Derive from ContentSummary publish dates + compare API result
+        const summary = this.content.getContentSummary();
+        const publishStatus = calcTreePublishStatus(summary);
+        if (publishStatus !== PublishStatus.ONLINE) return false;
+
+        // If compare result available, empty diff means content is in sync
+        if (this.compareResult != null) {
+            return this.compareResult.diff.length === 0;
+        }
+
+        // Heuristic fallback: publishTime set means content matches published version
+        return calcSecondaryStatus(publishStatus, summary) == null;
     }
 
     onBeforeActionsStashed(listener: () => void) {

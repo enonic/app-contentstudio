@@ -40,11 +40,14 @@ export const SplitActionButton = ({actions, className, triggerClassName, disable
     const [renderVersion, setRenderVersion] = useState(0);
 
     useEffect(() => {
+        const listener = () => setRenderVersion((value: number) => value + 1);
         const subscriptions = actions.map(({action}) => {
-            const listener = () => setRenderVersion((value: number) => value + 1);
             action.onPropertyChanged(listener);
             return {action, listener};
         });
+
+        // Re-read action states to catch changes that occurred before listeners were registered
+        listener();
 
         return () => {
             subscriptions.forEach(({action, listener}) => action.unPropertyChanged(listener));

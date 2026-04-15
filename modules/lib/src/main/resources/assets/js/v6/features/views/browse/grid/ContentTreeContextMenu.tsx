@@ -34,11 +34,11 @@ export const ContentTreeContextMenu = ({children, actions = {}}: ContentTreeCont
                         <ContentTreeContextMenuAction key={actionName} action={action} />
                     ))}
 
-                    {item?.isPublished() && unpublishAction && (
+                    {!!item?.getPublishFirstTime() && unpublishAction && (
                         <ContentTreeContextMenuAction key="unpublishAction" action={unpublishAction} />
                     )}
 
-                    {!item?.isPublished() && publishAction && (
+                    {!item?.getPublishFirstTime() && publishAction && (
                         <ContentTreeContextMenuAction key="publishAction" action={publishAction} />
                     )}
                 </ContextMenu.Content>

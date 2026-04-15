@@ -175,11 +175,11 @@ export class IssueDialogsManager {
     }
 
     openCreateDialog(summaries?: ContentSummaryAndCompareStatus[]) {
-        openNewIssueDialog(summaries);
+        openNewIssueDialog(summaries?.map(item => item.getContentSummary()));
     }
 
     openCreateRequestDialog(summaries?: ContentSummaryAndCompareStatus[], isIncludeChildren?: boolean) {
-        openRequestPublishDialog(summaries, isIncludeChildren);
+        openRequestPublishDialog(summaries?.map(item => item.getContentSummary()), isIncludeChildren);
     }
 
 }
