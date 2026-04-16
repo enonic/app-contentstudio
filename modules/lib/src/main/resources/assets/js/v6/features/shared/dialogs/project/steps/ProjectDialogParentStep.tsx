@@ -1,15 +1,15 @@
+import {SortableGridList} from '@enonic/lib-admin-ui/form2/components/sortable-grid-list';
 import {Dialog, GridList, IconButton, ListItem, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {GripVertical, X} from 'lucide-react';
-import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
-import {SortableList} from '../../../lists/SortableList';
+import {type ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
 import {useI18n} from '../../../../hooks/useI18n';
 import {
     $projectDialog,
     setProjectDialogDefaultLanguage,
     setProjectDialogParentProjects,
 } from '../../../../store/dialogs/projectDialog.store';
-import {$languages, LanguageOption} from '../../../../store/languages.store';
+import {$languages, type LanguageOption} from '../../../../store/languages.store';
 import {$projects} from '../../../../store/projects.store';
 import {ProjectLabel} from '../../../project/ProjectLabel';
 import {ProjectSelector} from '../../../selectors/ProjectSelector';
@@ -56,6 +56,7 @@ export const ProjectDialogParentStepContent = (): ReactElement => {
     const languageLabel = useI18n('dialog.project.wizard.parent.defaultLanguage');
     const copyFromLabel = useI18n('dialog.project.wizard.parent.copyFrom');
     const noLanguagesFoundLabel = useI18n('dialog.project.wizard.parent.noLanguagesFound');
+    const reorderLabel = useI18n('field.occurrence.action.reorder');
 
     // Memoized values
     const selectedLanguage = useMemo<LanguageOption | undefined>(
@@ -144,24 +145,24 @@ export const ProjectDialogParentStepContent = (): ReactElement => {
                     )}
 
                     {mode === 'create' && projectSelection.length > 1 && isMultiInheritance && (
-                        <SortableList
+                        <SortableGridList
                             items={Array.from(projectSelection).filter((name) => projects.some((p) => p.getName() === name))}
+                            keyExtractor={(projectName) => projectName}
+                            onMove={handleReorder}
                             enabled
-                            onReorder={handleReorder}
-                            className="rounded-md py-2.5 px-1"
-                            renderItem={(projectName, {interactionProps, isMovable, isFocused}) => {
-                                const project = projects.find((p) => p.getName() === projectName)!;
+                            fullRowDraggable
+                            dragLabel={reorderLabel}
+                            className="flex flex-col gap-y-2.5 rounded-md py-2.5 px-1"
+                            itemClassName='[&>button]:hidden'
+                            renderItem={({item: projectName, isMovable}) => {
+                                const project = projects.find((p) => p.getName() === projectName);
 
                                 return (
                                     <ListItem
-                                        key={projectName}
                                         selected={isMovable}
                                         className={cn(
-                                            'pl-0 py-0',
-                                            isMovable && 'bg-surface-selected',
-                                            isFocused && !isMovable && 'bg-surface-neutral-hover'
+                                            'pl-0 py-0 flex-1 bg-unset',
                                         )}
-                                        {...interactionProps}
                                     >
                                         <ListItem.Content className="flex items-center gap-2.5 p-1.5 rounded cursor-move">
                                             <GripVertical className="size-4 shrink-0 text-subtle group-data-[tone=inverse]:text-alt" />

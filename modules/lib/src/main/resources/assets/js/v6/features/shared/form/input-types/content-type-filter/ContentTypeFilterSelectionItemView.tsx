@@ -1,4 +1,4 @@
-import {type SortableListItemContext} from '@enonic/lib-admin-ui/form2/components';
+import {type SortableGridListItemContext} from '@enonic/lib-admin-ui/form2/components';
 import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import {cn, IconButton} from '@enonic/ui';
 import {X} from 'lucide-react';
@@ -6,7 +6,7 @@ import {type ReactElement} from 'react';
 import {ContentTypeFilterItemView} from './ContentTypeFilterItemView';
 
 type ContentTypeFilterSelectionItemViewProps = {
-    context: SortableListItemContext<ContentTypeSummary>;
+    context: SortableGridListItemContext<ContentTypeSummary>;
     onRemove: (index: number) => void;
     className?: string;
 };

@@ -13,9 +13,9 @@ const XPATH = {
         return `//div[contains(@id,'NamesView') and child::p[contains(@class,'sub-name') and contains(.,'${name}')]]` +
                `//ancestor::li[contains(@id,'ContentListElement')]//div[contains(@class,'toggle icon-arrow_drop_up')]`;
     },
-    // v6: text span inside each selected option row in SortableList
-    sortableListSelectedOptionText:
-        `//div[@data-component='SortableGridList']//div[@role='button' and @aria-roledescription='sortable']//span[contains(@class,'truncate')]`,
+    // v6: text span inside each selected option row in SortableGridList
+    SortableGridListSelectedOptionText:
+        `//div[@data-component='SortableGridList']/div//span[contains(@class,'truncate')]`,
 }
 
 class BaseDropdown extends Page {
@@ -133,6 +133,14 @@ class BaseDropdown extends Page {
         }
     }
 
+    async filterItem(text) {
+        let locator = this.container + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
+        //await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
+        let elements = await this.getDisplayedElements(locator);
+        await elements[0].setValue(text);
+        return await this.pause(300);
+    }
+
     // new
     async doFilterItem(text) {
         let optionsFilterLocator = this.optionsFilterInput();
@@ -177,7 +185,7 @@ class BaseDropdown extends Page {
     async clickOnFilteredByDisplayNameItem(optionDisplayName, parentLocator) {
         // parentLocator - modal dialog or wizard panel
         // 1. Insert the text in Options Filter Input:
-        await this.filterItem(optionDisplayName, parentLocator);
+        await this.filterItem(optionDisplayName);
         // 2. Wait for the required option is displayed then click on it:
         await this.clickOnOptionByDisplayName(optionDisplayName, parentLocator);
     }
@@ -222,7 +230,7 @@ class BaseDropdown extends Page {
     async clickOnFilteredByNameItemAndClickOnApply(optionName, parentLocator = '') {
         // parent locator - it is locator for parent modal dialog or wizard form,
         // 1. type the text in Options Filter Input:
-        await this.filterItem(optionName, parentLocator);
+        await this.filterItem(optionName);
         // 3. Click on the row with the item:
         await this.clickOnOptionByName(optionName, parentLocator);
         // 4. Click on 'OK' button:
@@ -232,7 +240,7 @@ class BaseDropdown extends Page {
     async clickOnFilteredByNameItem(optionName, parentLocator = '') {
         // parent locator - it is locator for parent modal dialog or wizard form,
         // 1. type the text in Options Filter Input:
-        await this.filterItem(optionName, parentLocator);
+        await this.filterItem(optionName);
         // 3. Click on the row with the item:
         await this.clickOnOptionByName(optionName, parentLocator);
     }
@@ -290,7 +298,7 @@ class BaseDropdown extends Page {
 
     async getSelectedOptionsDisplayName() {
         const base = this.dataComponentDiv ? this.container + this.dataComponentDiv : this.container;
-        const locator = base + XPATH.sortableListSelectedOptionText;
+        const locator = base + XPATH.SortableGridListSelectedOptionText;
         return await this.getTextInDisplayedElements(locator);
     }
 
@@ -303,8 +311,7 @@ class BaseDropdown extends Page {
             return await e.getText();
 
         });
-        let result = await Promise.all(pr);
-        return result;
+        return await Promise.all(pr);
     }
 
     async doFilterCheckedOptionsElements(elements) {
