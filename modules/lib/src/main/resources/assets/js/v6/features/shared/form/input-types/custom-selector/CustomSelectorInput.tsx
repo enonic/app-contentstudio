@@ -1,7 +1,7 @@
-import {ReactElement, useEffect, useMemo, useState} from 'react';
-import {SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
-import {CustomSelectorConfig} from './CustomSelectorConfig';
-import {cn, Combobox} from '@enonic/ui';
+import {type ReactElement, useEffect, useMemo, useState} from 'react';
+import {type SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
+import {type CustomSelectorConfig} from './CustomSelectorConfig';
+import {Combobox} from '@enonic/ui';
 import {useI18n} from '../../../../hooks/useI18n';
 import {SortableList} from '@enonic/lib-admin-ui/form2/components';
 import {ContentId} from '../../../../../../app/content/ContentId';

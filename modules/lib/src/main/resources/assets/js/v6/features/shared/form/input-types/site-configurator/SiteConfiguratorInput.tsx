@@ -70,7 +70,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
                 setIsReadOnly(!isOwner);
             }
         });
-        return () => {cancelled = true;};
+        return () => { cancelled = true; };
     }, []);
 
     const selectedKeys = useMemo(() => {
