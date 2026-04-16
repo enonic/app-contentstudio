@@ -72,8 +72,16 @@ export function requestComponentRemove(path: ComponentPath): void {
     PageEventsManager.get().notifyComponentRemoveRequested(path);
 }
 
+export function requestComponentReset(path: ComponentPath): void {
+    PageEventsManager.get().notifyComponentResetRequested(path);
+}
+
 export function requestComponentDuplicate(path: ComponentPath): void {
     PageEventsManager.get().notifyComponentDuplicateRequested(path);
+}
+
+export function requestComponentCreateFragment(path: ComponentPath): void {
+    PageEventsManager.get().notifyComponentCreateFragmentRequested(path);
 }
 
 export function requestComponentMove(from: ComponentPath, to: ComponentPath): void {

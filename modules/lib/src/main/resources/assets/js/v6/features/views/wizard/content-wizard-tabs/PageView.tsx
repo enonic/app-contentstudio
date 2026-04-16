@@ -1,9 +1,8 @@
-import {ReactElement} from 'react';
+import {type ReactElement} from 'react';
+import {PageComponentsView} from './page-components/PageComponentsView';
 
 export const PageView = (): ReactElement => {
-    return (
-        <p className="text-subtle">Page configuration</p>
-    );
+    return <PageComponentsView />;
 };
 
 PageView.displayName = 'PageView';

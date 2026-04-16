@@ -51,7 +51,7 @@ export const ContentWizardTabs = ({tabListAction}: ContentWizardTabsProps): Reac
                 <Tab.ListOverflow className="min-w-0 flex-1">
                     <Tab.List>
                         <Tab.DefaultTrigger value="content" error={showErrors && invalidTabs.has('content')}>{contentTypeDisplayName}</Tab.DefaultTrigger>
-                        {hasPage && <Tab.DefaultTrigger value="page">{pageTabLabel}</Tab.DefaultTrigger>}
+                        {hasPage && <Tab.DefaultTrigger value="page" error={showErrors && invalidTabs.has('page')}>{pageTabLabel}</Tab.DefaultTrigger>}
                         {xDataTabs.map((tab) => (
                             <Tab.DefaultTrigger key={tab.name} value={tab.name} error={showErrors && invalidTabs.has(tab.name)}>
                                 {tab.title}
