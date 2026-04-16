@@ -953,6 +953,7 @@ export class ContentWizardPanel
                 [],
             );
             initializeValidation(this.isNew());
+            setServerValidationErrors(this.getPersistedItem().getValidationErrors());
         } else if (this.contentType) {
             setWizardContentType(this.contentType);
         }
@@ -1062,10 +1063,6 @@ export class ContentWizardPanel
 
             if (this.getPersistedItem().getPage()) {
                 this.updateLiveEditModel(content);
-
-                this.getLivePanel().clearSelectionAndInspect(renderable, false);
-
-
                 return Q();
             }
 
