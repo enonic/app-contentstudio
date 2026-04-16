@@ -44,7 +44,7 @@ export const DisplayNameInput = (): ReactElement => {
     };
 
     useLayoutEffect(() => {
-        if (!shouldFocus || readOnly || !inputRef.current) {
+        if (!shouldFocus || !isInvalid || readOnly || !inputRef.current) {
             return;
         }
 

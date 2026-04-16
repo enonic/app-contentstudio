@@ -1,4 +1,4 @@
-import {SortableList, type SortableListItemContext} from '@enonic/lib-admin-ui/form2/components';
+import {SortableGridList, type SortableGridListItemContext} from '@enonic/lib-admin-ui/form2/components';
 import {useCallback, useEffect, useRef, useState, type ReactElement} from 'react';
 import type {MovedContentItem} from '../../../../../../app/browse/MovedContentItem';
 import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
@@ -16,7 +16,7 @@ import {
     type ContentRenamedData,
 } from '../../../../store/socket.store';
 
-export type SelectorSelectionRenderItem = (context: SortableListItemContext<ContentSummary>) => ReactElement;
+export type SelectorSelectionRenderItem = (context: SortableGridListItemContext<ContentSummary>) => ReactElement;
 
 export type SelectorSelectionProps = {
     /** Selected content IDs */
@@ -146,7 +146,7 @@ export const SelectorSelection = ({
     if (!contents || contents.length === 0) return null;
 
     return (
-        <SortableList
+        <SortableGridList
             data-component={SELECTOR_SELECTION_NAME}
             items={contents}
             fullRowDraggable

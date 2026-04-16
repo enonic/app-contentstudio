@@ -31,11 +31,13 @@ import type {OpenHtmlAreaLinkDialogParams} from '../../../dialogs/htmlarea-link/
 import {createMacroDialogOverride, HtmlAreaMacroDialog} from '../../../dialogs/htmlarea-macro/HtmlAreaMacroDialog';
 import type {OpenHtmlAreaMacroDialogParams} from '../../../dialogs/htmlarea-macro/HtmlAreaMacroDialogContext';
 import type {HtmlAreaConfig} from './HtmlAreaConfig';
+import {dispatchSyntheticTabKey, focusAdjacentDocumentTabStop} from './editorIframeNavigation';
 import {useHtmlAreaContext} from './HtmlAreaContext';
 import {setupEditor, setupEditorUi, type DialogOverrides} from './setupEditor';
 import {useCKEditorConfig} from './useCKEditorConfig';
 
 const sanitizer = new HtmlAreaSanitizer();
+const SORTABLE_MANAGED_TABINDEX_ATTR = 'data-sortable-list-navigation-target-tabindex';
 
 type CKEditorWrapperProps = {
     editorConfig: CKEDITOR.config;
@@ -77,6 +79,7 @@ const CKEditorWrapper = ({
 }: CKEditorWrapperProps): JSX.Element => {
     const [element, setElement] = useState<HTMLTextAreaElement | null>(null);
     const [focused, setFocused] = useState(false);
+    const wrapperRef = useRef<HTMLDivElement | null>(null);
     const openImageDialogRef = useRef<((params: OpenHtmlAreaImageDialogParams) => void) | undefined>(undefined);
     const openLinkDialogRef = useRef<((params: OpenHtmlAreaLinkDialogParams) => void) | undefined>(undefined);
     const openMacroDialogRef = useRef<((params: OpenHtmlAreaMacroDialogParams) => void) | undefined>(undefined);
@@ -160,6 +163,20 @@ const CKEditorWrapper = ({
         type: 'classic',
         initContent: previewContent,
     });
+
+    const focusEditorFromWrapper = () => {
+        requestAnimationFrame(() => {
+            if (!mountedRef.current || !editor) {
+                return;
+            }
+
+            try {
+                editor.focus();
+            } catch {
+                // The editable body can be recreated while CKEditor refreshes its DOM.
+            }
+        });
+    };
 
     // Store editor instance
     useEffect(() => {
@@ -284,6 +301,62 @@ const CKEditorWrapper = ({
         }
     }, [editor, status, enabled]);
 
+    // Expose the HtmlArea wrapper as a single row target and translate editor-body Tab
+    // presses back into the surrounding row navigation model.
+    useEffect(() => {
+        if (status !== 'ready' || !editor) {
+            return;
+        }
+
+        const wrapper = wrapperRef.current;
+        let iframe: HTMLIFrameElement | null = null;
+        let editableBody: HTMLElement | null = null;
+
+        const syncIframe = () => {
+            const nextIframe = (editor.container?.$.querySelector('iframe') as HTMLIFrameElement | null | undefined) ?? null;
+
+            iframe = nextIframe;
+
+            if (iframe && iframe.getAttribute(SORTABLE_MANAGED_TABINDEX_ATTR) == null) {
+                iframe.tabIndex = enabled ? 0 : -1;
+            }
+        };
+
+        const handleEditableKeyDown = (event: KeyboardEvent) => {
+            if (event.key !== 'Tab' || !wrapper) {
+                return;
+            }
+
+            event.preventDefault();
+
+            const handledByRowNavigation = dispatchSyntheticTabKey(wrapper, event.shiftKey);
+
+            if (!handledByRowNavigation) {
+                focusAdjacentDocumentTabStop(wrapper, event.shiftKey);
+            }
+        };
+
+        const syncEditableBody = () => {
+            editableBody?.removeEventListener('keydown', handleEditableKeyDown);
+            editableBody = editor.document?.getBody()?.$ as HTMLElement | null;
+            editableBody?.addEventListener('keydown', handleEditableKeyDown);
+        };
+
+        const handleContentDom = () => {
+            syncIframe();
+            syncEditableBody();
+        };
+
+        syncIframe();
+        syncEditableBody();
+        editor.on('contentDom', handleContentDom);
+
+        return () => {
+            editableBody?.removeEventListener('keydown', handleEditableKeyDown);
+            editor.removeListener('contentDom', handleContentDom);
+        };
+    }, [enabled, status, editor]);
+
     // Sync external value changes (e.g., from undo/redo or remote sync)
     useEffect(() => {
         if (!editor || status !== 'ready') {
@@ -328,7 +401,17 @@ const CKEditorWrapper = ({
                 focused && 'ring-3 ring-offset-3 ring-offset-ring-offset',
                 focused && (hasError ? 'ring-error' : 'ring-ring'),
                 hasError && 'has-error [&_.cke_chrome]:!border-error',
-            )}>
+            )}
+            ref={wrapperRef}
+            tabIndex={0}
+            data-sortable-list-composite-target='true'
+            onFocus={(event: JSX.TargetedFocusEvent<HTMLDivElement>) => {
+                if (event.target !== event.currentTarget) {
+                    return;
+                }
+
+                focusEditorFromWrapper();
+            }}>
                 <textarea
                     className="hidden invisible"
                     ref={setElement}

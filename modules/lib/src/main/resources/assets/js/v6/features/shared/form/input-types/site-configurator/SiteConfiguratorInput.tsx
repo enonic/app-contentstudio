@@ -10,7 +10,7 @@ import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {type Form} from '@enonic/lib-admin-ui/form/Form';
 import type {SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
 import {FieldError, getFirstError, validateForm} from '@enonic/lib-admin-ui/form2';
-import {type SortableListItemContext, SortableList} from '@enonic/lib-admin-ui/form2/components';
+import {type SortableGridListItemContext, SortableGridList} from '@enonic/lib-admin-ui/form2/components';
 import {Button, Dialog, IconButton} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Pencil, X} from 'lucide-react';
@@ -70,7 +70,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
                 setIsReadOnly(!isOwner);
             }
         });
-        return () => {cancelled = true;};
+        return () => { cancelled = true; };
     }, []);
 
     const selectedKeys = useMemo(() => {
@@ -228,7 +228,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
             />
 
             {appItems.length > 0 && (
-                <SortableList
+                <SortableGridList
                     items={appItems}
                     keyExtractor={(item) => item.key}
                     onMove={handleMove}
@@ -275,7 +275,7 @@ SiteConfiguratorInput.displayName = COMPONENT_NAME;
 //
 
 type SiteConfiguratorRowProps = {
-    context: SortableListItemContext<AppItem>;
+    context: SortableGridListItemContext<AppItem>;
     applications: Application[];
     errors: SelfManagedComponentProps<SiteConfiguratorConfig>['errors'];
     disabled: boolean;
