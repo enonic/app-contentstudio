@@ -161,6 +161,11 @@ class BrowseFilterPanel extends Page {
         await this.pause(1000);
     }
 
+    async waitForAggregationGroupDisplayed(blockName) {
+        let selector = XPATH.aggregationGroupByName(blockName);
+        return await this.waitForElementDisplayed(selector);
+    }
+
     //clicks on a checkbox in Content Types aggregation block
     async clickOnCheckboxInContentTypesBlock(contentType) {
         try {
@@ -180,12 +185,7 @@ class BrowseFilterPanel extends Page {
 
     async waitForCheckboxDisplayed(blockName, label) {
         let selector = XPATH.aggregationGroupByName(blockName) + XPATH.aggregationLabelByName(label);
-        return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
-    }
-
-    async waitForAggregationGroupDisplayed(blockName) {
-        let selector = XPATH.aggregationGroupByName(blockName);
-        return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+        return await this.waitForElementDisplayed(selector);
     }
 
     async waitForCheckboxNotDisplayed(blockName, checkBoxLabel) {

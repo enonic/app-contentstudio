@@ -3,11 +3,11 @@
  */
 const appConst = require('./app_const');
 module.exports = {
-    generateRandomName: function (part) {
+    generateRandomName(part) {
         return part + Math.round(Math.random() * 1000000);
     },
 
-    buildShortcut: function (displayName, targetDisplayName, parameters) {
+    buildShortcut(displayName, targetDisplayName, parameters) {
         return {
             contentType: appConst.contentTypes.SHORTCUT,
             displayName: displayName,
@@ -17,7 +17,7 @@ module.exports = {
             parameters: parameters
         };
     },
-    buildHtmlArea: function (displayName, type, ...texts) {
+    buildHtmlArea(displayName, type, ...texts) {
         return {
             contentType: type,
             displayName: displayName,
@@ -38,7 +38,7 @@ module.exports = {
             },
         };
     },
-    buildPageTemplate: function (displayName, supports, controllerDisplayName) {
+    buildPageTemplate(displayName, supports, controllerDisplayName) {
         return {
             contentType: appConst.contentTypes.PAGE_TEMPLATE,
             displayName: displayName,
@@ -49,15 +49,20 @@ module.exports = {
             },
         };
     },
-    buildFolder: function (displayName, owner, language) {
+    buildFolder(displayName, options = {}) {
+        const {
+            owner = undefined,
+            language = undefined,
+            name = displayName  // by default:  name = displayName
+        } = options;
+
         return {
             contentType: appConst.contentTypes.FOLDER,
             displayName: displayName,
-            name:displayName,
-
+            name: name,
             settings: {
-                owner: owner,
-                language: language
+                ...(owner && {owner}),
+                ...(language && {language})
             },
         };
     },
@@ -71,7 +76,7 @@ module.exports = {
             },
         };
     },
-    buildArticleContent: function (displayName, title, body, contentType) {
+    buildArticleContent(displayName, title, body, contentType) {
         return {
             contentType: contentType,
             displayName: displayName,

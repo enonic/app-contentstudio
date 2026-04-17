@@ -19,7 +19,7 @@ describe('filter.by.modifier.spec: tests for filter panel', function () {
     it(`Preconditions: new folder with 'English (en)' should be added`,
         async () => {
             //1. Create new folder with 'English (en)' language:
-            let folder = contentBuilder.buildFolder(FOLDER_NAME_1, appConst.LANGUAGES.EN);
+            let folder = contentBuilder.buildFolder(FOLDER_NAME_1, { language: appConst.LANGUAGES.EN });
             await studioUtils.doAddFolder(folder);
         });
 

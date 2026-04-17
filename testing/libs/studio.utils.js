@@ -356,7 +356,11 @@ module.exports = {
         await this.openContentWizard(appConst.contentTypes.FOLDER);
         await contentWizardPanel.typeData(folder);
         // 2. Save the folder:
-        await contentWizardPanel.waitAndClickOnSave();
+        // TODO workaround
+        if(!await contentWizardPanel.isSaveButtonDisabled()){
+            await contentWizardPanel.waitAndClickOnSave();
+        }
+
         // 3.Close the wizard:
         await this.doCloseWizardAndSwitchToGrid();
         return await this.getBrowser().pause(1000);

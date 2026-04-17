@@ -51,7 +51,7 @@ describe('Browse panel, properties widget, language spec', function () {
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('folder');
-            TEST_FOLDER = contentBuilder.buildFolder(displayName, null, appConst.LANGUAGES.EN);
+            TEST_FOLDER = contentBuilder.buildFolder(displayName, { language: appConst.LANGUAGES.EN });
             await studioUtils.doAddReadyFolder(TEST_FOLDER);
             // 1. Select the existing folder(En)
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
