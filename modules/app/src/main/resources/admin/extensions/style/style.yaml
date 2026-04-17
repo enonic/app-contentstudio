@@ -1,0 +1,4 @@
+kind: "AdminExtension"
+title: "Style Extension"
+interfaces:
+  - "generic"

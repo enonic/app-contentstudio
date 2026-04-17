@@ -36,11 +36,8 @@ public class StyleDescriptorMapper
         final Map<String, ImageStyle> styles = new LinkedHashMap<>();
         final Map<String, ApplicationKey> stylesApps = new LinkedHashMap<>();
 
-        gen.array( "css" );
         for ( StyleDescriptor styleDescriptor : this.styleDescriptors )
         {
-            gen.value( styleDescriptor.getCssPath() );
-
             for ( var styleElement : styleDescriptor.getElements() )
             {
                 if ( styleElement instanceof ImageStyle )
@@ -50,7 +47,6 @@ public class StyleDescriptorMapper
                 }
             }
         }
-        gen.end();
 
         gen.array( "app" );
         for ( StyleDescriptor styleDescriptor : this.styleDescriptors )
@@ -73,7 +69,7 @@ public class StyleDescriptorMapper
 
         gen.value( "element", "image" );
         gen.value( "name", element.getName() );
-        gen.value( "displayName", localizeDisplayName( element, applicationKey ) );
+        gen.value( "displayName", localizeLabel( element, applicationKey ) );
 
          serializeImage( gen, element );
 
@@ -86,16 +82,16 @@ public class StyleDescriptorMapper
         gen.value( "aspectRatio", element.getAspectRatio() );
     }
 
-    private String localizeDisplayName( final ImageStyle styleElement, final ApplicationKey applicationKey )
+    private String localizeLabel( final ImageStyle styleElement, final ApplicationKey applicationKey )
     {
         LocaleMessageResolver localeMessageResolver = new LocaleMessageResolver( localeService, applicationKey );
-        if ( !isBlank( styleElement.getDisplayNameI18nKey() ) )
+        if ( !isBlank( styleElement.getLabelI18nKey() ) )
         {
-            return localeMessageResolver.localizeMessage( styleElement.getDisplayNameI18nKey(), styleElement.getDisplayName(), locales );
+            return localeMessageResolver.localizeMessage( styleElement.getLabelI18nKey(), styleElement.getLabel(), locales );
         }
         else
         {
-            return styleElement.getDisplayName();
+            return styleElement.getLabel();
         }
     }
 
