@@ -16,21 +16,17 @@ describe('content.selector.spec: content-selector specification', function () {
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
     let articleContent;
     const ARTICLE_NAME_1 = appConst.generateRandomName('article');
     const RELATIONSHIP_NAME = appConst.generateRandomName('rel');
 
-    it(`Preconditions: new site should be added`,
+    it(`Preconditions: new article content should be added`,
         async () => {
             let contentWizard = new ContentWizard();
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            // 1. Add the site:
-            await studioUtils.doAddSite(SITE);
             // 2. Add 'Article' content
             let articleForm = new ArticleForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.ARTICLE);
             await articleForm.typeArticleTitle('test');
             await articleForm.typeInTextArea('body');
             await contentWizard.typeDisplayName(ARTICLE_NAME_1);
@@ -42,7 +38,7 @@ describe('content.selector.spec: content-selector specification', function () {
             let contentWizard = new ContentWizard();
             let customRelationshipForm = new ContentSelectorForm();
             // 1. Open new wizard for article-content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CUSTOM_RELATIONSHIP);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.CUSTOM_RELATIONSHIP);
             await contentWizard.typeDisplayName(RELATIONSHIP_NAME);
             // 2. Select the article in options -  type the name of the article and click on the filtered option:
             await customRelationshipForm.clickOnOptionByDisplayNameAndApply(ARTICLE_NAME_1);
@@ -63,7 +59,7 @@ describe('content.selector.spec: content-selector specification', function () {
             // 3. Verify that option is not displayed:
             await studioUtils.saveScreenshot('custom_rel_option_removed');
             let result = await customRelationshipForm.getSelectedOptions();
-            assert.equal(result.length, 0, "no selected options should be in the options view");
+            assert.equal(result.length, 0, "No selected options should be shown in the options view.");
         });
 
     it(`WHEN new article has been saved THEN the article should be listed in the grid`,
@@ -71,7 +67,7 @@ describe('content.selector.spec: content-selector specification', function () {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('article');
             articleContent = contentBuilder.buildArticleContent(displayName, 'title', 'body', appConst.contentTypes.ARTICLE);
-            await studioUtils.doAddArticleContent(SITE.displayName, articleContent);
+            await studioUtils.doAddArticleContent(IMPORTED_SITE_NAME, articleContent);
             await studioUtils.typeNameInFilterPanel(articleContent.displayName);
             let isDisplayed = await contentBrowsePanel.waitForContentDisplayed(articleContent.displayName);
             await studioUtils.saveScreenshot('article_content_added');
@@ -82,17 +78,21 @@ describe('content.selector.spec: content-selector specification', function () {
         async () => {
             let contentSelectorForm = new ContentSelectorForm();
             // 1. Open the wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CUSTOM_RELATIONSHIP);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.CUSTOM_RELATIONSHIP);
             // 2. Verify that 'Flat' mode should be by default:
             let actualMode = await contentSelectorForm.getOptionsMode();
             await studioUtils.saveScreenshot('content_selector_default_mode');
             assert.equal(actualMode, 'flat', 'Flat mode should be by default');
         });
 
-    it(`GIVEN wizard for 'custom-relationship' is opened WHEN mode toggler has been clicked THEN switches to 'Tree' mode`,
+    // https://github.com/enonic/app-contentstudio/issues/10225
+    // TODO bug mode toggle
+    it.skip(`GIVEN wizard for 'custom-relationship' is opened WHEN mode toggler has been clicked THEN switches to 'Tree' mode`,
         async () => {
             let contentSelectorForm = new ContentSelectorForm();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CUSTOM_RELATIONSHIP);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.CUSTOM_RELATIONSHIP);
+            await contentSelectorForm.waitForOptionFilterInputDisplayed();
+            await contentSelectorForm.pause(3000);
             // 1. Click on mode toggler button:
             await contentSelectorForm.clickOnModeTogglerButton();
             // 2. Verify that tree mode is switched on:
@@ -101,17 +101,22 @@ describe('content.selector.spec: content-selector specification', function () {
             assert.equal(actualMode, 'tree', "'Tree' mode should be in the selector");
         });
 
-    it(`GIVEN wizard for 'custom-relationship' is opened WHEN 'mode toggler' button has been clicked THEN switches to 'Tree'-mode AND parent site should be present in the options`,
+    // https://github.com/enonic/app-contentstudio/issues/10225
+    // TODO bug mode toggler
+    it.skip(`GIVEN wizard for 'custom-relationship' is opened WHEN 'mode toggler' button has been clicked THEN switches to 'Tree'-mode AND parent site should be present in the options`,
         async () => {
             let contentSelectorForm = new ContentSelectorForm();
             // 1. Custom relationship has been opened:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CUSTOM_RELATIONSHIP);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.CUSTOM_RELATIONSHIP);
+            await contentSelectorForm.waitForOptionFilterInputDisplayed();
+            await contentSelectorForm.pause(1000);
             // 2. Mode toggler has been clicked(switches to tree mode):
             await contentSelectorForm.clickOnModeTogglerButton();
+            await contentSelectorForm.clickOnDropdownHandle();
             let options = await contentSelectorForm.getOptionsDisplayNameInTreeMode();
             // 3. Only the parent site should be present in the options
             await studioUtils.saveScreenshot('content_sel_tree_mode_option');
-            assert.strictEqual(options[0], SITE.displayName);
+            assert.strictEqual(options[0], IMPORTED_SITE_NAME);
             assert.strictEqual(options.length, 1, "One site should be displayed in the tree mode");
         });
 

@@ -13,8 +13,11 @@ const XPATH = {
     typesList: `//ul//div[@data-component='ItemLabel']//span`,
     mostPopularBlock: "//div[contains(@id,'MostPopularItemsBlock')]",
     emptyViewDiv: "//div[contains(@class,'empty-view')]",
-    contentTypeByName(name) {
+    contentTypeContainsName(name) {
         return `//button[descendant::span[contains(.,'${name}')]]`;
+    },
+    contentTypeByName(name) {
+        return `//button[descendant::span[text()='${name}']]`;
     },
 };
 
@@ -123,7 +126,7 @@ class NewContentDialog extends Page {
 
     async clickOnContentType(contentTypeName) {
         let typeSelector = XPATH.contentTypeByName(contentTypeName);
-        await this.waitForElementDisplayed(typeSelector, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(typeSelector);
         let elems = await this.getDisplayedElements(typeSelector);
         await elems[0].click();
         return await this.pause(500);

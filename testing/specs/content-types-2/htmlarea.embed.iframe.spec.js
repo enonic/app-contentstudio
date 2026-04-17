@@ -1,5 +1,5 @@
 /**
- * Created on 27.12.2021
+ * Created on 27.12.2021 updated on 16.04.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -19,15 +19,8 @@ describe('htmlarea.embed.iframe.spec: tests for macro modal dialog', function ()
     const ENONIC_URL = "http://www.enonic.com";
     const PREVIEW_MACRO_NOT_ALLOWED = "Preview of this macro is not allowed";
 
-    let SITE;
     const CONTENT_NAME_1 = contentBuilder.generateRandomName('area');
-
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
     // Verify Embed macro should not allow preview #4115
     // https://github.com/enonic/app-contentstudio/issues/4115
@@ -37,7 +30,7 @@ describe('htmlarea.embed.iframe.spec: tests for macro modal dialog', function ()
             let contentWizard = new ContentWizard();
             let insertMacroModalDialog = new InsertMacroModalDialog();
             // 1. Open wizard for new htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
             // 2. Click on 'Insert Macro' button
             await htmlAreaForm.showToolbarAndClickOnInsertMacroButton();
@@ -71,7 +64,7 @@ describe('htmlarea.embed.iframe.spec: tests for macro modal dialog', function ()
             let contentWizard = new ContentWizard();
             let insertMacroModalDialog = new InsertMacroModalDialog();
             // 1. Open wizard for new htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
             // 2. Click on 'Insert Macro' button
             await htmlAreaForm.showToolbarAndClickOnInsertMacroButton();
@@ -87,8 +80,8 @@ describe('htmlarea.embed.iframe.spec: tests for macro modal dialog', function ()
             await htmlAreaForm.doubleClickOnMacroTextInHtmlArea(ENONIC_URL);
             await studioUtils.saveScreenshot('embed_iframe_double_click');
             // 7. Verify that 'Insert Macro' dialog is loaded:
-            await insertMacroModalDialog.waitForDialogLoaded();
-            await insertMacroModalDialog.clickOnInsertButton();
+            await insertMacroModalDialog.waitForUpdateButtonDisplayed();
+            await insertMacroModalDialog.clickOnUpdateButton();
             await insertMacroModalDialog.waitForDialogClosed();
         });
 

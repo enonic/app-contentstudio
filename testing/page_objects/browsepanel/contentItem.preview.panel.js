@@ -8,7 +8,7 @@ const appConst = require('../../libs/app_const');
 
 const xpath = {
     container: "//div[contains(@id,'ContentItemPreviewPanel')]",
-    toolbar: `//div[contains(@id,'PreviewToolbar')]`,
+    toolbar: `//div[contains(@id,'PreviewToolbar')  and @aria-label='Preview toolbar']`,
     divPreviewWidgetDropdown: "//div[contains(@id,'PreviewWidgetDropdown')]",
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     issueMenuButton: `//div[contains(@id,'MenuButton')]`,
@@ -44,19 +44,21 @@ class ContentItemPreviewPanel extends Page {
         return xpath.container + xpath.previewNotAvailableSpan;
     }
 
-    waitForPreviewToolbarNotDisplayed() {
-        return this.waitForElementNotDisplayed(xpath.toolbar, appConst.mediumTimeout);
+    async waitForPreviewToolbarNotDisplayed() {
+        let element = await this.findElement(xpath.container + xpath.toolbar);
+        await element.waitForDisplayed({reverse: true, timeout: appConst.mediumTimeout});
     }
 
-    waitForVersionHistoryButtonDisplayed() {
-        return this.waitForElementDisplayed(this.versionHistoryButton, appConst.mediumTimeout);
+    async waitForVersionHistoryButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.versionHistoryButton);
     }
 
-    waitForVersionHistoryButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.versionHistoryButton, appConst.mediumTimeout);
+    async waitForVersionHistoryButtonNotDisplayed() {
+        let element = await this.findElement(this.versionHistoryButton);
+        await element.waitForDisplayed({reverse: true, timeout: appConst.mediumTimeout});
     }
 
-    async clickOnVersionHistoryButton() {
+    async clickOnOpenVersionHistoryButton() {
         try {
             await this.waitForVersionHistoryButtonDisplayed();
             return await this.clickOnElement(this.versionHistoryButton);
@@ -121,8 +123,8 @@ class ContentItemPreviewPanel extends Page {
         });
     }
 
-    async getContentStatus() {
-        let result = await this.getDisplayedElements(this.contentStatus);
+    async getLabelInOpenVersionsHistoryButton() {
+        let result = await this.getDisplayedElements(this.versionHistoryButton + "//span");
         if (result.length === 0) {
             throw new Error("Content status is not displayed: ");
         }
@@ -133,7 +135,7 @@ class ContentItemPreviewPanel extends Page {
     async waitForElementDisplayedInFrame(selector) {
         try {
             await this.switchToFrame(xpath.container + xpath.iframe);
-            let result = await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            let result = await this.waitForElementDisplayed(selector);
             await this.switchToParentFrame();
             return result;
         } catch (err) {
@@ -192,7 +194,7 @@ class ContentItemPreviewPanel extends Page {
             let locator = xpath.container + xpath.noPreviewMessageSpan;
             await this.waitForElementDisplayed(locator);
             return await this.getTextInDisplayedElements(locator);
-        }catch(err){
+        } catch (err) {
             await this.handleError(`Tried to get the 'No preview available' message in Preview Panel: `, 'err_no_preview_msg', err)
         }
     }

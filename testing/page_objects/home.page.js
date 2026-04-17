@@ -46,6 +46,7 @@ class HomePage extends Page {
         const span = await host.shadow$(selectors.contentStudioLink);
         await span.waitForDisplayed({timeout: appConst.mediumTimeout});
     }
+
     async clickOnContentStudioLink() {
         try {
             const host = await this.getXpMenuShadowHost();

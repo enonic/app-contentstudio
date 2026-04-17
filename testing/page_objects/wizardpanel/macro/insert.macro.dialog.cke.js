@@ -93,51 +93,69 @@ class InsertMacroModalDialog extends Page {
     }
 
     async clickOnInsertButton() {
-        await this.waitForElementDisplayed(this.insertButton, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.insertButton);
         await this.pause(300);
         await this.clickOnElement(this.insertButton);
         return await this.pause(500);
     }
 
+    async waitForUpdateButtonDisplayed() {
+        await this.waitForElementDisplayed(this.updateButton);
+    }
+
+    async clickOnUpdateButton() {
+        await this.waitForUpdateButtonDisplayed();
+        await this.pause(300);
+        await this.clickOnElement(this.updateButton);
+        return await this.pause(500);
+    }
+
+    async waitForInsertButtonDisabled() {
+        try {
+            await this.waitForElementDisabled(this.insertButton);
+        } catch (err) {
+            await this.handleError('Insert button should be disabled!', 'err_insert_button_disabled', err);
+        }
+    }
+
     async waitForDialogLoaded() {
         try {
-            return await this.waitForElementDisplayed(this.insertButton, appConst.shortTimeout);
+            await this.waitForElementDisplayed(XPATH.container);
+            return await this.pause(500);
         } catch (err) {
             await this.handleError('Insert Macro Dialog should be loaded!', 'err_insert_macro_dialog_loaded', err);
         }
     }
 
     async waitForDialogClosed() {
-        await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
-        return this.pause(1000);
+        try {
+            await this.waitForElementNotDisplayed(XPATH.container);
+            return await this.pause(500);
+        }catch (err) {
+            await this.handleError('Insert Macro Dialog should be closed!', 'err_insert_macro_dialog_closed', err);
+        }
     }
 
     async getTextInPreviewTab() {
         let locator = XPATH.container + XPATH.textInPreviewTab;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(locator);
         return await this.getText(locator);
     }
 
     async waitForIframeDisplayed(url) {
         let locator = XPATH.container + `//iframe[@src='${url}']`;
-        return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.waitForElementDisplayed(locator);
     }
 
     async getTextInEmbedPreview() {
         let locator = XPATH.container + XPATH.embedPreview;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(locator);
         return this.getText(locator);
     }
 
     async getWarningInPreviewTab() {
         let locator = XPATH.container + XPATH.warningInPreviewTab;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return this.getText(locator);
-    }
-
-    async getValidationRecording() {
-        let locator = XPATH.container + XPATH.validationError;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(locator);
         return this.getText(locator);
     }
 

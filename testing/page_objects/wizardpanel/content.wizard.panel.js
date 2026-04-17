@@ -491,6 +491,10 @@ class ContentWizardPanel extends Page {
         return await this.clearInputText(this.displayNameInput);
     }
 
+    async isSaveButtonDisabled() {
+        return !(await this.isElementEnabled(this.saveButton));
+    }
+
     async waitAndClickOnSave() {
         try {
             await this.waitForSaveButtonEnabled();

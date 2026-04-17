@@ -1,7 +1,7 @@
 /**
  * Created on 09.07.2020.
  */
-const {COMMON} = require('../../libs/elements');
+const {COMMON, BUTTONS} = require('../../libs/elements');
 const BaseSelectorForm = require('./base.selector.form');
 const appConst = require('../../libs/app_const');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
@@ -9,9 +9,8 @@ const ContentSelectorDropdown = require('../components/selectors/content.selecto
 const XPATH = {
     container: "//div[@data-component='FormRenderer']",
     selectorSelectionDiv: "//div[@data-component='SelectorSelection']",
-    removeButtonByDisplayName: (displayName) =>
-        `//div[@data-component='SelectorSelectionItem' and descendant::span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]` +
-        `//button[@aria-label='Remove']`,
+    selectedItemByDisplayName: (displayName) =>
+        `//div[@data-component='SelectorSelectionItem' and descendant::span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`,
 };
 
 class ContentSelectorForm extends BaseSelectorForm {
@@ -21,14 +20,12 @@ class ContentSelectorForm extends BaseSelectorForm {
         return contentSelectorDropdown.optionsFilterInput();
     }
 
-    get dropdownHandle() {
-        return XPATH.container + lib.DROP_DOWN_HANDLE;
+    async waitForOptionFilterInputDisplayed() {
+        let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
+        return await contentSelectorDropdown.waitForOptionFilterInputDisplayed();
     }
 
-    get modeTogglerButton() {
-        return XPATH.container + lib.SELECTOR_MODE_TOGGLER;
-    }
-
+    // TODO
     get addNewContentButton() {
         return XPATH.container + lib.ADD_NEW_CONTENT_BUTTON;
     }
@@ -36,13 +33,13 @@ class ContentSelectorForm extends BaseSelectorForm {
     async clickOnModeTogglerButton() {
         let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
         await contentSelectorDropdown.clickOnModeTogglerButton();
-        await this.pause(200);
+        await this.pause(1000);
     }
 
     async clickOnDropdownHandle() {
         let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
         await contentSelectorDropdown.clickOnDropdownHandle();
-        await this.pause(500);
+        await this.pause(1000);
     }
 
     async clickOnCheckboxInDropdown(index) {
@@ -120,7 +117,6 @@ class ContentSelectorForm extends BaseSelectorForm {
         }
     }
 
-
     async clickOnApplySelectionButton() {
         try {
             let contentSelector = new ContentSelectorDropdown();
@@ -143,13 +139,25 @@ class ContentSelectorForm extends BaseSelectorForm {
 
     async removeSelectedOption(displayName) {
         try {
-            const locator = XPATH.container + XPATH.removeButtonByDisplayName(displayName);
+            const locator = XPATH.container + XPATH.selectedItemByDisplayName(displayName) + BUTTONS.BUTTON_REMOVE_ICON;
             await this.waitForElementDisplayed(locator);
             await this.clickOnElement(locator);
             return await this.pause(500);
         } catch (err) {
             await this.handleError(
                 `Content selector form, tried to remove the selected option: ${displayName}`, 'err_remove_option', err);
+        }
+    }
+
+    async clickOnEditSelectedOption(displayName) {
+        try {
+            const locator = XPATH.container + XPATH.selectedItemByDisplayName(displayName) + BUTTONS.BUTTON_EDIT_ICON;
+            await this.waitForElementDisplayed(locator);
+            await this.clickOnElement(locator);
+            return await this.pause(500);
+        } catch (err) {
+            await this.handleError(
+                `Content selector , tried to edit the selected option: ${displayName}`, 'err_edit_option', err);
         }
     }
 

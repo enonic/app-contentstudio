@@ -51,7 +51,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             await studioUtils.navigateToContentStudioApp(USER.displayName, USER.password);
             let displayName = appConst.generateRandomName('folder');
             // 2. User adds new folder with English language:
-            FOLDER = contentBuilder.buildFolder(displayName, null, appConst.LANGUAGES.EN);
+            FOLDER = contentBuilder.buildFolder(displayName, { language: appConst.LANGUAGES.EN });
             await studioUtils.doAddFolder(FOLDER);
             // 3. Open wizard for new child folder:
             await studioUtils.findAndSelectItem(FOLDER.displayName);

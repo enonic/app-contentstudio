@@ -84,7 +84,7 @@ const BUTTONS = {
     UPLOAD_BUTTON: "//button[contains(@class,'upload-button')]",
     buttonByLabel: (label) => `//button[@type='button' and contains(.,'${label}')]`,
     BUTTON_MENU_POPUP: "//button[@aria-haspopup='menu']",
-    buttonAriaLabel: (ariaLabel) => `//button[contains(@type,'button') and contains(@aria-label,'${ariaLabel}')]`,
+    buttonAriaLabel: (ariaLabel) => `//button[contains(@type,'button') and contains(@aria-label,'${ariaLabel}') and not(ancestor::*[@aria-hidden='true']) and not(ancestor::*[contains(@class,'sm:hidden')])]`,
     toolbarButtonAriaLabel: (ariaLabel) => `//button[contains(@type,'button') and contains(@aria-label,'${ariaLabel}') and not(ancestor::*[@aria-hidden='true']) and not(ancestor::*[contains(@class,'sm:hidden')])]`,
     buttonStatusBar: (label) => `//button[@data-component='StatusBarEntryButton' and contains(.,'${label}')]`,
     actionButton: (label) => `//div[contains(@id,'ActionButton')]/button[contains(.,'${label}')]`,
