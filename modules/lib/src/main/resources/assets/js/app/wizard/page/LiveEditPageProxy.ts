@@ -413,7 +413,7 @@ export class LiveEditPageProxy
                     return;
 
                 case 'keyboard-event':
-                    // TODO: [Task 9] translate to `$(document).simulate(...)`.
+                    this.simulateKeyboardEvent(msg);
                     return;
 
                 case 'navigate':
@@ -457,6 +457,20 @@ export class LiveEditPageProxy
         PageEventsManager.get().onSetComponentState((path: ComponentPath, processing: boolean) => {
             if (!this.isFrameLoaded) return;
             postToIframe({type: 'set-component-state', path: path.toString() as PEComponentPath, processing});
+        });
+    }
+
+    private simulateKeyboardEvent(msg: Extract<OutgoingMessage, {type: 'keyboard-event'}>): void {
+        const {eventType, keyCode, modifiers} = msg;
+        $(document).simulate(eventType, {
+            bubbles: true,
+            cancelable: true,
+            ctrlKey: modifiers.ctrl,
+            altKey: modifiers.alt,
+            shiftKey: modifiers.shift,
+            metaKey: modifiers.meta,
+            keyCode,
+            charCode: 0,
         });
     }
 
