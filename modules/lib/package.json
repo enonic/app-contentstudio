@@ -26,6 +26,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@enonic/page-editor": "^0.0.6",
     "@enonic/ui": "~0.47.6",
     "@nanostores/preact": "^1.0.0",
     "ckeditor4-react": "4.3.0",
