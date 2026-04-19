@@ -1,18 +1,10 @@
-import {BeforeContentSavedEvent} from '../../event/BeforeContentSavedEvent';
-import {type ComponentAddedEvent} from '../../page/region/ComponentAddedEvent';
-import {ComponentDuplicatedEvent} from '../../page/region/ComponentDuplicatedEvent';
-import {ComponentMovedEvent} from '../../page/region/ComponentMovedEvent';
 import {ComponentPath} from '../../page/region/ComponentPath';
 import {type ComponentRemovedEvent} from '../../page/region/ComponentRemovedEvent';
 import {ComponentRemovedOnMoveEvent} from '../../page/region/ComponentRemovedOnMoveEvent';
-import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedEvent';
 import {ComponentType} from '../../page/region/ComponentType';
 import {type ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
 import {ContentId} from '../../content/ContentId';
 import {DescriptorKey} from '../../page/DescriptorKey';
-import {FragmentComponentType} from '../../page/region/FragmentComponentType';
-import {IframeBeforeContentSavedEvent} from '../../event/IframeBeforeContentSavedEvent';
-import {LayoutComponentType} from '../../page/region/LayoutComponentType';
 import {PageControllerCustomizedEvent} from '../../page/event/PageControllerCustomizedEvent';
 import {PageEventsManager} from '../PageEventsManager';
 import {PageNavigationEvent} from '../PageNavigationEvent';
@@ -22,70 +14,26 @@ import {type PageNavigationHandler} from '../PageNavigationHandler';
 import {PageNavigationMediator} from '../PageNavigationMediator';
 import {PageState} from './PageState';
 import {type PageUpdatedEvent} from '../../page/event/PageUpdatedEvent';
-import {PartComponentType} from '../../page/region/PartComponentType';
 import {ProjectContext} from '../../project/ProjectContext';
 import {SessionStorageHelper} from '../../util/SessionStorageHelper';
-import {TextComponentType} from '../../page/region/TextComponentType';
+import {PageHelper} from '../../util/PageHelper';
 import {type LiveEditModel} from '../../../page-editor/LiveEditModel';
-import {ComponentViewDragStartedEvent} from '../../../page-editor/event/ComponentViewDragStartedEvent';
-import {ComponentViewDragStoppedEvent} from '../../../page-editor/event/ComponentViewDragStoppedEvent';
-import {ComponentViewDragCanceledEvent} from '../../../page-editor/event/ComponentViewDragCanceledEvent';
-import {ComponentViewDragDroppedEvent} from '../../../page-editor/event/ComponentViewDragDroppedEvent';
-import {PageLockedEvent} from '../../../page-editor/event/outgoing/manipulation/PageLockedEvent';
-import {PageUnlockedEvent} from '../../../page-editor/event/outgoing/manipulation/PageUnlockedEvent';
-import {SelectComponentEvent} from '../../../page-editor/event/outgoing/navigation/SelectComponentEvent';
-import {DeselectComponentEvent} from '../../../page-editor/event/outgoing/navigation/DeselectComponentEvent';
-import {ComponentInspectedEvent} from '../../../page-editor/event/ComponentInspectedEvent';
-import {ComponentLoadedEvent} from '../../../page-editor/event/ComponentLoadedEvent';
 import {LiveEditPageViewReadyEvent} from '../../../page-editor/event/LiveEditPageViewReadyEvent';
 import {LiveEditPageInitializationErrorEvent} from '../../../page-editor/event/LiveEditPageInitializationErrorEvent';
-import {ShowWarningLiveEditEvent} from '../../../page-editor/event/ShowWarningLiveEditEvent';
-import {InitializeLiveEditEvent} from '../../../page-editor/event/InitializeLiveEditEvent';
-import {SkipLiveEditReloadConfirmationEvent} from '../../../page-editor/event/SkipLiveEditReloadConfirmationEvent';
-import {SaveAsTemplateEvent} from '../../../page-editor/SaveAsTemplateEvent';
-import {LiveEditParams} from '../../../page-editor/LiveEditParams';
-import {CreateFragmentEvent} from '../../../page-editor/event/outgoing/manipulation/CreateFragmentEvent';
-import {PageResetEvent} from '../../../page-editor/event/outgoing/manipulation/PageResetEvent';
-import {SelectPageDescriptorEvent} from '../../../page-editor/event/outgoing/manipulation/SelectPageDescriptorEvent';
-import {SelectComponentViewEvent} from '../../../page-editor/event/incoming/navigation/SelectComponentViewEvent';
-import {DeselectComponentViewEvent} from '../../../page-editor/event/incoming/navigation/DeselectComponentViewEvent';
-import {EditTextComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/EditTextComponentViewEvent';
-import {AddComponentEvent} from '../../../page-editor/event/outgoing/manipulation/AddComponentEvent';
-import {AddComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/AddComponentViewEvent';
-import {RemoveComponentRequest} from '../../../page-editor/event/outgoing/manipulation/RemoveComponentRequest';
-import {RemoveComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/RemoveComponentViewEvent';
-import {LoadComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/LoadComponentViewEvent';
-import {DuplicateComponentEvent} from '../../../page-editor/event/outgoing/manipulation/DuplicateComponentEvent';
-import {SetFragmentComponentEvent} from '../../../page-editor/event/outgoing/manipulation/SetFragmentComponentEvent';
-import {UpdateTextComponentEvent} from '../../../page-editor/event/outgoing/manipulation/UpdateTextComponentEvent';
-import {DuplicateComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/DuplicateComponentViewEvent';
-import {CustomizePageEvent} from '../../../page-editor/event/outgoing/manipulation/CustomizePageEvent';
-import {MoveComponentEvent} from '../../../page-editor/event/outgoing/manipulation/MoveComponentEvent';
-import {MoveComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/MoveComponentViewEvent';
-import {DetachFragmentEvent} from '../../../page-editor/event/outgoing/manipulation/DetachFragmentEvent';
-import {SetPageLockStateEvent} from '../../../page-editor/event/incoming/manipulation/SetPageLockStateEvent';
-import {SetModifyAllowedEvent} from '../../../page-editor/event/incoming/manipulation/SetModifyAllowedEvent';
-import {CreateOrDestroyDraggableEvent} from '../../../page-editor/event/incoming/manipulation/CreateOrDestroyDraggableEvent';
-import {ResetComponentEvent} from '../../../page-editor/event/outgoing/manipulation/ResetComponentEvent';
-import {ResetComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/ResetComponentViewEvent';
-import {TextEditModeChangedEvent} from '../../../page-editor/event/outgoing/navigation/TextEditModeChangedEvent';
-import {EditContentFromComponentViewEvent} from '../../../page-editor/event/outgoing/manipulation/EditContentFromComponentViewEvent';
-import {PageStateEvent} from '../../../page-editor/event/incoming/common/PageStateEvent';
-import {UpdateTextComponentViewEvent} from '../../../page-editor/event/incoming/manipulation/UpdateTextComponentViewEvent';
-import {SetComponentStateEvent} from '../../../page-editor/event/incoming/manipulation/SetComponentStateEvent';
-import {PageReloadRequestedEvent} from '../../../page-editor/event/outgoing/manipulation/PageReloadRequestedEvent';
-import {LoadComponentFailedEvent} from '../../../page-editor/event/outgoing/manipulation/LoadComponentFailedEvent';
 import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
 import {DragMask} from '@enonic/lib-admin-ui/ui/mask/DragMask';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {ContentUrlHelper} from '../../util/ContentUrlHelper';
 import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
 import {type WizardExtensionRenderingHandler} from '../WizardExtensionRenderingHandler';
-import {IframeEventBus} from '@enonic/lib-admin-ui/event/IframeEventBus';
-import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
-import {SetDraggableVisibleEvent} from '../../../page-editor/event/incoming/manipulation/SetDraggableVisibleEvent';
-import {isRoot, type OutgoingMessage} from '@enonic/page-editor';
-import {subscribeToIframe} from './iframeChannel';
+import {isRoot, type ComponentPath as PEComponentPath, type OutgoingMessage, type PageConfig, type PageController} from '@enonic/page-editor';
+import {postToIframe, setIframeWindow, subscribeToIframe} from './iframeChannel';
+import {pageStateToDescriptor} from './pageStateToDescriptor';
+import {GetPageDescriptorsByApplicationsRequest} from './contextwindow/inspect/page/GetPageDescriptorsByApplicationsRequest';
 
 // This class is responsible for communication between the live edit iframe and the main iframe
 export class LiveEditPageProxy
@@ -134,49 +82,8 @@ export class LiveEditPageProxy
     private createLiveEditIFrame(): IFrameEl {
         const liveEditIFrame = new IFrameEl('live-edit-frame');
 
-        IframeEventBus.get().setId('wizard-bus');
-
-        // Register events coming from iframe here to be able to revive them in CS
-        IframeEventBus.get().registerClass('IframeEvent', IframeEvent);
-        IframeEventBus.get().registerClass('LiveEditPageViewReadyEvent', LiveEditPageViewReadyEvent);
-        IframeEventBus.get().registerClass('SelectComponentEvent', SelectComponentEvent);
-        IframeEventBus.get().registerClass('AddComponentEvent', AddComponentEvent);
-        IframeEventBus.get().registerClass('RemoveComponentRequest', RemoveComponentRequest);
-        IframeEventBus.get().registerClass('DuplicateComponentEvent', DuplicateComponentEvent);
-        IframeEventBus.get().registerClass('PartComponentType', PartComponentType);
-        IframeEventBus.get().registerClass('LayoutComponentType', LayoutComponentType);
-        IframeEventBus.get().registerClass('TextComponentType', TextComponentType);
-        IframeEventBus.get().registerClass('FragmentComponentType', FragmentComponentType);
-        IframeEventBus.get().registerClass('ComponentPath', ComponentPath);
-        IframeEventBus.get().registerClass('ComponentViewDragStartedEvent', ComponentViewDragStartedEvent);
-        IframeEventBus.get().registerClass('ComponentViewDragStoppedEvent', ComponentViewDragStoppedEvent);
-        IframeEventBus.get().registerClass('ComponentViewDragDroppedEvent', ComponentViewDragDroppedEvent);
-        IframeEventBus.get().registerClass('ComponentLoadedEvent', ComponentLoadedEvent);
-        IframeEventBus.get().registerClass('LoadComponentFailedEvent', LoadComponentFailedEvent);
-        IframeEventBus.get().registerClass('TypeError', TypeError);
-        IframeEventBus.get().registerClass('DeselectComponentEvent', DeselectComponentEvent);
-        IframeEventBus.get().registerClass('ResetComponentEvent', ResetComponentEvent);
-        IframeEventBus.get().registerClass('MoveComponentEvent', MoveComponentEvent);
-        IframeEventBus.get().registerClass('TextEditModeChangedEvent', TextEditModeChangedEvent);
-        IframeEventBus.get().registerClass('UpdateTextComponentEvent', UpdateTextComponentEvent);
-        IframeEventBus.get().registerClass('ComponentInspectedEvent', ComponentInspectedEvent);
-        IframeEventBus.get().registerClass('PageLockedEvent', PageLockedEvent);
-        IframeEventBus.get().registerClass('PageUnlockedEvent', PageUnlockedEvent);
-        IframeEventBus.get().registerClass('SetFragmentComponentEvent', SetFragmentComponentEvent);
-        IframeEventBus.get().registerClass('CreateFragmentEvent', CreateFragmentEvent);
-        IframeEventBus.get().registerClass('EditTextComponentViewEvent', EditTextComponentViewEvent);
-        IframeEventBus.get().registerClass('LiveEditPageInitializationErrorEvent', LiveEditPageInitializationErrorEvent);
-        IframeEventBus.get().registerClass('PageReloadRequestedEvent', PageReloadRequestedEvent);
-
-
-        IframeEventBus.get().onEvent('editor-iframe-loaded', (event) => {
+        (liveEditIFrame.getHTMLElement() as HTMLIFrameElement).addEventListener('load', () => {
             this.handleIFrameLoadedEvent();
-        });
-
-        IframeEventBus.get().onEvent('editor-modifier-pressed', (event) => {
-            const data = event.getData();
-            // Simulating iframe modifier event to allow shortcuts work when iframe is focused
-            $(document).simulate(data['type'] as string, data['config']);
         });
 
         return liveEditIFrame;
@@ -188,10 +95,8 @@ export class LiveEditPageProxy
 
     public setModifyPermissions(modifyPermissions: boolean): void {
         this.modifyPermissions = modifyPermissions;
-
-        if (this.isFrameLoaded) {
-            new SetModifyAllowedEvent(modifyPermissions).fire();
-        }
+        if (!this.isFrameLoaded) return;
+        postToIframe({type: 'set-modify-allowed', allowed: modifyPermissions});
     }
 
     public getWidth(): number {
@@ -206,22 +111,19 @@ export class LiveEditPageProxy
         return this.liveEditIFrame;
     }
 
-    public createDraggable(data: { type: string }) {
-        if (this.isFrameLoaded) {
-            new CreateOrDestroyDraggableEvent(data.type, true).fire();
-        }
+    public createDraggable(data: {type: string}): void {
+        if (!this.isFrameLoaded) return;
+        postToIframe({type: 'create-draggable', componentType: data.type});
     }
 
-    public destroyDraggable(data: { type: string }) {
-        if (this.isFrameLoaded) {
-            new CreateOrDestroyDraggableEvent(data.type, false).fire();
-        }
+    public destroyDraggable(_data: {type: string}): void {
+        if (!this.isFrameLoaded) return;
+        postToIframe({type: 'destroy-draggable'});
     }
 
-    public setDraggableVisible(data: { type: string }, visible: boolean) {
-        if (this.isFrameLoaded) {
-            new SetDraggableVisibleEvent(data.type, visible).fire();
-        }
+    public setDraggableVisible(_data: {type: string}, visible: boolean): void {
+        if (!this.isFrameLoaded) return;
+        postToIframe({type: 'set-draggable-visible', visible});
     }
 
     public getDragMask(): DragMask {
@@ -250,62 +152,99 @@ export class LiveEditPageProxy
         }
     }
 
-    public skipNextReloadConfirmation(skip: boolean) {
-        if (this.isFrameLoaded) {
-            new SkipLiveEditReloadConfirmationEvent(skip).fire();
-        }
+    public skipNextReloadConfirmation(_skip: boolean): void {
+        // No-op: v2 has no `beforeunload` confirmation (G8 WONT-FIX).
+        // Kept as deprecated no-op for existing callers; remove after audit.
     }
 
-    private handleIFrameLoadedEvent() {
-        if (LiveEditPageProxy.debug) {
-            console.debug('LiveEditPageProxy.handleIframeLoadedEvent at ' + new Date().toISOString());
-        }
-
-        const liveEditWindow = (this.liveEditIFrame.getHTMLElement() as HTMLIFrameElement).contentWindow;
-
-        // now that iframe is loaded, add it as a receiver to the IframeEventBus
-        IframeEventBus.get().addReceiver(liveEditWindow);
-
+    private handleIFrameLoadedEvent(): void {
+        const iframeWin = (this.liveEditIFrame.getHTMLElement() as HTMLIFrameElement).contentWindow;
+        setIframeWindow(iframeWin ?? undefined);
         this.isFrameLoaded = true;
+        this.isPageLocked = false;
 
-        if (liveEditWindow) {
-            this.isPageLocked = false;
+        this.stopListening();
+        this.listenToLivePageEvents();
 
-            this.stopListening();
-
-            this.listenToLivePageEvents();
-
-            if (this.isLiveEditAllowed()) {
-                if (LiveEditPageProxy.debug) {
-                    console.debug('LiveEditPageProxy.hanldeIframeLoadedEvent: initialize live edit at ' + new Date().toISOString());
-                }
-
-                new InitializeLiveEditEvent(this.createLiveEditParams())
-                    .setContent(this.liveEditModel.getContentSummaryAndCompareStatus())
-                    .setPrincipals()
-                    .setConfig()
-                    .setProjectJson()
-                    .setPageJson()
-                    .setUser()
-                    .setHostDomain(`${window.location.protocol}//${window.location.host}`)
-                    .fire();
-
-            } else {
-                if (LiveEditPageProxy.debug) {
-                    console.debug('LiveEditPageProxy.handleIframeLoadedEvent: notify live edit ready at ' + new Date().toISOString());
-                }
-
-                PageEventsManager.get().notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
-            }
-        }
-
-        // Notify loaded no matter the result
         PageEventsManager.get().notifyLoaded();
     }
 
-    private createLiveEditParams(): LiveEditParams {
+    private handleChannelReady(): void {
+        if (!this.isLiveEditAllowed()) {
+            PageEventsManager.get().notifyLiveEditPageViewReady(new LiveEditPageViewReadyEvent());
+            return;
+        }
 
-        return LiveEditParams.fromLiveEditModel(this.liveEditModel, this.resolveApplicationKeys(), this.modifyPermissions);
+        postToIframe({type: 'init', config: this.buildPageConfig()});
+        postToIframe({type: 'page-state', page: pageStateToDescriptor(PageState.getState())});
+        void this.sendPageControllers();
+    }
+
+    private buildPageConfig(): PageConfig {
+        const content = this.liveEditModel.getContent();
+        const state = PageState.getState();
+        const isPageTemplate = content.isPageTemplate();
+        const isFragment = content.getType().isFragment();
+        const hasController = state?.hasController() ?? false;
+
+        return {
+            contentId: content.getId(),
+            pageName: content.getDisplayName(),
+            pageIconClass: PageHelper.getPageIconClass(state),
+            locked: !isPageTemplate && !hasController && !isFragment,
+            modifyPermissions: this.modifyPermissions,
+            pageEmpty: isPageTemplate && !hasController,
+            pageTemplate: isPageTemplate,
+            fragment: isFragment,
+            fragmentAllowed: this.liveEditModel.isFragmentAllowed(),
+            resetEnabled: hasController,
+            phrases: this.getPhrasesForEditor(),
+            theme: this.getCurrentTheme(),
+            langDirection: this.getLangDirection(content.getLanguage()),
+        };
+    }
+
+    private async sendPageControllers(): Promise<void> {
+        try {
+            const keys = this.resolveApplicationKeys().map(k => ApplicationKey.fromString(k));
+            const descriptors = await new GetPageDescriptorsByApplicationsRequest(keys).sendAndParse();
+            const controllers: PageController[] = descriptors.map(d => ({
+                descriptorKey: d.getKey().toString(),
+                displayName: d.getDisplayName(),
+                iconClass: d.getIconCls(),
+            }));
+            if (this.isFrameLoaded) postToIframe({type: 'page-controllers', controllers});
+        } catch (err) {
+            console.warn('LiveEditPageProxy.sendPageControllers: failed', err);
+        }
+    }
+
+    private getPhrasesForEditor(): Record<string, string> {
+        const keys = [
+            'field.page', 'field.region', 'field.text', 'field.part', 'field.layout', 'field.fragment',
+            'field.pageController', 'field.pageController.empty', 'field.pageController.placeholder',
+            'field.region.empty',
+            'field.drag.release', 'field.drag.notAllowed', 'field.drag.self',
+            'field.drag.layoutNested', 'field.drag.fragmentLayout', 'field.drag.cellOccupied',
+            'field.component.renderError',
+            'action.insert', 'action.inspect', 'action.reset', 'action.remove', 'action.duplicate',
+            'action.edit', 'action.selectParent', 'action.createFragment', 'action.detachFragment',
+            'action.saveAsTemplate', 'action.pageSettings',
+        ];
+        const out: Record<string, string> = {};
+        for (const key of keys) {
+            const value = i18n(key);
+            if (value && value !== key) out[key] = value;
+        }
+        return out;
+    }
+
+    private getCurrentTheme(): 'light' | 'dark' {
+        return CONFIG.getString('theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    private getLangDirection(lang: string | undefined): 'ltr' | 'rtl' {
+        return lang != null && Locale.supportsRtl(lang) ? 'rtl' : 'ltr';
     }
 
     private resolveApplicationKeys(): string[] {
@@ -323,13 +262,14 @@ export class LiveEditPageProxy
     }
 
     setLocked(locked: boolean): void {
-        if (this.isFrameLoaded) {
-            new SetPageLockStateEvent(locked).fire();
-        }
+        this.isPageLocked = locked;
+        if (!this.isFrameLoaded) return;
+        postToIframe({type: 'set-lock', locked});
     }
 
     public loadComponent(path: ComponentPath, isExisting = false): void {
-        new LoadComponentViewEvent(path, isExisting).fire();
+        if (!this.isFrameLoaded) return;
+        postToIframe({type: 'load', path: path.toString() as PEComponentPath, existing: isExisting});
     }
 
     public stopListening(): void {
@@ -343,11 +283,11 @@ export class LiveEditPageProxy
         this.unsubscribeIframe = subscribeToIframe((msg: OutgoingMessage) => {
             switch (msg.type) {
                 case 'ready':
-                    // TODO: [Task 5] send `init` + `page-controllers` + `page-state` here.
+                    this.handleChannelReady();
                     return;
 
                 case 'iframe-loaded':
-                    // TODO: [Task 5] fold into `handleIFrameLoadedEvent()` init sequence.
+                    // Informational — `iframe.onload` already triggered `handleIFrameLoadedEvent`.
                     return;
 
                 case 'page-ready':
@@ -492,70 +432,45 @@ export class LiveEditPageProxy
         }
     }
 
-    private listenToMainFrameEvents() {
+    private listenToMainFrameEvents(): void {
+        const pushPageState = (): void => {
+            if (!this.isFrameLoaded) return;
+            postToIframe({type: 'page-state', page: pageStateToDescriptor(PageState.getState())});
+        };
 
-        PageState.getEvents().onComponentAdded((event: ComponentAddedEvent): void => {
-            if (this.isFrameLoaded) {
-                if (event instanceof ComponentDuplicatedEvent) {
-                    new DuplicateComponentViewEvent(event.getPath()).fire();
-                } else if (event instanceof ComponentMovedEvent) {
-                    new MoveComponentViewEvent(event.getFrom(), event.getTo()).fire();
-                } else {
-                    new AddComponentViewEvent(event.getPath(), event.getComponent().getType()).fire();
-                }
-
-                new PageStateEvent(PageState.getState().toJson()).fire();
-            }
-        });
+        PageState.getEvents().onComponentAdded(() => pushPageState());
 
         PageState.getEvents().onComponentRemoved((event: ComponentRemovedEvent) => {
-            if (this.isFrameLoaded) {
-                if (event instanceof ComponentRemovedOnMoveEvent) {
-                    // do nothing since component is being moved
-                } else {
-                    new RemoveComponentViewEvent(event.getPath()).fire();
-                    new PageStateEvent(PageState.getState().toJson()).fire();
-                }
-            }
+            if (event instanceof ComponentRemovedOnMoveEvent) return;
+            pushPageState();
         });
 
-        PageState.getEvents().onComponentUpdated((event: ComponentUpdatedEvent) => {
-            new PageStateEvent(PageState.getState().toJson()).fire();
-
-            if (event instanceof ComponentTextUpdatedEvent && event.getText()) {
-                if (this.isFrameLoaded) {
-                    new UpdateTextComponentViewEvent(event.getPath(), event.getText(), event.getOrigin()).fire();
-                }
-            }
-        });
-
-        BeforeContentSavedEvent.on(() => {
-            if (this.isFrameLoaded) {
-                new IframeBeforeContentSavedEvent().fire();
-            }
+        PageState.getEvents().onComponentUpdated((_event: ComponentUpdatedEvent) => {
+            pushPageState();
+            // Text HTML push to iframe is Task 7's responsibility (needs `image://` / `media://`
+            // → portal path rewrite via `HTMLAreaHelper.convertRenderSrcToPreviewSrc`).
         });
 
         PageEventsManager.get().onSetComponentState((path: ComponentPath, processing: boolean) => {
-            if (this.isFrameLoaded) {
-                new SetComponentStateEvent(path.toString(), processing).fire();
-            }
+            if (!this.isFrameLoaded) return;
+            postToIframe({type: 'set-component-state', path: path.toString() as PEComponentPath, processing});
         });
     }
 
-    resetComponent(path: ComponentPath): void {
-        if (this.isFrameLoaded) {
-            new ResetComponentViewEvent(path).fire();
-        }
+    resetComponent(_path: ComponentPath): void {
+        // No-op: reset is driven entirely by CS mutating `PageState` parent-side;
+        // the `pushPageState` subscription reflects the new descriptor map to the iframe.
     }
 
     handle(event: PageNavigationEvent): void {
-        if (event.getType() === PageNavigationEventType.SELECT) {
-            new SelectComponentViewEvent(event.getData().getPath()?.toString()).fire();
+        if (!this.isFrameLoaded) return;
+        const path = event.getData().getPath();
+        if (event.getType() === PageNavigationEventType.SELECT && path != null) {
+            postToIframe({type: 'select', path: path.toString() as PEComponentPath, silent: false});
             return;
         }
-
         if (event.getType() === PageNavigationEventType.DESELECT) {
-            new DeselectComponentViewEvent(event.getData().getPath()?.toString()).fire();
+            postToIframe({type: 'deselect', path: path?.toString() as PEComponentPath | undefined});
             return;
         }
     }
