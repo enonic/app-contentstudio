@@ -1,6 +1,7 @@
 import {ComponentPath} from '../../page/region/ComponentPath';
 import {type ComponentRemovedEvent} from '../../page/region/ComponentRemovedEvent';
 import {ComponentRemovedOnMoveEvent} from '../../page/region/ComponentRemovedOnMoveEvent';
+import {ComponentTextUpdatedEvent} from '../../page/region/ComponentTextUpdatedEvent';
 import {ComponentType} from '../../page/region/ComponentType';
 import {type ComponentUpdatedEvent} from '../../page/region/ComponentUpdatedEvent';
 import {ContentId} from '../../content/ContentId';
@@ -28,6 +29,7 @@ import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {ContentUrlHelper} from '../../util/ContentUrlHelper';
+import {HTMLAreaHelper} from '../../inputtype/ui/text/HTMLAreaHelper';
 import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
 import {type WizardExtensionRenderingHandler} from '../WizardExtensionRenderingHandler';
 import {isRoot, type ComponentPath as PEComponentPath, type OutgoingMessage, type PageConfig, type PageController} from '@enonic/page-editor';
@@ -445,15 +447,35 @@ export class LiveEditPageProxy
             pushPageState();
         });
 
-        PageState.getEvents().onComponentUpdated((_event: ComponentUpdatedEvent) => {
+        PageState.getEvents().onComponentUpdated((event: ComponentUpdatedEvent) => {
             pushPageState();
-            // Text HTML push to iframe is Task 7's responsibility (needs `image://` / `media://`
-            // → portal path rewrite via `HTMLAreaHelper.convertRenderSrcToPreviewSrc`).
+            if (event instanceof ComponentTextUpdatedEvent) {
+                this.pushTextUpdate(event);
+            }
         });
 
         PageEventsManager.get().onSetComponentState((path: ComponentPath, processing: boolean) => {
             if (!this.isFrameLoaded) return;
             postToIframe({type: 'set-component-state', path: path.toString() as PEComponentPath, processing});
+        });
+    }
+
+    private pushTextUpdate(event: ComponentTextUpdatedEvent): void {
+        if (!this.isFrameLoaded) return;
+        // ? Skip 'live' origin to guard against echo if a legacy in-iframe editor is still wired up.
+        if (event.getOrigin() === 'live') return;
+
+        const contentId = this.liveEditModel.getContent().getId();
+        const previewHtml = HTMLAreaHelper.convertRenderSrcToPreviewSrc(
+            event.getText(),
+            contentId,
+            ProjectContext.get().getProject(),
+        );
+
+        postToIframe({
+            type: 'update-text-component',
+            path: event.getPath().toString() as PEComponentPath,
+            html: previewHtml,
         });
     }
 
