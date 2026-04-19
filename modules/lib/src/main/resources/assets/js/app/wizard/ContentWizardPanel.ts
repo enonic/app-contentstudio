@@ -332,10 +332,8 @@ export class ContentWizardPanel
             });
         }, 300);
 
-        this.debouncedEditorReload = AppHelper.debounce((clearInspection: boolean, toggleLiveEdit: boolean, skipConfirmation: boolean) => {
+        this.debouncedEditorReload = AppHelper.debounce((clearInspection: boolean, toggleLiveEdit: boolean, _skipConfirmation: boolean) => {
             this.isRenderable().then((wasRenderable: boolean) => {
-
-                this.livePanel.skipNextReloadConfirmation(skipConfirmation);
 
                 this.livePanel.loadPage(clearInspection)
                     .then((isRenderable) => {
@@ -1099,10 +1097,6 @@ export class ContentWizardPanel
 
     saveChanges(clearInspection: boolean = false): Q.Promise<Content> {
 
-        // save happens right after data loaded with new content
-        // so layout is not done yet and livePanel is not present yet
-        this.livePanel?.skipNextReloadConfirmation(true);
-
         this.setRequireValid(false);
         this.contentUpdateDisabled = true;
         this.isFirstUpdateAndRenameEventSkiped = false;
@@ -1291,10 +1285,6 @@ export class ContentWizardPanel
     }
 
     close(checkCanClose: boolean = false) {
-        const liveFormPanel = this.getLivePanel();
-        if (liveFormPanel) {
-            liveFormPanel.skipNextReloadConfirmation(true);
-        }
         super.close(checkCanClose);
     }
 

@@ -1,5 +1,3 @@
-import {TextEditModeChangedEvent} from './event/outgoing/navigation/TextEditModeChangedEvent';
-
 /**
  * Acts as a controller for PageView state
  * Should not contain references to PageView to be used it ItemView
@@ -29,7 +27,6 @@ export class PageViewController {
 
         if (isToBeChanged) {
             this.notifyTextEditModeChanged(value);
-            new TextEditModeChangedEvent(value).fire();
         }
     }
 

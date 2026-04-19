@@ -1,6 +1,5 @@
 import {type DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {type IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
-import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {type Mask} from '@enonic/lib-admin-ui/ui/mask/Mask';
@@ -141,12 +140,6 @@ export class LiveFormPanel
             // we handle widget event manually in LiveEditPageProxy
             this.widgetRenderingHandler.layout();
 
-            WindowDOM.get().onBeforeUnload((event) => {
-                // the reload is triggered by the main frame,
-                // so let the live edit know it to skip the popup
-                this.liveEditPageProxy?.skipNextReloadConfirmation(true);
-            });
-
             return rendered;
         });
     }
@@ -210,10 +203,6 @@ export class LiveFormPanel
 
     public getModel(): LiveEditModel {
         return this.liveEditModel;
-    }
-
-    skipNextReloadConfirmation(skip: boolean) {
-        this.liveEditPageProxy?.skipNextReloadConfirmation(skip);
     }
 
     onRenderableChanged(listener: (isRenderable: boolean, wasRenderable: boolean) => void) {

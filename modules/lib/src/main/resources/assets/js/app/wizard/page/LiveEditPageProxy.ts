@@ -21,6 +21,8 @@ import {PageHelper} from '../../util/PageHelper';
 import {type LiveEditModel} from '../../../page-editor/LiveEditModel';
 import {LiveEditPageViewReadyEvent} from '../../../page-editor/event/LiveEditPageViewReadyEvent';
 import {LiveEditPageInitializationErrorEvent} from '../../../page-editor/event/LiveEditPageInitializationErrorEvent';
+import {PageLockedEvent} from '../../../page-editor/event/outgoing/manipulation/PageLockedEvent';
+import {PageUnlockedEvent} from '../../../page-editor/event/outgoing/manipulation/PageUnlockedEvent';
 import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
 import {DragMask} from '@enonic/lib-admin-ui/ui/mask/DragMask';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
@@ -154,11 +156,6 @@ export class LiveEditPageProxy
         }
     }
 
-    public skipNextReloadConfirmation(_skip: boolean): void {
-        // No-op: v2 has no `beforeunload` confirmation (G8 WONT-FIX).
-        // Kept as deprecated no-op for existing callers; remove after audit.
-    }
-
     private handleIFrameLoadedEvent(): void {
         const iframeWin = (this.liveEditIFrame.getHTMLElement() as HTMLIFrameElement).contentWindow;
         setIframeWindow(iframeWin ?? undefined);
@@ -265,6 +262,12 @@ export class LiveEditPageProxy
 
     setLocked(locked: boolean): void {
         this.isPageLocked = locked;
+        const mgr = PageEventsManager.get();
+        if (locked) {
+            mgr.notifyPageLocked(new PageLockedEvent());
+        } else {
+            mgr.notifyPageUnlocked(new PageUnlockedEvent());
+        }
         if (!this.isFrameLoaded) return;
         postToIframe({type: 'set-lock', locked});
     }

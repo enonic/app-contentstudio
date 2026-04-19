@@ -3,7 +3,6 @@ import type {ComponentTextUpdatedOrigin} from '../../../../app/page/region/Compo
 import type {ComponentType} from '../../../../app/page/region/ComponentType';
 import type {DescriptorKey} from '../../../../app/page/DescriptorKey';
 import type {PageTemplateKey} from '../../../../app/page/PageTemplateKey';
-import {PageStateEvent} from '../../../../page-editor/event/incoming/common/PageStateEvent';
 import {PageEventsManager} from '../../../../app/wizard/PageEventsManager';
 import {PageState} from '../../../../app/wizard/page/PageState';
 import {$hasDefaultPageTemplate, $inspectedPath, $pageEditorLifecycle} from './store';
@@ -48,7 +47,6 @@ export function requestPageReset(): void {
 // ? confirmation dialog in PageState.onPageResetRequested.
 export function executePageReset(): void {
     PageState.setState(null);
-    new PageStateEvent(null).fire();
     PageState.getEvents().notifyPageReset();
 }
 

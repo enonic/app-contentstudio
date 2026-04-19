@@ -43,7 +43,6 @@ import Q from 'q';
 import {type ComponentTextUpdatedOrigin} from '../../page/region/ComponentTextUpdatedOrigin';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {PageStateEvent} from '../../../page-editor/event/incoming/common/PageStateEvent';
 
 export class PageState {
 
@@ -196,7 +195,6 @@ export class PageStateEventHandler {
             const oldValue: PageTemplateKey = PageState.getState()?.getTemplate();
             const newPage: Page = new Page(new PageBuilder().setTemplate(pageTemplate));
             PageState.setState(newPage);
-            new PageStateEvent(newPage.toJson()).fire();
             this.pageEventsHolder.notifyPageUpdated(new PageTemplateUpdatedEvent(pageTemplate, oldValue));
         });
 
@@ -206,7 +204,6 @@ export class PageStateEventHandler {
 
             PageHelper.injectEmptyRegionsIntoPage(newPage).then((fullPage: Page) => {
                 PageState.setState(fullPage);
-                new PageStateEvent(fullPage.toJson()).fire();
                 this.pageEventsHolder.notifyPageUpdated(new PageControllerUpdatedEvent(controller, oldValue));
             }).catch(DefaultErrorHandler.handle);
         });
@@ -217,7 +214,6 @@ export class PageStateEventHandler {
 
             PageHelper.injectEmptyRegionsIntoPage(pageTemplate.getPage()).then((fullPage: Page) => {
                 PageState.setState(fullPage);
-                new PageStateEvent(fullPage.toJson()).fire();
                 this.pageEventsHolder.notifyPageUpdated(new PageControllerCustomizedEvent(newValue, oldValue));
             });
         });
@@ -227,7 +223,6 @@ export class PageStateEventHandler {
                 .setQuestion(i18n('dialog.page.reset.confirmation'))
                 .setYesCallback(() => {
                     PageState.setState(null);
-                    new PageStateEvent(null).fire();
                     this.pageEventsHolder.notifyPageReset();
                 })
                 .open();
