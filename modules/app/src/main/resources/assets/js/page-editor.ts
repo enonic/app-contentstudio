@@ -1,13 +1,12 @@
-import {PageEditor, EditorEvents, EditorEvent, type ItemView} from '@enonic/page-editor';
+import {initPageEditor, type ComponentPath, type PageEditorInstance} from '@enonic/page-editor';
 import '@enonic/page-editor/styles.css';
 import {EditorEventHandler} from './EditorEventHandler';
 
-PageEditor.init(true);
-// console.info('Page editor started in edit mode.');
+const handler = new EditorEventHandler();
 
-const eventHandler = new EditorEventHandler();
-
-PageEditor.on(EditorEvents.ComponentLoadRequest, (event: EditorEvent<{ view: ItemView, isExisting: boolean }>) => {
-    const {view, isExisting} = event.getData();
-    eventHandler.loadComponentView(view, isExisting);
+const editor: PageEditorInstance = initPageEditor(document.body, window.parent, {
+    hostDomain: `${window.location.protocol}//${window.location.host}`,
+    onComponentLoadRequest: (path: ComponentPath, existing: boolean) => {
+        void handler.loadComponent(editor, path, existing);
+    },
 });
