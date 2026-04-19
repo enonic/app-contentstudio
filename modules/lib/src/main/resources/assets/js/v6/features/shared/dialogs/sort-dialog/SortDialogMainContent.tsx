@@ -1,7 +1,7 @@
+import {SortableGridList} from '@enonic/lib-admin-ui/form2/components/sortable-grid-list';
 import {Button, Dialog} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {type ReactElement} from 'react';
-import type {ContentSummary} from '../../../../../app/content/ContentSummary';
 import {useI18n} from '../../../hooks/useI18n';
 import {
     $isSortDialogReady,
@@ -13,7 +13,6 @@ import {
 } from '../../../store/dialogs/sortDialog.store';
 import type {SortOrderOptionId} from '../../../store/dialogs/sortDialog.types';
 import {SortContentListItem} from '../../items';
-import {SortableList} from '../../lists';
 import {SortElementSelector} from '../../selectors/SortElementSelector';
 
 const SORT_DIALOG_MAIN_CONTENT_NAME = 'SortDialogMainContent';
@@ -40,6 +39,7 @@ export const SortDialogMainContent = (): ReactElement => {
     const publishLabel = useI18n('field.sortType.publish');
     const manualLabel = useI18n('field.sortType.manual');
     const saveLabel = useI18n('action.save');
+    const reorderLabel = useI18n('field.occurrence.action.reorder');
 
     const sortElementOptions: {id: SortOrderOptionId; label: string}[] = [
         {id: 'modified:ASC', label: `${modifiedLabel} (${ascendingLabel})`},
@@ -71,22 +71,29 @@ export const SortDialogMainContent = (): ReactElement => {
                 {loading && <span>{loadingLabel}</span>}
                 {!loading && failed && <span>{loadErrorLabel}</span>}
                 {!loading && !failed && items.length > 0 && (
-                    <SortableList
+                    <SortableGridList
                         items={items}
+                        keyExtractor={(item) => item.getId()}
+                        onMove={(fromIndex, toIndex) => {
+                            if (!isManualSorting) {
+                                startSortDialogManualReorder();
+                            }
+                            reorderSortDialogItems(fromIndex, toIndex);
+                        }}
                         enabled={isManualSorting}
-                        onDragIntent={startSortDialogManualReorder}
-                        onReorder={reorderSortDialogItems}
-                        getItemAriaLabel={(item) => item.getDisplayName()}
-                        renderItem={(item: ContentSummary, {isFocused, isMovable, interactionProps}) => (
+                        fullRowDraggable
+                        dragLabel={reorderLabel}
+                        className='flex flex-col gap-y-2.5'
+                        itemClassName='[&>button]:hidden'
+                        renderItem={({item, isFocused, isMovable}) => (
                             <SortContentListItem
-                                key={`sort-item-${item.getId()}`}
                                 content={item}
                                 variant='detailed'
                                 dragEnabled={isManualSorting}
                                 selected={isMovable}
                                 isFocused={isFocused && !isMovable}
                                 isMovable={isMovable}
-                                {...interactionProps}
+                                className='flex-1 bg-unset'
                             />
                         )}
                     />

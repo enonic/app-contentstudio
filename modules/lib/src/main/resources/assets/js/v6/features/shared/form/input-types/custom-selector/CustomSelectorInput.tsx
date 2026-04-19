@@ -3,7 +3,7 @@ import {type SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
 import {type CustomSelectorConfig} from './CustomSelectorConfig';
 import {Combobox} from '@enonic/ui';
 import {useI18n} from '../../../../hooks/useI18n';
-import {SortableList} from '@enonic/lib-admin-ui/form2/components';
+import {SortableGridList} from '@enonic/lib-admin-ui/form2/components';
 import {ContentId} from '../../../../../../app/content/ContentId';
 import {ContentSummary, ContentSummaryBuilder} from '../../../../../../app/content/ContentSummary';
 import {CustomSelectorInputComboboxList} from './CustomSelectorComboboxList';
@@ -118,7 +118,7 @@ export const CustomSelectorInput = ({
                 </Combobox.Content>
             </Combobox.Root>
 
-            <SortableList
+            <SortableGridList
                 items={selectedContents}
                 fullRowDraggable
                 keyExtractor={(content) => content.getId()}

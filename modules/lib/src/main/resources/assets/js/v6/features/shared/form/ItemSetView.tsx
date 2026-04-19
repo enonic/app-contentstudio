@@ -1,7 +1,7 @@
 import type {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import type {FormItemSet} from '@enonic/lib-admin-ui/form/set/itemset/FormItemSet';
 import {useI18n, usePropertySetArray, useSetOccurrenceManager, useValidationVisibility} from '@enonic/lib-admin-ui/form2';
-import {SortableList} from '@enonic/lib-admin-ui/form2/components/sortable-list';
+import {SortableGridList} from '@enonic/lib-admin-ui/form2/components/sortable-grid-list';
 import {type ReactElement, useCallback, useMemo, useState} from 'react';
 import {FormItemRenderer} from './FormItemRenderer';
 import {useFormRender} from './FormRenderContext';
@@ -71,7 +71,7 @@ export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElem
         <div className="flex flex-col gap-3" data-component="ItemSetView">
             <SetHeader label={label} occurrences={occurrences} occurrenceError={occurrenceError} />
             {state.count > 0 && isMultiple && (
-                <SortableList
+                <SortableGridList
                     items={propertySets}
                     keyExtractor={(_: PropertySet, i: number) => state.ids[i]}
                     onMove={handleMove}

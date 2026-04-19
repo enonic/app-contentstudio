@@ -1,5 +1,5 @@
 import type {SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
-import {SortableList} from '@enonic/lib-admin-ui/form2/components';
+import {SortableGridList} from '@enonic/lib-admin-ui/form2/components';
 import {Combobox} from '@enonic/ui';
 import {type ReactElement, useMemo, useState} from 'react';
 import {useI18n} from '../../../../hooks/useI18n';
@@ -84,7 +84,7 @@ export const ContentTypeFilterInput = ({
                 </Combobox.Content>
             </Combobox.Root>
 
-            <SortableList
+            <SortableGridList
                 items={selectedContentTypes}
                 keyExtractor={(ct) => ct.getContentTypeName().toString()}
                 onMove={onMove}

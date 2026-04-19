@@ -1,4 +1,4 @@
-import {SortableList} from '@enonic/lib-admin-ui/form2/components/sortable-list';
+import {SortableGridList} from '@enonic/lib-admin-ui/form2/components/sortable-grid-list';
 import {Dialog, GridList, IconButton, ListItem, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {GripVertical, X} from 'lucide-react';
@@ -145,7 +145,7 @@ export const ProjectDialogParentStepContent = (): ReactElement => {
                     )}
 
                     {mode === 'create' && projectSelection.length > 1 && isMultiInheritance && (
-                        <SortableList
+                        <SortableGridList
                             items={Array.from(projectSelection).filter((name) => projects.some((p) => p.getName() === name))}
                             keyExtractor={(projectName) => projectName}
                             onMove={handleReorder}

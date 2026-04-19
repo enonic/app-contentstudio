@@ -1,7 +1,7 @@
 import type {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import type {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
 import {useI18n, usePropertySetArray, useSetOccurrenceManager, useValidationVisibility} from '@enonic/lib-admin-ui/form2';
-import {SortableList} from '@enonic/lib-admin-ui/form2/components/sortable-list';
+import {SortableGridList} from '@enonic/lib-admin-ui/form2/components/sortable-grid-list';
 import {type ReactElement, useCallback, useMemo, useState} from 'react';
 import {OptionSetOccurrenceView} from './option-set';
 import {useFormRender} from './FormRenderContext';
@@ -91,7 +91,7 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
         <div className="flex flex-col gap-3" data-component="OptionSetView">
             <SetHeader label={label} occurrences={occurrences} occurrenceError={occurrenceError} />
             {state.count > 0 && (
-                <SortableList
+                <SortableGridList
                     items={propertySets}
                     keyExtractor={(_: PropertySet, i: number) => state.ids[i]}
                     onMove={handleMove}

@@ -13,8 +13,8 @@ const XPATH = {
         return `//div[contains(@id,'NamesView') and child::p[contains(@class,'sub-name') and contains(.,'${name}')]]` +
                `//ancestor::li[contains(@id,'ContentListElement')]//div[contains(@class,'toggle icon-arrow_drop_up')]`;
     },
-    // v6: text span inside each selected option row in SortableList
-    sortableListSelectedOptionText:
+    // v6: text span inside each selected option row in SortableGridList
+    SortableGridListSelectedOptionText:
         `//div[@data-component='SortableGridList']//div[@role='button' and @aria-roledescription='sortable']//span[contains(@class,'truncate')]`,
 }
 
@@ -290,7 +290,7 @@ class BaseDropdown extends Page {
 
     async getSelectedOptionsDisplayName() {
         const base = this.dataComponentDiv ? this.container + this.dataComponentDiv : this.container;
-        const locator = base + XPATH.sortableListSelectedOptionText;
+        const locator = base + XPATH.SortableGridListSelectedOptionText;
         return await this.getTextInDisplayedElements(locator);
     }
 
