@@ -55,7 +55,6 @@ import {SearchAndExpandItemEvent} from './SearchAndExpandItemEvent';
 import {State} from './State';
 import {ToggleSearchPanelEvent} from './ToggleSearchPanelEvent';
 import {ToggleSearchPanelWithDependenciesEvent} from './ToggleSearchPanelWithDependenciesEvent';
-import {IframeEventBus} from '@enonic/lib-admin-ui/event/IframeEventBus';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -151,9 +150,6 @@ export class ContentBrowsePanel
 
     protected initListeners() {
         super.initListeners();
-
-        IframeEventBus.get().setId('browse-bus');
-        IframeEventBus.get().registerClass('ContentPreviewPathChangedEvent', ContentPreviewPathChangedEvent);
 
         this.filterPanel.onSearchEvent((query?: ContentQuery) => {
             this.contentTreeList.setFilterQuery(query);

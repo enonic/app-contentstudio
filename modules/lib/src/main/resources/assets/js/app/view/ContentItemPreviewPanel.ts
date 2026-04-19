@@ -13,6 +13,7 @@ import {PreviewToolbarElement} from '../../v6/features/views/browse/layout/previ
 import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusHelper} from '../content/ContentSummaryAndCompareStatusHelper';
 import {ContentResourceRequest} from '../resource/ContentResourceRequest';
+import {ContentPreviewPathChangedEvent} from './ContentPreviewPathChangedEvent';
 import {type ExtensionRenderer, ExtensionRenderingHandler} from './ExtensionRenderingHandler';
 
 export class ContentItemPreviewPanel extends Panel implements ExtensionRenderer {
@@ -137,7 +138,20 @@ export class ContentItemPreviewPanel extends Panel implements ExtensionRenderer 
                 this.hideMask();
             }
         });
+
+        window.addEventListener('message', this.handlePreviewMessage);
     }
+
+    private handlePreviewMessage = (event: MessageEvent): void => {
+        const frameWindow = (this.frame.getHTMLElement() as HTMLIFrameElement | null)?.contentWindow;
+        if (frameWindow == null || event.source !== frameWindow) return;
+
+        const data = event.data as {source?: string; type?: string; path?: string} | null;
+        if (data?.source !== 'page-editor') return;
+        if (data.type === 'navigate' && typeof data.path === 'string') {
+            new ContentPreviewPathChangedEvent(data.path).fire();
+        }
+    };
 
     protected getToolbar(): PreviewToolbarElement {
         return this.toolbar;
