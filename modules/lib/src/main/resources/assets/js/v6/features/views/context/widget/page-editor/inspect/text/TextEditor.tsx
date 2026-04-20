@@ -203,7 +203,7 @@ const TextEditorInner = ({
                 if (timeout != null) {
                     clearTimeout(timeout);
                 }
-                timeout = setTimeout(fn, 200);
+                timeout = setTimeout(fn, 100);
             };
 
             fn.cancel = () => {
