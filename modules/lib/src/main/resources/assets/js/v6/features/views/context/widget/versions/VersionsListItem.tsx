@@ -76,7 +76,7 @@ type VersionItemMainInfoProps = {
 };
 
 const VersionItemMainInfo = ({version}: VersionItemMainInfoProps): ReactElement => {
-    const modifierDisplayName = version.getModifierDisplayName() || version.getPublishInfo()?.getPublisherDisplayName();
+    const modifierDisplayName = version.getActions()[0]?.getUserDisplayName();
     const modifierLabel = useI18n('field.version.by', modifierDisplayName ?? '');
 
     return (
@@ -146,7 +146,7 @@ export const VersionsListItem = ({
         requestRevert(contentId, versionId);
     }, [contentId, versionId]);
 
-    const publishMessage = version.getPublishInfo()?.getMessage();
+    const publishMessage = version.getPublishInfo() ? version.getComment() : undefined;
     const activePublishVersionId = useStore($activePublishVersionId);
     const publishStatus = useStore($activePublishStatus);
     const publishedFrom = useStore($activePublishedFrom);

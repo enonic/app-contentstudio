@@ -50,10 +50,17 @@ vi.mock('@enonic/lib-admin-ui/util/Messages', () => ({
     i18n: (key: string) => key,
 }));
 
-function createAction(operation: string, fields: string[] = []): ContentVersionAction {
+type PublishActionOptions = {
+    editorial?: string;
+    editorialExists?: boolean;
+};
+
+function createAction(operation: string, fields: string[] = [], options: PublishActionOptions = {}): ContentVersionAction {
     return new ContentVersionActionBuilder()
         .setOperation(operation)
         .setFields(fields)
+        .setEditorial(options.editorial)
+        .setEditorialExists(options.editorialExists)
         .build();
 }
 
@@ -62,22 +69,20 @@ function createVersion(id: string, actions: ContentVersionAction[], timestamp?: 
     builder.id = id;
     builder.actions = actions;
     builder.timestamp = timestamp ?? new Date('2024-01-15T10:00:00Z');
-    builder.modified = builder.timestamp;
     return builder.build();
 }
 
-function createPublishedVersion(id: string, publishedFrom: Date, publishedTo?: Date): ContentVersion {
+function createPublishedVersion(id: string, publishedFrom: Date, publishedTo?: Date,
+                                publishOptions: PublishActionOptions = {}): ContentVersion {
     const builder = new ContentVersionBuilder();
     builder.id = id;
-    builder.actions = [createAction(ContentOperation.PUBLISH)];
+    builder.actions = [createAction(ContentOperation.PUBLISH, [], publishOptions)];
     builder.timestamp = new Date('2024-01-15T10:00:00Z');
-    builder.modified = builder.timestamp;
     builder.publishInfo = {
-        getPublishedFrom: () => publishedFrom,
-        getPublishedTo: () => publishedTo,
-        getPublisherDisplayName: () => 'Test User',
-        getMessage: () => undefined,
-        getTimestamp: () => builder.timestamp,
+        getFrom: () => publishedFrom,
+        getTo: () => publishedTo,
+        getFirst: () => publishedFrom,
+        getTime: () => builder.timestamp,
     } as ContentVersion['getPublishInfo'] extends () => infer R ? R : never;
     return builder.build();
 }
@@ -162,7 +167,6 @@ describe('resolveVersionOperationType', () => {
         const builder = new ContentVersionBuilder();
         builder.id = '__synthetic_create__';
         builder.timestamp = new Date();
-        builder.modified = new Date();
         builder.actions = [];
         const synthetic = builder.build();
 
@@ -240,7 +244,6 @@ describe('isVersionComparable', () => {
         const builder = new ContentVersionBuilder();
         builder.id = '__synthetic_create__';
         builder.timestamp = new Date();
-        builder.modified = new Date();
         builder.actions = [];
         expect(isVersionComparable(builder.build())).toBe(false);
     });
@@ -274,7 +277,6 @@ describe('isStandardModeVersion', () => {
         const builder = new ContentVersionBuilder();
         builder.id = '__synthetic_create__';
         builder.timestamp = new Date();
-        builder.modified = new Date();
         builder.actions = [];
         expect(isStandardModeVersion(builder.build())).toBe(true);
     });
@@ -365,7 +367,6 @@ describe('getIconForOperation', () => {
         const builder = new ContentVersionBuilder();
         builder.id = '__synthetic_create__';
         builder.timestamp = new Date();
-        builder.modified = new Date();
         builder.actions = [];
         expect(getIconForOperation(builder.build())).toBe(PenLine);
     });
@@ -416,7 +417,6 @@ describe('getOperationLabel', () => {
         const builder = new ContentVersionBuilder();
         builder.id = '__synthetic_create__';
         builder.timestamp = new Date();
-        builder.modified = new Date();
         builder.actions = [];
         expect(getOperationLabel(builder.build())).toBe('operation.content.create');
     });
@@ -429,7 +429,10 @@ describe('getOperationLabel', () => {
 describe('publish badge', () => {
     it('returns undefined when no onlineVersionId', () => {
         const update = createVersion('v-update', [createAction(ContentOperation.UPDATE)]);
-        const publish = createPublishedVersion('v-pub', new Date('2020-01-01'));
+        const publish = createPublishedVersion('v-pub', new Date('2020-01-01'), undefined, {
+            editorial: 'v-update',
+            editorialExists: true,
+        });
 
         $versions.set([publish, update]);
         $onlineVersionId.set(undefined);
@@ -438,9 +441,12 @@ describe('publish badge', () => {
         expect($activePublishStatus.get()).toBeUndefined();
     });
 
-    it('returns the first mayShowBadge version after the published version', () => {
+    it('marks the editorial version when editorialExists is true', () => {
         const update = createVersion('v-update', [createAction(ContentOperation.UPDATE)], new Date('2024-01-14'));
-        const publish = createPublishedVersion('v-pub', new Date('2020-01-01'));
+        const publish = createPublishedVersion('v-pub', new Date('2020-01-01'), undefined, {
+            editorial: 'v-update',
+            editorialExists: true,
+        });
 
         $versions.set([publish, update]);
         $onlineVersionId.set('some-id');
@@ -449,30 +455,28 @@ describe('publish badge', () => {
         expect($activePublishStatus.get()).toBe(VersionPublishStatus.PUBLISHED);
     });
 
-    it('skips non-mayShowBadge versions when finding badge target', () => {
-        const create = createVersion('v-create', [createAction(ContentOperation.CREATE)], new Date('2024-01-10'));
-        const permissions = createVersion('v-perm', [createAction(ContentOperation.PERMISSIONS)], new Date('2024-01-12'));
-        const publish = createPublishedVersion('v-pub', new Date('2020-01-01'));
+    it('marks the publish version itself when editorialExists is false', () => {
+        const update = createVersion('v-update', [createAction(ContentOperation.UPDATE)], new Date('2024-01-14'));
+        const publish = createPublishedVersion('v-pub', new Date('2020-01-01'), undefined, {
+            editorial: 'v-missing',
+            editorialExists: false,
+        });
 
-        // newest first: publish, permissions, create
-        // permissions has mayShowBadge: false, create has mayShowBadge: false
-        // so no badge target should be found
-        $versions.set([publish, permissions, create]);
+        $versions.set([publish, update]);
         $onlineVersionId.set('some-id');
 
-        expect($activePublishVersionId.get()).toBeUndefined();
+        expect($activePublishVersionId.get()).toBe('v-pub');
+        expect($activePublishStatus.get()).toBe(VersionPublishStatus.PUBLISHED);
     });
 
-    it('badge does not appear on the PUBLISH version itself', () => {
+    it('marks the publish version itself when editorial is missing', () => {
         const update = createVersion('v-update', [createAction(ContentOperation.UPDATE)], new Date('2024-01-14'));
         const publish = createPublishedVersion('v-pub', new Date('2020-01-01'));
 
         $versions.set([publish, update]);
         $onlineVersionId.set('some-id');
 
-        // Badge should be on update, not on publish
-        expect($activePublishVersionId.get()).not.toBe('v-pub');
-        expect($activePublishVersionId.get()).toBe('v-update');
+        expect($activePublishVersionId.get()).toBe('v-pub');
     });
 });
 
@@ -618,7 +622,6 @@ describe('VERSION_OPERATION_MATRIX', () => {
                             const b = new ContentVersionBuilder();
                             b.id = '__synthetic_create__';
                             b.timestamp = new Date();
-                            b.modified = new Date();
                             b.actions = [];
                             return b.build();
                         })()

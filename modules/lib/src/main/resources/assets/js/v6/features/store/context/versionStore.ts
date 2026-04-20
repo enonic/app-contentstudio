@@ -89,7 +89,6 @@ type VersionOperationConfig = {
     standardMode: boolean;
     fullMode: boolean;
     restorable: boolean;
-    mayShowBadge: boolean;
     comparable: boolean;
     icon: LucideIcon;
     labelKey: string;
@@ -100,7 +99,6 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         standardMode: true,
         fullMode: true,
         restorable: true,
-        mayShowBadge: false,
         comparable: true,
         icon: PenLine,
         labelKey: 'operation.content.create'
@@ -109,7 +107,6 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         standardMode: true,
         fullMode: true,
         restorable: true,
-        mayShowBadge: true,
         comparable: true,
         icon: Copy,
         labelKey: 'operation.content.duplicate'
@@ -118,7 +115,6 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         standardMode: true,
         fullMode: true,
         restorable: true,
-        mayShowBadge: true,
         comparable: true,
         icon: Pen,
         labelKey: 'operation.content.update'
@@ -127,7 +123,6 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         standardMode: false,
         fullMode: true,
         restorable: false,
-        mayShowBadge: false,
         comparable: false,
         icon: Cloud,
         labelKey: 'operation.content.publish'
@@ -136,7 +131,6 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         standardMode: false,
         fullMode: true,
         restorable: false,
-        mayShowBadge: false,
         comparable: false,
         icon: CloudOff,
         labelKey: 'operation.content.unpublish'
@@ -145,7 +139,6 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         standardMode: false,
         fullMode: true,
         restorable: false,
-        mayShowBadge: false,
         comparable: false,
         icon: CircleUserRound,
         labelKey: 'operation.content.permissions'
@@ -154,7 +147,6 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         standardMode: true,
         fullMode: true,
         restorable: false,
-        mayShowBadge: true,
         comparable: true,
         icon: FolderInput,
         labelKey: 'operation.content.move'
@@ -163,7 +155,6 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         standardMode: true,
         fullMode: true,
         restorable: false,
-        mayShowBadge: true,
         comparable: true,
         icon: CaseSensitive,
         labelKey: 'operation.content.name'
@@ -172,7 +163,6 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         standardMode: true,
         fullMode: true,
         restorable: false,
-        mayShowBadge: true,
         comparable: true,
         icon: ArrowDownNarrowWide,
         labelKey: 'operation.content.sort'
@@ -181,7 +171,6 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         standardMode: false,
         fullMode: true,
         restorable: false,
-        mayShowBadge: false,
         comparable: false,
         icon: SquarePen,
         labelKey: 'operation.content.patch'
@@ -190,7 +179,6 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         standardMode: false,
         fullMode: true,
         restorable: false,
-        mayShowBadge: false,
         comparable: false,
         icon: Archive,
         labelKey: 'operation.content.archive'
@@ -199,7 +187,6 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         standardMode: false,
         fullMode: true,
         restorable: false,
-        mayShowBadge: false,
         comparable: false,
         icon: ArchiveRestore,
         labelKey: 'operation.content.restore'
@@ -208,7 +195,6 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         standardMode: false,
         fullMode: true,
         restorable: false,
-        mayShowBadge: false,
         comparable: false,
         icon: FilePenLine,
         labelKey: 'operation.content.updateMetadata'
@@ -217,7 +203,6 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         standardMode: false,
         fullMode: true,
         restorable: false,
-        mayShowBadge: false,
         comparable: false,
         icon: CircleCheckBig,
         labelKey: 'operation.content.updateWorkflow'
@@ -226,7 +211,6 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         standardMode: true,
         fullMode: true,
         restorable: true,
-        mayShowBadge: true,
         comparable: true,
         icon: SendToBack,
         labelKey: 'operation.content.sync'
@@ -235,7 +219,6 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         standardMode: true,
         fullMode: true,
         restorable: true,
-        mayShowBadge: true,
         comparable: true,
         icon: Import,
         labelKey: 'operation.content.import'
@@ -244,7 +227,6 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         standardMode: true,
         fullMode: true,
         restorable: true,
-        mayShowBadge: true,
         comparable: true,
         icon: Globe,
         labelKey: 'operation.content.localize'
@@ -253,7 +235,6 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         standardMode: true,
         fullMode: true,
         restorable: false,
-        mayShowBadge: false,
         comparable: false,
         icon: PenLine,
         labelKey: 'operation.content.create'
@@ -313,17 +294,11 @@ type PublishBadge = {
     publishedTo: Date | undefined;
 };
 
-const findBadgeTarget = (versions: ContentVersion[], startIndex: number): ContentVersion | undefined => {
-    for (let i = startIndex; i < versions.length; i++) {
-        if (getVersionConfig(versions[i])?.mayShowBadge) {
-            return versions[i];
-        }
-    }
-    return undefined;
-};
+const getPublishAction = (version: ContentVersion) =>
+    version.getActions().find(a => a.getOperation() === ContentOperation.PUBLISH);
 
 const isPublishEvent = (version: ContentVersion): boolean =>
-    version.getActions().some(a => a.getOperation() === ContentOperation.PUBLISH);
+    getPublishAction(version) != null;
 
 const isUnpublishEvent = (version: ContentVersion): boolean =>
     version.getActions().some(a => a.getOperation() === ContentOperation.UNPUBLISH);
@@ -340,6 +315,13 @@ const findUnpublishDate = (versions: ContentVersion[], publishIndex: number): Da
     return undefined;
 };
 
+const resolveBadgeTargetId = (publishVersion: ContentVersion): string => {
+    const publishAction = getPublishAction(publishVersion);
+    const editorialId = publishAction?.getEditorial();
+    const editorialExists = publishAction?.getEditorialExists();
+    return editorialId && editorialExists ? editorialId : publishVersion.getId();
+};
+
 const $allPublishBadges = computed($versions, (versions): PublishBadge[] => {
     const badges: PublishBadge[] = [];
     const seen = new Set<string>();
@@ -350,17 +332,17 @@ const $allPublishBadges = computed($versions, (versions): PublishBadge[] => {
             continue;
         }
 
-        const target = findBadgeTarget(versions, i + 1);
-        if (!target || seen.has(target.getId())) {
+        const targetId = resolveBadgeTargetId(v);
+        if (seen.has(targetId)) {
             continue;
         }
 
-        seen.add(target.getId());
+        seen.add(targetId);
         badges.push({
-            versionId: target.getId(),
+            versionId: targetId,
             publishStatus: getVersionPublishStatus(v),
             publishedFrom: v.getTimestamp(),
-            publishedTo: findUnpublishDate(versions, i) ?? v.getPublishInfo()?.getPublishedTo(),
+            publishedTo: findUnpublishDate(versions, i) ?? v.getPublishInfo()?.getTo(),
         });
     }
 
@@ -454,7 +436,6 @@ export const appendSyntheticCreateVersion = (createdDate: Date): void => {
     const builder = new ContentVersionBuilder();
     builder.id = SYNTHETIC_VERSION_ID;
     builder.timestamp = createdDate;
-    builder.modified = createdDate;
     builder.actions = [];
 
     $versions.set([...versions, builder.build()]);
@@ -487,8 +468,8 @@ export const getVersionPublishStatus = (version: ContentVersion): VersionPublish
 
     if (publishInfo) {
         const now = new Date();
-        const publishedFrom = publishInfo?.getPublishedFrom();
-        const publishedTo = publishInfo?.getPublishedTo();
+        const publishedFrom = publishInfo.getFrom();
+        const publishedTo = publishInfo.getTo();
 
         if (publishedFrom && publishedFrom > now) {
             return VersionPublishStatus.SCHEDULED;
@@ -549,8 +530,7 @@ export const getOperationLabel = (version: ContentVersion): string => {
 };
 
 export const getModifierLabel = (version: ContentVersion): string | undefined => {
-    const modifierName = version.getModifierDisplayName()
-        || version.getPublishInfo()?.getPublisherDisplayName();
+    const modifierName = version.getActions()[0]?.getUserDisplayName();
 
     return modifierName ? i18n('field.version.by', modifierName) : undefined;
 };

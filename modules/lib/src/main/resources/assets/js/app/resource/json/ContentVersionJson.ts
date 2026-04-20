@@ -1,17 +1,7 @@
+import type {ContentPublishInfoJson} from './ContentPublishInfoJson';
 import {type ContentVersionActionJson} from './ContentVersionActionJson';
-import {type ContentVersionPublishInfoJson} from './ContentVersionPublishInfoJson';
-import {type WorkflowJson} from '@enonic/lib-admin-ui/content/json/WorkflowJson';
-import {type ChildOrderJson} from './ChildOrderJson';
 
 export interface ContentVersionJson {
-
-    modifier: string;
-
-    modifierDisplayName: string;
-
-    displayName: string;
-
-    modified: string;
 
     timestamp: string;
 
@@ -19,13 +9,7 @@ export interface ContentVersionJson {
 
     id: string;
 
-    childOrder: ChildOrderJson;
-
-    publishInfo: ContentVersionPublishInfoJson;
-
-    workflow: WorkflowJson;
-
-    permissionsChanged: boolean;
+    publishInfo: ContentPublishInfoJson;
 
     path: string;
 
