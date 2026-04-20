@@ -1,9 +1,15 @@
 import {PageEventsManager} from '../../../../app/wizard/PageEventsManager';
+import type {PageNavigationEvent} from '../../../../app/wizard/PageNavigationEvent';
+import {PageNavigationEventType} from '../../../../app/wizard/PageNavigationEventType';
+import type {PageNavigationHandler} from '../../../../app/wizard/PageNavigationHandler';
+import {PageNavigationMediator} from '../../../../app/wizard/PageNavigationMediator';
 import {PageState} from '../../../../app/wizard/page/PageState';
+import {setContextOpen} from '../contextWidgets.store';
 import {
     $contentContext,
     $defaultPageTemplateName,
     $hasDefaultPageTemplate,
+    $inspectedPath,
     $page,
     $pageEditorLifecycle,
     $pageVersion,
@@ -77,6 +83,26 @@ export function initPageEditorBridge(options?: InitPageEditorBridgeOptions): voi
     events.onPageConfigUpdated(onConfigUpdated);
     cleanups.push(() => events.unPageConfigUpdated(onConfigUpdated));
 
+    // Navigation events from PageNavigationMediator — iframe selections,
+    // legacy PageComponentsView, and ComponentInspectedEvent all feed in here.
+    const mediator = PageNavigationMediator.get();
+    const navigationHandler: PageNavigationHandler = {
+        handle(event: PageNavigationEvent): void {
+            const type = event.getType();
+            if (type === PageNavigationEventType.SELECT || type === PageNavigationEventType.INSPECT) {
+                const path = event.getData().getPath();
+                $inspectedPath.set(path?.toString() ?? null);
+                setContextOpen(true);
+                return;
+            }
+            if (type === PageNavigationEventType.DESELECT) {
+                $inspectedPath.set(null);
+            }
+        },
+    };
+    mediator.addPageNavigationHandler(navigationHandler);
+    cleanups.push(() => mediator.removePageNavigationItem(navigationHandler));
+
     // Initial sync
 
     syncPageFromState();
@@ -110,4 +136,5 @@ export function cleanupPageEditorBridge(): void {
     $hasDefaultPageTemplate.set(false);
     $defaultPageTemplateName.set(null);
     $contentContext.set(null);
+    $inspectedPath.set(null);
 }

@@ -101,7 +101,6 @@ import {ContentNamedEvent} from '../event/ContentNamedEvent';
 import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
 import {type ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import {InspectEvent} from '../event/InspectEvent';
 import {ViewExtensionEvent} from '../event/ViewExtensionEvent';
 import {type ContentType} from '../inputtype/schema/ContentType';
 import {ImageErrorEvent} from '../inputtype/ui/selector/image/ImageErrorEvent';
@@ -162,7 +161,6 @@ import {PageComponentsView} from './PageComponentsView';
 import {PageComponentsWizardStep} from './PageComponentsWizardStep';
 import {PageComponentsWizardStepForm} from './PageComponentsWizardStepForm';
 import {PageEventsManager} from './PageEventsManager';
-import {PageNavigationEventSource} from './PageNavigationEventData';
 import {PersistNewContentRoutine} from './PersistNewContentRoutine';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
 import {UpdatePersistedContentRoutine} from './UpdatePersistedContentRoutine';
@@ -1420,22 +1418,6 @@ export class ContentWizardPanel
                     this.pageComponentsWizardStep.getTabBarItem().select();
                 }
             }
-        });
-
-        InspectEvent.on((event: InspectEvent) => {
-            this.isRenderable().then((renderable: boolean) => {
-
-                const minimizeWizard = event.isShowPanel() &&
-                                       event.getSource() === PageNavigationEventSource.EDITOR &&
-                                       !this.isMinimized() &&
-                                       renderable &&
-                                       this.getLivePanel().isShown() &&
-                                       !this.contextSplitPanel.isMobileMode() &&
-                                       ResponsiveRanges._1380_1620.isFitOrSmaller(this.getEl().getWidthWithBorder());
-                if (minimizeWizard) {
-                    this.toggleMinimize();
-                }
-            });
         });
     }
 
