@@ -136,7 +136,12 @@ public class AdminSiteHandler
             final Content content =
                 contentById != null ? contentById : callAsContentAdmin( repositoryId, branch, () -> this.getContentByPath( contentPath ) );
 
-            if ( content != null && !content.getPath().isRoot() )
+            if ( content == null )
+            {
+                portalRequest.setSite(
+                    callAsContentAdmin( repositoryId, branch, () -> this.contentService.findNearestSiteByPath( contentPath ) ) );
+            }
+            else if ( !content.getPath().isRoot() )
             {
                 portalRequest.setContent( content );
                 portalRequest.setContentPath( content.getPath() );
@@ -157,7 +162,12 @@ public class AdminSiteHandler
                 portalRequest.setSite( content.isSite()
                                            ? (Site) content
                                            : callAsContentAdmin( repositoryId, branch,
-                                                                 () -> this.contentService.findNearestSiteByPath( contentPath ) ) );
+                                                                 () -> this.contentService.findNearestSiteByPath( content.getPath() ) ) );
+            }
+            else
+            {
+                portalRequest.setSite(
+                    callAsContentAdmin( repositoryId, branch, () -> this.contentService.findNearestSiteByPath( contentPath ) ) );
             }
         }
 
