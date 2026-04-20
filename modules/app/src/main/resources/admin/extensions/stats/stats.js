@@ -111,15 +111,15 @@ const countLanguagesInRepos = function (projects) {
 }
 
 const countItemsInRepo = function (repositoryId) {
-        return contextLib.run(
-            {
-                repository: repositoryId,
-                branch: 'draft'
-            },
-            function () {
-                return doCountItemsInRepo();
-            }
-        );
+    return contextLib.run(
+        {
+            repository: repositoryId,
+            branch: 'draft'
+        },
+        function () {
+            return doCountItemsInRepo();
+        }
+    );
 }
 
 const doCountItemsInRepo = function () {
