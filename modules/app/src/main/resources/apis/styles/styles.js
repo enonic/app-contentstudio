@@ -1,6 +1,5 @@
 /*global __*/
 
-var portalLib = require('/lib/xp/portal');
 var adminLib = require('/lib/xp/admin');
 
 exports.get = function (req) {
