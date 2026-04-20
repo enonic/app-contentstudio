@@ -1,11 +1,9 @@
 @import "~enonic-admin-artifacts";
 
-#extension-stats {
+#widget-stats {
   width: 100%;
-
-  .widget-header {
-    color: @admin-white;
-  }
+  height: 100%;
+  container-type: size;
 
   > a {
     text-decoration: none;
@@ -15,34 +13,35 @@
     }
   }
 
-  .extension-stats-container {
+  .widget-stats-container {
     display: grid;
     grid-template-columns: repeat(2, 45%);
-    gap: 14px 20px;
-    max-width: 360px;
+    gap: clamp(10px, 2vh, 30px) clamp(10px, 1vw, 30px);
     justify-content: center;
+    align-content: center;
+    height: 100%;
+    box-sizing: border-box;
+    max-width: 350px;
+    margin: 0 auto;
 
-    > .extension-stats-container-section {
+    > .widget-stats-container-section {
       text-align: center;
-      width: 85px;
-      margin: 0 auto;
+      min-width: 0;
 
-      > .extension-stats-value {
-        font-size: 2.5em;
-        color: white;
-        margin: 0.2em 0;
-        height: 35px;
+      > .widget-stats-value {
+        font-size: clamp(1.1rem, 14cqh, 2.5rem);
+        line-height: 1.1;
+        color: var(--dashboard-text-primary);
+        margin: 0;
       }
 
-      > .extension-stats-label {
-        font-size: 1.1em;
-        color: @admin-font-gray;
+      > .widget-stats-label {
+        font-size: clamp(0.8rem, 5cqh, 1.1rem);
+        line-height: 1.2;
+        color: var(--dashboard-text-secondary);
         white-space: nowrap;
-      }
-
-      > .extension-stats-value,
-      > .extension-stats-label {
-        text-shadow: 0 0 1px @admin-black, 0 0 1px @admin-black, 0 0 1px @admin-black, 0 0 1px @admin-black;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
     }
   }
