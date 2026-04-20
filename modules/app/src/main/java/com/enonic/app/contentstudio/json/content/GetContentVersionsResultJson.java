@@ -2,6 +2,8 @@ package com.enonic.app.contentstudio.json.content;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.enonic.app.contentstudio.rest.resource.content.ContentPrincipalsResolver;
 import com.enonic.app.contentstudio.rest.resource.content.ContentPublishInfoResolver;
@@ -24,9 +26,13 @@ public class GetContentVersionsResultJson
         this.cursor = result.getCursor();
         this.onlineVersionId = onlineVersionId != null ? onlineVersionId.toString() : null;
 
+        final Set<ContentVersionId> batchVersionIds =
+            result.getContentVersions().stream().map( ContentVersion::versionId ).collect( Collectors.toUnmodifiableSet() );
+
         for ( final ContentVersion contentVersion : result.getContentVersions() )
         {
-            this.contentVersions.add( new ContentVersionJson( contentVersion, principalsResolver, contentPublishInfoResolver ) );
+            this.contentVersions.add(
+                new ContentVersionJson( contentVersion, batchVersionIds, principalsResolver, contentPublishInfoResolver ) );
         }
     }
 

@@ -17,7 +17,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.assertj.core.api.Assertions;
 import org.jboss.resteasy.core.ResteasyContext;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -36,6 +35,7 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 
 import com.enonic.app.contentstudio.json.aggregation.BucketAggregationJson;
+import com.enonic.app.contentstudio.json.content.ActionJson;
 import com.enonic.app.contentstudio.json.content.CompareContentResultJson;
 import com.enonic.app.contentstudio.json.content.CompareContentResultsJson;
 import com.enonic.app.contentstudio.json.content.ContentIdJson;
@@ -104,7 +104,9 @@ import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.ContentValidityParams;
 import com.enonic.xp.content.ContentValidityResult;
+import com.enonic.xp.content.ContentVersion;
 import com.enonic.xp.content.ContentVersionId;
+import com.enonic.xp.content.ContentVersions;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.CreateContentParams;
 import com.enonic.xp.content.CreateMediaParams;
@@ -113,16 +115,16 @@ import com.enonic.xp.content.FindContentByParentResult;
 import com.enonic.xp.content.FindContentIdsByParentResult;
 import com.enonic.xp.content.FindContentIdsByQueryResult;
 import com.enonic.xp.content.FindContentPathsByQueryResult;
+import com.enonic.xp.content.GetActiveContentVersionsParams;
+import com.enonic.xp.content.GetActiveContentVersionsResult;
 import com.enonic.xp.content.GetContentByIdsParams;
-import com.enonic.xp.content.GetPublishStatusResult;
-import com.enonic.xp.content.GetPublishStatusesParams;
-import com.enonic.xp.content.GetPublishStatusesResult;
+import com.enonic.xp.content.GetContentVersionsParams;
+import com.enonic.xp.content.GetContentVersionsResult;
 import com.enonic.xp.content.HasUnpublishedChildrenParams;
 import com.enonic.xp.content.Mixin;
 import com.enonic.xp.content.Mixins;
 import com.enonic.xp.content.MoveContentParams;
 import com.enonic.xp.content.MoveContentsResult;
-import com.enonic.xp.content.PublishStatus;
 import com.enonic.xp.content.ResetContentInheritParams;
 import com.enonic.xp.content.ResolvePublishDependenciesParams;
 import com.enonic.xp.content.ResolveRequiredDependenciesParams;
@@ -206,6 +208,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.isA;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -2052,22 +2055,163 @@ public class ContentResourceTest
     }
 
     @Test
-    @Disabled
-    public void getContentVersionsForView()
+    public void getContentVersions_editorial_in_batch()
     {
-        ContentResource contentResource = getResourceInstance();
+        final ContentResource contentResource = getResourceInstance();
 
-        Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
+        final ContentId contentId = ContentId.from( "content-id" );
+        final ContentVersionId publishVersionId = ContentVersionId.from( "v-publish" );
+        final ContentVersionId editorialVersionId = ContentVersionId.from( "v-editorial" );
 
-        when( securityService.getPrincipal( PrincipalKey.ofAnonymous() ) ).thenReturn( (Optional) Optional.of( User.anonymous() ) );
+        final ContentVersion publishVersion = buildPublishVersion( contentId, publishVersionId, editorialVersionId );
+        final ContentVersion editorialVersion = buildUpdateVersion( contentId, editorialVersionId );
 
-        when( securityService.getUser( PrincipalKey.ofAnonymous() ) ).thenReturn( Optional.of( User.anonymous() ) );
+        mockGetVersions( contentId, publishVersion, editorialVersion );
+        stubPublishContent( contentId, publishVersionId );
 
-        GetContentVersionsResultJson result =
-            contentResource.getContentVersions( new GetContentVersionsJson( 0, "cursor", content.getId().toString() ) );
+        final GetContentVersionsResultJson result =
+            contentResource.getContentVersions( new GetContentVersionsJson( 10, null, contentId.toString() ) );
 
-        final ContentVersionJson[] resultArray = result.getContentVersions().toArray(ContentVersionJson[]::new);
-        assertTrue( resultArray.length == 2 );
+        final ActionJson publishAction = findPublishAction( result, publishVersionId );
+        assertEquals( editorialVersionId.toString(), publishAction.editorial() );
+        assertTrue( publishAction.editorialExists() );
+        verify( contentService, never() ).getByIdAndVersionId( eq( contentId ), eq( editorialVersionId ) );
+    }
+
+    @Test
+    public void getContentVersions_editorial_outside_batch_resolves_via_service()
+    {
+        final ContentResource contentResource = getResourceInstance();
+
+        final ContentId contentId = ContentId.from( "content-id" );
+        final ContentVersionId publishVersionId = ContentVersionId.from( "v-publish" );
+        final ContentVersionId editorialVersionId = ContentVersionId.from( "v-editorial-elsewhere" );
+
+        final ContentVersion publishVersion = buildPublishVersion( contentId, publishVersionId, editorialVersionId );
+
+        mockGetVersions( contentId, publishVersion );
+        stubPublishContent( contentId, publishVersionId );
+        when( contentService.getByIdAndVersionId( contentId, editorialVersionId ) ).thenReturn(
+            Content.create().id( contentId ).parentPath( ContentPath.ROOT ).name( "n" ).type( ContentTypeName.folder() ).build() );
+
+        final GetContentVersionsResultJson result =
+            contentResource.getContentVersions( new GetContentVersionsJson( 10, null, contentId.toString() ) );
+
+        final ActionJson publishAction = findPublishAction( result, publishVersionId );
+        assertTrue( publishAction.editorialExists() );
+        verify( contentService ).getByIdAndVersionId( contentId, editorialVersionId );
+    }
+
+    @Test
+    public void getContentVersions_editorial_missing_when_service_throws()
+    {
+        final ContentResource contentResource = getResourceInstance();
+
+        final ContentId contentId = ContentId.from( "content-id" );
+        final ContentVersionId publishVersionId = ContentVersionId.from( "v-publish" );
+        final ContentVersionId editorialVersionId = ContentVersionId.from( "v-gone" );
+
+        final ContentVersion publishVersion = buildPublishVersion( contentId, publishVersionId, editorialVersionId );
+
+        mockGetVersions( contentId, publishVersion );
+        stubPublishContent( contentId, publishVersionId );
+        when( contentService.getByIdAndVersionId( contentId, editorialVersionId ) ).thenThrow(
+            ContentNotFoundException.create().contentId( contentId ).build() );
+
+        final GetContentVersionsResultJson result =
+            contentResource.getContentVersions( new GetContentVersionsJson( 10, null, contentId.toString() ) );
+
+        final ActionJson publishAction = findPublishAction( result, publishVersionId );
+        assertEquals( editorialVersionId.toString(), publishAction.editorial() );
+        assertFalse( publishAction.editorialExists() );
+    }
+
+    @Test
+    public void getContentVersions_editorialExists_false_when_action_has_no_editorial()
+    {
+        final ContentResource contentResource = getResourceInstance();
+
+        final ContentId contentId = ContentId.from( "content-id" );
+        final ContentVersionId publishVersionId = ContentVersionId.from( "v-publish" );
+
+        final ContentVersion publishVersion = buildPublishVersion( contentId, publishVersionId, null );
+        final ContentVersion updateVersion = buildUpdateVersion( contentId, ContentVersionId.from( "v-update" ) );
+
+        mockGetVersions( contentId, publishVersion, updateVersion );
+        stubPublishContent( contentId, publishVersionId );
+
+        final GetContentVersionsResultJson result =
+            contentResource.getContentVersions( new GetContentVersionsJson( 10, null, contentId.toString() ) );
+
+        for ( final ContentVersionJson version : result.getContentVersions() )
+        {
+            for ( final ActionJson action : version.getActions() )
+            {
+                assertFalse( action.editorialExists() );
+            }
+        }
+        verify( contentService, times( 1 ) ).getByIdAndVersionId( eq( contentId ), any( ContentVersionId.class ) );
+    }
+
+    private ContentVersion buildPublishVersion( final ContentId contentId, final ContentVersionId versionId,
+                                                final ContentVersionId editorial )
+    {
+        return ContentVersion.create()
+            .contentId( contentId )
+            .versionId( versionId )
+            .path( ContentPath.from( "/content-path" ) )
+            .timestamp( fixedTime )
+            .addAction( new ContentVersion.Action( "content.publish", List.of(), null, editorial,
+                                                   PrincipalKey.from( "user:system:admin" ), fixedTime ) )
+            .build();
+    }
+
+    private ContentVersion buildUpdateVersion( final ContentId contentId, final ContentVersionId versionId )
+    {
+        return ContentVersion.create()
+            .contentId( contentId )
+            .versionId( versionId )
+            .path( ContentPath.from( "/content-path" ) )
+            .timestamp( fixedTime )
+            .addAction( new ContentVersion.Action( "content.update", List.of(), null, null,
+                                                   PrincipalKey.from( "user:system:admin" ), fixedTime ) )
+            .build();
+    }
+
+    private void mockGetVersions( final ContentId contentId, final ContentVersion... versions )
+    {
+        final ContentVersions.Builder builder = ContentVersions.create();
+        for ( final ContentVersion version : versions )
+        {
+            builder.add( version );
+        }
+        when( contentService.getVersions( any( GetContentVersionsParams.class ) ) ).thenReturn(
+            GetContentVersionsResult.create().contentVersions( builder.build() ).totalHits( versions.length ).build() );
+        when( contentService.getActiveVersions( any( GetActiveContentVersionsParams.class ) ) ).thenReturn(
+            GetActiveContentVersionsResult.create().build() );
+    }
+
+    private void stubPublishContent( final ContentId contentId, final ContentVersionId versionId )
+    {
+        when( contentService.getByIdAndVersionId( contentId, versionId ) ).thenReturn( Content.create()
+                                                                                           .id( contentId )
+                                                                                           .parentPath( ContentPath.ROOT )
+                                                                                           .name( "n" )
+                                                                                           .type( ContentTypeName.folder() )
+                                                                                           .publishInfo(
+                                                                                               ContentPublishInfo.create().from( fixedTime ).build() )
+                                                                                           .build() );
+    }
+
+    private ActionJson findPublishAction( final GetContentVersionsResultJson result, final ContentVersionId versionId )
+    {
+        return result.getContentVersions()
+            .stream()
+            .filter( v -> versionId.toString().equals( v.getId() ) )
+            .flatMap( v -> v.getActions().stream() )
+            .filter( a -> "content.publish".equals( a.operation() ) )
+            .findFirst()
+            .orElseThrow();
     }
 
     @Test
@@ -2541,21 +2685,6 @@ public class ContentResourceTest
                                      AccessControlEntry.create().principal( PrincipalKey.ofAnonymous() ).allow( READ ).build() );
     }
 
-    private void assertContentVersionJsonsEquality( final ContentVersionJson first, final ContentVersionJson second )
-    {
-        Assertions.assertThat( first ).usingRecursiveComparison().isEqualTo( second );
-        assertEquals( first.getModifier(), second.getModifier() );
-        assertEquals( first.getTimestamp(), second.getTimestamp() );
-        assertEquals( first.getModified(), second.getModified() );
-        assertEquals( first.getComment(), second.getComment() );
-        assertEquals( first.getId(), second.getId() );
-        assertEquals( first.getModifierDisplayName(), second.getModifierDisplayName() );
-
-        assertEquals( first.getPublishInfo().getTimestamp(), second.getPublishInfo().getTimestamp() );
-        assertEquals( first.getPublishInfo().getPublisher(), second.getPublishInfo().getPublisher() );
-        assertEquals( first.getPublishInfo().getMessage(), second.getPublishInfo().getMessage() );
-        assertEquals( first.getPublishInfo().getPublisherDisplayName(), second.getPublishInfo().getPublisherDisplayName() );
-    }
 
     @Test
     public void updateWorkflow_success()
