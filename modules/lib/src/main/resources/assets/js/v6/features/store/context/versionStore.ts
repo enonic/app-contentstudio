@@ -360,7 +360,7 @@ const $allPublishBadges = computed($versions, (versions): PublishBadge[] => {
             versionId: target.getId(),
             publishStatus: getVersionPublishStatus(v),
             publishedFrom: v.getTimestamp(),
-            publishedTo: findUnpublishDate(versions, i) ?? v.getPublishInfo()?.getPublishedTo(),
+            publishedTo: findUnpublishDate(versions, i) ?? v.getPublishInfo()?.getTo(),
         });
     }
 
@@ -454,7 +454,6 @@ export const appendSyntheticCreateVersion = (createdDate: Date): void => {
     const builder = new ContentVersionBuilder();
     builder.id = SYNTHETIC_VERSION_ID;
     builder.timestamp = createdDate;
-    builder.modified = createdDate;
     builder.actions = [];
 
     $versions.set([...versions, builder.build()]);
@@ -487,8 +486,8 @@ export const getVersionPublishStatus = (version: ContentVersion): VersionPublish
 
     if (publishInfo) {
         const now = new Date();
-        const publishedFrom = publishInfo?.getPublishedFrom();
-        const publishedTo = publishInfo?.getPublishedTo();
+        const publishedFrom = publishInfo.getFrom();
+        const publishedTo = publishInfo.getTo();
 
         if (publishedFrom && publishedFrom > now) {
             return VersionPublishStatus.SCHEDULED;
@@ -549,8 +548,7 @@ export const getOperationLabel = (version: ContentVersion): string => {
 };
 
 export const getModifierLabel = (version: ContentVersion): string | undefined => {
-    const modifierName = version.getModifierDisplayName()
-        || version.getPublishInfo()?.getPublisherDisplayName();
+    const modifierName = version.getActions()[0]?.getUserDisplayName();
 
     return modifierName ? i18n('field.version.by', modifierName) : undefined;
 };

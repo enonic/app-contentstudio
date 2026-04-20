@@ -62,7 +62,6 @@ function createVersion(id: string, actions: ContentVersionAction[], timestamp?: 
     builder.id = id;
     builder.actions = actions;
     builder.timestamp = timestamp ?? new Date('2024-01-15T10:00:00Z');
-    builder.modified = builder.timestamp;
     return builder.build();
 }
 
@@ -71,13 +70,11 @@ function createPublishedVersion(id: string, publishedFrom: Date, publishedTo?: D
     builder.id = id;
     builder.actions = [createAction(ContentOperation.PUBLISH)];
     builder.timestamp = new Date('2024-01-15T10:00:00Z');
-    builder.modified = builder.timestamp;
     builder.publishInfo = {
-        getPublishedFrom: () => publishedFrom,
-        getPublishedTo: () => publishedTo,
-        getPublisherDisplayName: () => 'Test User',
-        getMessage: () => undefined,
-        getTimestamp: () => builder.timestamp,
+        getFrom: () => publishedFrom,
+        getTo: () => publishedTo,
+        getFirst: () => publishedFrom,
+        getTime: () => builder.timestamp,
     } as ContentVersion['getPublishInfo'] extends () => infer R ? R : never;
     return builder.build();
 }
@@ -162,7 +159,6 @@ describe('resolveVersionOperationType', () => {
         const builder = new ContentVersionBuilder();
         builder.id = '__synthetic_create__';
         builder.timestamp = new Date();
-        builder.modified = new Date();
         builder.actions = [];
         const synthetic = builder.build();
 
@@ -240,7 +236,6 @@ describe('isVersionComparable', () => {
         const builder = new ContentVersionBuilder();
         builder.id = '__synthetic_create__';
         builder.timestamp = new Date();
-        builder.modified = new Date();
         builder.actions = [];
         expect(isVersionComparable(builder.build())).toBe(false);
     });
@@ -274,7 +269,6 @@ describe('isStandardModeVersion', () => {
         const builder = new ContentVersionBuilder();
         builder.id = '__synthetic_create__';
         builder.timestamp = new Date();
-        builder.modified = new Date();
         builder.actions = [];
         expect(isStandardModeVersion(builder.build())).toBe(true);
     });
@@ -365,7 +359,6 @@ describe('getIconForOperation', () => {
         const builder = new ContentVersionBuilder();
         builder.id = '__synthetic_create__';
         builder.timestamp = new Date();
-        builder.modified = new Date();
         builder.actions = [];
         expect(getIconForOperation(builder.build())).toBe(PenLine);
     });
@@ -416,7 +409,6 @@ describe('getOperationLabel', () => {
         const builder = new ContentVersionBuilder();
         builder.id = '__synthetic_create__';
         builder.timestamp = new Date();
-        builder.modified = new Date();
         builder.actions = [];
         expect(getOperationLabel(builder.build())).toBe('operation.content.create');
     });
@@ -618,7 +610,6 @@ describe('VERSION_OPERATION_MATRIX', () => {
                             const b = new ContentVersionBuilder();
                             b.id = '__synthetic_create__';
                             b.timestamp = new Date();
-                            b.modified = new Date();
                             b.actions = [];
                             return b.build();
                         })()

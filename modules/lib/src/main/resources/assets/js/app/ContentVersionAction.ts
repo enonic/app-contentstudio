@@ -5,13 +5,16 @@ export class ContentVersionAction {
 
     private readonly operation: string;
     private readonly fields: string[];
+    private readonly editorial: string;
     private readonly user: PrincipalKey;
+    private readonly userDisplayName: string;
     private readonly opTime: Date;
 
     constructor(builder: ContentVersionActionBuilder) {
         this.operation = builder.operation;
         this.fields = builder.fields;
         this.user = builder.user;
+        this.userDisplayName = builder.userDisplayName;
         this.opTime = builder.opTime;
     }
 
@@ -27,6 +30,10 @@ export class ContentVersionAction {
         return this.user;
     }
 
+    getUserDisplayName(): string {
+        return this.userDisplayName;
+    }
+
     getOpTime(): Date {
         return this.opTime;
     }
@@ -40,6 +47,7 @@ export class ContentVersionActionBuilder {
     operation: string;
     fields: string[];
     user: PrincipalKey;
+    userDisplayName: string;
     opTime: Date;
 
     setOperation(operation: string): ContentVersionActionBuilder {
@@ -57,6 +65,11 @@ export class ContentVersionActionBuilder {
         return this;
     }
 
+    setUserDisplayName(userDisplayName: string): ContentVersionActionBuilder {
+        this.userDisplayName = userDisplayName;
+        return this;
+    }
+
     setOpTime(opTime: Date): ContentVersionActionBuilder {
         this.opTime = opTime;
         return this;
@@ -66,6 +79,7 @@ export class ContentVersionActionBuilder {
         this.operation = json.operation;
         this.fields = json.fields;
         this.user = json.user ? PrincipalKey.fromString(json.user) : null;
+        this.userDisplayName = json.userDisplayName;
         this.opTime = json.opTime ? new Date(Date.parse(json.opTime)) : null;
         return this;
     }
@@ -74,4 +88,3 @@ export class ContentVersionActionBuilder {
         return new ContentVersionAction(this);
     }
 }
-
