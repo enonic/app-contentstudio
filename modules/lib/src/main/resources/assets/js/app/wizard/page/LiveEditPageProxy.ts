@@ -93,11 +93,7 @@ export class LiveEditPageProxy
 
     private liveEditIFrame?: IFrameEl;
 
-    // private liveEditWindow: Window;
-
     private isFrameLoaded: boolean = false;
-
-    // private livejq: JQueryStatic;
 
     private dragMask: DragMask;
 
@@ -574,7 +570,7 @@ export class LiveEditPageProxy
         PageState.getEvents().onComponentUpdated((event: ComponentUpdatedEvent) => {
             new PageStateEvent(PageState.getState().toJson()).fire();
 
-            if (event instanceof ComponentTextUpdatedEvent && event.getText()) {
+            if (event instanceof ComponentTextUpdatedEvent && event.getText() != null) {
                 if (this.isFrameLoaded) {
                     new UpdateTextComponentViewEvent(event.getPath(), event.getText(), event.getOrigin()).fire();
                 }

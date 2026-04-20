@@ -1,7 +1,8 @@
 // Read: stores
 export {$contentContext, $defaultPageTemplateName, $pageEditorLifecycle} from './store';
 export {$hasControllerOrTemplate, $isFragment, $isInsertTabAvailable} from './store';
-export {$isInspecting, $inspectedItem, $inspectedItemType} from './store';
+export {$isInspecting, $inspectedPath, $inspectedItem, $inspectedItemType} from './store';
+export {$dragState, startDrag, updateDrag, endDrag} from './drag';
 
 // Read: hooks
 export {usePageState} from './hooks';
@@ -33,3 +34,4 @@ export {initPageEditorBridge, cleanupPageEditorBridge} from './bridge';
 
 // Types
 export type {PageEditorContentContext, PageEditorLifecycle, InitPageEditorBridgeOptions} from './types';
+export type {DragState, PortalComponentType} from './drag';

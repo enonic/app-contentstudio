@@ -71,6 +71,8 @@ export class LiveFormPanel
     private hideLoadMaskHandler: () => void;
 
     constructor(config: LiveFormPanelConfig) {
+        // ! Necessary to keep 'live-form-panel' on iframe wrapper
+        // It's used in useInsertableDrag hook for correct drag handling
         super('live-form-panel extension-preview-panel');
 
         this.contentWizardPanel = config.contentWizardPanel;

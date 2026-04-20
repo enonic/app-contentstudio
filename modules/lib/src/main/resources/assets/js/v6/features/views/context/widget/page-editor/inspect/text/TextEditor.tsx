@@ -150,10 +150,11 @@ const TextEditorInner = ({
 
     const contentId = contentSummary?.getId();
 
+    // ? Captured once on mount — CKEditor's config ref never updates after init.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const initialPreviewContent = useMemo(() => {
         const text = textComponent.getText() ?? '';
         return contentId ? HTMLAreaHelper.convertRenderSrcToPreviewSrc(text, contentId, project) : text;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const dialogOverridesRef = useRef<DialogOverrides>({
@@ -203,7 +204,7 @@ const TextEditorInner = ({
                 if (timeout != null) {
                     clearTimeout(timeout);
                 }
-                timeout = setTimeout(fn, 200);
+                timeout = setTimeout(fn, 100);
             };
 
             fn.cancel = () => {
