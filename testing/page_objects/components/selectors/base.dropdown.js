@@ -15,7 +15,7 @@ const XPATH = {
     },
     // v6: text span inside each selected option row in SortableList
     sortableListSelectedOptionText:
-        `//div[@data-component='SortableList']//div[@role='button' and @aria-roledescription='sortable']//span[contains(@class,'truncate')]`,
+        `//div[@data-component='SortableGridList']//div[@role='button' and @aria-roledescription='sortable']//span[contains(@class,'truncate')]`,
 }
 
 class BaseDropdown extends Page {
@@ -133,14 +133,6 @@ class BaseDropdown extends Page {
         }
     }
 
-    async filterItem(text, parentLocator = '') {
-        let locator = this.container + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
-        //await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
-        let elements = await this.getDisplayedElements(locator);
-        await elements[0].setValue(text);
-        return await this.pause(300);
-    }
-
     // new
     async doFilterItem(text) {
         let optionsFilterLocator = this.optionsFilterInput();
@@ -181,6 +173,7 @@ class BaseDropdown extends Page {
     }
 
     // Do filter by a display name then Click on the item
+    // old
     async clickOnFilteredByDisplayNameItem(optionDisplayName, parentLocator) {
         // parentLocator - modal dialog or wizard panel
         // 1. Insert the text in Options Filter Input:
