@@ -69,9 +69,9 @@ export const ImageToolbar = (): ReactElement => {
                                 <Selector.Value placeholder={styleApplyLabel}>
                                     {(value) => {
                                         if (value === 'none') {
-                                            return Style.getEmpty('image').getDisplayName();
+                                            return Style.getEmpty('image').getLabel();
                                         }
-                                        return imageStyles.find(s => s.getName() === value)?.getDisplayName() ?? value;
+                                        return imageStyles.find(s => s.getName() === value)?.getLabel() ?? value;
                                     }}
                                 </Selector.Value>
                                 <Selector.Icon />
@@ -80,13 +80,13 @@ export const ImageToolbar = (): ReactElement => {
                                 <Selector.Viewport>
                                     <Selector.Item value='none'>
                                         <Selector.ItemText>
-                                            {Style.getEmpty('image').getDisplayName()}
+                                            {Style.getEmpty('image').getLabel()}
                                         </Selector.ItemText>
                                     </Selector.Item>
                                     {imageStyles.map((style) => (
                                         <Selector.Item key={style.getName()} value={style.getName()}>
                                             <Selector.ItemText>
-                                                {style.getDisplayName()}
+                                                {style.getLabel()}
                                             </Selector.ItemText>
                                         </Selector.Item>
                                     ))}

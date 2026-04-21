@@ -1,8 +1,8 @@
 /*global __*/
 
-var portalLib = require('/lib/xp/portal');
+var adminLib = require('/lib/xp/admin');
 
-exports.get = function (req) {
+exports.GET = function (req) {
     var contentId = req.params.contentId;
     var project = req.params.project || 'default';
     if (!contentId) {
@@ -15,14 +15,16 @@ exports.get = function (req) {
 
     var styles = getStyles(contentId, project, req.locales);
     var cssUrls = [];
-    for (var i = 0; i < styles.css.length; i++) {
-        if (styles.css[i]) {
-            cssUrls.push(portalLib.assetUrl({
-                path: styles.css[i],
-                application: styles.app[i]
-            }));
-        }
+
+    var extBaseUrl = adminLib.extensionUrl({
+        application: 'com.enonic.app.contentstudio',
+        extension: 'style',
+    });
+
+    for (var i = 0; i < styles.app.length; i++) {
+        cssUrls.push(`${extBaseUrl}/${styles.app[i]}/editor.css`);
     }
+
     styles.css = cssUrls;
     delete styles.app;
 

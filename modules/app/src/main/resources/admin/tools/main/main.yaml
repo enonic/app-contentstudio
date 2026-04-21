@@ -25,3 +25,4 @@ interfaces:
   - "contentstudio.contextpanel"
   - "contentstudio.liveview"
   - "contentstudio.customselector"
+  - "contentstudio.style"
