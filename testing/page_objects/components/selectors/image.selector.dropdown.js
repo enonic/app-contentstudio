@@ -100,6 +100,12 @@ class ImageSelectorDropdown extends BaseDropdown {
         return await this.getTextInDisplayedElements(locator);
     }
 
+    async getImageItemsPathsInFlatMode() {
+        const locator = `//div[@data-component='ImageSelectorItemView']//bdi`;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
+    }
+
     async getOptionsDisplayNameInFlatMode() {
         const locator = `//div[@data-component='ImageSelectorItemView']//span[contains(@class,'font-semibold') and contains(@class,'text-base')]`;
         await this.waitForElementDisplayed(locator);

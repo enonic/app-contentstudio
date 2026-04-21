@@ -110,6 +110,11 @@ class ImageSelectorForm extends BaseSelectorForm {
         return await imageSelectorDropdown.getOptionsDisplayNameInFlatMode();
     }
 
+    async getImageItemsPathsInFlatMode() {
+        let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
+        return await imageSelectorDropdown.getImageItemsPathsInFlatMode();
+    }
+
     selectImages(imgNames) {
         let result = Promise.resolve();
         imgNames.forEach(name => {
