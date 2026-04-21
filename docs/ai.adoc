@@ -84,7 +84,7 @@ Known limitations in current version
 
 * Not optimized for general chat
 * Only works with text-based fields
-* Set instances may not be a context
+* Single Item-/OptionSet occurences may not be a context
 * Only works with fields in the main content type form
 * Only availabe in "Edit" context
 * Initial greeting is hardcoded (not AI generated)
