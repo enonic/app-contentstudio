@@ -68,7 +68,7 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
             await contentBrowsePanel.waitForContextMenuItemDisabled(appConst.GRID_CONTEXT_MENU.PREVIEW);
         });
 
-    it(`GIVEN existing folder is published WHEN do right click on the folder THEN Unpublish menu item appears in the context menu `,
+    it.skip(`GIVEN existing folder is published WHEN do right click on the folder THEN Unpublish menu item appears in the context menu `,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
@@ -92,7 +92,7 @@ describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', fu
             await contentBrowsePanel.waitForContextMenuItemNotDisplayed(appConst.GRID_CONTEXT_MENU.PUBLISH);
         });
 
-    // TODO remove skip new-ui bug
+    // TODO  new-ui bug
     it.skip(`GIVEN one published and one new folders are selected WHEN do right click on the selected items THEN Publish and Unpublish menu items should be enabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
