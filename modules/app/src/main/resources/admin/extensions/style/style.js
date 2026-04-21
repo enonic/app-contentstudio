@@ -1,10 +1,10 @@
-exports.get = function (req) {
-    const match = req.path.match(/com.enonic.app.contentstudio:style\/([^/]+)\/editor\.css/);
+exports.GET = function (req) {
+    const match = req.path.match(/\/([^/]+)\/editor\.css/);
     if (!match) {
         return {
-            status: 400,
+            status: 404,
             contentType: 'text/plain',
-            body: 'Invalid path'
+            body: 'Not found'
         };
     }
 

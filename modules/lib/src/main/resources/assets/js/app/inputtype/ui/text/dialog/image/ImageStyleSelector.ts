@@ -70,7 +70,7 @@ class StyleListBox
     protected createItemView(item: Style, readOnly: boolean): DivEl {
         const itemView = new DivEl('style-item');
 
-        itemView.setHtml(item.getDisplayName());
+        itemView.setHtml(item.getLabel());
 
         return itemView;
     }
@@ -89,7 +89,7 @@ class StyleFilterInput
             className: 'image-style-selector-filter',
             maxSelected: 1,
             filter: (item: Style, filter: string) => {
-                return item.getDisplayName().toLowerCase().indexOf(filter.toLowerCase()) >= 0 ||
+                return item.getLabel().toLowerCase().indexOf(filter.toLowerCase()) >= 0 ||
                        item.getName().toLowerCase().indexOf(filter.toLowerCase()) >= 0;
             }
         });
@@ -110,7 +110,7 @@ class StyleFilterInput
                 this.deselectAll();
                 this.toggleSelectedOptionViewVisibility(false);
             } else if (this.getSelectedItems().length > 0) {
-                this.selectedOptionView.setHtml(this.getSelectedItems()[0].getDisplayName());
+                this.selectedOptionView.setHtml(this.getSelectedItems()[0].getLabel());
                 this.toggleSelectedOptionViewVisibility(true);
             }
 

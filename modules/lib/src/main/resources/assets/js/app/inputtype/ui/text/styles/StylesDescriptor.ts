@@ -1,7 +1,7 @@
 export interface StyleJson {
     element: string;
     name: string;
-    displayName: string;
+    label: string;
     aspectRatio?: string;
     filter?: string;
 }

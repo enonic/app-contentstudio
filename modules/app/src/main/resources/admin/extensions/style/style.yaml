@@ -1,4 +1,4 @@
 kind: "AdminExtension"
 title: "Style Extension"
 interfaces:
-  - "generic"
+  - "contentstudio.style"

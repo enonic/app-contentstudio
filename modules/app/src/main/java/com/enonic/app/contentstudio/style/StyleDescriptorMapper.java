@@ -69,7 +69,7 @@ public class StyleDescriptorMapper
 
         gen.value( "element", "image" );
         gen.value( "name", element.getName() );
-        gen.value( "displayName", localizeLabel( element, applicationKey ) );
+        gen.value( "label", localizeLabel( element, applicationKey ) );
 
          serializeImage( gen, element );
 

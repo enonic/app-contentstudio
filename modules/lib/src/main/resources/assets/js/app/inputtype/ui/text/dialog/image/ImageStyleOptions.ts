@@ -14,8 +14,8 @@ export class ImageStyleOption {
         return this.style.getName();
     }
 
-    getDisplayName(): string {
-        return this.style.getDisplayName();
+    getLabel(): string {
+        return this.style.getLabel();
     }
 
     getStyle(): Style {
@@ -27,7 +27,7 @@ export class ImageStyleOption {
     }
 
     toString(): string {
-        return this.getDisplayName();
+        return this.getLabel();
     }
 }
 

@@ -25,6 +25,11 @@ public final class GetStyleBean
     {
         final StyleDescriptor styleDescriptor = serviceSupplier.get().getByApplication( application );
 
+        if ( styleDescriptor == null )
+        {
+            return "";
+        }
+
         final StringBuilder builder = new StringBuilder();
 
         styleDescriptor.getElements().forEach( element -> {

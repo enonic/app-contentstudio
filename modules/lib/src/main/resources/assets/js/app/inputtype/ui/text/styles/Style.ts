@@ -8,14 +8,14 @@ export enum StyleType {
 export class Style {
 
     private name: string;
-    private displayName: string;
+    private label: string;
     private element: string;
     private aspectRatio: string;
     private filter: string;
 
     constructor(json: StyleJson) {
         this.name = json.name;
-        this.displayName = json.displayName;
+        this.label = json.label;
         this.element = json.element;
         this.aspectRatio = json.aspectRatio;
         this.filter = json.filter;
@@ -25,8 +25,8 @@ export class Style {
         return this.name;
     }
 
-    getDisplayName(): string {
-        return this.displayName;
+    getLabel(): string {
+        return this.label;
     }
 
     getAspectRatio(): string {
@@ -40,7 +40,7 @@ export class Style {
     static getEmpty(element: string): Style {
         return new Style({
             name: 'none',
-            displayName: i18n('dialog.style.none'),
+            label: i18n('dialog.style.none'),
             element: element
         });
     }
