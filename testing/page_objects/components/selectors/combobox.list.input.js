@@ -14,6 +14,8 @@ const XPATH = {
     sortableItemByText: text =>
         `//div[@role='button' and @aria-roledescription='sortable' and descendant::span[text()='${text}']]`,
     removeOccurrenceButton: `//button[@aria-label='Remove occurrence']`,
+    removeOccurrenceButtonByText: text =>
+        `//span[text()='${text}']/parent::div/following-sibling::button[@aria-label='Remove occurrence']`,
 };
 
 class ComboBoxListInput extends BasDropdown {
@@ -55,8 +57,7 @@ class ComboBoxListInput extends BasDropdown {
 
     async clickOnRemoveSelectedOptionButton(optionName) {
         try {
-            const locator = this._container + XPATH.dataComponent +
-                            XPATH.sortableItemByText(optionName) + XPATH.removeOccurrenceButton;
+            const locator = this._container + XPATH.dataComponent + XPATH.removeOccurrenceButtonByText(optionName);
             await this.waitForElementDisplayed(locator);
             await this.clickOnElement(locator);
             return await this.pause(300);
