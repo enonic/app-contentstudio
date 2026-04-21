@@ -14,27 +14,21 @@ describe('inputs.custom.validation.spec: tests for content with custom validatio
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
     const CONTENT_NAME = contentBuilder.generateRandomName('content');
     const NOT_ALLOWED_OPTION = 'Arabic (Egypt)';
     const ALLOWED_OPTION = 'English (United States)';
 
-    it(`Preconditions: new site should be added`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
 
     it(`GIVEN wizard for new content with custom validation is opened WHEN not allowed option has been selected in the combobox AND saved THEN required validation message gets visible`,
         async () => {
             let localeCodeCustomValidationForm = new LocaleCodeCustomValidationForm();
             let contentWizard = new ContentWizard();
             // 1. open new wizard and fill in the name input:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LOCALE_CODE);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.LOCALE_CODE);
             await contentWizard.typeDisplayName(CONTENT_NAME);
             // 2. Fill in the first text input with valid value
-            await localeCodeCustomValidationForm.typeTextInTextInput('en-En');
+            await localeCodeCustomValidationForm.typeTextInLocalesInput('en-En');
             // 3. Select a not allowed option:
             await localeCodeCustomValidationForm.typeInFilterAndClickOnOption(NOT_ALLOWED_OPTION);
             // 4. Click on 'Save' button
@@ -46,7 +40,7 @@ describe('inputs.custom.validation.spec: tests for content with custom validatio
             assert.equal(actualMessage, 'Invalid value selected', "Expected validation message should be displayed");
             // 6. Verify that the content remains invalid
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.ok(isInvalid, 'the content should be invalid, this value is invalid');
+            assert.ok(isInvalid, 'the content should be invalid');
         });
 
     it(`GIVEN existing content with custom validation is opened WHEN valid option has been selected in the combobox AND saved THEN the content gets valid`,

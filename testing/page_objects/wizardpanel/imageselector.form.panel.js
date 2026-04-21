@@ -5,14 +5,16 @@ const BaseSelectorForm = require('./base.selector.form');
 const lib = require('../../libs/elements-old');
 const ImageSelectorDropdown = require('../components/selectors/image.selector.dropdown');
 const appConst = require('../../libs/app_const');
+const {DROPDOWN} = require('../../libs/elements');
 
 const XPATH = {
-    container: "//div[contains(@id,'ImageSelector')]",
+    container: "//div[@data-component='FormRenderer']",
+    selectorSelectionDiv: "//div[@data-component='SelectorSelection']",
+    selectedOption: "//div[@data-component='ImageSelectorItemView']",
+
     wizardStep: "//li[contains(@id,'TabBarItem')]/a[text()='Image selector']",
     uploaderButton: "//a[@class='dropzone']",
     flatOptionView: "//div[contains(@id,'ImageSelectorViewer')]",
-    selectedOption: "//div[contains(@id,'ImageSelectorSelectedOptionView')]",
-    selectedOptions: "//div[contains(@id,'ImageSelectorSelectedOptionsView')]",
     editButton: "//div[contains(@id,'SelectionToolbar')]//button[child::span[contains(.,'Edit')]]",
     removeButton: "//div[contains(@id,'SelectionToolbar')]//button[child::span[contains(.,'Remove')]]",
     selectedImageByDisplayName(imageDisplayName) {
@@ -22,13 +24,16 @@ const XPATH = {
 
 class ImageSelectorForm extends BaseSelectorForm {
 
-    get imageComboBoxDropdownHandle() {
-        return lib.FORM_VIEW + XPATH.container + lib.DROP_DOWN_HANDLE;
+    get optionsFilterInput() {
+        let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
+        return imageSelectorDropdown.optionsFilterInput();
     }
 
-    get optionsFilterInput() {
-        return lib.FORM_VIEW + XPATH.container + lib.OPTION_FILTER_INPUT;
+    async waitForOptionFilterInputDisplayed() {
+        let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
+        return await imageSelectorDropdown.waitForOptionFilterInputDisplayed();
     }
+
 
     get uploaderButton() {
         return XPATH.container + XPATH.uploaderButton;
@@ -49,14 +54,17 @@ class ImageSelectorForm extends BaseSelectorForm {
         return this.selectImages(contentData.images);
     }
 
-    async getSelectedImages() {
-        let locator = XPATH.selectedOption + "//div[@class='label']";
-        return await this.getTextInElements(locator);
+    async getSelectedImagesDisplayNames() {
+        let locator = XPATH.selectorSelectionDiv + `//div[@data-component='ImageSelectorItemView']` +
+                      `//span[contains(@class,'font-semibold')]`;
+        await this.waitForElementDisplayed(locator);
+        return await this.getTextInDisplayedElements(locator);
     }
 
     async clickOnDropdownHandle() {
         try {
-            await this.clickOnElement(this.imageComboBoxDropdownHandle);
+            let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
+            await imageSelectorDropdown.clickOnDropdownHandle();
             return await this.pause(500);
         } catch (err) {
             await this.handleError('Image selector -  clicked on dropdown handle', 'err_img_sel_dropdown_handle', err);
@@ -83,29 +91,23 @@ class ImageSelectorForm extends BaseSelectorForm {
     async clickOnModeTogglerButton() {
         let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
         await imageSelectorDropdown.clickOnModeTogglerButton();
-        return await this.pause(1500);
+        return await this.pause(1000);
     }
 
     async getTreeModeContentStatus(displayName) {
-        let imageSelectorDropdown = new ImageSelectorDropdown();
+        let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
         return await imageSelectorDropdown.getTreeModeContentStatus(displayName)
     }
 
     async getImagesStatusInOptions(displayName) {
-        let imageSelectorDropdown = new ImageSelectorDropdown();
+        let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
         return await imageSelectorDropdown.getImagesStatusInOptions(displayName)
     }
 
 
     async getFlatModeOptionImageNames() {
-        let titles = [];
-        let imgSelector = XPATH.flatOptionView;
-        await this.waitForElementDisplayed(imgSelector, appConst.mediumTimeout);
-        let result = await this.findElements(imgSelector);
-        for (const item of result) {
-            titles.push(await this.getBrowser().getElementAttribute(item.elementId, 'title'));
-        }
-        return titles;
+        let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
+        return await imageSelectorDropdown.getOptionsDisplayNameInFlatMode();
     }
 
     selectImages(imgNames) {
@@ -117,7 +119,7 @@ class ImageSelectorForm extends BaseSelectorForm {
     }
 
     async clickOnDropDownHandleAndSelectImages(numberImages) {
-        let imageSelectorDropdown = new ImageSelectorDropdown();
+        let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
         // 1. Click on the dropdown-handler and expand the selector:
         await this.clickOnDropdownHandle();
         await this.pause(700);
@@ -128,18 +130,19 @@ class ImageSelectorForm extends BaseSelectorForm {
         return await this.pause(1000);
     }
 
-    // Click on OK and apply selection:
+    // Click on Apply button:
     async clickOnApplyButton() {
-        let imageSelectorDropdown = new ImageSelectorDropdown();
+        let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
         return await imageSelectorDropdown.clickOnApplySelectionButton();
     }
 
     // Do filter an image then click the option ('Apply' button does not appear in this case):
     async filterOptionsAndSelectImage(displayName) {
         try {
-            let imageSelectorDropdown = new ImageSelectorDropdown();
-            await this.typeTextInInput(this.optionsFilterInput, displayName);
-            return await imageSelectorDropdown.clickOnFilteredByDisplayNameItem(displayName, XPATH.container);
+            let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
+            //await this.typeTextInInput(this.optionsFilterInput, displayName);
+            await imageSelectorDropdown.doFilterItem(displayName);
+            return await imageSelectorDropdown.clickOnOptionByDisplayName(displayName);
         } catch (err) {
             await this.handleError('Image -Selector , tried to click on filtered option', 'err_img_selector_option', err)
         }
@@ -147,9 +150,9 @@ class ImageSelectorForm extends BaseSelectorForm {
 
     async filterOptionsSelectImageAndClickOnApply(displayName) {
         try {
-            let imageSelectorDropdown = new ImageSelectorDropdown();
-            await this.typeTextInInput(this.optionsFilterInput, displayName);
-            return await imageSelectorDropdown.clickOnFilteredByDisplayNameItemAndClickOnApply(displayName, XPATH.container);
+            let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
+            await imageSelectorDropdown.doFilterItem(displayName);
+            return await imageSelectorDropdown.clickOnApplySelectionButton(displayName);
         } catch (err) {
             await this.handleError('Image -Selector , tried to select the filtered option', 'err_img_selector_option', err);
         }
@@ -162,23 +165,29 @@ class ImageSelectorForm extends BaseSelectorForm {
 
     async waitForEmptyOptionsMessage() {
         try {
-            return await this.waitForElementDisplayed(XPATH.container + lib.EMPTY_OPTIONS_H5, appConst.mediumTimeout);
+            let locator = "//div[@data-combobox-popup]//span[contains(@class,'text-subtle') and contains(text(),'No matching items')]"
+            return await this.waitForElementDisplayed(locator);
         } catch (err) {
             await this.handleError(`Image Selector - 'No matching items' text should appear`, 'err_img_sel_empty_opt', err);
         }
     }
 
     waitForUploaderButtonEnabled() {
-        return this.waitForElementEnabled(this.uploaderButton, appConst.mediumTimeout);
+        return this.waitForElementEnabled(this.uploaderButton);
     }
 
     waitForOptionsFilterInputDisplayed() {
-        return this.waitForElementDisplayed(this.optionsFilterInput, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.optionsFilterInput);
     }
 
-    waitForOptionsFilterInputNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.optionsFilterInput, appConst.mediumTimeout);
+    async waitForOptionsFilterInputNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.optionsFilterInput);
+        } catch (err) {
+            await this.handleError('Image selector - options filter input should not be displayed', 'err_img_selector_filter_input', err);
+        }
     }
+
 
     async clickOnSelectedImage(displayName) {
         let locator = XPATH.selectedImageByDisplayName(displayName);
@@ -192,8 +201,8 @@ class ImageSelectorForm extends BaseSelectorForm {
     }
 
     async selectOptionByImagePath(imagePath, imageDisplayName) {
-        let imageSelectorDropdown = new ImageSelectorDropdown();
-        await imageSelectorDropdown.filterItem(imagePath);
+        let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
+        await imageSelectorDropdown.doFilterItem(imagePath);
         // 2. Wait for the required option is displayed then click on it:
         await imageSelectorDropdown.clickOnOptionByDisplayName(imageDisplayName);
         // 3. Click on 'OK' button:
@@ -203,7 +212,7 @@ class ImageSelectorForm extends BaseSelectorForm {
 
     async expandDropdownAndClickOnImage(displayName) {
         try {
-            let imageSelectorDropdown = new ImageSelectorDropdown();
+            let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
             await imageSelectorDropdown.clickOnDropdownHandle();
             await imageSelectorDropdown.clickOnOptionByDisplayName(displayName);
         } catch (err) {
@@ -228,7 +237,7 @@ class ImageSelectorForm extends BaseSelectorForm {
 
     //Edit image button
     waitForEditButtonDisplayed() {
-        return this.waitForElementDisplayed(this.editButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.editButton);
     }
 
     async getNumberItemInRemoveButton() {
@@ -238,7 +247,7 @@ class ImageSelectorForm extends BaseSelectorForm {
     }
 
     async clickOnExpanderIconInOptionsList(displayName) {
-        let imageSelectorDropdown = new ImageSelectorDropdown();
+        let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
         await imageSelectorDropdown.clickOnExpanderIconInOptionsList(displayName);
         await imageSelectorDropdown.pause(300);
     }
@@ -246,7 +255,7 @@ class ImageSelectorForm extends BaseSelectorForm {
     async waitForToggleIconNotDisplayed() {
         try {
             let imageSelectorDropdown = new ImageSelectorDropdown();
-            await imageSelectorDropdown.waitForToggleIconNotDisplayed(XPATH.container);
+            await imageSelectorDropdown.waitForToggleIconNotDisplayed();
         } catch (err) {
             await this.handleError('Image Selector - toggle icon should not be displayed', 'err_img_selector_toggle_icon', err);
         }
@@ -264,8 +273,8 @@ class ImageSelectorForm extends BaseSelectorForm {
 
     async clickOnImageOptionInTreeMode(displayName) {
         try {
-            let imageSelectorDropdown = new ImageSelectorDropdown();
-            await imageSelectorDropdown.clickOnImageInDropdownListTreeMode(displayName, XPATH.container);
+            let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
+            await imageSelectorDropdown.clickOnImageInDropdownListTreeMode(displayName );
         } catch (err) {
             await this.handleError('Tried to click on the option in the expanded dropdown in tree mode',
                 'err_img_selector_option_tree_mode', err);
@@ -274,7 +283,7 @@ class ImageSelectorForm extends BaseSelectorForm {
 
     async clickOnOptionByDisplayName(displayName) {
         try {
-            let imageSelectorDropdown = new ImageSelectorDropdown();
+            let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
             await imageSelectorDropdown.clickOnOptionByDisplayName(displayName);
         } catch (err) {
             await this.handleError('ImageSelector - Tried to click on the option in filtered dropdown', 'err_img_selector_option', err);
@@ -283,7 +292,7 @@ class ImageSelectorForm extends BaseSelectorForm {
 
     async clickOnApplySelectionButton() {
         try {
-            let imageSelectorDropdown = new ImageSelectorDropdown();
+            let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
             await imageSelectorDropdown.clickOnApplySelectionButton();
         } catch (err) {
             await this.handleError('Tried to click on Apply button in Image Selector dropdown', 'err_img_selector_apply_btn', err);
@@ -291,8 +300,8 @@ class ImageSelectorForm extends BaseSelectorForm {
     }
 
     async getTreeModeOptionDisplayNames() {
-        let imageSelectorDropdown = new ImageSelectorDropdown();
-        return await imageSelectorDropdown.getOptionsDisplayNameInTreeMode(XPATH.container);
+        let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
+        return await imageSelectorDropdown.getOptionsDisplayNameInTreeMode();
     }
 
     // Wait for 'Edit image' button is enabled - SelectionToolbar

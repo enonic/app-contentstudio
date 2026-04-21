@@ -996,20 +996,23 @@ module.exports = {
     },
     async navigateToUsersApp(userName, password) {
         try {
-            let launcherPanel = new LauncherPanel();
-            let isDisplayed = await launcherPanel.isDisplayed(1500);
-            if (isDisplayed) {
-                console.log('Launcher Panel is opened, click on the `Users` link...');
-                await launcherPanel.pause(300);
-                await launcherPanel.clickOnUsersLink();
-            } else {
-                console.log('Login Page is opened, type a password and name...');
-                await this.doLoginAndClickOnUsersLink(userName, password);
-            }
-            await this.doSwitchToUsersApp();
+            await this.doLogin(userName, password);
+            let homePage = new HomePage();
+            await homePage.clickOnUsersLink();
+            await this.waitForUsersBrowsePanelLoaded();
         } catch (err) {
-            await this.saveScreenshotUniqueName('err_navigate_to_users');
-            throw new Error('error when navigate to Users app ' + err);
+            let screenshot = await this.saveScreenshotUniqueName('err_navigate_users');
+            throw new Error(`Error occurred after clicking on Users link Home page,  screenshot:${screenshot}  ` + err);
+        }
+    },
+    async waitForUsersBrowsePanelLoaded() {
+        try {
+            let browsePanel = new UserBrowsePanel();
+            console.log("Users app loads...");
+            await browsePanel.waitForSpinnerNotVisible();
+            return browsePanel.waitForUsersGridLoaded(appConst.mediumTimeout);
+        } catch (err) {
+            throw new Error("Tried to navigate to Users App " + err);
         }
     },
     async navigateToApplications(userName, password) {

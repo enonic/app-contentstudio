@@ -51,7 +51,7 @@ class BaseIssueDetailsDialog extends Page {
     }
 
     get closeButton() {
-        return XPATH.container + BUTTONS.buttonByLabel('Close');
+        return XPATH.container + BUTTONS.buttonAriaLabel('Close');
     }
 
     isNoActionLabelPresent() {

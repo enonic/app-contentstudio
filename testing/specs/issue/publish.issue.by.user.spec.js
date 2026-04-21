@@ -31,6 +31,7 @@ describe('publish.issue.by.user.spec: an user publishes assigned to him issue', 
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_APP, appConst.SYSTEM_ROLES.CM_ADMIN];
             USER = contentBuilder.buildUser(userName, PASSWORD, contentBuilder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
+            //TODO users should be updated
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 

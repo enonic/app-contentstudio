@@ -2,17 +2,16 @@
  * Created on 19.08.2022
  */
 const Page = require('../page');
-const lib = require('../../libs/elements-old');
+const {COMMON} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ComboBoxListInput = require('../components/selectors/combobox.list.input');
-const XPATH = {
-    localeComboboxDiv: lib.FORM_VIEW + "//div[@name='localeCode2']",
-    localeInput: lib.FORM_VIEW + "//input[@name='localeCode-0']",
-    comboboxSelectedOption: value => `//div[contains(@id,'ComboBoxSelectedOptionView') and child::div[contains(@class,'option-value') and text()='${value}']]`,
-};
+
 
 class LocaleCodeCustomValidationForm extends Page {
 
+    get localesInputText(){
+        return COMMON.INPUTS.inputFieldByLabel('Locales') +"//input";
+    }
     get selectorValidationRecording() {
         return lib.FORM_VIEW_PANEL.COMBOBOX_INPUT + lib.INPUT_VALIDATION_VIEW;
     }
@@ -37,16 +36,17 @@ class LocaleCodeCustomValidationForm extends Page {
     //Inserts a text in the filter input  then selects an option by the display name
     async typeInFilterAndClickOnOption(option) {
         let comboBoxListInput = new ComboBoxListInput();
-        return await comboBoxListInput.selectFilteredOption(option);
+        await comboBoxListInput.doFilterItem(option);
+        // 2. Wait for the required option is displayed then click on it:
+        await comboBoxListInput.clickOnOptionByDisplayName(option);
     }
 
-    async typeTextInTextInput(text) {
+    async typeTextInLocalesInput(text) {
         try {
-            await this.typeTextInInput(XPATH.localeInput, text);
+            await this.typeChars(this.localesInputText, text);
             return await this.pause(300);
         } catch (err) {
-            let screenshotName = await this.saveScreenshotUniqueName('err_custom_validation');
-            throw new Error("Custom validation in text input, screenshot:  " + screenshotName + "  " + err);
+            await this.handleError('Error occurred while typing text in text input with custom validation', 'err_custom_validation_text_input', err);
         }
     }
 
