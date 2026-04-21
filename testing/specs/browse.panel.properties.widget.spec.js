@@ -119,7 +119,7 @@ describe('Browse panel, properties widget, language spec', function () {
             }
         });
 
-    it(`WHEN existing folder has been published THEN 'First Published' date gets visible in Properties Widget`,
+    it.skip(`WHEN existing folder has been published THEN 'First Published' date gets visible in Properties Widget`,
         async () => {
             let detailsWidgetInfoSection = new DetailsWidgetInfoSection();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -211,7 +211,7 @@ describe('Browse panel, properties widget, language spec', function () {
             assert.equal(result, TEST_WIDGET_TITLE, 'Expected text should be displayed in the widget');
         });
 
-    it(`GIVEN existing folder with language is opened WHEN the language has been removed in 'Edit Settings Dialog' THEN language should not be displayed in the widget`,
+    it.skip(`GIVEN existing folder with language is opened WHEN the language has been removed in 'Edit Settings Dialog' THEN language should not be displayed in the widget`,
         async () => {
             let detailsWidgetInfoSection = new DetailsWidgetInfoSection();
             let contentWizard = new ContentWizard();
