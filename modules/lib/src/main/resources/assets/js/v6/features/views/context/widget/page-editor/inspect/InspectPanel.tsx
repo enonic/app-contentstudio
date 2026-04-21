@@ -2,6 +2,8 @@ import {cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import type {FC, ReactElement} from 'react';
 import {$inspectedItemType} from '../../../../../store/page-editor';
+import {$isApplyVisible} from '../../../../../store/inspect-panel.store';
+import {ApplyButton} from './ApplyButton';
 import {LayoutInspectionPanel, PartInspectionPanel} from './component';
 import {FragmentInspectionPanel} from './fragment';
 import {PageInspectionPanel} from './page';
@@ -26,12 +28,14 @@ const INSPECT_PANEL_NAME = 'InspectPanel';
 
 export const InspectPanel = ({className}: InspectPanelProps): ReactElement => {
     const itemType = useStore($inspectedItemType);
+    const isApplyVisible = useStore($isApplyVisible);
     const key = itemType?.toString();
     const Panel = key ? PANEL_BY_TYPE[key] : PageInspectionPanel;
 
     return (
         <div data-component={INSPECT_PANEL_NAME} className={cn('flex flex-col', className)}>
             {Panel && <Panel />}
+            {isApplyVisible && <ApplyButton />}
         </div>
     );
 };
