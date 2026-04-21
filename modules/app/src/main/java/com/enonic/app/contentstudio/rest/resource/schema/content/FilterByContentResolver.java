@@ -93,15 +93,6 @@ public class FilterByContentResolver
 
     private ProjectService projectService;
 
-    private ApplicationWildcardMatcher.Mode mode;
-
-    @Activate
-    @Modified
-    public void activate( final AdminRestConfig config )
-    {
-        this.mode = ApplicationWildcardMatcher.Mode.valueOf( config.contentTypePatternMode() );
-    }
-
     public Stream<ContentType> contentTypes( final ContentId contentId, final Set<String> allowedContentTypes )
     {
         if ( contentId == null )
@@ -112,7 +103,7 @@ public class FilterByContentResolver
         final Content content = contentService.getById( contentId );
 
         final ApplicationWildcardMatcher<ContentTypeName> wildcardMatcher =
-            new ApplicationWildcardMatcher<>( content.getType().getApplicationKey(), ContentTypeName::toString, this.mode );
+            new ApplicationWildcardMatcher<>( content.getType().getApplicationKey(), ContentTypeName::toString );
 
         final Predicate<ContentTypeName> allowedContentTypesPredicate =
             allowedContentTypes.stream().map( wildcardMatcher::createPredicate ).reduce( Predicate::or ).orElse( s -> true );
@@ -238,7 +229,7 @@ public class FilterByContentResolver
     private Predicate<ContentTypeName> allowContentTypeFilter( final ApplicationKey applicationKey, final List<String> wildcards )
     {
         final ApplicationWildcardMatcher<ContentTypeName> wildcardMatcher =
-            new ApplicationWildcardMatcher<>( applicationKey, ContentTypeName::toString, mode );
+            new ApplicationWildcardMatcher<>( applicationKey, ContentTypeName::toString);
 
         return wildcards.stream().map( wildcardMatcher::createPredicate ).reduce( Predicate::or ).orElse( s -> true );
     }

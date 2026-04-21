@@ -267,14 +267,11 @@ public final class ContentResource
 
     private volatile long uploadMaxFileSize;
 
-    private ApplicationWildcardMatcher.Mode contentTypeParseMode;
-
     @Activate
     @Modified
     public void activate( final AdminRestConfig config )
     {
         uploadMaxFileSize = ByteSizeParser.parse( config.uploadMaxFileSize() );
-        contentTypeParseMode = ApplicationWildcardMatcher.Mode.valueOf( config.contentTypePatternMode() );
     }
 
     @POST
@@ -1391,7 +1388,6 @@ public final class ContentResource
             .contentQueryJson( contentQueryJson )
             .contentService( this.contentService )
             .contentTypeService( this.contentTypeService )
-            .contentTypeParseMode( this.contentTypeParseMode )
             .build();
     }
 

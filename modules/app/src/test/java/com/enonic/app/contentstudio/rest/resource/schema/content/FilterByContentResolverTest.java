@@ -84,9 +84,6 @@ class FilterByContentResolverTest
 
     Set<ContentType> knownContentTypes;
 
-    @Mock
-    AdminRestConfig config;
-
     @BeforeEach
     void setUp()
     {
@@ -97,9 +94,6 @@ class FilterByContentResolverTest
         filterByContentResolver.setPageDescriptorService( pageDescriptorService );
         filterByContentResolver.setPartDescriptorService( partDescriptorService );
         filterByContentResolver.setProjectService( projectService );
-
-        when( config.contentTypePatternMode() ).thenReturn( "MATCH" );
-        filterByContentResolver.activate( config );
 
         knownContentTypes = new HashSet<>( BuiltinContentTypesAccessor.getAll().stream().toList() );
 

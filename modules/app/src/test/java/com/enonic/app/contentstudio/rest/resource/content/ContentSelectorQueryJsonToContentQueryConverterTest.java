@@ -71,7 +71,6 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
             .contentQueryJson( contentQueryJson )
             .contentService( contentService )
             .contentTypeService( contentTypeService )
-            .contentTypeParseMode( ApplicationWildcardMatcher.Mode.MATCH )
             .build();
 
         final ContentQuery contentQuery = processor.createQuery();
@@ -105,7 +104,6 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
             .contentQueryJson( contentQueryJson )
             .contentService( contentService )
             .contentTypeService( contentTypeService )
-            .contentTypeParseMode( ApplicationWildcardMatcher.Mode.MATCH )
             .build();
 
         final ContentQuery contentQuery = processor.createQuery();
@@ -138,7 +136,6 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
             .contentQueryJson( contentQueryJson )
             .contentService( contentService )
             .contentTypeService( contentTypeService )
-            .contentTypeParseMode( ApplicationWildcardMatcher.Mode.MATCH )
             .build();
 
         final ContentQuery contentQuery = processor.createQuery();
@@ -168,7 +165,6 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
         ContentSelectorQueryJsonToContentQueryConverter processor = ContentSelectorQueryJsonToContentQueryConverter.create()
             .contentQueryJson( contentQueryJson )
             .contentService( contentService )
-            .contentTypeParseMode( ApplicationWildcardMatcher.Mode.MATCH )
             .build();
 
         final ContentQuery contentQuery = processor.createQuery();
@@ -203,7 +199,6 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
             .contentQueryJson( json )
             .contentService( contentService )
             .contentTypeService( contentTypeService )
-            .contentTypeParseMode( ApplicationWildcardMatcher.Mode.MATCH )
             .build();
     }
 

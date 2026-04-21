@@ -33,8 +33,6 @@ public class ContentSelectorQueryJsonToContentQueryConverter
 
     private final Content content;
 
-    private final ApplicationWildcardMatcher.Mode contentTypeParseMode;
-
     private Site parentSite;
 
     private static final FieldExpr PATH_FIELD_EXPR = FieldExpr.from( NodeIndexPath.PATH );
@@ -45,7 +43,6 @@ public class ContentSelectorQueryJsonToContentQueryConverter
         this.contentService = builder.contentService;
         this.content = contentQueryJson.getContentId() != null ? contentService.getById( contentQueryJson.getContentId() ) : null;
         this.contentTypeService = builder.contentTypeService;
-        this.contentTypeParseMode = builder.contentTypeParseMode;
     }
 
     public ContentQuery createQuery()
@@ -96,7 +93,7 @@ public class ContentSelectorQueryJsonToContentQueryConverter
     private ContentTypeNames filterContentTypeNames( final ApplicationKey applicationKey )
     {
         final ApplicationWildcardMatcher<ContentTypeName> wildcardMatcher =
-            new ApplicationWildcardMatcher<>( applicationKey, ContentTypeName::toString, this.contentTypeParseMode );
+            new ApplicationWildcardMatcher<>( applicationKey, ContentTypeName::toString );
 
         final Predicate<ContentTypeName> filter = this.contentQueryJson.getContentTypeNames()
             .stream()
@@ -212,8 +209,6 @@ public class ContentSelectorQueryJsonToContentQueryConverter
 
         private ContentTypeService contentTypeService;
 
-        private ApplicationWildcardMatcher.Mode contentTypeParseMode;
-
         public Builder contentQueryJson( final ContentSelectorQueryJson contentQueryJson )
         {
             this.contentQueryJson = contentQueryJson;
@@ -232,16 +227,9 @@ public class ContentSelectorQueryJsonToContentQueryConverter
             return this;
         }
 
-        public Builder contentTypeParseMode( final ApplicationWildcardMatcher.Mode contentTypeParseMode )
-        {
-            this.contentTypeParseMode = contentTypeParseMode;
-            return this;
-        }
-
         private void validate()
         {
             Preconditions.checkNotNull( contentQueryJson, "contentQueryJson must be set" );
-            Preconditions.checkNotNull( contentTypeParseMode, "contentTypeParseMode must be set" );
             Preconditions.checkNotNull( contentService, "contentService must be set" );
         }
 

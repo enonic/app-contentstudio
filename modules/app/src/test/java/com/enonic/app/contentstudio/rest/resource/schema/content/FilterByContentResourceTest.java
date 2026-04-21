@@ -43,8 +43,6 @@ class FilterByContentResourceTest
 {
     private FilterByContentResolver filterByContentResolver;
 
-    AdminRestConfig config;
-
     @Override
     protected Object getResourceInstance()
     {
@@ -61,10 +59,6 @@ class FilterByContentResourceTest
         final FilterByContentResource resource = new FilterByContentResource();
         resource.setJsonObjectsFactory( jsonObjectsFactory );
         resource.setFilterByContentResolver( filterByContentResolver );
-
-        config = mock( AdminRestConfig.class );
-        when( config.contentTypePatternMode() ).thenReturn( "MATCH" );
-        filterByContentResolver.activate( config );
 
         final HttpServletRequest mockRequest = mock( HttpServletRequest.class );
         when( mockRequest.getServerName() ).thenReturn( "localhost" );
