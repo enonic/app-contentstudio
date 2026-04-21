@@ -6,6 +6,7 @@ import {ConfirmationDialog} from '../../../../../../shared/dialogs/ConfirmationD
 import {FormRenderer} from '../../../../../../shared/form/FormRenderer';
 import {$contentContext, $pageEditorLifecycle, requestCustomizePage, usePageState} from '../../../../../../store/page-editor';
 import {$isCustomizeVisible, $pageConfigDescriptor} from '../../../../../../store/page-inspection.store';
+import {useInspectFormTracking} from '../useInspectFormTracking';
 import {PageControllerSelector} from "./PageControllerSelector";
 
 type ConfirmDialogState = {
@@ -32,8 +33,10 @@ export const PageInspectionPanel = (): ReactElement => {
     }, [customizeQuestion]);
 
     const hasController = page?.hasController() ?? false;
-    const configForm = descriptor?.getConfig();
+    const configForm = descriptor?.getConfig() ?? null;
     const configRoot = hasController ? (page?.getConfig()?.getRoot() ?? null) : null;
+
+    useInspectFormTracking(configForm, configRoot);
 
     return (
         <div data-component={PAGE_INSPECTION_PANEL_NAME} className="flex flex-col gap-5">

@@ -2,12 +2,13 @@ import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Avatar, Button, cn, IconButton, Toolbar, Tooltip} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ArrowLeft, Layers, Link2} from 'lucide-react';
-import {type ReactElement, useMemo} from 'react';
+import {type ReactElement, useEffect, useMemo} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {LegacyElement} from '../../../shared/LegacyElement';
 import {ProjectIcon} from '../../../shared/icons/ProjectIcon';
 import {StatusIcon} from '../../../shared/icons/StatusIcon';
 import {StatusBadge} from '../../../shared/status/StatusBadge';
+import {setInspectSaveAction} from '../../../store/inspect-panel.store';
 import {$wizardToolbar} from '../../../store/wizardToolbar.store';
 import {getInitials} from '../../../utils/format/initials';
 import {useElementVisibility} from '../../../utils/hooks/useElementVisibility';
@@ -91,6 +92,11 @@ export const ContentWizardToolbar = ({
     const pathLabel = `<${fieldPathLabel}>`;
     const projectViewLabel = projectLabel || projectRoot;
     const contentPathLabel = contentPath || pathLabel;
+
+    useEffect(() => {
+        setInspectSaveAction(saveAction);
+        return () => setInspectSaveAction(null);
+    }, [saveAction]);
 
     const toolbarActions: OverflowActionRowItem[] = useMemo(() => [
         {id: 'save', action: saveAction},
