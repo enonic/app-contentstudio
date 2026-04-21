@@ -9,8 +9,8 @@ import {type ReactElement} from 'react';
 import {instanceOf} from '../../utils/object/instanceOf';
 import {FieldSetView} from './FieldSetView';
 import {useFormRender} from './FormRenderContext';
-import {ItemSetView} from './ItemSetView';
-import {OptionSetView} from './OptionSetView';
+import {ItemSetView} from './sets/item-set';
+import {OptionSetView} from './sets/option-set';
 
 type FormItemRendererProps = {
     formItem: FormItem;
@@ -35,7 +35,10 @@ export const FormItemRenderer = ({formItem, propertySet}: FormItemRendererProps)
         return <OptionSetView optionSet={formItem} propertySet={propertySet} />;
     }
     return (
-        <div data-component={FORM_ITEM_RENDERER_NAME} className="rounded border border-dashed border-bdr-subtle px-3 py-2 text-xs text-subtle">
+        <div
+            data-component={FORM_ITEM_RENDERER_NAME}
+            className="rounded border border-dashed border-bdr-subtle px-3 py-2 text-xs text-subtle"
+        >
             {formItem.constructor.name}: {formItem.getName()} — unknown form item type
         </div>
     );
