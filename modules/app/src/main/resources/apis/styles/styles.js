@@ -2,7 +2,7 @@
 
 var adminLib = require('/lib/xp/admin');
 
-exports.get = function (req) {
+exports.GET = function (req) {
     var contentId = req.params.contentId;
     var project = req.params.project || 'default';
     if (!contentId) {
