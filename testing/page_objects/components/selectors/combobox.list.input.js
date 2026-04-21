@@ -2,7 +2,6 @@
  * Created on 15.02.2024
  */
 const BasDropdown = require('./base.dropdown');
-const appConst = require('../../../libs/app_const');
 const XPATH = {
     dataComponent: "//div[@data-component='ComboBoxInput']",
     comboBoxListInput: "//div[contains(@id,'ComboBoxListInput')]",
@@ -11,8 +10,8 @@ const XPATH = {
     optionByText: text => {
         return `//div[contains(@id,'ComboBoxDisplayValueViewer') and text()='${text}']`
     },
-    sortableItemByText: text =>
-        `//div[@role='button' and @aria-roledescription='sortable' and descendant::span[text()='${text}']]`,
+    selectedOptionRowByText: text =>
+        `//div[@data-component='SortableGridList']/div[descendant::span[text()='${text}']]`,
     removeOccurrenceButton: `//button[@aria-label='Remove occurrence']`,
     removeOccurrenceButtonByText: text =>
         `//span[text()='${text}']/parent::div/following-sibling::button[@aria-label='Remove occurrence']`,

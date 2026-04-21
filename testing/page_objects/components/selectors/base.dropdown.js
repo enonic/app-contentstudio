@@ -15,7 +15,7 @@ const XPATH = {
     },
     // v6: text span inside each selected option row in SortableGridList
     SortableGridListSelectedOptionText:
-        `//div[@data-component='SortableGridList']//div[@role='button' and @aria-roledescription='sortable']//span[contains(@class,'truncate')]`,
+        `//div[@data-component='SortableGridList']/div//span[contains(@class,'truncate')]`,
 }
 
 class BaseDropdown extends Page {
@@ -303,8 +303,7 @@ class BaseDropdown extends Page {
             return await e.getText();
 
         });
-        let result = await Promise.all(pr);
-        return result;
+        return await Promise.all(pr);
     }
 
     async doFilterCheckedOptionsElements(elements) {
