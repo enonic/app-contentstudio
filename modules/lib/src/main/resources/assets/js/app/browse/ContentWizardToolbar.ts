@@ -21,7 +21,7 @@ import {subscribe as subscribeToCollaborators} from '../stores/collaboration';
 import {UrlHelper} from '../util/UrlHelper';
 import {type ContentWizardActions} from '../wizard/action/ContentWizardActions';
 import {ContentWizardToolbarPublishControls} from '../wizard/ContentWizardToolbarPublishControls';
-import {type PublishStatus, PublishStatusChecker} from '../publish/PublishStatus';
+import {PublishStatus} from '../publish/PublishStatus';
 import {
     $wizardToolbar,
     setWizardToolbarCanRenameContentPath,
@@ -173,7 +173,7 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
         setWizardToolbarPublishStatus(publishStatus);
         setWizardToolbarContentPath(contentPath);
         setWizardToolbarCanRenameContentPath(!!item?.getPath());
-        setWizardToolbarIsContentOnline(publishStatus != null && PublishStatusChecker.isOnline(publishStatus));
+        setWizardToolbarIsContentOnline(this.isOnline(publishStatus));
         this.contentWizardToolbarPublishControls.setContent(item);
 
         if (this.isCollaborationEnabled()) {
@@ -282,6 +282,10 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
         }
 
         return $wizardToolbar.get().publishStatus ?? null;
+    }
+
+    private isOnline(publishStatus: PublishStatus | null): boolean {
+        return publishStatus != null && publishStatus !== PublishStatus.OFFLINE;
     }
 
     private resolveToolbarContentPath(item: ContentSummaryAndCompareStatus): string {
