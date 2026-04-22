@@ -22,7 +22,8 @@ describe('wizard.publish.menu.issue.item.spec - tests for Publish menu in wizard
 
     // verifies https://github.com/enonic/app-contentstudio/issues/808
     // Publish Menu is not updated after an item is removed from an issue or request.
-    it(`GIVEN new folder is opened WHEN new task has been created in the wizard THEN new menu item should be added in the Publish Menu`,
+    // Issue removed from publish menu now
+    it.skip(`GIVEN new folder is opened WHEN new task has been created in the wizard THEN new menu item should be added in the Publish Menu`,
         async () => {
             let contentWizard = new ContentWizard();
             let createIssueDialog = new CreateIssueDialog();
@@ -38,19 +39,22 @@ describe('wizard.publish.menu.issue.item.spec - tests for Publish menu in wizard
             await createIssueDialog.typeTitle(ISSUE_TITLE);
             await createIssueDialog.clickOnCreateIssueButton();
             // Close Issue Details dialog and Issue List dialog:
+            await issueDetailsDialog.waitForDialogLoaded();
             await issueDetailsDialog.clickOnCloseButton();
             await issueDetailsDialog.waitForDialogClosed();
             await issueListDialog.waitForDialogClosed();
             // New menu item should appear in the Wizard Publish Menu:
-            await contentWizard.openPublishMenuSelectItem(ISSUE_TITLE);
+            // TODO bug
+            //await contentWizard.openPublishMenuSelectItem(ISSUE_TITLE);
             // Issue details dialog should be loaded after clicking on the menu item:
-            await issueDetailsDialog.waitForDialogLoaded();
+            //await issueDetailsDialog.waitForDialogLoaded();
         });
 
     // verifies Task Details Dialog switches to the Comments tab after save #1571
     // verifies https://github.com/enonic/app-contentstudio/issues/808
     // Publish Menu is not updated after an item is removed from an issue or request.
-    it(`GIVEN folder is opened AND existing issue-name has been clicked in the publish menu WHEN this folder has been excluded in the items-tab THEN this menu-item should be removed in Publish Menu`,
+    // Issue removed from publish menu now
+    it.skip(`GIVEN folder is opened AND existing issue-name has been clicked in the publish menu WHEN this folder has been excluded in the items-tab THEN this menu-item should be removed in Publish Menu`,
         async () => {
             let contentWizard = new ContentWizard();
             let taskDetailsDialog = new IssueDetailsDialog();

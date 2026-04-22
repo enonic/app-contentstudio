@@ -30,7 +30,7 @@ class IssueDetailsDialog extends BaseDetailsDialog {
 
     async waitForDialogLoaded() {
         try {
-            await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(XPATH.container);
             return await this.pause(300);
         } catch (err) {
             await this.handleError('Issue Details dialog was not loaded', 'err_load_issue_details_dialog', err);
@@ -39,7 +39,7 @@ class IssueDetailsDialog extends BaseDetailsDialog {
 
     async waitForDialogClosed() {
         try {
-            return await this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout)
+            return await this.waitForElementNotDisplayed(XPATH.container);
         } catch (err) {
             await this.handleError('Issue Details Dialog was not closed', 'err_wait_close_issue_det_dialog', err);
         }

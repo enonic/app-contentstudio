@@ -111,7 +111,12 @@ class Page {
         return results;
     }
 
-
+    async typeChars(selector, text) {
+        let inputElement = await this.findElement(selector);
+        for (const ch of text) {
+            await inputElement.addValue(ch);
+        }
+    }
     async typeTextInInput(selector, text) {
         try {
             let inputElement = await this.findElement(selector);

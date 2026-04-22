@@ -112,8 +112,8 @@ class ContentSelectorForm extends BaseSelectorForm {
             // 3. Click on 'Apply' button:
             return await contentSelectorDropdown.clickOnApplySelectionButton();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_combobox');
-            throw new Error(`Error occurred in content combobox, screenshot:${screenshot} ` + err)
+            await this.handleError(
+                `Content selector, tried to select: ${optionDisplayName} in tree mode and Apply`, 'err_combobox_tree_mode', err);
         }
     }
 
@@ -122,8 +122,7 @@ class ContentSelectorForm extends BaseSelectorForm {
             let contentSelector = new ContentSelectorDropdown();
             await contentSelector.clickOnApplySelectionButton();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
-            throw new Error(`Error occurred in Content combobox, OK button, screenshot:${screenshot} ` + err);
+            await this.handleError(`Content selector, tried to click on Apply button`, 'err_apply_btn', err);
         }
     }
 

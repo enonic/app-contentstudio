@@ -31,7 +31,6 @@ const XPATH = {
     // v6: workflow state SVG in the toolbar — aria-label is 'invalid', 'in-progress', or 'ready'
     toolbarWorkflowStateIcon: `//svg[@aria-label and not(@aria-hidden='true')]`,
     publishMenuButton: "//div[contains(@id,'ContentWizardPublishMenuButton')]",
-    toolbarPublish: "//div[contains(@id,'ContentWizardToolbarPublishControls')]",
     createIssueButton: "//button[contains(@id,'ActionButton') and child::span[text()='Create Issue...']]",
     openRequestButton: "//button[contains(@id,'ActionButton') and child::span[text()='Open Request...']]",
     unpublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Unpublish...']",
@@ -55,7 +54,7 @@ const XPATH = {
     xDataTogglerByName:
         name => `//div[contains(@id,'WizardStepsPanel')]//div[contains(@id,'ContentPanelStripHeader') and child::span[contains(.,'${name}')]]//button[contains(@class,'toggler-button')]`,
     publishMenuItemByName(name) {
-        return `//div[contains(@id,'ContentWizardToolbar')]//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
+        return `//div[contains(@id,'ContentWizardToolbar')]//div[@role='menu']//div[@role='menuitem' and .//span[text()='${name}']]`
     },
     previewToolbarMenuItem: (optionName) => {
         return `//div[contains(@id,'PreviewToolbar') and @role='menu']//div[@role='menuitemradio' and descendant::span[text()='${optionName}']]`
@@ -126,7 +125,7 @@ class ContentWizardPanel extends Page {
     }
 
     get publishDropDownHandle() {
-        return XPATH.toolbarPublish + DROPDOWN.DROP_DOWN_HANDLE;
+        return XPATH.toolbar + "//div[contains(@class,'justify-end')]//button[@aria-label='More actions' and not(@disabled)]";
     }
 
     get unpublishMenuItem() {
@@ -550,7 +549,7 @@ class ContentWizardPanel extends Page {
 
     async waitForPublishMenuItemDisabled(menuItem) {
         let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
-        return await this.waitForAttributeHasValue(selector, 'class', 'disabled');
+        return await this.waitForAttributeHasValue(selector, 'aria-disabled', 'true');
     }
 
     async waitForReadOnlyMode() {
@@ -574,7 +573,7 @@ class ContentWizardPanel extends Page {
 
     async waitForPublishMenuItemEnabled(menuItem) {
         let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
-        return await this.waitForAttributeNotIncludesValue(selector, 'class', 'disabled');
+        return await this.waitForAttributeNotIncludesValue(selector, 'aria-disabled', 'true');
     }
 
     async isContentInvalid() {
@@ -806,7 +805,7 @@ class ContentWizardPanel extends Page {
 
     async waitForShowPublishMenuButtonVisible() {
         try {
-            return await this.waitForElementDisplayed(this.publishDropDownHandle, appConst.mediumTimeout)
+            return await this.waitForElementDisplayed(this.publishDropDownHandle);
         } catch (err) {
             await this.handleError('Wizard Publish Menu- drop down handle is not visible', 'err_publish_menu_dropdown_handle', err);
         }
@@ -872,9 +871,11 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForShowPublishMenuButtonVisible();
             await this.clickOnElement(this.publishDropDownHandle);
-            await this.pause(500);
-            let selector = XPATH.publishMenuItemByName(menuItem);
-            await this.waitForElementEnabled(selector, appConst.shortTimeout);
+            let menuSelector = `//div[contains(@id,'ContentWizardToolbar') and @role='menu']`;
+            await this.waitForElementDisplayed(menuSelector);
+            let selector =
+                `//div[@role='menu']//div[@role='menuitem' and .//span[text()='${menuItem}'] and not(@aria-disabled='true')]`;
+            await this.waitForElementDisplayed(selector,);
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
