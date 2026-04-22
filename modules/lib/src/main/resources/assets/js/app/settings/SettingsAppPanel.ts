@@ -21,7 +21,7 @@ import {ProjectGetRequest} from './resource/ProjectGetRequest';
 import {ContentAppBar} from '../bar/ContentAppBar';
 import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ProjectsUtil} from './resource/ProjectsUtil';
-import {removeProject, upsertProject} from '../../v6/features/store/projects.store';
+import {upsertProject} from '../../v6/features/store/projects.store';
 import {openEditProjectDialog} from '../../v6/features/store/dialogs/projectDialog.store';
 
 export class SettingsAppPanel extends NavigatedAppPanel {
@@ -163,10 +163,6 @@ export class SettingsAppPanel extends NavigatedAppPanel {
 
     private addNewProject(project: Project) {
         upsertProject(project);
-
-        const item: ProjectViewItem = ProjectViewItem.create().setData(project).build();
-
-        this.browsePanel.addSettingsItem(item);
         this.getProjectWizards().forEach((wizardPanel: ProjectWizardPanel) => {
             if (wizardPanel.isItemPersisted() && project.hasParentByName(wizardPanel.getPersistedItem().getId())) {
                 wizardPanel.setHasChildrenLayers(true);
@@ -178,7 +174,6 @@ export class SettingsAppPanel extends NavigatedAppPanel {
         upsertProject(project);
 
         const item: ProjectViewItem = ProjectViewItem.create().setData(project).build();
-        this.browsePanel.updateSettingsItem(item);
         this.updateProjectWizards(item);
     }
 
@@ -221,9 +216,7 @@ export class SettingsAppPanel extends NavigatedAppPanel {
     }
 
     private handleItemDeleted(itemId: string): void {
-        removeProject(itemId);
         this.deletedIds.push(itemId);
-        this.browsePanel.deleteSettingsItem(itemId);
 
         this.getProjectWizards()
             .filter((p: ProjectWizardPanel) => p.isItemPersisted())
