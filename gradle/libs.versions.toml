@@ -13,6 +13,7 @@ commonsText = "1.15.0"
 libTextEncoding = "2.1.1"
 libMustache = "2.1.1"
 libHttpClient = "3.2.2"
+libRouter = "3.2.0"
 
 # Rest
 jacksonJrObjects = "2.21.2"
@@ -34,6 +35,7 @@ commons-text = { module = "org.apache.commons:commons-text", version.ref = "comm
 lib-text-encoding = { module = "com.enonic.lib:lib-text-encoding", version.ref = "libTextEncoding" }
 lib-mustache = { module = "com.enonic.lib:lib-mustache", version.ref = "libMustache" }
 lib-http-client = { module = "com.enonic.lib:lib-http-client", version.ref = "libHttpClient" }
+lib-router = { module = "com.enonic.lib:lib-router", version.ref = "libRouter" }
 
 # Rest
 jackson-jr-objects = { module = "com.fasterxml.jackson.jr:jackson-jr-objects", version.ref = "jacksonJrObjects" }
