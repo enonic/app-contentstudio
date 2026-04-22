@@ -2,7 +2,7 @@ import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Avatar, Button, cn, IconButton, Toolbar, Tooltip} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ArrowLeft, Layers, Link2} from 'lucide-react';
-import React, {type ReactElement, useLayoutEffect, useMemo, useRef, useState} from 'react';
+import {type ReactElement, useMemo} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {LegacyElement} from '../../../shared/LegacyElement';
 import {ProjectIcon} from '../../../shared/icons/ProjectIcon';
@@ -10,11 +10,10 @@ import {StatusIcon} from '../../../shared/icons/StatusIcon';
 import {StatusBadge} from '../../../shared/status/StatusBadge';
 import {$wizardToolbar} from '../../../store/wizardToolbar.store';
 import {getInitials} from '../../../utils/format/initials';
-import {createThrottle} from '../../../utils/timing/createThrottle';
-import {ActionGroup} from './ActionGroup';
+import {useElementVisibility} from '../../../utils/hooks/useElementVisibility';
 import {ContextToggle} from './ContextToggle';
+import {OverflowActionRow, type OverflowActionRowItem} from './OverflowActionRow';
 import {SplitActionButton, type SplitActionButtonAction} from './SplitActionButton';
-import {ToolbarActionButton} from './ToolbarActionButton';
 
 export type ContentWizardToolbarProps = {
     onProjectBack?: () => void;
@@ -37,53 +36,6 @@ export type ContentWizardToolbarProps = {
 };
 
 const CONTENT_WIZARD_TOOLBAR_NAME = 'ContentWizardToolbar';
-const TOOLBAR_ACTION_GAP_PX = 8;
-
-const getIsElementVisible = (element: HTMLElement | null): boolean => {
-    if (!element) {
-        return false;
-    }
-
-    const styles = window.getComputedStyle(element);
-    const rect = element.getBoundingClientRect();
-
-    return styles.display !== 'none'
-        && styles.visibility !== 'hidden'
-        && rect.width > 0
-        && rect.height > 0
-        && element.getClientRects().length > 0;
-};
-
-const useElementVisibility = <T extends HTMLElement>(): [React.RefObject<T | null>, boolean] => {
-    const ref = useRef<T | null>(null);
-    const [isVisible, setIsVisible] = useState(false);
-
-    useLayoutEffect(() => {
-        const element = ref.current;
-        if (!element) {
-            return;
-        }
-
-        const updateVisibility = () => {
-            const nextVisible = getIsElementVisible(element);
-            setIsVisible((prevVisible) => prevVisible === nextVisible ? prevVisible : nextVisible);
-        };
-
-        updateVisibility();
-        const animationFrameId = requestAnimationFrame(updateVisibility);
-        const observer = new ResizeObserver(updateVisibility);
-        observer.observe(element);
-        window.addEventListener('resize', updateVisibility);
-
-        return () => {
-            cancelAnimationFrame(animationFrameId);
-            observer.disconnect();
-            window.removeEventListener('resize', updateVisibility);
-        };
-    }, []);
-
-    return [ref, isVisible];
-};
 
 export const ContentWizardToolbar = ({
     onProjectBack,
@@ -140,7 +92,7 @@ export const ContentWizardToolbar = ({
     const projectViewLabel = projectLabel || projectRoot;
     const contentPathLabel = contentPath || pathLabel;
 
-    const toolbarActions: (SplitActionButtonAction & {id: string})[] = useMemo(() => [
+    const toolbarActions: OverflowActionRowItem[] = useMemo(() => [
         {id: 'save', action: saveAction},
         {id: 'reset', action: resetAction},
         {id: 'localize', action: localizeAction},
@@ -149,90 +101,10 @@ export const ContentWizardToolbar = ({
         {id: 'move', action: moveAction},
         {id: 'preview', action: previewAction},
     ], [archiveAction, duplicateAction, localizeAction, moveAction, previewAction, resetAction, saveAction]);
-    const toolbarActionsContainerRef = useRef<HTMLDivElement | null>(null);
-    const toolbarActionButtonMeasureRefs = useRef<(HTMLDivElement | null)[]>([]);
-    const toolbarSplitButtonMeasureRefs = useRef<(HTMLDivElement | null)[]>([]);
-    const [visibleToolbarActionsCount, setVisibleToolbarActionsCount] = useState(toolbarActions.length);
-    const [isToolbarActionsVisible, setIsToolbarActionsVisible] = useState(false);
     const [desktopPathRef, isDesktopPathVisible] = useElementVisibility<HTMLDivElement>();
     const [mobilePathRef, isMobilePathVisible] = useElementVisibility<HTMLDivElement>();
     const [desktopPublishSplitRef, isDesktopPublishSplitVisible] = useElementVisibility<HTMLDivElement>();
     const [mobileActionsSplitRef, isMobileActionsSplitVisible] = useElementVisibility<HTMLDivElement>();
-
-    useLayoutEffect(() => {
-        const container = toolbarActionsContainerRef.current;
-        if (!container) {
-            return;
-        }
-
-        const calculateVisibleActions = () => {
-            const containerVisible = getIsElementVisible(container);
-            setIsToolbarActionsVisible((prevVisible) => prevVisible === containerVisible ? prevVisible : containerVisible);
-
-            const containerWidth = container.getBoundingClientRect().width;
-            if (!containerVisible || containerWidth <= 0) {
-                setVisibleToolbarActionsCount((prevCount) =>
-                    prevCount === 0 ? prevCount : 0
-                );
-                return;
-            }
-
-            const buttonWidths = toolbarActions.map((_, index) =>
-                toolbarActionButtonMeasureRefs.current[index]?.getBoundingClientRect().width || 0
-            );
-            const splitWidths = toolbarActions.map((_, index) =>
-                toolbarSplitButtonMeasureRefs.current[index]?.getBoundingClientRect().width || 0
-            );
-
-            let nextVisibleCount = 0;
-            for (let candidate = toolbarActions.length; candidate >= 0; candidate--) {
-                const visibleButtonsWidth = buttonWidths.slice(0, candidate).reduce((sum, width) => sum + width, 0);
-                const hasSplitButton = candidate < toolbarActions.length;
-                const splitWidth = hasSplitButton ? splitWidths[candidate] || 0 : 0;
-                const renderedElementsCount = candidate + (hasSplitButton ? 1 : 0);
-                const requiredWidth = visibleButtonsWidth
-                    + splitWidth
-                    + Math.max(0, renderedElementsCount - 1) * TOOLBAR_ACTION_GAP_PX;
-
-                if (requiredWidth <= containerWidth + 0.5) {
-                    nextVisibleCount = candidate;
-                    break;
-                }
-            }
-
-            setVisibleToolbarActionsCount((prevCount) => prevCount === nextVisibleCount ? prevCount : nextVisibleCount);
-        };
-
-        const throttledCalculateVisibleActions = createThrottle(calculateVisibleActions, 50);
-        calculateVisibleActions();
-        const animationFrameId = requestAnimationFrame(() => {
-            calculateVisibleActions();
-        });
-
-        const observer = new ResizeObserver(throttledCalculateVisibleActions);
-        observer.observe(container);
-        window.addEventListener('resize', throttledCalculateVisibleActions);
-        toolbarActionButtonMeasureRefs.current.forEach((element) => {
-            if (element) {
-                observer.observe(element);
-            }
-        });
-        toolbarSplitButtonMeasureRefs.current.forEach((element) => {
-            if (element) {
-                observer.observe(element);
-            }
-        });
-
-        return () => {
-            cancelAnimationFrame(animationFrameId);
-            observer.disconnect();
-            window.removeEventListener('resize', throttledCalculateVisibleActions);
-            throttledCalculateVisibleActions.cancel();
-        };
-    }, [toolbarActions]);
-
-    const visibleToolbarActions = toolbarActions.slice(0, visibleToolbarActionsCount);
-    const overflowToolbarActions = toolbarActions.slice(visibleToolbarActionsCount);
 
     const publishSplitActions: SplitActionButtonAction[] = [
         {action: markAsReadyAction},
@@ -275,7 +147,7 @@ export const ContentWizardToolbar = ({
                                 language={projectLanguage || undefined}
                                 hasIcon={projectHasIcon}
                                 isLayer={isLayerProject}
-                                className='size-6 sm:size-8 shrink-0 flex lg:hidden' />
+                                className='w-6 sm:w-8 shrink-0 flex lg:hidden' />
                             <span className='hidden lg:flex'>{projectViewLabel}</span>
                         </Button>
                     </Toolbar.Item>
@@ -283,56 +155,9 @@ export const ContentWizardToolbar = ({
                         <SplitActionButton
                             actions={mobileSplitActions}
                             disabled={!isMobileActionsSplitVisible}
-                            triggerClassName='mr-1.5 sm:mr-0 w-6 sm:size-9'
                         />
                     </div>
-                    <div ref={toolbarActionsContainerRef}
-                        className='hidden sm:flex min-w-0 flex-1'>
-                        <div className='flex items-center gap-2 min-w-0'>
-                            {visibleToolbarActions.length > 0 && (
-                                <ActionGroup>
-                                    {visibleToolbarActions.map(({id, action}) => (
-                                        <ToolbarActionButton key={id} action={action} disabled={!isToolbarActionsVisible} />
-                                    ))}
-                                </ActionGroup>
-                            )}
-                            {overflowToolbarActions.length > 0 && (
-                                <SplitActionButton
-                                    key={`toolbar-overflow-${overflowToolbarActions.map(({id}) => id).join('-')}`}
-                                    actions={overflowToolbarActions}
-                                    disabled={!isToolbarActionsVisible}
-                                />
-                            )}
-                        </div>
-                    </div>
-                </div>
-                <div
-                    aria-hidden='true'
-                    className='fixed -left-[9999px] top-0 invisible pointer-events-none'
-                >
-                    <div className='flex items-center gap-2'>
-                        {toolbarActions.map(({id, action}, index) => (
-                            <div key={`measure-button-${id}`}
-                                ref={(element) => {
-                                    toolbarActionButtonMeasureRefs.current[index] = element;
-                                }}>
-                                <ToolbarActionButton action={action} disabled={true} />
-                            </div>
-                        ))}
-                    </div>
-                    <div className='flex items-center gap-2'>
-                        {toolbarActions.map(({id}, index) => (
-                            <div key={`measure-split-${id}`}
-                                ref={(element) => {
-                                    toolbarSplitButtonMeasureRefs.current[index] = element;
-                                }}>
-                                <SplitActionButton
-                                    actions={toolbarActions.slice(index).map(({action}) => ({action}))}
-                                    disabled={true}
-                                />
-                            </div>
-                        ))}
-                    </div>
+                    <OverflowActionRow actions={toolbarActions} className='hidden sm:flex min-w-0 flex-1' />
                 </div>
                 <div className='flex min-w-0 flex-1 items-center justify-center px-0 sm:flex-none sm:shrink sm:px-2'>
                     {isLayerProject && (

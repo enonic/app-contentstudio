@@ -1,11 +1,10 @@
 import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Toolbar} from '@enonic/ui';
-import {type ReactElement} from 'react';
+import {type ReactElement, useMemo} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {LegacyElement} from '../../../shared/LegacyElement';
-import {ToolbarActionButton} from './ToolbarActionButton';
-import {ActionGroup} from './ActionGroup';
 import {ContextToggle} from './ContextToggle';
+import {OverflowActionRow, type OverflowActionRowItem} from './OverflowActionRow';
 import {SearchToggle} from './SearchToggle';
 import {SplitActionButton, type SplitActionButtonAction} from './SplitActionButton';
 
@@ -42,6 +41,15 @@ export const BrowseToolbar = ({
     requestPublishAction,
     createIssueAction,
 }: Props): ReactElement => {
+    const toolbarActions: OverflowActionRowItem[] = useMemo(() => [
+        {id: 'new', action: showNewDialogAction},
+        {id: 'edit', action: editAction},
+        {id: 'archive', action: archiveAction},
+        {id: 'duplicate', action: duplicateAction},
+        {id: 'move', action: moveAction},
+        {id: 'sort', action: sortAction},
+        {id: 'preview', action: previewAction},
+    ], [archiveAction, duplicateAction, editAction, moveAction, previewAction, showNewDialogAction, sortAction]);
     const publishSplitActions: SplitActionButtonAction[] = [
         {action: markAsReadyAction},
         {action: publishAction},
@@ -50,6 +58,10 @@ export const BrowseToolbar = ({
         {action: requestPublishAction},
         {action: createIssueAction},
     ];
+    const mobileSplitActions: SplitActionButtonAction[] = [
+        ...toolbarActions.map(({action}) => ({action})),
+        ...publishSplitActions,
+    ];
 
     return (
         <Toolbar>
@@ -57,19 +69,18 @@ export const BrowseToolbar = ({
                 aria-label={useI18n('aria.browser.toolbar.label')}
                 className="bg-surface-neutral h-15 px-5 py-2 flex items-center gap-2 border-b border-bdr-soft"
             >
-                <SearchToggle action={toggleFilterPanelAction} />
-                <ActionGroup>
-                    <ToolbarActionButton action={showNewDialogAction} />
-                    <ToolbarActionButton action={editAction} />
-                    <ToolbarActionButton action={archiveAction} />
-                    <ToolbarActionButton action={duplicateAction} />
-                    <ToolbarActionButton action={moveAction} />
-                    <ToolbarActionButton action={sortAction} />
-                    <ToolbarActionButton action={previewAction} />
-                </ActionGroup>
-                <div className="flex-1" />
-                <SplitActionButton actions={publishSplitActions} />
-                <ContextToggle />
+                <div className="flex min-w-fit items-center gap-2 sm:min-w-0 sm:flex-1">
+                    <SearchToggle action={toggleFilterPanelAction} />
+                    <div className="sm:hidden shrink-0 min-w-fit">
+                        <SplitActionButton actions={mobileSplitActions} />
+                    </div>
+                    <OverflowActionRow actions={toolbarActions} className="hidden sm:flex min-w-0 flex-1" />
+                </div>
+                <div className="flex-1 sm:hidden" />
+                <div className="hidden sm:flex shrink-0 min-w-fit">
+                    <SplitActionButton actions={publishSplitActions} />
+                </div>
+                <ContextToggle className="shrink-0" />
             </Toolbar.Container>
         </Toolbar>
     );
