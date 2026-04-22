@@ -44,6 +44,8 @@ const XPATH = {
     },
 };
 
+const toolbarButton = (ariaLabel) => XPATH.toolbarDiv + BUTTONS.toolbarButtonAriaLabel(ariaLabel);
+
 class ContentBrowsePanel extends BaseBrowsePanel {
 
     get treeGridToolbar() {
@@ -59,7 +61,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get previewButton() {
-        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Preview');
+        return toolbarButton('Preview');
     }
 
     // expander icon in parent items
@@ -68,31 +70,31 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get deleteButton() {
-        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Delete');
+        return toolbarButton('Delete');
     }
 
     get moreButton() {
-        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('More');
+        return toolbarButton('More');
     }
 
     get moveButton() {
-        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Move');
+        return toolbarButton('Move');
     }
 
     get duplicateButton() {
-        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Duplicate');
+        return toolbarButton('Duplicate');
     }
 
     get sortButton() {
-        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Sort');
+        return toolbarButton('Sort');
     }
 
     get localizeButton() {
-        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Localize');
+        return toolbarButton('Localize');
     }
 
     get openButton() {
-        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Open');
+        return toolbarButton('Open');
     }
 
     get searchButton() {
@@ -124,7 +126,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get showPublishMenuButton() {
-        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('More actions');
+        return toolbarButton('More actions');
     }
 
     get markAsReadyMenuItem() {
@@ -132,7 +134,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get createIssueButton() {
-        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Create issue');
+        return toolbarButton('Create issue');
     }
 
     get showIssuesListButton() {
@@ -148,11 +150,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get newButton() {
-        return `${XPATH.toolbarDiv}` + BUTTONS.buttonAriaLabel('New');
+        return toolbarButton('New');
     }
 
     get editButton() {
-        return `${XPATH.toolbarDiv}` + BUTTONS.buttonAriaLabel('Edit');
+        return toolbarButton('Edit');
     }
 
     get numberInSelectionToggler() {
@@ -160,19 +162,19 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get publishButton() {
-        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Publish');
+        return toolbarButton('Publish');
     }
 
     get unpublishButton() {
-        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Unpublish...');
+        return toolbarButton('Unpublish...');
     }
 
     get publishTreeButton() {
-        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Publish tree');
+        return toolbarButton('Publish tree');
     }
 
     get markAsReadyButton() {
-        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Mark as ready');
+        return toolbarButton('Mark as ready');
     }
 
     get displayNames() {
@@ -583,7 +585,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             }]);
             await this.getBrowser().releaseActions();
         } catch (err) {
-            await this.handleError(`Tried to hold down Shift key and click on row by number: ${rowNumber}`, 'err_click_on_row_in_grid');
+            await this.handleError(`Tried to hold down Shift key and click on row by number: ${rowNumber}`, 'err_click_on_row_in_grid', err);
         }
     }
 
@@ -593,7 +595,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
             await this.clickOnElement(nameXpath);
         } catch (err) {
-            await this.handleError(`Tried click on row by displayName: ${displayName}`, 'err_find_content');
+            await this.handleError(`Tried click on row by displayName: ${displayName}`, 'err_find_content', err);
         }
     }
 
@@ -602,7 +604,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             let nameXpath = XPATH.contentsTreeListDiv + TREE_GRID.itemByName(name);
             await this.waitForElementDisplayed(nameXpath, appConst.longTimeout);
         } catch (err) {
-            await this.handleError(`Content was not found by name: ${name}`, 'err_find_content');
+            await this.handleError(`Content was not found by name: ${name}`, 'err_find_content', err);
         }
     }
 
@@ -611,7 +613,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             let treeItemXpath = TREE_GRID.TREE_LIST_DIV + TREE_GRID.itemByDisplayName(displayName);
             await this.waitForElementDisplayed(treeItemXpath);
         } catch (err) {
-            await this.handleError(`Content was not found by displayName: ${displayName}`, 'err_find_content');
+            await this.handleError(`Content was not found by displayName: ${displayName}`, 'err_find_content', err);
         }
     }
 
@@ -630,7 +632,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.clickOnCheckboxByDisplayName(displayName);
             return await this.pause(200);
         } catch (err) {
-            await this.handleError(`Row with the displayName ${displayName} was not checked`, 'err_check_item');
+            await this.handleError(`Row with the displayName ${displayName} was not checked`, 'err_check_item', err);
         }
     }
 

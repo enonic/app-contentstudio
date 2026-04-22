@@ -8,9 +8,13 @@ type Props = {
     disabled?: boolean;
 };
 
-export const ToolbarActionButton = ({action, disabled = false}: Props): ReactElement => {
-    const {label, enabled, execute} = useAction(action);
+export const ToolbarActionButton = ({action, disabled = false}: Props): ReactElement | null => {
+    const {label, enabled, visible, execute} = useAction(action);
     const isDisabled = disabled || !enabled;
+
+    if (!visible) {
+        return null;
+    }
 
     return (
         <Toolbar.Item asChild disabled={isDisabled}>
