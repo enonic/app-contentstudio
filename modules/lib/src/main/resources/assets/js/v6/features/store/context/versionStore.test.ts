@@ -10,7 +10,7 @@ import {
     $versionsByDate,
     $versionsDisplayMode,
     appendSyntheticCreateVersion,
-    ContentField,
+    VersionField,
     ContentOperation,
     getIconForOperation,
     getOperationLabel,
@@ -50,17 +50,17 @@ vi.mock('@enonic/lib-admin-ui/util/Messages', () => ({
     i18n: (key: string) => key,
 }));
 
-type PublishActionOptions = {
+type ActionOptions = {
     editorial?: string;
-    editorialExists?: boolean;
+    origin?: string;
 };
 
-function createAction(operation: string, fields: string[] = [], options: PublishActionOptions = {}): ContentVersionAction {
+function createAction(operation: string, fields: string[] = [], options: ActionOptions = {}): ContentVersionAction {
     return new ContentVersionActionBuilder()
         .setOperation(operation)
         .setFields(fields)
         .setEditorial(options.editorial)
-        .setEditorialExists(options.editorialExists)
+        .setOrigin(options.origin)
         .build();
 }
 
@@ -73,7 +73,7 @@ function createVersion(id: string, actions: ContentVersionAction[], timestamp?: 
 }
 
 function createPublishedVersion(id: string, publishedFrom: Date, publishedTo?: Date,
-                                publishOptions: PublishActionOptions = {}): ContentVersion {
+                                publishOptions: ActionOptions = {}): ContentVersion {
     const builder = new ContentVersionBuilder();
     builder.id = id;
     builder.actions = [createAction(ContentOperation.PUBLISH, [], publishOptions)];
@@ -128,19 +128,19 @@ describe('resolveVersionOperationType', () => {
     });
 
     it('resolves MOVE with name-only field as RENAME', () => {
-        const version = createVersion('v1', [createAction(ContentOperation.MOVE, [ContentField.NAME])]);
+        const version = createVersion('v1', [createAction(ContentOperation.MOVE, [VersionField.NAME])]);
         expect(resolveVersionOperationType(version)).toBe(VersionOperationType.RENAME);
     });
 
     it('resolves MOVE with multiple fields as MOVE', () => {
         const version = createVersion('v1', [
-            createAction(ContentOperation.MOVE, [ContentField.NAME, ContentField.PARENT_PATH]),
+            createAction(ContentOperation.MOVE, [VersionField.NAME, VersionField.PARENT_PATH]),
         ]);
         expect(resolveVersionOperationType(version)).toBe(VersionOperationType.MOVE);
     });
 
     it('resolves MOVE with parentPath-only as MOVE', () => {
-        const version = createVersion('v1', [createAction(ContentOperation.MOVE, [ContentField.PARENT_PATH])]);
+        const version = createVersion('v1', [createAction(ContentOperation.MOVE, [VersionField.PARENT_PATH])]);
         expect(resolveVersionOperationType(version)).toBe(VersionOperationType.MOVE);
     });
 
@@ -176,6 +176,40 @@ describe('resolveVersionOperationType', () => {
     it('returns undefined for unknown operations', () => {
         const version = createVersion('v1', [createAction('unknown.operation')]);
         expect(resolveVersionOperationType(version)).toBeUndefined();
+    });
+
+    it('resolves PATCH with editorial field as EDITORIAL_PATCH', () => {
+        const editorialFields = [
+            VersionField.DISPLAY_NAME,
+            VersionField.DATA,
+            VersionField.X,
+            VersionField.PAGE,
+            VersionField.NAME,
+            VersionField.PARENT_PATH,
+        ];
+        for (const field of editorialFields) {
+            const version = createVersion('v1', [createAction(ContentOperation.PATCH, [field])]);
+            expect(resolveVersionOperationType(version)).toBe(VersionOperationType.EDITORIAL_PATCH);
+        }
+    });
+
+    it('resolves PATCH with at least one editorial field among others as EDITORIAL_PATCH', () => {
+        const version = createVersion('v1', [
+            createAction(ContentOperation.PATCH, [VersionField.OWNER, VersionField.DATA]),
+        ]);
+        expect(resolveVersionOperationType(version)).toBe(VersionOperationType.EDITORIAL_PATCH);
+    });
+
+    it('resolves PATCH with only non-editorial fields as PATCH', () => {
+        const version = createVersion('v1', [
+            createAction(ContentOperation.PATCH, [VersionField.OWNER, VersionField.LANGUAGE]),
+        ]);
+        expect(resolveVersionOperationType(version)).toBe(VersionOperationType.PATCH);
+    });
+
+    it('resolves PATCH with no fields as PATCH', () => {
+        const version = createVersion('v1', [createAction(ContentOperation.PATCH)]);
+        expect(resolveVersionOperationType(version)).toBe(VersionOperationType.PATCH);
     });
 });
 
@@ -224,7 +258,7 @@ describe('isVersionComparable', () => {
     });
 
     it('returns true for RENAME', () => {
-        const version = createVersion('v1', [createAction(ContentOperation.MOVE, [ContentField.NAME])]);
+        const version = createVersion('v1', [createAction(ContentOperation.MOVE, [VersionField.NAME])]);
         expect(isVersionComparable(version)).toBe(true);
     });
 
@@ -280,6 +314,11 @@ describe('isStandardModeVersion', () => {
         builder.actions = [];
         expect(isStandardModeVersion(builder.build())).toBe(true);
     });
+
+    it('returns true for EDITORIAL_PATCH', () => {
+        const version = createVersion('v1', [createAction(ContentOperation.PATCH, [VersionField.DATA])]);
+        expect(isStandardModeVersion(version)).toBe(true);
+    });
 });
 
 // ============================================================================
@@ -301,7 +340,7 @@ describe('$versionsByDate', () => {
     });
 
     it('includes SORT with manualOrderValue in full mode', () => {
-        const sort = createVersion('v1', [createAction(ContentOperation.SORT, [ContentField.MANUAL_ORDER])], new Date('2024-01-15'));
+        const sort = createVersion('v1', [createAction(ContentOperation.SORT, [VersionField.MANUAL_ORDER])], new Date('2024-01-15'));
         const update = createVersion('v2', [createAction(ContentOperation.UPDATE)], new Date('2024-01-15'));
 
         $versions.set([update, sort]);
@@ -354,7 +393,7 @@ describe('getIconForOperation', () => {
     });
 
     it('returns CaseSensitive for RENAME', () => {
-        const version = createVersion('v1', [createAction(ContentOperation.MOVE, [ContentField.NAME])]);
+        const version = createVersion('v1', [createAction(ContentOperation.MOVE, [VersionField.NAME])]);
         expect(getIconForOperation(version)).toBe(CaseSensitive);
     });
 
@@ -404,13 +443,40 @@ describe('getOperationLabel', () => {
     });
 
     it('returns rename label for MOVE with name-only field', () => {
-        const version = createVersion('v1', [createAction(ContentOperation.MOVE, [ContentField.NAME])]);
+        const version = createVersion('v1', [createAction(ContentOperation.MOVE, [VersionField.NAME])]);
         expect(getOperationLabel(version)).toBe('operation.content.name');
     });
 
     it('returns unknown label for unrecognized operations', () => {
         const version = createVersion('v1', [createAction('unknown.operation')]);
         expect(getOperationLabel(version)).toBe('operation.content.unknown');
+    });
+
+    it('returns draft patch label for PATCH with draft origin', () => {
+        const version = createVersion('v1', [createAction(ContentOperation.PATCH, [], {origin: 'draft'})]);
+        expect(getOperationLabel(version)).toBe('operation.content.patch.draft');
+    });
+
+    it('returns master patch label for PATCH with master origin', () => {
+        const version = createVersion('v1', [createAction(ContentOperation.PATCH, [], {origin: 'master'})]);
+        expect(getOperationLabel(version)).toBe('operation.content.patch.master');
+    });
+
+    it('returns generic patch label for PATCH with no origin', () => {
+        const version = createVersion('v1', [createAction(ContentOperation.PATCH)]);
+        expect(getOperationLabel(version)).toBe('operation.content.patch');
+    });
+
+    it('returns draft patch label for EDITORIAL_PATCH with draft origin', () => {
+        const version = createVersion('v1',
+            [createAction(ContentOperation.PATCH, [VersionField.DATA], {origin: 'draft'})]);
+        expect(getOperationLabel(version)).toBe('operation.content.patch.draft');
+    });
+
+    it('returns master patch label for EDITORIAL_PATCH with master origin', () => {
+        const version = createVersion('v1',
+            [createAction(ContentOperation.PATCH, [VersionField.DATA], {origin: 'master'})]);
+        expect(getOperationLabel(version)).toBe('operation.content.patch.master');
     });
 
     it('returns create label for SYNTHETIC_CREATE', () => {
@@ -431,7 +497,6 @@ describe('publish badge', () => {
         const update = createVersion('v-update', [createAction(ContentOperation.UPDATE)]);
         const publish = createPublishedVersion('v-pub', new Date('2020-01-01'), undefined, {
             editorial: 'v-update',
-            editorialExists: true,
         });
 
         $versions.set([publish, update]);
@@ -441,31 +506,16 @@ describe('publish badge', () => {
         expect($activePublishStatus.get()).toBeUndefined();
     });
 
-    it('marks the editorial version when editorialExists is true', () => {
+    it('marks the editorial version when editorial is present', () => {
         const update = createVersion('v-update', [createAction(ContentOperation.UPDATE)], new Date('2024-01-14'));
         const publish = createPublishedVersion('v-pub', new Date('2020-01-01'), undefined, {
             editorial: 'v-update',
-            editorialExists: true,
         });
 
         $versions.set([publish, update]);
         $onlineVersionId.set('some-id');
 
         expect($activePublishVersionId.get()).toBe('v-update');
-        expect($activePublishStatus.get()).toBe(VersionPublishStatus.PUBLISHED);
-    });
-
-    it('marks the publish version itself when editorialExists is false', () => {
-        const update = createVersion('v-update', [createAction(ContentOperation.UPDATE)], new Date('2024-01-14'));
-        const publish = createPublishedVersion('v-pub', new Date('2020-01-01'), undefined, {
-            editorial: 'v-missing',
-            editorialExists: false,
-        });
-
-        $versions.set([publish, update]);
-        $onlineVersionId.set('some-id');
-
-        expect($activePublishVersionId.get()).toBe('v-pub');
         expect($activePublishStatus.get()).toBe(VersionPublishStatus.PUBLISHED);
     });
 
@@ -477,6 +527,7 @@ describe('publish badge', () => {
         $onlineVersionId.set('some-id');
 
         expect($activePublishVersionId.get()).toBe('v-pub');
+        expect($activePublishStatus.get()).toBe(VersionPublishStatus.PUBLISHED);
     });
 });
 
@@ -614,7 +665,7 @@ describe('VERSION_OPERATION_MATRIX', () => {
         const allTypes = Object.values(VersionOperationType);
         for (const type of allTypes) {
             const version = type === VersionOperationType.RENAME
-                ? createVersion('v1', [createAction(ContentOperation.MOVE, [ContentField.NAME])])
+                ? createVersion('v1', [createAction(ContentOperation.MOVE, [VersionField.NAME])])
                 : type === VersionOperationType.IMPORT
                     ? createVersion('v-import', [])
                     : type === VersionOperationType.SYNTHETIC_CREATE
@@ -627,7 +678,9 @@ describe('VERSION_OPERATION_MATRIX', () => {
                         })()
                         : type === VersionOperationType.LOCALIZE
                             ? null // stubbed, skip
-                            : createVersion('v1', [createAction(type)]);
+                            : type === VersionOperationType.EDITORIAL_PATCH
+                                ? createVersion('v1', [createAction(ContentOperation.PATCH, [VersionField.DATA])])
+                                : createVersion('v1', [createAction(type)]);
 
             if (!version) {
                 continue;
