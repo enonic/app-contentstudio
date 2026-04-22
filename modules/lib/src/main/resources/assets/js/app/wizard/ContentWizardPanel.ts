@@ -867,6 +867,7 @@ export class ContentWizardPanel
                 console.debug('ContentWizardPanel.doRenderOnDataLoaded continue at ' + new Date().toISOString());
             }
 
+            this.getContentWizardToolbar().setItem(this.getContent());
             this.appendChild(this.getContentWizardToolbarPublishControls().getMobilePublishControls());
 
             if (this.contentType?.hasDisplayNameExpression()) {
@@ -2157,11 +2158,9 @@ export class ContentWizardPanel
 
     private getXDataWizardSteps(): XDataWizardStep[] {
         return this.getSteps().filter(step => {
-            if (ObjectHelper.iFrameSafeInstanceOf(step, XDataWizardStep)) {
-                return true;
-            }
+            return ObjectHelper.iFrameSafeInstanceOf(step, XDataWizardStep);
 
-            return false;
+
         }) as XDataWizardStep[];
     }
 

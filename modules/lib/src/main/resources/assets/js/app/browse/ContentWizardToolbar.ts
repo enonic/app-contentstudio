@@ -21,6 +21,7 @@ import {subscribe as subscribeToCollaborators} from '../stores/collaboration';
 import {UrlHelper} from '../util/UrlHelper';
 import {type ContentWizardActions} from '../wizard/action/ContentWizardActions';
 import {ContentWizardToolbarPublishControls} from '../wizard/ContentWizardToolbarPublishControls';
+import {type PublishStatus, PublishStatusChecker} from '../publish/PublishStatus';
 import {
     $wizardToolbar,
     setWizardToolbarCanRenameContentPath,
@@ -35,6 +36,7 @@ import {
 } from '../../v6/features/store/wizardToolbar.store';
 import {$wizardDraftName} from '../../v6/features/store/wizardContent.store';
 import type {WizardToolbarCollaborator} from '../../v6/features/store/wizardToolbar.types';
+import {calcTreePublishStatus} from '../../v6/features/utils/cms/content/status';
 import {
     ContentWizardToolbarElement as V6ContentWizardToolbarElement
 } from '../../v6/features/views/browse/toolbar/ContentWizardToolbar';
@@ -166,12 +168,12 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
 
     setItem(item: ContentSummaryAndCompareStatus): void {
         this.item = item;
-        const publishStatus = item?.getPublishStatus() ?? $wizardToolbar.get().publishStatus ?? null;
+        const publishStatus = this.resolveToolbarPublishStatus(item);
         const contentPath = this.resolveToolbarContentPath(item);
         setWizardToolbarPublishStatus(publishStatus);
         setWizardToolbarContentPath(contentPath);
         setWizardToolbarCanRenameContentPath(!!item?.getPath());
-        setWizardToolbarIsContentOnline(!!item?.isOnline());
+        setWizardToolbarIsContentOnline(publishStatus != null && PublishStatusChecker.isOnline(publishStatus));
         this.contentWizardToolbarPublishControls.setContent(item);
 
         if (this.isCollaborationEnabled()) {
@@ -266,6 +268,20 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
 
             return 0;
         });
+    }
+
+    private resolveToolbarPublishStatus(item: ContentSummaryAndCompareStatus): PublishStatus | null {
+        const publishStatus = item?.getPublishStatus();
+        if (publishStatus != null) {
+            return publishStatus;
+        }
+
+        const summary = item?.getContentSummary();
+        if (summary != null) {
+            return calcTreePublishStatus(summary);
+        }
+
+        return $wizardToolbar.get().publishStatus ?? null;
     }
 
     private resolveToolbarContentPath(item: ContentSummaryAndCompareStatus): string {
