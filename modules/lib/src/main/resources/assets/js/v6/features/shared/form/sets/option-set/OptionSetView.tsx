@@ -8,7 +8,7 @@ import {
 } from '@enonic/lib-admin-ui/form2';
 import {useI18n} from '../../../../hooks/useI18n';
 import {SortableList} from '@enonic/lib-admin-ui/form2/components/sortable-list';
-import {type ReactElement, useCallback, useRef, useState} from 'react';
+import {type ReactElement, useCallback, useMemo, useRef, useState} from 'react';
 import {OptionSetOccurrenceBody} from './occurrence-body';
 import {OptionSetOccurrenceView} from './OptionSetOccurrenceView';
 import {seedOptionSetDefaults} from './seedOptionSetDefaults';
@@ -33,16 +33,16 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
     const helpText = optionSet.getHelpText();
     const occurrences = optionSet.getOccurrences();
 
-    const [confirmingAdd, setConfirmingAdd] = useState(false);
     const anchorRef = useRef<HTMLDivElement>(null);
     const confirmationRef = useRef<HTMLDivElement>(null);
+    const [confirmingAdd, setConfirmingAdd] = useState(false);
     const confirmationPosition = useConfirmPosition({
         enabled: confirmingAdd,
         anchorRef,
         confirmationRef,
     });
 
-    const formItems = optionSet.getFormItems();
+    const formItems = useMemo(() => optionSet.getFormItems(), [optionSet]);
 
     const {enabled} = useFormRender();
     const validationVisibility = useValidationVisibility();
@@ -69,8 +69,9 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
 
     const isRadio = optionSet.isRadioSelection();
     const handleAdd = useCallback(() => {
+        if (!state.canAdd) return;
+
         if (!isRadio) {
-            if (!state.canAdd) return;
             const newSet = propertyArray.addSet();
             seedDefaults(newSet);
             return;
@@ -138,6 +139,7 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
         },
         [move, propertyArray]
     );
+
     return (
         <div className="flex flex-col gap-3" data-component={OPTION_SET_VIEW_NAME}>
             {confirmingAdd && <SetConfirmOverlay />}

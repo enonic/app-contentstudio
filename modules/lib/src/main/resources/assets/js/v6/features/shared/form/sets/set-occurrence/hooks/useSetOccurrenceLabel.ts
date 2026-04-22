@@ -7,7 +7,7 @@ import type {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import type {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {useEffect, useState} from 'react';
-import {instanceOf} from '../../../../utils/object/instanceOf';
+import {instanceOf} from '../../../../../utils/object/instanceOf';
 
 const ALLOWED_VALUE_TYPES: ValueType[] = [
     ValueTypes.STRING,
@@ -73,11 +73,15 @@ function sanitizeValue(value: string): string {
         .trim();
 }
 
+function isStringRecord(value: unknown): value is Record<string, string> {
+    if (value == null || typeof value !== 'object') return false;
+    return Object.values(value).every((v) => typeof v === 'string');
+}
+
 function getRadioButtonLabel(input: Input, selectedValue: string): string {
-    const options = input.getInputTypeConfig()?.['option'] as Record<string, string>[] | undefined;
-    if (!options) {
-        return '';
-    }
+    const raw: unknown = input.getInputTypeConfig()?.['option'];
+    if (!Array.isArray(raw)) return '';
+    const options = raw.filter(isStringRecord);
     const selected = options.find((opt) => opt['@value'] === selectedValue);
     return selected?.['value'] ?? '';
 }

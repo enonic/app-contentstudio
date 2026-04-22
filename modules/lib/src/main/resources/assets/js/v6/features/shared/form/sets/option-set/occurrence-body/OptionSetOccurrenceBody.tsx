@@ -23,7 +23,7 @@ export const OptionSetOccurrenceBody = ({
 }: OptionSetOccurrenceBodyProps): ReactElement => {
     const visibility = useValidationVisibility();
     const [interacted, setInteracted] = useState(false);
-    const {selectedNames, toggle} = useOptionSetSelection(optionSet, occurrencePropertySet);
+    const {selectedNames, select, toggle} = useOptionSetSelection(optionSet, occurrencePropertySet);
     const showErrors = visibility === 'all' || (visibility === 'interactive' && interacted);
     const error = useOptionSetMultiselectionError(optionSet, showErrors, selectedNames);
 
@@ -46,6 +46,8 @@ export const OptionSetOccurrenceBody = ({
                         enabled={enabled}
                         optionSet={optionSet}
                         occurrencePropertySet={occurrencePropertySet}
+                        selectedNames={selectedNames}
+                        onSelect={select}
                         error={error}
                     />
                 </div>
@@ -54,7 +56,11 @@ export const OptionSetOccurrenceBody = ({
 
         return (
             <div data-component={OPTION_SET_OCCURRENCE_BODY_NAME}>
-                <RadioSelectedOptionBody optionSet={optionSet} occurrencePropertySet={occurrencePropertySet} />
+                <RadioSelectedOptionBody
+                    optionSet={optionSet}
+                    occurrencePropertySet={occurrencePropertySet}
+                    selectedNames={selectedNames}
+                />
             </div>
         );
     }
@@ -65,6 +71,7 @@ export const OptionSetOccurrenceBody = ({
                 enabled={enabled}
                 optionSet={optionSet}
                 occurrencePropertySet={occurrencePropertySet}
+                selectedNames={selectedNames}
                 onToggle={handleToggle}
                 error={error}
             />
