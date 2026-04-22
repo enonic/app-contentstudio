@@ -1,4 +1,4 @@
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 type MockProject = {
     getName(): string;
@@ -113,7 +113,7 @@ async function flushPromises(times: number = 5): Promise<void> {
     }
 }
 
-async function loadStore(projects: MockProject[], currentProjectId: string) {
+async function loadStore(projects: MockProject[], currentProjectId: string): Promise<typeof import('./projects.store')> {
     vi.resetModules();
     deletedHandlers.length = 0;
     mockProjectListSendAndParse.mockReset().mockResolvedValue(projects);
@@ -136,6 +136,10 @@ describe('projects.store delete intent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         deletedHandlers.length = 0;
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
     });
 
     it('reports whether a project is active', async () => {
@@ -202,6 +206,20 @@ describe('projects.store delete intent', () => {
         expect(store.$projects.get().projects.map((project) => project.getName())).toEqual(['parent', 'current']);
         expect(mockSetProjectSelectionDialogOpen).not.toHaveBeenCalled();
         expect(mockProjectContextSetProject).not.toHaveBeenCalled();
+        expect(mockProjectContextSetNotAvailable).not.toHaveBeenCalled();
+    });
+
+    it('should fall back to navigation when the active project is deleted without explicit intent', async () => {
+        const parent = createProject('parent');
+        const child = createProject('child', ['parent']);
+        const current = createProject('current');
+        const store = await loadStore([parent, child, current], 'current');
+
+        emitDeleted('current');
+
+        expect(store.$projects.get().activeProjectId).toBe('parent');
+        expect(mockSetProjectSelectionDialogOpen).toHaveBeenCalledWith(false);
+        expect(mockProjectContextSetProject).toHaveBeenCalledWith(parent);
         expect(mockProjectContextSetNotAvailable).not.toHaveBeenCalled();
     });
 });

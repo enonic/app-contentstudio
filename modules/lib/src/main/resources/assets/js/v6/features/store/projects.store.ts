@@ -144,11 +144,7 @@ function updateActiveProject(): void {
     }
 
     clearActiveProject();
-
-    if (projects.length === 0) {
-        ProjectContext.get().setNotAvailable();
-    }
-
+    ProjectContext.get().setNotAvailable();
     setProjectSelectionDialogOpen(true);
 }
 
@@ -225,6 +221,8 @@ function consumePendingDeletedProject(projectName: string): boolean | undefined 
 }
 
 function resolveDeleteNavigation(projectName: string): boolean {
+    // ? Explicit intent from markPendingDeletedProject wins; otherwise default to
+    // ? navigating when the deleted project is currently active (covers cross-tab deletes).
     return consumePendingDeletedProject(projectName) ?? isActiveProject(projectName);
 }
 
