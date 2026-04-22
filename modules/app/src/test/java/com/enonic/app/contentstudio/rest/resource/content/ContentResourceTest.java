@@ -199,6 +199,7 @@ import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -2076,7 +2077,6 @@ public class ContentResourceTest
 
         final ActionJson publishAction = findPublishAction( result, publishVersionId );
         assertEquals( editorialVersionId.toString(), publishAction.editorial() );
-        assertTrue( publishAction.editorialExists() );
         verify( contentService, never() ).getByIdAndVersionId( eq( contentId ), eq( editorialVersionId ) );
     }
 
@@ -2100,7 +2100,7 @@ public class ContentResourceTest
             contentResource.getContentVersions( new GetContentVersionsJson( 10, null, contentId.toString() ) );
 
         final ActionJson publishAction = findPublishAction( result, publishVersionId );
-        assertTrue( publishAction.editorialExists() );
+        assertEquals( editorialVersionId.toString(), publishAction.editorial() );
         verify( contentService ).getByIdAndVersionId( contentId, editorialVersionId );
     }
 
@@ -2124,12 +2124,11 @@ public class ContentResourceTest
             contentResource.getContentVersions( new GetContentVersionsJson( 10, null, contentId.toString() ) );
 
         final ActionJson publishAction = findPublishAction( result, publishVersionId );
-        assertEquals( editorialVersionId.toString(), publishAction.editorial() );
-        assertFalse( publishAction.editorialExists() );
+        assertNull( publishAction.editorial() );
     }
 
     @Test
-    public void getContentVersions_editorialExists_false_when_action_has_no_editorial()
+    public void getContentVersions_editorial_null_when_action_has_no_editorial()
     {
         final ContentResource contentResource = getResourceInstance();
 
@@ -2149,10 +2148,37 @@ public class ContentResourceTest
         {
             for ( final ActionJson action : version.getActions() )
             {
-                assertFalse( action.editorialExists() );
+                assertNull( action.editorial() );
             }
         }
         verify( contentService, times( 1 ) ).getByIdAndVersionId( eq( contentId ), any( ContentVersionId.class ) );
+    }
+
+    @Test
+    public void getContentVersions_origin_is_returned()
+    {
+        final ContentResource contentResource = getResourceInstance();
+
+        final ContentId contentId = ContentId.from( "content-id" );
+        final ContentVersionId publishVersionId = ContentVersionId.from( "v-publish" );
+
+        final ContentVersion publishVersion = ContentVersion.create()
+            .contentId( contentId )
+            .versionId( publishVersionId )
+            .path( ContentPath.from( "/content-path" ) )
+            .timestamp( fixedTime )
+            .addAction( new ContentVersion.Action( "content.publish", List.of(), "draft", null,
+                                                   PrincipalKey.from( "user:system:admin" ), fixedTime ) )
+            .build();
+
+        mockGetVersions( contentId, publishVersion );
+        stubPublishContent( contentId, publishVersionId );
+
+        final GetContentVersionsResultJson result =
+            contentResource.getContentVersions( new GetContentVersionsJson( 10, null, contentId.toString() ) );
+
+        final ActionJson publishAction = findPublishAction( result, publishVersionId );
+        assertEquals( "draft", publishAction.origin() );
     }
 
     private ContentVersion buildPublishVersion( final ContentId contentId, final ContentVersionId versionId,

@@ -59,11 +59,11 @@ const CONTENT_OPERATION_SET = new Set<string>(Object.values(ContentOperation));
 export const isContentOperation = (value: string): value is ContentOperation =>
     CONTENT_OPERATION_SET.has(value);
 
-export const ContentField = {
+export const VersionField = {
     DISPLAY_NAME: 'displayName',
     DATA: 'data',
     X: 'x',
-    PAGE: 'page',
+    PAGE: 'components',
     OWNER: 'owner',
     LANGUAGE: 'language',
     PUBLISH: 'publish',
@@ -73,6 +73,7 @@ export const ContentField = {
     NAME: 'name',
     PARENT_PATH: 'parentPath',
     MANUAL_ORDER: 'manualOrderValue',
+    INHERIT: 'inherit',
 } as const;
 
 export const VersionOperationType = {
@@ -81,7 +82,17 @@ export const VersionOperationType = {
     IMPORT: 'content.import',
     LOCALIZE: 'content.localize',
     SYNTHETIC_CREATE: 'content.syntheticCreate',
+    EDITORIAL_PATCH: 'content.editorialPatch',
 } as const;
+
+const EDITORIAL_PATCH_FIELDS: readonly string[] = [
+    VersionField.DISPLAY_NAME,
+    VersionField.DATA,
+    VersionField.X,
+    VersionField.PAGE,
+    VersionField.NAME,
+    VersionField.PARENT_PATH,
+];
 
 export type VersionOperationType = typeof VersionOperationType[keyof typeof VersionOperationType];
 
@@ -175,6 +186,14 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         icon: SquarePen,
         labelKey: 'operation.content.patch'
     },
+    [VersionOperationType.EDITORIAL_PATCH]: {
+        standardMode: true,
+        fullMode: true,
+        restorable: false,
+        comparable: false,
+        icon: SquarePen,
+        labelKey: 'operation.content.patch'
+    },
     [VersionOperationType.ARCHIVE]: {
         standardMode: false,
         fullMode: true,
@@ -224,7 +243,7 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         labelKey: 'operation.content.import'
     },
     [VersionOperationType.LOCALIZE]: {
-        standardMode: true,
+        standardMode: false,
         fullMode: true,
         restorable: true,
         comparable: true,
@@ -316,10 +335,8 @@ const findUnpublishDate = (versions: ContentVersion[], publishIndex: number): Da
 };
 
 const resolveBadgeTargetId = (publishVersion: ContentVersion): string => {
-    const publishAction = getPublishAction(publishVersion);
-    const editorialId = publishAction?.getEditorial();
-    const editorialExists = publishAction?.getEditorialExists();
-    return editorialId && editorialExists ? editorialId : publishVersion.getId();
+    const editorialId = getPublishAction(publishVersion)?.getEditorial();
+    return editorialId ?? publishVersion.getId();
 };
 
 const $allPublishBadges = computed($versions, (versions): PublishBadge[] => {
@@ -389,14 +406,6 @@ const SYNTHETIC_VERSION_ID = '__synthetic_create__';
 const isSyntheticVersion = (version: ContentVersion): boolean =>
     version.getId() === SYNTHETIC_VERSION_ID;
 
-const isFirstVersion = (version: ContentVersion): boolean => {
-    if (!$allVersionsLoaded.get()) {
-        return false;
-    }
-    const versions = $versions.get();
-    return versions.length > 0 && versions[versions.length - 1] === version;
-};
-
 export const resolveVersionOperationType = (version: ContentVersion): VersionOperationType | undefined => {
     if (isSyntheticVersion(version)) {
         return VersionOperationType.SYNTHETIC_CREATE;
@@ -412,8 +421,22 @@ export const resolveVersionOperationType = (version: ContentVersion): VersionOpe
 
     if (operation === ContentOperation.MOVE) {
         const fields = action.getFields();
-        if (fields.length === 1 && fields[0] === ContentField.NAME) {
+        if (fields.length === 1 && fields[0] === VersionField.NAME) {
             return VersionOperationType.RENAME;
+        }
+    }
+
+    if (operation === ContentOperation.METADATA) {
+        const fields = action.getFields();
+        if (fields.some(f => f === VersionField.INHERIT)) {
+            return VersionOperationType.LOCALIZE;
+        }
+    }
+
+    if (operation === ContentOperation.PATCH) {
+        const fields = action.getFields();
+        if (fields.some(f => EDITORIAL_PATCH_FIELDS.includes(f))) {
+            return VersionOperationType.EDITORIAL_PATCH;
         }
     }
 
@@ -521,9 +544,21 @@ export const getOperationLabel = (version: ContentVersion): string => {
         return i18n('operation.content.unknown');
     }
 
-    if (resolveVersionOperationType(version) === VersionOperationType.PUBLISH
-        && getVersionPublishStatus(version) === VersionPublishStatus.SCHEDULED) {
+    const type = resolveVersionOperationType(version);
+
+    if (type === VersionOperationType.PUBLISH && getVersionPublishStatus(version) === VersionPublishStatus.SCHEDULED) {
         return i18n('operation.content.scheduled');
+    }
+
+    if (type === VersionOperationType.PATCH || type === VersionOperationType.EDITORIAL_PATCH) {
+        const origin = getFirstAction(version)?.getOrigin();
+
+        if (origin === 'draft') {
+            return i18n('operation.content.patch.draft');
+        }
+        if (origin === 'master') {
+            return i18n('operation.content.patch.master');
+        }
     }
 
     return i18n(config.labelKey);

@@ -1,8 +1,8 @@
 export interface ContentVersionActionJson {
     operation: string;
     fields: string[];
+    origin: string | null;
     editorial: string | null;
-    editorialExists: boolean;
     user: string;
     userDisplayName: string;
     opTime: string;

@@ -43,27 +43,28 @@ public class ContentVersionJson
 
         this.changes = version.actions()
             .stream()
-            .map( c -> new ActionJson( c.operation(), c.fields(), c.editorial() != null ? c.editorial().toString() : null,
-                                       resolveEditorialExists( version, c, batchVersionIds, contentPublishInfoResolver ),
-                                       c.user().toString(), resolveUserDisplayName( c.user(), principalsResolver ), c.opTime() ) )
+            .map( c -> new ActionJson( c.operation(), c.fields(), c.origin(),
+                                       resolveEditorial( version, c, batchVersionIds, contentPublishInfoResolver ), c.user().toString(),
+                                       resolveUserDisplayName( c.user(), principalsResolver ), c.opTime() ) )
             .toList();
     }
 
-    private boolean resolveEditorialExists( final ContentVersion version, final ContentVersion.Action action,
-                                            final Set<ContentVersionId> batchVersionIds,
-                                            final ContentPublishInfoResolver contentPublishInfoResolver )
+    private String resolveEditorial( final ContentVersion version, final ContentVersion.Action action,
+                                     final Set<ContentVersionId> batchVersionIds,
+                                     final ContentPublishInfoResolver contentPublishInfoResolver )
     {
         if ( !ContentVersionHelper.PUBLISH_KEY.equals( action.operation() ) || action.editorial() == null )
         {
-            return false;
+            return null;
         }
 
-        if ( batchVersionIds.contains( action.editorial() ) )
+        if ( batchVersionIds.contains( action.editorial() ) ||
+            contentPublishInfoResolver.versionExists( version.contentId(), action.editorial() ) )
         {
-            return true;
+            return action.editorial().toString();
         }
 
-        return contentPublishInfoResolver.versionExists( version.contentId(), action.editorial() );
+        return null;
     }
 
     private String resolveUserDisplayName( final PrincipalKey key, final ContentPrincipalsResolver principalsResolver )
