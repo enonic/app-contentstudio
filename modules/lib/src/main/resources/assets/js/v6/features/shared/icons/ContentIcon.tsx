@@ -41,13 +41,13 @@ type Props = {
 
 type BuiltInIconProps = Pick<Props, 'contentType'> & React.ComponentProps<LucideIcon>;
 
-const IMAGE_TYPES = new Set<string>([
+const IMAGE_CONTENT_TYPES = new Set<string>([
     String(ContentTypeName.IMAGE),
     String(ContentTypeName.MEDIA_IMAGE),
     String(ContentTypeName.MEDIA_VECTOR),
 ]);
 
-const CONTENT_TYPE_ICON_MAP = new Map<string, LucideIcon>([
+const BUILT_IN_CONTENT_TYPE_ICON_MAP = new Map<string, LucideIcon>([
     [String(ContentTypeName.FOLDER), FolderOpen],
     [String(ContentTypeName.FRAGMENT), FileChartPie],
     [String(ContentTypeName.IMAGE), FileImage],
@@ -73,7 +73,7 @@ const CONTENT_TYPE_ICON_MAP = new Map<string, LucideIcon>([
 ]);
 
 const BuiltInIcon = ({contentType, ...props}: BuiltInIconProps): React.ReactElement => {
-    const Icon = CONTENT_TYPE_ICON_MAP.get(contentType) ?? FileIcon;
+    const Icon = BUILT_IN_CONTENT_TYPE_ICON_MAP.get(contentType) ?? FileIcon;
     return <Icon {...props} />;
 };
 
@@ -86,8 +86,8 @@ export const ContentIcon = ({className, contentType, url, imageSize = 64, crop}:
         setImageBroken(false);
     }, [src]);
 
-    const isImageType = IMAGE_TYPES.has(contentType);
-    const isUnknownType = !CONTENT_TYPE_ICON_MAP.has(contentType);
+    const isImageType = IMAGE_CONTENT_TYPES.has(contentType);
+    const isUnknownType = !BUILT_IN_CONTENT_TYPE_ICON_MAP.has(contentType);
 
     const canShowImage = (isImageType || isUnknownType) && !isImageBroken;
 
@@ -96,8 +96,8 @@ export const ContentIcon = ({className, contentType, url, imageSize = 64, crop}:
         return (
             <Image
                 className={cn(
-                    'w-6 h-6 dark:invert-100 dark:brightness-75 dark:contrast-125 p-0.25',
-                    isImageType ? 'object-cover' : 'object-contain',
+                    'w-6 h-6 p-0.25',
+                    isImageType ? 'object-cover' : 'object-contain dark:invert-100 dark:brightness-75 dark:contrast-125',
                     className
                 )}
                 alt={contentType}
