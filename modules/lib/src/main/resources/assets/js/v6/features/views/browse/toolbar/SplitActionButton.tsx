@@ -1,8 +1,9 @@
 import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Button, cn, IconButton, Menu, Toolbar, Tooltip} from '@enonic/ui';
 import {ChevronDown} from 'lucide-react';
-import {type ReactElement, useEffect, useMemo, useState} from 'react';
+import {type ReactElement, useMemo} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
+import {useObservedActions} from './useObservedActions';
 
 export type SplitActionButtonAction = {
     action: Action;
@@ -13,57 +14,69 @@ type Props = {
     className?: string;
     triggerClassName?: string;
     disabled?: boolean;
+    /**
+     * Which action becomes the primary button.
+     * - `firstEnabled`: the first enabled visible action (default).
+     * - `firstVisible`: the first visible action regardless of enabled state,
+     *   so ordering stays stable as actions toggle enabled/disabled.
+     */
+    primaryActionStrategy?: 'firstEnabled' | 'firstVisible';
+    /**
+     * When true (default), the dropdown trigger is disabled if every menu
+     * action is disabled. Set to false to keep the trigger interactive even
+     * when all menu actions are disabled (e.g. to let users still open the
+     * menu and see the available actions).
+     */
+    disableMenuWhenAllMenuActionsDisabled?: boolean;
 };
 
 type ActionState = {
     action: Action;
     label: string;
     enabled: boolean;
+    visible: boolean;
 };
 
 const getActionState = (action: Action): ActionState => ({
     action,
     label: action.getLabel(),
     enabled: action.isEnabled(),
+    visible: action.isVisible(),
 });
 
 // TODO: Enonic UI - Move to @enonic/ui
 /**
  * A split button component with a primary action button and a dropdown menu.
  *
- * - The main button executes the first enabled action immediately when clicked
+ * - The main button executes the selected primary action immediately when clicked
  * - The dropdown chevron button opens a menu with all other actions
  * - The buttons are visually joined together as a single unit
  */
-export const SplitActionButton = ({actions, className, triggerClassName, disabled = false}: Props): ReactElement | null => {
+export const SplitActionButton = ({
+    actions,
+    className,
+    triggerClassName,
+    disabled = false,
+    primaryActionStrategy = 'firstEnabled',
+    disableMenuWhenAllMenuActionsDisabled = true,
+}: Props): ReactElement | null => {
     const moreLabel = useI18n('tooltip.moreActions');
-    const [renderVersion, setRenderVersion] = useState(0);
-
-    useEffect(() => {
-        const listener = () => setRenderVersion((value: number) => value + 1);
-        const subscriptions = actions.map(({action}) => {
-            action.onPropertyChanged(listener);
-            return {action, listener};
-        });
-
-        // Re-read action states to catch changes that occurred before listeners were registered
-        listener();
-
-        return () => {
-            subscriptions.forEach(({action, listener}) => action.unPropertyChanged(listener));
-        };
-    }, [actions]);
+    const observedActions = useMemo(() => actions.map(({action}) => action), [actions]);
+    const renderVersion = useObservedActions(observedActions);
 
     const actionStates = useMemo(
-        () => actions.map(({action}) => getActionState(action)),
+        () => actions.map(({action}) => getActionState(action)).filter(({visible}) => visible),
         [actions, renderVersion]
     );
 
-    // Determine primary action index (first enabled action)
     const primaryIndex = useMemo(() => {
+        if (primaryActionStrategy === 'firstVisible') {
+            return 0;
+        }
+
         const firstEnabledIndex = actionStates.findIndex((state) => state.enabled);
         return firstEnabledIndex !== -1 ? firstEnabledIndex : 0;
-    }, [actionStates]);
+    }, [actionStates, primaryActionStrategy]);
 
     const primaryState = actionStates[primaryIndex];
     const menuStates = useMemo(
@@ -72,13 +85,16 @@ export const SplitActionButton = ({actions, className, triggerClassName, disable
     );
 
     const hasMenuActions = menuStates.length > 0;
+    const areAllMenuActionsDisabled = menuStates.every(({enabled}) => !enabled);
 
     if (!primaryState || actions.length === 0) {
         return null;
     }
 
     const isPrimaryDisabled = disabled || !primaryState.enabled;
-    const isDropdownDisabled = disabled || !hasMenuActions;
+    const isDropdownDisabled = disabled
+        || !hasMenuActions
+        || (disableMenuWhenAllMenuActionsDisabled && areAllMenuActionsDisabled);
 
     return (
         <div className={cn('flex items-stretch min-w-fit', className)}>

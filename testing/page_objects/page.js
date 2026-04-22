@@ -745,13 +745,15 @@ class Page {
 
     // Utility method for error handling
     async handleError(errorMessage, screenshotName, error) {
+        const wrappedMessage = `${errorMessage}: ${error?.message ?? 'Unknown error'} `;
+
         if (Error.prototype.hasOwnProperty('cause')) {
-            throw new Error(`${errorMessage}: ${error.message}  [screenshot]: ${screenshotName} `, {cause: error});
+            throw new Error(`${wrappedMessage}[screenshot]: ${screenshotName}`, {cause: error});
         }
-        const wrapped = new Error(`${errorMessage}: ${error.message} `);
+        const wrapped = new Error(wrappedMessage);
         wrapped.cause = error;
-        wrapped.screenshotTaken = error.screenshotTaken;
-        wrapped.screenshotName = error.screenshotName;
+        wrapped.screenshotTaken = error?.screenshotTaken;
+        wrapped.screenshotName = error?.screenshotName;
 
         if (!wrapped.screenshotTaken) {
             wrapped.screenshotName = screenshotName
