@@ -52,6 +52,7 @@ dependencies {
     include libs.lib.mustache
     include libs.lib.http.client
     include libs.lib.text.encoding
+    include libs.lib.router
 
     include project( ':lib-contentstudio' )
     devResources project( path: ':lib-contentstudio', configuration: 'devResources' )
