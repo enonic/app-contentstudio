@@ -19,7 +19,56 @@ function ensureSelectedArray(occurrencePropertySet: PropertySet): PropertyArray 
         .build();
     occurrencePropertySet.addPropertyArray(created);
 
-    return occurrencePropertySet.getPropertyArray(SELECTED_NAME) ?? created;
+    return created;
+}
+
+function ensureOptionDataSet(occurrencePropertySet: PropertySet, name: string): void {
+    let optionArray = occurrencePropertySet.getPropertyArray(name);
+    if (optionArray == null) {
+        optionArray = PropertyArray.create().setName(name).setType(ValueTypes.DATA).setParent(occurrencePropertySet).build();
+        occurrencePropertySet.addPropertyArray(optionArray);
+    }
+    if (optionArray.getSize() === 0) {
+        optionArray.addSet();
+    }
+}
+
+function readSelectedNames(selectedArray: PropertyArray, schemaOptionNames: string[]): string[] {
+    const out: string[] = [];
+    const size = selectedArray.getSize();
+    for (let i = 0; i < size; i++) {
+        const name = selectedArray.get(i)?.getValue().getString();
+        if (name != null && schemaOptionNames.includes(name)) out.push(name);
+    }
+    return out;
+}
+
+function writeRadioSelection(selectedArray: PropertyArray, name: string): void {
+    const value = new Value(name, ValueTypes.STRING);
+    const existing = selectedArray.get(0);
+    if (existing != null) {
+        existing.setValue(value);
+    } else {
+        selectedArray.add(value);
+    }
+}
+
+/**
+ * Appends `name` to the selected array and moves it into its alphabetical slot
+ * so the backing order stays deterministic. Cheaper than rewriting the whole
+ * array because it fires at most one add + one move instead of 2N events.
+ */
+function insertMultiSelection(selectedArray: PropertyArray, name: string, current: string[]): void {
+    if (current.includes(name)) return;
+
+    const nextSorted = [...current, name].sort();
+    const targetIndex = nextSorted.indexOf(name);
+
+    selectedArray.add(new Value(name, ValueTypes.STRING));
+    const appendedIndex = selectedArray.getSize() - 1;
+    if (appendedIndex !== targetIndex) {
+        selectedArray.move(appendedIndex, targetIndex);
+    }
 }
 
 type UseOptionSetSelectionResult = {
@@ -50,46 +99,22 @@ export function useOptionSetSelection(optionSet: FormOptionSet, occurrenceProper
 
     const isSelected = useCallback((name: string) => selectedNames.includes(name), [selectedNames]);
 
-    const ensureOptionPropertySet = useCallback(
-        (name: string) => {
-            let optionArray = occurrencePropertySet.getPropertyArray(name);
-            if (optionArray == null) {
-                optionArray = PropertyArray.create().setName(name).setType(ValueTypes.DATA).setParent(occurrencePropertySet).build();
-                occurrencePropertySet.addPropertyArray(optionArray);
-            }
-            if (optionArray.getSize() === 0) {
-                optionArray.addSet();
-            }
-        },
+    const ensureOption = useCallback(
+        (name: string) => ensureOptionDataSet(occurrencePropertySet, name),
         [occurrencePropertySet]
     );
 
     const select = useCallback(
         (name: string) => {
-            ensureOptionPropertySet(name);
+            ensureOption(name);
 
             if (isRadio) {
-                const value = new Value(name, ValueTypes.STRING);
-                const existing = selectedArray.get(0);
-                if (existing != null) {
-                    existing.setValue(value);
-                } else {
-                    selectedArray.add(value);
-                }
+                writeRadioSelection(selectedArray, name);
             } else {
-                const alreadySelected = selectedNames.includes(name);
-                if (!alreadySelected) {
-                    const allNames = [...selectedNames, name].sort();
-                    while (selectedArray.getSize() > 0) {
-                        selectedArray.remove(selectedArray.getSize() - 1);
-                    }
-                    for (const n of allNames) {
-                        selectedArray.add(new Value(n, ValueTypes.STRING));
-                    }
-                }
+                insertMultiSelection(selectedArray, name, selectedNames);
             }
         },
-        [isRadio, selectedArray, selectedNames, ensureOptionPropertySet]
+        [isRadio, selectedArray, selectedNames, ensureOption]
     );
 
     const deselect = useCallback(
@@ -123,49 +148,13 @@ export function selectOptionInPropertySet(occurrencePropertySet: PropertySet, op
     ensureOptionDataSet(occurrencePropertySet, name);
 
     const selectedArray = ensureSelectedArray(occurrencePropertySet);
-    const isRadio = optionSet.isRadioSelection();
 
-    if (isRadio) {
-        const value = new Value(name, ValueTypes.STRING);
-        const existing = selectedArray.get(0);
-        if (existing != null) {
-            existing.setValue(value);
-        } else {
-            selectedArray.add(value);
-        }
+    if (optionSet.isRadioSelection()) {
+        writeRadioSelection(selectedArray, name);
         return;
     }
 
     const schemaOptionNames = optionSet.getOptions().map((o) => o.getName());
     const current = readSelectedNames(selectedArray, schemaOptionNames);
-    if (current.includes(name)) return;
-
-    const allNames = [...current, name].sort();
-    while (selectedArray.getSize() > 0) {
-        selectedArray.remove(selectedArray.getSize() - 1);
-    }
-    for (const n of allNames) {
-        selectedArray.add(new Value(n, ValueTypes.STRING));
-    }
-}
-
-function ensureOptionDataSet(occurrencePropertySet: PropertySet, name: string): void {
-    let optionArray = occurrencePropertySet.getPropertyArray(name);
-    if (optionArray == null) {
-        optionArray = PropertyArray.create().setName(name).setType(ValueTypes.DATA).setParent(occurrencePropertySet).build();
-        occurrencePropertySet.addPropertyArray(optionArray);
-    }
-    if (optionArray.getSize() === 0) {
-        optionArray.addSet();
-    }
-}
-
-function readSelectedNames(selectedArray: PropertyArray, schemaOptionNames: string[]): string[] {
-    const out: string[] = [];
-    const size = selectedArray.getSize();
-    for (let i = 0; i < size; i++) {
-        const name = selectedArray.get(i)?.getValue().getString();
-        if (name != null && schemaOptionNames.includes(name)) out.push(name);
-    }
-    return out;
+    insertMultiSelection(selectedArray, name, current);
 }

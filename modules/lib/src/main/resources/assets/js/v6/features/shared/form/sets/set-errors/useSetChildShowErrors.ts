@@ -52,11 +52,19 @@ export function useSetChildShowErrors(propertyArray: PropertyArray, propertySets
         };
 
         const valueChangedHandler = (event: PropertyValueChangedEvent) => {
-            const ps = event.getProperty().getParent();
+            // Walk up the parent chain to find the occurrence-level PropertySet.
+            // Edits inside nested option-set data live multiple levels below
+            // the occurrence PS, so a single-level lookup would miss them.
+            let ps: PropertySet | null = event.getProperty().getParent();
+            while (ps != null) {
+                const container = ps.getProperty();
+                if (container == null) return;
+                if (container.getName() === propertyArray.getName() && container.getParent() === propertyArray.getParent()) {
+                    break;
+                }
+                ps = container.getParent();
+            }
             if (ps == null) return;
-            const container = ps.getProperty();
-            if (container == null) return;
-            if (container.getName() !== propertyArray.getName() || container.getParent() !== propertyArray.getParent()) return;
             const current = getOrInit(ps, validationVisibility);
             const nextVisibility: ValidationVisibility = current.validationVisibility === 'none' ? 'all' : current.validationVisibility;
             occurrenceInteractions.set(ps, {interacted: true, validationVisibility: nextVisibility});

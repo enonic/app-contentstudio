@@ -1,11 +1,11 @@
 import {createPortal, forwardRef, useCallback, useMemo, useState, type ReactElement} from 'react';
-import {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
-import {FormOptionSetOption} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSetOption';
+import type {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
+import type {FormOptionSetOption} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSetOption';
 import {Button, Combobox, Listbox} from '@enonic/ui';
 import {ItemLabel} from '../../../ItemLabel';
 import {useI18n} from '../../../../hooks/useI18n';
 import {ConfirmFocusTrap} from './ConfirmFocusTrap';
-import {useConfirmKeyboard} from './useConfirmKeyboard';
+import {useConfirmKeyboard} from './hooks';
 
 type OptionSetConfirmAddProps = {
     optionSet: FormOptionSet;

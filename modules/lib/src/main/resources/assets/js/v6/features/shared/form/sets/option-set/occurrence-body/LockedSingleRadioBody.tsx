@@ -4,17 +4,24 @@ import {FieldError} from '@enonic/lib-admin-ui/form2';
 import {RadioGroup} from '@enonic/ui';
 import {type ReactElement, useMemo} from 'react';
 import {FormItemRenderer} from '../../../FormItemRenderer';
-import {useOptionSetSelection} from '../useOptionSetSelection';
 
 type LockedSingleRadioBodyProps = {
     enabled: boolean;
     optionSet: FormOptionSet;
     occurrencePropertySet: PropertySet;
+    selectedNames: string[];
+    onSelect: (name: string) => void;
     error?: string;
 };
 
-export const LockedSingleRadioBody = ({enabled, optionSet, occurrencePropertySet, error}: LockedSingleRadioBodyProps): ReactElement => {
-    const {selectedNames, select} = useOptionSetSelection(optionSet, occurrencePropertySet);
+export const LockedSingleRadioBody = ({
+    enabled,
+    optionSet,
+    occurrencePropertySet,
+    selectedNames,
+    onSelect,
+    error,
+}: LockedSingleRadioBodyProps): ReactElement => {
     const options = useMemo(() => optionSet.getOptions(), [optionSet]);
     const selectedName = selectedNames[0] ?? '';
 
@@ -23,7 +30,7 @@ export const LockedSingleRadioBody = ({enabled, optionSet, occurrencePropertySet
             <RadioGroup.Root
                 name={`${optionSet.getName()}-radio`}
                 value={selectedName}
-                onValueChange={select}
+                onValueChange={onSelect}
                 className="flex flex-col gap-6 p-0"
             >
                 {options.map((option) => {

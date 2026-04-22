@@ -3,7 +3,7 @@ import {type ReactElement, type ReactNode, useCallback, useRef, useState} from '
 import {useI18n} from '../../../../hooks/useI18n';
 import type {FormItem} from '@enonic/lib-admin-ui/form/FormItem';
 import type {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {useSetOccurrenceLabel} from '../set-occurrence/';
+import {useSetOccurrenceLabel} from '../set-occurrence';
 import {ItemLabel} from '../../../ItemLabel';
 import {ChevronRight} from 'lucide-react';
 import {OptionSetConfirmAdd, SetConfirmDelete, SetConfirmOverlay, useConfirmPosition} from '../set-confirmation';

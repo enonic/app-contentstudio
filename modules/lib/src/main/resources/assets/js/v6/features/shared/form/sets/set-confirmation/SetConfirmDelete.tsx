@@ -2,7 +2,7 @@ import {Button} from '@enonic/ui';
 import {createPortal, forwardRef, type ReactElement} from 'react';
 import {useI18n} from '../../../../hooks/useI18n';
 import {ConfirmFocusTrap} from './ConfirmFocusTrap';
-import {useConfirmKeyboard} from './useConfirmKeyboard';
+import {useConfirmKeyboard} from './hooks';
 
 type SetConfirmDeleteProps = {
     position: {top: number; left: number; width: number} | null;
