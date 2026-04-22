@@ -28,6 +28,11 @@ export const $contentContext = atom<PageEditorContentContext | null>(null);
 
 export const $inspectedPath = atom<string | null>(null);
 
+// ? Highlight-only selection. Set from iframe SELECT events (plain clicks, arrow
+// ? navigation) and mirrored by INSPECT to keep tree highlight in sync. Decoupled
+// ? from `$inspectedPath` so plain selection does not force the InspectPanel open.
+export const $selectedPath = atom<string | null>(null);
+
 //
 // * Computed
 //

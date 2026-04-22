@@ -5,7 +5,7 @@ import type {DescriptorKey} from '../../../../app/page/DescriptorKey';
 import type {PageTemplateKey} from '../../../../app/page/PageTemplateKey';
 import {PageEventsManager} from '../../../../app/wizard/PageEventsManager';
 import {PageState} from '../../../../app/wizard/page/PageState';
-import {$hasDefaultPageTemplate, $inspectedPath, $pageEditorLifecycle} from './store';
+import {$hasDefaultPageTemplate, $inspectedPath, $pageEditorLifecycle, $selectedPath} from './store';
 
 //
 // * Actions — store state
@@ -91,9 +91,21 @@ export function requestComponentMove(from: ComponentPath, to: ComponentPath): vo
 //
 
 export function inspectItem(path: ComponentPath | null): void {
-    $inspectedPath.set(path ? path.toString() : null);
+    const str = path ? path.toString() : null;
+    $inspectedPath.set(str);
+    // ? Keep tree highlight aligned with the inspected target. A plain `selectItem`
+    // ? sets only `$selectedPath`; inspect sets both so the highlight follows the panel.
+    $selectedPath.set(str);
+}
+
+// ? Highlight-only selection — sets `$selectedPath` without opening the InspectPanel.
+// ? Used by iframe SELECT events (plain click, arrow-select) where legacy distinguished
+// ? "select" (overlay highlight) from "inspect" (panel open).
+export function selectItem(path: ComponentPath | null): void {
+    $selectedPath.set(path ? path.toString() : null);
 }
 
 export function clearInspection(): void {
     $inspectedPath.set(null);
+    $selectedPath.set(null);
 }

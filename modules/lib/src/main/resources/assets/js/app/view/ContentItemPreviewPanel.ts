@@ -140,6 +140,7 @@ export class ContentItemPreviewPanel extends Panel implements ExtensionRenderer 
         });
 
         window.addEventListener('message', this.handlePreviewMessage);
+        this.onRemoved(() => window.removeEventListener('message', this.handlePreviewMessage));
     }
 
     private handlePreviewMessage = (event: MessageEvent): void => {

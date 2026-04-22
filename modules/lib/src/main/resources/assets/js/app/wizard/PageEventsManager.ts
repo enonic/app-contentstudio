@@ -22,9 +22,9 @@ export class PageEventsManager {
     private static INSTANCE: PageEventsManager;
 
     // Drag and drop events
-    private componentViewDragStartedListeners: ((path: ComponentPath) => void)[] = [];
+    private componentViewDragStartedListeners: ((path: ComponentPath | undefined) => void)[] = [];
 
-    private componentViewDragStoppedListeners: ((path: ComponentPath) => void)[] = [];
+    private componentViewDragStoppedListeners: ((path: ComponentPath | undefined) => void)[] = [];
 
     private componentDragDroppedListeners: ((from: ComponentPath, to: ComponentPath) => void)[] = [];
 
@@ -113,27 +113,27 @@ export class PageEventsManager {
         return PageEventsManager.INSTANCE;
     }
 
-    onComponentDragStarted(listener: (path: ComponentPath) => void) {
+    onComponentDragStarted(listener: (path: ComponentPath | undefined) => void) {
         this.componentViewDragStartedListeners.push(listener);
     }
 
-    unComponentDragStarted(listener: (path: ComponentPath) => void) {
+    unComponentDragStarted(listener: (path: ComponentPath | undefined) => void) {
         this.componentViewDragStartedListeners = this.componentViewDragStartedListeners.filter((curr) => (curr !== listener));
     }
 
-    notifyComponentDragStarted(path: ComponentPath) {
+    notifyComponentDragStarted(path?: ComponentPath) {
         this.componentViewDragStartedListeners.forEach((listener) => listener(path));
     }
 
-    onComponentDragStopped(listener: ((path: ComponentPath) => void)): void {
+    onComponentDragStopped(listener: ((path: ComponentPath | undefined) => void)): void {
         this.componentViewDragStoppedListeners.push(listener);
     }
 
-    unComponentDragStopped(listener: ((path: ComponentPath) => void)): void {
+    unComponentDragStopped(listener: ((path: ComponentPath | undefined) => void)): void {
         this.componentViewDragStoppedListeners = this.componentViewDragStoppedListeners.filter((curr) => (curr !== listener));
     }
 
-    notifyComponentDragStopped(path: ComponentPath) {
+    notifyComponentDragStopped(path?: ComponentPath) {
         this.componentViewDragStoppedListeners.forEach((listener) => listener(path));
     }
 

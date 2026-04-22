@@ -1,12 +1,18 @@
 import {PageEventsManager} from '../../../../app/wizard/PageEventsManager';
+import type {PageNavigationEvent} from '../../../../app/wizard/PageNavigationEvent';
+import {PageNavigationEventType} from '../../../../app/wizard/PageNavigationEventType';
+import {PageNavigationMediator} from '../../../../app/wizard/PageNavigationMediator';
+import type {PageNavigationHandler} from '../../../../app/wizard/PageNavigationHandler';
 import {PageState} from '../../../../app/wizard/page/PageState';
 import {
     $contentContext,
     $defaultPageTemplateName,
     $hasDefaultPageTemplate,
+    $inspectedPath,
     $page,
     $pageEditorLifecycle,
     $pageVersion,
+    $selectedPath,
     bumpPageVersion,
     syncPageFromState,
 } from './store';
@@ -77,6 +83,35 @@ export function initPageEditorBridge(options?: InitPageEditorBridgeOptions): voi
     events.onPageConfigUpdated(onConfigUpdated);
     cleanups.push(() => events.unPageConfigUpdated(onConfigUpdated));
 
+    // ! Split SELECT and INSPECT: SELECT is overlay/tree highlight only, INSPECT opens the
+    // ! InspectPanel (via `$isInspecting` → tab auto-switch). Collapsing both into
+    // ! `$inspectedPath` meant every iframe click auto-opened the panel, preventing
+    // ! arrow-select in the components tree without forcing a tab switch (spec I7).
+
+    const navigationHandler: PageNavigationHandler = {
+        handle(event: PageNavigationEvent): void {
+            const type = event.getType();
+            if (type === PageNavigationEventType.DESELECT) {
+                $selectedPath.set(null);
+                $inspectedPath.set(null);
+                return;
+            }
+            if (type === PageNavigationEventType.SELECT) {
+                const path = event.getData().getPath();
+                $selectedPath.set(path != null ? path.toString() : null);
+                return;
+            }
+            if (type === PageNavigationEventType.INSPECT) {
+                const path = event.getData().getPath();
+                const str = path != null ? path.toString() : null;
+                $inspectedPath.set(str);
+                $selectedPath.set(str);
+            }
+        },
+    };
+    PageNavigationMediator.get().addPageNavigationHandler(navigationHandler);
+    cleanups.push(() => PageNavigationMediator.get().removePageNavigationItem(navigationHandler));
+
     // Initial sync
 
     syncPageFromState();
@@ -110,4 +145,6 @@ export function cleanupPageEditorBridge(): void {
     $hasDefaultPageTemplate.set(false);
     $defaultPageTemplateName.set(null);
     $contentContext.set(null);
+    $inspectedPath.set(null);
+    $selectedPath.set(null);
 }

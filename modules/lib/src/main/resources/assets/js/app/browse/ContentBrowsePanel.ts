@@ -371,9 +371,12 @@ export class ContentBrowsePanel
     }
 
     private getPathFromInlinePath(contentPreviewPath: string): string {
-        // if contentPreviewPath is a portal uri, get the content path from it,
+        // ! Strip query and fragment — ContentPath cannot contain '?' or '#'.
+        // ! v2 page-editor emits raw anchor href, which may carry `?foo=bar#section`.
+        const cleaned = contentPreviewPath.replace(/[?#].*$/, '');
+        // if cleaned is a portal uri, get the content path from it,
         // otherwise assume it's a content path (i.e. came from 3rd party rendering engines)
-        return UriHelper.getPathFromPortalInlineUri(contentPreviewPath, RenderingMode.INLINE) || contentPreviewPath;
+        return UriHelper.getPathFromPortalInlineUri(cleaned, RenderingMode.INLINE) || cleaned;
     }
 
     private expandToListElementByPath(list: ContentsTreeGridList, itemPath: ContentPath, targetPath: ContentPath): void {

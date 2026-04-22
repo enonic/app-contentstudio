@@ -11,7 +11,7 @@ import {PageNavigationMediator} from '../../../../../../app/wizard/PageNavigatio
 import type {FlatNode} from '../../../../lib/tree-store';
 import {getNode} from '../../../../lib/tree-store';
 import {inspectItem, requestComponentMove} from '../../../../store/page-editor/commands';
-import {$inspectedPath, $pageVersion} from '../../../../store/page-editor/store';
+import {$pageVersion, $selectedPath} from '../../../../store/page-editor/store';
 import {$invalidComponentPaths, $validationVisibility} from '../../../../store/wizardValidation.store';
 import {PageComponentsContextMenu} from './PageComponentsContextMenu';
 import {PageComponentsItem} from './PageComponentsItem';
@@ -45,7 +45,10 @@ export const PageComponentsView = (): ReactElement => {
         setFlatNodes([...$componentsFlatNodes.get()]);
         return $componentsFlatNodes.listen((nodes) => setFlatNodes([...nodes]));
     }, []);
-    const inspectedPath = useStore($inspectedPath);
+    // ? Highlight tracks `$selectedPath` (superset of inspection) so plain iframe clicks
+    // ? update the tree row even without opening the InspectPanel. `inspectItem` mirrors
+    // ? into `$selectedPath`, so tree→panel flows still highlight correctly.
+    const selectedPath = useStore($selectedPath);
 
     useEffect(() => {
         rebuildComponentsTree();
@@ -133,17 +136,17 @@ export const PageComponentsView = (): ReactElement => {
     const itemClassName = useCallback((
         context: SortableListItemContext<FlatNode<PageComponentNodeData>>,
     ): string => {
-        const isSelected = context.item.id === inspectedPath;
+        const isSelected = context.item.id === selectedPath;
         return cn(
             'w-full px-2.5 select-none cursor-pointer',
             isSelected ? 'bg-surface-selected text-alt [&>button]:text-alt' : 'hover:bg-surface-neutral-hover',
         );
-    }, [inspectedPath]);
+    }, [selectedPath]);
 
     const renderItem = useCallback((
         context: SortableListItemContext<FlatNode<PageComponentNodeData>>,
     ): ReactElement | null => {
-        const isSelected = context.item.id === inspectedPath;
+        const isSelected = context.item.id === selectedPath;
         const isInvalid = showErrors && invalidComponentPaths.has(context.item.id);
         return (
             <PageComponentsContextMenu node={context.item}>
@@ -156,7 +159,7 @@ export const PageComponentsView = (): ReactElement => {
                 />
             </PageComponentsContextMenu>
         );
-    }, [handleSelect, inspectedPath, showErrors, invalidComponentPaths]);
+    }, [handleSelect, selectedPath, showErrors, invalidComponentPaths]);
 
     return (
         <div data-component={PAGE_COMPONENTS_VIEW_NAME} className="flex flex-col gap-1 py-2">
