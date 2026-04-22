@@ -9,20 +9,6 @@ const DOCUMENT_FOCUSABLE_SELECTOR = [
     '[tabindex]',
 ].join(', ');
 
-function getElementTabIndex(element: HTMLElement): number {
-    if (typeof element.tabIndex === 'number') {
-        return element.tabIndex;
-    }
-
-    const attr = element.getAttribute('tabindex');
-    if (attr == null) {
-        return 0;
-    }
-
-    const parsed = Number(attr);
-    return Number.isNaN(parsed) ? 0 : parsed;
-}
-
 function isDocumentTabStop(element: HTMLElement): boolean {
     if (element.getAttribute('aria-hidden') === 'true') {
         return false;
@@ -36,7 +22,12 @@ function isDocumentTabStop(element: HTMLElement): boolean {
         return false;
     }
 
-    return getElementTabIndex(element) >= 0;
+    const computedStyle = element.ownerDocument.defaultView?.getComputedStyle(element);
+    if (computedStyle?.display === 'none' || computedStyle?.visibility === 'hidden') {
+        return false;
+    }
+
+    return element.tabIndex >= 0;
 }
 
 export function dispatchSyntheticTabKey(target: HTMLElement, isBackward: boolean): boolean {
@@ -55,13 +46,15 @@ export function focusAdjacentDocumentTabStop(anchor: HTMLElement, isBackward: bo
         anchor.ownerDocument.querySelectorAll<HTMLElement>(DOCUMENT_FOCUSABLE_SELECTOR),
     ).filter(isDocumentTabStop);
 
+    const directionBit = isBackward ? Node.DOCUMENT_POSITION_PRECEDING : Node.DOCUMENT_POSITION_FOLLOWING;
+    const isAdjacentToAnchor = (candidate: HTMLElement): boolean => {
+        const rel = anchor.compareDocumentPosition(candidate);
+        return Boolean(rel & directionBit) && !(rel & Node.DOCUMENT_POSITION_CONTAINED_BY);
+    };
+
     const nextFocusable = isBackward
-        ? [...focusableElements].reverse().find(candidate => (
-            Boolean(anchor.compareDocumentPosition(candidate) & Node.DOCUMENT_POSITION_PRECEDING)
-        ))
-        : focusableElements.find(candidate => (
-            Boolean(anchor.compareDocumentPosition(candidate) & Node.DOCUMENT_POSITION_FOLLOWING)
-        ));
+        ? [...focusableElements].reverse().find(isAdjacentToAnchor)
+        : focusableElements.find(isAdjacentToAnchor);
 
     if (!nextFocusable) {
         return false;
