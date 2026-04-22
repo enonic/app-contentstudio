@@ -222,7 +222,7 @@ public class ContentIconResourceTest
         Media.Builder result = Media.create();
 
         final PropertyTree data = new PropertyTree();
-        data.addString( "media", attachment.getName() );
+        data.addSet( "media" ).addString( "attachment", attachment.getName() );
 
         final PropertyTree mediaData = new PropertyTree();
         mediaData.setLong( IMAGE_INFO_PIXEL_SIZE, 300L * 200L );

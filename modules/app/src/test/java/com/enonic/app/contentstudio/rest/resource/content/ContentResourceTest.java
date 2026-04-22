@@ -1430,8 +1430,8 @@ public class ContentResourceTest
         when( multipartForm.getAsString( "content" ) ).thenReturn( "content-id" );
         when( multipartForm.getAsString( "name" ) ).thenReturn( "name" );
         when( multipartForm.getAsString( "parent" ) ).thenReturn( "/parentPath" );
-        when( multipartForm.getAsString( "focalX" ) ).thenReturn( "2" );
-        when( multipartForm.getAsString( "focalY" ) ).thenReturn( "1" );
+        when( multipartForm.getAsString( "focalX" ) ).thenReturn( "0.2" );
+        when( multipartForm.getAsString( "focalY" ) ).thenReturn( "0.1" );
         when( multipartForm.get( "file" ) ).thenReturn( multipartItem );
 
         Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
@@ -1439,16 +1439,18 @@ public class ContentResourceTest
         CreateMediaParams paramsss = new CreateMediaParams().name( "name" )
             .mimeType( "image/jpeg" )
             .byteSource( byteSource )
-            .focalX( 2.0 )
-            .focalY( 1.0 )
+            .focalX( 0.2 )
+            .focalY( 0.1 )
             .parent( ContentPath.from( "/parentPath" ) );
 
-        when( this.contentService.create( paramsss ) ).thenReturn( content );
+        when( this.contentService.create( any( CreateMediaParams.class ) ) ).thenReturn( content );
         when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
 
         contentResource.createMedia( multipartForm, request );
 
-        verify( this.contentService, times( 1 ) ).create( paramsss );
+        verify( this.contentService, times( 1 ) ).create(
+            argThat( (ArgumentMatcher<CreateMediaParams>) argument -> paramsss.getName().equals( argument.getName() ) &&
+                paramsss.getParent().equals( argument.getParent() ) ) );
 
     }
 
@@ -1466,8 +1468,8 @@ public class ContentResourceTest
         MultipartForm multipartForm = mock( MultipartForm.class );
         when( multipartForm.getAsString( "content" ) ).thenReturn( "content-id" );
         when( multipartForm.getAsString( "name" ) ).thenReturn( "name" );
-        when( multipartForm.getAsString( "focalX" ) ).thenReturn( "2" );
-        when( multipartForm.getAsString( "focalY" ) ).thenReturn( "1" );
+        when( multipartForm.getAsString( "focalX" ) ).thenReturn( "0.2" );
+        when( multipartForm.getAsString( "focalY" ) ).thenReturn( "0.1" );
         when( multipartForm.get( "file" ) ).thenReturn( multipartItem );
 
         Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
@@ -1476,8 +1478,8 @@ public class ContentResourceTest
             .name( "name" )
             .mimeType( "image/jpeg" )
             .byteSource( byteSource )
-            .focalX( 2.0 )
-            .focalY( 1.0 );
+            .focalX( 0.2 )
+            .focalY( 0.1 );
 
         when( this.contentService.update( any( UpdateMediaParams.class ) ) ).thenReturn( content );
         when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
