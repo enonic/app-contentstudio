@@ -2,10 +2,9 @@
  * Created on 18.12.2017.
  */
 const BaseSelectorForm = require('./base.selector.form');
-const lib = require('../../libs/elements-old');
 const ImageSelectorDropdown = require('../components/selectors/image.selector.dropdown');
 const appConst = require('../../libs/app_const');
-const {DROPDOWN} = require('../../libs/elements');
+const {DROPDOWN, BUTTONS} = require('../../libs/elements');
 
 const XPATH = {
     container: "//div[@data-component='FormRenderer']",
@@ -39,15 +38,9 @@ class ImageSelectorForm extends BaseSelectorForm {
         return XPATH.container + XPATH.uploaderButton;
     }
 
-
     // Edit image button - SelectionToolbar
     get editButton() {
         return lib.FORM_VIEW + XPATH.editButton;
-    }
-
-    // Remove image button - SelectionToolbar
-    get removeButton() {
-        return lib.FORM_VIEW + XPATH.removeButton;
     }
 
     type(contentData) {
@@ -157,6 +150,7 @@ class ImageSelectorForm extends BaseSelectorForm {
         try {
             let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
             await imageSelectorDropdown.doFilterItem(displayName);
+            await imageSelectorDropdown.clickOnOptionByDisplayName(displayName);
             return await imageSelectorDropdown.clickOnApplySelectionButton(displayName);
         } catch (err) {
             await this.handleError('Image -Selector , tried to select the filtered option', 'err_img_selector_option', err);
@@ -177,12 +171,28 @@ class ImageSelectorForm extends BaseSelectorForm {
         }
     }
 
-    waitForUploaderButtonEnabled() {
+    async waitForUploaderButtonEnabled() {
+        let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
+        await imageSelectorDropdown.waitForUploadButtonEnabled();
+    }
+
+    async waitForUploaderButtonDisabled() {
+        let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
+        await imageSelectorDropdown.waitForUploadButtonDisabled();
+    }
+
+
+    async waitForUploaderButtonDisplayed() {
+        let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
+        await imageSelectorDropdown.waitForUploadButtonDisplayed();
+    }
+
+    waitForUploaderButtonNotDisplayed() {
         return this.waitForElementEnabled(this.uploaderButton);
     }
 
-    waitForOptionsFilterInputDisplayed() {
-        return this.waitForElementDisplayed(this.optionsFilterInput);
+    async waitForOptionsFilterInputDisplayed() {
+        return await this.waitForElementDisplayed(this.optionsFilterInput);
     }
 
     async waitForOptionsFilterInputNotDisplayed() {
@@ -227,17 +237,22 @@ class ImageSelectorForm extends BaseSelectorForm {
 
     //Remove image button:
     waitForRemoveButtonDisplayed() {
-        return this.waitForElementDisplayed(this.removeButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.removeButton);
     }
 
     waitForRemoveButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.removeButton, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(this.removeButton);
     }
 
-    async clickOnRemoveButton() {
-        await this.waitForRemoveButtonDisplayed();
-        await this.clickOnElement(this.removeButton);
-        return await this.pause(300);
+    async clickOnRemoveButton(displayName) {
+        let removeIcon = XPATH.selectorSelectionDiv + DROPDOWN.selectedItemByDisplayName(displayName) + BUTTONS.BUTTON_REMOVE_ICON;
+        await this.waitForElementDisplayed(removeIcon);
+        return await this.clickOnElement(removeIcon);
+    }
+
+    async waitForItemNotDisplayedInSelectedOptions(displayName) {
+        let item = XPATH.selectorSelectionDiv + DROPDOWN.selectedItemByDisplayName(displayName);
+        await this.waitForElementNotDisplayed(item);
     }
 
     //Edit image button
@@ -259,7 +274,7 @@ class ImageSelectorForm extends BaseSelectorForm {
 
     async waitForToggleIconNotDisplayed() {
         try {
-            let imageSelectorDropdown = new ImageSelectorDropdown();
+            let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
             await imageSelectorDropdown.waitForToggleIconNotDisplayed();
         } catch (err) {
             await this.handleError('Image Selector - toggle icon should not be displayed', 'err_img_selector_toggle_icon', err);
@@ -279,7 +294,7 @@ class ImageSelectorForm extends BaseSelectorForm {
     async clickOnImageOptionInTreeMode(displayName) {
         try {
             let imageSelectorDropdown = new ImageSelectorDropdown(XPATH.container);
-            await imageSelectorDropdown.clickOnImageInDropdownListTreeMode(displayName );
+            await imageSelectorDropdown.clickOnImageInDropdownListTreeMode(displayName);
         } catch (err) {
             await this.handleError('Tried to click on the option in the expanded dropdown in tree mode',
                 'err_img_selector_option_tree_mode', err);

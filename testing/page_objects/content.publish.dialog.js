@@ -543,7 +543,11 @@ class ContentPublishDialog extends Page {
     }
 
     async getDisplayNameInDependentItems() {
-        return await this.dependantsControls.getDisplayNameInDependentItems();
+        try {
+            return await this.dependantsControls.getDisplayNameInDependentItems();
+        }catch(err){
+            await this.handleError(`Publish Dialog, get display name in dependent items `, 'err_dependent_items_display_name', err);
+        }
     }
 
     async waitForDependenciesListDisplayed() {
@@ -665,7 +669,6 @@ class ContentPublishDialog extends Page {
         const diffStatusBadge = new DiffStatusBadge(rowXpath);
         return await diffStatusBadge.getWorkflowIconState();
     }
-
 }
 
 module.exports = ContentPublishDialog;

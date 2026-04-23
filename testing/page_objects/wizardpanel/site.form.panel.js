@@ -2,12 +2,12 @@
  * Created on 14.12.2017.
  */
 const Page = require('../page');
-const lib = require('../../libs/elements-old');
+const {COMMON} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const SiteConfiguratorComboBox = require('../components/selectors/site.configurator.combobox');
 const SiteConfigDialog = require('./site.configurator.dialog');
 const XPATH = {
-    wizardSteps: `//div[contains(@id,'WizardStepsPanel')]`,
+    wizardSteps: `//div[contains(@id,'ContentWizardTabsToolbar')]`,
     editIcon: `//a[@class='edit']`,
     descriptionInput: `//textarea[contains(@name,'description')]`,
     applicationsSelectedOptions: "//div[contains(@id,'SiteConfiguratorSelectedOptionView')]",
@@ -28,7 +28,7 @@ class SiteForm extends Page {
     }
 
     get descriptionInput() {
-        return lib.FORM_VIEW + XPATH.descriptionInput;
+        return COMMON.INPUTS.inputFieldByLabel('Description') + "//textarea";
     }
 
     get helpTextInApplicationsSelector() {
@@ -53,21 +53,19 @@ class SiteForm extends Page {
 
     async typeDescription(description) {
         try {
-            await this.waitForElementDisplayed(this.descriptionInput, appConst.mediumTimeout);
-            return await this.typeTextInInput(this.descriptionInput, description);
+            await this.waitForElementDisplayed(this.descriptionInput);
+            return await this.typeChars(this.descriptionInput, description);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_site_description');
-            throw new Error("Error occurred in Site wizard, description text area, screenshot:" + screenshot + ' ' + err);
+            await this.handleError("Error occurred in Site wizard, description text area", 'err_site_description', err);
         }
     }
 
     async getTextInDescriptionTextArea() {
         try {
-            await this.waitForElementDisplayed(this.descriptionInput, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.descriptionInput);
             return await this.getTextInInput(this.descriptionInput);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_site_description');
-            throw new Error("Error occurred in Site wizard, description text area, screenshot:" + screenshot + ' ' + err);
+            await this.handleError("Error occurred in Site wizard, description text area", 'err_site_description', err);
         }
     }
 
@@ -99,20 +97,20 @@ class SiteForm extends Page {
     }
 
     async waitForApplyAppSelectionButtonDisplayed() {
-        let siteConfiguratorComboBox = new SiteConfiguratorComboBox();
-        await siteConfiguratorComboBox.waitForApplySelectionButtonDisplayed(XPATH.wizardSteps);
+        let siteConfiguratorComboBox = new SiteConfiguratorComboBox(XPATH.wizardSteps);
+        await siteConfiguratorComboBox.waitForApplySelectionButtonDisplayed();
     }
 
-    // Click on OK and apply the selected applications:
+    // Click on Apply selected applications:
     async clickOnApplySelectionButtonInApplications() {
-        let siteConfiguratorComboBox = new SiteConfiguratorComboBox();
+        let siteConfiguratorComboBox = new SiteConfiguratorComboBox(XPATH.wizardSteps);
         await siteConfiguratorComboBox.clickOnApplySelectionButton();
     }
 
     async filterOptionsAndSelectApplication(displayName) {
         try {
-            let siteConfiguratorComboBox = new SiteConfiguratorComboBox();
-            await siteConfiguratorComboBox.selectFilteredApplicationAndClickOnApply(displayName, XPATH.wizardSteps);
+            let siteConfiguratorComboBox = new SiteConfiguratorComboBox(XPATH.wizardSteps);
+            await siteConfiguratorComboBox.selectFilteredApplicationAndClickOnApply(displayName );
             await this.pause(900);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_app_option');

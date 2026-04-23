@@ -55,16 +55,6 @@ class CustomSelectorForm extends BaseSelectorForm {
         return await customSelectorComboBox.getOptionsName(XPATH.container);
     }
 
-    async waitForEmptyOptionsMessage() {
-        try {
-            let locator = XPATH.container + lib.EMPTY_OPTIONS_H5;
-            return await this.waitForElementDisplayed(locator, appConst.longTimeout);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_custom_sel');
-            throw new Error("Empty options text is not visible, screenshot: " + screenshot + ' ' + err);
-        }
-    }
-
     async removeSelectedOption(option) {
         let locator = XPATH.selectedOptionByName(option) + lib.REMOVE_ICON;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);

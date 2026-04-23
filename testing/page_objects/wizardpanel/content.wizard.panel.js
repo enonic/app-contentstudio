@@ -31,13 +31,11 @@ const XPATH = {
     // v6: workflow state SVG in the toolbar — aria-label is 'invalid', 'in-progress', or 'ready'
     toolbarWorkflowStateIcon: `//svg[@aria-label and not(@aria-hidden='true')]`,
     publishMenuButton: "//div[contains(@id,'ContentWizardPublishMenuButton')]",
-    createIssueButton: "//button[contains(@id,'ActionButton') and child::span[text()='Create Issue...']]",
     openRequestButton: "//button[contains(@id,'ActionButton') and child::span[text()='Open Request...']]",
     unpublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Unpublish...']",
     inspectionPanelToggler: "//button[contains(@id, 'TogglerButton') and contains(@class,'icon-cog')]",
     thumbnailUploader: "//div[contains(@id,'ThumbnailUploaderEl')]",
     scheduleTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Schedule']`,
-
     itemViewContextMenu: `//div[contains(@id,'ItemViewContextMenu')]`,
     xDataToggler: `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler']`,
     stepNavigatorToolbar: `//ul[contains(@id,'WizardStepNavigator')]`,
@@ -69,6 +67,10 @@ class ContentWizardPanel extends Page {
 
     get markAsReadyButton() {
         return XPATH.container + BUTTONS.buttonByLabel('Mark as ready');
+    }
+
+    get createIssueButton(){
+        return XPATH.container + BUTTONS.buttonByLabel('Create issue');
     }
 
     get emulatorDropdown() {
@@ -756,6 +758,7 @@ class ContentWizardPanel extends Page {
         }
     }
 
+    ///
     async clickOnUnpublishMenuItem() {
         try {
             await this.clickOnPublishMenuDropdownHandle();
@@ -942,8 +945,7 @@ class ContentWizardPanel extends Page {
     // Wait for 'Create Issue' button gets default action in 'Publish' menu:
     async waitForCreateIssueButtonDisplayed() {
         try {
-            let selector = XPATH.container + XPATH.publishMenuButton + XPATH.createIssueButton;
-            return await this.waitForElementDisplayed(selector, appConst.shortTimeout);
+            return await this.waitForElementDisplayed(this.createIssueButton, appConst.shortTimeout);
         } catch (err) {
             await this.handleError(`'Create Issue...' button should be displayed as default action`, 'err_publish_menu_def_action', err);
         }

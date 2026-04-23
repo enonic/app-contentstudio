@@ -26,6 +26,22 @@ class ImageSelectorDropdown extends BaseDropdown {
         return "//div[@data-component='ImageSelector']";
     }
 
+    get uploadButton() {
+        return this.dataComponentDiv + DROPDOWN.SELECTOR_UPLOAD_BUTTON;
+    }
+
+    async waitForUploadButtonDisplayed() {
+        await this.waitForElementDisplayed(this.uploadButton);
+    }
+
+    async waitForUploadButtonEnabled() {
+        return await this.waitForElementEnabled(this.uploadButton);
+    }
+
+    async waitForUploadButtonDisabled(){
+        return await this.waitForElementDisabled(this.uploadButton);
+    }
+
     async insertTextInOptionsFilterInput(text, parentLocator) {
         await this.doFilterItem(text, parentLocator);
     }
@@ -112,7 +128,6 @@ class ImageSelectorDropdown extends BaseDropdown {
         await this.pause(500);
         return await this.getTextInDisplayedElements(locator);
     }
-
 }
 
 module.exports = ImageSelectorDropdown;

@@ -192,7 +192,7 @@ class DependantsControls extends Page {
 
     async getDisplayNameInDependentItems() {
         let locator = this.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + DIALOG_ITEMS.CONTENT_ROW + DIALOG_ITEMS.ITEMS_NAME_SPAN;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(locator);
         return await this.getTextInDisplayedElements(locator);
     }
 

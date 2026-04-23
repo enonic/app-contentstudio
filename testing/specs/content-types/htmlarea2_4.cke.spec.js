@@ -1,5 +1,5 @@
 /**
- * Created on 27.04.2018.
+ * Created on 27.04.2018. updated on 23.04.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -22,7 +22,7 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
     let CONTENT_EMPTY_HTML_AREA;
     const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
-    it(`WHEN the only name has been typed AND 'Save' pressed THEN content should be saved`,
+    it(`WHEN only the name is entered AND the “Save” button is pressed, THEN the content should be saved`,
         async () => {
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('htmlarea');
