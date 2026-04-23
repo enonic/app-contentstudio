@@ -353,7 +353,7 @@ class ContentPublishDialog extends Page {
 
     async waitForShowExcludedItemsButtonNotDisplayed() {
         try {
-            return await this.waitForElementNotDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
+            return await this.waitForElementNotDisplayed(this.showExcludedItemsButton);
         } catch (err) {
             await this.handleError(`Publish Dialog, 'Show excluded items' button should not be displayed, `, 'err_show_excluded_btn', err);
         }

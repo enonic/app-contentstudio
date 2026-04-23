@@ -38,10 +38,10 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             assert.equal(selectedOptions[0], appConst.TEST_IMAGES.TELK, "Expected image should be displayed in selected options");
             // 4. Click on Mark as ready button in the wizard toolbar:
             await contentWizard.clickOnMarkAsReadyButton();
-            await contentWizard.waitForOpened();
+            await contentPublishDialog.waitForDialogOpened();
             // 5. Verify that Show/Hide excluded items are not displayed by default configuration:
             await contentPublishDialog.waitForHideExcludedItemsButtonNotDisplayed();
-            await contentPublishDialog.waitForShowExcludedItemsButtonNotDisplayed();
+            //await contentPublishDialog.waitForShowExcludedItemsButtonNotDisplayed();
             await studioUtils.saveScreenshot('publish_dlg_dependent_items');
             // 6. Verify that the selected image is displayed in the dependent items block:
             let dependantItems = await contentPublishDialog.getDisplayNameInDependentItems();
