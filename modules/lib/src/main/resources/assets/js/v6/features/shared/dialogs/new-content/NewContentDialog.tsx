@@ -1,11 +1,12 @@
 import {cn, Dialog, Tab} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {type KeyboardEvent, type ReactElement, useEffect, useRef, useState} from 'react';
+import {type KeyboardEvent, type ReactElement, useEffect, useRef} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {
     $newContentDialog,
     closeNewContentDialog,
     setInputValue,
+    setIsDragging,
     setSelectedTab,
     uploadDragImages,
     uploadMediaFiles,
@@ -21,7 +22,6 @@ export const NewContentDialog = (): ReactElement => {
     const inputRef = useRef<HTMLInputElement>(null);
     const dialogContentRef = useRef<HTMLDivElement>(null);
     const shouldFocusInput = useRef(false);
-    const [isDragging, setIsDragging] = useState(false);
     const {open, selectedTab, inputValue, parentContent, filteredBaseContentTypes, filteredSuggestedContentTypes} = useStore($newContentDialog);
     const isMediaTab = selectedTab === 'media';
     const isInputEmpty = inputValue.length === 0;
@@ -193,7 +193,7 @@ export const NewContentDialog = (): ReactElement => {
                                     parentContent={parentContent}
                                 />
 
-                                <NewContentDialogMediaTab tabName="media" isDragging={isDragging} />
+                                <NewContentDialogMediaTab tabName="media" />
                             </div>
                         </Dialog.Body>
 
