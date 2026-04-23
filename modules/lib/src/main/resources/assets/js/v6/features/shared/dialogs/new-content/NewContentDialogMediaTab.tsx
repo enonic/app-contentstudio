@@ -6,6 +6,7 @@ import {useI18n} from '../../../hooks/useI18n';
 import {
     $newContentDialog,
     closeNewContentDialog,
+    setIsDragging,
     uploadMediaFiles,
 } from '../../../store/dialogs/newContentDialog.store';
 import {DropZone} from '../../DropZone';
@@ -14,17 +15,17 @@ const NEW_CONTENT_DIALOG_MEDIA_TAB_NAME = 'NewContentDialogMediaTab';
 
 type NewContentDialogMediaTabProps = {
     tabName: string;
-    isDragging?: boolean;
 };
 
 export const NewContentDialogMediaTab = ({
     tabName,
-    isDragging = false,
 }: NewContentDialogMediaTabProps): ReactElement => {
-    const {parentContent} = useStore($newContentDialog);
+    const {parentContent, isDragging} = useStore($newContentDialog, {keys: ['parentContent', 'isDragging']});
     const hintLabel = useI18n('dialog.new.hint.upload');
 
     const handleFiles = useCallback((files: FileList) => {
+        setIsDragging(false);
+
         const dataTransfer = new DataTransfer();
         Array.from(files).forEach((file) => dataTransfer.items.add(file));
 
@@ -34,7 +35,7 @@ export const NewContentDialogMediaTab = ({
         });
 
         closeNewContentDialog();
-    }, [parentContent]);
+    }, [parentContent, setIsDragging]);
 
     return (
         <Tab.Content value={tabName} className='mt-0 h-full' data-component={NEW_CONTENT_DIALOG_MEDIA_TAB_NAME}>

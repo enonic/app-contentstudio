@@ -41,6 +41,7 @@ export const DropZone = ({
 
     const handleDrop = useCallback((e: ReactDragEvent<HTMLDivElement>) => {
         e.preventDefault();
+        e.stopPropagation();
         setInternalDragging(false);
 
         const {files} = e.dataTransfer;

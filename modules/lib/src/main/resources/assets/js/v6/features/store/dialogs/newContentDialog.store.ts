@@ -36,6 +36,7 @@ type NewContentDialogStore = {
     //failed: boolean;
     inputValue: string;
     selectedTab: string;
+    isDragging: boolean;
     // Content
     parentContent?: ContentSummary;
     baseContentTypes: ContentTypeSummary[];
@@ -50,6 +51,7 @@ const initialState: NewContentDialogStore = {
     //failed: false,
     inputValue: '',
     selectedTab: 'all',
+    isDragging: false,
     parentContent: undefined,
     baseContentTypes: [],
     suggestedContentTypes: [],
@@ -132,6 +134,10 @@ export const setInputValue = (value: string): void => {
 
 export const setSelectedTab = (tab: string): void => {
     $newContentDialog.setKey('selectedTab', tab);
+};
+
+export const setIsDragging = (isDragging: boolean): void => {
+    $newContentDialog.setKey('isDragging', isDragging);
 };
 
 // TODO: replace places invoking this function with the useUploadMedia hook
