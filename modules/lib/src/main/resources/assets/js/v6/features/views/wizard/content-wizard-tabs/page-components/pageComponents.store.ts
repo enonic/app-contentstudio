@@ -1,9 +1,11 @@
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {atom, computed} from 'nanostores';
 import type {Page} from '../../../../../../app/page/Page';
 import type {Component} from '../../../../../../app/page/region/Component';
 import {DescriptorBasedComponent} from '../../../../../../app/page/region/DescriptorBasedComponent';
 import {LayoutComponent} from '../../../../../../app/page/region/LayoutComponent';
 import type {Region} from '../../../../../../app/page/region/Region';
+import {TextComponent} from '../../../../../../app/page/region/TextComponent';
 import {
     type CreateNodeOptions,
     type TreeState,
@@ -262,10 +264,15 @@ function buildComponentNodes(
         ? component.hasDescriptor()
         : true;
 
+    const fallbackName = component.getName()?.toString() ?? nodeType;
+    const displayName = component instanceof TextComponent
+        ? (getTextComponentSnippet(component) || fallbackName)
+        : fallbackName;
+
     nodes.push({
         id: componentId,
         data: {
-            displayName: component.getName()?.toString() ?? nodeType,
+            displayName,
             nodeType,
             draggable: true,
             layoutFragment: false,
@@ -289,6 +296,18 @@ function buildRegionPath(parentPath: string, regionName: string): string {
 
 function buildComponentPath(regionPath: string, index: number): string {
     return `${regionPath}/${index}`;
+}
+
+const TEXT_SNIPPET_MAX_LENGTH = 1000;
+
+function getTextComponentSnippet(component: TextComponent): string {
+    const text = StringHelper.htmlToString(component.getText() || '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    const codepoints = Array.from(text);
+    return codepoints.length > TEXT_SNIPPET_MAX_LENGTH
+        ? codepoints.slice(0, TEXT_SNIPPET_MAX_LENGTH).join('')
+        : text;
 }
 
 //
