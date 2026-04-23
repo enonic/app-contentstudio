@@ -9,6 +9,7 @@ import {ContentSummary, ContentSummaryBuilder} from '../../../../../../app/conte
 import {CustomSelectorInputComboboxList} from './CustomSelectorComboboxList';
 import {CustomSelectorSelectionItemView} from './CustomSelectorSelectionItemView';
 import {useCustomSelector} from './useCustomSelector';
+import {useSelectorInputHasError} from '../hooks';
 
 export type CustomSelectorItem = {
     id: string;
@@ -64,8 +65,18 @@ export const CustomSelectorInput = ({
         if (hasError) return errorLabel;
         if (filteredItems.length === 0) return emptyLabel;
         return null;
-    }, [config.extension, config.service, noExtensionOrServiceLabel, isLoading, loadingLabel, hasError, errorLabel, filteredItems.length, emptyLabel]);
-    const resolvedHasErrors = errors.some((error) => error.breaksRequired || error.validationResults.length > 0);
+    }, [
+        config.extension,
+        config.service,
+        noExtensionOrServiceLabel,
+        isLoading,
+        loadingLabel,
+        hasError,
+        errorLabel,
+        filteredItems.length,
+        emptyLabel,
+    ]);
+    const resolvedHasErrors = useSelectorInputHasError(occurrences, errors);
     const disabled = !enabled;
 
     // Preload data based on the initial selection.

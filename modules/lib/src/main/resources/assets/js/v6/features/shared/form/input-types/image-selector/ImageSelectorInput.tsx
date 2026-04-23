@@ -2,7 +2,7 @@ import type {SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
 import type {ImageSelectorConfig} from './ImageSelectorConfig';
 import type {ReactElement} from 'react';
 import {ImageSelector} from '../../../selectors/image';
-import {useSelectorInput} from '../../../../hooks/useSelectorInput';
+import {useSelectorInput} from '../hooks';
 import {useFormRender} from '../../FormRenderContext';
 
 export const ImageSelectorInput = (props: SelfManagedComponentProps<ImageSelectorConfig>): ReactElement => {

@@ -1,3 +1,3 @@
-import {type GeneralSelectorConfig} from '../../../../hooks/useSelectorInput';
+import {type GeneralSelectorConfig} from '../hooks';
 
 export type MediaSelectorConfig = GeneralSelectorConfig;

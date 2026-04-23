@@ -2,7 +2,7 @@ import type {SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
 import type {MediaSelectorConfig} from './MediaSelectorConfig';
 import type {ReactElement} from 'react';
 import {MediaSelector} from '../../../selectors/media';
-import {useSelectorInput} from '../../../../hooks/useSelectorInput';
+import {useSelectorInput} from '../hooks';
 import {useFormRender} from '../../FormRenderContext';
 
 export const MediaSelectorInput = (props: SelfManagedComponentProps<MediaSelectorConfig>): ReactElement => {
