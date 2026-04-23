@@ -7,6 +7,7 @@ import type {ContentTypeFilterConfig} from './ContentTypeFilterConfig';
 import {ContentTypeFilterComboboxList} from './ContentTypeFilterComboboxList';
 import {ContentTypeFilterSelectionItemView} from './ContentTypeFilterSelectionItemView';
 import {useContentTypeFilter} from './useContentTypeFilter';
+import {useSelectorInputHasError} from '../hooks';
 
 const COMPONENT_NAME = 'ContentTypeFilterInput';
 
@@ -38,7 +39,7 @@ export const ContentTypeFilterInput = ({
 
     // Constants
     const resolvedSelectionMode = occurrences.getMaximum() === 1 ? 'single' : 'staged';
-    const hasErrors = errors.some((error) => error.breaksRequired || error.validationResults.length > 0);
+    const resolvedHasErrors = useSelectorInputHasError(occurrences, errors);
     const disabled = !enabled;
     const popupLabel = useMemo(() => {
         if (isLoading) return loadingLabel;
@@ -62,7 +63,7 @@ export const ContentTypeFilterInput = ({
                 onSelectionChange={onSelectionChange}
                 selectionMode={resolvedSelectionMode}
                 disabled={disabled}
-                error={hasErrors}
+                error={resolvedHasErrors}
                 closeOnBlur
                 contentType="listbox"
             >

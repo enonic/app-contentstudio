@@ -3,11 +3,12 @@ import {Reference} from '@enonic/lib-admin-ui/util/Reference';
 import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {useCallback, useMemo} from 'react';
-import {useI18n} from './useI18n';
+import {useI18n} from '../../../../hooks/useI18n';
 import {useStore} from '@nanostores/preact';
-import {$contextContent} from '../store/context/contextContent.store';
-import {SITE_PATH} from '../utils/form/form';
-import {type ContentSummary} from '../../../app/content/ContentSummary';
+import {$contextContent} from '../../../../store/context/contextContent.store';
+import {SITE_PATH} from '../../../../utils/form/form';
+import {type ContentSummary} from '../../../../../../app/content/ContentSummary';
+import {useSelectorInputHasError} from './useSelectorInputHasError';
 
 export type GeneralSelectorConfig = {
     allowContentType: string[];
@@ -34,7 +35,7 @@ export const useSelectorInput = <T extends Omit<GeneralSelectorConfig, 'allowCon
         : undefined;
     const resolvedSelectionMode: 'single' | 'multiple' = occurrences.getMaximum() === 1 ? 'single' : 'multiple';
     const resolvedListMode: 'tree' | 'flat' = config.treeMode ? 'tree' : 'flat';
-    const resolvedHasErrors: boolean = errors.some((error) => error.breaksRequired || error.validationResults.length > 0);
+    const resolvedHasErrors: boolean = useSelectorInputHasError(occurrences, errors);
     const resolvedHideToggleIcon: boolean = config.hideToggleIcon;
 
     // Selection
