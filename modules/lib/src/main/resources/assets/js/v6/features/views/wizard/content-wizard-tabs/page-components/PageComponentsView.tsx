@@ -90,7 +90,7 @@ export const PageComponentsView = (): ReactElement => {
         const movedPath = ComponentPath.fromString(computeMovedItemPath(sourceNode.id, target.componentPath));
         inspectItem(movedPath);
         PageNavigationMediator.get().notify(
-            new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(movedPath)),
+            new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(movedPath)),
         );
     }, [flatNodes]);
 
@@ -105,7 +105,7 @@ export const PageComponentsView = (): ReactElement => {
         const path = ComponentPath.fromString(nodeId);
         inspectItem(path);
         PageNavigationMediator.get().notify(
-            new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(path)),
+            new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(path)),
         );
     }, []);
 
