@@ -184,7 +184,7 @@ const SelectParentItem = ({nodeId, label}: MenuItemProps): ReactElement | null =
             const path = ComponentPath.fromString(treeNode.parentId);
             inspectItem(path);
             PageNavigationMediator.get().notify(
-                new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(path)),
+                new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(path)),
             );
         }
     }, [treeNode]);
@@ -207,7 +207,7 @@ const InspectItem = ({nodeId, label}: MenuItemProps): ReactElement => {
         const path = ComponentPath.fromString(nodeId);
         inspectItem(path);
         PageNavigationMediator.get().notify(
-            new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(path)),
+            new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(path)),
         );
     }, [nodeId]);
 
@@ -310,7 +310,7 @@ const InsertSection = ({nodeId, label}: MenuItemProps): ReactElement => {
 
         inspectItem(insertPath);
         PageNavigationMediator.get().notify(
-            new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(insertPath)),
+            new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(insertPath)),
         );
 
         const regionId = isRegion ? nodeId : path.getParentPath()?.toString();
