@@ -39,6 +39,7 @@ import {$contextContent} from '../../../../../../store/context/contextContent.st
 import {requestUpdateTextComponent} from '../../../../../../store/page-editor';
 import {$activeProject} from '../../../../../../store/projects.store';
 import {useApplicationKeys} from '../../../../../wizard/content-wizard-tabs/useApplicationKeys';
+import {useInspectTextTracking} from './useInspectTextTracking';
 
 const sanitizer = new HtmlAreaSanitizer();
 
@@ -137,6 +138,7 @@ const TextEditorInner = ({
 }: TextEditorInnerProps): JSX.Element => {
     const [element, setElement] = useState<HTMLTextAreaElement | null>(null);
     const [focused, setFocused] = useState(false);
+    const [isDirty, setIsDirty] = useState(false);
     const openImageDialogRef = useRef<((params: OpenHtmlAreaImageDialogParams) => void) | undefined>(undefined);
     const openLinkDialogRef = useRef<((params: OpenHtmlAreaLinkDialogParams) => void) | undefined>(undefined);
     const openMacroDialogRef = useRef<((params: OpenHtmlAreaMacroDialogParams) => void) | undefined>(undefined);
@@ -145,8 +147,11 @@ const TextEditorInner = ({
     const editorReadyRef = useRef(false);
     const editorInstanceRef = useRef<CKEDITOR.editor | null>(null);
     const lastSentValueRef = useRef<string>('');
+    const didAutoFocusRef = useRef(false);
     const textComponentRef = useRef(textComponent);
     textComponentRef.current = textComponent;
+
+    useInspectTextTracking(isDirty);
 
     const contentId = contentSummary?.getId();
 
@@ -287,11 +292,101 @@ const TextEditorInner = ({
     }, [status, editor, contentSummary, project, applicationKeys, assetsUri, editableSourceCode, debouncedOnChange]);
 
     //
-    // * Focus ring tracking
+    // * Dirty flag (leading edge — snappy Apply enablement)
     //
 
     useEffect(() => {
         if (status !== 'ready' || !editor) {
+            return;
+        }
+
+        const onChange = () => {
+            if (!isDirty) {
+                setIsDirty(true);
+            }
+        };
+
+        editor.on('change', onChange);
+
+        return () => {
+            editor.removeListener('change', onChange);
+        };
+    }, [status, editor, isDirty]);
+
+    //
+    // * One-shot auto-focus on first ready
+    //
+
+    useEffect(() => {
+        if (!editor || disabled || didAutoFocusRef.current) {
+            return;
+        }
+
+        // CKEditor 4's readiness is slippery: useCKEditor's `status: 'ready'` and
+        // the `contentDom` event both fire before `editable.isVisible()` is true
+        // (iframe body needs offsetHeight > 0) and before `getSelection()` is
+        // initialized. Poll via rAF until all guards pass.
+        let cancelled = false;
+        let attempts = 0;
+        let defending = false;
+        const MAX_ATTEMPTS = 60;
+
+        const focusEditor = (): boolean => {
+            const editable = editor.editable();
+            if (!editable || !editable.isVisible()) return false;
+            // Avoid CKEditor's `c.getSelection().getNative()` crash during init.
+            if (editor.getSelection?.() == null) return false;
+            try {
+                editor.focus();
+                return true;
+            } catch {
+                return false;
+            }
+        };
+
+        const tryFocus = (): void => {
+            if (cancelled || didAutoFocusRef.current) return;
+            attempts += 1;
+            if (focusEditor()) {
+                didAutoFocusRef.current = true;
+                defending = true;
+                return;
+            }
+            if (attempts < MAX_ATTEMPTS) {
+                requestAnimationFrame(tryFocus);
+            }
+        };
+
+        // CKEditor fires internal blur/focus cascades after our initial focus
+        // (plugin setup, setReadOnly, dataReady). If one of those ends on blur,
+        // the caret is left outside the editor. Re-focus on any blur inside a
+        // short defense window — but only if no real user interaction took focus.
+        const onBlur = (): void => {
+            if (cancelled || !defending) return;
+            const activeEl = document.activeElement;
+            const isOuterFocus = activeEl === document.body || activeEl?.tagName === 'IFRAME';
+            if (isOuterFocus) focusEditor();
+        };
+
+        editor.on('blur', onBlur);
+        const defenseTimer = setTimeout(() => {
+            defending = false;
+        }, 300);
+        requestAnimationFrame(tryFocus);
+
+        return () => {
+            cancelled = true;
+            clearTimeout(defenseTimer);
+            editor.removeListener('blur', onBlur);
+        };
+    }, [editor, disabled]);
+
+    //
+    // * Focus ring tracking
+    //
+
+    useEffect(() => {
+        if (!editor) {
             setFocused(false);
             return;
         }
@@ -306,7 +401,7 @@ const TextEditorInner = ({
             editor.removeListener('focus', onFocus);
             editor.removeListener('blur', onBlur);
         };
-    }, [status, editor]);
+    }, [editor]);
 
     //
     // * Read-only sync
@@ -411,6 +506,7 @@ const TextEditorInner = ({
                 ? HTMLAreaHelper.convertRenderSrcToPreviewSrc(text, contentId, project)
                 : text;
             editor.setData(previewContent);
+            setIsDirty(false);
         };
 
         PageState.getEvents().onComponentUpdated(handler);
