@@ -98,53 +98,58 @@ export const ItemSetOccurrenceView = ({
                 )}
 
                 {showHeader && (
-                    <ContextMenu open={menuOpen} onOpenChange={setMenuOpen}>
-                        <ContextMenu.Trigger>
-                            <button
-                                ref={anchorRef}
-                                type="button"
-                                className={cn(
-                                    'grid items-center gap-2.5 p-2.5 w-full cursor-pointer',
-                                    grip ? 'grid-cols-[auto_1fr_auto]' : 'grid-cols-[1fr_auto]',
-                                    expanded
-                                        ? cn(
-                                              'rounded border bg-surface-selected rounded-bl-none rounded-br-none border-bdr-soft text-alt [&_svg:first-child]:text-alt',
-                                              menuOpen ? 'bg-surface-selected-hover' : 'hover:bg-surface-selected-hover'
-                                          )
-                                        : menuOpen
-                                          ? 'bg-surface-neutral-hover'
-                                          : 'hover:bg-surface-neutral-hover'
-                                )}
-                                aria-expanded={expanded}
-                                onClick={() => onToggle(index)}
-                            >
-                                {grip}
-                                <div className="flex items-center gap-1.5 truncate">
-                                    <span className="truncate font-semibold text-left text-base">{label.primary}</span>
-                                    {hasErrors && !expanded && <FilledOctagonAlert size={16} className="text-error shrink-0" />}
-                                </div>
-                                <ChevronRight
-                                    size={30}
-                                    absoluteStrokeWidth
-                                    className={cn('shrink-0 transition-transform', expanded ? '-rotate-90' : 'rotate-90')}
-                                />
-                            </button>
-                        </ContextMenu.Trigger>
+                    <div
+                        className={cn(
+                            'flex rounded border border-transparent',
+                            expanded &&
+                                'bg-surface-selected rounded-bl-none rounded-br-none border-bdr-soft [&_svg:first-child]:text-alt',
+                            expanded && menuOpen && 'bg-surface-selected-hover',
+                            expanded && !menuOpen && 'hover:bg-surface-selected-hover',
+                            !expanded && menuOpen && 'bg-surface-neutral-hover',
+                            !expanded && !menuOpen && 'hover:bg-surface-neutral-hover'
+                        )}
+                    >
+                        {grip && <div className="flex items-center justify-center ml-2.5">{grip}</div>}
+                        <ContextMenu open={menuOpen} onOpenChange={setMenuOpen}>
+                            <ContextMenu.Trigger className="flex w-full">
+                                <button
+                                    ref={anchorRef}
+                                    type="button"
+                                    className={cn(
+                                        'grid flex-1 min-w-0 items-center gap-2.5 p-2.5 cursor-pointer grid-cols-[1fr_auto] rounded',
+                                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
+                                        expanded && 'text-alt rounded-b-none'
+                                    )}
+                                    aria-expanded={expanded}
+                                    onClick={() => onToggle(index)}
+                                >
+                                    <div className="flex items-center gap-1.5 truncate">
+                                        <span className="truncate font-semibold text-left text-base">{label.primary}</span>
+                                        {hasErrors && !expanded && <FilledOctagonAlert size={16} className="text-error shrink-0" />}
+                                    </div>
+                                    <ChevronRight
+                                        size={30}
+                                        absoluteStrokeWidth
+                                        className={cn('shrink-0 transition-transform', expanded ? '-rotate-90' : 'rotate-90')}
+                                    />
+                                </button>
+                            </ContextMenu.Trigger>
 
-                        <ContextMenu.Portal>
-                            <ContextMenu.Content>
-                                <ContextMenu.Item disabled={!canAdd} onClick={handleAddAbove}>
-                                    <span>{addAboveLabel}</span>
-                                </ContextMenu.Item>
-                                <ContextMenu.Item disabled={!canAdd} onClick={handleAddBelow}>
-                                    <span>{addBelowLabel}</span>
-                                </ContextMenu.Item>
-                                <ContextMenu.Item disabled={!canRemove} onClick={handleRemove}>
-                                    <span>{deleteLabel}</span>
-                                </ContextMenu.Item>
-                            </ContextMenu.Content>
-                        </ContextMenu.Portal>
-                    </ContextMenu>
+                            <ContextMenu.Portal>
+                                <ContextMenu.Content>
+                                    <ContextMenu.Item disabled={!canAdd} onClick={handleAddAbove}>
+                                        <span>{addAboveLabel}</span>
+                                    </ContextMenu.Item>
+                                    <ContextMenu.Item disabled={!canAdd} onClick={handleAddBelow}>
+                                        <span>{addBelowLabel}</span>
+                                    </ContextMenu.Item>
+                                    <ContextMenu.Item disabled={!canRemove} onClick={handleRemove}>
+                                        <span>{deleteLabel}</span>
+                                    </ContextMenu.Item>
+                                </ContextMenu.Content>
+                            </ContextMenu.Portal>
+                        </ContextMenu>
+                    </div>
                 )}
 
                 {(expanded || !showHeader) && (

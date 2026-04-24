@@ -2,7 +2,7 @@ import type {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import type {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
 import {FieldError} from '@enonic/lib-admin-ui/form2';
 import {RadioGroup} from '@enonic/ui';
-import {type ReactElement, useMemo} from 'react';
+import {type KeyboardEvent, type ReactElement, useMemo} from 'react';
 import {FormItemRenderer} from '../../../FormItemRenderer';
 
 type LockedSingleRadioBodyProps = {
@@ -25,13 +25,29 @@ export const LockedSingleRadioBody = ({
     const options = useMemo(() => optionSet.getOptions(), [optionSet]);
     const selectedName = selectedNames[0] ?? '';
 
+    // Keep keyboard navigation cohesive with multi selection: disable RadioGroup's arrow
+    // navigation (Tab-only), and stop Space from being swallowed by the group handler so
+    // the button's native activation still selects the item.
+    const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>): void => {
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            e.stopPropagation();
+            e.preventDefault();
+            return;
+        }
+
+        if (e.key === ' ') {
+            e.stopPropagation();
+            return;
+        }
+    };
+
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6" onKeyDownCapture={handleKeyDown}>
             <RadioGroup.Root
                 name={`${optionSet.getName()}-radio`}
                 value={selectedName}
                 onValueChange={onSelect}
-                className="flex flex-col gap-6 p-0"
+                className="flex flex-col gap-6 p-0 has-focus-visible:ring-0"
             >
                 {options.map((option) => {
                     const optionName = option.getName();
@@ -41,7 +57,7 @@ export const LockedSingleRadioBody = ({
 
                     return (
                         <div className="flex flex-col gap-7.5" key={optionName}>
-                            <RadioGroup.Item value={optionName} disabled={!enabled}>
+                            <RadioGroup.Item value={optionName} disabled={!enabled} tabIndex={enabled ? 0 : -1}>
                                 <RadioGroup.Indicator />
                                 <span>{option.getLabel() || optionName}</span>
                             </RadioGroup.Item>
