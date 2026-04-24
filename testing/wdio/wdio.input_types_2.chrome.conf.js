@@ -18,6 +18,7 @@ exports.config = {
         path.join(__dirname, '../specs/content-types-2/htmlarea.embed.iframe.spec.js'),
         path.join(__dirname, '../specs/content-types-2/htmlarea.macro.modal.dialog.spec.js'),
         path.join(__dirname, '../specs/content-types-2/content.image.selector.spec.js'),
+        path.join(__dirname, '../specs/content-types/textline.content.config.spec.js'),
 
 
     ],

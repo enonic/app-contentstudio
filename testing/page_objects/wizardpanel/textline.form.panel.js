@@ -1,8 +1,8 @@
 /**
- * Created on 28.12.2017.
+ * Created on 28.12.2017. updated on 24.04.2026
  */
 const OccurrencesFormView = require('./occurrences.form.view');
-const lib = require('../../libs/elements-old');
+const {COMMON} = require('../../libs/elements');
 
 const XPATH = {
     textLine: "//div[contains(@id,'TextLine')]",
@@ -14,11 +14,13 @@ const XPATH = {
 class TextLineForm extends OccurrencesFormView {
 
     get textLineInput() {
-        return lib.FORM_VIEW + XPATH.textLine + lib.TEXT_INPUT;
+        return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + COMMON.INPUTS.DATA_COMPONENT_INPUT_FIELD + COMMON.INPUTS.INPUT;
     }
 
-    get validationRecord() {
-        return lib.FORM_VIEW + XPATH.validationRecording;
+    async getValueInTextLineInput(index) {
+        let dateTimeElements = await this.getDisplayedElements(this.textLineInput);
+        const value = await dateTimeElements[index].getValue();
+        return value;
     }
 
     async getTexLineValues() {
@@ -32,47 +34,39 @@ class TextLineForm extends OccurrencesFormView {
     }
 
     async typeText(text, index) {
+        try {
+            index = typeof index !== 'undefined' ? index : 0;
+            let inputs = await this.getDisplayedElements(this.textLineInput);
+            for (const ch of String(text)) {
+                await inputs[index].addValue(ch);
+            }
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError('Text line input, ', 'err_tex_line_type', err);
+        }
+    }
+
+    async setText(text, index) {
         index = typeof index !== 'undefined' ? index : 0;
         let textLine = await this.getDisplayedElements(this.textLineInput);
         await textLine[index].setValue(text);
         return await this.pause(300);
     }
 
-    async getTotalCounter(index) {
-        let locator = "//div[contains(@id,'InputOccurrenceView')]" + XPATH.spanTotalCounter;
-        let elements = await this.findElements(locator);
-        if (elements.length === 0) {
-            throw new Error("occurrences form - Element was not found: " + locator);
-        }
-        return await elements[index].getText();
-    }
-
-    async getRemaining(index) {
-        let locator = "//div[contains(@id,'InputOccurrenceView')]" + XPATH.spanLeftCounter;
-        let elements = await this.findElements(locator);
-        if (elements.length === 0) {
-            throw new Error("occurrences form - Element was not found: " + locator);
-        }
-        return await elements[index].getText();
-    }
-
-    async isRedBorderDisplayed(index) {
+    async clearTextLine(index) {
+        index = typeof index !== 'undefined' ? index : 0;
         let inputs = await this.getDisplayedElements(this.textLineInput);
-        if (inputs.length === 0) {
-            throw new Error("Text line Form - text inputs were not found!");
-        }
-        let attr = await inputs[index].getAttribute("class");
-        return attr.includes("invalid");
+        await this.clearInputTextElement(inputs[index]);
     }
 
-    async isRegExStatusValid(index) {
-        let locator = XPATH.textLine + "//div[contains(@class,'input-wrapper')]//input";
-        let inputs = await this.getDisplayedElements(locator);
-        if (inputs.length === 0) {
-            throw new Error("Text line Form - text inputs were not found!");
+
+    async getTotalCounter(index) {
+        let locator = "//div[@data-component='SortableGridList']//span[@data-component='Counter']";
+        let elements = await this.findElements(locator);
+        if (elements.length === 0) {
+            throw new Error("TextLine form - Counter element was not found: " + locator);
         }
-        let value = await inputs[index].getAttribute("class");
-        return value.includes('valid');
+        return await elements[index].getText();
     }
 }
 

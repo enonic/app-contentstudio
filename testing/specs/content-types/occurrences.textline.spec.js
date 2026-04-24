@@ -1,5 +1,5 @@
 /**
- * Created on 26.08.2021
+ * Created on 26.08.2021 update on 24.04.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -20,17 +20,24 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
     const TEXT = 'test text';
     const TEXT_2 = 'test text 2';
     const TEXT_3 = 'test text 3';
-    let SITE;
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
     const TEXTLINE_0_1 = contentBuilder.generateRandomName('textline');
     const TEXTLINE_1_0 = contentBuilder.generateRandomName('textline');
     const TEXTLINE_1_1 = contentBuilder.generateRandomName('textline');
 
-
-    it(`Preconditions: new site should be created`,
+    it(`GIVEN an existing valid TextLine content (1:0) is opened, WHEN the “Add” button is clicked, THEN the Remove icon becomes visible for both inputs`,
         async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
+            let contentWizard = new ContentWizard();
+            let textLine = new TextLine();
+            // 1. Open wizard for text-line input  1:0:
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.TEXTLINE_1_0);
+            await contentWizard.typeDisplayName(TEXTLINE_0_1);
+            // 2. Click on 'Add' button then click
+            await textLine.clickOnAddButton();
+            // 3. Click on the remove icon for the first input
+            await textLine.clickOnRemoveButton(0);
+            // 4. Verify that the remove icon is not visible for the remaining single input
+            await textLine.waitForRemoveButtonNotDisplayed();
         });
 
     it(`GIVEN wizard for new TextLine-content (0:1) is opened WHEN display name has been typed THEN the content gets valid`,
@@ -38,7 +45,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             let contentWizard = new ContentWizard();
             let textLine = new TextLine();
             // 1. Open wizard for new content with text-line input:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.TEXTLINE_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.TEXTLINE_0_1);
             // 2. Type a name
             await contentWizard.typeDisplayName(TEXTLINE_0_1);
             // 3. Verify that 'Add' button is not displayed:
@@ -47,8 +54,8 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             await textLine.waitForRemoveButtonNotDisplayed();
             // 5. Verify that the content is valid:
             let isInvalid = await contentWizard.isContentInvalid();
-            await studioUtils.saveScreenshot('textline_wizard_1');
-            assert.ok(isInvalid === false, 'Textline content should be valid because the single input is not required');
+            await studioUtils.saveScreenshot('text_line_wizard_1');
+            assert.ok(isInvalid === false, 'Text line content should be valid because the single input is not required');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
         });
@@ -81,12 +88,12 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             // 3. Open Versions Panel
             await contentWizard.openContextWindow();
             await wizardContextPanel.openVersionHistory();
-            await wizardVersionsWidget.waitForVersionsLoaded();
+            await wizardVersionsWidget.waitForLoaded();
             // 4. Revert the previous version:
             await wizardVersionsWidget.clickAndExpandVersion(1);
             await wizardVersionsWidget.clickOnRestoreButton();
             await contentWizard.waitForNotificationMessage();
-            await studioUtils.saveScreenshot('textline_0_1_reverted');
+            await studioUtils.saveScreenshot('text_line_0_1_reverted');
             let result2 = await textLine.getTexLineValues();
             assert.equal(result2[0], "", "Textline should be cleared");
         });
@@ -96,7 +103,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             let contentWizard = new ContentWizard();
             let textLine = new TextLine();
             // 1. Open wizard for new content with the required text-line:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.TEXTLINE_1_0);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.TEXTLINE_1_0);
             // 2. Fill in the only name input:
             await contentWizard.typeDisplayName(TEXTLINE_1_0);
             // 3. Verify that 'Add' button is displayed:
@@ -105,7 +112,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             await textLine.waitForRemoveButtonNotDisplayed();
             // 5. Verify that the content is invalid:
             let isInvalid = await contentWizard.isContentInvalid();
-            await studioUtils.saveScreenshot('textline_wizard_1_0');
+            await studioUtils.saveScreenshot('text_line_wizard_1_0');
             assert.ok(isInvalid, 'Textline content should be invalid because - Min 1 valid occurrence(s) required');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -118,7 +125,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             await studioUtils.selectAndOpenContentInWizard(TEXTLINE_1_0);
             // 2. Verify that the form validation message is visible:
             let result = await textLine.getFormValidationRecording(0);
-            await studioUtils.saveScreenshot('textline_1_0_not_valid');
+            await studioUtils.saveScreenshot('text_line_1_0_not_valid');
             assert.equal(result, 'Min 1 valid occurrence(s) required', 'Validation recording should be displayed');
         });
 
@@ -131,7 +138,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             // 2. Fill in the required input:
             await textLine.typeText(TEXT);
             // 2. Verify the form validation message is not visible:
-            await studioUtils.saveScreenshot('textline_1_0_valid');
+            await studioUtils.saveScreenshot('text_line_1_0_valid');
             await textLine.waitForFormValidationRecordingNotDisplayed(0);
             let isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid === false, 'Content should be valid, because the required input is filled in');
@@ -148,7 +155,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             // 3. Verify that the form validation message is not visible
-            await studioUtils.saveScreenshot('textline_1_0_valid_2');
+            await studioUtils.saveScreenshot('text_line_1_0_valid_2');
             await textLine.waitForFormValidationRecordingNotDisplayed(0);
             let isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid === false, 'Content should be valid, because the required input is filled in');
@@ -167,7 +174,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             // Verify that 'Add' button remains visible
             await textLine.waitForAddButtonDisplayed();
             // 3. Verify that the form validation message is not visible
-            await studioUtils.saveScreenshot('textline_1_0_valid_3');
+            await studioUtils.saveScreenshot('text_line_1_0_valid_3');
             await textLine.waitForFormValidationRecordingNotDisplayed(0);
             let isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid === false, 'Content should be valid, because the required input is filled in');
@@ -184,7 +191,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             // 3. Verify saved values in both inputs
-            await studioUtils.saveScreenshot('textline_1_0_valid_4');
+            await studioUtils.saveScreenshot('text_line_1_0_valid_4');
             let result = await textLine.getTexLineValues();
             assert.ok(result.includes(TEXT_2), 'Expected text should be in the first texline');
             assert.ok(result.includes(TEXT_3), 'Expected text should be in the second textline');
@@ -195,7 +202,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             let contentWizard = new ContentWizard();
             let textLine = new TextLine();
             // 1. Open wizard for new text-line:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.TEXTLINE_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.TEXTLINE_1_1);
             // 2. Type a name
             await contentWizard.typeDisplayName(TEXTLINE_1_1);
             // 3. Verify that 'Add' button is not displayed:
@@ -204,8 +211,8 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             await textLine.waitForRemoveButtonNotDisplayed();
             // 5. Verify that the content is invalid:
             let isInvalid = await contentWizard.isContentInvalid();
-            await studioUtils.saveScreenshot('textline_wizard_1_1');
-            assert.ok(isInvalid, "Textline content should be invalid because 'This field is required'");
+            await studioUtils.saveScreenshot('text_line_wizard_1_1');
+            assert.ok(isInvalid, "Text line content should be invalid because 'This field is required'");
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
         });
@@ -217,7 +224,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             // 1. Open existing text-line content:
             await studioUtils.selectAndOpenContentInWizard(TEXTLINE_1_1);
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.ok(isInvalid, "Textline content should be invalid because 'This field is required'");
+            assert.ok(isInvalid, "Text line content should be invalid because 'This field is required'");
             let formMessage = await textLine.getFormValidationRecording();
             assert.equal(formMessage, appConst.THIS_FIELD_IS_REQUIRED, "'This field is required' should be displayed in the form");
             // 2. Type a text in the second tex-line input then click on Save
@@ -225,7 +232,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             // 3. Verify saved value
-            await studioUtils.saveScreenshot('textline_1_1_valid');
+            await studioUtils.saveScreenshot('text_line_1_1_valid');
             let result = await textLine.getTexLineValues();
             assert.equal(result[0], TEXT, "Expected text should be in the first texline");
         });

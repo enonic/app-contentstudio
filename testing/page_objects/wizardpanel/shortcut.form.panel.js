@@ -2,11 +2,11 @@
  * Created on 02.12.2017.
  */
 const Page = require('../page');
-const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
+const {COMMON} = require("../../libs/elements");
 const xpath = {
-    stepForm: `//div[contains(@id,'ContentWizardStepForm')]`,
+    stepForm: `//div[@data-component='ContentWizardTabs']`,
     parametersSet: "//div[contains(@id,'FormItemSetView') and descendant::h5[contains(.,'Parameters')]]",
     targetFormView: `//div[contains(@id,'FormView') and descendant::div[text()='Target']]`,
     parametersFormOccurrence: `//div[contains(@id,'FormItemSetOccurrenceView')]`,
@@ -14,7 +14,7 @@ const xpath = {
     parameterValueInput: `//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Value']]//input`,
     addParametersButton: "//button[contains(@id,'Button') and child::span[contains(.,'Add')]]",
     expandButton: "//div[@class='bottom-button-row']//a[contains(@class,'collapse-button') and text()='Expand']",
-    parameterOccurrenceMenuButton: "//div[contains(@id,'FormItemSetOccurrenceView')]" + lib.BUTTONS.MORE_BUTTON,
+    parameterOccurrenceMenuButton: "//div[contains(@id,'FormItemSetOccurrenceView')]" ,
     parametersOccurrenceLabel: "//div[contains(@id,'FormOccurrenceDraggableLabel')]",
 };
 
@@ -24,24 +24,16 @@ class ShortcutForm extends Page {
         return xpath.stepForm + lib.FORM_VIEW + lib.CONTENT_SELECTOR.DIV + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
     }
 
-    get addNewContentButton() {
-        return xpath.stepForm + lib.CONTENT_SELECTOR.DIV + lib.ADD_NEW_CONTENT_BUTTON;
-    }
-
-    get removeTargetIcon() {
-        return xpath.stepForm + lib.CONTENT_SELECTED_OPTION_VIEW + lib.REMOVE_ICON;
-    }
-
     get addParametersButton() {
         return xpath.stepForm + xpath.parametersSet + "/div[@class='bottom-button-row']" + xpath.addParametersButton;
     }
 
     get formValidationRecording() {
-        return lib.FORM_VIEW + lib.INPUT_VALIDATION_VIEW;
+        return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + COMMON.INPUTS.VALIDATION_RECORDING;
     }
 
     get targetValidationRecording() {
-        return xpath.targetFormView + lib.INPUT_VALIDATION_VIEW;
+        return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + COMMON.INPUTS.VALIDATION_RECORDING;
     }
 
     get helpTextInParametersForm() {
@@ -51,7 +43,8 @@ class ShortcutForm extends Page {
 
     async waitForAddNewContentButtonDisplayed() {
         try {
-            await this.waitForElementDisplayed(this.addNewContentButton, appConst.mediumTimeout);
+            let contentSelectorDropdown = new ContentSelectorDropdown(xpath.stepForm);
+            await contentSelectorDropdown.waitForAddNewContentButtonDisplayed();
         } catch (err) {
             await this.handleError('Add new button should be displayed', 'err_add_new_btn', err);
         }
@@ -59,15 +52,16 @@ class ShortcutForm extends Page {
 
     async waitForAddNewContentButtonNotDisplayed() {
         try {
-            await this.waitForElementNotDisplayed(this.addNewContentButton, appConst.mediumTimeout);
+            let contentSelectorDropdown = new ContentSelectorDropdown(xpath.stepForm);
+            await contentSelectorDropdown.waitForAddNewContentButtonNotDisplayed();
         } catch (err) {
             await this.handleError('Add new button should not be displayed', 'err_add_new_btn', err);
         }
     }
 
     async clickOnAddNewContentButton() {
-        await this.waitForAddNewContentButtonDisplayed();
-        return await this.clickOnElement(this.addNewContentButton);
+        let contentSelectorDropdown = new ContentSelectorDropdown(xpath.stepForm);
+        await contentSelectorDropdown.clickOnAddNewContentButton();
     }
 
     waitForParametersFormVisible() {
@@ -196,18 +190,18 @@ class ShortcutForm extends Page {
 
     async filterOptionsAndSelectTarget(displayName) {
         let contentSelectorDropdown = new ContentSelectorDropdown(xpath.stepForm);
-        await contentSelectorDropdown.clickOnFilteredByDisplayNameItem(displayName);
+        await contentSelectorDropdown.doFilterItem(displayName);
+        await contentSelectorDropdown.clickOnListItemOptionByDisplayName(displayName);
     }
 
     async getSelectedTargetDisplayName() {
-        let locator = xpath.stepForm + lib.CONTENT_SELECTED_OPTION_VIEW + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getText(locator);
+       let contentSelectorDropdown  = new ContentSelectorDropdown(xpath.stepForm);
+       return await contentSelectorDropdown.getSelectedOptionsDisplayName();
     }
 
-    async clickOnRemoveTargetIcon() {
-        await this.waitForElementDisplayed(this.removeTargetIcon, appConst.mediumTimeout);
-        await this.clickOnElement(this.removeTargetIcon);
+    async clickOnRemoveTargetIcon(displayName) {
+        let contentSelectorDropdown  = new ContentSelectorDropdown(xpath.stepForm);
+        await contentSelectorDropdown.removeSelectedOption(displayName);
         return await this.pause(200);
     }
 

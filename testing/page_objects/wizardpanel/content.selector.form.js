@@ -25,11 +25,6 @@ class ContentSelectorForm extends BaseSelectorForm {
         return await contentSelectorDropdown.waitForOptionFilterInputDisplayed();
     }
 
-    // TODO
-    get addNewContentButton() {
-        return XPATH.container + lib.ADD_NEW_CONTENT_BUTTON;
-    }
-
     async clickOnModeTogglerButton() {
         let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
         await contentSelectorDropdown.clickOnModeTogglerButton();
