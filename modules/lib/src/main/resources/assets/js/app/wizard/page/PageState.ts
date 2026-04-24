@@ -189,7 +189,22 @@ export class PageStateEventHandler {
                 console.warn('Unable to reset a component: Page is not set');
                 return;
             }
-            this.resetComponent(path);
+
+            const item: PageItem = PageState.getState().getComponentByPath(path);
+            if (item == null) {
+                return;
+            }
+
+            const notifyReload = () => PageEventsManager.get().notifyComponentReloadRequested(path, true);
+
+            if (item instanceof DescriptorBasedComponent) {
+                item.setDescriptor(null).then(notifyReload).catch(DefaultErrorHandler.handle);
+            } else if (item instanceof Component) {
+                item.reset();
+                notifyReload();
+            } else if (item instanceof Region) {
+                item.empty();
+            }
         });
 
         PageEventsManager.get().onPageTemplateSetRequested((pageTemplate: PageTemplateKey) => {
@@ -242,13 +257,16 @@ export class PageStateEventHandler {
             const item: PageItem = PageState.getState().getComponentByPath(path);
 
             if (item instanceof DescriptorBasedComponent) {
+                const notifyReload = () => PageEventsManager.get().notifyComponentReloadRequested(path, true);
                 if (descriptorKey) {
-                    new GetComponentDescriptorRequest(descriptorKey.toString(), item.getType()).sendAndParse().then(
-                        (descriptor: Descriptor) => {
-                            return item.setDescriptor(descriptor);
-                        }).catch(DefaultErrorHandler.handle);
+                    new GetComponentDescriptorRequest(descriptorKey.toString(), item.getType()).sendAndParse()
+                        .then((descriptor: Descriptor) => item.setDescriptor(descriptor))
+                        .then(notifyReload)
+                        .catch(DefaultErrorHandler.handle);
                 } else {
-                    item.setDescriptor(null).catch(DefaultErrorHandler.handle);
+                    item.setDescriptor(null)
+                        .then(notifyReload)
+                        .catch(DefaultErrorHandler.handle);
                 }
             }
         });

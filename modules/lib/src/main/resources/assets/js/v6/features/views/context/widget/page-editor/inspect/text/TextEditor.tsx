@@ -36,6 +36,7 @@ import type {HtmlAreaConfig} from '../../../../../../shared/form/input-types/htm
 import {getCursorPosition, setupEditor, setupEditorUi, type DialogOverrides} from '../../../../../../shared/form/input-types/html-area/setupEditor';
 import {useCKEditorConfig} from '../../../../../../shared/form/input-types/html-area/useCKEditorConfig';
 import {$contextContent} from '../../../../../../store/context/contextContent.store';
+import {setInspectFormDirty} from '../../../../../../store/inspect-panel.store';
 import {requestUpdateTextComponent} from '../../../../../../store/page-editor';
 import {$activeProject} from '../../../../../../store/projects.store';
 import {useApplicationKeys} from '../../../../../wizard/content-wizard-tabs/useApplicationKeys';
@@ -138,7 +139,6 @@ const TextEditorInner = ({
 }: TextEditorInnerProps): JSX.Element => {
     const [element, setElement] = useState<HTMLTextAreaElement | null>(null);
     const [focused, setFocused] = useState(false);
-    const [isDirty, setIsDirty] = useState(false);
     const openImageDialogRef = useRef<((params: OpenHtmlAreaImageDialogParams) => void) | undefined>(undefined);
     const openLinkDialogRef = useRef<((params: OpenHtmlAreaLinkDialogParams) => void) | undefined>(undefined);
     const openMacroDialogRef = useRef<((params: OpenHtmlAreaMacroDialogParams) => void) | undefined>(undefined);
@@ -151,14 +151,17 @@ const TextEditorInner = ({
     const textComponentRef = useRef(textComponent);
     textComponentRef.current = textComponent;
 
-    useInspectTextTracking(isDirty);
+    // ? Last persisted content. Dirty is derived as current !== baseline,
+    // ? so typing + undoing back to the saved value clears Apply.
+    const baselineRef = useRef<string>('');
+
+    useInspectTextTracking();
 
     const contentId = contentSummary?.getId();
 
     const initialPreviewContent = useMemo(() => {
         const text = textComponent.getText() ?? '';
         return contentId ? HTMLAreaHelper.convertRenderSrcToPreviewSrc(text, contentId, project) : text;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const dialogOverridesRef = useRef<DialogOverrides>({
@@ -292,7 +295,7 @@ const TextEditorInner = ({
     }, [status, editor, contentSummary, project, applicationKeys, assetsUri, editableSourceCode, debouncedOnChange]);
 
     //
-    // * Dirty flag (leading edge — snappy Apply enablement)
+    // * Dirty flag — current content vs. last persisted baseline
     //
 
     useEffect(() => {
@@ -300,10 +303,12 @@ const TextEditorInner = ({
             return;
         }
 
+        // Capture initial baseline from the editor's own normalized output.
+        baselineRef.current = editor.getData();
+        setInspectFormDirty(false);
+
         const onChange = () => {
-            if (!isDirty) {
-                setIsDirty(true);
-            }
+            setInspectFormDirty(editor.getData() !== baselineRef.current);
         };
 
         editor.on('change', onChange);
@@ -311,7 +316,26 @@ const TextEditorInner = ({
         return () => {
             editor.removeListener('change', onChange);
         };
-    }, [status, editor, isDirty]);
+    }, [status, editor]);
+
+    // Advance the baseline when the wizard actually persists the content —
+    // fires for both the wizard Save action and the inspect Apply path.
+    useEffect(() => {
+        if (status !== 'ready' || !editor) {
+            return;
+        }
+
+        const handler = () => {
+            baselineRef.current = editor.getData();
+            setInspectFormDirty(false);
+        };
+
+        BeforeContentSavedEvent.on(handler);
+
+        return () => {
+            BeforeContentSavedEvent.un(handler);
+        };
+    }, [status, editor]);
 
     //
     // * One-shot auto-focus on first ready
@@ -505,8 +529,10 @@ const TextEditorInner = ({
             const previewContent = contentId
                 ? HTMLAreaHelper.convertRenderSrcToPreviewSrc(text, contentId, project)
                 : text;
-            editor.setData(previewContent);
-            setIsDirty(false);
+            editor.setData(previewContent, () => {
+                baselineRef.current = editor.getData();
+                setInspectFormDirty(false);
+            });
         };
 
         PageState.getEvents().onComponentUpdated(handler);

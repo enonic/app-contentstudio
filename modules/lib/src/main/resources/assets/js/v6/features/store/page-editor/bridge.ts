@@ -27,7 +27,10 @@ type Unsubscribe = () => void;
 const cleanups: Unsubscribe[] = [];
 
 export function initPageEditorBridge(options?: InitPageEditorBridgeOptions): void {
-    cleanupPageEditorBridge();
+    // ? Only drop old subscriptions here — resetting lifecycle state would
+    // ? blank isPageReady/isPageRenderable on a silent content save
+    // ? (saveChangesWithoutValidation), leaving the Insert tab disabled.
+    unsubscribePageEditorBridge();
 
     const mgr = PageEventsManager.get();
     const events = PageState.getEvents();
@@ -120,11 +123,15 @@ export function initPageEditorBridge(options?: InitPageEditorBridgeOptions): voi
     }
 }
 
-export function cleanupPageEditorBridge(): void {
+function unsubscribePageEditorBridge(): void {
     for (const fn of cleanups) {
         fn();
     }
     cleanups.length = 0;
+}
+
+export function cleanupPageEditorBridge(): void {
+    unsubscribePageEditorBridge();
 
     $pageEditorLifecycle.set({
         isPageLocked: false,

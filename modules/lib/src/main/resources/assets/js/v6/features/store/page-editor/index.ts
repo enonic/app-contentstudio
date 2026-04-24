@@ -22,6 +22,7 @@ export {
     requestComponentAdd,
     requestComponentRemove,
     requestComponentReset,
+    requestReloadComponent,
     requestComponentDuplicate,
     requestComponentCreateFragment,
     requestComponentMove,

@@ -82,6 +82,8 @@ export class PageEventsManager {
 
     private componentResetRequestedListeners: ((path: ComponentPath) => void)[] = [];
 
+    private componentReloadRequestedListeners: ((path: ComponentPath, existing: boolean) => void)[] = [];
+
     private componentRemoveRequestedListeners: ((path: ComponentPath) => void)[] = [];
 
     private componentDescriptorSetRequestedListeners: ((path: ComponentPath, descriptorKey: DescriptorKey) => void)[] = [];
@@ -367,6 +369,18 @@ export class PageEventsManager {
 
     notifyComponentResetRequested(path: ComponentPath) {
         this.componentResetRequestedListeners.forEach((listener) => listener(path));
+    }
+
+    onComponentReloadRequested(listener: ((path: ComponentPath, existing: boolean) => void)): void {
+        this.componentReloadRequestedListeners.push(listener);
+    }
+
+    unComponentReloadRequested(listener: ((path: ComponentPath, existing: boolean) => void)): void {
+        this.componentReloadRequestedListeners = this.componentReloadRequestedListeners.filter((curr) => (curr !== listener));
+    }
+
+    notifyComponentReloadRequested(path: ComponentPath, existing: boolean = true): void {
+        this.componentReloadRequestedListeners.forEach((listener) => listener(path, existing));
     }
 
     onComponentRemoveRequested(listener: ((path: ComponentPath) => void)): void {

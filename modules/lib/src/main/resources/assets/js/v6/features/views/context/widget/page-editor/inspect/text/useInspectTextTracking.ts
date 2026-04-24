@@ -1,12 +1,11 @@
 import {useEffect} from 'react';
 import {
     resetInspectFormTracking,
-    setInspectFormDirty,
     setInspectFormPresent,
     setInspectFormValid,
 } from '../../../../../../store/inspect-panel.store';
 
-export function useInspectTextTracking(isDirty: boolean): void {
+export function useInspectTextTracking(): void {
     useEffect(() => {
         setInspectFormPresent(true);
         setInspectFormValid(true);
@@ -15,8 +14,4 @@ export function useInspectTextTracking(isDirty: boolean): void {
             resetInspectFormTracking();
         };
     }, []);
-
-    useEffect(() => {
-        setInspectFormDirty(isDirty);
-    }, [isDirty]);
 }

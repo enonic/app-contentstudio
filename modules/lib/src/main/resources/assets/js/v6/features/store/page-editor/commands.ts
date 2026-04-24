@@ -76,6 +76,10 @@ export function requestComponentReset(path: ComponentPath): void {
     PageEventsManager.get().notifyComponentResetRequested(path);
 }
 
+export function requestReloadComponent(path: ComponentPath, existing: boolean = true): void {
+    PageEventsManager.get().notifyComponentReloadRequested(path, existing);
+}
+
 export function requestComponentDuplicate(path: ComponentPath): void {
     PageEventsManager.get().notifyComponentDuplicateRequested(path);
 }
