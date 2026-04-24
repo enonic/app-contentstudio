@@ -8,6 +8,8 @@ import {ItemLabel} from '../../../ItemLabel';
 import {ChevronRight} from 'lucide-react';
 import {OptionSetConfirmAdd, SetConfirmDelete, SetConfirmOverlay, useConfirmPosition} from '../set-confirmation';
 import {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
+import {isLockedSingleOccurrence} from './isLockedSingleOccurrence';
+import {useOptionSetHasBody} from './useOptionSetHasBody';
 
 type OptionSetOccurrenceViewProps = {
     index: number;
@@ -46,8 +48,10 @@ export const OptionSetOccurrenceView = ({
     onRemove,
     children,
 }: OptionSetOccurrenceViewProps): ReactElement => {
-    const occurrences = optionSet.getOccurrences();
-    const showHeader = occurrences.getMinimum() !== 1 || occurrences.getMaximum() !== 1;
+    const isRadio = optionSet.isRadioSelection();
+    const showHeader = !isLockedSingleOccurrence(optionSet);
+    const showBody = expanded || !showHeader;
+    const hasBody = useOptionSetHasBody(optionSet, propertySet);
     const label = useSetOccurrenceLabel(propertySet, formItems, fallbackLabel);
     const [confirmingAdd, setConfirmingAdd] = useState<'above' | 'below' | null>(null);
     const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -62,7 +66,6 @@ export const OptionSetOccurrenceView = ({
     const addBelowLabel = useI18n('action.addBelow');
     const deleteLabel = useI18n('action.delete');
 
-    const isRadio = optionSet.isRadioSelection();
     const handleRequestAddAbove = useCallback(() => {
         if (!isRadio) {
             onAddAbove(index);
@@ -89,7 +92,10 @@ export const OptionSetOccurrenceView = ({
         },
         [confirmingAdd, onAddAbove, onAddBelow, index]
     );
-
+    const handleToggle = useCallback(() => {
+        if (!hasBody) return;
+        onToggle(index);
+    }, [hasBody, onToggle, index]);
     const handleRemove = useCallback(() => {
         if (!expanded) onToggle(index);
         setConfirmingDelete(true);
@@ -133,8 +139,8 @@ export const OptionSetOccurrenceView = ({
                     <div
                         className={cn(
                             'flex rounded border border-transparent',
-                            expanded &&
-                                'bg-surface-selected rounded-bl-none rounded-br-none border-bdr-soft [&_svg:first-child]:text-alt',
+                            expanded && 'bg-surface-selected border-bdr-soft [&_svg:first-child]:text-alt',
+                            expanded && hasBody && 'rounded-bl-none rounded-br-none',
                             expanded && menuOpen && 'bg-surface-selected-hover',
                             expanded && !menuOpen && 'hover:bg-surface-selected-hover',
                             !expanded && menuOpen && 'bg-surface-neutral-hover',
@@ -154,17 +160,19 @@ export const OptionSetOccurrenceView = ({
                                         expanded && 'text-alt rounded-b-none'
                                     )}
                                     aria-expanded={expanded}
-                                    onClick={() => onToggle(index)}
+                                    onClick={handleToggle}
                                 >
                                     <div className="flex items-center gap-1.5 truncate">
                                         <ItemLabel icon={null} primary={label.primary} secondary={label.secondary} className="min-w-0" />
                                         {hasErrors && !expanded && <FilledOctagonAlert size={16} className="text-error shrink-0" />}
                                     </div>
-                                    <ChevronRight
-                                        size={30}
-                                        absoluteStrokeWidth
-                                        className={cn('shrink-0 transition-transform', expanded ? '-rotate-90' : 'rotate-90')}
-                                    />
+                                    {hasBody && (
+                                        <ChevronRight
+                                            size={30}
+                                            absoluteStrokeWidth
+                                            className={cn('shrink-0 transition-transform', expanded ? '-rotate-90' : 'rotate-90')}
+                                        />
+                                    )}
                                 </button>
                             </ContextMenu.Trigger>
 
@@ -185,8 +193,13 @@ export const OptionSetOccurrenceView = ({
                     </div>
                 )}
 
-                {(expanded || !showHeader) && (
-                    <div className={cn('flex flex-col gap-7.5 border px-4 py-4 border-bdr-soft', showHeader ? 'border-t-0' : 'rounded')}>
+                {showBody && hasBody && (
+                    <div
+                        className={cn(
+                            'flex flex-col gap-7.5 border px-4 py-4 border-bdr-soft',
+                            showHeader ? 'border-t-0' : 'rounded'
+                        )}
+                    >
                         {children}
                     </div>
                 )}
