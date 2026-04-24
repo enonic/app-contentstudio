@@ -1,3 +1,4 @@
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {type DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {type IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
 import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
@@ -132,6 +133,22 @@ export class LiveFormPanel
                 this.lockPageAfterProxyLoad = false;
             }
         });
+
+        PageEventsManager.get().onComponentReloadRequested((path, existing) => {
+            this.saveAndReloadComponent(path, existing);
+        });
+    }
+
+    private saveAndReloadComponent(path: ComponentPath, existing: boolean): void {
+        this.pageSkipReload = true;
+        this.contentWizardPanel.saveChangesWithoutValidation(false)
+            .then(() => {
+                this.liveEditPageProxy?.loadComponent(path, existing);
+            })
+            .catch(DefaultErrorHandler.handle)
+            .finally(() => {
+                this.pageSkipReload = false;
+            });
     }
 
     doRender(): Q.Promise<boolean> {
@@ -244,10 +261,6 @@ export class LiveFormPanel
 
                 return loaded;
             });
-    }
-
-    private loadComponent(path: ComponentPath): void {
-        this.liveEditPageProxy.loadComponent(path);
     }
 
     isShown(): boolean {

@@ -2,13 +2,28 @@ import {Button} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import type {ReactElement} from 'react';
 import {useI18n} from '../../../../../hooks/useI18n';
-import {$isApplyEnabled, executeInspectSave} from '../../../../../store/inspect-panel.store';
+import {$inspectedItem, $inspectedItemType, requestReloadComponent} from '../../../../../store/page-editor';
+import {$isApplyEnabled, executeInspectSave, setInspectFormDirty} from '../../../../../store/inspect-panel.store';
 
 const APPLY_BUTTON_NAME = 'InspectApplyButton';
 
+const RELOADABLE_TYPES = new Set(['part', 'layout', 'fragment', 'text']);
+
 export const ApplyButton = (): ReactElement => {
     const isEnabled = useStore($isApplyEnabled);
+    const item = useStore($inspectedItem);
+    const itemType = useStore($inspectedItemType);
     const label = useI18n('action.apply');
+
+    const handleClick = (): void => {
+        const typeKey = itemType?.toString();
+        if (item && typeKey && RELOADABLE_TYPES.has(typeKey)) {
+            requestReloadComponent(item.getPath(), true);
+            setInspectFormDirty(false);
+            return;
+        }
+        executeInspectSave();
+    };
 
     return (
         <Button
@@ -16,7 +31,7 @@ export const ApplyButton = (): ReactElement => {
             variant="solid"
             className="mt-10 self-center w-full max-w-80"
             disabled={!isEnabled}
-            onClick={executeInspectSave}
+            onClick={handleClick}
             label={label}
         />
     );
