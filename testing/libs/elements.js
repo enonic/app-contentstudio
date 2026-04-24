@@ -141,6 +141,7 @@ const TREE_GRID = {
     },
 }
 const DROPDOWN = {
+    SELECTOR_UPLOAD_BUTTON:"//div[@data-component='SelectorUploadButton']",
     MODE_TOGGLE:"//button[@aria-label='Tree view' or @aria-label='List view']",
     DROPDOWN_LIST_ITEM_DISPLAY_NAME: `//div[@role='option']//div[1]//span[1]`,
     CONTENT_LABEL_OPTIONS_NAME: "//div[@role='treeitem']//div[@data-component='ContentLabel']/div[2]/span",
@@ -162,6 +163,8 @@ const DROPDOWN = {
     dropdownSelectedOptionByName: (dataComponentValue, optionName) => {
         return `//div[@data-component='${dataComponentValue}']//span[contains(.,'${optionName}')]`;
     },
+    selectedItemByDisplayName: (displayName) =>
+        `//div[@data-component='SelectorSelectionItem' and descendant::span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`,
     selectorListOptionByName: (optionName) => {
         return `//div[@role='option']//span[contains(.,'${optionName}')]`;
     },

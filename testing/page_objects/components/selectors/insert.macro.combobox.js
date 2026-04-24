@@ -2,25 +2,31 @@
  * Created on 16.02.2024
  */
 const BaseDropdown = require('./base.dropdown');
-const lib = require('../../../libs/elements-old');
-const appConst = require('../../../libs/app_const');
 const XPATH = {
-    container: "//div[contains(@id,'MacroComboBox')]",
-    contentListBoxUL: "//ul[contains(@id,'ContentListBox')]",
+    macroSelector: "//div[@data-component='MacroSelector']",
 };
 
 class MacroComboBox extends BaseDropdown {
 
-    get container() {
-        return XPATH.container;
+    constructor(parentElementXpath) {
+        super();
+        this._container = parentElementXpath;
     }
 
-    async selectFilteredByDisplayNameItem(displayName, parent) {
+    get container() {
+        return this._container
+    }
+
+    get dataComponentDiv() {
+        return XPATH.macroSelector;
+    }
+
+    async selectFilteredByDisplayNameItem(displayName) {
         try {
-            await this.clickOnFilteredByDisplayNameItem(displayName, parent);
+            await this.doFilterItem(displayName);
+            await this.clickOnOptionByDisplayName(displayName);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('Macro selector - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError('Macro Selector, Error during selecting the option', 'err_insert_macro', err);
         }
     }
 }

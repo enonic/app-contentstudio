@@ -442,7 +442,7 @@ class HtmlAreaForm extends OccurrencesFormView {
     }
 
     async removeTextArea(index) {
-        let elems = await this.findElements(XPATH.removeAreaButton);
+        let elems = await this.findElements(this.removeButton);
         await elems[index].click();
     }
 

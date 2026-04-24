@@ -1,6 +1,7 @@
 const Page = require('../../page');
 const {BUTTONS} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
+const MacroComboBox = require('../../components/selectors/insert.macro.combobox');
 
 const XPATH = {
     container: `//div[@role='dialog' and @data-component='HtmlAreaMacroDialog']`,
@@ -49,7 +50,7 @@ class InsertMacroModalDialog extends Page {
     }
 
     async typeTextInConfigurationTextArea(text) {
-        await this.waitForElementDisplayed(this.configTextArea, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.configTextArea);
         return await this.typeTextInInput(this.configTextArea, text);
     }
 
@@ -62,17 +63,11 @@ class InsertMacroModalDialog extends Page {
 
     async selectOption(option) {
         try {
-            let filterInput = this.optionFilterInput;
-            await this.waitForElementDisplayed(filterInput, appConst.mediumTimeout);
-            await this.typeTextInInput(filterInput, option);
-            await this.pause(500);
-            let optionLocator = `//div[@role='listbox']//div[@role='option' and contains(.,'${option}')]`;
-            await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-            await this.clickOnElement(optionLocator);
+            let macroComboBox= new MacroComboBox(XPATH.container);
+            await macroComboBox.selectFilteredByDisplayNameItem(option);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshot('err_select_macro_option');
-            throw new Error(`Error selecting macro option '${option}', screenshot: ${screenshot} ` + err);
+            await this.handleError(`Error occurred during selecting the macro option '${option}'!`, 'err_select_macro_option', err);
         }
     }
 

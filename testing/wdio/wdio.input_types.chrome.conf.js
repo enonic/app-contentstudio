@@ -14,7 +14,9 @@ exports.config = {
         path.join(__dirname, '../specs/content-types/occurrences.long.spec.js'),
         path.join(__dirname, '../specs/content-types/long.content.config.spec.js'),
         path.join(__dirname, '../specs/content-types/geopoint.content.spec.js'),
-
+        path.join(__dirname, '../specs/content-types/image.selector0_1.spec.js'),
+        path.join(__dirname, '../specs/content-types/htmlarea2_4.cke.spec.js'),
+        path.join(__dirname, '../specs/content-types/htmlarea_0_2__1_1.cke.spec.js'),
     ],
 
     maxInstances: 1,

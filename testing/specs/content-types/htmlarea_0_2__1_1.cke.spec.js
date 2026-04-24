@@ -1,5 +1,5 @@
 /**
- * Created on 14.04.2021.
+ * Created on 14.04.2021. updated on 23.04.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -95,8 +95,8 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             // 6. Verify that the content gets invalid:
             isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid, "The content should be invalid after clearing text in HtmlArea");
-            // 7. Verify that the validation message is not displayed before saving the content:
-            await htmlAreaForm.waitForFormValidationRecordingNotDisplayed();
+            // 7. Verify that the validation message is displayed before saving the content:
+            await htmlAreaForm.waitForFormValidationRecordingDisplayed();
         });
 
     it(`GIVEN wizard for 'htmlArea 0:2' is opened WHEN display name has been typed THEN content gets valid`,
@@ -107,7 +107,7 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             // 2. Fill the name input:
             await contentWizard.typeDisplayName(contentBuilder.generateRandomName('area'));
             await contentWizard.pause(1000);
-            // 3. Verify that the content gets valid but it is not saved yet:
+            // 3. Verify that the content is valid and has not been saved yet:
             let isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid === false, "The content should be valid, because html area is not required input");
             // 4. Verify that 'Mark as ready' button is displayed in the wizard toolbar:
@@ -156,6 +156,8 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             // 1. Open new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_2);
             await contentWizard.pause(1000);
+            // TODO
+            await contentWizard.typeDisplayName(contentBuilder.generateRandomName('area'));
             // 2. Click on Add button
             await htmlAreaForm.clickOnAddButton();
             // 3 . Verify that Add button is not visible now:

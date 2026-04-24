@@ -2,7 +2,6 @@
  * Created on 09.07.2020.
  */
 const Page = require('../page');
-const lib = require('../../libs/elements-old');
 const appConst = require('../../libs/app_const');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 
@@ -14,9 +13,8 @@ class BaseSelectorForm extends Page {
 
     async getSelectorValidationMessage() {
         try {
-            let locator = lib.CONTENT_WIZARD_STEP_FORM + this.selectorValidationRecording;
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-            return await this.getText(locator);
+            let contentSelector = new ContentSelectorDropdown();
+            await contentSelector.getSelectorValidationMessage(this.selectorValidationRecording);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_validation_message');
             throw new Error("Validation message should be displayed in the form, screenshot:" + screenshot + ' ' + err);
@@ -57,22 +55,13 @@ class BaseSelectorForm extends Page {
 
     async waitForEmptyOptionsMessage() {
         try {
-            return await this.waitForElementDisplayed(lib.EMPTY_OPTIONS_H5, appConst.longTimeout);
+            let locator = "//div[@data-combobox-popup]//span[contains(@class,'text-subtle') and contains(text(),'No matching items')]"
+            return await this.waitForElementDisplayed(locator);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_empty_opt');
-            throw new Error("Empty options text is not visible, screenshot: " + screenshot + ' ' + err);
+            await this.handleError(`Image Selector - 'No matching items' text should appear`, 'err_img_sel_empty_opt', err);
         }
     }
 
-    async getOptionsDisplayName() {
-        try {
-            let contentSelectorDropdown = new ContentSelectorDropdown();
-            return await contentSelectorDropdown.getOptionsDisplayNameInFlatMode()
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error("Error occurred in the dropdown selector, screenshot: " + screenshot + ' ' + err);
-        }
-    }
 
     async getOptionsDisplayNameInTreeMode() {
         try {
@@ -82,24 +71,6 @@ class BaseSelectorForm extends Page {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
             throw new Error("Error occurred in the dropdown selector, screenshot: " + screenshot + ' ' + err);
         }
-    }
-
-    // Click on OK button:
-    async clickOnOkButton() {
-        try {
-            let contentSelectorDropdown = new ContentSelectorDropdown();
-            await contentSelectorDropdown.clickOnApplySelectionButton();
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_apply_btn');
-            throw new Error("Content Selector, Apply selection (OK) button, screenshot: " + screenshot + ' ' + err);
-        }
-    }
-
-    async clickOnEditSelectedOption(optionDisplayName) {
-        let locator = `//div[contains(@id,'ContentSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${optionDisplayName}']]` +
-                      lib.EDIT_ICON;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.clickOnElement(locator);
     }
 
     async clickOnExpanderIconInOptionsList(optionName) {

@@ -21,14 +21,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
 
     const IMAGE_DISPLAY_NAME1 = appConst.TEST_IMAGES.PES;
     const IMAGE_DISPLAY_NAME2 = appConst.TEST_IMAGES.ELEPHANT;
-    let SITE;
-
-    it(`Precondition: new site should be added`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
-            await studioUtils.doAddSite(SITE);
-        });
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
     // Verify the bug - hideToggleIcon config doesn't work in selectors #8532
     // https://github.com/enonic/app-contentstudio/issues/8532
@@ -36,7 +29,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
             // 1. Open new wizard for content with image selector(tree mode, toggle is hidden):
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SEL_TOGGLE_HIDDEN);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.IMG_SEL_TOGGLE_HIDDEN);
             await studioUtils.saveScreenshot('img_sel_toggle_hidden');
             // 2. Verify that the toggle icon is not displayed in the Image Selector
             await imageSelectorForm.waitForToggleIconNotDisplayed();
@@ -55,7 +48,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
             let browsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
             // 1. Open new wizard
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.IMG_SELECTOR_1_1);
             // 2. Fill the name input:
             await contentWizard.typeDisplayName(CONTENT_NAME_2);
             // 3. Select an image in the required input:
@@ -110,7 +103,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
             let imageSelectorForm = new ImageSelectorForm();
             let contentWizard = new ContentWizard();
             // 1. Open new wizard
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.IMG_SELECTOR_1_1);
             // 2. Fill the name input:
             await contentWizard.typeDisplayName(CONTENT_NAME);
             // 3. Verify that Uploader button is enabled:
@@ -140,7 +133,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
             // 4. Save the content
             await contentWizard.waitAndClickOnSave();
             // 5. Verify the expected selected option:
-            let names = await imageSelectorForm.getSelectedImages();
+            let names = await imageSelectorForm.getSelectedImagesDisplayNames();
             assert.equal(names[0], IMAGE_DISPLAY_NAME1);
             // 6. Verify that options filter input is not displayed:
             await imageSelectorForm.waitForOptionsFilterInputNotDisplayed();

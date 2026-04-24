@@ -2,24 +2,34 @@
  * Created on 29.01.2024
  */
 const BasDropdown = require('./base.dropdown');
-const XPATH = {
-    container: "//div[contains(@id,'SiteConfiguratorComboBox')]",
-};
+
+XPATH = {
+    appSelector: "//div[@data-component='ApplicationSelector']",
+}
 
 class SiteConfiguratorComboBox extends BasDropdown {
 
-    get container() {
-        return XPATH.container;
+    constructor(parentElementXpath) {
+        super();
+        this._container = parentElementXpath;
     }
 
-    async selectFilteredApplicationAndClickOnApply(appDisplayName, parentElement) {
+    get container() {
+        return this._container
+    }
+
+    get dataComponentDiv() {
+        return XPATH.appSelector;
+    }
+
+    async selectFilteredApplicationAndClickOnApply(appDisplayName) {
         try {
-            await this.clickOnFilteredByDisplayNameItem(appDisplayName, parentElement);
-            // 3. Click on 'OK' button:
-            return await this.clickOnApplySelectionButtonOld(parentElement);
+            await this.doFilterItem(appDisplayName);
+            await this.clickOnOptionByDisplayName(appDisplayName);
+            await this.clickOnApplySelectionButton();
+            await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('SiteConfigurator  - Error occurred during selecting the option, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError(`SiteConfigurator ComboBox, tried to select application: ${appDisplayName}`, 'err_select_app', err);
         }
     }
 }
