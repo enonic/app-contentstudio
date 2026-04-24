@@ -29,6 +29,7 @@ const COMMON = {
         CHECKBOX_INPUT_CHECKED: "//input[@type='checkbox' and @aria-checked='true']",
         TEXT: "//input[@type='text']",
         INPUT: "//input",
+        DIV_BUTTON:"//div[@role='button']",
         textAreaByName: (name) => `//textarea[@name='${name}']`,
         inputByAriaLabel: (ariaLabel) => `//input[@aria-label='${ariaLabel}']`,
     },

@@ -40,19 +40,19 @@ class OccurrencesFormView extends Page {
     }
 
     waitForShowDetailsButtonDisplayed() {
-        return this.waitUntilDisplayed(this.showDetailsButton, appConst.mediumTimeout);
+        return this.waitUntilDisplayed(this.showDetailsButton);
     }
 
     waitForShowDetailsButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.showDetailsButton, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(this.showDetailsButton);
     }
 
     waitForHideDetailsButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.hideDetailsButton, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(this.hideDetailsButton);
     }
 
     waitForHideDetailsButtonDisplayed() {
-        return this.waitUntilDisplayed(this.hideDetailsButton, appConst.mediumTimeout);
+        return this.waitUntilDisplayed(this.hideDetailsButton);
     }
 
     async clickOnShowDetailsButton() {
@@ -69,6 +69,16 @@ class OccurrencesFormView extends Page {
         await this.waitForRemoveButtonDisplayed();
         let removeElements = await this.getDisplayedElements(this.removeButton);
         return await removeElements[removeElements.length - 1].click();
+    }
+
+    async clickOnRemoveButton(index) {
+        try {
+            await this.waitForRemoveButtonDisplayed();
+            let removeElements = await this.getDisplayedElements(this.removeButton);
+            return await removeElements[index].click();
+        } catch (err) {
+            await this.handleError('Remove button should be displayed', 'err_click_remove_button', err);
+        }
     }
 
     async waitForFormValidationRecordingDisplayed() {
@@ -100,6 +110,7 @@ class OccurrencesFormView extends Page {
             await this.handleError('Occurrence Validation record should not be displayed', 'err_occurrence_valid_recording', err);
         }
     }
+
     async waitForOccurrenceValidationRecordingDisplayedAt(index, expectedMessage) {
         try {
             let occurrenceSelector = `(${COMMON.INPUTS.OCCURRENCES_DATA_COMPONENT}//div[contains(@class,'w-full')])[${index + 1}]`;
@@ -117,16 +128,20 @@ class OccurrencesFormView extends Page {
         }
     }
 
-    waitForAddButtonDisplayed() {
-        return this.waitUntilDisplayed(this.addButton);
+    async waitForAddButtonDisplayed() {
+        return await this.waitUntilDisplayed(this.addButton);
     }
 
     waitForRemoveButtonDisplayed() {
         return this.waitUntilDisplayed(this.removeButton);
     }
 
-    waitForRemoveButtonNotDisplayed() {
-        this.waitForElementNotDisplayed(this.removeButton);
+    async waitForRemoveButtonNotDisplayed() {
+        try {
+            await this.waitForElementNotDisplayed(this.removeButton);
+        } catch (err) {
+            await this.handleError('Remove button should not be displayed', 'err_remove_button_not_displayed', err);
+        }
     }
 
     async waitForAddButtonNotDisplayed() {
@@ -134,9 +149,14 @@ class OccurrencesFormView extends Page {
     }
 
     async clickOnAddButton() {
-        await this.waitForAddButtonDisplayed();
-        let result = await this.getDisplayedElements(this.addButton);
-        return await result[0].click();
+        try {
+            await this.waitForAddButtonDisplayed();
+            let result = await this.getDisplayedElements(this.addButton);
+            await result[0].click();
+            await this.pause(300);
+        } catch (err) {
+            await this.handleError('Add button should be displayed', 'err_click_add_button', err);
+        }
     }
 
 }

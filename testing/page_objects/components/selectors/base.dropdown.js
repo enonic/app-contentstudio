@@ -1,7 +1,6 @@
 /**
  * Created on 08.01.2024 updated on 11.02.2026
  */
-const lib = require('../../../libs/elements-old');
 const {COMMON, BUTTONS, DROPDOWN} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const Page = require('../../page');
@@ -68,9 +67,9 @@ class BaseDropdown extends Page {
     }
 
     // wait for toggle-mode(flat/tree) icon is not displayed
-    async waitForToggleIconNotDisplayed(parentElement) {
+    async waitForToggleIconNotDisplayed() {
         try {
-            return await this.waitForElementNotDisplayed(parentElement + this.modeTogglerButton, appConst.mediumTimeout);
+            return await this.waitForElementNotDisplayed(this.modeTogglerButton);
         } catch (err) {
             await this.handleError('Dropdown,  mode-toggle icon should not be displayed.', 'err_toggle_mode_icon', err);
         }
@@ -93,11 +92,6 @@ class BaseDropdown extends Page {
     async waitForApplySelectionButtonDisplayed() {
         await this.waitUntilDisplayed(this.applySelectionButton);
         await this.pause(100);
-    }
-
-    async waitForApplySelectionButtonDisplayedOld() {
-        await this.waitUntilDisplayed(this.applySelectionButton, appConst.shortTimeout);
-        await this.pause(200);
     }
 
     async waitForApplySelectionButtonNotDisplayed() {
@@ -127,18 +121,10 @@ class BaseDropdown extends Page {
             await this.waitForApplySelectionButtonDisplayed();
             let elements = await this.getDisplayedElements(this.applySelectionButton);
             await elements[0].click();
-            await this.pause(100);
+            await this.pause(1000);
         } catch (err) {
             await this.handleError('Dropdown, tried to click on Apply Selection button.', 'err_click_apply_button', err);
         }
-    }
-
-    async filterItem(text) {
-        let locator = this.container + lib.DROPDOWN_SELECTOR.OPTION_FILTER_INPUT;
-        //await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
-        let elements = await this.getDisplayedElements(locator);
-        await elements[0].setValue(text);
-        return await this.pause(300);
     }
 
     // new
@@ -201,6 +187,7 @@ class BaseDropdown extends Page {
                 'err_click_filtered_option', err);
         }
     }
+
     async clickOnListItemOptionByDisplayName(optionDisplayName) {
         try {
             let optionLocator = DROPDOWN.listItemOptionByDisplayName(optionDisplayName);
@@ -237,14 +224,6 @@ class BaseDropdown extends Page {
         return await this.clickOnApplySelectionButton(parentLocator);
     }
 
-    async clickOnFilteredByNameItem(optionName, parentLocator = '') {
-        // parent locator - it is locator for parent modal dialog or wizard form,
-        // 1. type the text in Options Filter Input:
-        await this.filterItem(optionName);
-        // 3. Click on the row with the item:
-        await this.clickOnOptionByName(optionName, parentLocator);
-    }
-
     async clickOnOptionByName(name, parentLocator) {
         let optionLocator = this.buildLocatorForOptionByName(name, parentLocator);
         //  Wait for the required option is displayed:
@@ -276,14 +255,6 @@ class BaseDropdown extends Page {
     async clickOnSelectRowCheckboxByDisplayName(displayName) {
         let locator = DROPDOWN.COMBOBOX_POPUP + DROPDOWN.treeItemCheckboxByDisplayName(displayName);
         await this.waitForElementDisplayed(locator);
-        let result = await this.findElements(locator);
-        await result[0].click();
-        return await this.pause(300);
-    }
-
-    async clickOnCheckboxInDropdownByDisplayName_Old(displayName, parentXpath = '') {
-        let locator = parentXpath + XPATH.rightCheckboxByDisplayName(displayName);
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         let result = await this.findElements(locator);
         await result[0].click();
         return await this.pause(300);
