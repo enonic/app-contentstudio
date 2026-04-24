@@ -3,6 +3,7 @@ import type {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOp
 import {useValidationVisibility} from '@enonic/lib-admin-ui/form2';
 import {type ReactElement, useCallback, useState} from 'react';
 import {useOptionSetMultiselectionError} from '../../set-errors';
+import {isLockedSingleOccurrence} from '../isLockedSingleOccurrence';
 import {useOptionSetSelection} from '../useOptionSetSelection';
 import {LockedSingleRadioBody} from './LockedSingleRadioBody';
 import {MultiSelectOptionsBody} from './MultiSelectOptionsBody';
@@ -16,11 +17,7 @@ type OptionSetOccurrenceBodyProps = {
 
 const OPTION_SET_OCCURRENCE_BODY_NAME = 'OptionSetOccurrenceBody';
 
-export const OptionSetOccurrenceBody = ({
-    optionSet,
-    occurrencePropertySet,
-    enabled,
-}: OptionSetOccurrenceBodyProps): ReactElement => {
+export const OptionSetOccurrenceBody = ({optionSet, occurrencePropertySet, enabled}: OptionSetOccurrenceBodyProps): ReactElement => {
     const visibility = useValidationVisibility();
     const [interacted, setInteracted] = useState(false);
     const {selectedNames, select, toggle} = useOptionSetSelection(optionSet, occurrencePropertySet);
@@ -36,10 +33,11 @@ export const OptionSetOccurrenceBody = ({
     );
 
     if (optionSet.isRadioSelection()) {
-        const occurrences = optionSet.getOccurrences();
-        const isLockedSingle = occurrences.getMinimum() === 1 && occurrences.getMaximum() === 1;
+        // When no option is selected yet (e.g. pre-created occurrences with no default),
+        // render a radio group so the user can pick one.
+        const needsPicker = selectedNames.length === 0;
 
-        if (isLockedSingle) {
+        if (isLockedSingleOccurrence(optionSet) || needsPicker) {
             return (
                 <div data-component={OPTION_SET_OCCURRENCE_BODY_NAME}>
                     <LockedSingleRadioBody
