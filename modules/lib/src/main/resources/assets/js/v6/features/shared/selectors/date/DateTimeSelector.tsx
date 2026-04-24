@@ -156,7 +156,11 @@ export const DateTimeSelector = ({
                     onKeyDown={handleInputKeyDown}
                     error={error}
                     className={'datetime-selector-input'}
-                    endAddon={<DatePicker.Trigger className={'size-8'} aria-label='Open date and time picker' />}
+                    endAddon={
+                        <div className='flex h-full w-11 items-center justify-center bg-transparent'>
+                            <DatePicker.Trigger className='size-8' aria-label='Open date picker' />
+                        </div>
+                    }
                 />
                 </div>
                     <DatePicker.Content
