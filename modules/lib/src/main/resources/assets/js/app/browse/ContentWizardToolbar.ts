@@ -9,6 +9,7 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
 import {AI} from '../ai/AI';
+import {ContentName} from '../content/ContentName';
 import {ContentUnnamed} from '../content/ContentUnnamed';
 import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ProjectContext} from '../project/ProjectContext';
@@ -34,7 +35,8 @@ import {
     setWizardToolbarProjectLabel,
     setWizardToolbarPublishStatus,
 } from '../../v6/features/store/wizardToolbar.store';
-import {$wizardDraftName} from '../../v6/features/store/wizardContent.store';
+import {$wizardDraftName, setDraftName} from '../../v6/features/store/wizardContent.store';
+import {openRenameContentDialog} from '../../v6/features/store/dialogs/renameContentDialog.store';
 import type {WizardToolbarCollaborator} from '../../v6/features/store/wizardToolbar.types';
 import {calcTreePublishStatus} from '../../v6/features/utils/cms/content/status';
 import {
@@ -43,8 +45,7 @@ import {
 
 export type ContentWizardToolbarConfig = ToolbarConfig & {
     actions: ContentWizardActions;
-    compareVersionsPreHook?: () => Q.Promise<void>;
-    onContentPathClick?: () => void;
+    onContentRenameConfirmed?: (newName: string) => void;
 };
 
 class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
@@ -359,7 +360,38 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
             return;
         }
 
-        this.config.onContentPathClick?.();
+        const path = this.item?.getPath();
+        if (!path) {
+            return;
+        }
+
+        const draftName = $wizardDraftName.get()?.toString() || '';
+        const initialName = this.normalizeContentPathName(draftName) ||
+                            this.normalizeContentPathName(path.getName());
+        const persistedName = this.normalizeContentPathName(path.getName());
+
+        void openRenameContentDialog({
+            parentPath: path.getParentPath(),
+            initialName,
+            persistedName,
+            isPublished: this.config.actions.isOnline(),
+        }).then((newName?: string) => {
+            if (!newName) {
+                return;
+            }
+
+            setDraftName(new ContentName(newName));
+
+            this.config.onContentRenameConfirmed?.(newName);
+
+            const saveAction = this.config.actions.getSaveAction();
+            saveAction.setEnabled(true);
+            saveAction.execute();
+        });
+    }
+
+    private normalizeContentPathName(pathName: string): string {
+        return pathName?.startsWith(ContentUnnamed.UNNAMED_PREFIX) ? '' : pathName;
     }
 
     private handleLayersClicked(): void {

@@ -66,7 +66,6 @@ export const ContentWizardToolbar = ({
         publishStatus,
         contentPath,
         canRenameContentPath,
-        isPathAvailable,
         contentState,
         isLayerProject
     } = useStore($wizardToolbar, {
@@ -79,7 +78,6 @@ export const ContentWizardToolbar = ({
             'publishStatus',
             'contentPath',
             'canRenameContentPath',
-            'isPathAvailable',
             'contentState',
             'isLayerProject'
         ]
@@ -185,8 +183,7 @@ export const ContentWizardToolbar = ({
                             <Button
                                 size='sm'
                                 variant='text'
-                                className={cn('min-w-0 max-w-full px-1.5 md:px-2.75',
-                                    !isPathAvailable && 'text-error')}
+                                className='min-w-0 max-w-full px-1.5 md:px-2.75'
                                 title={contentPathLabel}
                                 disabled={!canRenameContentPath}
                                 onClick={onContentPathClick}
@@ -206,7 +203,7 @@ export const ContentWizardToolbar = ({
                                 title={contentPathLabel}
                                 disabled={!canRenameContentPath}
                                 onClick={onContentPathClick}
-                                className={cn('shrink-0 size-8', !isPathAvailable && 'text-error')}
+                                className='shrink-0 size-8'
                             />
                         </Toolbar.Item>
                     </div>

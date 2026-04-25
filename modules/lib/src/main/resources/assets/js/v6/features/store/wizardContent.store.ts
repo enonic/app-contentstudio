@@ -514,6 +514,17 @@ export function setPersistedContent(content: Content): void {
     if (newPending.size !== currentPending.size) {
         $mixinsPendingMount.set(newPending);
     }
+
+    for (const callback of persistedContentSetCallbacks) {
+        callback(content);
+    }
+}
+
+const persistedContentSetCallbacks = new Set<(content: Content) => void>();
+
+export function onWizardPersistedContentSet(callback: (content: Content) => void): () => void {
+    persistedContentSetCallbacks.add(callback);
+    return () => { persistedContentSetCallbacks.delete(callback); };
 }
 
 export function initializeWizardContentState(
@@ -788,23 +799,20 @@ let previousAppKeys = new Set<string>();
 $siteConfigAppKeys.subscribe((currentKeys) => {
     for (const key of previousAppKeys) {
         if (!currentKeys.has(key)) {
+            // ? Descriptors may not contain entries for the removed app
+            // (e.g. if the app was added after the wizard loaded and
+            // descriptors were never re-fetched), so filter draft mixins
+            // by the app key in the mixin name independently of descriptors.
             const descriptors = $mixinsDescriptors.get();
-            const filtered = descriptors.filter(d => d.getMixinName().getApplicationKey().toString() !== key);
+            const filteredDescriptors = descriptors.filter(d => d.getMixinName().getApplicationKey().toString() !== key);
+            if (filteredDescriptors.length !== descriptors.length) {
+                $mixinsDescriptors.set(filteredDescriptors);
+            }
 
-            if (filtered.length !== descriptors.length) {
-                const removedNames = new Set(
-                    descriptors
-                        .filter(d => d.getMixinName().getApplicationKey().toString() === key)
-                        .map(d => d.getName()),
-                );
-
-                $mixinsDescriptors.set(filtered);
-
-                const currentMixins = $wizardDraftMixins.get();
-                const filteredMixins = currentMixins.filter(m => !removedNames.has(m.getName().toString()));
-                if (filteredMixins.length !== currentMixins.length) {
-                    $wizardDraftMixins.set(filteredMixins);
-                }
+            const currentMixins = $wizardDraftMixins.get();
+            const filteredMixins = currentMixins.filter(m => m.getName().getApplicationKey().toString() !== key);
+            if (filteredMixins.length !== currentMixins.length) {
+                $wizardDraftMixins.set(filteredMixins);
             }
         }
     }
