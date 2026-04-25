@@ -16,7 +16,6 @@ export type WizardToolbarStore = {
     publishStatus: PublishStatus | null;
     contentPath: string;
     canRenameContentPath: boolean;
-    isPathAvailable: boolean;
     isContentOnline: boolean;
     contentState: ContentState | null;
     isLayerProject: boolean;

@@ -15,7 +15,6 @@ const createInitialState = (): WizardToolbarStore => ({
     publishStatus: null,
     contentPath: '',
     canRenameContentPath: false,
-    isPathAvailable: true,
     isContentOnline: false,
     contentState: null,
     isLayerProject: false,
@@ -102,10 +101,6 @@ export function setWizardToolbarContentPath(contentPath: string): void {
 
 export function setWizardToolbarCanRenameContentPath(canRenameContentPath: boolean): void {
     $wizardToolbar.setKey('canRenameContentPath', canRenameContentPath);
-}
-
-export function setWizardToolbarIsPathAvailable(isPathAvailable: boolean): void {
-    $wizardToolbar.setKey('isPathAvailable', isPathAvailable);
 }
 
 export function setWizardToolbarIsContentOnline(isContentOnline: boolean): void {

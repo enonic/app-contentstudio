@@ -5,6 +5,7 @@ import {Permission} from '../../access/Permission';
 import {PublishStatus} from '../../publish/PublishStatus';
 import {type CompareResult} from '../../../v6/features/api/compare';
 import {calcTreePublishStatus, calcSecondaryStatus} from '../../../v6/features/utils/cms/content/status';
+import {$wizardContentState, $wizardHasChanges} from '../../../v6/features/store/wizardContent.store';
 import {CloseAction} from '@enonic/lib-admin-ui/app/wizard/CloseAction';
 import {WizardActions} from '@enonic/lib-admin-ui/app/wizard/WizardActions';
 import {type ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
@@ -38,25 +39,6 @@ import {ShowFormAction} from './ShowFormAction';
 import {ShowLiveEditAction} from './ShowLiveEditAction';
 import {UnpublishAction} from './UnpublishAction';
 
-type ActionNames =
-    'SAVE' |
-    'RESET' |
-    'LOCALIZE' |
-    'DELETE' |
-    'DUPLICATE' |
-    'PREVIEW' |
-    'PUBLISH' |
-    'PUBLISH_TREE' |
-    'CREATE_ISSUE' |
-    'UNPUBLISH' |
-    'MARK_AS_READY' |
-    'REQUEST_PUBLISH' |
-    'OPEN_REQUEST' |
-    'CLOSE' |
-    'SHOW_LIVE_EDIT' |
-    'SHOW_FORM' |
-    'SAVE_AND_CLOSE';
-
 export class ContentWizardActions
     extends WizardActions<Content> {
 
@@ -87,6 +69,10 @@ export class ContentWizardActions
     private stateManager: ActionsStateManager;
 
     private checkSaveActionStateHandler: () => void;
+
+    private wizardHasChangesUnsubscribe?: () => void;
+
+    private wizardContentStateUnsubscribe?: () => void;
 
     private beforeActionsStashedListeners: (() => void)[] = [];
 
@@ -176,12 +162,12 @@ export class ContentWizardActions
                 this.notifyActionsUnstashed();
             }
         });
+
+        this.initUnsavedChangesListeners();
     }
 
-    initUnsavedChangesListeners() {
-        if (this.checkSaveActionStateHandler) {
-            this.wizardPanel.unDataChanged(this.checkSaveActionStateHandler);
-        }
+    private initUnsavedChangesListeners() {
+        this.wizardHasChangesUnsubscribe?.();
 
         let checkSaveStateOnWizardRendered: boolean = false;
 
@@ -201,24 +187,38 @@ export class ContentWizardActions
             }
         }, 100, false);
 
-        this.wizardPanel.onDataChanged(this.checkSaveActionStateHandler);
-        this.wizardPanel.onPageStateChanged(this.checkSaveActionStateHandler);
-        this.wizardPanel.onContentNamed((c) => {
-            this.enableActions({MOVE: !this.deleteOnlyMode});
+        this.wizardHasChangesUnsubscribe = $wizardHasChanges.subscribe((hasChanges, previousHasChanges) => {
+            if (previousHasChanges === undefined || hasChanges === previousHasChanges) {
+                return;
+            }
+
+            this.checkSaveActionStateHandler();
         });
+
+        this.wizardContentStateUnsubscribe = $wizardContentState.subscribe((contentState) => {
+            if (contentState == null) {
+                return;
+            }
+
+            this.setContentCanBeMarkedAsReady(contentState === 'in-progress').refreshState();
+        });
+
+        this.wizardPanel.onPageStateChanged(this.checkSaveActionStateHandler);
+    }
+
+    cleanupUnsavedChangesListeners(): void {
+        this.wizardHasChangesUnsubscribe?.();
+        this.wizardHasChangesUnsubscribe = undefined;
+        this.wizardContentStateUnsubscribe?.();
+        this.wizardContentStateUnsubscribe = undefined;
     }
 
     private isPersistedUnnamed(): boolean {
         return !this.persistedContent || this.persistedContent.getName().isUnnamed();
     }
 
-    private isUnnamedContent(): boolean {
-        return !this.wizardPanel.getWizardHeader().getName() && this.isPersistedUnnamed();
-    }
-
     private doCheckSaveActionStateHandler(): void {
-        let isEnabled: boolean = this.wizardPanel.hasUnsavedChanges() &&
-                                 (this.isUnnamedContent() || this.wizardPanel.isHeaderValidForSaving());
+        let isEnabled: boolean = this.hasUnsavedChanges();
 
         if (this.persistedContent) {
             isEnabled = isEnabled &&
@@ -228,16 +228,12 @@ export class ContentWizardActions
         }
         this.enableActions({SAVE: isEnabled});
 
-        const canSave = this.wizardPanel.hasUnsavedChanges() || isEnabled || !this.getSaveAction().isSavedStateEnabled();
+        const canSave = this.hasUnsavedChanges() || isEnabled || !this.getSaveAction().isSavedStateEnabled();
         this.getSaveAction().setLabel(i18n(canSave ? 'action.save' : 'action.saved'));
     }
 
     private enableActions(state: ActionsState) {
         this.stateManager.enableActions(state);
-    }
-
-    private isActionEnabled(name: ActionNames) {
-        return this.stateManager.isActionEnabled(name);
     }
 
     refreshActions(): Q.Promise<void> {
@@ -256,7 +252,7 @@ export class ContentWizardActions
         this.persistedContent = null;
         this.stateManager.enableActions({});
         this.enableActions({
-            SAVE: this.wizardPanel.hasUnsavedChanges(),
+            SAVE: this.hasUnsavedChanges(),
             ARCHIVE: true,
             MOVE: !this.isPersistedUnnamed(),
         });
@@ -266,15 +262,18 @@ export class ContentWizardActions
     }
 
     enableActionsForExisting(existing: Content): Q.Promise<void> {
+        const nameAppeared = this.isPersistedUnnamed() && !existing.getName().isUnnamed();
+
         this.persistedContent = existing;
 
         this.enableActions({
-            ARCHIVE: existing.isDeletable()
+            ARCHIVE: existing.isDeletable(),
+            ...(nameAppeared ? {MOVE: !this.deleteOnlyMode} : {}),
         });
 
         this.enableActionsForExistingByPermissions(existing);
         this.enableActions({
-            SAVE: existing.isEditable() && this.wizardPanel.hasUnsavedChanges() && !existing.isDataInherited()
+            SAVE: existing.isEditable() && this.hasUnsavedChanges() && !existing.isDataInherited()
         });
 
         return Q();
@@ -352,6 +351,10 @@ export class ContentWizardActions
                     }
                 });
         }
+    }
+
+    private hasUnsavedChanges(): boolean {
+        return $wizardHasChanges.get();
     }
 
     setContent(content: ContentSummaryAndCompareStatus): ContentWizardActions {
