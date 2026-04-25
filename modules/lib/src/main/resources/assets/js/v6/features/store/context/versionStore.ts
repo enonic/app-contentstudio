@@ -190,7 +190,7 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         standardMode: true,
         fullMode: true,
         restorable: false,
-        comparable: false,
+        comparable: true,
         icon: SquarePen,
         labelKey: 'operation.content.patch'
     },
@@ -243,7 +243,7 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
         labelKey: 'operation.content.import'
     },
     [VersionOperationType.LOCALIZE]: {
-        standardMode: false,
+        standardMode: true,
         fullMode: true,
         restorable: true,
         comparable: true,

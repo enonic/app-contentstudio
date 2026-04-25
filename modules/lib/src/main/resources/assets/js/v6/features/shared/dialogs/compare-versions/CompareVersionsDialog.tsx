@@ -2,7 +2,7 @@ import {Dialog, Checkbox, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {DiffPatcher} from 'jsondiffpatch';
 import {format, showUnchanged} from 'jsondiffpatch/formatters/html';
-import {ReactElement, useCallback, useEffect, useMemo} from 'react';
+import {ReactElement, useCallback, useEffect, useId, useMemo} from 'react';
 import {ContentVersion} from '../../../../../app/ContentVersion';
 import {useI18n} from '../../../hooks/useI18n';
 import {$versions} from '../../../store/context/versionStore';
@@ -44,6 +44,9 @@ export const CompareVersionsDialog = (): ReactElement => {
     const showEntireLabel = useI18n('field.content.showEntire');
     const loadingLabel = useI18n('widget.versions.loading');
     const versionsIdenticalLabel = useI18n('dialog.compareVersions.versionsIdentical');
+
+    const baseId = useId();
+    const showAllCheckboxId = `${COMPARE_VERSIONS_DIALOG_NAME}-${baseId}-show-all`;
 
     const diffPatcher = useMemo(() => new DiffPatcher(), []);
 
@@ -100,7 +103,7 @@ export const CompareVersionsDialog = (): ReactElement => {
         const delta = diffPatcher.diff(olderVersionJson, newerVersionJson);
 
         if (delta) {
-            return {diffHtml: format(delta, newerVersionJson), isEmpty: false};
+            return {diffHtml: format(delta, olderVersionJson), isEmpty: false};
         }
 
         return {diffHtml: `<h3>${versionsIdenticalLabel}</h3>`, isEmpty: true};
@@ -154,6 +157,7 @@ export const CompareVersionsDialog = (): ReactElement => {
                     <Dialog.Footer className="flex items-center justify-between">
                         {orderedVersions && !isLoading && (
                             <Checkbox
+                                id={showAllCheckboxId}
                                 label={showEntireLabel}
                                 checked={showAllContent}
                                 onCheckedChange={handleShowAllChange}
