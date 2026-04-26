@@ -1,7 +1,8 @@
 import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {useStore} from '@nanostores/preact';
 import {PenLine} from 'lucide-react';
-import type {ReactElement} from 'react';
+import {useRef, type ReactElement} from 'react';
+import type {PageItem} from '../../../../../../../../app/page/region/PageItem';
 import {TextComponent} from '../../../../../../../../app/page/region/TextComponent';
 import {ItemLabel} from '../../../../../../shared/ItemLabel';
 import {$inspectedItem, $pageEditorLifecycle} from '../../../../../../store/page-editor';
@@ -26,6 +27,17 @@ export const TextInspectionPanel = (): ReactElement | null => {
     useStore($pageVersion);
     const lifecycle = useStore($pageEditorLifecycle);
 
+    // ? Path can stay the same when a new component is inserted at the
+    // ? selected path (the previous one shifts forward). Keying the editor
+    // ? on path alone wouldn't remount it, so the inner CKEditor would keep
+    // ? the old component's content. Bump a counter on item identity change.
+    const prevItemRef = useRef<PageItem | null>(null);
+    const itemEpochRef = useRef(0);
+    if (prevItemRef.current !== item) {
+        prevItemRef.current = item;
+        itemEpochRef.current += 1;
+    }
+
     if (!(item instanceof TextComponent)) return null;
 
     const displayName = getDisplayName(item);
@@ -41,7 +53,7 @@ export const TextInspectionPanel = (): ReactElement | null => {
             />
 
             <TextEditor
-                key={path?.toString()}
+                key={`${path?.toString()}-${itemEpochRef.current}`}
                 textComponent={item}
                 disabled={lifecycle.isPageLocked}
             />

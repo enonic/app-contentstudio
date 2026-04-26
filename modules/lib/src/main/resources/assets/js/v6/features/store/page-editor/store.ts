@@ -28,6 +28,12 @@ export const $contentContext = atom<PageEditorContentContext | null>(null);
 
 export const $inspectedPath = atom<string | null>(null);
 
+// ? Bumps on every explicit selection event (SELECT/INSPECT/inspectItem),
+// ? even when $inspectedPath value is unchanged. Lets consumers react to
+// ? "user reselected the same path" (e.g. tab switch) which an atom set
+// ? with an identical value would otherwise swallow.
+export const $selectionEventNonce = atom<number>(0);
+
 //
 // * Computed
 //
@@ -77,6 +83,10 @@ export const $inspectedItemType = computed(
 
 export function bumpPageVersion(): void {
     $pageVersion.set($pageVersion.get() + 1);
+}
+
+export function bumpSelectionEventNonce(): void {
+    $selectionEventNonce.set($selectionEventNonce.get() + 1);
 }
 
 export function syncPageFromState(): void {

@@ -3,7 +3,7 @@ import {useStore} from '@nanostores/preact';
 import {type ReactElement} from 'react';
 import {useI18n} from '../../../../hooks/useI18n';
 import {$activeWidgetId, $isContextOpen} from '../../../../store/contextWidgets.store';
-import {$dragState, $inspectedPath, $isInsertTabAvailable} from '../../../../store/page-editor';
+import {$dragState, $inspectedPath, $isInsertTabAvailable, $selectionEventNonce} from '../../../../store/page-editor';
 import {PAGE_EDITOR_WIDGET_KEY} from '../../../../utils/widget/pageEditor';
 import {usePageEditorTabs} from './hooks/usePageEditorTabs';
 import {DragPreview} from './insert/DragPreview';
@@ -17,9 +17,10 @@ export const PageEditorExtension = (): ReactElement | null => {
     const activeWidgetId = useStore($activeWidgetId);
     const isInsertTabAvailable = useStore($isInsertTabAvailable);
     const inspectedPath = useStore($inspectedPath);
+    const selectionEventNonce = useStore($selectionEventNonce);
     const dragState = useStore($dragState);
 
-    const {activeTab, setActiveTab} = usePageEditorTabs(inspectedPath, isInsertTabAvailable);
+    const {activeTab, setActiveTab} = usePageEditorTabs(inspectedPath, isInsertTabAvailable, selectionEventNonce);
 
     const insertLabel = useI18n('action.insert');
     const inspectLabel = useI18n('action.inspect');

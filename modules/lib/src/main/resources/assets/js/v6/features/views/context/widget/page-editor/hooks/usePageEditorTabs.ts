@@ -8,20 +8,21 @@ type UsePageEditorTabsResult = {
 export function usePageEditorTabs(
     inspectedPath: string | null,
     isInsertTabAvailable: boolean,
+    selectionEventNonce: number,
 ): UsePageEditorTabsResult {
     const [activeTab, setActiveTab] = useState<string>('inspect');
 
-    // Auto-switch tabs when the inspected item changes.
-    // Depending on the path (not just a boolean) ensures that selecting a
-    // different item re-triggers the switch — e.g. dropping a new component
-    // while another was already inspected.
+    // Auto-switch tabs when an item is selected. Depending on the nonce
+    // (not just the path) ensures a re-select fires the switch even when
+    // the new component takes the previously-selected path — e.g. inserting
+    // a sibling that shifts the old selection forward.
     useEffect(() => {
         if (inspectedPath != null) {
             setActiveTab('inspect');
         } else if (isInsertTabAvailable) {
             setActiveTab('insert');
         }
-    }, [inspectedPath, isInsertTabAvailable]);
+    }, [inspectedPath, isInsertTabAvailable, selectionEventNonce]);
 
     // Fall back to Inspect tab when Insert becomes unavailable
     useEffect(() => {

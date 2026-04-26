@@ -13,7 +13,9 @@ import {
     $page,
     $pageEditorLifecycle,
     $pageVersion,
+    $selectionEventNonce,
     bumpPageVersion,
+    bumpSelectionEventNonce,
     syncPageFromState,
 } from './store';
 import type {InitPageEditorBridgeOptions} from './types';
@@ -95,11 +97,13 @@ export function initPageEditorBridge(options?: InitPageEditorBridgeOptions): voi
             if (type === PageNavigationEventType.SELECT || type === PageNavigationEventType.INSPECT) {
                 const path = event.getData().getPath();
                 $inspectedPath.set(path?.toString() ?? null);
+                bumpSelectionEventNonce();
                 setContextOpen(true);
                 return;
             }
             if (type === PageNavigationEventType.DESELECT) {
                 $inspectedPath.set(null);
+                bumpSelectionEventNonce();
             }
         },
     };
@@ -144,4 +148,5 @@ export function cleanupPageEditorBridge(): void {
     $defaultPageTemplateName.set(null);
     $contentContext.set(null);
     $inspectedPath.set(null);
+    $selectionEventNonce.set(0);
 }
