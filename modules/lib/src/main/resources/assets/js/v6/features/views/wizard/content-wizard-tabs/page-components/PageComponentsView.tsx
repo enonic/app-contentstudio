@@ -1,5 +1,4 @@
 import {SortableList, type SortableListItemContext} from '@enonic/lib-admin-ui/form2/components';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {type ReactElement, useCallback, useEffect, useState} from 'react';
@@ -8,6 +7,7 @@ import {PageNavigationEvent} from '../../../../../../app/wizard/PageNavigationEv
 import {PageNavigationEventData} from '../../../../../../app/wizard/PageNavigationEventData';
 import {PageNavigationEventType} from '../../../../../../app/wizard/PageNavigationEventType';
 import {PageNavigationMediator} from '../../../../../../app/wizard/PageNavigationMediator';
+import {useI18n} from '../../../../hooks/useI18n';
 import type {FlatNode} from '../../../../lib/tree-store';
 import {getNode} from '../../../../lib/tree-store';
 import {inspectItem, requestComponentMove} from '../../../../store/page-editor/commands';
@@ -35,7 +35,12 @@ const PAGE_COMPONENTS_VIEW_NAME = 'PageComponentsView';
 // ? tree is rebuilt with changed positional keys.
 const animateLayoutChanges = ({isSorting}: {isSorting: boolean}): boolean => isSorting;
 
-export const PageComponentsView = (): ReactElement => {
+export type PageComponentsViewProps = {
+    showTitle?: boolean;
+};
+
+export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps = {}): ReactElement => {
+    const componentsLabel = useI18n('field.components');
     const pageVersion = useStore($pageVersion);
     const invalidComponentPaths = useStore($invalidComponentPaths);
     const validationVisibility = useStore($validationVisibility);
@@ -160,7 +165,7 @@ export const PageComponentsView = (): ReactElement => {
 
     return (
         <div data-component={PAGE_COMPONENTS_VIEW_NAME} className="flex flex-col gap-1 py-2">
-            <h3 className="text-base font-semibold">{i18n('field.components')}</h3>
+            {showTitle && <h3 className="text-base font-semibold">{componentsLabel}</h3>}
             <SortableList
                 items={flatNodes}
                 keyExtractor={(node) => node.id}

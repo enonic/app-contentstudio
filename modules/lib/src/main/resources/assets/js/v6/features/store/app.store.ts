@@ -15,6 +15,7 @@ export type AppPage = 'browse' | 'wizard';
 type AppStore = {
     theme: Theme;
     page: AppPage;
+    pageComponentsViewCollapsed: boolean;
 };
 
 //
@@ -26,11 +27,12 @@ const SYNC_NAME = 'app';
 export const $app = map<AppStore>({
     theme: getInitialTheme(),
     page: isWizardUrl() ? 'wizard' : 'browse',
+    pageComponentsViewCollapsed: false,
 });
 
-// Sync theme to localStorage and across tabs
+// Sync persisted preferences to localStorage and across tabs
 syncMapStore($app, SYNC_NAME, {
-    keys: ['theme'],
+    keys: ['theme', 'pageComponentsViewCollapsed'],
     loadInitial: true,
     syncTabs: true,
 });
@@ -78,6 +80,10 @@ export function getResolvedTheme(): ResolvedTheme {
 
 export function setPage(page: AppPage): void {
     $app.setKey('page', page);
+}
+
+export function setPageComponentsViewCollapsed(collapsed: boolean): void {
+    $app.setKey('pageComponentsViewCollapsed', collapsed);
 }
 
 //
