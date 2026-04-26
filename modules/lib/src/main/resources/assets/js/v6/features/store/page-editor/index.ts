@@ -1,7 +1,7 @@
 // Read: stores
 export {$contentContext, $defaultPageTemplateName, $pageEditorLifecycle} from './store';
 export {$hasControllerOrTemplate, $isFragment, $isInsertTabAvailable} from './store';
-export {$isInspecting, $inspectedPath, $inspectedItem, $inspectedItemType} from './store';
+export {$isInspecting, $inspectedPath, $inspectedItem, $inspectedItemType, $selectionEventNonce} from './store';
 export {$dragState, startDrag, updateDrag, endDrag} from './drag';
 
 // Read: hooks

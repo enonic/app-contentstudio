@@ -6,7 +6,7 @@ import type {PageTemplateKey} from '../../../../app/page/PageTemplateKey';
 import {PageStateEvent} from '../../../../page-editor/event/incoming/common/PageStateEvent';
 import {PageEventsManager} from '../../../../app/wizard/PageEventsManager';
 import {PageState} from '../../../../app/wizard/page/PageState';
-import {$hasDefaultPageTemplate, $inspectedPath, $pageEditorLifecycle} from './store';
+import {$hasDefaultPageTemplate, $inspectedPath, $pageEditorLifecycle, bumpSelectionEventNonce} from './store';
 
 //
 // * Actions — store state
@@ -98,8 +98,10 @@ export function requestComponentMove(from: ComponentPath, to: ComponentPath): vo
 
 export function inspectItem(path: ComponentPath | null): void {
     $inspectedPath.set(path ? path.toString() : null);
+    bumpSelectionEventNonce();
 }
 
 export function clearInspection(): void {
     $inspectedPath.set(null);
+    bumpSelectionEventNonce();
 }
