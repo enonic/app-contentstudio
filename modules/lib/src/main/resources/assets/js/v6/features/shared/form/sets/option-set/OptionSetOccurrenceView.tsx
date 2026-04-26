@@ -48,23 +48,25 @@ export const OptionSetOccurrenceView = ({
     onRemove,
     children,
 }: OptionSetOccurrenceViewProps): ReactElement => {
-    const isRadio = optionSet.isRadioSelection();
-    const showHeader = !isLockedSingleOccurrence(optionSet);
-    const showBody = expanded || !showHeader;
-    const hasBody = useOptionSetHasBody(optionSet, propertySet);
-    const label = useSetOccurrenceLabel(propertySet, formItems, fallbackLabel);
-    const [confirmingAdd, setConfirmingAdd] = useState<'above' | 'below' | null>(null);
-    const [confirmingDelete, setConfirmingDelete] = useState(false);
-    const [menuOpen, setMenuOpen] = useState(false);
     const anchorRef = useRef<HTMLButtonElement>(null);
     const confirmationRef = useRef<HTMLDivElement>(null);
-    const isConfirming = confirmingDelete || confirmingAdd != null;
-    const confirmationPosition = useConfirmPosition({enabled: isConfirming, anchorRef, confirmationRef});
-    usePortalFocusContainer(confirmationRef, isConfirming);
-
+    const hasBody = useOptionSetHasBody(optionSet, propertySet);
+    const label = useSetOccurrenceLabel(propertySet, formItems, fallbackLabel);
     const addAboveLabel = useI18n('action.addAbove');
     const addBelowLabel = useI18n('action.addBelow');
     const deleteLabel = useI18n('action.delete');
+
+    const [confirmingAdd, setConfirmingAdd] = useState<'above' | 'below' | null>(null);
+    const [confirmingDelete, setConfirmingDelete] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(false);
+
+    const isRadio = optionSet.isRadioSelection();
+    const showHeader = !isLockedSingleOccurrence(optionSet);
+    const showBody = expanded || !showHeader;
+    const showExpandedChrome = expanded && hasBody;
+    const isConfirming = confirmingDelete || confirmingAdd != null;
+    const confirmationPosition = useConfirmPosition({enabled: isConfirming, anchorRef, confirmationRef});
+    usePortalFocusContainer(confirmationRef, isConfirming);
 
     const handleRequestAddAbove = useCallback(() => {
         if (!isRadio) {
@@ -139,14 +141,13 @@ export const OptionSetOccurrenceView = ({
                     <div
                         className={cn(
                             'flex rounded border border-transparent',
-                            expanded && 'bg-surface-selected border-bdr-soft [&_svg:first-child]:text-alt',
-                            expanded && hasBody && 'rounded-bl-none rounded-br-none',
-                            expanded && menuOpen && 'bg-surface-selected-hover',
-                            expanded && !menuOpen && 'hover:bg-surface-selected-hover',
-                            !expanded && menuOpen && 'bg-surface-neutral-hover',
-                            !expanded && !menuOpen && 'hover:bg-surface-neutral-hover'
+                            showExpandedChrome && 'bg-surface-selected border-bdr-soft rounded-bl-none rounded-br-none [&_svg:first-child]:text-alt',
+                            showExpandedChrome && menuOpen && 'bg-surface-selected-hover',
+                            showExpandedChrome && !menuOpen && 'hover:bg-surface-selected-hover',
+                            !showExpandedChrome && menuOpen && 'bg-surface-neutral-hover',
+                            !showExpandedChrome && !menuOpen && 'hover:bg-surface-neutral-hover'
                         )}
-                        data-tone={expanded ? 'inverse' : undefined}
+                        data-tone={showExpandedChrome ? 'inverse' : undefined}
                     >
                         {grip && <div className="flex items-center justify-center ml-2.5">{grip}</div>}
                         <ContextMenu open={menuOpen} onOpenChange={setMenuOpen}>
@@ -155,11 +156,12 @@ export const OptionSetOccurrenceView = ({
                                     ref={anchorRef}
                                     type="button"
                                     className={cn(
-                                        'group grid flex-1 min-w-0 items-center gap-2.5 p-2.5 cursor-pointer grid-cols-[1fr_auto] rounded',
+                                        'group grid flex-1 min-w-0 items-center gap-2.5 p-2.5 grid-cols-[1fr_auto] rounded',
                                         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
-                                        expanded && 'text-alt rounded-b-none'
+                                        hasBody ? 'cursor-pointer' : 'cursor-default',
+                                        showExpandedChrome && 'text-alt rounded-b-none'
                                     )}
-                                    aria-expanded={expanded}
+                                    aria-expanded={hasBody ? expanded : undefined}
                                     onClick={handleToggle}
                                 >
                                     <div className="flex items-center gap-1.5 truncate">
