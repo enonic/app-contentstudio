@@ -45,12 +45,13 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
     const invalidComponentPaths = useStore($invalidComponentPaths);
     const validationVisibility = useStore($validationVisibility);
     const showErrors = validationVisibility === 'all';
+    const inspectedPath = useStore($inspectedPath);
     const [flatNodes, setFlatNodes] = useState(() => [...$componentsFlatNodes.get()]);
+
     useEffect(() => {
         setFlatNodes([...$componentsFlatNodes.get()]);
         return $componentsFlatNodes.listen((nodes) => setFlatNodes([...nodes]));
     }, []);
-    const inspectedPath = useStore($inspectedPath);
 
     useEffect(() => {
         rebuildComponentsTree();

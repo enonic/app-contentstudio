@@ -1,6 +1,6 @@
 import {ContextMenu} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {Box, ChevronDown, ChevronUp, Columns2, Puzzle, Type} from 'lucide-react';
+import {Box, Columns2, PenLine, Puzzle} from 'lucide-react';
 import {type ReactElement, type ReactNode, useCallback, useState} from 'react';
 import {SaveAsTemplateAction} from '../../../../../../app/wizard/action/SaveAsTemplateAction';
 import {ComponentPath} from '../../../../../../app/page/region/ComponentPath';
@@ -40,6 +40,7 @@ export type PageComponentsContextMenuProps = {
 //
 
 const PAGE_COMPONENTS_CONTEXT_MENU_NAME = 'PageComponentsContextMenu';
+const ROOT_NODE_ID = '/';
 
 export const PageComponentsContextMenu = ({node, children}: PageComponentsContextMenuProps): ReactElement => {
     const data = node.data;
@@ -61,10 +62,11 @@ export const PageComponentsContextMenu = ({node, children}: PageComponentsContex
         return <>{children}</>;
     }
 
-    // Page/fragment root: show Reset and Save as Template
-    if (data.nodeType === 'page' || node.id === '/') {
+    const isPageRoot = data.nodeType === 'page' || node.id === ROOT_NODE_ID;
+
+    if (isPageRoot) {
         const handleReset = isFragment
-            ? () => requestComponentReset(ComponentPath.fromString('/'))
+            ? () => requestComponentReset(ComponentPath.fromString(ROOT_NODE_ID))
             : () => setConfirmResetOpen(true);
 
         return (
@@ -73,6 +75,7 @@ export const PageComponentsContextMenu = ({node, children}: PageComponentsContex
                     <ContextMenu.Trigger className="flex-1 min-w-0">{children}</ContextMenu.Trigger>
                     <ContextMenu.Portal>
                         <ContextMenu.Content className="min-w-48">
+                            <InspectItem nodeId={ROOT_NODE_ID} label={inspectLabel} />
                             <PageResetItem label={resetLabel} onSelect={handleReset} />
                             {!isFragment && !contentContext?.isPageTemplate && (
                                 <SaveAsTemplateItem label={saveAsTemplateLabel} />
@@ -113,9 +116,7 @@ export const PageComponentsContextMenu = ({node, children}: PageComponentsContex
             <ContextMenu.Portal>
                 <ContextMenu.Content className="min-w-48">
                     <SelectParentItem nodeId={node.id} label={selectParentLabel} />
-
-                    <InsertSection nodeId={node.id} label={insertLabel} />
-
+                    <InsertSubMenu nodeId={node.id} label={insertLabel} />
                     {isComponent && (
                         <>
                             <InspectItem nodeId={node.id} label={inspectLabel} />
@@ -279,20 +280,17 @@ const SaveAsFragmentItem = ({nodeId, label}: MenuItemProps): ReactElement => {
 SaveAsFragmentItem.displayName = 'SaveAsFragmentItem';
 
 //
-// * Insert section
+// * Insert submenu
 //
 
-const INSERT_TYPES = [
-    {type: 'part', Icon: Box, label: 'Part'},
-    {type: 'layout', Icon: Columns2, label: 'Layout'},
-    {type: 'text', Icon: Type, label: 'Text'},
-    {type: 'fragment', Icon: Puzzle, label: 'Fragment'},
-] as const;
-
-const InsertSection = ({nodeId, label}: MenuItemProps): ReactElement => {
-    const [open, setOpen] = useState(true);
+const InsertSubMenu = ({nodeId, label}: MenuItemProps): ReactElement => {
     const treeState = $componentsTreeState.get();
     const insideLayout = hasLayoutAncestor(treeState, nodeId);
+
+    const partLabel = useI18n('field.part');
+    const layoutLabel = useI18n('field.layout');
+    const textLabel = useI18n('field.text');
+    const fragmentLabel = useI18n('field.fragment');
 
     const handleInsert = useCallback((typeShortName: string) => {
         const currentState = $componentsTreeState.get();
@@ -319,36 +317,32 @@ const InsertSection = ({nodeId, label}: MenuItemProps): ReactElement => {
         }
     }, [nodeId]);
 
-    const toggleOpen = useCallback(() => {
-        setOpen(prev => !prev);
-    }, []);
-
-    const Chevron = open ? ChevronUp : ChevronDown;
+    const items = [
+        {type: 'part', Icon: Box, label: partLabel, disabled: false},
+        {type: 'layout', Icon: Columns2, label: layoutLabel, disabled: insideLayout},
+        {type: 'text', Icon: PenLine, label: textLabel, disabled: false},
+        {type: 'fragment', Icon: Puzzle, label: fragmentLabel, disabled: false},
+    ];
 
     return (
-        <>
-            <div
-                role="button"
-                className="flex w-full items-center justify-between px-4.5 py-2.5 text-sm cursor-pointer hover:bg-surface-neutral-hover"
-                onClick={toggleOpen}
-            >
-                <span>{label}</span>
-                <Chevron className="size-4 text-subtle" />
-            </div>
-
-            {open && INSERT_TYPES.map(({type, Icon, label: typeLabel}) => (
-                <ContextMenu.Item
-                    key={type}
-                    className="ps-8"
-                    disabled={type === 'layout' && insideLayout}
-                    onSelect={() => handleInsert(type)}
-                >
-                    <Icon className="size-4 me-2 shrink-0" />
-                    {typeLabel}
-                </ContextMenu.Item>
-            ))}
-        </>
+        <ContextMenu.Sub>
+            <ContextMenu.SubTrigger>{label}</ContextMenu.SubTrigger>
+            <ContextMenu.Portal>
+                <ContextMenu.SubContent className="min-w-48">
+                    {items.map(({type, Icon, label: itemLabel, disabled}) => (
+                        <ContextMenu.Item
+                            key={type}
+                            disabled={disabled}
+                            onSelect={() => handleInsert(type)}
+                        >
+                            <Icon className="size-4 me-2 shrink-0" />
+                            {itemLabel}
+                        </ContextMenu.Item>
+                    ))}
+                </ContextMenu.SubContent>
+            </ContextMenu.Portal>
+        </ContextMenu.Sub>
     );
 };
 
-InsertSection.displayName = 'InsertSection';
+InsertSubMenu.displayName = 'InsertSubMenu';

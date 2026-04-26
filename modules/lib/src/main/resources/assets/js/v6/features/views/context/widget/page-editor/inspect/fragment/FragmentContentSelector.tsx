@@ -25,7 +25,7 @@ export const FragmentContentSelector = (): ReactElement | null => {
     if (isLoading) return null;
 
     if (isEmpty) {
-        return <p className="text-sm text-subtle">{label}</p>;
+        return <p className="text-subtle font-semibold leading-5.5 truncate">{label}</p>;
     }
 
     return (
