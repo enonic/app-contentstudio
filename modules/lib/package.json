@@ -26,7 +26,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@enonic/ui": "~0.47.12",
+    "@enonic/ui": "~0.48.0",
     "@nanostores/preact": "^1.0.0",
     "ckeditor4-react": "4.3.0",
     "class-variance-authority": "^0.7.1",
@@ -55,7 +55,7 @@
     "focus-trap-react": "^11.0.0"
   },
   "devDependencies": {
-    "@enonic/page-editor": "^0.0.6",
+    "@enonic/page-editor": "^0.0.7",
     "@enonic/eslint-config": "^2.1.0",
     "@enonic/lib-admin-ui": "workspace:*",
     "@radix-ui/react-slot": "^1.2.0",

@@ -11,11 +11,10 @@ ignoredBuiltDependencies:
 minimumReleaseAge: 1440
 
 minimumReleaseAgeExclude:
-  - "@enonic/ui"
   - "@enonic/page-editor"
+  - "@enonic/ui"
 
 overrides:
-  "@enonic/page-editor": link:../../../npm-page-editor/build/npm-resources/
   brace-expansion@<1.1.13: ">=1.1.13"
   brace-expansion@>=2.0.0 <2.0.3: ">=2.0.3"
   brace-expansion@>=4.0.0 <5.0.5: ">=5.0.5"
