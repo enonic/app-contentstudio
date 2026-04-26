@@ -1,15 +1,17 @@
-import {useStore} from '@nanostores/preact';
-import {type ReactElement, useEffect, useMemo} from 'react';
 import {RawValueProvider, ValidationVisibilityProvider} from '@enonic/lib-admin-ui/form2';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {useStore} from '@nanostores/preact';
+import {type ReactElement, useEffect, useMemo} from 'react';
+import {FormRenderer} from '../../../shared/form';
+import {HtmlAreaProvider} from '../../../shared/form/input-types/html-area';
 import {$contextContent} from '../../../store/context/contextContent.store';
 import {$activeProject} from '../../../store/projects.store';
 import {$contentType, $wizardDraftData, notifyContentFormMounted} from '../../../store/wizardContent.store';
 import {$validationVisibility, getContentRawValueMap} from '../../../store/wizardValidation.store';
-import {FormRenderer} from '../../../shared/form';
-import {HtmlAreaProvider} from '../../../shared/form/input-types/html-area';
 import {DisplayNameInput} from './DisplayNameInput';
 import {useApplicationKeys} from './useApplicationKeys';
+
+const CONTENT_FORM_NAME = 'ContentForm';
 
 export const ContentForm = (): ReactElement | null => {
     const contentType = useStore($contentType);
@@ -43,7 +45,7 @@ export const ContentForm = (): ReactElement | null => {
     }
 
     return (
-        <div className="flex flex-col gap-7.5">
+        <div data-component={CONTENT_FORM_NAME} className="flex flex-col gap-7.5">
             <DisplayNameInput />
             <ValidationVisibilityProvider visibility={visibility}>
                 <RawValueProvider map={rawValueMap}>
@@ -65,4 +67,4 @@ export const ContentForm = (): ReactElement | null => {
     );
 };
 
-ContentForm.displayName = 'ContentForm';
+ContentForm.displayName = CONTENT_FORM_NAME;

@@ -11,10 +11,10 @@ import {
 } from '../../../store/wizardContent.store';
 import {$invalidTabs, $validationVisibility} from '../../../store/wizardValidation.store';
 import {CollapsedFormPanel} from './CollapsedFormPanel';
-import {ContentDataView} from './ContentDataView';
+import {ContentForm} from './ContentForm';
 import {MixinView} from './MixinView';
-import {PageView} from './PageView';
 import {ToggleFormButton} from './ToggleFormButton';
+import {PageComponentsView} from './page-components/PageComponentsView';
 
 type ContentWizardTabsProps = {
     tabListAction?: ReactElement;
@@ -64,12 +64,12 @@ export const ContentWizardTabs = ({tabListAction}: ContentWizardTabsProps): Reac
             </div>
 
             <Tab.Content value="content">
-                <ContentDataView />
+                <ContentForm />
             </Tab.Content>
 
             {hasPage && (
                 <Tab.Content value="page">
-                    <PageView />
+                    <PageComponentsView showTitle />
                 </Tab.Content>
             )}
 
