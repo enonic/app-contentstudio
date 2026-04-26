@@ -537,7 +537,6 @@ export class ContentWizardPanel
             this.splitPanel.savePanelSizesAndDistribute(SplitPanelSize.PIXELS(60));
             this.splitPanel.hideSplitter();
             this.stepNavigator.onNavigationItemActivated(this.toggleMinimizeListener);
-            this.undockPCV();
         } else {
             if (this.minimizedFromFormOnly) {
                 this.splitPanel.removeClass('toggle-split').addClass('toggle-form');
@@ -556,7 +555,6 @@ export class ContentWizardPanel
             this.stepsPanel.setListenToScroll(true);
             this.stepNavigator.setScrollEnabled(true);
             this.stepNavigator.selectNavigationItem(navigationIndex, false, true);
-            this.dockPCV();
         }
 
         const maximized = !this.minimized;
@@ -2893,34 +2891,16 @@ export class ContentWizardPanel
             } else {
                 this.addStep(this.pageComponentsWizardStep, false);
             }
-
-            if (this.isMinimized()) {
-                this.undockPCV();
-            }
         }
     }
 
     private removePageComponentsView(): void {
         if (this.pageComponentsWizardStepForm) {
-            this.pageComponentsView.dock();
-
             if (this.getContentTypeName().isPageTemplate()) {
                 this.pageComponentsWizardStepForm.removeChild(this.pageComponentsView);
             } else {
                 this.removeStepWithForm(this.pageComponentsWizardStepForm);
             }
-        }
-    }
-
-    private undockPCV(): void {
-        if (this.isPageComponentsViewRequired()) {
-            this.pageComponentsView?.undock();
-        }
-    }
-
-    private dockPCV(): void {
-        if (this.isPageComponentsViewRequired()) {
-            this.pageComponentsView?.dock();
         }
     }
 
