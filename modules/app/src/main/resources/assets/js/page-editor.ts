@@ -1,10 +1,8 @@
 import {HTMLAreaHelper} from '@enonic/lib-contentstudio/app/inputtype/ui/text/HTMLAreaHelper';
 import {ComponentPath} from '@enonic/lib-contentstudio/app/page/region/ComponentPath';
-import {DescriptorBasedComponent} from '@enonic/lib-contentstudio/app/page/region/DescriptorBasedComponent';
 import {FragmentComponent} from '@enonic/lib-contentstudio/app/page/region/FragmentComponent';
 import {RenderingMode} from '@enonic/lib-contentstudio/app/rendering/RenderingMode';
 import {UriHelper} from '@enonic/lib-contentstudio/app/rendering/UriHelper';
-import {PageHelper} from '@enonic/lib-contentstudio/app/util/PageHelper';
 import {PageState} from '@enonic/lib-contentstudio/app/wizard/page/PageState';
 import {ComponentPath as EditorComponentPath, EditorEvent, EditorEvents, PageEditor} from '@enonic/page-editor';
 import DOMPurify from 'dompurify';
@@ -26,7 +24,7 @@ async function handleComponentLoad(path: EditorComponentPath, isExisting: boolea
     try {
         const response = await fetch(resolveComponentUrl(path));
 
-        if (!isExisting && needsPageReload(path, response.headers)) {
+        if (!isExisting && needsPageReload(response.headers)) {
             PageEditor.reloadPage();
             return;
         }
@@ -43,17 +41,12 @@ function resolveComponentUrl(path: EditorComponentPath): string {
     return UriHelper.getComponentUri(contentId, toComponentPath(path), RenderingMode.EDIT);
 }
 
-function needsPageReload(path: EditorComponentPath, headers: Headers): boolean {
-    if (!headers.has('X-Has-Contributions')) return false;
-
-    const component = PageState.getComponentByPath(toComponentPath(path));
-    if (!(component instanceof DescriptorBasedComponent)) return false;
-
-    const key = component.getDescriptorKey();
-    return !PageHelper.flattenPageComponents(PageState.getState())
-        .some(c => !c.getPath().equals(path)
-            && c instanceof DescriptorBasedComponent
-            && c.getDescriptorKey()?.equals(key));
+// ! Reload when the component declares page contributions — they must be
+// ! injected into <head>/<body>, which only a full reload does. We don't dedup
+// ! against other instances of the same descriptor: the iframe's PageState is
+// ! a separate singleton from the parent's, so the lookup can't function here.
+function needsPageReload(headers: Headers): boolean {
+    return headers.has('X-Has-Contributions');
 }
 
 function sanitizeComponentHtml(html: string, path: EditorComponentPath): string {

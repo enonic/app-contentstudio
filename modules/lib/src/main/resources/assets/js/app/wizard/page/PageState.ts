@@ -257,7 +257,11 @@ export class PageStateEventHandler {
             const item: PageItem = PageState.getState().getComponentByPath(path);
 
             if (item instanceof DescriptorBasedComponent) {
-                const notifyReload = () => PageEventsManager.get().notifyComponentReloadRequested(path, true);
+                // ! existing=false so the iframe-side handler can check the
+                // ! X-Has-Contributions response header and reload the page
+                // ! when the new descriptor brings contributions that must be
+                // ! injected into <head>/<body>.
+                const notifyReload = () => PageEventsManager.get().notifyComponentReloadRequested(path, false);
                 if (descriptorKey) {
                     new GetComponentDescriptorRequest(descriptorKey.toString(), item.getType()).sendAndParse()
                         .then((descriptor: Descriptor) => item.setDescriptor(descriptor))

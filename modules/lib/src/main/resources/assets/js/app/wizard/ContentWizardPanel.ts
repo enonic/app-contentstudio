@@ -157,6 +157,7 @@ import {type DefaultModels} from './page/DefaultModels';
 import {LiveEditPageProxy} from './page/LiveEditPageProxy';
 import {LiveFormPanel, type LiveFormPanelConfig} from './page/LiveFormPanel';
 import {PageState} from './page/PageState';
+import {PageStateEvent} from '../../page-editor/event/incoming/common/PageStateEvent';
 import {PageComponentsView} from './PageComponentsView';
 import {PageComponentsWizardStep} from './PageComponentsWizardStep';
 import {PageComponentsWizardStepForm} from './PageComponentsWizardStepForm';
@@ -1882,6 +1883,18 @@ export class ContentWizardPanel
             this.updateSiteModel(site);
         } else if (site) {
             this.initSiteModel(site);
+        }
+
+        // ! Sync PageState with the persisted page after save. Otherwise the
+        // ! onContentUpdated path sees viewedContent ≠ contentAfterLayout and
+        // ! triggers a full iframe reload via debouncedEditorReload.
+        // ! PageStateEvent mirrors the new state into the iframe; setState
+        // ! alone fires no event.
+        const incomingPage = content.getPage();
+        const stalePage = PageState.getState();
+        if (stalePage !== incomingPage) {
+            PageState.setState(incomingPage ? incomingPage.clone() : null);
+            new PageStateEvent(PageState.getState()?.toJson() ?? null).fire();
         }
 
         this.liveEditModel = this.initLiveEditModel(content);
