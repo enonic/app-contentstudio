@@ -1,9 +1,9 @@
 import {type Project} from '../../../../../app/settings/data/project/Project';
 
-type ProjectLike = Pick<Project, 'getName' | 'getParents'> & Partial<Pick<Project, 'getDisplayName'>>;
+type ProjectLike = Pick<Project, 'getName' | 'getParents' | 'getDisplayName'>;
 
 function isAvailableProject(project: ProjectLike): boolean {
-    return typeof project.getDisplayName !== 'function' || !!project.getDisplayName();
+    return !!project.getDisplayName();
 }
 
 function getMainParentName(

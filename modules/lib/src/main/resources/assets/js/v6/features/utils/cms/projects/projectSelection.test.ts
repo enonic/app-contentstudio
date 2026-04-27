@@ -4,11 +4,17 @@ import {resolveActiveProjectId, resolveActiveProjectIdAfterDeletion} from './pro
 type MockProject = {
     getName(): string;
     getParents(): string[];
+    getDisplayName(): string;
 };
 
-const createProject = (name: string, parents: string[] = []): MockProject => ({
+const createProject = (
+    name: string,
+    parents: string[] = [],
+    displayName: string = name,
+): MockProject => ({
     getName: () => name,
     getParents: () => parents,
+    getDisplayName: () => displayName,
 });
 
 describe('resolveActiveProjectId', () => {
@@ -38,6 +44,14 @@ describe('resolveActiveProjectIdAfterDeletion', () => {
         const deletedProject = createProject('orphan');
 
         expect(resolveActiveProjectIdAfterDeletion(remainingProjects, deletedProject)).toBe('alpha');
+    });
+
+    it('should skip unavailable projects when selecting fallback after deletion', () => {
+        const unavailableParent = createProject('parent', [], '');
+        const availableSibling = createProject('sibling');
+        const deletedProject = createProject('child', ['parent']);
+
+        expect(resolveActiveProjectIdAfterDeletion([unavailableParent, availableSibling], deletedProject)).toBe('sibling');
     });
 
     it('should return undefined when there are no projects left', () => {
