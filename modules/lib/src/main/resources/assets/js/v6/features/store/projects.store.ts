@@ -105,6 +105,10 @@ function selectProjectById(projectId: string | undefined): void {
 function resolveFallbackProjectId(projects: Readonly<Project>[], activeProjectId: string | undefined): string | undefined {
     const activeProject = projects.find((project) => getProjectId(project) === activeProjectId);
 
+    if (!activeProject) {
+        return undefined;
+    }
+
     return resolveActiveProjectIdAfterDeletion(projects, activeProject);
 }
 
