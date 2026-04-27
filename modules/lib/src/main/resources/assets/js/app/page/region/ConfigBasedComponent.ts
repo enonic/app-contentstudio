@@ -1,11 +1,11 @@
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {type PropertyEvent} from '@enonic/lib-admin-ui/data/PropertyEvent';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PropertyTreeHelper} from '@enonic/lib-admin-ui/util/PropertyTreeHelper';
 import {Component, ComponentBuilder} from './Component';
-import {type ConfigBasedComponentJson} from './ConfigBasedComponentJson';
 import {ComponentConfigUpdatedEvent} from './ComponentConfigUpdatedEvent';
+import {type ConfigBasedComponentJson} from './ConfigBasedComponentJson';
 
 
 export abstract class ConfigBasedComponent
@@ -57,7 +57,11 @@ export abstract class ConfigBasedComponent
 
         const other: ConfigBasedComponent = o as ConfigBasedComponent;
 
-        return PropertyTreeHelper.propertyTreesEqual(this.config, other.config, false);
+        // ! Ignore empty values when comparing component configs. v6 form
+        // ! rendering (useSetPropertyArray) lazily seeds empty PropertyArrays
+        // ! onto the live PropertyTree, which would otherwise keep the wizard
+        // ! permanently dirty after save. Aligns with Page.equals default.
+        return PropertyTreeHelper.propertyTreesEqual(this.config, other.config);
     }
 }
 
