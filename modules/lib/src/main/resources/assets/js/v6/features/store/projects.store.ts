@@ -45,7 +45,9 @@ syncMapStore($projects, SYNC_NAME, {
 });
 
 export const $activeProject = computed($projects, (store) => {
-    return store.projects.find((p) => getProjectId(p) === store.activeProjectId);
+    const activeProject = store.projects.find((p) => getProjectId(p) === store.activeProjectId);
+
+    return isAvailableProject(activeProject) ? activeProject : undefined;
 });
 
 export const $activeProjectName = computed($activeProject, (activeProject) => {
@@ -76,6 +78,10 @@ function getProjectId(project: Readonly<Project> | undefined): string | undefine
     return project?.getName();
 }
 
+function isAvailableProject(project: Readonly<Project> | undefined): boolean {
+    return !!project?.getDisplayName();
+}
+
 function getProjectIdFromUrl(): string | undefined {
     const viewPath = window.location.href.split($config.get().appId)[1];
     const normalizedPath = viewPath?.replace(/\/[^\/]+/, '') || '/';
@@ -94,6 +100,12 @@ function selectProjectById(projectId: string | undefined): void {
     } else {
         clearActiveProject();
     }
+}
+
+function resolveFallbackProjectId(projects: Readonly<Project>[], activeProjectId: string | undefined): string | undefined {
+    const activeProject = projects.find((project) => getProjectId(project) === activeProjectId);
+
+    return resolveActiveProjectIdAfterDeletion(projects, activeProject);
 }
 
 //
@@ -134,8 +146,9 @@ function updateActiveProject(): void {
         return;
     }
 
-    const {projects} = $projects.get();
-    const nextProjectId = resolveActiveProjectId(projects, getProjectIdFromUrl());
+    const {projects, activeProjectId} = $projects.get();
+    const nextProjectId = resolveActiveProjectId(projects, getProjectIdFromUrl())
+        ?? resolveFallbackProjectId(projects, activeProjectId);
 
     if (nextProjectId) {
         selectProjectById(nextProjectId);
