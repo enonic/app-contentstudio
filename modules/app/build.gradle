@@ -53,6 +53,7 @@ dependencies {
     include libs.lib.http.client
     include libs.lib.text.encoding
     include libs.lib.router
+    include libs.lib.static
 
     include project( ':lib-contentstudio' )
     devResources project( path: ':lib-contentstudio', configuration: 'devResources' )

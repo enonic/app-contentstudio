@@ -1,37 +1,35 @@
 const mustache = require('/lib/mustache');
 const contextLib = require('/lib/xp/context');
 const contentLib = require('/lib/xp/content');
-const portalLib = require('/lib/xp/portal');
 const nodeLib = require('/lib/xp/node');
 const adminLib = require('/lib/xp/admin');
 const i18nLib = require('/lib/xp/i18n');
 const projectLib = require('/lib/xp/project');
+const staticLib = require('/lib/enonic/static');
+const router = require('/lib/router')();
 const issueFetcher = __.newBean('com.enonic.app.contentstudio.widget.issues.IssueFetcher');
 
-function localise(locale, key) {
-    return i18nLib.localize({
-        bundles: ['i18n/phrases'],
-        key,
-        locale
-    });
-}
+const STATIC_BASE_PATH = '/_static';
 
-function handleGet(req) {
+exports.all = function (req) {
+    return router.dispatch(req);
+};
+
+router.get('', (req) => {
     const view = resolve('./stats.html');
     const projects = getProjects();
     const contentItemsCount = '' + countItemsInRepos(projects);
     const languagesCount = '' + countLanguagesInRepos(projects);
     const openIssuesCount = '' + countIssuesInRepos(projects);
-    const locales = req.locales
+    const locales = req.locales;
+    const handlerUrl = req.path;
 
     const params = {
         projectsCount: projects.length,
         contentItemsCount,
         languagesCount,
         openIssuesCount,
-        stylesUrl: portalLib.assetUrl({
-            path: 'styles/extensions/stats.css'
-        }),
+        stylesUrl: `${handlerUrl}/_static/styles/extensions/stats.css`,
         toolUrl: adminLib.getToolUrl(app.name, 'main'),
         contentItemsText: localise(locales, 'widget.dashboard.stats.contentItems'),
         openIssuesText: localise(locales, 'widget.dashboard.stats.openIssues'),
@@ -43,6 +41,26 @@ function handleGet(req) {
         contentType: 'text/html',
         body: mustache.render(view, params)
     };
+});
+
+router.get(`${STATIC_BASE_PATH}/{path:.*}`, (request) => {
+    return staticLib.requestHandler(
+        request,
+        {
+            cacheControl: () => staticLib.RESPONSE_CACHE_CONTROL.SAFE,
+            index: false,
+            root: '/assets',
+            relativePath: staticLib.mappedRelativePath(STATIC_BASE_PATH),
+        }
+    );
+});
+
+function localise(locale, key) {
+    return i18nLib.localize({
+        bundles: ['i18n/phrases'],
+        key,
+        locale
+    });
 }
 
 const countIssuesInRepos = function (projects) {
@@ -147,5 +165,3 @@ const isDefaultProjectOrSubproject = (project, projects) => {
 
     return project.id === 'default' || isDefaultProjectOrSubproject(projects.filter((p) => p.id === project.parent)[0], projects);
 }
-
-exports.get = handleGet;
