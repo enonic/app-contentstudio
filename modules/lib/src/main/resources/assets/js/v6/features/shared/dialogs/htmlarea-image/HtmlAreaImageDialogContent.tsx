@@ -1,4 +1,4 @@
-import {IconButton, Input} from '@enonic/ui';
+import {IconButton, Input, Tooltip} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {PenIcon, XIcon} from 'lucide-react';
 import {type ReactElement, useCallback, useMemo} from 'react';
@@ -22,6 +22,8 @@ export const HtmlAreaImageDialogContent = (): ReactElement => {
 
     const captionLabel = useI18n('dialog.image.formitem.caption');
     const imageLabel = useI18n('dialog.image.formitem.image');
+    const editLabel = useI18n('dialog.image.edit');
+    const deselectLabel = useI18n('dialog.image.deselect');
 
     const hasImage = selectedImageId != null;
     const selection = useMemo(() => selectedImageId ? [selectedImageId] : [], [selectedImageId]);
@@ -70,8 +72,12 @@ export const HtmlAreaImageDialogContent = (): ReactElement => {
                                 </span>
                             </div>
                             <div className='flex gap-1.5 shrink-0'>
-                                <IconButton icon={PenIcon} onClick={handleEdit} />
-                                <IconButton icon={XIcon} onClick={deselectImage} />
+                                <Tooltip delay={300} value={editLabel} asChild>
+                                    <IconButton icon={PenIcon} onClick={handleEdit} aria-label={editLabel} />
+                                </Tooltip>
+                                <Tooltip delay={300} value={deselectLabel} asChild>
+                                    <IconButton icon={XIcon} onClick={deselectImage} aria-label={deselectLabel} />
+                                </Tooltip>
                             </div>
                         </div>
                     </div>
