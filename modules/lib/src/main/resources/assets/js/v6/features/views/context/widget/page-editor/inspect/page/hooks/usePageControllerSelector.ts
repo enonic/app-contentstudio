@@ -7,6 +7,7 @@ import {useI18n} from '../../../../../../../hooks/useI18n';
 import {
     $contentContext,
     $defaultPageTemplateName,
+    bumpInsertTabActivateNonce,
     executePageReset,
     requestSetPageController,
     requestSetPageTemplate,
@@ -135,10 +136,16 @@ export function usePageControllerSelector(): UsePageControllerSelectorResult {
                 executePageReset();
             } else if (newType === 'template') {
                 const template = templates.find(t => t.getKey().toString() === newKey);
-                if (template) requestSetPageTemplate(template.getKey());
+                if (template) {
+                    requestSetPageTemplate(template.getKey());
+                    bumpInsertTabActivateNonce();
+                }
             } else {
                 const controller = controllers.find(c => c.getKey().toString() === newKey);
-                if (controller) requestSetPageController(controller.getKey());
+                if (controller) {
+                    requestSetPageController(controller.getKey());
+                    bumpInsertTabActivateNonce();
+                }
             }
         },
         [getOptionType, templates, controllers],
