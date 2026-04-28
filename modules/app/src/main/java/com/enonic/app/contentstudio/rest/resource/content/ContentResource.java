@@ -464,10 +464,10 @@ public final class ContentResource
 
     private Content localizeContent( final ContentId id, final Locale language )
     {
-        final UpdateContentMetadataParams params = UpdateContentMetadataParams.create().contentId( id ).editor( edit -> {
+        final UpdateContentParams params = new UpdateContentParams().contentId( id ).editor( edit -> {
             edit.language = language;
-        } ).build();
-        return contentService.updateMetadata( params ).getContent();
+        } );
+        return contentService.update( params );
     }
 
     @POST
@@ -530,7 +530,10 @@ public final class ContentResource
         final UpdateContentMetadataResult result = ContextBuilder.copyOf( ContextAccessor.current() )
             .branch( ContentConstants.BRANCH_DRAFT )
             .build()
-            .callWith( () -> contentService.updateMetadata( json.getUpdateContentMetadataParams() ) );
+            .callWith( () -> {
+                contentService.update( json.getUpdateContentParams() );
+                return contentService.updateMetadata( json.getUpdateContentMetadataParams() );
+            } );
 
         return jsonObjectsFactory.createContentJson( result.getContent(), request );
     }
@@ -1647,6 +1650,7 @@ public final class ContentResource
             edit.data = versionedContent.getData();
             edit.displayName = versionedContent.getDisplayName();
             edit.mixins = versionedContent.getMixins();
+            edit.language = versionedContent.getLanguage();
             edit.page(versionedContent.getPage() != null ? versionedContent.getPage() : null);
         } );
 
@@ -1658,7 +1662,6 @@ public final class ContentResource
     private UpdateContentMetadataParams prepareUpdateContentMetadataParams( final Content versionedContent )
     {
         return UpdateContentMetadataParams.create().contentId( versionedContent.getId() ).editor( edit -> {
-            edit.language = versionedContent.getLanguage();
             edit.owner = versionedContent.getOwner();
         } ).build();
     }

@@ -2563,15 +2563,14 @@ public class ContentResourceTest
         ids.add( contentId );
         final LocalizeContentsJson params = new LocalizeContentsJson( ids, "en" );
 
-        ArgumentCaptor<UpdateContentMetadataParams> argumentCaptor = ArgumentCaptor.forClass( UpdateContentMetadataParams.class );
+        ArgumentCaptor<UpdateContentParams> argumentCaptor = ArgumentCaptor.forClass( UpdateContentParams.class );
         Content content = createContent( contentId, "content-name", "myapplication:content-type" );
-        when( contentService.updateMetadata( isA( UpdateContentMetadataParams.class ) ) ).thenReturn(
-            UpdateContentMetadataResult.create().content( content ).build() );
+        when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
         when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
 
         instance.localize( params, request );
 
-        verify( this.contentService, times( 1 ) ).updateMetadata( argumentCaptor.capture() );
+        verify( this.contentService, times( 1 ) ).update( argumentCaptor.capture() );
         assertTrue( argumentCaptor.getValue().getContentId().equals( ContentId.from( contentId ) ) );
     }
 
