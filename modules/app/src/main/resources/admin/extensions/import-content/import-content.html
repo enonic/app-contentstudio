@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Import</title>
+    <style>
+        /* Enonic UI design tokens — monochrome */
+        :root {
+            --color-black: #000000;
+            --color-grey-950: #242829;
+            --color-grey-900: #3d4142;
+            --color-grey-800: #5b5f60;
+            --color-grey-700: #797d7e;
+            --color-grey-500: #b2b2b2;
+            --color-grey-200: #dde1e2;
+            --color-grey-100: #e7ebeb;
+            --color-grey-50: #f1f5f6;
+            --color-white: #ffffff;
+            --color-fbk-danger: #d33030;
+
+            --color-main: var(--color-black);
+            --color-alt: var(--color-white);
+            --color-subtle: var(--color-grey-800);
+            --color-surface-neutral: var(--color-white);
+            --color-surface-neutral-hover: var(--color-grey-50);
+            --color-surface-selected: var(--color-grey-800);
+            --color-bdr-soft: var(--color-grey-200);
+            --color-bdr-strong: var(--color-black);
+            --color-btn-primary: var(--color-white);
+            --color-btn-primary-hover: var(--color-grey-50);
+            --color-btn-secondary: var(--color-grey-50);
+            --color-btn-secondary-hover: var(--color-grey-100);
+            --color-btn-tertiary: var(--color-black);
+            --color-btn-tertiary-hover: var(--color-grey-900);
+            --color-error: var(--color-fbk-danger);
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-main: var(--color-white);
+                --color-alt: var(--color-white);
+                --color-subtle: var(--color-grey-500);
+                --color-surface-neutral: var(--color-grey-950);
+                --color-surface-neutral-hover: var(--color-grey-900);
+                --color-bdr-soft: var(--color-grey-800);
+                --color-bdr-strong: var(--color-white);
+                --color-btn-primary: var(--color-grey-950);
+                --color-btn-primary-hover: var(--color-grey-900);
+                --color-btn-secondary: var(--color-grey-900);
+                --color-btn-secondary-hover: var(--color-grey-800);
+                --color-btn-tertiary: var(--color-grey-800);
+                --color-btn-tertiary-hover: var(--color-grey-700);
+                --color-surface-selected: var(--color-grey-800);
+            }
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 16px;
+            color: var(--color-main);
+            font-size: 14px;
+            line-height: 1.4;
+            background: var(--color-surface-neutral);
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 0 0 12px;
+        }
+        .header-actions { display: flex; gap: 4px; }
+        .header h3 {
+            margin: 0;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .list {
+            border: 1px solid var(--color-bdr-soft);
+            border-radius: 2px;
+            max-height: 280px;
+            overflow: auto;
+        }
+        .list .empty {
+            padding: 24px 12px;
+            color: var(--color-subtle);
+            text-align: center;
+        }
+        .list label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--color-bdr-soft);
+            color: var(--color-main);
+        }
+        .list label:last-child { border-bottom: 0; }
+        .list label:hover { background: var(--color-surface-neutral-hover); }
+        .list label.selected {
+            background: var(--color-surface-selected);
+            color: var(--color-alt);
+        }
+        .list label:has(input:focus-visible) {
+            outline: 2px solid var(--color-bdr-strong);
+            outline-offset: -2px;
+        }
+        /* Visually hide native radio; selection is shown via row background */
+        .list input[type="radio"] {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            border: 0;
+            clip: rect(0, 0, 0, 0);
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .list .name {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        }
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        /* Button base — matches @enonic/ui button.tsx */
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: background 0.1s ease, color 0.1s ease;
+            white-space: nowrap;
+            box-sizing: border-box;
+        }
+        button[disabled] {
+            pointer-events: none;
+            opacity: 0.3;
+        }
+        /* Outline variant: border + transparent bg, used for secondary actions */
+        button.outline {
+            height: 36px;
+            padding: 0 14px;
+            font-size: 14px;
+            border: 1px solid var(--color-bdr-strong);
+            background: var(--color-btn-primary);
+            color: var(--color-main);
+        }
+        button.outline:hover:not([disabled]) {
+            background: var(--color-btn-primary-hover);
+        }
+        /* Filled variant: grey-50 bg, main text, used for primary action */
+        button.filled {
+            height: 36px;
+            padding: 0 14px;
+            font-size: 14px;
+            border: 0;
+            background: var(--color-btn-secondary);
+            color: var(--color-main);
+        }
+        button.filled:hover:not([disabled]) {
+            background: var(--color-btn-secondary-hover);
+        }
+        /* Solid variant: black bg, white text */
+        button.solid {
+            height: 36px;
+            padding: 0 14px;
+            font-size: 14px;
+            border: 0;
+            background: var(--color-btn-tertiary);
+            color: var(--color-alt);
+        }
+        button.solid:hover:not([disabled]) {
+            background: var(--color-btn-tertiary-hover);
+        }
+        /* Text variant: white bg, hover grey-50, used for low-emphasis actions */
+        button.text {
+            height: 36px;
+            padding: 0 14px;
+            font-size: 14px;
+            border: 0;
+            background: var(--color-btn-primary);
+            color: var(--color-main);
+        }
+        button.text:hover:not([disabled]) {
+            background: var(--color-btn-primary-hover);
+        }
+        /* Icon button: square, p-0, defaults to text variant */
+        button.icon-btn {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border: 0;
+            border-radius: 2px;
+            background: var(--color-btn-primary);
+            color: var(--color-main);
+        }
+        button.icon-btn:hover:not([disabled]) {
+            background: var(--color-btn-primary-hover);
+        }
+        button.icon-btn svg { width: 20px; height: 20px; }
+        .status { color: var(--color-subtle); font-size: 13px; }
+        .status.error { color: var(--color-error); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h3>{{text.heading}}</h3>
+        <div class="header-actions">
+            <button id="export" type="button" class="icon-btn" title="{{text.exportButton}}" aria-label="{{text.exportButton}}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 7.5V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-1.5"/>
+                    <path d="M2 13h10"/>
+                    <path d="m5 10-3 3 3 3"/>
+                </svg>
+            </button>
+            <button id="refresh" type="button" class="icon-btn" title="{{text.refresh}}" aria-label="{{text.refresh}}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                    <path d="M21 3v5h-5"/>
+                    <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                    <path d="M8 16H3v5"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+    <div id="list" class="list"><div class="empty">{{text.empty}}</div></div>
+
+    <div class="actions">
+        <button id="import" type="button" class="filled" disabled>{{text.importButton}}</button>
+        <span id="import-status" class="status"></span>
+    </div>
+
+    <script>
+    (function () {
+        var handlerUrl = {{{handlerUrlJson}}};
+        var widgetParams = {{{widgetParamsJson}}};
+        function buildQueryString(obj) {
+            var parts = [];
+            for (var k in obj) {
+                if (Object.prototype.hasOwnProperty.call(obj, k) && obj[k]) {
+                    parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(obj[k]));
+                }
+            }
+            return parts.length ? '?' + parts.join('&') : '';
+        }
+        function actionUrl(name) {
+            return handlerUrl.replace(/\/$/, '') + '/' + name + buildQueryString(widgetParams);
+        }
+        var listEl = document.getElementById('list');
+        var importBtn = document.getElementById('import');
+        var exportBtn = document.getElementById('export');
+        var importStatus = document.getElementById('import-status');
+        var targetPath = {{{targetPathJson}}};
+        var selected = null;
+
+        if (!targetPath) {
+            exportBtn.disabled = true;
+            exportBtn.title = 'Select a content to enable';
+        }
+
+        function renderList(exports) {
+            if (!exports.length) {
+                listEl.innerHTML = '<div class="empty">{{text.empty}}</div>';
+                importBtn.disabled = true;
+                return;
+            }
+            listEl.innerHTML = '';
+            exports.forEach(function (name, i) {
+                var label = document.createElement('label');
+                var radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = 'export';
+                radio.value = name;
+                if (selected === name || (selected === null && i === 0)) {
+                    radio.checked = true;
+                    selected = name;
+                    label.className = 'selected';
+                }
+                radio.addEventListener('change', function () {
+                    selected = name;
+                    importBtn.disabled = false;
+                    Array.prototype.forEach.call(listEl.querySelectorAll('label'), function (l) { l.classList.remove('selected'); });
+                    label.classList.add('selected');
+                });
+                label.appendChild(radio);
+                var nameEl = document.createElement('span');
+                nameEl.className = 'name';
+                nameEl.textContent = name;
+                nameEl.title = name;
+                label.appendChild(nameEl);
+                listEl.appendChild(label);
+            });
+            importBtn.disabled = !selected;
+        }
+
+        function refresh() {
+            fetch(actionUrl('list'), {credentials: 'same-origin'})
+                .then(function (r) { return r.json().then(function (j) { return {ok: r.ok, body: j}; }); })
+                .then(function (res) {
+                    if (!res.ok) {
+                        listEl.innerHTML = '<div class="empty">' + (res.body.message || 'Error') + '</div>';
+                        return;
+                    }
+                    renderList(res.body.exports || []);
+                });
+        }
+
+        document.getElementById('refresh').addEventListener('click', refresh);
+
+        exportBtn.addEventListener('click', function () {
+            if (!targetPath) return;
+            exportBtn.disabled = true;
+            importStatus.className = 'status';
+            importStatus.textContent = '…';
+            var fd = new FormData();
+            fd.append('sourcePath', targetPath);
+            fetch(actionUrl('export'), {method: 'POST', body: fd, credentials: 'same-origin'})
+                .then(function (r) { return r.json().then(function (j) { return {ok: r.ok, body: j}; }); })
+                .then(function (res) {
+                    if (!res.ok) {
+                        importStatus.className = 'status error';
+                        importStatus.textContent = res.body.message || 'Export failed';
+                        return;
+                    }
+                    importStatus.textContent = 'Exported as ' + res.body.exportName;
+                    selected = res.body.exportName;
+                    refresh();
+                })
+                .catch(function (e) {
+                    importStatus.className = 'status error';
+                    importStatus.textContent = e.message;
+                })
+                .finally(function () { exportBtn.disabled = false; });
+        });
+
+        importBtn.addEventListener('click', function () {
+            if (!selected || !targetPath) return;
+            importBtn.disabled = true;
+            importStatus.className = 'status';
+            importStatus.textContent = '…';
+            var fd = new FormData();
+            fd.append('exportName', selected);
+            fd.append('targetPath', targetPath);
+            fetch(actionUrl('import'), {method: 'POST', body: fd, credentials: 'same-origin'})
+                .then(function (r) { return r.json().then(function (j) { return {ok: r.ok, body: j}; }); })
+                .then(function (res) {
+                    if (!res.ok) {
+                        importStatus.className = 'status error';
+                        importStatus.textContent = res.body.message || 'Import failed';
+                        return;
+                    }
+                    var added = (res.body.addedNodes || []).length;
+                    var updated = (res.body.updatedNodes || []).length;
+                    importStatus.textContent = 'Imported ' + (added + updated) + ' nodes';
+                })
+                .catch(function (e) {
+                    importStatus.className = 'status error';
+                    importStatus.textContent = e.message;
+                })
+                .finally(function () { importBtn.disabled = !selected; });
+        });
+
+        refresh();
+    })();
+    </script>
+</body>
+</html>
