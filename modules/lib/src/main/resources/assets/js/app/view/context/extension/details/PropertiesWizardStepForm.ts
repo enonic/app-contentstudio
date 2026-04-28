@@ -3,6 +3,7 @@ import {type ContentSummary} from '../../../../content/ContentSummary';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {type UpdateContentRequest} from '../../../../resource/UpdateContentRequest';
+import {type UpdateContentLanguageRequest} from '../../../../resource/UpdateContentLanguageRequest';
 import {type UpdateContentMetadataRequest} from '../../../../resource/UpdateContentMetadataRequest';
 
 export class PropertiesWizardStepForm
@@ -63,5 +64,13 @@ export class PropertiesWizardStepForm
 
     applyMetadataChange(request: UpdateContentMetadataRequest): UpdateContentMetadataRequest {
         return request;
+    }
+
+    applyLanguageChange(request: UpdateContentLanguageRequest): UpdateContentLanguageRequest {
+        return request;
+    }
+
+    isLanguageChanged(): boolean {
+        return false;
     }
 }

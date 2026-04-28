@@ -1,37 +1,36 @@
 import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {type Content} from '../content/Content';
 import {type ContentJson} from '../content/ContentJson';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
-export class UpdateContentMetadataRequest
+export class UpdateContentLanguageRequest
     extends CmsContentResourceRequest<Content> {
 
     private id: string;
 
-    private owner: PrincipalKey;
+    private language: string;
 
     constructor(id: string) {
         super();
         this.id = id;
         this.setMethod(HttpMethod.POST);
-        this.addRequestPathElements('updateMetadata');
+        this.addRequestPathElements('updateLanguage');
     }
 
-    setOwner(owner: PrincipalKey): UpdateContentMetadataRequest {
-        this.owner = owner;
+    setLanguage(language: string): UpdateContentLanguageRequest {
+        this.language = language;
         return this;
     }
 
-    static create(content: Content): UpdateContentMetadataRequest {
-        return new UpdateContentMetadataRequest(content.getId()).setOwner(content.getOwner());
+    static create(content: Content): UpdateContentLanguageRequest {
+        return new UpdateContentLanguageRequest(content.getId()).setLanguage(content.getLanguage());
     }
 
     getParams(): object {
         return {
             contentId: this.id,
-            owner: this.owner ? this.owner.toString() : undefined,
+            language: this.language,
         };
     }
 

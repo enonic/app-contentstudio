@@ -7,6 +7,7 @@ import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 import {LocaleComboBox, LocaleFormInputElWrapper} from '../../../../locale/LocaleComboBox';
 import {type ContentSummary} from '../../../../content/ContentSummary';
 import {PropertiesWizardStepForm} from './PropertiesWizardStepForm';
+import {type UpdateContentLanguageRequest} from '../../../../resource/UpdateContentLanguageRequest';
 import {type UpdateContentMetadataRequest} from '../../../../resource/UpdateContentMetadataRequest';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
@@ -95,17 +96,25 @@ export class SettingsWizardStepForm
     }
 
     isChanged(): boolean {
-        return !ObjectHelper.stringEquals(this.localeCombo.getValue(), this.content.getLanguage()) ||
-            !ObjectHelper.equals(this.getSelectedOwner(), this.content.getOwner());
+        return this.isLanguageChanged() || !ObjectHelper.equals(this.getSelectedOwner(), this.content.getOwner());
     }
 
     isMetadataChanged(): boolean {
-        return this.isChanged();
+        return !ObjectHelper.equals(this.getSelectedOwner(), this.content.getOwner());
+    }
+
+    isLanguageChanged(): boolean {
+        return !ObjectHelper.stringEquals(this.localeCombo.getValue(), this.content.getLanguage());
     }
 
     applyMetadataChange(request: UpdateContentMetadataRequest): UpdateContentMetadataRequest {
-        request.setLanguage(this.localeCombo.getSelectedLocate()?.getId());
         request.setOwner(this.getSelectedOwner());
+
+        return request;
+    }
+
+    applyLanguageChange(request: UpdateContentLanguageRequest): UpdateContentLanguageRequest {
+        request.setLanguage(this.localeCombo.getSelectedLocate()?.getId());
 
         return request;
     }

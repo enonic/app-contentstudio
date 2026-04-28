@@ -4,7 +4,7 @@ import java.util.Locale;
 
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentPath;
-import com.enonic.xp.content.UpdateContentMetadataParams;
+import com.enonic.xp.content.UpdateContentParams;
 
 public final class ApplyProjectLanguageCommand
     extends AbstractProjectRootCommand
@@ -32,11 +32,11 @@ public final class ApplyProjectLanguageCommand
         return projectRepoContext.callWith( () -> {
             final Content root = this.contentService.getByPath( ContentPath.ROOT );
 
-            final UpdateContentMetadataParams params = UpdateContentMetadataParams.create().contentId( root.getId() ).editor( edit -> {
+            final UpdateContentParams params = new UpdateContentParams().contentId( root.getId() ).editor( edit -> {
                 edit.language = language;
-            } ).build();
+            } );
 
-            return this.contentService.updateMetadata( params ).getContent().getLanguage();
+            return this.contentService.update( params ).getLanguage();
         } );
     }
 

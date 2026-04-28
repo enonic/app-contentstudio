@@ -426,7 +426,7 @@ export const resolveVersionOperationType = (version: ContentVersion): VersionOpe
         }
     }
 
-    if (operation === ContentOperation.METADATA) {
+    if (operation === ContentOperation.UPDATE || operation === ContentOperation.METADATA) {
         const fields = action.getFields();
         if (fields.some(f => f === VersionField.INHERIT)) {
             return VersionOperationType.LOCALIZE;

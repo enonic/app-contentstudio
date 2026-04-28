@@ -6,6 +6,7 @@ import {map} from 'nanostores';
 import type {ContentSummary} from '../../../../app/content/ContentSummary';
 import {ContentLanguageUpdatedEvent} from '../../../../app/event/ContentLanguageUpdatedEvent';
 import {GetContentByIdRequest} from '../../../../app/resource/GetContentByIdRequest';
+import {UpdateContentLanguageRequest} from '../../../../app/resource/UpdateContentLanguageRequest';
 import {UpdateContentMetadataRequest} from '../../../../app/resource/UpdateContentMetadataRequest';
 import {loadLanguages} from '../languages.store';
 import {loadPrincipalsByKeys} from '../principals.store';
@@ -103,24 +104,36 @@ export const applyEditPropertiesDialog = async (): Promise<void> => {
 
     try {
         const contentItem = await new GetContentByIdRequest(contentSummary.getContentId()).sendAndParse();
-        const request = UpdateContentMetadataRequest.create(contentItem);
 
-        if (state.languageSelection[0]) {
-            request.setLanguage(state.languageSelection[0]);
-        } else {
-            request.setLanguage(undefined);
+        const previousLanguage = contentItem.getLanguage();
+        const previousOwnerKey = contentItem.getOwner()?.toString();
+        const nextLanguage = state.languageSelection[0];
+        const nextOwnerKey = state.ownerSelection[0];
+
+        const languageChanged = (nextLanguage ?? undefined) !== (previousLanguage ?? undefined);
+        const ownerChanged = (nextOwnerKey ?? undefined) !== (previousOwnerKey ?? undefined);
+
+        const requests: PromiseLike<unknown>[] = [];
+
+        if (ownerChanged) {
+            const ownerRequest = new UpdateContentMetadataRequest(contentItem.getId());
+            if (nextOwnerKey) {
+                ownerRequest.setOwner(PrincipalKey.fromString(nextOwnerKey));
+            }
+            requests.push(ownerRequest.sendAndParse());
         }
-        if (state.ownerSelection[0]) {
-            request.setOwner(PrincipalKey.fromString(state.ownerSelection[0]));
-        } else {
-            request.setOwner(undefined);
+
+        if (languageChanged) {
+            requests.push(new UpdateContentLanguageRequest(contentItem.getId()).setLanguage(nextLanguage).sendAndParse());
         }
 
-        const updatedContent = await request.sendAndParse();
-        showFeedback(i18n('notify.properties.settings.updated', updatedContent.getName().toString()));
+        if (requests.length > 0) {
+            await Promise.all(requests);
+            showFeedback(i18n('notify.properties.settings.updated', contentItem.getName().toString()));
 
-        if (updatedContent.getLanguage() && updatedContent.getLanguage() !== contentSummary.getLanguage()) {
-            new ContentLanguageUpdatedEvent(updatedContent.getLanguage()).fire();
+            if (languageChanged) {
+                new ContentLanguageUpdatedEvent(nextLanguage).fire();
+            }
         }
 
         resetEditPropertiesDialog();

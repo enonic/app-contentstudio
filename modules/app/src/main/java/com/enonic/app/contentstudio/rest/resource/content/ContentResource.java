@@ -104,6 +104,7 @@ import com.enonic.app.contentstudio.rest.resource.content.json.RevertContentJson
 import com.enonic.app.contentstudio.rest.resource.content.json.SetChildOrderJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.UnpublishContentJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.UpdateContentJson;
+import com.enonic.app.contentstudio.rest.resource.content.json.UpdateContentLanguageJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.UpdateContentMetadataJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.UpdateWorkflowJson;
 import com.enonic.app.contentstudio.rest.resource.content.query.ContentQueryWithChildren;
@@ -464,10 +465,17 @@ public final class ContentResource
 
     private Content localizeContent( final ContentId id, final Locale language )
     {
-        final UpdateContentMetadataParams params = UpdateContentMetadataParams.create().contentId( id ).editor( edit -> {
-            edit.language = language;
-        } ).build();
-        return contentService.updateMetadata( params ).getContent();
+        final Content nonLocalizedContent = this.contentService.getById( id );
+
+        if (!Objects.equals( language, nonLocalizedContent.getLanguage() ) ) {
+            final UpdateContentParams updateParams = new UpdateContentParams().contentId( id ).editor( edit -> {
+                edit.language = language;
+            } );
+
+            return this.contentService.update( updateParams );
+        }
+
+        return contentService.updateMetadata( UpdateContentMetadataParams.create().contentId( id ).editor( edit -> {} ).build() ).getContent();
     }
 
     @POST
@@ -533,6 +541,18 @@ public final class ContentResource
             .callWith( () -> contentService.updateMetadata( json.getUpdateContentMetadataParams() ) );
 
         return jsonObjectsFactory.createContentJson( result.getContent(), request );
+    }
+
+    @POST
+    @Path("updateLanguage")
+    public ContentJson updateLanguage( final UpdateContentLanguageJson json, @Context HttpServletRequest request )
+    {
+        final Content updatedContent = ContextBuilder.copyOf( ContextAccessor.current() )
+            .branch( ContentConstants.BRANCH_DRAFT )
+            .build()
+            .callWith( () -> contentService.update( json.getUpdateContentParams() ) );
+
+        return jsonObjectsFactory.createContentJson( updatedContent, request );
     }
 
     private MoveContentParams makeRenameParams( final MoveContentParams renameParams )
@@ -1629,9 +1649,8 @@ public final class ContentResource
         }
 
         final Content currentContent = contentService.getById( ContentId.from( params.getContentId() ) );
-        contentService.update( prepareUpdateContentParams( versionedContent, contentVersionId ) );
-        final UpdateContentMetadataResult result = contentService.updateMetadata( prepareUpdateContentMetadataParams( versionedContent ) );
-        return jsonObjectsFactory.createContentJson( result.getContent(), request );
+        final Content result = contentService.update( prepareUpdateContentParams( versionedContent, contentVersionId ) );
+        return jsonObjectsFactory.createContentJson( result, request );
     }
 
     @POST
@@ -1647,20 +1666,13 @@ public final class ContentResource
             edit.data = versionedContent.getData();
             edit.displayName = versionedContent.getDisplayName();
             edit.mixins = versionedContent.getMixins();
+            edit.language = versionedContent.getLanguage();
             edit.page(versionedContent.getPage() != null ? versionedContent.getPage() : null);
         } );
 
         updateAttachments( versionedContent, contentVersionId, updateParams );
 
         return updateParams;
-    }
-
-    private UpdateContentMetadataParams prepareUpdateContentMetadataParams( final Content versionedContent )
-    {
-        return UpdateContentMetadataParams.create().contentId( versionedContent.getId() ).editor( edit -> {
-            edit.language = versionedContent.getLanguage();
-            edit.owner = versionedContent.getOwner();
-        } ).build();
     }
 
     private void updateAttachments( final Content versionedContent, final ContentVersionId contentVersionId,
