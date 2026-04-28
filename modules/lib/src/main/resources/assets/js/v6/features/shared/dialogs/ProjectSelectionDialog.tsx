@@ -17,6 +17,8 @@ export const ProjectSelectionDialog = (): ReactElement => {
     const {projectSelectionDialogOpen} = useStore($dialogs);
 
     const title = useI18n('text.selectContext');
+    const createProject = useI18n('settings.field.project.create');
+    const getAccess = useI18n('settings.field.project.access');
     const noProjectsText = useI18n('notify.settings.project.notInitialized');
     const noProjectsAvailableText = useI18n('notify.settings.project.notAvailable');
     const createProjectLabel = useI18n('dialog.project.wizard.noProjects.action');
@@ -25,11 +27,14 @@ export const ProjectSelectionDialog = (): ReactElement => {
 
     const flatProjects = useMemo(() => flattenProjects(projects), [projects]);
     const projectByName = useMemo(() => new Map(flatProjects.map(({project}) => [project.getName(), project])), [flatProjects]);
+    const hasAvailableProjects = useMemo(
+        () => flatProjects.some(({project}) => ProjectHelper.isAvailable(project)),
+        [flatProjects]
+    );
 
     // TODO: Enonic UI - Move auth data to store
     // It's currently okay, as authentication data is loaded from CONFIG and can be considered static
     const isAdmin = AuthHelper.isContentAdmin();
-    const hasProjects = flatProjects.length > 0;
 
     return (
         <Dialog.Root open={projectSelectionDialogOpen} onOpenChange={setProjectSelectionDialogOpen}>
@@ -45,9 +50,9 @@ export const ProjectSelectionDialog = (): ReactElement => {
                         listRef.current?.focus();
                     }}
                 >
-                    <ConfirmationDialog.DefaultHeader title={title} withClose />
+                    <ConfirmationDialog.DefaultHeader title={hasAvailableProjects ? title : isAdmin ? createProject : getAccess} withClose />
 
-                    {!hasProjects ? (
+                    {!hasAvailableProjects ? (
                         <ConfirmationDialog.Body className="flex flex-col gap-4 p-2 -m-2">
                             <p className="text-subtle">{isAdmin ? noProjectsAvailableText : noProjectsText}</p>
                             {isAdmin && (
@@ -78,17 +83,27 @@ export const ProjectSelectionDialog = (): ReactElement => {
                                     className="gap-2.5 max-h-full max-w-full pb-10 items-stretch"
                                     aria-label={title}
                                 >
-                                    {flatProjects.map(({project, level}) => (
-                                        <Listbox.Item
-                                            key={project.getName()}
-                                            value={project.getName()}
-                                            className="group flex self-stretch w-full min-w-full px-2.5"
-                                            style={{paddingInlineStart: level * 20 + 10}}
-                                            data-tone={project.getName() === activeProjectId ? 'inverse' : undefined}
-                                        >
-                                            <ProjectLabel project={project} className="w-full px-0 py-1.25" />
-                                        </Listbox.Item>
-                                    ))}
+                                    {flatProjects.map(({project, level}) => {
+                                        const isUnavailable = !ProjectHelper.isAvailable(project);
+
+                                        return (
+                                            <Listbox.Item
+                                                key={project.getName()}
+                                                value={project.getName()}
+                                                className="group flex self-stretch w-full min-w-full px-2.5"
+                                                style={{paddingInlineStart: level * 20 + 10}}
+                                                data-tone={project.getName() === activeProjectId ? 'inverse' : undefined}
+                                            >
+                                                <ProjectLabel
+                                                    project={project}
+                                                    className={cn(
+                                                        'w-full px-0 py-1.25',
+                                                        isUnavailable && 'opacity-50'
+                                                    )}
+                                                />
+                                            </Listbox.Item>
+                                        );
+                                    })}
                                 </Listbox.Content>
                             </Listbox.Root>
                         </ConfirmationDialog.Body>

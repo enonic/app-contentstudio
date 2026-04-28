@@ -4,14 +4,13 @@ import {ListBoxToolbar} from '@enonic/lib-admin-ui/ui/selector/list/ListBoxToolb
 import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {SelectableTreeListBoxKeyNavigator} from '@enonic/lib-admin-ui/ui/selector/list/SelectableTreeListBoxKeyNavigator';
 import type Q from 'q';
-import {reloadProjects, removeProject, upsertProject} from '../../../v6/features/store/projects.store';
+import {reloadProjects} from '../../../v6/features/store/projects.store';
 import {getSettingsItem, hasSettingsItem} from '../../../v6/features/store/settings-tree.store';
 import {SettingsItemPanelElement} from '../../../v6/features/views/browse/settings/item-panel/SettingsItemPanelElement';
 import {SettingsTreeListElement} from '../../../v6/features/views/browse/settings/SettingsTreeListElement';
 import {SettingsBrowseToolbarElement} from '../../../v6/features/views/browse/toolbar/SettingsBrowseToolbar';
 import {SettingsTreeList} from '../SettingsTreeList';
 import {SettingsTreeActions} from '../tree/SettingsTreeActions';
-import {type ProjectViewItem} from '../view/ProjectViewItem';
 import {type SettingsViewItem} from '../view/SettingsViewItem';
 import {SettingsBrowseToolbar} from './SettingsBrowseToolbar';
 import {SettingsTreeListSelectablePanelProxy} from './SettingsTreeListSelectablePanelProxy';
@@ -77,18 +76,6 @@ export class SettingsBrowsePanel
 
     hasItemWithId(id: string) {
         return hasSettingsItem(id);
-    }
-
-    addSettingsItem(item: ProjectViewItem) {
-        upsertProject(item.getData());
-    }
-
-    updateSettingsItem(item: ProjectViewItem) {
-        upsertProject(item.getData());
-    }
-
-    deleteSettingsItem(id: string) {
-        removeProject(id);
     }
 
     getItemById(id: string): SettingsViewItem | undefined {

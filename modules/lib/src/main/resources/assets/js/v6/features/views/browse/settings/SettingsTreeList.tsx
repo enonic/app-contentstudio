@@ -1,12 +1,11 @@
 import {cn, VirtualizedTreeList} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Folder, FolderOpen} from 'lucide-react';
-import {ReactElement, useCallback, useMemo, useRef} from 'react';
+import {type ReactElement, useCallback, useMemo, useRef} from 'react';
 import type {ListRange, VirtuosoHandle} from 'react-virtuoso';
 import {Virtuoso} from 'react-virtuoso';
 import {EditSettingsItemEvent} from '../../../../../app/settings/event/EditSettingsItemEvent';
-import {SettingsDataViewItem} from '../../../../../app/settings/view/SettingsDataViewItem';
-import {SettingsViewItem} from '../../../../../app/settings/view/SettingsViewItem';
+import {type SettingsViewItem} from '../../../../../app/settings/view/SettingsViewItem';
 import {ProjectHelper} from '../../../../../app/settings/data/project/ProjectHelper';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {virtuosoComponents} from '../../../shared/lists';
@@ -17,6 +16,7 @@ import type {FlatNode} from '../../../lib/tree-store';
 import {$settingsFlatNodes, collapseSettingsNode, expandSettingsNode} from '../../../store/settings-tree.store';
 import {$activeId, $selection, clearSelection, setActive, setSelection} from '../../../store/settingsTreeSelection.store';
 import {SettingsTreeContextMenu, type SettingsTreeContextMenuProps} from './SettingsTreeContextMenu';
+import {ProjectViewItem} from '../../../../../app/settings/view/ProjectViewItem';
 
 type SettingsFlatNode = FlatNode<SettingsViewItem>;
 
@@ -26,8 +26,8 @@ export type SettingsTreeListProps = {
 
 const SETTINGS_TREE_LIST_NAME = 'SettingsTreeList';
 
-const isSettingsDataItem = (item: SettingsViewItem): item is SettingsDataViewItem<any> =>
-    ObjectHelper.iFrameSafeInstanceOf(item, SettingsDataViewItem);
+const isProjectViewItem = (item: SettingsViewItem): item is ProjectViewItem =>
+    ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem);
 
 export const SettingsTreeList = ({contextMenuActions = []}: SettingsTreeListProps): ReactElement => {
     const virtuosoRef = useRef<VirtuosoHandle>(null);
@@ -49,7 +49,7 @@ export const SettingsTreeList = ({contextMenuActions = []}: SettingsTreeListProp
         const node = flatNodes.find((n) => n.id === id);
         if (!node?.data) return;
 
-        if (ObjectHelper.iFrameSafeInstanceOf(node.data, SettingsDataViewItem)) {
+        if (ObjectHelper.iFrameSafeInstanceOf(node.data, ProjectViewItem)) {
             new EditSettingsItemEvent([node.data]).fire();
         }
     }, [flatNodes]);
@@ -113,7 +113,7 @@ export const SettingsTreeList = ({contextMenuActions = []}: SettingsTreeListProp
                                 const isSelected = selection.has(id);
 
                                 const secondaryText = data.getDescription() || `<${noDescription}>`;
-                                const isUnavailable = isSettingsDataItem(data)
+                                const isUnavailable = isProjectViewItem(data)
                                     ? !ProjectHelper.isAvailable(data.getData())
                                     : false;
 
@@ -179,7 +179,7 @@ export const SettingsTreeList = ({contextMenuActions = []}: SettingsTreeListProp
                                             />
                                         </VirtualizedTreeList.RowLeft>
                                         <VirtualizedTreeList.RowContent>
-                                            {isSettingsDataItem(data) ? (
+                                            {isProjectViewItem(data) ? (
                                                 <ProjectLabel
                                                     project={data.getData()}
                                                     className={isUnavailable ? 'opacity-50' : undefined}

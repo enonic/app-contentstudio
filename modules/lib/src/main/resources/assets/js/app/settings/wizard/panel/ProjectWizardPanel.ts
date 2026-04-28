@@ -31,6 +31,8 @@ import {ProjectApplicationsWizardStepForm} from './form/ProjectApplicationsWizar
 import {type ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {LangDirection} from '@enonic/lib-admin-ui/dom/Element';
+import {clearPendingDeletedProject, isActiveProject, markPendingDeletedProject} from '../../../../v6/features/store/projects.store';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -193,6 +195,19 @@ export class ProjectWizardPanel
 
     protected getSuccessfulDeleteMessage(): string {
         return i18n('notify.settings.project.deleted', this.getPersistedItem().getName());
+    }
+
+    protected deletePersistedItem() {
+        const projectName = this.getPersistedItem().getName();
+        markPendingDeletedProject(projectName, isActiveProject(projectName));
+
+        this.createDeleteRequest().sendAndParse().then(() => {
+            showFeedback(this.getSuccessfulDeleteMessage());
+            this.close();
+        }).catch((reason) => {
+            clearPendingDeletedProject(projectName);
+            DefaultErrorHandler.handle(reason);
+        });
     }
 
     protected getSuccessfulCreateMessage(name: string): string {

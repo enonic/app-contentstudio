@@ -13,6 +13,7 @@ import {clearSelection, setActive} from './contentTreeSelection.store';
 import {setContentFilterOpen, resetContentFilter} from './contentFilter.store';
 import {deactivateFilter} from '../api/content-fetcher';
 import {clearVersionsCache} from '../utils/widget/versions/versionsCache';
+import {resolveActiveProjectId, resolveActiveProjectIdAfterDeletion} from '../utils/cms/projects/projectSelection';
 
 /*
 TODO: Enonic UI - Feature
@@ -44,7 +45,9 @@ syncMapStore($projects, SYNC_NAME, {
 });
 
 export const $activeProject = computed($projects, (store) => {
-    return store.projects.find((p) => getProjectId(p) === store.activeProjectId);
+    const activeProject = store.projects.find((p) => getProjectId(p) === store.activeProjectId);
+
+    return isAvailableProject(activeProject) ? activeProject : undefined;
 });
 
 export const $activeProjectName = computed($activeProject, (activeProject) => {
@@ -64,11 +67,19 @@ export function setActiveProject(project: Readonly<Project> | undefined): void {
     $projects.setKey('activeProjectId', getProjectId(project));
 }
 
+export function isActiveProject(projectName: string | undefined): boolean {
+    return $projects.get().activeProjectId === projectName;
+}
+
 //
 // * Utilities
 //
 function getProjectId(project: Readonly<Project> | undefined): string | undefined {
     return project?.getName();
+}
+
+function isAvailableProject(project: Readonly<Project> | undefined): boolean {
+    return !!project?.getDisplayName();
 }
 
 function getProjectIdFromUrl(): string | undefined {
@@ -77,11 +88,37 @@ function getProjectIdFromUrl(): string | undefined {
     return normalizedPath.split('/')[1];
 }
 
+function clearActiveProject(): void {
+    $projects.setKey('activeProjectId', undefined);
+}
+
+function selectProjectById(projectId: string | undefined): void {
+    const project = $projects.get().projects.find((candidate) => getProjectId(candidate) === projectId);
+
+    if (project) {
+        setActiveProject(project);
+    } else {
+        clearActiveProject();
+    }
+}
+
+function resolveFallbackProjectId(projects: Readonly<Project>[], activeProjectId: string | undefined): string | undefined {
+    const activeProject = projects.find((project) => getProjectId(project) === activeProjectId);
+
+    if (!activeProject) {
+        return undefined;
+    }
+
+    return resolveActiveProjectIdAfterDeletion(projects, activeProject);
+}
+
 //
 // * Internal
 //
 let isLoading = false;
 let needsReload = false;
+const pendingDeletedProjectNavigation = new Map<string, boolean>();
+
 async function loadProjects(): Promise<void> {
     if (isLoading) {
         needsReload = true;
@@ -113,18 +150,33 @@ function updateActiveProject(): void {
         return;
     }
 
-    const {projects} = $projects.get();
+    const {projects, activeProjectId} = $projects.get();
+    const nextProjectId = resolveActiveProjectId(projects, getProjectIdFromUrl())
+        ?? resolveFallbackProjectId(projects, activeProjectId);
 
-    if (projects.length === 1) {
-        setActiveProject(projects[0]);
+    if (nextProjectId) {
+        selectProjectById(nextProjectId);
+        setProjectSelectionDialogOpen(false);
         return;
     }
 
-    const projectFromUrl = projects.find((p) => getProjectId(p) === getProjectIdFromUrl());
-    if (projectFromUrl) {
-        setActiveProject(projectFromUrl);
+    clearActiveProject();
+    ProjectContext.get().setNotAvailable();
+    setProjectSelectionDialogOpen(true);
+}
+
+function updateActiveProjectAfterDeletion(deletedProject: Readonly<Project> | undefined): void {
+    const {projects} = $projects.get();
+    const nextProjectId = resolveActiveProjectIdAfterDeletion(projects, deletedProject);
+
+    if (nextProjectId) {
+        selectProjectById(nextProjectId);
+        setProjectSelectionDialogOpen(false);
+        return;
     }
 
+    clearActiveProject();
+    ProjectContext.get().setNotAvailable();
     setProjectSelectionDialogOpen(true);
 }
 
@@ -155,10 +207,8 @@ ProjectCreatedEvent.on(() => {
 });
 
 ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
-    const {projects} = $projects.get();
-    const updatedProjects = projects.filter((p) => getProjectId(p) !== event.getProjectName());
-    $projects.setKey('projects', updatedProjects);
-    updateActiveProject();
+    const deletedProjectId = event.getProjectName();
+    removeProject(deletedProjectId, resolveDeleteNavigation(deletedProjectId));
 });
 
 //
@@ -168,6 +218,31 @@ export function reloadProjects(): void {
     void loadProjects();
 }
 
+export function markPendingDeletedProject(projectName: string, navigateAfterDeletion: boolean = false): void {
+    pendingDeletedProjectNavigation.set(projectName, navigateAfterDeletion);
+}
+
+export function clearPendingDeletedProject(projectName?: string): void {
+    if (projectName === undefined) {
+        pendingDeletedProjectNavigation.clear();
+        return;
+    }
+
+    pendingDeletedProjectNavigation.delete(projectName);
+}
+
+function consumePendingDeletedProject(projectName: string): boolean | undefined {
+    const navigateAfterDeletion = pendingDeletedProjectNavigation.get(projectName);
+    pendingDeletedProjectNavigation.delete(projectName);
+    return navigateAfterDeletion;
+}
+
+function resolveDeleteNavigation(projectName: string): boolean {
+    // ? Explicit intent from markPendingDeletedProject wins; otherwise default to
+    // ? navigating when the deleted project is currently active (covers cross-tab deletes).
+    return consumePendingDeletedProject(projectName) ?? isActiveProject(projectName);
+}
+
 export function upsertProject(project: Readonly<Project>): void {
     const {projects} = $projects.get();
     const updatedProjects = [...projects.filter((p) => getProjectId(p) !== getProjectId(project)), project as Project];
@@ -175,10 +250,17 @@ export function upsertProject(project: Readonly<Project>): void {
     updateActiveProject();
 }
 
-export function removeProject(projectName: string): void {
+export function removeProject(projectName: string, navigateAfterDeletion: boolean = false): void {
     const {projects} = $projects.get();
+    const deletedProject = projects.find((p) => getProjectId(p) === projectName);
     const updatedProjects = projects.filter((p) => getProjectId(p) !== projectName);
     $projects.setKey('projects', updatedProjects);
+
+    if (navigateAfterDeletion) {
+        updateActiveProjectAfterDeletion(deletedProject);
+        return;
+    }
+
     updateActiveProject();
 }
 
