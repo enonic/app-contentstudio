@@ -34,6 +34,8 @@ export const $inspectedPath = atom<string | null>(null);
 // ? with an identical value would otherwise swallow.
 export const $selectionEventNonce = atom<number>(0);
 
+export const $insertTabActivateNonce = atom<number>(0);
+
 //
 // * Computed
 //
@@ -87,6 +89,10 @@ export function bumpPageVersion(): void {
 
 export function bumpSelectionEventNonce(): void {
     $selectionEventNonce.set($selectionEventNonce.get() + 1);
+}
+
+export function bumpInsertTabActivateNonce(): void {
+    $insertTabActivateNonce.set($insertTabActivateNonce.get() + 1);
 }
 
 export function syncPageFromState(): void {

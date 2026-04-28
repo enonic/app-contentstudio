@@ -9,6 +9,7 @@ export function usePageEditorTabs(
     inspectedPath: string | null,
     isInsertTabAvailable: boolean,
     selectionEventNonce: number,
+    insertTabActivateNonce: number,
 ): UsePageEditorTabsResult {
     const [activeTab, setActiveTab] = useState<string>('inspect');
 
@@ -30,6 +31,12 @@ export function usePageEditorTabs(
             setActiveTab('inspect');
         }
     }, [activeTab, isInsertTabAvailable]);
+
+    useEffect(() => {
+        if (insertTabActivateNonce > 0 && isInsertTabAvailable) {
+            setActiveTab('insert');
+        }
+    }, [insertTabActivateNonce, isInsertTabAvailable]);
 
     return {activeTab, setActiveTab};
 }
