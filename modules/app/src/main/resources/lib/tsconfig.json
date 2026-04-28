@@ -21,12 +21,6 @@
             "/lib/xp/core": [
                 "../../../../node_modules/@enonic-types/core"
             ],
-            "/lib/xp/admin": [
-                "./types/lib/admin"
-            ],
-            "/lib/xp/portal": [
-                "./types/lib/portal"
-            ],
             "/lib/xp/*": [
                 "../../../../node_modules/@enonic-types/lib-*"
             ],

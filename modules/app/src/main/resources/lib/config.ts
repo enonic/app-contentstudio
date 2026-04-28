@@ -1,4 +1,4 @@
-import {widgetUrl, getToolUrl, getHomeToolUrl, getVersion} from '/lib/xp/admin';
+import {extensionUrl, getToolUrl, getHomeToolUrl, getVersion} from '/lib/xp/admin';
 import {User, UserKey, getUser, getProfile, getMemberships} from '/lib/xp/auth';
 import {getPhrases} from '/lib/xp/i18n';
 import {assetUrl, apiUrl, serviceUrl} from '/lib/xp/portal';
@@ -104,9 +104,9 @@ export function getConfig(locales: string[], aiEnabled: boolean): Record<string,
         sharedSocketUrl: assetUrl({
             path: 'shared-socket.js'
         }),
-        menuUrl: widgetUrl({
+        menuUrl: extensionUrl({
             application: 'com.enonic.xp.app.main',
-            widget: 'menu',
+            extension: 'menu',
             params: {
                 appName: app.name
             }

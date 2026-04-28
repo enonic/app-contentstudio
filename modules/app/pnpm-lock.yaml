@@ -70,44 +70,44 @@ importers:
         version: 1.5.1
     devDependencies:
       '@enonic-types/core':
-        specifier: 7.15.3
-        version: 7.15.3
+        specifier: 8.0.0-A3
+        version: 8.0.0-A3
       '@enonic-types/global':
-        specifier: 7.15.3
-        version: 7.15.3
+        specifier: 8.0.0-A3
+        version: 8.0.0-A3
       '@enonic-types/lib-admin':
-        specifier: 7.15.3
-        version: 7.15.3
+        specifier: 8.0.0-A3
+        version: 8.0.0-A3
       '@enonic-types/lib-auth':
-        specifier: 7.15.3
-        version: 7.15.3
+        specifier: 8.0.0-A3
+        version: 8.0.0-A3
       '@enonic-types/lib-common':
-        specifier: 7.15.3
-        version: 7.15.3
+        specifier: 8.0.0-A3
+        version: 8.0.0-A3
       '@enonic-types/lib-context':
-        specifier: 7.15.3
-        version: 7.15.3
+        specifier: 8.0.0-A3
+        version: 8.0.0-A3
       '@enonic-types/lib-event':
-        specifier: 7.15.3
-        version: 7.15.3
+        specifier: 8.0.0-A3
+        version: 8.0.0-A3
       '@enonic-types/lib-grid':
-        specifier: 7.15.3
-        version: 7.15.3
+        specifier: 8.0.0-A3
+        version: 8.0.0-A3
       '@enonic-types/lib-i18n':
-        specifier: 7.15.3
-        version: 7.15.3
+        specifier: 8.0.0-A3
+        version: 8.0.0-A3
       '@enonic-types/lib-node':
-        specifier: 7.15.3
-        version: 7.15.3
+        specifier: 8.0.0-A3
+        version: 8.0.0-A3
       '@enonic-types/lib-portal':
-        specifier: 7.15.3
-        version: 7.15.3
+        specifier: 8.0.0-A3
+        version: 8.0.0-A3
       '@enonic-types/lib-value':
-        specifier: 7.15.3
-        version: 7.15.3
+        specifier: 8.0.0-A3
+        version: 8.0.0-A3
       '@enonic-types/lib-websocket':
-        specifier: 7.15.3
-        version: 7.15.3
+        specifier: 8.0.0-A3
+        version: 8.0.0-A3
       '@enonic/eslint-config':
         specifier: ^2.1.0
         version: 2.2.1(@typescript-eslint/parser@8.57.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(typescript-eslint@8.57.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(typescript@5.9.3)
@@ -601,44 +601,44 @@ packages:
   '@emnapi/wasi-threads@1.2.1':
     resolution: {integrity: sha512-uTII7OYF+/Mes/MrcIOYp5yOtSMLBWSIoLPpcgwipoiKbli6k322tcoFsxoIIxPDqW01SQGAgko4EzZi2BNv2w==}
 
-  '@enonic-types/core@7.15.3':
-    resolution: {integrity: sha512-c7fxoK6mp5tluTBlddxWIyFVR6BpJ191zyE32GrsfZb9b8+ikudWjU+h6+F+2QeIk4zKGdNnXV6M/Q5m4tX+mw==}
+  '@enonic-types/core@8.0.0-A3':
+    resolution: {integrity: sha512-NOc1D8mqdvltywv+06xZ/CNWZy3Hb6RKMUb9FznjdEj/esM9KJV1kHglkSI8J7KM9owRXleSV1ViP14F/YG9OQ==}
 
-  '@enonic-types/global@7.15.3':
-    resolution: {integrity: sha512-uNwf385MBsHopmdXpiyZiZF5u26shaeyQA9feOJ48GBwR1Lh2lu6A4mGC6NUGxaloOgZdQHOgZtPkMb505Km9g==}
+  '@enonic-types/global@8.0.0-A3':
+    resolution: {integrity: sha512-ZoN0vMDiKpPFwrNz9vnTutGhxSC1HwR6C11C2lvZ2FaQ1bG9f9YtfcmA0kxar/QO0FToI3uRcTcx9enke2gG2Q==}
 
-  '@enonic-types/lib-admin@7.15.3':
-    resolution: {integrity: sha512-lHHeMiIe3sYJN+DdKnld2BUi3AkFsZuLveIg1FTXUw0wN6+OsrmGVSsFRoi8xkgxSn6FKpLS+hnCm9MidlZaAQ==}
+  '@enonic-types/lib-admin@8.0.0-A3':
+    resolution: {integrity: sha512-PBAqjLhvy5seNKIu4Dx2eTx1EXynNlRmYAKMJThVYywByGkfJ9H8Nkq7SEV8wR9hsRkeH1yy8tJIsrn6SQFm+w==}
 
-  '@enonic-types/lib-auth@7.15.3':
-    resolution: {integrity: sha512-42zyLf7ZFvmyOelwhGbDg5n1IroEN4cfFwEBopiv/X5FxbGowFFHCOLoCF47AZ6qO7OdWlv5eq4fH3hmJyQjrw==}
+  '@enonic-types/lib-auth@8.0.0-A3':
+    resolution: {integrity: sha512-lONPOqZSc1Nk2Bwg9YqtaheXcOEjazj8OANqhfGGM6gS7eZexEcyfNPrzsSWRCxDus3uAlJ1Lq7hWf0jf9XYDQ==}
 
-  '@enonic-types/lib-common@7.15.3':
-    resolution: {integrity: sha512-In8MFiXeYQkfTb3a9cW3g4hl6G3EH6cJC7Uizv0OiTWr+w4np1bJ1WYX8uTiGdxsRNAlud/+++5Gs6chL0t29A==}
+  '@enonic-types/lib-common@8.0.0-A3':
+    resolution: {integrity: sha512-s3QBBd05xlbiBKPb72nBKuPrqW04JZ5cZlufbD/mSm6/7juuTX6g8Ev3oTLgwRPsKadP+Xbbe5UiaSsNjJKtEg==}
 
-  '@enonic-types/lib-context@7.15.3':
-    resolution: {integrity: sha512-Ojvh9YUADEgaslJN76lBMpL9hU1BmfVNASnNR9Oon+Gx69SYp6dNK3/fLboXxknXNTOiQysqQqTS9/0+RCXE+g==}
+  '@enonic-types/lib-context@8.0.0-A3':
+    resolution: {integrity: sha512-O5+W+EO0BhHMDmBmHtqhXDdITcQQ2H/TGhr2h10LMTzWqXuQ42JUxlLkW2JY58DxmTMpCNmHKODTEZ3ZjnD9rQ==}
 
-  '@enonic-types/lib-event@7.15.3':
-    resolution: {integrity: sha512-LGp2m/XxgEcYxafMonjexYL/3sXi805lZRBiAbfs4ANqRP8+5Ioi+EKKHoTq2OH6Ai6eIp3IDBUjNbaMRL1IwQ==}
+  '@enonic-types/lib-event@8.0.0-A3':
+    resolution: {integrity: sha512-ar2xQtP/PRIc/yZODt6ydvgaQ9/uP/Lfj4sKgnbseK1plqRV5xkqe2Fdo8rlhWvIUIq81R9inhiZHrQJrKgnjQ==}
 
-  '@enonic-types/lib-grid@7.15.3':
-    resolution: {integrity: sha512-f1i1cQH6Pk54xjJnwrTr/JKfD4AlnOEVmRjPw1jBuK0SJq1GVpjvmE5jNH3ac7WSjjUJtQTa+YOZSrx9/TEPFQ==}
+  '@enonic-types/lib-grid@8.0.0-A3':
+    resolution: {integrity: sha512-sCXULoob/7UIl3UIC0XDBXfiVv5Ey3OnuVwmivCQ7ZF7VlsRyGh9x8kIbhjOMZhu+4AQ8KGGyUAnb9PD50mArQ==}
 
-  '@enonic-types/lib-i18n@7.15.3':
-    resolution: {integrity: sha512-vbjsjzpfv4WLRGffNeoopEotgsAQhby4HP2INMl8L5gJ92aAfEq97RuFg+/1QxQooh46poMBZUIYRKTEJkxSaw==}
+  '@enonic-types/lib-i18n@8.0.0-A3':
+    resolution: {integrity: sha512-/6aMlPbyhydvJ0BA/ivCsn8gG+sxbcWyFc2YrMsFQ5Wc2yJtOErUhK6pUrETkyr3aM6R4X1ms0lwZHyNs67B3Q==}
 
-  '@enonic-types/lib-node@7.15.3':
-    resolution: {integrity: sha512-WULhb8YJYZ2X9K/r986SJt9gBp4bjLDsheqQCWXh0+M0UrdTPmq5tCEQWArHO3a8hvoDawtrzrERmFb8sXxiYg==}
+  '@enonic-types/lib-node@8.0.0-A3':
+    resolution: {integrity: sha512-w+z58NTqGZpEi7UJhbzrZWshkE31IdTb0eY0gDp15XpZ2AFFlrdIcnrkNathEXEwk6ipp9udNtQzD9j6t23FMA==}
 
-  '@enonic-types/lib-portal@7.15.3':
-    resolution: {integrity: sha512-lTVd84aeCRoVqUevDFNNN9R5gtoq8xeLLvnaakgSg6BtK2hKsjIBUlDMyiTTPmtzzZgWpQ2vb/d+0ESfp/owEw==}
+  '@enonic-types/lib-portal@8.0.0-A3':
+    resolution: {integrity: sha512-XJH8GhIrwdcaBUWxkg5MfiZQ1RC7ZhQHnEyyP9D/WwIpQN8PXvCdhUJ04dgZl6LE8LI4+yQX4h2xm5z5OBhs1w==}
 
-  '@enonic-types/lib-value@7.15.3':
-    resolution: {integrity: sha512-+Ugrsm5BdqXGRpDfIBffIEnIGkIjNmSmOuXJR2xHWXrxG82bLfXAQnzW8+4LN02nvUYyQxs0g+sOSXL9HIgKew==}
+  '@enonic-types/lib-value@8.0.0-A3':
+    resolution: {integrity: sha512-4hfzkm3dbK2NIa8Nsg3um/dE4EdfQ+0fo0wHOEl12NQ1tNg1ZIINUvxgZ7zquOLEKpQ2m2m7wugGTqUnAFFRzw==}
 
-  '@enonic-types/lib-websocket@7.15.3':
-    resolution: {integrity: sha512-ClqJJ8GAH/1TSuSQ7kdP+myEX5wWlIvF/kFXZYAK6mEZEJ2A91HHtoL+5VRBRwPcV1Cw21Xag1oeLA906mP+qA==}
+  '@enonic-types/lib-websocket@8.0.0-A3':
+    resolution: {integrity: sha512-ajmwJM54PENWl8m8mbd9MlUIsuFRyI6PtOo5T8x7j5WQsZzCaq3PwPB3Kpv7JbYQGyzunUUAU+W9ZWuf1X5TMQ==}
 
   '@enonic/eslint-config@2.2.1':
     resolution: {integrity: sha512-5fOFJkQc6H2XUsgw3whRvbu451byuVAKGjF831Qgkk5cZGykvHFog3PV3qWYD6F0bNWhFSFNBlolrBwJxPZowg==}
@@ -5560,47 +5560,49 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@enonic-types/core@7.15.3': {}
+  '@enonic-types/core@8.0.0-A3': {}
 
-  '@enonic-types/global@7.15.3':
+  '@enonic-types/global@8.0.0-A3':
     dependencies:
-      '@enonic-types/core': 7.15.3
+      '@enonic-types/core': 8.0.0-A3
 
-  '@enonic-types/lib-admin@7.15.3': {}
-
-  '@enonic-types/lib-auth@7.15.3':
+  '@enonic-types/lib-admin@8.0.0-A3':
     dependencies:
-      '@enonic-types/core': 7.15.3
+      '@enonic-types/core': 8.0.0-A3
 
-  '@enonic-types/lib-common@7.15.3': {}
-
-  '@enonic-types/lib-context@7.15.3':
+  '@enonic-types/lib-auth@8.0.0-A3':
     dependencies:
-      '@enonic-types/core': 7.15.3
+      '@enonic-types/core': 8.0.0-A3
 
-  '@enonic-types/lib-event@7.15.3': {}
+  '@enonic-types/lib-common@8.0.0-A3': {}
 
-  '@enonic-types/lib-grid@7.15.3':
+  '@enonic-types/lib-context@8.0.0-A3':
     dependencies:
-      '@enonic-types/core': 7.15.3
+      '@enonic-types/core': 8.0.0-A3
 
-  '@enonic-types/lib-i18n@7.15.3':
+  '@enonic-types/lib-event@8.0.0-A3': {}
+
+  '@enonic-types/lib-grid@8.0.0-A3':
     dependencies:
-      '@enonic-types/core': 7.15.3
+      '@enonic-types/core': 8.0.0-A3
 
-  '@enonic-types/lib-node@7.15.3':
+  '@enonic-types/lib-i18n@8.0.0-A3':
     dependencies:
-      '@enonic-types/core': 7.15.3
+      '@enonic-types/core': 8.0.0-A3
 
-  '@enonic-types/lib-portal@7.15.3':
+  '@enonic-types/lib-node@8.0.0-A3':
     dependencies:
-      '@enonic-types/core': 7.15.3
+      '@enonic-types/core': 8.0.0-A3
 
-  '@enonic-types/lib-value@7.15.3':
+  '@enonic-types/lib-portal@8.0.0-A3':
     dependencies:
-      '@enonic-types/core': 7.15.3
+      '@enonic-types/core': 8.0.0-A3
 
-  '@enonic-types/lib-websocket@7.15.3': {}
+  '@enonic-types/lib-value@8.0.0-A3':
+    dependencies:
+      '@enonic-types/core': 8.0.0-A3
+
+  '@enonic-types/lib-websocket@8.0.0-A3': {}
 
   '@enonic/eslint-config@2.2.1(@typescript-eslint/parser@8.57.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(typescript-eslint@8.57.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
@@ -10298,7 +10300,7 @@ snapshots:
       '@webassemblyjs/wasm-parser': 1.14.1
       acorn: 8.16.0
       acorn-import-phases: 1.0.4(acorn@8.16.0)
-      browserslist: 4.28.1
+      browserslist: 4.28.2
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.20.1
       es-module-lexer: 2.0.0
@@ -10331,7 +10333,7 @@ snapshots:
       '@webassemblyjs/wasm-parser': 1.14.1
       acorn: 8.16.0
       acorn-import-phases: 1.0.4(acorn@8.16.0)
-      browserslist: 4.28.1
+      browserslist: 4.28.2
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.20.1
       es-module-lexer: 2.0.0

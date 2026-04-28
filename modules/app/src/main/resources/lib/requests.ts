@@ -1,13 +1,14 @@
-import libHttpClient from '/lib/http-client';
+import type {RequestHeaders, RequestMethod, Response, ResponseBody} from '@enonic-types/core';
+import libHttpClient, {HttpClientResponse} from '/lib/http-client';
 
 export type RequestParams = {
     path: string;
-    method?: Enonic.HttpMethod;
-    headers?: Enonic.RequestHeaders;
+    method?: RequestMethod;
+    headers?: RequestHeaders;
     body?: unknown;
 };
 
-export function respondJson(status: number, body: unknown) {
+export function respondJson(status: number, body: ResponseBody): Response {
     return {
         status: status,
         contentType: 'application/json',
@@ -15,16 +16,16 @@ export function respondJson(status: number, body: unknown) {
     };
 }
 
-export function respondMessage(status: number, message: string) {
+export function respondMessage(status: number, message: string): Response {
     return respondJson(status, {
         message: message,
     });
 }
 
-export function request(params: RequestParams): Enonic.Response {
+export function request(params: RequestParams): HttpClientResponse {
     const path = params.path;
     const method = params.method || 'GET';
-    const headers: Enonic.RequestHeaders = {
+    const headers: RequestHeaders = {
         accept: 'application/json',
         ...(params.headers || {}),
     };
@@ -40,7 +41,7 @@ export function request(params: RequestParams): Enonic.Response {
     });
 }
 
-export function getRequest(path: string, headers: Enonic.RequestHeaders): Enonic.Response {
+export function getRequest(path: string, headers: RequestHeaders): HttpClientResponse {
     try {
         return libHttpClient.request({
             url: path,
