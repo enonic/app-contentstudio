@@ -1,3 +1,5 @@
+import type {LiteralUnion, RequestHeaders, RequestMethod} from '@enonic-types/core';
+
 declare global {
     interface XpLibraries {
         '/lib/http-client': typeof import('./httpClient');
@@ -14,10 +16,10 @@ export type ContentType = LiteralUnion<
 
 export interface HttpClientRequestOptions {
     url: string;
-    method?: HttpMethod;
+    method?: RequestMethod;
     queryParams?: Record<string, string | number>;
     params?: Record<string, string>;
-    headers?: Enonic.RequestHeaders;
+    headers?: RequestHeaders;
     disableHttps2?: boolean; // false
     connectionTimeout?: number; // 10000
     readTimeout?: number; // 10000
