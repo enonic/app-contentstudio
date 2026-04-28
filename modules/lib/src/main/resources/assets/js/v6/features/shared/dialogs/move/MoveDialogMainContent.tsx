@@ -54,6 +54,7 @@ export const MoveDialogMainContent = ({
                         selectedId={selectedId}
                         excludedIds={excludedIds}
                         hideRoot={hasRootLevelSelection}
+                        hideWhenSelected
                         filterItems={currentItems}
                         disabled={submitting}
                         onSelectionChange={setMoveDestinationId}

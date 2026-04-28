@@ -1,10 +1,13 @@
+import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 import {Extension} from '@enonic/lib-admin-ui/extension/Extension';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {History, Link, List, SquareChartGantt} from 'lucide-react';
+import {FolderInput, History, Link, List, SquareChartGantt} from 'lucide-react';
 import {APP_NAME} from '../../../v6/features/utils/cms/app/app';
+import {IMPORT_CONTENT_WIDGET_KEY} from '../../../v6/features/utils/widget/import-content';
 import {VERSIONS_WIDGET_KEY} from '../../../v6/features/utils/widget/versions/versions';
 import {DependenciesWidgetElement} from '../../../v6/features/views/context/widget/dependencies';
 import {DetailsWidgetElement} from '../../../v6/features/views/context/widget/details';
+import {ImportContentWidgetElement} from '../../../v6/features/views/context/widget/import-content';
 import {PageEditorExtensionElement} from '../../../v6/features/views/context/widget/page-editor';
 import {VersionsWidgetElement} from '../../../v6/features/views/context/widget/versions/VersionsWidget';
 import {type ContextView} from './ContextView';
@@ -15,6 +18,7 @@ export interface DefaultContextWidgets {
     versions: ExtensionView;
     dependencies: ExtensionView;
     pageEditor?: ExtensionView;
+    importContent?: ExtensionView;
 }
 
 export interface BuildDefaultContextWidgetsOptions {
@@ -30,16 +34,22 @@ export function buildDefaultContextWidgets(
         versions: createVersionsWidget(contextView),
         dependencies: createDependenciesWidget(contextView),
         pageEditor: editorMode ? createPageEditorWidget(contextView) : undefined,
+        importContent: AuthHelper.isContentAdmin() ? createImportContentWidget(contextView) : undefined,
     };
 }
 
 export function listDefaultContextWidgets(widgets: DefaultContextWidgets): ExtensionView[] {
-    const {properties, versions, dependencies, pageEditor} = widgets;
+    const {properties, versions, dependencies, pageEditor, importContent} = widgets;
 
     // Page editor sits between properties and versions when present.
-    return pageEditor
+    const ordered: ExtensionView[] = pageEditor
         ? [properties, pageEditor, versions, dependencies]
         : [properties, versions, dependencies];
+
+    if (importContent) {
+        ordered.push(importContent);
+    }
+    return ordered;
 }
 
 function createPropertiesWidget(contextView: ContextView): ExtensionView {
@@ -93,5 +103,18 @@ function createPageEditorWidget(contextView: ContextView): ExtensionView {
         .addExtensionItemView(new PageEditorExtensionElement())
         .setContextView(contextView)
         .setType(InternalExtensionType.COMPONENTS)
+        .build();
+}
+
+function createImportContentWidget(contextView: ContextView): ExtensionView {
+    return ExtensionView.create()
+        .setExtension(Extension.create().setExtensionDescriptorKey(IMPORT_CONTENT_WIDGET_KEY).build())
+        .setName(i18n('widget.import.name'))
+        .setDescription(i18n('widget.import.description'))
+        .setExtensionClass('import-content-widget')
+        .setIcon(FolderInput)
+        .setType(InternalExtensionType.INFO)
+        .setContextView(contextView)
+        .addExtensionItemView(new ImportContentWidgetElement())
         .build();
 }

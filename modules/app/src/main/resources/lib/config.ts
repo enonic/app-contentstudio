@@ -79,6 +79,9 @@ export function getConfig(locales: string[], aiEnabled: boolean): Record<string,
             exportServiceUrl: apiUrl({
                 api: `${app.name}:export`
             }),
+            importContentUrl: apiUrl({
+                api: `${app.name}:import-content`
+            }),
             eventsUrl: apiUrl({
                 api: `${app.name}:events`
             }),
