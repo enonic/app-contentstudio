@@ -25,6 +25,7 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {type ValidityChangedEvent} from '@enonic/lib-admin-ui/ValidityChangedEvent';
 import Q from 'q';
+import {PageStateEvent} from '../../page-editor/event/incoming/common/PageStateEvent';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
 import {compareContent} from '../../v6/features/api/compare';
 import {cleanupWizardMixinsService, initWizardMixinsService} from '../../v6/features/services/wizardMixins.service';
@@ -40,10 +41,10 @@ import {
     requestDisplayNameInputFocus,
     resetWizardContent,
     setContentFormExpanded,
-    setContentType as setWizardContentType,
     setDraftPage,
-    setPersistedContent as setWizardPersistedContent,
+    setContentType as setWizardContentType,
     setWizardMarkedAsReady,
+    setPersistedContent as setWizardPersistedContent,
     setWizardReadOnly,
 } from '../../v6/features/store/wizardContent.store';
 import {escalateVisibility, initializeValidation, setServerValidationErrors} from '../../v6/features/store/wizardValidation.store';
@@ -112,7 +113,6 @@ import {type DefaultModels} from './page/DefaultModels';
 import {LiveEditPageProxy} from './page/LiveEditPageProxy';
 import {LiveFormPanel, type LiveFormPanelConfig} from './page/LiveFormPanel';
 import {PageState} from './page/PageState';
-import {PageStateEvent} from '../../page-editor/event/incoming/common/PageStateEvent';
 import {PageEventsManager} from './PageEventsManager';
 import {PersistNewContentRoutine} from './PersistNewContentRoutine';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
@@ -1246,18 +1246,6 @@ export class ContentWizardPanel
     private updateLiveEditModel(content: Content): void {
         if (ContentWizardPanel.debug) {
             console.debug('ContentWizardPanel.updateLiveEditModel for: ' + content.getPath().toString());
-        }
-
-        // ! Sync PageState with the persisted page after save. Otherwise the
-        // ! onContentUpdated path sees viewedContent ≠ contentAfterLayout and
-        // ! triggers a full iframe reload via debouncedEditorReload.
-        // ! PageStateEvent mirrors the new state into the iframe; setState
-        // ! alone fires no event.
-        const incomingPage = content.getPage();
-        const stalePage = PageState.getState();
-        if (stalePage !== incomingPage) {
-            PageState.setState(incomingPage ? incomingPage.clone() : null);
-            new PageStateEvent(PageState.getState()?.toJson() ?? null).fire();
         }
 
         this.liveEditModel = this.initLiveEditModel(content);
