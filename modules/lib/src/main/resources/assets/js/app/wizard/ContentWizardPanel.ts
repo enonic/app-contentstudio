@@ -66,6 +66,7 @@ import {type PageTemplate} from '../content/PageTemplate';
 import {type Site} from '../content/Site';
 import {BeforeContentSavedEvent} from '../event/BeforeContentSavedEvent';
 import {ContentLanguageUpdatedEvent} from '../event/ContentLanguageUpdatedEvent';
+import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
 import {type ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ViewExtensionEvent} from '../event/ViewExtensionEvent';
@@ -245,10 +246,25 @@ export class ContentWizardPanel
         super.initEventsListeners();
 
         this.listenToContentEvents();
+        this.handleContentRequiresSaveEvent();
         this.handleBrokenImageInTheWizard();
 
         ContentLanguageUpdatedEvent.on((event: ContentLanguageUpdatedEvent) => {
             this.renderAndOpenTranslatorDialog(event.getLanguage());
+        });
+    }
+
+    private handleContentRequiresSaveEvent(): void {
+        const contentRequiresSaveHandler = (event: ContentRequiresSaveEvent) => {
+            if (this.isCurrentContentId(event.getContentId()) && this.hasUnsavedChanges()) {
+                this.setMarkedAsReady(false);
+                this.saveChanges();
+            }
+        };
+
+        ContentRequiresSaveEvent.on(contentRequiresSaveHandler);
+        this.onClosed(() => {
+            ContentRequiresSaveEvent.un(contentRequiresSaveHandler);
         });
     }
 
