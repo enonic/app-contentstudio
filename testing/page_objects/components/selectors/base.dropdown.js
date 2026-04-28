@@ -156,6 +156,22 @@ class BaseDropdown extends Page {
         }
     }
 
+    // Gets all displayName values in tree mode dropdown
+// Returns array of display names from all visible tree items
+    async getOptionsDisplayNameInTreeMode() {
+        const locator = DROPDOWN.COMBOBOX_POPUP + DROPDOWN.CONTENT_LABEL_OPTIONS_NAME;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.pause(500);
+        return await this.getTextInDisplayedElements(locator);
+    }
+
+    async getOptionsDisplayNameInFlatMode() {
+        const locator = DROPDOWN.COMBOBOX_POPUP + DROPDOWN.CONTENT_LABEL_OPTIONS_NAME_FLAT_MODE;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.pause(200);
+        return await this.getTextInDisplayedElements(locator);
+    }
+
     // 1. Insert a text in Filter input
     // 2. Click on the filtered by displayName item (h6[contains(@class,'main-name'))
     // 3. Click on Apply button and apply the selection.
@@ -265,6 +281,16 @@ class BaseDropdown extends Page {
         let attr = await this.getAttribute(this.modeTogglerButton, 'aria-label');
         //return attr.includes('active') ? 'tree' : 'flat';
         return attr.includes('List view') ? 'flat' : 'tree';
+    }
+
+    async getModeByDOM() {
+        try {
+            const treeLocator = DROPDOWN.COMBOBOX_POPUP + "//div[@role='tree']";
+            const isTree = await this.findElements(treeLocator);
+            return isTree.length > 0 ? 'tree' : 'flat';
+        } catch (err) {
+            return 'unknown';
+        }
     }
 
     async getSelectedOptionsDisplayName() {

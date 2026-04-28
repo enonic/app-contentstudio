@@ -1,5 +1,5 @@
 /**
- * Created on 20.10.2021
+ * Created on 20.10.2021 updated on 24.04.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -14,23 +14,18 @@ describe('radiobutton.content.spec: tests for content with radio buttons', funct
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
+
     const CONTENT_NAME_1 = contentBuilder.generateRandomName('radio');
     const CONTENT_NAME_2 = contentBuilder.generateRandomName('radio');
 
-    it(`Preconditions: new site should be added`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
     it("GIVEN wizard for new content with not required 'radiobutton' is opened WHEN the name input has been filled THEN the content gets valid",
         async () => {
             let radioButtonForm = new RadioButtonForm();
             let contentWizard = new ContentWizard();
             // 1. open new wizard and fill in the name input:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.RADIOBUTTON_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.RADIOBUTTON_0_1);
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
             //2. Verify that 'option A' is not selected in the new wizard:
             let isSelected = await radioButtonForm.isRadioSelected(appConst.RADIO_OPTION.OPTION_A);
@@ -50,7 +45,7 @@ describe('radiobutton.content.spec: tests for content with radio buttons', funct
             let radioButtonForm = new RadioButtonForm();
             let contentWizard = new ContentWizard();
             // 1. open new wizard and fill in the name input:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.RADIOBUTTON_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.RADIOBUTTON_1_1);
             await contentWizard.typeDisplayName(CONTENT_NAME_2);
             // 2. Verify that the radio is not selected in the new wizard:
             let isSelected = await radioButtonForm.isRadioSelected(appConst.RADIO_OPTION.OPTION_A);
@@ -66,8 +61,7 @@ describe('radiobutton.content.spec: tests for content with radio buttons', funct
             assert.ok(isSelected, "'Option A' should be selected");
 
             // 6. Verify that the content gets valid even before clicking on the 'Save' button
-            isInValid = await contentWizard.isContentInvalid();
-            assert.ok(isInValid === false, 'the content should be valid, because the radio is selected now');
+            await contentWizard.waitUntilInvalidIconDisappears();
 
             // 7. Click on 'Mark as Ready' button, the content will be automatically saved:
             await contentWizard.clickOnMarkAsReadyButton();

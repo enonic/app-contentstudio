@@ -61,27 +61,12 @@ class ContentSelectorDropdown extends BaseDropdown {
         }
     }
 
-    // TODO
-    async getOptionsDisplayNameInTreeMode(parentXpath) {
-        let locator = XPATH.contentsTreeListUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.pause(500);
-        return await this.getTextInDisplayedElements(locator);
-    }
-
-    async getOptionsNameInTreeMode() {
-        let locator = XPATH.contentsTreeListUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.P_SUB_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.pause(500);
-        return await this.getTextInDisplayedElements(locator);
+    async getOptionsDisplayNameInTreeMode() {
+        return await super.getOptionsDisplayNameInTreeMode();
     }
 
     async getOptionsDisplayNameInFlatMode() {
-
-        let locator = XPATH.contentListBoxUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.pause(500);
-        return await this.getTextInDisplayedElements(locator);
+        return await super.getOptionsDisplayNameInFlatMode();
     }
 
     async getOptionsName(parentXpath) {
@@ -94,6 +79,17 @@ class ContentSelectorDropdown extends BaseDropdown {
     async removeSelectedOption(displayName) {
         try {
             const locator = this.container + DROPDOWN.selectedItemByDisplayName(displayName) + BUTTONS.BUTTON_REMOVE_ICON;
+            await this.waitForElementDisplayed(locator);
+            await this.clickOnElement(locator);
+            return await this.pause(500);
+        } catch (err) {
+            await this.handleError(
+                `Content selector form, tried to remove the selected option: ${displayName}`, 'err_remove_option', err);
+        }
+    }
+    async removeContentSelectedOption(displayName) {
+        try {
+            const locator = this.container + DROPDOWN.contentSelectionItemByDisplayName(displayName) + BUTTONS.BUTTON_REMOVE_ICON;
             await this.waitForElementDisplayed(locator);
             await this.clickOnElement(locator);
             return await this.pause(500);

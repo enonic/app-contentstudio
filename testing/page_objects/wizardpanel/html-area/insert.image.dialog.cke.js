@@ -1,41 +1,47 @@
 const Page = require('../../page');
-const {BUTTONS} = require('../../../libs/elements');
+const {BUTTONS, DROPDOWN} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
 const XPATH = {
     container: `//div[@role='dialog' and @data-component='HtmlAreaImageDialog']`,
+    title: "//h2[text()='Insert Image']",
+    divRadioGroup: "//div[@role='radiogroup']",
+    divRadioGroupAccessibility: "//div[@role='radiogroup' and child::label[text()='Accessibility']]",
     imageSelector: "//div[@data-component='ImageSelector']",
-    alignJustifyButton: "//button[@value='justify']",
-    alignLeftButton: "//button[@value='left']",
-    alignCenterButton: "//button[@value='center']",
-    alignRightButton: "//button[@value='right']",
-    customWidthCheckbox: "//button[@role='checkbox']",
+    alignJustifyButton: "//button[@aria-label='Justify']",
+    alignLeftButton: "//button[@aria-label='Left']",
+    alignCenterButton: "//button[@aria-label='Center']",
+    alignRightButton: "//button[@@aria-label='Right']",
+    customWidthDiv: "//div[child::label[text()='Custom width']]",
     imageRangeValue: "//input[@type='range']/following-sibling::span",
-    captionInput: "//input",
     accessibilityRadioGroup: "//div[@role='radiogroup']",
-    altTextInput: "//div[@role='radiogroup']/following::input",
+    altTextInput: "//input[@placeholder='Describe image content']",
 };
 
 class InsertImageDialog extends Page {
 
+    get dialogTitle() {
+        return XPATH.container + XPATH.title;
+    }
+
     get paragraphCenterButton() {
-        return XPATH.container + XPATH.alignCenterButton;
+        return XPATH.container + XPATH.divRadioGroup + XPATH.alignCenterButton;
     }
 
     get paragraphLeftButton() {
-        return XPATH.container + XPATH.alignLeftButton;
+        return XPATH.container + XPATH.divRadioGroup + XPATH.alignLeftButton;
     }
 
     get paragraphJustifyButton() {
-        return XPATH.container + XPATH.alignJustifyButton;
+        return XPATH.container + XPATH.divRadioGroup + XPATH.alignJustifyButton;
     }
 
     get accessibilityDecorativeImageRadioButton() {
-        return XPATH.container + "//button[@role='radio' and @value='decorative']";
+        return XPATH.container + XPATH.divRadioGroupAccessibility + "//button[@role='radio' and contains(@id,'decorative')]";
     }
 
     get accessibilityAlternativeTextRadioButton() {
-        return XPATH.container + "//button[@role='radio' and @value='informative']";
+        return XPATH.container + XPATH.divRadioGroupAccessibility + "//button[@role='radio' and contains(@id,'informative')]";
     }
 
     get accessibilityAlternativeTextInput() {
@@ -47,20 +53,15 @@ class InsertImageDialog extends Page {
     }
 
     get captionInput() {
-        return XPATH.container + "//label[contains(.,'Caption')]/following-sibling::input | " +
-            XPATH.container + "//label[contains(.,'Caption')]/..//input";
+        return XPATH.container + "//div[child::label[contains(.,'Caption')]]/following-sibling::div";
     }
 
     get customWidthCheckbox() {
-        return XPATH.container + XPATH.customWidthCheckbox;
+        return XPATH.container + XPATH.customWidthDiv + "//input[@type='checkbox']";
     }
 
     get cancelButton() {
-        return XPATH.container + BUTTONS.buttonByLabel('Cancel');
-    }
-
-    get cancelButtonTop() {
-        return XPATH.container + "//button[@aria-label='Close']";
+        return XPATH.container + BUTTONS.buttonAriaLabel('Cancel');
     }
 
     get insertButton() {
@@ -72,7 +73,7 @@ class InsertImageDialog extends Page {
     }
 
     get removeImageButton() {
-        return XPATH.container + "//button[descendant::*[contains(@class,'lucide-x')]]";
+        return XPATH.container + BUTTONS.buttonAriaLabel('Remove image');
     }
 
     async waitForAlternativeTextRadioButtonDisplayed() {
@@ -80,6 +81,8 @@ class InsertImageDialog extends Page {
     }
 
     async waitForDecorativeImageRadioButtonDisplayed() {
+        let el = await this.findElement(this.accessibilityAlternativeTextRadioButton);
+        await el.moveTo();
         return await this.waitForElementDisplayed(this.accessibilityDecorativeImageRadioButton, appConst.shortTimeout);
     }
 
@@ -116,52 +119,38 @@ class InsertImageDialog extends Page {
 
     async isDecorativeImageRadioSelected() {
         await this.waitForDecorativeImageRadioButtonDisplayed();
-        let attr = await this.getAttribute(this.accessibilityDecorativeImageRadioButton, 'data-state');
-        return attr === 'checked';
+        let attr = await this.getAttribute(this.accessibilityDecorativeImageRadioButton, 'aria-checked');
+        return attr === 'true';
     }
 
     async isAlternativeTextRadioSelected() {
         await this.waitForAlternativeTextRadioButtonDisplayed();
-        let attr = await this.getAttribute(this.accessibilityAlternativeTextRadioButton, 'data-state');
-        return attr === 'checked';
+        let attr = await this.getAttribute(this.accessibilityAlternativeTextRadioButton, 'aria-checked');
+        return attr === 'true';
     }
 
-    async waitForAlternativeTextInputEnabled() {
+    async waitForAlternativeTextInputDisplayed() {
         await this.waitForElementEnabled(this.accessibilityAlternativeTextInput, appConst.shortTimeout);
     }
 
-    async waitForAlternativeTextInputDisabled() {
-        await this.waitForElementDisabled(this.accessibilityAlternativeTextInput, appConst.shortTimeout);
-    }
-
-    async waitForAccessibilityFormInvalid() {
-        await this.getBrowser().waitUntil(async () => {
-            let elements = await this.findElements(XPATH.container + XPATH.accessibilityRadioGroup + "//*[contains(@class,'error')]");
-            return elements.length > 0;
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Accessibility Form should be displayed with error"});
+    async waitForAlternativeTextInputNotDisplayed() {
+        await this.waitForElementNotDisplayed(this.accessibilityAlternativeTextInput, appConst.shortTimeout);
     }
 
     async waitForAccessibilityFormValid() {
         await this.getBrowser().waitUntil(async () => {
-            let elements = await this.findElements(XPATH.container + XPATH.accessibilityRadioGroup + "//*[contains(@class,'error')]");
+            let elements = await this.findElements(XPATH.container + XPATH.divRadioGroupAccessibility + "//*[contains(@class,'error')]");
             return elements.length === 0;
         }, {timeout: appConst.shortTimeout, timeoutMsg: "Accessibility Form should be valid"});
     }
 
-    async getValidationMessageInAccessibilityForm() {
-        await this.waitForAccessibilityFormInvalid();
-        let locator = XPATH.container + XPATH.accessibilityRadioGroup + "//*[contains(@class,'error')]";
-        return await this.getText(locator);
-    }
-
     async typeInAlternativeTextInput(text) {
         try {
-            await this.waitForAlternativeTextInputEnabled();
+            await this.waitForAlternativeTextInputDisplayed();
             await this.typeTextInInput(this.accessibilityAlternativeTextInput, text);
             return await this.pause(200);
         } catch (err) {
-            let screenshot = await this.saveScreenshot('err_typing_in_alt_text_input');
-            throw new Error(`Error occurred after inserting a text in Alternative Text Input! screenshot: ${screenshot} ` + err);
+            await this.handleError(`Insert Image Dialog, alternative text input`, 'err_typing_in_alt_text_input', err);
         }
     }
 
@@ -170,13 +159,13 @@ class InsertImageDialog extends Page {
     }
 
     async typeCaption(text) {
-        await this.waitForElementDisplayed(this.captionInput, appConst.mediumTimeout);
-        return await this.typeTextInInput(this.captionInput, text);
+        await this.waitForElementDisplayed(this.captionInput);
+        return await this.typeTextInInput(this.captionInput + "//input", text);
     }
 
     async clickOnCustomWidthCheckBox() {
         try {
-            await this.waitForElementDisplayed(this.customWidthCheckbox, appConst.shortTimeout);
+            await this.waitForElementDisplayed(XPATH.customWidthDiv, appConst.shortTimeout);
             await this.clickOnElement(this.customWidthCheckbox);
             return await this.pause(200);
         } catch (err) {
@@ -186,9 +175,9 @@ class InsertImageDialog extends Page {
 
     async isCustomWidthCheckBoxSelected() {
         try {
-            await this.waitForElementDisplayed(this.customWidthCheckbox, appConst.shortTimeout);
-            let attr = await this.getAttribute(this.customWidthCheckbox, 'data-state');
-            return attr === 'checked';
+            await this.waitForElementDisplayed(XPATH.customWidthDiv, appConst.shortTimeout);
+            let attr = await this.getAttribute(this.customWidthCheckbox, 'aria-checked');
+            return attr === 'true';
         } catch (err) {
             await this.handleError(`Insert Image Dialog Custom Width-`, 'err_is_custom_width_checkbox_selected', err);
         }
@@ -202,13 +191,22 @@ class InsertImageDialog extends Page {
         return this.waitForElementEnabled(this.customWidthCheckbox, appConst.shortTimeout);
     }
 
-    clickOnCancelButton() {
-        return this.clickOnElement(this.cancelButtonTop);
+    async clickOnCancelButton() {
+        return await this.clickOnElement(this.cancelButton);
+    }
+
+    async waitForInsertButtonEnabled() {
+        return await this.waitForElementEnabled(this.insertButton, appConst.shortTimeout);
+    }
+
+    async waitForInsertButtonDisabled() {
+        return await this.waitForElementDisabled(this.insertButton, appConst.shortTimeout);
     }
 
     async clickOnInsertButton() {
         try {
             await this.waitForElementDisplayed(this.insertButton, appConst.shortTimeout);
+            await this.waitForInsertButtonEnabled();
             await this.clickOnElement(this.insertButton);
             await this.waitForDialogClosed();
             return await this.pause(500);
@@ -228,7 +226,7 @@ class InsertImageDialog extends Page {
 
     async waitForDialogVisible() {
         try {
-            await this.waitForElementDisplayed(this.insertButton);
+            await this.waitForElementDisplayed(this.dialogTitle);
             await this.pause(300);
         } catch (err) {
             await this.handleError(`Insert Image Dialog should be opened`, 'err_insert_image_dialog', err);
@@ -260,12 +258,12 @@ class InsertImageDialog extends Page {
     // Type a displayName in the image selector filter input then click on the filtered option:
     async filterAndSelectImage(imageDisplayName) {
         try {
-            await this.waitForElementDisplayed(this.imageOptionsFilterInput, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.imageOptionsFilterInput);
             await this.typeTextInInput(this.imageOptionsFilterInput, imageDisplayName);
             await this.pause(1000);
             // Click on the filtered item in the dropdown
-            let itemLocator = XPATH.container + `//div[@data-component='ImageSelectorItemView' and descendant::*[contains(text(),'${imageDisplayName}')]]`;
-            await this.waitForElementDisplayed(itemLocator, appConst.mediumTimeout);
+            let itemLocator = DROPDOWN.COMBOBOX_POPUP + DROPDOWN.imageItemView(imageDisplayName);//`//div[@data-component='ImageSelectorItemView' and descendant::span[contains(text(),'${imageDisplayName}')]]`;
+            await this.waitForElementDisplayed(itemLocator);
             await this.clickOnElement(itemLocator);
             await this.pause(1000);
         } catch (err) {
@@ -278,7 +276,8 @@ class InsertImageDialog extends Page {
             await this.waitForElementDisplayed(this.imageOptionsFilterInput, appConst.mediumTimeout);
             await this.typeTextInInput(this.imageOptionsFilterInput, path);
             await this.pause(1000);
-            let itemLocator = XPATH.container + `//div[@data-component='ImageSelectorItemView' and descendant::*[contains(text(),'${path}')]]`;
+            let itemLocator = XPATH.container +
+                              `//div[@data-component='ImageSelectorItemView' and descendant::*[contains(text(),'${path}')]]`;
             await this.waitForElementDisplayed(itemLocator, appConst.mediumTimeout);
             await this.clickOnElement(itemLocator);
             await this.pause(400);

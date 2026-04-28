@@ -1,25 +1,23 @@
 /**
- * Created on 28.12.2017.
+ * Created on 28.12.2017. updated on 24.04.2026
  */
 const OccurrencesFormView = require('./occurrences.form.view');
-const lib = require('../../libs/elements-old');
+const {COMMON} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const XPATH = {
-    textArea: `//div[contains(@id,'TextArea')]`,
-};
 
 class TextAreaForm extends OccurrencesFormView {
 
     get textAreaInput() {
-        return lib.FORM_VIEW + XPATH.textArea + lib.TEXT_AREA;
+        return COMMON.INPUTS.DATA_COMPONENT_INPUT_FIELD + COMMON.INPUTS.TEXTAREA;
     }
 
-    type(textAreaData) {
-        return this.typeText(textAreaData.text);
-    }
-
-    typeText(value) {
-        return this.typeTextInInput(this.textAreaInput, value);
+    async typeText(value,index) {
+        index = typeof index !== 'undefined' ? index : 0;
+        let inputs = await this.getDisplayedElements(this.textAreaInput);
+        for (const ch of String(value)) {
+            await inputs[index].addValue(ch);
+        }
+        return await this.pause(300);
     }
 
     waitForValidationRecording() {

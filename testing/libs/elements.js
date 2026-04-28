@@ -28,6 +28,7 @@ const COMMON = {
         VALIDATION_RECORDING:"//div[contains(@class,'text-error')]",
         CHECKBOX_INPUT_CHECKED: "//input[@type='checkbox' and @aria-checked='true']",
         TEXT: "//input[@type='text']",
+        TEXTAREA: "//textarea",
         INPUT: "//input",
         DIV_BUTTON:"//div[@role='button']",
         textAreaByName: (name) => `//textarea[@name='${name}']`,
@@ -84,6 +85,7 @@ const BUTTONS = {
     SELECTOR_MODE_TOGGLER: "//button[contains(@id,'ModeTogglerButton')]",
     UPLOAD_BUTTON: "//button[contains(@class,'upload-button')]",
     buttonByLabel: (label) => `//button[@type='button' and contains(.,'${label}')]`,
+    radioButtonByLabel: (label) => `//button[@role='radio' and contains(.,'${label}')]`,
     BUTTON_MENU_POPUP: "//button[@aria-haspopup='menu']",
     buttonAriaLabel: (ariaLabel) => `//button[contains(@type,'button') and contains(@aria-label,'${ariaLabel}') and not(ancestor::*[@aria-hidden='true']) and not(ancestor::*[contains(@class,'sm:hidden')])]`,
     toolbarButtonAriaLabel: (ariaLabel) => `//button[contains(@type,'button') and contains(@aria-label,'${ariaLabel}') and not(ancestor::*[@aria-hidden='true']) and not(ancestor::*[contains(@class,'sm:hidden')])]`,
@@ -146,11 +148,13 @@ const DROPDOWN = {
     MODE_TOGGLE:"//button[@aria-label='Tree view' or @aria-label='List view']",
     DROPDOWN_LIST_ITEM_DISPLAY_NAME: `//div[@role='option']//div[1]//span[1]`,
     CONTENT_LABEL_OPTIONS_NAME: "//div[@role='treeitem']//div[@data-component='ContentLabel']/div[2]/span",
+    CONTENT_LABEL_OPTIONS_NAME_FLAT_MODE: "//div[@role='treeitem' and @aria-level='0']//div[@data-component='ContentLabel']/div[2]/span",
     COMBOBOX_POPUP: "//div[@data-combobox-popup='' or @data-combobox-popup]",
     buttonComboboxByLabel: (label) => `//span[contains(.,'${label}')]/following-sibling::button[@role='combobox']`,
     CONTENT_COMBOBOX: "//div[@data-component='ContentCombobox')]",
     DROPDOWN_HANDLE: "//button[@aria-label='Toggle']",
     LISTBOX_OPTIONS_DIV: "//div[contains(@role,'listbox')]",
+    imageItemView: (imageDisplayName)=>`//div[@data-component='ImageSelectorItemView' and descendant::span[contains(text(),'${imageDisplayName}')]]`,
     listboxOptionByText: (text) => `//div[contains(@role,'option')  and descendant::span[text()='${text}']]`,
     optionByDisplayName: (displayName) => `//div[contains(@id,'listbox-option')  and descendant::span[contains(.,'${displayName}')]]`,
     listItemOptionByDisplayName: (displayName) => `//div[@role='listitem'  and descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]]]`,
@@ -166,6 +170,8 @@ const DROPDOWN = {
     },
     selectedItemByDisplayName: (displayName) =>
         `//div[@data-component='SelectorSelectionItem' and descendant::span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`,
+    contentSelectionItemByDisplayName: (displayName) =>
+        `//div[@data-component='ContentSelectionItem' and descendant::span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`,
     selectorListOptionByName: (optionName) => {
         return `//div[@role='option']//span[contains(.,'${optionName}')]`;
     },
