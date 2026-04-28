@@ -1,7 +1,7 @@
 import {SortableList, type SortableListItemContext} from '@enonic/lib-admin-ui/form2/components';
 import {cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {type ReactElement, useCallback, useEffect, useState} from 'react';
+import {type ReactElement, useCallback, useEffect, useRef, useState} from 'react';
 import {ComponentPath} from '../../../../../../app/page/region/ComponentPath';
 import {PageNavigationEvent} from '../../../../../../app/wizard/PageNavigationEvent';
 import {PageNavigationEventData} from '../../../../../../app/wizard/PageNavigationEventData';
@@ -20,6 +20,7 @@ import {
     $componentsTreeState,
     collapseComponentNode,
     computeMovedItemPath,
+    expandPathToComponent,
     hasLayoutAncestor,
     rebuildComponentsTree,
     remapExpandedIdsAfterMove,
@@ -40,6 +41,7 @@ export type PageComponentsViewProps = {
 };
 
 export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps = {}): ReactElement => {
+    const containerRef = useRef<HTMLDivElement>(null);
     const componentsLabel = useI18n('field.components');
     const pageVersion = useStore($pageVersion);
     const invalidComponentPaths = useStore($invalidComponentPaths);
@@ -56,6 +58,18 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
     useEffect(() => {
         rebuildComponentsTree();
     }, [pageVersion]);
+
+    useEffect(() => {
+        if (inspectedPath == null) return;
+        expandPathToComponent(inspectedPath);
+        const handle = requestAnimationFrame(() => {
+            const el = containerRef.current?.querySelector<HTMLElement>(
+                `[data-node-id="${CSS.escape(inspectedPath)}"]`,
+            );
+            el?.scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'nearest'});
+        });
+        return () => cancelAnimationFrame(handle);
+    }, [inspectedPath]);
 
     const handleMove = useCallback((fromIndex: number, toIndex: number): void => {
         const sourceNode = flatNodes[fromIndex];
@@ -165,7 +179,7 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
     }, [handleSelect, inspectedPath, showErrors, invalidComponentPaths]);
 
     return (
-        <div data-component={PAGE_COMPONENTS_VIEW_NAME} className="flex flex-col gap-1 py-2">
+        <div ref={containerRef} data-component={PAGE_COMPONENTS_VIEW_NAME} className="flex flex-col gap-1 py-2">
             {showTitle && <h3 className="text-base font-semibold">{componentsLabel}</h3>}
             <SortableList
                 items={flatNodes}
