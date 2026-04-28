@@ -13,6 +13,7 @@ apis:
   - "dismiss-notification"
   - "events"
   - "export"
+  - "import-content"
   - "styles"
   - "admin:extension"
   - "admin:status"

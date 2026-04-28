@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:output method="xml" indent="yes"/>
+  <xsl:param name="keepPublishFirst" select="'true'"/>
+
+  <xsl:template match="data/property-set[@name='publish']">
+    <xsl:if test="$keepPublishFirst != 'false'">
+      <xsl:copy>
+        <xsl:apply-templates select="@*|*[@name='first']"/>
+      </xsl:copy>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="@*|node()">
+    <xsl:copy>
+      <xsl:apply-templates select="@*|node()"/>
+    </xsl:copy>
+  </xsl:template>
+</xsl:stylesheet>

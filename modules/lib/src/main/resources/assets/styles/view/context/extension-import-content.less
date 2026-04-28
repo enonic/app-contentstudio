@@ -1,0 +1,26 @@
+.extension-view.import-content-widget {
+  &.active {
+    display: flex;
+  }
+  height: 100%;
+  flex-direction: column;
+
+  .extension-item-view {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 0;
+  }
+}
+
+// Keep the widget visible even when no content is selected (overrides the
+// default "Select an item" empty state set by ContextView for internal widgets).
+.context-panel-view.no-selection.internal:has(.extension-view.import-content-widget.active) {
+  .context-container {
+    display: block;
+  }
+
+  .no-selection-message {
+    display: none;
+  }
+}
