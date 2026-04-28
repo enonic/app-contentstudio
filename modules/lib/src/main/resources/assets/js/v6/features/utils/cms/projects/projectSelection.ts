@@ -1,25 +1,23 @@
 import {type Project} from '../../../../../app/settings/data/project/Project';
 
-type ProjectLike = Pick<Project, 'getName' | 'getParents' | 'getDisplayName'>;
-
-function isAvailableProject(project: ProjectLike): boolean {
+function isAvailableProject(project: Readonly<Project>): boolean {
     return !!project.getDisplayName();
 }
 
 function getMainParentName(
-    project: ProjectLike,
-    projectsByName: ReadonlyMap<string, ProjectLike>
+    project: Readonly<Project>,
+    projectsByName: ReadonlyMap<string, Readonly<Project>>
 ): string | undefined {
     const mainParentName = project.getParents()?.[0];
 
     return mainParentName && projectsByName.has(mainParentName) ? mainParentName : undefined;
 }
 
-function getProjectsInDisplayOrder(projects: Readonly<ProjectLike>[]): ProjectLike[] {
+function getProjectsInDisplayOrder(projects: Readonly<Project>[]): Readonly<Project>[] {
     const sortedProjects = [...projects].sort((a, b) => a.getName().localeCompare(b.getName()));
     const projectsByName = new Map(sortedProjects.map((project) => [project.getName(), project]));
-    const childrenByParentName = new Map<string, ProjectLike[]>();
-    const rootProjects: ProjectLike[] = [];
+    const childrenByParentName = new Map<string, Readonly<Project>[]>();
+    const rootProjects: Readonly<Project>[] = [];
 
     for (const project of sortedProjects) {
         const parentName = getMainParentName(project, projectsByName);
@@ -36,9 +34,9 @@ function getProjectsInDisplayOrder(projects: Readonly<ProjectLike>[]): ProjectLi
         }
     }
 
-    const orderedProjects: ProjectLike[] = [];
+    const orderedProjects: Readonly<Project>[] = [];
 
-    const visit = (project: ProjectLike): void => {
+    const visit = (project: Readonly<Project>): void => {
         orderedProjects.push(project);
         childrenByParentName.get(project.getName())?.forEach(visit);
     };
@@ -49,8 +47,8 @@ function getProjectsInDisplayOrder(projects: Readonly<ProjectLike>[]): ProjectLi
 }
 
 function resolveClosestAvailableAncestorId(
-    deletedProject: ProjectLike | undefined,
-    remainingByName: ReadonlyMap<string, ProjectLike>
+    deletedProject: Readonly<Project> | undefined,
+    remainingByName: ReadonlyMap<string, Readonly<Project>>
 ): string | undefined {
     let currentParentName = deletedProject?.getParents()?.[0];
 
@@ -71,12 +69,12 @@ function resolveClosestAvailableAncestorId(
     return undefined;
 }
 
-function resolveFirstAvailableProjectId(projects: Readonly<ProjectLike>[]): string | undefined {
+function resolveFirstAvailableProjectId(projects: Readonly<Project>[]): string | undefined {
     return getProjectsInDisplayOrder(projects).find((project) => isAvailableProject(project))?.getName();
 }
 
 export function resolveActiveProjectId(
-    projects: Readonly<ProjectLike>[],
+    projects: Readonly<Project>[],
     projectIdFromUrl: string | undefined
 ): string | undefined {
     if (projects.length === 1) {
@@ -89,8 +87,8 @@ export function resolveActiveProjectId(
 }
 
 export function resolveActiveProjectIdAfterDeletion(
-    remainingProjects: Readonly<ProjectLike>[],
-    deletedProject: ProjectLike | undefined
+    remainingProjects: Readonly<Project>[],
+    deletedProject: Readonly<Project> | undefined
 ): string | undefined {
     const remainingByName = new Map(remainingProjects.map((project) => [project.getName(), project]));
     const closestAvailableAncestorId = resolveClosestAvailableAncestorId(deletedProject, remainingByName);

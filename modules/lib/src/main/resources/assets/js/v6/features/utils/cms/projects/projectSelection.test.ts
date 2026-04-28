@@ -1,21 +1,16 @@
 import {describe, expect, it} from 'vitest';
+import {Project} from '../../../../../app/settings/data/project/Project';
 import {resolveActiveProjectId, resolveActiveProjectIdAfterDeletion} from './projectSelection';
-
-type MockProject = {
-    getName(): string;
-    getParents(): string[];
-    getDisplayName(): string;
-};
 
 const createProject = (
     name: string,
     parents: string[] = [],
     displayName: string = name,
-): MockProject => ({
-    getName: () => name,
-    getParents: () => parents,
-    getDisplayName: () => displayName,
-});
+): Project => Project.create()
+    .setName(name)
+    .setParents(parents)
+    .setDisplayName(displayName)
+    .build();
 
 describe('resolveActiveProjectId', () => {
     it('should pick the only remaining project', () => {
