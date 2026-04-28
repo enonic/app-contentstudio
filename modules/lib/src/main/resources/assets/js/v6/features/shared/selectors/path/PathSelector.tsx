@@ -20,10 +20,13 @@ import {getFilterContentPaths, getFilterExactPaths, isInvalidMoveTarget} from '.
 export type PathSelectorProps = {
     label: string;
     selectedId: string | null;
+    initialItem?: ContentSummary | null;
     excludedIds?: readonly string[];
     hideRoot?: boolean;
+    hideWhenSelected?: boolean;
     filterItems?: readonly ContentSummary[];
     disabled?: boolean;
+    inputRef?: React.RefObject<HTMLInputElement | null>;
     onSelectionChange: (id: string | null) => void;
     onItemChange?: (item: ContentSummary | null) => void;
 };
@@ -42,10 +45,13 @@ const VIEWPORT_PADDING = 10;
 export const PathSelector = ({
     label,
     selectedId,
+    initialItem = null,
     excludedIds = [],
     hideRoot = false,
+    hideWhenSelected = false,
     filterItems = [],
     disabled = false,
+    inputRef: externalInputRef,
     onSelectionChange,
     onItemChange,
 }: PathSelectorProps): ReactElement => {
@@ -57,10 +63,11 @@ export const PathSelector = ({
     const [open, setOpen] = useState(false);
     const [inputValue, setInputValue] = useState('');
     const [activeId, setActiveId] = useState<string | null>(null);
-    const [selectedItem, setSelectedItem] = useState<ContentSummary | null>(null);
+    const [selectedItem, setSelectedItem] = useState<ContentSummary | null>(initialItem);
     const [treeMaxHeight, setTreeMaxHeight] = useState(TREE_MAX_HEIGHT);
     const virtuosoRef = useRef<VirtuosoHandle>(null);
-    const inputRef = useRef<HTMLInputElement>(null);
+    const internalInputRef = useRef<HTMLInputElement>(null);
+    const inputRef = externalInputRef ?? internalInputRef;
     const loaderRef = useRef<ContentSummaryOptionDataLoader<ContentTreeSelectorItem> | null>(null);
     const rootRequestId = useRef(0);
     const searchRequestId = useRef(0);
@@ -363,60 +370,64 @@ export const PathSelector = ({
     const hasVisibleNodes = flatNodes.some(node => !node.isLoading);
     const showEmptyState = !hasVisibleNodes && !isLoading(null);
 
+    const showCombobox = !(hideWhenSelected && selectedItem);
+
     return (
         <div data-component={PATH_SELECTOR_NAME} className='flex flex-col gap-2.5'>
-            <Combobox.Root
-                open={open}
-                onOpenChange={setOpen}
-                value={inputValue}
-                onChange={setInputValue}
-                selection={selectedIdStrings}
-                onSelectionChange={handleSelectionChange}
-                selectionMode='single'
-                contentType='tree'
-                disabled={disabled}
-            >
-                <Combobox.Content>
-                    <Combobox.Control>
-                        <Combobox.Search>
-                            <Combobox.SearchIcon />
-                            <Combobox.Input
-                                ref={inputRef}
-                                placeholder={searchPlaceholder}
-                                aria-label={label}
-                            />
-                            <Combobox.Toggle />
-                        </Combobox.Search>
-                    </Combobox.Control>
-
-                    <Combobox.Portal>
-                        <Combobox.Popup className='overflow-y-auto rounded-sm shadow-bdr-subtle'>
-                            {showEmptyState ? (
-                                <div className='px-4.5 py-2 text-sm text-subtle'>{emptyLabel}</div>
-                            ) : (
-                                <PathSelectorTree
-                                    items={flatNodes}
-                                    activeId={activeId}
-                                    onActiveChange={setActiveId}
-                                    onExpand={handleExpand}
-                                    onCollapse={handleCollapse}
-                                    onLoadMore={(id) => {
-                                        void loadChildren(id);
-                                    }}
-                                    treeHeight={treeHeight}
-                                    hasMoreChildren={hasMoreChildren}
-                                    isLoading={isLoading}
-                                    showMoreLabel={showMoreLabel}
-                                    label={label}
-                                    disabled={disabled}
-                                    disabledIdSet={disabledIdSet}
-                                    virtuosoRef={virtuosoRef}
+            {showCombobox && (
+                <Combobox.Root
+                    open={open}
+                    onOpenChange={setOpen}
+                    value={inputValue}
+                    onChange={setInputValue}
+                    selection={selectedIdStrings}
+                    onSelectionChange={handleSelectionChange}
+                    selectionMode='single'
+                    contentType='tree'
+                    disabled={disabled}
+                >
+                    <Combobox.Content>
+                        <Combobox.Control>
+                            <Combobox.Search>
+                                <Combobox.SearchIcon />
+                                <Combobox.Input
+                                    ref={inputRef}
+                                    placeholder={searchPlaceholder}
+                                    aria-label={label}
                                 />
-                            )}
-                        </Combobox.Popup>
-                    </Combobox.Portal>
-                </Combobox.Content>
-            </Combobox.Root>
+                                <Combobox.Toggle />
+                            </Combobox.Search>
+                        </Combobox.Control>
+
+                        <Combobox.Portal>
+                            <Combobox.Popup className='overflow-y-auto rounded-sm shadow-bdr-subtle'>
+                                {showEmptyState ? (
+                                    <div className='px-4.5 py-2 text-sm text-subtle'>{emptyLabel}</div>
+                                ) : (
+                                    <PathSelectorTree
+                                        items={flatNodes}
+                                        activeId={activeId}
+                                        onActiveChange={setActiveId}
+                                        onExpand={handleExpand}
+                                        onCollapse={handleCollapse}
+                                        onLoadMore={(id) => {
+                                            void loadChildren(id);
+                                        }}
+                                        treeHeight={treeHeight}
+                                        hasMoreChildren={hasMoreChildren}
+                                        isLoading={isLoading}
+                                        showMoreLabel={showMoreLabel}
+                                        label={label}
+                                        disabled={disabled}
+                                        disabledIdSet={disabledIdSet}
+                                        virtuosoRef={virtuosoRef}
+                                    />
+                                )}
+                            </Combobox.Popup>
+                        </Combobox.Portal>
+                    </Combobox.Content>
+                </Combobox.Root>
+            )}
             {selectedItem && (
                     <div className='flex items-center gap-2.5 pl-5 pr-2.5'>
                         {isRootContent(selectedItem) ? (
