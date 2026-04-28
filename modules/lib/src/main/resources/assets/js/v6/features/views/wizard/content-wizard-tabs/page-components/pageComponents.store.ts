@@ -13,6 +13,7 @@ import {
     createEmptyState,
     expand,
     expandAll,
+    expandToNode,
     flattenTree,
     getAncestorIds,
     getNode,
@@ -63,6 +64,10 @@ export function expandComponentNode(id: string): void {
 
 export function collapseComponentNode(id: string): void {
     $componentsTreeState.set(collapse($componentsTreeState.get(), id));
+}
+
+export function expandPathToComponent(id: string): void {
+    $componentsTreeState.set(expandToNode($componentsTreeState.get(), id));
 }
 
 export function computeMovedItemPath(fromPath: string, toPath: string): string {
@@ -161,6 +166,14 @@ function buildTreeFromPage(
         // First build: expand all nodes that have children
         state = expandAll(state);
     }
+
+    const expandedIds = new Set(state.expandedIds);
+    for (const [id, node] of state.nodes) {
+        if (node.data?.nodeType === 'region' && node.childIds.length === 0) {
+            expandedIds.add(id);
+        }
+    }
+    state = {...state, expandedIds};
 
     return state;
 }
