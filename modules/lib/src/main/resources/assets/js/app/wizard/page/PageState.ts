@@ -172,6 +172,7 @@ export class PageStateEventHandler {
                 const newItem: Component = item.clone();
                 const event = new ComponentDuplicatedEvent(newItem, index + 1);
                 parentRegion.addComponentViaEvent(event);
+                PageEventsManager.get().notifyComponentReloadRequested(newItem.getPath(), false);
             }
         });
 
