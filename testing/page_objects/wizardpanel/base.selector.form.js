@@ -63,16 +63,6 @@ class BaseSelectorForm extends Page {
     }
 
 
-    async getOptionsDisplayNameInTreeMode() {
-        try {
-            let contentSelectorDropdown = new ContentSelectorDropdown();
-            return await contentSelectorDropdown.getOptionsDisplayNameInTreeMode()
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error("Error occurred in the dropdown selector, screenshot: " + screenshot + ' ' + err);
-        }
-    }
-
     async clickOnExpanderIconInOptionsList(optionName) {
         let contentSelector = new ContentSelectorDropdown();
         return await contentSelector.clickOnExpanderIconInOptionsList(optionName);

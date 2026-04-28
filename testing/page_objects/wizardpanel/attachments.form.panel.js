@@ -1,13 +1,12 @@
 /**
- * Created on 13.10.2021
+ * Created on 13.10.2021 updated on 26.04.2026
  */
 const OccurrencesFormView = require('../wizardpanel/occurrences.form.view');
 const appConst = require('../../libs/app_const');
 
 const XPATH = {
-    attachmentUploaderDiv: "//div[contains(@id,'AttachmentUploader')]",
-    uploadButton: "//button[contains(@class,'upload-button')]",
-    attachmentItemDiv: "//div[contains(@id,'AttachmentItem')]"
+    attachmentUploaderDiv: "//div[@data-component='AttachmentUploaderInput']",
+    uploadButton: "//div[contains(@class,'justify-end')]//button[@type,'button']",
 };
 
 class AttachmentsForm extends OccurrencesFormView {
@@ -17,18 +16,18 @@ class AttachmentsForm extends OccurrencesFormView {
     }
 
     get removeItemIcon() {
-        return XPATH.attachmentItemDiv + "//div[contains(@class,'icon remove')]";
+        return XPATH.attachmentUploaderDiv + "//div[@role='grid']//button" ;
     }
 
     async clickOnRemoveItemIcon(index) {
-        await this.waitForElementDisplayed(this.removeItemIcon, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.removeItemIcon);
         let result = await this.findElements(this.removeItemIcon);
         result[index].click();
         await this.pause(200);
     }
 
     waitForUploaderDisplayed() {
-        return this.waitForElementDisplayed(this.attachmentUploader, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.attachmentUploader);
     }
 }
 

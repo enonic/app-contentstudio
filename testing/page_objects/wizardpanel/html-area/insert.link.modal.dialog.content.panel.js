@@ -1,12 +1,15 @@
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 const ContentSelectorDropdown = require('../../components/selectors/content.selector.dropdown');
+const {DROPDOWN, BUTTONS} = require("../../../libs/elements");
 
 const XPATH = {
     container: `//div[@role='dialog' and @data-component='HtmlAreaLinkDialog']`,
     contentPanel: "//div[@data-component='ContentTabPanel']",
-    checkboxByLabel: label => `//button[@role='checkbox' and following-sibling::*[contains(.,'${label}')] or preceding-sibling::*[contains(.,'${label}')]]`,
+    checkboxByLabel: label => `//div[child::label[contains(.,'${label}')]]`,
     radioButtonByLabel: label => `//button[@role='radio' and contains(.,'${label}')]`,
+    contentSelectionByDisplayName: (displayName) =>
+        `//div[@data-component='ContentSelection' and descendant::span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`,
 };
 
 class InsertLinkDialogContentPanel extends Page {
@@ -21,7 +24,7 @@ class InsertLinkDialogContentPanel extends Page {
 
     get addAnchorButton() {
         return XPATH.container + XPATH.contentPanel + "//span[contains(.,'Fragment')]/following-sibling::button | " +
-            XPATH.container + XPATH.contentPanel + "//span[contains(.,'Fragment')]/..//button[contains(.,'Add')]";
+               XPATH.container + XPATH.contentPanel + "//span[contains(.,'Fragment')]/..//button[contains(.,'Add')]";
     }
 
     get anchorTextInput() {
@@ -48,12 +51,12 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     waitForShowContentFromEntireProjectCheckboxDisplayed() {
-        return this.waitForElementDisplayed(this.showContentFromEntireProjectCheckbox, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.showContentFromEntireProjectCheckbox);
     }
 
     async waitForOpenInNewTabCheckboxDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.openInNewTabCheckbox, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.openInNewTabCheckbox);
         } catch (err) {
             await this.handleError(`'Open In New Tab' checkbox should be displayed!`, 'err_open_in_new_tab_checkbox', err);
         }
@@ -71,7 +74,7 @@ class InsertLinkDialogContentPanel extends Page {
 
     async waitForShowContentFromEntireProjectCheckboxNotDisplayed() {
         try {
-            return await this.waitForElementNotDisplayed(this.showContentFromEntireProjectCheckbox, appConst.mediumTimeout);
+            return await this.waitForElementNotDisplayed(this.showContentFromEntireProjectCheckbox);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_show_checkbox');
             throw new Error(`Show Content From Entire Project Checkbox should not be displayed! screenshot: ${screenshot} ` + err);
@@ -79,8 +82,25 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     async clickOnShowContentFromEntireProjectCheckbox() {
-        await this.waitForElementDisplayed(this.showContentFromEntireProjectCheckbox, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.showContentFromEntireProjectCheckbox);
         await this.clickOnElement(this.showContentFromEntireProjectCheckbox);
+        await this.pause(300);
+    }
+
+    async clickOnContentSelectorModeTogglerButton() {
+        let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
+        await contentSelectorDropdown.clickOnModeTogglerButton();
+        await this.pause(700);
+    }
+    // returns the list of options display-name(flat mode):
+    async getContentSelectorOptionsDisplayNameInFlatMode() {
+        let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
+        return await contentSelectorDropdown.getOptionsDisplayNameInFlatMode();
+    }
+
+    async getContentSelectorOptionsDisplayNameInTreeMode() {
+        let contentSelectorDropdown = new ContentSelectorDropdown(XPATH.container);
+        return await contentSelectorDropdown.getOptionsDisplayNameInTreeMode();
     }
 
     async clickOnOpenInNewTabCheckbox() {
@@ -116,24 +136,43 @@ class InsertLinkDialogContentPanel extends Page {
     }
 
     async selectTargetInContentSelector(targetDisplayName) {
-        let contentSelector = new ContentSelectorDropdown();
-        return await contentSelector.selectFilteredByDisplayNameContent(targetDisplayName, XPATH.container);
+        try {
+            let contentSelector = new ContentSelectorDropdown(XPATH.container);
+            await contentSelector.doFilterItem(targetDisplayName);
+            await contentSelector.clickOnTreeItemOptionByDisplayName(targetDisplayName);
+            await this.pause(500);
+        } catch (err) {
+            await this.handleError(`Content selector, tried to click on the filtered option, ${targetDisplayName} `, 'err_content_sel', err);
+        }
     }
 
-    async typeTextInFilterInputInContentSelector(targetDisplayName) {
-        let contentSelector = new ContentSelectorDropdown();
-        await contentSelector.filterItem(targetDisplayName, XPATH.container);
-        await this.pause(600);
+    async clickOnRemoveSelectedOptionIcon(displayName) {
+        let locator = XPATH.container+ XPATH.contentSelectionByDisplayName(displayName) + BUTTONS.BUTTON_REMOVE_ICON;
+        await this.waitForElementDisplayed(locator);
+        await this.clickOnElement(locator);
+        return await this.pause(500);
     }
+
+    async clickOnContentDropdownHandle() {
+        let contentSelector = new ContentSelectorDropdown(XPATH.container);
+        return await contentSelector.clickOnDropdownHandle();
+    }
+
+
+    async getSelectedOptionDisplayName() {
+        let locator = XPATH.container+ "//div[@data-component='ContentSelection']//div[@data-component='ContentLabel']//span[contains(@class,'font-semibold')]"
+        return await this.getText(locator);
+    }
+
 
     async clickOnApplySelectionButton() {
-        let contentSelector = new ContentSelectorDropdown();
-        return await contentSelector.clickOnApplySelectionButton(XPATH.container);
+        let contentSelector = new ContentSelectorDropdown(XPATH.container);
+        return await contentSelector.clickOnApplySelectionButton();
     }
 
     async clickOnOptionByDisplayName(optionDisplayName) {
-        let contentSelector = new ContentSelectorDropdown();
-        return await contentSelector.clickOnOptionByDisplayName(optionDisplayName, XPATH.container);
+        let contentSelector = new ContentSelectorDropdown(XPATH.container);
+        return await contentSelector.clickOnOptionByDisplayName(optionDisplayName );
     }
 
     // Click on a radio in Media options:

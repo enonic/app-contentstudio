@@ -97,12 +97,6 @@ class ImageSelectorDropdown extends BaseDropdown {
         return await this.getTextInElements(statusEl);
     }
 
-    async getImagesTitleAttribute(elements) {
-        let titles = await elements.map(async (el) => await el.getAttribute("title"));
-        await Promise.all(titles);
-        return titles;
-    }
-
     async scrollDownInDropdownList(parentXpath, deltaY) {
         const elementForScroll = await this.findElement(parentXpath + XPATH.imageContentListBoxUL);
         await this.performScrollWithWheelActions(elementForScroll, deltaY);
@@ -118,7 +112,7 @@ class ImageSelectorDropdown extends BaseDropdown {
 
     async getImageItemsPathsInFlatMode() {
         const locator = `//div[@data-component='ImageSelectorItemView']//bdi`;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(locator);
         return await this.getTextInDisplayedElements(locator);
     }
 

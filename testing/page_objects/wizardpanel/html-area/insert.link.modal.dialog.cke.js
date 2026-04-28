@@ -5,7 +5,7 @@ const appConst = require('../../../libs/app_const');
 const XPATH = {
     container: `//div[@role='dialog' and @data-component='HtmlAreaLinkDialog']`,
     emailPanel: "//div[@data-component='EmailTabPanel']",
-    tabTriggerByName: name => `//button[@role='tab' and contains(.,'${name}')]`,
+    tabTriggerByName: name => `//button[@role='tab' and child::span[contains(.,'${name}')]]`,
     errorMessage: "//div[contains(@class,'text-error')]",
 };
 

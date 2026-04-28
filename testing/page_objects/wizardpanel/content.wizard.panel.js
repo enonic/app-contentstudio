@@ -250,7 +250,7 @@ class ContentWizardPanel extends Page {
             let versionPanel = new VersionsWidget();
             await this.openContextWindow();
             await wizardContextWindow.openVersionHistory();
-            await versionPanel.waitForVersionsLoaded();
+            await versionPanel.waitForLoaded();
             return await this.pause(200);
         } catch (err) {
             await this.handleError('Versions History panel should be opened in Wizard', 'err_open_versions_panel', err);
@@ -313,7 +313,7 @@ class ContentWizardPanel extends Page {
 
     async clickOnXdataTogglerByName(name) {
         try {
-            await this.waitForElementDisplayed(XPATH.xDataTogglerByName(name), appConst.mediumTimeout);
+            await this.waitForElementDisplayed(XPATH.xDataTogglerByName(name));
             await this.clickOnElement(XPATH.xDataTogglerByName(name));
             return await this.pause(400);
         } catch (err) {
@@ -371,7 +371,7 @@ class ContentWizardPanel extends Page {
 
     async waitForShowContextPanelButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.detailsPanelToggleButton, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.detailsPanelToggleButton);
         } catch (err) {
             await this.handleError('Context Window toggle button should be displayed', 'err_context_window_toggle_button', err);
         }
@@ -507,8 +507,8 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    waitForSavingButtonNotVisible() {
-        return this.waitForElementNotDisplayed(this.savingButton, appConst.longTimeout);
+    async waitForSavingButtonNotVisible() {
+        return await this.waitForElementNotDisplayed(this.savingButton, appConst.mediumTimeout);
     }
 
     async clickOnDeleteButton() {
@@ -516,8 +516,7 @@ class ContentWizardPanel extends Page {
             await this.waitForDeleteButtonEnabled();
             return await this.clickOnElement(this.deleteButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_delete_btn_wizard');
-            throw new Error(`Error when clicking on Delete button, screenshot:${screenshot}  ` + err);
+            await this.handleError('Error when trying to click on Delete button', 'err_delete_button_wizard', err);
         }
     }
 
@@ -750,7 +749,7 @@ class ContentWizardPanel extends Page {
 
     async clickOnPublishMenuDropdownHandle() {
         try {
-            await this.waitForElementDisplayed(this.publishDropDownHandle, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.publishDropDownHandle);
             await this.clickOnElement(this.publishDropDownHandle);
             return await this.pause(300);
         } catch (err) {
@@ -762,7 +761,7 @@ class ContentWizardPanel extends Page {
     async clickOnUnpublishMenuItem() {
         try {
             await this.clickOnPublishMenuDropdownHandle();
-            await this.waitForElementDisplayed(this.unpublishMenuItem, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.unpublishMenuItem);
             await this.clickOnElement(this.unpublishMenuItem);
         } catch (err) {
             await this.handleError('Content wizard, tried to click on unpublish menu item', 'err_unpublish_menu_item', err);
