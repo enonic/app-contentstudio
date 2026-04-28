@@ -8,6 +8,7 @@ import {type ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
+import {normalizeContentPathName} from '../../v6/features/utils/cms/content/paths';
 import {AI} from '../ai/AI';
 import {ContentName} from '../content/ContentName';
 import {ContentUnnamed} from '../content/ContentUnnamed';
@@ -366,9 +367,8 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
         }
 
         const draftName = $wizardDraftName.get()?.toString() || '';
-        const initialName = this.normalizeContentPathName(draftName) ||
-                            this.normalizeContentPathName(path.getName());
-        const persistedName = this.normalizeContentPathName(path.getName());
+        const initialName = normalizeContentPathName(draftName) || normalizeContentPathName(path.getName());
+        const persistedName = normalizeContentPathName(path.getName());
 
         void openRenameContentDialog({
             parentPath: path.getParentPath(),
@@ -388,10 +388,6 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
             saveAction.setEnabled(true);
             saveAction.execute();
         });
-    }
-
-    private normalizeContentPathName(pathName: string): string {
-        return pathName?.startsWith(ContentUnnamed.UNNAMED_PREFIX) ? '' : pathName;
     }
 
     private handleLayersClicked(): void {

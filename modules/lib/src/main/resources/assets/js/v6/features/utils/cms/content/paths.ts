@@ -1,4 +1,5 @@
 import type {ContentId} from '../../../../../app/content/ContentId';
+import {ContentUnnamed} from '../../../../../app/content/ContentUnnamed';
 
 type ContentPathValue = {
     toString: () => string;
@@ -50,3 +51,9 @@ export function findContentIdsWithCreatedDescendants(
 
     return Array.from(matchedIds.values());
 }
+
+export function normalizeContentPathName(pathName: string): string {
+    return pathName?.startsWith(ContentUnnamed.UNNAMED_PREFIX) ? '' : pathName;
+}
+
+
