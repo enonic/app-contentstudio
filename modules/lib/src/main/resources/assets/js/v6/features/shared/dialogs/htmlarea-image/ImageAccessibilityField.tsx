@@ -53,16 +53,15 @@ export const ImageAccessibilityField = (): ReactElement => {
                 </RadioGroup.Item>
             </RadioGroup.Root>
 
-            {accessibility === 'informative' && (
                 <div ref={scrollRef}>
                     <Input
                         value={altText}
                         placeholder={altTextPlaceholder}
                         onChange={(event) => setAltText(event.currentTarget.value)}
                         error={altTextError}
+                        disabled={accessibility !== 'informative'}
                     />
                 </div>
-            )}
         </div>
     );
 };
