@@ -806,6 +806,27 @@ public class ContentResourceTest
     }
 
     @Test
+    public void update_content_language_success()
+        throws Exception
+    {
+        Content content = createContent( "content-id", "content-name", "myapplication:content-type" );
+        when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( content );
+        when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
+
+        final ArgumentCaptor<UpdateContentParams> captor = ArgumentCaptor.forClass( UpdateContentParams.class );
+
+        String jsonString = request().path( "content/updateLanguage" )
+            .entity( readFromFile( "update_content_language_params.json" ), MediaType.APPLICATION_JSON_TYPE )
+            .post()
+            .getAsString();
+
+        verify( contentService, times( 1 ) ).update( captor.capture() );
+        assertEquals( ContentId.from( "content-id" ), captor.getValue().getContentId() );
+
+        assertJson( "update_content_success.json", jsonString );
+    }
+
+    @Test
     public void update_content_inherit_success()
         throws Exception
     {
@@ -2565,6 +2586,7 @@ public class ContentResourceTest
 
         ArgumentCaptor<UpdateContentMetadataParams> argumentCaptor = ArgumentCaptor.forClass( UpdateContentMetadataParams.class );
         Content content = createContent( contentId, "content-name", "myapplication:content-type" );
+        when( contentService.getById( ContentId.from( contentId ) ) ).thenReturn( content );
         when( contentService.updateMetadata( isA( UpdateContentMetadataParams.class ) ) ).thenReturn(
             UpdateContentMetadataResult.create().content( content ).build() );
         when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
@@ -2573,6 +2595,29 @@ public class ContentResourceTest
 
         verify( this.contentService, times( 1 ) ).updateMetadata( argumentCaptor.capture() );
         assertTrue( argumentCaptor.getValue().getContentId().equals( ContentId.from( contentId ) ) );
+        verify( this.contentService, times( 0 ) ).update( isA( UpdateContentParams.class ) );
+    }
+
+    @Test
+    public void test_localize_content_changes_language()
+    {
+        final String contentId = "content-id";
+        final ContentResource instance = getResourceInstance();
+        final LocalizeContentsJson params = new LocalizeContentsJson( List.of( contentId ), "no" );
+
+        final Content nonLocalized = createContent( contentId, "content-name", "myapplication:content-type" );
+        final Content localized = Content.create( nonLocalized ).language( Locale.forLanguageTag( "no" ) ).build();
+
+        when( contentService.getById( ContentId.from( contentId ) ) ).thenReturn( nonLocalized );
+        when( contentService.update( isA( UpdateContentParams.class ) ) ).thenReturn( localized );
+        when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
+
+        instance.localize( params, request );
+
+        final ArgumentCaptor<UpdateContentParams> updateCaptor = ArgumentCaptor.forClass( UpdateContentParams.class );
+        verify( this.contentService, times( 1 ) ).update( updateCaptor.capture() );
+        assertEquals( ContentId.from( contentId ), updateCaptor.getValue().getContentId() );
+        verify( this.contentService, times( 0 ) ).updateMetadata( isA( UpdateContentMetadataParams.class ) );
     }
 
     @Test

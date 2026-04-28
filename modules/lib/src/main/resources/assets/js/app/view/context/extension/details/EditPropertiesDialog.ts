@@ -6,9 +6,10 @@ import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {GetContentByIdRequest} from '../../../../resource/GetContentByIdRequest';
 import {type Content} from '../../../../content/Content';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {UpdateContentLanguageRequest} from '../../../../resource/UpdateContentLanguageRequest';
 import {UpdateContentMetadataRequest} from '../../../../resource/UpdateContentMetadataRequest';
 import {type PropertiesWizardStepForm} from './PropertiesWizardStepForm';
-import type Q from 'q';
+import Q from 'q';
 import {ModalDialogWithConfirmation} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 
 export interface EditPropertiesDialogParams {
@@ -64,11 +65,27 @@ export class EditPropertiesDialog
         this.updateAction.setEnabled(false);
 
         return new GetContentByIdRequest(this.content.getContentId()).sendAndParse().then((content: Content) => {
-            const metadataRequest: UpdateContentMetadataRequest = UpdateContentMetadataRequest.create(content);
-            this.allowedForms.forEach((form: PropertiesWizardStepForm) => form.applyMetadataChange(metadataRequest));
+            const requests: Q.Promise<Content>[] = [];
 
-            return metadataRequest.sendAndParse().then((updatedContent: Content) => {
-                this.updatedHandler?.(updatedContent);
+            if (this.isAnyFormMetadataChanged()) {
+                const metadataRequest: UpdateContentMetadataRequest = UpdateContentMetadataRequest.create(content);
+                this.allowedForms.forEach((form: PropertiesWizardStepForm) => form.applyMetadataChange(metadataRequest));
+                requests.push(metadataRequest.sendAndParse());
+            }
+
+            if (this.isAnyFormLanguageChanged()) {
+                const languageRequest: UpdateContentLanguageRequest = UpdateContentLanguageRequest.create(content);
+                this.allowedForms.forEach((form: PropertiesWizardStepForm) => form.applyLanguageChange(languageRequest));
+                requests.push(languageRequest.sendAndParse());
+            }
+
+            if (requests.length === 0) {
+                this.close();
+                return;
+            }
+
+            return Q.all(requests).then((updatedContents: Content[]) => {
+                this.updatedHandler?.(updatedContents[updatedContents.length - 1]);
                 this.close();
             });
         }).catch((e: unknown) => {
@@ -111,11 +128,16 @@ export class EditPropertiesDialog
     }
 
     private handleChange(): void {
-        this.updateAction.setEnabled(this.isAnyFormMetadataChanged() && this.isEveryFormValid());
+        const hasChanges = this.isAnyFormMetadataChanged() || this.isAnyFormLanguageChanged();
+        this.updateAction.setEnabled(hasChanges && this.isEveryFormValid());
     }
 
     private isAnyFormMetadataChanged(): boolean {
         return this.allowedForms.some((form: PropertiesWizardStepForm) => form.isMetadataChanged());
+    }
+
+    private isAnyFormLanguageChanged(): boolean {
+        return this.allowedForms.some((form: PropertiesWizardStepForm) => form.isLanguageChanged());
     }
 
     private isEveryFormValid(): boolean {
