@@ -55,7 +55,7 @@
     "focus-trap-react": "^11.0.0"
   },
   "devDependencies": {
-    "@enonic/page-editor": "^0.0.7",
+    "@enonic/page-editor": "^0.0.8",
     "@enonic/eslint-config": "^2.1.0",
     "@enonic/lib-admin-ui": "workspace:*",
     "@radix-ui/react-slot": "^1.2.0",
