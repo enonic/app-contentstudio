@@ -9,6 +9,7 @@ import {
     $defaultPageTemplateName,
     bumpInsertTabActivateNonce,
     executePageReset,
+    requestPageReset,
     requestSetPageController,
     requestSetPageTemplate,
     usePageState,
@@ -67,7 +68,6 @@ export function usePageControllerSelector(): UsePageControllerSelectorResult {
     const autoLabel = useI18n('widget.pagetemplate.automatic');
     const noDefaultLabel = useI18n('field.page.template.noDefault');
     const noDescriptionLabel = useI18n('text.noDescription');
-    const resetQuestion = useI18n('dialog.page.reset.confirmation');
     const templateChangeQuestion = useI18n('dialog.template.change');
     const controllerChangeQuestion = useI18n('dialog.controller.change');
 
@@ -164,9 +164,10 @@ export function usePageControllerSelector(): UsePageControllerSelectorResult {
             const oldType = selectedKey ? getOptionType(selectedKey) : undefined;
             const newType = getOptionType(newKey);
 
-            // Transitions to auto (reset) need confirmation
+            // Transitions to auto (reset) — delegated to the global PageResetDialog,
+            // which owns confirmation and calls executePageReset() on confirm.
             if (newType === 'auto' && oldType && oldType !== 'auto') {
-                setConfirmDialog({question: resetQuestion, onConfirm: () => executeSelection(newKey)});
+                requestPageReset();
                 return;
             }
 
@@ -183,7 +184,7 @@ export function usePageControllerSelector(): UsePageControllerSelectorResult {
                 executeSelection(newKey);
             }
         },
-        [selectedKey, getOptionType, executeSelection, resetQuestion, templateChangeQuestion, controllerChangeQuestion],
+        [selectedKey, getOptionType, executeSelection, templateChangeQuestion, controllerChangeQuestion],
     );
 
     const selection = selectedKey ? [selectedKey] : [];

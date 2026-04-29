@@ -6,6 +6,7 @@ import type {PageTemplateKey} from '../../../../app/page/PageTemplateKey';
 import {PageStateEvent} from '../../../../page-editor/event/incoming/common/PageStateEvent';
 import {PageEventsManager} from '../../../../app/wizard/PageEventsManager';
 import {PageState} from '../../../../app/wizard/page/PageState';
+import {setDraftPage} from '../wizardContent.store';
 import {$hasDefaultPageTemplate, $inspectedPath, $pageEditorLifecycle, bumpSelectionEventNonce} from './store';
 
 //
@@ -44,10 +45,12 @@ export function requestPageReset(): void {
     PageEventsManager.get().notifyPageResetRequested();
 }
 
-// ? Performs the page reset directly, bypassing the legacy
-// ? confirmation dialog in PageState.onPageResetRequested.
+// ? $wizardDraftPage must be cleared before notifyPageReset fires —
+// ? the save listener synchronously reads it via buildViewedContentFromStore,
+// ? and the listener that syncs the draft from PageState runs too late.
 export function executePageReset(): void {
     PageState.setState(null);
+    setDraftPage(null);
     new PageStateEvent(null).fire();
     PageState.getEvents().notifyPageReset();
 }

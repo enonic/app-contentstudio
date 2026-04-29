@@ -856,7 +856,17 @@ export class ContentWizardPanel
 
         PageState.getEvents().onPageReset(() => {
             this.setMarkedAsReady(false);
-            this.saveChanges(true).catch(DefaultErrorHandler.handle);
+
+            // ! When persisted content already has no page (e.g. after a prior
+            // ! reset followed by Customize Page, which mutates only in-memory
+            // ! PageState), saveChanges short-circuits and never reloads the
+            // ! iframe — leaving the customized page visible. Force a reload
+            // ! in that case; otherwise saveChanges handles it.
+            if (this.getPersistedItem()?.getPage()) {
+                this.saveChanges(true).catch(DefaultErrorHandler.handle);
+            } else {
+                void this.getLivePanel()?.loadPage(true);
+            }
         });
 
         // to be changed: make default models static and remove that call by directly using DefaultModels in PageState
