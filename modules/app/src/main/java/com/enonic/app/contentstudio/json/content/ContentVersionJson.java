@@ -53,15 +53,12 @@ public class ContentVersionJson
                                      final Set<ContentVersionId> batchVersionIds,
                                      final ContentPublishInfoResolver contentPublishInfoResolver )
     {
-        if ( !ContentVersionHelper.PUBLISH_KEY.equals( action.operation() ) || action.editorial() == null )
-        {
-            return null;
-        }
+        final ContentVersionId editorialVersionId = action.editorial();
 
-        if ( batchVersionIds.contains( action.editorial() ) ||
-            contentPublishInfoResolver.versionExists( version.contentId(), action.editorial() ) )
+        if ( editorialVersionId != null && (batchVersionIds.contains( editorialVersionId ) ||
+            contentPublishInfoResolver.versionExists( version.contentId(), editorialVersionId ) ) )
         {
-            return action.editorial().toString();
+            return editorialVersionId.toString();
         }
 
         return null;

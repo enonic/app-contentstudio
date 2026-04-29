@@ -6,6 +6,7 @@ import {
     $activePublishVersionId,
     $allVersionsLoaded,
     $onlineVersionId,
+    $pastPublishBadges,
     $versions,
     $versionsByDate,
     $versionsDisplayMode,
@@ -528,6 +529,92 @@ describe('publish badge', () => {
 
         expect($activePublishVersionId.get()).toBe('v-pub');
         expect($activePublishStatus.get()).toBe(VersionPublishStatus.PUBLISHED);
+    });
+
+    it('marks the editorial version for a master editorial patch with editorial', () => {
+        const update = createVersion('v-update', [createAction(ContentOperation.UPDATE)], new Date('2024-01-14'));
+        const patch = createVersion('v-patch',
+            [createAction(ContentOperation.PATCH, [VersionField.DATA], {origin: 'master', editorial: 'v-update'})],
+            new Date('2024-01-15'));
+
+        $versions.set([patch, update]);
+        $onlineVersionId.set('some-id');
+
+        expect($activePublishVersionId.get()).toBe('v-update');
+        expect($activePublishStatus.get()).toBe(VersionPublishStatus.PUBLISHED);
+    });
+
+    it('marks the patch version itself when editorial is missing on master editorial patch', () => {
+        const patch = createVersion('v-patch',
+            [createAction(ContentOperation.PATCH, [VersionField.DATA], {origin: 'master'})],
+            new Date('2024-01-15'));
+
+        $versions.set([patch]);
+        $onlineVersionId.set('some-id');
+
+        expect($activePublishVersionId.get()).toBe('v-patch');
+        expect($activePublishStatus.get()).toBe(VersionPublishStatus.PUBLISHED);
+    });
+
+    it('does not treat draft editorial patch as an online event', () => {
+        const patch = createVersion('v-patch',
+            [createAction(ContentOperation.PATCH, [VersionField.DATA], {origin: 'draft', editorial: 'v-other'})],
+            new Date('2024-01-15'));
+
+        $versions.set([patch]);
+        $onlineVersionId.set('some-id');
+
+        expect($activePublishVersionId.get()).toBeUndefined();
+        expect($activePublishStatus.get()).toBeUndefined();
+    });
+
+    it('does not treat plain master patch (no editorial fields) as an online event', () => {
+        const patch = createVersion('v-patch',
+            [createAction(ContentOperation.PATCH, [], {origin: 'master'})],
+            new Date('2024-01-15'));
+
+        $versions.set([patch]);
+        $onlineVersionId.set('some-id');
+
+        expect($activePublishVersionId.get()).toBeUndefined();
+        expect($activePublishStatus.get()).toBeUndefined();
+    });
+
+    it('master editorial patch supersedes a prior publish, which becomes a past badge', () => {
+        const publish = createPublishedVersion('v-pub', new Date('2024-01-10'));
+        const patch = createVersion('v-patch',
+            [createAction(ContentOperation.PATCH, [VersionField.DATA], {origin: 'master'})],
+            new Date('2024-01-15'));
+
+        $versions.set([patch, publish]);
+        $onlineVersionId.set('some-id');
+
+        expect($activePublishVersionId.get()).toBe('v-patch');
+        expect($activePublishStatus.get()).toBe(VersionPublishStatus.PUBLISHED);
+
+        const past = $pastPublishBadges.get();
+        expect(past.has('v-pub')).toBe(true);
+        expect(past.get('v-pub')?.publishedTo).toBeUndefined();
+    });
+
+    it('unpublish between online events sets the earlier patch publishedTo to unpublish timestamp', () => {
+        const earlyPatchTimestamp = new Date('2024-01-10');
+        const unpublishTimestamp = new Date('2024-01-12');
+        const laterPublishTimestamp = new Date('2024-01-15');
+
+        const earlyPatch = createVersion('v-patch',
+            [createAction(ContentOperation.PATCH, [VersionField.DATA], {origin: 'master'})],
+            earlyPatchTimestamp);
+        const unpublish = createVersion('v-unpub',
+            [createAction(ContentOperation.UNPUBLISH)],
+            unpublishTimestamp);
+        const laterPublish = createPublishedVersion('v-pub', laterPublishTimestamp);
+
+        $versions.set([laterPublish, unpublish, earlyPatch]);
+        $onlineVersionId.set('some-id');
+
+        const past = $pastPublishBadges.get();
+        expect(past.get('v-patch')?.publishedTo).toEqual(unpublishTimestamp);
     });
 });
 

@@ -4,6 +4,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {atom, computed} from 'nanostores';
 import {type ContentId} from '../../../../app/content/ContentId';
 import {type ContentVersion, ContentVersionBuilder} from '../../../../app/ContentVersion';
+import {type ContentVersionAction} from '../../../../app/ContentVersionAction';
 import {revert} from '../../api/versions';
 
 import {
@@ -316,27 +317,41 @@ type PublishBadge = {
 const getPublishAction = (version: ContentVersion) =>
     version.getActions().find(a => a.getOperation() === ContentOperation.PUBLISH);
 
-const isPublishEvent = (version: ContentVersion): boolean =>
-    getPublishAction(version) != null;
-
 const isUnpublishEvent = (version: ContentVersion): boolean =>
     version.getActions().some(a => a.getOperation() === ContentOperation.UNPUBLISH);
+
+// Master editorial patches mutate the master branch directly, so they count as
+// "online" events alongside publishes. Backend may set `onlineVersionId`
+//  to the patch version too.
+const getOnlineEventAction = (version: ContentVersion): ContentVersionAction | undefined => {
+    const publishAction = getPublishAction(version);
+    if (publishAction) {
+        return publishAction;
+    }
+
+    const first = version.getActions()[0];
+    if (!first || first.getOperation() !== ContentOperation.PATCH) {
+        return undefined;
+    }
+    if (first.getOrigin() !== 'master') {
+        return undefined;
+    }
+    if (!first.getFields().some(f => EDITORIAL_PATCH_FIELDS.includes(f))) {
+        return undefined;
+    }
+    return first;
+};
 
 const findUnpublishDate = (versions: ContentVersion[], publishIndex: number): Date | undefined => {
     for (let i = publishIndex - 1; i >= 0; i--) {
         if (isUnpublishEvent(versions[i])) {
             return versions[i].getTimestamp();
         }
-        if (isPublishEvent(versions[i])) {
+        if (getOnlineEventAction(versions[i])) {
             return undefined;
         }
     }
     return undefined;
-};
-
-const resolveBadgeTargetId = (publishVersion: ContentVersion): string => {
-    const editorialId = getPublishAction(publishVersion)?.getEditorial();
-    return editorialId ?? publishVersion.getId();
 };
 
 const $allPublishBadges = computed($versions, (versions): PublishBadge[] => {
@@ -345,11 +360,17 @@ const $allPublishBadges = computed($versions, (versions): PublishBadge[] => {
 
     for (let i = 0; i < versions.length; i++) {
         const v = versions[i];
-        if (!isPublishEvent(v) || !v.getPublishInfo()) {
+        const action = getOnlineEventAction(v);
+        if (!action) {
             continue;
         }
 
-        const targetId = resolveBadgeTargetId(v);
+        const isPublish = action.getOperation() === ContentOperation.PUBLISH;
+        if (isPublish && !v.getPublishInfo()) {
+            continue;
+        }
+
+        const targetId = action.getEditorial() ?? v.getId();
         if (seen.has(targetId)) {
             continue;
         }
@@ -357,7 +378,7 @@ const $allPublishBadges = computed($versions, (versions): PublishBadge[] => {
         seen.add(targetId);
         badges.push({
             versionId: targetId,
-            publishStatus: getVersionPublishStatus(v),
+            publishStatus: isPublish ? getVersionPublishStatus(v) : VersionPublishStatus.PUBLISHED,
             publishedFrom: v.getTimestamp(),
             publishedTo: findUnpublishDate(versions, i) ?? v.getPublishInfo()?.getTo(),
         });
