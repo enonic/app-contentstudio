@@ -1,8 +1,8 @@
-import {ReactElement} from 'react';
+import {type ReactElement} from 'react';
 import type {ContentSummary} from '../../../../app/content/ContentSummary';
 import {resolveDisplayName, resolvePath} from '../../utils/cms/content/prettify';
 import {calcContentState} from '../../utils/cms/content/workflow';
-import {ItemLabel, ItemLabelProps} from '../ItemLabel';
+import {ItemLabel, type ItemLabelProps} from '../ItemLabel';
 import {WorkflowContentIcon} from '../icons/WorkflowContentIcon';
 
 const CONTENT_LABEL_NAME = 'ContentLabel';

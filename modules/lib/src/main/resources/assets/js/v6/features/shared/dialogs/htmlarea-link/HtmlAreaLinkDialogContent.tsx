@@ -1,5 +1,5 @@
 import {Input, Tab} from '@enonic/ui';
-import {type ReactElement} from 'react';
+import {type ReactElement, useEffect, useRef} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {type LinkType, useHtmlAreaLinkDialogContext} from './HtmlAreaLinkDialogContext';
 import {AnchorTabPanel} from './AnchorTabPanel';
@@ -11,12 +11,14 @@ const COMPONENT_NAME = 'HtmlAreaLinkDialogContent';
 
 export const HtmlAreaLinkDialogContent = (): ReactElement => {
     const {
-        state: {linkText, linkTextEditable, tooltip, activeTab, anchors},
+        state: {open, linkText, linkTextEditable, tooltip, activeTab, anchors},
         validationErrors: errors,
         setActiveTab,
         setLinkText,
         setTooltip,
     } = useHtmlAreaLinkDialogContext();
+    const linkTextInputRef = useRef<HTMLInputElement | null>(null);
+    const wasOpenRef = useRef(false);
 
     const textLabel = useI18n('dialog.link.formitem.text');
     const tooltipLabel = useI18n('dialog.link.formitem.tooltip');
@@ -27,10 +29,20 @@ export const HtmlAreaLinkDialogContent = (): ReactElement => {
 
     const hasAnchors = anchors.length > 0;
 
+    useEffect(() => {
+        const justOpened = open && !wasOpenRef.current;
+        wasOpenRef.current = open;
+
+        if (justOpened && linkTextEditable && linkText.trim() === '') {
+            linkTextInputRef.current?.focus({focusVisible: true});
+        }
+    }, [open, linkText, linkTextEditable]);
+
     return (
         <div data-component={COMPONENT_NAME} className='flex flex-col gap-5'>
             {linkTextEditable && (
                 <Input
+                    ref={linkTextInputRef}
                     label={`${textLabel} *`}
                     value={linkText}
                     required

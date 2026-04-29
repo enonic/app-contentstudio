@@ -10,7 +10,7 @@ import {useUploadMedia} from '../../../hooks/useUploadMedia';
 import {$contextContent} from '../../../store/context/contextContent.store';
 import {useStore} from '@nanostores/preact';
 import {type MediaOption, useHtmlAreaLinkDialogContext} from './HtmlAreaLinkDialogContext';
-import {ContentSelector} from '../../selectors/content/ContentSelector';
+import {ContentSelector} from '../../selectors/content';
 
 const COMPONENT_NAME = 'ContentTabPanel';
 
