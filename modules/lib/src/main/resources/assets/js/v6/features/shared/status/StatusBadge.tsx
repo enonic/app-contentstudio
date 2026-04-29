@@ -16,7 +16,7 @@ export const StatusBadge = ({status, className}: Props) => {
     const isOffline = status === PublishStatus.OFFLINE;
 
     return (
-        <span data-component={STATUS_BADGE_NAME} className={cn('text-sm capitalize group-data-[tone=inverse]:text-alt', isOnline && 'text-success', isOffline && 'text-muted', className)}>
+        <span data-component={STATUS_BADGE_NAME} className={cn('text-sm capitalize group-data-[tone=inverse]:text-alt', isOnline && 'text-success', isOffline && 'text-subtle', className)}>
             {label}
         </span>
     );

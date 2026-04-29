@@ -1,3 +1,5 @@
+import {capitalize} from "./capitalize";
+
 export function camelCase(str: string): string {
     const words = str
         .replace(/([a-z])([A-Z])/g, '$1 $2')
@@ -8,7 +10,7 @@ export function camelCase(str: string): string {
     return words
         .map((word, i) => {
             const lower = word.toLowerCase();
-            return i === 0 ? lower : lower.charAt(0).toUpperCase() + lower.slice(1);
+            return i === 0 ? lower : capitalize(lower);
         })
         .join('');
 }
