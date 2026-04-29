@@ -41,7 +41,7 @@ export const $projects = map<ProjectsStore>({
 syncMapStore($projects, SYNC_NAME, {
     keys: ['activeProjectId'],
     loadInitial: true,
-    syncTabs: true,
+    syncTabs: false,
 });
 
 export const $activeProject = computed($projects, (store) => {
