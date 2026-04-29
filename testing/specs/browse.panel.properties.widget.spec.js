@@ -165,7 +165,7 @@ describe('Browse panel, properties widget, language spec', function () {
             await detailsWidgetInfoSection.waitForNotDisplayed();
         });
 
-    it(`GIVEN existing folder is selected WHEN widget dropdown selector has been clicked THEN expected 4 options should be displayed in the dropdown list`,
+    it(`GIVEN existing folder is selected WHEN widget dropdown selector has been clicked THEN expected 5 options should be displayed in the dropdown list`,
         async () => {
             let browseContextWindow = new BrowseContextWindow();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -180,7 +180,7 @@ describe('Browse panel, properties widget, language spec', function () {
             assert.ok(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY),
                 `'Version history' option should be displayed`);
             assert.ok(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS), `'Details' option should be displayed`);
-            assert.equal(actualOptions.length, 4, 'Four options should be in the selector');
+            assert.equal(actualOptions.length, 5, 'Five options should be in the selector');
         });
 
     it(`GIVEN existing folder is opened WHEN tried to deselect the single selected item THEN the same widgets are displayed after clicking on the selected option in the list`,
