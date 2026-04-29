@@ -4,7 +4,6 @@
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
-const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const CreateIssueDialog = require('../../page_objects/issue/create.issue.dialog');
 const IssueDetailsDialog = require('../../page_objects/issue/issue.details.dialog');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -23,6 +22,7 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
     let ISSUE_TITLE = appConst.generateRandomName('issue');
     let folder1;
     let folder2;
+
     it(`Precondition: two work in progress folder should be added`,
         async () => {
             let displayName1 = contentBuilder.generateRandomName('folder');
@@ -64,33 +64,8 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
             assert.ok(result.includes("/" + folder1.displayName));
             let actualNumber = await issueDetailsDialog.getNumberInItemsTab();
             assert.equal(actualNumber, '2', '2 items to publish should be present in the dialog');
-            let status = await issueDetailsDialogItemsTab.getContentStatus(folder1.name)
-            assert.equal(status, appConst.CONTENT_STATUS.OFFLINE, 'Offline content-status should be displayed in the dialog');
-        });
-
-    // TODO  remove this test ?
-    it.skip(
-        `GIVEN 'Issue Details Dialog' is opened AND Items-tab activated WHEN 'Publish...' button has been pressed THEN 2 content should be published and the task gets closed`,
-        async () => {
-            let issueDetailsDialog = new IssueDetailsDialog();
-            let issueListDialog = new IssueListDialog();
-            let issueDetailsDialogItemsTab = new IssueDetailsDialogItemsTab();
-            await studioUtils.openIssuesListDialog();
-            // 1. Open Issue Details Dialog:
-            await issueListDialog.clickOnIssue(ISSUE_TITLE);
-            await issueDetailsDialog.waitForDialogLoaded();
-            // 2. Go to Items tab:
-            await issueDetailsDialog.clickOnItemsTabItem();
-            // Click on Publish... button and open Publishing Wizard
-            await issueDetailsDialogItemsTab.clickOnPublishAndOpenPublishWizard();
-            let contentPublishDialog = new ContentPublishDialog();
-            // 3. Click on Publish Now button :
-            await contentPublishDialog.clickOnPublishNowButton();
-            let message = await issueDetailsDialog.waitForNotificationMessage();
-            assert.equal(message, appConst.NOTIFICATION_MESSAGES.TWO_ITEMS_PUBLISHED,
-                "'2 items are published' message should be displayed");
-            let expectedMessage = appConst.NOTIFICATION_MESSAGES.ISSUE_CLOSED_MESSAGE;
-            await issueDetailsDialog.waitForExpectedNotificationMessage(expectedMessage);
+            let status = await issueDetailsDialogItemsTab.getContentStatus(folder1.name);
+            assert.equal(status, appConst.CONTENT_STATUS.OFFLINE_NEW, 'Offline content-status should be displayed in the dialog');
         });
 
     it(`WHEN two items has been selected THEN Preview dropdown should be visible in its toolbar`,
