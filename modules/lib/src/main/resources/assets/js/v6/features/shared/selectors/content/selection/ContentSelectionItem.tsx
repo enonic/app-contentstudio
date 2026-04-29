@@ -64,7 +64,7 @@ export const ContentSelectionItem = ({
         >
             <GridList.Cell className='flex-1 min-w-0'>
                 <GridList.Action>
-                    <ContentButton content={content} disabled={disabled} />
+                    <ContentButton content={content} disabled={disabled} labelVariant='detailed' />
                 </GridList.Action>
             </GridList.Cell>
             <GridList.Cell>

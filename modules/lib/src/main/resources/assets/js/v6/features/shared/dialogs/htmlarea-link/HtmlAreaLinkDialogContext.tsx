@@ -288,7 +288,7 @@ type DetectedLink = {
 
 function detectTabFromUrl(link: string): DetectedLink {
     const result: DetectedLink = {
-        tab: 'url',
+        tab: 'content',
         mediaOption: 'open',
         protocol: 'https://',
         urlValue: '',
