@@ -1,16 +1,12 @@
 import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Button, cn, IconButton, Menu, Toolbar, Tooltip} from '@enonic/ui';
 import {ChevronDown} from 'lucide-react';
-import {type ReactElement, useMemo} from 'react';
+import {Fragment, type ReactElement, useMemo} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {useObservedActions} from './useObservedActions';
 
-export type SplitActionButtonAction = {
-    action: Action;
-};
-
 type Props = {
-    actions: SplitActionButtonAction[];
+    actions: Action[][];
     className?: string;
     disabled?: boolean;
     /**
@@ -61,12 +57,12 @@ export const SplitActionButton = ({
     disableMenuWhenAllMenuActionsDisabled = true,
 }: Props): ReactElement | null => {
     const moreLabel = useI18n('tooltip.moreActions');
-    const observedActions = useMemo(() => actions.map(({action}) => action), [actions]);
+    const observedActions = useMemo(() => actions.flat(), [actions]);
     const renderVersion = useObservedActions(observedActions);
 
     const actionStates = useMemo(
-        () => actions.map(({action}) => getActionState(action)).filter(({visible}) => visible),
-        [actions, renderVersion]
+        () => observedActions.map(getActionState).filter(({visible}) => visible),
+        [observedActions, renderVersion]
     );
 
     const primaryIndex = useMemo(() => {
@@ -79,15 +75,20 @@ export const SplitActionButton = ({
     }, [actionStates, primaryActionStrategy]);
 
     const primaryState = actionStates[primaryIndex];
-    const menuStates = useMemo(
-        () => [...actionStates.slice(0, primaryIndex), ...actionStates.slice(primaryIndex + 1)],
-        [actionStates, primaryIndex]
+    const menuActionGroups = useMemo(
+        () => actions
+            .map((group) => group
+                .map(getActionState)
+                .filter(({action, visible}) => visible && action !== primaryState?.action))
+            .filter((group) => group.length > 0),
+        [actions, primaryState?.action, renderVersion]
     );
 
+    const menuStates = menuActionGroups.flat();
     const hasMenuActions = menuStates.length > 0;
     const areAllMenuActionsDisabled = menuStates.every(({enabled}) => !enabled);
 
-    if (!primaryState || actions.length === 0) {
+    if (!primaryState || observedActions.length === 0) {
         return null;
     }
 
@@ -125,13 +126,16 @@ export const SplitActionButton = ({
                 </Tooltip>
                 <Menu.Portal>
                     <Menu.Content align="end">
-                        {menuStates.map(({enabled, label, action}, index) => {
-                            return (
-                                <Menu.Item key={index} disabled={!enabled} onSelect={() => action.execute()}>
-                                    <span className='font-semibold'>{label}</span>
-                                </Menu.Item>
-                            );
-                        })}
+                        {menuActionGroups.map((group, groupIndex) => (
+                            <Fragment key={groupIndex}>
+                                {groupIndex > 0 && <Menu.Separator className="my-0 w-full" />}
+                                {group.map(({enabled, label, action}, index) => (
+                                    <Menu.Item key={`${groupIndex}-${index}`} disabled={!enabled} onSelect={() => action.execute()}>
+                                        <span className='font-semibold'>{label}</span>
+                                    </Menu.Item>
+                                ))}
+                            </Fragment>
+                        ))}
                     </Menu.Content>
                 </Menu.Portal>
             </Menu>

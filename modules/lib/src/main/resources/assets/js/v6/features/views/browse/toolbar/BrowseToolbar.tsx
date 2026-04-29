@@ -6,7 +6,7 @@ import {LegacyElement} from '../../../shared/LegacyElement';
 import {ContextToggle} from './ContextToggle';
 import {OverflowActionRow, type OverflowActionRowItem} from './OverflowActionRow';
 import {SearchToggle} from './SearchToggle';
-import {SplitActionButton, type SplitActionButtonAction} from './SplitActionButton';
+import {SplitActionButton} from './SplitActionButton';
 
 type Props = {
     toggleFilterPanelAction: Action;
@@ -50,17 +50,17 @@ export const BrowseToolbar = ({
         {id: 'sort', action: sortAction},
         {id: 'preview', action: previewAction},
     ], [archiveAction, duplicateAction, editAction, moveAction, previewAction, showNewDialogAction, sortAction]);
-    const publishSplitActions: SplitActionButtonAction[] = [
-        {action: markAsReadyAction},
-        {action: publishAction},
-        {action: publishTreeAction},
-        {action: unpublishAction},
-        {action: requestPublishAction},
-        {action: createIssueAction},
+    const publishSplitActions: Action[] = [
+        markAsReadyAction,
+        publishAction,
+        publishTreeAction,
+        unpublishAction,
+        requestPublishAction,
+        createIssueAction,
     ];
-    const mobileSplitActions: SplitActionButtonAction[] = [
-        ...toolbarActions.map(({action}) => ({action})),
-        ...publishSplitActions,
+    const mobileSplitActions: Action[][] = [
+        toolbarActions.map(({action}) => action),
+        publishSplitActions,
     ];
 
     return (
@@ -78,7 +78,7 @@ export const BrowseToolbar = ({
                 </div>
                 <div className="flex-1 sm:hidden" />
                 <div className="hidden sm:flex shrink-0 min-w-fit">
-                    <SplitActionButton actions={publishSplitActions} />
+                    <SplitActionButton actions={[publishSplitActions]} />
                 </div>
                 <ContextToggle className="shrink-0" />
             </Toolbar.Container>

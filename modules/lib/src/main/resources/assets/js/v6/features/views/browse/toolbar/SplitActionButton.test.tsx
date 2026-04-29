@@ -145,8 +145,10 @@ describe('SplitActionButton', () => {
         render(
             <SplitActionButton
                 actions={[
-                    {action: createAction({label: 'Hidden', visible: false})},
-                    {action: createAction({label: 'Visible'})},
+                    [
+                        createAction({label: 'Hidden', visible: false}),
+                        createAction({label: 'Visible'}),
+                    ],
                 ]}
             />
         );
@@ -160,9 +162,11 @@ describe('SplitActionButton', () => {
         render(
             <SplitActionButton
                 actions={[
-                    {action: createAction({label: 'Primary'})},
-                    {action: createAction({label: 'Disabled A', enabled: false})},
-                    {action: createAction({label: 'Disabled B', enabled: false})},
+                    [
+                        createAction({label: 'Primary'}),
+                        createAction({label: 'Disabled A', enabled: false}),
+                        createAction({label: 'Disabled B', enabled: false}),
+                    ],
                 ]}
             />
         );
@@ -176,9 +180,11 @@ describe('SplitActionButton', () => {
         render(
             <SplitActionButton
                 actions={[
-                    {action: createAction({label: 'Disabled First', enabled: false})},
-                    {action: createAction({label: 'Enabled Primary'})},
-                    {action: createAction({label: 'Disabled Last', enabled: false})},
+                    [
+                        createAction({label: 'Disabled First', enabled: false}),
+                        createAction({label: 'Enabled Primary'}),
+                        createAction({label: 'Disabled Last', enabled: false}),
+                    ],
                 ]}
             />
         );
@@ -197,9 +203,11 @@ describe('SplitActionButton', () => {
         render(
             <SplitActionButton
                 actions={[
-                    {action: createAction({label: 'Disabled First', enabled: false})},
-                    {action: createAction({label: 'Enabled Second'})},
-                    {action: createAction({label: 'Enabled Third'})},
+                    [
+                        createAction({label: 'Disabled First', enabled: false}),
+                        createAction({label: 'Enabled Second'}),
+                        createAction({label: 'Enabled Third'}),
+                    ],
                 ]}
                 primaryActionStrategy='firstVisible'
             />
@@ -218,9 +226,11 @@ describe('SplitActionButton', () => {
         render(
             <SplitActionButton
                 actions={[
-                    {action: createAction({label: 'Disabled First', enabled: false})},
-                    {action: createAction({label: 'Disabled Second', enabled: false})},
-                    {action: createAction({label: 'Disabled Third', enabled: false})},
+                    [
+                        createAction({label: 'Disabled First', enabled: false}),
+                        createAction({label: 'Disabled Second', enabled: false}),
+                        createAction({label: 'Disabled Third', enabled: false}),
+                    ],
                 ]}
                 primaryActionStrategy='firstVisible'
                 disableMenuWhenAllMenuActionsDisabled={false}
