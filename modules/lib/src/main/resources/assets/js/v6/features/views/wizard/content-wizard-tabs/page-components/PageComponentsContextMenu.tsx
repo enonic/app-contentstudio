@@ -1,7 +1,7 @@
 import {ContextMenu} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Box, Columns2, PenLine, Puzzle} from 'lucide-react';
-import {type ReactElement, type ReactNode, useCallback, useState} from 'react';
+import {type ReactElement, type ReactNode, useCallback} from 'react';
 import {SaveAsTemplateAction} from '../../../../../../app/wizard/action/SaveAsTemplateAction';
 import {ComponentPath} from '../../../../../../app/page/region/ComponentPath';
 import {ComponentType} from '../../../../../../app/page/region/ComponentType';
@@ -12,15 +12,14 @@ import {PageNavigationMediator} from '../../../../../../app/wizard/PageNavigatio
 import type {FlatNode} from '../../../../lib/tree-store';
 import {getNode} from '../../../../lib/tree-store';
 import {useI18n} from '../../../../hooks/useI18n';
-import {ConfirmationDialog} from '../../../../shared/dialogs/ConfirmationDialog';
 import {
-    executePageReset,
     inspectItem,
     requestComponentAdd,
     requestComponentCreateFragment,
     requestComponentDuplicate,
     requestComponentRemove,
     requestComponentReset,
+    requestPageReset,
 } from '../../../../store/page-editor/commands';
 import {$contentContext, $isFragment} from '../../../../store/page-editor/store';
 import {$componentsTreeState, expandComponentNode, hasLayoutAncestor, rebuildComponentsTree} from './pageComponents.store';
@@ -46,7 +45,6 @@ export const PageComponentsContextMenu = ({node, children}: PageComponentsContex
     const data = node.data;
     const isFragment = useStore($isFragment);
     const contentContext = useStore($contentContext);
-    const [confirmResetOpen, setConfirmResetOpen] = useState(false);
 
     const selectParentLabel = useI18n('action.component.select.parent');
     const insertLabel = useI18n('widget.components.insert');
@@ -56,7 +54,6 @@ export const PageComponentsContextMenu = ({node, children}: PageComponentsContex
     const duplicateLabel = useI18n('action.component.duplicate');
     const saveAsFragmentLabel = useI18n('action.component.create.fragment');
     const saveAsTemplateLabel = useI18n('action.saveAsTemplate');
-    const resetConfirmation = useI18n('dialog.page.reset.confirmation');
 
     if (data == null) {
         return <>{children}</>;
@@ -65,44 +62,19 @@ export const PageComponentsContextMenu = ({node, children}: PageComponentsContex
     const isPageRoot = data.nodeType === 'page' || node.id === ROOT_NODE_ID;
 
     if (isPageRoot) {
-        const handleReset = isFragment
-            ? () => requestComponentReset(ComponentPath.fromString(ROOT_NODE_ID))
-            : () => setConfirmResetOpen(true);
-
         return (
-            <>
-                <ContextMenu data-component={PAGE_COMPONENTS_CONTEXT_MENU_NAME}>
-                    <ContextMenu.Trigger className="flex-1 min-w-0">{children}</ContextMenu.Trigger>
-                    <ContextMenu.Portal>
-                        <ContextMenu.Content className="min-w-48">
-                            <InspectItem nodeId={ROOT_NODE_ID} label={inspectLabel} />
-                            <PageResetItem label={resetLabel} onSelect={handleReset} />
-                            {!isFragment && !contentContext?.isPageTemplate && (
-                                <SaveAsTemplateItem label={saveAsTemplateLabel} />
-                            )}
-                        </ContextMenu.Content>
-                    </ContextMenu.Portal>
-                </ContextMenu>
-
-                {!isFragment && (
-                    <ConfirmationDialog.Root open={confirmResetOpen} onOpenChange={setConfirmResetOpen}>
-                        <ConfirmationDialog.Portal>
-                            <ConfirmationDialog.Overlay />
-                            <ConfirmationDialog.Content>
-                                <ConfirmationDialog.Body>{resetConfirmation}</ConfirmationDialog.Body>
-                                <ConfirmationDialog.Footer
-                                    intent="danger"
-                                    onConfirm={() => {
-                                        executePageReset();
-                                        setConfirmResetOpen(false);
-                                    }}
-                                    onCancel={() => setConfirmResetOpen(false)}
-                                />
-                            </ConfirmationDialog.Content>
-                        </ConfirmationDialog.Portal>
-                    </ConfirmationDialog.Root>
-                )}
-            </>
+            <ContextMenu data-component={PAGE_COMPONENTS_CONTEXT_MENU_NAME}>
+                <ContextMenu.Trigger className="flex-1 min-w-0">{children}</ContextMenu.Trigger>
+                <ContextMenu.Portal>
+                    <ContextMenu.Content className="min-w-48">
+                        <InspectItem nodeId={ROOT_NODE_ID} label={inspectLabel} />
+                        <PageResetItem label={resetLabel} onSelect={requestPageReset} />
+                        {!isFragment && !contentContext?.isPageTemplate && (
+                            <SaveAsTemplateItem label={saveAsTemplateLabel} />
+                        )}
+                    </ContextMenu.Content>
+                </ContextMenu.Portal>
+            </ContextMenu>
         );
     }
 

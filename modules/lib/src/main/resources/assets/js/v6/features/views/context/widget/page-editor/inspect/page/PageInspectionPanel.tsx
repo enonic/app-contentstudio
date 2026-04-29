@@ -4,7 +4,13 @@ import {type ReactElement, useCallback, useState} from 'react';
 import {useI18n} from '../../../../../../hooks/useI18n';
 import {ConfirmationDialog} from '../../../../../../shared/dialogs/ConfirmationDialog';
 import {FormRenderer} from '../../../../../../shared/form/FormRenderer';
-import {$contentContext, $pageEditorLifecycle, requestCustomizePage, usePageState} from '../../../../../../store/page-editor';
+import {
+    $contentContext,
+    $pageEditorLifecycle,
+    bumpInsertTabActivateNonce,
+    requestCustomizePage,
+    usePageState,
+} from '../../../../../../store/page-editor';
 import {$isCustomizeVisible, $pageConfigDescriptor} from '../../../../../../store/page-inspection.store';
 import {useInspectFormTracking} from '../useInspectFormTracking';
 import {PageControllerSelector} from "./PageControllerSelector";
@@ -29,7 +35,13 @@ export const PageInspectionPanel = (): ReactElement => {
     const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null);
 
     const handleCustomize = useCallback((): void => {
-        setConfirmDialog({question: customizeQuestion, onConfirm: requestCustomizePage});
+        setConfirmDialog({
+            question: customizeQuestion,
+            onConfirm: () => {
+                requestCustomizePage();
+                bumpInsertTabActivateNonce();
+            },
+        });
     }, [customizeQuestion]);
 
     const hasController = page?.hasController() ?? false;

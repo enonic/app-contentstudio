@@ -41,8 +41,6 @@ import {type PageTemplate} from '../../content/PageTemplate';
 import {LayoutComponent} from '../../page/region/LayoutComponent';
 import Q from 'q';
 import {type ComponentTextUpdatedOrigin} from '../../page/region/ComponentTextUpdatedOrigin';
-import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {PageStateEvent} from '../../../page-editor/event/incoming/common/PageStateEvent';
 
 export class PageState {
@@ -238,16 +236,8 @@ export class PageStateEventHandler {
             });
         });
 
-        PageEventsManager.get().onPageResetRequested(() => {
-            new ConfirmationDialog()
-                .setQuestion(i18n('dialog.page.reset.confirmation'))
-                .setYesCallback(() => {
-                    PageState.setState(null);
-                    new PageStateEvent(null).fire();
-                    this.pageEventsHolder.notifyPageReset();
-                })
-                .open();
-        });
+        // ! Page reset confirmation is owned by the v6 PageResetDialog which
+        // ! listens for `onPageResetRequested` and calls `executePageReset`.
 
         PageEventsManager.get().onComponentDescriptorSetRequested((path: ComponentPath, descriptorKey: DescriptorKey) => {
             if (!PageState.getState()) {

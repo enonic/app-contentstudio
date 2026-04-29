@@ -13,6 +13,7 @@ import {UnpublishDialog} from '../../../shared/dialogs/unpublish/UnpublishDialog
 import {PermissionsDialog} from '../../../shared/dialogs/permissions/PermissionsDialog';
 import {NewContentDialog} from '../../../shared/dialogs/new-content/NewContentDialog';
 import {DetachedPageComponentsView} from './DetachedPageComponentsView';
+import {PageResetDialog} from './PageResetDialog';
 
 export const WizardAppShell = (): ReactElement => {
     return (
@@ -31,6 +32,7 @@ export const WizardAppShell = (): ReactElement => {
             <RenameContentDialog />
             <UnpublishDialog />
             <SortDialog />
+            <PageResetDialog />
             <DetachedPageComponentsView />
         </>
     );
