@@ -8,11 +8,11 @@ import type {Region} from '../../../../../../app/page/region/Region';
 import {TextComponent} from '../../../../../../app/page/region/TextComponent';
 import {
     type CreateNodeOptions,
+    type TreeNode,
     type TreeState,
     collapse,
     createEmptyState,
     expand,
-    expandAll,
     expandToNode,
     flattenTree,
     getAncestorIds,
@@ -41,6 +41,7 @@ export const $componentsFlatNodes = computed($componentsTreeState, flattenTree);
 //
 
 let lastRebuildVersion = -1;
+let lastLayoutsByPath = new Map<string, LayoutComponent>();
 
 export function rebuildComponentsTree(preserveExpanded = true): void {
     const currentVersion = $pageVersion.get();
@@ -49,8 +50,20 @@ export function rebuildComponentsTree(preserveExpanded = true): void {
 
     const page = $page.get();
     const currentState = $componentsTreeState.get();
-    const expandedIds = preserveExpanded ? currentState.expandedIds : undefined;
-    const newState = buildTreeFromPage(page, expandedIds);
+    const isRebuild = preserveExpanded && currentState.nodes.size > 0;
+
+    const layoutsByPath = collectLayouts(page);
+    const layoutDiff = isRebuild
+        ? diffLayouts(lastLayoutsByPath, layoutsByPath)
+        : EMPTY_LAYOUT_DIFF;
+
+    lastLayoutsByPath = layoutsByPath;
+
+    const expandedIds = preserveExpanded
+        ? remapExpandedAfterDiff(currentState.expandedIds, layoutDiff)
+        : undefined;
+
+    const newState = buildTreeFromPage(page, expandedIds, isRebuild, layoutDiff.added);
     $componentsTreeState.set(newState);
 }
 
@@ -134,7 +147,9 @@ function getComponentNodeType(component: Component): PageComponentNodeType {
 
 function buildTreeFromPage(
     page: Page | null,
-    preserveExpandedIds?: Set<string>,
+    preserveExpandedIds: Set<string> | undefined,
+    isRebuild: boolean,
+    newLayoutPaths: Set<string>,
 ): TreeState<PageComponentNodeData> {
     if (page == null) {
         return createEmptyState();
@@ -152,30 +167,144 @@ function buildTreeFromPage(
     state = setNodes(state, nodes);
     state = setRootIds(state, [PAGE_ROOT_ID]);
 
-    // Restore or initialize expanded state
-    if (preserveExpandedIds != null && preserveExpandedIds.size > 0) {
-        const validIds = new Set<string>();
-        for (const id of preserveExpandedIds) {
-            if (state.nodes.has(id)) {
-                validIds.add(id);
+    const expandedIds = new Set<string>(isRebuild ? newLayoutPaths : undefined);
+
+    if (isRebuild) {
+        if (preserveExpandedIds != null) {
+            for (const id of preserveExpandedIds) {
+                if (state.nodes.has(id)) {
+                    expandedIds.add(id);
+                }
             }
         }
-
-        state = {...state, expandedIds: validIds};
     } else {
-        // First build: expand all nodes that have children
-        state = expandAll(state);
-    }
-
-    const expandedIds = new Set(state.expandedIds);
-    for (const [id, node] of state.nodes) {
-        if (node.data?.nodeType === 'region' && node.childIds.length === 0) {
-            expandedIds.add(id);
+        for (const [id, node] of state.nodes) {
+            if (isDefaultCollapsed(node)) continue;
+            if (node.hasChildren || node.childIds.length > 0) {
+                expandedIds.add(id);
+            }
         }
     }
-    state = {...state, expandedIds};
 
-    return state;
+    return {...state, expandedIds};
+}
+
+function isDefaultCollapsed(node: TreeNode<PageComponentNodeData>): boolean {
+    const type = node.data?.nodeType;
+    return type === 'region' || (type === 'layout' && node.parentId !== null);
+}
+
+function collectLayouts(page: Page | null): Map<string, LayoutComponent> {
+    const layouts = new Map<string, LayoutComponent>();
+    if (page == null) return layouts;
+
+    let rootRegions: Region[];
+    if (page.isFragment()) {
+        const fragment = page.getFragment();
+        if (!(fragment instanceof LayoutComponent)) return layouts;
+        layouts.set(PAGE_ROOT_ID, fragment);
+        rootRegions = fragment.getRegions()?.getRegions() ?? [];
+    } else {
+        rootRegions = page.getRegions()?.getRegions() ?? [];
+    }
+
+    for (const region of rootRegions) {
+        collectLayoutsFromRegion(region, PAGE_ROOT_ID, layouts);
+    }
+    return layouts;
+}
+
+function collectLayoutsFromRegion(
+    region: Region,
+    parentPath: string,
+    layouts: Map<string, LayoutComponent>,
+): void {
+    const regionPath = buildRegionPath(parentPath, region.getName());
+    region.getComponents().forEach((component, index) => {
+        if (!(component instanceof LayoutComponent)) return;
+        const componentPath = buildComponentPath(regionPath, index);
+        layouts.set(componentPath, component);
+        for (const inner of component.getRegions()?.getRegions() ?? []) {
+            collectLayoutsFromRegion(inner, componentPath, layouts);
+        }
+    });
+}
+
+type LayoutDiff = {
+    added: Set<string>;
+    pathRemap: Map<string, string>;
+    removed: Set<string>;
+};
+
+const EMPTY_LAYOUT_DIFF: LayoutDiff = {
+    added: new Set(),
+    pathRemap: new Map(),
+    removed: new Set(),
+};
+
+function diffLayouts(
+    previousByPath: Map<string, LayoutComponent>,
+    currentByPath: Map<string, LayoutComponent>,
+): LayoutDiff {
+    const added = new Set<string>();
+    const pathRemap = new Map<string, string>();
+    const removed = new Set<string>();
+
+    const previousPathByRef = new Map<LayoutComponent, string>();
+    for (const [path, ref] of previousByPath) {
+        previousPathByRef.set(ref, path);
+    }
+
+    const currentRefs = new Set<LayoutComponent>();
+    for (const [newPath, ref] of currentByPath) {
+        currentRefs.add(ref);
+        const oldPath = previousPathByRef.get(ref);
+        if (oldPath == null) {
+            added.add(newPath);
+        } else if (oldPath !== newPath) {
+            pathRemap.set(oldPath, newPath);
+        }
+    }
+
+    for (const [oldPath, ref] of previousByPath) {
+        if (!currentRefs.has(ref)) {
+            removed.add(oldPath);
+        }
+    }
+
+    return {added, pathRemap, removed};
+}
+
+function remapExpandedAfterDiff(expandedIds: Set<string>, diff: LayoutDiff): Set<string> {
+    if (diff.pathRemap.size === 0 && diff.removed.size === 0) {
+        return expandedIds;
+    }
+
+    // Match longest paths first so descendants of nested shifts remap correctly.
+    const remap = [...diff.pathRemap].sort(([a], [b]) => b.length - a.length);
+    const removed = [...diff.removed].sort((a, b) => b.length - a.length);
+
+    const result = new Set<string>();
+    for (const id of expandedIds) {
+        if (matchesAny(id, removed)) continue;
+        result.add(applyPathRemap(id, remap));
+    }
+    return result;
+}
+
+function matchesAny(id: string, paths: string[]): boolean {
+    for (const path of paths) {
+        if (id === path || id.startsWith(path + '/')) return true;
+    }
+    return false;
+}
+
+function applyPathRemap(id: string, remap: [string, string][]): string {
+    for (const [oldPath, newPath] of remap) {
+        if (id === oldPath) return newPath;
+        if (id.startsWith(oldPath + '/')) return newPath + id.substring(oldPath.length);
+    }
+    return id;
 }
 
 function buildPageTree(
