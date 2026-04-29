@@ -19,6 +19,7 @@ exports.config = {
         path.join(__dirname, '../specs/content-types/htmlarea_0_2__1_1.cke.spec.js'),
         path.join(__dirname, '../specs/content-types/occurrences.textline.spec.js'),
         path.join(__dirname, '../specs/content-types/shortcut.target.spec.js'),
+        path.join(__dirname, '../specs/content-types/htmlarea.insert.image.dialog.spec.js'),
     ],
 
     maxInstances: 1,

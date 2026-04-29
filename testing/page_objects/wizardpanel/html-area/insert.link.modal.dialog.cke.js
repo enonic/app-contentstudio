@@ -19,10 +19,6 @@ class InsertLinkDialog extends Page {
         return XPATH.container + "//label[contains(.,'Tooltip')]/ancestor::div[2]//input";
     }
 
-    get cancelButton() {
-        return XPATH.container + BUTTONS.buttonByLabel('Cancel');
-    }
-
     get cancelButtonTop() {
         return XPATH.container + "//button[@aria-label='Close']";
     }
@@ -70,6 +66,14 @@ class InsertLinkDialog extends Page {
         return await this.pause(500);
     }
 
+    async waitForInsertButtonEnabled() {
+        await this.waitForElementEnabled(this.insertButton);
+    }
+
+    async waitForInsertButtonDisabled() {
+        await this.waitForElementDisabled(this.insertButton);
+    }
+
     async clickOnInsertButtonAndWaitForClosed() {
         await this.clickOnInsertButton();
         return await this.waitForDialogClosed();
@@ -94,7 +98,7 @@ class InsertLinkDialog extends Page {
     async clickOnBarItem(name) {
         try {
             let selector = XPATH.container + XPATH.tabTriggerByName(name);
-            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(selector);
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
@@ -109,11 +113,11 @@ class InsertLinkDialog extends Page {
     }
 
     get emailInput() {
-        return XPATH.container + XPATH.emailPanel + "//label[contains(.,'Email')]/ancestor::div[2]//input";
+        return XPATH.container + "//label[contains(.,'Email')]/ancestor::div[2]//input";
     }
 
     get subjectInput() {
-        return XPATH.container + XPATH.emailPanel + "//label[contains(.,'Subject')]/ancestor::div[2]//input";
+        return XPATH.container + "//label[contains(.,'Subject')]/ancestor::div[2]//input";
     }
 
     get emailInputValidationMessage() {
@@ -143,6 +147,7 @@ class InsertLinkDialog extends Page {
         return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
+    // TODO
     async getTextInputValidationMessage() {
         await this.waitForValidationMessageForTextInputDisplayed();
         let locator = XPATH.container + "//label[contains(.,'Text')]/ancestor::div[2]//div[contains(@class,'text-error')]";

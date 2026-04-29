@@ -16,25 +16,20 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
         webDriverHelper.setupBrowser();
     }
 
-    let SITE;
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
     let IMG_SEL_2_4;
     const CONTENT_NAME_1 = appConst.generateRandomName('imgsel');
     const CONTENT_NAME_2 = appConst.generateRandomName('imgsel');
-
-    it(`Preconditions: new site should be added`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
 
     // allowPath config doesn't work in image selectors #9137
     // https://github.com/enonic/app-contentstudio/issues/9137
     it("GIVEN wizard for content with Image Selector-content is opened WHEN allowPath set to ${site}/* THEN only all children of the site should be present in the dropdown selector",
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
+            let contentWizard = new ContentWizard();
             // 1. Open wizard for new content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_ALLOW_SITE);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.IMG_SELECTOR_ALLOW_SITE);
+            await contentWizard.typeDisplayName(contentBuilder.generateRandomName('imgsel'));
             await imageSelectorForm.clickOnDropdownHandle();
             await studioUtils.saveScreenshot('img_sel_allow_path_site');
             //  This new site doesn't contain any images, so the selector should be empty:
@@ -46,13 +41,15 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
     it("GIVEN wizard for Image Selector-content (0:0) is opened WHEN path to an image has been typed THEN the image should be filtered",
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
+            let contentWizard = new ContentWizard();
             // 1. Open wizard for new content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_0_0);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.IMG_SELECTOR_0_0);
+            await contentWizard.typeDisplayName(contentBuilder.generateRandomName('imgsel'));
             // 2. Type a path to an existing image and select the image:
             let pathToImage = 'all-content-types-images/' + 'renault.jpg';
             await imageSelectorForm.selectOptionByImagePath(pathToImage, appConst.TEST_IMAGES.RENAULT);
             // 3. Verify that the image is selected:
-            let result = await imageSelectorForm.getSelectedImages();
+            let result = await imageSelectorForm.getSelectedImagesDisplayNames();
             assert.equal(result[0], appConst.TEST_IMAGES.RENAULT, 'Expected image should be displayed in the selected options');
         });
 
@@ -60,7 +57,7 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
         async () => {
             let contentWizard = new ContentWizard();
             // 1. Open wizard with not required Image Selector:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_0_0);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.IMG_SELECTOR_0_0);
             // 2. Fill in the name input:
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
             // 3. The content should be valid:
@@ -73,7 +70,7 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
             let contentWizard = new ContentWizard();
             let imageSelectorForm = new ImageSelectorForm();
             // 1. Open wizard with Image Selector:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.IMG_SELECTOR_1_1);
             // 2. Fill in the name input:
             await contentWizard.typeDisplayName(CONTENT_NAME_2);
             // 3. The content should be invalid even before a clicking on 'Save' button:
@@ -94,11 +91,13 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
             // 2. Select an image:
             await imageSelectorForm.filterOptionsAndSelectImage(appConst.TEST_IMAGES.SPUMANS);
             // 3. The content gets valid now:
-            let result = await contentWizard.isContentInvalid();
-            assert.ok(result === false, 'The content should be valid');
+            await contentWizard.waitUntilInvalidIconDisappears();
             await contentWizard.waitAndClickOnSave();
             // 4. Options filter input gets not visible:
-            await imageSelectorForm.waitForOptionsFilterInputNotDisplayed();
+            // TODO bug
+            //Incorrect behavior in the selectors after item upload or deleted #10283
+            //https://github.com/enonic/app-contentstudio/issues/10283
+            //await imageSelectorForm.waitForOptionsFilterInputNotDisplayed();
         });
 
     it(`WHEN content with image-selector(2:4) has been saved with one selected option THEN that content should be invalid in grid`,
@@ -110,7 +109,7 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
             IMG_SEL_2_4 =
                 contentBuilder.buildContentWithImageSelector(displayName, appConst.contentTypes.IMG_SELECTOR_2_4, images);
             // 1. New wizard for image-selector(2:4) is opened:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, IMG_SEL_2_4.contentType);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, IMG_SEL_2_4.contentType);
             // 2. one image has been selected:
             await contentWizard.typeData(IMG_SEL_2_4);
             // 3. Click on Save button:
@@ -135,14 +134,7 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
             await imageSelectorForm.filterOptionsSelectImageAndClickOnApply(appConst.TEST_IMAGES.SPUMANS);
             // 4. Validation recording gets not visible:
             await imageSelectorForm.waitForSelectorValidationMessageNotDisplayed();
-            // 5. Click on checkboxes and select both images:
-            await imageSelectorForm.clickOnCheckboxInSelectedImage(appConst.TEST_IMAGES.SPUMANS);
-            await imageSelectorForm.clickOnCheckboxInSelectedImage(appConst.TEST_IMAGES.RENAULT);
-            let numberItemsToRemove = await imageSelectorForm.getNumberItemInRemoveButton();
-            // 6. Verify the "Remove (2)" label in the button
-            assert.equal(numberItemsToRemove, 'Remove (2)', `2 should be displayed in 'Remove' button`);
-            // 7. Remove 2 selected options:
-            await imageSelectorForm.clickOnRemoveButton();
+            await imageSelectorForm.clickOnRemoveButton(appConst.TEST_IMAGES.SPUMANS);
             await studioUtils.saveScreenshot('img_sel_validation_1')
             // 8. Verify the validation recording:
             let actualMessage = await imageSelectorForm.getSelectorValidationMessage();

@@ -1,5 +1,5 @@
 /**
- * Created on 29.06.2022
+ * Created on 29.06.2022 updated on 29.04.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -13,41 +13,32 @@ describe('htmlarea.insert.link.email.spec: insert `email-link` into htmlArea', f
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
     const INVALID_EMAIL = "john@@mail.com";
     const VALID_EMAIL = "john@mail.com";
     const EXPECTED_EMAIL_TXT_PART_1 = "href=\"mailto:john@mail.com\"";
     const EXPECTED_EMAIL_TXT_PART_2 = "title=\"Email\"";
 
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
 
-    it("GIVEN required 'Email' is empty WHEN 'Insert' button has been pressed THEN validation message should appear in the dialog",
+    it("GIVEN required 'Email' is empty THEN Insert button should be disabled",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             // 1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
             // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             // 3. Go to URL tab:
             await insertLinkDialog.clickOnBarItem('Email');
-            // 4. Do not insert a url and a text, but click on 'Insert' button:
-            await insertLinkDialog.clickOnInsertButton();
-            // 5. Verify that validation messages gets visible:
-            let validationMessage = await insertLinkDialog.getEmailInputValidationMessage();
-            assert.equal(validationMessage, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, "Expected validation message gets visible");
+            // 4.Verify that Insert button is disabled
+            await insertLinkDialog.waitForInsertButtonDisabled();
         });
 
-    it("GIVEN  invalid 'email' has been inserted WHEN Insert button has been pressed THEN expected validation message should appear in the dialog",
+    it("GIVEN  invalid 'email' has been inserted THEN expected validation message should appear in the dialog",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             // 1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
             // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
@@ -57,8 +48,8 @@ describe('htmlarea.insert.link.email.spec: insert `email-link` into htmlArea', f
             await insertLinkDialog.typeInLinkTooltip('Email link');
             // 5. Fill in the email input (invalid value):
             await insertLinkDialog.typeTextInEmailInput(INVALID_EMAIL);
-            // 6. click on 'Insert' button:
-            await insertLinkDialog.clickOnInsertButton();
+            // 6. Verify that 'Insert' button is disabled:
+            await insertLinkDialog.waitForInsertButtonDisabled();
             //7. Verify that validation messages gets visible - Invalid value entered:
             let validationMessage = await insertLinkDialog.getEmailInputValidationMessage();
             assert.equal(validationMessage, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED,
@@ -69,7 +60,7 @@ describe('htmlarea.insert.link.email.spec: insert `email-link` into htmlArea', f
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             // 1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, 'htmlarea0_1');
             await htmlAreaForm.pause(1000);
             // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();

@@ -158,12 +158,10 @@ class InsertLinkDialogContentPanel extends Page {
         return await contentSelector.clickOnDropdownHandle();
     }
 
-
     async getSelectedOptionDisplayName() {
         let locator = XPATH.container+ "//div[@data-component='ContentSelection']//div[@data-component='ContentLabel']//span[contains(@class,'font-semibold')]"
         return await this.getText(locator);
     }
-
 
     async clickOnApplySelectionButton() {
         let contentSelector = new ContentSelectorDropdown(XPATH.container);

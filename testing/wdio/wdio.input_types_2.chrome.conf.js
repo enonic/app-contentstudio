@@ -2,7 +2,7 @@ const path = require('path');
 const propertiesReaderModule = require('properties-reader');
 const propertiesReader = propertiesReaderModule.propertiesReader || propertiesReaderModule.default || propertiesReaderModule;
 const file = path.join(__dirname, '/../browser.properties');
-const properties = propertiesReader({ sourceFile: file });
+const properties = propertiesReader({sourceFile: file});
 const browser_version = properties.get('browser.version');
 const width = properties.get('browser.width');
 const height = properties.get('browser.height');
@@ -22,7 +22,7 @@ exports.config = {
         path.join(__dirname, '../specs/content-types-2/radio.button.content.spec.js'),
         path.join(__dirname, '../specs/content-types-2/occurrences.textarea.spec.js'),
         path.join(__dirname, '../specs/content-types-2/occurrences.tags.spec.js'),
-
+        path.join(__dirname, '../specs/content-types-2/occurrences.image.selector.spec.js'),
 
 
     ],

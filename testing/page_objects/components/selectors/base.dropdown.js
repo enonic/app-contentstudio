@@ -104,18 +104,6 @@ class BaseDropdown extends Page {
         }
     }
 
-    async clickOnApplySelectionButtonOld() {
-        try {
-            let locator = this.container + lib.DROPDOWN_SELECTOR.APPLY_SELECTION_BUTTON;
-            await this.waitUntilDisplayed(locator, appConst.shortTimeout);
-            let elements = await this.getDisplayedElements(locator);
-            await elements[0].click();
-            await this.pause(100);
-        } catch (err) {
-            await this.handleError('Dropdown, tried to click on Apply Selection button.', 'err_click_apply_button', err);
-        }
-    }
-
     async clickOnApplySelectionButton() {
         try {
             await this.waitForApplySelectionButtonDisplayed();
@@ -180,16 +168,6 @@ class BaseDropdown extends Page {
         await this.clickOnFilteredByDisplayNameItem(optionDisplayName, parentLocator);
         // 3. Click on 'OK' button:
         return await this.clickOnApplySelectionButton(parentLocator);
-    }
-
-    // Do filter by a display name then Click on the item
-    // old
-    async clickOnFilteredByDisplayNameItem(optionDisplayName, parentLocator) {
-        // parentLocator - modal dialog or wizard panel
-        // 1. Insert the text in Options Filter Input:
-        await this.filterItem(optionDisplayName);
-        // 2. Wait for the required option is displayed then click on it:
-        await this.clickOnOptionByDisplayName(optionDisplayName, parentLocator);
     }
 
     // epic-enonic-ui
@@ -321,7 +299,6 @@ class BaseDropdown extends Page {
         let value = await el.getAttribute('class');
         return value.includes('checked');
     }
-
 }
 
 module.exports = BaseDropdown;
