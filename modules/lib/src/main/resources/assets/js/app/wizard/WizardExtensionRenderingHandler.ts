@@ -1,10 +1,11 @@
-import {RenderingMode} from '../rendering/RenderingMode';
-import {ExtensionRenderingHandler, type ExtensionRenderer, PREVIEW_TYPE} from '../view/ExtensionRenderingHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {type ViewExtensionEvent} from '../event/ViewExtensionEvent';
-import {type ContentSummary} from '../content/ContentSummary';
 import Q from 'q';
 import {PreviewContextMenuElement} from '../../v6/features/shared/PreviewContextMenu';
+import {capitalize} from '../../v6/features/utils/format/capitalize';
+import {type ContentSummary} from '../content/ContentSummary';
+import {type ViewExtensionEvent} from '../event/ViewExtensionEvent';
+import {RenderingMode} from '../rendering/RenderingMode';
+import {ExtensionRenderingHandler, PREVIEW_TYPE, type ExtensionRenderer} from '../view/ExtensionRenderingHandler';
 
 export class WizardExtensionRenderingHandler
     extends ExtensionRenderingHandler {
@@ -49,8 +50,10 @@ export class WizardExtensionRenderingHandler
         this.hasControllersDeferred = Q.defer<boolean>();
         this.hasPageDeferred = Q.defer<boolean>();
         const pageName = summary.getDisplayName();
-        this.emptyMenu?.setProps({pageName});
-        this.errorMenu?.setProps({pageName});
+        const localName = summary.getType()?.getLocalName() ?? '';
+        const pageType = localName ? capitalize(localName) : '';
+        this.emptyMenu?.setProps({pageName, pageType});
+        this.errorMenu?.setProps({pageName, pageType});
         return super.render(summary, widget);
     }
 

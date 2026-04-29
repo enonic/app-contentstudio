@@ -11,7 +11,7 @@ import {
     requestCustomizePage,
     usePageState,
 } from '../../../../../../store/page-editor';
-import {$isCustomizeVisible, $pageConfigDescriptor} from '../../../../../../store/page-inspection.store';
+import {$isCustomizeVisible, $isPageInspectionEmpty, $pageConfigDescriptor} from '../../../../../../store/page-inspection.store';
 import {useInspectFormTracking} from '../useInspectFormTracking';
 import {PageControllerSelector} from "./PageControllerSelector";
 
@@ -28,9 +28,11 @@ export const PageInspectionPanel = (): ReactElement => {
     const lifecycle = useStore($pageEditorLifecycle);
     const descriptor = useStore($pageConfigDescriptor);
     const isCustomizeVisible = useStore($isCustomizeVisible);
+    const isEmpty = useStore($isPageInspectionEmpty);
 
     const customizeLabel = useI18n("action.page.customize");
     const customizeQuestion = useI18n("dialog.page.customize.confirmation");
+    const noTemplatesLabel = useI18n('text.notemplatesorblocks');
 
     const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null);
 
@@ -49,6 +51,14 @@ export const PageInspectionPanel = (): ReactElement => {
     const configRoot = hasController ? (page?.getConfig()?.getRoot() ?? null) : null;
 
     useInspectFormTracking(configForm, configRoot);
+
+    if (isEmpty) {
+        return (
+            <div data-component={PAGE_INSPECTION_PANEL_NAME} className="flex flex-col -mx-5 p-5 bg-surface-primary">
+                <p className="text-sm text-subtle">{noTemplatesLabel}</p>
+            </div>
+        );
+    }
 
     return (
         <div data-component={PAGE_INSPECTION_PANEL_NAME} className="flex flex-col gap-5">

@@ -53,7 +53,6 @@ type UsePageControllerSelectorResult = {
     confirmDialog: ConfirmDialogState | null;
     setConfirmDialog: (state: ConfirmDialogState | null) => void;
     isLoading: boolean;
-    isEmpty: boolean;
 };
 
 export function usePageControllerSelector(): UsePageControllerSelectorResult {
@@ -188,7 +187,6 @@ export function usePageControllerSelector(): UsePageControllerSelectorResult {
     );
 
     const selection = selectedKey ? [selectedKey] : [];
-    const isEmpty = options.length === 0 && !page?.hasController();
 
     return {
         options,
@@ -201,6 +199,5 @@ export function usePageControllerSelector(): UsePageControllerSelectorResult {
         confirmDialog,
         setConfirmDialog,
         isLoading,
-        isEmpty,
     };
 }

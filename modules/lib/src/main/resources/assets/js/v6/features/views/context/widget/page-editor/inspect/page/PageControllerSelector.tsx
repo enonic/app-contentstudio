@@ -17,18 +17,12 @@ export const PageControllerSelector = (): ReactElement | null => {
         confirmDialog,
         setConfirmDialog,
         isLoading,
-        isEmpty,
     } = usePageControllerSelector();
 
     const templateLabel = useI18n('field.page.template');
-    const noControllersLabel = useI18n('text.notemplatesorblocks');
     const searchPlaceholder = useI18n('field.option.placeholder');
 
     if (isLoading) return null;
-
-    if (isEmpty) {
-        return <p className="text-sm text-subtle">{noControllersLabel}</p>;
-    }
 
     return (
         <>

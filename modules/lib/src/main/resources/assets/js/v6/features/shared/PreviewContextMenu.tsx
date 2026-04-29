@@ -14,11 +14,12 @@ const PREVIEW_CONTEXT_MENU_NAME = 'PreviewContextMenu';
 
 export type PreviewContextMenuProps = {
     pageName: string;
+    pageType?: string;
     messages: string[];
     showIcon?: boolean;
 };
 
-export const PreviewContextMenu = ({pageName, messages, showIcon}: PreviewContextMenuProps): ReactElement => {
+export const PreviewContextMenu = ({pageName, pageType, messages, showIcon}: PreviewContextMenuProps): ReactElement => {
     const inspectLabel = useI18n('action.page.settings');
 
     // Re-route primary clicks as contextmenu events so the placeholder opens
@@ -54,9 +55,8 @@ export const PreviewContextMenu = ({pageName, messages, showIcon}: PreviewContex
                 <ContextMenu.Content className="min-w-48">
                     <div className="flex items-center gap-2 px-2 py-1.5 text-sm font-semibold text-main">
                         <Globe className="size-4 shrink-0" aria-hidden />
-                        <span className="truncate">{pageName}</span>
+                        <span className="truncate">{pageName || pageType}</span>
                     </div>
-                    <div className="my-1 border-t border-bdr-soft" aria-hidden />
                     <ContextMenu.Item onSelect={handleInspect}>
                         {inspectLabel}
                     </ContextMenu.Item>
