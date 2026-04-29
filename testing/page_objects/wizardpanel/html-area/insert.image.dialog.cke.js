@@ -1,6 +1,7 @@
 const Page = require('../../page');
 const {BUTTONS, DROPDOWN} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
+const ImageSelectorDropdown = require('../../components/selectors/image.selector.dropdown');
 
 const XPATH = {
     container: `//div[@role='dialog' and @data-component='HtmlAreaImageDialog']`,
@@ -60,8 +61,8 @@ class InsertImageDialog extends Page {
         return XPATH.container + XPATH.customWidthDiv + "//input[@type='checkbox']";
     }
 
-    get cancelButton() {
-        return XPATH.container + BUTTONS.buttonAriaLabel('Cancel');
+    get closeButton() {
+        return XPATH.container + BUTTONS.buttonAriaLabel('Close');
     }
 
     get insertButton() {
@@ -123,6 +124,22 @@ class InsertImageDialog extends Page {
         return attr === 'true';
     }
 
+    async waitForAlternativeTextInputDisabled() {
+        try {
+            return await this.waitForElementDisabled(this.accessibilityAlternativeTextInput);
+        } catch (err) {
+            await this.handleError(`Insert Image Dialog, alternative text input should be disabled`, 'err_alt_text_input_disabled', err);
+        }
+    }
+
+    async waitForAlternativeTextInputEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.accessibilityAlternativeTextInput);
+        } catch (err) {
+            await this.handleError(`Insert Image Dialog, alternative text input should be enabled`, 'err_alt_text_input_disabled', err);
+        }
+    }
+
     async isAlternativeTextRadioSelected() {
         await this.waitForAlternativeTextRadioButtonDisplayed();
         let attr = await this.getAttribute(this.accessibilityAlternativeTextRadioButton, 'aria-checked');
@@ -135,13 +152,6 @@ class InsertImageDialog extends Page {
 
     async waitForAlternativeTextInputNotDisplayed() {
         await this.waitForElementNotDisplayed(this.accessibilityAlternativeTextInput, appConst.shortTimeout);
-    }
-
-    async waitForAccessibilityFormValid() {
-        await this.getBrowser().waitUntil(async () => {
-            let elements = await this.findElements(XPATH.container + XPATH.divRadioGroupAccessibility + "//*[contains(@class,'error')]");
-            return elements.length === 0;
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Accessibility Form should be valid"});
     }
 
     async typeInAlternativeTextInput(text) {
@@ -191,8 +201,13 @@ class InsertImageDialog extends Page {
         return this.waitForElementEnabled(this.customWidthCheckbox, appConst.shortTimeout);
     }
 
-    async clickOnCancelButton() {
-        return await this.clickOnElement(this.cancelButton);
+    async clickOnCloseButton() {
+        return await this.clickOnElement(this.closeButton);
+    }
+
+    async waitForUploadButtonDisplayed() {
+        let imageSelector = new ImageSelectorDropdown(XPATH.container);
+        return await imageSelector.waitForUploadButtonDisplayed();
     }
 
     async waitForInsertButtonEnabled() {
@@ -237,7 +252,7 @@ class InsertImageDialog extends Page {
         try {
             return await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
         } catch (err) {
-            await this.clickOnCancelButton();
+            await this.clickOnCloseButton();
             await this.handleError(`Insert image dialog should be closed`, 'err_close_insert_image_dialog', err);
         }
     }

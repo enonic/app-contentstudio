@@ -4,6 +4,7 @@ const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const DependantsControls = require('./dependant.controls');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
+const DiffStatusBadge = require("../components/diff.status.badge");
 
 const xpath = {
     container: `//div[@data-component='IssueDialogDetailsContent' and @role='dialog']`,
@@ -106,9 +107,9 @@ class IssueDetailsDialogItemsTab extends BaseIssueDetailsDialog {
 
     // return content status for the Primary item with such name in the dialog
     async getContentStatus(name) {
-        const locator = xpath.container + DIALOG_ITEMS.PRIMARY_DATA_COMPONENT +
-            DIALOG_ITEMS.mainItemRowByName(name) + TREE_GRID.CONTENT_STATUS;
-        return await this.getText(locator);
+        const locator = xpath.container + DIALOG_ITEMS.PRIMARY_DATA_COMPONENT + DIALOG_ITEMS.mainItemRowByName(name);
+        const diffStatusBadge = new DiffStatusBadge(locator);
+        return await diffStatusBadge.getStatusText();
     }
 
 

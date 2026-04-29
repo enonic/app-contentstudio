@@ -1,10 +1,9 @@
 /**
- * Created on 11.01.2019.
+ * Created on 11.01.2019. updated 0n 27.04.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
-const contentBuilder = require("../../libs/content.builder");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 const InsertImageDialog = require('../../page_objects/wizardpanel/html-area/insert.image.dialog.cke');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
@@ -15,7 +14,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
+
     const ALT_TEXT = 'alternative text';
     const IMAGE_DISPLAY_NAME = appConst.TEST_IMAGES.POP_03;
     const IMAGE_DISPLAY_NAME_2 = appConst.TEST_IMAGES.POP_02;
@@ -23,13 +22,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
     const EXISTING_ALT_TXT = 'alternative test';
     const TEST_CAPTION = 'caption 1234567';
     const TEST_CAPTION_2 = 'caption 987654321';
-
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
     // Verify the bug HtmlArea field refuses to save item and display image in preview #8824
     // https://github.com/enonic/app-contentstudio/issues/8824
@@ -37,7 +30,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             // 1. Open Insert Image dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
@@ -75,7 +68,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             // 1. Open Insert Image dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
@@ -107,7 +100,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await studioUtils.saveScreenshot('insert_image_esc_test1');
             await insertImageDialog.waitForDialogVisible();
@@ -120,10 +113,10 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
-            await insertImageDialog.clickOnCancelButton();
+            await insertImageDialog.clickOnCloseButton();
             await insertImageDialog.waitForDialogClosed();
         });
 
@@ -131,8 +124,8 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
-            // 1. Open a content with htmlAre:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            // 1. Open a content with htmlArea:
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             // 2. Click on 'Insert image' button in the toolbar:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
@@ -143,7 +136,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             assert.ok(isSelected === false, `'Decorative image' radio-button is not selected`);
             isSelected = await insertImageDialog.isAlternativeTextRadioSelected();
             assert.ok(isSelected === false, `'Alternative text' radio-button is not selected`);
-            // 5. Alternative text input should be disabled
+            // 5. Alternative text input should not be displayed
             await insertImageDialog.waitForAlternativeTextInputDisabled();
         });
 
@@ -151,27 +144,23 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             // 1. Open Insert Image dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             // 2. Select an image:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME)
-            // 3. verify that AccessibilityForm is valid:
-            await insertImageDialog.waitForAccessibilityFormValid();
-            // 4. Select  'Decorative Image' radio button:
-            await insertImageDialog.clickOnDecorativeImageRadioButton();
-            // 5. Verify that the form remains valid:
-            await insertImageDialog.waitForAccessibilityFormValid();
-            // 6. Alternative text input remains disabled
+            // 4. Verify that Insert button is disabled:
+            await insertImageDialog.waitForInsertButtonDisabled();
+            // 6. Alternative text input remains not visible
             await insertImageDialog.waitForAlternativeTextInputDisabled();
         });
 
-    it(`GIVEN 'Insert Image' dialog is opened WHEN 'Alternative Text' radio button has been clicked THEN the form gets invalid`,
+    it(`GIVEN 'Insert Image' dialog is opened WHEN 'Alternative Text' radio button has been clicked THEN Insert button gets enabled`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             // 1. Open Insert Image dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
@@ -179,21 +168,19 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             // 3. Click on 'Alternative Text' radio:
             await insertImageDialog.clickOnAlternativeTextRadioButton();
-            // 4. Verify that the form gets invalid:
-            await insertImageDialog.waitForAccessibilityFormInvalid();
-            let actualText = await insertImageDialog.getValidationMessageInAccessibilityForm();
-            assert.equal(actualText, 'Alt text cannot be empty', 'Expected validation message should be displayed');
+            // 4. Verify that Insert button is disabled:
+            await insertImageDialog.waitForInsertButtonDisabled();
             // 5. Fill in the text input:
             await insertImageDialog.typeInAlternativeTextInput(ALT_TEXT);
-            // 6. Verify that the form gets valid:
-            await insertImageDialog.waitForAccessibilityFormValid();
+            // 6. Verify that Insert button is enabled:
+            await insertImageDialog.waitForInsertButtonEnabled();
         });
 
     it(`GIVEN an image with 'Alternative Text' WHEN Update Image dialog has been opened THEN expected alt-text should be displayed in the form`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             // 1. Open Insert Image dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
@@ -203,12 +190,10 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
             await insertImageDialog.clickOnAlternativeTextRadioButton();
             // 5. Fill in the text input:
             await insertImageDialog.typeInAlternativeTextInput(ALT_TEXT);
-            // 6. Verify that the form gets valid:
-            await insertImageDialog.waitForAccessibilityFormValid();
-            // 7. Click on Insert button and close the dialog:
+            // 6. Click on Insert button and close the dialog:
             await insertImageDialog.clickOnInsertButton();
             await insertImageDialog.waitForDialogClosed();
-            // 8. Open Insert/Update Image dialog
+            // 7. Open Insert/Update Image dialog
             await htmlAreaForm.doubleClickOnHtmlArea();
             await insertImageDialog.waitForDialogVisible();
             await studioUtils.saveScreenshot('insert_image_dlg_alt_text');
@@ -226,7 +211,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             // 1. Open Insert Image dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
@@ -256,7 +241,7 @@ describe('htmlarea.insert.image.dialog.spec: open insert image dialog.', functio
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             // 1. Open Insert Image dialog:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();

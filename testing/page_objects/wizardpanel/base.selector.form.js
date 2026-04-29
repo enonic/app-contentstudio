@@ -4,20 +4,21 @@
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
+const {COMMON} = require("../../libs/elements");
 
 class BaseSelectorForm extends Page {
 
     get selectorValidationRecording() {
-        return lib.FORM_VIEW + lib.INPUT_VALIDATION_VIEW;
+        return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + COMMON.INPUTS.VALIDATION_RECORDING;
     }
 
     async getSelectorValidationMessage() {
         try {
-            let contentSelector = new ContentSelectorDropdown();
-            await contentSelector.getSelectorValidationMessage(this.selectorValidationRecording);
+            await this.waitForElementDisplayed(this.selectorValidationRecording);
+            let recordingElements = await this.getDisplayedElements(this.selectorValidationRecording);
+            return await recordingElements[0].getText();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_validation_message');
-            throw new Error("Validation message should be displayed in the form, screenshot:" + screenshot + ' ' + err);
+            await this.handleError("Selector Validation message should be displayed in the form", 'err_validation_message', err);
         }
     }
 
@@ -28,7 +29,7 @@ class BaseSelectorForm extends Page {
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Selector Validation recording should not be displayed"});
     }
 
-    async clearOptionsFilterInput(){
+    async clearOptionsFilterInput() {
         await this.clearInputText(this.optionsFilterInput);
         await this.pause(1000);
     }

@@ -89,7 +89,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             await textComponentInspectionPanel.clickOnInsertImageButton();
             // 5. Verify that 'Upload' button is present in the dialog:
             await insertImageDialog.waitForUploadButtonDisplayed();
-            await insertImageDialog.clickOnCancelButton();
+            await insertImageDialog.clickOnCloseButton();
         });
 
     // Verify https://github.com/enonic/app-contentstudio/issues/7082

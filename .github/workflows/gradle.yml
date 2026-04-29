@@ -67,7 +67,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [ testInputTypes, testInputTypes_2, testWizardsGrid, testPublishIssues, miscTests]
+        suite: [ testInputTypes, testInputTypes_2, testWizardsGrid, testPublishIssues, miscTests, testModalDialog]
 
     runs-on: ubuntu-latest
 

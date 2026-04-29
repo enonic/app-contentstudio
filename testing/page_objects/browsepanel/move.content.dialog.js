@@ -35,7 +35,6 @@ class MoveContentDialog extends Page {
         return XPATH.container + BUTTONS.buttonAriaLabel('Close');
     }
 
-
     async clickOnCloseButton() {
         try {
             await this.waitForElementDisplayed(this.closeButton);
@@ -58,7 +57,7 @@ class MoveContentDialog extends Page {
 
     async waitForOpened() {
         try {
-            return await this.waitForElementDisplayed(this.moveButton, appConst.mediumTimeout)
+            return await this.waitForElementDisplayed(this.moveButton);
         } catch (err) {
             await this.handleError('Move Content dialog was not loaded!', 'err_move_content_dialog_load', err);
         }
@@ -66,7 +65,7 @@ class MoveContentDialog extends Page {
 
     async waitForClosed() {
         try {
-            return await this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout)
+            return await this.waitForElementNotDisplayed(XPATH.container);
         } catch (err) {
             await this.handleError('Move content dialog should be closed! ', 'err_close_move_dlg', err);
         }
@@ -102,7 +101,7 @@ class MoveContentDialog extends Page {
     async clickOnRemoveOptionIcon() {
         try {
             let locator = XPATH.container + "//div[@data-component='PathSelector']" + BUTTONS.BUTTON_REMOVE_ICON;
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(locator);
             await this.clickOnElement(locator);
             await this.pause(200);
         } catch (err) {
@@ -129,8 +128,7 @@ class MoveContentDialog extends Page {
             let attr = await this.getAttribute(elementRow, 'class')
             return attr.includes('pointer-events-none');
         } catch (err) {
-            await this.handleError(`Move Dialog - Tried to check if the option is disabled: ${displayName}`, 'err_check_option_disabled',
-                err);
+            await this.handleError(`Move Dialog - Tried to check if the option is disabled: ${displayName}`, 'err_check_option', err);
         }
     }
 
@@ -141,7 +139,7 @@ class MoveContentDialog extends Page {
 
     async waitForMoveButtonDisabled() {
         try {
-            return await this.waitForElementDisabled(this.moveButton, appConst.mediumTimeout);
+            return await this.waitForElementDisabled(this.moveButton);
         } catch (err) {
             await this.handleError("Move Dialog - Move button should be disabled", 'err_move_btn_disabled', err);
         }
@@ -149,7 +147,7 @@ class MoveContentDialog extends Page {
 
     async waitForMoveButtonEnabled() {
         try {
-            return await this.waitForElementEnabled(this.moveButton, appConst.mediumTimeout);
+            return await this.waitForElementEnabled(this.moveButton);
         } catch (err) {
             await this.handleError("Move Dialog - Move button should be enabled", 'err_move_btn_enabled', err);
         }

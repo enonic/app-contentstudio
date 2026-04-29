@@ -76,7 +76,7 @@ describe('Text Component with CKE - insert download-link specification', functio
             await insertLinkDialog.typeInLinkTextInput(LINK_TEXT);
             await insertLinkDialog.clickOnBarItem('Content');
             // 6. Filter a content in the content selector(tree mode) - (select the 'server.sh')
-            await insertLinkDialogContentPanel.typeTextInFilterInputInContentSelector(TEST_CONTENT_DISPLAY_NAME);
+            await insertLinkDialogContentPanel.selectTargetInContentSelector(TEST_CONTENT_DISPLAY_NAME);
             // 7. Switched to flat mode after inserting a search text
             // 8. Click on the content item in Tree-Mode
             await insertLinkDialogContentPanel.clickOnOptionByDisplayName(TEST_CONTENT_DISPLAY_NAME);

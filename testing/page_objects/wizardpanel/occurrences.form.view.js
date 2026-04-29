@@ -124,7 +124,8 @@ class OccurrencesFormView extends Page {
                 return text === expectedMessage;
             }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Occurrence Validation recording should be displayed'});
         } catch (err) {
-            await this.handleError('Occurrence Validation recording should be displayed', 'err_occurrence_valid_recording', err);
+            await this.handleError(`Occurrence Validation recording should be displayed: ${expectedMessage} `, 'err_occur_valid_recording',
+                err);
         }
     }
 
