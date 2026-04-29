@@ -4,94 +4,53 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {type ViewExtensionEvent} from '../event/ViewExtensionEvent';
 import {type ContentSummary} from '../content/ContentSummary';
 import Q from 'q';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {PageNavigationMediator} from './PageNavigationMediator';
-import {PageNavigationEvent} from './PageNavigationEvent';
-import {PageNavigationEventType} from './PageNavigationEventType';
-import {PageNavigationEventData} from './PageNavigationEventData';
-import {ComponentPath} from '../page/region/ComponentPath';
-import {ItemViewContextMenu} from '../../page-editor/ItemViewContextMenu';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {PageViewContextMenuTitle} from '../../page-editor/PageViewContextMenuTitle';
-import {type ItemViewContextMenuTitle} from '../../page-editor/ItemViewContextMenuTitle';
+import {PreviewContextMenuElement} from '../../v6/features/shared/PreviewContextMenu';
 
 export class WizardExtensionRenderingHandler
     extends ExtensionRenderingHandler {
 
     private hasControllersDeferred: Q.Deferred<boolean>;
     private hasPageDeferred: Q.Deferred<boolean>;
-    private contextMenu: ItemViewContextMenu;
-    private contextMenuTitle: ItemViewContextMenuTitle;
-    private shader: DivEl;
+    private emptyMenu: PreviewContextMenuElement;
+    private errorMenu: PreviewContextMenuElement;
 
     constructor(renderer: ExtensionRenderer) {
         super(renderer);
         this.mode = RenderingMode.EDIT;
-        this.contextMenu = this.initContextMenu();
-        this.shader = new DivEl('shader');
-        this.contextMenu.onShown((e) => this.shader.addClass('visible'));
-        this.contextMenu.onHidden((e) => this.shader.removeClass('visible'));
     }
 
     protected createEmptyView(): DivEl {
-        const placeholderView = super.createMessageView(this.getDefaultMessage(), 'no-selection-message');
-
-        const handler = this.clickHandler.bind(this)
-
-        placeholderView.onClicked(handler);
-        placeholderView.onContextMenu(handler);
-
-        return placeholderView;
+        const wrapper = new DivEl('no-selection-message');
+        this.emptyMenu = new PreviewContextMenuElement({
+            pageName: '',
+            messages: [this.getDefaultMessage()],
+            showIcon: false,
+        });
+        wrapper.appendChild(this.emptyMenu);
+        return wrapper;
     }
 
     protected createErrorView(): DivEl {
-        const errorView = super.createErrorView();
-
-        const handler = this.clickHandler.bind(this)
-
-        errorView.onClicked(handler);
-        errorView.onContextMenu(handler);
-
-        return errorView;
+        const wrapper = new DivEl('no-preview-message bg-surface-primary');
+        this.errorMenu = new PreviewContextMenuElement({
+            pageName: '',
+            messages: [this.getDefaultMessage()],
+            showIcon: true,
+        });
+        wrapper.appendChild(this.errorMenu);
+        return wrapper;
     }
 
-    private clickHandler(event: MouseEvent): void {
-        event.stopPropagation();
-        event.preventDefault();
-        const isMenuVisible = this.contextMenu.isVisible();
-        if (isMenuVisible) {
-            this.contextMenu.hide();
-        } else {
-            this.contextMenu.showAt(event.pageX, event.pageY);
-        }
-    };
-
-    private initContextMenu(): ItemViewContextMenu {
-        const unlockAction = new Action(i18n('action.page.settings'));
-        unlockAction.onExecuted(() => {
-            PageNavigationMediator.get().notify(
-                new PageNavigationEvent(PageNavigationEventType.INSPECT, new PageNavigationEventData(ComponentPath.root())));
-        });
-
-        this.contextMenuTitle = new PageViewContextMenuTitle('');
-
-        const contextMenu = new ItemViewContextMenu(this.contextMenuTitle, [unlockAction]);
-        contextMenu.onTouchEnd((event: TouchEvent) => {
-            event.stopPropagation();
-        });
-
-        return contextMenu;
-    }
-
-    layout() {
-        super.layout();
-        this.renderer.getChildrenContainer().appendChild(this.shader);
+    protected showPreviewMessages(messages: string[]) {
+        this.errorMenu?.setProps({messages, showIcon: true});
     }
 
     async render(summary: ContentSummary, widget): Promise<boolean> {
         this.hasControllersDeferred = Q.defer<boolean>();
         this.hasPageDeferred = Q.defer<boolean>();
-        this.contextMenuTitle.setMainName(summary.getDisplayName());
+        const pageName = summary.getDisplayName();
+        this.emptyMenu?.setProps({pageName});
+        this.errorMenu?.setProps({pageName});
         return super.render(summary, widget);
     }
 
