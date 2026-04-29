@@ -19,7 +19,6 @@ apis:
   - "admin:event"
   - "com.enonic.app.contentstudio.plus:license"
   - "com.enonic.app.contentstudio.plus:layers"
-  - "com.enonic.xp.app.main:asset"
 interfaces:
   - "contentstudio.menuitem"
   - "contentstudio.contextpanel"
