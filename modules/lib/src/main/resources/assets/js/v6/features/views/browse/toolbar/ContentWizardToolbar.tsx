@@ -14,7 +14,7 @@ import {getInitials} from '../../../utils/format/initials';
 import {useElementVisibility} from '../../../utils/hooks/useElementVisibility';
 import {ContextToggle} from './ContextToggle';
 import {OverflowActionRow, type OverflowActionRowItem} from './OverflowActionRow';
-import {SplitActionButton, type SplitActionButtonAction} from './SplitActionButton';
+import {SplitActionButton} from './SplitActionButton';
 
 export type ContentWizardToolbarProps = {
     onProjectBack?: () => void;
@@ -110,22 +110,17 @@ export const ContentWizardToolbar = ({
     const [desktopPublishSplitRef, isDesktopPublishSplitVisible] = useElementVisibility<HTMLDivElement>();
     const [mobileActionsSplitRef, isMobileActionsSplitVisible] = useElementVisibility<HTMLDivElement>();
 
-    const publishSplitActions: SplitActionButtonAction[] = [
-        {action: markAsReadyAction},
-        {action: publishAction},
-        {action: unpublishAction},
-        {action: requestPublishAction},
-        {action: openRequestAction},
-        {action: createIssueAction},
+    const publishSplitActions: Action[] = [
+        markAsReadyAction,
+        publishAction,
+        unpublishAction,
+        requestPublishAction,
+        openRequestAction,
+        createIssueAction,
     ];
-    const mobileSplitActions: SplitActionButtonAction[] = [
-        ...toolbarActions.map(({action}) => ({action})),
-        {action: markAsReadyAction},
-        {action: publishAction},
-        {action: unpublishAction},
-        {action: requestPublishAction},
-        {action: openRequestAction},
-        {action: createIssueAction},
+    const mobileSplitActions: Action[][] = [
+        toolbarActions.map(({action}) => action),
+        publishSplitActions,
     ];
 
     return (
@@ -252,7 +247,7 @@ export const ContentWizardToolbar = ({
                     <StatusBadge status={publishStatus} className='my-auto px-1.5 md:px-2.75 shrink-0 relative z-0' />
                     <div ref={desktopPublishSplitRef} className='hidden sm:flex shrink-0 min-w-fit relative z-1'>
                         <SplitActionButton
-                            actions={publishSplitActions}
+                            actions={[publishSplitActions]}
                             disabled={!isDesktopPublishSplitVisible}
                         />
                     </div>

@@ -138,7 +138,7 @@ export const OverflowActionRow = ({actions, className}: Props): ReactElement | n
                     {overflowActions.length > 0 && (
                         <SplitActionButton
                             key={`toolbar-overflow-${overflowActions.map(({id}) => id).join('-')}`}
-                            actions={overflowActions}
+                            actions={[overflowActions.map(({action}) => action)]}
                             disabled={!isContainerVisible}
                             primaryActionStrategy='firstVisible'
                             disableMenuWhenAllMenuActionsDisabled={false}
@@ -168,7 +168,7 @@ export const OverflowActionRow = ({actions, className}: Props): ReactElement | n
                             }}
                         >
                             <SplitActionButton
-                                actions={visibleActions.slice(index)}
+                                actions={[visibleActions.slice(index).map(({action}) => action)]}
                                 disabled={true}
                                 primaryActionStrategy='firstVisible'
                                 disableMenuWhenAllMenuActionsDisabled={false}
