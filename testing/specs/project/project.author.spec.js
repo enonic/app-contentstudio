@@ -162,7 +162,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             // 2. Click on 'New...' button
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
-            let items = await newContentDialog.getItems();
+            let items = await newContentDialog.getItemsInAllTab();
             await studioUtils.saveScreenshot('project_author_3');
             // 3. Verify that only 'Folders' and 'Shortcut' are allowed for Author role
             assert.equal(items.length, 2, 'Two items should be available for Author');

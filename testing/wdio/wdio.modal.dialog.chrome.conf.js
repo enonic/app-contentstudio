@@ -12,6 +12,8 @@ exports.config = {
         //path.join(__dirname, '../specs/permissions/*.spec.js')
         path.join(__dirname, '../specs/modal-dialog/insert.link.email.spec.js'),
         path.join(__dirname, '../specs/modal-dialog/move.content.spec.js'),
+        path.join(__dirname, '../specs/permissions/access.control.changed.list.spec.js'),
+        path.join(__dirname, '../specs/permissions/new.content.dialog.spec.js'),
 
     ],
     exclude: [

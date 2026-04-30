@@ -20,6 +20,7 @@ exports.config = {
         path.join(__dirname, '../specs/content-types/occurrences.textline.spec.js'),
         path.join(__dirname, '../specs/content-types/shortcut.target.spec.js'),
         path.join(__dirname, '../specs/content-types/htmlarea.insert.image.dialog.spec.js'),
+        path.join(__dirname, '../specs/content-types/pdf.content.spec.js'),
     ],
 
     maxInstances: 1,

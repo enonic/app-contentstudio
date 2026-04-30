@@ -5,7 +5,7 @@ const Page = require('./page');
 const appConst = require('../libs/app_const');
 const {BUTTONS} = require('../libs/elements');
 const XPATH = {
-    container: `//div[@role='dialog' and @data-component='DialogPresetConfirm']`,
+    container: `//div[@role='dialog' and descendant::button[@aria-label='Confirm']]`,
     question: "//h6[@class='question']",
 };
 
@@ -36,7 +36,7 @@ class ConfirmationDialog extends Page {
 
     async waitForDialogOpened() {
         try {
-            await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(XPATH.container);
             await this.pause(200);
         } catch (err) {
             await this.handleError('Confirmation dialog should be loaded', 'err_confirmation_dlg_opened', err);

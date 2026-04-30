@@ -501,7 +501,7 @@ class ContentWizardPanel extends Page {
             await this.waitForSaveButtonEnabled();
             await this.clickOnElement(this.saveButton);
             await this.waitForSavingButtonNotVisible();
-            return await this.pause(800);
+            return await this.pause(500);
         } catch (err) {
             await this.handleError('Error in waitAndClickOnSave', 'err_save_content', err);
         }

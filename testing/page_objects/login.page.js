@@ -1,10 +1,9 @@
 const Page = require('./page');
-const appConst = require('../libs/app_const');
 
 class LoginPage extends Page {
 
     get usernameInput() {
-        return `//div[contains(@class,'home-main-container')]//input[contains(@id,'username-input')]`
+        return `input[id^='username-input']`
     }
 
     get passwordInput() {

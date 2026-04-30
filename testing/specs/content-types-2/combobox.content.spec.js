@@ -1,5 +1,5 @@
 /**
- * Created on 19.10.2021
+ * Created on 19.10.2021 updated on 30.04.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -164,9 +164,10 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             // 2. Open New Content Dialog:
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
+            await newContentDialog.pause(500);
             await studioUtils.saveScreenshot('allow_child_folder');
             // 3. Verify that only folder can be created:
-            let actualItems = await newContentDialog.getItems();
+            let actualItems = await newContentDialog.getItemsInAllTab();
             assert.ok(actualItems.length === 1, 'Only one type should be present in the modal dialog');
         });
 

@@ -1,5 +1,5 @@
 /**
- * Created on 08.09.2021
+ * Created on 08.09.2021 updated on 30.04.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -36,10 +36,9 @@ describe('new.content.dialog.spec:  test for New Content Dialog', function () {
             // 1. Open New Content Dialog
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
+            await newContentDialog.clickOnMediaButton();
             // 2. Verify the Upload button
-            await newContentDialog.waitForUploaderButtonDisplayed();
-            // 3.  Most popular block should be displayed
-            await newContentDialog.waitForMostPopularBlockDisplayed();
+            await newContentDialog.waitForDropZoneDisplayed();
         });
 
     it(`GIVEN New Content Dialog is opened WHEN 'Cancel top' button has been pressed THEN the dialog should be closed`,
@@ -65,9 +64,8 @@ describe('new.content.dialog.spec:  test for New Content Dialog', function () {
             await newContentDialog.typeSearchText("test123");
             await newContentDialog.pause(500);
             // 3. Verify the list of items
-            let items = await newContentDialog.getItems();
             await studioUtils.saveScreenshot("new_content_dialog_filtered_2");
-            assert.equal(items.length, 0, "list of items should be empty");
+            await newContentDialog.waitForNoTypesFoundMessage('All');
         });
 
     it(`GIVEN no selections in the grid AND 'Folder' text has been typed in Search Input WHEN Search Input has been cleared THEN the initial state should be reverted in the dialog`,
@@ -81,7 +79,7 @@ describe('new.content.dialog.spec:  test for New Content Dialog', function () {
             await newContentDialog.typeSearchText("folder");
             await newContentDialog.pause(500);
             // 3. Verify the filtered item
-            let items = await newContentDialog.getItems();
+            let items = await newContentDialog.getItemsInAllTab();
             await studioUtils.saveScreenshot('new_content_dialog_filtered');
             assert.equal(items.length, 1, "One item should be in the filtered dialog");
             assert.equal(items[0], "Folder", "Expect display name of the type should be displayed");
@@ -94,7 +92,7 @@ describe('new.content.dialog.spec:  test for New Content Dialog', function () {
             await studioUtils.doPressBackspace();
             await newContentDialog.pause(1500);
             // 5. Verify items:
-            items = await newContentDialog.getItems();
+            items = await newContentDialog.getItemsInAllTab();
             await studioUtils.saveScreenshot("new_content_dialog_not_filtered");
             assert.equal(items.length, 3, "One item should be in the filtered dialog");
             assert.ok(items.includes("Folder"), "Folder type should be displayed");

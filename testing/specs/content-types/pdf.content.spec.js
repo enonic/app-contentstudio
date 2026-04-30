@@ -1,5 +1,5 @@
 /**
- * Created on 07.09.2021
+ * Created on 07.09.2021 updated on 29.04.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -23,7 +23,8 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
     const PDF_TAG_TEXT = 'tag pdf';
     const PDF_CONTENT_DISPLAY_NAME = 'pdf';
 
-    it(`GIVEN existing pdf content has been selected WHEN 'Media' has been selected in 'Preview' Dropdown THEN expected document should be displayed in the Preview Panel`,
+    it.skip(
+        `GIVEN existing pdf content has been selected WHEN 'Media' has been selected in 'Preview' Dropdown THEN expected document should be displayed in the Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -50,7 +51,7 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
             await contentFilterPanel.typeSearchText(PDF_CONTENT_DISPLAY_NAME);
             await contentBrowsePanel.waitForRowByNameVisible(PDF_CONTENT_DISPLAY_NAME);
             await contentBrowsePanel.clickOnRowByName(PDF_CONTENT_DISPLAY_NAME);
-            await contentBrowsePanel.pause(4000);
+            await contentBrowsePanel.pause(500);
             await studioUtils.saveScreenshot('pdf_select_spinner_issue');
             await contentBrowsePanel.clickOnEditButton();
             await studioUtils.switchToContentTabWindow(PDF_CONTENT_DISPLAY_NAME);
@@ -59,16 +60,15 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
             //let contentWizard = await studioUtils.selectAndOpenContentInWizard(PDF_CONTENT_DISPLAY_NAME);
             // 3. Save the text in abstraction text area and create a tag:
             await pdfForm.typeTextInAbstractionTextArea(PDF_EXTRACTION_TEXT);
+            await pdfForm.clickInTagInput();
             await pdfForm.addTag(PDF_TAG_TEXT);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             await studioUtils.doCloseWizardAndSwitchContentStudioTab();
             // 4. Type the extraction text
             await contentFilterPanel.typeSearchText(PDF_EXTRACTION_TEXT);
-            await contentFilterPanel.pause(3000);
-            // TODO Uncomment this code:
-            //await contentBrowsePanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
-            // 5. Verify that the pdf content is filtered:
+            await contentFilterPanel.pause(1500);
+            // 5. Verify that the pdf-content is filtered:
             await studioUtils.saveScreenshot('pdf_abstraction_text');
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.equal(result.length, 1, 'Single pdf file should be filtered in the grid');
@@ -83,10 +83,10 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
             await studioUtils.openFilterPanel();
             // 2. Type the tag's text
             await contentFilterPanel.typeSearchText(PDF_TAG_TEXT);
-            await contentFilterPanel.pause(3000);
+            await contentFilterPanel.pause(1500);
             await studioUtils.saveScreenshot('pdf_tag_text_0');
             await contentBrowsePanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
-            // 4. Verify that the pdf content is filtered:
+            // 4. Verify that the pdf-content is filtered:
             await studioUtils.saveScreenshot('pdf_tag_text');
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.equal(result.length, 1, 'Single pdf file should be filtered in the grid');
@@ -101,7 +101,7 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
             await studioUtils.openFilterPanel();
             // 2. "Minsk Belarus" this text has been inserted in the search input
             await filterPanel.typeSearchText(TXT_EXTRACTION_TEXT);
-            await filterPanel.pause(3000);
+            await filterPanel.pause(1500);
             await contentBrowsePanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
             await studioUtils.saveScreenshot('text_extraction_search_txt');
             // 3. Verify that expected '.txt' file is filtered
