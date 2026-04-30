@@ -131,7 +131,10 @@ describe(`article.allow.child.cfg.spec: tests for 'allow-child-content-type' in 
 
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(async() => {
+        await studioUtils.doPressEscape();
+        await studioUtils.doCloseAllWindowTabsAndSwitchToHome()
+    });
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

@@ -103,7 +103,10 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(async() => {
+        await studioUtils.doPressEscape();
+        await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+    });
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

@@ -31,6 +31,8 @@ describe('move.content.spec: Tests for destination options in move dialog', func
             await moveContentDialog.pause(500);
             // Verify - unable to move folder to itself:
             let isDisabled = await moveContentDialog.isOptionRowDisabled(TEST_FOLDER_DISPLAY_NAME);
+            await moveContentDialog.clickOnCloseButton();
+            await moveContentDialog.waitForClosed();
             assert.ok(isDisabled, 'Dropdown option should be disabled');
         });
 
@@ -47,7 +49,10 @@ describe('move.content.spec: Tests for destination options in move dialog', func
             await moveContentDialog.clickOnDropdownHandle();
             // 4. Verify - 'Project root' option item is disabled:
             let result = await moveContentDialog.isOptionRowDisabled('Project root');
+            await moveContentDialog.clickOnCloseButton();
+            await moveContentDialog.waitForClosed();
             assert.ok(result, "'Project root' option should be disabled");
+
         });
 
     it(`WHEN existing image in its parent folder is selected AND 'Move' button pressed THEN 'Project root' option should be enabled in Move dropdown`,
@@ -134,7 +139,15 @@ describe('move.content.spec: Tests for destination options in move dialog', func
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach( async() => {
+        let moveContentDialog = new MoveContentDialog();
+        let result = await moveContentDialog.isOpened();
+        if(result){
+            await moveContentDialog.clickOnCloseButton();
+            await moveContentDialog.waitForClosed();
+        }
+        await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+    });
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

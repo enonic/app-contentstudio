@@ -229,7 +229,7 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
 
     async getNumberFromReplaceAllPermissionsButton() {
         try {
-            let text = await this.getText(this.replaceAllPermissionsButton );
+            let text = await this.getText(this.replaceAllPermissionsButton);
             const match = text.match(/\((\d+)\)/); // Regular expression to find number inside parentheses
             return match ? parseInt(match[1], 10) : null; // Return the number as an integer or null
         } catch (err) {
@@ -240,12 +240,17 @@ class EditPermissionsSummaryStep extends BaseStepPermissionsDialog {
 
     async getUnchangedItemsList() {
         try {
-            let locator = this.container + `//h3[text()='Unchanged']/following-sibling::ul[1]//li//span[contains(@class,'font-semibold') and contains(@class,'truncate')][1]`;
+            let locator = this.container +
+                          `//h3[text()='Unchanged']/following-sibling::ul[1]//li//span[contains(@class,'font-semibold') and contains(@class,'truncate')][1]`;
             await this.waitForElementDisplayed(locator);
             return await this.getTextInElements(locator);
         } catch (err) {
             await this.handleError(`Access Control Changed Items List should be displayed`, 'err_access_control_changed_items_list', err);
         }
+    }
+
+    async isOpened() {
+        return await this.isElementDisplayed(this.container);
     }
 }
 

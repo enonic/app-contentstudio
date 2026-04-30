@@ -90,8 +90,9 @@ describe('content.duplicate.spec: Select and duplicate 2 folders', function () {
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(function () {
-        return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+    afterEach(async() => {
+        await studioUtils.doPressEscape();
+        await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
     });
     before(async () => {
         if (typeof browser !== 'undefined') {

@@ -841,6 +841,10 @@ module.exports = {
     doPressEnter() {
         return this.getBrowser().keys('Enter');
     },
+    async doPressEscape() {
+        await this.getBrowser().keys('Escape');
+        await this.pause(200);
+    },
 
     async doSwitchToNewWizard() {
         try {

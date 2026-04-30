@@ -56,7 +56,10 @@ describe(`Summary step - tests for changed list, access.control.changed.list.spe
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());
-        afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+        afterEach(async() => {
+                await studioUtils.doPressEscape();
+                await studioUtils.doCloseAllWindowTabsAndSwitchToHome()
+        });
         before(async () => {
             if (typeof browser !== 'undefined') {
                 await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

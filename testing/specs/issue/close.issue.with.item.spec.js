@@ -68,7 +68,10 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(async() => {
+        await studioUtils.doPressEscape();
+        await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+    });
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

@@ -66,6 +66,7 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
             await contentWizard.waitForNotificationMessage();
             await studioUtils.doCloseWizardAndSwitchContentStudioTab();
             // 4. Type the extraction text
+            await contentFilterPanel.clearSearchInput();
             await contentFilterPanel.typeSearchText(PDF_EXTRACTION_TEXT);
             await contentFilterPanel.pause(1500);
             // 5. Verify that the pdf-content is filtered:

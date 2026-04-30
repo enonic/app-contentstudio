@@ -51,7 +51,10 @@ describe('Browse Panel - Keyboard shortcut to publish content', function () {
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(async() => {
+        await studioUtils.doPressEscape();
+        await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+    });
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
