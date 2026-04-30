@@ -94,8 +94,8 @@ importers:
         specifier: workspace:*
         version: link:.xp/dev/lib-admin-ui
       '@enonic/page-editor':
-        specifier: ^0.0.8
-        version: 0.0.8
+        specifier: ^0.0.9
+        version: 0.0.9
       '@radix-ui/react-slot':
         specifier: ^1.2.0
         version: 1.2.4(@types/react@19.2.14)(react@19.2.4)
@@ -311,8 +311,8 @@ importers:
         specifier: ~1.4.0
         version: 1.4.0
       typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
       vite:
         specifier: ^8.0.10
         version: 8.0.10(@types/node@25.6.0)(esbuild@0.27.4)(jiti@2.6.1)(less@4.6.4)(terser@5.46.1)
@@ -448,8 +448,8 @@ packages:
       typescript: ^5.8.3
       typescript-eslint: ^8.39.0
 
-  '@enonic/page-editor@0.0.8':
-    resolution: {integrity: sha512-7v16z6Et7WBbFiy38gGljC7GrFcD4oNGe4puqpZrw90MqqgfuHxKiBxtFloeWpY20MW+udU32VBTHHEGSuBWxw==}
+  '@enonic/page-editor@0.0.9':
+    resolution: {integrity: sha512-2+sYA17+9alpjqkjGQS04zI3WIW2MEvJQMcfosA86/Rd+sqQSm2lkEwNMzY1GGxa8zbvb348HZU/UeK3Wk7Crg==}
     engines: {node: '>= 24.15.0'}
 
   '@enonic/ui@0.48.0':
@@ -4792,6 +4792,11 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  typescript@6.0.3:
+    resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   uint8array-extras@1.5.0:
     resolution: {integrity: sha512-rvKSBiC5zqCCiDZ9kAOszZcDvdAHwwIKJG33Ykj43OKcWsnmcBRL09YTU4nOeHZ8Y2a7l1MgTd08SBe9A8Qj6A==}
     engines: {node: '>=18'}
@@ -5241,7 +5246,7 @@ snapshots:
       typescript: 5.9.3
       typescript-eslint: 8.57.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
 
-  '@enonic/page-editor@0.0.8':
+  '@enonic/page-editor@0.0.9':
     dependencies:
       jquery: 3.7.1
       jquery-simulate: 1.0.2
@@ -9562,6 +9567,8 @@ snapshots:
       - supports-color
 
   typescript@5.9.3: {}
+
+  typescript@6.0.3: {}
 
   uint8array-extras@1.5.0: {}
 
