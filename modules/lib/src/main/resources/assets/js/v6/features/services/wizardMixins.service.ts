@@ -2,22 +2,34 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import type {Content} from '../../../app/content/Content';
 import type {ContentId} from '../../../app/content/ContentId';
 import {GetContentMixinsRequest} from '../../../app/resource/GetContentMixinsRequest';
+import {$applications} from '../store/applications.store';
 import {onWizardPersistedContentSet, setMixinsDescriptors} from '../store/wizardContent.store';
 
 //
 // * State
 //
 
-let unsubscribe: (() => void) | null = null;
+let unsubscribePersistedContent: (() => void) | null = null;
+let unsubscribeApplications: (() => void) | null = null;
 
-// Token guards against stale fetches overwriting the latest result when
-// setPersistedContent fires several times in quick succession (e.g. save
-// followed by a server event).
+let wizardContentId: ContentId | null = null;
+let lastAppSignature: string | null = null;
 let pendingToken = 0;
 
 //
 // * Private
 //
+
+function buildAppSignature(): string {
+    const {applications, loaded} = $applications.get();
+    if (!loaded) {
+        return '';
+    }
+    return applications
+        .map((app) => `${app.getApplicationKey().toString()}:${app.getState()}`)
+        .sort()
+        .join('|');
+}
 
 async function loadDescriptors(contentId: ContentId): Promise<void> {
     const token = ++pendingToken;
@@ -42,13 +54,33 @@ async function loadDescriptors(contentId: ContentId): Promise<void> {
 export function initWizardMixinsService(): void {
     cleanupWizardMixinsService();
 
-    unsubscribe = onWizardPersistedContentSet((content: Content) => {
-        void loadDescriptors(content.getContentId());
+    unsubscribePersistedContent = onWizardPersistedContentSet((content: Content) => {
+        wizardContentId ??= content.getContentId();
+        void loadDescriptors(wizardContentId);
+    });
+    
+    lastAppSignature = buildAppSignature();
+    unsubscribeApplications = $applications.listen(() => {
+        const next = buildAppSignature();
+        if (next === lastAppSignature) {
+            return;
+        }
+        lastAppSignature = next;
+
+        if (wizardContentId) {
+            void loadDescriptors(wizardContentId);
+        }
     });
 }
 
 export function cleanupWizardMixinsService(): void {
-    unsubscribe?.();
-    unsubscribe = null;
+    unsubscribePersistedContent?.();
+    unsubscribePersistedContent = null;
+
+    unsubscribeApplications?.();
+    unsubscribeApplications = null;
+
+    wizardContentId = null;
+    lastAppSignature = null;
     pendingToken += 1;
 }
