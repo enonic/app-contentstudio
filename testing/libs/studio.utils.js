@@ -842,6 +842,18 @@ module.exports = {
         return this.getBrowser().keys('Enter');
     },
     async doPressEscape() {
+        try {
+            let closeButtons = await this.getBrowser().$$("button[aria-label='Close']");
+            for (let btn of closeButtons) {
+                try {
+                    await btn.click();
+                    await this.getBrowser().pause(100);
+                } catch (e) {
+                    // пропускаем если кнопка недоступна
+                }
+            }
+        } catch (e) {
+        }
         await this.getBrowser().keys('Escape');
         await this.getBrowser().pause(200);
     },
@@ -1230,8 +1242,4 @@ module.exports = {
     async saveScreen(name) {
         await this.getBrowser().saveScreen();
     },
-
-    // async clickOnContentStudioInInXpMenu() {
-    //
-    // }
 };
