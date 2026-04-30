@@ -179,19 +179,24 @@ function buildTreeFromPage(
         }
     } else {
         for (const [id, node] of state.nodes) {
-            if (isDefaultCollapsed(node)) continue;
+            if (isNestedLayout(node)) continue;
             if (node.hasChildren || node.childIds.length > 0) {
                 expandedIds.add(id);
             }
         }
     }
 
+    for (const [id, node] of state.nodes) {
+        if (node.data?.nodeType === 'region') {
+            expandedIds.add(id);
+        }
+    }
+
     return {...state, expandedIds};
 }
 
-function isDefaultCollapsed(node: TreeNode<PageComponentNodeData>): boolean {
-    const type = node.data?.nodeType;
-    return type === 'region' || (type === 'layout' && node.parentId !== null);
+function isNestedLayout(node: TreeNode<PageComponentNodeData>): boolean {
+    return node.data?.nodeType === 'layout' && node.parentId !== null;
 }
 
 function collectLayouts(page: Page | null): Map<string, LayoutComponent> {
