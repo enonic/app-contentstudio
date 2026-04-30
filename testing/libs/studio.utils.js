@@ -843,7 +843,7 @@ module.exports = {
     },
     async doPressEscape() {
         await this.getBrowser().keys('Escape');
-        await this.pause(200);
+        await this.getBrowser().pause(200);
     },
 
     async doSwitchToNewWizard() {
