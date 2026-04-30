@@ -849,10 +849,16 @@ module.exports = {
                     await btn.click();
                     await this.getBrowser().pause(100);
                 } catch (e) {
-                    // пропускаем если кнопка недоступна
+
                 }
             }
         } catch (e) {
+        }
+        let confirmationDialog = new ConfirmationDialog();
+        let res = await confirmationDialog.isDialogVisible();
+        if (res) {
+            await confirmationDialog.clickOnConfirmButton();
+            await confirmationDialog.waitForDialogClosed();
         }
         await this.getBrowser().keys('Escape');
         await this.getBrowser().pause(200);

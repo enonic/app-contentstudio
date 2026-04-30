@@ -43,8 +43,8 @@ class ConfirmationDialog extends Page {
         }
     }
 
-    isDialogVisible() {
-        return this.isElementDisplayed(XPATH.container);
+    async isDialogVisible() {
+        return await this.isElementDisplayed(XPATH.container);
     }
 
     async waitForDialogClosed() {
