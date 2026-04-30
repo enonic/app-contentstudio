@@ -7,10 +7,14 @@ const {BUTTONS} = require('../../libs/elements');
 
 const xpath = {
     header: "//div[@role='dialog' and descendant::p[contains(.,'Permissions:')]]",
+    container:"//div[@role='dialog']",
 };
 
 class BaseStepEditPermissionsDialog extends Page {
 
+    get container(){
+        return xpath.container;
+    }
     get nextButton() {
         return this.container + BUTTONS.buttonByLabel('Next');
     }

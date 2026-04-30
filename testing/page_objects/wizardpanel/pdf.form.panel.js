@@ -1,46 +1,61 @@
 /**
- * Created on 07.09.2021
+ * Created on 07.09.2021 updated on 29.04.2026
  */
 const Page = require('../page');
-const lib = require('../../libs/elements-old');
-const appConst = require('../../libs/app_const');
+const {COMMON} = require("../../libs/elements");
 const XPATH = {
-    abstractTextArea: `//textarea[contains(@name,'abstract')]`,
-    tagsInput: "//ul[contains(@id,'Tags')]//input[@type='text']",
+    dataComponent: "//div[@data-component='TagInput']",
 };
 
 class PdfForm extends Page {
 
     get abstractTextArea() {
-        return lib.FORM_VIEW + XPATH.abstractTextArea;
+        return COMMON.INPUTS.inputFieldByLabel('Abstract') + '//textarea';
     }
 
     get tagsInput() {
-        return lib.FORM_VIEW + XPATH.tagsInput;
+        return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + XPATH.dataComponent + COMMON.INPUTS.INPUT;
     }
 
     async typeTextInAbstractionTextArea(text) {
         await this.waitForAbstractionTextAreaDisplayed();
-        await this.typeTextInInput(this.abstractTextArea, text);
+        await this.typeChars(this.abstractTextArea, text);
         return await this.pause(300);
     }
 
-    waitForAbstractionTextAreaDisplayed() {
-        return this.waitForElementDisplayed(this.abstractTextArea, appConst.mediumTimeout);
+    async waitForAbstractionTextAreaDisplayed() {
+        return await this.waitForElementDisplayed(this.abstractTextArea);
     }
 
-    waitForTagsInputDisplayed() {
-        return this.waitForElementDisplayed(this.tagsInput, appConst.mediumTimeout);
+    async waitForTagsInputDisplayed() {
+        return await this.waitForElementDisplayed(COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + XPATH.dataComponent);
     }
-
 
     getExtractionData() {
         return this.getTextInInput(this.abstractTextArea);
     }
 
+    async clickInTagInput() {
+        let locator = COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + XPATH.dataComponent;
+        await this.clickOnElement(locator);
+        await this.pause(400);
+    }
+
+    async typeInTagInput(text) {
+        let locator = COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + XPATH.dataComponent + COMMON.INPUTS.INPUT;
+        let inputs = await this.getDisplayedElements(locator);
+        if (inputs.length === 0) {
+            throw new Error("Tag input is not displayed - the maximum number of tags may have been reached");
+        }
+        await inputs[0].click();
+        await this.pause(300);
+        for (const ch of text) {
+            await inputs[0].addValue(ch);
+        }
+    }
+
     async addTag(text) {
-        await this.waitForTagsInputDisplayed();
-        await this.typeTextInInput(this.tagsInput, text);
+        await this.typeInTagInput(text);
         return await this.pressEnterKey();
     }
 }

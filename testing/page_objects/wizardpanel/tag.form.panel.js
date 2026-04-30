@@ -20,7 +20,7 @@ class TagForm extends Page {
     }
 
     get tagInput() {
-        return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + xpath.dataComponent ;
+        return COMMON.INPUTS.FORM_RENDERER_DATA_COMPONENT + xpath.dataComponent;
     }
 
     get removeTagIcon() {
