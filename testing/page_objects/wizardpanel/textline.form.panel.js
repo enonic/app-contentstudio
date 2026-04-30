@@ -37,10 +37,13 @@ class TextLineForm extends OccurrencesFormView {
         try {
             index = typeof index !== 'undefined' ? index : 0;
             let inputs = await this.getDisplayedElements(this.textLineInput);
+            await inputs[index].click();
             for (const ch of String(text)) {
+                await this.pause(30);
                 await inputs[index].addValue(ch);
+                await this.pause(30);
             }
-            return await this.pause(300);
+            return await this.pause(200);
         } catch (err) {
             await this.handleError('Text line input, ', 'err_tex_line_type', err);
         }

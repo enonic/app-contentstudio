@@ -99,6 +99,7 @@ describe('content.filter.panel.export.spec: tests for Export button in filter pa
             // 3. Verify the question in the confirmation dialog:
             await confirmationDialog.waitForDialogOpened();
             let questionTextActual = await confirmationDialog.getWarningMessage();
+            await confirmationDialog.clickOnCancelButton();
             assert.equal(questionTextActual, CONFIRMATION_QUESTION_2, 'Five content items will be exported');
         });
 
@@ -124,8 +125,9 @@ describe('content.filter.panel.export.spec: tests for Export button in filter pa
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(function () {
-        return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+    afterEach(async() => {
+        await studioUtils.doPressEscape();
+        await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
     });
     before(async () => {
         if (typeof browser !== 'undefined') {

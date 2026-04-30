@@ -841,6 +841,28 @@ module.exports = {
     doPressEnter() {
         return this.getBrowser().keys('Enter');
     },
+    async doPressEscape() {
+        try {
+            let closeButtons = await this.getBrowser().$$("button[aria-label='Close']");
+            for (let btn of closeButtons) {
+                try {
+                    await btn.click();
+                    await this.getBrowser().pause(100);
+                } catch (e) {
+
+                }
+            }
+        } catch (e) {
+        }
+        let confirmationDialog = new ConfirmationDialog();
+        let res = await confirmationDialog.isDialogVisible();
+        if (res) {
+            await confirmationDialog.clickOnConfirmButton();
+            await confirmationDialog.waitForDialogClosed();
+        }
+        await this.getBrowser().keys('Escape');
+        await this.getBrowser().pause(200);
+    },
 
     async doSwitchToNewWizard() {
         try {
@@ -1226,8 +1248,4 @@ module.exports = {
     async saveScreen(name) {
         await this.getBrowser().saveScreen();
     },
-
-    // async clickOnContentStudioInInXpMenu() {
-    //
-    // }
 };

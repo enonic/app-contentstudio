@@ -51,6 +51,11 @@ class BrowseFilterPanel extends Page {
         return XPATH.container + XPATH.searchInput;
     }
 
+    async clearSearchInput(){
+        let input = await this.findElement(this.searchTextInput);
+        await input.click();
+        await this.clearInputTextElement(input);
+    }
     async typeSearchText(text) {
         try {
             await this.typeTextInInput(this.searchTextInput, text);

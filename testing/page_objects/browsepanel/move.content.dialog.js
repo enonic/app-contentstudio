@@ -71,6 +71,10 @@ class MoveContentDialog extends Page {
         }
     }
 
+    async isOpened(){
+        return await this.isElementDisplayed(XPATH.container);
+    }
+
     getHeaderText() {
         return this.getText(this.header);
     }
