@@ -103,7 +103,6 @@ export const $wizardDataVersion = atom<number>(0);
 
 const $needsRenderedSnapshot = atom<boolean>(false);
 
-
 const $mixinsPendingMount = atom<Set<string>>(new Set());
 const $mixinsNeedingSnapshot = atom<Set<string>>(new Set());
 
@@ -848,13 +847,13 @@ $siteConfigAppKeys.subscribe((currentKeys) => {
     for (const key of previousAppKeys) {
         if (!currentKeys.has(key)) {
             const descriptors = $mixinsDescriptors.get();
-            const filteredDescriptors = descriptors.filter(d => d.getMixinName().getApplicationKey().toString() !== key);
+            const filteredDescriptors = descriptors.filter((d) => d.getMixinName().getApplicationKey().toString() !== key);
             if (filteredDescriptors.length !== descriptors.length) {
                 $mixinsDescriptors.set(filteredDescriptors);
             }
 
             const currentMixins = $wizardDraftMixins.get();
-            const filteredMixins = currentMixins.filter(m => m.getName().getApplicationKey().toString() !== key);
+            const filteredMixins = currentMixins.filter((m) => m.getName().getApplicationKey().toString() !== key);
             if (filteredMixins.length !== currentMixins.length) {
                 $wizardDraftMixins.set(filteredMixins);
             }

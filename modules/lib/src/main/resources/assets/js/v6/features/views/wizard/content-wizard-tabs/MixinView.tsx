@@ -20,14 +20,12 @@ type MixinViewProps = {
 export const MixinView = ({mixinName}: MixinViewProps): ReactElement | null => {
     const descriptors = useStore($mixinsDescriptors);
     const draftMixins = useStore($wizardDraftMixins);
-
-    useEffect(() => {
-        notifyMixinMounted(mixinName);
-    }, [mixinName]);
     const contextContent = useStore($contextContent);
     const activeProject = useStore($activeProject);
     const visibility = useStore($validationVisibility);
     const applicationKeys = useApplicationKeys();
+    const unknownMessage = useI18n('field.mixin.unavailable');
+    const detachLabel = useI18n('action.mixin.detach');
 
     const rawValueMap = useMemo(() => getMixinRawValueMap(mixinName), [mixinName]);
 
@@ -58,8 +56,9 @@ export const MixinView = ({mixinName}: MixinViewProps): ReactElement | null => {
         setDraftMixinEnabled(mixinName, false);
     }, [mixinName]);
 
-    const unknownMessage = useI18n('field.mixin.unavailable');
-    const detachLabel = useI18n('action.mixin.detach');
+    useEffect(() => {
+        notifyMixinMounted(mixinName);
+    }, [mixinName]);
 
     if (isUnknown) {
         return (

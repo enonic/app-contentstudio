@@ -58,11 +58,15 @@ export function initWizardMixinsService(): void {
         wizardContentId ??= content.getContentId();
         void loadDescriptors(wizardContentId);
     });
-    
+
     lastAppSignature = buildAppSignature();
     unsubscribeApplications = $applications.listen(() => {
         const next = buildAppSignature();
         if (next === lastAppSignature) {
+            return;
+        }
+        if (lastAppSignature === '') {
+            lastAppSignature = next;
             return;
         }
         lastAppSignature = next;
