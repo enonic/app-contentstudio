@@ -9,9 +9,7 @@ export const $inspectSaveAction = atom<Action | null>(null);
 
 export const $inspectFormPresent = atom<boolean>(false);
 
-export const $inspectFormDirty = atom<boolean>(false);
-
-export const $inspectFormValid = atom<boolean>(true);
+const $inspectSaveActionEnabled = atom<boolean>(false);
 
 //
 // * Computed
@@ -20,34 +18,42 @@ export const $inspectFormValid = atom<boolean>(true);
 export const $isApplyVisible = computed($inspectFormPresent, (present): boolean => present);
 
 export const $isApplyEnabled = computed(
-    [$inspectFormPresent, $inspectFormDirty, $inspectFormValid, $inspectSaveAction],
-    (present, dirty, valid, action): boolean => present && dirty && valid && action != null,
+    [$inspectFormPresent, $inspectSaveActionEnabled],
+    (present, enabled): boolean => present && enabled,
 );
 
 //
 // * Commands
 //
 
+let unsubscribeSaveAction: (() => void) | null = null;
+
 export function setInspectSaveAction(action: Action | null): void {
+    unsubscribeSaveAction?.();
+    unsubscribeSaveAction = null;
+
     $inspectSaveAction.set(action);
+
+    if (action == null) {
+        $inspectSaveActionEnabled.set(false);
+        return;
+    }
+
+    const sync = (): void => {
+        $inspectSaveActionEnabled.set(action.isEnabled());
+    };
+
+    sync();
+    action.onPropertyChanged(sync);
+    unsubscribeSaveAction = () => action.unPropertyChanged(sync);
 }
 
 export function setInspectFormPresent(present: boolean): void {
     $inspectFormPresent.set(present);
 }
 
-export function setInspectFormDirty(dirty: boolean): void {
-    $inspectFormDirty.set(dirty);
-}
-
-export function setInspectFormValid(valid: boolean): void {
-    $inspectFormValid.set(valid);
-}
-
 export function resetInspectFormTracking(): void {
     $inspectFormPresent.set(false);
-    $inspectFormDirty.set(false);
-    $inspectFormValid.set(true);
 }
 
 export function executeInspectSave(): void {

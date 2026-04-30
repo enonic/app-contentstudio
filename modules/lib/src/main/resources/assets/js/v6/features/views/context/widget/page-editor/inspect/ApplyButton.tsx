@@ -3,7 +3,7 @@ import {useStore} from '@nanostores/preact';
 import type {ReactElement} from 'react';
 import {useI18n} from '../../../../../hooks/useI18n';
 import {$inspectedItem, $inspectedItemType, requestReloadComponent} from '../../../../../store/page-editor';
-import {$isApplyEnabled, executeInspectSave, setInspectFormDirty} from '../../../../../store/inspect-panel.store';
+import {$isApplyEnabled, executeInspectSave} from '../../../../../store/inspect-panel.store';
 
 const APPLY_BUTTON_NAME = 'InspectApplyButton';
 
@@ -19,7 +19,6 @@ export const ApplyButton = (): ReactElement => {
         const typeKey = itemType?.toString();
         if (item && typeKey && RELOADABLE_TYPES.has(typeKey)) {
             requestReloadComponent(item.getPath(), true);
-            setInspectFormDirty(false);
             return;
         }
         executeInspectSave();
