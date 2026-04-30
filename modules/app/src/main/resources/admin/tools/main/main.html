@@ -78,8 +78,13 @@
 </head>
 <body>
 <!-- App javascript -->
-<script type="text/javascript" src="{{assetsUri}}/lib/ckeditor.js" data-asset-url="{{assetsUri}}"></script>
+
+{{^isBrowseMode}}
+<script type="text/javascript" src="{{assetsUri}}/lib/ckeditor.js" data-asset-url="{{assetsUri}}" defer></script>
+{{/isBrowseMode}}
+
+
 <script type="application/json" id="{{configScriptId}}">{{{configAsJson}}}</script>
-<script type="text/javascript" src="{{assetsUri}}/js/main.js" data-config-script-id="{{configScriptId}}"></script>
+<script type="text/javascript" src="{{assetsUri}}/js/main.js" data-config-script-id="{{configScriptId}}" defer></script>
 </body>
 </html>
