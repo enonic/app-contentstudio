@@ -133,7 +133,7 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
             await newContentDialog.pause(500);
             await studioUtils.saveScreenshot('root_new_content_with_apps_2');
             // 3. Verify that all input types are available for adding new content in root directory:
-            let contentTypeItems = await newContentDialog.getItems();
+            let contentTypeItems = await newContentDialog.getItemsInAllTab();
             assert.ok(contentTypeItems.includes('all-inputs'), "Expected input type should be displayed in the modal dialog");
             assert.ok(contentTypeItems.includes('attachment0_0'), "Expected input type should be displayed in the modal dialog");
             assert.ok(contentTypeItems.length > 50, "All types from the application should be present in the modal dialog");
@@ -164,7 +164,7 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
             await newContentDialog.pause(500);
             await studioUtils.saveScreenshot('root_new_content_with_apps_3');
             // 3. Verify that only 3 types are available for creating new content in root directory:
-            let contentTypeItems = await newContentDialog.getItems();
+            let contentTypeItems = await newContentDialog.getItemsInAllTab();
             assert.ok(contentTypeItems.includes('Folder'), 'Folder input type is displayed in the modal dialog');
             assert.ok(contentTypeItems.includes('Shortcut'), 'Shortcut input type is displayed in the modal dialog');
             assert.ok(contentTypeItems.includes('Site'), 'Site input type is displayed in the modal dialog');

@@ -143,7 +143,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             // 2. Click on New... button
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
-            let items = await newContentDialog.getItems();
+            let items = await newContentDialog.getItemsInAllTab();
             await studioUtils.saveScreenshot('project_editor_3');
             // 3. Verify that only 'Folders' and 'Shortcut' are allowed for Editor role
             assert.equal(items.length, 2, 'Two items should be available for Editor');

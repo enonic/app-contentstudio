@@ -96,7 +96,7 @@ describe('layer.with.app.spec - tests for layer with applications', function () 
             await newContentDialog.pause(500);
             await studioUtils.saveScreenshot('root_new_content_with_apps');
             // 3. Verify that all input types are available for adding new content in root directory:
-            let contentTypeItems = await newContentDialog.getItems();
+            let contentTypeItems = await newContentDialog.getItemsInAllTab();
             assert.ok(contentTypeItems.includes('all-inputs'), "Expected input type is displayed in the modal dialog");
             assert.ok(contentTypeItems.includes('attachment0_0'), "Expected input type is displayed in the modal dialog");
             assert.ok(contentTypeItems.length > 50, "All types from the application are present in the modal dialog");

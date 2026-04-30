@@ -191,7 +191,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             //2. Click on 'New...' button
             await contentBrowsePanel.clickOnNewButton();
             await newContentDialog.waitForOpened();
-            let items = await newContentDialog.getItems();
+            let items = await newContentDialog.getItemsInAllTab();
             await studioUtils.saveScreenshot('project_owner_3');
             //3. Verify that only 'Folders', 'Shortcut' 'Sites' are allowed for Owner role
             assert.equal(items.length, 3, 'Three items should be available for Owner');
