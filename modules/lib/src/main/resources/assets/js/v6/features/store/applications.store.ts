@@ -1,4 +1,5 @@
 import {type Application} from '@enonic/lib-admin-ui/application/Application';
+import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {map} from 'nanostores';
 import {ResultAsync} from 'neverthrow';
 import {ListSiteApplicationsRequest} from '../../../app/resource/ListSiteApplicationsRequest';
@@ -72,3 +73,18 @@ async function fetchApplications(): Promise<void> {
 //
 
 void loadApplications();
+
+const TRACKED_EVENT_TYPES = new Set<ApplicationEventType>([
+    ApplicationEventType.INSTALLED,
+    ApplicationEventType.UNINSTALLED,
+    ApplicationEventType.STARTED,
+    ApplicationEventType.STOPPED,
+    ApplicationEventType.UPDATED,
+]);
+
+ApplicationEvent.on((event: ApplicationEvent) => {
+    if (!TRACKED_EVENT_TYPES.has(event.getEventType())) {
+        return;
+    }
+    void reloadApplications();
+});

@@ -27,8 +27,6 @@ import {
 
 export type WizardChangeSection = 'data' | 'displayName' | 'name' | 'mixins' | 'page' | 'workflow';
 
-// Record<propertyPath, errorMessages[]>
-// propertyPath uses dot-notation: "myField", "myGroup.myField"
 export type FormDataValidation = Record<string, string[]>;
 
 export type WizardSectionChanges = {
@@ -105,13 +103,8 @@ export const $wizardDataVersion = atom<number>(0);
 
 const $needsRenderedSnapshot = atom<boolean>(false);
 
-// Mixins that have not yet mounted and may need snapshotting when they do.
-// Populated at init, entries removed when the mixin tab mounts.
-const $mixinsPendingMount = atom<Set<string>>(new Set());
 
-// Mixins whose tab has mounted and whose snapshot window is open.
-// Entries are added by notifyMixinMounted and removed by snapshotMixinBaseline
-// or by a per-mixin auto-disarm timeout.
+const $mixinsPendingMount = atom<Set<string>>(new Set());
 const $mixinsNeedingSnapshot = atom<Set<string>>(new Set());
 
 export const $wizardPersistedMixins = wizardTrackedState.mixins.persisted;
@@ -211,8 +204,6 @@ export const $wizardHasChanges = computed($wizardSectionChanges, (sections): boo
     return sections.data || sections.displayName || sections.name || sections.mixins || sections.page || sections.workflow;
 });
 
-// Like $wizardHasChanges but excludes workflow changes. Used by $wizardContentState to avoid
-// circular dependency: contentState subscriber → setWizardMarkedAsReady → workflow change → hasChanges → contentState.
 const $wizardHasContentChanges = computed($wizardSectionChanges, (sections): boolean => {
     return sections.data || sections.displayName || sections.name || sections.mixins || sections.page;
 });
@@ -279,8 +270,6 @@ export const $wizardContentState = batched(
     },
 );
 
-// Downgrade READY → IN_PROGRESS when content is edited, restore when reverted.
-// Separate from $wizardContentState to avoid circular dependency.
 $wizardHasContentChanges.subscribe((hasChanges) => {
     const persisted = $wizardPersistedWorkflowState.get();
     const draft = $wizardDraftWorkflowState.get();
@@ -295,6 +284,7 @@ $wizardHasContentChanges.subscribe((hasChanges) => {
 export type MixinTabInfo = {
     name: string;
     title: string;
+    unknown?: boolean;
 };
 
 export const $enabledMixinsNames = computed(
@@ -314,30 +304,72 @@ export const $enabledMixinsNames = computed(
     },
 );
 
-export const $mixinsTabs = computed([$enabledMixinsNames, $mixinsDescriptors], (enabledNames, schemas): MixinTabInfo[] => {
-    return schemas
-        .filter((schema) => enabledNames.has(schema.getName()))
-        .map((schema) => ({
-            name: schema.getName(),
-            title: schema.getTitle() ?? schema.getName(),
+export const $unknownMixinsNames = computed(
+    [$wizardDraftMixins, $mixinsDescriptors],
+    (mixins, schemas): Set<string> => {
+        const knownNames = new Set(schemas.map((schema) => schema.getName()));
+        const unknownNames = new Set<string>();
+
+        for (const mixin of mixins) {
+            const name = mixin.getName().toString();
+            if (!knownNames.has(name)) {
+                unknownNames.add(name);
+            }
+        }
+
+        return unknownNames;
+    },
+);
+
+export const $mixinsTabs = computed(
+    [$enabledMixinsNames, $mixinsDescriptors, $unknownMixinsNames],
+    (enabledNames, schemas, unknownNames): MixinTabInfo[] => {
+        const knownTabs = schemas
+            .filter((schema) => enabledNames.has(schema.getName()))
+            .map((schema): MixinTabInfo => ({
+                name: schema.getName(),
+                title: schema.getTitle() ?? schema.getName(),
+            }));
+
+        const unknownTabs = Array.from(unknownNames).map((name): MixinTabInfo => ({
+            name,
+            title: name,
+            unknown: true,
         }));
-});
+
+        return [...knownTabs, ...unknownTabs];
+    },
+);
 
 export type MixinMenuItem = {
     name: string;
     displayName: string;
     isOptional: boolean;
     isEnabled: boolean;
+    unknown?: boolean;
 };
 
-export const $mixinsMenuItems = computed([$mixinsDescriptors, $enabledMixinsNames], (schemas, enabledNames): MixinMenuItem[] => {
-    return schemas.map((schema) => ({
-        name: schema.getName(),
-        displayName: schema.getTitle() ?? schema.getName(),
-        isOptional: schema.isOptional(),
-        isEnabled: enabledNames.has(schema.getName()),
-    }));
-});
+export const $mixinsMenuItems = computed(
+    [$mixinsDescriptors, $enabledMixinsNames, $unknownMixinsNames],
+    (schemas, enabledNames, unknownNames): MixinMenuItem[] => {
+        const knownItems = schemas.map((schema): MixinMenuItem => ({
+            name: schema.getName(),
+            displayName: schema.getTitle() ?? schema.getName(),
+            isOptional: schema.isOptional(),
+            isEnabled: enabledNames.has(schema.getName()),
+        }));
+
+        const unknownItems = Array.from(unknownNames).map((name): MixinMenuItem => ({
+            name,
+            displayName: name,
+            isOptional: true,
+            isEnabled: true,
+            unknown: true,
+        }));
+
+        return [...knownItems, ...unknownItems];
+    },
+);
 
 //
 // * Helpers
@@ -478,8 +510,6 @@ function armRenderedSnapshot(content: Content): void {
 
     $needsRenderedSnapshot.set(true);
 
-    // Mixins go into pending — they will be armed individually when their
-    // lazy Tab.Content mounts and calls notifyMixinMounted().
     $mixinsPendingMount.set(new Set(content.getMixins().map((m) => m.getName().toString())));
     $mixinsNeedingSnapshot.set(new Set());
 }
@@ -501,8 +531,6 @@ export function setPersistedContent(content: Content): void {
     applyPersistedSectionsSnapshot(buildPersistedSectionsSnapshot(content));
     $wizardDataValidation.set({});
 
-    // After save, newly persisted mixins may not have been mounted yet.
-    // Seed them into pending so their first lazy mount snapshots enrichment.
     const currentPending = $mixinsPendingMount.get();
     const mixinNames = content.getMixins().map((m) => m.getName().toString());
     const newPending = new Set(currentPending);
@@ -535,7 +563,7 @@ export function initializeWizardContentState(
 ): void {
     setPersistedContent(content);
     $contentType.set(contentType);
-    $mixinsDescriptors.set([...mixins]);
+    setMixinsDescriptors([...mixins]);
 
     if (workflowState != null) {
         $wizardPersistedWorkflowState.set(workflowState);
@@ -637,6 +665,39 @@ export function setContentType(contentType: ContentType): void {
 
 export function setMixinsDescriptors(mixinsDescriptors: MixinDescriptor[]): void {
     $mixinsDescriptors.set(mixinsDescriptors);
+    seedMandatoryMixins();
+}
+
+function seedMandatoryMixins(): void {
+    const descriptors = $mixinsDescriptors.get();
+    const persisted = $wizardPersistedMixins.get();
+    const draft = $wizardDraftMixins.get();
+
+    const persistedNames = new Set(persisted.map((m) => m.getName().toString()));
+    const draftNames = new Set(draft.map((m) => m.getName().toString()));
+
+    const persistedAdditions: Mixin[] = [];
+    const draftAdditions: Mixin[] = [];
+
+    for (const descriptor of descriptors) {
+        if (descriptor.isOptional()) {
+            continue;
+        }
+        const name = descriptor.getName();
+        if (!persistedNames.has(name)) {
+            persistedAdditions.push(new Mixin(new MixinName(name), new PropertyTree()));
+        }
+        if (!draftNames.has(name)) {
+            draftAdditions.push(new Mixin(new MixinName(name), new PropertyTree()));
+        }
+    }
+
+    if (persistedAdditions.length > 0) {
+        $wizardPersistedMixins.set([...persisted, ...persistedAdditions]);
+    }
+    if (draftAdditions.length > 0) {
+        $wizardDraftMixins.set([...draft, ...draftAdditions]);
+    }
 }
 
 export const setContentFormExpanded = (isExpanded: boolean): void => {
@@ -676,15 +737,10 @@ export function notifyContentFormMounted(): void {
         return;
     }
 
-    // Child InputField effects have already completed (React fires child
-    // effects before parent effects), so enrichment is done. Schedule
-    // snapshot to capture the enriched state immediately.
     queueMicrotask(() => {
         snapshotContentBaseline();
     });
 
-    // Auto-disarm after render window closes, in case no enrichment
-    // occurred and the snapshot was a no-op.
     if (contentDisarmTimer != null) {
         clearTimeout(contentDisarmTimer);
     }
@@ -700,7 +756,6 @@ export function notifyMixinMounted(name: string): void {
         return;
     }
 
-    // Move from pending to armed
     const nextPending = new Set(pending);
     nextPending.delete(name);
     $mixinsPendingMount.set(nextPending);
@@ -709,15 +764,10 @@ export function notifyMixinMounted(name: string): void {
     needed.add(name);
     $mixinsNeedingSnapshot.set(needed);
 
-    // Child InputField effects have already completed (React fires child
-    // effects before parent effects), so enrichment is done. Schedule
-    // snapshot to capture the enriched state immediately.
     queueMicrotask(() => {
         snapshotMixinBaseline(name);
     });
 
-    // Auto-disarm after render window closes, in case no enrichment
-    // occurred and the snapshot was a no-op.
     const timer = setTimeout(() => {
         mixinDisarmTimers.delete(name);
         const current = $mixinsNeedingSnapshot.get();
@@ -775,7 +825,6 @@ $wizardDraftData.subscribe((tree) => {
     }
 });
 
-// Extract app keys currently selected in site config from draft data.
 const $siteConfigAppKeys = computed(
     [$wizardDraftData, $wizardDataVersion],
     (data): Set<string> => {
@@ -793,16 +842,11 @@ const $siteConfigAppKeys = computed(
     },
 );
 
-// When an app is removed from site config, drop its mixin descriptors and data.
 let previousAppKeys = new Set<string>();
 
 $siteConfigAppKeys.subscribe((currentKeys) => {
     for (const key of previousAppKeys) {
         if (!currentKeys.has(key)) {
-            // ? Descriptors may not contain entries for the removed app
-            // (e.g. if the app was added after the wizard loaded and
-            // descriptors were never re-fetched), so filter draft mixins
-            // by the app key in the mixin name independently of descriptors.
             const descriptors = $mixinsDescriptors.get();
             const filteredDescriptors = descriptors.filter(d => d.getMixinName().getApplicationKey().toString() !== key);
             if (filteredDescriptors.length !== descriptors.length) {
@@ -846,13 +890,6 @@ $wizardDraftMixins.subscribe((mixins) => {
     }
 });
 
-//
-// * Rendered baseline snapshots
-//
-// Form rendering enriches draft trees with empty PropertyArrays and seeded null values
-// (via InputField). These structural additions are not user changes. After rendering
-// settles, copy the enriched draft back to persisted so the comparison baseline matches.
-
 function snapshotContentBaseline(): void {
     if (!$needsRenderedSnapshot.get()) {
         return;
@@ -895,7 +932,6 @@ function snapshotMixinBaseline(mixinName: string): void {
     $mixinsNeedingSnapshot.set(next);
 }
 
-// Schedule content baseline after rendering enriches the draft tree.
 let contentSnapshotScheduled = false;
 
 $wizardDataVersion.subscribe(() => {
@@ -912,8 +948,6 @@ $wizardDataVersion.subscribe(() => {
 // * Tab title sync
 //
 
-// Lazily-captured " / AppName" suffix, extracted from the initial document title
-// set by preLoadApplication() before the first display-name change fires.
 let wizardTitleSuffix: string | undefined;
 
 function getWizardTitleSuffix(): string {
@@ -935,11 +969,7 @@ function applyDisplayNameToTitle(displayName: string, previousDisplayName: strin
     document.title = name + getWizardTitleSuffix();
 }
 
-// Typing: fires on every keystroke via setDraftDisplayName.
 $wizardDraftDisplayName.subscribe(applyDisplayNameToTitle);
-
-// Save: persisted changes even when draft already held the typed value,
-// so this covers the case where the draft subscription is a no-op.
 $wizardPersistedDisplayName.subscribe(applyDisplayNameToTitle);
 
 export function resetWizardContent(): void {

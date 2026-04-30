@@ -127,7 +127,7 @@ export const MixinMenu = (): ReactElement => {
                                 }}
                             >
                                 <span className="flex-1 truncate">{item.displayName}</span>
-                                {showErrors && effectiveEnabled && invalidTabs.has(item.name) && (
+                                {(item.unknown || (showErrors && effectiveEnabled && invalidTabs.has(item.name))) && (
                                     <OctagonAlert className="size-3 shrink-0 text-error" strokeWidth={2.5}/>
                                 )}
                                 {effectiveEnabled ? <FilledSquareCheck className="size-4"/> : <Square className="size-4"/>}
