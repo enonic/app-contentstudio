@@ -3,7 +3,7 @@ const Page = require('./page');
 class LoginPage extends Page {
 
     get usernameInput() {
-        return `//div[contains(@class,'login-info-content')]//input[contains(@id,'username-input')]`
+        return `input[id^='username-input']`
     }
 
     get passwordInput() {

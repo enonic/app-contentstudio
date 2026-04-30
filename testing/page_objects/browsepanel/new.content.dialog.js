@@ -147,7 +147,7 @@ class NewContentDialog extends Page {
     async waitForOpened() {
         try {
             await this.waitForElementDisplayed(this.title);
-            await this.pause(200);
+            await this.pause(400);
         } catch (err) {
             await this.handleError(`New Content dialog should be loaded:`, 'err_new_content_dialog', err);
         }
