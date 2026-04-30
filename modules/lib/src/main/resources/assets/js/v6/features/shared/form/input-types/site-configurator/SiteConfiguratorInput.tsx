@@ -16,9 +16,12 @@ import {useStore} from '@nanostores/preact';
 import {Pencil, X} from 'lucide-react';
 import type {ReactElement} from 'react';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {ContentId} from '../../../../../../app/content/ContentId';
+import {ContentRequiresSaveEvent} from '../../../../../../app/event/ContentRequiresSaveEvent';
 import {ProjectHelper} from '../../../../../../app/settings/data/project/ProjectHelper';
 import {useI18n} from '../../../../hooks/useI18n';
 import {$applications, loadApplications, reloadApplications} from '../../../../store/applications.store';
+import {$contextContent} from '../../../../store/context/contextContent.store';
 import {ConfirmationDialog} from '../../../dialogs/ConfirmationDialog';
 import {ApplicationIcon} from '../../../icons/ApplicationIcon';
 import {ItemLabel} from '../../../ItemLabel';
@@ -128,6 +131,10 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
             root.addPropertySet(ApplicationConfig.PROPERTY_CONFIG);
             onAdd(new Value(root, ValueTypes.DATA));
         }
+
+        if (added.length > 0 || removedIndexes.length > 0) {
+            fireContentRequiresSave();
+        }
     }, [selectedKeys, values, onAdd, onRemove]);
 
     const handleRemove = useCallback((key: string) => {
@@ -137,6 +144,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
         });
         if (index >= 0) {
             onRemove(index);
+            fireContentRequiresSave();
         }
     }, [values, onRemove]);
 
@@ -492,3 +500,9 @@ const SiteConfigApplyButton = ({label, editing, form, baselineRef, onApply, onDi
 };
 
 SiteConfigApplyButton.displayName = 'SiteConfigApplyButton';
+
+const fireContentRequiresSave = (): void => {
+    const id = $contextContent.get()?.getId();
+    if (!id) return;
+    new ContentRequiresSaveEvent(new ContentId(id)).fire();
+};
