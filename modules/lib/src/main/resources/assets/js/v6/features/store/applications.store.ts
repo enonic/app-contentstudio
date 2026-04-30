@@ -1,5 +1,6 @@
 import {type Application} from '@enonic/lib-admin-ui/application/Application';
 import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {map} from 'nanostores';
 import {ResultAsync} from 'neverthrow';
 import {ListSiteApplicationsRequest} from '../../../app/resource/ListSiteApplicationsRequest';
@@ -55,17 +56,21 @@ async function fetchApplications(): Promise<void> {
 
     const request = new ListSiteApplicationsRequest();
 
-    await ResultAsync.fromPromise(request.sendAndParse(), (error) => {
-        console.error('Failed to load applications:', error);
-    }).map((applications) => {
-        const sorted = applications.sort((a, b) => a.getDisplayName().localeCompare(b.getDisplayName()));
+    await ResultAsync.fromPromise(request.sendAndParse(), (error) => error).match(
+        (applications) => {
+            const sorted = applications.sort((a, b) => a.getDisplayName().localeCompare(b.getDisplayName()));
 
-        $applications.set({
-            applications: sorted,
-            loading: false,
-            loaded: true,
-        });
-    });
+            $applications.set({
+                applications: sorted,
+                loading: false,
+                loaded: true,
+            });
+        },
+        (error) => {
+            DefaultErrorHandler.handle(error);
+            $applications.setKey('loading', false);
+        },
+    );
 }
 
 //
