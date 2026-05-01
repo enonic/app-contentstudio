@@ -7,4 +7,8 @@ export interface AttachmentJson {
     mimeType: string;
 
     size: number;
+
+    sha512?: string;
+
+    textContent?: string;
 }
