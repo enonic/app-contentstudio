@@ -140,6 +140,7 @@ export const ContentWizardToolbar = ({
                             startIcon={ArrowLeft}
                             onClick={onProjectBack}
                             className='min-w-fit pr-2.75 sm:pr-3.5'
+                            aria-label={projectViewLabel}
                         >
                             <ProjectIcon
                                 projectName={projectName ?? projectViewLabel}

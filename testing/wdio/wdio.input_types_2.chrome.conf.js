@@ -24,6 +24,7 @@ exports.config = {
         path.join(__dirname, '../specs/content-types-2/occurrences.tags.spec.js'),
         path.join(__dirname, '../specs/content-types-2/occurrences.image.selector.spec.js'),
         path.join(__dirname, '../specs/content-types-2/article.allow.child.cfg.spec.js'),
+        path.join(__dirname, '../specs/content-types-2/site.with.applications.spec.js'),
 
 
     ],

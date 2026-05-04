@@ -357,7 +357,7 @@ module.exports = {
         await contentWizardPanel.typeData(folder);
         // 2. Save the folder:
         // TODO workaround
-        if(!await contentWizardPanel.isSaveButtonDisabled()){
+        if (!await contentWizardPanel.isSaveButtonDisabled()) {
             await contentWizardPanel.waitAndClickOnSave();
         }
 
@@ -903,30 +903,25 @@ module.exports = {
             throw new Error('Error occurred while switching to the new browser tab' + err);
         }
     },
-    async doCloseWindowTabByTitle(title) {
-        try {
-            let arrayId = await this.getBrowser().getWindowHandles();
-            for (const item of arrayId) {
-                let result = await this.switchAndCheckTitle(item, title);
-                if (result) {
-                    await this.getBrowser().closeWindow();
-                }
-            }
-            await this.doSwitchToHome();
-        } catch (err) {
-            throw new Error('Error occurred during switching to the new browser tab ' + err);
-        }
-    },
+
     async doCloseAllWindowTabsAndSwitchToHome() {
+        await this.doCloseAllWindowTabs();
+        let contentBrowsePanel = new ContentBrowsePanel();
+        await contentBrowsePanel.clickOnShowXpMenuButton();
+    },
+    async navigateToHomePage(){
+        await this.getBrowser().url('http://localhost:8080/admin/');
+        await this.getBrowser().pause(100);
+    },
+    async doCloseAllWindowTabs() {
         let handles = await this.getBrowser().getWindowHandles();
         for (const item of handles) {
             let result = await this.switchAndCheckTitle(item, "Enonic XP Admin");
             if (!result) {
                 await this.getBrowser().closeWindow();
+                await this.getBrowser().pause(100);
             }
         }
-        let contentBrowsePanel = new ContentBrowsePanel();
-        await contentBrowsePanel.clickOnShowXpMenuButton();
     },
     async switchAndCheckTitle(handle, reqTitle) {
         try {

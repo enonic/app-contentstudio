@@ -145,6 +145,7 @@ const TREE_GRID = {
 }
 const DROPDOWN = {
     SELECTOR_UPLOAD_BUTTON:"//div[@data-component='SelectorUploadButton']",
+    ITEM_LABEL_NAME_SPAN:"//div[@data-component='ItemLabel']//span",
     MODE_TOGGLE:"//button[@aria-label='Tree view' or @aria-label='List view']",
     DROPDOWN_LIST_ITEM_DISPLAY_NAME: `//div[@role='option']//div[1]//span[1]`,
     CONTENT_LABEL_OPTIONS_NAME: "//div[@role='treeitem']//div[@data-component='ContentLabel']/div[2]/span",
