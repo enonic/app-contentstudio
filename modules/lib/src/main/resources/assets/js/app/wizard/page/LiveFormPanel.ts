@@ -174,6 +174,10 @@ export class LiveFormPanel
         ShowContentFormEvent.un(this.hideLoadMaskHandler);
 
         this.liveEditPageProxy.remove();
+        cleanupComponentInspection();
+        cleanupFragmentInspection();
+        cleanupPageInspection();
+        cleanupPageEditorBridge();
         super.remove();
         return this;
     }
@@ -206,8 +210,8 @@ export class LiveFormPanel
             contentContext: {
                 contentId: content.getContentId(),
                 contentTypeName: content.getType(),
-                siteId: siteModel?.getSiteId() ?? null,
-                sitePath: siteModel?.getSite().getPath().toString() ?? null,
+                siteId: site?.getContentId() ?? null,
+                sitePath: site?.getPath().toString() ?? null,
                 isPageTemplate: content.isPageTemplate(),
                 isInherited: content.isInherited(),
                 isDataInherited: content.isDataInherited(),
@@ -215,8 +219,8 @@ export class LiveFormPanel
             },
         });
 
-        initPageInspectionService();
-        initComponentInspectionService();
+        initPageInspectionService(siteModel);
+        initComponentInspectionService(siteModel);
         initFragmentInspectionService();
 
         // Sync renderable state that may have been set before bridge init
@@ -281,12 +285,11 @@ export class LiveFormPanel
     }
 
     unloadPage(): void {
+        // ! Iframe-only unload. Inspection stores stay alive so the inspect
+        // ! panel keeps showing controllers while the iframe is not renderable.
+        // ! Store cleanup runs in remove() when the wizard is destroyed.
         this.liveEditPageProxy?.unload();
         this.liveEditModel = null;
-        cleanupComponentInspection();
-        cleanupFragmentInspection();
-        cleanupPageInspection();
-        cleanupPageEditorBridge();
     }
 
     handle(event: PageNavigationEvent): void {

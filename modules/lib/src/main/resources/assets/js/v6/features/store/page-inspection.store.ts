@@ -1,6 +1,7 @@
 import {atom, computed} from 'nanostores';
 import type {PageTemplate} from '../../../app/content/PageTemplate';
 import type {Descriptor} from '../../../app/page/Descriptor';
+import type {SiteModel} from '../../../app/site/SiteModel';
 import {createDebounce} from '../utils/timing/createDebounce';
 import {$contentContext, $page, $pageEditorLifecycle, $pageVersion} from './page-editor/store';
 import type {PageEditorContentContext} from './page-editor/types';
@@ -82,10 +83,9 @@ async function loadTemplatesAndControllers(ctx: PageEditorContentContext): Promi
     }
 }
 
-export function initPageInspectionService(): void {
+export function initPageInspectionService(siteModel?: SiteModel | null): void {
     cleanupPageInspection();
 
-    // Load templates and controllers when content context becomes available
     const unsubContext = $contentContext.subscribe((ctx) => {
         if (!ctx) return;
         void loadTemplatesAndControllers(ctx);
@@ -93,7 +93,6 @@ export function initPageInspectionService(): void {
     cleanups.push(unsubContext);
 
     // Reload when the current content, the site, or a descendant page-template is updated.
-    // Site updates may add or remove applications, changing available templates and controllers.
     const reloadDebounced = createDebounce(() => {
         const ctx = $contentContext.get();
         if (ctx) void loadTemplatesAndControllers(ctx);
@@ -125,6 +124,19 @@ export function initPageInspectionService(): void {
         reloadDebounced.cancel();
         unsubContentUpdated();
     });
+
+    // Reload when applications change in the SiteConfigurator dialog before any server round-trip.
+    if (siteModel) {
+        const onSiteModelChange = (): void => reloadDebounced();
+        siteModel.onApplicationAdded(onSiteModelChange);
+        siteModel.onApplicationRemoved(onSiteModelChange);
+        siteModel.onSiteModelUpdated(onSiteModelChange);
+        cleanups.push(() => {
+            siteModel.unApplicationAdded(onSiteModelChange);
+            siteModel.unApplicationRemoved(onSiteModelChange);
+            siteModel.unSiteModelUpdated(onSiteModelChange);
+        });
+    }
 
     // Load descriptor when controller changes
     let lastControllerKey: string | null = null;
