@@ -333,7 +333,7 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
         });
     }
 
-    private sortAggregations(aggregations: BucketAggregation[]): void {
+    protected sortAggregations(aggregations: BucketAggregation[]): void {
         const order = Object.values(ContentAggregation).filter(value => typeof value === 'string') as string[];
 
         aggregations.sort(
