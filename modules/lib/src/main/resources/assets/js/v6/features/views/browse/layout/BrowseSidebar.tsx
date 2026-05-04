@@ -5,11 +5,12 @@ import {useStore} from '@nanostores/preact';
 import {type LucideIcon, Pen, Settings} from 'lucide-react';
 import {type ReactElement, useCallback} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
+import {DefaultProjectIcon} from '../../../shared/icons/DefaultProjectIcon';
 import {ProjectIcon} from '../../../shared/icons/ProjectIcon';
 import {LegacyElement} from '../../../shared/LegacyElement';
 import {WidgetButton} from '../../../shared/WidgetButton';
-import {$activeProject} from '../../../store/projects.store';
-import {$sidebarWidgets, getWidgetKey, isMainWidget, isSettingsWidget, setActiveWidget} from '../../../store/sidebarWidgets.store';
+import {$activeProject, $noProjectMode} from '../../../store/projects.store';
+import {$sidebarWidgets, getSettingsWidget, getWidgetKey, isMainWidget, isSettingsWidget, setActiveWidget} from '../../../store/sidebarWidgets.store';
 
 function getWidgetIcon(widget: Readonly<Extension>): LucideIcon | undefined {
     if (isMainWidget(widget)) return Pen;
@@ -19,16 +20,18 @@ function getWidgetIcon(widget: Readonly<Extension>): LucideIcon | undefined {
 
 export const BrowseSidebar = (): ReactElement => {
     const activeProject = useStore($activeProject);
+    const noProjectMode = useStore($noProjectMode);
     const {widgets, activeWidgetId} = useStore($sidebarWidgets);
     const name = Store.instance().get('application').getName();
     // const version = 'v' + CONFIG.getString('appVersion');
     const version = 'v6.0.0'; // temporary hardcoded for demo purposes
 
-    const mainWidgets = widgets.slice(0, -1);
-    const lastWidget = widgets.at(-1);
+    const settingsWidget = getSettingsWidget(widgets);
+    const mainWidgets = noProjectMode ? [] : widgets.slice(0, -1);
+    const footerWidget = noProjectMode ? settingsWidget : widgets.at(-1);
 
     const isWidgetActive = useCallback(
-        (widget: Readonly<Extension>) => {
+        (widget: Readonly<Extension> | undefined) => {
             return getWidgetKey(widget) === activeWidgetId;
         },
         [activeWidgetId]
@@ -39,13 +42,16 @@ export const BrowseSidebar = (): ReactElement => {
             class="bg-surface-neutral absolute h-screen w-15 flex flex-col gap-10 items-center py-2.5 px-1.75 border-r border-bdr-soft"
             aria-label={useI18n('wcag.sidebar.label')}
         >
-            {/* Header */}
-            <ProjectIcon
-                projectName={activeProject?.getName()}
-                language={activeProject?.getLanguage()}
-                hasIcon={!!activeProject?.getIcon()}
-                className="flex-shrink-0 my-1.75 ml-0"
-            />
+            {noProjectMode ? (
+                <DefaultProjectIcon className="size-8 flex-shrink-0 my-1.75 ml-0" />
+            ) : (
+                <ProjectIcon
+                    projectName={activeProject?.getName()}
+                    language={activeProject?.getLanguage()}
+                    hasIcon={!!activeProject?.getIcon()}
+                    className="flex-shrink-0 my-1.75 ml-0"
+                />
+            )}
             <h1 title={name} class="[writing-mode:vertical-lr] text-nowrap text-base font-semibold">
                 {name}
             </h1>
@@ -67,14 +73,14 @@ export const BrowseSidebar = (): ReactElement => {
                 </div>
                 {/* Footer */}
                 <div className='flex flex-col gap-1'>
-                    {lastWidget && (
+                    {footerWidget && (
                         <WidgetButton
-                            label={lastWidget.getDisplayName()}
-                            active={isWidgetActive(lastWidget)}
-                            icon={getWidgetIcon(lastWidget)}
-                            iconUrl={lastWidget.getIconUrl() && lastWidget.getFullIconUrl()}
+                            label={footerWidget.getDisplayName()}
+                            active={isWidgetActive(footerWidget)}
+                            icon={getWidgetIcon(footerWidget)}
+                            iconUrl={footerWidget.getIconUrl() && footerWidget.getFullIconUrl()}
                             onClick={() => {
-                                setActiveWidget(lastWidget);
+                                setActiveWidget(footerWidget);
                             }}
                         />
                     )}

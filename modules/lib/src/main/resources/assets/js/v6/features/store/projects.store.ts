@@ -31,11 +31,19 @@ const SYNC_NAME = 'projects';
 type ProjectsStore = {
     projects: Readonly<Project>[];
     activeProjectId: string | undefined;
+    loaded: boolean;
+    resolved: boolean;
+    loadError: boolean;
+    noProjectMode: boolean;
 };
 
 export const $projects = map<ProjectsStore>({
     projects: [],
     activeProjectId: undefined,
+    loaded: false,
+    resolved: false,
+    loadError: false,
+    noProjectMode: ProjectContext.get().isNotAvailable(),
 });
 
 syncMapStore($projects, SYNC_NAME, {
@@ -48,6 +56,14 @@ export const $activeProject = computed($projects, (store) => {
     const activeProject = store.projects.find((p) => getProjectId(p) === store.activeProjectId);
 
     return isAvailableProject(activeProject) ? activeProject : undefined;
+});
+
+export const $noProjectMode = computed($projects, (store) => {
+    if (!store.loaded) {
+        return store.noProjectMode;
+    }
+
+    return !store.projects.some(isAvailableProject);
 });
 
 export const $activeProjectName = computed($activeProject, (activeProject) => {
@@ -65,6 +81,7 @@ export function setActiveProject(project: Readonly<Project> | undefined): void {
     const existsInStore = $projects.get().projects.some((p) => getProjectId(p) === getProjectId(project));
     if (!existsInStore) return;
     $projects.setKey('activeProjectId', getProjectId(project));
+    $projects.setKey('noProjectMode', false);
 }
 
 export function isActiveProject(projectName: string | undefined): boolean {
@@ -132,8 +149,13 @@ async function loadProjects(): Promise<void> {
         const projects = await request.sendAndParse();
 
         $projects.setKey('projects', projects);
+        $projects.setKey('loaded', true);
+        $projects.setKey('resolved', true);
+        $projects.setKey('loadError', false);
         updateActiveProject();
     } catch (error) {
+        $projects.setKey('resolved', true);
+        $projects.setKey('loadError', true);
         console.error(error);
     } finally {
         isLoading = false;
@@ -209,6 +231,14 @@ ProjectCreatedEvent.on(() => {
 ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
     const deletedProjectId = event.getProjectName();
     removeProject(deletedProjectId, resolveDeleteNavigation(deletedProjectId));
+});
+
+ProjectContext.get().onNoProjectsAvailable(() => {
+    $projects.setKey('noProjectMode', true);
+});
+
+ProjectContext.get().onProjectChanged(() => {
+    $projects.setKey('noProjectMode', false);
 });
 
 //

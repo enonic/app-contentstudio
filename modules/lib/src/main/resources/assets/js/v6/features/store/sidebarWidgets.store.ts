@@ -5,6 +5,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {computed, map} from 'nanostores';
 import {GetExtensionsByInterfaceRequest} from '../../../app/resource/GetExtensionsByInterfaceRequest';
 import {UrlAction} from '../../../app/UrlAction';
+import {$noProjectMode} from './projects.store';
 
 type WidgetsStore = {
     widgets: Readonly<Extension>[];
@@ -40,12 +41,16 @@ export function isDefaultWidget(widget: Readonly<Extension>): boolean {
     return firstWidget != null && getWidgetKey(firstWidget) === getWidgetKey(widget);
 }
 
-export function isMainWidget(widget: Readonly<Extension>): boolean {
+export function isMainWidget(widget: Readonly<Extension> | undefined): boolean {
     return getWidgetKey(widget)?.endsWith('studio:main') ?? false;
 }
 
-export function isSettingsWidget(widget: Readonly<Extension>): boolean {
+export function isSettingsWidget(widget: Readonly<Extension> | undefined): boolean {
     return getWidgetKey(widget)?.endsWith('studio:settings') ?? false;
+}
+
+export function getSettingsWidget(widgets: Readonly<Extension>[] = $sidebarWidgets.get().widgets): Readonly<Extension> | undefined {
+    return widgets.find((widget) => isSettingsWidget(widget));
 }
 
 //
@@ -87,8 +92,14 @@ async function loadWidgets(): Promise<void> {
 function updateActiveWidget(): void {
     if ($activeWidget.get()) return;
 
-    const url = window.location.href;
     const {widgets} = $sidebarWidgets.get();
+
+    if ($noProjectMode.get()) {
+        setActiveWidget(getSettingsWidget(widgets));
+        return;
+    }
+
+    const url = window.location.href;
 
     const widgetMatchingUrl = widgets.find((w) => {
         const widgetKey = getWidgetKey(w);

@@ -43,25 +43,19 @@ import {OpenEditPermissionsDialogEvent} from '@enonic/lib-contentstudio/app/even
 import {IssueServerEventsHandler} from '@enonic/lib-contentstudio/app/issue/event/IssueServerEventsHandler';
 import {IssueDialogsManager} from '@enonic/lib-contentstudio/app/issue/IssueDialogsManager';
 import {ContentMovePromptEvent} from '@enonic/lib-contentstudio/app/move/ContentMovePromptEvent';
-import {ProjectContext} from '@enonic/lib-contentstudio/app/project/ProjectContext';
 import {GetContentByIdRequest} from '@enonic/lib-contentstudio/app/resource/GetContentByIdRequest';
 import {GetContentByPathRequest} from '@enonic/lib-contentstudio/app/resource/GetContentByPathRequest';
 import {GetContentTypeByNameRequest} from '@enonic/lib-contentstudio/app/resource/GetContentTypeByNameRequest';
 import {Router} from '@enonic/lib-contentstudio/app/Router';
-import {Project} from '@enonic/lib-contentstudio/app/settings/data/project/Project';
-import {ProjectHelper} from '@enonic/lib-contentstudio/app/settings/data/project/ProjectHelper';
-import {ProjectDeletedEvent} from '@enonic/lib-contentstudio/app/settings/event/ProjectDeletedEvent';
 import {SettingsServerEventsListener} from '@enonic/lib-contentstudio/app/settings/event/SettingsServerEventsListener';
-import {ProjectListRequest} from '@enonic/lib-contentstudio/app/settings/resource/ProjectListRequest';
 import {$isDown, subscribe as subscribeToWorker} from '@enonic/lib-contentstudio/app/stores/worker';
 import {UrlAction} from '@enonic/lib-contentstudio/app/UrlAction';
 import {VersionHelper} from '@enonic/lib-contentstudio/app/util/VersionHelper';
 import {ContentAppHelper} from '@enonic/lib-contentstudio/app/wizard/ContentAppHelper';
 import {ContentWizardPanelParams} from '@enonic/lib-contentstudio/app/wizard/ContentWizardPanelParams';
 import {AppElement} from '@enonic/lib-contentstudio/v6/features/App';
-import {$activeProjectName} from '@enonic/lib-contentstudio/v6/features/store/projects.store';
+import {$activeProject, $projects} from '@enonic/lib-contentstudio/v6/features/store/projects.store';
 import * as $ from 'jquery';
-import Q from 'q';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -250,50 +244,26 @@ function startServerEventListeners(application: Application) {
     new SettingsServerEventsListener(application);
 }
 
-const handleProjectDeletedEvent = (projectName: string) => {
-    const currentProject: Project = ProjectContext.get().getProject();
-    const isCurrentProjectDeleted: boolean = projectName === currentProject.getName();
-
-    if (isCurrentProjectDeleted) {
-        handleCurrentProjectDeleted();
-    }
-};
-
-const handleCurrentProjectDeleted = () => {
-    new ProjectListRequest(true).sendAndParse().then((projects: Project[]) => {
-        const projectToSet: Project = getProjectToSet(projects);
-
-        if (projectToSet) {
-            ProjectContext.get().setProject(projectToSet);
-        } else {
-            ProjectContext.get().setNotAvailable();
-        }
-    }).catch(DefaultErrorHandler.handle);
-};
-
-const getProjectToSet = (projects: Project[]): Project => {
-    if (projects.length === 0) {
-        return null;
-    }
-
-    return getParentProject(ProjectContext.get().getProject(), projects) || getFirstAvailableProject(projects);
-};
-
-const getParentProject = (project: Project, projects: Project[]): Project => {
-    const parentProject: Project = projects.find((p: Project) => project.hasParentByName(p.getName()));
-
-    if (parentProject) {
-        return ProjectHelper.isAvailable(parentProject) ? parentProject : getParentProject(parentProject, projects);
-    }
-
-    return null;
-};
-
-const getFirstAvailableProject = (projects: Project[]): Project => {
-    return projects.find((p: Project) => ProjectHelper.isAvailable(p));
-};
-
 let connectionDetector: ConnectionDetector;
+let contentViewStarted = false;
+
+type ProjectsState = ReturnType<typeof $projects.get> & {
+    loaded?: boolean;
+    resolved?: boolean;
+    loadError?: boolean;
+};
+
+function getProjectsState(): ProjectsState {
+    return $projects.get() as ProjectsState;
+}
+
+function isProjectsResolved(): boolean {
+    return !!getProjectsState().resolved;
+}
+
+function hasActiveProject(): boolean {
+    return !!($activeProject.get() as unknown);
+}
 
 async function startApplication() {
     // v6 app initialization
@@ -306,25 +276,37 @@ async function startApplication() {
     startServerEventListeners(application);
     initApplicationEventListener();
 
-    initProjectContext(application)
-        .then(() => {
-            ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
-                handleProjectDeletedEvent(event.getProjectName());
-            });
-        })
-        .catch((reason) => {
-            DefaultErrorHandler.handle(reason);
-            NotifyManager.get().showWarning(i18n('notify.settings.project.initFailed'));
-        })
-        .finally(() => {
-            ProjectContext.get().whenInitialized(() => {
-                if (ContentAppHelper.isContentWizardUrl()) {
-                    startContentWizard();
-                } else {
-                    startContentBrowser();
-                }
-            });
-        });
+    let projectInitFailureShown = false;
+    const startResolvedContentView = () => {
+        if (contentViewStarted || !isProjectsResolved()) {
+            return;
+        }
+
+        if (getProjectsState().loadError) {
+            if (!projectInitFailureShown) {
+                projectInitFailureShown = true;
+                NotifyManager.get().showWarning(i18n('notify.settings.project.initFailed'));
+            }
+            return;
+        }
+
+        if (ContentAppHelper.isContentWizardUrl()) {
+            if (!hasActiveProject()) {
+                return;
+            }
+
+            contentViewStarted = true;
+            startContentWizard();
+            return;
+        }
+
+        contentViewStarted = true;
+        startContentBrowser();
+    };
+
+    $projects.subscribe(startResolvedContentView);
+    $activeProject.subscribe(startResolvedContentView);
+    startResolvedContentView();
 
     AppHelper.preventDragRedirect();
 
@@ -541,32 +523,6 @@ async function startContentBrowser() {
     new SortContentDialog();
 
     new ContentEventsListener().start();
-}
-
-function initProjectContext(application: Application): Q.Promise<void> {
-    return new ProjectListRequest(true).sendAndParse().then((projects: Project[]) => {
-        const projectName: string = application.getPath().getElement(0) || localStorage.getItem(ProjectContext.LOCAL_STORAGE_KEY) || $activeProjectName.get();
-
-        if (projectName) {
-            const currentProject: Project =
-                projects.find((project: Project) => ProjectHelper.isAvailable(project) && project.getName() === projectName);
-
-            if (currentProject) {
-                ProjectContext.get().setProject(currentProject);
-                return;
-            }
-        }
-
-        if (projects.length === 1 && ProjectHelper.isAvailable(projects[0])) {
-            ProjectContext.get().setProject(projects[0]);
-            return;
-        }
-
-        if (projects.length === 0) {
-            ProjectContext.get().setNotAvailable();
-            return;
-        }
-    });
 }
 
 (() => {

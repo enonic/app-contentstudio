@@ -1,17 +1,14 @@
 import {type Application} from '@enonic/lib-admin-ui/app/Application';
 import {TabbedAppBar} from '@enonic/lib-admin-ui/app/bar/TabbedAppBar';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import type Q from 'q';
 import {ShowIssuesDialogButton} from '../issue/view/ShowIssuesDialogButton';
-import {ProjectContext} from '../project/ProjectContext';
 import {Project} from '../settings/data/project/Project';
-import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
-import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
 import {ProjectViewer} from '../settings/wizard/viewer/ProjectViewer';
 import {AccessibilityHelper} from '../util/AccessibilityHelper';
+import {$activeProject, $noProjectMode, $projects} from '../../v6/features/store/projects.store';
 
 export class ContentAppBar
     extends TabbedAppBar {
@@ -21,6 +18,8 @@ export class ContentAppBar
     private showIssuesDialogButton: ShowIssuesDialogButton;
 
     private viewerAndNameSeparator: DivEl;
+
+    private readonly cleanups: (() => void)[] = [];
 
     private constructor(application: Application) {
         super(application);
@@ -43,24 +42,27 @@ export class ContentAppBar
     private initListeners() {
         AccessibilityHelper.makeTabbable(this.selectedProjectViewer);
 
-        const handler: () => void = this.handleProjectUpdate.bind(this);
+        const handler = this.handleProjectUpdate.bind(this);
 
-        ProjectContext.get().onProjectChanged(handler);
-        ProjectUpdatedEvent.on(handler);
+        this.cleanups.push($projects.subscribe(handler));
+
+        this.onRemoved(() => {
+            this.cleanups.forEach((cleanup) => cleanup());
+            this.cleanups.length = 0;
+        });
     }
 
     private handleProjectUpdate(): void {
-        if (!ProjectContext.get().isInitialized()) {
+        const activeProject = $activeProject.get();
+
+        if ($noProjectMode.get() || !activeProject) {
+            this.disable();
             return;
         }
 
-        const currentProjectName: string = ProjectContext.get().getProject().getName();
-
-        new ProjectListRequest(true).sendAndParse().then((projects: Project[]) => {
-            const project: Project = projects.find((p: Project) => p.getName() === currentProjectName);
-            this.selectedProjectViewer.setObject(project);
-            this.selectedProjectViewer.toggleClass('multi-projects', projects.length > 1);
-        }).catch(DefaultErrorHandler.handle);
+        this.enable();
+        this.selectedProjectViewer.setObject(activeProject as Project);
+        this.selectedProjectViewer.toggleClass('multi-projects', $projects.get().projects.length > 1);
     }
 
     static getInstance(): ContentAppBar {

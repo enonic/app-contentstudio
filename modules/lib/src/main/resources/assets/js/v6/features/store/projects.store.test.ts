@@ -13,12 +13,18 @@ const {
     mockSetProjectSelectionDialogOpen,
     mockProjectContextSetProject,
     mockProjectContextSetNotAvailable,
+    mockProjectContextIsNotAvailable,
+    noProjectsAvailableHandlers,
+    projectChangedHandlers,
 } = vi.hoisted(() => ({
     deletedHandlers: [] as ((event: {getProjectName(): string}) => void)[],
     mockProjectListSendAndParse: vi.fn(),
     mockSetProjectSelectionDialogOpen: vi.fn(),
     mockProjectContextSetProject: vi.fn(),
     mockProjectContextSetNotAvailable: vi.fn(),
+    mockProjectContextIsNotAvailable: vi.fn(() => false),
+    noProjectsAvailableHandlers: [] as (() => void)[],
+    projectChangedHandlers: [] as ((project: MockProject) => void)[],
 }));
 
 vi.mock('../../../app/settings/resource/ProjectListRequest', () => ({
@@ -66,6 +72,13 @@ vi.mock('../../../app/project/ProjectContext', () => ({
         get: () => ({
             setProject: mockProjectContextSetProject,
             setNotAvailable: mockProjectContextSetNotAvailable,
+            isNotAvailable: mockProjectContextIsNotAvailable,
+            onNoProjectsAvailable: vi.fn((handler: () => void) => {
+                noProjectsAvailableHandlers.push(handler);
+            }),
+            onProjectChanged: vi.fn((handler: (project: MockProject) => void) => {
+                projectChangedHandlers.push(handler);
+            }),
         }),
     },
 }));
@@ -116,10 +129,13 @@ async function flushPromises(times: number = 5): Promise<void> {
 async function loadStore(projects: MockProject[], currentProjectId: string): Promise<typeof import('./projects.store')> {
     vi.resetModules();
     deletedHandlers.length = 0;
+    noProjectsAvailableHandlers.length = 0;
+    projectChangedHandlers.length = 0;
     mockProjectListSendAndParse.mockReset().mockResolvedValue(projects);
     mockSetProjectSelectionDialogOpen.mockReset();
     mockProjectContextSetProject.mockReset();
     mockProjectContextSetNotAvailable.mockReset();
+    mockProjectContextIsNotAvailable.mockReset().mockReturnValue(false);
     window.history.pushState({}, '', `/contentstudio/cms/${currentProjectId}/browse`);
 
     const store = await import('./projects.store');
@@ -136,6 +152,9 @@ describe('projects.store delete intent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         deletedHandlers.length = 0;
+        noProjectsAvailableHandlers.length = 0;
+        projectChangedHandlers.length = 0;
+        mockProjectContextIsNotAvailable.mockReset().mockReturnValue(false);
     });
 
     afterEach(() => {

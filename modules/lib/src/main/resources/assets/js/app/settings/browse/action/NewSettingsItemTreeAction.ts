@@ -3,6 +3,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {type Project} from '../../data/project/Project';
 import {type SettingsViewItem} from '../../view/SettingsViewItem';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {ProjectConfigContext} from '../../data/project/ProjectConfigContext';
 import {getCurrentItems} from '../../../../v6/features/store/settingsTreeSelection.store';
@@ -13,6 +14,10 @@ export class NewSettingsItemTreeAction extends Action {
         super(i18n('action.new'), 'alt+n');
 
         this.onExecuted(() => {
+            if (!AuthHelper.isContentAdmin()) {
+                return;
+            }
+
             openCreateProjectDialog(this.getSelectedProjects());
         });
     }

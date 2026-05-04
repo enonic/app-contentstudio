@@ -7,7 +7,8 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {type ExtensionElement, ExtensionHelper} from '@enonic/lib-admin-ui/extension/ExtensionHelper';
 import {cn} from '@enonic/ui';
 import type Q from 'q';
-import {$activeWidget, isDefaultWidget} from '../v6/features/store/sidebarWidgets.store';
+import {$activeWidget, $sidebarWidgets, getSettingsWidget, isDefaultWidget, isSettingsWidget, setActiveWidget} from '../v6/features/store/sidebarWidgets.store';
+import {$noProjectMode} from '../v6/features/store/projects.store';
 import {BrowseAppBarElement} from '../v6/features/views/browse/layout/BrowseAppBar';
 import {BrowseSidebarElement} from '../v6/features/views/browse/layout/BrowseSidebar';
 import {ContentAppContainer} from './ContentAppContainer';
@@ -25,11 +26,14 @@ export class AppWrapper extends DivEl {
 
     private extensionsBlock: DivEl;
 
+    private noProjectMode: boolean = $noProjectMode.get();
+
     constructor(className?: string) {
         super(cn('main-app-wrapper text-main', className));
 
         this.initElements();
         this.initListeners();
+        this.setNoProjectMode(this.noProjectMode);
     }
 
     private initElements() {
@@ -39,8 +43,39 @@ export class AppWrapper extends DivEl {
     }
 
     private initListeners() {
+        const syncNoProjectWidget = () => {
+            if (!this.noProjectMode) {
+                return;
+            }
+
+            const settingsWidget = getSettingsWidget($sidebarWidgets.get().widgets);
+            if (settingsWidget && !isSettingsWidget($activeWidget.get())) {
+                setActiveWidget(settingsWidget);
+            }
+        };
+
         $activeWidget.subscribe((value) => {
-            if (value) this.selectExtension(value);
+            if (!value) {
+                syncNoProjectWidget();
+                return;
+            }
+
+            if (this.noProjectMode && !isSettingsWidget(value)) {
+                syncNoProjectWidget();
+                return;
+            }
+
+            this.selectExtension(value);
+        });
+
+        $sidebarWidgets.subscribe(() => {
+            syncNoProjectWidget();
+        });
+
+        $noProjectMode.subscribe((value) => {
+            if (value !== this.noProjectMode) {
+                this.setNoProjectMode(value);
+            }
         });
     }
 
@@ -89,6 +124,10 @@ export class AppWrapper extends DivEl {
     }
 
     private updateUrl(extension: Readonly<Extension>): void {
+        if (this.noProjectMode) {
+            return;
+        }
+
         if (isDefaultWidget(extension)) {
             Router.get().setHash(UrlAction.BROWSE);
             return;
@@ -136,6 +175,7 @@ export class AppWrapper extends DivEl {
             const headerAndWidgetsBlock: DivEl = new DivEl('header-widgets-block');
             headerAndWidgetsBlock.appendChildren(this.appBar, this.extensionsBlock);
             this.appendChildren(this.sidebar, headerAndWidgetsBlock);
+            this.setNoProjectMode(this.noProjectMode);
 
             ResponsiveManager.onAvailableSizeChanged(this.appBar);
 
@@ -163,5 +203,26 @@ export class AppWrapper extends DivEl {
 
     private isInternalExtension(key: string): boolean {
         return key === CONFIG.get('appId');
+    }
+
+    private setNoProjectMode(enabled: boolean): void {
+        const wasNoProjectMode = this.noProjectMode;
+        this.noProjectMode = enabled;
+
+        if (!enabled) {
+            if (wasNoProjectMode) {
+                const activeWidget = $activeWidget.get();
+                if (activeWidget) {
+                    this.updateUrl(activeWidget);
+                }
+            }
+
+            return;
+        }
+
+        const settingsWidget = getSettingsWidget($sidebarWidgets.get().widgets);
+        if (settingsWidget && !isSettingsWidget($activeWidget.get())) {
+            setActiveWidget(settingsWidget);
+        }
     }
 }

@@ -52,6 +52,10 @@ export class ProjectContext {
         return this.state === State.INITIALIZED;
     }
 
+    isNotAvailable(): boolean {
+        return this.state === State.NOT_AVAILABLE;
+    }
+
     whenInitialized(callback: () => void) {
         if (this.isInitialized()) {
             callback();
