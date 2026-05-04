@@ -22,36 +22,24 @@ type ConfigJson = {
     defaultPublishFromTime?: unknown;
 };
 
-export const $config = map<ConfigStore>(loadConfig());
+export const $config = map<ConfigStore>();
+
+export function initConfig(scriptId: string): void {
+    const scriptElement = document.getElementById(scriptId);
+    if (!scriptElement) {
+        console.error(`Unable to locate config script #${scriptId}.`);
+        return;
+    }
+
+    const config = parseConfig(scriptElement.textContent ?? '');
+    if (config) {
+        $config.set(config);
+    }
+}
 
 //
 // * Utilities
 //
-
-function loadConfig(): ConfigStore | undefined {
-    const {currentScript} = document;
-    if (!currentScript) {
-        console.error('"currentScript" not supported. You either using legacy browser or ES modules.');
-        return;
-    }
-
-    const configScriptId = currentScript.getAttribute('data-config-script-id');
-    if (!configScriptId) {
-        console.error('Unable to locate config script id. Make sure to add "data-config-script-id" attribute to the script tag.');
-        return;
-    }
-
-    const scriptElement = document.getElementById(configScriptId);
-
-    if (!scriptElement) {
-        console.error('Unable to locate config script element.');
-        return;
-    }
-
-    const content = scriptElement.innerText;
-
-    return parseConfig(content);
-}
 
 function parseConfig(content: string): ConfigStore | undefined {
     try {

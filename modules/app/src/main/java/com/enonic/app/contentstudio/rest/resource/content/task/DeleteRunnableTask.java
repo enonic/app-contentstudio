@@ -49,7 +49,7 @@ public class DeleteRunnableTask
 
         final long parentsToDeleteInMaster =
             masterContext.callWith( () -> this.contentService.getByPaths( contentsToDeleteList ).getSize() );
-        final long childrenToDeleteInMaster = masterContext.callWith( () -> countChildrenToDelete( contentsToDeleteList ) );
+        final long childrenToDeleteInMaster = parentsToDeleteInMaster > 0 ? masterContext.callWith( () -> countChildrenToDelete( contentsToDeleteList ) ) : 0;
 
         result += parentsToDeleteInMaster + childrenToDeleteInMaster;
 
