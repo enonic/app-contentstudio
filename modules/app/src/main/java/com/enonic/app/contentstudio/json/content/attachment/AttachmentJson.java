@@ -41,11 +41,6 @@ public class AttachmentJson
         return this.attachment.getSha512();
     }
 
-    public String getTextContent()
-    {
-        return this.attachment.getTextContent();
-    }
-
     @JsonIgnore
     public Attachment getAttachment()
     {

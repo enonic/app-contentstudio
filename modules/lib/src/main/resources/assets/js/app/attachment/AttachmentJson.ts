@@ -9,6 +9,4 @@ export interface AttachmentJson {
     size: number;
 
     sha512?: string;
-
-    textContent?: string;
 }

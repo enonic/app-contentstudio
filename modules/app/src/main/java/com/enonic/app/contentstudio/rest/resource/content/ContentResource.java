@@ -1738,7 +1738,6 @@ public final class ContentResource
                 .name( sourceAttachment.getName() )
                 .mimeType( sourceAttachment.getMimeType() )
                 .byteSource( sourceBinary )
-                .text( sourceAttachment.getTextContent() )
                 .label( sourceAttachment.getLabel() )
                 .build();
         }

@@ -18,7 +18,6 @@ class AttachmentJsonTest
             .mimeType( "application/pdf" )
             .size( 12345 )
             .sha512( "abc123" )
-            .textContent( "extracted text" )
             .build();
 
         final AttachmentJson json = new AttachmentJson( attachment );
@@ -28,12 +27,11 @@ class AttachmentJsonTest
         assertEquals( "application/pdf", json.getMimeType() );
         assertEquals( 12345L, json.getSize() );
         assertEquals( "abc123", json.getSha512() );
-        assertEquals( "extracted text", json.getTextContent() );
         assertEquals( attachment, json.getAttachment() );
     }
 
     @Test
-    void nullSha512AndTextContent()
+    void nullSha512()
     {
         final Attachment attachment = Attachment.create()
             .name( "image.png" )
@@ -44,6 +42,5 @@ class AttachmentJsonTest
         final AttachmentJson json = new AttachmentJson( attachment );
 
         assertNull( json.getSha512() );
-        assertNull( json.getTextContent() );
     }
 }
