@@ -1,6 +1,9 @@
 import {atom, computed} from 'nanostores';
 import type {Descriptor} from '../../../app/page/Descriptor';
 import {DescriptorBasedComponent} from '../../../app/page/region/DescriptorBasedComponent';
+import type {SiteModel} from '../../../app/site/SiteModel';
+import {createDebounce} from '../utils/timing/createDebounce';
+import type {PageEditorContentContext} from './page-editor/types';
 import {$contentContext, $inspectedItem, $pageVersion} from './page-editor/store';
 
 //
@@ -36,40 +39,62 @@ export const $selectedComponentDescriptorKey = computed(
 let abortController: AbortController | null = null;
 const cleanups: (() => void)[] = [];
 
-// TODO: reload descriptors on SiteModel app lifecycle changes (add/remove/unavailable)
+async function loadDescriptors(ctx: PageEditorContentContext): Promise<void> {
+    $isComponentInspectionLoading.set(true);
+    abortController?.abort();
+    abortController = new AbortController();
+    const {signal} = abortController;
 
-export function initComponentInspectionService(): void {
+    try {
+        const {loadComponentDescriptors} = await import('../api/componentInspection');
+
+        const [parts, layouts] = await Promise.all([
+            loadComponentDescriptors('part', ctx.contentId),
+            loadComponentDescriptors('layout', ctx.contentId),
+        ]);
+
+        if (!signal.aborted) {
+            $partDescriptorOptions.set(parts);
+            $layoutDescriptorOptions.set(layouts);
+        }
+    } catch {
+        // Aborted or failed
+    } finally {
+        if (!signal.aborted) {
+            $isComponentInspectionLoading.set(false);
+        }
+    }
+}
+
+export function initComponentInspectionService(siteModel?: SiteModel | null): void {
     cleanupComponentInspection();
 
-    // Load part and layout descriptor options when content context becomes available
     const unsubContext = $contentContext.subscribe((ctx) => {
         if (!ctx) return;
-
-        $isComponentInspectionLoading.set(true);
-        abortController?.abort();
-        abortController = new AbortController();
-
-        void (async () => {
-            try {
-                const {loadComponentDescriptors} = await import('../api/componentInspection');
-
-                const [parts, layouts] = await Promise.all([
-                    loadComponentDescriptors('part', ctx.contentId),
-                    loadComponentDescriptors('layout', ctx.contentId),
-                ]);
-
-                if (!abortController.signal.aborted) {
-                    $partDescriptorOptions.set(parts);
-                    $layoutDescriptorOptions.set(layouts);
-                }
-            } catch {
-                // Aborted or failed
-            } finally {
-                $isComponentInspectionLoading.set(false);
-            }
-        })();
+        void loadDescriptors(ctx);
     });
     cleanups.push(unsubContext);
+
+    // Reload when applications change in the SiteConfigurator dialog before any server round-trip.
+    const reloadDebounced = createDebounce(() => {
+        const ctx = $contentContext.get();
+        if (ctx) void loadDescriptors(ctx);
+    }, 300);
+
+    if (siteModel) {
+        const onSiteModelChange = (): void => reloadDebounced();
+        siteModel.onApplicationAdded(onSiteModelChange);
+        siteModel.onApplicationRemoved(onSiteModelChange);
+        siteModel.onSiteModelUpdated(onSiteModelChange);
+        cleanups.push(() => {
+            reloadDebounced.cancel();
+            siteModel.unApplicationAdded(onSiteModelChange);
+            siteModel.unApplicationRemoved(onSiteModelChange);
+            siteModel.unSiteModelUpdated(onSiteModelChange);
+        });
+    } else {
+        cleanups.push(() => reloadDebounced.cancel());
+    }
 
     // Load the active descriptor when the inspected component's descriptor key changes
     let lastKey: string | null = null;

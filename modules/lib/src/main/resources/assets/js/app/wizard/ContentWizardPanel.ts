@@ -896,6 +896,9 @@ export class ContentWizardPanel
         });
 
         PageState.getEvents().onPageUpdated((event: PageUpdatedEvent) => {
+            // ! Sync draft before saveChanges — diff reads $wizardDraftPage,
+            // ! the updateTabsElement listener fires later in the chain.
+            setDraftPage(PageState.getState());
             this.setMarkedAsReady(false);
 
             if (event instanceof PageControllerCustomizedEvent) {
