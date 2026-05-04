@@ -4,7 +4,9 @@ on:
   push:
   workflow_dispatch:
 
-concurrency: build-${{ github.ref }}
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/heads/6.') }}
 
 jobs:
   publish_vars:
