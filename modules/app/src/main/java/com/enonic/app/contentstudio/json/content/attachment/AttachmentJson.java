@@ -36,6 +36,16 @@ public class AttachmentJson
         return this.attachment.getSize();
     }
 
+    public String getSha512()
+    {
+        return this.attachment.getSha512();
+    }
+
+    public String getTextContent()
+    {
+        return this.attachment.getTextContent();
+    }
+
     @JsonIgnore
     public Attachment getAttachment()
     {

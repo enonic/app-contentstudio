@@ -17,11 +17,17 @@ export class Attachment
 
     private size: number;
 
+    private sha512: string;
+
+    private textContent: string;
+
     constructor(builder: AttachmentBuilder) {
         this.name = builder.name;
         this.label = builder.label;
         this.mimeType = builder.mimeType;
         this.size = builder.size;
+        this.sha512 = builder.sha512;
+        this.textContent = builder.textContent;
     }
 
     getBinaryReference(): BinaryReference {
@@ -42,6 +48,14 @@ export class Attachment
 
     getSize(): number {
         return this.size;
+    }
+
+    getSha512(): string {
+        return this.sha512;
+    }
+
+    getTextContent(): string {
+        return this.textContent;
     }
 
     equals(o: Equitable): boolean {
@@ -75,7 +89,9 @@ export class Attachment
             name: this.getName().toString(),
             label: this.getLabel(),
             mimeType: this.getMimeType(),
-            size: this.getSize()
+            size: this.getSize(),
+            sha512: this.getSha512(),
+            textContent: this.getTextContent()
         };
     }
 
@@ -100,8 +116,13 @@ export class AttachmentBuilder {
 
     size: number;
 
+    sha512: string;
+
+    textContent: string;
+
     public fromJson(json: AttachmentJson): AttachmentBuilder {
-        this.setName(new AttachmentName(json.name)).setLabel(json.label).setSize(json.size).setMimeType(json.mimeType);
+        this.setName(new AttachmentName(json.name)).setLabel(json.label).setSize(json.size).setMimeType(json.mimeType)
+            .setSha512(json.sha512).setTextContent(json.textContent);
         return this;
     }
 
@@ -122,6 +143,16 @@ export class AttachmentBuilder {
 
     public setSize(value: number): AttachmentBuilder {
         this.size = value;
+        return this;
+    }
+
+    public setSha512(value: string): AttachmentBuilder {
+        this.sha512 = value;
+        return this;
+    }
+
+    public setTextContent(value: string): AttachmentBuilder {
+        this.textContent = value;
         return this;
     }
 
