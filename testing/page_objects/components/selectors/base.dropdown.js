@@ -13,7 +13,7 @@ const XPATH = {
                `//ancestor::li[contains(@id,'ContentListElement')]//div[contains(@class,'toggle icon-arrow_drop_up')]`;
     },
     // v6: text span inside each selected option row in SortableGridList
-    SortableGridListSelectedOptionText:
+    sortableGridListSelectedOptionText:
         `//div[@data-component='SortableGridList']/div//span[contains(@class,'truncate')]`,
 }
 
@@ -273,7 +273,7 @@ class BaseDropdown extends Page {
 
     async getSelectedOptionsDisplayName() {
         const base = this.dataComponentDiv ? this.container + this.dataComponentDiv : this.container;
-        const locator = base + XPATH.SortableGridListSelectedOptionText;
+        const locator = base + XPATH.sortableGridListSelectedOptionText;
         return await this.getTextInDisplayedElements(locator);
     }
 

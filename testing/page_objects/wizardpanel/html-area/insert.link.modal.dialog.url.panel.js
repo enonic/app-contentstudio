@@ -4,6 +4,7 @@ const appConst = require('../../../libs/app_const');
 const XPATH = {
     container: `//div[@role='dialog' and @data-component='HtmlAreaLinkDialog']`,
     urlPanel: "//div[@data-component='UrlTabPanel']",
+    urlTypeOption: option => `//div[@role='listbox']//div[@role='option' and child::span[text()='${option}']]`,
 };
 
 class InsertLinkDialogUrlPanel extends Page {
@@ -44,21 +45,21 @@ class InsertLinkDialogUrlPanel extends Page {
 
     async clickOnUrlTypeButton() {
         let locator = XPATH.container + XPATH.urlPanel + "//button[@role='combobox']";
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(locator);
         await this.clickOnElement(locator);
         return await this.pause(200);
     }
 
     async getUrlTypeMenuOptions() {
-        let locator = XPATH.container + "//div[@role='option']";
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        let locator = "//div[@role='listbox']//div[@role='option']//span[contains(@class,'flex-1')]";
+        await this.waitForElementDisplayed(locator);
         return await this.getTextInDisplayedElements(locator);
     }
 
     async clickOnUrlTypeMenuOption(option) {
         await this.clickOnUrlTypeButton();
-        let optionLocator = `//div[@role='option' and contains(.,'${option}')]`;
-        await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
+        let optionLocator = `//div[@role='option' and child::span[text()='${option}']]`;
+        await this.waitForElementDisplayed(optionLocator);
         await this.clickOnElement(optionLocator);
         return await this.pause(300);
     }
@@ -80,6 +81,14 @@ class InsertLinkDialogUrlPanel extends Page {
             throw new Error("Insert link dialog should be closed " + err);
         }
     }
+
+    async isUrlTypeOptionSelected(option) {
+        let locator =  XPATH.urlTypeOption(option);
+        let el = await this.findElements(locator);
+        let attr= await el[0].getAttribute('aria-selected');
+        return attr==='true';
+    }
+
 }
 
 module.exports = InsertLinkDialogUrlPanel;

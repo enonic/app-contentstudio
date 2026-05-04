@@ -44,7 +44,7 @@ class SiteConfiguratorDialog extends Page {
 
     async waitForImageUploadButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.imageSelectorUploadButton, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.imageSelectorUploadButton);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_upload');
             throw new Error(`Site Config, upload button, screenshot: '${screenshot}' ` + err);

@@ -6,14 +6,15 @@ const {COMMON} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const SiteConfiguratorComboBox = require('../components/selectors/site.configurator.combobox');
 const SiteConfigDialog = require('./site.configurator.dialog');
+
 const XPATH = {
     wizardSteps: `//div[contains(@id,'ContentWizardTabsToolbar')]`,
     editIcon: `//a[@class='edit']`,
     descriptionInput: `//textarea[contains(@name,'description')]`,
-    applicationsSelectedOptions: "//div[contains(@id,'SiteConfiguratorSelectedOptionView')]",
     siteConfigComboboxDiv: "//div[contains(@id,'SiteConfiguratorComboBox')]",
+    removeAppIcon: `//button[.//*[name()='svg' and contains(@class,'lucide-x')]]`,
     selectedAppByDisplayName: (displayName) => {
-        return `//div[contains(@id,'SiteConfiguratorSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${displayName}']]`
+        return `//div[@data-component='SiteConfiguratorInput']//div[@role='button' and descendant::span[text()='${displayName}']]`
     },
 };
 
@@ -81,7 +82,7 @@ class SiteForm extends Page {
 
     // Click on the dropdown handler in app-selector
     async clickOnDropdownHandle() {
-        await this.waitForElementDisplayed(this.dropdownHandle, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.dropdownHandle);
         await this.clickOnElement(this.dropdownHandle);
         await this.pause(1000);
     }
@@ -111,21 +112,20 @@ class SiteForm extends Page {
         try {
             let siteConfiguratorComboBox = new SiteConfiguratorComboBox(XPATH.wizardSteps);
             await siteConfiguratorComboBox.selectFilteredApplicationAndClickOnApply(displayName );
-            await this.pause(900);
+            await this.pause(100);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_app_option');
-            throw new Error(`Error occurred in Site wizard, application selector, screenshot : ${screenshot} ` + err);
+            await this.handleError(`Site wizard, application selector, tried to select application: ${displayName}`, 'err_select_app', err);
         }
     }
 
-    getSelectedAppDisplayNames() {
-        let selector = XPATH.applicationsSelectedOptions + lib.H6_DISPLAY_NAME;
-        return this.getTextInDisplayedElements(selector);
+    async getSelectedAppDisplayNames() {
+        let siteConfiguratorComboBox = new SiteConfiguratorComboBox(XPATH.wizardSteps);
+        return await siteConfiguratorComboBox.getSelectedOptionsDisplayName();
     }
 
     async removeApplication(displayName) {
         try {
-            let locator = XPATH.selectedAppByDisplayName(displayName) + lib.REMOVE_ICON;
+            let locator = XPATH.selectedAppByDisplayName(displayName) + XPATH.removeAppIcon;
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             await this.clickOnElement(locator);
             return await this.pause(500);
@@ -147,7 +147,7 @@ class SiteForm extends Page {
     }
 
     waitForRemoveApplicationIconNotDisplayed(displayName) {
-        let locator = XPATH.selectedAppByDisplayName(displayName) + lib.REMOVE_ICON;
+        let locator = XPATH.selectedAppByDisplayName(displayName) + XPATH.removeAppIcon;
         return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
     }
 
@@ -185,25 +185,50 @@ class SiteForm extends Page {
     }
 
     async swapApplications(sourceAppName, destinationAppName) {
-        let sourceLocator = XPATH.selectedAppByDisplayName(sourceAppName);
-        let destinationLocator = XPATH.selectedAppByDisplayName(destinationAppName);
-        let source = await this.findElement(sourceLocator);
-        let destination = await this.findElement(destinationLocator);
-        await source.dragAndDrop(destination);
-        return await this.pause(1000);
+        try {
+            let sourceLocator = XPATH.selectedAppByDisplayName(sourceAppName);
+            let destinationLocator = XPATH.selectedAppByDisplayName(destinationAppName);
+            let source = await this.findElement(sourceLocator);
+            let destination = await this.findElement(destinationLocator);
+            let sourceLocation = await source.getLocation();
+            let sourceSize = await source.getSize();
+            let destinationLocation = await destination.getLocation();
+            let destinationSize = await destination.getSize();
+            const sourceCenterX = Math.round(sourceLocation.x + sourceSize.width / 2);
+            const sourceCenterY = Math.round(sourceLocation.y + sourceSize.height / 2);
+            const destCenterX = Math.round(destinationLocation.x + destinationSize.width / 2);
+            const destCenterY = Math.round(destinationLocation.y + destinationSize.height / 2);
+            await this.browser.performActions([{
+                type: 'pointer',
+                id: 'mouse',
+                parameters: {pointerType: 'mouse'},
+                actions: [
+                    {type: 'pointerMove', origin: 'viewport', x: sourceCenterX, y: sourceCenterY},
+                    {type: 'pointerDown', button: 0},
+                    {type: 'pause', duration: 300},
+                    {type: 'pointerMove', origin: 'viewport', x: destCenterX, y: destCenterY, duration: 800},
+                    {type: 'pause', duration: 200},
+                    {type: 'pointerUp', button: 0}
+                ]
+            }]);
+            return await this.pause(1000);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_swap_applications');
+            throw new Error(`Error during applications swap, screenshot: ${screenshot}. ` + err);
+        }
     }
 
     async getHelpTextsInApplicationsSelector() {
-        await this.waitForElementDisplayed(this.helpTextInApplicationsSelector, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.helpTextInApplicationsSelector);
         return await this.getTextInDisplayedElements(this.helpTextInApplicationsSelector);
     }
 
     waitForHelpTextInApplicationsSelectorNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.helpTextInApplicationsSelector, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(this.helpTextInApplicationsSelector);
     }
 
     async waitForSiteConfiguratorSelectorDisabled() {
-        return await this.waitForElementDisabled(this.applicationsOptionsFilterInput, appConst.mediumTimeout);
+        return await this.waitForElementDisabled(this.applicationsOptionsFilterInput);
     }
 }
 
