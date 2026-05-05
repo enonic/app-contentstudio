@@ -129,6 +129,13 @@ function resolveFallbackProjectId(projects: Readonly<Project>[], activeProjectId
     return resolveActiveProjectIdAfterDeletion(projects, activeProject);
 }
 
+function updateProjectsState(state: Partial<ProjectsStore>): void {
+    $projects.set({
+        ...$projects.get(),
+        ...state,
+    });
+}
+
 //
 // * Internal
 //
@@ -143,19 +150,34 @@ async function loadProjects(): Promise<void> {
     }
 
     isLoading = true;
+    updateProjectsState({
+        loaded: false,
+        resolved: false,
+        loadError: false,
+    });
 
     try {
         const request = new ProjectListRequest(true);
         const projects = await request.sendAndParse();
 
-        $projects.setKey('projects', projects);
-        $projects.setKey('loaded', true);
-        $projects.setKey('resolved', true);
-        $projects.setKey('loadError', false);
+        updateProjectsState({
+            projects,
+            loaded: false,
+            resolved: false,
+            loadError: false,
+        });
         updateActiveProject();
+        updateProjectsState({
+            loaded: true,
+            resolved: true,
+            loadError: false,
+        });
     } catch (error) {
-        $projects.setKey('resolved', true);
-        $projects.setKey('loadError', true);
+        updateProjectsState({
+            loaded: false,
+            loadError: true,
+            resolved: true,
+        });
         console.error(error);
     } finally {
         isLoading = false;
