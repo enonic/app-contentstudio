@@ -27,7 +27,7 @@ export const DisplayNameInput = (): ReactElement => {
     const visibility = useStore($validationVisibility);
     const readOnly = useStore($wizardReadOnly);
     const [touched, setTouched] = useState(false);
-    const inputRef = useRef<HTMLInputElement | null>(null);
+    const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
 
     const placeholder = useI18n('field.displayName');
     const errorMessage = useI18n('field.displayName.required');
@@ -58,6 +58,8 @@ export const DisplayNameInput = (): ReactElement => {
                 ref={inputRef}
                 data-component={DISPLAY_NAME_INPUT_NAME}
                 size="xl"
+                multiline
+                multilineDisplayMode="truncate"
                 value={displayName}
                 placeholder={placeholder}
                 onValueChange={setDraftDisplayName}
