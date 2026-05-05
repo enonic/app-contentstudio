@@ -6,14 +6,16 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {BellIcon} from 'lucide-react';
 import type Q from 'q';
 import {ShowIssuesDialogAction} from '../../browse/action/ShowIssuesDialogAction';
-import {ProjectContext} from '../../project/ProjectContext';
 import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
 import {IssueStatus} from '../IssueStatus';
 import {type IssueResponse} from '../resource/IssueResponse';
 import {ListIssuesRequest} from '../resource/ListIssuesRequest';
+import {$activeProject} from '../../../v6/features/store/projects.store';
 
 export class ShowIssuesDialogButton
     extends ActionButton<ShowIssuesDialogAction> {
+
+    private unsubscribeActiveProject?: () => void;
 
     constructor() {
         super({
@@ -29,12 +31,12 @@ export class ShowIssuesDialogButton
     private initEventsListeners() {
         IssueServerEventsHandler.getInstance().onIssueCreated(this.updateHandler);
         IssueServerEventsHandler.getInstance().onIssueUpdated(this.updateHandler);
-        ProjectContext.get().onProjectChanged(this.updateHandler);
+        this.unsubscribeActiveProject = $activeProject.subscribe(this.updateHandler);
 
         this.onRemoved(() => {
             IssueServerEventsHandler.getInstance().unIssueCreated(this.updateHandler);
             IssueServerEventsHandler.getInstance().unIssueUpdated(this.updateHandler);
-            ProjectContext.get().unProjectChanged(this.updateHandler);
+            this.unsubscribeActiveProject?.();
         });
     }
 
@@ -43,7 +45,14 @@ export class ShowIssuesDialogButton
     }
 
     private static resetIssueRequest(): ListIssuesRequest {
-        return new ListIssuesRequest().setIssueStatus(IssueStatus.OPEN).setSize(0);
+        const request = new ListIssuesRequest().setIssueStatus(IssueStatus.OPEN).setSize(0);
+        const activeProject = $activeProject.get();
+
+        if (activeProject) {
+            request.setRequestProject(activeProject);
+        }
+
+        return request;
     }
 
     private fetchNumberOfOpenIssuesAssignedToMe(): Q.Promise<number> {
@@ -61,6 +70,10 @@ export class ShowIssuesDialogButton
 
     private updateHandler = AppHelper.debounce(() => {
         this.resetButton();
+
+        if (!$activeProject.get()) {
+            return;
+        }
 
         this.fetchNumberOfOpenIssuesAssignedToMe().then((totalAssignedToMe: number) => {
             if (totalAssignedToMe > 0) {

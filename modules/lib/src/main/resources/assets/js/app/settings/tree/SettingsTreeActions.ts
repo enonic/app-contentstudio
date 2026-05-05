@@ -4,11 +4,12 @@ import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {type SettingsViewItem} from '../view/SettingsViewItem';
 import {SettingsTreeHelper} from './SettingsTreeHelper';
 import {NewSettingsItemTreeAction} from '../browse/action/NewSettingsItemTreeAction';
-import {type SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {EditSettingsItemTreeAction} from '../browse/action/EditSettingsItemTreeAction';
 import {DeleteSettingsItemTreeAction} from '../browse/action/DeleteSettingsItemTreeAction';
 import {SyncTreeAction} from '../browse/action/SyncTreeAction';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
+import {getCurrentItems} from '../../../v6/features/store/settingsTreeSelection.store';
+import {$noProjectMode, $projects} from '../../../v6/features/store/projects.store';
 
 export class SettingsTreeActions
     implements TreeGridActions<SettingsViewItem> {
@@ -27,6 +28,13 @@ export class SettingsTreeActions
         this.SYNC = new SyncTreeAction();
 
         this.actions.push(this.NEW, this.EDIT, this.DELETE, this.SYNC);
+
+        const refreshActions = () => {
+            void this.updateActionsEnabledState([...getCurrentItems()]);
+        };
+
+        $projects.subscribe(refreshActions);
+        refreshActions();
     }
 
     getAllActions(): Action[] {
@@ -34,6 +42,15 @@ export class SettingsTreeActions
     }
 
     updateActionsEnabledState(items: SettingsViewItem[]): Q.Promise<void> {
+        if ($noProjectMode.get()) {
+            this.EDIT.setEnabled(false);
+            this.DELETE.setEnabled(false);
+            this.NEW.setEnabled(this.isNewAllowed());
+            this.SYNC.setEnabled(false);
+            this.SYNC.setVisible(false);
+            return Q();
+        }
+
         this.EDIT.setEnabled(this.isEditAllowed(items));
         this.DELETE.setEnabled(this.isDeleteAllowed(items));
         this.NEW.setEnabled(this.isNewAllowed());

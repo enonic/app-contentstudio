@@ -6,7 +6,7 @@ import {ArrowLeftRight, BellDotIcon, BellIcon} from 'lucide-react';
 import {ReactElement} from 'react';
 import {ShowIssuesDialogEvent} from '../../../../../app/browse/ShowIssuesDialogEvent';
 import {useI18n} from '../../../hooks/useI18n';
-import {$activeProjectName} from '../../../store/projects.store';
+import {$activeProjectName, $noProjectMode} from '../../../store/projects.store';
 import {setProjectSelectionDialogOpen} from '../../../store/dialogs.store';
 import {$issuesStats} from '../../../store/issuesStats.store';
 import {IssueStatsJson} from '../../../../../app/issue/json/IssueStatsJson';
@@ -30,15 +30,18 @@ function createIssuesLabelKeys(stats: Readonly<IssueStatsJson> | undefined): [`f
 
 export const BrowseAppBar = (): ReactElement => {
     const activeProjectName = useStore($activeProjectName);
+    const noProjectMode = useStore($noProjectMode);
     const isProjectSelectorVisible = useStore($isProjectSelectorVisible);
     const appName = useStore($appName);
     const {stats} = useStore($issuesStats);
+    const applicationName = Store.instance().get('application').getName();
     const issuesStatsLabel = useI18n(...createIssuesLabelKeys(stats));
     const projectAriaLabel = useI18n('wcag.appbar.project.label');
     const issuesAriaLabel = useI18n('wcag.appbar.issues.label');
+
     return (
         <header className="bg-surface-neutral h-15 px-5 py-2 pr-24 flex items-center gap-2.5 border-b border-bdr-soft">
-            {isProjectSelectorVisible ? (
+            {!noProjectMode && isProjectSelectorVisible ? (
                 <Button
                     className="mr-auto"
                     size="sm"
@@ -48,21 +51,25 @@ export const BrowseAppBar = (): ReactElement => {
                     label={activeProjectName}
                 />
             ) : (
-                <h1 className="mr-auto text-2xl font-semibold">{appName}</h1>
+                <h1 className="mr-auto text-2xl font-semibold">{appName || applicationName}</h1>
             )}
 
-            <Button
-                className="max-sm:hidden"
-                size="sm"
-                startIcon={stats?.open > 0 ? BellDotIcon : BellIcon}
-                onClick={() => {
-                    new ShowIssuesDialogEvent().fire();
-                }}
-                aria-label={issuesAriaLabel}
-                label={issuesStatsLabel}
-            />
+            {!noProjectMode && (
+                <>
+                    <Button
+                        className="max-sm:hidden"
+                        size="sm"
+                        startIcon={stats?.open > 0 ? BellDotIcon : BellIcon}
+                        onClick={() => {
+                            new ShowIssuesDialogEvent().fire();
+                        }}
+                        aria-label={issuesAriaLabel}
+                        label={issuesStatsLabel}
+                    />
 
-            <ThemeSwitcher />
+                    <ThemeSwitcher />
+                </>
+            )}
         </header>
     );
 };
