@@ -9,16 +9,20 @@ type FieldSetViewProps = {
 };
 
 export const FieldSetView = ({fieldSet, propertySet}: FieldSetViewProps): ReactElement => {
+    const formItems = fieldSet.getFormItems();
+
     return (
-        <fieldset className="flex flex-col gap-7.5">
+        <fieldset className="flex flex-col">
             {fieldSet.getLabel() && (
-                <span className="text-base font-normal uppercase leading-3.5 tracking-[0.96px]">{fieldSet.getLabel()}</span>
+                <span className="mb-7.5 text-base font-normal uppercase leading-3.5 tracking-[0.96px]">{fieldSet.getLabel()}</span>
             )}
-            {fieldSet.getFormItems().map(item => (
-                <div key={item.getName()} className="pl-5 border border-transparent border-l-bdr-soft">
-                    <FormItemRenderer formItem={item} propertySet={propertySet} />
+            {formItems.length > 0 && (
+                <div className="flex flex-col gap-7.5 border-l border-l-bdr-soft pl-5">
+                    {formItems.map(item => (
+                        <FormItemRenderer key={item.getName()} formItem={item} propertySet={propertySet} />
+                    ))}
                 </div>
-            ))}
+            )}
         </fieldset>
     );
 };
