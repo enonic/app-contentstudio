@@ -8,8 +8,6 @@ import {
     useRef,
     useState,
     type ComponentPropsWithoutRef,
-    type FocusEventHandler,
-    type KeyboardEventHandler,
 } from 'react';
 
 const editableTextVariants = cva([
@@ -33,8 +31,6 @@ const editableTextVariants = cva([
     defaultVariants: {size: 'md'},
 });
 
-type EditableTextElement = HTMLInputElement | HTMLTextAreaElement;
-
 export type EditableTextProps = {
     value?: string;
     placeholder?: string;
@@ -43,31 +39,16 @@ export type EditableTextProps = {
     onEditingChange?: (isEditing: boolean) => void;
     allowEmpty?: boolean;
     fullWidth?: boolean;
-    multiline?: boolean;
-    multilineDisplayMode?: 'wrap' | 'truncate',
     error?: boolean;
 } & VariantProps<typeof editableTextVariants>
-    & Omit<ComponentPropsWithoutRef<'input'>, 'onBlur' | 'onChange' | 'onFocus' | 'onKeyDown' | 'type' | 'size' | 'value'>
-    & {
-        onBlur?: FocusEventHandler<EditableTextElement>;
-        onFocus?: FocusEventHandler<EditableTextElement>;
-        onKeyDown?: KeyboardEventHandler<EditableTextElement>;
-    };
+    & Omit<ComponentPropsWithoutRef<'input'>, 'value' | 'onChange' | 'type' | 'size'>;
 
 const EDITABLE_TEXT_NAME = 'EditableText';
 
 const MIN_WIDTH = 24; // Minimum input width in pixels
 const CURSOR_PADDING = 2; // Extra space for cursor
 
-function isTextarea(el: EditableTextElement | null): el is HTMLTextAreaElement {
-    return el?.tagName === 'TEXTAREA';
-}
-
-function normalizeSingleLineValue(value: string): string {
-    return value.replace(/[\r\n]+/g, ' ');
-}
-
-export const EditableText = forwardRef<EditableTextElement, EditableTextProps>(({
+export const EditableText = forwardRef<HTMLInputElement, EditableTextProps>(({
     value = '',
     placeholder,
     onCommit,
@@ -76,8 +57,6 @@ export const EditableText = forwardRef<EditableTextElement, EditableTextProps>((
     allowEmpty = true,
     size,
     fullWidth = false,
-    multiline = false,
-    multilineDisplayMode = 'wrap',
     error,
     className,
     onFocus,
@@ -90,11 +69,10 @@ export const EditableText = forwardRef<EditableTextElement, EditableTextProps>((
     const [inputWidth, setInputWidth] = useState(0);
     const committedRef = useRef(value);
     const skipNextSyncRef = useRef(false);
-    const inputRef = useRef<EditableTextElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
     const measureRef = useRef<HTMLSpanElement>(null);
-    const shouldTruncate = multiline && multilineDisplayMode === 'truncate' && !isFocused;
 
-    const setRefs = useCallback((node: EditableTextElement | null) => {
+    const setRefs = useCallback((node: HTMLInputElement | null) => {
         inputRef.current = node;
         if (typeof ref === 'function') {
             ref(node);
@@ -102,25 +80,6 @@ export const EditableText = forwardRef<EditableTextElement, EditableTextProps>((
             ref.current = node;
         }
     }, [ref]);
-
-    const updateMultilineHeight = useCallback(() => {
-        if (!isTextarea(inputRef.current)) {
-            return;
-        }
-
-        const el = inputRef.current;
-
-        if (shouldTruncate) {
-            el.style.removeProperty('height');
-            return;
-        }
-
-        const previousHeight = el.style.height;
-
-        el.style.height = 'auto';
-        const nextHeight = `${el.scrollHeight}px`;
-        el.style.height = previousHeight === nextHeight ? previousHeight : nextHeight;
-    }, [shouldTruncate]);
 
     const updateWidth = useCallback(() => {
         if (measureRef.current) {
@@ -131,12 +90,6 @@ export const EditableText = forwardRef<EditableTextElement, EditableTextProps>((
     useLayoutEffect(() => {
         updateWidth();
     }, [draft, value, updateWidth]);
-
-    useLayoutEffect(() => {
-        if (multiline) {
-            updateMultilineHeight();
-        }
-    }, [draft, value, multiline, updateMultilineHeight]);
 
     // WORKAROUND: Preact compat timing issue — useLayoutEffect can fire before
     // the browser calculates layout, causing offsetWidth to return 0 on initial
@@ -152,25 +105,6 @@ export const EditableText = forwardRef<EditableTextElement, EditableTextProps>((
 
         return () => observer.disconnect();
     }, [updateWidth]);
-
-    useEffect(() => {
-        if (!multiline || !isTextarea(inputRef.current) || shouldTruncate) {
-            return;
-        }
-
-        let rafId = requestAnimationFrame(updateMultilineHeight);
-        const observer = new ResizeObserver(() => {
-            cancelAnimationFrame(rafId);
-            rafId = requestAnimationFrame(updateMultilineHeight);
-        });
-
-        observer.observe(inputRef.current);
-
-        return () => {
-            cancelAnimationFrame(rafId);
-            observer.disconnect();
-        };
-    }, [multiline, shouldTruncate, updateMultilineHeight]);
 
     useEffect(() => {
         if (!isFocused) {
@@ -201,7 +135,7 @@ export const EditableText = forwardRef<EditableTextElement, EditableTextProps>((
         }
     }, [draft, allowEmpty, onCommit]);
 
-    const handleFocus: FocusEventHandler<EditableTextElement> = (e) => {
+    const handleFocus: ComponentPropsWithoutRef<'input'>['onFocus'] = (e) => {
         onFocus?.(e);
         if (e.defaultPrevented) {
             return;
@@ -211,7 +145,7 @@ export const EditableText = forwardRef<EditableTextElement, EditableTextProps>((
         requestAnimationFrame(() => inputRef.current?.select());
     };
 
-    const handleBlur: FocusEventHandler<EditableTextElement> = (e) => {
+    const handleBlur: ComponentPropsWithoutRef<'input'>['onBlur'] = (e) => {
         onBlur?.(e);
         if (e.defaultPrevented) {
             return;
@@ -222,7 +156,7 @@ export const EditableText = forwardRef<EditableTextElement, EditableTextProps>((
         e.currentTarget.setSelectionRange(0, 0);
     };
 
-    const handleKeyDown: KeyboardEventHandler<EditableTextElement> = (e) => {
+    const handleKeyDown: ComponentPropsWithoutRef<'input'>['onKeyDown'] = (e) => {
         onKeyDown?.(e);
         if (e.defaultPrevented) {
             return;
@@ -244,10 +178,10 @@ export const EditableText = forwardRef<EditableTextElement, EditableTextProps>((
             data-component={EDITABLE_TEXT_NAME}
             className={cn(
                 'relative inline-flex min-w-0 max-w-full',
-                (fullWidth || multiline) && 'flex w-full',
+                fullWidth && 'flex w-full',
             )}
         >
-            {!fullWidth && !multiline && (
+            {!fullWidth && (
                 <span
                     ref={measureRef}
                     className={cn(
@@ -261,56 +195,30 @@ export const EditableText = forwardRef<EditableTextElement, EditableTextProps>((
                 </span>
             )}
 
-            {multiline ? (
-                <textarea
-                    ref={setRefs}
-                    value={draft}
-                    placeholder={placeholder}
-                    aria-invalid={error || undefined}
-                    rows={1}
-                    onChange={(e) => {
-                        const nextValue = normalizeSingleLineValue(e.currentTarget.value);
-                        setDraft(nextValue);
-                        onValueChange?.(nextValue);
-                    }}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                    onKeyDown={handleKeyDown}
-                    className={cn(
-                        editableTextVariants({size}),
-                        'w-full min-w-0 resize-none overflow-hidden',
-                        shouldTruncate ? 'truncate' : 'whitespace-pre-wrap break-words',
-                        className,
-                        error && 'focus:ring-error',
-                    )}
-                    {...(props as unknown as ComponentPropsWithoutRef<'textarea'>)}
-                />
-            ) : (
-                <input
-                    ref={setRefs}
-                    type="text"
-                    value={draft}
-                    placeholder={placeholder}
-                    aria-invalid={error || undefined}
-                    onChange={(e) => {
-                        const nextValue = e.currentTarget.value;
-                        setDraft(nextValue);
-                        onValueChange?.(nextValue);
-                    }}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                    onKeyDown={handleKeyDown}
-                    style={fullWidth ? undefined : {width: inputWidth}}
-                    className={cn(
-                        editableTextVariants({size}),
-                        fullWidth ? 'w-full' : 'min-w-6 max-w-full',
-                        !isFocused && !fullWidth && 'truncate',
-                        className,
-                        error && 'focus:ring-error',
-                    )}
-                    {...props}
-                />
-            )}
+            <input
+                ref={setRefs}
+                type="text"
+                value={draft}
+                placeholder={placeholder}
+                aria-invalid={error || undefined}
+                onChange={(e) => {
+                    const nextValue = e.currentTarget.value;
+                    setDraft(nextValue);
+                    onValueChange?.(nextValue);
+                }}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+                style={fullWidth ? undefined : {width: inputWidth}}
+                className={cn(
+                    editableTextVariants({size}),
+                    fullWidth ? 'w-full' : 'min-w-6 max-w-full',
+                    !isFocused && !fullWidth && 'truncate',
+                    className,
+                    error && 'focus:ring-error',
+                )}
+                {...props}
+            />
         </div>
     );
 });
