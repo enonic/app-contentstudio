@@ -46,3 +46,7 @@ export const useHtmlAreaContext = (): HtmlAreaContextValue => {
 
     return context;
 };
+
+export const useOptionalHtmlAreaContext = (): HtmlAreaContextValue | undefined => {
+    return useContext(HtmlAreaContext);
+};

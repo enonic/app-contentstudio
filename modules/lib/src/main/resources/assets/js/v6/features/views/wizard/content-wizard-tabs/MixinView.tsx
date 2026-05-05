@@ -3,15 +3,10 @@ import {useStore} from '@nanostores/preact';
 import {OctagonAlert} from 'lucide-react';
 import {type ReactElement, useCallback, useEffect, useMemo} from 'react';
 import {RawValueProvider, ValidationVisibilityProvider} from '@enonic/lib-admin-ui/form2';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {useI18n} from '../../../hooks/useI18n';
-import {$contextContent} from '../../../store/context/contextContent.store';
-import {$activeProject} from '../../../store/projects.store';
 import {$mixinsDescriptors, $wizardDraftMixins, notifyMixinMounted, setDraftMixinEnabled} from '../../../store/wizardContent.store';
 import {$validationVisibility, getMixinRawValueMap} from '../../../store/wizardValidation.store';
 import {FormRenderer} from '../../../shared/form';
-import {HtmlAreaProvider} from '../../../shared/form/input-types/html-area';
-import {useApplicationKeys} from './useApplicationKeys';
 
 type MixinViewProps = {
     mixinName: string;
@@ -20,18 +15,11 @@ type MixinViewProps = {
 export const MixinView = ({mixinName}: MixinViewProps): ReactElement | null => {
     const descriptors = useStore($mixinsDescriptors);
     const draftMixins = useStore($wizardDraftMixins);
-    const contextContent = useStore($contextContent);
-    const activeProject = useStore($activeProject);
     const visibility = useStore($validationVisibility);
-    const applicationKeys = useApplicationKeys();
     const unknownMessage = useI18n('field.mixin.unavailable');
     const detachLabel = useI18n('action.mixin.detach');
 
     const rawValueMap = useMemo(() => getMixinRawValueMap(mixinName), [mixinName]);
-
-    const contentSummary = contextContent ?? undefined;
-
-    const assetsUri = CONFIG.getString('assetsUri');
 
     const descriptor = useMemo(
         () => descriptors.find((d) => d.getName() === mixinName),
@@ -83,18 +71,11 @@ export const MixinView = ({mixinName}: MixinViewProps): ReactElement | null => {
     return (
         <ValidationVisibilityProvider visibility={visibility}>
             <RawValueProvider map={rawValueMap}>
-                <HtmlAreaProvider
-                    contentSummary={contentSummary}
-                    project={activeProject}
-                    applicationKeys={applicationKeys}
-                    assetsUri={assetsUri}
-                >
-                    <FormRenderer
-                        form={form}
-                        propertySet={mixinData.getRoot()}
-                        applicationKey={applicationKey}
-                    />
-                </HtmlAreaProvider>
+                <FormRenderer
+                    form={form}
+                    propertySet={mixinData.getRoot()}
+                    applicationKey={applicationKey}
+                />
             </RawValueProvider>
         </ValidationVisibilityProvider>
     );

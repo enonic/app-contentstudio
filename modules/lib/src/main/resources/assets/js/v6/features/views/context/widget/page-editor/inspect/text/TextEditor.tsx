@@ -38,7 +38,7 @@ import {useCKEditorConfig} from '../../../../../../shared/form/input-types/html-
 import {$contextContent} from '../../../../../../store/context/contextContent.store';
 import {requestUpdateTextComponent} from '../../../../../../store/page-editor';
 import {$activeProject} from '../../../../../../store/projects.store';
-import {useApplicationKeys} from '../../../../../wizard/content-wizard-tabs/useApplicationKeys';
+import {useApplicationKeys} from '../../../../../../hooks/useApplicationKeys';
 import {useInspectTextTracking} from './useInspectTextTracking';
 
 const sanitizer = new HtmlAreaSanitizer();
