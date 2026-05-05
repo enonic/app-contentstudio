@@ -34,8 +34,6 @@ public final class LiveEditInjection
 
     private static final char ESCAPE = '\\';
 
-    private final String headBeginTemplate;
-
     private final String bodyEndTemplate;
 
     private final String cspMetaTemplate;
@@ -49,7 +47,6 @@ public final class LiveEditInjection
     @Activate
     public LiveEditInjection( AdminRestConfig config, @Reference PortalUrlService portalUrlService )
     {
-        this.headBeginTemplate = loadTemplate( "liveEditHeadBegin.html" );
         this.bodyEndTemplate = loadTemplate( "liveEditBodyEnd.html" );
         this.inlineBodyEndTemplate = loadTemplate( "liveViewBodyEnd.html" );
         this.cspMetaTemplate = loadTemplate( "liveEditCSP.html" );
@@ -118,7 +115,6 @@ public final class LiveEditInjection
         {
             finalTemplate += this.cspMetaTemplate;
         }
-        finalTemplate += injectUsingTemplate( this.headBeginTemplate, makeModelForInjection() );
         return finalTemplate;
     }
 

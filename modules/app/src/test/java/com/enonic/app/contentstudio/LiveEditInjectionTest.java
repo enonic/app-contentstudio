@@ -91,7 +91,6 @@ class LiveEditInjectionTest
     public void testInjectHeadBegin()
         throws Exception
     {
-        mockPortalUrlService();
         when( config.contentSecurityPolicy_enabled() ).thenReturn( true );
         injectAndAssert("liveEditInjectionHeadBegin.html");
     }
@@ -100,7 +99,6 @@ class LiveEditInjectionTest
     public void testInjectHeadBeginNoCsp()
         throws Exception
     {
-        mockPortalUrlService();
         when( config.contentSecurityPolicy_enabled() ).thenReturn( false );
         injectAndAssert("liveEditInjectionHeadBeginNoCsp.html");
     }
