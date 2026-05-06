@@ -8,6 +8,7 @@ export type SortContentListItemProps = {
     content: ContentSummary;
     variant?: ContentLabelVariant;
     dragEnabled?: boolean;
+    inverseTone?: boolean;
     isFocused?: boolean;
     isMovable?: boolean;
     'data-component'?: string;
@@ -19,6 +20,7 @@ export const SortContentListItem = ({
     content,
     variant,
     dragEnabled = false,
+    inverseTone = true,
     selected = false,
     isFocused = false,
     isMovable = false,
@@ -35,8 +37,8 @@ export const SortContentListItem = ({
                         dragEnabled && 'cursor-move',
                     )}
                 >
-                    {dragEnabled && <GripVertical className='size-4 shrink-0 text-subtle group-data-[tone=inverse]:text-alt' />}
-                    <ContentLabel content={content} variant={variant} />
+                    {dragEnabled && <GripVertical className={cn('size-4 shrink-0 text-subtle', inverseTone && 'group-data-[tone=inverse]:text-alt')} />}
+                    <ContentLabel content={content} variant={variant} inverseTone={inverseTone} />
                 </div>
             </ListItem.Content>
         </ListItem>
