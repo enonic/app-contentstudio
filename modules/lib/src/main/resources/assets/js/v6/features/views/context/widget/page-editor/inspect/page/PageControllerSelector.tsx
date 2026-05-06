@@ -1,8 +1,8 @@
-import { Combobox, Listbox } from '@enonic/ui';
-import type { ReactElement } from 'react';
-import { useI18n } from '../../../../../../hooks/useI18n';
-import { ConfirmationDialog } from '../../../../../../shared/dialogs/ConfirmationDialog';
-import { usePageControllerSelector } from './hooks/usePageControllerSelector';
+import {Combobox, Listbox} from '@enonic/ui';
+import type {ReactElement} from 'react';
+import {useI18n} from '../../../../../../hooks/useI18n';
+import {ConfirmationDialog} from '../../../../../../shared/dialogs/ConfirmationDialog';
+import {usePageControllerSelector} from './hooks/usePageControllerSelector';
 
 const PAGE_CONTROLLER_SELECTOR_NAME = 'PageControllerSelector';
 
@@ -22,7 +22,9 @@ export const PageControllerSelector = (): ReactElement | null => {
     const templateLabel = useI18n('field.page.template');
     const searchPlaceholder = useI18n('field.option.placeholder');
 
-    if (isLoading) return null;
+    if (isLoading) {
+        return null;
+    }
 
     return (
         <>
@@ -39,21 +41,21 @@ export const PageControllerSelector = (): ReactElement | null => {
                             <Combobox.Search>
                                 {selectedOption && (
                                     <Combobox.Value className="gap-2 w-full">
-                                        <selectedOption.icon className="size-4 shrink-0" />
+                                        <selectedOption.icon className="size-4 shrink-0"/>
                                         <span className="leading-5.5 font-semibold truncate">
                                             {selectedOption.label}
                                         </span>
                                     </Combobox.Value>
                                 )}
-                                <Combobox.Input placeholder={searchPlaceholder} />
-                                <Combobox.Toggle />
+                                <Combobox.Input placeholder={searchPlaceholder}/>
+                                <Combobox.Toggle/>
                             </Combobox.Search>
                         </Combobox.Control>
                         <Combobox.Popup>
                             <Listbox.Content className="max-h-60 rounded-sm">
                                 {filteredOptions.map(option => (
                                     <Listbox.Item key={option.key} value={option.key}>
-                                        <option.icon className="size-6 shrink-0" />
+                                        <option.icon className="size-6 shrink-0"/>
                                         <div className="flex flex-col overflow-hidden">
                                             <span className="leading-5.5 font-semibold truncate group-data-[tone=inverse]:text-alt">
                                                 {option.label}
@@ -73,12 +75,14 @@ export const PageControllerSelector = (): ReactElement | null => {
             <ConfirmationDialog.Root
                 open={confirmDialog != null}
                 onOpenChange={(open) => {
-                    if (!open) setConfirmDialog(null);
+                    if (!open) {
+                        setConfirmDialog(null);
+                    }
                 }}
             >
                 {confirmDialog && (
                     <ConfirmationDialog.Portal>
-                        <ConfirmationDialog.Overlay />
+                        <ConfirmationDialog.Overlay/>
                         <ConfirmationDialog.Content>
                             <ConfirmationDialog.Body>
                                 {confirmDialog.question}
