@@ -4,6 +4,7 @@ import {useI18n} from '../../../../../hooks/useI18n';
 import {InlineButton} from '../../../../InlineButton';
 import {useImageUploaderContext} from '../ImageUploaderContext';
 import {isPropertySetDirty, resetCropInPropertySet, resetFocusInPropertySet, resetPropertySet} from '../lib/propertySet';
+import {Button} from '@enonic/ui';
 
 export const ImageUploaderInputResetButton = (): ReactElement | null => {
     const {contentId, mode, value, crop, focus, dimensions, setCrop, setFocus, reset} = useImageUploaderContext();
@@ -33,8 +34,11 @@ export const ImageUploaderInputResetButton = (): ReactElement | null => {
     const handleCropReset = useCallback(() => {
         if (resetCropInPropertySet(value)) {
             setCrop(null);
+            if (dimensions) {
+                setFocus({x: dimensions.w / 2, y: dimensions.h / 2});
+            }
         }
-    }, [value, setCrop]);
+    }, [value, dimensions, setCrop, setFocus]);
 
     const handleFocusReset = useCallback(() => {
         if (resetFocusInPropertySet(value)) {
@@ -48,23 +52,27 @@ export const ImageUploaderInputResetButton = (): ReactElement | null => {
 
     if (mode === 'crop') {
         return (
-            <InlineButton onClick={handleCropReset} disabled={!crop}>
+            <Button variant="text" onClick={handleCropReset} disabled={!crop}>
                 {resetLabel}
-            </InlineButton>
+            </Button>
         );
     }
 
     if (mode === 'focus') {
         return (
-            <InlineButton onClick={handleFocusReset} disabled={!focus}>
+            <Button variant="text" onClick={handleFocusReset} disabled={!focus}>
                 {resetLabel}
-            </InlineButton>
+            </Button>
         );
     }
 
     if (!isDirty) return null;
 
-    return <InlineButton onClick={handleReset}>{resetLabel}</InlineButton>;
+    return (
+        <Button variant="text" onClick={handleReset}>
+            {resetLabel}
+        </Button>
+    );
 };
 
 ImageUploaderInputResetButton.displayName = 'ImageUploaderInputResetButton';

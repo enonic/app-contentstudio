@@ -9,6 +9,7 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {cn} from '@enonic/ui';
 import Q from 'q';
 import {$activeWidget} from '../../v6/features/store/liveViewWidgets.store';
+import {$isPreviewPanelVisible} from '../../v6/features/store/previewPanel.store';
 import {PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
 import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusHelper} from '../content/ContentSummaryAndCompareStatusHelper';
@@ -33,9 +34,9 @@ export class ContentItemPreviewPanel extends Panel implements ExtensionRenderer 
         super('item-preview-panel content-item-preview-panel extension-preview-panel');
 
         this.toolbar = this.createToolbar();
-        this.mask = new LoadMask(this);
         this.frame = new IFrameEl();
         this.wrapper = new DivEl('wrapper');
+        this.mask = new LoadMask(this.wrapper);
         this.wrapper.appendChild(this.frame);
         this.appendChildren(this.toolbar, this.wrapper, this.mask);
 
@@ -132,7 +133,12 @@ export class ContentItemPreviewPanel extends Panel implements ExtensionRenderer 
 
     private setupListeners() {
 
+        this.onShown(() => {
+            $isPreviewPanelVisible.set(true);
+        });
+
         this.onHidden((event) => {
+            $isPreviewPanelVisible.set(false);
             if (this.mask.isVisible()) {
                 this.hideMask();
             }

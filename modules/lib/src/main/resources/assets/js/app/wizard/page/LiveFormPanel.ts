@@ -10,7 +10,7 @@ import type {default as Q} from 'q';
 import {type LiveEditModel} from '../../../page-editor/LiveEditModel';
 import {cleanupComponentInspection, initComponentInspectionService} from '../../../v6/features/store/component-inspection.store';
 import {cleanupFragmentInspection, initFragmentInspectionService} from '../../../v6/features/store/fragment-inspection.store';
-import {$activeWidget} from '../../../v6/features/store/liveViewWidgets.store';
+import {$activeWidget, $isLiveViewImageEditorActive} from '../../../v6/features/store/liveViewWidgets.store';
 import {cleanupPageEditorBridge, initPageEditorBridge, syncInitialRenderable} from '../../../v6/features/store/page-editor';
 import {cleanupPageInspection, initPageInspectionService} from '../../../v6/features/store/page-inspection.store';
 import {type Content} from '../../content/Content';
@@ -251,6 +251,11 @@ export class LiveFormPanel
         }
 
         if (this.pageSkipReload) {
+            return Promise.resolve(false);
+        }
+
+        // Image content types under the auto widget are handled by `LiveViewImageEditor`.
+        if ($isLiveViewImageEditorActive.get()) {
             return Promise.resolve(false);
         }
 

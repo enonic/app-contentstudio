@@ -5,7 +5,7 @@ import {ImageUploaderInputFocusSvg} from './ImageUploaderInputFocusSvg';
 import {LoaderCircle} from 'lucide-react';
 
 export const ImageUploaderInputImage = (): ReactElement | null => {
-    const {base64Image, mode, focus} = useImageUploaderContext();
+    const {base64Image, mode, focus, dimensions} = useImageUploaderContext();
 
     if (!base64Image) return null;
 
@@ -17,10 +17,16 @@ export const ImageUploaderInputImage = (): ReactElement | null => {
     const showFocus = isFocusing || (!isCropping && focus);
 
     return (
-        <div className="@container mt-5 overflow-hidden">
+        <div data-component="ImageUploaderInputImage" className="mt-5 flex flex-1 items-center justify-center min-h-0">
             {showImage && (
-                <div className="relative min-w-32 min-h-32">
-                    {base64Image && <img src={base64Image} />}
+                <div className="relative w-full h-full">
+                    {base64Image && (
+                        <img
+                            src={base64Image}
+                            className="w-full h-full object-contain"
+                            style={{maxWidth: dimensions?.w, maxHeight: dimensions?.h}}
+                        />
+                    )}
                     {isLoading && (
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                             <LoaderCircle />

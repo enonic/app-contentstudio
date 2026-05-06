@@ -69,13 +69,30 @@ export const ImageUploaderInputCropSvg = (): ReactElement => {
     return (
         <svg
             viewBox={`0 0 ${dimensions.w} ${dimensions.h}`}
-            className="w-full h-auto cursor-crosshair"
+            className="w-full h-full cursor-crosshair"
+            style={{maxWidth: dimensions?.w, maxHeight: dimensions?.h}}
             onClick={handleClick}
             onMouseMove={handleMouseMove}
         >
             <image href={base64Image} width={dimensions.w} height={dimensions.h} />
 
-            {!rect && <rect x={0} y={0} width={dimensions.w} height={dimensions.h} fill="black" fillOpacity={0.5} />}
+            {!rect && (
+                <>
+                    <rect x={0} y={0} width={dimensions.w} height={dimensions.h} fill="black" fillOpacity={0.5} />
+                    {/* TODO: remove this harcoded text when crop is behavior gets updated */}
+                    <text
+                        x={dimensions.w / 2}
+                        y={dimensions.h / 2}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                        fill="white"
+                        fontSize={Math.min(dimensions.w, dimensions.h) * 0.04}
+                        style={{pointerEvents: 'none'}}
+                    >
+                        Click the image to draw cropping area
+                    </text>
+                </>
+            )}
 
             {rect && (
                 <>
@@ -84,7 +101,7 @@ export const ImageUploaderInputCropSvg = (): ReactElement => {
                         fillRule="evenodd"
                         fill="black"
                         strokeWidth={strokeWidth}
-                        fillOpacity={0.4}
+                        fillOpacity={0.5}
                     />
                     <rect
                         x={rect.x1}

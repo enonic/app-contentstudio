@@ -13,8 +13,8 @@ type PreviewToolbarProps = {
     onRefresh?: () => void;
 };
 
-const PreviewToolbar = ({item = null, onRefresh}: PreviewToolbarProps): ReactElement | undefined => {
-    if (!item) return undefined;
+const PreviewToolbar = ({item = null, onRefresh}: PreviewToolbarProps): ReactElement | null => {
+    if (!item) return null;
 
     return (
         <Toolbar>
@@ -22,11 +22,9 @@ const PreviewToolbar = ({item = null, onRefresh}: PreviewToolbarProps): ReactEle
                 aria-label="Preview toolbar"
                 className="@container bg-surface-neutral h-15 px-5 py-3.75 flex items-center justify-between border-b border-bdr-soft"
             >
-                <PreviewToolbarVersionHistoryItem
-                    contentSummary={item.getContentSummary()}
-                />
+                <PreviewToolbarVersionHistoryItem contentSummary={item.getContentSummary()} />
 
-                <div className="flex gap-2 @md:gap-5 flex-nowrap flex-shrink-0">
+                <div className="flex gap-2 @md:gap-5 flex-nowrap shrink-0">
                     <PreviewToolbarEmulatorSelector />
                     <PreviewToolbarWidgetSelector />
                 </div>
@@ -40,7 +38,6 @@ const PreviewToolbar = ({item = null, onRefresh}: PreviewToolbarProps): ReactEle
 PreviewToolbar.displayName = 'PreviewToolbar';
 
 export class PreviewToolbarElement extends LegacyElement<typeof PreviewToolbar, PreviewToolbarProps> {
-
     constructor() {
         super({}, PreviewToolbar);
     }
