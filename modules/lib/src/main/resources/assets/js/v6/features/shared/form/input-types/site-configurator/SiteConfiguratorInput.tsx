@@ -30,6 +30,7 @@ import {FormRenderer} from '../../FormRenderer';
 import type {SiteConfiguratorConfig} from './SiteConfiguratorConfig';
 
 const COMPONENT_NAME = 'SiteConfiguratorInput';
+const PORTAL_APP_KEY = ApplicationKey.PORTAL.toString();
 
 type EditingState = {
     appKey: string;
@@ -80,7 +81,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
         return values
             .filter(v => !v.isNull())
             .map(v => v.getPropertySet()?.getString(ApplicationConfig.PROPERTY_KEY))
-            .filter((key): key is string => !!key);
+            .filter((key): key is string => !!key && key !== PORTAL_APP_KEY);
     }, [values]);
 
     const appItems = useMemo((): AppItem[] => {
@@ -88,7 +89,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
         values.forEach((v, index) => {
             if (v.isNull()) return;
             const key = v.getPropertySet()?.getString(ApplicationConfig.PROPERTY_KEY);
-            if (key) {
+            if (key && key !== PORTAL_APP_KEY) {
                 items.push({key, index});
             }
         });
