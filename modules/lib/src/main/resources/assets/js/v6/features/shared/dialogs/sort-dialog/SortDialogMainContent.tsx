@@ -90,6 +90,7 @@ export const SortDialogMainContent = (): ReactElement => {
                                 content={item}
                                 variant='detailed'
                                 dragEnabled={isManualSorting}
+                                inverseTone={false}
                                 selected={isMovable}
                                 isFocused={isFocused && !isMovable}
                                 isMovable={isMovable}
