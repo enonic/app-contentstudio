@@ -21,7 +21,7 @@ export const ImageUploaderInputApplyButton = (): ReactElement => {
     }, [value, mode, setMode, focus, crop, dimensions]);
 
     return (
-        <Button variant="filled" size="sm" onClick={handleApply}>
+        <Button variant="filled" onClick={handleApply}>
             {applyLabel}
         </Button>
     );

@@ -166,7 +166,7 @@ export const ImageUploaderProvider = ({values, enabled, children}: ImageUploader
         const newCrop = adjustCropToBaseOrientation(denormalizedCrop, committedOrientation, dimensions);
         setCrop(newCrop);
         prevCropRef.current = newCrop;
-    }, [dimensions, committedOrientation]);
+    }, [dimensions, committedOrientation, value]);
 
     // ============================================================
     // Focus
@@ -209,9 +209,25 @@ export const ImageUploaderProvider = ({values, enabled, children}: ImageUploader
         };
 
         setFocus(adjustFocusToBaseOrientation(denormalizedFocus, committedOrientation, dimensions));
-    }, [dimensions, committedOrientation, crop]);
+    }, [dimensions, committedOrientation, crop, value]);
 
     useEffect(() => {
+        // When entering focus mode with no focus set, initialize it to the crop/image
+        // center so Apply persists the same point the SVG displays by default.
+        if (mode !== 'focus' || focus || !dimensions) return;
+
+        const cropForOri = crop ? adjustCropForOrientation(crop, committedOrientation, dimensions) : null;
+        const center: Point = cropForOri
+            ? {x: (cropForOri.x1 + cropForOri.x2) / 2, y: (cropForOri.y1 + cropForOri.y2) / 2}
+            : {x: dimensions.w / 2, y: dimensions.h / 2};
+
+        setFocus(adjustFocusToBaseOrientation(center, committedOrientation, dimensions));
+    }, [mode, focus, crop, dimensions, committedOrientation]);
+
+    useEffect(() => {
+        // Recenter focus after the crop is applied (mode transitions out of 'crop'),
+        // not while the user is still drawing/adjusting the crop rectangle.
+        if (mode === 'crop') return;
         if (!crop || !dimensions) return;
 
         const prev = prevCropRef.current;
@@ -231,7 +247,7 @@ export const ImageUploaderProvider = ({values, enabled, children}: ImageUploader
         const newFocus = adjustFocusToBaseOrientation(cropCenter, committedOrientation, dimensions);
         setFocus(newFocus);
         setFocusInPropertySet(value, newFocus, dimensions);
-    }, [crop, dimensions, committedOrientation, value]);
+    }, [crop, dimensions, committedOrientation, value, mode]);
 
     // ============================================================
     // Reset (atomic, stable, no closure staleness)
@@ -242,9 +258,16 @@ export const ImageUploaderProvider = ({values, enabled, children}: ImageUploader
         setOrientation(1);
         setCommittedOrientation(1);
         setCrop(null);
-        setFocus(null);
+        if (dimensions) {
+            const sideways = committedOrientation >= 5;
+            const baseW = sideways ? dimensions.h : dimensions.w;
+            const baseH = sideways ? dimensions.w : dimensions.h;
+            setFocus({x: baseW / 2, y: baseH / 2});
+        } else {
+            setFocus(null);
+        }
         setMode('ready');
-    }, []);
+    }, [dimensions, committedOrientation]);
 
     // ============================================================
     // Provider

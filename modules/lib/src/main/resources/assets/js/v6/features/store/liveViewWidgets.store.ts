@@ -1,6 +1,7 @@
 import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
 import {computed, map} from 'nanostores';
 import {GetExtensionsByInterfaceRequest} from '../../../app/resource/GetExtensionsByInterfaceRequest';
+import {$contentType} from './wizardContent.store';
 
 export const WIDGET_AUTO_DESCRIPTOR = 'preview-automatic';
 
@@ -20,10 +21,12 @@ export const $activeWidget = computed($liveViewWidgets, (store) => {
 
 export const $autoModeWidgets = computed($liveViewWidgets, (store) => {
     return store.widgets.filter(
-        (item) =>
-            item.getDescriptorKey().getName() !== WIDGET_AUTO_DESCRIPTOR &&
-            item.getConfig().getProperty('auto') === 'true'
+        (item) => item.getDescriptorKey().getName() !== WIDGET_AUTO_DESCRIPTOR && item.getConfig().getProperty('auto') === 'true'
     );
+});
+
+export const $isLiveViewImageEditorActive = computed([$activeWidget, $contentType], (widget, contentType) => {
+    return widget?.getDescriptorKey().getName() === WIDGET_AUTO_DESCRIPTOR && contentType?.getContentTypeName().isImage() === true;
 });
 
 export function setActiveWidget(widget: Extension | undefined): void {

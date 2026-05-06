@@ -1,5 +1,5 @@
 import {cn} from '@enonic/ui';
-import {useCallback, type MouseEvent, type ReactElement} from 'react';
+import {type MouseEvent, type ReactElement} from 'react';
 import {useImageUploaderContext} from '../ImageUploaderContext';
 import {type Point} from '../lib/types';
 
@@ -31,33 +31,33 @@ export const ImageUploaderInputFocusSvg = (): ReactElement => {
         };
     };
 
-    const handleClick = useCallback(
-        (e: MouseEvent<SVGSVGElement>): void => {
-            const p = toLocal(e);
-            if (!p || !isFocusing) return;
-            setFocus(p);
-        },
-        [isFocusing, setFocus]
-    );
+    const handleClick = (e: MouseEvent<SVGSVGElement>): void => {
+        const p = toLocal(e);
+        if (!p || !isFocusing) return;
+        setFocus(p);
+    };
+
+    // While in focus mode, default the circle to the crop/image center so it shows
+    // immediately on entering focus mode, before any click.
+    const displayFocus = focus ?? (isFocusing ? {x: cropXCenter, y: cropYCenter} : null);
 
     return (
         <svg
             viewBox={`${viewX} ${viewY} ${viewW} ${viewH}`}
-            className={cn('w-full h-auto', isFocusing && 'cursor-crosshair')}
+            className={cn('w-full h-full', isFocusing && 'cursor-move')}
+            style={{maxWidth: dimensions?.w, maxHeight: dimensions?.h}}
             onClick={handleClick}
         >
             <image href={base64Image} x={viewX} y={viewY} width={viewW} height={viewH} />
 
-            {isFocusing && !focus && <rect x={viewX} y={viewY} width={viewW} height={viewH} fill="black" fillOpacity={0.5} />}
-
-            {isFocusing && focus && (
+            {isFocusing && displayFocus && (
                 <>
                     <mask id="focus-mask">
                         <rect x={viewX} y={viewY} width={viewW} height={viewH} fill="white" />
-                        <circle cx={focus.x} cy={focus.y} r={radius} fill="black" />
+                        <circle cx={displayFocus.x} cy={displayFocus.y} r={radius} fill="black" />
                     </mask>
                     <rect x={viewX} y={viewY} width={viewW} height={viewH} fill="black" fillOpacity={0.5} mask="url(#focus-mask)" />
-                    <circle cx={focus.x} cy={focus.y} r={radius} fill="none" stroke="red" strokeWidth={strokeWidth} />
+                    <circle cx={displayFocus.x} cy={displayFocus.y} r={radius} fill="none" stroke="red" strokeWidth={strokeWidth} />
                 </>
             )}
 

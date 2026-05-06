@@ -11,7 +11,7 @@ export const ImageUploaderInput = ({values, enabled}: SelfManagedComponentProps<
     if (values.length === 0) return null;
 
     return (
-        <div data-component={IMAGE_UPLOADER_INPUT_NAME}>
+        <div data-component={IMAGE_UPLOADER_INPUT_NAME} className="flex flex-col flex-1 min-h-0">
             <ImageUploaderProvider values={values} enabled={enabled}>
                 <ImageUploaderInputControls />
                 <ImageUploaderInputImage />

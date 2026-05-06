@@ -9,7 +9,7 @@ import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {KeyBindings} from '@enonic/lib-admin-ui/ui/KeyBindings';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
@@ -31,6 +31,7 @@ import {compareContent} from '../../v6/features/api/compare';
 import {cleanupWizardMixinsService, initWizardMixinsService} from '../../v6/features/services/wizardMixins.service';
 import {setWizardContent} from '../../v6/features/store/context/contextContent.store';
 import {$isContextOpen, setContextOpen} from '../../v6/features/store/contextWidgets.store';
+import {$isPreviewPanelVisible} from '../../v6/features/store/previewPanel.store';
 import {
     $displayNameInputFocusRequested,
     $isContentFormExpanded,
@@ -284,6 +285,7 @@ export class ContentWizardPanel
             if (this.minimizedFromFormOnly) {
                 this.splitPanel.removeClass('toggle-form').addClass('toggle-split');
                 this.splitPanel.showSecondPanel();
+                this.syncPreviewPanelVisibility();
             }
 
             this.splitPanel.savePanelSizesAndDistribute(SplitPanelSize.PIXELS(60));
@@ -293,6 +295,7 @@ export class ContentWizardPanel
                 this.splitPanel.removeClass('toggle-split').addClass('toggle-form');
                 this.splitPanel.hideSecondPanel();
                 this.minimizedFromFormOnly = false;
+                this.syncPreviewPanelVisibility();
             }
 
             this.splitPanel.loadPanelSizesAndDistribute();
@@ -550,7 +553,9 @@ export class ContentWizardPanel
         // always create live panel because
         // JSON widget is always able to render content
         this.livePanel = this.createLivePanel();
-        this.liveMask = new LoadMask(this.livePanel).addClass('live-load-mask') as LoadMask;
+        // Scope the load mask to the frame contents (image editor + iframe wrapper) so
+        // the preview toolbar above them stays interactive while the preview is loading.
+        this.liveMask = new LoadMask(this.livePanel.getFrameContainer().getContents()).addClass('live-load-mask') as LoadMask;
 
         return super.doRenderOnDataLoaded(rendered).then(() => {
             if (ContentWizardPanel.debug) {
@@ -1430,12 +1435,23 @@ export class ContentWizardPanel
         return $wizardIsMarkedAsReady.get();
     }
 
+    // `$isPreviewPanelVisible` is read by `ContentForm` to decide whether to exclude
+    // the ImageUploader input from the form (it is excluded when the preview is
+    // visible because `LiveViewImageEditor` renders it there instead).
     showForm(): void {
         this.wizardActions.getShowFormAction().execute();
+        this.syncPreviewPanelVisibility();
     }
 
     showLiveEdit(): void {
         this.wizardActions.getShowLiveEditAction().execute();
+        this.syncPreviewPanelVisibility();
+    }
+
+    // Derived from the splitPanel mode classes so the atom stays correct regardless
+    // of which path mutated the layout (action, minimize toggle, responsive change).
+    private syncPreviewPanelVisibility(): void {
+        $isPreviewPanelVisible.set(this.isSplitView() || this.isLiveView());
     }
 
     private isSplitView(): boolean {
@@ -1490,8 +1506,11 @@ export class ContentWizardPanel
         return this.contentType ? this.contentType.getContentTypeName() : this.getCurrentItem().getType();
     }
 
+    // Image content types previously opted out of the live editor and showed the form
+    // panel only. They now open the editor by default so `LiveViewImageEditor` can
+    // render the image-uploader under the preview toolbar.
     private shouldOpenEditorByDefault(): Q.Promise<boolean> {
-        return Q.resolve(this.contentType && !ContentTypeName.IMAGE.equals(this.contentType.getContentTypeName()));
+        return Q.resolve(!!this.contentType);
     }
 
     private shouldAndCanOpenEditorByDefault(): Q.Promise<boolean> {
