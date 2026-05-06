@@ -1,0 +1,11 @@
+kind: "AdminExtension"
+title:
+  text: "Content Exports"
+  i18n: "widget.import.name"
+description:
+  text: "Manage exports for the selected content"
+  i18n: "widget.import.description"
+allow:
+  - "role:system.admin"
+interfaces:
+  - "contentstudio.contextpanel"
