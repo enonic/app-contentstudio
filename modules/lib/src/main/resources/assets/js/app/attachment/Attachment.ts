@@ -19,15 +19,12 @@ export class Attachment
 
     private sha512: string;
 
-    private textContent: string;
-
     constructor(builder: AttachmentBuilder) {
         this.name = builder.name;
         this.label = builder.label;
         this.mimeType = builder.mimeType;
         this.size = builder.size;
         this.sha512 = builder.sha512;
-        this.textContent = builder.textContent;
     }
 
     getBinaryReference(): BinaryReference {
@@ -52,10 +49,6 @@ export class Attachment
 
     getSha512(): string {
         return this.sha512;
-    }
-
-    getTextContent(): string {
-        return this.textContent;
     }
 
     equals(o: Equitable): boolean {
@@ -90,8 +83,7 @@ export class Attachment
             label: this.getLabel(),
             mimeType: this.getMimeType(),
             size: this.getSize(),
-            sha512: this.getSha512(),
-            textContent: this.getTextContent()
+            sha512: this.getSha512()
         };
     }
 
@@ -118,11 +110,9 @@ export class AttachmentBuilder {
 
     sha512: string;
 
-    textContent: string;
-
     public fromJson(json: AttachmentJson): AttachmentBuilder {
         this.setName(new AttachmentName(json.name)).setLabel(json.label).setSize(json.size).setMimeType(json.mimeType)
-            .setSha512(json.sha512).setTextContent(json.textContent);
+            .setSha512(json.sha512);
         return this;
     }
 
@@ -148,11 +138,6 @@ export class AttachmentBuilder {
 
     public setSha512(value: string): AttachmentBuilder {
         this.sha512 = value;
-        return this;
-    }
-
-    public setTextContent(value: string): AttachmentBuilder {
-        this.textContent = value;
         return this;
     }
 

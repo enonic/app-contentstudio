@@ -1738,7 +1738,6 @@ public final class ContentResource
                 .name( sourceAttachment.getName() )
                 .mimeType( sourceAttachment.getMimeType() )
                 .byteSource( sourceBinary )
-                .text( sourceAttachment.getTextContent() )
                 .label( sourceAttachment.getLabel() )
                 .build();
         }
@@ -1756,7 +1755,6 @@ public final class ContentResource
             .name( attachmentName )
             .mimeType( mediaFile.getContentType().toString() )
             .byteSource( mediaFile.getBytes() )
-            .text( extractedData.getText() )
             .build();
 
         final UpdateContentParams params = new UpdateContentParams().contentId( ContentId.from( form.getAsString( "id" ) ) )
