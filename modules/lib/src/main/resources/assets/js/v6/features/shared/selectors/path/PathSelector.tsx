@@ -35,7 +35,9 @@ const DEFAULT_DEBOUNCE_MS = 200;
 const TREE_ROW_HEIGHT = 48;
 const TREE_ROW_GAP = 6;
 const TREE_PADDING = 8;
-const TREE_MAX_HEIGHT = 400;
+const TREE_MAX_HEIGHT = 356;
+const TREE_MIN_HEIGHT = 200;
+const VIEWPORT_PADDING = 10;
 
 export const PathSelector = ({
     label,
@@ -56,7 +58,9 @@ export const PathSelector = ({
     const [inputValue, setInputValue] = useState('');
     const [activeId, setActiveId] = useState<string | null>(null);
     const [selectedItem, setSelectedItem] = useState<ContentSummary | null>(null);
+    const [treeMaxHeight, setTreeMaxHeight] = useState(TREE_MAX_HEIGHT);
     const virtuosoRef = useRef<VirtuosoHandle>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
     const loaderRef = useRef<ContentSummaryOptionDataLoader<ContentTreeSelectorItem> | null>(null);
     const rootRequestId = useRef(0);
     const searchRequestId = useRef(0);
@@ -99,7 +103,7 @@ export const PathSelector = ({
         rowHeight: TREE_ROW_HEIGHT,
         rowGap: TREE_ROW_GAP,
         padding: TREE_PADDING,
-        maxHeight: TREE_MAX_HEIGHT,
+        maxHeight: treeMaxHeight,
     });
 
     const filterContentPaths = useMemo(() => getFilterContentPaths(filterItems), [filterItems]);
@@ -318,6 +322,19 @@ export const PathSelector = ({
     }, [debouncedSearch, inputValue, loadRoot, open]);
 
     useEffect(() => {
+        if (!open) {
+            return;
+        }
+        const inputEl = inputRef.current;
+        if (!inputEl) {
+            return;
+        }
+        const rect = inputEl.getBoundingClientRect();
+        const available = window.innerHeight - rect.bottom - VIEWPORT_PADDING;
+        setTreeMaxHeight(Math.max(TREE_MIN_HEIGHT, Math.min(TREE_MAX_HEIGHT, available)));
+    }, [open]);
+
+    useEffect(() => {
         return () => {
             debouncedSearch.cancel?.();
         };
@@ -364,6 +381,7 @@ export const PathSelector = ({
                         <Combobox.Search>
                             <Combobox.SearchIcon />
                             <Combobox.Input
+                                ref={inputRef}
                                 placeholder={searchPlaceholder}
                                 aria-label={label}
                             />

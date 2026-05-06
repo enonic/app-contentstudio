@@ -31,6 +31,7 @@ describe('move.content.spec: Tests for destination options in move dialog', func
             await moveContentDialog.pause(500);
             // Verify - unable to move folder to itself:
             let isDisabled = await moveContentDialog.isOptionRowDisabled(TEST_FOLDER_DISPLAY_NAME);
+            await moveContentDialog.clickOnDropdownHandle();
             await moveContentDialog.clickOnCloseButton();
             await moveContentDialog.waitForClosed();
             assert.ok(isDisabled, 'Dropdown option should be disabled');
