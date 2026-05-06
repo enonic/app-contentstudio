@@ -33,7 +33,7 @@ export const ContentListItemSelectableWithChildren = ({
     className,
     tabIndex,
 }: ContentListItemSelectableWithChildrenProps): ReactElement => {
-    const includeChildrenLabel = useI18n('field.content.includeChildren');
+    const includeChildrenLabel = useI18n('dialog.includeChildren');
     const hasChildren = content.hasChildren();
     const showIncludeChildrenCheckbox = hasChildren && showIncludeChildren;
 

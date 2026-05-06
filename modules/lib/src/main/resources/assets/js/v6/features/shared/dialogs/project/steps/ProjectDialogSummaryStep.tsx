@@ -48,13 +48,13 @@ export const ProjectDialogSummaryStepContent = ({locked = false}: ProjectDialogS
     const languages = useStore($languages);
 
     // Constants
-    const parentProjectLabel = useI18n('dialog.project.wizard.summary.parentProject');
-    const parentProjectsLabel = useI18n('dialog.project.wizard.summary.parentProjects');
+    const parentProjectLabel = useI18n('settings.field.project.parent');
+    const parentProjectsLabel = useI18n('settings.field.project.parents');
     const projectNameAndIdLabel = useI18n('dialog.project.wizard.summary.projectNameAndId');
     const languageLabel = useI18n('dialog.project.wizard.summary.language');
-    const accessModeLabel = useI18n('dialog.project.wizard.summary.accessMode');
+    const accessModeLabel = useI18n('dialog.projectAccess');
     const permissionsLabel = useI18n('dialog.project.wizard.summary.permissions');
-    const applicationsLabel = useI18n('dialog.project.wizard.summary.applications');
+    const applicationsLabel = useI18n('settings.items.wizard.step.applications');
     const accessModePublicLabel = useI18n('settings.items.wizard.readaccess.public');
     const accessModePrivateLabel = useI18n('settings.items.wizard.readaccess.private');
     const accessModeCustomLabel = useI18n('settings.items.wizard.readaccess.custom');

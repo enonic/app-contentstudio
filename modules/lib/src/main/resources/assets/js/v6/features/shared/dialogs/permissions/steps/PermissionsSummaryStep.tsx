@@ -60,7 +60,7 @@ export const PermissionsDialogSummaryStepContent = ({locked}: {locked: boolean})
     }, [initialAccessControlEntries, accessControlEntries]);
 
     // Constants
-    const accessModeLabel = useI18n('dialog.permissions.summary.accessMode');
+    const accessModeLabel = useI18n('dialog.projectAccess');
     const applyToLabel = useI18n('dialog.permissions.summary.applyTo');
     const replaceChildPermissionsLabel = useI18n('dialog.permissions.summary.replaceChildPermissions');
     const publicLabel = useI18n('dialog.permissions.summary.public');

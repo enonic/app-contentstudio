@@ -35,7 +35,7 @@ export const BrowseFilter = ({
     filterableAggregations,
     exportOptions,
 }: BrowseFilterProps): React.ReactElement => {
-    const searchPlaceholder = useI18n('field.search.placeholder');
+    const searchPlaceholder = useI18n('field.option.placeholder');
 
     const exportAction = exportOptions?.action;
     const exportLabel = exportOptions?.label || useI18n('action.export');

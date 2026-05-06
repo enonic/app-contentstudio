@@ -63,7 +63,7 @@ export class RequestContentPublishDialog
 
     protected constructor() {
         super({
-            title: i18n('dialog.requestPublish'),
+            title: i18n('action.requestPublish'),
             dialogSubName: i18n('dialog.requestPublish.subname1'),
             class: 'request-publish-dialog',
             buttonRow: new DropdownButtonRow(),

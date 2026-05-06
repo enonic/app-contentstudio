@@ -29,14 +29,14 @@ export const EditPropertiesDialog = (): ReactElement => {
     const {principals} = useStore($principals);
 
     // Constants
-    const title = useI18n('widget.properties.edit.settings.text');
+    const title = useI18n('field.contextPanel.details.sections.info.editSettings');
     const noLanguagesFoundLabel = useI18n('widget.properties.edit.settings.noLanguagesFound');
     const noOwnersFoundLabel = useI18n('widget.properties.edit.settings.noOwnersFound');
     const applyLabel = useI18n('action.apply');
     const cancelLabel = useI18n('action.cancel');
     const languageLabel = useI18n('field.lang');
     const ownerLabel = useI18n('field.owner');
-    const searchPlaceholder = useI18n('field.search.placeholder');
+    const searchPlaceholder = useI18n('field.option.placeholder');
 
     const path = content?.getPath()?.toString();
     const initialLanguage = content?.getLanguage() ?? '';

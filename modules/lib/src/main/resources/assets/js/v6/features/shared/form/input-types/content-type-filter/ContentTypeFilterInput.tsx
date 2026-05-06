@@ -32,7 +32,7 @@ export const ContentTypeFilterInput = ({
     });
 
     // i18n
-    const placeholder = useI18n('field.search.placeholder');
+    const placeholder = useI18n('field.option.placeholder');
     const loadingLabel: string = useI18n('field.search.loading');
     const emptyLabel = useI18n('field.option.noitems');
     const errorLabel = useI18n('field.search.error');

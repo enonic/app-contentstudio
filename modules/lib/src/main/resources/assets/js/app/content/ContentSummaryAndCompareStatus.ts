@@ -286,7 +286,7 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
         return CompareStatusChecker.isMovedAndModified(this.getCompareStatus(), this.getContentState());
     }
 
-    private getContentState(): ContentState | null {
+    public getContentState(): ContentState | null {
         if (this.contentSummary?.isReady()) {
             return 'ready';
         }

@@ -20,8 +20,8 @@ export const StaticBucketAggregation = ({
     selection,
     onSelectionChange,
     showAll,
-    showMoreLabel = 'Show more',
-    showLessLabel = 'Show less',
+    showMoreLabel = useI18n('action.show.more'),
+    showLessLabel = useI18n('action.show.less'),
     maxVisibleBuckets = 5,
 }: StaticBucketAggregationProps): ReactElement => {
     const [showAllState, setShowAllState] = useControlledState(showAll, false);

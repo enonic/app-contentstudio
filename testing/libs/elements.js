@@ -11,7 +11,7 @@ const COMMON = {
     FORM_ITEM: "//div[contains(@id,'FormItem')]",
     TEXT_INPUT: "//input[@type='text']",
     CONTEXT_WINDOW_WIDGET_SELECTOR_SEARCH_INPUT: "//div[@data-component='WidgetsSelector']//input[@aria-label='Search']",
-    CONTEXT_WINDOW_TOGGLE_BUTTON: `//button[@aria-label='Hide context panel' or @aria-label='Show context panel']`,
+    CONTEXT_WINDOW_TOGGLE_BUTTON: `//button[@aria-label='Hide Context Panel' or @aria-label='Show Context Panel']`,
     CONTENT_APP_BAR_DIV: "//div[contains(@id,'BrowseAppBarElement')]",
     SELECT_ALL_CHECKBOX_LABEL: "//label[descendant::input[@type='checkbox' and @aria-label='Select all']]",
     menuItemByText: (text) => `//div[@role,'menuitem') and text()='${text}']`,
