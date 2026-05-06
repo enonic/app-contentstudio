@@ -56,11 +56,13 @@ export const ProjectDialogAccessStepContent = ({locked = false}: ProjectDialogAc
         setProjectDialogPermissions(selectedPrincipals);
     }, [selectedPrincipals]);
 
+    const parentProjectName = parentProjects[0]?.getDisplayName() || '';
+
     // Memoized values
     const canCopyFromParentProject = useMemo(() => {
         const hasParentProjects = parentProjects?.length > 0;
 
-        if (!hasParentProjects) return false;
+        if (!hasParentProjects || !parentProjectName) return false;
 
         const parentProjectReadAccess = parentProjects[0]?.getReadAccess();
         const parentProjectReadAccessPrincipalsKeys = parentProjectReadAccess
@@ -74,26 +76,17 @@ export const ProjectDialogAccessStepContent = ({locked = false}: ProjectDialogAc
             parentProjectReadAccessPrincipalsKeys.some((key) => !selection.includes(key));
 
         return isParentProjectReadAccessDifferent || isParentProjectPrincipalKeysDifferent;
-    }, [parentProjects, accessModeValue, selection]);
+    }, [parentProjects, accessModeValue, selection, parentProjectName]);
 
     // Constants
-    const accessModeLabel = useI18n('dialog.project.wizard.access.accessMode');
-    const publicLabel = useI18n('dialog.project.wizard.access.public');
-    const privateLabel = useI18n('dialog.project.wizard.access.private');
-    const customLabel = useI18n('dialog.project.wizard.access.custom');
-    const permissionsLabel = useI18n('dialog.project.wizard.access.permissions');
-    const copyFromLabel = useI18n('dialog.project.wizard.access.copyFrom');
-    const typeToSearchLabel = useI18n('field.search.placeholder');
+    const accessModeLabel = useI18n('dialog.projectAccess');
+    const publicLabel = useI18n('settings.items.wizard.readaccess.public.description');
+    const privateLabel = useI18n('settings.items.wizard.readaccess.private.description');
+    const customLabel = useI18n('settings.items.wizard.readaccess.custom.description');
+    const permissionsLabel = useI18n('field.contextPanel.details.sections.permissions');
+    const typeToSearchLabel = useI18n('field.option.placeholder');
     const noPrincipalsFoundLabel = useI18n('dialog.project.wizard.access.noPrincipalsFound');
-    const copyFromParentLabel = useMemo(() => {
-        if (!canCopyFromParentProject) return '';
-
-        const parentProjectName = parentProjects[0]?.getDisplayName() || '';
-
-        if (!parentProjectName) return '';
-
-        return `${copyFromLabel} ${parentProjectName}`;
-    }, [canCopyFromParentProject, parentProjects, copyFromLabel]);
+    const copyFromParentLabel = useI18n('settings.wizard.project.copy', parentProjectName);
 
     // Handlers
     const handleCopyFromParentProject = useCallback(() => {

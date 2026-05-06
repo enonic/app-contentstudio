@@ -67,7 +67,7 @@ export const NewIssueDialogContent = (): ReactElement => {
     const dialogTitle = useI18n('text.newIssue');
     const inviteUsersLabel = useI18n('dialog.issue.inviteUsers');
     const noResultsLabel = useI18n('dialog.search.result.noResults');
-    const includeChildrenLabel = useI18n('field.content.includeChildren');
+    const includeChildrenLabel = useI18n('dialog.includeChildren');
 
     const excludeChildrenSet = useMemo(
         () => new Set(excludeChildrenIds.map(id => id.toString())),

@@ -7,7 +7,7 @@ const {BUTTONS} = require('../../libs/elements');
 const xpath = {
     container: `//section[@data-component='DetailsWidgetContentSection']`,
     pathProperty: "//dt[contains(.,'Path')]/following-sibling::dd[1]",
-    displayNameProperty: "//dt[contains(.,'Display name')]/following-sibling::dd[1]",
+    displayNameProperty: "//dt[contains(.,'Display Name')]/following-sibling::dd[1]",
     statusProperty: "//dt[contains(.,'Status')]/following-sibling::dd[1]",
     diffStatusBadge: `//dt[contains(.,'Status')]/following-sibling::dd[1]//span[@data-component='DiffStatusBadge']`,
     publishStatus: `//dt[contains(.,'Status')]/following-sibling::dd[1]//span[@data-component='DiffStatusBadge']/span[1]`,

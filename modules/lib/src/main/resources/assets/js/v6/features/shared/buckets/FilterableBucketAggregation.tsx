@@ -19,7 +19,7 @@ export const FilterableBucketAggregation = ({
     idsToKeepOnTop,
 }: FilterableBucketAggregationProps): ReactElement => {
     const [inputValue, setInputValue] = useState('');
-    const searchPlaceholder = useI18n('field.search.placeholder');
+    const searchPlaceholder = useI18n('field.option.placeholder');
 
     const [selectionState, setSelectionState] = useControlledState(selection, [], onSelectionChange);
     const isSelected = (bucket: Bucket) => selectionState.some(b => b.getKey() === bucket.getKey());

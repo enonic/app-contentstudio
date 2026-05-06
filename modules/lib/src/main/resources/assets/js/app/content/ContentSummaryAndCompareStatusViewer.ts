@@ -94,8 +94,17 @@ export class ContentSummaryAndCompareStatusViewer
     }
 
     protected resolveWorkflowState(object: ContentSummaryAndCompareStatus): string {
-        const workflow: Workflow = object.getContentSummary().getWorkflow();
-        return workflow ? i18n(`status.workflow.${workflow.getState()}`) : '';
+        const summary: ContentSummary = object.getContentSummary();
+        if (!summary) {
+            return '';
+        }
+        if (summary.isReady()) {
+            return i18n('field.workflow.status.ready');
+        }
+        if (summary.isInProgress()) {
+            return i18n('field.workflow.status.inProgress');
+        }
+        return '';
     }
 
     protected resolveSubNameForUploadItem(object: ContentSummaryAndCompareStatus): string {

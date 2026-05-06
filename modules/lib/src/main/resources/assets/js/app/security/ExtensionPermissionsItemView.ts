@@ -83,7 +83,7 @@ export class ExtensionPermissionsItemView
         }
 
         this.bottomEl = new AEl('edit-permissions-link');
-        this.bottomEl.setHtml(i18n('action.editPermissions'));
+        this.bottomEl.setHtml(i18n('field.contextPanel.details.sections.permissions.editPermissions'));
 
         this.appendChild(this.bottomEl);
 

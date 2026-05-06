@@ -49,8 +49,8 @@ export const ProjectDialogApplicationStepContent = ({locked = false}: ProjectDia
     }, [selection, applications]);
 
     // Constants
-    const label = useI18n('dialog.project.wizard.application.applications');
-    const typeToSearchLabel = useI18n('field.search.placeholder');
+    const label = useI18n('settings.items.wizard.step.applications');
+    const typeToSearchLabel = useI18n('field.option.placeholder');
     const noApplicationsFoundLabel = useI18n('dialog.project.wizard.application.noApplicationsFound');
 
     // Handlers

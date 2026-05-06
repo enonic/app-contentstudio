@@ -16,8 +16,8 @@ export const SearchToggle = ({action, className}: Props): ReactElement => {
     const isContentFilterOpen = useStore($isContentFilterOpen);
     const {label, enabled, execute} = useAction(action);
 
-    const showReachLabel = useI18n('action.search.show');
-    const hideReachLabel = useI18n('action.search.hide');
+    const showReachLabel = useI18n('tooltip.filterPanel.show');
+    const hideReachLabel = useI18n('tooltip.filterPanel.hide');
     const searchLabel = label || (isContentFilterOpen ? hideReachLabel : showReachLabel);
 
     return (

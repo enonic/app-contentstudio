@@ -15,7 +15,7 @@ export function PreviewToolbarVersionHistoryItem({
     contentSummary,
 }: PreviewToolbarVersionHistoryItemProps): ReactElement {
     const ariaLabel = useI18n('wcag.preview.toolbar.versionHistory.label');
-    const versionHistoryLabel = useI18n('field.preview.toolbar.versionHistory.label');
+    const versionHistoryLabel = useI18n('field.contextPanel.versionHistory');
     const modifiedLabel = useI18n('status.modified');
 
     const isModified = calcSecondaryStatus(calcTreePublishStatus(contentSummary), contentSummary) === 'modified';

@@ -12,8 +12,8 @@ type Props = {
 export const ContextToggle = ({className}: Props): ReactElement => {
     const isContextOpen = useStore($isContextOpen);
 
-    const showReachLabel = useI18n('action.context.show');
-    const hideReachLabel = useI18n('action.context.hide');
+    const showReachLabel = useI18n('tooltip.contextPanel.show');
+    const hideReachLabel = useI18n('tooltip.contextPanel.hide');
     const contextLabel = isContextOpen ? hideReachLabel : showReachLabel;
     const ContextIcon = isContextOpen ? PanelRightClose : PanelRightOpen;
 

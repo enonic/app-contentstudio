@@ -74,7 +74,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
     const createLabel = useI18n('action.createRequest');
     const applyLabel = useI18n('action.apply');
     const noResultsLabel = useI18n('dialog.search.result.noResults');
-    const includeChildrenLabel = useI18n('field.content.includeChildren');
+    const includeChildrenLabel = useI18n('dialog.includeChildren');
 
     const excludeChildrenSet = useMemo(
         () => new Set(excludeChildrenIds.map(id => id.toString())),

@@ -63,8 +63,8 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
 
     // Constants
     const permissionsLabel = useI18n('dialog.permissions.access.permissions');
-    const accessModeLabel = useI18n('dialog.permissions.access.accessMode');
-    const accessModePublicLabel = useI18n('dialog.permissions.access.accessMode.public');
+    const accessModeLabel = useI18n('dialog.projectAccess');
+    const accessModePublicLabel = useI18n('settings.items.wizard.readaccess.public.description');
     const accessModeRestrictedLabel = useI18n('dialog.permissions.access.accessMode.restricted');
     const copyFromParentLabel = useI18n('dialog.permissions.access.copyFromParent');
     const copyFromProjectLabel = useI18n('dialog.permissions.access.copyFromProject');
@@ -72,7 +72,7 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
         () => (isContentRoot ? copyFromProjectLabel : copyFromParentLabel),
         [isContentRoot, copyFromProjectLabel, copyFromParentLabel]
     );
-    const typeToSearchLabel = useI18n('field.search.placeholder');
+    const typeToSearchLabel = useI18n('field.option.placeholder');
     const notFoundLabel = useI18n('field.search.noItems');
 
     // Handlers

@@ -31,7 +31,7 @@ const TreeListToolbar = ({enabled = true}: TreeListToolbarProps): ReactElement =
     const isAllSelected = useStore($isAllLoadedSelected);
     const totalSelected = useStore($selectionCount);
     const isNoneSelected = useStore($isNoneSelected);
-    const selectAllLabel = isNoneSelected ? useI18n('field.treeListToolbar.selectAll') : useI18n('field.treeListToolbar.deselectAll',
+    const selectAllLabel = isNoneSelected ? useI18n('field.selection.selectAll') : useI18n('field.selection.clear',
         totalSelected);
 
     const checkedStatus = useMemo<CheckboxChecked>(() => {

@@ -52,11 +52,11 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
     const dirtyRef = useRef(false);
     const baselineRef = useRef<string | null>(null);
 
-    const placeholder = useI18n('field.search.placeholder');
+    const placeholder = useI18n('field.option.placeholder');
     const emptyLabel = useI18n('dialog.project.wizard.application.noApplicationsFound');
     const applyLabel = useI18n('action.apply');
-    const confirmTitle = useI18n('dialog.confirm.newProject.title');
-    const confirmDescription = useI18n('dialog.confirm.newProject.description');
+    const confirmTitle = useI18n('dialog.confirm.title');
+    const confirmDescription = useI18n('dialog.confirm.applyChanges');
 
     useEffect(() => {
         void loadApplications();

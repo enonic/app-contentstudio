@@ -29,18 +29,18 @@ export const ProjectDialog = (): ReactElement => {
 
     const isDirty = useStore($isProjectDialogDirty);
 
-    const previousLabel = useI18n('dialog.project.wizard.previous');
-    const nextLabel = useI18n('dialog.project.wizard.next');
+    const previousLabel = useI18n('action.previous');
+    const nextLabel = useI18n('action.next');
     const createLabel = useI18n('dialog.project.wizard.action.submit');
     const updateLabel = useI18n('dialog.project.wizard.action.update');
     const submitLabel = mode === 'edit' ? updateLabel : createLabel;
-    const confirmTitle = useI18n('dialog.confirm.newProject.title');
-    const confirmDescription = useI18n('dialog.confirm.newProject.description');
+    const confirmTitle = useI18n('dialog.confirm.title');
+    const confirmDescription = useI18n('dialog.confirm.applyChanges');
     const parentStepTitle = useI18n('dialog.project.wizard.parent.stepTitle');
     const nameStepTitle = useI18n('dialog.project.wizard.name.stepTitle');
     const accessStepTitle = useI18n('dialog.project.wizard.access.stepTitle');
-    const roleStepTitle = useI18n('dialog.project.wizard.role.stepTitle');
-    const applicationStepTitle = useI18n('dialog.project.wizard.application.stepTitle');
+    const roleStepTitle = useI18n('settings.items.wizard.step.roles');
+    const applicationStepTitle = useI18n('settings.items.wizard.step.applications');
     const summaryStepTitle = useI18n('dialog.project.wizard.summary.stepTitle');
     const stepsMap = useMemo(
         () =>

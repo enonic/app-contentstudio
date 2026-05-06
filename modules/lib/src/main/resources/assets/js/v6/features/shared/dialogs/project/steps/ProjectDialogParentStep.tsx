@@ -47,16 +47,17 @@ export const ProjectDialogParentStepContent = (): ReactElement => {
     const [languageSelection, setLanguageSelection] = useState<readonly string[]>([defaultLanguage]);
 
     // Constants
-    const parentProjectsLabel = useI18n('dialog.project.wizard.parent.parentProjects');
-    const parentProjectLabel = useI18n('dialog.project.wizard.parent.parentProject');
-    const typeToSearchLabel = useI18n('field.search.placeholder');
-    const noProjectsFoundLabel = useI18n('dialog.project.wizard.parent.noProjectsFound');
+    const parentProjectsLabel = useI18n('settings.field.project.parents');
+    const parentProjectLabel = useI18n('settings.field.project.parent');
+    const typeToSearchLabel = useI18n('field.option.placeholder');
+    const noProjectsFoundLabel = useI18n('settings.projects.notfound');
     const hintLabel = useI18n('settings.projects.parent.helptext');
     const projectLabel = isMultiInheritance ? parentProjectsLabel : parentProjectLabel;
-    const languageLabel = useI18n('dialog.project.wizard.parent.defaultLanguage');
-    const copyFromLabel = useI18n('dialog.project.wizard.parent.copyFrom');
+    const languageLabel = useI18n('settings.projects.language.label');
     const noLanguagesFoundLabel = useI18n('dialog.project.wizard.parent.noLanguagesFound');
     const reorderLabel = useI18n('field.occurrence.action.reorder');
+    const parentProjectName = parentProjects[0]?.getDisplayName() ?? '';
+    const copyFromParentLabel = useI18n('settings.wizard.project.copy', parentProjectName);
 
     // Memoized values
     const selectedLanguage = useMemo<LanguageOption | undefined>(
@@ -68,17 +69,8 @@ export const ProjectDialogParentStepContent = (): ReactElement => {
         const hasParentProjectLanguage = parentProjects[0]?.getLanguage();
         const isParentProjectLanguageDifferent = parentProjects[0]?.getLanguage() !== selectedLanguage?.id;
 
-        return hasParentProjects && hasParentProjectLanguage && isParentProjectLanguageDifferent;
-    }, [parentProjects, selectedLanguage]);
-    const copyFromParentLabel = useMemo(() => {
-        if (!canCopyFromParentProject) return '';
-
-        const parentProjectName = parentProjects[0]?.getDisplayName() ?? '';
-
-        if (!parentProjectName) return '';
-
-        return `${copyFromLabel} ${parentProjectName}`;
-    }, [canCopyFromParentProject, parentProjects, copyFromLabel]);
+        return hasParentProjects && hasParentProjectLanguage && isParentProjectLanguageDifferent && !!parentProjectName;
+    }, [parentProjects, selectedLanguage, parentProjectName]);
 
     // Sync project selection with the store
     useEffect(() => {

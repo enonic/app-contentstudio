@@ -59,7 +59,7 @@ export function createContentStateKey(contentState: ContentState): string {
         case 'in-progress':
             return 'field.workflow.status.inProgress';
         case 'invalid':
-            return 'field.workflow.status.invalid';
+            return 'field.invalid';
         default:
             return 'status.unknown';
     }

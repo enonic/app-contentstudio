@@ -25,7 +25,7 @@ export const MoveDialog = (): ReactElement => {
     const {progress} = useTaskProgress(taskId);
     const [view, setView] = useState<View>('main');
 
-    const confirmTitle = useI18n('dialog.confirm.move.title');
+    const confirmTitle = useI18n('dialog.confirm.title');
     const confirmDescription = useI18n('dialog.confirm.move.description');
     const cancelLabel = useI18n('action.cancel');
     const confirmLabel = useI18n('action.confirm');

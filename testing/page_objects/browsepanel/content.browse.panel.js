@@ -27,12 +27,12 @@ const XPATH = {
     checkedRowLi: `//div[contains(@class,'checkbox-left selected checked')]`,
     // v6: treeitem highlighted (bg-surface-selected) with checkbox not checked (aria-checked='false')
     highlightedRowNotChecked: `//div[@role='treeitem' and contains(@class,'bg-surface-selected') and descendant::div[@role='checkbox' and @aria-checked='false']]`,
-    searchButton: "//button[contains(@aria-label, 'search panel')]",
-    hideSearchPanelButton: "//button[contains(@aria-label, 'Hide search panel')]",
-    showSearchPanelButton: "//button[contains(@aria-label, 'Show search panel')]",
+    searchButton: "//button[contains(@aria-label, 'Search Panel')]",
+    hideSearchPanelButton: "//button[contains(@aria-label, 'Hide Search Panel')]",
+    showSearchPanelButton: "//button[contains(@aria-label, 'Show Search Panel')]",
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]/button",//'Assigned to Me' or 'Show Issues'
     markAsReadyMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Mark as ready']",
-    resetSelectionCheckbox: `//label[child::input[contains(@aria-label,'Reset selection')]]`,
+    resetSelectionCheckbox: `//label[child::input[contains(@aria-label,'Clear selection')]]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     publishMenuItemByName(name) {
         return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
@@ -114,11 +114,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get hideContextWindowButton() {
-        return XPATH.container + BUTTONS.buttonAriaLabel('Hide context panel');
+        return XPATH.container + BUTTONS.buttonAriaLabel('Hide Context Panel');
     }
 
     get showContextPanelButton() {
-        return XPATH.container + BUTTONS.buttonAriaLabel('Show context panel');
+        return XPATH.container + BUTTONS.buttonAriaLabel('Show Context Panel');
     }
 
     async isShowContextPanelButtonDisplayed(){
@@ -1126,7 +1126,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         try {
             return await this.waitForElementDisplayed(this.resetSelectionCheckbox);
         } catch (err) {
-            await this.handleError('Reset Selection checkbox should be displayed', 'err_reset_selection_checkbox', err);
+            await this.handleError('Clear Selection checkbox should be displayed', 'err_reset_selection_checkbox', err);
         }
     }
 
@@ -1135,7 +1135,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForResetSelectionCheckboxDisplayed()
             return await this.clickOnElement(this.resetSelectionCheckbox);
         } catch (err) {
-            await this.handleError('Clicked on Reset Selection checkbox', 'err_reset_selection_checkbox', err);
+            await this.handleError('Clicked on Clear Selection checkbox', 'err_reset_selection_checkbox', err);
         }
     }
 

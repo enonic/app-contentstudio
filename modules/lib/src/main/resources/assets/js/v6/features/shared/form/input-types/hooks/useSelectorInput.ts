@@ -42,7 +42,7 @@ export const useSelectorInput = <T extends Omit<GeneralSelectorConfig, 'allowCon
     const selection: string[] = useMemo(() => values.filter((v) => v.isNotNull()).map((v) => v.getReference().getNodeId()), [values]);
 
     // i18n
-    const placeholder: string = useI18n('field.search.placeholder');
+    const placeholder: string = useI18n('field.option.placeholder');
     const emptyLabel: string = useI18n('field.option.noitems');
 
     // Handler

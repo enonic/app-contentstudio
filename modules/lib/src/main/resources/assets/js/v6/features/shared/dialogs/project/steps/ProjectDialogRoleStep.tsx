@@ -72,9 +72,11 @@ export const ProjectDialogRoleStepContent = ({locked = false}: ProjectDialogRole
         setProjectDialogRolePrincipals(selectedPrincipals);
     }, [selectedPrincipals]);
 
+    const parentProjectName = parentProjects[0]?.getDisplayName() || '';
+
     // Memoized values
     const canCopyFromParentProject = useMemo(() => {
-        if (!parentProjects || parentProjects?.length === 0) return false;
+        if (!parentProjects || parentProjects?.length === 0 || !parentProjectName) return false;
 
         const {principalKeys, roles} = getProjectDetailedPermissions(parentProjects[0]);
 
@@ -84,12 +86,11 @@ export const ProjectDialogRoleStepContent = ({locked = false}: ProjectDialogRole
         const isParentProjectPermissionsRolesDifferent = Object.entries(roles).some(([key, value]) => selectedRoles[key] !== value);
 
         return isParentProjectPrincipalsDifferent || isParentProjectPermissionsRolesDifferent;
-    }, [parentProjects, selection, selectedRoles]);
+    }, [parentProjects, selection, selectedRoles, parentProjectName]);
 
     // Constants
-    const label = useI18n('dialog.project.wizard.role.roles');
-    const copyFromLabel = useI18n('dialog.project.wizard.role.copyFrom');
-    const typeToSearchLabel = useI18n('field.search.placeholder');
+    const label = useI18n('settings.items.wizard.step.roles');
+    const typeToSearchLabel = useI18n('field.option.placeholder');
     const noRolesFoundLabel = useI18n('dialog.project.wizard.role.noRolesFound');
     const ownerLabel = useI18n('settings.projects.access.owner');
     const editorLabel = useI18n('settings.projects.access.editor');
@@ -104,15 +105,7 @@ export const ProjectDialogRoleStepContent = ({locked = false}: ProjectDialogRole
         ],
         [ownerLabel, editorLabel, contributorLabel, authorLabel]
     );
-    const copyFromParentLabel = useMemo(() => {
-        if (!canCopyFromParentProject) return '';
-
-        const parentProjectName = parentProjects[0]?.getDisplayName() || '';
-
-        if (!parentProjectName) return '';
-
-        return `${copyFromLabel} ${parentProjectName}`;
-    }, [canCopyFromParentProject, parentProjects, copyFromLabel]);
+    const copyFromParentLabel = useI18n('settings.wizard.project.copy', parentProjectName);
 
     // Handlers
     const handleCopyFromParentProject = useCallback(() => {

@@ -49,7 +49,7 @@ export const PathSelector = ({
     onSelectionChange,
     onItemChange,
 }: PathSelectorProps): ReactElement => {
-    const searchPlaceholder = useI18n('field.search.placeholder');
+    const searchPlaceholder = useI18n('field.option.placeholder');
     const emptyLabel = useI18n('field.search.noItems');
     const showMoreLabel = useI18n('action.show.more');
     const removeLabel = useI18n('action.remove');
