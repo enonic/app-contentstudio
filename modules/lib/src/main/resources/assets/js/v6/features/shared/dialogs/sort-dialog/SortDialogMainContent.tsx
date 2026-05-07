@@ -85,16 +85,11 @@ export const SortDialogMainContent = (): ReactElement => {
                         dragLabel={reorderLabel}
                         className='flex flex-col gap-y-2.5'
                         itemClassName='[&>button]:hidden'
-                        renderItem={({item, isFocused, isMovable}) => (
+                        renderItem={({item}) => (
                             <SortContentListItem
                                 content={item}
                                 variant='detailed'
                                 dragEnabled={isManualSorting}
-                                inverseTone={false}
-                                selected={isMovable}
-                                isFocused={isFocused && !isMovable}
-                                isMovable={isMovable}
-                                className='flex-1 bg-unset'
                             />
                         )}
                     />
