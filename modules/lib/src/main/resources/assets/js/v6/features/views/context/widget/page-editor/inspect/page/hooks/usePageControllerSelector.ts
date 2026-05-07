@@ -1,4 +1,3 @@
-import {useStore} from '@nanostores/preact';
 import {useCallback, useState} from 'react';
 import {useI18n} from '../../../../../../../hooks/useI18n';
 import {
@@ -24,7 +23,6 @@ export type ConfirmDialogState = {
 };
 
 type UsePageControllerSelectorResult = {
-    options: PageOption[];
     filteredOptions: PageOption[];
     selectedOption: PageOption | undefined;
     searchValue: string | undefined;
@@ -37,9 +35,6 @@ type UsePageControllerSelectorResult = {
 };
 
 export function usePageControllerSelector(): UsePageControllerSelectorResult {
-    const templates = useStore($pageTemplateOptions);
-    const controllers = useStore($pageControllerOptions);
-
     const templateChangeQuestion = useI18n('dialog.template.change');
     const controllerChangeQuestion = useI18n('dialog.controller.change');
 
@@ -69,20 +64,20 @@ export function usePageControllerSelector(): UsePageControllerSelectorResult {
             if (newType === 'auto') {
                 executePageReset();
             } else if (newType === 'template') {
-                const template = templates.find(t => t.getKey().toString() === newKey);
+                const template = $pageTemplateOptions.get().find(t => t.getKey().toString() === newKey);
                 if (template) {
                     requestSetPageTemplate(template.getKey());
                     bumpInsertTabActivateNonce();
                 }
             } else {
-                const controller = controllers.find(c => c.getKey().toString() === newKey);
+                const controller = $pageControllerOptions.get().find(c => c.getKey().toString() === newKey);
                 if (controller) {
                     requestSetPageController(controller.getKey());
                     bumpInsertTabActivateNonce();
                 }
             }
         },
-        [getOptionType, templates, controllers],
+        [getOptionType],
     );
 
     const handleSelectionChange = useCallback(
@@ -122,7 +117,6 @@ export function usePageControllerSelector(): UsePageControllerSelectorResult {
     );
 
     return {
-        options,
         filteredOptions,
         selectedOption,
         searchValue,

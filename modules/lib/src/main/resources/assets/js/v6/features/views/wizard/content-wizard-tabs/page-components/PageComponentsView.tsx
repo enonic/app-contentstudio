@@ -8,7 +8,7 @@ import {PageNavigationEventData} from '../../../../../../app/wizard/PageNavigati
 import {PageNavigationEventType} from '../../../../../../app/wizard/PageNavigationEventType';
 import {PageNavigationMediator} from '../../../../../../app/wizard/PageNavigationMediator';
 import {useI18n} from '../../../../hooks/useI18n';
-import {usePageOptions} from '../../../../hooks/usePageOptions';
+import {useSelectedPageOption} from '../../../../hooks/usePageOptions';
 import type {FlatNode} from '../../../../lib/tree-store';
 import {getNode} from '../../../../lib/tree-store';
 import {inspectItem, requestComponentMove} from '../../../../store/page-editor';
@@ -50,7 +50,7 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
     const showErrors = validationVisibility === 'all';
     const inspectedPath = useStore($inspectedPath);
     const [flatNodes, setFlatNodes] = useState(() => [...$componentsFlatNodes.get()]);
-    const {selectedOption: selectedPageOption} = usePageOptions();
+    const selectedPageOption = useSelectedPageOption();
     const pageMetadata = useMemo<PageComponentPageMetadata | undefined>(() => {
         if (selectedPageOption == null) {
             return undefined;
@@ -158,8 +158,6 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
             || (sourceNode.data.nodeType === 'fragment' && sourceNode.data.layoutFragment);
 
         return !(isLayoutDrag && hasLayoutAncestor($componentsTreeState.get(), target.regionPath));
-
-
     }, [flatNodes]);
 
     const itemClassName = useCallback((

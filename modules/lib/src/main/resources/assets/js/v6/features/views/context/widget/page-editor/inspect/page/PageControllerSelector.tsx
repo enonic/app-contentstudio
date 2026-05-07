@@ -22,7 +22,9 @@ export const PageControllerSelector = (): ReactElement | null => {
     const templateLabel = useI18n('field.page.template');
     const searchPlaceholder = useI18n('field.option.placeholder');
 
-    if (isLoading) {
+    // ? Keep mounted on background refetch (after a controller change reloads the
+    // ? descriptor list) — only bail on the initial load with nothing to render.
+    if (isLoading && !selectedOption) {
         return null;
     }
 
@@ -36,26 +38,26 @@ export const PageControllerSelector = (): ReactElement | null => {
                     selection={selection}
                     onSelectionChange={handleSelectionChange}
                 >
-                    <Combobox.Content>
+                    <Combobox.Content data-component={PAGE_CONTROLLER_SELECTOR_NAME}>
                         <Combobox.Control>
                             <Combobox.Search>
                                 {selectedOption && (
                                     <Combobox.Value className="gap-2 w-full">
-                                        <selectedOption.icon className="size-4 shrink-0"/>
+                                        <selectedOption.icon className="size-4 shrink-0" />
                                         <span className="leading-5.5 font-semibold truncate">
                                             {selectedOption.label}
                                         </span>
                                     </Combobox.Value>
                                 )}
-                                <Combobox.Input placeholder={searchPlaceholder}/>
-                                <Combobox.Toggle/>
+                                <Combobox.Input placeholder={searchPlaceholder} />
+                                <Combobox.Toggle />
                             </Combobox.Search>
                         </Combobox.Control>
                         <Combobox.Popup>
                             <Listbox.Content className="max-h-60 rounded-sm">
                                 {filteredOptions.map(option => (
                                     <Listbox.Item key={option.key} value={option.key}>
-                                        <option.icon className="size-6 shrink-0"/>
+                                        <option.icon className="size-6 shrink-0" />
                                         <div className="flex flex-col overflow-hidden">
                                             <span className="leading-5.5 font-semibold truncate group-data-[tone=inverse]:text-alt">
                                                 {option.label}
@@ -82,7 +84,7 @@ export const PageControllerSelector = (): ReactElement | null => {
             >
                 {confirmDialog && (
                     <ConfirmationDialog.Portal>
-                        <ConfirmationDialog.Overlay/>
+                        <ConfirmationDialog.Overlay />
                         <ConfirmationDialog.Content>
                             <ConfirmationDialog.Body>
                                 {confirmDialog.question}
