@@ -50,6 +50,7 @@ import {Router} from '@enonic/lib-contentstudio/app/Router';
 import {SettingsServerEventsListener} from '@enonic/lib-contentstudio/app/settings/event/SettingsServerEventsListener';
 import {$isDown, subscribe as subscribeToWorker} from '@enonic/lib-contentstudio/app/stores/worker';
 import {UrlAction} from '@enonic/lib-contentstudio/app/UrlAction';
+import {UrlHelper} from '@enonic/lib-contentstudio/app/util/UrlHelper';
 import {VersionHelper} from '@enonic/lib-contentstudio/app/util/VersionHelper';
 import {ContentAppHelper} from '@enonic/lib-contentstudio/app/wizard/ContentAppHelper';
 import {ContentWizardPanelParams} from '@enonic/lib-contentstudio/app/wizard/ContentWizardPanelParams';
@@ -172,6 +173,8 @@ const iconUrlResolver = new ContentIconUrlResolver();
 
 let dataPreloaded: boolean = false;
 
+let invalidEditUrlNotificationPending: boolean = false;
+
 function clearFavicon() {
     // save current favicon hrefs
     $('link[rel*=icon][sizes]').each((index, link: HTMLElement) => {
@@ -208,34 +211,47 @@ const refreshTab = function (content: ContentSummary) {
     updateTabTitle(content.getDisplayName());
 };
 
-function preLoadApplication() {
-    const application: Application = getApplication();
-    if (ContentAppHelper.isContentWizardUrl()) {
-        clearFavicon();
-        const wizardParams: ContentWizardPanelParams = ContentAppHelper.createWizardParamsFromUrl();
-
-        if (!Body.get().isRendered() && !Body.get().isRendering()) {
-            dataPreloaded = true;
-            const projectName: string = application.getPath().getElement(0);
-            // body is not rendered if the tab is in background
-            if (wizardParams.contentId) {
-                new GetContentByIdRequest(wizardParams.contentId).setRequestProjectName(projectName).sendAndParse().then(
-                    (content: Content) => {
-                        refreshTab(content);
-
-                        if (shouldUpdateFavicon(content.getType())) {
-                            refreshTabOnContentUpdate(content);
-                        }
-
-                    });
-            } else {
-                new GetContentTypeByNameRequest(wizardParams.contentTypeName).sendAndParse().then(
-                    (contentType) => {
-                        updateTabTitle(NamePrettyfier.prettifyUnnamed(contentType.getTitle()));
-                    });
-            }
-        }
+function preLoadApplication(): Promise<void> {
+    if (!ContentAppHelper.isContentWizardUrl()) {
+        return Promise.resolve();
     }
+
+    const application: Application = getApplication();
+    const wizardParams: ContentWizardPanelParams = ContentAppHelper.createWizardParamsFromUrl();
+    const projectName: string = application.getPath().getElement(0);
+    const shouldPreloadTabData: boolean = !Body.get().isRendered() && !Body.get().isRendering();
+
+    if (wizardParams.contentId) {
+        return Promise.resolve(
+            new GetContentByIdRequest(wizardParams.contentId).setRequestProjectName(projectName).sendAndParse()
+                .then((content: Content) => {
+                    if (!shouldPreloadTabData) {
+                        return;
+                    }
+                    dataPreloaded = true;
+                    clearFavicon();
+                    refreshTab(content);
+                    if (shouldUpdateFavicon(content.getType())) {
+                        refreshTabOnContentUpdate(content);
+                    }
+                })
+                .catch(() => {
+                    invalidEditUrlNotificationPending = true;
+                    history.replaceState(null, '', UrlHelper.createContentBrowseUrl(projectName));
+                })
+        ).then(() => undefined);
+    }
+
+    if (shouldPreloadTabData) {
+        dataPreloaded = true;
+        clearFavicon();
+        new GetContentTypeByNameRequest(wizardParams.contentTypeName).sendAndParse().then(
+            (contentType) => {
+                updateTabTitle(NamePrettyfier.prettifyUnnamed(contentType.getTitle()));
+            });
+    }
+
+    return Promise.resolve();
 }
 
 function startServerEventListeners(application: Application) {
@@ -483,6 +499,11 @@ async function startContentBrowser() {
     appendMenuPanel();
     Body.get().appendChild(commonWrapper);
 
+    if (invalidEditUrlNotificationPending) {
+        showError(i18n('text.content.not.found'));
+        invalidEditUrlNotificationPending = false;
+    }
+
     const NewContentDialog = (await import('@enonic/lib-contentstudio/app/create/NewContentDialog')).NewContentDialog;
 
     const newContentDialog = new NewContentDialog();
@@ -543,10 +564,10 @@ async function startContentBrowser() {
 
     const body = Body.get();
 
-    preLoadApplication();
+    const preLoadPromise = preLoadApplication();
 
     const renderListener = () => {
-        startApplication();
+        preLoadPromise.then(() => startApplication());
         body.unRendered(renderListener);
     };
     if (body.isRendered()) {
