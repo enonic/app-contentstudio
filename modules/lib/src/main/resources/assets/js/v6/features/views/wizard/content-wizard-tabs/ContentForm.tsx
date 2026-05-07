@@ -2,10 +2,10 @@ import {RawValueProvider, ValidationVisibilityProvider} from '@enonic/lib-admin-
 import {useStore} from '@nanostores/preact';
 import {type ReactElement, useEffect, useMemo} from 'react';
 import {FormRenderer} from '../../../shared/form';
+import {useBreakpoints} from '../../../hooks/useBreakpoints';
 import {$contentType, $wizardDraftData, notifyContentFormMounted} from '../../../store/wizardContent.store';
 import {$validationVisibility, getContentRawValueMap} from '../../../store/wizardValidation.store';
 import {DisplayNameInput} from './DisplayNameInput';
-import {$isPreviewPanelVisible} from '../../../store/previewPanel.store';
 import {ImageUploaderDescriptor} from '../../../shared/form/input-types/image-uploader';
 
 const CONTENT_FORM_NAME = 'ContentForm';
@@ -14,7 +14,7 @@ export const ContentForm = (): ReactElement | null => {
     const contentType = useStore($contentType);
     const draftData = useStore($wizardDraftData);
     const visibility = useStore($validationVisibility);
-    const isPreviewPanelVisible = useStore($isPreviewPanelVisible);
+    const {lg} = useBreakpoints();
 
     const isReady = contentType != null && draftData != null;
     const rawValueMap = useMemo(() => getContentRawValueMap(), []);
@@ -27,18 +27,19 @@ export const ContentForm = (): ReactElement | null => {
     }, [isReady]);
 
     // For image content types, the ImageUploader is rendered by `LiveViewImageEditor`
-    // under the preview toolbar whenever the preview panel is visible. Exclude it from
-    // the form here to avoid rendering the editor twice. When the preview is hidden,
-    // fall back to the standard form rendering so the user still has access to it.
+    // under the preview toolbar. Exclude it from the form on non-mobile resolutions
+    // where the preview panel is visible, to avoid rendering the editor twice (and
+    // briefly flashing it inside the form panel during initial load). On mobile the
+    // preview is hidden, so fall back to the standard form rendering.
     const excludeInputTypes = useMemo<string[]>(() => {
         const excluded: string[] = [];
 
-        if (contentType?.getContentTypeName().isImage() && isPreviewPanelVisible) {
+        if (contentType?.getContentTypeName().isImage() && lg) {
             excluded.push(ImageUploaderDescriptor.name);
         }
 
         return excluded;
-    }, [contentType, isPreviewPanelVisible]);
+    }, [contentType, lg]);
 
     if (!isReady) {
         return null;
