@@ -1098,7 +1098,7 @@ class HtmlEditorConfigBuilder {
 
     private createConfig(): Q.Promise<CKEDITOR.config> {
         this.initCustomStyleSet();
-        const contentsCss = [this.editorParams.getAssetsUri() + '/styles/html-editor.css'];
+        const contentsCss = [this.editorParams.getAssetsUri() + '/styles/html-editor-iframe.css'];
 
         const config: CKEDITOR.config = {
             contentsCss: contentsCss,
