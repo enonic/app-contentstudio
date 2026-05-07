@@ -154,7 +154,7 @@ function buildConfig(params: UseCKEditorConfigParams, cssPaths: string[]): CKEDI
 
     const styleSetId = initCustomStyleSet(params.editorId, params.config.allowedHeadings, disabledTools);
 
-    const contentsCss = [params.assetsUri + '/styles/html-editor.css', ...cssPaths];
+    const contentsCss = [params.assetsUri + '/styles/html-editor-iframe.css', ...cssPaths];
 
     const config: CKEDITOR.config = {
         contentsCss,

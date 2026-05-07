@@ -1,4 +1,4 @@
-// This is redundant?
+// Outer CKEditor chrome only — iframe-scoped rules live in html-editor-iframe.less.
 @import "~enonic-admin-artifacts";
 
 .cke_button__sourcedialog {
@@ -37,75 +37,6 @@ body > .cke_panel {
   z-index: @z-index-shader !important;
 }
 
-body.cke_editable {
-  font-family: @admin-font-family;
-  font-size: 14px;
-  line-height: 1.3;
-
-  &.fullscreen {
-    padding: 0 20px;
-  }
-
-  @media screen and (max-width: 660px) {
-    &.fullscreen {
-      padding: 0;
-    }
-  }
-
-  strong {
-    font-family: @admin-font-family;
-  }
-
-  a:visited {
-    color: blue;
-  }
-
-  figure {
-    margin: 0;
-
-    &.editor-align-left {
-      margin-right: 20px;
-    }
-
-    &.editor-align-right {
-      margin-left: 20px;
-    }
-
-    figcaption:empty {
-      display: none;
-    }
-  }
-
-  span.shy {
-    position: relative;
-    width: 0;
-    display: inline-block;
-    height: 10px;
-    line-height: 10px;
-
-    &::before,
-    &::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      width: 4px;
-      height: 100%;
-      background-color: hsl(54deg 100% 62% / 30%);
-      border: 1px solid orange;
-    }
-
-    &::before {
-      left: -4px;
-      border-right: none;
-    }
-
-    &::after {
-      right: -4px;
-      border-left: none;
-    }
-  }
-}
-
 .cke_top, .cke_bottom {
   background: white !important;
 }
@@ -120,44 +51,6 @@ body.cke_editable {
   border-color: #b2b2b2;
 }
 
-html.cke_panel_container.cke_combopanel__styles,
-html.cke_panel_container.htmlarea-styles-popup {
-  font-family: @admin-font-family;
-  font-size: 14px;
-
-  --cke-popup-bg: #ffffff;
-  --cke-popup-bg-hover: #f1f5f6;
-  --cke-popup-border: #b2b2b2;
-  --cke-popup-text: #000000;
-  --cke-popup-text-subtle: #5b5f60;
-
-  body.cke_ltr,
-  body.cke_rtl,
-  .cke_panel_block,
-  .cke_panel_list {
-    background-color: var(--cke-popup-bg);
-    color: var(--cke-popup-text);
-  }
-
-  .cke_panel_grouptitle {
-    background-color: var(--cke-popup-bg);
-    border-bottom-color: var(--cke-popup-border);
-    color: var(--cke-popup-text-subtle);
-  }
-
-  .cke_panel_listItem a {
-    color: var(--cke-popup-text);
-  }
-
-  .cke_panel_listItem a:hover,
-  .cke_panel_listItem a:focus,
-  .cke_panel_listItem a:active,
-  .cke_panel_listItem.cke_selected a {
-    background-color: var(--cke-popup-bg-hover);
-    color: var(--cke-popup-text);
-  }
-}
-
 .cke_combo_button {
   .cke_combo_text {
     padding-left: 5px;
@@ -167,35 +60,6 @@ html.cke_panel_container.htmlarea-styles-popup {
     margin: 1px;
     width: 15px;
   }
-}
-
-.cke_editable {
-  table,
-  th,
-  td {
-    border: 1px solid black;
-  }
-
-  table {
-    width: 100%;
-
-    &.cke_show_border {
-      border: 1px solid black !important;
-
-      th,
-      td {
-        border: 1px solid black !important;
-      }
-    }
-  }
-}
-
-.cke__highlighted_term {
-  background-color: yellow;
-}
-
-.cke__selected_term {
-  outline: 1px solid black;
 }
 
 // ── Dark mode: outer chrome (toolbar, bottom bar, dropdowns) ──
@@ -214,7 +78,6 @@ html.cke_panel_container.htmlarea-styles-popup {
 @cke-dark-text-subtle:   #b5b9ba;  // grey-400
 @cke-dark-text-muted:    #797d7e;  // grey-700
 @cke-dark-link:          #208ebe;  // fbk-info-subtle
-@cke-dark-link-visited:  #e46ee4;  // purple-subtle
 
 html.dark {
   .cke_chrome {
@@ -381,87 +244,5 @@ html.dark {
   a.cke_colormore:focus {
     border-color: @cke-dark-link;
     background-color: @cke-dark-surface-hover;
-  }
-}
-
-html.dark.cke_panel_container.cke_combopanel__styles,
-html.dark.cke_panel_container.htmlarea-styles-popup {
-  --cke-popup-bg: @cke-dark-surface;
-  --cke-popup-bg-hover: @cke-dark-surface-hover;
-  --cke-popup-border: @cke-dark-border;
-  --cke-popup-text: @cke-dark-text;
-  --cke-popup-text-subtle: @cke-dark-text-subtle;
-}
-
-// ── Dark mode: editor iframe content ──
-// These rules apply inside the CKEditor iframe via contentsCss.
-// The 'dark-mode' class is toggled on the iframe body at runtime.
-
-body.cke_editable.dark-mode {
-  background-color: @cke-dark-surface;
-  color: @cke-dark-text;
-
-  a {
-    color: @cke-dark-link;
-  }
-
-  a:visited {
-    color: @cke-dark-link-visited;
-  }
-
-  blockquote {
-    border-color: @cke-dark-border;
-  }
-
-  hr {
-    border-top-color: @cke-dark-border;
-  }
-
-  figure {
-    outline-color: @cke-dark-border;
-    background: rgba(255, 255, 255, 0.05);
-  }
-
-  img.right,
-  img.left {
-    border-color: @cke-dark-border;
-  }
-
-  a > img {
-    outline-color: @cke-dark-link;
-  }
-
-  .marker {
-    background-color: #5c4422; // fbk-warn-surface-dark
-    color: @cke-dark-text;
-  }
-
-  table,
-  th,
-  td {
-    border-color: @cke-dark-border;
-  }
-
-  table.cke_show_border {
-    border-color: @cke-dark-border !important;
-
-    th,
-    td {
-      border-color: @cke-dark-border !important;
-    }
-  }
-
-  .cke__highlighted_term {
-    background-color: #5c4422;
-    color: @cke-dark-text;
-  }
-
-  .cke__selected_term {
-    outline-color: @cke-dark-text-subtle;
-  }
-
-  .image-grayscale {
-    background-color: @cke-dark-surface-hover;
-    color: @cke-dark-text-subtle;
   }
 }

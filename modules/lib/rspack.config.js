@@ -25,8 +25,7 @@ module.exports = {
         'styles/contentlib': './styles/main.less',
         'lib/ckeditor/plugins/pasteModeSwitcher/plugin': './lib/ckeditor/plugins/pasteModeSwitcher/plugin.raw.js',
         'lib/ckeditor/plugins/findAndReplace/plugin': './lib/ckeditor/plugins/findAndReplace/plugin.ts',
-        // html editor css imported separately in the HTMLAreaBuilder for legacy mode
-        'styles/html-editor': './styles/inputtype/text/htmlarea/html-editor.less',
+        'styles/html-editor-iframe': './styles/inputtype/text/htmlarea/html-editor-iframe.less',
         'lib/ckeditor': ['./lib/ckepath.js', './lib/ckeditor/ckeditor.js']
     },
     output: {
@@ -64,7 +63,14 @@ module.exports = {
                 test: /\.(?:less|css)$/,
                 use: [
                     {loader: rspack.CssExtractRspackPlugin.loader, options: {publicPath: '../'}},
-                    {loader: 'css-loader', options: {sourceMap: !isProd, importLoaders: 1}},
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            sourceMap: !isProd,
+                            importLoaders: 1,
+                            url: {filter: url => !url.includes('admin/common/fonts/')}, // for loading fonts from lib-admin
+                        },
+                    },
                     {loader: 'less-loader', options: {sourceMap: !isProd}},
                 ],
                 type: 'javascript/auto',
