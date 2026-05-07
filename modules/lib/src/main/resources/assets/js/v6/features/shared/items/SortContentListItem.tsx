@@ -8,11 +8,8 @@ export type SortContentListItemProps = {
     content: ContentSummary;
     variant?: ContentLabelVariant;
     dragEnabled?: boolean;
-    inverseTone?: boolean;
-    isFocused?: boolean;
-    isMovable?: boolean;
     'data-component'?: string;
-} & Omit<ListItemProps, 'children'>;
+} & Omit<ListItemProps, 'children' | 'selected'>;
 
 const SORT_CONTENT_LIST_ITEM_NAME = 'SortContentListItem';
 
@@ -20,16 +17,12 @@ export const SortContentListItem = ({
     content,
     variant,
     dragEnabled = false,
-    inverseTone = true,
-    selected = false,
-    isFocused = false,
-    isMovable = false,
     className,
     'data-component': componentName = SORT_CONTENT_LIST_ITEM_NAME,
     ...props
 }: SortContentListItemProps): ReactElement => {
     return (
-        <ListItem selected={selected} data-component={componentName} className={cn('pl-0 py-0', isMovable && 'bg-surface-selected', isFocused && 'bg-surface-neutral-hover', className)} {...props}>
+        <ListItem data-component={componentName} className={cn('flex-1 pl-0 py-0 bg-unset', className)} {...props}>
             <ListItem.Content className='flex'>
                 <div
                     className={cn(
@@ -37,8 +30,8 @@ export const SortContentListItem = ({
                         dragEnabled && 'cursor-move',
                     )}
                 >
-                    {dragEnabled && <GripVertical className={cn('size-4 shrink-0 text-subtle', inverseTone && 'group-data-[tone=inverse]:text-alt')} />}
-                    <ContentLabel content={content} variant={variant} inverseTone={inverseTone} />
+                    {dragEnabled && <GripVertical className='size-4 shrink-0 text-subtle' />}
+                    <ContentLabel content={content} variant={variant} />
                 </div>
             </ListItem.Content>
         </ListItem>
