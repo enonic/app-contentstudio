@@ -11,10 +11,16 @@ import type {PageComponentNodeData, PageComponentNodeType} from './types';
 
 export type PageComponentsItemProps = {
     context: SortableListItemContext<FlatNode<PageComponentNodeData>>;
+    pageMetadata?: PageComponentPageMetadata;
     selected?: boolean;
     invalid?: boolean;
     onToggle: (id: string) => void;
     onSelect: (id: string) => void;
+};
+
+export type PageComponentPageMetadata = {
+    displayName: string;
+    Icon: LucideIcon;
 };
 
 //
@@ -45,6 +51,7 @@ const calcSpacerWidth = (level: number): number => LEVEL_INDENT_PX * (level - 1)
 
 export const PageComponentsItem = ({
     context,
+    pageMetadata,
     selected,
     invalid,
     onToggle,
@@ -57,8 +64,10 @@ export const PageComponentsItem = ({
     }
 
     const isRegion = data.nodeType === 'region';
+    const isPage = data.nodeType === 'page';
     const isSubdued = isRegion || !data.hasDescriptor;
-    const Icon = NODE_TYPE_ICON[data.nodeType];
+    const Icon = isPage && pageMetadata ? pageMetadata.Icon : NODE_TYPE_ICON[data.nodeType];
+    const displayName = isPage && pageMetadata ? pageMetadata.displayName : data.displayName;
     const spacerWidth = calcSpacerWidth(node.level);
 
     const handleToggleClick = (e: MouseEvent<HTMLButtonElement>): void => {
@@ -113,7 +122,7 @@ export const PageComponentsItem = ({
                     ? 'text-alt'
                     : isSubdued ? 'text-subtle' : 'text-default',
             )}>
-                {data.displayName}
+                {displayName}
             </span>
 
             {invalid && (

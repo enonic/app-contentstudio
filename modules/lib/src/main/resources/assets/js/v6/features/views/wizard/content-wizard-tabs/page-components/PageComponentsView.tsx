@@ -1,20 +1,21 @@
 import {SortableList, type SortableListItemContext} from '@enonic/lib-admin-ui/form2/components';
 import {cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {type ReactElement, useCallback, useEffect, useRef, useState} from 'react';
+import {type ReactElement, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {ComponentPath} from '../../../../../../app/page/region/ComponentPath';
 import {PageNavigationEvent} from '../../../../../../app/wizard/PageNavigationEvent';
 import {PageNavigationEventData} from '../../../../../../app/wizard/PageNavigationEventData';
 import {PageNavigationEventType} from '../../../../../../app/wizard/PageNavigationEventType';
 import {PageNavigationMediator} from '../../../../../../app/wizard/PageNavigationMediator';
 import {useI18n} from '../../../../hooks/useI18n';
+import {usePageOptions} from '../../../../hooks/usePageOptions';
 import type {FlatNode} from '../../../../lib/tree-store';
 import {getNode} from '../../../../lib/tree-store';
-import {inspectItem, requestComponentMove} from '../../../../store/page-editor/commands';
+import {inspectItem, requestComponentMove} from '../../../../store/page-editor';
 import {$inspectedPath, $pageVersion} from '../../../../store/page-editor/store';
 import {$invalidComponentPaths, $validationVisibility} from '../../../../store/wizardValidation.store';
 import {PageComponentsContextMenu} from './PageComponentsContextMenu';
-import {PageComponentsItem} from './PageComponentsItem';
+import {PageComponentsItem, type PageComponentPageMetadata} from './PageComponentsItem';
 import {
     $componentsFlatNodes,
     $componentsTreeState,
@@ -49,6 +50,17 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
     const showErrors = validationVisibility === 'all';
     const inspectedPath = useStore($inspectedPath);
     const [flatNodes, setFlatNodes] = useState(() => [...$componentsFlatNodes.get()]);
+    const {selectedOption: selectedPageOption} = usePageOptions();
+    const pageMetadata = useMemo<PageComponentPageMetadata | undefined>(() => {
+        if (selectedPageOption == null) {
+            return undefined;
+        }
+
+        return {
+            displayName: selectedPageOption.label,
+            Icon: selectedPageOption.icon,
+        };
+    }, [selectedPageOption]);
 
     useEffect(() => {
         setFlatNodes([...$componentsFlatNodes.get()]);
@@ -145,9 +157,9 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
         const isLayoutDrag = sourceNode.data.nodeType === 'layout'
             || (sourceNode.data.nodeType === 'fragment' && sourceNode.data.layoutFragment);
 
-        if (isLayoutDrag && hasLayoutAncestor($componentsTreeState.get(), target.regionPath)) return false;
+        return !(isLayoutDrag && hasLayoutAncestor($componentsTreeState.get(), target.regionPath));
 
-        return true;
+
     }, [flatNodes]);
 
     const itemClassName = useCallback((
@@ -169,6 +181,7 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
             <PageComponentsContextMenu node={context.item}>
                 <PageComponentsItem
                     context={context}
+                    pageMetadata={pageMetadata}
                     selected={isSelected}
                     invalid={isInvalid}
                     onToggle={toggleComponentExpand}
@@ -176,7 +189,7 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
                 />
             </PageComponentsContextMenu>
         );
-    }, [handleSelect, inspectedPath, showErrors, invalidComponentPaths]);
+    }, [handleSelect, inspectedPath, pageMetadata, showErrors, invalidComponentPaths]);
 
     return (
         <div ref={containerRef} data-component={PAGE_COMPONENTS_VIEW_NAME} className="flex flex-col gap-1 py-2">

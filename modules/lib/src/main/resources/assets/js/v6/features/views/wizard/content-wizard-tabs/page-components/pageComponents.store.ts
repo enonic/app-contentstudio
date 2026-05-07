@@ -326,7 +326,7 @@ function buildPageTree(
             nodeType: 'page',
             draggable: false,
             layoutFragment: false,
-            hasDescriptor: page.hasController(),
+            hasDescriptor: page.hasController() || page.hasTemplate(),
         },
         parentId: null,
         hasChildren: regionChildIds.length > 0,
