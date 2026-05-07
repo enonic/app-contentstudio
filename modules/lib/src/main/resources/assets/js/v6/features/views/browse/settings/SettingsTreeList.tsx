@@ -111,6 +111,11 @@ export const SettingsTreeList = ({contextMenuActions = []}: SettingsTreeListProp
 
                                 const itemProps = getItemProps(index, node);
                                 const isSelected = selection.has(id);
+                                const isActive = activeId === id;
+                                // Active item with no selection should look like selected
+                                const showAsSelected = isSelected || (isActive && selection.size === 0);
+                                // When active-as-selected, disable active to avoid compound variant hover bg
+                                const activeAsSelected = showAsSelected && !isSelected;
 
                                 const secondaryText = data.getDescription() || `<${noDescription}>`;
                                 const isUnavailable = isProjectViewItem(data)
@@ -120,9 +125,9 @@ export const SettingsTreeList = ({contextMenuActions = []}: SettingsTreeListProp
                                 return (
                                     <VirtualizedTreeList.Row
                                         {...itemProps}
-                                        active={itemProps.active}
-                                        selected={isSelected}
-                                        data-tone={isSelected ? 'inverse' : undefined}
+                                        active={activeAsSelected ? false : itemProps.active}
+                                        selected={showAsSelected}
+                                        data-tone={showAsSelected ? 'inverse' : undefined}
                                         onContextMenu={(event) => {
                                             event.preventDefault();
                                             suppressNextClickForIdRef.current = id;
@@ -175,7 +180,7 @@ export const SettingsTreeList = ({contextMenuActions = []}: SettingsTreeListProp
                                                 expanded={isExpanded}
                                                 hasChildren={hasChildren}
                                                 onToggle={() => (isExpanded ? handleCollapse(id) : handleExpand(id))}
-                                                selected={isSelected}
+                                                selected={showAsSelected}
                                             />
                                         </VirtualizedTreeList.RowLeft>
                                         <VirtualizedTreeList.RowContent>
