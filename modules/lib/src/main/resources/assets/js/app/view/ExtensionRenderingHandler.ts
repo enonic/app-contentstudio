@@ -377,6 +377,9 @@ export class ExtensionRenderingHandler {
     }
 
     public showMask() {
+        if (this.renderer.hasClass('empty-preview')) {
+            return;
+        }
         if (this.renderer.isVisible()) {
             this.renderer.getMask()?.show();
             this.renderer.addClass('loading');

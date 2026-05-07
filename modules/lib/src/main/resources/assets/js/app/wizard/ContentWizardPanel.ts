@@ -663,8 +663,6 @@ export class ContentWizardPanel
 
         this.splitPanel = builder.build();
 
-        //TODO: add option to render panel hidden to the builder
-        this.splitPanel.hideSecondPanel();
         this.splitPanel.addClass('wizard-and-preview');
 
         return this.splitPanel;
