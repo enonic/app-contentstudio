@@ -371,14 +371,14 @@ export class ContentWizardPanel
                 AI.get().setCompareStatus(this.persistedCompareStatus);
             })
             .then(() => super.doLoadData())
-            .finally(() => {
+            .then((loadedContent: Content) => {
                 // persisted item is always present now
                 // for existing content it was loaded
                 // for new content it was saved in super.doLoadData()
                 const currentItem: Content = this.getCurrentItem();
                 this.liveEditModel = this.initLiveEditModel(currentItem);
 
-                return this.loadAndSetPageState(currentItem.getPage()?.clone());
+                return this.loadAndSetPageState(currentItem.getPage()?.clone()).then(() => loadedContent);
             });
     }
 

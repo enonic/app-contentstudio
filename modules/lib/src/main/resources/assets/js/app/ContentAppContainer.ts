@@ -11,7 +11,6 @@ import {ToggleSearchPanelWithDependenciesGlobalEvent} from './browse/ToggleSearc
 import {ContentId} from './content/ContentId';
 import {type ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
 import {ContentAppPanel} from './ContentAppPanel';
-import {EditContentEvent} from './event/EditContentEvent';
 import {type Issue} from './issue/Issue';
 import {IssueDialogsManager} from './issue/IssueDialogsManager';
 import {GetIssueRequest} from './issue/resource/GetIssueRequest';
@@ -67,9 +66,6 @@ export class ContentAppContainer
         const id = path ? path.getElement(2) : null;
 
         switch (actionAsTabMode) {
-        case UrlAction.EDIT:
-            this.handleEditUrl(path);
-            break;
         case UrlAction.ISSUE:
             this.handleIssueUrl(path);
             break;
@@ -79,17 +75,6 @@ export class ContentAppContainer
         case UrlAction.OUTBOUND:
             this.handleOutboundDependencies(path);
             break;
-        }
-    }
-
-    private handleEditUrl(path?: Path): void {
-        const id = path ? path.getElement(2) : null;
-
-        if (id) {
-            new ContentSummaryAndCompareStatusFetcher().fetch(new ContentId(id)).done(
-                (content: ContentSummaryAndCompareStatus) => {
-                    new EditContentEvent([content]).fire();
-                });
         }
     }
 
