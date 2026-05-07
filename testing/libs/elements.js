@@ -70,7 +70,8 @@ const COMMON = {
     }
 };
 const WIZARD = {
-    DISPLAY_NAME_INPUT: "//input[@placeholder='Display Name']",
+    DISPLAY_NAME_CONTROL: "//*[(self::button or self::textarea) and (@data-component='DisplayNameInput' or @placeholder='Display Name')]",
+    DISPLAY_NAME_INPUT: "//textarea[@data-component='DisplayNameInput' or @placeholder='Display Name']",
     RENAME_CONTENT_SPAN: "//span[contains(@title,'Click to rename the content')]",
     PATH_INPUT: "//input[@name='name']",
 

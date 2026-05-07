@@ -2,7 +2,6 @@
  * Created on 5/30/2017.
  */
 const Page = require('../page');
-const lib = require('../../libs/elements-old');
 const {BUTTONS, DROPDOWN, LIVE_VIEW, WIZARD, COMMON} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentStepForm = require('./content.wizard.step.form');
@@ -43,7 +42,6 @@ const XPATH = {
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
     shaderPage: "//div[@class='xp-page-editor-shader xp-page-editor-page']",
-    goToGridButton: "//div[contains(@class,'font-icon-default icon-tree-2')]",
     pagePlaceholderInfoBlock1: "//div[contains(@id,'PagePlaceholderInfoBlock')]//div[contains(@class,'page-placeholder-info-line1')]",
     wizardStepByName:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
@@ -69,7 +67,7 @@ class ContentWizardPanel extends Page {
         return XPATH.container + BUTTONS.buttonByLabel('Mark as ready');
     }
 
-    get createIssueButton(){
+    get createIssueButton() {
         return XPATH.container + BUTTONS.buttonByLabel('Create issue');
     }
 
@@ -81,9 +79,12 @@ class ContentWizardPanel extends Page {
         return this.previewItemToolbar + BUTTONS.buttonAriaLabel('Open widget selector');
     }
 
-
     get displayNameInput() {
         return XPATH.container + WIZARD.DISPLAY_NAME_INPUT;
+    }
+
+    get displayNameControl() {
+        return XPATH.container + WIZARD.DISPLAY_NAME_CONTROL;
     }
 
     get modifyPathSpan() {
@@ -165,10 +166,6 @@ class ContentWizardPanel extends Page {
     // Preview button on the previewItemToolbar
     get previewButton() {
         return this.previewItemToolbar + BUTTONS.buttonAriaLabel('Preview');
-    }
-
-    get controllerOptionFilterInput() {
-        return `//div[contains(@id,'PageDescriptorDropdown')]` + lib.OPTION_FILTER_INPUT;
     }
 
     get wizardToolbarHelpButton() {
@@ -395,7 +392,7 @@ class ContentWizardPanel extends Page {
 
     async waitForOpened() {
         try {
-            await this.waitForElementDisplayed(this.displayNameInput, appConst.longTimeout);
+            await this.waitForElementDisplayed(this.displayNameControl, appConst.longTimeout);
             return await this.pause(200);
         } catch (err) {
             await this.handleError('Content wizard should be opened', 'err_wizard_opened', err);
@@ -471,17 +468,30 @@ class ContentWizardPanel extends Page {
     }
 
     async typeDisplayName(displayName) {
-        let element = await this.findElement(this.displayNameInput);
-        await element.click();
+        await this.openDisplayNameEditor();
         return await this.typeTextInInput(this.displayNameInput, displayName);
+    }
+
+    async openDisplayNameEditor() {
+        if (await this.isElementDisplayed(this.displayNameInput)) {
+            return;
+        }
+
+        await this.waitForElementDisplayed(this.displayNameControl, appConst.shortTimeout);
+        await this.clickOnElement(this.displayNameControl);
+        await this.waitForElementDisplayed(this.displayNameInput, appConst.shortTimeout);
     }
 
     typeInPathInput(path) {
         return this.typeTextInInput(this.pathInput, path);
     }
 
-    getDisplayName() {
-        return this.getTextInInput(this.displayNameInput);
+    async getDisplayName() {
+        if (await this.isElementDisplayed(this.displayNameInput)) {
+            return await this.getTextInInput(this.displayNameInput);
+        }
+
+        return await this.getText(this.displayNameControl);
     }
 
     getPath() {
@@ -489,6 +499,7 @@ class ContentWizardPanel extends Page {
     }
 
     async clearDisplayNameInput() {
+        await this.openDisplayNameEditor();
         return await this.clearInputText(this.displayNameInput);
     }
 
@@ -692,7 +703,7 @@ class ContentWizardPanel extends Page {
 
         try {
             // 1. Wait for display name input to be visible
-            await this.waitForElementDisplayed(this.displayNameInput, appConst.shortTimeout);
+            await this.waitForElementDisplayed(this.displayNameControl, appConst.shortTimeout);
 
             // 2. Type display name if present
             if (content.displayName) {
@@ -728,7 +739,7 @@ class ContentWizardPanel extends Page {
     async typeData1(content) {
         try {
             let contentStepForm = new ContentStepForm();
-            await this.waitForElementDisplayed(this.displayNameInput, appConst.shortTimeout);
+            await this.waitForElementDisplayed(this.displayNameControl, appConst.shortTimeout);
             await this.typeDisplayName(content.displayName);
             if (content.data != null) {
                 await contentStepForm.type(content.data, content.contentType);
@@ -995,7 +1006,7 @@ class ContentWizardPanel extends Page {
     }
 
     isDisplayNameInputClickable() {
-        return this.isClickable(this.displayNameInput);
+        return this.isClickable(this.displayNameControl);
     }
 
     waitForDuplicateButtonEnabled() {
@@ -1162,16 +1173,10 @@ class ContentWizardPanel extends Page {
         return !style.includes('display: none');
     }
 
-    async clickOnGoToGridButton() {
-        await this.waitForElementDisplayed(this.goToGridButton, appConst.mediumTimeout);
-        await this.clickOnElement(this.goToGridButton);
-        return await this.pause(300);
-    }
-
     async getCollaborationUserCompactName() {
         try {
             let locator = XPATH.toolbar + `//div[contains(@id,'CollaborationEl')]//div[contains(@id,'PrincipalViewerCompact')]/span`;
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(locator);
             return await this.getTextInElements(locator);
         } catch (err) {
             await this.handleError('Collaboration element should be displayed in the wizard toolbar', 'err_collaboration_icon', err);
@@ -1208,7 +1213,7 @@ class ContentWizardPanel extends Page {
     }
 
     async waitForPreviewWidgetDropdownDisplayed() {
-        return await this.waitForElementDisplayed(this.previewWidgetDropdown, appConst.mediumTimeout);
+        return await this.waitForElementDisplayed(this.previewWidgetDropdown);
     }
 
     async selectOptionInPreviewWidget(optionName) {
@@ -1216,7 +1221,7 @@ class ContentWizardPanel extends Page {
             await this.waitForPreviewWidgetDropdownDisplayed();
             await this.clickOnElement(this.previewWidgetDropdown);
             let optionSelector = XPATH.previewToolbarMenuItem(optionName);
-            await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(optionSelector);
             await this.clickOnElement(optionSelector);
             await this.pause(200);
         } catch (err) {
@@ -1239,7 +1244,7 @@ class ContentWizardPanel extends Page {
     async waitForPreviewButtonDisabled() {
         try {
             await this.waitForPreviewButtonDisplayed();
-            await this.waitForElementDisabled(this.previewButton, appConst.mediumTimeout)
+            await this.waitForElementDisabled(this.previewButton);
         } catch (err) {
             await this.handleError(`Preview button should be displayed and disabled in the Wizard`, 'err_preview_btn_disabled', err);
         }
@@ -1250,7 +1255,7 @@ class ContentWizardPanel extends Page {
     async getSelectedOptionInEmulatorDropdown() {
         try {
             let locator = this.emulatorDropdown;
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(locator);
             return await this.getText(locator);
         } catch (err) {
             await this.handleError(`Error during getting the selected option in Emulator dropdown`, 'err_emulator_dropdown');
@@ -1285,6 +1290,20 @@ class ContentWizardPanel extends Page {
             throw new Error(`Error when trying to get selected widget in Context Window, screenshot: ${screenshot} ` + err);
         }
     }
+
+    async clickOnNavigateToBrowsePanelButton(projectName) {
+        let locator =
+            XPATH.container + `//div[@role='toolbar']//button[@aria-label='${projectName}']`;
+        try {
+            await this.waitForElementDisplayed(locator);
+            await this.clickOnElement(locator);
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError(`Tried to click on 'Navigate to Browse Panel' button with project name: ${projectName}`,
+                'err_navigate_to_browse_panel', err);
+        }
+    }
+
 }
 
 module.exports = ContentWizardPanel;
