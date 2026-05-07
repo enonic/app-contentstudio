@@ -20,7 +20,9 @@ import {ContentSummaryAndCompareStatusFetcher} from './resource/ContentSummaryAn
 import {ResolveDependenciesRequest} from './resource/ResolveDependenciesRequest';
 import {type ResolveDependenciesResult} from './resource/ResolveDependenciesResult';
 import {type ResolveDependencyResult} from './resource/ResolveDependencyResult';
+import {Router} from './Router';
 import {UrlAction} from './UrlAction';
+import {showInvalidEditUrlNotification} from './util/InvalidEditUrlNotification';
 import {Branch} from './versioning/Branch';
 
 export class ContentAppContainer
@@ -86,10 +88,16 @@ export class ContentAppContainer
         const id = path ? path.getElement(2) : null;
 
         if (id) {
-            new ContentSummaryAndCompareStatusFetcher().fetch(new ContentId(id)).done(
-                (content: ContentSummaryAndCompareStatus) => {
+            new ContentSummaryAndCompareStatusFetcher().fetch(new ContentId(id))
+                .then((content: ContentSummaryAndCompareStatus) => {
                     new EditContentEvent([content]).fire();
-                });
+                })
+                .catch((reason) => {
+                    showInvalidEditUrlNotification(reason);
+                    Router.get().setHash(UrlAction.BROWSE);
+                    this.appPanel.handleBrowse();
+                })
+                .done();
         }
     }
 
