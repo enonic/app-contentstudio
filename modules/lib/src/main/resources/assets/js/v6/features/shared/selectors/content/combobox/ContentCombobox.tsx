@@ -96,7 +96,7 @@ export const ContentCombobox = ({
     const labelId = useId();
 
     // i18n
-    const defaultPlaceholder = useI18n('field.search.placeholder');
+    const defaultPlaceholder = useI18n('field.option.placeholder');
     const defaultEmptyLabel = useI18n('field.search.noItems');
     const treeViewLabel = useI18n('field.view.tree');
     const listViewLabel = useI18n('field.view.list');

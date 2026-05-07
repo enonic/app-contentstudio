@@ -44,10 +44,10 @@ export const ProjectDialogNameStepContent = ({locked = false}: ProjectDialogName
     const isInitialRender = useRef(!projectNameHasError);
     const lastAutoIdentifierRef = useRef(prettifyProjectIdentifier(projectName, false));
 
-    const projectNameLabel = useI18n('dialog.project.wizard.name.projectName');
-    const projectIdentifierLabel = useI18n('dialog.project.wizard.name.projectIdentifier');
-    const projectDescriptionLabel = useI18n('dialog.project.wizard.name.projectDescription');
-    const projectErrorIdentifierAlreadyExists = useI18n('dialog.project.wizard.name.idAlreadyExists');
+    const projectNameLabel = `${useI18n('field.displayName')} *`;
+    const projectIdentifierLabel = `${useI18n('settings.field.project.name')} *`;
+    const projectDescriptionLabel = useI18n('field.description');
+    const projectErrorIdentifierAlreadyExists = useI18n('settings.project.name.occupied');
     const errorRequiredField = useI18n('field.value.required');
     const errorInvalidField = useI18n('field.value.invalid');
 

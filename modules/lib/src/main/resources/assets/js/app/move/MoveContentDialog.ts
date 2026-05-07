@@ -124,7 +124,7 @@ export class MoveContentDialog
     private initMoveConfirmationDialog(): void {
         this.moveConfirmationDialog = new DialogPresetConfirmElement({
             // open: true,
-            title: i18n('dialog.confirm.move.title'),
+            title: i18n('dialog.confirm.title'),
             description: i18n('dialog.confirm.move.description'),
             onConfirm: () => {
                 this.moveConfirmationDialog.close();

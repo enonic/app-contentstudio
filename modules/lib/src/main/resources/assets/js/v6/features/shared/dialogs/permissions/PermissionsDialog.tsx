@@ -63,8 +63,8 @@ export const PermissionsDialog = (): ReactElement => {
 
     // Constants
     const {progress} = useTaskProgress(taskId);
-    const previousLabel = useI18n('dialog.permissions.previous');
-    const nextLabel = useI18n('dialog.permissions.next');
+    const previousLabel = useI18n('action.previous');
+    const nextLabel = useI18n('action.next');
     const permissionsAppliedSingleLabel = useI18n('dialog.permissions.permissionsAppliedSingle');
     const permissionsAppliedMultipleLabel = useI18n('dialog.permissions.permissionsAppliedMultiple', numberItemsToApplyTo);
     const permissionsFailedSingleLabel = useI18n('dialog.permissions.permissionsFailedSingle');
@@ -73,9 +73,9 @@ export const PermissionsDialog = (): ReactElement => {
     const applyPermissionsLabel = useI18n('dialog.permissions.applyChanges', numberItemsToApplyTo);
     const progressHelper = useI18n('dialog.permissions.title', contentDisplayName);
     const progressTitle = useI18n('dialog.permissions.progress.title');
-    const confirmTitle = useI18n('dialog.confirm.permissions.title');
-    const confirmDescription = useI18n('dialog.confirm.permissions.description');
-    const replaceAllConfirmationTitle = useI18n('dialog.confirm.replaceAllPermissions.title');
+    const confirmTitle = useI18n('dialog.confirm.title');
+    const confirmDescription = useI18n('dialog.confirm.applyChanges');
+    const replaceAllConfirmationTitle = useI18n('dialog.confirm.title');
     const replaceAllConfirmationDescription = useI18n('dialog.confirm.replaceAllPermissions.description');
     const stepAccessTooltip = useI18n('dialog.permissions.access.stepTooltip');
     const stepStrategyTooltip = useI18n('dialog.permissions.strategy.stepTooltip');

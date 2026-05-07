@@ -28,7 +28,7 @@ export class ProjectReadAccessFormItem
             new ProjectFormItemBuilder(
                 new RadioGroup('read-access-radio-group'))
                 .setHelpText(i18n('settings.projects.access.helptext'))
-                .setLabel(i18n('settings.items.wizard.readaccess.label'))
+                .setLabel(i18n('dialog.projectAccess'))
                 .setValidator(Validators.required) as ProjectFormItemBuilder
         );
 
@@ -149,7 +149,7 @@ export class ProjectReadAccessFormItem
 
     private notifyAccessCopiedFromParent(): void {
         const parentProject = this.parentProjects[0];
-        const accessLabel = i18n('settings.items.wizard.readaccess.label');
+        const accessLabel = i18n('dialog.projectAccess');
         NotifyManager.get().showSuccess(i18n('settings.wizard.project.copy.success', accessLabel, parentProject.getDisplayName()));
     }
 

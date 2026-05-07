@@ -47,7 +47,14 @@ export class AggregationsDisplayNamesResolver {
     }
 
     private updateWorkflowAggregation(workflowAggr: BucketAggregation): void {
-        workflowAggr.getBuckets().forEach((bucket: Bucket) => bucket.setDisplayName(i18n(`status.workflow.${bucket.getKey()}`)));
+        workflowAggr.getBuckets().forEach((bucket: Bucket) => {
+            const key = bucket.getKey();
+            if (key === 'ready') {
+                bucket.setDisplayName(i18n('field.workflow.status.ready'));
+            } else if (key === 'in_progress') {
+                bucket.setDisplayName(i18n('field.workflow.status.inProgress'));
+            }
+        });
     }
 
     updateKnownPrincipals(principalsAggregation: BucketAggregation): void {

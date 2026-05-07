@@ -50,7 +50,7 @@ export const CustomSelectorInput = ({
     const selectedContents = useMemo(() => selectedItems.map(itemToContent), [selectedItems]);
 
     // i18n
-    const placeholder: string = useI18n('field.search.placeholder');
+    const placeholder: string = useI18n('field.option.placeholder');
     const emptyLabel: string = useI18n('field.option.noitems');
     const loadingLabel: string = useI18n('field.search.loading');
     const errorLabel: string = useI18n('field.search.error');

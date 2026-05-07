@@ -231,7 +231,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const noResultsLabel = useI18n('dialog.search.result.noResults');
     const scheduleLabelText = useI18n('action.schedule');
     const cancelScheduleLabel = useI18n('action.schedule.cancel');
-    const includeChildrenLabel = useI18n('field.content.includeChildren');
+    const includeChildrenLabel = useI18n('dialog.includeChildren');
 
     const issueData = resolveIssueData({
         issueId,
