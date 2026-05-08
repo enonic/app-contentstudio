@@ -1,5 +1,5 @@
 /**
- * Created on 15.12.2017.
+ * Created on 15.12.2017. updated on 08.05.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');

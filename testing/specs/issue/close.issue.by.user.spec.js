@@ -13,6 +13,8 @@ const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const DetailsWidgetInfoSection = require('../../page_objects/browsepanel/detailspanel/details.widget.info.section');
 const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspanel/browse.versions.widget');
+const HomePage = require('../../page_objects/home.page');
+const LoginPage = require('../../page_objects/login.page');
 
 describe('close.issue.by.user.spec: create a issue for user and close it', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -32,12 +34,13 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_APP, appConst.SYSTEM_ROLES.CM_ADMIN];
             USER = contentBuilder.buildUser(userName, PASSWORD, contentBuilder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabs();
+            await studioUtils.navigateToHomePage();
         });
 
     it(`GIVEN SU selects a folder and opens 'Create Issue...' dialog WHEN new issue has been assigned to the just created user THEN new issue should be loaded in IssueDetailsDialog`,
         async () => {
-            await studioUtils.navigateToContentStudioApp()
+            await studioUtils.navigateToContentStudioApp();
             let createIssueDialog = new CreateIssueDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             let issueDetailsDialog = new IssueDetailsDialog();
@@ -57,8 +60,13 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
             let message = await contentBrowsePanel.waitForNotificationMessage();
             assert.equal(message, appConst.NOTIFICATION_MESSAGES.ISSUE_CREATED_MESSAGE);
             await issueDetailsDialog.waitForDialogLoaded();
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
-            await studioUtils.doLogout();
+            await studioUtils.doCloseAllWindowTabs();
+            await studioUtils.navigateToHomePage();
+            let homePage = new HomePage();
+            await homePage.clickOnAvatarButton();
+            await homePage.clickOnLogoutDropdownMenuItem();
+            let loginPage = new LoginPage();
+            await loginPage.waitForPageLoaded();
         });
 
     it("WHEN the user is logged in THEN 'Assigned to Me' button should be displayed in the browse toolbar",
@@ -73,8 +81,10 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
             // 2. Open 'Issues List' dialog:
             await studioUtils.openIssuesListDialog();
             // 3. Verify the selected option in the selector:
+            // TODO bug 'All' option is shown:
             let result = await issueListDialog.getSelectedOptionInTypeFilter();
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabs();
+            await studioUtils.navigateToHomePage();
             await studioUtils.doLogout();
             //assert.ok(result.includes('Assigned to Me'), "'Assigned to Me' options should be selected in the filter");
         });
@@ -97,11 +107,12 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
             await studioUtils.saveScreenshot('issue_closed');
             // 6. Verify that 'The Issue is closed' the notification message appears:
             //await issueDetailsDialog.waitForExpectedNotificationMessage(appConst.NOTIFICATION_MESSAGES.ISSUE_CLOSED_MESSAGE);
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabs();
+            await studioUtils.navigateToHomePage();
             await studioUtils.doLogout();
         });
 
-    it(`GIVEN SU is logged in WHEN the issue, just closed by the user has been loaded in Issue Details dialog THEN 'closed by' info should be displayed`,
+    it(`GIVEN SU is logged in WHEN the issue, just closed by the user has been loaded in Issue Details dialog THEN 'closed' info should be displayed`,
         async () => {
             // 1. SU is logged in:
             await studioUtils.navigateToContentStudioApp()
@@ -111,15 +122,15 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
             await studioUtils.openIssuesListDialog();
             // 3. Open 'Closed' issues tab:
             await issueListDialog.clickOnClosedTabButton();
+            let info = await issueListDialog.getClosedInfo(ISSUE_TITLE);
+            assert.ok(info.includes(USER.displayName), 'Closed info should contain user name');
             // 4. Click on the issue:
             await issueListDialog.clickOnIssue(ISSUE_TITLE);
             // 5. Verify the status info in combobox (title attribute):
-            // TODO epic-enonic-ui - is not implemented yet:
-            //let info = await issueDetailsDialog.getIssueStatusInfo();
-            //let expectedMessage = appConst.issueClosedBy(USER.displayName);
-            // 6. Verify that the info message is displayed in the status selector : "Closed by user:system:${userName}"
-            //assert.ok(info.includes(expectedMessage), 'Expected notification message should appear');
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            let status = await issueDetailsDialog.getIssueStatus();
+            assert.equal(status,'Closed', 'Closed status should appear');
+            await studioUtils.doCloseAllWindowTabs();
+            await studioUtils.navigateToHomePage();
             await studioUtils.doLogout();
         });
 

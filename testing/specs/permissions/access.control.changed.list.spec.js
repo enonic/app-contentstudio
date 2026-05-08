@@ -49,16 +49,16 @@ describe(`Summary step - tests for changed list, access.control.changed.list.spe
                 // 9. Verify the data in Summary step:
                 let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
                 await editPermissionsSummaryStep.waitForLoaded();
-                let items= await editPermissionsSummaryStep.getUnchangedItemsList();
-                assert.ok(items.length>= 7, "Changed items list should contain about 8 items");
+                let items = await editPermissionsSummaryStep.getUnchangedItemsList();
+                assert.ok(items.length >= 7, "Changed items list should contain about 8 items");
                 let number = await editPermissionsSummaryStep.getNumberFromReplaceAllPermissionsButton();
                 assert.equal(number, 14, "Permissions will be replaced(updated) for 14 content items");
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());
-        afterEach(async() => {
-                await studioUtils.doPressEscape();
-                await studioUtils.doCloseAllWindowTabsAndSwitchToHome()
+        afterEach(async () => {
+            await studioUtils.doPressEscape();
+            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
         before(async () => {
             if (typeof browser !== 'undefined') {

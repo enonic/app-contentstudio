@@ -19,7 +19,7 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
 
     const TXT_FILE_DISPLAY_NAME = 'test-text';
     const TXT_EXTRACTION_TEXT = 'Minsk Belarus';
-    const PDF_EXTRACTION_TEXT = 'my test pdf file';
+    const PDF_EXTRACTION_TEXT = 'my pdf file';
     const PDF_TAG_TEXT = 'tag pdf';
     const PDF_CONTENT_DISPLAY_NAME = 'pdf';
 
@@ -60,6 +60,7 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
             //let contentWizard = await studioUtils.selectAndOpenContentInWizard(PDF_CONTENT_DISPLAY_NAME);
             // 3. Save the text in abstraction text area and create a tag:
             await pdfForm.typeTextInAbstractionTextArea(PDF_EXTRACTION_TEXT);
+            await studioUtils.saveScreenshot('pdf_abstraction_text_entered');
             await pdfForm.clickInTagInput();
             await pdfForm.addTag(PDF_TAG_TEXT);
             await contentWizard.waitAndClickOnSave();
@@ -70,7 +71,7 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
             await contentFilterPanel.typeSearchText(PDF_EXTRACTION_TEXT);
             await contentFilterPanel.pause(1500);
             // 5. Verify that the pdf-content is filtered:
-            await studioUtils.saveScreenshot('pdf_abstraction_text');
+            await studioUtils.saveScreenshot('pdf_abstraction_text_in_filter_input');
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.equal(result.length, 1, 'Single pdf file should be filtered in the grid');
             assert.equal(result[0], PDF_CONTENT_DISPLAY_NAME, 'Expected pdf content should be filtered');

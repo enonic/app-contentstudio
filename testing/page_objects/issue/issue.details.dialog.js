@@ -95,7 +95,7 @@ class IssueDetailsDialog extends BaseDetailsDialog {
 
     async clickOncloseMenuOptionItem() {
         try {
-            await this.waitForElementDisplayed(XPATH.closedMenuOption, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(XPATH.closedMenuOption);
             await this.pause(200);
             await this.clickOnElement(XPATH.closedMenuOption);
         } catch (err) {
@@ -105,9 +105,9 @@ class IssueDetailsDialog extends BaseDetailsDialog {
     }
 
     // gets text in title attribute:
-    async getIssueStatusInfo() {
-        await this.waitForElementDisplayed(this.issueStatusSelector, appConst.mediumTimeout);
-        let titleAttr = await this.getAttribute(this.issueStatusSelector, 'title');
+    async getIssueStatus() {
+        await this.waitForElementDisplayed(this.issueStatusSelector);
+        let titleAttr = await this.getText(this.issueStatusSelector+"//span[2]");
         return titleAttr;
     }
 }

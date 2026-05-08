@@ -23,7 +23,7 @@ const xpath = {
 class IssuesListDialog extends Page {
 
     get title() {
-        return xpath.container + `//h2[@class='title']`;
+        return xpath.container + `//header//h2`;
     }
 
     get typeFilterDropDownHandle() {
@@ -45,7 +45,8 @@ class IssuesListDialog extends Page {
     get closeButton() {
         return xpath.container + BUTTONS.buttonAriaLabel('Close');
     }
-    async getSelectedOptionInFilterDropdown(){
+
+    async getSelectedOptionInFilterDropdown() {
         await this.waitForElementDisplayed(this.typeFilterDropDownHandle, appConst.shortTimeout);
         let selector = this.typeFilterDropDownHandle + "/span[1]";
         return await this.getText(selector);
@@ -53,7 +54,7 @@ class IssuesListDialog extends Page {
 
     async waitForDialogOpened() {
         try {
-            await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(xpath.container);
             await this.pause(200);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_issue_list_dlg');
@@ -147,15 +148,15 @@ class IssuesListDialog extends Page {
     //clicks on dropdown handle and selects option in the Type Filter
     async selectTypeFilterOption(option) {
         try {
-            await this.waitForElementEnabled(this.typeFilterDropDownHandle, appConst.mediumTimeout);
+            await this.waitForElementEnabled(this.typeFilterDropDownHandle);
             await this.clickOnElement(this.typeFilterDropDownHandle);
             let optionXpath = xpath.typeFilterOption(option);
             await this.waitForElementDisplayed(optionXpath, appConst.shortTimeout);
             await this.clickOnElement(optionXpath);
             return await this.pause(300);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_issue_list');
-            throw new Error(`Error occurred in Issue list dialog , screenshot: ${screenshot} ` + err);
+            await this.handleError(`Issue List Dialog - error when selecting the option: ${option} in Type Filter`,
+                'err_select_type_filter_option', err);
         }
     }
 
@@ -210,7 +211,7 @@ class IssuesListDialog extends Page {
     }
 
     isIssuePresent(issueName) {
-        let issueXpath = xpath.issueByName(issueName);
+        let issueXpath = xpath.issueItemByName(issueName);
         return this.waitForElementDisplayed(issueXpath, appConst.shortTimeout).catch(err => {
             this.saveScreenshot("issue_not_present_" + issueName);
             return false;
@@ -239,13 +240,26 @@ class IssuesListDialog extends Page {
         }
     }
 
+    async getClosedInfo(issueName) {
+        let issueXpath = xpath.issueItemByName(issueName);
+        let result = await this.isElementDisplayed(issueXpath);
+        if (!result) {
+            await this.scrollToIssue(issueXpath);
+        }
+        let locatorInfo = issueXpath + "//div[contains(.,'Closed by')]";
+        await this.waitForElementDisplayed(locatorInfo);
+        let text =  await this.getText(locatorInfo);
+        const closedByMatch = text.match(/Closed by\s+(.+)/);
+        return closedByMatch ? closedByMatch[1].trim() : text.trim();
+    }
+
     async waitForIssueNotPresent(issueName) {
-        let issueXpath = xpath.issueByName(issueName);
-        return await this.waitForElementNotDisplayed(issueXpath, appConst.shortTimeout);
+        let issueXpath = xpath.issueItemByName(issueName);
+        return await this.waitForElementNotDisplayed(issueXpath);
     }
 
     async waitForIssuePresent(issueName) {
-        let issueXpath = xpath.issueByName(issueName);
+        let issueXpath = xpath.issueItemByName(issueName);
         return await this.waitForElementDisplayed(issueXpath, appConst.shortTimeout);
     }
 

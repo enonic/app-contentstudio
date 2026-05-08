@@ -30,7 +30,7 @@ class AssigneeSelector extends BasDropdown {
 
     async selectFilteredUser(userDisplayName) {
         try {
-            await this.doFilterItem(userDisplayName);
+            await this.typeCharsInFilterItem(userDisplayName);
             await this.clickOnOptionByDisplayName(userDisplayName);
         } catch (err) {
             await this.handleError(`Principal Selector, tried to click on the option, ${userDisplayName} `, 'err_principal_sel', err);
