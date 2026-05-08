@@ -4,7 +4,7 @@ import {ProjectListRequest} from '../../../app/settings/resource/ProjectListRequ
 import {ProjectUpdatedEvent} from '../../../app/settings/event/ProjectUpdatedEvent';
 import {ProjectCreatedEvent} from '../../../app/settings/event/ProjectCreatedEvent';
 import {ProjectDeletedEvent} from '../../../app/settings/event/ProjectDeletedEvent';
-import {syncMapStore} from '../utils/storage/sync';
+import {syncAtomStore} from '../utils/storage/sync';
 import {$config} from './config.store';
 import {setProjectSelectionDialogOpen} from './dialogs.store';
 import {ProjectContext} from '../../../app/project/ProjectContext';
@@ -14,6 +14,7 @@ import {setContentFilterOpen, resetContentFilter} from './contentFilter.store';
 import {deactivateFilter} from '../api/content-fetcher';
 import {clearVersionsCache} from '../utils/widget/versions/versionsCache';
 import {resolveActiveProjectId, resolveActiveProjectIdAfterDeletion} from '../utils/cms/projects/projectSelection';
+import {isWizardUrl} from '../utils/url/app';
 
 /*
 TODO: Enonic UI - Feature
@@ -27,7 +28,6 @@ TODO: Enonic UI - Feature
 */
 
 
-const SYNC_NAME = 'projects';
 type ProjectsStore = {
     projects: Readonly<Project>[];
     activeProjectId: string | undefined;
@@ -46,11 +46,12 @@ export const $projects = map<ProjectsStore>({
     noProjectMode: ProjectContext.get().isNotAvailable(),
 });
 
-syncMapStore($projects, SYNC_NAME, {
-    keys: ['activeProjectId'],
-    loadInitial: true,
-    syncTabs: false,
-});
+//
+// * Persisted default project for browse mode.
+// * Updated only on explicit UI selection or on deletion-driven fallback.
+//
+const $defaultBrowseProjectId = atom<string | undefined>(undefined);
+syncAtomStore($defaultBrowseProjectId, 'defaultBrowseProjectId', {loadInitial: true});
 
 export const $activeProject = computed($projects, (store) => {
     const activeProject = store.projects.find((p) => getProjectId(p) === store.activeProjectId);
@@ -77,7 +78,7 @@ export const $activeProjectName = computed($activeProject, (activeProject) => {
     return `${projectDisplayName} (${projectLanguage})`;
 });
 
-export function setActiveProject(project: Readonly<Project> | undefined): void {
+function setActiveProject(project: Readonly<Project> | undefined): void {
     const existsInStore = $projects.get().projects.some((p) => getProjectId(p) === getProjectId(project));
     if (!existsInStore) return;
     $projects.setKey('activeProjectId', getProjectId(project));
@@ -212,33 +213,48 @@ function updateActiveProject(): void {
 function updateActiveProjectAfterDeletion(deletedProject: Readonly<Project> | undefined): void {
     const {projects} = $projects.get();
     const nextProjectId = resolveActiveProjectIdAfterDeletion(projects, deletedProject);
+    const wasDefault = $defaultBrowseProjectId.get() === getProjectId(deletedProject);
 
     if (nextProjectId) {
         selectProjectById(nextProjectId);
+        if (wasDefault) {
+            $defaultBrowseProjectId.set(nextProjectId);
+        }
         setProjectSelectionDialogOpen(false);
         return;
     }
 
     clearActiveProject();
+    if (wasDefault) {
+        $defaultBrowseProjectId.set(undefined);
+    }
     ProjectContext.get().setNotAvailable();
     setProjectSelectionDialogOpen(true);
 }
 
 /**
- * Initialize the active project from the URL without checks.
- * It is used during startup and project would not be available in the store yet.
+ * Initialize the active project. URL takes precedence; in browse mode we
+ * fall back to the user's last UI-selected project from storage.
  */
-function initializeActiveProjectFromUrl(): void {
-    const projectIdFromUrl = getProjectIdFromUrl();
-    if (projectIdFromUrl) {
-        $projects.setKey('activeProjectId', projectIdFromUrl);
+function initializeActiveProject(): void {
+    const fromUrl = getProjectIdFromUrl();
+    if (fromUrl) {
+        $projects.setKey('activeProjectId', fromUrl);
+        return;
+    }
+
+    if (!isWizardUrl()) {
+        const fromStorage = $defaultBrowseProjectId.get();
+        if (fromStorage) {
+            $projects.setKey('activeProjectId', fromStorage);
+        }
     }
 }
 
 //
 // * Initialization
 //
-initializeActiveProjectFromUrl();
+initializeActiveProject();
 
 void loadProjects();
 
@@ -268,6 +284,20 @@ ProjectContext.get().onProjectChanged(() => {
 //
 export function reloadProjects(): void {
     void loadProjects();
+}
+
+/**
+ * UI-driven project selection. Updates the active project and persists it
+ * as the default for browse mode. Use this from UI handlers; programmatic
+ * code paths inside the store stay on the internal helpers.
+ */
+export function selectProject(project: Readonly<Project>): void {
+    setActiveProject(project);
+    const projectId = getProjectId(project);
+    // ? Persist only if the active project actually changed (i.e., project was valid).
+    if ($projects.get().activeProjectId === projectId) {
+        $defaultBrowseProjectId.set(projectId);
+    }
 }
 
 export function markPendingDeletedProject(projectName: string, navigateAfterDeletion: boolean = false): void {
@@ -311,6 +341,10 @@ export function removeProject(projectName: string, navigateAfterDeletion: boolea
     if (navigateAfterDeletion) {
         updateActiveProjectAfterDeletion(deletedProject);
         return;
+    }
+
+    if ($defaultBrowseProjectId.get() === projectName) {
+        $defaultBrowseProjectId.set(undefined);
     }
 
     updateActiveProject();

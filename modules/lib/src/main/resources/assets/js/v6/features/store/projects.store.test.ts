@@ -57,10 +57,6 @@ vi.mock('../../../app/settings/event/ProjectDeletedEvent', () => ({
     },
 }));
 
-vi.mock('../utils/storage/sync', () => ({
-    syncMapStore: vi.fn(),
-}));
-
 vi.mock('./config.store', () => ({
     $config: {
         get: () => ({appId: 'contentstudio'}),
@@ -144,7 +140,20 @@ function resetProjectContextMocks(): void {
     mockProjectContextIsNotAvailable.mockReset().mockReturnValue(false);
 }
 
-async function loadStore(projects: MockProject[], currentProjectId: string): Promise<typeof import('./projects.store')> {
+type LoadStoreOptions = {
+    url?: string;
+    clearInitMocks?: boolean;
+};
+
+const DEFAULT_BROWSE_STORAGE_KEY = 'enonic:cs:defaultbrowseprojectid';
+
+async function loadStore(
+    projects: MockProject[],
+    currentProjectId: string,
+    options: LoadStoreOptions = {},
+): Promise<typeof import('./projects.store')> {
+    const {url, clearInitMocks = true} = options;
+
     vi.resetModules();
     createdHandlers.length = 0;
     deletedHandlers.length = 0;
@@ -153,14 +162,16 @@ async function loadStore(projects: MockProject[], currentProjectId: string): Pro
     mockProjectListSendAndParse.mockReset().mockResolvedValue(projects);
     mockSetProjectSelectionDialogOpen.mockReset();
     resetProjectContextMocks();
-    window.history.pushState({}, '', `/contentstudio/cms/${currentProjectId}/browse`);
+    window.history.pushState({}, '', url ?? `/contentstudio/cms/${currentProjectId}/browse`);
 
     const store = await import('./projects.store');
     await flushPromises();
 
-    mockSetProjectSelectionDialogOpen.mockClear();
-    mockProjectContextSetProject.mockClear();
-    mockProjectContextSetNotAvailable.mockClear();
+    if (clearInitMocks) {
+        mockSetProjectSelectionDialogOpen.mockClear();
+        mockProjectContextSetProject.mockClear();
+        mockProjectContextSetNotAvailable.mockClear();
+    }
 
     return store;
 }
@@ -173,10 +184,12 @@ describe('projects.store delete intent', () => {
         noProjectsAvailableHandlers.length = 0;
         projectChangedHandlers.length = 0;
         resetProjectContextMocks();
+        localStorage.clear();
     });
 
     afterEach(() => {
         vi.restoreAllMocks();
+        localStorage.clear();
     });
 
     it('reports whether a project is active', async () => {
@@ -317,5 +330,177 @@ describe('projects.store delete intent', () => {
         expect(mockSetProjectSelectionDialogOpen).not.toHaveBeenCalled();
         expect(mockProjectContextSetProject).not.toHaveBeenCalled();
         expect(mockProjectContextSetNotAvailable).not.toHaveBeenCalled();
+    });
+});
+
+describe('projects.store init', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        createdHandlers.length = 0;
+        deletedHandlers.length = 0;
+        noProjectsAvailableHandlers.length = 0;
+        projectChangedHandlers.length = 0;
+        resetProjectContextMocks();
+        localStorage.clear();
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+        localStorage.clear();
+    });
+
+    it('uses the URL project even when storage holds a different id', async () => {
+        localStorage.setItem(DEFAULT_BROWSE_STORAGE_KEY, JSON.stringify('saved'));
+        const url = createProject('url-project');
+        const saved = createProject('saved');
+        const store = await loadStore([url, saved], 'url-project');
+
+        expect(store.$projects.get().activeProjectId).toBe('url-project');
+    });
+
+    it('falls back to the storage value in browse mode when the URL has no project', async () => {
+        localStorage.setItem(DEFAULT_BROWSE_STORAGE_KEY, JSON.stringify('saved'));
+        const saved = createProject('saved');
+        const other = createProject('other');
+        const store = await loadStore([saved, other], '', {url: '/contentstudio/cms//browse'});
+
+        expect(store.$projects.get().activeProjectId).toBe('saved');
+    });
+
+    it('does not apply the storage fallback on wizard URLs', async () => {
+        localStorage.setItem(DEFAULT_BROWSE_STORAGE_KEY, JSON.stringify('saved'));
+        const saved = createProject('saved');
+        const other = createProject('other');
+        const store = await loadStore([saved, other], '', {
+            url: '/contentstudio/cms//edit/abc123',
+            clearInitMocks: false,
+        });
+
+        expect(store.$projects.get().activeProjectId).toBeUndefined();
+        expect(mockSetProjectSelectionDialogOpen).toHaveBeenCalledWith(true);
+    });
+
+    it('leaves active project undefined when neither URL nor storage has a value', async () => {
+        const a = createProject('a');
+        const b = createProject('b');
+        const store = await loadStore([a, b], '', {
+            url: '/contentstudio/cms//browse',
+            clearInitMocks: false,
+        });
+
+        expect(store.$projects.get().activeProjectId).toBeUndefined();
+        expect(mockSetProjectSelectionDialogOpen).toHaveBeenCalledWith(true);
+    });
+});
+
+describe('projects.store selectProject', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        createdHandlers.length = 0;
+        deletedHandlers.length = 0;
+        noProjectsAvailableHandlers.length = 0;
+        projectChangedHandlers.length = 0;
+        resetProjectContextMocks();
+        localStorage.clear();
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+        localStorage.clear();
+    });
+
+    it('updates the active project and persists the default browse id when the project is in the store', async () => {
+        const a = createProject('a');
+        const b = createProject('b');
+        const store = await loadStore([a, b], 'a');
+
+        // @ts-expect-error MockProject does not implement the full Project interface but is structurally compatible for this code path.
+        store.selectProject(b);
+
+        expect(store.$projects.get().activeProjectId).toBe('b');
+        expect(localStorage.getItem(DEFAULT_BROWSE_STORAGE_KEY)).toBe(JSON.stringify('b'));
+    });
+
+    it('leaves active project and storage untouched when the project is not in the store', async () => {
+        const a = createProject('a');
+        const stranger = createProject('stranger');
+        const store = await loadStore([a], 'a');
+
+        // @ts-expect-error MockProject does not implement the full Project interface but is structurally compatible for this code path.
+        store.selectProject(stranger);
+
+        expect(store.$projects.get().activeProjectId).toBe('a');
+        expect(localStorage.getItem(DEFAULT_BROWSE_STORAGE_KEY)).toBeNull();
+    });
+});
+
+describe('projects.store storage cleanup on deletion', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        createdHandlers.length = 0;
+        deletedHandlers.length = 0;
+        noProjectsAvailableHandlers.length = 0;
+        projectChangedHandlers.length = 0;
+        resetProjectContextMocks();
+        localStorage.clear();
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+        localStorage.clear();
+    });
+
+    it('updates the default browse id to the fallback when the deleted project was the stored default', async () => {
+        localStorage.setItem(DEFAULT_BROWSE_STORAGE_KEY, JSON.stringify('current'));
+        const parent = createProject('parent');
+        const current = createProject('current');
+        const store = await loadStore([parent, current], 'current');
+
+        store.markPendingDeletedProject('current', true);
+        emitDeleted('current');
+
+        expect(store.$projects.get().activeProjectId).toBe('parent');
+        expect(localStorage.getItem(DEFAULT_BROWSE_STORAGE_KEY)).toBe(JSON.stringify('parent'));
+    });
+
+    it('clears the default browse id when no fallback is available', async () => {
+        localStorage.setItem(DEFAULT_BROWSE_STORAGE_KEY, JSON.stringify('orphan'));
+        const orphan = createProject('orphan');
+        const store = await loadStore([orphan], 'orphan');
+
+        store.markPendingDeletedProject('orphan', true);
+        emitDeleted('orphan');
+
+        expect(store.$projects.get().activeProjectId).toBeUndefined();
+        // ? syncAtomStore encodes undefined as '{}'-equivalent — atom-store stringifies undefined to "undefined" string,
+        // ? but JSON.stringify(undefined) === undefined → setItem skipped, value remains until removeItem;
+        // ? we instead expect the entry to be cleared via the listener path.
+        const stored = localStorage.getItem(DEFAULT_BROWSE_STORAGE_KEY);
+        expect(stored === null || stored === 'null').toBe(true);
+    });
+
+    it('does not touch the default browse id when an unrelated project is deleted', async () => {
+        localStorage.setItem(DEFAULT_BROWSE_STORAGE_KEY, JSON.stringify('current'));
+        const parent = createProject('parent');
+        const child = createProject('child', ['parent']);
+        const current = createProject('current');
+        const store = await loadStore([parent, child, current], 'current');
+
+        store.markPendingDeletedProject('child', true);
+        emitDeleted('child');
+
+        expect(localStorage.getItem(DEFAULT_BROWSE_STORAGE_KEY)).toBe(JSON.stringify('current'));
+    });
+
+    it('clears the default browse id when removeProject (no navigate) removes the stored default', async () => {
+        localStorage.setItem(DEFAULT_BROWSE_STORAGE_KEY, JSON.stringify('alpha'));
+        const alpha = createProject('alpha');
+        const beta = createProject('beta');
+        const store = await loadStore([alpha, beta], 'beta');
+
+        store.removeProject('alpha', false);
+
+        const stored = localStorage.getItem(DEFAULT_BROWSE_STORAGE_KEY);
+        expect(stored === null || stored === 'null').toBe(true);
     });
 });

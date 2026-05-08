@@ -1,7 +1,5 @@
 import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {type Application} from '@enonic/lib-admin-ui/app/Application';
-import {type Project} from '../settings/data/project/Project';
-import {ProjectContext} from '../project/ProjectContext';
 import {type ContentId} from '../content/ContentId';
 import {type WizardPanelParams} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {type Content} from '../content/Content';
@@ -21,15 +19,11 @@ export class ContentWizardPanelParams implements WizardPanelParams<Content> {
 
     contentId: ContentId;
 
-    project: Project;
+    projectName: string;
 
     localized: boolean = false;
 
     displayAsNew: boolean = false;
-
-    constructor() {
-        this.project = ProjectContext.get().getProject();
-    }
 
     setApplication(app: Application): ContentWizardPanelParams {
         this.application = app;
@@ -61,8 +55,8 @@ export class ContentWizardPanelParams implements WizardPanelParams<Content> {
         return this;
     }
 
-    setProject(value: Project): ContentWizardPanelParams {
-        this.project = value;
+    setProjectName(value: string): ContentWizardPanelParams {
+        this.projectName = value;
         return this;
     }
 

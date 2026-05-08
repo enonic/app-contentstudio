@@ -57,6 +57,7 @@ export class ContentAppHelper {
         const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
             .setContentTypeName(contentTypeName)
             .setCreateSite(contentTypeName.isSite())
+            .setProjectName(ContentAppHelper.getProjectNameFromUrl())
             .setTabId(tabId);
 
         if (actionArguments[1]) {
@@ -77,7 +78,20 @@ export class ContentAppHelper {
         return new ContentWizardPanelParams()
             .setContentId(contentId)
             .setTabId(tabId)
+            .setProjectName(ContentAppHelper.getProjectNameFromUrl())
             .setDisplayAsNew(displayAsNew)
             .setLocalized(isLocalized);
+    }
+
+    private static getProjectNameFromUrl(): string | undefined {
+        const toolUri: string = CONFIG.getString('toolUri');
+        const pathname: string = window.location.pathname;
+
+        if (!pathname.startsWith(toolUri)) {
+            return undefined;
+        }
+
+        const segments: string[] = pathname.slice(toolUri.length).split('/').filter(Boolean);
+        return segments[0];
     }
 }
