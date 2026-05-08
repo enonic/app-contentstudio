@@ -1,4 +1,4 @@
-import {Combobox, Listbox} from '@enonic/ui';
+import {cn, Combobox, Listbox} from '@enonic/ui';
 import {Box, Columns2} from 'lucide-react';
 import type {ReactElement} from 'react';
 import {useI18n} from '../../../../../../hooks/useI18n';
@@ -53,9 +53,16 @@ export const ComponentDescriptorSelector = ({componentType}: ComponentDescriptor
                             {selectedOption && (
                                 <Combobox.Value className="gap-2 w-full">
                                     <Icon className="size-4 shrink-0" strokeWidth={1.75} />
-                                    <span className="leading-5.5 font-semibold truncate">
-                                        {selectedOption.label}
-                                    </span>
+                                    <div className="flex flex-col overflow-hidden">
+                                        <span className="leading-5.5 font-semibold truncate">
+                                            {selectedOption.label}
+                                        </span>
+                                        {selectedOption.isInvalid && (
+                                            <small className="leading-4 text-xs truncate text-error">
+                                                {selectedOption.description}
+                                            </small>
+                                        )}
+                                    </div>
                                 </Combobox.Value>
                             )}
                             <Combobox.Input placeholder={searchPlaceholder} />
@@ -70,7 +77,12 @@ export const ComponentDescriptorSelector = ({componentType}: ComponentDescriptor
                                         <span className="leading-5.5 font-semibold truncate group-data-[tone=inverse]:text-alt">
                                             {option.label}
                                         </span>
-                                        <small className="leading-4.5 text-sm text-subtle truncate group-data-[tone=inverse]:text-alt">
+                                        <small
+                                            className={cn(
+                                                'leading-4.5 text-sm truncate group-data-[tone=inverse]:text-alt',
+                                                option.isInvalid ? 'text-error' : 'text-subtle',
+                                            )}
+                                        >
                                             {option.description}
                                         </small>
                                     </div>
