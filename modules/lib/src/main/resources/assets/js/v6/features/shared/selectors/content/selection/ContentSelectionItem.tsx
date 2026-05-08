@@ -2,7 +2,6 @@ import {GridList, IconButton} from '@enonic/ui';
 import {X} from 'lucide-react';
 import type {ReactElement} from 'react';
 import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {EditContentEvent} from '../../../../../../app/event/EditContentEvent';
 import {ContentButton} from '../../../content/ContentButton';
 import {StatusBadge} from '../../../status/StatusBadge';
 import {useI18n} from '../../../../hooks/useI18n';
@@ -47,29 +46,20 @@ export const ContentSelectionItem = ({
     const id = content.getId();
     const removeLabel = useI18n('action.remove');
 
-    const handleRowClick = () => {
-        if (!disabled) {
-            new EditContentEvent([content]).fire();
-        }
-    };
-
     return (
         <GridList.Row
             data-component={CONTENT_SELECTION_ITEM_NAME}
             data-content-id={id}
             id={id}
             disabled={disabled}
-            className={className ?? 'gap-3 px-2.5'}
-            onClick={handleRowClick}
+            className={className ?? 'gap-3 px-1.5'}
         >
             <GridList.Cell className='flex-1 min-w-0'>
                 <GridList.Action>
                     <ContentButton content={content} disabled={disabled} labelVariant='detailed' />
                 </GridList.Action>
             </GridList.Cell>
-            <GridList.Cell>
                 <StatusBadge status={calcTreePublishStatus(content)} />
-            </GridList.Cell>
             <GridList.Cell>
                 <GridList.Action>
                     <IconButton
