@@ -25,6 +25,10 @@ export type FragmentOption = {
     description: string;
 };
 
+const compareOptionsByLabel = (a: FragmentOption, b: FragmentOption): number =>
+    a.label.localeCompare(b.label, undefined, {sensitivity: 'base'}) ||
+    a.key.localeCompare(b.key);
+
 type UseFragmentContentSelectorResult = {
     filteredOptions: FragmentOption[];
     selectedOption: FragmentOption | undefined;
@@ -72,12 +76,15 @@ export function useFragmentContentSelector(): UseFragmentContentSelectorResult {
     }, [fragments, noDescriptionLabel]);
 
     const filteredOptions = useMemo(() => {
-        if (!searchValue) return options;
+        if (!searchValue) return options.toSorted(compareOptionsByLabel);
+
         const lower = searchValue.toLowerCase();
-        return options.filter(o =>
-            o.label.toLowerCase().includes(lower) ||
-            o.description.toLowerCase().includes(lower),
-        );
+        return options
+            .filter(o =>
+                o.label.toLowerCase().includes(lower) ||
+                o.description.toLowerCase().includes(lower),
+            )
+            .toSorted(compareOptionsByLabel);
     }, [searchValue, options]);
 
     const selectedOption = useMemo(

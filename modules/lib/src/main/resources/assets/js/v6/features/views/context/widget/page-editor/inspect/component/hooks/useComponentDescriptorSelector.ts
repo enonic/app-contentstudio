@@ -17,6 +17,10 @@ export type ComponentOption = {
     description: string;
 };
 
+const compareOptionsByLabel = (a: ComponentOption, b: ComponentOption): number =>
+    a.label.localeCompare(b.label, undefined, {sensitivity: 'base'}) ||
+    a.key.localeCompare(b.key);
+
 type UseComponentDescriptorSelectorResult = {
     filteredOptions: ComponentOption[];
     selectedOption: ComponentOption | undefined;
@@ -50,12 +54,15 @@ export function useComponentDescriptorSelector(componentType: 'part' | 'layout')
     }, [descriptors, noDescriptionLabel]);
 
     const filteredOptions = useMemo(() => {
-        if (!searchValue) return options;
+        if (!searchValue) return options.toSorted(compareOptionsByLabel);
+
         const lower = searchValue.toLowerCase();
-        return options.filter(o =>
-            o.label.toLowerCase().includes(lower) ||
-            o.key.toLowerCase().includes(lower),
-        );
+        return options
+            .filter(o =>
+                o.label.toLowerCase().includes(lower) ||
+                o.key.toLowerCase().includes(lower),
+            )
+            .toSorted(compareOptionsByLabel);
     }, [searchValue, options]);
 
     const selectedOption = useMemo(
