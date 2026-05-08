@@ -175,6 +175,8 @@ let dataPreloaded: boolean = false;
 
 let invalidEditUrlNotificationPending: boolean = false;
 
+let wizardParams: ContentWizardPanelParams | undefined;
+
 function clearFavicon() {
     // save current favicon hrefs
     $('link[rel*=icon][sizes]').each((index, link: HTMLElement) => {
@@ -212,18 +214,15 @@ const refreshTab = function (content: ContentSummary) {
 };
 
 function preLoadApplication(): Promise<void> {
-    if (!ContentAppHelper.isContentWizardUrl()) {
+    if (!wizardParams) {
         return Promise.resolve();
     }
 
-    const application: Application = getApplication();
-    const wizardParams: ContentWizardPanelParams = ContentAppHelper.createWizardParamsFromUrl();
-    const projectName: string = application.getPath().getElement(0);
     const shouldPreloadTabData: boolean = !Body.get().isRendered() && !Body.get().isRendering();
 
     if (wizardParams.contentId) {
         return Promise.resolve(
-            new GetContentByIdRequest(wizardParams.contentId).setRequestProjectName(projectName).sendAndParse()
+            new GetContentByIdRequest(wizardParams.contentId).setRequestProjectName(wizardParams.projectName).sendAndParse()
                 .then((content: Content) => {
                     if (!shouldPreloadTabData) {
                         return;
@@ -237,7 +236,7 @@ function preLoadApplication(): Promise<void> {
                 })
                 .catch(() => {
                     invalidEditUrlNotificationPending = true;
-                    history.replaceState(null, '', UrlHelper.createContentBrowseUrl(projectName));
+                    history.replaceState(null, '', UrlHelper.createContentBrowseUrl(wizardParams.projectName));
                 })
         ).then(() => undefined);
     }
@@ -409,7 +408,6 @@ async function startContentWizard() {
     const {ContentWizardPanel} = await import('@enonic/lib-contentstudio/app/wizard/ContentWizardPanel');
     const {setMode} = await import('@enonic/lib-contentstudio/v6/features/store/mode.store');
 
-    const wizardParams = ContentAppHelper.createWizardParamsFromUrl();
     const wizard = new ContentWizardPanel(wizardParams, getTheme());
     setMode('wizard');
 
@@ -563,6 +561,10 @@ async function startContentBrowser() {
         (CONFIG.get('principals') as PrincipalJson[]).map(Principal.fromJson));
 
     const body = Body.get();
+
+    if (ContentAppHelper.isContentWizardUrl()) {
+        wizardParams = ContentAppHelper.createWizardParamsFromUrl();
+    }
 
     const preLoadPromise = preLoadApplication();
 

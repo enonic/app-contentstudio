@@ -5,7 +5,7 @@ import {useMemo, useRef} from 'react';
 import {ConfirmationDialog} from './ConfirmationDialog';
 import {ProjectHelper} from '../../../../app/settings/data/project/ProjectHelper';
 import {useI18n} from '../../hooks/useI18n';
-import {setActiveProject, $projects} from '../../store/projects.store';
+import {selectProject, $projects} from '../../store/projects.store';
 import {flattenProjects} from '../../utils/cms/projects/flattenProjects';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 import {$dialogs, setProjectSelectionDialogOpen} from '../../store/dialogs.store';
@@ -73,7 +73,7 @@ export const ProjectSelectionDialog = (): ReactElement => {
                                     const name = selection[0] ?? activeProjectId;
                                     const project = name ? projectByName.get(name) : undefined;
                                     if (project && ProjectHelper.isAvailable(project)) {
-                                        setActiveProject(project);
+                                        selectProject(project);
                                         setProjectSelectionDialogOpen(false);
                                     }
                                 }}
