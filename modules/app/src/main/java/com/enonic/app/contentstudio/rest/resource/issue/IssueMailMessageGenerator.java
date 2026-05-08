@@ -12,12 +12,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.apache.commons.text.StringSubstitutor;
+
 import com.google.common.html.HtmlEscapers;
 
-import com.enonic.app.contentstudio.rest.Interpolator;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.issue.IssueComment;
 import com.enonic.xp.issue.IssueStatus;
@@ -28,6 +30,12 @@ import com.enonic.xp.security.User;
 
 public abstract class IssueMailMessageGenerator<P extends IssueNotificationParams>
 {
+    private static final String PREFIX = "${";
+
+    private static final String SUFFIX = "}";
+
+    private static final char ESCAPE = '$';
+
     protected final P params;
 
     public IssueMailMessageGenerator( final P params )
@@ -145,7 +153,7 @@ public abstract class IssueMailMessageGenerator<P extends IssueNotificationParam
         messageParams.put( "showDetailsCaption", showDetailsCaption );
         messageParams.put( "latestCommentTitle", latestCommentTitle );
 
-        return Interpolator.classic().interpolate( load( "email.html" ), messageParams::get );
+        return interpolate( load( "email.html" ), messageParams::get );
     }
 
     private String generateIssueLink( final String issueId )
@@ -205,7 +213,7 @@ public abstract class IssueMailMessageGenerator<P extends IssueNotificationParam
         itemParams.put( "createdTime", fmt.format( item.getCreated().atZone( ZoneId.systemDefault() ) ) );
         itemParams.put( "text", item.getText() );
 
-        return Interpolator.classic().interpolate( template, itemParams::get );
+        return interpolate( template, itemParams::get );
     }
 
     private String makeShortName( final String displayName )
@@ -247,5 +255,10 @@ public abstract class IssueMailMessageGenerator<P extends IssueNotificationParam
         {
             return map.get( key );
         }
+    }
+
+    private static String interpolate( final String template, final Function<String, String> resolver )
+    {
+        return new StringSubstitutor( resolver::apply, PREFIX, SUFFIX, ESCAPE ).replace( template );
     }
 }

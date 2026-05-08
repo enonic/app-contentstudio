@@ -2,7 +2,8 @@ package com.enonic.app.contentstudio.rest.resource.content;
 
 import java.util.Optional;
 
-import com.enonic.app.contentstudio.rest.Interpolator;
+import org.apache.commons.text.StringSubstitutor;
+
 import com.enonic.xp.content.Content;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.schema.content.ContentType;
@@ -15,6 +16,12 @@ import static java.util.Objects.requireNonNullElse;
 
 public class ContentListTitleResolver
 {
+    private static final String PREFIX = "${";
+
+    private static final String SUFFIX = "}";
+
+    private static final char ESCAPE = '$';
+
     private final ContentTypeService contentTypeService;
 
     public ContentListTitleResolver( final ContentTypeService contentTypeService )
@@ -43,7 +50,8 @@ public class ContentListTitleResolver
             }
             propertyTree.addString( "displayName", content.getDisplayName() );
 
-            return Interpolator.classic().interpolate( listTitleExpression, k -> requireNonNullElse( propertyTree.getString( k ), "" ) );
+            return new StringSubstitutor( k -> requireNonNullElse( propertyTree.getString( k ), "" ), PREFIX, SUFFIX, ESCAPE ).replace(
+                listTitleExpression );
         }
     }
 }
