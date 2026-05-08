@@ -10,6 +10,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const LauncherPanel = require('../../page_objects/launcher.panel');
+const HomePage = require("../../page_objects/home.page");
 
 describe('htmlarea.updated.on.server.event.spec: tests for updating html area on server event', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -45,11 +46,13 @@ describe('htmlarea.updated.on.server.event.spec: tests for updating html area on
             // 2. Save the new content:
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
+            await contentWizard.clickOnNavigateToBrowsePanelButton();
             // 3. Open a same content item with HtmlArea in two browser tabs:
             //  Close then reopen the tab with 'Content Studio'
-            await studioUtils.doCloseWindowTabByTitle(appConst.BROWSER_XP_TITLES.CONTENT_STUDIO);
+            await contentBrowsePanel.clickOnShowXpMenuButton();
             // Open the tab with Content Browse Panel (index of the tab is 2)
-            await launcherPanel.clickOnContentStudioLink();
+            let homePage = new HomePage();
+            await homePage.clickOnContentStudioLink();
             await studioUtils.doSwitchToContentBrowsePanel();
             // Open the same content in new browser tab   (index of the tab is 3):
             await studioUtils.findAndSelectItem(CONTENT_NAME);

@@ -19,6 +19,8 @@ exports.config = {
         path.join(__dirname, '../specs/response.headers.spec.js'),
         path.join(__dirname, '../specs/wizard.settings.panel.spec.js'),
         path.join(__dirname, '../specs/browse.panel.selections.spec.js'),
+        path.join(__dirname, '../specs/archive.confirm.content.spec.js'),
+        path.join(__dirname, '../specs/browse.panel.toolbar.spec.js'),
 
     ],
 

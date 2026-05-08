@@ -124,6 +124,15 @@ class BaseDropdown extends Page {
         return await this.pause(300);
     }
 
+    async typeCharsInFilterItem(text) {
+        let optionsFilterLocator = this.optionsFilterInput();
+        await this.waitUntilDisplayed(optionsFilterLocator, appConst.mediumTimeout);
+        let elements = await this.getDisplayedElements(optionsFilterLocator);
+        await elements[0].click();
+        await this.pause(200);
+        await this.typeChars(elements[0], text);
+    }
+
     async clickOnExpanderIconInOptionsList(listItemName) {
         try {
             let locator = DROPDOWN.COMBOBOX_POPUP + DROPDOWN.treeItemExpanderByDisplayName(listItemName);

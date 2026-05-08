@@ -45,6 +45,7 @@ const XPATH = {
 };
 
 const toolbarButton = (ariaLabel) => XPATH.toolbarDiv + BUTTONS.toolbarButtonAriaLabel(ariaLabel);
+const toolbarTooltipButton = (ariaLabel) => XPATH.toolbarDiv + BUTTONS.toolbarTooltipButtonAriaLabel(ariaLabel);
 
 class ContentBrowsePanel extends BaseBrowsePanel {
 
@@ -121,12 +122,13 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return XPATH.container + BUTTONS.buttonAriaLabel('Show Context Panel');
     }
 
-    async isShowContextPanelButtonDisplayed(){
+    async isShowContextPanelButtonDisplayed() {
         return await this.isElementDisplayed(this.showContextPanelButton);
     }
 
+    // Menu dropdown handle
     get showPublishMenuButton() {
-        return toolbarButton('More actions');
+        return toolbarTooltipButton('More actions');
     }
 
     get markAsReadyMenuItem() {
@@ -585,7 +587,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             }]);
             await this.getBrowser().releaseActions();
         } catch (err) {
-            await this.handleError(`Tried to hold down Shift key and click on row by number: ${rowNumber}`, 'err_click_on_row_in_grid', err);
+            await this.handleError(`Tried to hold down Shift key and click on row by number: ${rowNumber}`, 'err_click_on_row_in_grid',
+                err);
         }
     }
 
@@ -779,8 +782,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    waitForShowPublishMenuDropDownVisible() {
-        return this.waitForElementDisplayed(this.showPublishMenuButton, appConst.mediumTimeout);
+    async waitForShowPublishMenuDropDownVisible() {
+        return await this.waitForElementDisplayed(this.showPublishMenuButton);
     }
 
     async waitForCreateIssueButtonDisplayed() {
@@ -1150,7 +1153,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         await this.clickOnElement(locator);
         return await this.pause(1000);
     }
-    async clickOnShowXpMenuButton(){
+
+    async clickOnShowXpMenuButton() {
         let host = await this.getXpMenuShadowHost();
         const button = await host.shadow$(COMMON.SHADOW_SELECTORS.XP_MENU_BUTTON);
         await button.waitForDisplayed({timeout: appConst.mediumTimeout});

@@ -14,24 +14,17 @@ describe('item.set.spec: tests for content with Item Set', function () {
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
     const ITEM_SET_CONTENT_NAME_1 = appConst.generateRandomName('itemset');
     const ITEM_SET_CONTENT_NAME_2 = appConst.generateRandomName('itemset');
     const TEXT_LINE_TEXT_1 = 'text 1';
     const TEXT_LINE_TEXT_2 = 'text 2';
 
-    it(`Preconditions: new site should be added`,
-        async () => {
-            let displayName = appConst.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
-
     it("GIVEN ItemSet form has been added in the wizard WHEN 'add above' menu item has been clicked THEN 'Collapse all' button gets visible",
         async () => {
             let itemSetForm = new ItemSetForm();
             let contentWizard = new ContentWizard();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ITEM_SET_0_0);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.ITEM_SET_0_0);
             // 1. Click on 'Add' button,
             await itemSetForm.clickOnAddButton();
             await contentWizard.pause(500);
@@ -50,7 +43,7 @@ describe('item.set.spec: tests for content with Item Set', function () {
         async () => {
             let itemSetForm = new ItemSetForm();
             let contentWizard = new ContentWizard();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ITEM_SET_0_0);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.ITEM_SET_0_0);
             // 1. Click on 'Add' button,
             await itemSetForm.clickOnAddButton();
             // 2. Fill in the name input:
@@ -80,7 +73,7 @@ describe('item.set.spec: tests for content with Item Set', function () {
             let itemSetForm = new ItemSetForm();
             let contentWizard = new ContentWizard();
             // open wizard for new content with ItemSet(0:0)
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ITEM_SET_0_0);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.ITEM_SET_0_0);
             // 1. Click on 'Add' button :
             await itemSetForm.clickOnAddButton();
             // 2. fill in required inputs
@@ -104,7 +97,7 @@ describe('item.set.spec: tests for content with Item Set', function () {
         async () => {
             let itemSetForm = new ItemSetForm();
             let contentWizard = new ContentWizard();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ITEM_SET_0_0);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.ITEM_SET_0_0);
             // 1. 'Add' button should be displayed:
             await itemSetForm.waitForAddButtonDisplayed();
             // 2. Item-set form should not be displayed:
@@ -122,7 +115,7 @@ describe('item.set.spec: tests for content with Item Set', function () {
         async () => {
             let itemSetForm = new ItemSetForm();
             let contentWizard = new ContentWizard();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ITEM_SET_0_0);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.ITEM_SET_0_0);
             // 1. Click on 'Add' button,
             await itemSetForm.clickOnAddButton();
             // 2. Fill in the name input:
