@@ -248,7 +248,6 @@ module.exports = {
         await newContentDialog.clickOnContentType(contentType);
         //Switch to the new wizard:
         await this.doSwitchToNewWizard();
-        await contentWizardPanel.waitForOpened();
         //return await contentWizardPanel.waitForDisplayNameInputFocused();
     },
     async selectAndOpenContentInWizard(contentName, checkFocused) {
@@ -546,12 +545,12 @@ module.exports = {
     async doDeleteContent(name) {
         let browsePanel = new BrowsePanel();
         let deleteContentDialog = new DeleteContentDialog();
-        await this.findAndSelectItem(name);
+        await this.findContentAndClickCheckBox(name);
         // Open modal dialog:
-        await browsePanel.clickOnArchiveButton();
+        await browsePanel.clickOnDeleteButton();
         await deleteContentDialog.waitForDialogOpened();
         // Click on 'Delete' menu item in the modal dialog:
-        await deleteContentDialog.clickOnDeleteMenuItem();
+        await deleteContentDialog.clickOnDeleteButton();
         return await deleteContentDialog.waitForDialogClosed();
     },
     async doDeleteContentByDisplayName(displayName) {
@@ -559,10 +558,10 @@ module.exports = {
         let deleteContentDialog = new DeleteContentDialog();
         await this.findAndSelectItemByDisplayName(displayName);
         // Open modal dialog:
-        await browsePanel.clickOnArchiveButton();
+        await browsePanel.clickOnDeleteButton();
         await deleteContentDialog.waitForDialogOpened();
         // Click on 'Delete' menu item in the modal dialog:
-        await deleteContentDialog.clickOnDeleteMenuItem();
+        await deleteContentDialog.clickOnDeleteButton();
         return await deleteContentDialog.waitForDialogClosed();
     },
     async selectContentAndOpenWizard(name) {
@@ -612,10 +611,10 @@ module.exports = {
         let deleteContentDialog = new DeleteContentDialog();
         let confirmValueDialog = new ConfirmValueDialog();
         //1. Open Delete Content dialog:
-        await browsePanel.clickOnArchiveButton();
+        await browsePanel.clickOnDeleteButton();
         await deleteContentDialog.waitForDialogOpened();
         //2. Click on Delete button
-        await deleteContentDialog.clickOnDeleteMenuItem();
+        await deleteContentDialog.clickOnDeleteButton();
         //3. wait for Confirm dialog is loaded:
         await confirmValueDialog.waitForDialogOpened();
         //4. Type required number:
@@ -664,12 +663,10 @@ module.exports = {
     },
 
     async doLogout() {
-        let launcherPanel = new LauncherPanel();
         let loginPage = new LoginPage();
-        let isDisplayed = await launcherPanel.isPanelOpened();
-        if (isDisplayed) {
-            await launcherPanel.clickOnLogoutLink();
-        }
+        let homePage = new HomePage();
+        await homePage.clickOnAvatarButton();
+        await homePage.clickOnLogoutDropdownMenuItem();
         return await loginPage.waitForPageLoaded();
     },
     async navigateToContentStudioApp(userName, password) {
@@ -712,8 +709,9 @@ module.exports = {
 
     async navigateToContentStudioCloseProjectSelectionDialog(userName, password) {
         try {
-            await this.clickOnContentStudioLink(userName, password);
-            await this.switchToTab(appConst.BROWSER_XP_TITLES.CONTENT_STUDIO);
+            await this.doLogin(userName, password);
+            let homePage = new HomePage();
+            await homePage.clickOnContentStudioLink();
             await this.closeProjectSelectionDialog();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_navigate_to_studio');
@@ -909,7 +907,11 @@ module.exports = {
         let contentBrowsePanel = new ContentBrowsePanel();
         await contentBrowsePanel.clickOnShowXpMenuButton();
     },
-    async navigateToHomePage(){
+    async doCloseAllWindowTabsAndNavigateToHome() {
+        await this.doCloseAllWindowTabs();
+        await this.navigateToHomePage();
+    },
+    async navigateToHomePage() {
         await this.getBrowser().url('http://localhost:8080/admin/');
         await this.getBrowser().pause(100);
     },
@@ -1052,14 +1054,6 @@ module.exports = {
             throw new Error('error when navigate to Applications app ' + err);
         }
     },
-    async doLoginAndClickOnUsersLink(userName, password) {
-        let loginPage = new LoginPage();
-        await loginPage.doLogin(userName, password);
-        let launcherPanel = new LauncherPanel();
-        await launcherPanel.pause(700);
-        await launcherPanel.clickOnUsersLink();
-        return await loginPage.pause(1000);
-    },
     async doSwitchToUsersApp() {
         try {
             console.log('testUtils:switching to users app...');
@@ -1142,18 +1136,6 @@ module.exports = {
         await principalFilterPanel.typeSearchText(name);
         await browsePanel.pause(700);
         return await browsePanel.waitForSpinnerNotVisible();
-    },
-    async showLauncherPanel() {
-        let launcherPanel = new LauncherPanel();
-        let selector = "//button[contains(@class,'launcher-button')]";
-        try {
-            await this.getBrowser().pause(100);
-            await this.clickOnElement(selector);
-            return await launcherPanel.waitForPanelDisplayed();
-        } catch (err) {
-            await this.handleError('Launcher Panel should be loaded!', 'err_launcher_panel', err);
-        }
-
     },
     async getDisplayedElements(selector) {
         let elements = await this.getBrowser().$$(selector);

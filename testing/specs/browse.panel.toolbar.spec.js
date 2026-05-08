@@ -1,5 +1,5 @@
 /**
- * Created on 16.07.2019.
+ * Created on 16.07.2019. updated on 07.05.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
@@ -9,7 +9,6 @@ const contentBuilder = require("../libs/content.builder");
 const appConst = require('../libs/app_const');
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem.preview.panel');
-const BrowseContextWindow = require('../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const ContentFilterPanel = require('../page_objects/browsepanel/content.filter.panel');
 
 describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar after closing a wizard page', function () {
@@ -28,18 +27,18 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConst.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, 'test for metadata', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddReadySite(SITE);
             await studioUtils.findAndSelectItem(SITE.displayName);
             FOLDER_NAME = appConst.generateRandomName('folder');
             let folder = contentBuilder.buildFolder(FOLDER_NAME);
             // opens folder-wizard, types a name and saves it then closes the wizard.
             await studioUtils.doAddFolder(folder);
-            //'Publish' button should be displayed on the toolbar after closing a wizard with child content
+            // 'Publish' button should be displayed on the toolbar after closing a wizard with child content
             await contentBrowsePanel.waitForPublishButtonVisible();
-            //'Edit' button should be enabled
+            // 'Edit' button should be enabled
             await contentBrowsePanel.waitForEditButtonEnabled();
-            //'Archive' button should be enabled
+            // 'Delete' button should be enabled
             await contentBrowsePanel.waitForDeleteButtonEnabled();
             //'Move' button should be enabled
             await contentBrowsePanel.waitForMoveButtonEnabled();
@@ -62,40 +61,22 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             assert.equal(numberCheckedRows, 3, '3 rows should be checked in Browse Panel');
         });
 
-    // TODO remove the test
-    it.skip(`GIVEN existing folder is selected WHEN widget dropdown selector has been clicked THEN expected 4 options should be displayed in the dropdown list`,
-        async () => {
-            let browseContextWindow = new BrowseContextWindow();
-            await studioUtils.findAndSelectItem(FOLDER_NAME);
-            await browseContextWindow.waitForWidgetSelected(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
-            let selectedOption = await browseContextWindow.getSelectedOptionsDisplayName();
-            assert.equal(items.length, 1, 'The only one item should be selected in the ListBox');
-            assert.equal(selectedOption, appConst.WIDGET_SELECTOR_OPTIONS.DETAILS, "'Details' option item should be selected in the ListBox");
-
-            // 1. Click on the dropdown handler:
-            await browseContextWindow.clickOnWidgetSelectorDropdownHandle();
-            let actualOptions = await browseContextWindow.getWidgetSelectorDropdownOptions();
-            await studioUtils.saveScreenshot('details_panel_widget_options');
-            await browseContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY);
-            assert.ok(true);
-        });
-
     // Verify "Move" action is disabled in the search view #4035
     it(`WHEN a folder has been selected THEN Move button should be enabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             await studioUtils.saveScreenshot('content_in_filtered_grid');
-            //'Publish' button should be displayed on the toolbar after closing a wizard with child content
+            // 'Publish' button should be displayed on the toolbar after closing a wizard with child content
             await contentBrowsePanel.waitForMarkAsReadyButtonVisible();
-            //'Edit' button should be enabled
+            // 'Edit' button should be enabled
             await contentBrowsePanel.waitForEditButtonEnabled();
-            //'Archive' button should be enabled
+            // 'Delete' button should be enabled
             await contentBrowsePanel.waitForDeleteButtonEnabled();
-            //'Move' button should be enabled
+            // 'Move' button should be enabled
             await contentBrowsePanel.waitForMoveButtonEnabled();
             await contentBrowsePanel.waitForDuplicateButtonEnabled();
-            await contentBrowsePanel.waitForSortButtonDisabled();
+            await contentBrowsePanel.waitForSortButtonEnabled();
         });
 
     it(`WHEN a folder has been selected THEN 'Preview' button should be disabled and 'Automatic' option should be selected in preview widget`,
@@ -168,7 +149,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             await contentItemPreviewPanel.waitForImageElementDisplayed();
         });
 
-    it(`GIVEN new folder is added WHEN the folder has been selected THEN 'Sort' buttons should be disabled`,
+    it(`GIVEN new folder is added WHEN the folder has been selected THEN 'Sort' buttons should be enabled for empty folder`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('folder');
@@ -176,8 +157,8 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             await studioUtils.doAddFolder(FOLDER);
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             await contentBrowsePanel.waitForEditButtonEnabled();
-            // 'Sort' button should be disabled, because this folder is empty!
-            await contentBrowsePanel.waitForSortButtonDisabled();
+            // 'Sort' button should be disabled and for empty folder as well!
+            await contentBrowsePanel.waitForSortButtonEnabled();
             // 'New' button should be enabled, because children are allowed for folder-content.
             await contentBrowsePanel.waitForNewButtonEnabled();
         });
@@ -196,7 +177,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             await contentBrowsePanel.waitForMoveButtonEnabled();
         });
 
-    it(`GIVEN the parent folder is selected WHEN child folder has been deleted THEN 'Sort' buttons should be disabled`,
+    it(`GIVEN the parent folder is selected WHEN child folder has been deleted THEN 'Sort' buttons remains enabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
@@ -213,7 +194,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             // 3. select the parent folder:
             await contentBrowsePanel.clickOnRowByName(FOLDER.displayName);
             // 4. Verify that 'Sort' button should be disabled, because child folder has been deleted:
-            await contentBrowsePanel.waitForSortButtonDisabled();
+            await contentBrowsePanel.waitForSortButtonEnabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

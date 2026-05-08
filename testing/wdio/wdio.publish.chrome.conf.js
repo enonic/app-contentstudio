@@ -16,6 +16,7 @@ exports.config = {
         path.join(__dirname, '../specs/issue/close.issue.no.items.spec.js'),
         path.join(__dirname, '../specs/issue/issue.status.selector.spec.js'),
         path.join(__dirname, '../specs/issue/issue.publish.two.items.spec.js'),
+        path.join(__dirname, '../specs/issue/close.issue.by.user.spec.js'),
 
     ],
 

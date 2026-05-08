@@ -24,7 +24,7 @@ const XPATH = {
     wizardHeader: "//div[contains(@id,'ContentWizardHeader')]",
     showPageEditorTogglerButton: "//button[contains(@id,'ContentActionCycleButton') and @title='Show Page Editor']",
     displayNameInput: "//input[@name='displayName']",
-    toolbar: `//div[contains(@id,'ContentWizardToolbar') and @role='toolbar']`,
+    toolbar: `//div[@data-component='Toolbar.Container' and @role='toolbar']`,
     contentItemPreviewToolbar: `//div[contains(@id,'PreviewToolbar')]`,
     toolbarStateIcon: `//div[contains(@class,'toolbar-state-icon')]`,
     // v6: workflow state SVG in the toolbar — aria-label is 'invalid', 'in-progress', or 'ready'
@@ -152,20 +152,20 @@ class ContentWizardPanel extends Page {
     }
 
     get deleteButton() {
-        return XPATH.container + XPATH.toolbar + BUTTONS.buttonAriaLabel('Delete');
+        return XPATH.container + XPATH.toolbar + BUTTONS.toolbarButtonAriaLabel('Delete');
     }
 
     get duplicateButton() {
-        return XPATH.container + XPATH.toolbar + BUTTONS.buttonAriaLabel('Duplicate');
+        return XPATH.container + XPATH.toolbar + BUTTONS.toolbarButtonAriaLabel('Duplicate');
     }
 
     get localizeButton() {
-        return XPATH.container + XPATH.toolbar + BUTTONS.buttonAriaLabel('Localize');
+        return XPATH.container + XPATH.toolbar + BUTTONS.toolbarButtonAriaLabel('Localize');
     }
 
     // Preview button on the previewItemToolbar
     get previewButton() {
-        return this.previewItemToolbar + BUTTONS.buttonAriaLabel('Preview');
+        return XPATH.container + XPATH.toolbar + BUTTONS.toolbarButtonAriaLabel('Preview');
     }
 
     get wizardToolbarHelpButton() {
@@ -1234,7 +1234,7 @@ class ContentWizardPanel extends Page {
     async getSelectedOptionInPreviewWidget() {
         try {
             let locator = this.previewWidgetDropdown;
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(locator);
             return await this.getText(locator);
         } catch (err) {
             await this.handleError(`Content Wizard, Tried to get the selected option in Preview Widget`, 'err_prev_widget_dropdown', err);

@@ -1,5 +1,5 @@
 /**
- * Created on 12.11.2021
+ * Created on 12.11.2021 updated on 08.05.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
@@ -9,8 +9,6 @@ const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
-const NewContentDialog = require('../page_objects/browsepanel/new.content.dialog');
-const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.panel');
 
 describe('archive.confirm.content.dialog.spec:  tests for archiving content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -28,27 +26,18 @@ describe('archive.confirm.content.dialog.spec:  tests for archiving content', fu
             let displayName2 = appConst.generateRandomName('folder');
             FOLDER1 = contentBuilder.buildFolder(displayName2);
             FOLDER2 = contentBuilder.buildFolder(displayName1);
-
-            // let newContentDialog = new NewContentDialog();
-            // let browsePanel = new ContentBrowsePanel();
-            // await browsePanel.waitForNewButtonEnabled(appConst.mediumTimeout);
-            // await browsePanel.clickOnNewButton();
-            // await newContentDialog.waitForOpened();
-            // await newContentDialog.clickOnSuggestedButton();
-             //await newContentDialog.clickOnMediaButton();
-
             await studioUtils.doAddFolder(FOLDER1);
             await studioUtils.doAddFolder(FOLDER2);
         });
 
-    it(`WHEN 'Archive...' menu item has been clicked in Grid Context Menu THEN 'Delete/Archive' dialog should be loaded`,
+    it(`WHEN 'Delete' menu item has been clicked in Grid Context Menu THEN 'Delete/Archive' dialog should be loaded`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
             // 1. Select a folder
-            await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);//(FOLDER1.displayName);
-            // 2.Click on 'Archive...' menu item in grid context menu:
-            await contentBrowsePanel.rightClickOnItemByDisplayName(FOLDER1.displayName);//(FOLDER1.displayName);
+            await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
+            // 2.Click on 'Delete' menu item in grid context menu:
+            await contentBrowsePanel.rightClickOnItemByDisplayName(FOLDER1.displayName);
             await studioUtils.saveScreenshot('archive-context-menu');
             await contentBrowsePanel.waitForContextMenuItemEnabled(appConst.GRID_CONTEXT_MENU.DELETE);
             await contentBrowsePanel.clickOnMenuItem(appConst.GRID_CONTEXT_MENU.DELETE);
@@ -57,7 +46,7 @@ describe('archive.confirm.content.dialog.spec:  tests for archiving content', fu
             await deleteContentDialog.waitForDialogOpened();
         });
 
-    it(`GIVEN two folders are checked AND 'Delete Content Dialog' is opened WHEN 'Archive' button in the dialog has been clicked THEN 'Confirm archive' dialog should be opened`,
+    it(`GIVEN two folders are checked AND 'Delete Content Dialog' is opened WHEN 'Delete' button in the dialog has been clicked THEN 'Confirm archive' dialog should be opened`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
@@ -65,11 +54,11 @@ describe('archive.confirm.content.dialog.spec:  tests for archiving content', fu
             // 1. Select 2 folders
             await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
             await studioUtils.findContentAndClickCheckBox(FOLDER2.displayName);
-            // 2. Click on 'Delete...' button in the toolbar:
+            // 2. Click on 'Delete' button in the toolbar:
             await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot('2_folders_to_archive');
-            // 3. Click on Archive button in the modal dialog:
+            // 3. Click on Delete button in the modal dialog:
             await deleteContentDialog.clickOnDeleteButton();
             // 4. 'Confirm Value' dialog should be loaded:
             await confirmValueDialog.waitForDialogOpened();
@@ -86,7 +75,7 @@ describe('archive.confirm.content.dialog.spec:  tests for archiving content', fu
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

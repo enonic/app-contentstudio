@@ -1,5 +1,5 @@
 /**
- * Created on 28.05.2018.
+ * Created on 28.05.2018.  updated on 06.05.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
@@ -166,7 +166,7 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
             // 2. Verify that only one row is selected:
             let number1 = await contentBrowsePanel.getNumberOfCheckedRows();
             assert.equal(number1, 1, 'One row should be selected');
-            // 3. Click on 'Clear Selection' checkbox:
+            // 3. Click on 'Reset Selection' checkbox:
             await contentBrowsePanel.clickOnResetSelectionCheckbox();
             await studioUtils.saveScreenshot('after_sel_controller');
             // 4. Verify that there are no selected rows in the browse panel at the moment. : (the row gets unselected)
