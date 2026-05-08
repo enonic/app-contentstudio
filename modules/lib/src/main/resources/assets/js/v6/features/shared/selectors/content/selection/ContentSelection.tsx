@@ -109,7 +109,7 @@ export const ContentSelection = ({
     return (
         <GridList
             data-component={CONTENT_SELECTION_NAME}
-            className={cn('flex flex-col gap-y-1.5', className)}
+            className={cn('flex flex-col gap-y-1.5 focus-within:ring-0', className)}
             label={selectedItemsLabel || 'Selected'}
             disabled={disabled}
         >
