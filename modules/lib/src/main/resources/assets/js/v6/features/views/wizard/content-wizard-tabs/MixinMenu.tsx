@@ -105,7 +105,7 @@ export const MixinMenu = (): ReactElement => {
                 <Menu.Content align="end">
                     {hasPage && (
                         <Menu.Item className="font-semibold text-base px-4.5 py-1 gap-2.5" disabled>
-                            <span className="flex-1">Page</span>
+                            <span className="flex-1">{useI18n('field.page')}</span>
                             <FilledSquareCheck className="size-4"/>
                         </Menu.Item>
                     )}

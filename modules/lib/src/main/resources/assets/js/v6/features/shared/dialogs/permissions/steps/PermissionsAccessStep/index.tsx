@@ -62,7 +62,7 @@ export const PermissionsDialogAccessStepContent = (): ReactElement => {
     );
 
     // Constants
-    const permissionsLabel = useI18n('dialog.permissions.access.permissions');
+    const permissionsLabel = useI18n('field.contextPanel.details.sections.permissions');
     const accessModeLabel = useI18n('dialog.projectAccess');
     const accessModePublicLabel = useI18n('settings.items.wizard.readaccess.public.description');
     const accessModeRestrictedLabel = useI18n('dialog.permissions.access.accessMode.restricted');
