@@ -1,76 +1,41 @@
-import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {Extension} from '@enonic/lib-admin-ui/extension/Extension';
-import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {cn} from '@enonic/ui';
-import {History, Link, List, SquareChartGantt} from 'lucide-react';
 import Q from 'q';
 import {PreviewLabelElement} from '../../../v6/features/shared/PreviewLabel';
 import {setActiveWidgetId as setActiveExtensionId} from '../../../v6/features/store/contextWidgets.store';
-import {APP_NAME} from '../../../v6/features/utils/cms/app/app';
-import {VERSIONS_WIDGET_KEY} from '../../../v6/features/utils/widget/versions/versions';
-import {DependenciesWidgetElement} from '../../../v6/features/views/context/widget/dependencies';
-import {DetailsWidgetElement} from '../../../v6/features/views/context/widget/details';
-import {PageEditorExtensionElement} from '../../../v6/features/views/context/widget/page-editor';
-import {VersionsWidgetElement} from '../../../v6/features/views/context/widget/versions/VersionsWidget';
 import WidgetsSelectorElement from '../../../v6/features/views/context/widget/WidgetsSelector';
 import {CompareStatus} from '../../content/CompareStatus';
 import type {ContentId} from '../../content/ContentId';
 import type {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
-import {InspectEvent} from '../../event/InspectEvent';
-import {GetExtensionsByInterfaceRequest} from '../../resource/GetExtensionsByInterfaceRequest';
-import {PageEventsManager} from '../../wizard/PageEventsManager';
-import type {PageNavigationEvent} from '../../wizard/PageNavigationEvent';
-import {PageNavigationEventType} from '../../wizard/PageNavigationEventType';
-import type {PageNavigationHandler} from '../../wizard/PageNavigationHandler';
-import {PageNavigationMediator} from '../../wizard/PageNavigationMediator';
-import {ExtensionView, InternalExtensionType} from './ExtensionView';
+import {type ExtensionView, type InternalExtensionType} from './ExtensionView';
 import {ReloadActiveExtensionEvent} from './ReloadActiveExtensionEvent';
 
 export class ContextView
-    extends DivEl
-    implements PageNavigationHandler {
+    extends DivEl {
 
-    protected extensionViews: ExtensionView[] = [];
-    protected contextContainer: DivEl;
-    protected extensionsSelectionRow: WidgetsSelectorElement;
+    private widgets: ExtensionView[] = [];
+    private contextContainer: DivEl;
+    private widgetsSelector: WidgetsSelectorElement;
 
-    protected loadMask: LoadMask;
-    protected divForNoSelection: DivEl;
+    private loadMask: LoadMask;
+    private divForNoSelection: DivEl;
 
-    protected item: ContentSummaryAndCompareStatus;
+    private item: ContentSummaryAndCompareStatus;
 
-    protected activeExtension: ExtensionView;
-    private defaultExtensionView: ExtensionView;
-
-    protected extensionPageEditorView?: ExtensionView;
-    protected extensionPropertiesView: ExtensionView;
-    protected extensionVersionsView: ExtensionView;
-
-    protected alreadyFetchedCustomExtensions: boolean;
+    private activeWidget: ExtensionView;
+    private defaultWidget: ExtensionView;
 
     private sizeChangedListeners: (() => void)[] = [];
 
-    private extensionsUpdateList: Record<string, (key: string, type: ApplicationEventType) => void> = {};
-
-    private extensionKeyToReactivate: string | null = null;
-
-    private editorMode: boolean;
-
-    private isPageRenderable: boolean = undefined;
-
     public static debug: boolean = false;
 
-    constructor(editorMode: boolean = false) {
+    constructor() {
         super('context-panel-view bg-surface-neutral');
-
-        this.editorMode = editorMode;
 
         this.contextContainer = new DivEl(cn('context-container p-5 pb-7.5'));
 
@@ -78,9 +43,8 @@ export class ContextView
         this.loadMask.addClass('context-panel-mask');
         this.appendChild(this.loadMask);
 
-        this.initCommonExtensionViews();
         this.initDivForNoSelection();
-        this.initExtensionsSelectionRow();
+        this.initWidgetsSelector();
 
         this.appendChild(this.contextContainer);
         this.appendChild(this.divForNoSelection);
@@ -88,237 +52,129 @@ export class ContextView
         this.subscribeToEvents();
 
         this.layout();
-
-        this.getCustomExtensionViewsAndUpdateDropdown();
     }
 
-    private subscribeToEvents() {
-        const handleApplicationEvents = (e) => this.handleApplicationEvents(e);
-        ApplicationEvent.on(handleApplicationEvents);
-        this.onRemoved(() => ApplicationEvent.un(handleApplicationEvents));
+    setWidgets(widgets: ExtensionView[], defaultWidget?: ExtensionView): void {
+        this.widgets.forEach(w => w.remove());
+        this.widgets = [];
 
-        PageEventsManager.get().onRenderableChanged((renderable: boolean) => {
-            const wasRenderable: boolean = this.isPageRenderable;
-            this.isPageRenderable = renderable;
-
-            if (wasRenderable !== undefined && renderable !== wasRenderable) {
-                // only switch the extension when the page becomes renderable
-                this.updateSelectedExtension();
-            }
+        widgets.forEach(w => {
+            this.widgets.push(w);
+            this.contextContainer.appendChild(w);
         });
 
-        const contentServerEventsHandler = ContentServerEventsHandler.getInstance();
-
-        contentServerEventsHandler.onContentPermissionsUpdated((contentIds: ContentId[]) => {
-            const itemSelected: boolean = this.item != null;
-            const activeWidgetVisible: boolean = this.activeExtension != null && this.isVisible();
-
-            if (activeWidgetVisible && this.activeExtension.isInternal() && itemSelected &&
-                contentIds.some((id: ContentId) => id.equals(this.item.getContentId()))) {
-                this.updateActiveExtension();
-            }
-        });
-
-        contentServerEventsHandler.onContentPublished((contents: ContentSummaryAndCompareStatus[]) => {
-            if (!this.item) {
-                return;
-            }
-
-            const itemId: string = this.item.getId();
-
-            contents
-                .filter((content: ContentSummaryAndCompareStatus) => content.getId() === itemId)
-                .forEach((content: ContentSummaryAndCompareStatus) => {
-                    const isSameContent: boolean = this.item.equals(content);
-                    const wasModified: boolean = this.item.getCompareStatus() !== CompareStatus.NEW;
-
-                    if (!isSameContent && wasModified) {
-                        this.setItem(content);
-                    }
-                });
-        });
-
-        ReloadActiveExtensionEvent.on(() => {
-            if (this.activeExtension) {
-                this.activeExtension.updateExtensionItemViews().catch(DefaultErrorHandler.handle);
-            }
-        });
-
-        PageNavigationMediator.get().addPageNavigationHandler(this);
-    }
-
-    handle(event: PageNavigationEvent): void {
-        /* Uncomment to switch to the Details extension on component deselect.
-        if (event.getType() === PageNavigationEventType.DESELECT) {
-            this.deactivatePageEditorWidget();
-            return;
-        }
-         */
-
-        if (event.getType() === PageNavigationEventType.SELECT) {
-            this.activatePageEditorExtension();
-            return;
+        if (defaultWidget) {
+            this.defaultWidget = defaultWidget;
+            this.setActiveExtension(defaultWidget);
         }
 
-        if (event.getType() === PageNavigationEventType.INSPECT) {
-            this.activatePageEditorExtension();
-            return;
-        }
+        this.refreshSelector();
     }
 
-    private initDivForNoSelection() {
-        this.divForNoSelection = new DivEl('no-selection-message bg-surface-primary');
-        const label = new PreviewLabelElement({messages: [i18n('field.contextPanel.empty')], className: 'h-full text-base'});
-        this.divForNoSelection.appendChild(label);
-        this.appendChild(this.divForNoSelection);
+    addWidget(widget: ExtensionView): void {
+        this.widgets.push(widget);
+        this.contextContainer.appendChild(widget);
+        this.refreshSelector();
     }
 
-    private initExtensionsSelectionRow() {
-        this.extensionsSelectionRow = new WidgetsSelectorElement({});
-        this.appendChild(this.extensionsSelectionRow);
-        this.extensionsSelectionRow.updateState(this.activeExtension);
+    insertWidget(widget: ExtensionView, index: number): void {
+        this.widgets.splice(index, 0, widget);
+        this.contextContainer.insertChild(widget, index);
+        this.refreshSelector();
     }
 
-    private handleApplicationEvents(event: ApplicationEvent) {
-        const isExtensionUpdated = [
-                ApplicationEventType.INSTALLED,
-                ApplicationEventType.UNINSTALLED,
-                ApplicationEventType.STARTED,
-                ApplicationEventType.STOPPED,
-                ApplicationEventType.UPDATED
-            ].indexOf(event.getEventType()) > -1;
+    removeWidgetByKey(key: string): void {
+        const widget = this.getWidgetByKey(key);
+        if (!widget) return;
 
-        if (isExtensionUpdated) {
-            const key = event.getApplicationKey().getName();
+        this.widgets = this.widgets.filter(w => w !== widget);
+        widget.remove();
 
-            if (!this.extensionsUpdateList[key]) {
-                this.extensionsUpdateList[key] = AppHelper.debounce((k, type) => this.handleExtensionUpdate(k, type), 1000);
-            }
-            this.extensionsUpdateList[key](key, event.getEventType());
-        }
-    }
-
-    private handleExtensionUpdate(key: string, type: ApplicationEventType) {
-        if (this.isExtensionRemoveEvent(type)) {
-            this.handleExtensionRemoveEvent(key);
-        } else if (this.getExtensionByKey(key)) {
-            this.handleExtensionUpdateEvent(key);
-        } else {
-            this.handleExtensionAddedEvent(key);
-        }
-    }
-
-    private isExtensionRemoveEvent(type: ApplicationEventType): boolean {
-        return [
-                   ApplicationEventType.UNINSTALLED,
-                   ApplicationEventType.STOPPED
-               ].indexOf(type) > -1;
-    }
-
-    private handleExtensionRemoveEvent(key: string) {
-        this.removeExtensionByKey(key);
-
-        if (this.isActiveExtension(key)) {
-            this.activateDefaultExtension();
+        if (this.isActiveWidget(key)) {
+            this.activateDefaultWidget();
         }
 
-        this.updateView();
+        this.refreshSelector();
     }
 
-    private isActiveExtensionByType(view: ExtensionView): boolean {
-        return view?.compareByType(this.activeExtension);
-    }
+    replaceWidgetByKey(key: string, widget: ExtensionView): void {
+        const index = this.widgets.findIndex(w => w.getExtensionKey() === key);
+        if (index < 0) return;
 
-    private isActiveExtension(key: string): boolean {
-        return this.activeExtension && this.activeExtension.getExtensionKey() === key;
-    }
+        const wasActive = this.isActiveWidget(key);
 
-    private handleExtensionUpdateEvent(key: string) {
-        this.fetchExtensionByKey(key).then((extension: Extension) => {
-            const extensionView: ExtensionView =
-                ExtensionView.create().setName(extension.getDisplayName()).setContextView(this).setExtension(extension).build();
-            this.updateExtension(extensionView);
+        this.widgets[index].replaceWith(widget);
+        this.widgets[index] = widget;
 
-            if (this.isActiveExtension(key)) {
-                this.resetActiveExtension();
-                extensionView.setActive();
-            }
-
-            this.updateView();
-        });
-    }
-
-    private handleExtensionAddedEvent(key: string) {
-        this.fetchExtensionByKey(key).then((extension: Extension) => {
-            const extensionView: ExtensionView =
-                ExtensionView.create().setName(extension.getDisplayName()).setContextView(this).setExtension(extension).build();
-            this.addExtension(extensionView);
-            this.updateView();
-        });
-    }
-
-    private updateView() {
-        this.extensionsSelectionRow.updateExtensionsSelector(this.extensionViews);
-        this.extensionsSelectionRow.updateState(this.activeExtension);
-    }
-
-    getCustomExtensionViewsAndUpdateDropdown(): Q.Promise<void> {
-        const deferred = Q.defer<void>();
-        if (!this.alreadyFetchedCustomExtensions) {
-            this.fetchAndInitCustomExtensionViews().then(() => {
-                this.extensionsSelectionRow.updateExtensionsSelector(this.extensionViews);
-                this.alreadyFetchedCustomExtensions = true;
-                deferred.resolve(null);
-            });
-        } else {
-            deferred.resolve(null);
-        }
-        return deferred.promise;
-    }
-
-    setActiveExtension(extensionView: ExtensionView) {
-        if (this.activeExtension) {
-            this.activeExtension.setInactive();
+        if (wasActive) {
+            this.resetActiveExtension();
+            widget.setActive();
         }
 
-        this.activeExtension = extensionView;
-        this.activeExtension.addClass('active');
-
-        setActiveExtensionId(this.activeExtension.getExtensionKey());
-
-        this.toggleClass('default-extension', this.defaultExtensionView.isActive());
-        this.toggleClass('internal', extensionView.isInternal());
-
-        if (this.extensionsSelectionRow) {
-            this.extensionsSelectionRow.updateState(this.activeExtension);
-        }
+        this.refreshSelector();
     }
 
-    setActiveExtensionByType(extensionType: InternalExtensionType) {
-        const extensionView = this.extensionViews.find((extension) => extension.getType() === extensionType);
-        if (!extensionView) return;
-        this.setActiveExtension(extensionView);
+    getWidgetByKey(key: string): ExtensionView | null {
+        return this.widgets.find(w => w.getExtensionKey() === key) ?? null;
+    }
+
+    getWidgets(): ExtensionView[] {
+        return [...this.widgets];
+    }
+
+    setDefaultWidget(widget: ExtensionView): void {
+        this.defaultWidget = widget;
+    }
+
+    activateDefaultWidget(): void {
+        this.defaultWidget?.setActive();
+    }
+
+    setActiveExtension(widget: ExtensionView): void {
+        if (this.activeWidget) {
+            this.activeWidget.setInactive();
+        }
+
+        this.activeWidget = widget;
+        this.activeWidget.addClass('active');
+
+        setActiveExtensionId(this.activeWidget.getExtensionKey());
+
+        this.toggleClass('default-extension', this.defaultWidget?.isActive() ?? false);
+        this.toggleClass('internal', widget.isInternal());
+
+        this.widgetsSelector?.updateState(this.activeWidget);
+    }
+
+    setActiveExtensionByType(type: InternalExtensionType): void {
+        const widget = this.widgets.find(w => w.getType() === type);
+        if (!widget) return;
+        this.setActiveExtension(widget);
     }
 
     getActiveExtension(): ExtensionView {
-        return this.activeExtension;
+        return this.activeWidget;
     }
 
-    resetActiveExtension() {
-        if (this.activeExtension) {
-            this.activeExtension.removeClass('active');
+    resetActiveExtension(): void {
+        if (this.activeWidget) {
+            this.activeWidget.removeClass('active');
         }
-        this.activeExtension = null;
+        this.activeWidget = null;
         setActiveExtensionId(undefined);
     }
 
-    activateDefaultExtension() {
-        if (this.defaultExtensionView) {
-            this.defaultExtensionView.setActive();
+    updateActiveExtension(): Q.Promise<void> {
+        if (!this.activeWidget) {
+            return Q();
         }
+
+        return this.activeWidget.updateExtensionItemViews().then(() => {
+            this.activeWidget.slideIn();
+        }).catch(DefaultErrorHandler.handle);
     }
 
-    public setItem(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
+    setItem(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
         if (ContextView.debug) {
             console.debug('ContextView.setItem: ', item);
         }
@@ -327,10 +183,10 @@ export class ContextView
 
         this.item = item;
 
-        const activeExtensionVisible = this.activeExtension != null && this.isVisible();
+        const activeWidgetVisible = this.activeWidget != null && this.isVisible();
 
         this.layout(!itemSelected);
-        if (activeExtensionVisible && selectionChanged && (this.activeExtension.isExternal() || itemSelected)) {
+        if (activeWidgetVisible && selectionChanged && (this.activeWidget.isExternal() || itemSelected)) {
             return this.updateActiveExtension();
         }
 
@@ -341,241 +197,88 @@ export class ContextView
         return this.item;
     }
 
-    updateActiveExtension(): Q.Promise<void> {
-        if (!this.activeExtension) {
-            return Q();
-        }
-
-        return this.activeExtension.updateExtensionItemViews().then(() => {
-                this.activeExtension.slideIn();
-        }).catch(DefaultErrorHandler.handle);
-    }
-
-    public showLoadMask() {
+    showLoadMask(): void {
         this.loadMask.show();
     }
 
-    public hideLoadMask() {
+    hideLoadMask(): void {
         this.loadMask.hide();
     }
 
-    private initCommonExtensionViews() {
-        this.extensionPropertiesView = ExtensionView.create()
-            .setExtension(Extension.create().setExtensionDescriptorKey(`${APP_NAME}:details`).build())
-            .setName(i18n('field.contextPanel.details'))
-            .setDescription(i18n('field.contextPanel.details.description'))
-            .setExtensionClass('properties-widget')
-            .setIconClass('icon-list')
-            .setIcon(List)
-            .setType(InternalExtensionType.INFO)
-            .setContextView(this)
-            .addExtensionItemView(new DetailsWidgetElement()).build();
-
-        this.extensionVersionsView = this.createVersionsExtensionView();
-        if (this.editorMode) {
-            this.extensionPageEditorView = this.createPageEditorExtensionView();
-        }
-        this.addExtensions(this.getInitialExtensions());
-
-        this.defaultExtensionView = this.extensionPropertiesView;
-        this.setActiveExtension(this.defaultExtensionView);
+    onPanelSizeChanged(listener: () => void): void {
+        this.sizeChangedListeners.push(listener);
     }
 
-    protected getInitialExtensions(): ExtensionView[] {
-        const result = [this.extensionPropertiesView, this.extensionVersionsView, this.createDependenciesExtensionView()];
-        if (this.extensionPageEditorView) {
-            // add page editor extension as second item
-            result.splice(1, 0, this.extensionPageEditorView);
-        }
-        return result;
+    notifyPanelSizeChanged(): void {
+        this.sizeChangedListeners.forEach(listener => listener());
     }
 
-    private createPageEditorExtensionView(): ExtensionView {
-        InspectEvent.on((event: InspectEvent) => {
-            if (event.isShowExtension() && this.activeExtension !== this.extensionVersionsView &&
-                this.extensionPageEditorView.compareByType(this.defaultExtensionView)) {
-                this.activateDefaultExtension();
-            }
-        });
-
-        return ExtensionView.create()
-            .setExtension(Extension.create().setExtensionDescriptorKey(`${APP_NAME}:page`).build())
-            .setName(i18n('field.contextPanel.pageEditor'))
-            .setDescription(i18n('field.contextPanel.pageEditor.description'))
-            .setIcon(SquareChartGantt)
-            .addExtensionItemView(new PageEditorExtensionElement())
-            .setContextView(this)
-            .setType(InternalExtensionType.COMPONENTS)
-            .build();
-    }
-
-    protected createVersionsExtensionView(): ExtensionView {
-        return ExtensionView.create()
-            .setExtension(Extension.create().setExtensionDescriptorKey(VERSIONS_WIDGET_KEY).build())
-            .setName(i18n('field.contextPanel.versionHistory'))
-            .setDescription(i18n('field.contextPanel.versionHistory.description'))
-            .setExtensionClass('versions-widget')
-            .setIconClass('icon-history')
-            .setIcon(History)
-            .setType(InternalExtensionType.HISTORY)
-            .setContextView(this)
-            .addExtensionItemView(new VersionsWidgetElement())
-            .build();
-    }
-
-    protected createDependenciesExtensionView(): ExtensionView {
-        return ExtensionView.create()
-            .setExtension(Extension.create().setExtensionDescriptorKey(`${APP_NAME}:dependencies`).build())
-            .setName(i18n('field.contextPanel.dependencies'))
-            .setDescription(i18n('field.contextPanel.dependencies.description'))
-            .setExtensionClass('dependency-widget')
-            .setIconClass('icon-link')
-            .setIcon(Link)
-            .setType(InternalExtensionType.DEPENDENCIES)
-            .setContextView(this)
-            .addExtensionItemView(new DependenciesWidgetElement()).build();
-    }
-
-    protected fetchCustomExtensionViews(): Q.Promise<Extension[]> {
-        const getExtensionsByInterfaceRequest = new GetExtensionsByInterfaceRequest('contentstudio.contextpanel');
-
-        return getExtensionsByInterfaceRequest.sendAndParse();
-    }
-
-    private fetchAndInitCustomExtensionViews(): Q.Promise<void> {
-        return this.fetchCustomExtensionViews().then((extensions: Extension[]) => {
-                extensions.forEach((extension) => {
-                const extensionView = ExtensionView.create().setName(extension.getDisplayName()).setContextView(this).setExtension(extension).build();
-                    this.addExtension(extensionView);
-                });
-        }).catch((reason) => {
-                const msg = reason ? reason.message : i18n('notify.widget.error');
-                showError(msg);
-            });
-    }
-
-    private fetchExtensionByKey(key: string): Q.Promise<Extension> {
-        return this.fetchCustomExtensionViews().then((extensions: Extension[]) => {
-                for (const extension of extensions) {
-                    if (extension.getDescriptorKey().getApplicationKey().getName() === key) {
-                        return extension;
-                    }
-                }
-                return null;
-        }).catch((reason) => {
-                const msg = reason ? reason.message : i18n('notify.widget.error');
-                showError(msg);
-                return null;
-            });
+    isVisible(): boolean {
+        return super.isVisible() && this.getEl().getWidth() > 0;
     }
 
     getContextContainer(): DivEl {
         return this.contextContainer;
     }
 
-    private getExtensionByKey(key: string): ExtensionView {
-        for (const extensionView of this.extensionViews) {
-            if (extensionView.getExtensionKey() === key) {
-                return extensionView;
+    private initDivForNoSelection(): void {
+        this.divForNoSelection = new DivEl('no-selection-message bg-surface-primary');
+        const label = new PreviewLabelElement({messages: [i18n('field.contextPanel.empty')], className: 'h-full text-base'});
+        this.divForNoSelection.appendChild(label);
+        this.appendChild(this.divForNoSelection);
+    }
+
+    private initWidgetsSelector(): void {
+        this.widgetsSelector = new WidgetsSelectorElement({});
+        this.appendChild(this.widgetsSelector);
+        this.widgetsSelector.updateState(this.activeWidget);
+    }
+
+    private subscribeToEvents(): void {
+        const contentServerEventsHandler = ContentServerEventsHandler.getInstance();
+
+        contentServerEventsHandler.onContentPermissionsUpdated((contentIds: ContentId[]) => {
+            const itemSelected = this.item != null;
+            const activeWidgetVisible = this.activeWidget != null && this.isVisible();
+
+            if (activeWidgetVisible && this.activeWidget.isInternal() && itemSelected &&
+                contentIds.some(id => id.equals(this.item.getContentId()))) {
+                this.updateActiveExtension();
             }
-        }
-        return null;
-    }
+        });
 
-    private addExtension(extension: ExtensionView) {
-        this.extensionViews.push(extension);
-        this.contextContainer.appendChild(extension);
-    }
+        contentServerEventsHandler.onContentPublished((contents: ContentSummaryAndCompareStatus[]) => {
+            if (!this.item) return;
 
-    private insertExtension(extension: ExtensionView, index: number) {
-        this.extensionViews.splice(index, 0, extension);
-        this.contextContainer.insertChild(extension, index);
-    }
+            const itemId = this.item.getId();
 
-    private getIndexOfLastInternalExtension(): number {
-        for (let index = 0; index < this.extensionViews.length; index++) {
-            if (!this.extensionViews[index].isInternal()) {
-                return index - 1;
-            }
-        }
-        return this.extensionViews.length - 1;
-    }
+            contents
+                .filter(content => content.getId() === itemId)
+                .forEach(content => {
+                    const isSameContent = this.item.equals(content);
+                    const wasModified = this.item.getCompareStatus() !== CompareStatus.NEW;
 
-    private addExtensions(extensionViews: ExtensionView[]) {
-        extensionViews.forEach((extension) => {
-            this.addExtension(extension);
+                    if (!isSameContent && wasModified) {
+                        this.setItem(content);
+                    }
+                });
+        });
+
+        ReloadActiveExtensionEvent.on(() => {
+            this.activeWidget?.updateExtensionItemViews().catch(DefaultErrorHandler.handle);
         });
     }
 
-    private removeExtension(extension: ExtensionView) {
-        if (extension) {
-            this.extensionViews = this.extensionViews.filter(view => !extension.compareByType(view));
-            extension.remove();
-        }
+    private isActiveWidget(key: string): boolean {
+        return this.activeWidget != null && this.activeWidget.getExtensionKey() === key;
     }
 
-    private removeExtensionByKey(key: string) {
-        const extension = this.getExtensionByKey(key);
-        if (extension) {
-            this.extensionViews = this.extensionViews.filter((view) => view !== extension);
-            extension.remove();
-        }
+    private refreshSelector(): void {
+        this.widgetsSelector.updateExtensionsSelector(this.widgets);
+        this.widgetsSelector.updateState(this.activeWidget);
     }
 
-    private updateExtension(extension: ExtensionView) {
-        for (let i = 0; i < this.extensionViews.length; i++) {
-            if (this.extensionViews[i].getExtensionName() === extension.getExtensionName()) {
-                this.extensionViews[i].replaceWith(extension);
-                this.extensionViews[i] = extension;
-                break;
-            }
-        }
-    }
-
-    updateSelectedExtension() {
-        const shouldActivatePageExtension = this.editorMode &&
-                                         (this.isPageRenderable && !this.item?.getType()?.isShortcut()
-                                          || this.item?.getContentSummary()?.isPage());
-        if (shouldActivatePageExtension) {
-            this.activatePageEditorExtension();
-        } else {
-            this.deactivatePageEditorExtension();
-        }
-    }
-
-    private activatePageEditorExtension(): void {
-        this.defaultExtensionView = this.extensionPageEditorView;
-
-        this.activateDefaultExtension();
-    }
-
-    private deactivatePageEditorExtension(): void {
-        const isPageEditorExtensionActive: boolean = this.isActiveExtensionByType(this.extensionPageEditorView);
-
-        this.defaultExtensionView = this.extensionPropertiesView;
-
-        if (isPageEditorExtensionActive) {
-            this.activateDefaultExtension();
-        }
-    }
-
-    private layout(empty: boolean = true) {
+    private layout(empty: boolean = true): void {
         this.toggleClass('no-selection', empty);
-    }
-
-    onPanelSizeChanged(listener: () => void) {
-        this.sizeChangedListeners.push(listener);
-    }
-
-    notifyPanelSizeChanged() {
-        this.sizeChangedListeners.forEach((listener: () => void) => listener());
-    }
-
-    appendContextWindow(): void {
-        // No-op: the Preact ContextWindowElement is created in createPageEditorExtensionView()
-    }
-
-    isVisible(): boolean {
-        return super.isVisible() && this.getEl().getWidth() > 0;
     }
 }

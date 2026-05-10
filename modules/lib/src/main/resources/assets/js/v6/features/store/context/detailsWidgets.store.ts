@@ -1,4 +1,4 @@
-import {atom, computed, task} from 'nanostores';
+import {atom, computed, onMount, task} from 'nanostores';
 import {$contextContent} from './contextContent.store';
 import {type Content} from '../../../../app/content/Content';
 import {type EffectivePermission} from '../../../../app/security/EffectivePermission';
@@ -18,16 +18,18 @@ import {$contentPermissionsUpdated} from '../socket.store';
 
 const $detailsContentRefreshSignal = atom(0);
 
-$contentPermissionsUpdated.subscribe((event) => {
-    if (!event?.data) return;
-    const contextContent = $contextContent.get();
-    if (!contextContent) return;
+onMount($detailsContentRefreshSignal, () =>
+    $contentPermissionsUpdated.subscribe((event) => {
+        if (!event?.data) return;
+        const contextContent = $contextContent.get();
+        if (!contextContent) return;
 
-    const contentId = contextContent.getContentId();
-    if (event.data.some((id) => id.equals(contentId))) {
-        $detailsContentRefreshSignal.set(Date.now());
-    }
-});
+        const contentId = contextContent.getContentId();
+        if (event.data.some((id) => id.equals(contentId))) {
+            $detailsContentRefreshSignal.set(Date.now());
+        }
+    })
+);
 
 export const $detailsWidgetContent = computed([$contextContent, $detailsContentRefreshSignal], (contentSummary, _refresh) =>
     task(async () => {
