@@ -171,6 +171,10 @@ const faviconCache: Record<string, HTMLElement> = {};
 
 const iconUrlResolver = new ContentIconUrlResolver();
 
+// ? dataPreloaded is set inside the preload .then so that startContentWizard can
+// ? skip favicon/title work that already happened. Safe because startApplication
+// ? is gated on preLoadPromise — by the time the wizard runs, the request has
+// ? resolved and the flag is correct.
 let dataPreloaded: boolean = false;
 
 let invalidEditUrlNotificationPending: boolean = false;
@@ -221,6 +225,9 @@ function preLoadApplication(): Promise<void> {
     const shouldPreloadTabData: boolean = !Body.get().isRendered() && !Body.get().isRendering();
 
     if (wizardParams.contentId) {
+        // ? Request fires regardless of body render state so background tabs with
+        // ? invalid bookmarks also get URL cleanup before the user focuses them.
+        // ? Favicon/title updates remain gated on shouldPreloadTabData.
         return Promise.resolve(
             new GetContentByIdRequest(wizardParams.contentId).setRequestProjectName(wizardParams.projectName).sendAndParse()
                 .then((content: Content) => {
@@ -237,6 +244,7 @@ function preLoadApplication(): Promise<void> {
                 .catch(() => {
                     invalidEditUrlNotificationPending = true;
                     history.replaceState(null, '', UrlHelper.createContentBrowseUrl(wizardParams.projectName));
+                    wizardParams = undefined;
                 })
         ).then(() => undefined);
     }
@@ -263,22 +271,12 @@ function startServerEventListeners(application: Application) {
 let connectionDetector: ConnectionDetector;
 let contentViewStarted = false;
 
-type ProjectsState = ReturnType<typeof $projects.get> & {
-    loaded?: boolean;
-    resolved?: boolean;
-    loadError?: boolean;
-};
-
-function getProjectsState(): ProjectsState {
-    return $projects.get() as ProjectsState;
-}
-
 function isProjectsResolved(): boolean {
-    return !!getProjectsState().resolved;
+    return $projects.get().resolved;
 }
 
 function hasActiveProject(): boolean {
-    return !!($activeProject.get() as unknown);
+    return $activeProject.get() != null;
 }
 
 async function startApplication() {
@@ -298,7 +296,7 @@ async function startApplication() {
             return;
         }
 
-        if (getProjectsState().loadError) {
+        if ($projects.get().loadError) {
             if (!projectInitFailureShown) {
                 projectInitFailureShown = true;
                 NotifyManager.get().showWarning(i18n('notify.settings.project.initFailed'));
@@ -568,6 +566,9 @@ async function startContentBrowser() {
 
     const preLoadPromise = preLoadApplication();
 
+    // ! startApplication must run AFTER preLoadPromise resolves so that
+    // ! isContentWizardUrl() is re-evaluated against the rewritten path
+    // ! when an invalid edit URL has been replaced with the browse URL.
     const renderListener = () => {
         preLoadPromise.then(() => startApplication());
         body.unRendered(renderListener);
