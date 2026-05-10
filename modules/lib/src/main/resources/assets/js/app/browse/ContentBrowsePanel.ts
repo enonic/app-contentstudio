@@ -38,7 +38,9 @@ import {Router} from '../Router';
 import {UrlAction} from '../UrlAction';
 import {type ContentItemPreviewPanel} from '../view/ContentItemPreviewPanel';
 import {ContentPreviewPathChangedEvent} from '../view/ContentPreviewPathChangedEvent';
+import {buildDefaultContextWidgets, listDefaultContextWidgets} from '../view/context/buildDefaultContextWidgets';
 import {ContextView} from '../view/context/ContextView';
+import {loadCustomContextWidgets, watchCustomContextWidgets} from '../view/context/customContextWidgets';
 import {type PreviewContentAction} from './action/PreviewContentAction';
 import {ContentBrowseItemPanel} from './ContentBrowseItemPanel';
 import {ContentBrowsePanelKeyNavigator} from './ContentBrowsePanelKeyNavigator';
@@ -276,7 +278,15 @@ export class ContentBrowsePanel
     }
 
     protected createContextView(): ContextView {
-        return new ContextView();
+        const contextView = new ContextView();
+        const widgets = buildDefaultContextWidgets(contextView);
+
+        contextView.setWidgets(listDefaultContextWidgets(widgets), widgets.properties);
+
+        void loadCustomContextWidgets(contextView);
+        watchCustomContextWidgets(contextView);
+
+        return contextView;
     }
 
     protected getFirstPanelSize(): number {

@@ -96,8 +96,11 @@ import {UrlHelper} from '../util/UrlHelper';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 import {ContextPanelState} from '../view/context/ContextPanelState';
 import {type ContextPanelMode} from '../view/context/ContextSplitPanel';
+import {buildDefaultContextWidgets, listDefaultContextWidgets} from '../view/context/buildDefaultContextWidgets';
 import {ContextView} from '../view/context/ContextView';
+import {loadCustomContextWidgets, watchCustomContextWidgets} from '../view/context/customContextWidgets';
 import {DockedContextPanel} from '../view/context/DockedContextPanel';
+import {PageEditorContextController} from '../view/context/PageEditorContextController';
 import {AccessControlHelper} from './AccessControlHelper';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentContext} from './ContentContext';
@@ -424,7 +427,23 @@ export class ContentWizardPanel
     }
 
     protected createWizardAndDetailsSplitPanel(leftPanel: Panel): SplitPanel {
-        this.contextView = new ContextView(!!this.livePanel);
+        this.contextView = new ContextView();
+        const editorMode = !!this.livePanel;
+        const widgets = buildDefaultContextWidgets(this.contextView, {editorMode});
+        this.contextView.setWidgets(listDefaultContextWidgets(widgets), widgets.properties);
+
+        if (widgets.pageEditor) {
+            new PageEditorContextController({
+                contextView: this.contextView,
+                pageEditorWidget: widgets.pageEditor,
+                fallbackWidget: widgets.properties,
+                versionsWidget: widgets.versions,
+                getItem: () => this.contextView.getItem(),
+            });
+        }
+
+        void loadCustomContextWidgets(this.contextView);
+        watchCustomContextWidgets(this.contextView);
 
         this.contextView.setItem(this.getContent());
         setWizardContent(this.getContent().getContentSummary());
