@@ -55,6 +55,7 @@ export class ContextView
     }
 
     setWidgets(widgets: ExtensionView[], defaultWidget?: ExtensionView): void {
+        this.resetActiveExtension();
         this.widgets.forEach(w => w.remove());
         this.widgets = [];
 

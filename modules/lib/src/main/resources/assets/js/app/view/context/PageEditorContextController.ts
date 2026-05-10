@@ -44,7 +44,7 @@ export class PageEditorContextController implements PageNavigationHandler {
         }
     }
 
-    refresh(): void {
+    private refresh(): void {
         const item = this.getItem();
         const shouldActivate = (this.isPageRenderable && !item?.getType()?.isShortcut())
             || item?.getContentSummary()?.isPage();
@@ -57,25 +57,32 @@ export class PageEditorContextController implements PageNavigationHandler {
     }
 
     private subscribe(): void {
-        InspectEvent.on((event: InspectEvent) => {
+        const inspectHandler = (event: InspectEvent) => {
             const isVersionsActive = this.contextView.getActiveExtension() === this.versionsWidget;
 
             if (event.isShowExtension() && !isVersionsActive && this.pageEditorIsDefault) {
                 this.contextView.activateDefaultWidget();
             }
-        });
+        };
 
-        PageEventsManager.get().onRenderableChanged((renderable: boolean) => {
+        const renderableHandler = (renderable: boolean) => {
             const wasRenderable = this.isPageRenderable;
             this.isPageRenderable = renderable;
 
-            // ? Only switch the widget when renderability actually changes
             if (wasRenderable !== undefined && renderable !== wasRenderable) {
                 this.refresh();
             }
-        });
+        };
 
+        InspectEvent.on(inspectHandler);
+        PageEventsManager.get().onRenderableChanged(renderableHandler);
         PageNavigationMediator.get().addPageNavigationHandler(this);
+
+        this.contextView.onRemoved(() => {
+            InspectEvent.un(inspectHandler);
+            PageEventsManager.get().unRenderableChanged(renderableHandler);
+            PageNavigationMediator.get().removePageNavigationItem(this);
+        });
     }
 
     private activatePageEditor(): void {
