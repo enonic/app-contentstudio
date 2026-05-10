@@ -27,10 +27,12 @@ export const ProjectSelectionDialog = (): ReactElement => {
 
     const flatProjects = useMemo(() => flattenProjects(projects), [projects]);
     const projectByName = useMemo(() => new Map(flatProjects.map(({project}) => [project.getName(), project])), [flatProjects]);
-    const hasAvailableProjects = useMemo(
-        () => flatProjects.some(({project}) => ProjectHelper.isAvailable(project)),
+    const firstAvailableProjectId = useMemo(
+        () => flatProjects.find(({project}) => ProjectHelper.isAvailable(project))?.project.getName(),
         [flatProjects]
     );
+    const hasAvailableProjects = firstAvailableProjectId != null;
+    const hasActiveProject = activeProjectId != null;
 
     // TODO: Enonic UI - Move auth data to store
     // It's currently okay, as authentication data is loaded from CONFIG and can be considered static
@@ -49,8 +51,13 @@ export const ProjectSelectionDialog = (): ReactElement => {
                         e.preventDefault();
                         listRef.current?.focus();
                     }}
+                    onEscapeKeyDown={hasActiveProject ? undefined : (e) => e.preventDefault()}
+                    onPointerDownOutside={hasActiveProject ? undefined : (e) => e.preventDefault()}
                 >
-                    <ConfirmationDialog.DefaultHeader title={hasAvailableProjects ? title : isAdmin ? createProject : getAccess} withClose />
+                    <ConfirmationDialog.DefaultHeader
+                        title={hasAvailableProjects ? title : isAdmin ? createProject : getAccess}
+                        withClose={hasActiveProject}
+                    />
 
                     {!hasAvailableProjects ? (
                         <ConfirmationDialog.Body className="flex flex-col gap-4 p-2 -m-2">
@@ -67,8 +74,8 @@ export const ProjectSelectionDialog = (): ReactElement => {
                         <ConfirmationDialog.Body className="p-0">
                             <Listbox.Root
                                 selectionMode="single"
-                                selection={activeProjectId ? [activeProjectId] : []}
-                                defaultActive={activeProjectId}
+                                selection={hasActiveProject ? [activeProjectId] : []}
+                                defaultActive={activeProjectId ?? firstAvailableProjectId}
                                 onSelectionChange={(selection) => {
                                     const name = selection[0] ?? activeProjectId;
                                     const project = name ? projectByName.get(name) : undefined;
