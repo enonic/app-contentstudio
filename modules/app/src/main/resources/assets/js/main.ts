@@ -304,11 +304,11 @@ async function startApplication() {
             return;
         }
 
-        if (ContentAppHelper.isContentWizardUrl()) {
-            if (!hasActiveProject()) {
-                return;
-            }
+        if (!hasActiveProject()) {
+            return;
+        }
 
+        if (ContentAppHelper.isContentWizardUrl()) {
             contentViewStarted = true;
             startContentWizard();
             return;
