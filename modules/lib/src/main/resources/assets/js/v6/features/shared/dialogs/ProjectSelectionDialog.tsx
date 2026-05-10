@@ -13,8 +13,8 @@ import {ProjectLabel} from '../project/ProjectLabel';
 import {openCreateProjectDialog} from '../../store/dialogs/projectDialog.store';
 
 export const ProjectSelectionDialog = (): ReactElement => {
-    const {projects, activeProjectId} = useStore($projects);
-    const {projectSelectionDialogOpen} = useStore($dialogs);
+    const {projects, activeProjectId} = useStore($projects, {keys: ['projects', 'activeProjectId']});
+    const {projectSelectionDialogOpen} = useStore($dialogs, {keys: ['projectSelectionDialogOpen']});
 
     const title = useI18n('text.selectContext');
     const createProject = useI18n('settings.field.project.create');

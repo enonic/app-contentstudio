@@ -16,17 +16,10 @@ import {clearVersionsCache} from '../utils/widget/versions/versionsCache';
 import {resolveActiveProjectId, resolveActiveProjectIdAfterDeletion} from '../utils/cms/projects/projectSelection';
 import {isWizardUrl} from '../utils/url/app';
 
-/*
-TODO: Enonic UI - Feature
-- Store projects as JSON objects in the sync store.
-- Load projects from the sync store on startup if other tabs are active.
-
-? Reasoning:
-- Projects are updated via server events over WebSocket.
-- Once loaded, they will stay up to date.
-- Loading existing projects from the store is faster and more efficient.
-*/
-
+// TODO: Enonic UI - Feature: store projects as JSON objects in the sync store
+// TODO: Enonic UI - Feature: load projects from the sync store on startup if other tabs are active
+// ? Projects update via server events over WebSocket and stay up to date once loaded.
+// ? Reading existing projects from the store on startup is faster and more efficient.
 
 type ProjectsStore = {
     projects: Readonly<Project>[];
@@ -47,11 +40,12 @@ export const $projects = map<ProjectsStore>({
 });
 
 //
-// * Persisted default project for browse mode.
-// * Updated only on explicit UI selection or on deletion-driven fallback.
+// * Last user-selected project, persisted across sessions.
+// * Written only on explicit UI selection or on deletion-driven fallback.
+// * Read in browse mode when the URL has no project; ignored on wizard URLs.
 //
-const $defaultBrowseProjectId = atom<string | undefined>(undefined);
-syncAtomStore($defaultBrowseProjectId, 'defaultBrowseProjectId', {loadInitial: true});
+const $lastSelectedProjectId = atom<string | undefined>(undefined);
+syncAtomStore($lastSelectedProjectId, 'lastSelectedProjectId', {loadInitial: true});
 
 export const $activeProject = computed($projects, (store) => {
     const activeProject = store.projects.find((p) => getProjectId(p) === store.activeProjectId);
@@ -213,20 +207,20 @@ function updateActiveProject(): void {
 function updateActiveProjectAfterDeletion(deletedProject: Readonly<Project> | undefined): void {
     const {projects} = $projects.get();
     const nextProjectId = resolveActiveProjectIdAfterDeletion(projects, deletedProject);
-    const wasDefault = $defaultBrowseProjectId.get() === getProjectId(deletedProject);
+    const wasLast = $lastSelectedProjectId.get() === getProjectId(deletedProject);
 
     if (nextProjectId) {
         selectProjectById(nextProjectId);
-        if (wasDefault) {
-            $defaultBrowseProjectId.set(nextProjectId);
+        if (wasLast) {
+            $lastSelectedProjectId.set(nextProjectId);
         }
         setProjectSelectionDialogOpen(false);
         return;
     }
 
     clearActiveProject();
-    if (wasDefault) {
-        $defaultBrowseProjectId.set(undefined);
+    if (wasLast) {
+        $lastSelectedProjectId.set(undefined);
     }
     ProjectContext.get().setNotAvailable();
     setProjectSelectionDialogOpen(true);
@@ -244,7 +238,7 @@ function initializeActiveProject(): void {
     }
 
     if (!isWizardUrl()) {
-        const fromStorage = $defaultBrowseProjectId.get();
+        const fromStorage = $lastSelectedProjectId.get();
         if (fromStorage) {
             $projects.setKey('activeProjectId', fromStorage);
         }
@@ -287,16 +281,16 @@ export function reloadProjects(): void {
 }
 
 /**
- * UI-driven project selection. Updates the active project and persists it
- * as the default for browse mode. Use this from UI handlers; programmatic
- * code paths inside the store stay on the internal helpers.
+ * UI-driven project selection. Updates the active project and persists it as
+ * the last selected project. Use this from UI handlers; programmatic code
+ * paths inside the store stay on the internal helpers.
  */
 export function selectProject(project: Readonly<Project>): void {
     setActiveProject(project);
     const projectId = getProjectId(project);
     // ? Persist only if the active project actually changed (i.e., project was valid).
     if ($projects.get().activeProjectId === projectId) {
-        $defaultBrowseProjectId.set(projectId);
+        $lastSelectedProjectId.set(projectId);
     }
 }
 
@@ -343,8 +337,8 @@ export function removeProject(projectName: string, navigateAfterDeletion: boolea
         return;
     }
 
-    if ($defaultBrowseProjectId.get() === projectName) {
-        $defaultBrowseProjectId.set(undefined);
+    if ($lastSelectedProjectId.get() === projectName) {
+        $lastSelectedProjectId.set(undefined);
     }
 
     updateActiveProject();

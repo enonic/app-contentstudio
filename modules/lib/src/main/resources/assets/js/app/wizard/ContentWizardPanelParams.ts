@@ -19,7 +19,7 @@ export class ContentWizardPanelParams implements WizardPanelParams<Content> {
 
     contentId: ContentId;
 
-    projectName: string;
+    projectName: string | undefined;
 
     localized: boolean = false;
 
@@ -55,7 +55,7 @@ export class ContentWizardPanelParams implements WizardPanelParams<Content> {
         return this;
     }
 
-    setProjectName(value: string): ContentWizardPanelParams {
+    setProjectName(value: string | undefined): ContentWizardPanelParams {
         this.projectName = value;
         return this;
     }

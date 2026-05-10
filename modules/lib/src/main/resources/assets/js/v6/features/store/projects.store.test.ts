@@ -145,7 +145,7 @@ type LoadStoreOptions = {
     clearInitMocks?: boolean;
 };
 
-const DEFAULT_BROWSE_STORAGE_KEY = 'enonic:cs:defaultbrowseprojectid';
+const LAST_SELECTED_STORAGE_KEY = 'enonic:cs:lastselectedprojectid';
 
 async function loadStore(
     projects: MockProject[],
@@ -350,7 +350,7 @@ describe('projects.store init', () => {
     });
 
     it('uses the URL project even when storage holds a different id', async () => {
-        localStorage.setItem(DEFAULT_BROWSE_STORAGE_KEY, JSON.stringify('saved'));
+        localStorage.setItem(LAST_SELECTED_STORAGE_KEY, JSON.stringify('saved'));
         const url = createProject('url-project');
         const saved = createProject('saved');
         const store = await loadStore([url, saved], 'url-project');
@@ -359,7 +359,7 @@ describe('projects.store init', () => {
     });
 
     it('falls back to the storage value in browse mode when the URL has no project', async () => {
-        localStorage.setItem(DEFAULT_BROWSE_STORAGE_KEY, JSON.stringify('saved'));
+        localStorage.setItem(LAST_SELECTED_STORAGE_KEY, JSON.stringify('saved'));
         const saved = createProject('saved');
         const other = createProject('other');
         const store = await loadStore([saved, other], '', {url: '/contentstudio/cms//browse'});
@@ -368,7 +368,7 @@ describe('projects.store init', () => {
     });
 
     it('does not apply the storage fallback on wizard URLs', async () => {
-        localStorage.setItem(DEFAULT_BROWSE_STORAGE_KEY, JSON.stringify('saved'));
+        localStorage.setItem(LAST_SELECTED_STORAGE_KEY, JSON.stringify('saved'));
         const saved = createProject('saved');
         const other = createProject('other');
         const store = await loadStore([saved, other], '', {
@@ -409,7 +409,7 @@ describe('projects.store selectProject', () => {
         localStorage.clear();
     });
 
-    it('updates the active project and persists the default browse id when the project is in the store', async () => {
+    it('updates the active project and persists the last selected id when the project is in the store', async () => {
         const a = createProject('a');
         const b = createProject('b');
         const store = await loadStore([a, b], 'a');
@@ -418,7 +418,7 @@ describe('projects.store selectProject', () => {
         store.selectProject(b);
 
         expect(store.$projects.get().activeProjectId).toBe('b');
-        expect(localStorage.getItem(DEFAULT_BROWSE_STORAGE_KEY)).toBe(JSON.stringify('b'));
+        expect(localStorage.getItem(LAST_SELECTED_STORAGE_KEY)).toBe(JSON.stringify('b'));
     });
 
     it('leaves active project and storage untouched when the project is not in the store', async () => {
@@ -430,7 +430,7 @@ describe('projects.store selectProject', () => {
         store.selectProject(stranger);
 
         expect(store.$projects.get().activeProjectId).toBe('a');
-        expect(localStorage.getItem(DEFAULT_BROWSE_STORAGE_KEY)).toBeNull();
+        expect(localStorage.getItem(LAST_SELECTED_STORAGE_KEY)).toBeNull();
     });
 });
 
@@ -450,8 +450,8 @@ describe('projects.store storage cleanup on deletion', () => {
         localStorage.clear();
     });
 
-    it('updates the default browse id to the fallback when the deleted project was the stored default', async () => {
-        localStorage.setItem(DEFAULT_BROWSE_STORAGE_KEY, JSON.stringify('current'));
+    it('updates the last selected id to the fallback when the deleted project was the stored value', async () => {
+        localStorage.setItem(LAST_SELECTED_STORAGE_KEY, JSON.stringify('current'));
         const parent = createProject('parent');
         const current = createProject('current');
         const store = await loadStore([parent, current], 'current');
@@ -460,11 +460,11 @@ describe('projects.store storage cleanup on deletion', () => {
         emitDeleted('current');
 
         expect(store.$projects.get().activeProjectId).toBe('parent');
-        expect(localStorage.getItem(DEFAULT_BROWSE_STORAGE_KEY)).toBe(JSON.stringify('parent'));
+        expect(localStorage.getItem(LAST_SELECTED_STORAGE_KEY)).toBe(JSON.stringify('parent'));
     });
 
-    it('clears the default browse id when no fallback is available', async () => {
-        localStorage.setItem(DEFAULT_BROWSE_STORAGE_KEY, JSON.stringify('orphan'));
+    it('clears the last selected id when no fallback is available', async () => {
+        localStorage.setItem(LAST_SELECTED_STORAGE_KEY, JSON.stringify('orphan'));
         const orphan = createProject('orphan');
         const store = await loadStore([orphan], 'orphan');
 
@@ -475,12 +475,12 @@ describe('projects.store storage cleanup on deletion', () => {
         // ? syncAtomStore encodes undefined as '{}'-equivalent — atom-store stringifies undefined to "undefined" string,
         // ? but JSON.stringify(undefined) === undefined → setItem skipped, value remains until removeItem;
         // ? we instead expect the entry to be cleared via the listener path.
-        const stored = localStorage.getItem(DEFAULT_BROWSE_STORAGE_KEY);
+        const stored = localStorage.getItem(LAST_SELECTED_STORAGE_KEY);
         expect(stored === null || stored === 'null').toBe(true);
     });
 
-    it('does not touch the default browse id when an unrelated project is deleted', async () => {
-        localStorage.setItem(DEFAULT_BROWSE_STORAGE_KEY, JSON.stringify('current'));
+    it('does not touch the last selected id when an unrelated project is deleted', async () => {
+        localStorage.setItem(LAST_SELECTED_STORAGE_KEY, JSON.stringify('current'));
         const parent = createProject('parent');
         const child = createProject('child', ['parent']);
         const current = createProject('current');
@@ -489,18 +489,18 @@ describe('projects.store storage cleanup on deletion', () => {
         store.markPendingDeletedProject('child', true);
         emitDeleted('child');
 
-        expect(localStorage.getItem(DEFAULT_BROWSE_STORAGE_KEY)).toBe(JSON.stringify('current'));
+        expect(localStorage.getItem(LAST_SELECTED_STORAGE_KEY)).toBe(JSON.stringify('current'));
     });
 
-    it('clears the default browse id when removeProject (no navigate) removes the stored default', async () => {
-        localStorage.setItem(DEFAULT_BROWSE_STORAGE_KEY, JSON.stringify('alpha'));
+    it('clears the last selected id when removeProject (no navigate) removes the stored value', async () => {
+        localStorage.setItem(LAST_SELECTED_STORAGE_KEY, JSON.stringify('alpha'));
         const alpha = createProject('alpha');
         const beta = createProject('beta');
         const store = await loadStore([alpha, beta], 'beta');
 
         store.removeProject('alpha', false);
 
-        const stored = localStorage.getItem(DEFAULT_BROWSE_STORAGE_KEY);
+        const stored = localStorage.getItem(LAST_SELECTED_STORAGE_KEY);
         expect(stored === null || stored === 'null').toBe(true);
     });
 });
