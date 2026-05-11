@@ -610,7 +610,7 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
                                                 />
                                             </VirtualizedTreeList.RowLeft>
                                             <VirtualizedTreeList.RowContent>
-                                                <ContentTreeListItem content={data} />
+                                                <ContentTreeListItem content={data} showPath={isFilterActive} />
                                             </VirtualizedTreeList.RowContent>
                                         </VirtualizedTreeList.Row>
                                     );
