@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.apache.commons.text.StringSubstitutor;
 import org.jboss.resteasy.core.ResteasyContext;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -22,7 +23,6 @@ import com.enonic.app.contentstudio.json.issue.DeleteIssueCommentResultJson;
 import com.enonic.app.contentstudio.json.issue.IssueCommentJson;
 import com.enonic.app.contentstudio.json.issue.IssueStatsJson;
 import com.enonic.app.contentstudio.json.issue.PublishRequestItemJson;
-import com.enonic.app.contentstudio.rest.Interpolator;
 import com.enonic.app.contentstudio.rest.resource.AdminResourceTestSupport;
 import com.enonic.app.contentstudio.rest.resource.content.json.PublishRequestJson;
 import com.enonic.app.contentstudio.rest.resource.content.json.PublishRequestScheduleJson;
@@ -484,7 +484,7 @@ public class IssueResourceTest
         when( this.issueService.findComments( any( IssueCommentQuery.class ) ) ).thenReturn( result );
 
         final Map<String, String> params = Map.of( "id", issue.getId().toString() );
-        final String expected = Interpolator.classic().interpolate( readFromFile( "get_issue_result.json" ), params::get );
+        final String expected = new StringSubstitutor( params::get, "${", "}", '$' ).replace( readFromFile( "get_issue_result.json" ) );
 
         String jsonString = request().path( "issue/id" ).
             queryParam( "id", issue.getId().toString() ).
@@ -506,7 +506,8 @@ public class IssueResourceTest
         when( this.issueService.findComments( any( IssueCommentQuery.class ) ) ).thenReturn( result );
 
         final Map<String, String> params = Map.of( "id", issue.getId().toString() );
-        final String expected = Interpolator.classic().interpolate( readFromFile( "get_issue_scheduled_result.json" ), params::get );
+        final String expected =
+            new StringSubstitutor( params::get, "${", "}", '$' ).replace( readFromFile( "get_issue_scheduled_result.json" ) );
 
         String jsonString = request().path( "issue/id" ).
             queryParam( "id", issue.getId().toString() ).
@@ -526,7 +527,7 @@ public class IssueResourceTest
             .thenReturn( FindIssueCommentsResult.create().build() );
 
         final Map<String, String> params = Map.of( "id", issue.getId().toString() );
-        final String expected = Interpolator.classic().interpolate( readFromFile( "get_issues_result.json" ), params::get );
+        final String expected = new StringSubstitutor( params::get, "${", "}", '$' ).replace( readFromFile( "get_issues_result.json" ) );
 
         String jsonString = request().path( "issue/getIssues" ).
             entity( "{\"ids\":[\"" + issue.getId() + "\"]}", MediaType.APPLICATION_JSON_TYPE ).
@@ -718,7 +719,8 @@ public class IssueResourceTest
         when( this.issueService.findComments( any( IssueCommentQuery.class ) ) ).thenReturn( result );
 
         final Map<String, String> params = Map.of( "createdTime", comment.getCreated().toString(), "id", comment.getId().toString() );
-        final String expected = Interpolator.classic().interpolate( readFromFile( "get_issue_comments_result.json" ), params::get );
+        final String expected =
+            new StringSubstitutor( params::get, "${", "}", '$' ).replace( readFromFile( "get_issue_comments_result.json" ) );
 
         String jsonString = request().path( "issue/comment/list" ).
             entity( "{\"issue\":\"" + issue.getName() + "\"}", MediaType.APPLICATION_JSON_TYPE ).
