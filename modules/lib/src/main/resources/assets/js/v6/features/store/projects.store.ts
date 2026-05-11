@@ -7,7 +7,6 @@ import {ProjectDeletedEvent} from '../../../app/settings/event/ProjectDeletedEve
 import {syncAtomStore} from '../utils/storage/sync';
 import {$config} from './config.store';
 import {setProjectSelectionDialogOpen} from './dialogs.store';
-import {ProjectContext} from '../../../app/project/ProjectContext';
 import {resetTree} from './tree-list.store';
 import {clearSelection, setActive} from './contentTreeSelection.store';
 import {setContentFilterOpen, resetContentFilter} from './contentFilter.store';
@@ -15,6 +14,15 @@ import {deactivateFilter} from '../api/content-fetcher';
 import {clearVersionsCache} from '../utils/widget/versions/versionsCache';
 import {resolveActiveProjectId, resolveActiveProjectIdAfterDeletion} from '../utils/cms/projects/projectSelection';
 import {isWizardUrl} from '../utils/url/app';
+import {setCurrentProject} from './activeProject.store';
+export {
+    getActiveProject,
+    getActiveProjectName,
+    isProjectInitialized,
+    onActiveProjectChanged,
+    unActiveProjectChanged,
+    whenProjectInitialized,
+} from './activeProject.store';
 
 // TODO: Enonic UI - Feature: store projects as JSON objects in the sync store
 // TODO: Enonic UI - Feature: load projects from the sync store on startup if other tabs are active
@@ -36,7 +44,7 @@ export const $projects = map<ProjectsStore>({
     loaded: false,
     resolved: false,
     loadError: false,
-    noProjectMode: ProjectContext.get().isNotAvailable(),
+    noProjectMode: false,
 });
 
 //
@@ -102,6 +110,25 @@ function getProjectIdFromUrl(): string | undefined {
 
 function clearActiveProject(): void {
     $projects.setKey('activeProjectId', undefined);
+}
+
+const noProjectsAvailableListeners: (() => void)[] = [];
+
+function setNoProjectMode(): void {
+    $projects.setKey('noProjectMode', true);
+    noProjectsAvailableListeners.slice().forEach((handler: () => void) => handler());
+}
+
+export function onNoProjectsAvailable(handler: () => void): () => void {
+    noProjectsAvailableListeners.push(handler);
+
+    return () => {
+        const index = noProjectsAvailableListeners.indexOf(handler);
+
+        if (index > -1) {
+            noProjectsAvailableListeners.splice(index, 1);
+        }
+    };
 }
 
 function selectProjectById(projectId: string | undefined): void {
@@ -200,7 +227,7 @@ function updateActiveProject(): void {
     }
 
     clearActiveProject();
-    ProjectContext.get().setNotAvailable();
+    setNoProjectMode();
     setProjectSelectionDialogOpen(true);
 }
 
@@ -222,7 +249,7 @@ function updateActiveProjectAfterDeletion(deletedProject: Readonly<Project> | un
     if (wasLast) {
         $lastSelectedProjectId.set(undefined);
     }
-    ProjectContext.get().setNotAvailable();
+    setNoProjectMode();
     setProjectSelectionDialogOpen(true);
 }
 
@@ -263,14 +290,6 @@ ProjectCreatedEvent.on(() => {
 ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
     const deletedProjectId = event.getProjectName();
     removeProject(deletedProjectId, resolveDeleteNavigation(deletedProjectId));
-});
-
-ProjectContext.get().onNoProjectsAvailable(() => {
-    $projects.setKey('noProjectMode', true);
-});
-
-ProjectContext.get().onProjectChanged(() => {
-    $projects.setKey('noProjectMode', false);
 });
 
 //
@@ -345,13 +364,8 @@ export function removeProject(projectName: string, navigateAfterDeletion: boolea
 }
 
 
-//
-// * Legacy
-//
-// TODO: Enonic UI - Deprecated - Remove this once the ProjectContext is removed
 $activeProject.subscribe((project) => {
-    if (!project) return;
-    ProjectContext.get().setProject(project as Project);
+    setCurrentProject(project);
 });
 
 // Reset dependent stores when project changes

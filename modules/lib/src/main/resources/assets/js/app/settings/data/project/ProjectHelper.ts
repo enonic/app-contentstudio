@@ -1,21 +1,21 @@
 import {type Project} from './Project';
 import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {ProjectGetRequest} from '../../resource/ProjectGetRequest';
-import {ProjectContext} from '../../../project/ProjectContext';
 import Q from 'q';
 import {type ProjectPermissions} from './ProjectPermissions';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
+import {getActiveProjectName} from '../../../../v6/features/store/activeProject.store';
 
 export class ProjectHelper {
 
     public static isUserProjectOwnerOrEditor(): Q.Promise<boolean> {
-        return new ProjectGetRequest(ProjectContext.get().getProject().getName()).sendAndParse().then((project: Project) => {
+        return new ProjectGetRequest(getActiveProjectName()).sendAndParse().then((project: Project) => {
             return Q(ProjectHelper.isProjectOwnerOrEditor(project));
         });
     }
 
     public static isUserProjectOwner(project?: Project | Readonly<Project>): Q.Promise<boolean> {
-        return new ProjectGetRequest(project?.getName() || ProjectContext.get().getProject().getName())
+        return new ProjectGetRequest(project?.getName() || getActiveProjectName())
             .sendAndParse()
             .then((project: Project) => {
                 return Q(ProjectHelper.isProjectOwner(project));

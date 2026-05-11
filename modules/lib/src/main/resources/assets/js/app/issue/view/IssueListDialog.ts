@@ -15,8 +15,8 @@ import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
 import {GetIssueStatsRequest} from '../resource/GetIssueStatsRequest';
 import {type IssueStatsJson} from '../json/IssueStatsJson';
 import {IssueType} from '../IssueType';
-import {ProjectContext} from '../../project/ProjectContext';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
+import {onActiveProjectChanged} from '../../../v6/features/store/activeProject.store';
 
 export class IssueListDialog
     extends ModalDialogWithConfirmation {
@@ -60,7 +60,7 @@ export class IssueListDialog
     protected initListeners() {
         super.initListeners();
         this.handleIssueGlobalEvents();
-        ProjectContext.get().onProjectChanged(() => {
+        onActiveProjectChanged(() => {
             this.reloadRequired = true;
         });
     }

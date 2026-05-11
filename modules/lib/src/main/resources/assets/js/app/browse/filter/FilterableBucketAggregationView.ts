@@ -10,7 +10,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {type AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import type Q from 'q';
-import {ProjectContext} from '../../project/ProjectContext';
+import {onActiveProjectChanged} from '../../../v6/features/store/activeProject.store';
 
 export class FilterableBucketAggregationView
     extends BucketAggregationView {
@@ -70,7 +70,7 @@ export class FilterableBucketAggregationView
     protected initListeners(): void {
         super.initListeners();
 
-        ProjectContext.get().onProjectChanged(() => {
+        onActiveProjectChanged(() => {
             this.aggregationResolved = false;
         });
 

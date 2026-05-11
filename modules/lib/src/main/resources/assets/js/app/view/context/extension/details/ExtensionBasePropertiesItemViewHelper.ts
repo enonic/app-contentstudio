@@ -11,12 +11,12 @@ import {PropertiesWizardStepFormType} from './PropertiesWizardStepFormFactory';
 import Q from 'q';
 import {AccessControlHelper} from '../../../../wizard/AccessControlHelper';
 import {ProjectHelper} from '../../../../settings/data/project/ProjectHelper';
-import {ProjectContext} from '../../../../project/ProjectContext';
 import {GetContentPermissionsByIdRequest} from '../../../../resource/GetContentPermissionsByIdRequest';
 import {type AccessControlList} from '../../../../access/AccessControlList';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 import {PermissionsHelper} from '../../../../access/PermissionsHelper';
+import {getActiveProject} from '../../../../../v6/features/store/projects.store';
 
 export class ExtensionBasePropertiesItemViewHelper
     extends ExtensionPropertiesItemViewHelper {
@@ -177,7 +177,7 @@ export class ExtensionBasePropertiesItemViewHelper
     private hasAdminAccessToSettings(): boolean {
         return PermissionsHelper.hasAdminPermissions() ||
                AuthHelper.isContentExpert() ||
-               ProjectHelper.isProjectOwner(ProjectContext.get().getProject());
+               ProjectHelper.isProjectOwner(getActiveProject());
     }
 
     private hasFullAccess(): Q.Promise<boolean> {

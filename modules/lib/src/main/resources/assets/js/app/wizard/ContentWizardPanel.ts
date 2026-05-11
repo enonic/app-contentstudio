@@ -25,13 +25,13 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {type ValidityChangedEvent} from '@enonic/lib-admin-ui/ValidityChangedEvent';
 import Q from 'q';
-import {PageStateEvent} from '../../page-editor/event/incoming/common/PageStateEvent';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
 import {compareContent} from '../../v6/features/api/compare';
 import {cleanupWizardMixinsService, initWizardMixinsService} from '../../v6/features/services/wizardMixins.service';
 import {setWizardContent} from '../../v6/features/store/context/contextContent.store';
 import {$isContextOpen, setContextOpen} from '../../v6/features/store/contextWidgets.store';
 import {$isPreviewPanelVisible} from '../../v6/features/store/previewPanel.store';
+import {getActiveProject, getActiveProjectName} from '../../v6/features/store/projects.store';
 import {
     $displayNameInputFocusRequested,
     $isContentFormExpanded,
@@ -78,7 +78,6 @@ import {PageControllerCustomizedEvent} from '../page/event/PageControllerCustomi
 import {PageControllerUpdatedEvent} from '../page/event/PageControllerUpdatedEvent';
 import {type PageUpdatedEvent} from '../page/event/PageUpdatedEvent';
 import {type Page} from '../page/Page';
-import {ProjectContext} from '../project/ProjectContext';
 import {type PublishStatus} from '../publish/PublishStatus';
 import {RepositoryId} from '../repository/RepositoryId';
 import {ContentsExistRequest} from '../resource/ContentsExistRequest';
@@ -1071,7 +1070,7 @@ export class ContentWizardPanel
                 return;
             }
 
-            const contextProject = ProjectContext.get().getProject();
+            const contextProject = getActiveProject();
 
             if (!contextProject.hasParents()) {
                 return;
@@ -1137,7 +1136,7 @@ export class ContentWizardPanel
         });
 
         ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
-            if (event.getProjectName() === ProjectContext.get().getProject().getName()) {
+            if (event.getProjectName() === getActiveProjectName()) {
                 this.contentDeleted = true;
                 this.close();
             }
@@ -1582,7 +1581,7 @@ export class ContentWizardPanel
     private updateUrlAction() {
         const action: string = UrlAction.EDIT;
         Router.get().setPath(UrlHelper.createContentEditUrl(this.getPersistedItem().getId(), action));
-        window.name = `${action}:${ProjectContext.get().getProject().getName()}:${this.getPersistedItem().getId()}`;
+        window.name = `${action}:${getActiveProjectName()}:${this.getPersistedItem().getId()}`;
     }
 
     protected setPersistedItem(newPersistedItem: Content): void {
@@ -1679,7 +1678,7 @@ export class ContentWizardPanel
 
     isTranslatable(): boolean {
         return this.isContentExistsInParentProject() && this.getContent().hasOriginProject() &&
-               !!ProjectContext.get().getProject().getLanguage();
+               !!getActiveProject().getLanguage();
     }
 
     private getTemplateForCustomize(): Q.Promise<PageTemplate> {
@@ -1697,7 +1696,7 @@ export class ContentWizardPanel
     }
 
     private getApplicationsConfigs(): ApplicationConfig[] {
-        return [...(this.site?.getSiteConfigs() ?? []), ...ProjectContext.get().getProject().getSiteConfigs()];
+        return [...(this.site?.getSiteConfigs() ?? []), ...getActiveProject().getSiteConfigs()];
     }
 
     renderAndOpenTranslatorDialog(language?: string): void {
