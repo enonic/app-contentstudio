@@ -1,6 +1,6 @@
 import {AggregationSelection} from '@enonic/lib-admin-ui/aggregation/AggregationSelection';
-import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
-import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
+import {type Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
+import {type BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
 import {Button, SearchField} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Download} from 'lucide-react';

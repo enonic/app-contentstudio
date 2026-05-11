@@ -1,7 +1,7 @@
-import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
-import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
+import {type Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
+import {type BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
 import {Checkbox, cn, Combobox, Listbox, useControlledState} from '@enonic/ui';
-import {ReactElement, useCallback, useMemo, useState} from 'react';
+import {type ReactElement, useCallback, useMemo, useState} from 'react';
 import {useI18n} from '../../hooks/useI18n';
 import {buildKey} from '../../utils/format/keys';
 
@@ -127,7 +127,6 @@ export const FilterableBucketAggregation = ({
                                             id={`${key}-checkbox`}
                                             checked={isBucketSelected}
                                             onClick={e => { // listbox will handle selection
-                                                e.stopPropagation();
                                                 e.preventDefault();
                                             }}
                                             label={toLabel(bucket)}
