@@ -15,16 +15,10 @@ type OptionSetConfirmAddProps = {
 };
 
 export const OptionSetConfirmAdd = forwardRef<HTMLDivElement, OptionSetConfirmAddProps>(
-    ({optionSet, position, onCancel, onConfirm}, ref): ReactElement | null => {
+    ({optionSet, position, onCancel, onConfirm}, ref): ReactElement => {
         const cancelLabel = useI18n('action.cancel');
-        const insertLabel = useI18n('action.insert');
         const placeholder = useI18n('field.option.placeholder');
         const [value, setValue] = useState('');
-        const [selection, setSelection] = useState<readonly string[]>([]);
-        const selectedOption = useMemo(
-            () => optionSet.getOptions().find((option) => option.getName() === selection[0]),
-            [optionSet, selection]
-        );
         const filteredOptions: FormOptionSetOption[] = useMemo(
             () =>
                 optionSet
@@ -35,10 +29,12 @@ export const OptionSetConfirmAdd = forwardRef<HTMLDivElement, OptionSetConfirmAd
 
         useConfirmKeyboard({onCancel, enabled: true});
 
-        const handleConfirm = useCallback(() => {
-            if (selection.length === 0) return;
-            onConfirm(selection[0]);
-        }, [selection, onConfirm]);
+        const handleSelectionChange = useCallback(
+            (names: readonly string[]) => {
+                if (names.length > 0) onConfirm(names[0]);
+            },
+            [onConfirm]
+        );
 
         return createPortal(
             <ConfirmFocusTrap
@@ -53,23 +49,13 @@ export const OptionSetConfirmAdd = forwardRef<HTMLDivElement, OptionSetConfirmAd
             >
                 <div className="flex gap-2 justify-center">
                     <Button variant="filled" label={cancelLabel} onClick={onCancel} />
-                    <Button variant="solid" label={insertLabel} onClick={handleConfirm} />
                 </div>
 
-                <Combobox.Root defaultOpen value={value} onChange={setValue} selection={selection} onSelectionChange={setSelection}>
+                <Combobox.Root defaultOpen value={value} onChange={setValue} onSelectionChange={handleSelectionChange}>
                     <Combobox.Content className="w-full">
                         <Combobox.Control>
                             <Combobox.Search>
                                 <Combobox.SearchIcon />
-                                {selectedOption && (
-                                    <Combobox.Value>
-                                        <ItemLabel
-                                            icon={null}
-                                            primary={selectedOption.getLabel() || selectedOption.getName()}
-                                            secondary={selectedOption.getHelpText()}
-                                        />
-                                    </Combobox.Value>
-                                )}
                                 <Combobox.Input placeholder={placeholder} />
                                 <Combobox.Toggle />
                             </Combobox.Search>
