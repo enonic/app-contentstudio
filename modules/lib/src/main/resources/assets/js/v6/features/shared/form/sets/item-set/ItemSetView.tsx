@@ -7,10 +7,10 @@ import {
     ValidationVisibilityProvider,
 } from '@enonic/lib-admin-ui/form2';
 import {SortableList} from '@enonic/lib-admin-ui/form2/components/sortable-list';
-import {type ReactElement, useCallback, useMemo} from 'react';
+import {type ReactElement, useCallback, useMemo, useRef} from 'react';
 import {FormItemRenderer} from '../../FormItemRenderer';
 import {useFormRender} from '../../FormRenderContext';
-import {SetHeader, usePropertySetKeys, useSetExpanded, useSetPropertyArray} from '../set-occurrence';
+import {SetHeader, usePropertySetKeys, useScrollPanelToOccurrence, useSetExpanded, useSetPropertyArray} from '../set-occurrence';
 import {ItemSetOccurrenceView} from './ItemSetOccurrenceView';
 import {useItemSetChildErrors, useOccurrenceError, useSetChildShowErrors} from '../set-errors';
 import {useI18n} from '../../../../hooks/useI18n';
@@ -36,6 +36,8 @@ export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElem
     const {propertySets} = usePropertySetArray(propertyArray);
     const propertySetKeys = usePropertySetKeys(propertySets);
     const {state, remove, move} = useSetOccurrenceManager(occurrences, propertySets);
+    const {setOccurrenceRef, scheduleScrollTo} = useScrollPanelToOccurrence(propertySets);
+    const lastAddedIndexRef = useRef<number | null>(null);
     const {expanded, isAllExpanded, handleExpandAll, handleCollapseAll, handleDragStart, handleToggleSingle} = useSetExpanded(
         propertyArray,
         state.count
@@ -52,14 +54,19 @@ export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElem
     const handleAdd = useCallback(() => {
         if (!state.canAdd) return;
 
+        const index = propertyArray.getSize();
+        lastAddedIndexRef.current = index;
         propertyArray.addSet();
+        scheduleScrollTo(index);
     }, [state.canAdd, propertyArray]);
     const handleAddAbove = useCallback(
         (index: number) => {
             if (!state.canAdd) return;
 
+            lastAddedIndexRef.current = index;
             propertyArray.addSet();
             propertyArray.move(propertyArray.getSize() - 1, index);
+            scheduleScrollTo(index);
         },
         [state.canAdd, propertyArray]
     );
@@ -67,8 +74,10 @@ export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElem
         (index: number) => {
             if (!state.canAdd) return;
 
+            lastAddedIndexRef.current = index + 1;
             propertyArray.addSet();
             propertyArray.move(propertyArray.getSize() - 1, index + 1);
+            scheduleScrollTo(index + 1);
         },
         [state.canAdd, propertyArray]
     );
@@ -116,12 +125,14 @@ export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElem
                     renderItem={({item, index}, grip) => (
                         <ValidationVisibilityProvider visibility={childValidationVisibility.get(index)}>
                             <ItemSetOccurrenceView
+                                ref={(node) => setOccurrenceRef(index, node)}
                                 index={index}
                                 grip={grip}
                                 propertySet={item}
                                 formItems={formItems}
                                 fallbackLabel={label}
                                 expanded={expanded.get(index)}
+                                isNew={index === lastAddedIndexRef.current}
                                 canAdd={enabled && state.canAdd}
                                 canRemove={enabled && state.canRemove}
                                 onAddAbove={handleAddAbove}
@@ -141,7 +152,7 @@ export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElem
             )}
             {enabled && state.canAdd && (
                 <div className="flex justify-end">
-                    <Button variant="outline" label={addLabel} endIcon={Plus} onClick={handleAdd} disabled={!state.canAdd} />
+                    <Button variant="outline" label={addLabel} endIcon={Plus} onClick={handleAdd} />
                 </div>
             )}
         </div>
