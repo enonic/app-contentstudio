@@ -1,10 +1,11 @@
 import {cn, ContextMenu, FilledOctagonAlert, usePortalFocusContainer} from '@enonic/ui';
-import {type ReactElement, type ReactNode, useCallback, useRef, useState} from 'react';
+import {forwardRef, type MouseEvent, type ReactElement, type ReactNode, useCallback, useRef, useState} from 'react';
 import {useI18n} from '../../../../hooks/useI18n';
 import type {FormItem} from '@enonic/lib-admin-ui/form/FormItem';
 import type {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {useSetOccurrenceLabel} from '../set-occurrence';
-import {ChevronRight} from 'lucide-react';
+import {useCloseOnScroll} from '../../../../hooks/useCloseOnScroll';
+import {useIsNewOccurrence, useSetOccurrenceLabel} from '../set-occurrence';
+import {MoreVertical} from 'lucide-react';
 import {SetConfirmDelete, SetConfirmOverlay, useConfirmPosition} from '../set-confirmation';
 import {Occurrences} from '@enonic/lib-admin-ui/form/Occurrences';
 
@@ -15,6 +16,7 @@ type ItemSetOccurrenceViewProps = {
     formItems: FormItem[];
     fallbackLabel: string;
     expanded: boolean;
+    isNew?: boolean;
     canAdd: boolean;
     canRemove: boolean;
     occurrences: Occurrences;
@@ -28,138 +30,161 @@ type ItemSetOccurrenceViewProps = {
 
 const ITEM_SET_OCCURRENCE_VIEW_NAME = 'ItemSetOccurrenceView';
 
-export const ItemSetOccurrenceView = ({
-    index,
-    grip,
-    propertySet,
-    formItems,
-    fallbackLabel,
-    expanded,
-    canAdd,
-    canRemove,
-    occurrences,
-    hasErrors,
-    onAddAbove,
-    onAddBelow,
-    onToggle,
-    onRemove,
-    children,
-}: ItemSetOccurrenceViewProps): ReactElement => {
-    const showHeader = occurrences.getMinimum() !== 1 || occurrences.getMaximum() !== 1;
-    const label = useSetOccurrenceLabel(propertySet, formItems, fallbackLabel);
-    const [confirmingDelete, setConfirmingDelete] = useState(false);
-    const [menuOpen, setMenuOpen] = useState(false);
-    const anchorRef = useRef<HTMLButtonElement>(null);
-    const confirmationRef = useRef<HTMLDivElement>(null);
-    const confirmationPosition = useConfirmPosition({
-        enabled: confirmingDelete,
-        anchorRef,
-        confirmationRef,
-    });
-    usePortalFocusContainer(confirmationRef, confirmingDelete);
+export const ItemSetOccurrenceView = forwardRef<HTMLDivElement, ItemSetOccurrenceViewProps>(
+    (
+        {
+            index,
+            grip,
+            propertySet,
+            formItems,
+            fallbackLabel,
+            expanded,
+            isNew: isNewProp = false,
+            canAdd,
+            canRemove,
+            occurrences,
+            hasErrors,
+            onAddAbove,
+            onAddBelow,
+            onToggle,
+            onRemove,
+            children,
+        },
+        ref
+    ): ReactElement => {
+        const showHeader = occurrences.getMinimum() !== 1 || occurrences.getMaximum() !== 1;
+        const label = useSetOccurrenceLabel(propertySet, formItems, fallbackLabel);
+        const isNew = useIsNewOccurrence(isNewProp);
+        const [confirmingDelete, setConfirmingDelete] = useState(false);
+        const [menuOpen, setMenuOpen] = useState(false);
+        const anchorRef = useRef<HTMLDivElement>(null);
 
-    const addAboveLabel = useI18n('action.addAbove');
-    const addBelowLabel = useI18n('action.addBelow');
-    const deleteLabel = useI18n('action.delete');
+        useCloseOnScroll(menuOpen, () => setMenuOpen(false));
 
-    const handleAddAbove = useCallback(() => {
-        onAddAbove(index);
-    }, [onAddAbove, index]);
-    const handleAddBelow = useCallback(() => {
-        onAddBelow(index);
-    }, [onAddBelow, index]);
-    const handleRemove = useCallback(() => {
-        if (!expanded) onToggle(index);
-        setConfirmingDelete(true);
-    }, [expanded, onToggle, index]);
-    const handleCancelDelete = useCallback(() => {
-        setConfirmingDelete(false);
-    }, []);
-    const handleConfirmDelete = useCallback(() => {
-        setConfirmingDelete(false);
-        onRemove(index);
-    }, [onRemove, index]);
+        const confirmationRef = useRef<HTMLDivElement>(null);
+        const confirmationPosition = useConfirmPosition({
+            enabled: confirmingDelete,
+            anchorRef,
+            confirmationRef,
+        });
+        usePortalFocusContainer(confirmationRef, confirmingDelete);
 
-    return (
-        <div className="w-full" data-component={ITEM_SET_OCCURRENCE_VIEW_NAME}>
-            {confirmingDelete && <SetConfirmOverlay />}
+        const addAboveLabel = useI18n('action.addAbove');
+        const addBelowLabel = useI18n('action.addBelow');
+        const deleteLabel = useI18n('action.delete');
 
-            <div
-                className={cn(confirmingDelete && 'relative z-40 bg-surface-neutral pointer-events-none select-none')}
-                inert={confirmingDelete}
-            >
-                {confirmingDelete && (
-                    <SetConfirmDelete
-                        ref={confirmationRef}
-                        position={confirmationPosition}
-                        onCancel={handleCancelDelete}
-                        onConfirm={handleConfirmDelete}
-                    />
-                )}
+        const handleAddAbove = useCallback(() => {
+            onAddAbove(index);
+        }, [onAddAbove, index]);
+        const handleAddBelow = useCallback(() => {
+            onAddBelow(index);
+        }, [onAddBelow, index]);
+        const handleRemove = useCallback(() => {
+            if (!expanded) onToggle(index);
+            setConfirmingDelete(true);
+        }, [expanded, onToggle, index]);
+        const handleCancelDelete = useCallback(() => {
+            setConfirmingDelete(false);
+        }, []);
+        const handleConfirmDelete = useCallback(() => {
+            setConfirmingDelete(false);
+            onRemove(index);
+        }, [onRemove, index]);
+        const handleDotsClick = useCallback((e: MouseEvent<HTMLButtonElement>) => {
+            e.stopPropagation();
+            e.currentTarget.dispatchEvent(new MouseEvent('contextmenu', {bubbles: true, clientX: e.clientX, clientY: e.clientY}));
+        }, []);
 
-                {showHeader && (
-                    <div
-                        className={cn(
-                            'flex rounded border border-transparent',
-                            expanded &&
-                                'bg-surface-selected rounded-bl-none rounded-br-none border-bdr-soft [&_svg:first-child]:text-alt',
-                            expanded && menuOpen && 'bg-surface-selected-hover',
-                            expanded && !menuOpen && 'hover:bg-surface-selected-hover',
-                            !expanded && menuOpen && 'bg-surface-neutral-hover',
-                            !expanded && !menuOpen && 'hover:bg-surface-neutral-hover'
-                        )}
-                    >
-                        {grip && <div className="flex items-center justify-center ml-2.5">{grip}</div>}
-                        <ContextMenu open={menuOpen} onOpenChange={setMenuOpen}>
-                            <ContextMenu.Trigger className="flex w-full">
-                                <button
-                                    ref={anchorRef}
-                                    type="button"
-                                    className={cn(
-                                        'grid flex-1 min-w-0 items-center gap-2.5 p-2.5 cursor-pointer grid-cols-[1fr_auto] rounded',
-                                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
-                                        expanded && 'text-alt rounded-b-none'
-                                    )}
-                                    aria-expanded={expanded}
-                                    onClick={() => onToggle(index)}
-                                >
-                                    <div className="flex items-center gap-1.5 truncate">
-                                        <span className="truncate font-semibold text-left text-base">{label.primary}</span>
-                                        {hasErrors && !expanded && <FilledOctagonAlert size={16} className="text-error shrink-0" />}
+        return (
+            <div ref={ref} className={cn('w-full', isNew && 'animate-in fade-in duration-500')} data-component={ITEM_SET_OCCURRENCE_VIEW_NAME}>
+                {confirmingDelete && <SetConfirmOverlay />}
+
+                <div
+                    className={cn(confirmingDelete && 'relative z-40 bg-surface-neutral pointer-events-none select-none')}
+                    inert={confirmingDelete}
+                >
+                    {confirmingDelete && (
+                        <SetConfirmDelete
+                            ref={confirmationRef}
+                            position={confirmationPosition}
+                            onCancel={handleCancelDelete}
+                            onConfirm={handleConfirmDelete}
+                        />
+                    )}
+
+                    {showHeader && (
+                        <div
+                            className={cn(
+                                'group flex rounded border border-transparent',
+                                expanded &&
+                                    'bg-surface-selected rounded-bl-none rounded-br-none border-bdr-soft [&_svg:first-child]:text-alt',
+                                expanded && menuOpen && 'bg-surface-selected-hover',
+                                expanded && !menuOpen && 'hover:bg-surface-selected-hover',
+                                !expanded && menuOpen && 'bg-surface-neutral-hover',
+                                !expanded && !menuOpen && 'hover:bg-surface-neutral-hover'
+                            )}
+                            data-tone={expanded && 'inverse'}
+                        >
+                            {grip && <div className="flex items-center justify-center pl-2.5">{grip}</div>}
+                            <ContextMenu open={menuOpen} onOpenChange={setMenuOpen}>
+                                <ContextMenu.Trigger className="flex w-full">
+                                    <div
+                                        ref={anchorRef}
+                                        className={cn(
+                                            'grid flex-1 min-w-0 items-center grid-cols-[1fr_auto] rounded',
+                                            expanded && 'text-alt rounded-b-none'
+                                        )}
+                                    >
+                                        <button
+                                            type="button"
+                                            className={cn(
+                                                'flex items-center gap-1.5 truncate text-left cursor-pointer min-w-0 p-2.5 pr-0',
+                                                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset'
+                                            )}
+                                            aria-expanded={expanded}
+                                            onClick={() => onToggle(index)}
+                                        >
+                                            <span className="truncate font-semibold text-base">{label.primary}</span>
+                                            {hasErrors && !expanded && <FilledOctagonAlert size={16} className="text-error shrink-0" />}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={handleDotsClick}
+                                            className="cursor-pointer text-subtle hover:text-main group-data-[tone=inverse]:text-alt p-2.5 pl-0"
+                                        >
+                                            <MoreVertical size={20} absoluteStrokeWidth />
+                                        </button>
                                     </div>
-                                    <ChevronRight
-                                        size={30}
-                                        absoluteStrokeWidth
-                                        className={cn('shrink-0 transition-transform', expanded ? '-rotate-90' : 'rotate-90')}
-                                    />
-                                </button>
-                            </ContextMenu.Trigger>
+                                </ContextMenu.Trigger>
 
-                            <ContextMenu.Portal>
-                                <ContextMenu.Content>
-                                    <ContextMenu.Item disabled={!canAdd} onClick={handleAddAbove}>
-                                        <span>{addAboveLabel}</span>
-                                    </ContextMenu.Item>
-                                    <ContextMenu.Item disabled={!canAdd} onClick={handleAddBelow}>
-                                        <span>{addBelowLabel}</span>
-                                    </ContextMenu.Item>
-                                    <ContextMenu.Item disabled={!canRemove} onClick={handleRemove}>
-                                        <span>{deleteLabel}</span>
-                                    </ContextMenu.Item>
-                                </ContextMenu.Content>
-                            </ContextMenu.Portal>
-                        </ContextMenu>
-                    </div>
-                )}
+                                <ContextMenu.Portal>
+                                    <ContextMenu.Content>
+                                        <ContextMenu.Item disabled={!canAdd} onClick={handleAddAbove}>
+                                            <span>{addAboveLabel}</span>
+                                        </ContextMenu.Item>
+                                        <ContextMenu.Item disabled={!canAdd} onClick={handleAddBelow}>
+                                            <span>{addBelowLabel}</span>
+                                        </ContextMenu.Item>
+                                        <ContextMenu.Item disabled={!canRemove} onClick={handleRemove}>
+                                            <span>{deleteLabel}</span>
+                                        </ContextMenu.Item>
+                                    </ContextMenu.Content>
+                                </ContextMenu.Portal>
+                            </ContextMenu>
+                        </div>
+                    )}
 
-                {(expanded || !showHeader) && (
-                    <div className={cn('flex flex-col gap-7.5 border px-4 py-4 border-bdr-soft', showHeader ? 'border-t-0' : 'rounded')}>
-                        {children}
-                    </div>
-                )}
+                    {(expanded || !showHeader) && (
+                        <div
+                            className={cn('flex flex-col gap-7.5 border px-4 py-4 border-bdr-soft', showHeader ? 'border-t-0' : 'rounded')}
+                        >
+                            {children}
+                        </div>
+                    )}
+                </div>
             </div>
-        </div>
-    );
-};
+        );
+    }
+);
 
 ItemSetOccurrenceView.displayName = ITEM_SET_OCCURRENCE_VIEW_NAME;
