@@ -14,7 +14,7 @@ import {OptionSetOccurrenceView} from './OptionSetOccurrenceView';
 import {seedOptionSetDefaults} from './seedOptionSetDefaults';
 import {selectOptionInPropertySet} from './useOptionSetSelection';
 import {useFormRender} from '../../FormRenderContext';
-import {SetHeader, usePropertySetKeys, useSetExpanded, useSetPropertyArray} from '../set-occurrence';
+import {SetHeader, usePropertySetKeys, useScrollPanelToOccurrence, useSetExpanded, useSetPropertyArray} from '../set-occurrence';
 import {OptionSetConfirmAdd, SetConfirmOverlay, useConfirmPosition} from '../set-confirmation';
 import {useOccurrenceError, useOptionSetChildErrors, useSetChildShowErrors} from '../set-errors';
 import {Button} from '@enonic/ui';
@@ -46,14 +46,13 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
 
     const {enabled} = useFormRender();
     const validationVisibility = useValidationVisibility();
-    const seedDefaults = useCallback(
-        (ps: PropertySet) => seedOptionSetDefaults(optionSet, ps),
-        [optionSet],
-    );
+    const seedDefaults = useCallback((ps: PropertySet) => seedOptionSetDefaults(optionSet, ps), [optionSet]);
     const propertyArray = useSetPropertyArray(name, propertySet, occurrences, {onCreateOccurrence: seedDefaults});
     const {propertySets} = usePropertySetArray(propertyArray);
     const propertySetKeys = usePropertySetKeys(propertySets);
     const {state, remove, move} = useSetOccurrenceManager(occurrences, propertySets);
+    const {setOccurrenceRef, scheduleScrollTo} = useScrollPanelToOccurrence(propertySets);
+    const lastAddedIndexRef = useRef<number | null>(null);
     const {expanded, isAllExpanded, handleExpandAll, handleCollapseAll, handleDragStart, handleToggleSingle} = useSetExpanded(
         propertyArray,
         state.count
@@ -72,23 +71,29 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
         if (!state.canAdd) return;
 
         if (!isRadio) {
+            const index = propertyArray.getSize();
+            lastAddedIndexRef.current = index;
             const newSet = propertyArray.addSet();
             seedDefaults(newSet);
+            scheduleScrollTo(index);
             return;
         }
 
         setConfirmingAdd(true);
-    }, [isRadio, state.canAdd, propertyArray, seedDefaults]);
+    }, [isRadio, state.canAdd, propertyArray, seedDefaults, scheduleScrollTo]);
     const handleConfirmAdd = useCallback(
         (selectedName: string) => {
             setConfirmingAdd(false);
 
             if (!state.canAdd) return;
 
+            const index = propertyArray.getSize();
+            lastAddedIndexRef.current = index;
             const newSet = propertyArray.addSet();
             selectOptionInPropertySet(newSet, optionSet, selectedName);
+            scheduleScrollTo(index);
         },
-        [state.canAdd, propertyArray, optionSet]
+        [state.canAdd, propertyArray, optionSet, scheduleScrollTo]
     );
     const handleCancelAdd = useCallback(() => {
         setConfirmingAdd(false);
@@ -97,6 +102,7 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
         (index: number, selectedName?: string) => {
             if (!state.canAdd) return;
 
+            lastAddedIndexRef.current = index;
             const newSet = propertyArray.addSet();
             propertyArray.move(propertyArray.getSize() - 1, index);
             if (selectedName != null) {
@@ -104,13 +110,15 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
             } else {
                 seedDefaults(newSet);
             }
+            scheduleScrollTo(index);
         },
-        [state.canAdd, propertyArray, optionSet, seedDefaults]
+        [state.canAdd, propertyArray, optionSet, seedDefaults, scheduleScrollTo]
     );
     const handleAddBelow = useCallback(
         (index: number, selectedName?: string) => {
             if (!state.canAdd) return;
 
+            lastAddedIndexRef.current = index + 1;
             const newSet = propertyArray.addSet();
             propertyArray.move(propertyArray.getSize() - 1, index + 1);
             if (selectedName != null) {
@@ -118,8 +126,9 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
             } else {
                 seedDefaults(newSet);
             }
+            scheduleScrollTo(index + 1);
         },
-        [state.canAdd, propertyArray, optionSet, seedDefaults]
+        [state.canAdd, propertyArray, optionSet, seedDefaults, scheduleScrollTo]
     );
     const handleRemove = useCallback(
         (index: number) => {
@@ -130,6 +139,22 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
             }
         },
         [state.canRemove, remove, propertyArray]
+    );
+    const handleReset = useCallback(
+        (index: number) => {
+            const ps = propertySets[index];
+            if (ps == null) return;
+            const arr = ps.getPropertyArray('_selected');
+            if (arr != null) {
+                for (let i = arr.getSize() - 1; i >= 0; i--) {
+                    arr.remove(i);
+                }
+            }
+            for (const option of optionSet.getOptions()) {
+                ps.removeProperty(option.getName(), 0);
+            }
+        },
+        [propertySets, optionSet]
     );
     const handleMove = useCallback(
         (fromIndex: number, toIndex: number) => {
@@ -178,6 +203,7 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
                     renderItem={({item, index}, grip) => (
                         <ValidationVisibilityProvider visibility={childValidationVisibility.get(index)}>
                             <OptionSetOccurrenceView
+                                ref={(node) => setOccurrenceRef(index, node)}
                                 index={index}
                                 grip={grip}
                                 propertySet={item}
@@ -185,11 +211,13 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
                                 formItems={formItems}
                                 fallbackLabel={label}
                                 expanded={expanded.get(index)}
+                                isNew={index === lastAddedIndexRef.current}
                                 canAdd={enabled && state.canAdd}
                                 canRemove={enabled && state.canRemove}
                                 onAddAbove={handleAddAbove}
                                 onAddBelow={handleAddBelow}
                                 onRemove={handleRemove}
+                                onReset={isRadio && !state.canRemove ? handleReset : undefined}
                                 onToggle={handleToggleSingle}
                                 hasErrors={childShowErrors.get(index) && childErrors.get(index) === true}
                             >
