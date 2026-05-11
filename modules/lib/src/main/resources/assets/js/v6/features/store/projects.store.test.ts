@@ -12,21 +12,11 @@ const {
     deletedHandlers,
     mockProjectListSendAndParse,
     mockSetProjectSelectionDialogOpen,
-    mockProjectContextSetProject,
-    mockProjectContextSetNotAvailable,
-    mockProjectContextIsNotAvailable,
-    noProjectsAvailableHandlers,
-    projectChangedHandlers,
 } = vi.hoisted(() => ({
     createdHandlers: [] as (() => void)[],
     deletedHandlers: [] as ((event: {getProjectName(): string}) => void)[],
     mockProjectListSendAndParse: vi.fn(),
     mockSetProjectSelectionDialogOpen: vi.fn(),
-    mockProjectContextSetProject: vi.fn(),
-    mockProjectContextSetNotAvailable: vi.fn(),
-    mockProjectContextIsNotAvailable: vi.fn(() => false),
-    noProjectsAvailableHandlers: [] as (() => void)[],
-    projectChangedHandlers: [] as ((project: MockProject) => void)[],
 }));
 
 vi.mock('../../../app/settings/resource/ProjectListRequest', () => ({
@@ -65,22 +55,6 @@ vi.mock('./config.store', () => ({
 
 vi.mock('./dialogs.store', () => ({
     setProjectSelectionDialogOpen: mockSetProjectSelectionDialogOpen,
-}));
-
-vi.mock('../../../app/project/ProjectContext', () => ({
-    ProjectContext: {
-        get: () => ({
-            setProject: mockProjectContextSetProject,
-            setNotAvailable: mockProjectContextSetNotAvailable,
-            isNotAvailable: mockProjectContextIsNotAvailable,
-            onNoProjectsAvailable: vi.fn((handler: () => void) => {
-                noProjectsAvailableHandlers.push(handler);
-            }),
-            onProjectChanged: vi.fn((handler: (project: MockProject) => void) => {
-                projectChangedHandlers.push(handler);
-            }),
-        }),
-    },
 }));
 
 vi.mock('./tree-list.store', () => ({
@@ -130,16 +104,6 @@ async function flushPromises(times: number = 5): Promise<void> {
     }
 }
 
-function resetProjectContextMocks(): void {
-    mockProjectContextSetProject.mockReset().mockImplementation((project: MockProject) => {
-        projectChangedHandlers.forEach((handler) => handler(project));
-    });
-    mockProjectContextSetNotAvailable.mockReset().mockImplementation(() => {
-        noProjectsAvailableHandlers.forEach((handler) => handler());
-    });
-    mockProjectContextIsNotAvailable.mockReset().mockReturnValue(false);
-}
-
 type LoadStoreOptions = {
     url?: string;
     clearInitMocks?: boolean;
@@ -157,11 +121,8 @@ async function loadStore(
     vi.resetModules();
     createdHandlers.length = 0;
     deletedHandlers.length = 0;
-    noProjectsAvailableHandlers.length = 0;
-    projectChangedHandlers.length = 0;
     mockProjectListSendAndParse.mockReset().mockResolvedValue(projects);
     mockSetProjectSelectionDialogOpen.mockReset();
-    resetProjectContextMocks();
     window.history.pushState({}, '', url ?? `/contentstudio/cms/${currentProjectId}/browse`);
 
     const store = await import('./projects.store');
@@ -169,8 +130,6 @@ async function loadStore(
 
     if (clearInitMocks) {
         mockSetProjectSelectionDialogOpen.mockClear();
-        mockProjectContextSetProject.mockClear();
-        mockProjectContextSetNotAvailable.mockClear();
     }
 
     return store;
@@ -181,9 +140,6 @@ describe('projects.store delete intent', () => {
         vi.clearAllMocks();
         createdHandlers.length = 0;
         deletedHandlers.length = 0;
-        noProjectsAvailableHandlers.length = 0;
-        projectChangedHandlers.length = 0;
-        resetProjectContextMocks();
         localStorage.clear();
     });
 
@@ -211,9 +167,8 @@ describe('projects.store delete intent', () => {
         emitDeleted('child');
 
         expect(store.$projects.get().activeProjectId).toBe('parent');
+        expect(store.getActiveProject()).toBe(parent);
         expect(mockSetProjectSelectionDialogOpen).toHaveBeenCalledWith(false);
-        expect(mockProjectContextSetProject).toHaveBeenCalledWith(parent);
-        expect(mockProjectContextSetNotAvailable).not.toHaveBeenCalled();
     });
 
     it('uses explicit intent to fall back to first remaining project when deleted project has no parent', async () => {
@@ -226,9 +181,8 @@ describe('projects.store delete intent', () => {
         emitDeleted('orphan');
 
         expect(store.$projects.get().activeProjectId).toBe('alpha');
+        expect(store.getActiveProject()).toBe(alpha);
         expect(mockSetProjectSelectionDialogOpen).toHaveBeenCalledWith(false);
-        expect(mockProjectContextSetProject).toHaveBeenCalledWith(alpha);
-        expect(mockProjectContextSetNotAvailable).not.toHaveBeenCalled();
     });
 
     it('uses explicit intent to enter empty-project state when no projects remain', async () => {
@@ -240,8 +194,8 @@ describe('projects.store delete intent', () => {
 
         expect(store.$projects.get().projects).toEqual([]);
         expect(store.$projects.get().activeProjectId).toBeUndefined();
+        expect(store.$projects.get().noProjectMode).toBe(true);
         expect(mockSetProjectSelectionDialogOpen).toHaveBeenCalledWith(true);
-        expect(mockProjectContextSetNotAvailable).toHaveBeenCalledTimes(1);
     });
 
     it('does not jump active project when unrelated delete has no explicit intent', async () => {
@@ -254,9 +208,8 @@ describe('projects.store delete intent', () => {
 
         expect(store.$projects.get().activeProjectId).toBe('current');
         expect(store.$projects.get().projects.map((project) => project.getName())).toEqual(['parent', 'current']);
+        expect(store.getActiveProject()).toBe(current);
         expect(mockSetProjectSelectionDialogOpen).not.toHaveBeenCalled();
-        expect(mockProjectContextSetProject).not.toHaveBeenCalled();
-        expect(mockProjectContextSetNotAvailable).not.toHaveBeenCalled();
     });
 
     it('should fall back to navigation when the active project is deleted without explicit intent', async () => {
@@ -268,22 +221,21 @@ describe('projects.store delete intent', () => {
         emitDeleted('current');
 
         expect(store.$projects.get().activeProjectId).toBe('parent');
+        expect(store.getActiveProject()).toBe(parent);
         expect(mockSetProjectSelectionDialogOpen).toHaveBeenCalledWith(false);
-        expect(mockProjectContextSetProject).toHaveBeenCalledWith(parent);
-        expect(mockProjectContextSetNotAvailable).not.toHaveBeenCalled();
     });
 
     it('does not leave no-project mode before the created project becomes active', async () => {
         const store = await loadStore([], '');
         const createdProject = createProject('created');
-        const noProjectModeTransitions: {value: boolean; setProjectCalls: number}[] = [];
+        const noProjectModeTransitions: {value: boolean; activeProjectId: string | undefined}[] = [];
 
         expect(store.$noProjectMode.get()).toBe(true);
 
         const unsubscribe = store.$noProjectMode.subscribe((value: boolean) => {
             noProjectModeTransitions.push({
                 value,
-                setProjectCalls: mockProjectContextSetProject.mock.calls.length,
+                activeProjectId: store.getActiveProject()?.getName(),
             });
         });
 
@@ -299,18 +251,15 @@ describe('projects.store delete intent', () => {
         expect(store.$projects.get().resolved).toBe(true);
         expect(store.$projects.get().loadError).toBe(false);
         expect(falseTransitions.length).toBeGreaterThan(0);
-        expect(falseTransitions.every(({setProjectCalls}) => setProjectCalls > 0)).toBe(true);
+        expect(falseTransitions.every(({activeProjectId}) => activeProjectId === 'created')).toBe(true);
     });
 
     it('publishes load errors before marking projects as resolved', async () => {
         vi.resetModules();
         createdHandlers.length = 0;
         deletedHandlers.length = 0;
-        noProjectsAvailableHandlers.length = 0;
-        projectChangedHandlers.length = 0;
         mockProjectListSendAndParse.mockReset().mockRejectedValue(new Error('Failed to load projects'));
         mockSetProjectSelectionDialogOpen.mockReset();
-        resetProjectContextMocks();
         window.history.pushState({}, '', '/contentstudio/cms/current/browse');
         vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
@@ -328,8 +277,6 @@ describe('projects.store delete intent', () => {
         expect(store.$projects.get().loadError).toBe(true);
         expect(states.some(({resolved, loadError}) => resolved && !loadError)).toBe(false);
         expect(mockSetProjectSelectionDialogOpen).not.toHaveBeenCalled();
-        expect(mockProjectContextSetProject).not.toHaveBeenCalled();
-        expect(mockProjectContextSetNotAvailable).not.toHaveBeenCalled();
     });
 });
 
@@ -338,9 +285,6 @@ describe('projects.store init', () => {
         vi.clearAllMocks();
         createdHandlers.length = 0;
         deletedHandlers.length = 0;
-        noProjectsAvailableHandlers.length = 0;
-        projectChangedHandlers.length = 0;
-        resetProjectContextMocks();
         localStorage.clear();
     });
 
@@ -398,9 +342,6 @@ describe('projects.store selectProject', () => {
         vi.clearAllMocks();
         createdHandlers.length = 0;
         deletedHandlers.length = 0;
-        noProjectsAvailableHandlers.length = 0;
-        projectChangedHandlers.length = 0;
-        resetProjectContextMocks();
         localStorage.clear();
     });
 
@@ -439,9 +380,6 @@ describe('projects.store storage cleanup on deletion', () => {
         vi.clearAllMocks();
         createdHandlers.length = 0;
         deletedHandlers.length = 0;
-        noProjectsAvailableHandlers.length = 0;
-        projectChangedHandlers.length = 0;
-        resetProjectContextMocks();
         localStorage.clear();
     });
 

@@ -2,7 +2,7 @@ import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentT
 import {type ContentId} from '../content/ContentId';
 import {type DependencyType} from './DependencyType';
 import {type Project} from '../settings/data/project/Project';
-import {ProjectContext} from '../project/ProjectContext';
+import {getActiveProject} from '../../v6/features/store/projects.store';
 import {Branch} from '../versioning/Branch';
 
 export class DependencyParams {
@@ -21,7 +21,7 @@ export class DependencyParams {
         this.id = builder.id;
         this.dependencyType = builder.dependencyType;
         this.contentType = builder.contentType;
-        this.project = builder.project || ProjectContext.get().getProject();
+        this.project = builder.project || getActiveProject();
         this.branch = builder.branch || Branch.DRAFT;
     }
 

@@ -4,9 +4,9 @@ import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
+import {getActiveProjectName} from '../../../v6/features/store/projects.store';
 import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContextPanelExtensionElement} from '../../extension/ContextPanelExtensionElement';
-import {ProjectContext} from '../../project/ProjectContext';
 import {RepositoryId} from '../../repository/RepositoryId';
 
 export interface ExtensionItemViewType {
@@ -61,7 +61,7 @@ export class ExtensionItemView
 
     private static getFullExtensionUrl(url: string, contentId: string | null) {
         const branch: string = CONFIG.has('branch') ? CONFIG.getString('branch') : '';
-        const repository: string = `${RepositoryId.CONTENT_REPO_PREFIX}${ProjectContext.get().getProject().getName()}`;
+        const repository: string = `${RepositoryId.CONTENT_REPO_PREFIX}${getActiveProjectName()}`;
         const repositoryParam = `repository=${repository}&`;
         const branchParam = branch ? `branch=${branch}&` : '';
         const contentIdParam = contentId ? `contentId=${contentId}&` : '';

@@ -1,7 +1,7 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {isBlank} from '../../v6/features/utils/format/isBlank';
 import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ProjectContext} from '../project/ProjectContext';
+import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
 
 export class RepositoryId
     implements Equitable {
@@ -28,7 +28,7 @@ export class RepositoryId
     }
 
     static fromCurrentProject(): RepositoryId {
-        return RepositoryId.fromProjectName(ProjectContext.get().getProject().getName());
+        return RepositoryId.fromProjectName(getActiveProjectName());
     }
 
     toString(): string {

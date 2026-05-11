@@ -1,6 +1,6 @@
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
-import {ProjectContext} from '../project/ProjectContext';
+import {getActiveProject, getActiveProjectName} from '../../v6/features/store/activeProject.store';
 import {type Project} from '../settings/data/project/Project';
 import {UrlAction} from '../UrlAction';
 
@@ -13,7 +13,7 @@ export class UrlHelper {
     }
 
     static getCMSPath(contentRootPath?: string, project?: Readonly<Project>): string {
-        const requestProject = project || ProjectContext.get().getProject();
+        const requestProject = project || getActiveProject();
         return `cms/${requestProject.getName()}${contentRootPath ? `/${contentRootPath}` : ''}`;
     }
 
@@ -22,23 +22,23 @@ export class UrlHelper {
     }
 
     static getCMSPathWithProject(projectName: string, contentRootPath?: string): string {
-        const requestProject: string = projectName ? projectName : ProjectContext.get().getProject().getName();
+        const requestProject: string = projectName ? projectName : getActiveProjectName();
         return `cms/${requestProject}${contentRootPath ? `/${contentRootPath}` : ''}`;
     }
 
     static createContentBrowseUrl(project?: string): string {
         if (!project) {
-            return UrlHelper.getProjectContextUrl(`${UrlAction.BROWSE}`);
+            return UrlHelper.getActiveProjectUrl(`${UrlAction.BROWSE}`);
         }
         return UrlHelper.getPrefixedUrl(`${project}/${UrlAction.BROWSE}`);
     }
 
     static createContentEditUrl(contentId: string, action: string = UrlAction.EDIT): string {
-        return UrlHelper.getProjectContextUrl(`${action}/${contentId}`, '');
+        return UrlHelper.getActiveProjectUrl(`${action}/${contentId}`, '');
     }
 
-    static getProjectContextUrl(path: string, separator: string = '#'): string {
-        const project = ProjectContext.get().getProject().getName();
+    static getActiveProjectUrl(path: string, separator: string = '#'): string {
+        const project = getActiveProjectName();
         return UrlHelper.getPrefixedUrl(`${project}/${path}`, separator);
     }
 

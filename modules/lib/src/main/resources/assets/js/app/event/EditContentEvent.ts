@@ -3,7 +3,7 @@ import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import type {ContentSummary} from '../content/ContentSummary';
 import type {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {type Project} from '../settings/data/project/Project';
-import {ProjectContext} from '../project/ProjectContext';
+import {getActiveProject} from '../../v6/features/store/projects.store';
 
 type EditContentModel = ContentSummary | ContentSummaryAndCompareStatus;
 
@@ -31,7 +31,7 @@ export class EditContentEvent
         this.model = model
             .map(toContentSummary)
             .filter((item): item is ContentSummary => !!item);
-        this.project = project ? project : ProjectContext.get().getProject();
+        this.project = project ? project : getActiveProject();
     }
 
     setDisplayAsNew(value: boolean): EditContentEvent {
