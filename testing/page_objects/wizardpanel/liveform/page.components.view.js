@@ -6,7 +6,7 @@ const appConst = require('../../../libs/app_const');
 const BasePageComponentView = require('../base.page.components.view');
 
 const xpath = {
-    container: "//div[contains(@id,'PageComponentsView') and contains(@class,'draggable')]",
+    container: "//div[@data-component='DetachedPageComponentsView']",
     pcvDialogMinimizer: "//button[contains(@id,'Button') and contains(@class,'minimize-button')]",
     showPcvDialogButton: "//button[contains(@id,'Button') and @title='Show Component View']",
     hidePcvDialogButton: "//button[contains(@id,'Button') and @title='Hide Component View']",

@@ -1,5 +1,5 @@
 /**
- * Created on 03.09.2021
+ * Created on 03.09.2021 updated on 09.05.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -20,7 +20,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
     const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const EXPECTED_QUESTION = 'This will discard all the page modifications. Are you sure?';
 
-    it("GIVEN new site with controller is created WHEN 'Inspect' link has been clicked THEN Inspection tab should be opened",
+    it("GIVEN new site with 'main region' controller is created WHEN 'Inspect' link has been clicked THEN Inspection tab should be opened",
         async () => {
             let contentWizard = new ContentWizard();
             let pageWidgetPanel = new PageWidgetPanel();
@@ -44,7 +44,7 @@ describe('page.inspection.panel.spec: tests for page-inspection panel', function
             assert.equal(actualController, CONTROLLER_NAME, 'Expected page controller should be selected');
         });
 
-    it("GIVEN 'Page Inspection' tab is opened WHEN another ('Automatic') option has been selected THEN 'Confirmation Dialog' with the question should appear",
+    it("GIVEN 'Page Inspection' tab is opened WHEN 'Automatic' controller has been selected THEN 'Confirmation Dialog' with the question should appear",
         async () => {
             let pageWidgetPanel = new PageWidgetPanel();
             let pageInspectionPanel = new PageInspectionPanel();

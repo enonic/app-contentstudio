@@ -75,24 +75,11 @@ class BaseContextWindowPanel extends Page {
         }
     }
 
-    // type Version History in Options filter input  then click on the filtered item
-    // async filterAndOpenVersionHistory() {
-    //     try {
-    //         let widgetSelectorDropdown = new WidgetSelectorDropdown();
-    //         // Expand the dropdown
-    //         await widgetSelectorDropdown.clickOnDropdownHandle();
-    //         // Insert the text in the options filter input:
-    //         await widgetSelectorDropdown.selectFilteredWidgetItem(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY);
-    //     } catch (err) {
-    //         await this.handleError(`Widget selector dropdown - Tried to open Versions Widget `, 'err_open_versions', err);
-    //     }
-    // }
-
     async selectItemInWidgetSelector(itemName) {
         try {
             let widgetSelectorDropdown = new WidgetSelectorDropdown();
             await this.clickOnWidgetSelectorDropdownHandle();
-            await widgetSelectorDropdown.clickOnOptionByDisplayName(itemName, this.container);
+            await widgetSelectorDropdown.clickOnOptionByDisplayName(itemName);
             await this.pause(300);
         } catch (err) {
             await this.handleError(`Widget selector dropdown - tried to open ${itemName} : `, 'err_open_widget', err);

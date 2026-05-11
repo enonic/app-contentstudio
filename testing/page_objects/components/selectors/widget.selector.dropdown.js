@@ -3,8 +3,6 @@
  */
 const Page = require('../../page');
 const {DROPDOWN, COMMON} = require('../../../libs/elements');
-const appConst = require('../../../libs/app_const');
-const lib = require('../../../libs/elements-old');
 
 const XPATH = {
     container: "//button[contains(@id,'WidgetSelector') and @role='combobox']",

@@ -14,7 +14,6 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
 
     const ANCHOR_TXT = 'myAnchor';
     const PARAM_NAME_WITH_SPACES = ' param1  ';
@@ -25,26 +24,21 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
     const EXPECTED_PARAMETERS_PART = "?query=par1";
     const PARAMETER_VALUE = 'value1';
 
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
     it("GIVEN Content tab is active AND 'Add anchor' button has been clicked and text inserted WHEN 'Insert' button has been pressed THEN expected text should be present in htmlArea",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
             // 1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             // 3. Content tab should be active by default, select the site in dropdown selector:
-            await insertLinkDialogContentPanel.typeTextInFilterInputInContentSelector(SITE.displayName);
+            await insertLinkDialogContentPanel.selectTargetInContentSelector(IMPORTED_SITE_NAME);
             // 4. After inserting a search text the dropdown should be switched to 'Flat mode', click on the folder(don't need to click on 'Apply' button):
-            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(SITE.displayName);
+            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(IMPORTED_SITE_NAME);
             await insertLinkDialog.typeInLinkTextInput('content link anchor');
             await studioUtils.saveScreenshot("content_link_with_anchor");
             // 5. Click on Add anchor button:
@@ -67,14 +61,14 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
             // 1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             // 3. Content tab should be active by default, select the site in dropdown selector:
-            await insertLinkDialogContentPanel.typeTextInFilterInputInContentSelector(SITE.displayName);
+            await insertLinkDialogContentPanel.selectTargetInContentSelector(IMPORTED_SITE_NAME);
             // 4. After inserting a search text the dropdown should be switched to 'Flat mode', click on the folder(don't need to click on 'Apply' button):
-            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(SITE.displayName);
+            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(IMPORTED_SITE_NAME);
             await insertLinkDialog.typeInLinkTextInput('content link anchor');
             // 4. Click on Add anchor button:
             await insertLinkDialogContentPanel.clickOnAddAnchorButton();
@@ -99,14 +93,14 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
             // 1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             // 3. Content tab should be active by default, select the site in dropdown selector:
-            await insertLinkDialogContentPanel.typeTextInFilterInputInContentSelector(SITE.displayName);
+            await insertLinkDialogContentPanel.selectTargetInContentSelector(IMPORTED_SITE_NAME);
             // 4. After inserting a search text the dropdown should be switched to 'Flat mode', click on the folder(don't need to click on 'Apply' button):
-            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(SITE.displayName);
+            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(IMPORTED_SITE_NAME);
             await insertLinkDialog.typeInLinkTextInput('content link anchor');
             // 4. Click on 'Add parameters' button:
             await insertLinkDialogContentPanel.clickOnAddParametersButton();
@@ -129,14 +123,14 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
             // 1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             // 3. Content tab should be active by default, select the site in dropdown selector:
-            await insertLinkDialogContentPanel.typeTextInFilterInputInContentSelector(SITE.displayName);
+            await insertLinkDialogContentPanel.selectTargetInContentSelector(IMPORTED_SITE_NAME);
             // 4. After inserting a search text the dropdown should be switched to 'Flat mode', click on the folder(don't need to click on 'Apply' button):
-            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(SITE.displayName);
+            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(IMPORTED_SITE_NAME);
             await insertLinkDialog.typeInLinkTextInput('anchor with a parameter and value');
             await studioUtils.saveScreenshot('content_link_modal_dialog');
             // 4. Click on 'Add parameters' button:
@@ -166,14 +160,14 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
             // 1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             // 3. Content tab should be active by default, select the site in dropdown selector:
-            await insertLinkDialogContentPanel.typeTextInFilterInputInContentSelector(SITE.displayName);
+            await insertLinkDialogContentPanel.selectTargetInContentSelector(IMPORTED_SITE_NAME);
             // 4. After inserting a search text the dropdown should be switched to 'Flat mode', click on the folder(don't need to click on 'Apply' button):
-            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(SITE.displayName);
+            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(IMPORTED_SITE_NAME);
             await insertLinkDialog.typeInLinkTextInput("anchor with whitespaces");
             // 4. Click on 'Add parameters' button:
             await insertLinkDialogContentPanel.clickOnAddParametersButton();
@@ -207,14 +201,14 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
             // 1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             // 3. Content tab should be active by default, select the site in dropdown selector:
-            await insertLinkDialogContentPanel.typeTextInFilterInputInContentSelector(SITE.displayName);
+            await insertLinkDialogContentPanel.selectTargetInContentSelector(IMPORTED_SITE_NAME);
             // 4. After inserting a search text the dropdown should be switched to 'Flat mode', click on the folder(don't need to click on 'Apply' button):
-            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(SITE.displayName);
+            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(IMPORTED_SITE_NAME);
             await insertLinkDialog.typeInLinkTextInput('anchor with a parameter');
             // 4. Click on Add parameters button:
             await insertLinkDialogContentPanel.clickOnAddParametersButton();
@@ -239,14 +233,14 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
             let htmlAreaForm = new HtmlAreaForm();
             let insertLinkDialogContentPanel = new InsertLinkDialogContentPanel();
             // 1. Open new wizard for htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.HTML_AREA_0_1);
             await htmlAreaForm.pause(1000);
             // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             // 3. Content tab should be active by default, select the site in dropdown selector:
-            await insertLinkDialogContentPanel.typeTextInFilterInputInContentSelector(SITE.displayName);
+            await insertLinkDialogContentPanel.selectTargetInContentSelector(IMPORTED_SITE_NAME);
             // 4. After inserting a search text the dropdown should be switched to 'Flat mode', click on the folder(don't need to click on 'Apply' button):
-            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(SITE.displayName);
+            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(IMPORTED_SITE_NAME);
             await insertLinkDialog.typeInLinkTextInput('content link anchor');
             await studioUtils.saveScreenshot('content_link_modal_dialog');
             // 4. Click on 'Add parameters' button:
@@ -270,9 +264,9 @@ describe("insert.content.link.anchor.spec: insert content link into htmlArea", f
             // 2. Open 'Insert Link' dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             // 3. Content tab should be active by default, select the site in dropdown selector:
-            await insertLinkDialogContentPanel.typeTextInFilterInputInContentSelector(SITE.displayName);
+            await insertLinkDialogContentPanel.selectTargetInContentSelector(IMPORTED_SITE_NAME);
             // 4. After inserting a search text the dropdown should be switched to 'Flat mode', click on the folder(don't need to click on 'Apply' button):
-            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(SITE.displayName);
+            await insertLinkDialogContentPanel.clickOnOptionByDisplayName(IMPORTED_SITE_NAME);
             await insertLinkDialog.typeInLinkTextInput('content link anchor');
             // 5. Click on 'Add anchor' button:
             await insertLinkDialogContentPanel.clickOnAddAnchorButton();

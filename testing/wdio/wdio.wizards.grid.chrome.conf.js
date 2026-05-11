@@ -2,26 +2,37 @@ const path = require('path');
 const propertiesReaderModule = require('properties-reader');
 const propertiesReader = propertiesReaderModule.propertiesReader || propertiesReaderModule.default || propertiesReaderModule;
 const file = path.join(__dirname, '/../browser.properties');
-const properties = propertiesReader({ sourceFile: file });
+const properties = propertiesReader({sourceFile: file});
 const browser_version = properties.get('browser.version');
 
 exports.config = {
 
     specs: [
-        path.join(__dirname, '../specs/browse.panel.grid.context.menu.spec.js'),
-        path.join(__dirname, '../specs/browse.panel.properties.widget.spec.js'),
-        path.join(__dirname, '../specs/browse.toolbar.shortcut.spec.js'),
-        path.join(__dirname, '../specs/call.app.controller.spec.js'),
-        path.join(__dirname, '../specs/content.filter.panel.export.spec.js'),
-        path.join(__dirname, '../specs/content.filter.panel.spec.js'),
-        path.join(__dirname, '../specs/content.item.preview.spec.js'),
-        path.join(__dirname, '../specs/content.toggle.icon.spec.js'),
-        path.join(__dirname, '../specs/response.headers.spec.js'),
-        path.join(__dirname, '../specs/wizard.settings.panel.spec.js'),
-        path.join(__dirname, '../specs/browse.panel.selections.spec.js'),
-        path.join(__dirname, '../specs/archive.confirm.content.spec.js'),
-        path.join(__dirname, '../specs/browse.panel.toolbar.spec.js'),
-
+        path.join(__dirname, '../specs/*.spec.js'),
+    ],
+    exclude: [
+        path.join(__dirname, '../specs/browse.selection.controller.spec.js'),
+        path.join(__dirname, '../specs/content.name.upper.lower.case.spec.js'),
+        path.join(__dirname, '../specs/content.unsaved.changes.spec.js'),
+        path.join(__dirname, '../specs/content.wizard.owner.deleted.spec.js'),
+        path.join(__dirname, '../specs/content.workflow.state.spec.js'),
+        path.join(__dirname, '../specs/cookies.service.spec.js'),
+        path.join(__dirname, '../specs/default.error.page.spec.js'),
+        path.join(__dirname, '../specs/outbound.dependency.rollback.version.spec.js'),
+        path.join(__dirname, '../specs/remove.app.in.site.with.descriptor.spec.js'),
+        path.join(__dirname, '../specs/site.app.uninstalled.spec.js'),
+        path.join(__dirname, '../specs/site.configurator.htmlarea.spec.js'),
+        path.join(__dirname, '../specs/site.configurator.required.input.spec.js'),
+        path.join(__dirname, '../specs/site.duplicate.delete.spec.js'),
+        path.join(__dirname, '../specs/site.with.meta.fields.spec.js'),
+        path.join(__dirname, '../specs/site.wizard.no.regions.controller.spec.js'),
+        path.join(__dirname, '../specs/site.wizard.select.controller.spec.js'),
+        path.join(__dirname, '../specs/wizard.details.panel.spec.js'),
+        path.join(__dirname, '../specs/wizard.detailspanel.update.dependencies.spec.js'),
+        path.join(__dirname, '../specs/wizard.owner.spec.js'),
+        path.join(__dirname, '../specs/wizard.save.button.spec.js'),
+        path.join(__dirname, '../specs/wizard.toolbar.shortcut.spec.js'),
+        path.join(__dirname, '../specs/wizard.xdata.long.form.spec.js'),
     ],
 
     maxInstances: 1,

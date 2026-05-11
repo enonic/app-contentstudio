@@ -69,8 +69,9 @@ class ConfirmationDialog extends Page {
     }
 
     async getQuestion() {
-        await this.waitForElementDisplayed(XPATH.container + XPATH.question);
-        return await this.getText(XPATH.container + XPATH.question)
+        let locator = XPATH.container+ "//div[@data-component='Dialog.Body']";
+        await this.waitForElementDisplayed(locator);
+        return await this.getText(locator);
     }
 }
 
