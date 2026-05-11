@@ -152,11 +152,12 @@ export const DisplayNameInput = (): ReactElement => {
                     onClick={startEditing}
                     onFocus={startEditing}
                     className={cn(
-                        'block w-full min-w-64 truncate border-0 border-l-1 bg-transparent text-left text-[2rem] font-semibold',
+                        'block w-full min-w-64 border-0 border-l-1 bg-transparent text-left text-[2rem] font-semibold',
                         'px-2.5 py-1 pl-4.5 rounded-none',
                         'hover:not-disabled:border-l-4 hover:not-disabled:pl-3.75',
                         'focus:outline-none focus:ring-0 focus:ring-offset-0',
                         'disabled:select-none disabled:cursor-not-allowed disabled:opacity-50',
+                        touched ? 'whitespace-pre-wrap break-words' : 'truncate',
                         isShowingPlaceholder && 'text-subtle/50',
                         showError ? 'border-l-error focus:border-l-error' : 'border-l-bdr-subtle focus:border-l-ring',
                     )}
@@ -177,7 +178,7 @@ export const DisplayNameInput = (): ReactElement => {
                     onKeyDown={handleEditorKeyDown}
                     disabled={readOnly}
                     className={cn(
-                        'w-full min-w-64 resize-none overflow-hidden whitespace-pre-wrap break-words bg-transparent',
+                        'block w-full min-w-64 resize-none overflow-hidden whitespace-pre-wrap break-words bg-transparent',
                         'border-0 border-l-1 text-[2rem] font-semibold px-2.5 py-1 pl-4.5',
                         '[&:hover,&:focus]:border-l-4 [&:hover,&:focus]:pl-3.75 placeholder:text-subtle/50 rounded-none',
                         'transition-highlight focus:outline-none disabled:select-none disabled:cursor-not-allowed disabled:opacity-50',
