@@ -3,6 +3,7 @@ import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {type Path} from '@enonic/lib-admin-ui/rest/Path';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {onNoProjectsAvailable} from '../v6/features/store/projects.store';
 import {$rootLoadingState} from '../v6/features/store/tree-list.store';
 import {BrowseAppBarElement} from '../v6/features/views/browse/layout/BrowseAppBar';
 import {AppContainer} from './AppContainer';
@@ -14,7 +15,6 @@ import {ContentAppPanel} from './ContentAppPanel';
 import {type Issue} from './issue/Issue';
 import {IssueDialogsManager} from './issue/IssueDialogsManager';
 import {GetIssueRequest} from './issue/resource/GetIssueRequest';
-import {ProjectContext} from './project/ProjectContext';
 import {ContentSummaryAndCompareStatusFetcher} from './resource/ContentSummaryAndCompareStatusFetcher';
 import {ResolveDependenciesRequest} from './resource/ResolveDependenciesRequest';
 import {type ResolveDependenciesResult} from './resource/ResolveDependenciesResult';
@@ -41,7 +41,7 @@ export class ContentAppContainer
 
         this.initSearchPanelListener(this.appPanel as ContentAppPanel);
 
-        ProjectContext.get().onNoProjectsAvailable(() => {
+        onNoProjectsAvailable(() => {
            this.handleNoProjectsAvailable();
         });
 

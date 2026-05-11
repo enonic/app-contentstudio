@@ -1,6 +1,6 @@
 import {type ContentId} from '../content/ContentId';
 import {type Project} from '../settings/data/project/Project';
-import {ProjectContext} from '../project/ProjectContext';
+import {getActiveProject} from '../../v6/features/store/projects.store';
 
 export class ContentEditParams {
     private readonly contentId: ContentId;
@@ -13,7 +13,7 @@ export class ContentEditParams {
 
     constructor(builder: ContentEditParamsBuilder) {
         this.contentId = builder.contentId;
-        this.project = builder.project || ProjectContext.get().getProject();
+        this.project = builder.project || getActiveProject();
         this.localized = builder.localized;
         this.displayAsNew = builder.displayAsNew;
     }

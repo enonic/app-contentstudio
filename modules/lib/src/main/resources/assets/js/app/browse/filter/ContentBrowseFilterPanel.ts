@@ -22,6 +22,7 @@ import {
     resetContentFilter,
     setContentFilterSelection,
 } from '../../../v6/features/store/contentFilter.store';
+import {onActiveProjectChanged} from '../../../v6/features/store/activeProject.store';
 import {BrowseDependenciesElement} from '../../../v6/features/views/browse/layout/filter/BrowseDependencies';
 import {BrowseFilterElement} from '../../../v6/features/views/browse/layout/filter/BrowseFilter';
 import type {ContentId} from '../../content/ContentId';
@@ -30,7 +31,6 @@ import type {ContentSummary} from '../../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import type {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
-import {ProjectContext} from '../../project/ProjectContext';
 import {Router} from '../../Router';
 import {Branch} from '../../versioning/Branch';
 import {AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
@@ -156,7 +156,7 @@ export class ContentBrowseFilterPanel<T extends ContentSummaryAndCompareStatus =
         handler.onContentUpdated(updatedHandler);
         handler.onContentPermissionsUpdated(permissionsUpdatedHandler);
 
-        ProjectContext.get().onProjectChanged(() => {
+        onActiveProjectChanged(() => {
             if (this.dependenciesSection.isActive()) {
                 this.removeDependencyItem();
             }

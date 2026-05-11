@@ -1,6 +1,6 @@
 import {type ContentId} from '../content/ContentId';
 import {type Project} from '../settings/data/project/Project';
-import {ProjectContext} from '../project/ProjectContext';
+import {getActiveProject} from '../../v6/features/store/projects.store';
 import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 
 export class ContentCreateParams {
@@ -12,7 +12,7 @@ export class ContentCreateParams {
 
     constructor(builder: ContentCreateParamsBuilder) {
         this.parentContentId = builder.parentContentId;
-        this.project = builder.project || ProjectContext.get().getProject();
+        this.project = builder.project || getActiveProject();
         this.contentTypeName = builder.contentTypeName;
     }
 

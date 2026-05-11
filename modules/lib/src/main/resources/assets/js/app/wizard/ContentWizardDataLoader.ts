@@ -6,7 +6,7 @@ import {type ContentType} from '../inputtype/schema/ContentType';
 import {DefaultModels} from './page/DefaultModels';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {GetContentTypeByNameRequest} from '../resource/GetContentTypeByNameRequest';
-import {ProjectContext} from '../project/ProjectContext';
+import {getActiveProject} from '../../v6/features/store/projects.store';
 import {type PublishStatus} from '../publish/PublishStatus';
 import {type Site} from '../content/Site';
 import Q from 'q';
@@ -158,7 +158,7 @@ export class ContentWizardDataLoader {
 
     private loadParentProjectItemIfExists(): Q.Promise<boolean> {
         // TODO: Projects. Fix. May calculate to invalid project
-        const parentProjectName: string = ProjectContext.get().getProject().getMainParent();
+        const parentProjectName: string = getActiveProject().getMainParent();
 
         if (!parentProjectName) {
             return Q(false);
