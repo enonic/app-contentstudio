@@ -59,7 +59,7 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
             let inspectPanelControllerSelector = new InspectPanelControllerSelector(xpath.container);
             await inspectPanelControllerSelector.clickOnDropdownHandle();
             await inspectPanelControllerSelector.clickOnOptionByDisplayName(displayName);
-            return await this.pause(500);
+            return await this.pause(1000);
         } catch (err) {
             await this.handleError('Page Inspection Panel, tried to select a controller', 'err_select_option', err);
         }
