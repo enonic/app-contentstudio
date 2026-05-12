@@ -122,7 +122,7 @@ const handleContentDeleted = (items: ContentServerChangeItem[]): void => {
 // Event Registration
 // ============================================================================
 
-const registerCacheInvalidationHandlers = (): void => {
+export const registerCacheInvalidationHandlers = (): void => {
     const eventsHandler = ContentServerEventsHandler.getInstance();
 
     // Content changes that create new versions
@@ -146,5 +146,3 @@ const registerCacheInvalidationHandlers = (): void => {
     eventsHandler.onContentArchived(handleContentDeleted);
 };
 
-// Initialize event handlers
-registerCacheInvalidationHandlers();

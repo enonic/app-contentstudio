@@ -2,13 +2,15 @@ import {useStore} from '@nanostores/preact';
 import {useCallback} from 'react';
 import {type ContentId} from '../../../../../../../app/content/ContentId';
 import {
-    $activeVersionId,
-    $versions,
     isVersionComparable,
     isVersionRevertable,
-    requestRevert,
+} from '../../../../../store/context/versionOperations';
+import {
+    $activeVersionId,
+    $versions,
     toggleVersionSelection,
 } from '../../../../../store/context/versionStore';
+import {useRevertActions} from '../revert/useRevertActions';
 
 /**
  * Hook for keyboard navigation within versions list
@@ -36,14 +38,15 @@ export const useVersionsKeyboard = ({
 }: UseVersionsKeyboardOptions) => {
     const versions = useStore($versions);
     const latestContentVersionId = useStore($activeVersionId);
+    const revertActions = useRevertActions();
 
     const hasRestoreButton = useCallback((): boolean => {
-        if (!activeListItemId || expandedVersionId !== activeListItemId) {
+        if (!revertActions || !activeListItemId || expandedVersionId !== activeListItemId) {
             return false;
         }
         const version = versions.find((item) => item.getId() === activeListItemId);
         return version != null && latestContentVersionId !== version.getId() && isVersionRevertable(version);
-    }, [activeListItemId, expandedVersionId, versions, latestContentVersionId]);
+    }, [revertActions, activeListItemId, expandedVersionId, versions, latestContentVersionId]);
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
         if (!activeListItemId) return;
@@ -102,10 +105,10 @@ export const useVersionsKeyboard = ({
 
         // Enter: activate restore when focused
         if (e.key === 'Enter') {
-            if (restoreFocusVersionId === activeListItemId && hasRestoreButton()) {
+            if (revertActions && restoreFocusVersionId === activeListItemId && hasRestoreButton()) {
                 e.preventDefault();
                 e.stopPropagation();
-                requestRevert(contentId, activeListItemId);
+                revertActions.requestRevert(contentId, activeListItemId);
             }
         }
     }, [
@@ -117,6 +120,8 @@ export const useVersionsKeyboard = ({
         onExpand,
         onCollapse,
         onSetRestoreFocus,
+        revertActions,
+        versions,
     ]);
 
     return {handleKeyDown};

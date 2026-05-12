@@ -1,5 +1,5 @@
 import type {ReactElement} from 'react';
-import {CompareVersionsDialog} from '../../../shared/dialogs/compare-versions/CompareVersionsDialog';
+import {CompareVersionsDialog} from '../../context/widget/versions/compare/CompareVersionsDialog';
 import {DeleteDialog} from '../../../shared/dialogs/delete/DeleteDialog';
 import {DuplicateDialog} from '../../../shared/dialogs/duplicate/DuplicateDialog';
 import {IssueDialog} from '../../../shared/dialogs/issue/IssueDialog';

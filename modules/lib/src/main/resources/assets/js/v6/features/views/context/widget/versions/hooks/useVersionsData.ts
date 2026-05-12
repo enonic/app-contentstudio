@@ -1,16 +1,15 @@
-import {useStore} from '@nanostores/preact';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {type ContentId} from '../../../../../../../app/content/ContentId';
 import {type ContentSummary} from '../../../../../../../app/content/ContentSummary';
+import {setOnlineVersionId} from '../../../../../store/context/versionPublishState';
 import {
     $allVersionsLoaded,
-    appendSyntheticCreateVersion,
     appendVersions,
-    resetVersionsSelection, setOnlineVersionId,
-    setVersions
+    resetVersionsSelection,
+    setContentCreatedTime,
+    setVersions,
 } from '../../../../../store/context/versionStore';
-import {$versionsCacheInvalidated} from '../../../../../utils/widget/versions/versionsCache';
-import {loadContentVersions} from '../../../../../utils/widget/versions/versionsLoader';
+import {useVersionsConfig} from '../config/VersionsConfigContext';
 
 /**
  * Hook for managing versions data loading
@@ -24,11 +23,14 @@ type UseVersionsDataResult = {
 }
 
 export const useVersionsData = (content: ContentSummary | null): UseVersionsDataResult => {
+    const {services} = useVersionsConfig();
+    const loadVersions = services.loadVersions;
+    const subscribeContentInvalidation = services.subscribeContentInvalidation;
+
     const [hasMore, setHasMore] = useState(true);
     const [cursor, setCursor] = useState<string | undefined>();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
-    const cacheInvalidated = useStore($versionsCacheInvalidated);
     const loadIdRef = useRef(0);
 
     const loadInitialVersions = useCallback((contentId: ContentId, createdDate: Date) => {
@@ -36,8 +38,9 @@ export const useVersionsData = (content: ContentSummary | null): UseVersionsData
 
         setIsLoading(true);
         setError(null);
+        setContentCreatedTime(createdDate);
 
-        loadContentVersions(contentId)
+        loadVersions(contentId)
             .then((result) => {
                 if (loadIdRef.current !== id) return;
                 setVersions(result.versions);
@@ -45,9 +48,6 @@ export const useVersionsData = (content: ContentSummary | null): UseVersionsData
                 resetVersionsSelection();
                 setHasMore(result.hasMore);
                 $allVersionsLoaded.set(!result.hasMore);
-                if (!result.hasMore) {
-                    appendSyntheticCreateVersion(createdDate);
-                }
                 setCursor(result.cursor);
             })
             .catch((err) => {
@@ -57,7 +57,7 @@ export const useVersionsData = (content: ContentSummary | null): UseVersionsData
             .finally(() => {
                 if (loadIdRef.current === id) setIsLoading(false);
             });
-    }, []);
+    }, [loadVersions]);
 
     // Initial load when content changes
     useEffect(() => {
@@ -65,6 +65,7 @@ export const useVersionsData = (content: ContentSummary | null): UseVersionsData
             loadIdRef.current++;
             setVersions([]);
             setOnlineVersionId(undefined);
+            setContentCreatedTime(undefined);
             resetVersionsSelection();
             setHasMore(false);
             $allVersionsLoaded.set(false);
@@ -76,13 +77,16 @@ export const useVersionsData = (content: ContentSummary | null): UseVersionsData
         loadInitialVersions(content.getContentId(), content.getCreatedTime());
     }, [content, loadInitialVersions]);
 
-    // Reload when cache is invalidated for the current content
+    // Reload when content invalidation is signaled for the current content
     useEffect(() => {
-        if (!cacheInvalidated || !content) return;
-        if (cacheInvalidated.id !== content.getId()) return;
+        if (!content || !subscribeContentInvalidation) return;
 
-        loadInitialVersions(content.getContentId(), content.getCreatedTime());
-    }, [cacheInvalidated, content, loadInitialVersions]);
+        return subscribeContentInvalidation((invalidatedId) => {
+            if (invalidatedId === content.getId()) {
+                loadInitialVersions(content.getContentId(), content.getCreatedTime());
+            }
+        });
+    }, [content, subscribeContentInvalidation, loadInitialVersions]);
 
     const loadMore = useCallback(async () => {
         if (!content || !hasMore || isLoading) return;
@@ -91,20 +95,17 @@ export const useVersionsData = (content: ContentSummary | null): UseVersionsData
         setError(null);
 
         try {
-            const result = await loadContentVersions(content.getContentId(), cursor);
+            const result = await loadVersions(content.getContentId(), cursor);
             appendVersions(result.versions);
             setHasMore(result.hasMore);
             $allVersionsLoaded.set(!result.hasMore);
-            if (!result.hasMore && content) {
-                appendSyntheticCreateVersion(content.getCreatedTime());
-            }
             setCursor(result.cursor);
         } catch (err) {
             setError(err instanceof Error ? err : new Error('Failed to load more versions'));
         } finally {
             setIsLoading(false);
         }
-    }, [content, cursor, hasMore, isLoading]);
+    }, [content, cursor, hasMore, isLoading, loadVersions]);
 
     return {
         hasMore,

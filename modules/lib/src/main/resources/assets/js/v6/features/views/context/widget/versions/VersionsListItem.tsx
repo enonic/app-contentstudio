@@ -8,20 +8,20 @@ import {ContentVersion} from '../../../../../../app/ContentVersion';
 import {useI18n} from '../../../../hooks/useI18n';
 import {VersionItemPublishStatus} from '../../../../shared/status/VersionItemPublishStatus';
 import {
-    $activePublishedFrom,
-    $activePublishedTo,
-    $activePublishStatus,
-    $activePublishVersionId,
-    $activeVersionId,
-    $pastPublishBadges,
-    $selectedVersions,
-    getOperationLabel,
     isVersionComparable,
     isVersionRevertable,
-    requestRevert,
-    toggleVersionSelection,
+} from '../../../../store/context/versionOperations';
+import {
+    $publishBadgeByVersionId,
     VersionPublishStatus,
+} from '../../../../store/context/versionPublishState';
+import {
+    $activeVersionId,
+    $selectedVersions,
+    toggleVersionSelection,
 } from '../../../../store/context/versionStore';
+import {getOperationLabel} from './labels';
+import {useRevertActions} from './revert/useRevertActions';
 
 const COMPONENT_NAME = 'VersionsListItem';
 
@@ -46,7 +46,7 @@ type VersionsListItemProps = {
 // Utility Hooks
 // ============================================================================
 
-const useVersionItemState = (version: ContentVersion, isFocused: boolean) => {
+const useVersionItemState = (version: ContentVersion) => {
     const selectedVersions = useStore($selectedVersions);
     const currentVersionId = useStore($activeVersionId);
     const {active, setActive} = useListbox();
@@ -120,8 +120,9 @@ export const VersionsListItem = ({
         isRevertable,
         isComparable,
         setActive,
-    } = useVersionItemState(version, isFocused);
+    } = useVersionItemState(version);
 
+    const revertActions = useRevertActions();
     const revertLabel = useI18n('field.version.revert');
 
     const handleMouseDown = useCallback(() => {
@@ -143,41 +144,36 @@ export const VersionsListItem = ({
 
     const handleRestoreClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
-        requestRevert(contentId, versionId);
-    }, [contentId, versionId]);
+        revertActions?.requestRevert(contentId, versionId);
+    }, [revertActions, contentId, versionId]);
 
     const publishMessage = version.getPublishInfo() ? version.getComment() : undefined;
-    const activePublishVersionId = useStore($activePublishVersionId);
-    const publishStatus = useStore($activePublishStatus);
-    const publishedFrom = useStore($activePublishedFrom);
-    const publishedTo = useStore($activePublishedTo);
-    const pastPublishBadges = useStore($pastPublishBadges);
-    const showRestoreButton = isExpanded && isRevertable;
-
-    const pastBadge = useMemo(
-        () => pastPublishBadges.get(versionId),
-        [versionId, pastPublishBadges],
-    );
+    const publishBadges = useStore($publishBadgeByVersionId);
+    const badge = useMemo(() => publishBadges.get(versionId), [versionId, publishBadges]);
+    const showRestoreButton = revertActions != null && isExpanded && isRevertable;
 
     const publishStatusMessage = useMemo(() => {
-        if (versionId === activePublishVersionId) {
-            if (publishStatus === VersionPublishStatus.PUBLISHED) {
-                return publishedTo ? i18n('widget.versionhistory.publishedUntil', DateHelper.formatDateTime(publishedTo)) : undefined;
+        if (!badge) return undefined;
+
+        if (badge.isOnline) {
+            if (badge.status === VersionPublishStatus.PUBLISHED && badge.publishedTo) {
+                return i18n('widget.versionhistory.publishedUntil', DateHelper.formatDateTime(badge.publishedTo));
             }
-            if (publishStatus === VersionPublishStatus.SCHEDULED) {
-                return publishedFrom ? i18n('widget.versionhistory.scheduled', DateHelper.formatDateTime(publishedFrom)) : undefined;
+            if (badge.status === VersionPublishStatus.SCHEDULED && badge.publishedFrom) {
+                return i18n('widget.versionhistory.scheduled', DateHelper.formatDateTime(badge.publishedFrom));
             }
-            if (publishStatus === VersionPublishStatus.EXPIRED) {
-                return publishedTo ? i18n('widget.versionhistory.expired', DateHelper.formatDateTime(publishedTo)) : undefined;
+            if (badge.status === VersionPublishStatus.EXPIRED && badge.publishedTo) {
+                return i18n('widget.versionhistory.expired', DateHelper.formatDateTime(badge.publishedTo));
             }
+            return undefined;
         }
 
-        if (pastBadge?.publishStatus === VersionPublishStatus.EXPIRED && pastBadge.publishedTo) {
-            return i18n('widget.versionhistory.expired', DateHelper.formatDateTime(pastBadge.publishedTo));
+        if (badge.status === VersionPublishStatus.EXPIRED && badge.publishedTo) {
+            return i18n('widget.versionhistory.expired', DateHelper.formatDateTime(badge.publishedTo));
         }
 
         return undefined;
-    }, [versionId, activePublishVersionId, publishStatus, publishedFrom, publishedTo, pastBadge]);
+    }, [badge]);
 
     return (
         <div
@@ -189,15 +185,13 @@ export const VersionsListItem = ({
         >
             <div className='w-full flex items-center gap-2'>
                 <div className='w-7.5 h-full flex justify-center items-center'>
-                    {isComparable ? (
+                    {isComparable && (
                         <Checkbox
                             checked={isSelected}
                             tabIndex={-1}
                             onMouseDown={preventFocusChange}
                             onClick={handleCheckboxClick}
                         />
-                    ) : (
-                        <></>// <VersionsListItemIcon version={version} />
                     )}
                 </div>
 

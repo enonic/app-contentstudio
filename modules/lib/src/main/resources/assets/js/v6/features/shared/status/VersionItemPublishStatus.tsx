@@ -5,11 +5,9 @@ import {ReactElement, useMemo} from 'react';
 import {ContentVersion} from '../../../../app/ContentVersion';
 import {useI18n} from '../../hooks/useI18n';
 import {
-    $activePublishStatus,
-    $activePublishVersionId,
-    $pastPublishBadges,
+    $publishBadgeByVersionId,
     VersionPublishStatus,
-} from '../../store/context/versionStore';
+} from '../../store/context/versionPublishState';
 
 type VersionItemPublishStatusProps = {
     version: ContentVersion | null;
@@ -20,24 +18,22 @@ export const VersionItemPublishStatus = ({version, className}: VersionItemPublis
     const onlineLabel = useI18n('status.online');
     const expiredLabel = useI18n('status.expired');
     const scheduledLabel = useI18n('status.scheduled');
-    const activePublishVersionId = useStore($activePublishVersionId);
-    const publishStatus = useStore($activePublishStatus);
-    const pastPublishBadges = useStore($pastPublishBadges);
+    const badges = useStore($publishBadgeByVersionId);
     const commonClassName = 'text-sm items-center truncate group-data-[tone=inverse]:text-alt';
 
     const versionId = version?.getId();
 
-    const pastBadge = useMemo(
-        () => versionId ? pastPublishBadges.get(versionId) : undefined,
-        [versionId, pastPublishBadges],
+    const badge = useMemo(
+        () => (versionId ? badges.get(versionId) : undefined),
+        [versionId, badges],
     );
 
-    if (!version) {
+    if (!version || !badge) {
         return null;
     }
 
-    if (versionId === activePublishVersionId) {
-        switch (publishStatus) {
+    if (badge.isOnline) {
+        switch (badge.status) {
             case VersionPublishStatus.PUBLISHED:
                 return <div className={cn(commonClassName, 'text-success', className)}>{onlineLabel}</div>;
             case VersionPublishStatus.EXPIRED:
@@ -49,11 +45,7 @@ export const VersionItemPublishStatus = ({version, className}: VersionItemPublis
         }
     }
 
-    if (pastBadge) {
-        return <Cloud className={cn('w-4 h-4 shrink-0', className)} />;
-    }
-
-    return null;
+    return <Cloud className={cn('w-4 h-4 shrink-0', className)} />;
 };
 
 VersionItemPublishStatus.displayName = 'VersionItemPublishStatus';

@@ -3,17 +3,16 @@ import {useStore} from '@nanostores/preact';
 import {DiffPatcher} from 'jsondiffpatch';
 import {format, showUnchanged} from 'jsondiffpatch/formatters/html';
 import {ReactElement, useCallback, useEffect, useId, useMemo} from 'react';
-import {ContentVersion} from '../../../../../app/ContentVersion';
-import {useI18n} from '../../../hooks/useI18n';
-import {$versions} from '../../../store/context/versionStore';
+import {ContentVersion} from '../../../../../../../app/ContentVersion';
+import {fetchVersion as defaultFetchVersion} from '../../../../../api/versions';
+import {useI18n} from '../../../../../hooks/useI18n';
 import {
     $compareVersionsDialog,
     closeCompareVersionsDialog,
     setCompareVersionsShowAll,
-} from '../../../store/dialogs/compareVersionsDialog.store';
-import {findById} from '../../../utils/array/find';
-import {useVersionsJson} from '../../../views/context/widget/versions/hooks/useVersionsJson';
+} from './store';
 import {SelectedVersionCard} from './SelectedVersionCard';
+import {useVersionsJson, type FetchVersionFn} from './useVersionsJson';
 
 const COMPARE_VERSIONS_DIALOG_NAME = 'CompareVersionsDialog';
 
@@ -22,21 +21,26 @@ type OrderedVersions = {
     newer: ContentVersion;
 };
 
-const orderVersions = (left: ContentVersion, right: ContentVersion): OrderedVersions => {
-    return left.getTimestamp() <= right.getTimestamp()
+const orderVersions = (left: ContentVersion, right: ContentVersion): OrderedVersions =>
+    left.getTimestamp() <= right.getTimestamp()
         ? {older: left, newer: right}
         : {older: right, newer: left};
+
+type CompareVersionsDialogProps = {
+    /** Override the version-content fetcher. Defaults to Content Studio's API. */
+    fetchVersion?: FetchVersionFn;
 };
 
-export const CompareVersionsDialog = (): ReactElement => {
+export const CompareVersionsDialog = ({
+    fetchVersion = defaultFetchVersion,
+}: CompareVersionsDialogProps = {}): ReactElement => {
     const {
         open,
         contentId,
-        leftVersionId,
-        rightVersionId,
+        leftVersion,
+        rightVersion,
         showAllContent,
     } = useStore($compareVersionsDialog);
-    const versions = useStore($versions);
 
     const title = useI18n('dialog.compareVersions.comparingVersions');
     const olderLabel = useI18n('dialog.compareVersions.olderVersion');
@@ -50,14 +54,6 @@ export const CompareVersionsDialog = (): ReactElement => {
 
     const diffPatcher = useMemo(() => new DiffPatcher(), []);
 
-    const leftVersion = useMemo(
-        () => (leftVersionId ? findById(versions, leftVersionId) : null),
-        [leftVersionId, versions]
-    );
-    const rightVersion = useMemo(
-        () => (rightVersionId ? findById(versions, rightVersionId) : null),
-        [rightVersionId, versions]
-    );
     const orderedVersions = useMemo(() => {
         if (!leftVersion || !rightVersion) {
             return null;
@@ -74,9 +70,10 @@ export const CompareVersionsDialog = (): ReactElement => {
         isLoading,
         error,
     } = useVersionsJson(
-        open ? contentId : undefined,
+        fetchVersion,
+        open ? contentId ?? undefined : undefined,
         open ? olderVersionId : undefined,
-        open ? newerVersionId : undefined
+        open ? newerVersionId : undefined,
     );
 
     const handleOpenChange = useCallback((nextOpen: boolean) => {
@@ -109,7 +106,6 @@ export const CompareVersionsDialog = (): ReactElement => {
         return {diffHtml: `<h3>${versionsIdenticalLabel}</h3>`, isEmpty: true};
     }, [open, olderVersionJson, newerVersionJson, diffPatcher, versionsIdenticalLabel]);
 
-    // Apply showUnchanged when diffHtml is updated or showAllContent changes
     useEffect(() => {
         if (open && diffHtml) {
             showUnchanged(showAllContent, null, 0);

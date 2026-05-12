@@ -1,19 +1,20 @@
 import {Listbox} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ReactElement, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {type ContentSummary} from '../../../../../../app/content/ContentSummary';
 import {useI18n} from '../../../../hooks/useI18n';
-import {$contextContent} from '../../../../store/context/contextContent.store';
 import {
-    $pendingRevert,
     $selectedVersions,
     $versions,
     $versionsByDate,
     setSelectedVersions,
 } from '../../../../store/context/versionStore';
 import {useInfiniteScroll} from '../../../../hooks/useInfiniteScroll';
+import {useVersionsConfig} from './config/VersionsConfigContext';
+import {RevertPatchConfirmationDialog} from './revert/RevertPatchConfirmationDialog';
+import {$pendingRevert} from './revert/revertStore';
 import {useVersionsData} from './hooks/useVersionsData';
 import {useVersionsKeyboard} from './hooks/useVersionsKeyboard';
-import {RevertPatchConfirmationDialog} from './RevertPatchConfirmationDialog';
 import {VersionsListContent} from './VersionsListContent';
 import {VersionSelectionToolbar} from './VersionSelectionToolbar';
 import {VersionsShowAllActivitiesSection} from './VersionsShowAllActivitiesSection';
@@ -25,17 +26,26 @@ const INFINITE_SCROLL_CONFIG = {
 
 const COMPONENT_NAME = 'VersionsList';
 
+type VersionsListProps = {
+    content: ContentSummary;
+};
+
 /**
  * Main versions list component
  * Displays content versions grouped by date with infinite scroll and keyboard navigation
  */
-export const VersionsList = (): ReactElement => {
+export const VersionsList = ({content}: VersionsListProps): ReactElement => {
     const versions = useStore($versions);
     const versionsByDate = useStore($versionsByDate);
     const selection = useStore($selectedVersions);
     const selectionArray = useMemo(() => Array.from(selection), [selection]);
-    const content = useStore($contextContent);
+    const selectedVersionObjects = useMemo(
+        () => versions.filter(v => selection.has(v.getId())),
+        [versions, selection],
+    );
     const pendingRevert = useStore($pendingRevert);
+    const {services} = useVersionsConfig();
+    const revertEnabled = services.revert != null;
 
     const [activeVersionId, setActiveVersionId] = useState<string | null>(null);
     const [expandedVersionId, setExpandedVersionId] = useState<string | null>(null);
@@ -47,7 +57,6 @@ export const VersionsList = (): ReactElement => {
     const noVersionsLabel = useI18n('widget.versions.noVersions');
     const loadingLabel = useI18n('widget.versions.loading');
 
-    // Custom hooks for data loading and keyboard handling
     const {hasMore, isLoading, error, loadMore} = useVersionsData(content);
 
     const expandVersion = useCallback((versionId: string) => {
@@ -72,7 +81,6 @@ export const VersionsList = (): ReactElement => {
         onSetRestoreFocus: setRestoreFocusVersionId,
     });
 
-    // Infinite scroll observer
     const loadMoreRef = useInfiniteScroll<HTMLDivElement>({
         hasMore,
         isLoading,
@@ -122,7 +130,6 @@ export const VersionsList = (): ReactElement => {
     const handleFocus = (): void => setIsFocused(true);
     const handleBlur = (): void => setIsFocused(false);
 
-    // Show error state
     if (error) {
         return (
             <div className='text-center text-red-600'>
@@ -131,7 +138,6 @@ export const VersionsList = (): ReactElement => {
         );
     }
 
-    // Show empty state
     if (versions.length === 0 && !isLoading) {
         return (
             <div className='text-center text-subtle'>
@@ -150,7 +156,7 @@ export const VersionsList = (): ReactElement => {
             {selection.size > 0 && (
                 <VersionSelectionToolbar
                     selectionSize={selection.size}
-                    selectedVersionIds={selectionArray}
+                    selectedVersions={selectedVersionObjects}
                     content={content}
                     onCancel={handleCancelSelection}
                 />
@@ -189,7 +195,7 @@ export const VersionsList = (): ReactElement => {
                 )}
             </div>
 
-            {pendingRevert && <RevertPatchConfirmationDialog />}
+            {revertEnabled && pendingRevert && <RevertPatchConfirmationDialog />}
         </div>
     );
 };
