@@ -1,5 +1,5 @@
 /**
- * Created on 26.11.2024
+ * Created on 26.11.2024 updated on 11.05.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
@@ -14,7 +14,7 @@ describe('image.content.preview.widget.dropdown.spec - Tests for Live View', fun
         webDriverHelper.setupBrowser();
     }
 
-    it(`GIVENan image is selected WHEN Emulator dropdown has been expanded THEN expected resolutions should be present in the dropdown`,
+    it(`GIVEN an image is selected WHEN Emulator dropdown has been expanded THEN expected resolutions should be present in the dropdown`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Open the existing site:

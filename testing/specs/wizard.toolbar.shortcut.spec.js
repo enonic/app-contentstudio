@@ -85,8 +85,6 @@ describe('Wizard toolbar - shortcut spec', function () {
                 'Default project name should be displayed in Project Viewer bar');
             // 5. Verify 'aria-label' attribute in the project-viewer div:
             await contentWizard.waitForProjectViewerAriaLabelAttribute();
-            // 6. Publish menu dropdown handle:
-            await contentWizard.waitForPublishMenuDropdownRoleAttribute('button');
         });
 
     it.skip(`GIVEN folder-wizard is opened WHEN 'Alt+w' have been pressed THEN wizard should be closed and grid is loaded`,

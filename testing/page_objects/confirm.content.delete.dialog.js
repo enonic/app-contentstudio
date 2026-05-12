@@ -1,5 +1,5 @@
 /**
- * Created  on 20/01/2018
+ * Created  on 20/01/2018 updated on 11.05.2026
  */
 const Page = require('./page');
 const {BUTTONS} = require('../libs/elements');
@@ -22,6 +22,10 @@ class ConfirmValueDialog extends Page {
 
     get confirmButton() {
         return XPATH.container + BUTTONS.buttonAriaLabel('Confirm');
+    }
+
+    get cancelButton() {
+        return XPATH.container + BUTTONS.buttonAriaLabel('Cancel');
     }
 
     get numberInput() {
@@ -53,15 +57,23 @@ class ConfirmValueDialog extends Page {
 
     async waitForConfirmButtonDisabled() {
         try {
-            await this.waitForElementDisabled(this.confirmButton, appConst.mediumTimeout)
+            await this.waitForElementDisabled(this.confirmButton, appConst.mediumTimeout);
         } catch (err) {
             await this.handleError('Confirm Value Dialog - Confirm button', 'err_confirm_value_dlg_confirm_button', err);
         }
     }
 
+    async waitForCancelButtonEnabled(){
+        try {
+            await this.waitForElementEnabled(this.cancelButton, appConst.mediumTimeout);
+        }catch (err){
+            await this.handleError('Confirm Value Dialog - Cancel button', 'err_confirm_value_dlg_cancel_button', err);
+        }
+    }
+
     async waitForConfirmButtonEnabled() {
         try {
-            await this.waitForElementEnabled(this.confirmButton, appConst.mediumTimeout)
+            await this.waitForElementEnabled(this.confirmButton, appConst.mediumTimeout);
         } catch (err) {
             await this.handleError('Confirm Value Dialog - Confirm button', 'err_confirm_value_dlg_confirm_button', err);
         }

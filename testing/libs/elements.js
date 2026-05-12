@@ -18,6 +18,9 @@ const COMMON = {
     WIDGET_SIDEBAR: {
         CONTAINER: "//nav[@aria-label='Sidebar']",
     },
+    PCV:{
+        contextMenuDiv:"//div[@data-component='ContextMenu.Content' and @role='menu']",
+    },
 
     INPUTS: {
         CHECKBOX_INPUT: "//input[@type='checkbox']",
@@ -111,7 +114,7 @@ const LIVE_VIEW = {
     NO_CONTROLLER_NO_PREVIEW_MSG_SPAN: "//div[@class='no-selection-message']//span",
     EMPTY_LIVE_FRAME_DIV: "//div[contains(@class,'frame-container')]//iframe[@class='live-edit-frame']",
     LIVE_EDIT_FRAME: "//div[contains(@id,'FrameContainer')]//iframe[contains(@class,'text') or contains(@class,'application')]",
-    MINIMIZE_BUTTON: `//div[contains(@class,'minimize-edit')]`,
+    MINIMIZE_BUTTON: `//button[@data-component='ToggleFormButton' and @aria-label='Collapse content form']`,
     PAGE_EDITOR_TOGGLE_BUTTON: "//button[contains(@id, 'CycleButton')]",
     HIDE_PAGE_EDITOR_BUTTON: "//button[contains(@id,'ContentActionCycleButton') and @title='Hide Page Editor']",
 };
