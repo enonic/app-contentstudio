@@ -6,6 +6,7 @@ import {useEffect, useMemo} from 'react';
 
 type UseSetPropertyArrayOptions = {
     onCreateOccurrence?: (occurrencePropertySet: PropertySet) => void;
+    seedMin?: boolean;
 };
 
 /**
@@ -33,15 +34,17 @@ export function useSetPropertyArray(
     }, [name, propertySet]);
 
     const onCreateOccurrence = options?.onCreateOccurrence;
+    const seedMin = options?.seedMin ?? true;
 
     useEffect(() => {
+        if (!seedMin) return;
         const min = occurrences.getMinimum();
 
         while (propertyArray.getSize() < min) {
             const created = propertyArray.addSet();
             onCreateOccurrence?.(created);
         }
-    }, [propertyArray, occurrences, onCreateOccurrence]);
+    }, [propertyArray, occurrences, onCreateOccurrence, seedMin]);
 
     return propertyArray;
 }
