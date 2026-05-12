@@ -25,6 +25,7 @@ const XPATH = {
     showPageEditorTogglerButton: "//button[contains(@id,'ContentActionCycleButton') and @title='Show Page Editor']",
     displayNameInput: "//input[@name='displayName']",
     toolbar: `//div[@data-component='Toolbar.Container' and @role='toolbar']`,
+    publishMenuItem:`//div[contains(@id,'ContentWizardToolbar') and @role='menu']`,
     contentItemPreviewToolbar: `//div[contains(@id,'PreviewToolbar')]`,
     toolbarStateIcon: `//div[contains(@class,'toolbar-state-icon')]`,
     // v6: workflow state SVG in the toolbar — aria-label is 'invalid', 'in-progress', or 'ready'
@@ -50,7 +51,7 @@ const XPATH = {
     xDataTogglerByName:
         name => `//div[contains(@id,'WizardStepsPanel')]//div[contains(@id,'ContentPanelStripHeader') and child::span[contains(.,'${name}')]]//button[contains(@class,'toggler-button')]`,
     publishMenuItemByName(name) {
-        return `//div[contains(@id,'ContentWizardToolbar')]//div[@role='menu']//div[@role='menuitem' and .//span[text()='${name}']]`
+        return `//div[contains(@id,'ContentWizardToolbar') and @role='menu']//div[@role='menuitem' and .//span[text()='${name}']]`;
     },
     previewToolbarMenuItem: (optionName) => {
         return `//div[contains(@id,'PreviewToolbar') and @role='menu']//div[@role='menuitemradio' and descendant::span[text()='${optionName}']]`
@@ -96,7 +97,7 @@ class ContentWizardPanel extends Page {
     }
 
     get minimizeLiveEditToggler() {
-        return XPATH.wizardStepNavigatorAndToolbar + LIVE_VIEW.MINIMIZE_BUTTON;
+        return COMMON.CONTENT_WIZARD_DATA_COMPONENT + LIVE_VIEW.MINIMIZE_BUTTON;
     }
 
     get pageEditorTogglerButton() {
@@ -128,7 +129,7 @@ class ContentWizardPanel extends Page {
     }
 
     get publishDropDownHandle() {
-        return XPATH.toolbar + "//div[contains(@class,'justify-end')]//button[@aria-label='More actions' and not(@disabled)]";
+        return XPATH.toolbar + "//div[contains(@class,'justify-end')]//button[@aria-label='More actions']";
     }
 
     get unpublishMenuItem() {
@@ -558,10 +559,21 @@ class ContentWizardPanel extends Page {
         await this.clickOnPublishMenuDropdownHandle();
         await this.pause(300);
     }
+    async waitForPublishMenuDropdownHandleDisabled(){
+        await this.waitForElementDisabled(this.publishDropDownHandle);
+    }
+
+
 
     async waitForPublishMenuItemDisabled(menuItem) {
-        let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
-        return await this.waitForAttributeHasValue(selector, 'aria-disabled', 'true');
+        let selector = XPATH.publishMenuItemByName(menuItem);
+        let aa = await this.findElements(selector);
+        let role = await aa[0].getAttribute('role');
+        let dd = await aa[0].getAttribute('aria-disabled');
+
+        await this.waitForAttributeHasValue(selector,'aria-disabled', 'true');
+        //return await this.waitForAttributeHasValue(selector, 'aria-disabled', 'true');
+
     }
 
     async waitForReadOnlyMode() {
@@ -583,9 +595,26 @@ class ContentWizardPanel extends Page {
         }
     }
 
+    // async waitForPublishMenuItemEnabled(menuItem) {
+    //     let selector = XPATH.publishMenuItemByName(menuItem);
+    //     await this.getAttribute(selector, 'aria-disabled');
+    //     return await this.waitForAttributeNotIncludesValue(selector, 'aria-disabled', 'true');
+    // }
+
     async waitForPublishMenuItemEnabled(menuItem) {
-        let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
-        return await this.waitForAttributeNotIncludesValue(selector, 'aria-disabled', 'true');
+        let selector =  XPATH.publishMenuItemByName(menuItem);
+        return await this.getBrowser().waitUntil(async () => {
+            let ariaDisabled = await this.getAttribute(selector, 'aria-disabled');
+            return !ariaDisabled || ariaDisabled !== 'true';
+        }, {timeout: appConst.shortTimeout, timeoutMsg: `Menu item "${menuItem}" should be enabled`});
+    }
+
+    async waitForPublishMenuItemDisabled(menuItem) {
+        let selector = XPATH.publishMenuItemByName(menuItem);
+        return await this.getBrowser().waitUntil(async () => {
+            let ariaDisabled = await this.getAttribute(selector, 'aria-disabled');
+            return ariaDisabled === 'true';
+        }, {timeout: appConst.shortTimeout, timeoutMsg: `Menu item "${menuItem}" should be disabled`});
     }
 
     async isContentInvalid() {
@@ -780,11 +809,11 @@ class ContentWizardPanel extends Page {
     }
 
     async waitForMinimizeLiveEditTogglerNotDisplayed() {
-        return await this.waitForElementNotDisplayed(this.minimizeLiveEditToggler, appConst.mediumTimeout);
+        return await this.waitForElementNotDisplayed(this.minimizeLiveEditToggler);
     }
 
     async waitForMinimizeLiveEditTogglerDisplayed() {
-        await this.waitForElementDisplayed(this.minimizeLiveEditToggler, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.minimizeLiveEditToggler);
         await this.pause(500);
     }
 
@@ -955,7 +984,8 @@ class ContentWizardPanel extends Page {
     // Wait for 'Create Issue' button gets default action in 'Publish' menu:
     async waitForCreateIssueButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.createIssueButton, appConst.shortTimeout);
+            await this.waitForElementDisplayed(this.createIssueButton, appConst.shortTimeout);
+            await this.waitForElementEnabled(this.createIssueButton, appConst.shortTimeout);
         } catch (err) {
             await this.handleError(`'Create Issue...' button should be displayed as default action`, 'err_publish_menu_def_action', err);
         }
@@ -1207,12 +1237,7 @@ class ContentWizardPanel extends Page {
         await this.waitForAttributeIsPresent(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL);
     }
 
-    async waitForPublishMenuDropdownRoleAttribute(expectedRole) {
-        let locator = XPATH.toolbarPublish + lib.BUTTONS.DROP_DOWN_HANDLE;
-        await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedRole);
-    }
-
-    async waitForPreviewWidgetDropdownDisplayed() {
+       async waitForPreviewWidgetDropdownDisplayed() {
         return await this.waitForElementDisplayed(this.previewWidgetDropdown);
     }
 

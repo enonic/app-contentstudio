@@ -1,5 +1,5 @@
 /**
- * Created on 01.08.2019.
+ * Created on 01.08.2019. updated on 11.05.2026 for epic-enonic-ui
  */
 const webDriverHelper = require('../libs/WebDriverHelper');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');

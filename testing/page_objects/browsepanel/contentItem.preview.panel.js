@@ -1,5 +1,5 @@
 /**
- * Created on 20/06/2018.
+ * Created on 20/06/2018.  updated on 11.05.2026
  */
 const Page = require('../page');
 const {BUTTONS} = require('../../libs/elements');
@@ -19,6 +19,7 @@ const xpath = {
     previewToolbarMenuItem: (optionName) => {
         return `//div[contains(@id,'PreviewToolbar') and @role='menu']//div[@role='menuitemradio' and descendant::span[text()='${optionName}']]`
     },
+    emulatorMenuItem:`//div[contains(@id,'PreviewToolbar')]//div[@role='group']//div[@role='menuitemradio']//p/span[1]`,
 };
 
 // Browse Panel -> Content Item Preview Panel
@@ -294,8 +295,8 @@ class ContentItemPreviewPanel extends Page {
 
     // return items in the expanded emulator dropdown:
     async getEmulatorResolutions() {
-        let locator = xpath.previewToolbarMenuItems;
-        await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
+        let locator = xpath.emulatorMenuItem;
+        await this.waitUntilDisplayed(locator);
         await this.pause(300);
         return await this.getTextInDisplayedElements(locator);
     }

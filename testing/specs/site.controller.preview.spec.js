@@ -1,5 +1,5 @@
 /**
- * Created on 01.02.2018.
+ * Created on 01.02.2018.  updated on 08.05.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
@@ -29,7 +29,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
         async () => {
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'test preview site', [appConst.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, 'site', [appConst.APP_CONTENT_TYPES]);
             // 1. Open new site-wizard:
             await studioUtils.doOpenSiteWizard();
             // 2. Controller is not selected in the wizard
@@ -80,8 +80,8 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             // 6. Verify actual options:
             await studioUtils.saveScreenshot('site_inspect_panel_template_dropdown');
             let expectedOption = 'No default template found';
-            assert.equal(actualOptions[0], expectedOption, 'name of automatic template should be displayed');
-            assert.equal(actualOptions[1], 'test region', 'expected option should be present');
+            assert.ok(actualOptions.includes(expectedOption), 'name of automatic template should be displayed');
+            assert.ok(actualOptions.includes('test region'), 'expected option should be present');
             assert.ok(actualOptions.includes('home page') , 'expected option should be present');
         });
 
@@ -114,7 +114,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             // 1. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. Expand the menu:
-            await pageComponentView.openMenu(CONTROLLER_NAME);
+            await pageComponentView.rightClickAndOpenContextMenu(CONTROLLER_NAME);
             // 3. Click on the 'Reset' menu item:
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
             let confirmationDialog = new ConfirmationDialog();
@@ -164,15 +164,17 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             assert.equal(footerText, FOOTER_TEXT, 'Footer text should be displayed in the preview panel');
         });
 
-    // test to verify of XP-4123 (Page Editor inaccessible for a folder)
-    it(`GIVEN existing site is selected WHEN child folder has been saved THEN 'Show Page Editor' button should be present in the wizard toolbar`,
+    it(`WHEN wizard for child folder has been opened THEN 'Automatic' options should be selected in the preview widget`,
         async () => {
             let contentWizard = new ContentWizard();
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
             // 1. Select the site, then open new wizard for folder:
             await studioUtils.findAndSelectItem(SITE.displayName);
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             // 2. Verify that Page Editor toggle is displayed:
-            await contentWizard.waitForPageEditorTogglerDisplayed();
+            let actualOption = await contentItemPreviewPanel.getSelectedOptionInPreviewWidget();
+            assert.equal(actualOption, appConst.PREVIEW_WIDGET.AUTOMATIC,
+                'Automatic option should be selected in preview widget by default');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

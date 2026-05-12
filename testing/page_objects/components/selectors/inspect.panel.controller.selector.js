@@ -2,50 +2,72 @@
  * Created on 23.02.2024
  */
 const BaseDropdown = require('./base.dropdown');
-const lib = require('../../../libs/elements-old');
-const appConst = require('../../../libs/app_const');
 
-const XPATH = {
-    container: "//div[contains(@id,'PageTemplateAndControllerSelector')]",
-    selectorListBoxUL: "//ul[contains(@id,'PageOptionsList')]",
-    optionByName: text => {
-        return `//div[contains(@id,'PageTemplateAndSelectorViewer') and descendant::h6[ text()='${text}']]`
-    },
+const {DROPDOWN} = require("../../../libs/elements");
+
+const xpath = {
+    dataComponent: "//div[@data-component='PageControllerSelector']",
 };
 
 class InspectPanelControllerSelector extends BaseDropdown {
 
-    get container() {
-        return XPATH.container;
+    constructor(parentElementXpath) {
+        super();
+        this._parentContainer = parentElementXpath;
     }
 
-    async selectFilteredOptionByDisplayName(optionName, parentElement) {
+    get container() {
+        return this._parentContainer
+    }
+
+    get dataComponentDiv() {
+        return xpath.dataComponent;
+    }
+
+    optionsFilterInput() {
+        return this.container + DROPDOWN.OPTION_FILTER_INPUT;
+    }
+
+    async getSelectedOption(){
+        let locator = this.container + "//button[@data-component='Combobox.Value']/span";
+        await this.waitForElementDisplayed(locator);
+        return await this.getText(locator);
+    }
+
+    async clickOnOptionByDisplayName(optionDisplayName) {
         try {
-            await this.clickOnFilteredByDisplayNameItem(optionName, parentElement);
+            let optionLocator = DROPDOWN.listboxOptionByText(optionDisplayName);
+            await this.waitForElementDisplayed(optionLocator);
+            await this.clickOnElement(optionLocator);
+        } catch (err) {
+            await this.handleError(`Dropdown Selector, tried to click on filtered by display name option: ${optionDisplayName}`,
+                'err_click_filtered_option', err);
+        }
+    }
+
+
+    async getOptionsDescription(){
+        const locator = DROPDOWN.COMBOBOX_POPUP + "//div[@data-component='Listbox.Item' and @role='option']//small";
+        await this.waitForElementDisplayed(locator);
+        await this.pause(500);
+        return await this.getTextInDisplayedElements(locator);
+    }
+
+    async getOptionsName(){
+        const locator = DROPDOWN.COMBOBOX_POPUP + "//div[@data-component='Listbox.Item' and @role='option']//span";
+        await this.waitForElementDisplayed(locator);
+        await this.pause(500);
+        return await this.getTextInDisplayedElements(locator);
+    }
+
+    async selectFilteredOptionByDisplayName(optionName) {
+        try {
+            await this.clickOnDropdownHandle();
+            await this.clickOnOptionByDisplayName(optionName );
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
             throw new Error('CustomSelectorComboBox - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
         }
-    }
-
-    async getOptionsName(parentXpath) {
-        if (parentXpath === undefined) {
-            parentXpath = '';
-        }
-        let locator = parentXpath + XPATH.selectorListBoxUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.pause(500);
-        return await this.getTextInDisplayedElements(locator);
-    }
-
-    async getOptionsDescription(parentXpath) {
-        if (parentXpath === undefined) {
-            parentXpath = '';
-        }
-        let locator = parentXpath + XPATH.selectorListBoxUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.P_SUB_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.pause(500);
-        return await this.getTextInDisplayedElements(locator);
     }
 }
 
