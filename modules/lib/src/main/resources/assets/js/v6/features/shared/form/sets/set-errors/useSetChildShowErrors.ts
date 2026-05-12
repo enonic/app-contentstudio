@@ -13,6 +13,7 @@ type OccurrenceInteraction = {
 type UseSetChildShowErrorsReturn = {
     childValidationVisibility: Map<number, ValidationVisibility>;
     childShowErrors: Map<number, boolean>;
+    setInteracted: boolean;
 };
 
 /**
@@ -24,6 +25,7 @@ type UseSetChildShowErrorsReturn = {
 export function useSetChildShowErrors(propertyArray: PropertyArray, propertySets: PropertySet[]): UseSetChildShowErrorsReturn {
     const validationVisibility = useValidationVisibility();
     const [tick, setTick] = useState(0);
+    const [setInteracted, setSetInteracted] = useState(false);
 
     const occurrenceInteractions = useMemo(() => new WeakMap<PropertySet, OccurrenceInteraction>(), []);
 
@@ -48,6 +50,7 @@ export function useSetChildShowErrors(propertyArray: PropertyArray, propertySets
             const ps = property.getPropertySet();
             if (ps == null) return;
             occurrenceInteractions.set(ps, {interacted: false, validationVisibility: 'none'});
+            setSetInteracted(true);
             setTick((t) => t + 1);
         };
 
@@ -97,5 +100,5 @@ export function useSetChildShowErrors(propertyArray: PropertyArray, propertySets
         return map;
     }, [propertySets, tick, validationVisibility, getOrInit]);
 
-    return {childValidationVisibility, childShowErrors};
+    return {childValidationVisibility, childShowErrors, setInteracted};
 }

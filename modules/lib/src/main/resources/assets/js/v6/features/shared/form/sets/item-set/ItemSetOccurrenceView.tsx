@@ -96,7 +96,11 @@ export const ItemSetOccurrenceView = forwardRef<HTMLDivElement, ItemSetOccurrenc
         }, []);
 
         return (
-            <div ref={ref} className={cn('w-full', isNew && 'animate-in fade-in duration-500')} data-component={ITEM_SET_OCCURRENCE_VIEW_NAME}>
+            <div
+                ref={ref}
+                className={cn('w-full', isNew && 'animate-in fade-in duration-500')}
+                data-component={ITEM_SET_OCCURRENCE_VIEW_NAME}
+            >
                 {confirmingDelete && <SetConfirmOverlay />}
 
                 <div
@@ -150,7 +154,7 @@ export const ItemSetOccurrenceView = forwardRef<HTMLDivElement, ItemSetOccurrenc
                                         <button
                                             type="button"
                                             onClick={handleDotsClick}
-                                            className="cursor-pointer text-subtle hover:text-main group-data-[tone=inverse]:text-alt p-2.5 pl-0"
+                                            className="rounded cursor-pointer text-subtle hover:text-alt hover:bg-surface-selected group-data-[tone=inverse]:text-alt mr-2.5 my-1.5 p-2"
                                         >
                                             <MoreVertical size={20} absoluteStrokeWidth />
                                         </button>
