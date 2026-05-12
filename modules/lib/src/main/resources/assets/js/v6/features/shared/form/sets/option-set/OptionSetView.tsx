@@ -47,7 +47,12 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
     const {enabled} = useFormRender();
     const validationVisibility = useValidationVisibility();
     const seedDefaults = useCallback((ps: PropertySet) => seedOptionSetDefaults(optionSet, ps), [optionSet]);
-    const propertyArray = useSetPropertyArray(name, propertySet, occurrences, {onCreateOccurrence: seedDefaults});
+    const isRadio = optionSet.isRadioSelection();
+    const isLockedSingle = occurrences.getMinimum() === 1 && occurrences.getMaximum() === 1;
+    const propertyArray = useSetPropertyArray(name, propertySet, occurrences, {
+        onCreateOccurrence: seedDefaults,
+        seedMin: !isRadio || isLockedSingle,
+    });
     const {propertySets} = usePropertySetArray(propertyArray);
     const propertySetKeys = usePropertySetKeys(propertySets);
     const {state, remove, move} = useSetOccurrenceManager(occurrences, propertySets);
@@ -61,12 +66,10 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
     const addLabel = useI18n('action.add');
     const dragLabel = useI18n('field.occurrence.action.reorder');
 
-    const showOccurrenceError = validationVisibility !== 'none';
     const occurrenceError = useOccurrenceError(occurrences, state);
-    const {childShowErrors, childValidationVisibility} = useSetChildShowErrors(propertyArray, propertySets);
+    const {childShowErrors, childValidationVisibility, setInteracted} = useSetChildShowErrors(propertyArray, propertySets);
     const childErrors = useOptionSetChildErrors(optionSet, propertySets);
 
-    const isRadio = optionSet.isRadioSelection();
     const handleAdd = useCallback(() => {
         if (!state.canAdd) return;
 
@@ -187,7 +190,7 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
                 onExpandAll={handleExpandAll}
                 onCollapseAll={handleCollapseAll}
                 occurrences={occurrences}
-                occurrenceError={showOccurrenceError ? occurrenceError : undefined}
+                occurrenceError={validationVisibility === 'all' || setInteracted ? occurrenceError : undefined}
             />
 
             {state.count > 0 && (
