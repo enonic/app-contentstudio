@@ -2,26 +2,33 @@ import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {type ContentVersionAction, ContentVersionActionBuilder} from '../../../../app/ContentVersionAction';
 import {type ContentVersion, ContentVersionBuilder} from '../../../../app/ContentVersion';
 import {
-    $activePublishStatus,
-    $activePublishVersionId,
     $allVersionsLoaded,
-    $onlineVersionId,
-    $pastPublishBadges,
     $versions,
     $versionsByDate,
     $versionsDisplayMode,
-    appendSyntheticCreateVersion,
-    VersionField,
+    $versionsForDisplay,
+    setContentCreatedTime,
+} from './versionStore';
+import {
     ContentOperation,
-    getIconForOperation,
-    getOperationLabel,
     isStandardModeVersion,
     isVersionComparable,
     isVersionRevertable,
     resolveVersionOperationType,
+    VersionField,
     VersionOperationType,
+} from './versionOperations';
+import {
+    $activePublishStatus,
+    $activePublishVersionId,
+    $onlineVersionId,
+    $pastPublishBadges,
     VersionPublishStatus,
-} from './versionStore';
+} from './versionPublishState';
+import {
+    getIconForOperation,
+    getOperationLabel,
+} from '../../views/context/widget/versions/labels';
 
 import {
     Archive,
@@ -619,18 +626,17 @@ describe('publish badge', () => {
 });
 
 // ============================================================================
-// appendSyntheticCreateVersion
+// $versionsForDisplay (synthetic CREATE placeholder derivation)
 // ============================================================================
 
-describe('appendSyntheticCreateVersion', () => {
+describe('$versionsForDisplay synthetic placeholder', () => {
     it('appends synthetic version when last version is not CREATE/IMPORT/SYNC', () => {
         const update = createVersion('v1', [createAction(ContentOperation.UPDATE)]);
         $versions.set([update]);
         $allVersionsLoaded.set(true);
+        setContentCreatedTime(new Date('2023-06-01'));
 
-        appendSyntheticCreateVersion(new Date('2023-06-01'));
-
-        const versions = $versions.get();
+        const versions = $versionsForDisplay.get();
         expect(versions).toHaveLength(2);
         expect(versions[1].getId()).toBe('__synthetic_create__');
         expect(resolveVersionOperationType(versions[1])).toBe(VersionOperationType.SYNTHETIC_CREATE);
@@ -642,9 +648,9 @@ describe('appendSyntheticCreateVersion', () => {
         $allVersionsLoaded.set(true);
 
         const createdDate = new Date('2023-06-01T12:00:00Z');
-        appendSyntheticCreateVersion(createdDate);
+        setContentCreatedTime(createdDate);
 
-        const synthetic = $versions.get()[1];
+        const synthetic = $versionsForDisplay.get()[1];
         expect(synthetic.getTimestamp()).toEqual(createdDate);
     });
 
@@ -652,62 +658,74 @@ describe('appendSyntheticCreateVersion', () => {
         const create = createVersion('v1', [createAction(ContentOperation.CREATE)]);
         $versions.set([create]);
         $allVersionsLoaded.set(true);
+        setContentCreatedTime(new Date('2023-06-01'));
 
-        appendSyntheticCreateVersion(new Date('2023-06-01'));
-
-        expect($versions.get()).toHaveLength(1);
+        expect($versionsForDisplay.get()).toHaveLength(1);
     });
 
     it('does not append when last version has no actions and is first (IMPORT)', () => {
         const noActions = createVersion('v1', []);
         $versions.set([noActions]);
         $allVersionsLoaded.set(true);
+        setContentCreatedTime(new Date('2023-06-01'));
 
-        appendSyntheticCreateVersion(new Date('2023-06-01'));
-
-        expect($versions.get()).toHaveLength(1);
+        expect($versionsForDisplay.get()).toHaveLength(1);
         expect(resolveVersionOperationType(noActions)).toBe(VersionOperationType.IMPORT);
     });
 
     it('does not append when last version is IMPORT', () => {
         const imported = createVersion('v-import', []);
         const update = createVersion('v-update', [createAction(ContentOperation.UPDATE)]);
-        // imported is not first (update is newer), so it resolves as IMPORT
         $versions.set([update, imported]);
         $allVersionsLoaded.set(true);
+        setContentCreatedTime(new Date('2023-06-01'));
 
-        appendSyntheticCreateVersion(new Date('2023-06-01'));
-
-        expect($versions.get()).toHaveLength(2);
+        expect($versionsForDisplay.get()).toHaveLength(2);
     });
 
     it('does not append when last version is SYNC', () => {
         const sync = createVersion('v1', [createAction(ContentOperation.SYNC)]);
         $versions.set([sync]);
         $allVersionsLoaded.set(true);
+        setContentCreatedTime(new Date('2023-06-01'));
 
-        appendSyntheticCreateVersion(new Date('2023-06-01'));
-
-        expect($versions.get()).toHaveLength(1);
+        expect($versionsForDisplay.get()).toHaveLength(1);
     });
 
     it('does not append when versions are empty', () => {
         $versions.set([]);
+        setContentCreatedTime(new Date('2023-06-01'));
 
-        appendSyntheticCreateVersion(new Date('2023-06-01'));
+        expect($versionsForDisplay.get()).toHaveLength(0);
+    });
 
-        expect($versions.get()).toHaveLength(0);
+    it('does not append when $allVersionsLoaded is false', () => {
+        const update = createVersion('v1', [createAction(ContentOperation.UPDATE)]);
+        $versions.set([update]);
+        $allVersionsLoaded.set(false);
+        setContentCreatedTime(new Date('2023-06-01'));
+
+        expect($versionsForDisplay.get()).toHaveLength(1);
+    });
+
+    it('does not append when createdTime is undefined', () => {
+        const update = createVersion('v1', [createAction(ContentOperation.UPDATE)]);
+        $versions.set([update]);
+        $allVersionsLoaded.set(true);
+        setContentCreatedTime(undefined);
+
+        expect($versionsForDisplay.get()).toHaveLength(1);
     });
 
     it('appends when last version is PUBLISH', () => {
         const publish = createVersion('v1', [createAction(ContentOperation.PUBLISH)]);
         $versions.set([publish]);
         $allVersionsLoaded.set(true);
+        setContentCreatedTime(new Date('2023-06-01'));
 
-        appendSyntheticCreateVersion(new Date('2023-06-01'));
-
-        expect($versions.get()).toHaveLength(2);
-        expect($versions.get()[1].getId()).toBe('__synthetic_create__');
+        const versions = $versionsForDisplay.get();
+        expect(versions).toHaveLength(2);
+        expect(versions[1].getId()).toBe('__synthetic_create__');
     });
 });
 

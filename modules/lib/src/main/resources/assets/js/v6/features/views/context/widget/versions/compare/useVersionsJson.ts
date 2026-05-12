@@ -1,7 +1,8 @@
 import {useEffect, useState} from 'react';
 import {ResultAsync} from 'neverthrow';
 import {type ContentJson} from '../../../../../../../app/content/ContentJson';
-import {fetchVersion} from '../../../../../api/versions';
+
+export type FetchVersionFn = (contentId: string, versionId: string) => ResultAsync<ContentJson, Error>;
 
 type VersionsJsonResult = {
     olderVersionJson: ContentJson | null;
@@ -11,6 +12,7 @@ type VersionsJsonResult = {
 };
 
 export const useVersionsJson = (
+    fetchVersion: FetchVersionFn,
     contentId: string | undefined,
     olderVersionId: string | undefined,
     newerVersionId: string | undefined
@@ -55,7 +57,7 @@ export const useVersionsJson = (
         return () => {
             cancelled = true;
         };
-    }, [contentId, olderVersionId, newerVersionId]);
+    }, [fetchVersion, contentId, olderVersionId, newerVersionId]);
 
     return {olderVersionJson, newerVersionJson, isLoading, error};
 };

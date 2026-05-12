@@ -1,12 +1,13 @@
 import {map} from 'nanostores';
-import type {ContentSummary} from '../../../../app/content/ContentSummary';
+import {type ContentSummary} from '../../../../../../../app/content/ContentSummary';
+import {type ContentVersion} from '../../../../../../../app/ContentVersion';
 
 type CompareVersionsDialogState = {
     open: boolean;
     contentId: string | null;
     contentPath: string | null;
-    leftVersionId: string | null;
-    rightVersionId: string | null;
+    leftVersion: ContentVersion | null;
+    rightVersion: ContentVersion | null;
     showAllContent: boolean;
 };
 
@@ -14,30 +15,31 @@ const initialState: CompareVersionsDialogState = {
     open: false,
     contentId: null,
     contentPath: null,
-    leftVersionId: null,
-    rightVersionId: null,
+    leftVersion: null,
+    rightVersion: null,
     showAllContent: false,
 };
 
 export const $compareVersionsDialog = map<CompareVersionsDialogState>({...initialState});
 
-export const openCompareVersionsDialog = (content: ContentSummary, versionIds: string[]): void => {
-    if (!content || versionIds.length !== 2) {
-        return;
-    }
-
+export const openCompareVersionsDialog = (
+    content: ContentSummary,
+    versions: [ContentVersion, ContentVersion],
+): void => {
     const contentId = content.getContentId();
     if (!contentId) {
         return;
     }
 
+    const [left, right] = versions;
+
     $compareVersionsDialog.set({
-        ...{...initialState},
+        ...initialState,
         open: true,
         contentId: contentId.toString(),
         contentPath: content.getPath()?.toString() ?? null,
-        leftVersionId: versionIds[0],
-        rightVersionId: versionIds[1],
+        leftVersion: left,
+        rightVersion: right,
     });
 };
 

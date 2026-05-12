@@ -1,8 +1,8 @@
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {ReactElement} from 'react';
-import {ContentVersion} from '../../../../../app/ContentVersion';
-import {VersionItemPublishStatus} from '../../status/VersionItemPublishStatus';
-import {getModifierLabel, getOperationLabel} from '../../../store/context/versionStore';
+import {ContentVersion} from '../../../../../../../app/ContentVersion';
+import {VersionItemPublishStatus} from '../../../../../shared/status/VersionItemPublishStatus';
+import {getModifierLabel, getOperationLabel} from '../labels';
 
 type SelectedVersionCardProps = {
     label: string;

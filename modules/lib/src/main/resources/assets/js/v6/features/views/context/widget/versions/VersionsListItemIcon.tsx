@@ -1,6 +1,6 @@
 import {ReactElement} from 'react';
 import {ContentVersion} from '../../../../../../app/ContentVersion';
-import {getIconForOperation} from '../../../../store/context/versionStore';
+import {getIconForOperation} from './labels';
 
 const COMPONENT_NAME = 'VersionsListItemIcon';
 
