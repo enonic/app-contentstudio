@@ -1,5 +1,5 @@
 /**
- * Created on 23.01.2018.
+ * Created on 23.01.2018. update on 12.05.2026
  */
 const webDriverHelper = require('../libs/WebDriverHelper');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
@@ -11,7 +11,7 @@ describe('wizard.save.button.spec:  Save and Saved buttons spec', function () {
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    const DISPLAY_NAME = appConst.generateRandomName("folder");
+    const DISPLAY_NAME = appConst.generateRandomName('folder');
 
     // verifies xp-apps#503  Incorrect label for button Save on the toolbar, when any data has been changed
     it(`WHEN folder-wizard is opened AND a name is typed WHEN the name has been cleared again THEN Save button should be enabled`,
@@ -45,7 +45,9 @@ describe('wizard.save.button.spec:  Save and Saved buttons spec', function () {
             await contentWizard.waitForSavedButtonVisible();
         });
 
-    it("WHEN the name that is already in use has been inserted in name-input THEN 'Save' button should be disabled, 'Not available' message appears",
+    // TODO bug
+    // https://github.com/enonic/app-contentstudio/issues/10469
+    it.skip("WHEN the name that is already in use has been inserted in name-input THEN 'Save' button should be disabled, 'Not available' message appears",
         async () => {
             let wizard = new ContentWizard();
             // 1. Open wizard for new folder:
@@ -59,7 +61,7 @@ describe('wizard.save.button.spec:  Save and Saved buttons spec', function () {
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

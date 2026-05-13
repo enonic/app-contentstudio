@@ -1,5 +1,5 @@
 /**
- * Created on 04/07/2018.
+ * Created on 04/07/2018. updated on 12.05.2026
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
@@ -9,11 +9,10 @@ const xpath = {
     extensionViewDiv: "//div[contains(@id,'ExtensionView') and contains (@class,'versions-widget')]",
     versionsListComponent: "//div[@data-component='VersionsListContent']",
     versionsListItemComponent: "//div[@data-component='VersionsListItem']",
-
-    versionItemExpanded: "//li[contains(@class,'version-list-item expanded')]",
-    versionItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action')) ] and not(descendant::h6[contains(.,'Permissions updated')])]",
-    anyItemByHeader: header => `//li[contains(@class,'version-list-item') and descendant::h6[contains(.,'${header}')]]`,
-    compareVersionsDiv: ".//div[@name='compare-version-checkbox']",
+    versionsListItemByName: name => {
+       return  `//div[@data-component='VersionsListItem' and descendant::span[contains(.,'${name}')]`
+    },
+    versionItemExpanded: "//div[@data-component='VersionsListItem' and descendant::button[@aria-label='Restore']]",
     publishMessageDiv: "//div[contains(@class, 'publish-message')]",
 };
 
@@ -28,32 +27,32 @@ class BaseVersionsWidget extends Page {
     }
 
     get versionItems() {
-        return this.extensionView + xpath.versionsList + xpath.versionsListItem;
+        return this.extensionView + xpath.versionsListItemComponent;
     }
 
     get publishedItems() {
-        return this.extensionView + xpath.versionsList + xpath.publishedListItem;
+        return this.extensionView + xpath.versionsListItemByName('Published');
     }
 
     get markedAsReadyItems() {
-        return this.extensionView + xpath.versionsList + xpath.markedAsReadyListItem;
+        return this.extensionView + xpath.versionsListItemByName('Marked as ready');
     }
 
     get unpublishedItems() {
-        return this.extensionView + xpath.versionsList + xpath.unpublishedListItem;
+        return this.extensionView + xpath.versionsListItemByName('Unpublished');
     }
 
     //Gets items with headers - Sorted
     get sortedItems() {
-        return this.extensionView + xpath.versionsList + xpath.sortedListItem;
+        return this.extensionView + xpath.versionsListItemByName('Sorted');
     }
 
     get editedItems() {
-        return this.extensionView + xpath.versionsList + xpath.editedListItem;
+        return this.extensionView + xpath.versionsListItemByName('Edited');
     }
 
     get createdItems() {
-        return this.extensionView + xpath.versionsList + xpath.createdListItem;
+        return this.extensionView + xpath.versionsListItemByName('Created');
     }
 
     get permissionsUpdatedItems() {
@@ -61,15 +60,15 @@ class BaseVersionsWidget extends Page {
     }
 
     get movedItems() {
-        return this.extensionView + xpath.versionsList + xpath.movedListItem;
+        return this.extensionView + xpath.versionsListItemByName(Moved);
     }
 
     get renamedItems() {
-        return this.extensionView + xpath.versionsList + xpath.renamedListItem;
+        return this.extensionView + xpath.versionsListItemByName('Renamed');
     }
 
     get restoreButton() {
-        return this.extensionView + xpath.versionItemExpanded + "//button[child::span[text()='Restore']]";
+        return this.extensionView + xpath.versionItemExpanded + BUTTONS.buttonByLabel('Restore');
     }
 
     //Count version items that contain 'Revert' button
@@ -80,7 +79,7 @@ class BaseVersionsWidget extends Page {
 
     async waitForPermissionsUpdatedItemDisplayed() {
         try {
-            await this.waitForElementDisplayed(this.permissionsUpdatedItems, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.permissionsUpdatedItems);
         } catch (err) {
             await this.handleError(`'Permissions updated' items are not displayed in the widget`, 'err_perm_updated', err);
         }
@@ -97,14 +96,14 @@ class BaseVersionsWidget extends Page {
     }
 
     async countSortedItems() {
-        await this.waitForElementDisplayed(this.sortedItems, appConst.mediumTimeout)
+        await this.waitForElementDisplayed(this.sortedItems);
         let items = await this.findElements(this.sortedItems);
         return items.length;
     }
 
     async waitForPublishedItemDisplayed() {
         try {
-            await this.waitForElementDisplayed(this.publishedItems, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.publishedItems);
         } catch (err) {
             await this.handleError(`'Published' items are not displayed in the widget`, 'err_published_item', err);
         }
@@ -118,7 +117,7 @@ class BaseVersionsWidget extends Page {
 
     async waitForUnpublishedItemDisplayed() {
         try {
-            await this.waitForElementDisplayed(this.unpublishedItems, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.unpublishedItems);
         } catch (err) {
             await this.handleError(`'Unpublished' items are not displayed in the widget`, 'err_unpublished_item', err);
         }
@@ -131,31 +130,31 @@ class BaseVersionsWidget extends Page {
     }
 
     async countMarkedAsReadyItems() {
-        await this.waitForElementDisplayed(this.markedAsReadyItems, appConst.mediumTimeout)
+        await this.waitForElementDisplayed(this.markedAsReadyItems);
         let items = await this.findElements(this.markedAsReadyItems);
         return items.length;
     }
 
     async countMovedItems() {
-        await this.waitForElementDisplayed(this.movedItems, appConst.mediumTimeout)
+        await this.waitForElementDisplayed(this.movedItems);
         let items = await this.findElements(this.movedItems);
         return items.length;
     }
 
     async countRenamedItems() {
-        await this.waitForElementDisplayed(this.renamedItems, appConst.mediumTimeout)
+        await this.waitForElementDisplayed(this.renamedItems);
         let items = await this.findElements(this.renamedItems);
         return items.length;
     }
 
     async countEditedItems() {
-        await this.waitForElementDisplayed(this.editedItems, appConst.mediumTimeout)
+        await this.waitForElementDisplayed(this.editedItems);
         let items = await this.findElements(this.editedItems);
         return items.length;
     }
 
     async countCreatedItems() {
-        await this.waitForElementDisplayed(this.createdItems, appConst.mediumTimeout)
+        await this.waitForElementDisplayed(this.createdItems);
         let items = await this.findElements(this.createdItems);
         return items.length;
     }
@@ -163,7 +162,7 @@ class BaseVersionsWidget extends Page {
     // click on a version and expand the content-version-item
     async clickAndExpandVersion(index) {
         try {
-            await this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.versionItems);
             //get clickable items:
             let items = await this.findElements(this.versionItems);
             //click on the item:
@@ -178,10 +177,10 @@ class BaseVersionsWidget extends Page {
     async clickOnVersionItemByHeader(versionHeader, index) {
         try {
             let i = index === undefined ? 0 : index;
-            await this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.versionItems);
             //get all version items with the header:
             let locator = xpath.anyItemByHeader(versionHeader);
-            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(locator);
             let items = await this.findElements(locator);
             //click on the item:
             await items[i].click();
@@ -192,7 +191,7 @@ class BaseVersionsWidget extends Page {
     }
 
     async getPublishMessagesFromPublishedItems() {
-        await this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.versionItems);
         //get all version items with the header:
         let locator = this.versionsWidget + xpath.anyItemByHeader(appConst.VERSIONS_ITEM_HEADER.PUBLISHED) + xpath.publishMessageDiv;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
@@ -202,7 +201,7 @@ class BaseVersionsWidget extends Page {
     async clickAndExpandVersionItemByHeader(versionHeader, index) {
         try {
             let i = index === undefined ? 0 : index;
-            await this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.versionItems);
             // get clickable items:
             let locator = this.versionItemByDisplayName(versionHeader);
             let items = await this.findElements(locator);
@@ -242,7 +241,7 @@ class BaseVersionsWidget extends Page {
 
     async waitForRestoreButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.restoreButton, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.restoreButton);
         } catch (err) {
             await this.handleError('Restore button should be displayed', 'err_restore_button', err);
         }
@@ -250,7 +249,7 @@ class BaseVersionsWidget extends Page {
 
     async clickOnRestoreButton() {
         try {
-            await this.waitForElementDisplayed(this.restoreButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.restoreButton);
             await this.clickOnElement(this.restoreButton);
             return await this.pause(2000);
         } catch (err) {
@@ -270,7 +269,7 @@ class BaseVersionsWidget extends Page {
 
     async waitForMovedItemDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.movedItems, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.movedItems);
         } catch (err) {
             await this.handleError('Versions Widget, Moved item should be displayed', 'err_moved_item', err);
         }
@@ -278,7 +277,7 @@ class BaseVersionsWidget extends Page {
 
     async waitForRenamedItemDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.renamedItems, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.renamedItems);
         } catch (err) {
             await this.handleError('Versions Widget, Renamed item should be displayed', 'err_renamed_item', err);
         }
@@ -371,7 +370,7 @@ class BaseVersionsWidget extends Page {
 
     async clickOnCompareVersionsButton() {
         try {
-            await this.waitForElementDisplayed(this.compareVersionsButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.compareVersionsButton);
             return await this.clickOnElement(this.compareVersionsButton);
         } catch (err) {
             await this.handleError('Version Widget - Compare versions button', 'err_compare_versions_button', err);

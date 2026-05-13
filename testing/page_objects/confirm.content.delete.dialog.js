@@ -87,6 +87,10 @@ class ConfirmValueDialog extends Page {
         return this.clickOnElement(this.closeButton);
     }
 
+    async clickOnCancelButton() {
+        return await this.clickOnElement(this.cancelButton);
+    }
+
     async clickOnConfirmButton() {
         try {
             await this.waitForElementEnabled(this.confirmButton, appConst.mediumTimeout);
