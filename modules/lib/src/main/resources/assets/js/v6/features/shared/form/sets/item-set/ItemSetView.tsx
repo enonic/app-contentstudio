@@ -58,7 +58,7 @@ export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElem
         lastAddedIndexRef.current = index;
         propertyArray.addSet();
         scheduleScrollTo(index);
-    }, [state.canAdd, propertyArray]);
+    }, [state.canAdd, propertyArray, scheduleScrollTo]);
     const handleAddAbove = useCallback(
         (index: number) => {
             if (!state.canAdd) return;
@@ -68,7 +68,7 @@ export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElem
             propertyArray.move(propertyArray.getSize() - 1, index);
             scheduleScrollTo(index);
         },
-        [state.canAdd, propertyArray]
+        [state.canAdd, propertyArray, scheduleScrollTo]
     );
     const handleAddBelow = useCallback(
         (index: number) => {
@@ -79,7 +79,7 @@ export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElem
             propertyArray.move(propertyArray.getSize() - 1, index + 1);
             scheduleScrollTo(index + 1);
         },
-        [state.canAdd, propertyArray]
+        [state.canAdd, propertyArray, scheduleScrollTo]
     );
     const handleRemove = useCallback(
         (index: number) => {
