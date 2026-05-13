@@ -1,15 +1,16 @@
-import {type ReactElement, useCallback, useEffect, useState} from 'react';
-import {ContentRequiresSaveEvent} from '../../../../../../../app/event/ContentRequiresSaveEvent';
+import {type ReactElement, useCallback, useEffect, useRef, useState} from 'react';
 import {useI18n} from '../../../../../hooks/useI18n';
-import {InlineButton} from '../../../../InlineButton';
 import {useImageUploaderContext} from '../ImageUploaderContext';
 import {isPropertySetDirty, resetCropInPropertySet, resetFocusInPropertySet, resetPropertySet} from '../lib/propertySet';
+import {type Point} from '../lib/types';
 import {Button} from '@enonic/ui';
 
 export const ImageUploaderInputResetButton = (): ReactElement | null => {
-    const {contentId, mode, value, crop, focus, dimensions, setCrop, setFocus, reset} = useImageUploaderContext();
+    const {mode, value, crop, focus, dimensions, setCrop, setFocus, reset} = useImageUploaderContext();
     const resetLabel = useI18n('action.reset');
     const [isDirty, setIsDirty] = useState(false);
+    const [hasFocusMoved, setHasFocusMoved] = useState(false);
+    const initialFocusRef = useRef<Point | null>(null);
 
     useEffect(() => {
         const set = value.getPropertySet();
@@ -23,13 +24,28 @@ export const ImageUploaderInputResetButton = (): ReactElement | null => {
         return () => set.unChanged(listener);
     }, [value]);
 
+    useEffect(() => {
+        if (mode !== 'focus') {
+            initialFocusRef.current = null;
+            setHasFocusMoved(false);
+            return;
+        }
+
+        if (!focus) return;
+
+        if (initialFocusRef.current === null) {
+            initialFocusRef.current = focus;
+            return;
+        }
+
+        setHasFocusMoved(focus.x !== initialFocusRef.current.x || focus.y !== initialFocusRef.current.y);
+    }, [mode, focus]);
+
     const handleReset = useCallback(() => {
         if (resetPropertySet(value)) {
             reset();
         }
-
-        new ContentRequiresSaveEvent(contentId).fire();
-    }, [contentId, value, reset]);
+    }, [value, reset]);
 
     const handleCropReset = useCallback(() => {
         if (resetCropInPropertySet(value)) {
@@ -51,16 +67,18 @@ export const ImageUploaderInputResetButton = (): ReactElement | null => {
     }, [value, crop, dimensions, setFocus]);
 
     if (mode === 'crop') {
+        if (!crop) return null;
         return (
-            <Button variant="text" onClick={handleCropReset} disabled={!crop}>
+            <Button variant="text" onClick={handleCropReset}>
                 {resetLabel}
             </Button>
         );
     }
 
     if (mode === 'focus') {
+        if (!hasFocusMoved) return null;
         return (
-            <Button variant="text" onClick={handleFocusReset} disabled={!focus}>
+            <Button variant="text" onClick={handleFocusReset}>
                 {resetLabel}
             </Button>
         );
