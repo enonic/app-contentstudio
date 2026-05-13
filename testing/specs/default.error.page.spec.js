@@ -39,7 +39,7 @@ describe('default.error.page.spec tests for Default error page', function () {
             // 1. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. open the context menu
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             // 3. click on the 'Insert Part' menu item:
             await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.INSERT, appConst.PCV_MENU_ITEM.PART]);
             // 4. Select the part with errors:

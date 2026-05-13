@@ -1,5 +1,5 @@
 /**
- * Created on 27.02.2019.
+ * Created on 27.02.2019.  update on 12.05.2026
  */
 const webDriverHelper = require('../libs/WebDriverHelper');
 const studioUtils = require('../libs/studio.utils.js');
@@ -37,12 +37,13 @@ describe('site.wizard.no.regions.controller.spec: checks Save button after selec
             let pageInspectionPanel = new PageInspectionPanel();
             // 5. Select a controller with 'no regions':
             await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NO_REGIONS);
+            await studioUtils.saveScreenshot('controller_no_regions_selected');
             // Verify - 'Save' button gets disabled after selecting 'no regions':
             await contentWizard.waitForSaveButtonDisabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() =>  studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
