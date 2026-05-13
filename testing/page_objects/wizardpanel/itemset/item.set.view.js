@@ -3,13 +3,13 @@
  */
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
-const lib = require('../../../libs/elements-old');
+const {BUTTONS, COMMON} = require('../../../libs/elements');
 const HtmlAreaForm = require('../htmlarea.form.panel');
 
 const xpath = {
-    itemSet: "//div[contains(@id,'FormItemSetView')]",
-    occurrenceView: "//div[contains(@id,'FormItemSetOccurrenceView')]",
-    addItemSetButton: "//div[contains(@class,'bottom-button-row')]//button[child::span[text()='Add'] and @title='Add ItemSet']",
+    itemSet: "//div[@data-component='ItemSetView']",
+    occurrenceView: "//div[@data-component='ItemSetOccurrenceView']",
+    contextMenuTrigger: "//div[@data-component='ContextMenu.Trigger']",
     typeTextInHtmlArea: (id, text) => {
         return `CKEDITOR.instances['${id}'].setData('${text}')`;
     },
@@ -19,23 +19,19 @@ const xpath = {
 class ItemSetFormView extends Page {
 
     get addItemSetButton() {
-        return lib.FORM_VIEW + xpath.addItemSetButton;
+        return xpath.itemSet + BUTTONS.buttonAriaLabel('Add');
     }
 
-    get itemSetMenuButton() {
-        return xpath.occurrenceView + lib.BUTTONS.MORE_BUTTON;
-    }
-
-    get collapseButton() {
-        return xpath.itemSet + lib.BUTTONS.COLLAPSE_BUTTON_BOTTOM;
+    get itemSetMenuTriggerButton() {
+        return xpath.itemSet + xpath.contextMenuTrigger;
     }
 
     get collapseAllButton() {
-        return xpath.itemSet + lib.BUTTONS.COLLAPSE_ALL_BUTTON_BOTTOM;
+        return xpath.itemSet + "//button[@data-component='InlineButton' and text()='Collapse all']";
     }
 
     get deleteItemSetButton() {
-        return "//div[contains(@id,'ConfirmationMask')]" + lib.actionButton('Delete ItemSet');
+        return "//div[contains(@data-component,'Button') and @aria-label='Delete']";
     }
 
     get expandButton() {
@@ -51,7 +47,7 @@ class ItemSetFormView extends Page {
     }
 
     async waitForDeleteItemSetButtonDisplayed() {
-        return await this.waitForElementDisplayed(this.deleteItemSetButton, appConst.mediumTimeout);
+        return await this.waitForElementDisplayed(this.deleteItemSetButton);
     }
 
     async clickOnDeleteItemSetButton() {
@@ -59,29 +55,27 @@ class ItemSetFormView extends Page {
         await this.clickOnElement(this.deleteItemSetButton);
     }
 
-    //Types the required text in the option filter input and select an option:
+    // Types the required text in the option filter input and select an option:
     async typeTextInHtmlArea(index, text) {
-        let htmlAreaForm = new HtmlAreaForm(xpath.itemSet);
-        let ids = await htmlAreaForm.getIdOfHtmlAreas();
-        let htmlAreaForm = new HtmlAreaForm(xpath.itemSet);
+        let htmlAreaForm = new HtmlAreaForm();
         let ids = await htmlAreaForm.getIdOfHtmlAreas();
         await this.execute(xpath.typeTextInHtmlArea([].concat(ids)[index], text));
         return await this.pause(200);
     }
 
     async typeTextInTextLine(index, text) {
-        let locator = xpath.itemSet + lib.TEXT_INPUT;
+        let locator = xpath.itemSet + COMMON.INPUTS.DATA_COMPONENT_INPUT + "//input";
         let elements = this.findElements(locator);
         await elements[index].setValue(text);
         return await this.pause(300);
     }
 
-    waitForAddButtonDisplayed() {
-        return this.waitForElementDisplayed(this.addItemSetButton, appConst.mediumTimeout);
+    async waitForAddButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.addItemSetButton);
     }
 
     waitForItemSetFormNotDisplayed() {
-        return this.waitForElementNotDisplayed(xpath.occurrenceView, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(xpath.occurrenceView);
     }
 
     async clickOnAddButton() {
@@ -90,20 +84,10 @@ class ItemSetFormView extends Page {
         return await this.pause(500);
     }
 
-    async waitForCollapseButtonDisplayed() {
-        try {
-            return await this.waitForElementDisplayed(this.collapseButton, appConst.mediumTimeout);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('item_set_collapse_button');
-            throw new Error(`Collapse button is not displayed! Screenshot: ${screenshot}`);
-        }
-    }
-
     async waitForCollapseAllButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.collapseAllButton, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.collapseAllButton);
         } catch (err) {
-            await this.handleError(`Collapse all button is not displayed!`, 'item_set_collapse_all_button');
             await this.handleError(`Collapse all button is not displayed!`, 'item_set_collapse_all_button');
         }
     }
@@ -122,7 +106,6 @@ class ItemSetFormView extends Page {
         try {
             return await this.waitForElementNotDisplayed(lib.BUTTONS.COLLAPSE_BUTTON_BOTTOM, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`Collapse button should not be displayed!`, 'item_set_collapse_button');
             await this.handleError(`Collapse button should not be displayed!`, 'item_set_collapse_button');
         }
     }
@@ -158,11 +141,13 @@ class ItemSetFormView extends Page {
     }
 
     async expandMenuClickOnMenuItem(index, menuItem) {
-        let menuButtons = await this.findElements(this.itemSetMenuButton);
-        await menuButtons[index].click();
+        let menuButtons = await this.findElements(this.itemSetMenuTriggerButton);
+
+        await this.doRightClickOnElement(menuButtons[index]);
+        //await menuButtons[index].click();
         await this.pause(400);
         let res = await this.getDisplayedElements(
-            `//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='${menuItem}']`);
+            `//div[@role='menuitem' and child::span[text()='${menuItem}']]`);
         await res[0].waitForEnabled({timeout: appConst.shortTimeout, timeoutMsg: "Option Set - Delete menu item should be enabled!"});
         await res[0].click();
         return await this.pause(300);

@@ -1,5 +1,5 @@
 /**
- * Created on 02.04.2019.
+ * Created on 02.04.2019. update on 12.05.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
@@ -22,7 +22,7 @@ describe('site.wizard.select.controller.spec: Saves site-data and selects a cont
         async () => {
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('site');
-            let SITE = contentBuilder.buildSite(displayName, 'test site', [appConst.APP_CONTENT_TYPES]);
+            let SITE = contentBuilder.buildSite(displayName, 'test', [appConst.APP_CONTENT_TYPES]);
             // 1. Open new site-wizard:
             await studioUtils.doOpenSiteWizard();
             let wizardContextWindow = await contentWizard.openContextWindow();
@@ -63,7 +63,7 @@ describe('site.wizard.select.controller.spec: Saves site-data and selects a cont
             await contentPublishDialog.clickOnCloseButton();
             await contentPublishDialog.waitForDialogClosed();
             let workflow = await contentWizard.getContentWorkflowState();
-            assert.equal(workflow, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content gets 'Ready for publishing'");
+            assert.equal(workflow, appConst.ICON_WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content gets 'ready'");
             // 5. select the controller
             let wizardContextWindow = await contentWizard.openContextWindow();
             await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
@@ -72,7 +72,7 @@ describe('site.wizard.select.controller.spec: Saves site-data and selects a cont
             // 6. Verify that status gets Work in progress after selecting a page descriptor:
             await studioUtils.saveScreenshot('site_page_descriptor_work_in_progress');
             workflow = await contentWizard.getContentWorkflowState();
-            assert.equal(workflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS, "The site should be 'Work in progress'");
+            assert.equal(workflow, appConst.ICON_WORKFLOW_STATE.IN_PROGRESS, "The site should be 'Work in progress'");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

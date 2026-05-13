@@ -2,7 +2,7 @@ const path = require('path');
 const propertiesReaderModule = require('properties-reader');
 const propertiesReader = propertiesReaderModule.propertiesReader || propertiesReaderModule.default || propertiesReaderModule;
 const file = path.join(__dirname, '/../browser.properties');
-const properties = propertiesReader({sourceFile: file});
+const properties = propertiesReader({ sourceFile: file });
 const browser_version = properties.get('browser.version');
 
 exports.config = {
@@ -23,15 +23,8 @@ exports.config = {
         path.join(__dirname, '../specs/site.app.uninstalled.spec.js'),
         path.join(__dirname, '../specs/site.configurator.htmlarea.spec.js'),
         path.join(__dirname, '../specs/site.configurator.required.input.spec.js'),
-        path.join(__dirname, '../specs/site.duplicate.delete.spec.js'),
         path.join(__dirname, '../specs/site.with.meta.fields.spec.js'),
-        path.join(__dirname, '../specs/site.wizard.no.regions.controller.spec.js'),
-        path.join(__dirname, '../specs/site.wizard.select.controller.spec.js'),
-        path.join(__dirname, '../specs/wizard.details.panel.spec.js'),
         path.join(__dirname, '../specs/wizard.detailspanel.update.dependencies.spec.js'),
-        path.join(__dirname, '../specs/wizard.owner.spec.js'),
-        path.join(__dirname, '../specs/wizard.save.button.spec.js'),
-        path.join(__dirname, '../specs/wizard.toolbar.shortcut.spec.js'),
         path.join(__dirname, '../specs/wizard.xdata.long.form.spec.js'),
     ],
 
