@@ -8,13 +8,25 @@ Licenses used by Content Studio for Enonic XP (full license texts are provided a
     Apache License 2.0
     http://www.apache.org/licenses/LICENSE-2.0
 
+    chart.js
+    MIT License
+    https://github.com/chartjs/Chart.js/blob/master/LICENSE.md
+
     CKEditor 4
     GNU GPL 3.0
     https://ckeditor.com/legal/ckeditor-oss-license/
 
+    DOMpurify
+    Apache License 2.0
+    https://github.com/cure53/dompurify/blob/master/LICENSE
+
     Flag-Icons
     MIT License
     https://github.com/lipis/flag-icons/blob/main/LICENSE
+
+    Focus Trap React
+    MIT License
+    https://github.com/focus-trap/focus-trap-react/blob/HEAD/LICENSE
 
     Hasher
     MIT License
@@ -32,21 +44,38 @@ Licenses used by Content Studio for Enonic XP (full license texts are provided a
     MIT License
     https://github.com/lodash/lodash/blob/master/LICENSE
 
+    Lucid React
+    ISC license
+    https://lucide.dev/license
+
+    Nano Stores
+    MIT License
+    https://github.com/nanostores/nanostores/blob/main/LICENSE
+
     Open Sans
     Open Font License 1.1
     https://fonts.google.com/specimen/Open+Sans/about
 
+    Preact
+    MIT License
+    https://github.com/preactjs/preact/blob/main/LICENSE
+
     Q.js
     MIT License
     https://github.com/kriskowal/q/blob/v1/LICENSE
+
+    React Slot
+    MIT License
+    https://www.npmjs.com/package/@aiera-inc/react-slots
 
 ---------------------------------------------------------------------------
 
 LICENSE TEXTS
 1. Apache License 2.0
 2. GNU GPL 3.0
-3. MIT License
-4. Open Font License 1.1
+3. ISC License
+4. MIT License
+5. Open Font License 1.1
 
 ---------------------------------------------------------------------------
 
@@ -877,6 +906,30 @@ Program, unless a warranty or assumption of liability accompanies a
 copy of the Program in return for a fee.
 
                      END OF TERMS AND CONDITIONS
+
+---------------------------------------------------------------------------
+
+ISC License
+
+Copyright (c) 2026 Lucide Icons and Contributors
+
+Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+The following Lucide icons are derived from the Feather project:
+
+airplay, alert-circle, alert-octagon, alert-triangle, aperture, arrow-down-circle, arrow-down-left, arrow-down-right, arrow-down, arrow-left-circle, arrow-left, arrow-right-circle, arrow-right, arrow-up-circle, arrow-up-left, arrow-up-right, arrow-up, at-sign, calendar, cast, check, chevron-down, chevron-left, chevron-right, chevron-up, chevrons-down, chevrons-left, chevrons-right, chevrons-up, circle, clipboard, clock, code, columns, command, compass, corner-down-left, corner-down-right, corner-left-down, corner-left-up, corner-right-down, corner-right-up, corner-up-left, corner-up-right, crosshair, database, divide-circle, divide-square, dollar-sign, download, external-link, feather, frown, hash, headphones, help-circle, info, italic, key, layout, life-buoy, link-2, link, loader, lock, log-in, log-out, maximize, meh, minimize, minimize-2, minus-circle, minus-square, minus, monitor, moon, more-horizontal, more-vertical, move, music, navigation-2, navigation, octagon, pause-circle, percent, plus-circle, plus-square, plus, power, radio, rss, search, server, share, shopping-bag, sidebar, smartphone, smile, square, table-2, tablet, target, terminal, trash-2, trash, triangle, tv, type, upload, x-circle, x-octagon, x-square, x, zoom-in, zoom-out
+
+The MIT License (MIT) (for the icons listed above)
+
+Copyright (c) 2013-present Cole Bemis
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ---------------------------------------------------------------------------
 
