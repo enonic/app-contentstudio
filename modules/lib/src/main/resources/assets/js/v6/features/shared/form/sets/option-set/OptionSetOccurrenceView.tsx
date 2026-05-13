@@ -60,20 +60,16 @@ export const OptionSetOccurrenceView = forwardRef<HTMLDivElement, OptionSetOccur
     ): ReactElement => {
         const anchorRef = useRef<HTMLDivElement>(null);
         const confirmationRef = useRef<HTMLDivElement>(null);
+
+        const [confirmingAdd, setConfirmingAdd] = useState<'above' | 'below' | undefined>(undefined);
+        const [confirmingDelete, setConfirmingDelete] = useState(false);
+        const [menuOpen, setMenuOpen] = useState(false);
+
         const isNew = useIsNewOccurrence(isNewProp);
         const hasBody = useOptionSetHasBody(optionSet, propertySet);
         const {selectedNames} = useOptionSetSelection(optionSet, propertySet);
         const canDelete = canRemove || (onReset != null && selectedNames.length > 0);
         const label = useSetOccurrenceLabel(propertySet, formItems, fallbackLabel);
-        const addAboveLabel = useI18n('action.addAbove');
-        const addBelowLabel = useI18n('action.addBelow');
-        const deleteLabel = useI18n('action.delete');
-
-        const [confirmingAdd, setConfirmingAdd] = useState<'above' | 'below' | null>(null);
-        const [confirmingDelete, setConfirmingDelete] = useState(false);
-        const [menuOpen, setMenuOpen] = useState(false);
-
-        useCloseOnScroll(menuOpen, () => setMenuOpen(false));
 
         const isRadio = optionSet.isRadioSelection();
         const showHeader = !isLockedSingleOccurrence(optionSet);
@@ -81,7 +77,14 @@ export const OptionSetOccurrenceView = forwardRef<HTMLDivElement, OptionSetOccur
         const showExpandedChrome = expanded && hasBody;
         const isConfirming = confirmingDelete || confirmingAdd != null;
         const confirmationPosition = useConfirmPosition({enabled: isConfirming, anchorRef, confirmationRef});
+
+        useCloseOnScroll(menuOpen, () => setMenuOpen(false));
         usePortalFocusContainer(confirmationRef, isConfirming);
+
+        const addAboveLabel = useI18n('action.addAbove');
+        const addBelowLabel = useI18n('action.addBelow');
+        const deleteLabel = useI18n('action.delete');
+        const moreActionsLabel = useI18n('tooltip.moreActions');
 
         const handleRequestAddAbove = useCallback(() => {
             if (!isRadio) {
@@ -98,12 +101,12 @@ export const OptionSetOccurrenceView = forwardRef<HTMLDivElement, OptionSetOccur
             setConfirmingAdd('below');
         }, [isRadio, onAddBelow, index]);
         const handleCancelAdd = useCallback(() => {
-            setConfirmingAdd(null);
+            setConfirmingAdd(undefined);
         }, []);
         const handleConfirmAdd = useCallback(
             (selectedName: string) => {
                 const mode = confirmingAdd;
-                setConfirmingAdd(null);
+                setConfirmingAdd(undefined);
                 if (mode === 'above') onAddAbove(index, selectedName);
                 else if (mode === 'below') onAddBelow(index, selectedName);
             },
@@ -179,7 +182,7 @@ export const OptionSetOccurrenceView = forwardRef<HTMLDivElement, OptionSetOccur
                                 !showExpandedChrome && menuOpen && 'bg-surface-neutral-hover',
                                 !showExpandedChrome && !menuOpen && 'hover:bg-surface-neutral-hover'
                             )}
-                            data-tone={showExpandedChrome && 'inverse'}
+                            data-tone={showExpandedChrome ? 'inverse' : undefined}
                         >
                             {grip && <div className="flex items-center justify-center pl-2.5">{grip}</div>}
                             <ContextMenu open={menuOpen} onOpenChange={setMenuOpen}>
@@ -212,6 +215,7 @@ export const OptionSetOccurrenceView = forwardRef<HTMLDivElement, OptionSetOccur
                                         <button
                                             type="button"
                                             onClick={handleDotsClick}
+                                            aria-label={moreActionsLabel}
                                             className="rounded cursor-pointer text-subtle hover:text-alt hover:bg-surface-selected group-data-[tone=inverse]:text-alt mr-2.5 my-1.5 p-2"
                                         >
                                             <MoreVertical size={20} absoluteStrokeWidth />

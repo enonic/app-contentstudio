@@ -52,26 +52,28 @@ export const ItemSetOccurrenceView = forwardRef<HTMLDivElement, ItemSetOccurrenc
         },
         ref
     ): ReactElement => {
+        const anchorRef = useRef<HTMLDivElement>(null);
+        const confirmationRef = useRef<HTMLDivElement>(null);
+
+        const [confirmingDelete, setConfirmingDelete] = useState(false);
+        const [menuOpen, setMenuOpen] = useState(false);
+
         const showHeader = occurrences.getMinimum() !== 1 || occurrences.getMaximum() !== 1;
         const label = useSetOccurrenceLabel(propertySet, formItems, fallbackLabel);
         const isNew = useIsNewOccurrence(isNewProp);
-        const [confirmingDelete, setConfirmingDelete] = useState(false);
-        const [menuOpen, setMenuOpen] = useState(false);
-        const anchorRef = useRef<HTMLDivElement>(null);
-
-        useCloseOnScroll(menuOpen, () => setMenuOpen(false));
-
-        const confirmationRef = useRef<HTMLDivElement>(null);
         const confirmationPosition = useConfirmPosition({
             enabled: confirmingDelete,
             anchorRef,
             confirmationRef,
         });
+
+        useCloseOnScroll(menuOpen, () => setMenuOpen(false));
         usePortalFocusContainer(confirmationRef, confirmingDelete);
 
         const addAboveLabel = useI18n('action.addAbove');
         const addBelowLabel = useI18n('action.addBelow');
         const deleteLabel = useI18n('action.delete');
+        const moreActionsLabel = useI18n('tooltip.moreActions');
 
         const handleAddAbove = useCallback(() => {
             onAddAbove(index);
@@ -127,7 +129,7 @@ export const ItemSetOccurrenceView = forwardRef<HTMLDivElement, ItemSetOccurrenc
                                 !expanded && menuOpen && 'bg-surface-neutral-hover',
                                 !expanded && !menuOpen && 'hover:bg-surface-neutral-hover'
                             )}
-                            data-tone={expanded && 'inverse'}
+                            data-tone={expanded ? 'inverse' : undefined}
                         >
                             {grip && <div className="flex items-center justify-center pl-2.5">{grip}</div>}
                             <ContextMenu open={menuOpen} onOpenChange={setMenuOpen}>
@@ -154,6 +156,7 @@ export const ItemSetOccurrenceView = forwardRef<HTMLDivElement, ItemSetOccurrenc
                                         <button
                                             type="button"
                                             onClick={handleDotsClick}
+                                            aria-label={moreActionsLabel}
                                             className="rounded cursor-pointer text-subtle hover:text-alt hover:bg-surface-selected group-data-[tone=inverse]:text-alt mr-2.5 my-1.5 p-2"
                                         >
                                             <MoreVertical size={20} absoluteStrokeWidth />
