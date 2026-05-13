@@ -23,21 +23,23 @@ class BaseDependenciesWidget extends Page {
         await this.pause(1000);
     }
 
-    waitForNoOutgoingDependenciesMessage() {
-        return this.waitForElementDisplayed("//div[@class='dependencies-container outbound no-dependencies']", appConst.mediumTimeout);
+    async waitForNoOutgoingDependenciesMessage() {
+        let locator = this.dependenciesWidget + "//span[@data-component='DependenciesWidgetFlowSection'][1]";
+        return await this.waitForElementDisplayed(locator);
     }
 
     waitForNoIncomingDependenciesMessage() {
-        return this.waitForElementDisplayed("//div[contains(@class,'inbound no-dependencies')]", appConst.mediumTimeout);
+        let locator = this.dependenciesWidget + "//span[@data-component='DependenciesWidgetFlowSection'][2]";
+        return this.waitForElementDisplayed(locator);
     }
 
-    getContentDisplayName() {
-        let locator = this.dependenciesWidget + "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]";
+    getContentPath() {
+        let locator = this.dependenciesWidget + "//p[contains(@class,'text-center')][2]";
         return this.getText(locator);
     }
 
     getContentName() {
-        let locator = this.dependenciesWidget + "//p[contains(@class,'sub-name')]";
+        let locator = this.dependenciesWidget + "//p[contains(@class,'text-center')][1]";
         return this.getText(locator);
     }
 

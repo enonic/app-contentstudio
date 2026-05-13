@@ -24,17 +24,10 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
         return xpath.container + xpath.pageInspectionDataComponent + "/p[contains(@class,'text-subtle')]";
     }
 
-    get templateAndControllerOptionFilterInput() {
-        return xpath.container + xpath.pageTemplateSelector + lib.DROPDOWN_OPTION_FILTER_INPUT;
-    }
-
-    get pageTemplateDropdownHandle() {
-        return xpath.container + xpath.pageTemplateSelector + lib.DROP_DOWN_HANDLE;
-    }
-
     async clickOnPageControllerDropdownHandle() {
         try {
-            await this.clickOnElement(this.pageTemplateDropdownHandle);
+            let inspectPanelControllerSelector = new InspectPanelControllerSelector(xpath.container);
+            await inspectPanelControllerSelector.clickOnDropdownHandle();
             return await this.pause(700);
         } catch (err) {
             await this.handleError('Page Inspection, tried to click on page template dropdown handle', 'err_page_inspection_dropdown', err);
@@ -78,13 +71,13 @@ class PageInspectionPanel extends BaseComponentInspectionPanel {
         }
     }
 
-    waitForNotDisplayed() {
-        return this.waitForElementNotDisplayed(xpath.container, appConst.mediumTimeout);
+    async waitForNotDisplayed() {
+        return await  this.waitForElementNotDisplayed(xpath.container);
     }
 
     async waitForPageTemplateAndControllerSelectorDisabled() {
         let locator = xpath.container + xpath.pageTemplateSelector;
-        return this.waitForElementDisabled(locator, appConst.mediumTimeout);
+        return this.waitForElementDisabled(locator);
     }
 
     async waitForCustomizePageButtonNotDisplayed() {

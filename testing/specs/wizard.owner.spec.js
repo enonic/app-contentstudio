@@ -1,5 +1,5 @@
 /**
- * Created on 19.12.2019.
+ * Created on 19.12.2019. updated on 12.05.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
@@ -50,11 +50,11 @@ describe('wizard.owner.spec - update and revert owner in wizard`', function () {
             await studioUtils.saveScreenshot('owner_after_reverting_version');
             // 5. 'Super User' should be properties widget after reverting the previous version:
             let actualOwner = await propertiesWidget.getOwnerName();
-            assert.equal(actualOwner, appConst.systemUsersDisplayName.SUPER_USER, "'Super User' should appears after the reverting of the previous version");
+            assert.equal(actualOwner, appConst.systemUsersDisplayName.ANONYMOUS_USER, "the owner should not be changed after the reverting of the previous version");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

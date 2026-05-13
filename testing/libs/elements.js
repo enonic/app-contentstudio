@@ -24,6 +24,7 @@ const COMMON = {
 
     INPUTS: {
         CHECKBOX_INPUT: "//input[@type='checkbox']",
+        DATA_COMPONENT_INPUT:"//div[@data-component='Input']",
         FORM_RENDERER_DATA_COMPONENT:"//div[@data-component='FormRenderer']",
         DATA_COMPONENT_INPUT_FIELD:"//div[@data-component='InputField']",
         inputFieldByLabel:(label)=>`//div[@data-component='InputField' and descendant::div[@data-component='InputLabel' and contains(.,'${label}')]]`,

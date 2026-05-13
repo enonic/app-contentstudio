@@ -1,5 +1,5 @@
 /**
- * Created on 31.07.2018.
+ * Created on 31.07.2018. updated on 12.05.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
@@ -27,10 +27,10 @@ describe('wizard.details.panel.spec: Open details panel in wizard and check the 
             // 2. 'Details' widget should be loaded by default!
             await wizardContextPanel.waitForWidgetSelected(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS);
             // 3. Do filter 'Versions history' option item then click on OK:
-            await wizardContextPanel.filterAndOpenVersionHistory();
+            await wizardContextPanel.openVersionHistory();
             await studioUtils.saveScreenshot('wizard_versions_widget');
             // 4. Verify that 'Versions Widget' should be loaded:
-            await wizardVersionsWidget.waitForVersionsLoaded();
+            await wizardVersionsWidget.waitForLoaded();
             // 5. One version item should be present in the widget:
             let result = await wizardVersionsWidget.countVersionItems();
             assert.equal(result, 1, 'One version item should be present in wizard for unnamed content');
@@ -55,13 +55,14 @@ describe('wizard.details.panel.spec: Open details panel in wizard and check the 
             await wizardDependenciesWidget.waitForNoOutgoingDependenciesMessage();
             // 'No incoming dependencies' should be displayed in the widget:
             await wizardDependenciesWidget.waitForNoIncomingDependenciesMessage();
-
             let result = await wizardDependenciesWidget.getContentName();
-            assert.ok(result.includes("_unnamed"), "'Unnamed' should be displayed in the dependency widget in new wizard");
+            assert.equal(result, "", "the name field should be empty in the dependency widget in the new wizard");
+            let path = await wizardDependenciesWidget.getContentPath();
+            assert.ok(path.includes("_unnamed"), "'Unnamed' should be displayed in the dependency widget in new wizard");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

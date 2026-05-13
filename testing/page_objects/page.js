@@ -404,6 +404,22 @@ class Page {
         }
     }
 
+    async doRightClickOnElement(element) {
+        await element.moveTo();
+        let x = await element.getLocation('x');
+        let y = await element.getLocation('y');
+        return await this.browser.performActions([{
+            type: 'pointer',
+            id: 'pointer1',
+            parameters: {pointerType: 'mouse'},
+            actions: [
+                {type: 'pointerMove', origin: 'pointer', 'x': Math.floor(x), 'y': Math.floor(y)},
+                {type: 'pointerDown', button: 2},
+                {type: 'pointerUp', button: 2}
+            ]
+        }]);
+    }
+
     async doRightClick(selector) {
         let el = await this.findElement(selector);
         await el.moveTo();

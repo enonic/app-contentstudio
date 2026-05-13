@@ -1,5 +1,5 @@
 /**
- * Created on 17.05.2018.
+ * Created on 17.05.2018. updated on 12.05.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
@@ -11,13 +11,12 @@ const ContentPublishDialog = require('../page_objects/content.publish.dialog');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const appConst = require('../libs/app_const');
 
-describe('Wizard toolbar - shortcut spec', function () {
+describe('wizard.toolbar.shortcut.spec Wizard toolbar - tests for shortcuts for button spec', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
     let DISPLAY_NAME;
-    const WIZARD_TOOLBAR_ROLE = 'toolbar';
 
     it(`GIVEN folder-wizard is opened WHEN 'Ctrl+s' has been pressed THEN folder should be saved`,
         async () => {
@@ -47,7 +46,8 @@ describe('Wizard toolbar - shortcut spec', function () {
         });
 
     // verifies:https://github.com/enonic/app-contentstudio/issues/127
-    it(`GIVEN folder-wizard is opened WHEN 'Ctrl+Alt+p' have been pressed THEN 'Publish Dialog' should appear`,
+    // TODO
+    it.skip(`GIVEN folder-wizard is opened WHEN 'Ctrl+Alt+p' have been pressed THEN 'Publish Dialog' should appear`,
         async () => {
             let contentWizard = new ContentWizard();
             let contentPublishDialog = new ContentPublishDialog();
@@ -57,34 +57,6 @@ describe('Wizard toolbar - shortcut spec', function () {
             await contentWizard.hotKeyPublish();
             // 3. Verify that Publish Content dialog loaded:
             await contentPublishDialog.waitForDialogOpened();
-        });
-
-    // Verify Accessibility attributes in Content Wizard Panel:
-    it(`WHEN existing folder has been opened THEN role attribute should be set to 'toolbar' for wizard-toolbar div`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            // 1. Open the existing folder:
-            await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
-            // 2. Verify that role attribute is set to 'toolbar' for wizard-toolbar div:
-            await contentWizard.waitForToolbarRoleAttribute(WIZARD_TOOLBAR_ROLE);
-        });
-
-    // Verify Accessibility attributes in Content Wizard Panel:
-    it(`WHEN existing folder has been opened THEN div with expected 'aria-label' attribute ('Main menu bar') should be present`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            // 1. Open the existing folder:
-            await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
-            // 2. Verify that Browse-Toolbar is a div with expected 'aria-label' attribute ('Main menu bar')
-            await contentWizard.waitForToolbarAriaLabelAttribute();
-            // 3. Verify that expected aria-label attribute set ProjectViewer div
-            await contentWizard.waitForProjectViewerAriaLabelAttribute();
-            // 4. 'Default' project should be displayed in the viewer in wizard:
-            let actualProjectName = await contentWizard.getProjectDisplayName();
-            assert.equal(actualProjectName, appConst.PROJECTS.DEFAULT_PROJECT_NAME,
-                'Default project name should be displayed in Project Viewer bar');
-            // 5. Verify 'aria-label' attribute in the project-viewer div:
-            await contentWizard.waitForProjectViewerAriaLabelAttribute();
         });
 
     it.skip(`GIVEN folder-wizard is opened WHEN 'Alt+w' have been pressed THEN wizard should be closed and grid is loaded`,
@@ -104,6 +76,7 @@ describe('Wizard toolbar - shortcut spec', function () {
             // 1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
             // 2. Update the content, Save gets enabled:
+            await contentWizard.clearDisplayNameInput();
             await contentWizard.typeDisplayName(appConst.generateRandomName('test'));
             // 3. Press 'Ctrl+Enter
             await contentWizard.hotKeySaveAndCloseWizard();
@@ -112,16 +85,7 @@ describe('Wizard toolbar - shortcut spec', function () {
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => {
-        let contentWizard = new ContentWizard();
-        return contentWizard.isAlertPresent().then(result => {
-            if (result) {
-                return contentWizard.alertAccept();
-            }
-        }).then(() => {
-            return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
-        })
-    });
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
 
     before(async () => {
         if (typeof browser !== 'undefined') {

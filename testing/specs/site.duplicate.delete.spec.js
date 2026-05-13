@@ -1,5 +1,5 @@
 /**
- * Created on 31.05.2018.
+ * Created on 31.05.2018.  updated on 12.05.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../libs/WebDriverHelper');
@@ -66,7 +66,7 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             // 5. Verify that 'Confirm' button is disabled
             await confirmValueDialog.waitForConfirmButtonDisabled();
             // 6. Close the dialog:
-            await confirmValueDialog.clickOnCloseButton();
+            await confirmValueDialog.clickOnCancelButton();
             await confirmValueDialog.waitForDialogClosed();
             await deleteContentDialog.waitForDialogClosed();
         });
@@ -110,6 +110,7 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             // 2. Click on the checkbox and exclude child items:
             await contentDuplicateDialog.clickOnIncludeChildCheckbox(SITE.displayName);
             await studioUtils.saveScreenshot('issue_duplicate_dlg');
+            await contentDuplicateDialog.clickOnApplyButton();
             await contentDuplicateDialog.clickOnDuplicateButton();
             await contentDuplicateDialog.waitForDialogClosed();
             // 3. Verify that site does not have expander icon:
@@ -140,7 +141,7 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             // 5. Click on 'Confirm' button and verify the message:
             await confirmValueDialog.clickOnConfirmButton();
             let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
-            assert.equal(actualMessage, '3 items have been deleted.', 'Expected notification message should be displayed');
+            assert.equal(actualMessage, '3 items have been archived.', 'Expected notification message should be displayed');
         });
 
     it("WHEN the original site has been deleted THEN the copy of the site should not be deleted",
@@ -157,7 +158,7 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(function () {
-        return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        studioUtils.doCloseAllWindowTabsAndNavigateToHome();
     });
     before(async () => {
         if (typeof browser !== 'undefined') {
