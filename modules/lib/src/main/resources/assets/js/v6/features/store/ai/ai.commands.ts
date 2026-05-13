@@ -20,7 +20,7 @@ import {
     $aiReady,
 } from './ai.store';
 import {AI_PLUGIN_KEYS, type EnonicAiPlugin} from './ai.types';
-import {getActiveProjectName} from '../activeProject.store';
+import {getActiveProject, getActiveProjectName} from '../activeProject.store';
 
 //
 // * State setters
@@ -48,7 +48,7 @@ export function setAiLanguage(language: string): void {
     new AiUpdateDataEvent({language: createContentLanguage(language)}).fire();
 }
 
-export function setAiDataTree(dataTree: PropertyTree): void {
+export function setAiDataTree(dataTree: PropertyTree | null): void {
     $aiDataTree.set(dataTree);
 }
 
@@ -163,7 +163,7 @@ export function createContentData(): ContentData | undefined {
 }
 
 export function createContentLanguage(override?: string): ContentLanguage | undefined {
-    const tag = override ?? $aiContent.get()?.getLanguage();
+    const tag = override ?? getActiveProject().getLanguage() ?? $aiContent.get()?.getLanguage();
     if (!tag) {
         return undefined;
     }

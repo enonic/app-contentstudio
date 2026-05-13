@@ -1,7 +1,9 @@
+import {FieldRegistryProvider} from '@enonic/lib-admin-ui/form2';
 import {useStore} from '@nanostores/preact';
-import type {ReactElement} from 'react';
+import {type ReactElement, useMemo} from 'react';
 import {DescriptorBasedComponent} from '../../../../../../../../app/page/region/DescriptorBasedComponent';
 import {FormRenderer} from '../../../../../../shared/form/FormRenderer';
+import {getAiFieldRegistry} from '../../../../../../store/ai/ai.field-registry';
 import {$contentContext, $inspectedItem, $pageEditorLifecycle} from '../../../../../../store/page-editor';
 import {$componentConfigDescriptor} from '../../../../../../store/component-inspection.store';
 import {useInspectFormTracking} from '../useInspectFormTracking';
@@ -23,6 +25,7 @@ export const ComponentInspectionPanel = ({componentType}: ComponentInspectionPan
     const hasDescriptor = isDescriptorComponent && item.hasDescriptor();
     const configForm = descriptor?.getConfig() ?? null;
     const configRoot = hasDescriptor ? (item.getConfig()?.getRoot() ?? null) : null;
+    const fieldRegistry = useMemo(() => getAiFieldRegistry('page'), []);
 
     useInspectFormTracking(configForm, configRoot);
 
@@ -35,12 +38,14 @@ export const ComponentInspectionPanel = ({componentType}: ComponentInspectionPan
             </div>
 
             {hasDescriptor && configForm && configRoot && (
-                <FormRenderer
-                    form={configForm}
-                    propertySet={configRoot}
-                    enabled={!lifecycle.isPageLocked}
-                    applicationKey={ctx?.applicationKey ?? undefined}
-                />
+                <FieldRegistryProvider registry={fieldRegistry}>
+                    <FormRenderer
+                        form={configForm}
+                        propertySet={configRoot}
+                        enabled={!lifecycle.isPageLocked}
+                        applicationKey={ctx?.applicationKey ?? undefined}
+                    />
+                </FieldRegistryProvider>
             )}
         </div>
     );

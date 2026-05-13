@@ -2,6 +2,7 @@ import {AiHelperState} from '@enonic/lib-admin-ui/ai/AiHelperState';
 import {AiToolHelper} from '@enonic/lib-admin-ui/ai/tool/AiToolHelper';
 import {RGBColor} from '@enonic/lib-admin-ui/ai/tool/ui/AiAnimationHandler';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
+import type {ProcessingToken} from '@enonic/lib-admin-ui/form2';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {AiContentOperatorContextChangedEvent} from '../../../../app/ai/event/incoming/AiContentOperatorContextChangedEvent';
@@ -24,6 +25,7 @@ import {
     setAiValueAtPath,
     transformPathOnDemand,
 } from './ai.bridge';
+import {resolveAiFieldTarget} from './ai.field-registry';
 import {$aiContent, $aiContext, $aiHasContentOperator, $aiHasTranslator} from './ai.store';
 import {AI_DATA_PREFIX, AI_PAGE_PREFIX} from './ai.types';
 import {$config} from '../config.store';
@@ -43,6 +45,48 @@ $config.subscribe(config => {
     wireAiEventListeners();
     setupPluginsOnLoad();
 });
+
+// Tokens acquired on AiTranslatorStartedEvent, released on AiTranslatorCompletedEvent.
+// Keyed by event.path because that's what arrives on both events.
+type AcquiredTokens = {token: ProcessingToken}[];
+const translatorProcessingTokens = new Map<string, AcquiredTokens>();
+
+function acquireTranslatorProcessing(aiPath: string): void {
+    const target = resolveAiFieldTarget(aiPath);
+    if (target == null) return;
+
+    // Drop a stale error so a retry doesn't show old text next to a processing field.
+    target.registry.clearAllTransientErrors(target.fieldPath);
+
+    const occurrenceIds = target.registry.getOccurrenceIds(target.fieldPath);
+    if (occurrenceIds == null) return;
+
+    const tokens: AcquiredTokens = [];
+    occurrenceIds.forEach(id => {
+        const token = target.registry.acquireProcessing(target.fieldPath, id);
+        if (token != null) tokens.push({token});
+    });
+    if (tokens.length > 0) translatorProcessingTokens.set(aiPath, tokens);
+}
+
+function releaseTranslatorProcessing(aiPath: string): void {
+    const tokens = translatorProcessingTokens.get(aiPath);
+    if (tokens == null) return;
+    translatorProcessingTokens.delete(aiPath);
+    // The registry that issued the token is found by scanning handles; safe to call
+    // on the resolved registry whether or not the field is still mounted.
+    const target = resolveAiFieldTarget(aiPath);
+    tokens.forEach(({token}) => target?.registry.releaseProcessing(token));
+}
+
+function reportTranslatorFailureOnField(aiPath: string, message: string | undefined): void {
+    const target = resolveAiFieldTarget(aiPath);
+    if (target == null) return;
+    const occurrenceIds = target.registry.getOccurrenceIds(target.fieldPath);
+    if (occurrenceIds == null) return;
+    const text = message ?? i18n('field.ai.translator.failed');
+    occurrenceIds.forEach(id => target.registry.setTransientError(target.fieldPath, id, text));
+}
 
 function wireAiEventListeners(): void {
     const helper = AiToolHelper.get();
@@ -67,6 +111,8 @@ function wireAiEventListeners(): void {
             PageEventsManager.get().notifySetComponentState(
                 ComponentPath.fromString(event.path.replace(AI_PAGE_PREFIX, '')), true);
         }
+
+        acquireTranslatorProcessing(event.path);
     });
 
     AiTranslatorCompletedEvent.on(event => {
@@ -77,7 +123,11 @@ function wireAiEventListeners(): void {
 
         if (event.success && event.text != null) {
             setAiValueAtPath(event.path, event.text);
+        } else if (!event.success) {
+            reportTranslatorFailureOnField(event.path, event.message);
         }
+
+        releaseTranslatorProcessing(event.path);
 
         // Text components do not have AI helpers, so notify the page editor directly.
         if (isPageComponentPath(event.path)) {
