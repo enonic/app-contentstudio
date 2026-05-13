@@ -13,7 +13,7 @@ import {
     type KeyboardEventHandler,
     type ReactElement,
 } from 'react';
-import {AiContentDataHelper} from '../../../../../app/ai/AiContentDataHelper';
+import {AI_TOPIC_PATH} from '../../../store/ai';
 import {useI18n} from '../../../hooks/useI18n';
 import {
     $displayName,
@@ -27,7 +27,7 @@ import {$validationVisibility} from '../../../store/wizardValidation.store';
 const DISPLAY_NAME_INPUT_NAME = 'DisplayNameInput';
 
 function setAIContext(): void {
-    new AiContentOperatorSetContextEvent(AiContentDataHelper.TOPIC_PATH).fire();
+    new AiContentOperatorSetContextEvent(AI_TOPIC_PATH).fire();
 }
 
 function normalizeSingleLineValue(value: string): string {

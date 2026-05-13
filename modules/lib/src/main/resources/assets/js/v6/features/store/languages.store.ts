@@ -1,3 +1,4 @@
+import type {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {computed, map} from 'nanostores';
 import {GetLocalesRequest} from '../../../app/resource/GetLocalesRequest';
 import {LocaleViewer} from '../../../app/locale/LocaleViewer';
@@ -13,6 +14,7 @@ export type LanguageOption = {
 
 type LanguagesStoreState = {
     languages: LanguageOption[];
+    locales: Locale[];
     loading: boolean;
     loaded: boolean;
 };
@@ -21,8 +23,9 @@ type LanguagesStoreState = {
 // * Store
 //
 
-const initialState: LanguagesStoreState = {
+const initialState: Readonly<LanguagesStoreState> = {
     languages: [],
+    locales: [],
     loading: false,
     loaded: false,
 };
@@ -34,16 +37,16 @@ export const $languagesStore = map<LanguagesStoreState>(structuredClone(initialS
 //
 
 export const $languages = computed($languagesStore, (state) => state.languages);
+export const $locales = computed($languagesStore, (state) => state.locales);
 export const $languagesLoading = computed($languagesStore, (state) => state.loading);
+export const $languagesLoaded = computed($languagesStore, (state) => state.loaded);
 
 //
-// * Actions
+// * Loader — runs once at module load
 //
 
-export async function loadLanguages(): Promise<void> {
+async function loadLanguages(): Promise<void> {
     const {loading, loaded} = $languagesStore.get();
-
-    // Skip if already loaded or currently loading
     if (loaded || loading) {
         return;
     }
@@ -57,14 +60,27 @@ export async function loadLanguages(): Promise<void> {
                 id: locale.getId(),
                 label: LocaleViewer.makeDisplayName(locale),
             })),
+            locales,
             loading: false,
             loaded: true,
         });
     } catch (error) {
         console.error('Failed to load languages:', error);
-        $languagesStore.setKey('loading', false);
+        // Mark loaded so downstream readiness gates don't block forever.
+        $languagesStore.set({
+            languages: [],
+            locales: [],
+            loading: false,
+            loaded: true,
+        });
     }
 }
+
+void loadLanguages();
+
+//
+// * Actions
+//
 
 export function clearLanguageCache(): void {
     $languagesStore.set(structuredClone(initialState));
