@@ -5,7 +5,7 @@ import {type StyleJson} from './StylesDescriptor';
 import {Styles} from './Styles';
 import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {getActiveProjectName} from '../../../../../v6/features/store/projects.store';
+import {getActiveProjectName} from '../../../../../v6/features/store/activeProject.store';
 
 export interface GetStylesResponse {
     css: string[];

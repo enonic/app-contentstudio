@@ -1,8 +1,7 @@
 import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {type ContentId} from '../content/ContentId';
 import {type DependencyType} from './DependencyType';
-import {type Project} from '../settings/data/project/Project';
-import {getActiveProject} from '../../v6/features/store/projects.store';
+import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
 import {Branch} from '../versioning/Branch';
 
 export class DependencyParams {
@@ -13,7 +12,7 @@ export class DependencyParams {
 
     private readonly contentType?: ContentTypeName;
 
-    private readonly project: Project;
+    private readonly projectName: string;
 
     private readonly branch?: Branch;
 
@@ -21,7 +20,7 @@ export class DependencyParams {
         this.id = builder.id;
         this.dependencyType = builder.dependencyType;
         this.contentType = builder.contentType;
-        this.project = builder.project || getActiveProject();
+        this.projectName = builder.projectName || getActiveProjectName();
         this.branch = builder.branch || Branch.DRAFT;
     }
 
@@ -37,8 +36,8 @@ export class DependencyParams {
         return this.contentType;
     }
 
-    getProject(): Project {
-        return this.project;
+    getProjectName(): string {
+        return this.projectName;
     }
 
     getBranch(): Branch {
@@ -58,7 +57,7 @@ export class DependencyParamsBuilder {
 
     contentType: ContentTypeName;
 
-    project: Project;
+    projectName: string;
 
     branch: Branch;
 
@@ -77,8 +76,8 @@ export class DependencyParamsBuilder {
         return this;
     }
 
-    setProject(value: Project): this {
-        this.project = value;
+    setProjectName(value: string): this {
+        this.projectName = value;
         return this;
     }
 

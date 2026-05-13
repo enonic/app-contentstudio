@@ -16,7 +16,7 @@ import {
     uploadRemoteImage,
 } from '../../api/uploadMedia';
 import {generateUniqueName} from '../../utils/image/generateUniqueName';
-import {$activeProject} from '../projects.store';
+import {$activeProject} from '../activeProject.store';
 import {resetTree} from '../tree-list.store';
 import {addUpload, removeUpload, updateUploadProgress} from '../uploads.store';
 

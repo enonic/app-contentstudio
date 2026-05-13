@@ -25,7 +25,7 @@ import {type PageUpdatedEvent} from '../../page/event/PageUpdatedEvent';
 import {PartComponentType} from '../../page/region/PartComponentType';
 import {SessionStorageHelper} from '../../util/SessionStorageHelper';
 import {TextComponentType} from '../../page/region/TextComponentType';
-import {getActiveProject} from '../../../v6/features/store/projects.store';
+import {getActiveProject} from '../../../v6/features/store/activeProject.store';
 import {type LiveEditModel} from '../../../page-editor/LiveEditModel';
 import {ComponentViewDragStartedEvent} from '../../../page-editor/event/ComponentViewDragStartedEvent';
 import {ComponentViewDragStoppedEvent} from '../../../page-editor/event/ComponentViewDragStoppedEvent';

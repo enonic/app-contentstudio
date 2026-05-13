@@ -1,6 +1,6 @@
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
-import {getActiveProject, getActiveProjectName} from '../../v6/features/store/activeProject.store';
+import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
 import {type Project} from '../settings/data/project/Project';
 import {UrlAction} from '../UrlAction';
 
@@ -13,8 +13,8 @@ export class UrlHelper {
     }
 
     static getCMSPath(contentRootPath?: string, project?: Readonly<Project>): string {
-        const requestProject = project || getActiveProject();
-        return `cms/${requestProject.getName()}${contentRootPath ? `/${contentRootPath}` : ''}`;
+        const projectName = project?.getName() ?? getActiveProjectName();
+        return `cms/${projectName}${contentRootPath ? `/${contentRootPath}` : ''}`;
     }
 
     static getCMSPathForContentRoot(project?: Readonly<Project>): string {

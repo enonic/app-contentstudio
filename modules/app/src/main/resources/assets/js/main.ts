@@ -56,7 +56,8 @@ import {ContentAppHelper} from '@enonic/lib-contentstudio/app/wizard/ContentAppH
 import {ContentWizardPanelParams} from '@enonic/lib-contentstudio/app/wizard/ContentWizardPanelParams';
 import {AppElement} from '@enonic/lib-contentstudio/v6/features/App';
 import {initConfig} from '@enonic/lib-contentstudio/v6/features/store/config.store';
-import {$activeProject, $projects} from '@enonic/lib-contentstudio/v6/features/store/projects.store';
+import {$activeProject} from '@enonic/lib-contentstudio/v6/features/store/activeProject.store';
+import {$projects, initProjects} from '@enonic/lib-contentstudio/v6/features/store/projects.store';
 import * as $ from 'jquery';
 
 // Dynamically import and execute all input types, since they are used
@@ -554,6 +555,7 @@ async function startContentBrowser() {
 
     CONFIG.setConfig(JSON.parse(document.getElementById(configScriptId).innerText) as ConfigObject);
     initConfig(configScriptId);
+    initProjects();
     Messages.addMessages(JSON.parse(CONFIG.getString('phrasesAsJson')) as object);
     AuthContext.init(Principal.fromJson(CONFIG.get('user') as PrincipalJson),
         (CONFIG.get('principals') as PrincipalJson[]).map(Principal.fromJson));

@@ -2,8 +2,7 @@ import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import type {ContentSummary} from '../content/ContentSummary';
 import type {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {type Project} from '../settings/data/project/Project';
-import {getActiveProject} from '../../v6/features/store/projects.store';
+import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
 
 type EditContentModel = ContentSummary | ContentSummaryAndCompareStatus;
 
@@ -20,18 +19,18 @@ export class EditContentEvent
 
     private readonly model: ContentSummary[];
 
-    private readonly project: Readonly<Project>;
+    private readonly projectName: string;
 
     private displayAsNew: boolean = false;
 
     private localized: boolean = false;
 
-    constructor(model: EditContentModel[], project?: Readonly<Project>) {
+    constructor(model: EditContentModel[], projectName?: string) {
         super();
         this.model = model
             .map(toContentSummary)
             .filter((item): item is ContentSummary => !!item);
-        this.project = project ? project : getActiveProject();
+        this.projectName = projectName || getActiveProjectName();
     }
 
     setDisplayAsNew(value: boolean): EditContentEvent {
@@ -47,8 +46,8 @@ export class EditContentEvent
         return this.model;
     }
 
-    getProject(): Readonly<Project> {
-        return this.project;
+    getProjectName(): string {
+        return this.projectName;
     }
 
     setIsLocalized(value: boolean): this {

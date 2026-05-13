@@ -4,7 +4,7 @@ import {PenIcon, XIcon} from 'lucide-react';
 import {type ReactElement, useCallback, useMemo} from 'react';
 import {EditContentEvent} from '../../../../../app/event/EditContentEvent';
 import {useI18n} from '../../../hooks/useI18n';
-import {$activeProject} from '../../../store/projects.store';
+import {$activeProject} from '../../../store/activeProject.store';
 import {ImageSelector} from '../../selectors/image';
 import {useHtmlAreaImageDialogContext} from './HtmlAreaImageDialogContext';
 import {ImageAccessibilityField} from './ImageAccessibilityField';
@@ -40,7 +40,7 @@ export const HtmlAreaImageDialogContent = (): ReactElement => {
 
     const handleEdit = useCallback(() => {
         if (selectedImageContent) {
-            new EditContentEvent([selectedImageContent], activeProject).fire();
+            new EditContentEvent([selectedImageContent], activeProject?.getName()).fire();
         }
     }, [selectedImageContent, activeProject]);
 

@@ -6,7 +6,7 @@ import {ContentIconUrlResolver} from './ContentIconUrlResolver';
 import {type ContentSummary} from './ContentSummary';
 import {type ContentName} from './ContentName';
 import {ContentPath} from './ContentPath';
-import {getActiveProject} from '../../v6/features/store/projects.store';
+import {getActiveProject} from '../../v6/features/store/activeProject.store';
 
 export class ContentSummaryAndCompareStatusViewer
     extends ExtendedViewer<ContentSummaryAndCompareStatus> {

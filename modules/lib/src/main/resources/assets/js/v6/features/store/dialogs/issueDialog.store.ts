@@ -7,7 +7,7 @@ import {GetIssueStatsRequest} from '../../../../app/issue/resource/GetIssueStats
 import {ListIssuesRequest} from '../../../../app/issue/resource/ListIssuesRequest';
 import type {IssueWithAssignees} from '../../../../app/issue/IssueWithAssignees';
 import {createDebounce} from '../../utils/timing/createDebounce';
-import {$activeProject} from '../projects.store';
+import {$activeProject} from '../activeProject.store';
 
 import type {
     IssueDialogFilter,

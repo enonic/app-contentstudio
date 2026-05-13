@@ -3,7 +3,7 @@ import {type Value} from '@enonic/lib-admin-ui/data/Value';
 import {type ContentId} from '../../../../../../app/content/ContentId';
 import {type Project} from '../../../../../../app/settings/data/project/Project';
 import {$contextContent} from '../../../../store/context/contextContent.store';
-import {$activeProject} from '../../../../store/projects.store';
+import {$activeProject} from '../../../../store/activeProject.store';
 import {type Mode, type Crop, type Dimensions, type Point} from './lib/types';
 import {
     readNormalizedCropFromPropertySet,

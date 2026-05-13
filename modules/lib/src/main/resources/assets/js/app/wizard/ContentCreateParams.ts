@@ -1,18 +1,17 @@
 import {type ContentId} from '../content/ContentId';
-import {type Project} from '../settings/data/project/Project';
-import {getActiveProject} from '../../v6/features/store/projects.store';
+import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
 import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 
 export class ContentCreateParams {
     private readonly parentContentId?: ContentId;
 
-    private readonly project: Project;
+    private readonly projectName: string;
 
     private readonly contentTypeName: ContentTypeName;
 
     constructor(builder: ContentCreateParamsBuilder) {
         this.parentContentId = builder.parentContentId;
-        this.project = builder.project || getActiveProject();
+        this.projectName = builder.projectName || getActiveProjectName();
         this.contentTypeName = builder.contentTypeName;
     }
 
@@ -20,8 +19,8 @@ export class ContentCreateParams {
         return this.parentContentId;
     }
 
-    getProject(): Project {
-        return this.project;
+    getProjectName(): string {
+        return this.projectName;
     }
 
     getContentTypeName(): ContentTypeName {
@@ -36,7 +35,7 @@ export class ContentCreateParams {
 export class ContentCreateParamsBuilder {
     parentContentId: ContentId;
 
-    project: Project;
+    projectName: string;
 
     contentTypeName: ContentTypeName;
 
@@ -45,8 +44,8 @@ export class ContentCreateParamsBuilder {
         return this;
     }
 
-    setProject(value: Project): this {
-        this.project = value;
+    setProjectName(value: string): this {
+        this.projectName = value;
         return this;
     }
 

@@ -25,7 +25,7 @@ import {Branch} from '../../versioning/Branch';
 import {type ContentSummary} from '../../content/ContentSummary';
 import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {getActiveProjectName} from '../../../v6/features/store/projects.store';
+import {getActiveProjectName} from '../../../v6/features/store/activeProject.store';
 
 export class CustomSelector
     extends BaseInputTypeManagingAdd {
