@@ -10,7 +10,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
 import {getActiveProject, getActiveProjectName} from '../../v6/features/store/activeProject.store';
 import {normalizeContentPathName} from '../../v6/features/utils/cms/content/paths';
-import {AI} from '../ai/AI';
+import {$aiHasContentOperator, renderContentOperator, whenAiReady} from '../../v6/features/store/ai';
 import {ContentName} from '../content/ContentName';
 import {ContentUnnamed} from '../content/ContentUnnamed';
 import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
@@ -306,8 +306,8 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
     }
 
     private addEnonicAiContentOperatorButton(): void {
-        AI.get().whenReady(() => {
-            if (!this.hiddenElementsHost || !AI.get().has('contentOperator')) {
+        whenAiReady(() => {
+            if (!this.hiddenElementsHost || !$aiHasContentOperator.get()) {
                 return;
             }
 
@@ -317,7 +317,7 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
             const aiContentOperatorDialogContainer = new DivEl('ai-content-operator-dialog-container');
             Body.get().appendChild(aiContentOperatorDialogContainer);
 
-            AI.get().renderContentOperator(
+            renderContentOperator(
                 this.aiContentOperatorButtonContainer.getHTMLElement(),
                 aiContentOperatorDialogContainer.getHTMLElement()
             );

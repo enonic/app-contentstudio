@@ -53,7 +53,17 @@ import {calcSecondaryStatus, calcTreePublishStatus} from '../../v6/features/util
 import {type PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
 import {ContentWizardTabsToolbarElement} from '../../v6/features/views/wizard/content-wizard-tabs/ContentWizardTabsToolbarElement';
 import {Permission} from '../access/Permission';
-import {AI} from '../ai/AI';
+import {
+    $aiHasTranslator,
+    renderTranslator,
+    setAiCompareStatus,
+    setAiContent,
+    setAiContentHeader,
+    setAiContentType,
+    setAiLanguage,
+    updateAiInstructions,
+    whenAiReady,
+} from '../../v6/features/store/ai';
 import {AiTranslatorOpenDialogEvent} from '../ai/event/outgoing/AiTranslatorOpenDialogEvent';
 import {ContentWizardToolbar} from '../browse/ContentWizardToolbar';
 import {type MovedContentItem} from '../browse/MovedContentItem';
@@ -365,9 +375,9 @@ export class ContentWizardPanel
                 this.currentCompareStatus = loader.compareStatus;
                 this.currentPublishStatus = loader.publishStatus;
 
-                AI.get().setContentType(this.contentType);
-                AI.get().updateInstructions(this.getApplicationsConfigs());
-                AI.get().setCompareStatus(this.persistedCompareStatus);
+                setAiContentType(this.contentType);
+                updateAiInstructions(this.getApplicationsConfigs());
+                setAiCompareStatus(this.persistedCompareStatus);
             })
             .then(() => super.doLoadData())
             .then((loadedContent: Content) => {
@@ -839,7 +849,7 @@ export class ContentWizardPanel
                 });
             }
 
-            AI.get().setContentHeader(this.wizardHeader);
+            setAiContentHeader(this.wizardHeader);
             return this.fetchContentSummaryAndUpdate(persistedContent);
         });
     }
@@ -1338,7 +1348,7 @@ export class ContentWizardPanel
     private updateSiteModel(site: Site): void {
         this.siteModel.update(site);
         this.site = site;
-        AI.get().updateInstructions(this.getApplicationsConfigs());
+        updateAiInstructions(this.getApplicationsConfigs());
     }
 
     private initLiveEditModel(content: Content): LiveEditModel {
@@ -1589,7 +1599,7 @@ export class ContentWizardPanel
 
         setWizardPersistedContent(newPersistedItem);
 
-        AI.get().setContent(newPersistedItem);
+        setAiContent(newPersistedItem);
     }
 
     protected convertToCurrentItem(content: Content): Content {
@@ -1600,7 +1610,7 @@ export class ContentWizardPanel
         ContentContext.get().setContent(content);
         this.persistedCompareStatus = content.getCompareStatus();
 
-        AI.get().setCompareStatus(this.persistedCompareStatus);
+        setAiCompareStatus(this.persistedCompareStatus);
 
         this.contextView?.setItem(content);
     }
@@ -1700,22 +1710,22 @@ export class ContentWizardPanel
     }
 
     renderAndOpenTranslatorDialog(language?: string): void {
-        if ((!language && !this.isTranslatable()) || !AI.get().hasTranslator()) {
+        if ((!language && !this.isTranslatable()) || !$aiHasTranslator.get()) {
             return;
         }
 
         if (language) {
-            AI.get().setLanguage(language);
+            setAiLanguage(language);
         }
 
         const isAlreadyRendered = document.querySelector('.ai-translator-container');
         if (!isAlreadyRendered) {
             const aiTranslatorContainer = new DivEl('ai-translator-container');
             Body.get().appendChild(aiTranslatorContainer);
-            AI.get().renderTranslator(aiTranslatorContainer.getHTMLElement());
+            renderTranslator(aiTranslatorContainer.getHTMLElement());
         }
 
-        AI.get().whenReady(() => {
+        whenAiReady(() => {
             new AiTranslatorOpenDialogEvent().fire();
         });
     }
