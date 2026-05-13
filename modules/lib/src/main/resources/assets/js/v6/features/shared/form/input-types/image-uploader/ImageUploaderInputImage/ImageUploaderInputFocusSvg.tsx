@@ -1,5 +1,5 @@
 import {cn} from '@enonic/ui';
-import {type MouseEvent, type ReactElement} from 'react';
+import {type MouseEvent, type ReactElement, useEffect, useRef, useState} from 'react';
 import {useImageUploaderContext} from '../ImageUploaderContext';
 import {type Point} from '../lib/types';
 
@@ -7,6 +7,9 @@ export const ImageUploaderInputFocusSvg = (): ReactElement => {
     const {dimensions, crop, base64Image, mode, focus, setFocus} = useImageUploaderContext();
 
     const isFocusing = mode === 'focus';
+    const [isDragging, setIsDragging] = useState(false);
+    const [isOverCircle, setIsOverCircle] = useState(false);
+    const svgRef = useRef<SVGSVGElement>(null);
 
     const cropXCenter = crop ? (crop.x1 + crop.x2) / 2 : dimensions.w / 2;
     const cropYCenter = crop ? (crop.y1 + crop.y2) / 2 : dimensions.h / 2;
@@ -17,13 +20,14 @@ export const ImageUploaderInputFocusSvg = (): ReactElement => {
     const radius = Math.min(viewW, viewH) * 0.25;
     const strokeWidth = Math.min(10, Math.min(viewW, viewH) * 0.01);
 
-    const toLocal = (e: MouseEvent<SVGSVGElement>): Point | null => {
-        const svg = e.currentTarget;
+    const toLocalFromClient = (clientX: number, clientY: number): Point | null => {
+        const svg = svgRef.current;
+        if (!svg) return null;
         const ctm = svg.getScreenCTM();
         if (!ctm) return null;
         const pt = svg.createSVGPoint();
-        pt.x = e.clientX;
-        pt.y = e.clientY;
+        pt.x = clientX;
+        pt.y = clientY;
         const local = pt.matrixTransform(ctm.inverse());
         return {
             x: Math.max(viewX, Math.min(viewX + viewW, local.x)),
@@ -31,22 +35,59 @@ export const ImageUploaderInputFocusSvg = (): ReactElement => {
         };
     };
 
-    const handleClick = (e: MouseEvent<SVGSVGElement>): void => {
-        const p = toLocal(e);
-        if (!p || !isFocusing) return;
-        setFocus(p);
-    };
-
     // While in focus mode, default the circle to the crop/image center so it shows
     // immediately on entering focus mode, before any click.
     const displayFocus = focus ?? (isFocusing ? {x: cropXCenter, y: cropYCenter} : null);
 
+    const handleMouseMove = (e: MouseEvent<SVGSVGElement>): void => {
+        if (isDragging || !isFocusing || !displayFocus) return;
+        const p = toLocalFromClient(e.clientX, e.clientY);
+        if (!p) return;
+        const dx = p.x - displayFocus.x;
+        const dy = p.y - displayFocus.y;
+        setIsOverCircle(Math.sqrt(dx * dx + dy * dy) <= radius);
+    };
+
+    const handleMouseDown = (e: MouseEvent<SVGSVGElement>): void => {
+        if (!isFocusing) return;
+        e.preventDefault();
+        const p = toLocalFromClient(e.clientX, e.clientY);
+        if (!p) return;
+        setIsDragging(true);
+        setFocus(p);
+    };
+
+    useEffect(() => {
+        if (!isDragging) return;
+
+        const handleMouseMove = (e: globalThis.MouseEvent): void => {
+            const p = toLocalFromClient(e.clientX, e.clientY);
+            if (p) setFocus(p);
+        };
+
+        const handleMouseUp = (): void => {
+            setIsDragging(false);
+            setIsOverCircle(true);
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isDragging]);
+
     return (
         <svg
+            ref={svgRef}
             viewBox={`${viewX} ${viewY} ${viewW} ${viewH}`}
-            className={cn('w-full h-full', isFocusing && 'cursor-move')}
+            className={cn('w-full h-full', isDragging ? 'cursor-grabbing' : isOverCircle ? 'cursor-grab' : isFocusing ? 'cursor-move' : '')}
             style={{maxWidth: dimensions?.w, maxHeight: dimensions?.h}}
-            onClick={handleClick}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={() => setIsOverCircle(false)}
         >
             <image href={base64Image} x={viewX} y={viewY} width={viewW} height={viewH} />
 
