@@ -1,9 +1,11 @@
+import {FieldRegistryProvider} from '@enonic/lib-admin-ui/form2';
 import {Button} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {type ReactElement, useCallback, useState} from 'react';
+import {type ReactElement, useCallback, useMemo, useState} from 'react';
 import {useI18n} from '../../../../../../hooks/useI18n';
 import {ConfirmationDialog} from '../../../../../../shared/dialogs/ConfirmationDialog';
 import {FormRenderer} from '../../../../../../shared/form/FormRenderer';
+import {getAiFieldRegistry} from '../../../../../../store/ai/ai.field-registry';
 import {
     $contentContext,
     $pageEditorLifecycle,
@@ -49,6 +51,7 @@ export const PageInspectionPanel = (): ReactElement => {
     const hasController = page?.hasController() ?? false;
     const configForm = descriptor?.getConfig() ?? null;
     const configRoot = hasController ? (page?.getConfig()?.getRoot() ?? null) : null;
+    const fieldRegistry = useMemo(() => getAiFieldRegistry('page'), []);
 
     useInspectFormTracking(configForm, configRoot);
 
@@ -76,12 +79,14 @@ export const PageInspectionPanel = (): ReactElement => {
             </div>
 
             {hasController && configForm && configRoot && (
-                <FormRenderer
-                    form={configForm}
-                    propertySet={configRoot}
-                    enabled={!lifecycle.isPageLocked}
-                    applicationKey={ctx?.applicationKey ?? undefined}
-                />
+                <FieldRegistryProvider registry={fieldRegistry}>
+                    <FormRenderer
+                        form={configForm}
+                        propertySet={configRoot}
+                        enabled={!lifecycle.isPageLocked}
+                        applicationKey={ctx?.applicationKey ?? undefined}
+                    />
+                </FieldRegistryProvider>
             )}
 
             <ConfirmationDialog.Root

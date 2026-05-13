@@ -15,6 +15,7 @@ import {WorkflowState} from '../../../app/content/WorkflowState';
 import type {ContentType} from '../../../app/inputtype/schema/ContentType';
 import type {Page} from '../../../app/page/Page';
 import {ContentDiffHelper} from '../../../app/util/ContentDiffHelper';
+import {setAiDataTree} from './ai';
 import {
     addStringOccurrence,
     removeStringOccurrence,
@@ -814,6 +815,10 @@ let cleanupTreeListener: (() => void) | null = null;
 $wizardDraftData.subscribe((tree) => {
     cleanupTreeListener?.();
     cleanupTreeListener = null;
+
+    // The AI bridge writes translated values directly into this tree, so AI must
+    // see the same instance the form is bound to.
+    setAiDataTree(tree as PropertyTree | null);
 
     if (tree) {
         const handler = () => {
