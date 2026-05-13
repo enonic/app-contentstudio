@@ -446,7 +446,6 @@ module.exports = Object.freeze({
         WRITE_PERMISSIONS: 'Write Permissions',
     },
     roleName: {
-        CONTENT_MANAGER_APP: 'cms.cm.app',
         ADMINISTRATOR: 'system.admin',
         CM_ADMIN: 'cms.admin'
     },

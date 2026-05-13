@@ -87,8 +87,7 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
             let entries = await editPermissionsDialog.getNameOfAccessControlEntries();
             // 3. Verify the order of ACE:
             assert.equal(entries[0], '/roles/cms.admin', " ACL-entries should be consistently sorted by name");
-            assert.equal(entries[1], '/roles/cms.cm.app', " ACL-entries should be consistently sorted by name");
-            assert.equal(entries[2], '/roles/system.admin', " ACL-entries should be consistently sorted by name");
+            assert.equal(entries[1], '/roles/system.admin', " ACL-entries should be consistently sorted by name");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
