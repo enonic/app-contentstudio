@@ -5,6 +5,7 @@ import {ProjectUpdatedEvent} from '../../../app/settings/event/ProjectUpdatedEve
 import {ProjectCreatedEvent} from '../../../app/settings/event/ProjectCreatedEvent';
 import {ProjectDeletedEvent} from '../../../app/settings/event/ProjectDeletedEvent';
 import {syncAtomStore} from '../utils/storage/sync';
+import {defineEvent} from '../utils/dom/events/definedEvent';
 import {setProjectSelectionDialogOpen} from './dialogs.store';
 import {resetTree} from './tree-list.store';
 import {clearSelection, setActive} from './contentTreeSelection.store';
@@ -163,7 +164,15 @@ let isLoading = false;
 let needsReload = false;
 let hostProjectId: string | undefined;
 let hostProjectIdReported = false;
+let applyingRemoteSelection = false;
 const pendingDeletedProjectNavigation = new Map<string, boolean>();
+
+// ? Same-window pub/sub used to sync the active project across widget bundles
+// ? (Settings, Studio Plus, etc.) that share the window but ship their own
+// ? copy of this store. Goes through window CustomEvent; no cross-tab scope.
+const activeProjectChangedEvent = defineEvent<{projectName: string}>(
+    'enonic:cs:active-project-changed',
+);
 
 async function loadProjects(): Promise<void> {
     if (isLoading) {
@@ -336,6 +345,19 @@ export function initProjects(activeProjectId?: string): void {
         const deletedProjectId = event.getProjectName();
         removeProject(deletedProjectId, resolveDeleteNavigation(deletedProjectId));
     });
+
+    activeProjectChangedEvent.listen(({projectName}) => {
+        if ($projects.get().activeProjectId === projectName) return;
+        const project = $projects.get().projects.find((p) => getProjectId(p) === projectName);
+        if (!project) return;
+        applyingRemoteSelection = true;
+        try {
+            applyActiveProjectId(project);
+            $lastSelectedProjectId.set(projectName);
+        } finally {
+            applyingRemoteSelection = false;
+        }
+    });
 }
 
 //
@@ -356,6 +378,9 @@ export function selectProject(project: Readonly<Project>): void {
     // ? Persist only if the active project actually changed (i.e., project was valid).
     if ($projects.get().activeProjectId === projectId) {
         $lastSelectedProjectId.set(projectId);
+        if (!applyingRemoteSelection && projectId) {
+            activeProjectChangedEvent.dispatch({projectName: projectId});
+        }
     }
 }
 
