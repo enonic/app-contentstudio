@@ -2,6 +2,10 @@ packages:
   - .
   - .xp/dev/*
 
+allowBuilds:
+  '@swc/core': false
+  esbuild: false
+
 ignoredBuiltDependencies:
   - "@swc/core"
   - "@tailwindcss/oxide"

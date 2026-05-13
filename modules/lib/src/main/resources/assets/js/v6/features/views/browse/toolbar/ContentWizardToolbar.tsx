@@ -147,7 +147,7 @@ export const ContentWizardToolbar = ({
                                 language={projectLanguage || undefined}
                                 hasIcon={projectHasIcon}
                                 isLayer={isLayerProject}
-                                className='w-6 sm:w-8 shrink-0 flex lg:hidden' />
+                                className='w-6 shrink-0 flex lg:hidden' />
                             <span className='hidden lg:flex'>{projectViewLabel}</span>
                         </Button>
                     </Toolbar.Item>
