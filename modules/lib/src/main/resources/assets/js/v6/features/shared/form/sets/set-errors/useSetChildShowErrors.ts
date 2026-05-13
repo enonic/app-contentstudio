@@ -44,6 +44,10 @@ export function useSetChildShowErrors(propertyArray: PropertyArray, propertySets
     }, [propertySets, validationVisibility, getOrInit]);
 
     useEffect(() => {
+        // `setSetInteracted(true)` below relies on this effect running AFTER
+        // `useSetPropertyArray`'s seeding effect. `notifyPropertyAdded` is
+        // synchronous, so seed adds fire before this listener registers and
+        // are ignored — exactly what we want for "no error before interaction".
         const addHandler = (event: PropertyAddedEvent) => {
             const property = event.getProperty();
             if (property.getParent() !== propertyArray.getParent() || property.getName() !== propertyArray.getName()) return;

@@ -17,6 +17,7 @@ export function useScrollPanelToOccurrence(propertySets: PropertySet[]): UseScro
         const index = pendingScrollIndex.current;
         if (index == null) return;
         pendingScrollIndex.current = null;
+        if (pendingTimeoutId.current != null) clearTimeout(pendingTimeoutId.current);
         pendingTimeoutId.current = setTimeout(() => scrollPanelToOccurrence(itemRefs.current, index), 100);
     }, [propertySets]);
 
@@ -39,12 +40,11 @@ export function useScrollPanelToOccurrence(propertySets: PropertySet[]): UseScro
 }
 
 function scrollPanelToOccurrence(refs: Map<number, HTMLDivElement>, index: number): void {
-    // ? fragile, improve way to get panel element
-    const panel = document.querySelector('.form-panel');
-    if (!panel) return;
-
     const ref = refs.get(index);
     if (!ref) return;
+
+    const panel = ref.closest('.form-panel');
+    if (!panel) return;
 
     const top = ref.getBoundingClientRect().top - panel.getBoundingClientRect().top - SCROLL_OFFSET;
 
