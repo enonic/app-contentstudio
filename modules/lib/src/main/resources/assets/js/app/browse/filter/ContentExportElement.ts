@@ -11,7 +11,7 @@ import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {DateTimeFormatter} from '@enonic/lib-admin-ui/ui/treegrid/DateTimeFormatter';
 import {type SearchInputValues} from '@enonic/lib-admin-ui/query/SearchInputValues';
 import {type ContentDependency} from './ContentDependency';
-import {getActiveProjectName} from '../../../v6/features/store/projects.store';
+import {getActiveProjectName} from '../../../v6/features/store/activeProject.store';
 
 enum EXPORT_TYPE {
     CSV = 'csv', JSON = 'json'

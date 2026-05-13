@@ -6,7 +6,7 @@ import {type ContentType} from '../inputtype/schema/ContentType';
 import {DefaultModels} from './page/DefaultModels';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {GetContentTypeByNameRequest} from '../resource/GetContentTypeByNameRequest';
-import {getActiveProject} from '../../v6/features/store/projects.store';
+import {getActiveProject} from '../../v6/features/store/activeProject.store';
 import {type PublishStatus} from '../publish/PublishStatus';
 import {type Site} from '../content/Site';
 import Q from 'q';

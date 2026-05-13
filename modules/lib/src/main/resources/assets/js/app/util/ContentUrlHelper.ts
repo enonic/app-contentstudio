@@ -72,7 +72,7 @@ export class ContentUrlHelper {
     static generateDependenciesURL(params: DependencyParams): string {
         const typePostfix: string = params.getContentType() ? `/${params.getContentType().toString()}` : '';
         const relativeUrl: string =
-            `${params.getProject().getName()}/${params.getDependencyType()}/${params.getBranch()}/${params.getContentId().toString()}${typePostfix}`;
+            `${params.getProjectName()}/${params.getDependencyType()}/${params.getBranch()}/${params.getContentId().toString()}${typePostfix}`;
 
         return UrlHelper.getPrefixedUrl(relativeUrl);
     }
@@ -80,7 +80,7 @@ export class ContentUrlHelper {
     static openEditContentTab(data: ContentId | ContentEditParams): void {
         const params: ContentEditParams = data instanceof ContentEditParams ? data : ContentEditParams.create(data).build();
         const url: string = ContentUrlHelper.generateEditContentUrl(params);
-        const tabName: string = `${UrlAction.EDIT}:${params.getProject().getName()}:${params.getContentId().toString()}`;
+        const tabName: string = `${UrlAction.EDIT}:${params.getProjectName()}:${params.getContentId().toString()}`;
 
         const win: Window =
             ContentUrlHelper.openTabOrFocusExisting(url, tabName);
@@ -93,7 +93,7 @@ export class ContentUrlHelper {
     static generateEditContentUrl(data: ContentId | ContentEditParams): string {
         const params: ContentEditParams = data instanceof ContentEditParams ? data : ContentEditParams.create(data).build();
         const urlParams: string = this.makeUrlParamsString(this.makeEditParams(params));
-        const relativeUrl: string = `${params.getProject().getName()}/${UrlAction.EDIT}/${params.getContentId().toString()}${urlParams}`;
+        const relativeUrl: string = `${params.getProjectName()}/${UrlAction.EDIT}/${params.getContentId().toString()}${urlParams}`;
 
         return UrlHelper.getPrefixedUrl(relativeUrl, '');
     }
@@ -126,7 +126,7 @@ export class ContentUrlHelper {
     static generateCreateContentUrl(params: ContentCreateParams): string {
         const parentPostfix: string = params.getParentContentId() ? `/${params.getParentContentId().toString()}` : '';
         const relativeUrl: string =
-            `${params.getProject().getName()}/${UrlAction.NEW}/${params.getContentTypeName().toString()}${parentPostfix}`;
+            `${params.getProjectName()}/${UrlAction.NEW}/${params.getContentTypeName().toString()}${parentPostfix}`;
 
         return UrlHelper.getPrefixedUrl(relativeUrl, '');
     }

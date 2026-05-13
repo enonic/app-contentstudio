@@ -16,7 +16,7 @@ import {type AccessControlList} from '../../../../access/AccessControlList';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 import {PermissionsHelper} from '../../../../access/PermissionsHelper';
-import {getActiveProject} from '../../../../../v6/features/store/projects.store';
+import {getActiveProject} from '../../../../../v6/features/store/activeProject.store';
 
 export class ExtensionBasePropertiesItemViewHelper
     extends ExtensionPropertiesItemViewHelper {

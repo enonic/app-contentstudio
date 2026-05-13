@@ -4,7 +4,7 @@ import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
-import {getActiveProjectName} from '../../../v6/features/store/projects.store';
+import {getActiveProjectName} from '../../../v6/features/store/activeProject.store';
 import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContextPanelExtensionElement} from '../../extension/ContextPanelExtensionElement';
 import {RepositoryId} from '../../repository/RepositoryId';

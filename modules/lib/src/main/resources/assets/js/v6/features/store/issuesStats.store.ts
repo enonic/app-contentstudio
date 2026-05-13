@@ -2,7 +2,7 @@ import {map} from 'nanostores';
 import {GetIssueStatsRequest} from '../../../app/issue/resource/GetIssueStatsRequest';
 import {type IssueStatsJson} from '../../../app/issue/json/IssueStatsJson';
 import {IssueServerEventsHandler} from '../../../app/issue/event/IssueServerEventsHandler';
-import {$activeProject} from './projects.store';
+import {$activeProject} from './activeProject.store';
 
 type IssuesStatsStore = {
     stats?: Readonly<IssueStatsJson>;

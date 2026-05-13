@@ -5,7 +5,7 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {ContentEventsProcessor} from '../../ContentEventsProcessor';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {LocalizeContentsRequest} from '../../resource/LocalizeContentsRequest';
-import {getActiveProject} from '../../../v6/features/store/projects.store';
+import {getActiveProject} from '../../../v6/features/store/activeProject.store';
 
 export class ContentLocalizer {
 

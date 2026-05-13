@@ -1,16 +1,34 @@
-import {atom} from 'nanostores';
+import {atom, computed} from 'nanostores';
 import {type Project} from '../../../app/settings/data/project/Project';
 
 type ProjectChangedHandler = (project: Project) => void;
 
-export const $currentProject = atom<Readonly<Project> | undefined>(undefined);
+//
+// * Primary source of truth for the currently active project.
+// * Decoupled from the projects list: anyone may read getActiveProject()
+// * without pulling in projects.store's heavy dependency graph.
+// * The list authority (projects.store) is the canonical writer, but
+// * setActiveProject is intentionally exposed so other writers can exist.
+//
+export const $activeProject = atom<Readonly<Project> | undefined>(undefined);
+
+export const $activeProjectName = computed($activeProject, (activeProject) => {
+    if (!activeProject) return '';
+
+    const projectDisplayName = activeProject.getDisplayName();
+    const projectLanguage = activeProject.getLanguage();
+
+    if (!projectLanguage) return projectDisplayName;
+
+    return `${projectDisplayName} (${projectLanguage})`;
+});
 
 const projectChangedHandlers: ProjectChangedHandler[] = [];
 
-export function setCurrentProject(project: Readonly<Project> | undefined): void {
-    const previousProject = $currentProject.get();
+export function setActiveProject(project: Readonly<Project> | undefined): void {
+    const previousProject = $activeProject.get();
 
-    $currentProject.set(project);
+    $activeProject.set(project);
 
     if (project && project !== previousProject) {
         notifyProjectChanged(project as Project);
@@ -18,7 +36,7 @@ export function setCurrentProject(project: Readonly<Project> | undefined): void 
 }
 
 export function getActiveProject(): Project {
-    return $currentProject.get() as Project;
+    return $activeProject.get() as Project;
 }
 
 export function getActiveProjectName(): string {
@@ -26,7 +44,7 @@ export function getActiveProjectName(): string {
 }
 
 export function isProjectInitialized(): boolean {
-    return !!$currentProject.get();
+    return $activeProject.get() != null;
 }
 
 export function whenProjectInitialized(callback: () => void): () => void {

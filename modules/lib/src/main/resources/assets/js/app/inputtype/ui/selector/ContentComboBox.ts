@@ -114,7 +114,7 @@ export class ContentSelectedOptionView
 
     protected onEditButtonClicked(e: MouseEvent) {
         const content = this.getOptionDisplayValue().getContent();
-        new EditContentEvent([content], this.project).fire();
+        new EditContentEvent([content], this.project?.getName()).fire();
 
         return super.onEditButtonClicked(e);
     }
