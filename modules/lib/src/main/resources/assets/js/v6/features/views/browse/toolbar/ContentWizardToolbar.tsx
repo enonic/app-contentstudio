@@ -1,13 +1,15 @@
 import {type Action} from '@enonic/lib-admin-ui/ui/Action';
-import {Avatar, Button, cn, IconButton, Toolbar, Tooltip} from '@enonic/ui';
+import {Avatar, Button, cn, IconButton, Toggle, Toolbar, Tooltip} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ArrowLeft, Layers, Link2} from 'lucide-react';
 import {type ReactElement, useEffect, useMemo} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {LegacyElement} from '../../../shared/LegacyElement';
+import {JukeIcon} from '../../../shared/icons/JukeIcon';
 import {ProjectIcon} from '../../../shared/icons/ProjectIcon';
 import {StatusIcon} from '../../../shared/icons/StatusIcon';
 import {StatusBadge} from '../../../shared/status/StatusBadge';
+import {$aiHasContentOperator} from '../../../store/ai';
 import {setInspectSaveAction} from '../../../store/inspect-panel.store';
 import {$wizardToolbar} from '../../../store/wizardToolbar.store';
 import {getInitials} from '../../../utils/format/initials';
@@ -82,11 +84,13 @@ export const ContentWizardToolbar = ({
             'isLayerProject'
         ]
     });
+    const aiHasContentOperator = useStore($aiHasContentOperator);
 
     const layersLabel = useI18n('widget.layers.displayName');
     const toolbarLabel = useI18n('wcag.contenteditor.toolbar.label');
     const projectRoot = useI18n('field.root');
     const fieldPathLabel = useI18n('field.path');
+    const aiAssistantLabel = useI18n('tooltip.ai.assistant');
     const pathLabel = `<${fieldPathLabel}>`;
     const projectViewLabel = projectLabel || projectRoot;
     const contentPathLabel = contentPath || pathLabel;
@@ -205,6 +209,19 @@ export const ContentWizardToolbar = ({
                     </div>
                 </div>
                 <div className='flex min-w-fit max-w-fit items-center justify-end gap-0 sm:min-w-fit sm:max-w-none sm:flex-1 sm:basis-0 sm:gap-0.5 md:gap-1 lg:gap-2.5'>
+                    {aiHasContentOperator && (
+                        <Tooltip delay={300} side='bottom' value={aiAssistantLabel} asChild>
+                            <Toolbar.Item asChild>
+                                <Toggle
+                                    className='hidden size-9 p-0 shrink-0 sm:flex'
+                                    size='sm'
+                                    aria-label={aiAssistantLabel}
+                                    startIcon={JukeIcon}
+                                    startIconClassName='size-7'
+                                />
+                            </Toolbar.Item>
+                        </Tooltip>
+                    )}
                     {collaborators.length > 0 && (
                         <div className='-space-x-2 items-center px-3.5 hidden md:flex shrink-0'>
                             {collaborators[0] && (
