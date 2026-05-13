@@ -47,7 +47,7 @@ export const OptionSetConfirmAdd = forwardRef<HTMLDivElement, OptionSetConfirmAd
                     visibility: position ? 'visible' : 'hidden',
                 }}
             >
-                <div className="flex gap-2 justify-center">
+                <div className="flex justify-center">
                     <Button variant="filled" label={cancelLabel} onClick={onCancel} />
                 </div>
 
