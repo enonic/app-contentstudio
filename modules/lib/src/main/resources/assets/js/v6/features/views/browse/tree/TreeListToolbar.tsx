@@ -1,8 +1,9 @@
 import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
-import {Checkbox, CheckboxChecked, IconButton} from '@enonic/ui';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Checkbox, type CheckboxChecked, IconButton} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {RefreshCcw} from 'lucide-react';
-import {ReactElement, useMemo} from 'react';
+import {type ReactElement, useMemo} from 'react';
 import {activateFilter, fetchRootChildrenIdsOnly, getFilterQuery} from '../../../api/content-fetcher';
 import {useI18n} from '../../../hooks/useI18n';
 import {$isFilterActive} from '../../../store/active-tree.store';
@@ -61,7 +62,7 @@ const TreeListToolbar = ({enabled = true}: TreeListToolbarProps): ReactElement =
                 />
             </div>
 
-            <IconButton icon={RefreshCcw} disabled={isLoading || !enabled} onClick={handleReload} />
+            <IconButton aria-label={i18n('wcag.reload.content.label')} icon={RefreshCcw} disabled={isLoading || !enabled} onClick={handleReload} />
         </div>
     );
 };

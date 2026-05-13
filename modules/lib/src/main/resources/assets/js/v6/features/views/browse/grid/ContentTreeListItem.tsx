@@ -9,7 +9,7 @@ export type ContentTreeListItemProps = {
 };
 
 export const ContentTreeListItem = ({content, showPath = false}: ContentTreeListItemProps): React.ReactElement => (
-    <ListItem className='p-0'>
+    <ListItem className='p-0' role='presentation'>
         <ListItem.Left className="flex-1">
             <ContentLabel content={content.item} variant={showPath ? 'detailed' : 'normal'} />
         </ListItem.Left>
