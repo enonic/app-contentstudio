@@ -10,7 +10,7 @@ import {type ProjectJson} from '../../app/settings/resource/json/ProjectJson';
 import {type ContentSummaryAndCompareStatus} from '../../app/content/ContentSummaryAndCompareStatus';
 import {PageState} from '../../app/wizard/page/PageState';
 import {type PageJson} from '../../app/page/PageJson';
-import {getActiveProject} from '../../v6/features/store/projects.store';
+import {getActiveProject} from '../../v6/features/store/activeProject.store';
 
 export class InitializeLiveEditEvent
     extends IframeEvent {

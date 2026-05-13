@@ -3,7 +3,7 @@ import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {getActiveProjectName} from '../../v6/features/store/projects.store';
+import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
 import {type ContentSummary} from '../content/ContentSummary';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper} from '../rendering/UriHelper';

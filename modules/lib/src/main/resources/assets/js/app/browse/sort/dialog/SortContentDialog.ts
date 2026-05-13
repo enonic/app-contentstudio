@@ -25,7 +25,7 @@ import {OpenSortDialogEvent} from '../../OpenSortDialogEvent';
 import {SortContentTabMenu} from '../menu/SortContentTabMenu';
 import {type SortContentTabMenuItem} from '../menu/SortContentTabMenuItem';
 import {SortContentTreeGrid} from '../SortContentTreeGrid';
-import {getActiveProject} from '../../../../v6/features/store/projects.store';
+import {getActiveProject} from '../../../../v6/features/store/activeProject.store';
 
 export class SortContentDialog
     extends ModalDialog {

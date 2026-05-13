@@ -35,7 +35,7 @@ import {
     filterNodeNeedsChildrenLoad,
     filterRootHasMoreChildren,
 } from '../../../store/filter-tree.store';
-import {$activeProject} from '../../../store/projects.store';
+import {$activeProject} from '../../../store/activeProject.store';
 import {$treeState, collapseNode, expandNode, nodeNeedsChildrenLoad} from '../../../store/tree-list.store';
 import {useDebouncedCallback} from '../../../utils/hooks/useDebouncedCallback';
 import type {ContentData} from './ContentData';

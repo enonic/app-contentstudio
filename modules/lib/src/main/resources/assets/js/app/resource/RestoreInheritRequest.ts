@@ -3,7 +3,7 @@ import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ContentInheritType} from '../content/ContentInheritType';
 import {type ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {getActiveProjectName} from '../../v6/features/store/projects.store';
+import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
 
 export class RestoreInheritRequest
     extends CmsContentResourceRequest<void> {

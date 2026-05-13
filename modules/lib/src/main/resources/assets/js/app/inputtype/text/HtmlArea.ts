@@ -25,7 +25,7 @@ import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import * as $ from 'jquery';
 import 'jquery-simulate/jquery.simulate.js';
 import type Q from 'q';
-import {getActiveProject} from '../../../v6/features/store/projects.store';
+import {getActiveProject} from '../../../v6/features/store/activeProject.store';
 import {type ContentSummary} from '../../content/ContentSummary';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
 import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
