@@ -190,6 +190,8 @@ import com.enonic.xp.query.expr.QueryExpr;
 import com.enonic.xp.query.expr.ValueExpr;
 import com.enonic.xp.query.filter.BooleanFilter;
 import com.enonic.xp.query.filter.IdFilter;
+import com.enonic.xp.project.ProjectName;
+import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.query.parser.QueryParser;
 import com.enonic.xp.repository.IndexException;
 import com.enonic.xp.schema.content.ContentTypeService;
@@ -247,6 +249,8 @@ public final class ContentResource
     private static final Logger LOG = LoggerFactory.getLogger( ContentResource.class );
 
     private ContentService contentService;
+
+    private ProjectService projectService;
 
     private ContentPrincipalsResolver principalsResolver;
 
@@ -851,10 +855,8 @@ public final class ContentResource
     @Path("rootPermissions")
     public RootPermissionsJson getRootPermissions()
     {
-        final AccessControlList rootPermissions = ContextBuilder.from( ContextAccessor.current() )
-            .authInfo( AuthenticationInfo.copyOf( ContextAccessor.current().getAuthInfo() ).principals( RoleKeys.ADMIN ).build() )
-            .build()
-            .callWith( contentService::getRootPermissions );
+        final ProjectName projectName = ProjectName.from( ContextAccessor.current().getRepositoryId() );
+        final AccessControlList rootPermissions = projectService.getRootPermissions( projectName );
 
         return new RootPermissionsJson( rootPermissions, principalsResolver );
     }
@@ -1059,7 +1061,8 @@ public final class ContentResource
                 GetContentByIdsParams.create().contentIds( params.getContentIds() ).build() )
             .stream()
             .map( Content::getPermissions )
-            .collect( Collectors.toList() ) : Collections.singletonList( contentService.getRootPermissions() );
+            .collect( Collectors.toList() ) : Collections.singletonList(
+            projectService.getRootPermissions( ProjectName.from( ContextAccessor.current().getRepositoryId() ) ) );
 
         final List<String> result = new ArrayList<>();
 
@@ -1866,5 +1869,11 @@ public final class ContentResource
     public void setLocaleService( final LocaleService localeService )
     {
         this.localeService = localeService;
+    }
+
+    @Reference
+    public void setProjectService( final ProjectService projectService )
+    {
+        this.projectService = projectService;
     }
 }

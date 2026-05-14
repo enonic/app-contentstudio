@@ -150,6 +150,7 @@ import com.enonic.xp.jaxrs.impl.MockRestResponse;
 import com.enonic.xp.page.Page;
 import com.enonic.xp.page.PageTemplateKey;
 import com.enonic.xp.project.ProjectName;
+import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.region.LayoutDescriptorService;
 import com.enonic.xp.region.PartComponent;
 import com.enonic.xp.region.PartDescriptor;
@@ -248,6 +249,8 @@ public class ContentResourceTest
 
     private SyncContentService syncContentService;
 
+    private ProjectService projectService;
+
     private HttpServletRequest request;
 
     @Override
@@ -284,6 +287,9 @@ public class ContentResourceTest
 
         syncContentService = mock( SyncContentService.class );
         resource.setSyncContentService( syncContentService );
+
+        projectService = mock( ProjectService.class );
+        resource.setProjectService( projectService );
 
         final ComponentDisplayNameResolverImpl componentNameResolver = new ComponentDisplayNameResolverImpl();
         componentNameResolver.setContentService( contentService );
@@ -935,11 +941,11 @@ public class ContentResourceTest
             .thenReturn( Optional.of( anon ) );
 
         final AccessControlList permissions = getTestPermissions();
-        when( contentService.getRootPermissions() ).thenReturn( permissions );
+        when( projectService.getRootPermissions( any( ProjectName.class ) ) ).thenReturn( permissions );
 
         String jsonString = request().path( "content/rootPermissions" ).get().getAsString();
 
-        verify( contentService, times( 1 ) ).getRootPermissions();
+        verify( projectService, times( 1 ) ).getRootPermissions( any( ProjectName.class ) );
 
         assertJson( "get_content_root_permissions_success.json", jsonString );
     }
@@ -955,11 +961,11 @@ public class ContentResourceTest
         when( securityService.getPrincipal( PrincipalKey.ofAnonymous() ) ).thenReturn( Optional.ofNullable( null ) );
 
         final AccessControlList permissions = getTestPermissions();
-        when( contentService.getRootPermissions() ).thenReturn( permissions );
+        when( projectService.getRootPermissions( any( ProjectName.class ) ) ).thenReturn( permissions );
 
         String jsonString = request().path( "content/rootPermissions" ).get().getAsString();
 
-        verify( contentService, times( 1 ) ).getRootPermissions();
+        verify( projectService, times( 1 ) ).getRootPermissions( any( ProjectName.class ) );
 
         assertJson( "get_content_root_permissions_with_null_principal.json", jsonString );
     }
@@ -1316,7 +1322,7 @@ public class ContentResourceTest
             .add( AccessControlEntry.create().principal( RoleKeys.AUTHENTICATED ).allow( CREATE ).build() )
             .build();
 
-        when( contentService.getRootPermissions() ).thenReturn( rootPermissions );
+        when( projectService.getRootPermissions( any( ProjectName.class ) ) ).thenReturn( rootPermissions );
 
         jsonString = request().path( "content/allowedActions" )
             .entity( readFromFile( "get_permitted_actions_params_root_all_permissions.json" ), MediaType.APPLICATION_JSON_TYPE )

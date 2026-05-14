@@ -65,6 +65,7 @@ import com.enonic.xp.security.acl.AccessControlList;
 import com.enonic.xp.security.acl.Permission;
 import com.enonic.xp.security.auth.AuthenticationInfo;
 import com.enonic.xp.site.SiteConfig;
+import com.enonic.xp.site.SiteConfigs;
 import com.enonic.xp.task.SubmitLocalTaskParams;
 import com.enonic.xp.task.TaskId;
 import com.enonic.xp.task.TaskService;
@@ -309,12 +310,11 @@ public final class ProjectResource
 
     private ModifyProjectParams createParams( final ModifyProjectParamsJson json )
     {
-        final ModifyProjectParams.Builder paramsBuilder =
-            ModifyProjectParams.create().name( json.getName() ).displayName( json.getDisplayName() ).description( json.getDescription() );
-
-        json.getApplicationConfigs().stream().forEach( paramsBuilder::addSiteConfig );
-
-        return paramsBuilder.build();
+        return ModifyProjectParams.create().name( json.getName() ).editor( edit -> {
+            edit.displayName = json.getDisplayName();
+            edit.description = json.getDescription();
+            edit.siteConfigs = SiteConfigs.from( json.getApplicationConfigs() );
+        } ).build();
     }
 
     private CreateAttachment createIcon( final MultipartForm form )
@@ -386,14 +386,11 @@ public final class ProjectResource
 
     private Optional<Locale> doApplyLanguage( final ProjectName projectName, final Locale language )
     {
-        final Locale result = ApplyProjectLanguageCommand.create()
-            .projectName( projectName )
-            .language( language )
-            .contentService( contentService )
-            .build()
-            .execute();
-
-        return Optional.ofNullable( result );
+        final Project modified = this.projectService.modify( ModifyProjectParams.create()
+                                                                 .name( projectName )
+                                                                 .editor( edit -> edit.language = language )
+                                                                 .build() );
+        return Optional.ofNullable( modified.getLanguage() );
     }
 
     private TaskResultJson doApplyReadAccess( final ProjectName projectName, final ProjectReadAccess readAccess )
