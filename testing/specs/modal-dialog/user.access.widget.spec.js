@@ -4,7 +4,7 @@
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
-const contentBuilder = require("../../libs/content.builder");
+const builder = require("../../libs/content.builder");
 const DetailsWidgetPermissionsSection = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
 const EditPermissionsGeneralStep = require('../../page_objects/permissions/edit.permissions.general.step');
 const appConst = require('../../libs/app_const');
@@ -25,7 +25,7 @@ describe('user.access.widget.spec:  test for user access widget and Edit Permiss
             // Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
             let userName = builder.generateRandomName('writer');
-            let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_APP];
+            let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_APP_EXPERT];
             USER_CAN_WRITE = builder.buildUser(userName, appConst.PASSWORD.MEDIUM, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER_CAN_WRITE);
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
@@ -34,8 +34,8 @@ describe('user.access.widget.spec:  test for user access widget and Edit Permiss
     it(`Preconditions: new folder should be added`,
         async () => {
             await studioUtils.navigateToContentStudioApp();
-            let displayName = contentBuilder.generateRandomName('folder');
-            FOLDER = contentBuilder.buildFolder(displayName);
+            let displayName = builder.generateRandomName('folder');
+            FOLDER = builder.buildFolder(displayName);
             await studioUtils.doAddFolder(FOLDER);
         });
 

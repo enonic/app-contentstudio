@@ -28,7 +28,7 @@ describe('publish.issue.by.user.spec: an user publishes assigned to him issue', 
             // Do Log in with 'SU', navigate to 'Users' and create new system user:
             await studioUtils.navigateToUsersApp();
             let userName = contentBuilder.generateRandomName('user');
-            let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_APP, appConst.SYSTEM_ROLES.CM_ADMIN];
+            let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_ADMIN];
             USER = contentBuilder.buildUser(userName, PASSWORD, contentBuilder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
             //TODO users should be updated
