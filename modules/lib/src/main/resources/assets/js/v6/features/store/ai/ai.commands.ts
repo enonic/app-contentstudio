@@ -18,6 +18,9 @@ import {
     $aiDataTree,
     $aiInstructions,
     $aiReady,
+    $aiTopicError,
+    $aiWizardBridge,
+    type AiWizardBridge,
 } from './ai.store';
 import {AI_PLUGIN_KEYS, type EnonicAiPlugin} from './ai.types';
 import {getActiveProject, getActiveProjectName} from '../activeProject.store';
@@ -58,6 +61,16 @@ export function setAiContentHeader(header: ContentWizardHeader): void {
 
 export function setAiCompareStatus(status: CompareStatus): void {
     $aiCompareStatus.set(status);
+}
+
+export function setAiWizardBridge(bridge: AiWizardBridge): void {
+    $aiWizardBridge.set(bridge);
+}
+
+export function clearAiTopicError(): void {
+    if ($aiTopicError.get() != null) {
+        $aiTopicError.set(null);
+    }
 }
 
 export function updateAiInstructions(configs: ApplicationConfig[]): void {

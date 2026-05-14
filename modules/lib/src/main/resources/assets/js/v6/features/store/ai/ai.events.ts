@@ -26,7 +26,14 @@ import {
     transformPathOnDemand,
 } from './ai.bridge';
 import {resolveAiFieldTarget} from './ai.field-registry';
-import {$aiContent, $aiContext, $aiHasContentOperator, $aiHasTranslator} from './ai.store';
+import {
+    $aiContent,
+    $aiContext,
+    $aiHasContentOperator,
+    $aiHasTranslator,
+    $aiTopicError,
+    $aiTopicProcessing,
+} from './ai.store';
 import {AI_DATA_PREFIX, AI_PAGE_PREFIX} from './ai.types';
 import {$config} from '../config.store';
 
@@ -112,7 +119,13 @@ function wireAiEventListeners(): void {
                 ComponentPath.fromString(event.path.replace(AI_PAGE_PREFIX, '')), true);
         }
 
-        acquireTranslatorProcessing(event.path);
+        if (isTopicPath(event.path)) {
+            // Drop a stale failure so a retry doesn't show old text alongside the shimmer.
+            $aiTopicError.set(null);
+            $aiTopicProcessing.set(true);
+        } else {
+            acquireTranslatorProcessing(event.path);
+        }
     });
 
     AiTranslatorCompletedEvent.on(event => {
@@ -123,11 +136,18 @@ function wireAiEventListeners(): void {
 
         if (event.success && event.text != null) {
             setAiValueAtPath(event.path, event.text);
-        } else if (!event.success) {
+        } else if (!event.success && !isTopicPath(event.path)) {
             reportTranslatorFailureOnField(event.path, event.message);
         }
 
-        releaseTranslatorProcessing(event.path);
+        if (isTopicPath(event.path)) {
+            $aiTopicProcessing.set(false);
+            if (!event.success) {
+                $aiTopicError.set(event.message ?? i18n('field.ai.translator.failed'));
+            }
+        } else {
+            releaseTranslatorProcessing(event.path);
+        }
 
         // Text components do not have AI helpers, so notify the page editor directly.
         if (isPageComponentPath(event.path)) {
