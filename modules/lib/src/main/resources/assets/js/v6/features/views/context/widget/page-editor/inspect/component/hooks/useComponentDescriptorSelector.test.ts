@@ -19,7 +19,7 @@ vi.mock('../../../../../../../store/component-inspection.store', () => ({
 vi.mock('../../../../../../../hooks/useI18n', () => ({
     useI18n: (key: string): string => {
         if (key === 'text.noDescription') return 'No description';
-        if (key === 'field.descriptor.missingApplication') return 'Application is missing';
+        if (key === 'notify.component.descriptor.notfound') return 'Descriptor not found';
         return key;
     },
 }));
@@ -63,14 +63,14 @@ describe('useComponentDescriptorSelector', () => {
             expect(result.current.filteredOptions[0]).toEqual({
                 key: 'tutorial.nxp:heading',
                 label: 'heading',
-                description: '<Application is missing>',
+                description: 'Descriptor not found',
                 isInvalid: true,
             });
             expect(result.current.selectedOption?.isInvalid).toBe(true);
             expect(result.current.isEmpty).toBe(false);
         });
 
-        it('should keep unrelated descriptors and prepend the invalid one when other apps are connected', () => {
+        it('should keep unrelated descriptors and include the invalid one when other apps are connected', () => {
             $selectedKey.set('tutorial.nxp:heading');
             $partOptions.set([
                 makeDescriptor('other.app:button', 'Button', 'A button'),
@@ -80,13 +80,14 @@ describe('useComponentDescriptorSelector', () => {
             const {result} = renderHook(() => useComponentDescriptorSelector('part'));
 
             expect(result.current.filteredOptions).toHaveLength(3);
-            expect(result.current.filteredOptions[0].key).toBe('tutorial.nxp:heading');
-            expect(result.current.filteredOptions[0].isInvalid).toBe(true);
-            expect(result.current.filteredOptions.slice(1).map(o => o.key)).toEqual([
+            const invalid = result.current.filteredOptions.find(o => o.key === 'tutorial.nxp:heading');
+            expect(invalid?.isInvalid).toBe(true);
+            const others = result.current.filteredOptions.filter(o => o.key !== 'tutorial.nxp:heading');
+            expect(others.map(o => o.key).toSorted()).toEqual([
                 'other.app:button',
                 'other.app:card',
             ]);
-            expect(result.current.filteredOptions.slice(1).every(o => !o.isInvalid)).toBe(true);
+            expect(others.every(o => !o.isInvalid)).toBe(true);
             expect(result.current.selectedOption?.isInvalid).toBe(true);
             expect(result.current.isEmpty).toBe(false);
         });

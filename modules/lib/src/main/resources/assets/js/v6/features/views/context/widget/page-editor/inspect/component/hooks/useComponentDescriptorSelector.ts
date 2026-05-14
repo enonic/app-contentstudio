@@ -43,7 +43,7 @@ export function useComponentDescriptorSelector(componentType: 'part' | 'layout')
     const isLoading = useStore($isComponentInspectionLoading);
 
     const noDescriptionLabel = useI18n('text.noDescription');
-    const missingAppLabel = useI18n('field.descriptor.missingApplication');
+    const notFoundLabel = useI18n('notify.component.descriptor.notfound');
 
     const [searchValue, setSearchValue] = useState<string | undefined>();
 
@@ -68,11 +68,11 @@ export function useComponentDescriptorSelector(componentType: 'part' | 'layout')
         const invalidOption: ComponentOption = {
             key: selectedKey,
             label: fallbackLabel,
-            description: `<${missingAppLabel}>`,
+            description: notFoundLabel,
             isInvalid: true,
         };
         return [invalidOption, ...real];
-    }, [descriptors, selectedKey, cachedDescriptor, noDescriptionLabel, missingAppLabel]);
+    }, [descriptors, selectedKey, cachedDescriptor, noDescriptionLabel, notFoundLabel]);
 
     const filteredOptions = useMemo(() => {
         if (!searchValue) return options.toSorted(compareOptionsByLabel);

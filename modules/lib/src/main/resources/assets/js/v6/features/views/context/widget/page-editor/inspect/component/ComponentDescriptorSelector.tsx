@@ -29,13 +29,21 @@ export const ComponentDescriptorSelector = ({componentType}: ComponentDescriptor
 
     const label = useI18n(componentType === 'part' ? 'field.part' : 'field.layout');
     const searchPlaceholder = useI18n('field.option.placeholder');
+    const notFoundLabel = useI18n('field.descriptors.notFound');
 
     const Icon = COMPONENT_TYPE_ICON[componentType];
 
     if (isLoading) return null;
 
     if (isEmpty) {
-        return <p className="text-sm text-subtle">{label}</p>;
+        return (
+            <div className="flex flex-col gap-2" data-component={COMPONENT_DESCRIPTOR_SELECTOR_NAME}>
+                <span className="font-semibold">{label}</span>
+                <small className="text-sm leading-4.5 text-subtle truncate w-full group-data-[tone=inverse]:text-alt">
+                    {notFoundLabel}
+                </small>
+            </div>
+        );
     }
 
     return (
