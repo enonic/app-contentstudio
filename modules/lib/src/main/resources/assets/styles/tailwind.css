@@ -23,6 +23,28 @@
   --sizing-19: calc(var(--spacing) * 19);
 }
 
+@keyframes text-shimmer-slide {
+  0% {
+    background-position: calc(-1 * var(--shimmer-band-size, 220px)) 0, 0 0;
+  }
+  100% {
+    background-position: calc(100% + var(--shimmer-band-size, 220px)) 0, 0 0;
+  }
+}
+
+@utility animate-text-shimmer {
+  --shimmer-band-size: 220px;
+  background-image:
+    linear-gradient(90deg, transparent 0%, var(--color-surface-shimmer) 50%, transparent 100%),
+    linear-gradient(var(--color-main), var(--color-main));
+  background-size: var(--shimmer-band-size) 100%, 100% 100%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: text-shimmer-slide 1.5s ease-in-out infinite;
+}
+
 /* HACKS */
 @layer overrides {
   /* Hide launcher buttons that is injected from Launcher app */

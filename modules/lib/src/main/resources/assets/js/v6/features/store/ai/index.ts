@@ -2,7 +2,17 @@
 import './ai.events';
 
 // Read: stores
-export {$aiContext, $aiHasContentOperator, $aiHasTranslator, $aiReady} from './ai.store';
+export {
+    $aiContext,
+    $aiHasContentOperator,
+    $aiHasTranslator,
+    $aiReady,
+    $aiTopicError,
+    $aiTopicProcessing,
+} from './ai.store';
+
+// Write: signal commands
+export {clearAiTopicError} from './ai.commands';
 
 // Write: commands
 export {
@@ -15,6 +25,7 @@ export {
     setAiCurrentData,
     setAiDataTree,
     setAiLanguage,
+    setAiWizardBridge,
     updateAiInstructions,
     whenAiReady,
 } from './ai.commands';

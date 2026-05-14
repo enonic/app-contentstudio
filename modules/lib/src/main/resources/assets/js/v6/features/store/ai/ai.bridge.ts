@@ -9,7 +9,7 @@ import {TextComponent} from '../../../../app/page/region/TextComponent';
 import {PageState} from '../../../../app/wizard/page/PageState';
 import {XDataWizardStepForm} from '../../../../app/wizard/XDataWizardStepForm';
 import {isBlank} from '../../utils/format/isBlank';
-import {$aiCompareStatus, $aiContentHeader, $aiDataTree} from './ai.store';
+import {$aiCompareStatus, $aiContentHeader, $aiDataTree, $aiWizardBridge} from './ai.store';
 import {AI_CONFIG_PREFIX, AI_DATA_PREFIX, AI_PAGE_PREFIX, AI_TOPIC, AI_XDATA_PREFIX} from './ai.types';
 
 //
@@ -74,27 +74,32 @@ export function setAiValueAtPath(path: string, text: string): void {
 }
 
 function handleTopicEvent(text: string): void {
+    // The v6 DisplayNameInput renders from the wizard draft display-name atom. The
+    // bridge is the only way to reach it without re-introducing a wizardContent →
+    // ai → wizardContent module cycle. The legacy header is kept in sync so any
+    // remaining legacy consumers (name auto-generation) keep working.
+    const bridge = $aiWizardBridge.get();
+    const currentDisplayName = bridge?.getCurrentDisplayName() ?? '';
+    bridge?.applyDisplayName(text);
+
     const header = $aiContentHeader.get();
-    if (!header) {
-        return;
+    if (header) {
+        if (isAllowedToChangeName(text, currentDisplayName)) {
+            // Reset name to trigger name generation after updating displayName.
+            header.setName('', true);
+        }
+        header.setDisplayName(text);
     }
-
-    if (isAllowedToChangeName(text, header)) {
-        // Reset name to trigger name generation after updating displayName.
-        header.setName('', true);
-    }
-
-    header.setDisplayName(text);
 }
 
-function isAllowedToChangeName(text: string, header: {getDisplayName(): string}): boolean {
+function isAllowedToChangeName(text: string, currentDisplayName: string): boolean {
     const status = $aiCompareStatus.get();
     if (status == null) {
         return false;
     }
 
     return !isBlank(text)
-        && !ObjectHelper.stringEquals(text?.trim(), header.getDisplayName())
+        && !ObjectHelper.stringEquals(text?.trim(), currentDisplayName)
         && CompareStatusChecker.isNew(status);
 }
 
