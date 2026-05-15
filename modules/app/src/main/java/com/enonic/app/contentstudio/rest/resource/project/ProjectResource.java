@@ -60,9 +60,6 @@ import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.project.Projects;
 import com.enonic.xp.security.PrincipalKeys;
 import com.enonic.xp.security.RoleKeys;
-import com.enonic.xp.security.acl.AccessControlEntry;
-import com.enonic.xp.security.acl.AccessControlList;
-import com.enonic.xp.security.acl.Permission;
 import com.enonic.xp.security.auth.AuthenticationInfo;
 import com.enonic.xp.site.SiteConfig;
 import com.enonic.xp.site.SiteConfigs;
@@ -283,22 +280,17 @@ public final class ProjectResource
 
     private CreateProjectParams createParams( final CreateProjectParamsJson json )
     {
+        final boolean isPublic = json.getReadAccess() != null && ProjectReadAccessType.PUBLIC.equals( json.getReadAccess().getType() );
+
         final CreateProjectParams.Builder paramsBuilder = CreateProjectParams.create()
             .name( json.getName() )
             .displayName( json.getDisplayName() )
             .description( json.getDescription() )
             .addParents( json.getParents() )
+            .isPublic( isPublic )
             .forceInitialization( true );
 
         json.getApplicationConfigs().stream().forEach( paramsBuilder::addSiteConfig );
-
-        if ( json.getReadAccess() != null && ProjectReadAccessType.PUBLIC.equals( json.getReadAccess().getType() ) )
-        {
-            paramsBuilder.permissions( AccessControlList.create()
-                                           .add(
-                                               AccessControlEntry.create().principal( RoleKeys.EVERYONE ).allow( Permission.READ ).build() )
-                                           .build() );
-        }
 
         return paramsBuilder.build();
     }

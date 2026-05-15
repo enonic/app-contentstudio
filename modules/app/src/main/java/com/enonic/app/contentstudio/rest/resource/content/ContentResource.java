@@ -194,6 +194,7 @@ import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.query.parser.QueryParser;
 import com.enonic.xp.repository.IndexException;
+import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.security.Principal;
 import com.enonic.xp.security.PrincipalKey;
@@ -855,10 +856,14 @@ public final class ContentResource
     @Path("rootPermissions")
     public RootPermissionsJson getRootPermissions()
     {
-        final ProjectName projectName = ProjectName.from( ContextAccessor.current().getRepositoryId() );
-        final AccessControlList rootPermissions = projectService.getRootPermissions( projectName );
+        return new RootPermissionsJson( currentProjectRootPermissions(), principalsResolver );
+    }
 
-        return new RootPermissionsJson( rootPermissions, principalsResolver );
+    private AccessControlList currentProjectRootPermissions()
+    {
+        final RepositoryId repositoryId = ContextAccessor.current().getRepositoryId();
+        final ProjectName projectName = repositoryId != null ? ProjectName.from( repositoryId ) : null;
+        return projectName != null ? projectService.getRootPermissions( projectName ) : AccessControlList.empty();
     }
 
     @POST
@@ -1061,8 +1066,7 @@ public final class ContentResource
                 GetContentByIdsParams.create().contentIds( params.getContentIds() ).build() )
             .stream()
             .map( Content::getPermissions )
-            .collect( Collectors.toList() ) : Collections.singletonList(
-            projectService.getRootPermissions( ProjectName.from( ContextAccessor.current().getRepositoryId() ) ) );
+            .collect( Collectors.toList() ) : Collections.singletonList( currentProjectRootPermissions() );
 
         final List<String> result = new ArrayList<>();
 

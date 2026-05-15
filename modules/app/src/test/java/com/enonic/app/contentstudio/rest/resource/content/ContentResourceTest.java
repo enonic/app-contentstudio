@@ -137,6 +137,7 @@ import com.enonic.xp.content.UpdateContentParams;
 import com.enonic.xp.content.UpdateMediaParams;
 import com.enonic.xp.content.UpdateWorkflowParams;
 import com.enonic.xp.context.ContextAccessor;
+import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.context.LocalScope;
 import com.enonic.xp.core.impl.content.schema.BuiltinContentTypesAccessor;
 import com.enonic.xp.data.PropertyTree;
@@ -943,7 +944,7 @@ public class ContentResourceTest
         final AccessControlList permissions = getTestPermissions();
         when( projectService.getRootPermissions( any( ProjectName.class ) ) ).thenReturn( permissions );
 
-        String jsonString = request().path( "content/rootPermissions" ).get().getAsString();
+        String jsonString = inProjectContext( () -> request().path( "content/rootPermissions" ).get().getAsString() );
 
         verify( projectService, times( 1 ) ).getRootPermissions( any( ProjectName.class ) );
 
@@ -963,11 +964,19 @@ public class ContentResourceTest
         final AccessControlList permissions = getTestPermissions();
         when( projectService.getRootPermissions( any( ProjectName.class ) ) ).thenReturn( permissions );
 
-        String jsonString = request().path( "content/rootPermissions" ).get().getAsString();
+        String jsonString = inProjectContext( () -> request().path( "content/rootPermissions" ).get().getAsString() );
 
         verify( projectService, times( 1 ) ).getRootPermissions( any( ProjectName.class ) );
 
         assertJson( "get_content_root_permissions_with_null_principal.json", jsonString );
+    }
+
+    private <T> T inProjectContext( final java.util.concurrent.Callable<T> callable )
+    {
+        return ContextBuilder.from( ContextAccessor.current() )
+            .repositoryId( RepositoryId.from( "com.enonic.cms.default" ) )
+            .build()
+            .callWith( callable );
     }
 
     @Test
@@ -1324,10 +1333,11 @@ public class ContentResourceTest
 
         when( projectService.getRootPermissions( any( ProjectName.class ) ) ).thenReturn( rootPermissions );
 
-        jsonString = request().path( "content/allowedActions" )
-            .entity( readFromFile( "get_permitted_actions_params_root_all_permissions.json" ), MediaType.APPLICATION_JSON_TYPE )
-            .post()
-            .getAsString();
+        jsonString = inProjectContext(
+            () -> request().path( "content/allowedActions" )
+                .entity( readFromFile( "get_permitted_actions_params_root_all_permissions.json" ), MediaType.APPLICATION_JSON_TYPE )
+                .post()
+                .getAsString() );
 
         assertEquals( "[\"READ\",\"CREATE\"]", jsonString );
     }
