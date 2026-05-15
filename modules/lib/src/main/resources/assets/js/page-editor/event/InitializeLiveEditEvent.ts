@@ -9,13 +9,13 @@ import {type LiveEditParams} from '../LiveEditParams';
 import {type ProjectJson} from '../../app/settings/resource/json/ProjectJson';
 import {type ContentSummaryAndCompareStatus} from '../../app/content/ContentSummaryAndCompareStatus';
 import {PageState} from '../../app/wizard/page/PageState';
-import {ProjectContext} from '../../app/project/ProjectContext';
 import {type PageJson} from '../../app/page/PageJson';
+import {getActiveProject} from '../../v6/features/store/activeProject.store';
 
 export class InitializeLiveEditEvent
     extends IframeEvent {
 
-    private projectJson: ProjectJson;
+    public projectJson: ProjectJson;
 
     private config: ConfigObject;
 
@@ -64,7 +64,7 @@ export class InitializeLiveEditEvent
         return this.content;
     }
 
-    setProjectJson(value: ProjectJson = ProjectContext?.get().getProject()?.toJson()) {
+    setProjectJson(value: ProjectJson = getActiveProject()?.toJson()) {
         this.projectJson = value;
         return this;
     }

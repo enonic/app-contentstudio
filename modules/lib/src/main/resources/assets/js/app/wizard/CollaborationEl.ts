@@ -8,8 +8,8 @@ import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveMa
 import {PrincipalViewerCompact} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import Q from 'q';
+import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
 import {type ContentId} from '../content/ContentId';
-import {ProjectContext} from '../project/ProjectContext';
 import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
 import {subscribe as subscribeToCollaborators} from '../stores/collaboration';
 
@@ -47,7 +47,7 @@ export class CollaborationEl
 
         this.whenRendered(() => this.updateVisibleElements());
 
-        const project = ProjectContext.get().getProject().getName();
+        const project = getActiveProjectName();
         const unsubscribeToCollaborators = subscribeToCollaborators(contentId.toString(), project, (collaborators) => {
             this.handleCollaboratorsUpdated(collaborators);
         });

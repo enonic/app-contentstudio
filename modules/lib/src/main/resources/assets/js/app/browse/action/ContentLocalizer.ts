@@ -4,8 +4,8 @@ import {type ContentSummary} from '../../content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentEventsProcessor} from '../../ContentEventsProcessor';
 import {EditContentEvent} from '../../event/EditContentEvent';
-import {ProjectContext} from '../../project/ProjectContext';
 import {LocalizeContentsRequest} from '../../resource/LocalizeContentsRequest';
+import {getActiveProject} from '../../../v6/features/store/activeProject.store';
 
 export class ContentLocalizer {
 
@@ -22,7 +22,7 @@ export class ContentLocalizer {
     }
 
     private localizeContents(): Q.Promise<void> {
-        const projectLang: string = ProjectContext.get().getProject().getLanguage();
+        const projectLang: string = getActiveProject().getLanguage();
         const contentsToEdit: ContentSummaryAndCompareStatus[] = [];
         const contentsToLocalize: ContentSummaryAndCompareStatus[] = [];
 

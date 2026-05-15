@@ -7,7 +7,7 @@ import {DependencyType} from '../../../app/browse/DependencyType';
 import {UrlHelper} from '../../../app/util/UrlHelper';
 import {Branch} from '../../../app/versioning/Branch';
 import {useI18n} from '../hooks/useI18n';
-import {$activeProject} from '../store/projects.store';
+import {$activeProject} from '../store/activeProject.store';
 
 export type ContentReferencesLinkProps = {
     contentId: string;

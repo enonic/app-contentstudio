@@ -1,11 +1,10 @@
 import {type ContentId} from '../content/ContentId';
-import {type Project} from '../settings/data/project/Project';
-import {ProjectContext} from '../project/ProjectContext';
+import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
 
 export class ContentEditParams {
     private readonly contentId: ContentId;
 
-    private readonly project: Readonly<Project>;
+    private readonly projectName: string;
 
     private readonly localized: boolean = false;
 
@@ -13,7 +12,7 @@ export class ContentEditParams {
 
     constructor(builder: ContentEditParamsBuilder) {
         this.contentId = builder.contentId;
-        this.project = builder.project || ProjectContext.get().getProject();
+        this.projectName = builder.projectName || getActiveProjectName();
         this.localized = builder.localized;
         this.displayAsNew = builder.displayAsNew;
     }
@@ -30,8 +29,8 @@ export class ContentEditParams {
         return this.displayAsNew;
     }
 
-    getProject(): Readonly<Project> {
-        return this.project;
+    getProjectName(): string {
+        return this.projectName;
     }
 
     static create(contentId?: ContentId): ContentEditParamsBuilder {
@@ -42,7 +41,7 @@ export class ContentEditParams {
 export class ContentEditParamsBuilder {
     contentId: ContentId;
 
-    project: Readonly<Project>;
+    projectName: string;
 
     localized: boolean = false;
 
@@ -57,8 +56,8 @@ export class ContentEditParamsBuilder {
         return this;
     }
 
-    setProject(value: Readonly<Project>): this {
-        this.project = value;
+    setProjectName(value: string): this {
+        this.projectName = value;
         return this;
     }
 

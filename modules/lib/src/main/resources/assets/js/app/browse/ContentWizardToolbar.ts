@@ -8,12 +8,12 @@ import {type ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
+import {getActiveProject, getActiveProjectName} from '../../v6/features/store/activeProject.store';
 import {normalizeContentPathName} from '../../v6/features/utils/cms/content/paths';
 import {AI} from '../ai/AI';
 import {ContentName} from '../content/ContentName';
 import {ContentUnnamed} from '../content/ContentUnnamed';
 import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ProjectContext} from '../project/ProjectContext';
 import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
 import {Project} from '../settings/data/project/Project';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
@@ -118,7 +118,7 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
 
     private initElements(): void {
         resetWizardToolbar();
-        const currentProject = ProjectContext.get().getProject();
+        const currentProject = getActiveProject();
         setWizardToolbarIsLayerProject(currentProject.hasParents());
         setWizardToolbarProjectInfo(currentProject.getName(), currentProject.getLanguage() || '', !!currentProject.getIcon());
 
@@ -140,7 +140,7 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
 
     private initListeners(): void {
         ProjectUpdatedEvent.on((event: ProjectUpdatedEvent) => {
-            if (event.getProjectName() === ProjectContext.get().getProject().getName()) {
+            if (event.getProjectName() === getActiveProjectName()) {
                 new ProjectGetRequest(event.getProjectName()).sendAndParse().then((project: Project) => {
                     this.updateProjectLabel(project);
                 }).catch(DefaultErrorHandler.handle);
@@ -203,7 +203,7 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
 
         this.unsubscribeFromCollaborators = subscribeToCollaborators(
             contentId,
-            ProjectContext.get().getProject().getName(),
+            getActiveProjectName(),
             (collaborators: Set<string>) => this.handleCollaboratorsUpdated(collaborators)
         );
     }
@@ -326,9 +326,9 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
 
     private fetchProjectInfo(): void {
         new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
-            this.updateProjectLabelByName(projects, ProjectContext.get().getProject().getName());
+            this.updateProjectLabelByName(projects, getActiveProjectName());
         }).catch((reason) => {
-            this.updateProjectLabel(Project.create().setName(ProjectContext.get().getProject().getName()).build());
+            this.updateProjectLabel(Project.create().setName(getActiveProjectName()).build());
             DefaultErrorHandler.handle(reason);
             return Q.reject(reason);
         });
@@ -353,7 +353,7 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
     }
 
     private handleProjectBackClicked(): void {
-        window.location.href = UrlHelper.createContentBrowseUrl(ProjectContext.get().getProject().getName());
+        window.location.href = UrlHelper.createContentBrowseUrl(getActiveProjectName());
     }
 
     private handleContentPathClicked(): void {

@@ -3,7 +3,7 @@ import {useStore} from '@nanostores/preact';
 import {useEffect, useMemo, useState} from 'react';
 import type {Site} from '../../../app/content/Site';
 import {loadNearestSite} from '../api/details';
-import {$activeProject} from '../store/projects.store';
+import {$activeProject} from '../store/activeProject.store';
 import {$contextContent} from '../store/context/contextContent.store';
 
 export function useApplicationKeys(): ApplicationKey[] {

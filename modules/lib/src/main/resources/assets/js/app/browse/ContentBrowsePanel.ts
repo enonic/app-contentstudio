@@ -16,6 +16,8 @@ import {$actionsNeedRefresh, clearActionsRefreshSignal} from '../../v6/features/
 import {removeContent, setContent} from '../../v6/features/store/content.store';
 import {hasFilterSet, setContentFilterOpen} from '../../v6/features/store/contentFilter.store';
 import {hasCurrentItems} from '../../v6/features/store/contentTreeSelection.store';
+import {onActiveProjectChanged} from '../../v6/features/store/activeProject.store';
+import {onNoProjectsAvailable} from '../../v6/features/store/projects.store';
 import {removeTreeNode} from '../../v6/features/store/tree-list.store';
 import {ContentTreeListElement} from '../../v6/features/views/browse/grid/ContentTreeListElement';
 import {BrowseToolbarElement} from '../../v6/features/views/browse/toolbar/BrowseToolbar';
@@ -29,7 +31,6 @@ import {type ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {EditContentEvent} from '../event/EditContentEvent';
 import {type ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
-import {ProjectContext} from '../project/ProjectContext';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper} from '../rendering/UriHelper';
 import {ContentExistsByPathRequest} from '../resource/ContentExistsByPathRequest';
@@ -139,16 +140,17 @@ export class ContentBrowsePanel
         this.contextSplitPanelToggler.setEnabled(false);
         this.setContentTreeState(State.DISABLED);
 
+        let unsubscribeProjectSetHandler = () => undefined;
         const projectSetHandler = () => {
             this.getBrowseActions().setState(State.ENABLED);
             this.toggleFilterPanelAction.setEnabled(true);
             this.contextSplitPanelToggler.setEnabled(true);
             this.setContentTreeState(State.ENABLED);
             Router.get().setHash(UrlAction.BROWSE);
-            ProjectContext.get().unProjectChanged(projectSetHandler);
+            unsubscribeProjectSetHandler();
         };
 
-        ProjectContext.get().onProjectChanged(projectSetHandler);
+        unsubscribeProjectSetHandler = onActiveProjectChanged(projectSetHandler);
     }
 
     protected initListeners() {
@@ -357,7 +359,7 @@ export class ContentBrowsePanel
             }
         });
 
-        ProjectContext.get().onProjectChanged(() => {
+        onActiveProjectChanged(() => {
             this.selectionWrapper.deselectAll();
             this.updateActionsAndPreview();
             this.filterPanel.reset().then(() => {
@@ -366,7 +368,7 @@ export class ContentBrowsePanel
             });
         });
 
-        ProjectContext.get().onNoProjectsAvailable(() => {
+        onNoProjectsAvailable(() => {
             this.handleProjectNotSet();
             this.selectionWrapper.deselectAll(true);
             this.treeListBox.clearItems(true);

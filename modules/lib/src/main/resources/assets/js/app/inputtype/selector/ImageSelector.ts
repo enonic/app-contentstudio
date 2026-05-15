@@ -58,7 +58,7 @@ export class ImageSelector
             options.forEach((option: SelectedOption<MediaTreeSelectorItem>) => {
                 const content = option.getOption().getDisplayValue().getContentSummary();
                 const model = ContentSummaryAndCompareStatus.fromContentSummary(content);
-                new EditContentEvent([model], this.context.project).fire();
+                new EditContentEvent([model], this.context.project?.getName()).fire();
             });
         });
 

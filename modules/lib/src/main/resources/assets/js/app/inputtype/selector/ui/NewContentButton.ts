@@ -147,7 +147,7 @@ export class NewContentButton
 
     private handleContentCreated(content: Content): void {
         this.notifyContentAdded(content);
-        new EditContentEvent([ContentSummaryAndCompareStatus.fromContentSummary(content)], this.project).setDisplayAsNew(true).fire();
+        new EditContentEvent([ContentSummaryAndCompareStatus.fromContentSummary(content)], this.project?.getName()).setDisplayAsNew(true).fire();
     }
 
     private handleItemUploadFailed(item: UploadItem<Content>): void {

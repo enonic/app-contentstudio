@@ -5,9 +5,8 @@ import {ProjectUpdatedEvent} from '../../../app/settings/event/ProjectUpdatedEve
 import {ProjectCreatedEvent} from '../../../app/settings/event/ProjectCreatedEvent';
 import {ProjectDeletedEvent} from '../../../app/settings/event/ProjectDeletedEvent';
 import {syncAtomStore} from '../utils/storage/sync';
-import {$config} from './config.store';
+import {defineEvent} from '../utils/dom/events/definedEvent';
 import {setProjectSelectionDialogOpen} from './dialogs.store';
-import {ProjectContext} from '../../../app/project/ProjectContext';
 import {resetTree} from './tree-list.store';
 import {clearSelection, setActive} from './contentTreeSelection.store';
 import {setContentFilterOpen, resetContentFilter} from './contentFilter.store';
@@ -15,6 +14,7 @@ import {deactivateFilter} from '../api/content-fetcher';
 import {clearVersionsCache} from '../utils/widget/versions/versionsCache';
 import {resolveActiveProjectId, resolveActiveProjectIdAfterDeletion} from '../utils/cms/projects/projectSelection';
 import {isWizardUrl} from '../utils/url/app';
+import {$activeProject, setActiveProject} from './activeProject.store';
 
 // TODO: Enonic UI - Feature: store projects as JSON objects in the sync store
 // TODO: Enonic UI - Feature: load projects from the sync store on startup if other tabs are active
@@ -36,7 +36,7 @@ export const $projects = map<ProjectsStore>({
     loaded: false,
     resolved: false,
     loadError: false,
-    noProjectMode: ProjectContext.get().isNotAvailable(),
+    noProjectMode: false,
 });
 
 //
@@ -47,12 +47,6 @@ export const $projects = map<ProjectsStore>({
 const $lastSelectedProjectId = atom<string | undefined>(undefined);
 syncAtomStore($lastSelectedProjectId, 'lastSelectedProjectId', {loadInitial: true});
 
-export const $activeProject = computed($projects, (store) => {
-    const activeProject = store.projects.find((p) => getProjectId(p) === store.activeProjectId);
-
-    return isAvailableProject(activeProject) ? activeProject : undefined;
-});
-
 export const $noProjectMode = computed($projects, (store) => {
     if (!store.loaded) {
         return store.noProjectMode;
@@ -61,20 +55,18 @@ export const $noProjectMode = computed($projects, (store) => {
     return !store.projects.some(isAvailableProject);
 });
 
-export const $activeProjectName = computed($activeProject, (activeProject) => {
-    if (!activeProject) return '';
-
-    const projectDisplayName = activeProject.getDisplayName();
-    const projectLanguage = activeProject.getLanguage();
-
-    if (!projectLanguage) return projectDisplayName;
-
-    return `${projectDisplayName} (${projectLanguage})`;
-});
-
-function setActiveProject(project: Readonly<Project> | undefined): void {
+//
+// * Internal writer: applies an id to $projects map AND publishes the
+// * canonical Project instance to activeProject.store. The activeProject
+// * store is the single source of truth for "which project is active";
+// * this function keeps the projects-list view in sync.
+//
+function applyActiveProjectId(project: Readonly<Project> | undefined): void {
     const existsInStore = $projects.get().projects.some((p) => getProjectId(p) === getProjectId(project));
     if (!existsInStore) return;
+    // ? Update the atom before flipping noProjectMode — subscribers of
+    // ? $noProjectMode that read getActiveProject() must see the new project.
+    setActiveProject(project);
     $projects.setKey('activeProjectId', getProjectId(project));
     $projects.setKey('noProjectMode', false);
 }
@@ -94,24 +86,58 @@ function isAvailableProject(project: Readonly<Project> | undefined): boolean {
     return !!project?.getDisplayName();
 }
 
+const APP_ID = 'com.enonic.app.contentstudio';
+
 function getProjectIdFromUrl(): string | undefined {
-    const viewPath = window.location.href.split($config.get().appId)[1];
+    const viewPath = window.location.href.split(APP_ID)[1];
     const normalizedPath = viewPath?.replace(/\/[^\/]+/, '') || '/';
     return normalizedPath.split('/')[1];
 }
 
 function clearActiveProject(): void {
     $projects.setKey('activeProjectId', undefined);
+    setActiveProject(undefined);
+}
+
+const noProjectsAvailableListeners: (() => void)[] = [];
+
+function setNoProjectMode(): void {
+    $projects.setKey('noProjectMode', true);
+    noProjectsAvailableListeners.slice().forEach((handler: () => void) => handler());
+}
+
+export function onNoProjectsAvailable(handler: () => void): () => void {
+    noProjectsAvailableListeners.push(handler);
+
+    return () => {
+        const index = noProjectsAvailableListeners.indexOf(handler);
+
+        if (index > -1) {
+            noProjectsAvailableListeners.splice(index, 1);
+        }
+    };
 }
 
 function selectProjectById(projectId: string | undefined): void {
     const project = $projects.get().projects.find((candidate) => getProjectId(candidate) === projectId);
 
     if (project) {
-        setActiveProject(project);
+        applyActiveProjectId(project);
     } else {
         clearActiveProject();
     }
+}
+
+//
+// * After the projects list is replaced, the activeProject atom may hold a
+// * stale Project instance. Re-resolve from the new list so consumers see the
+// * canonical instance (or undefined if the active id is no longer present).
+//
+function refreshActiveProjectInstance(): void {
+    const {projects, activeProjectId} = $projects.get();
+    if (!activeProjectId) return;
+    const canonical = projects.find((p) => getProjectId(p) === activeProjectId);
+    setActiveProject(canonical);
 }
 
 function resolveFallbackProjectId(projects: Readonly<Project>[], activeProjectId: string | undefined): string | undefined {
@@ -136,7 +162,17 @@ function updateProjectsState(state: Partial<ProjectsStore>): void {
 //
 let isLoading = false;
 let needsReload = false;
+let hostProjectId: string | undefined;
+let hostProjectIdReported = false;
+let applyingRemoteSelection = false;
 const pendingDeletedProjectNavigation = new Map<string, boolean>();
+
+// ? Same-window pub/sub used to sync the active project across widget bundles
+// ? (Settings, Studio Plus, etc.) that share the window but ship their own
+// ? copy of this store. Goes through window CustomEvent; no cross-tab scope.
+const activeProjectChangedEvent = defineEvent<{projectName: string}>(
+    'enonic:cs:active-project-changed',
+);
 
 async function loadProjects(): Promise<void> {
     if (isLoading) {
@@ -161,6 +197,8 @@ async function loadProjects(): Promise<void> {
             resolved: false,
             loadError: false,
         });
+        validateHostProjectId(projects);
+        refreshActiveProjectInstance();
         updateActiveProject();
         updateProjectsState({
             loaded: true,
@@ -184,6 +222,25 @@ async function loadProjects(): Promise<void> {
     }
 }
 
+//
+// * Validates the host-provided id against the freshly loaded project list.
+// * If the project is missing or inaccessible, logs once and clears the stale
+// * activeProjectId so URL/storage fallback can resolve in updateActiveProject.
+//
+function validateHostProjectId(projects: Readonly<Project>[]): void {
+    if (!hostProjectId || hostProjectIdReported) return;
+
+    const projectFromHost = projects.find((project) => getProjectId(project) === hostProjectId);
+    const isAvailable = !!projectFromHost && isAvailableProject(projectFromHost);
+
+    if (!isAvailable) {
+        console.error(`Project "${hostProjectId}" is not available`);
+        $projects.setKey('activeProjectId', undefined);
+    }
+
+    hostProjectIdReported = true;
+}
+
 function updateActiveProject(): void {
     if ($activeProject.get()) {
         return;
@@ -200,7 +257,7 @@ function updateActiveProject(): void {
     }
 
     clearActiveProject();
-    ProjectContext.get().setNotAvailable();
+    setNoProjectMode();
     setProjectSelectionDialogOpen(true);
 }
 
@@ -222,15 +279,22 @@ function updateActiveProjectAfterDeletion(deletedProject: Readonly<Project> | un
     if (wasLast) {
         $lastSelectedProjectId.set(undefined);
     }
-    ProjectContext.get().setNotAvailable();
+    setNoProjectMode();
     setProjectSelectionDialogOpen(true);
 }
 
 /**
- * Initialize the active project. URL takes precedence; in browse mode we
- * fall back to the user's last UI-selected project from storage.
+ * Initialize the active project. The host-provided id takes precedence, then
+ * URL, then in browse mode the user's last UI-selected project from storage.
+ * Availability of the host id can only be verified after loadProjects() runs,
+ * so it is re-checked (and reported) in updateActiveProject().
  */
 function initializeActiveProject(): void {
+    if (hostProjectId) {
+        $projects.setKey('activeProjectId', hostProjectId);
+        return;
+    }
+
     const fromUrl = getProjectIdFromUrl();
     if (fromUrl) {
         $projects.setKey('activeProjectId', fromUrl);
@@ -248,30 +312,53 @@ function initializeActiveProject(): void {
 //
 // * Initialization
 //
-initializeActiveProject();
 
-void loadProjects();
+/**
+ * Bootstraps the projects store. Must be called from the app entry point
+ * (or any pluggable host: embedded widget, settings tool, etc.) — never from
+ * module load — so that network I/O and event subscriptions happen after
+ * config/auth init.
+ *
+ * @param activeProjectId Optional project id the host wants to activate.
+ *     Overrides URL- and storage-based discovery when provided and the
+ *     project exists in the loaded list and is accessible to the user.
+ *     If it is not accessible, a single `console.error` is logged and the
+ *     store falls back to URL → storage → noProjectMode as usual.
+ */
+export function initProjects(activeProjectId?: string): void {
+    hostProjectId = activeProjectId;
+    hostProjectIdReported = false;
 
-ProjectUpdatedEvent.on(() => {
-    loadProjects();
-});
+    initializeActiveProject();
 
-ProjectCreatedEvent.on(() => {
-    loadProjects();
-});
+    void loadProjects();
 
-ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
-    const deletedProjectId = event.getProjectName();
-    removeProject(deletedProjectId, resolveDeleteNavigation(deletedProjectId));
-});
+    ProjectUpdatedEvent.on(() => {
+        loadProjects();
+    });
 
-ProjectContext.get().onNoProjectsAvailable(() => {
-    $projects.setKey('noProjectMode', true);
-});
+    ProjectCreatedEvent.on(() => {
+        loadProjects();
+    });
 
-ProjectContext.get().onProjectChanged(() => {
-    $projects.setKey('noProjectMode', false);
-});
+    ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
+        const deletedProjectId = event.getProjectName();
+        removeProject(deletedProjectId, resolveDeleteNavigation(deletedProjectId));
+    });
+
+    activeProjectChangedEvent.listen(({projectName}) => {
+        if ($projects.get().activeProjectId === projectName) return;
+        const project = $projects.get().projects.find((p) => getProjectId(p) === projectName);
+        if (!project) return;
+        applyingRemoteSelection = true;
+        try {
+            applyActiveProjectId(project);
+            $lastSelectedProjectId.set(projectName);
+        } finally {
+            applyingRemoteSelection = false;
+        }
+    });
+}
 
 //
 // * Public API
@@ -286,11 +373,14 @@ export function reloadProjects(): void {
  * paths inside the store stay on the internal helpers.
  */
 export function selectProject(project: Readonly<Project>): void {
-    setActiveProject(project);
+    applyActiveProjectId(project);
     const projectId = getProjectId(project);
     // ? Persist only if the active project actually changed (i.e., project was valid).
     if ($projects.get().activeProjectId === projectId) {
         $lastSelectedProjectId.set(projectId);
+        if (!applyingRemoteSelection && projectId) {
+            activeProjectChangedEvent.dispatch({projectName: projectId});
+        }
     }
 }
 
@@ -344,15 +434,6 @@ export function removeProject(projectName: string, navigateAfterDeletion: boolea
     updateActiveProject();
 }
 
-
-//
-// * Legacy
-//
-// TODO: Enonic UI - Deprecated - Remove this once the ProjectContext is removed
-$activeProject.subscribe((project) => {
-    if (!project) return;
-    ProjectContext.get().setProject(project as Project);
-});
 
 // Reset dependent stores when project changes
 function resetProjectDependentStores(): void {

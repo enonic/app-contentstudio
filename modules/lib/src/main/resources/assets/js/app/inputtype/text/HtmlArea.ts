@@ -25,9 +25,9 @@ import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import * as $ from 'jquery';
 import 'jquery-simulate/jquery.simulate.js';
 import type Q from 'q';
+import {getActiveProject} from '../../../v6/features/store/activeProject.store';
 import {type ContentSummary} from '../../content/ContentSummary';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
-import {ProjectContext} from '../../project/ProjectContext';
 import {type ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {HTMLAreaProxy} from '../ui/text/dialog/HTMLAreaProxy';
 import {HTMLAreaHelper} from '../ui/text/HTMLAreaHelper';
@@ -84,7 +84,7 @@ export class HtmlArea
         }
 
         // if is root non-site content then get application keys from project, e.g. headless content items
-        return ProjectContext.get().getProject()?.getSiteConfigs()?.map((config) => config.getApplicationKey()) || [];
+        return getActiveProject()?.getSiteConfigs()?.map((config) => config.getApplicationKey()) || [];
     }
 
     private processInputConfig() {

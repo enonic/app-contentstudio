@@ -8,7 +8,8 @@ import {ShowIssuesDialogButton} from '../issue/view/ShowIssuesDialogButton';
 import {Project} from '../settings/data/project/Project';
 import {ProjectViewer} from '../settings/wizard/viewer/ProjectViewer';
 import {AccessibilityHelper} from '../util/AccessibilityHelper';
-import {$activeProject, $noProjectMode, $projects} from '../../v6/features/store/projects.store';
+import {$activeProject} from '../../v6/features/store/activeProject.store';
+import {$noProjectMode, $projects} from '../../v6/features/store/projects.store';
 
 export class ContentAppBar
     extends TabbedAppBar {

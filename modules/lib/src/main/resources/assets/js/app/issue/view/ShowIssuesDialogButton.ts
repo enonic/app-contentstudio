@@ -10,7 +10,7 @@ import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
 import {IssueStatus} from '../IssueStatus';
 import {type IssueResponse} from '../resource/IssueResponse';
 import {ListIssuesRequest} from '../resource/ListIssuesRequest';
-import {$activeProject} from '../../../v6/features/store/projects.store';
+import {$activeProject} from '../../../v6/features/store/activeProject.store';
 
 export class ShowIssuesDialogButton
     extends ActionButton<ShowIssuesDialogAction> {

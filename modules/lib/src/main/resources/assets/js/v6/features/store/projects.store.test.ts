@@ -12,21 +12,11 @@ const {
     deletedHandlers,
     mockProjectListSendAndParse,
     mockSetProjectSelectionDialogOpen,
-    mockProjectContextSetProject,
-    mockProjectContextSetNotAvailable,
-    mockProjectContextIsNotAvailable,
-    noProjectsAvailableHandlers,
-    projectChangedHandlers,
 } = vi.hoisted(() => ({
     createdHandlers: [] as (() => void)[],
     deletedHandlers: [] as ((event: {getProjectName(): string}) => void)[],
     mockProjectListSendAndParse: vi.fn(),
     mockSetProjectSelectionDialogOpen: vi.fn(),
-    mockProjectContextSetProject: vi.fn(),
-    mockProjectContextSetNotAvailable: vi.fn(),
-    mockProjectContextIsNotAvailable: vi.fn(() => false),
-    noProjectsAvailableHandlers: [] as (() => void)[],
-    projectChangedHandlers: [] as ((project: MockProject) => void)[],
 }));
 
 vi.mock('../../../app/settings/resource/ProjectListRequest', () => ({
@@ -57,30 +47,8 @@ vi.mock('../../../app/settings/event/ProjectDeletedEvent', () => ({
     },
 }));
 
-vi.mock('./config.store', () => ({
-    $config: {
-        get: () => ({appId: 'contentstudio'}),
-    },
-}));
-
 vi.mock('./dialogs.store', () => ({
     setProjectSelectionDialogOpen: mockSetProjectSelectionDialogOpen,
-}));
-
-vi.mock('../../../app/project/ProjectContext', () => ({
-    ProjectContext: {
-        get: () => ({
-            setProject: mockProjectContextSetProject,
-            setNotAvailable: mockProjectContextSetNotAvailable,
-            isNotAvailable: mockProjectContextIsNotAvailable,
-            onNoProjectsAvailable: vi.fn((handler: () => void) => {
-                noProjectsAvailableHandlers.push(handler);
-            }),
-            onProjectChanged: vi.fn((handler: (project: MockProject) => void) => {
-                projectChangedHandlers.push(handler);
-            }),
-        }),
-    },
 }));
 
 vi.mock('./tree-list.store', () => ({
@@ -130,19 +98,10 @@ async function flushPromises(times: number = 5): Promise<void> {
     }
 }
 
-function resetProjectContextMocks(): void {
-    mockProjectContextSetProject.mockReset().mockImplementation((project: MockProject) => {
-        projectChangedHandlers.forEach((handler) => handler(project));
-    });
-    mockProjectContextSetNotAvailable.mockReset().mockImplementation(() => {
-        noProjectsAvailableHandlers.forEach((handler) => handler());
-    });
-    mockProjectContextIsNotAvailable.mockReset().mockReturnValue(false);
-}
-
 type LoadStoreOptions = {
     url?: string;
     clearInitMocks?: boolean;
+    hostProjectId?: string;
 };
 
 const LAST_SELECTED_STORAGE_KEY = 'enonic:cs:lastselectedprojectid';
@@ -151,29 +110,26 @@ async function loadStore(
     projects: MockProject[],
     currentProjectId: string,
     options: LoadStoreOptions = {},
-): Promise<typeof import('./projects.store')> {
-    const {url, clearInitMocks = true} = options;
+): Promise<typeof import('./projects.store') & typeof import('./activeProject.store')> {
+    const {url, clearInitMocks = true, hostProjectId} = options;
 
     vi.resetModules();
     createdHandlers.length = 0;
     deletedHandlers.length = 0;
-    noProjectsAvailableHandlers.length = 0;
-    projectChangedHandlers.length = 0;
     mockProjectListSendAndParse.mockReset().mockResolvedValue(projects);
     mockSetProjectSelectionDialogOpen.mockReset();
-    resetProjectContextMocks();
-    window.history.pushState({}, '', url ?? `/contentstudio/cms/${currentProjectId}/browse`);
+    window.history.pushState({}, '', url ?? `/com.enonic.app.contentstudio/cms/${currentProjectId}/browse`);
 
-    const store = await import('./projects.store');
+    const projectsStore = await import('./projects.store');
+    const activeProjectStore = await import('./activeProject.store');
+    projectsStore.initProjects(hostProjectId);
     await flushPromises();
 
     if (clearInitMocks) {
         mockSetProjectSelectionDialogOpen.mockClear();
-        mockProjectContextSetProject.mockClear();
-        mockProjectContextSetNotAvailable.mockClear();
     }
 
-    return store;
+    return Object.assign({}, projectsStore, activeProjectStore);
 }
 
 describe('projects.store delete intent', () => {
@@ -181,9 +137,6 @@ describe('projects.store delete intent', () => {
         vi.clearAllMocks();
         createdHandlers.length = 0;
         deletedHandlers.length = 0;
-        noProjectsAvailableHandlers.length = 0;
-        projectChangedHandlers.length = 0;
-        resetProjectContextMocks();
         localStorage.clear();
     });
 
@@ -211,9 +164,8 @@ describe('projects.store delete intent', () => {
         emitDeleted('child');
 
         expect(store.$projects.get().activeProjectId).toBe('parent');
+        expect(store.getActiveProject()).toBe(parent);
         expect(mockSetProjectSelectionDialogOpen).toHaveBeenCalledWith(false);
-        expect(mockProjectContextSetProject).toHaveBeenCalledWith(parent);
-        expect(mockProjectContextSetNotAvailable).not.toHaveBeenCalled();
     });
 
     it('uses explicit intent to fall back to first remaining project when deleted project has no parent', async () => {
@@ -226,9 +178,8 @@ describe('projects.store delete intent', () => {
         emitDeleted('orphan');
 
         expect(store.$projects.get().activeProjectId).toBe('alpha');
+        expect(store.getActiveProject()).toBe(alpha);
         expect(mockSetProjectSelectionDialogOpen).toHaveBeenCalledWith(false);
-        expect(mockProjectContextSetProject).toHaveBeenCalledWith(alpha);
-        expect(mockProjectContextSetNotAvailable).not.toHaveBeenCalled();
     });
 
     it('uses explicit intent to enter empty-project state when no projects remain', async () => {
@@ -240,8 +191,8 @@ describe('projects.store delete intent', () => {
 
         expect(store.$projects.get().projects).toEqual([]);
         expect(store.$projects.get().activeProjectId).toBeUndefined();
+        expect(store.$projects.get().noProjectMode).toBe(true);
         expect(mockSetProjectSelectionDialogOpen).toHaveBeenCalledWith(true);
-        expect(mockProjectContextSetNotAvailable).toHaveBeenCalledTimes(1);
     });
 
     it('does not jump active project when unrelated delete has no explicit intent', async () => {
@@ -254,9 +205,8 @@ describe('projects.store delete intent', () => {
 
         expect(store.$projects.get().activeProjectId).toBe('current');
         expect(store.$projects.get().projects.map((project) => project.getName())).toEqual(['parent', 'current']);
+        expect(store.getActiveProject()).toBe(current);
         expect(mockSetProjectSelectionDialogOpen).not.toHaveBeenCalled();
-        expect(mockProjectContextSetProject).not.toHaveBeenCalled();
-        expect(mockProjectContextSetNotAvailable).not.toHaveBeenCalled();
     });
 
     it('should fall back to navigation when the active project is deleted without explicit intent', async () => {
@@ -268,22 +218,21 @@ describe('projects.store delete intent', () => {
         emitDeleted('current');
 
         expect(store.$projects.get().activeProjectId).toBe('parent');
+        expect(store.getActiveProject()).toBe(parent);
         expect(mockSetProjectSelectionDialogOpen).toHaveBeenCalledWith(false);
-        expect(mockProjectContextSetProject).toHaveBeenCalledWith(parent);
-        expect(mockProjectContextSetNotAvailable).not.toHaveBeenCalled();
     });
 
     it('does not leave no-project mode before the created project becomes active', async () => {
         const store = await loadStore([], '');
         const createdProject = createProject('created');
-        const noProjectModeTransitions: {value: boolean; setProjectCalls: number}[] = [];
+        const noProjectModeTransitions: {value: boolean; activeProjectId: string | undefined}[] = [];
 
         expect(store.$noProjectMode.get()).toBe(true);
 
         const unsubscribe = store.$noProjectMode.subscribe((value: boolean) => {
             noProjectModeTransitions.push({
                 value,
-                setProjectCalls: mockProjectContextSetProject.mock.calls.length,
+                activeProjectId: store.getActiveProject()?.getName(),
             });
         });
 
@@ -299,22 +248,20 @@ describe('projects.store delete intent', () => {
         expect(store.$projects.get().resolved).toBe(true);
         expect(store.$projects.get().loadError).toBe(false);
         expect(falseTransitions.length).toBeGreaterThan(0);
-        expect(falseTransitions.every(({setProjectCalls}) => setProjectCalls > 0)).toBe(true);
+        expect(falseTransitions.every(({activeProjectId}) => activeProjectId === 'created')).toBe(true);
     });
 
     it('publishes load errors before marking projects as resolved', async () => {
         vi.resetModules();
         createdHandlers.length = 0;
         deletedHandlers.length = 0;
-        noProjectsAvailableHandlers.length = 0;
-        projectChangedHandlers.length = 0;
         mockProjectListSendAndParse.mockReset().mockRejectedValue(new Error('Failed to load projects'));
         mockSetProjectSelectionDialogOpen.mockReset();
-        resetProjectContextMocks();
-        window.history.pushState({}, '', '/contentstudio/cms/current/browse');
+        window.history.pushState({}, '', '/com.enonic.app.contentstudio/cms/current/browse');
         vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
         const store = await import('./projects.store');
+        store.initProjects();
         const states: {resolved: boolean; loadError: boolean}[] = [];
 
         const unsubscribe = store.$projects.subscribe(({resolved, loadError}) => {
@@ -328,8 +275,6 @@ describe('projects.store delete intent', () => {
         expect(store.$projects.get().loadError).toBe(true);
         expect(states.some(({resolved, loadError}) => resolved && !loadError)).toBe(false);
         expect(mockSetProjectSelectionDialogOpen).not.toHaveBeenCalled();
-        expect(mockProjectContextSetProject).not.toHaveBeenCalled();
-        expect(mockProjectContextSetNotAvailable).not.toHaveBeenCalled();
     });
 });
 
@@ -338,9 +283,6 @@ describe('projects.store init', () => {
         vi.clearAllMocks();
         createdHandlers.length = 0;
         deletedHandlers.length = 0;
-        noProjectsAvailableHandlers.length = 0;
-        projectChangedHandlers.length = 0;
-        resetProjectContextMocks();
         localStorage.clear();
     });
 
@@ -362,7 +304,7 @@ describe('projects.store init', () => {
         localStorage.setItem(LAST_SELECTED_STORAGE_KEY, JSON.stringify('saved'));
         const saved = createProject('saved');
         const other = createProject('other');
-        const store = await loadStore([saved, other], '', {url: '/contentstudio/cms//browse'});
+        const store = await loadStore([saved, other], '', {url: '/com.enonic.app.contentstudio/cms//browse'});
 
         expect(store.$projects.get().activeProjectId).toBe('saved');
     });
@@ -372,7 +314,7 @@ describe('projects.store init', () => {
         const saved = createProject('saved');
         const other = createProject('other');
         const store = await loadStore([saved, other], '', {
-            url: '/contentstudio/cms//edit/abc123',
+            url: '/com.enonic.app.contentstudio/cms//edit/abc123',
             clearInitMocks: false,
         });
 
@@ -384,7 +326,7 @@ describe('projects.store init', () => {
         const a = createProject('a');
         const b = createProject('b');
         const store = await loadStore([a, b], '', {
-            url: '/contentstudio/cms//browse',
+            url: '/com.enonic.app.contentstudio/cms//browse',
             clearInitMocks: false,
         });
 
@@ -398,9 +340,6 @@ describe('projects.store selectProject', () => {
         vi.clearAllMocks();
         createdHandlers.length = 0;
         deletedHandlers.length = 0;
-        noProjectsAvailableHandlers.length = 0;
-        projectChangedHandlers.length = 0;
-        resetProjectContextMocks();
         localStorage.clear();
     });
 
@@ -439,9 +378,6 @@ describe('projects.store storage cleanup on deletion', () => {
         vi.clearAllMocks();
         createdHandlers.length = 0;
         deletedHandlers.length = 0;
-        noProjectsAvailableHandlers.length = 0;
-        projectChangedHandlers.length = 0;
-        resetProjectContextMocks();
         localStorage.clear();
     });
 
@@ -502,5 +438,71 @@ describe('projects.store storage cleanup on deletion', () => {
 
         const stored = localStorage.getItem(LAST_SELECTED_STORAGE_KEY);
         expect(stored === null || stored === 'null').toBe(true);
+    });
+});
+
+describe('projects.store host project override', () => {
+    let errorSpy: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        createdHandlers.length = 0;
+        deletedHandlers.length = 0;
+        localStorage.clear();
+        errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+        localStorage.clear();
+    });
+
+    it('selects the host project when it is available, overriding the URL', async () => {
+        const alpha = createProject('alpha');
+        const beta = createProject('beta');
+        const store = await loadStore([alpha, beta], 'alpha', {hostProjectId: 'beta'});
+
+        expect(store.$projects.get().activeProjectId).toBe('beta');
+        expect(errorSpy).not.toHaveBeenCalled();
+    });
+
+    it('logs an error and falls back to the URL when the host project is unknown', async () => {
+        const alpha = createProject('alpha');
+        const beta = createProject('beta');
+        const store = await loadStore([alpha, beta], 'alpha', {hostProjectId: 'ghost'});
+
+        expect(store.$projects.get().activeProjectId).toBe('alpha');
+        expect(errorSpy).toHaveBeenCalledTimes(1);
+        expect(String(errorSpy.mock.calls[0][0])).toContain('ghost');
+    });
+
+    it('does not re-report the error on subsequent loadProjects triggers', async () => {
+        const alpha = createProject('alpha');
+        const beta = createProject('beta');
+        const child = createProject('child', ['alpha']);
+        const store = await loadStore([alpha, beta, child], 'alpha', {hostProjectId: 'ghost'});
+
+        expect(errorSpy).toHaveBeenCalledTimes(1);
+
+        emitDeleted('child');
+        await flushPromises();
+
+        expect(store.$projects.get().activeProjectId).toBe('alpha');
+        expect(errorSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('treats a host project with no displayName as unavailable and falls back', async () => {
+        const alpha = createProject('alpha');
+        const inaccessible: MockProject = {
+            getName: () => 'beta',
+            getDisplayName: () => '',
+            getLanguage: () => '',
+            getParents: () => [],
+        };
+        const store = await loadStore([alpha, inaccessible], 'alpha', {hostProjectId: 'beta'});
+
+        expect(store.$projects.get().activeProjectId).toBe('alpha');
+        expect(errorSpy).toHaveBeenCalledTimes(1);
+        expect(String(errorSpy.mock.calls[0][0])).toContain('beta');
     });
 });

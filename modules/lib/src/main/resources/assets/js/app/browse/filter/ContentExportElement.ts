@@ -1,10 +1,8 @@
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {DialogPresetConfirmElement} from '../../../v6/features/shared/dialogs/DialogPreset';
-import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentAggregation} from './ContentAggregation';
 import {type AggregationSelection} from '@enonic/lib-admin-ui/aggregation/AggregationSelection';
-import {ProjectContext} from '../../project/ProjectContext';
 import {Path} from '@enonic/lib-admin-ui/rest/Path';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {type DateRangeBucket} from '@enonic/lib-admin-ui/aggregation/DateRangeBucket';
@@ -13,6 +11,7 @@ import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {DateTimeFormatter} from '@enonic/lib-admin-ui/ui/treegrid/DateTimeFormatter';
 import {type SearchInputValues} from '@enonic/lib-admin-ui/query/SearchInputValues';
 import {type ContentDependency} from './ContentDependency';
+import {getActiveProjectName} from '../../../v6/features/store/activeProject.store';
 
 enum EXPORT_TYPE {
     CSV = 'csv', JSON = 'json'
@@ -87,7 +86,7 @@ export class ContentExportElement extends SpanEl {
     // copied from app-users
     protected exportSearch(type: EXPORT_TYPE): void {
         const uri: string = this.makeURI(type);
-        const reportName: string = `${ProjectContext.get().getProject().getName()}-${DateTimeFormatter.createHtml(new Date()).replace(' ', 'T')}.csv`;
+        const reportName: string = `${getActiveProjectName()}-${DateTimeFormatter.createHtml(new Date()).replace(' ', 'T')}.csv`;
 
         this.clickFakeElementForReportDownload(uri, reportName);
     }
@@ -95,7 +94,7 @@ export class ContentExportElement extends SpanEl {
     protected makeURI(type: EXPORT_TYPE): string {
         const params = {
             type: type,
-            project: ProjectContext.get().getProject().getName(),
+            project: getActiveProjectName(),
             searchText: this.searchInputValues.getTextSearchFieldValue(),
             constraintIds: this.constraintIds?.join(),
         };

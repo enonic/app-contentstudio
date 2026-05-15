@@ -40,7 +40,7 @@ export const SelectorSelectionItem = ({
     const editLabel = useI18n('action.edit');
 
     const handleEdit = useCallback(() => {
-        new EditContentEvent([content], project).fire();
+        new EditContentEvent([content], project?.getName()).fire();
     }, [content, project]);
 
     const handleRemove = useCallback(() => {
