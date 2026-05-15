@@ -157,6 +157,8 @@ export const $isProjectDialogDirty = computed([$projectDialog, $editProjectSnaps
 export const openCreateProjectDialog = (selectedProjects: Project[]): void => {
     const isMultiInheritance = Boolean(ProjectConfigContext.get().getProjectConfig()?.isMultiInheritance());
 
+    void loadApplications();
+
     $initialParentNames.set(selectedProjects.map((p) => p.getName()));
     $projectDialog.set({
         ...structuredClone(initialState),
