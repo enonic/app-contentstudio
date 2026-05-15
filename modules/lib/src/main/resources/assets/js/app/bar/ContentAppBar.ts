@@ -4,7 +4,6 @@ import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import type Q from 'q';
-import {ShowIssuesDialogButton} from '../issue/view/ShowIssuesDialogButton';
 import {Project} from '../settings/data/project/Project';
 import {ProjectViewer} from '../settings/wizard/viewer/ProjectViewer';
 import {AccessibilityHelper} from '../util/AccessibilityHelper';
@@ -15,8 +14,6 @@ export class ContentAppBar
     extends TabbedAppBar {
 
     private selectedProjectViewer: ProjectViewer;
-
-    private showIssuesDialogButton: ShowIssuesDialogButton;
 
     private viewerAndNameSeparator: DivEl;
 
@@ -33,9 +30,7 @@ export class ContentAppBar
     private initElements() {
         this.selectedProjectViewer = new ProjectViewer();
         this.viewerAndNameSeparator = new DivEl('separator').setHtml('/');
-        this.showIssuesDialogButton = new ShowIssuesDialogButton();
 
-        this.showIssuesDialogButton.hide();
         this.hideProjectSelector();
         this.getAppIcon().hide();
     }
@@ -78,22 +73,12 @@ export class ContentAppBar
     }
 
     disable() {
-        this.showIssuesDialogButton.hide();
         this.selectedProjectViewer.setObject(Project.create().setDisplayName(`<${i18n('settings.projects.notfound')}>`).build());
         this.selectedProjectViewer.addClass('no-project');
     }
 
     enable() {
-        this.showIssuesDialogButton.show();
         this.selectedProjectViewer.removeClass('no-project');
-    }
-
-    hideIssuesButton(): void {
-        this.showIssuesDialogButton.hide();
-    }
-
-    showIssuesButton(): void {
-        this.showIssuesDialogButton.show();
     }
 
     hideTabs(): void {
@@ -126,9 +111,6 @@ export class ContentAppBar
             this.addClass('appbar-content');
             this.insertChild(this.selectedProjectViewer, 0);
             this.insertChild(this.viewerAndNameSeparator, 1);
-            const buttonWrapper: DivEl = new DivEl('show-issues-button-wrapper');
-            buttonWrapper.appendChild(this.showIssuesDialogButton);
-            this.appendChild(buttonWrapper);
 
             return rendered;
         });
