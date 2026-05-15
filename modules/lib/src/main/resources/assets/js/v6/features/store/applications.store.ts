@@ -77,8 +77,6 @@ async function fetchApplications(): Promise<void> {
 // * Initialization
 //
 
-void loadApplications();
-
 const TRACKED_EVENT_TYPES = new Set<ApplicationEventType>([
     ApplicationEventType.INSTALLED,
     ApplicationEventType.UNINSTALLED,

@@ -85,14 +85,6 @@ export class AppWrapper extends DivEl {
         const extensionEl: Element = new Element(new NewElementBuilder().setTagName('extension')).setId('extension-studio');
         const appContainer: ContentAppContainer = new ContentAppContainer();
 
-        appContainer.onShown(() => {
-            this.appBar.showIssuesButton();
-        });
-
-        appContainer.onHidden(() => {
-            this.appBar.hideIssuesButton();
-        });
-
         extensionEl.appendChild(appContainer);
 
         return extensionEl;

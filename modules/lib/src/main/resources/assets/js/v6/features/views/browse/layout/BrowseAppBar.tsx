@@ -3,14 +3,15 @@ import {Button} from '@enonic/ui';
 import {atom} from 'nanostores';
 import {useStore} from '@nanostores/preact';
 import {ArrowLeftRight, BellDotIcon, BellIcon} from 'lucide-react';
-import {ReactElement} from 'react';
+import type {ReactElement} from 'react';
 import {ShowIssuesDialogEvent} from '../../../../../app/browse/ShowIssuesDialogEvent';
 import {useI18n} from '../../../hooks/useI18n';
 import {$activeProjectName} from '../../../store/activeProject.store';
 import {$noProjectMode} from '../../../store/projects.store';
 import {setProjectSelectionDialogOpen} from '../../../store/dialogs.store';
 import {$issuesStats} from '../../../store/issuesStats.store';
-import {IssueStatsJson} from '../../../../../app/issue/json/IssueStatsJson';
+import {$activeWidget, isMainWidget} from '../../../store/sidebarWidgets.store';
+import type {IssueStatsJson} from '../../../../../app/issue/json/IssueStatsJson';
 import {LegacyElement} from '../../../shared/LegacyElement';
 import {ThemeSwitcher} from '../../../shared/ThemeSwitcher';
 
@@ -33,6 +34,8 @@ export const BrowseAppBar = (): ReactElement => {
     const activeProjectName = useStore($activeProjectName);
     const noProjectMode = useStore($noProjectMode);
     const isProjectSelectorVisible = useStore($isProjectSelectorVisible);
+    const activeWidget = useStore($activeWidget);
+    const isIssuesButtonVisible = isMainWidget(activeWidget);
     const appName = useStore($appName);
     const {stats} = useStore($issuesStats);
     const applicationName = Store.instance().get('application').getName();
@@ -55,22 +58,20 @@ export const BrowseAppBar = (): ReactElement => {
                 <h1 className="mr-auto text-2xl font-semibold">{appName || applicationName}</h1>
             )}
 
-            {!noProjectMode && (
-                <>
-                    <Button
-                        className="max-sm:hidden"
-                        size="sm"
-                        startIcon={stats?.open > 0 ? BellDotIcon : BellIcon}
-                        onClick={() => {
-                            new ShowIssuesDialogEvent().fire();
-                        }}
-                        aria-label={issuesAriaLabel}
-                        label={issuesStatsLabel}
-                    />
-
-                    <ThemeSwitcher />
-                </>
+            {!noProjectMode && isIssuesButtonVisible && (
+                <Button
+                    className="max-sm:hidden"
+                    size="sm"
+                    startIcon={stats?.open > 0 ? BellDotIcon : BellIcon}
+                    onClick={() => {
+                        new ShowIssuesDialogEvent().fire();
+                    }}
+                    aria-label={issuesAriaLabel}
+                    label={issuesStatsLabel}
+                />
             )}
+
+            {!noProjectMode && <ThemeSwitcher />}
         </header>
     );
 };
@@ -100,10 +101,6 @@ export class BrowseAppBarElement extends LegacyElement<typeof BrowseAppBar> {
     }
 
     disable() { }
-
-    showIssuesButton() { }
-
-    hideIssuesButton() { }
 
     showProjectSelector() {
         $isProjectSelectorVisible.set(true);

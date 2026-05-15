@@ -2,7 +2,7 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import type {Content} from '../../../app/content/Content';
 import type {ContentId} from '../../../app/content/ContentId';
 import {GetContentMixinsRequest} from '../../../app/resource/GetContentMixinsRequest';
-import {$applications} from '../store/applications.store';
+import {$applications, loadApplications} from '../store/applications.store';
 import {onWizardPersistedContentSet, setMixinsDescriptors} from '../store/wizardContent.store';
 
 //
@@ -53,6 +53,8 @@ async function loadDescriptors(contentId: ContentId): Promise<void> {
 
 export function initWizardMixinsService(): void {
     cleanupWizardMixinsService();
+
+    void loadApplications();
 
     unsubscribePersistedContent = onWizardPersistedContentSet((content: Content) => {
         wizardContentId ??= content.getContentId();
