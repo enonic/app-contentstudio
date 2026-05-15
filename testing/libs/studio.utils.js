@@ -682,8 +682,6 @@ module.exports = {
     },
     async navigateToContentStudioAppMobile(userName, password) {
         await this.navigateToContentStudioApp(userName, password);
-        //close content studio menu :
-        await this.closeContentStudioMenu();
     },
     async navigateToContentStudioWithProjects(userName, password) {
         try {
@@ -969,27 +967,6 @@ module.exports = {
             '  }' +
             '};' +
             'xhr.send();');
-    },
-    async openContentStudioMenu() {
-        let result = await this.isContentStudioMenuOpened();
-        if (!result) {
-            await this.waitForElementDisplayed(lib.APP_MODE_SWITCHER_TOGGLER);
-            await this.clickOnElement(lib.APP_MODE_SWITCHER_TOGGLER);
-            return await this.getBrowser().pause(200);
-        }
-    },
-    async closeContentStudioMenu() {
-        let result = await this.isContentStudioMenuOpened();
-        if (result) {
-            await this.waitForElementDisplayed(lib.APP_MODE_SWITCHER_TOGGLER);
-            await this.clickOnElement(lib.APP_MODE_SWITCHER_TOGGLER);
-            return await this.getBrowser().pause(200);
-        }
-    },
-    async isContentStudioMenuOpened() {
-        let element = await this.getBrowser().$("//div[contains(@id,'AppWrapper')]");
-        let atrValue = await element.getAttribute("class");
-        return atrValue.includes('sidebar-expanded');
     },
     async openSettingsPanel() {
         try {

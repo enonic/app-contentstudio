@@ -58,9 +58,9 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
             // 3 Open the context menu
-            await pageComponentsWizardStepForm.openMenu('main');
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('main');
             // 4 click on the 'Insert Part' menu item:
-            await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Part']);
+            await pageComponentsWizardStepForm.selectContextMenuItem(['Insert', 'Part']);
             await partInspectionPanel.waitForOpened();
             // 5 Type the name and select the filtered option(select the part):
             await partInspectionPanel.typeNameAndSelectPart(HTML_AREA_PART_NAME);
@@ -85,7 +85,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Open the context menu and duplicate existing part(the content should be saved automatically!):
-            await pageComponentView.openMenu(HTML_AREA_PART_NAME);
+            await pageComponentView.rightClickAndOpenContextMenu(HTML_AREA_PART_NAME);
             await pageComponentView.selectMenuItem(['Duplicate']);
             // 4. Verify that the default icon should be replaced with a custom icon:
             let isDefaultIcon = await pageComponentView.isItemWithDefaultIcon(HTML_AREA_PART_NAME, 0);
@@ -138,7 +138,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Expand the menu and click on "Save as Fragment" menu item
-            await pageComponentView.openMenu(HTML_AREA_PART_NAME);
+            await pageComponentView.rightClickAndOpenContextMenu(HTML_AREA_PART_NAME);
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             // 4. Go to Fragment Wizard (generated displayName is 'Html Area Example'")
             await studioUtils.switchToContentTabWindow(HTML_AREA_PART_NAME);
@@ -208,7 +208,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             // 4. Verify that 'Part Inspection Panel' is loaded:
             await partInspectionPanel.waitForOpened();
             // 5. Expand the menu and click on "Remove" menu item in PCV, remove the component:
-            await pageComponentView.openMenu(HTML_AREA_PART_NAME);
+            await pageComponentView.rightClickAndOpenContextMenu(HTML_AREA_PART_NAME);
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.REMOVE);
             // 6. Verify that 'Details' widget is loaded after removing a part:
             let selectedWidget = await wizardContextWindow.getSelectedOptionInWidgetSelectorDropdown();
@@ -238,15 +238,15 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3.Click on the item and open Context Menu:
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             // 4. Insert Text Component with test text and save it:
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.typeTextInEditor('test text');
             await contentWizard.waitAndClickOnSave();
             // 5. Open text-component context menu:
-            await pageComponentView.openMenu('test text');
+            await pageComponentView.rightClickAndOpenContextMenu('test text');
             await studioUtils.saveScreenshot('fragment-template-context-menu');
             // 6. Verify that 'Save as Fragment' menu item is not present in the menu:
             await pageComponentView.waitForMenuItemNotDisplayed(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);

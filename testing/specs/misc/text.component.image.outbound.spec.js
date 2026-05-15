@@ -44,10 +44,10 @@ describe("text.component.image.outbound.spec: Inserts a text component with an i
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text component:
-            await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
-            await textComponentInspectionPanel.clickInTextArea();
-            await textComponentInspectionPanel.clickOnInsertImageButton();
+            await pageComponentView.rightClickAndOpenContextMenu('main');
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            //await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.showToolbarAndClickOnInsertImageButton();
             // 4. Insert an image in the text component:
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             await insertImageDialog.clickOnDecorativeImageRadioButton();

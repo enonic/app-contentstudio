@@ -45,12 +45,12 @@ describe.skip('layot.insert.save.as.fragment.spec - tests for inserting a fragme
             // 2. Maximize the Live Edit:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert the Layout component (3-column):
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
             await liveFormPanel.selectLayoutByDisplayName(LAYOUT_NAME);
             await contentWizard.waitForNotificationMessage();
             // 4. Insert a text component in the left layout's region
-            await pageComponentView.openMenu('left');
+            await pageComponentView.rightClickAndOpenContextMenu('left');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await contentWizard.switchToLiveEditFrame();
             // 5. Insert an image in the left region
@@ -60,7 +60,7 @@ describe.skip('layot.insert.save.as.fragment.spec - tests for inserting a fragme
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
             // 6. Save the layout-component as fragment:
-            await pageComponentView.openMenu(LAYOUT_NAME);
+            await pageComponentView.rightClickAndOpenContextMenu(LAYOUT_NAME);
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizard.pause(700);
             await contentWizard.switchToLiveEditFrame();
@@ -88,7 +88,7 @@ describe.skip('layot.insert.save.as.fragment.spec - tests for inserting a fragme
             await studioUtils.doClickOnEditAndOpenContent('3-col');
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 4. Insert a text component in 'center' region:
-            await pageComponentView.openMenu('center');
+            await pageComponentView.rightClickAndOpenContextMenu('center');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 5. Insert an image in the layout-fragment:
             await contentWizard.switchToLiveEditFrame();

@@ -2,7 +2,7 @@
  * Created on 24.12.2024
  */
 const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
-const lib = require('../../../../libs/elements-old');
+const {COMMON} = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
 const utils = require('../../../../libs/studio.utils');
 const InsertLinkDialog = require('../../html-area/insert.link.modal.dialog.cke');
@@ -10,7 +10,7 @@ const InsertAnchorDialog = require('../../html-area/insert.anchor.dialog.cke');
 const InsertImageDialog = require('../../html-area/insert.image.dialog.cke');
 
 const XPATH = {
-    container: "//div[contains(@id,'TextInspectionPanel')]",
+    container: "//div[@data-component='TextInspectionPanel']",
     ckeTextArea: "//div[contains(@id,'cke_TextArea')]",
 };
 
@@ -70,7 +70,7 @@ class TextComponentInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     get textArea() {
-        return XPATH.container + lib.CKE.TEXTAREA_DIV;
+        return XPATH.container + "//div[@data-component='TextEditorInner']";
     }
 
     waitForOpened() {
@@ -148,18 +148,34 @@ class TextComponentInspectionPanel extends BaseComponentInspectionPanel {
         return result;
     }
 
-    async clickOnInsertImageButton() {
-        try {
-            let insertImageDialog = new InsertImageDialog();
-            await this.waitForElementDisplayed(this.insertImageButton, appConst.mediumTimeout);
-            let res = await this.getDisplayedElements(this.insertImageButton);
-            await res[0].click();
-            await this.pause(100);
-            return await insertImageDialog.waitForDialogVisible();
-        } catch (err) {
-            await this.handleError('Inspect Panel, Text Component - tried to click on Insert Image button ', 'err_insert_image_btn', err);
-        }
+
+    async showToolbarAndClickOnInsertAnchorButton() {
+        await this.clickInTextArea();
+        await this.waitForElementDisplayed(COMMON.CKE.insertAnchorButton, appConst.mediumTimeout);
+        await this.clickOnElement(COMMON.CKE.insertAnchorButton);
+        return await this.pause(300);
     }
+
+    async showToolbarAndClickOnInsertImageButton() {
+        await this.clickInTextArea();
+        await this.waitForElementDisplayed(COMMON.CKE.insertImageButton);
+        await this.clickOnElement(COMMON.CKE.insertImageButton);
+        return await this.pause(300);
+    }
+
+
+    // async clickOnInsertImageButton() {
+    //     try {
+    //         let insertImageDialog = new InsertImageDialog();
+    //         await this.waitForElementDisplayed(this.insertImageButton, appConst.mediumTimeout);
+    //         let res = await this.getDisplayedElements(this.insertImageButton);
+    //         await res[0].click();
+    //         await this.pause(100);
+    //         return await insertImageDialog.waitForDialogVisible();
+    //     } catch (err) {
+    //         await this.handleError('Inspect Panel, Text Component - tried to click on Insert Image button ', 'err_insert_image_btn', err);
+    //     }
+    // }
 
     async clickOnSourceButton() {
         let insertLinkDialog = new InsertLinkDialog();

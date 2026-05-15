@@ -46,15 +46,15 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             await contentWizard.waitForSaveButtonDisabled();
             // 3. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            await pageComponentView.openMenu(MAIN_REGION);
+            await pageComponentView.rightClickAndOpenContextMenu(MAIN_REGION);
             // 4. Insert the layout:
-            await pageComponentView.selectMenuItem(['Insert', 'Layout']);
+            await pageComponentView.selectContextMenuItem(['Insert', 'Layout']);
             await layoutInspectionPanel.waitForOpened();
             await layoutInspectionPanel.typeNameAndSelectLayout(appConst.LAYOUT_NAME.COL_3);
             // 5. Site should be saved automatically:
             await contentWizard.waitForNotificationMessage();
             // 6. Expand the context menu for layout-component:
-            await pageComponentView.openMenu(appConst.LAYOUT_NAME.COL_3);
+            await pageComponentView.rightClickAndOpenContextMenu(appConst.LAYOUT_NAME.COL_3);
             // 7. Click on 'Reset' menu item.
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.RESET);
             await studioUtils.saveScreenshot('layout_reset');
@@ -73,11 +73,11 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. Expand the context menu for layout-component then click on 'Save as Fragment'  menu item:
-            await pageComponentView.openMenu(appConst.LAYOUT_NAME.COL_3);
+            await pageComponentView.rightClickAndOpenContextMenu(appConst.LAYOUT_NAME.COL_3);
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await studioUtils.doSwitchToNextTab();
             // 3. Expand the context menu in fragment-wizard.
-            await pageComponentsWizardStepForm.openMenu(appConst.LAYOUT_NAME.COL_3);
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu(appConst.LAYOUT_NAME.COL_3);
             // 4. Verify that the only two menu items are displayed in the menu:
             let menuItems = await pageComponentsWizardStepForm.getContextMenuItems();
             assert.ok(menuItems.includes(appConst.COMPONENT_VIEW_MENU_ITEMS.RESET),
@@ -112,12 +112,12 @@ describe('layout.context.menu.spec: tests for layout-fragment with config', func
             await contentWizard.waitForOpened();
             // 5. Open the context menu for '3-col' component:
             await pageComponentsWizardStepForm.clickOnComponent(fragmentName);
-            await pageComponentsWizardStepForm.openMenu(appConst.LAYOUT_NAME.COL_3);
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu(appConst.LAYOUT_NAME.COL_3);
             // 6. Click on 'Reset' menu item:
             await pageComponentsWizardStepForm.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.RESET);
             await studioUtils.saveScreenshot('layout_fragment_reset');
             // 7. 'Layout' component gets visible in PCV, open the context menu:
-            await pageComponentsWizardStepForm.openMenu('Layout');
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('Layout');
             await studioUtils.saveScreenshot('layout_fragment_context_menu_inspect')
             let menuItems = await pageComponentsWizardStepForm.getContextMenuItems();
             // 8. Verify that only 'Inspect' menu is present in the context menu:

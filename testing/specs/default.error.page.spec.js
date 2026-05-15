@@ -64,10 +64,10 @@ describe('default.error.page.spec tests for Default error page', function () {
             // 1. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. open the context menu for part with errors
-            await pageComponentView.openMenu(ERROR_PART_NAME);
+            await pageComponentView.rightClickAndOpenContextMenu(ERROR_PART_NAME);
             // 3. click on the 'Remove' menu item in PCV and remove the part-component
             await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.REMOVE]);
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             // 4. click on the 'Insert Part' menu item:
             await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.INSERT, appConst.PCV_MENU_ITEM.LAYOUT]);
             await layoutInspectionPanel.waitForOpened();
@@ -89,7 +89,7 @@ describe('default.error.page.spec tests for Default error page', function () {
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await contentWizard.openContextWindow();
             // 2. open the context menu
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             // 3. click on the 'Insert Part' menu item:
             await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.INSERT, appConst.PCV_MENU_ITEM.PART]);
             // 4. Select a  part:
@@ -97,7 +97,7 @@ describe('default.error.page.spec tests for Default error page', function () {
             await partInspectionPanel.typeNameAndSelectPart(PART_CITIES_DISTANCE_FACET);
             await contentWizard.switchToMainFrame();
             // 5. Reset the controller in PCV
-            await pageComponentView.openMenu('main region');
+            await pageComponentView.rightClickAndOpenContextMenu('main region');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
             // 6. Click on 'Yes' button in the confirmation dialog:
             let confirmationDialog = new ConfirmationDialog();

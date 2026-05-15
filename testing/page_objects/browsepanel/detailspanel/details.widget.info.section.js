@@ -64,8 +64,8 @@ class DetailsWidgetInfoSection extends Page {
         return xpath.container + xpath.publishFromProperty;
     }
 
-    waitForEditSettingsButtonDisplayed() {
-        return this.waitForElementDisplayed(this.editSettingsButton, appConst.mediumTimeout);
+    async waitForEditSettingsButtonDisplayed() {
+        return await this.waitForElementDisplayed(this.editSettingsButton, appConst.mediumTimeout);
     }
 
     waitForEditSettingsButtonNotDisplayed() {

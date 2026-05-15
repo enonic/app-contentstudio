@@ -82,14 +82,16 @@ class SiteForm extends Page {
 
     // Click on the dropdown handler in app-selector
     async clickOnDropdownHandle() {
-        await this.waitForElementDisplayed(this.dropdownHandle);
-        await this.clickOnElement(this.dropdownHandle);
-        await this.pause(1000);
+        // await this.waitForElementDisplayed(this.dropdownHandle);
+        // await this.clickOnElement(this.dropdownHandle);
+        // await this.pause(1000);
+        let siteConfiguratorComboBox = new SiteConfiguratorComboBox(XPATH.wizardSteps);
+        await siteConfiguratorComboBox.clickOnDropdownHandle()
     }
 
     async clickOnCheckboxInDropdown(index) {
-        let siteConfiguratorComboBox = new SiteConfiguratorComboBox();
-        await siteConfiguratorComboBox.clickOnCheckboxInDropdown(index, XPATH.siteConfigComboboxDiv);
+        let siteConfiguratorComboBox = new SiteConfiguratorComboBox(XPATH.wizardSteps);
+        await siteConfiguratorComboBox.clickOnCheckboxInDropdown(index);
     }
 
     async clickOnCheckboxInDropdownByDisplayName(displayName) {

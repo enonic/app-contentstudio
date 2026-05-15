@@ -247,8 +247,8 @@ class BaseDropdown extends Page {
         return lib.DROPDOWN_SELECTOR.dropdownListItemByName(locator, name);
     }
 
-    async clickOnCheckboxInDropdown(index, parentXpath = '') {
-        let locator = parentXpath + XPATH.rightCheckBoxDiv;
+    async clickOnCheckboxInDropdown(index) {
+        let locator = DROPDOWN.COMBOBOX_POPUP+ DROPDOWN.LIST_BOX_ITEM + DROPDOWN.CHECKBOX_DATA_COMPONENT;
         await this.waitForElementDisplayed(locator);
         let result = await this.findElements(locator);
         await result[index].click();

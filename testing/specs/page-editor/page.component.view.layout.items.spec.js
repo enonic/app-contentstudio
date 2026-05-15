@@ -46,13 +46,13 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             // 2. Maximize the Live Edit:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert the Layout component (3-column):
-            await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Layout']);
+            await pageComponentView.rightClickAndOpenContextMenu('main');
+            await pageComponentView.selectContextMenuItem(['Insert', 'Layout']);
             await layoutInspectionPanel.waitForOpened();
             await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_NAME);
             await contentWizard.waitForNotificationMessage();
             // 4. Insert text component in the left layout's region
-            await pageComponentView.openMenu('left');
+            await pageComponentView.rightClickAndOpenContextMenu('left');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
@@ -62,7 +62,7 @@ describe('page.component.view.layout.items.spec - tests for page component view 
             await studioUtils.saveScreenshot('page_component_updated_1');
             // 6. Do not need to expand the layouts items, because the text component is selected in Live Edit now:
             // 7. Insert 'text component' in the left layout's region
-            await pageComponentView.openMenu('center');
+            await pageComponentView.rightClickAndOpenContextMenu('center');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.typeTextInEditor('text center');

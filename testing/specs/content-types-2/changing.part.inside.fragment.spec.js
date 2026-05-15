@@ -40,13 +40,13 @@ describe('changing.part.inside.fragment.spec - Tests for changing a part inside 
             // 1. Open the site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             // 2. Click on the 'main' item and open Context Menu:
-            await pageComponentsWizardStepForm.openMenu('main');
-            await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Part']);
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('main');
+            await pageComponentsWizardStepForm.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Part']);
             // 3. Select the part with a config
             await cityListPartInspectionPanel.waitForLoaded();
             await cityListPartInspectionPanel.typeNameAndSelectPart(PART_DISPLAY_NAME);
             // 4. Open Context Menu for the part:
-            await pageComponentsWizardStepForm.openMenu(PART_DISPLAY_NAME);
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu(PART_DISPLAY_NAME);
             // 5. Save the part as fragment:
             await pageComponentsWizardStepForm.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             // 6. Switch to the fragment-wizard:

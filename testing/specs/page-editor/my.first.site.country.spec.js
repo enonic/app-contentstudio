@@ -60,12 +60,12 @@ describe('my.first.site.country.spec - Create a site with country content', func
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3.Click on the country item and open Context Menu:
-            await pageComponentView.openMenu('country');
-            await pageComponentView.selectMenuItem(['Insert', 'Part']);
+            await pageComponentView.rightClickAndOpenContextMenu('country');
+            await pageComponentView.selectContextMenuItem(['Insert', 'Part']);
             await partInspectionPanel.typeNameAndSelectPart(COUNTRY_PART);
             await contentWizard.switchToMainFrame();
             // 4. Insert 'City list' part
-            await pageComponentView.openMenu('country');
+            await pageComponentView.rightClickAndOpenContextMenu('country');
             await pageComponentView.selectMenuItem(['Insert', 'Part']);
             await partInspectionPanel.typeNameAndSelectPart(appConst.PART_NAME.MY_FIRST_APP_CITY_LIST);
             await contentWizard.switchToMainFrame();

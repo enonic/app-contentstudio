@@ -47,7 +47,7 @@ describe('Move Fragment specification', function () {
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
@@ -55,7 +55,7 @@ describe('Move Fragment specification', function () {
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1500);
             // 2. wait for (1500) the page is rendered and open the menu
-            await pageComponentView.openMenu(TEST_TEXT_FRAGMENT);
+            await pageComponentView.rightClickAndOpenContextMenu(TEST_TEXT_FRAGMENT);
             // 3. Click on Save as Fragment menu item:
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await studioUtils.saveScreenshot('text_saved_as_fragment2');
@@ -146,8 +146,8 @@ describe('Move Fragment specification', function () {
             await moveContentDialog.clickOnMoveButton();
             // 5. Verify - Confirmation dialog should be loaded
             await confirmationDialog.waitForDialogOpened();
-            // 6. Click on 'Yes' button:
-            await confirmationDialog.clickOnNoButton();
+            // 6. Click on 'Cancel' button:
+            await confirmationDialog.clickOnCancelButton();
             await studioUtils.saveScreenshot('fragment_confirmation_no');
             // 7. Verify that Move-Content dialog remains visible and 'Move' button is enabled:
             await moveContentDialog.waitForMoveButtonEnabled();
@@ -216,7 +216,7 @@ describe('Move Fragment specification', function () {
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             await contentWizard.waitForOpened();
             //  Verify - 'Edit' and 'Detach' from fragment menu items should be disabled for removed fragments #6800
-            await pageComponentsWizardStepForm.openMenu('Fragment');
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('Fragment');
             await studioUtils.saveScreenshot('removed_fragment_context_menu');
             await pageComponentsWizardStepForm.waitForContextMenuItemDisabled(appConst.COMPONENT_VIEW_MENU_ITEMS.EDIT);
             await pageComponentsWizardStepForm.waitForContextMenuItemDisabled(appConst.COMPONENT_VIEW_MENU_ITEMS.CUSTOMIZE);

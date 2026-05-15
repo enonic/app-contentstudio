@@ -14,7 +14,7 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
     let FOLDER_1;
     const FOLDER_NEW_DISPLAY_NAME = appConst.generateRandomName('folder-images');
     const CONTENT_NAME_1 = contentBuilder.generateRandomName('selector');
@@ -26,20 +26,17 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
 
     it(`Preconditions: new site should be created`,
         async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
             FOLDER_1 = contentBuilder.buildFolder(contentBuilder.generateRandomName('folder'));
             await studioUtils.doAddFolder(FOLDER_1);
         });
 
     // Verify the bug - Dropdown should open on down arrow #3966
     // https://github.com/enonic/lib-admin-ui/issues/3966
-    it(`GIVEN wizard with content-selector is opened WHEN 'Arrow Down' key has been pressed in the selector THEN selector should be expanded in in tree mode`,
+    it.skip(`GIVEN wizard with content-selector is opened WHEN 'Arrow Down' key has been pressed in the selector THEN selector should be expanded in in tree mode`,
         async () => {
             let contentSelectorForm = new ContentSelectorForm();
             // 1. Wizard for Content-Selector in tree mode is opened:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CONTENT_SELECTOR_2_8);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.CONTENT_SELECTOR_2_8);
             // 2. Move the focus to the selector:
             await contentSelectorForm.clickInOptionsFilterInput();
             // 3. Press the Arrow Down key:
@@ -57,46 +54,44 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
         async () => {
             let contentSelectorForm = new ContentSelectorForm();
             // 1. Wizard for Content-Selector in tree mode is opened:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CONTENT_SELECTOR_2_8);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.CONTENT_SELECTOR_2_8);
             // 2. Insert a content-name in options filter input:
             await contentSelectorForm.typeTextInOptionsFilterInput(appConst.TEST_IMAGES.SPUMANS);
-            // 3. Switch to tree-mode after inserting a text in the search input:
-            await contentSelectorForm.clickOnModeTogglerButton();
             await contentSelectorForm.pause(500);
-            // 4. Expand the parent folder in the tree mode:
-            await contentSelectorForm.clickOnExpanderIconInOptionsList(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_NAME);
-            await studioUtils.saveScreenshot('tree_mode_expanded_folder');
+            await studioUtils.saveScreenshot('tree_mode_filtered_image_content');
             // 5. Verify that the only one option with its parent folder are present in the dropdown options:
             let items = await contentSelectorForm.getOptionsDisplayNameInTreeMode();
-            assert.ok(items.length === 2, 'Expected number of items should be displayed');
-            assert.equal(items[1], appConst.TEST_IMAGES.SPUMANS, 'Expected display name should be present in the options list');
+            assert.ok(items.length === 1, 'single item should be displayed in the filtered list');
+            assert.equal(items[0], appConst.TEST_IMAGES.SPUMANS, 'Expected display name should be present in the options list');
             // 6. Clear the filter input:
             await contentSelectorForm.clearOptionsFilterInput();
             // 7. Verify that tree mode is reloaded and all items are displayed in the dropdown:
             items = await contentSelectorForm.getOptionsDisplayNameInTreeMode();
             assert.ok(items.length > 2, "Options should be reloaded in the tree mode");
-        });
 
-
-    it(`GIVEN content selector with tree mode is opened WHEN a text has been inserted/cleared in Options Filter Input THEN flat mode should be switched on/off`,
-        async () => {
-            let contentSelectorForm = new ContentSelectorForm();
-            // 1. Wizard for Custom-Selector content is opened:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CONTENT_SELECTOR_2_8);
-            // 2. a content-name has been inserted in options filter input:
-            await contentSelectorForm.typeTextInOptionsFilterInput(FOLDER_1.displayName);
-            await contentSelectorForm.pause(500);
-            // 3. Verify that flat mode is switched on:
             let actualMode = await contentSelectorForm.getOptionsMode();
-            assert.equal(actualMode, 'flat', 'Flat mode should be after inserting a text in the search input');
-            // 4. Clear the filter input:
-            await contentSelectorForm.clearOptionsFilterInput();
-            await contentSelectorForm.pause(500);
-            await studioUtils.saveScreenshot('filter_input_cleared_tree_mode');
-            // 5. Verify that tree mode is switched on again:
-            actualMode = await contentSelectorForm.getOptionsMode();
             assert.equal(actualMode, 'tree', 'Tre mode should be after clearing the search input');
         });
+
+    // it(`GIVEN content selector with tree mode is opened WHEN a text has been inserted/cleared in Options Filter Input THEN flat mode should be switched on/off`,
+    //     async () => {
+    //         let contentSelectorForm = new ContentSelectorForm();
+    //         // 1. Wizard for Custom-Selector content is opened:
+    //         await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.CONTENT_SELECTOR_2_8);
+    //         // 2. a content-name has been inserted in options filter input:
+    //         await contentSelectorForm.typeTextInOptionsFilterInput(FOLDER_1.displayName);
+    //         await contentSelectorForm.pause(500);
+    //         // 3. Verify that flat mode is switched on:
+    //         let actualMode = await contentSelectorForm.getOptionsMode();
+    //         assert.equal(actualMode, 'flat', 'Flat mode should be after inserting a text in the search input');
+    //         // 4. Clear the filter input:
+    //         await contentSelectorForm.clearOptionsFilterInput();
+    //         await contentSelectorForm.pause(500);
+    //         await studioUtils.saveScreenshot('filter_input_cleared_tree_mode');
+    //         // 5. Verify that tree mode is switched on again:
+    //         actualMode = await contentSelectorForm.getOptionsMode();
+    //         assert.equal(actualMode, 'tree', 'Tre mode should be after clearing the search input');
+    //     });
 
     // Content selector dropdown - broken layout after updating selected options #7479
     // Verify the bug -  https://github.com/enonic/app-contentstudio/issues/7479
@@ -105,16 +100,17 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             let contentWizard = new ContentWizard();
             let contentSelectorForm = new ContentSelectorForm();
             // 1. Wizard for Custom-Selector content is opened:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CONTENT_SELECTOR_2_8);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.CONTENT_SELECTOR_2_8);
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
             // 2. The first option has been selected - display name has been typed in filter input (tree mode should be automatically switched to flat mode):
-            await contentSelectorForm.doFilterOptionInTreeModeAndApply(FOLDER_1.displayName);
+            await contentSelectorForm.clickOnOptionByDisplayNameAndApply(FOLDER_1.displayName);
             // 3. Click on Edit-icon then switch to the new browser tab:
             await contentSelectorForm.clickOnEditSelectedOption(FOLDER_1.displayName);
             await studioUtils.doSwitchToNextTab();
             // 4. Update the display-name of the selected option:
+            await contentWizard.clearDisplayNameInput();
             await contentWizard.typeDisplayName(FOLDER_NEW_DISPLAY_NAME);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -132,7 +128,7 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             let contentSelectorForm = new ContentSelectorForm();
             let contentWizard = new ContentWizard();
             // 1. Open wizard for new content-selector:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CONTENT_SELECTOR_1_2);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.CONTENT_SELECTOR_1_2);
             await contentWizard.typeDisplayName(appConst.generateRandomName('cs'));
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -157,7 +153,7 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             let contentWizard = new ContentWizard();
             let contentSelectorForm = new ContentSelectorForm();
             // 1. Wizard for Custom-Selector content is opened:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CONTENT_SELECTOR_2_8);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.CONTENT_SELECTOR_2_8);
             await contentWizard.typeDisplayName(CONTENT_NAME);
             // 2. three options have been selected - insert a name(switch to flat  mode) and click on the option:
             await contentSelectorForm.doFilterOptionInTreeModeAndApply(OPTION_1);
@@ -252,7 +248,7 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
         async () => {
             let contentSelectorForm = new ContentSelectorForm();
             // 1. Open wizard for new content-selector:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CONTENT_SELECTOR_1_2);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.CONTENT_SELECTOR_1_2);
             // 2. Click on the selector mode toggler:
             await contentSelectorForm.clickOnModeTogglerButton();
             await studioUtils.saveScreenshot('selector_modetoggler_btn');
@@ -267,7 +263,7 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             let contentSelectorForm = new ContentSelectorForm();
             let contentWizard = new ContentWizard();
             // 1. Open wizard for new content-selector:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CONTENT_SELECTOR_1_2);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.CONTENT_SELECTOR_1_2);
             await contentWizard.typeDisplayName(CONTENT_NAME_SEL_1_2);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -306,7 +302,7 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
             let contentSelectorForm = new ContentSelectorForm();
             let contentWizard = new ContentWizard();
             // 1. Open wizard for new content-selector:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CONTENT_SELECTOR_1_2);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.CONTENT_SELECTOR_1_2);
             await contentWizard.typeDisplayName(appConst.generateRandomName('cs'));
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();

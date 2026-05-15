@@ -42,14 +42,14 @@ describe('insert.part.in.layout.spec - test for parts in a layout', function () 
             // 1. Open the existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Insert 3-col layout:
-            await pageComponentsWizardStepForm.openMenu('main');
-            await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Layout']);
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('main');
+            await pageComponentsWizardStepForm.selectContextMenuItem(['Insert', 'Layout']);
             await layoutInspectionPanel.waitForOpened();
             await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_3_COL);
             await contentWizard.waitForNotificationMessage();
             // 3. Insert the first part(valid):
-            await pageComponentsWizardStepForm.openMenu(appConst.LAYOUT_REGION.LEFT);
-            await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Part']);
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu(appConst.LAYOUT_REGION.LEFT);
+            await pageComponentsWizardStepForm.selectContextMenuItem(['Insert', 'Part']);
             await partInspectionPanel.waitForOpened();
             await partInspectionPanel.typeNameAndSelectPart(appConst.PART_NAME.CONTENT_TYPES_CITIES_DISTANCE_FACET);
             // 4. Click on the part in LiveView:
@@ -64,8 +64,8 @@ describe('insert.part.in.layout.spec - test for parts in a layout', function () 
             let isInvalid = await pageComponentsWizardStepForm.isComponentItemInvalid(appConst.PART_NAME.CONTENT_TYPES_CITIES_DISTANCE_FACET);
             assert.ok(isInvalid === false, 'The part should be valid');
             // 6. Insert the second part(invalid):
-            await pageComponentsWizardStepForm.openMenu(appConst.LAYOUT_REGION.CENTER);
-            await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Part']);
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu(appConst.LAYOUT_REGION.CENTER);
+            await pageComponentsWizardStepForm.selectContextMenuItem(['Insert', 'Part']);
             await partInspectionPanel.waitForOpened();
             await partInspectionPanel.typeNameAndSelectPart(appConst.PART_NAME.PART_WITH_ERROR);
             await studioUtils.saveScreenshot('part_clicked_invalid');
