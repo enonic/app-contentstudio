@@ -87,7 +87,7 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
             // 3. Click on 'Components View' toggler button and open the modal dialog:
             await pageComponentView.clickOnComponentViewToggleButton();
             // 4. Open the menu in Page Component View dialog:
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             // 5. Verify that required items are visible:
             await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT);
             // 6. Click on publish-menu button's dropdown:
@@ -110,16 +110,16 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
             // 2. Click on minimize-toggler, expand 'Live Edit', Page Component modal dialog should be loaded:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Open the context menu:
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             // 4. Select "Insert>Text"
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 5. Open text-component's context menu:
-            await pageComponentView.openMenu('Text');
+            await pageComponentView.rightClickAndOpenContextMenu('Text');
             // 6. Click on 'Save as Fragment' menu item:
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await pageComponentView.pause(4000);
             // 7. Open text-component's context menu:
-            await pageComponentView.openMenu('Text');
+            await pageComponentView.rightClickAndOpenContextMenu('Text');
             await studioUtils.saveScreenshot('text_saved_as_fragment');
             // Verify that "'Customize' menu item should appear in the menu
             await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.CUSTOMIZE);
@@ -137,7 +137,7 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
             assert.equal(result.length, 1, 'Single fragment should be present');
             assert.equal(result[0], FRAGMENT_NAME, "Expected fragment display name should be present");
             // 3. Select the fragment, open the context-menu and verify all menu items:
-            await pageComponentsWizardStepForm.openMenu(FRAGMENT_NAME);
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu(FRAGMENT_NAME);
             await pageComponentsWizardStepForm.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.SELECT_PARENT);
             await pageComponentsWizardStepForm.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT);
             await pageComponentsWizardStepForm.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.INSPECT);
@@ -160,7 +160,7 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
             assert.equal(result.length, 1, 'Single fragment should be present');
             assert.equal(result[0], FRAGMENT_NAME, "Expected fragment display name should be present");
             // 3. Select the fragment, open the context-menu and verify all menu items:
-            await pageComponentView.openMenu(FRAGMENT_NAME);
+            await pageComponentView.rightClickAndOpenContextMenu(FRAGMENT_NAME);
             await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.SELECT_PARENT);
             await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT);
             await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.INSPECT);
@@ -180,7 +180,7 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
             // 1. Click on minimize-toggle, expand 'Live Edit' 'Page Component' modal dialog should be loaded:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. Select the fragment and open the context-menu:
-            await pageComponentView.openMenu('Text');
+            await pageComponentView.rightClickAndOpenContextMenu('Text');
             // 3. Open this fragment in new browser-tab:
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.EDIT]);
             await studioUtils.doSwitchToNextTab();
@@ -220,12 +220,12 @@ describe('Menu Items: Save as fragment and Customize specification', function ()
             // 1. Click on minimize-toggle, expand 'Live Edit', Page Component modal dialog should be loaded:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. the fragment's context menu has been opened:
-            await pageComponentView.openMenu('Text');
+            await pageComponentView.rightClickAndOpenContextMenu('Text');
             // 3. 'Customize' menu item has been clicked:
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.CUSTOMIZE]);
             await pageComponentView.pause(2000);
             // 4. The text-component context menu has been opened:
-            await pageComponentView.openMenu('Text');
+            await pageComponentView.rightClickAndOpenContextMenu('Text');
             await studioUtils.saveScreenshot('text_is_detached');
             // 5. Verify that 'Save as Fragment' menu item should appear again
             await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);

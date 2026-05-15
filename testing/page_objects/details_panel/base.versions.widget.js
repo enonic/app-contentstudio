@@ -10,7 +10,7 @@ const xpath = {
     versionsListComponent: "//div[@data-component='VersionsListContent']",
     versionsListItemComponent: "//div[@data-component='VersionsListItem']",
     versionsListItemByName: name => {
-       return  `//div[@data-component='VersionsListItem' and descendant::span[contains(.,'${name}')]`
+       return  `//div[@data-component='VersionsListItem' and descendant::span[contains(.,'${name}')]]`
     },
     versionItemExpanded: "//div[@data-component='VersionsListItem' and descendant::button[@aria-label='Restore']]",
     publishMessageDiv: "//div[contains(@class, 'publish-message')]",
@@ -179,7 +179,7 @@ class BaseVersionsWidget extends Page {
             let i = index === undefined ? 0 : index;
             await this.waitForElementDisplayed(this.versionItems);
             //get all version items with the header:
-            let locator = xpath.anyItemByHeader(versionHeader);
+            let locator = xpath.versionsListItemByName(versionHeader);
             await this.waitForElementDisplayed(locator);
             let items = await this.findElements(locator);
             //click on the item:
@@ -193,7 +193,7 @@ class BaseVersionsWidget extends Page {
     async getPublishMessagesFromPublishedItems() {
         await this.waitForElementDisplayed(this.versionItems);
         //get all version items with the header:
-        let locator = this.versionsWidget + xpath.anyItemByHeader(appConst.VERSIONS_ITEM_HEADER.PUBLISHED) + xpath.publishMessageDiv;
+        let locator = xpath.versionsListItemByName(appConst.VERSIONS_ITEM_HEADER.PUBLISHED) + xpath.publishMessageDiv;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
@@ -249,6 +249,7 @@ class BaseVersionsWidget extends Page {
 
     async clickOnRestoreButton() {
         try {
+            let aa = await this.findElements(this.restoreButton);
             await this.waitForElementDisplayed(this.restoreButton);
             await this.clickOnElement(this.restoreButton);
             return await this.pause(2000);

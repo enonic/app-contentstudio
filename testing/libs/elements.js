@@ -150,6 +150,9 @@ const TREE_GRID = {
     },
 }
 const DROPDOWN = {
+    LIST_BOX_ITEM:"//div[@data-component='Listbox.Item']",
+    CHECKBOX_DATA_COMPONENT:"//div[@data-component='Checkbox']",
+    ITEM_LABEL:"//div[@data-component='ItemLabel']",
     SELECTOR_UPLOAD_BUTTON:"//div[@data-component='SelectorUploadButton']",
     ITEM_LABEL_NAME_SPAN:"//div[@data-component='ItemLabel']//span",
     MODE_TOGGLE:"//button[@aria-label='Tree view' or @aria-label='List view']",

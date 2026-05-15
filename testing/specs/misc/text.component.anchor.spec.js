@@ -40,7 +40,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text-component:
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             //await textComponentCke.switchToLiveEditFrame();
             // 4. Open 'Insert Anchor' dialog and type the text:
@@ -66,7 +66,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 1. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // Open Insert Anchor modal dialog:
             await textComponentInspectionPanel.clickInTextArea();
@@ -87,7 +87,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             // Insert a text component:
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // Open Insert Anchor modal dialog and type not correct value:
             await textComponentInspectionPanel.clickInTextArea();
@@ -114,7 +114,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text-component:
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 4. Open 'Insert Anchor' dialog and type the text:
             await textComponentInspectionPanel.typeTextInEditor(TEST_TEXT);
@@ -122,7 +122,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             let actualComponents = await pageComponentView.getTextComponentsDisplayName();
             assert.equal(actualComponents.length, 1, "Two items should be present in the PCV tree");
             // 5. Open  menu in the text component:
-            await pageComponentView.openMenu(TEST_TEXT);
+            await pageComponentView.rightClickAndOpenContextMenu(TEST_TEXT);
             // 6. Click on 'Duplicate' menu item.
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.DUPLICATE);
             await contentWizard.waitForNotificationMessage();
@@ -145,7 +145,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.waitForItemNotSelected('main');
             // 3. Open  menu in the text component:
-            await pageComponentView.openMenu(TEST_TEXT);
+            await pageComponentView.rightClickAndOpenContextMenu(TEST_TEXT);
             // 4. Click on 'Select parent' menu item.
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SELECT_PARENT);
             // 8. Verify the parent item gets selected:

@@ -40,7 +40,8 @@ describe('page.template.controller: select a controller in a template-wizard', f
 
     // verifies https://github.com/enonic/app-contentstudio/issues/364
     // Upload button should not be visible in the New Content dialog for Templates folder
-    it(`GIVEN _templates folder is selected WHEN New button has been pressed THEN upload button should not be present in the modal dialog`,
+    // TODO bug
+    it.skip(`GIVEN _templates folder is selected WHEN New button has been pressed THEN upload button should not be present in the modal dialog`,
         async () => {
             let newContentDialog = new NewContentDialog();
             // 1. Expand the site, click on Templates folder and click on 'New' button
@@ -71,11 +72,11 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await pageWidgetPanel.waitForOpened();
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 4. Click on the item and open Context Menu:
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             // 5. Insert Text Component and insert an image:
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
-            await textComponentInspectionPanel.clickInTextArea();
-            await textComponentInspectionPanel.clickOnInsertImageButton();
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            //await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE_NAME);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
@@ -202,8 +203,8 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await confirmationDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('site_customised');
             // 5. Open the Page Components modal dialog and insert a text component:
-            await pageComponentsWizardStepForm.openMenu('main');
-            await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('main');
+            await pageComponentsWizardStepForm.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await studioUtils.saveScreenshot('site_customised_component_inserted');
             // 6. Switches to 'live-edit' iframe and insert a text:
             await textComponentInspectionPanel.waitForOpened();

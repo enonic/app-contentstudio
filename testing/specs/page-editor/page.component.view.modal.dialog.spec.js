@@ -56,7 +56,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             // 2. Verify that the wizard step is loaded:
             await pageComponentsWizardStepForm.waitForLoaded();
             // 3. Open the menu:
-            await pageComponentsWizardStepForm.openMenu(CONTROLLER_NAME);
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu(CONTROLLER_NAME);
             // 4. Click on 'Save as Template' menu item
             await pageComponentsWizardStepForm.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_TEMPLATE);
             await contentWizardPanel.pause(500);

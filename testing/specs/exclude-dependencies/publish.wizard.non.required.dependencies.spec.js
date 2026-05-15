@@ -48,7 +48,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert a text-component in PCV modal dialog:
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 4. Open Insert Link dialog
             await textComponentInspectionPanel.clickInTextArea();

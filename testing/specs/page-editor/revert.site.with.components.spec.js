@@ -39,9 +39,9 @@ describe("revert.site.with.components.spec: Insert Text component then revert th
             // 1. Click on minimize-toggle, expand 'Live Edit' and open 'Page Component' modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. Open the context menu:
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             // 3. Click on the 'Insert Text' menu item:
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentCke.typeTextInCkeEditor(TEXT);
             await contentWizard.waitAndClickOnSave();
             await textComponentCke.switchToLiveEditFrame();

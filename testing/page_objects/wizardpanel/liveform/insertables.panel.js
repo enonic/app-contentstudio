@@ -5,9 +5,9 @@ const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
 
 const xpath = {
-    container: "//div[contains(@id,'InsertablesPanel')]",
+    container: "//ul[@data-component='InsertPanel']",
     gridUL: "//ul[contains(@id,'InsertablesGrid')]",
-    components: "//li[contains(@class,'comp ui-draggable')]//h5",
+    componentsName: "//div[@data-component='ItemLabel']//span[text()]",
     title: "Drag and drop components into the page",
 };
 
@@ -20,7 +20,7 @@ class InsertablesPanel extends Page {
 
     async waitForOpened() {
         try {
-            await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout)
+            await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
         } catch (err) {
             await this.handleError('Insert tab in Page widget should be loaded', 'err_open_insert_tab', err);
         }
@@ -28,7 +28,7 @@ class InsertablesPanel extends Page {
 
     async getItems() {
         try {
-            let locator = xpath.container + xpath.components;
+            let locator = xpath.container + xpath.componentsName;
             return await this.getTextInDisplayedElements(locator);
         } catch (err) {
             await this.handleError('Insert tab in Page widget, get items', 'err_insert_tab_items', err);

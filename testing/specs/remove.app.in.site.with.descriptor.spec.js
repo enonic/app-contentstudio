@@ -58,7 +58,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             let apps = await siteFormPanel.getSelectedAppDisplayNames();
             assert.equal(apps[0], APP_2, 'application should be updated in the form');
             // 6. Verify that the controller from the previous application remains visible in PCV:
-            await pageComponentsWizardStepForm.openMenu(CONTROLLER_APP_1);
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu(CONTROLLER_APP_1);
             // 7. Click on 'Reset' menu item, reset the controller
             await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
             let confirmationDialog = new ConfirmationDialog();
@@ -145,7 +145,7 @@ describe('remove_app.in.site.with.descriptor.spec: replace an application and ch
             // 3. Click and select the 'main' component item in PCV:
             await pageComponentsWizardStepForm.clickOnComponent('main');
             // 4. Open the context menu for the 'Country list' item in PCV:
-            await pageComponentsWizardStepForm.openMenu(CONTROLLER_APP_2);
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu(CONTROLLER_APP_2);
             // 5. Click on 'Reset' menu item, reset the controller
             await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.RESET]);
             let confirmationDialog = new ConfirmationDialog();

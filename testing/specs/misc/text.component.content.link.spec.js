@@ -42,8 +42,8 @@ describe('Text Component with CKE - insert content-link specification', function
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert text-component:
-            await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.rightClickAndOpenContextMenu('main');
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
 
             // 4. Open Insert Link dialog
             await textComponentInspectionPanel.clickInTextArea();
@@ -51,7 +51,7 @@ describe('Text Component with CKE - insert content-link specification', function
             // 5. Insert content-link:
             await studioUtils.insertContentLinkInCke(LINK_TITLE, SITE.displayName);
 
-            // 6. Verify the text in CKE html area:
+            // 6. Verify the text in CKE html-area:
             await studioUtils.saveScreenshot('content_link_inserted');
             let actualText = await textComponentInspectionPanel.getTextFromEditor();
             assert.ok(actualText.includes(EXPECTED_SRC), 'expected data should be present in CKE');
