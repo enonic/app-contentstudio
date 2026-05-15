@@ -15,7 +15,7 @@ import {getActiveProject} from '../../v6/features/store/activeProject.store';
 export class InitializeLiveEditEvent
     extends IframeEvent {
 
-    private projectJson: ProjectJson;
+    public projectJson: ProjectJson;
 
     private config: ConfigObject;
 

@@ -2,10 +2,17 @@ import {HTMLAreaHelper} from '@enonic/lib-contentstudio/app/inputtype/ui/text/HT
 import {ComponentPath} from '@enonic/lib-contentstudio/app/page/region/ComponentPath';
 import {RenderingMode} from '@enonic/lib-contentstudio/app/rendering/RenderingMode';
 import {UriHelper} from '@enonic/lib-contentstudio/app/rendering/UriHelper';
+import {Project} from '@enonic/lib-contentstudio/app/settings/data/project/Project';
+import {InitializeLiveEditEvent} from '@enonic/lib-contentstudio/page-editor/event/InitializeLiveEditEvent';
+import {setActiveProject} from '@enonic/lib-contentstudio/v6/features/store/activeProject.store';
 import {ComponentPath as EditorComponentPath, EditorEvent, EditorEvents, PageEditor} from '@enonic/page-editor';
 import DOMPurify from 'dompurify';
 
 PageEditor.init(true);
+
+InitializeLiveEditEvent.on((event: InitializeLiveEditEvent) => {
+    setActiveProject(Project.fromJson(event.projectJson));
+});
 
 PageEditor.on(
     EditorEvents.ComponentLoadRequest,
