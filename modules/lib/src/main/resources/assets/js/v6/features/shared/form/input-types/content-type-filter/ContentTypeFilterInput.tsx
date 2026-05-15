@@ -39,6 +39,7 @@ export const ContentTypeFilterInput = ({
 
     // Constants
     const resolvedSelectionMode = occurrences.getMaximum() === 1 ? 'single' : 'staged';
+    const canAdd = occurrences.getMaximum() === 0 || values.length < occurrences.getMaximum();
     const resolvedHasErrors = useSelectorInputHasError(occurrences, errors);
     const disabled = !enabled;
     const popupLabel = useMemo(() => {
@@ -56,35 +57,38 @@ export const ContentTypeFilterInput = ({
 
     return (
         <div data-component={COMPONENT_NAME} className="flex flex-col gap-2.5">
-            <Combobox.Root
-                value={inputValue}
-                onChange={setInputValue}
-                selection={selection}
-                onSelectionChange={onSelectionChange}
-                selectionMode={resolvedSelectionMode}
-                disabled={disabled}
-                error={resolvedHasErrors}
-                closeOnBlur
-                contentType="listbox"
-            >
-                <Combobox.Content>
-                    <Combobox.Control>
-                        <Combobox.Search>
-                            <Combobox.SearchIcon />
-                            <Combobox.Input placeholder={placeholder} />
-                            {resolvedSelectionMode === 'staged' && <Combobox.Apply />}
-                            <Combobox.Toggle />
-                        </Combobox.Search>
-                    </Combobox.Control>
-                    <Combobox.Portal>
-                        <Combobox.Popup>
-                            {popupLabel && <div className="p-4 text-subtle">{popupLabel}</div>}
-                            {!hasError && filteredContentTypes.length > 0 && <ContentTypeFilterComboboxList items={filteredContentTypes} />}
-                        </Combobox.Popup>
-                    </Combobox.Portal>
-                </Combobox.Content>
-            </Combobox.Root>
-
+            {canAdd && (
+                <Combobox.Root
+                    value={inputValue}
+                    onChange={setInputValue}
+                    selection={selection}
+                    onSelectionChange={onSelectionChange}
+                    selectionMode={resolvedSelectionMode}
+                    disabled={disabled}
+                    error={resolvedHasErrors}
+                    closeOnBlur
+                    contentType="listbox"
+                >
+                    <Combobox.Content>
+                        <Combobox.Control>
+                            <Combobox.Search>
+                                <Combobox.SearchIcon />
+                                <Combobox.Input placeholder={placeholder} />
+                                {resolvedSelectionMode === 'staged' && <Combobox.Apply />}
+                                <Combobox.Toggle />
+                            </Combobox.Search>
+                        </Combobox.Control>
+                        <Combobox.Portal>
+                            <Combobox.Popup>
+                                {popupLabel && <div className="p-4 text-subtle">{popupLabel}</div>}
+                                {!hasError && filteredContentTypes.length > 0 && (
+                                    <ContentTypeFilterComboboxList items={filteredContentTypes} />
+                                )}
+                            </Combobox.Popup>
+                        </Combobox.Portal>
+                    </Combobox.Content>
+                </Combobox.Root>
+            )}
             <SortableGridList
                 items={selectedContentTypes}
                 keyExtractor={(ct) => ct.getContentTypeName().toString()}

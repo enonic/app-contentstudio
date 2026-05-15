@@ -31,7 +31,7 @@ export const ImageSelectorItemView = ({content, hideStatus = false}: ImageSelect
     if (isRemoved) {
         return (
             <div data-component={IMAGE_SELECTOR_ITEM_VIEW} className="flex items-center gap-2.5 min-w-0">
-                <div className="relative w-[36cqw] max-w-[240px] flex items-center justify-center shrink-0">
+                <div className="relative w-[36cqw] max-w-[240px] aspect-square flex items-center justify-center shrink-0 border border-error">
                     <span className="text-sm text-error text-center m-1">{imageNotAvailableLabel}</span>
                 </div>
                 <div className="min-w-0">

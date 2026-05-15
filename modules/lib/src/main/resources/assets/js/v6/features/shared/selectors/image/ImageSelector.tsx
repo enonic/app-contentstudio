@@ -16,6 +16,8 @@ export type ImageSelectorProps = {
     'selection': readonly string[];
     /** Callback when selection changes */
     'onSelectionChange': (selection: readonly string[]) => void;
+    /** Whether the selector can add more items */
+    'canAdd'?: boolean;
     /** Selection mode */
     'selectionMode'?: ImageSelectorMode;
     /** List mode */
@@ -48,6 +50,7 @@ const IMAGE_SELECTOR_CONTENT_TYPE_NAMES = [ContentTypeName.IMAGE.toString(), Con
 export const ImageSelector = ({
     selection,
     onSelectionChange,
+    canAdd = true,
     selectionMode = 'multiple',
     listMode,
     closeOnBlur = false,
@@ -72,41 +75,43 @@ export const ImageSelector = ({
             {/* TODO: Add htmlFor to associate label with combobox input */}
             {label && <label className="text-md font-semibold">{label}</label>}
 
-            <div className="flex items-center">
-                <ContentCombobox
-                    selection={selection}
-                    onSelectionChange={onSelectionChange}
-                    selectionMode={selectionMode}
-                    listMode={listMode}
-                    closeOnBlur={closeOnBlur}
-                    disabled={disabled}
-                    placeholder={placeholder}
-                    emptyLabel={emptyLabel}
-                    aria-label={ariaLabel}
-                    error={error}
-                    hideToggleIcon={hideToggleIcon}
-                    rowRenderer={ImageComboboxRow}
-                    rowTreeHeight={48}
-                    rowFlatHeight={270}
-                    rowFlatHeightRatio={0.43}
-                    dropdownMaxHeight={500}
-                    contentTypeNames={IMAGE_SELECTOR_CONTENT_TYPE_NAMES}
-                    allowedContentPaths={allowedContentPaths}
-                    contextContent={contextContent}
-                    applicationKey={applicationKey}
-                    className="w-full focus-within:z-10"
-                    withRightButton={withUpload}
-                />
-                {withUpload && (
-                    <SelectorUploadButton
+            {canAdd && (
+                <div className="flex items-center">
+                    <ContentCombobox
                         selection={selection}
                         onSelectionChange={onSelectionChange}
+                        selectionMode={selectionMode}
+                        listMode={listMode}
+                        closeOnBlur={closeOnBlur}
                         disabled={disabled}
-                        multiple={selectionMode === 'multiple'}
-                        accept={acceptMimeTypes ?? 'image/*'}
+                        placeholder={placeholder}
+                        emptyLabel={emptyLabel}
+                        aria-label={ariaLabel}
+                        error={error}
+                        hideToggleIcon={hideToggleIcon}
+                        rowRenderer={ImageComboboxRow}
+                        rowTreeHeight={48}
+                        rowFlatHeight={270}
+                        rowFlatHeightRatio={0.43}
+                        dropdownMaxHeight={500}
+                        contentTypeNames={IMAGE_SELECTOR_CONTENT_TYPE_NAMES}
+                        allowedContentPaths={allowedContentPaths}
+                        contextContent={contextContent}
+                        applicationKey={applicationKey}
+                        className="w-full focus-within:z-10"
+                        withRightButton={withUpload}
                     />
-                )}
-            </div>
+                    {withUpload && (
+                        <SelectorUploadButton
+                            selection={selection}
+                            onSelectionChange={onSelectionChange}
+                            disabled={disabled}
+                            multiple={selectionMode === 'multiple'}
+                            accept={acceptMimeTypes ?? 'image/*'}
+                        />
+                    )}
+                </div>
+            )}
 
             <SelectorSelection
                 selection={selection}

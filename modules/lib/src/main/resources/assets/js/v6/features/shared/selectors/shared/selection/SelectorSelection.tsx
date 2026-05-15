@@ -1,7 +1,7 @@
 import {SortableGridList, type SortableGridListItemContext} from '@enonic/lib-admin-ui/form2/components';
 import {useCallback, useEffect, useRef, useState, type ReactElement} from 'react';
 import type {MovedContentItem} from '../../../../../../app/browse/MovedContentItem';
-import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
+import {ContentSummary, ContentSummaryBuilder} from '../../../../../../app/content/ContentSummary';
 import type {ContentServerChangeItem} from '../../../../../../app/event/ContentServerChangeItem';
 import {fetchContentByIds} from '../../../../api/content-fetcher';
 import {
@@ -43,12 +43,8 @@ export const SelectorSelection = ({
     className,
 }: SelectorSelectionProps): ReactElement | null => {
     const requestIdRef = useRef(0);
-
     const [contents, setContents] = useState<ContentSummary[]>([]);
     const contentsRef = useRef<ContentSummary[]>([]);
-
-    const selectionRef = useRef<readonly string[]>(selection);
-    selectionRef.current = selection;
 
     // Fetch contents when selection changes
     useEffect(() => {
@@ -63,9 +59,9 @@ export const SelectorSelection = ({
 
         fetchContentByIds(contentIds).then((items) => {
             if (requestId !== requestIdRef.current) return;
-            // Preserve selection order
             const itemMap = new Map(items.map((item) => [item.getId(), item]));
-            const ordered = contentIds.map((id) => itemMap.get(id)).filter((item): item is ContentSummary => item != null);
+            // Preserve selection order; use stub for IDs not found (deleted)
+            const ordered = contentIds.map((id) => itemMap.get(id) ?? new ContentSummaryBuilder().setId(id).build());
             setContents(ordered);
             contentsRef.current = ordered;
         });
@@ -101,7 +97,9 @@ export const SelectorSelection = ({
         (event: ContentEvent<ContentServerChangeItem[]> | null) => {
             if (!event?.data) return;
             const removedContentIds = new Set(event.data.map((item) => item.getId()));
-            const newContents = contentsRef.current.filter((content) => !removedContentIds.has(content.getId()));
+            const newContents = contentsRef.current.map((content) =>
+                removedContentIds.has(content.getId()) ? new ContentSummaryBuilder().setId(content.getId()).build() : content
+            );
             setContents(newContents);
             contentsRef.current = newContents;
         },

@@ -13,11 +13,13 @@ export const MediaSelectorInput = (props: SelfManagedComponentProps<MediaSelecto
     const contentTypeNames = props.config.allowContentType;
     const allowedContentPaths = props.config.allowPath;
     const disabled = !props.enabled;
+    const canAdd = props.occurrences.getMaximum() === 0 || props.values.length < props.occurrences.getMaximum();
 
     return (
         <MediaSelector
             selection={selection}
             onSelectionChange={handleSelectionChange}
+            canAdd={canAdd}
             selectionMode={selectionMode}
             placeholder={placeholder}
             emptyLabel={emptyLabel}
