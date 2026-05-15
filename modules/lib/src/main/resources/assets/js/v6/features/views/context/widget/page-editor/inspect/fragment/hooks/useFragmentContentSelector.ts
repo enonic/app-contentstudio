@@ -68,12 +68,24 @@ export function useFragmentContentSelector(): UseFragmentContentSelectorResult {
     }, [fragment]);
 
     const options = useMemo((): FragmentOption[] => {
-        return fragments.map(f => ({
+        const real = fragments.map(f => ({
             key: f.getId(),
             label: f.getDisplayName(),
             description: f.getPath().toString() || noDescriptionLabel,
         }));
-    }, [fragments, noDescriptionLabel]);
+
+        if (!selectedId || real.some(o => o.key === selectedId)) {
+            return real;
+        }
+
+        const fallbackLabel = fragment?.getName()?.toString() || selectedId;
+        const placeholderOption: FragmentOption = {
+            key: selectedId,
+            label: fallbackLabel,
+            description: noDescriptionLabel,
+        };
+        return [placeholderOption, ...real];
+    }, [fragments, selectedId, fragment, noDescriptionLabel]);
 
     const filteredOptions = useMemo(() => {
         if (!searchValue) return options.toSorted(compareOptionsByLabel);
@@ -121,7 +133,7 @@ export function useFragmentContentSelector(): UseFragmentContentSelectorResult {
     );
 
     const selection = selectedId ? [selectedId] : [];
-    const isEmpty = options.length === 0;
+    const isEmpty = options.length === 0 && !selectedId;
 
     return {
         filteredOptions,
