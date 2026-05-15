@@ -43,8 +43,8 @@ describe('null.layout.spec - test for layout-controller that returns null ', fun
             // 2. Maximize the Live Edit:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert the layout with controller that returns null:
-            await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Layout']);
+            await pageComponentView.rightClickAndOpenContextMenu('main');
+            await pageComponentView.selectContextMenuItem(['Insert', 'Layout']);
             await layoutInspectionPanel.waitForOpened();
             await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_NULL);
             await contentWizard.waitForNotificationMessage();
@@ -67,13 +67,13 @@ describe('null.layout.spec - test for layout-controller that returns null ', fun
             // 2. Maximize the Live Edit:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert 'City List' part with the config:
-            await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Part']);
+            await pageComponentView.rightClickAndOpenContextMenu('main');
+            await pageComponentView.selectContextMenuItem(['Insert', 'Part']);
             await partInspectionPanel.waitForLoaded();
             await partInspectionPanel.typeNameAndSelectPart(PART_WITH_CONFIG);
             await contentWizard.switchToMainFrame();
             // 4. Click on 'Save as Fragment' menu item. (Save the part as fragment)
-            await pageComponentView.openMenu(PART_WITH_CONFIG);
+            await pageComponentView.rightClickAndOpenContextMenu(PART_WITH_CONFIG);
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizard.waitForNotificationMessage();
             await contentWizard.pause(700);

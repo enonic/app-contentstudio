@@ -46,7 +46,7 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             await contentWizard.waitForSaveButtonDisabled();
             // 3. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            await pageComponentView.openMenu(MAIN_REGION);
+            await pageComponentView.rightClickAndOpenContextMenu(MAIN_REGION);
             // 4. Insert the layout:
             await pageComponentView.selectMenuItem(['Insert', 'Layout']);
             await layoutInspectionPanel.typeNameAndSelectLayout(appConst.LAYOUT_NAME.CENTERED);
@@ -89,9 +89,9 @@ describe('layout.config.inspect.panel.spec: tests for layout with config', funct
             await contentWizard.waitForSaveButtonDisabled();
             // 3. Click on minimize-toggle, expand 'Live Edit' and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
-            await pageComponentView.openMenu(MAIN_REGION);
+            await pageComponentView.rightClickAndOpenContextMenu(MAIN_REGION);
             // 4. Insert the layout:
-            await pageComponentView.selectMenuItem(['Insert', 'Layout']);
+            await pageComponentView.selectContextMenuItem(['Insert', 'Layout']);
             // 4. Verifies #6393: we keep 'Inspect panel' collapsed (or collapse it if it was expanded).
             // So need to open 'Inspect panel':
             //await contentWizard.clickOnDetailsPanelToggleButton();

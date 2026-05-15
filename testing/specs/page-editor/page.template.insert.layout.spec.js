@@ -47,8 +47,8 @@ describe('page.template.insert.layout.spec: tests for inserting a layout in page
             // 1. Open the existing page template:
             await studioUtils.selectAndOpenContentInWizard(TEMPLATE.displayName);
             // 2. Insert 3-column layout:
-            await pageComponentsWizardStepForm.openMenu('main');
-            await pageComponentsWizardStepForm.selectMenuItem(['Insert', 'Layout']);
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('main');
+            await pageComponentsWizardStepForm.selectContextMenuItem(['Insert', 'Layout']);
             await layoutInspectionPanel.waitForOpened();
             await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_NAME);
             // Verify that the site saved automatically(layout was selected):
@@ -61,7 +61,7 @@ describe('page.template.insert.layout.spec: tests for inserting a layout in page
             // 4. Verify that the layout gets collapsed after refreshing the page:
             await pageComponentsWizardStepForm.expandItem(LAYOUT_NAME);
             // 5. Insert a text component in the left layout's region(Verify that regions are visible):
-            await pageComponentsWizardStepForm.openMenu('left');
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('left');
             await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
@@ -84,7 +84,7 @@ describe('page.template.insert.layout.spec: tests for inserting a layout in page
             // 2. Open the page template:
             await studioUtils.selectAndOpenContentInWizard(TEMPLATE.displayName);
             // 3. Expand the menu for 'main' item then click on 'Reset' menu item:
-            await pageComponentsWizardStepForm.openMenu('main');
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('main');
             await pageComponentsWizardStepForm.selectMenuItem(['Reset']);
             // 4. Click on Save in the template wizard:
             await contentWizard.waitAndClickOnSave();

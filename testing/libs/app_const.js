@@ -98,7 +98,7 @@ module.exports = Object.freeze({
         CONTENT_RENAMED: 'Content has been renamed',
         TWO_ITEMS_PUBLISHED: '2 items have been published.',
         TWO_ITEMS_UNPUBLISHED: '2 items have been unpublished',
-        CONTENT_REVERTED: 'The content has been reverted to the version from',
+        CONTENT_REVERTED: 'The content has been reverted',
         INHERITED_CONTENT_LOCALIZED: 'The inherited content has been localized.',
         applicationsCopiedFromParent: (name) => {
             return `Applications successfully copied from \"${name}\"`

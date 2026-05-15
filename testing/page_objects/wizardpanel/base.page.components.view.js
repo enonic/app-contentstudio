@@ -7,6 +7,7 @@ const {COMMON} = require('../../libs/elements');
 
 const xpath = {
     parentListElement: "//ancestor::div[contains(@class,'item-view-wrapper')]",
+    pageComponentsItemName: "//div[@data-component='ContextMenu.Trigger']//span[text()]",
     pageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer')]",
     pageComponentsItemViewerByType(componentType) {
         return `//div[contains(@id,'PageComponentsItemViewer') and contains(@class,'${componentType}')]`
@@ -24,6 +25,18 @@ const xpath = {
     },
     contextMenuItemByName(name) {
         return `//div[@data-component='ContextMenu.Content']//div[@data-component='ContextMenu.Item' and text()='${name}']`
+    },
+    // Matches Item or SubTrigger in the top-level menu (text only, no SVG children at this level)
+    contextMenuTopLevelItemByName(name) {
+        return `//div[@data-component='ContextMenu.Content']//*[(@data-component='ContextMenu.Item' or @data-component='ContextMenu.SubTrigger') and normalize-space(text())='${name}']`
+    },
+    // Matches Item inside a SubContent panel (icon + text node)
+    contextSubMenuItemByName(name) {
+        return `//div[@data-component='ContextMenu.SubContent']//div[@data-component='ContextMenu.Item' and normalize-space(.)='${name}']`
+    },
+    // Expand/collapse button inside the ContextMenu.Trigger row for the given component name
+    rowExpanderButton(name) {
+        return `//div[@data-component='ContextMenu.Trigger' and .//span[contains(@class,'truncate') and text()='${name}']]//button`
     },
 };
 
@@ -120,34 +133,22 @@ class BasePageComponentView extends Page {
     // Click on the toggle icon and expand/collapse the row in PageComponent View
     async clickOnRowExpander(componentName) {
         try {
-            let toggleIcon = this.container + xpath.componentByName(componentName) + "/../..//span[contains(@class,'toggle icon')]";
-            await this.waitForElementDisplayed(toggleIcon);
+            let toggleButton = this.container + xpath.rowExpanderButton(componentName);
+            await this.waitForElementDisplayed(toggleButton);
             await this.pause(300);
-            await this.clickOnElement(toggleIcon);
+            await this.clickOnElement(toggleButton);
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_component_view');
-            throw new Error(`PCV, Error occurred after clicking on 'toggle icon' in the row screenshot:${screenshot} ` + err);
+            throw new Error(`PCV, Error clicking row expander for '${componentName}', screenshot:${screenshot} ` + err);
         }
     }
+
 
     async getContextMenuItems() {
         let locator = "//dl[contains(@id,'TreeContextMenu')]//*[contains(@id,'TreeMenuItem')]";
         await this.waitForElementDisplayed(locator);
         return await this.getTextInDisplayedElements(locator);
-    }
-
-    async openMenu(componentName) {
-        try {
-            let menuButton = this.container + xpath.componentByName(componentName) + "/../..//div[contains(@id,'PageComponentsMenuIcon')]";
-            await this.waitForElementDisplayed(menuButton);
-            await this.pause(300);
-            await this.clickOnElement(menuButton);
-            return await this.pause(500);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_component_menu');
-            throw new Error(`PCV, open menu - Error occurred after clicking on 'Menu button', screenshot:${screenshot} ` + err);
-        }
     }
 
     async openMenuByDescription(description) {
@@ -185,6 +186,28 @@ class BasePageComponentView extends Page {
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_menu_items');
             throw new Error(`Error selecting menu items: ${items.join(' → ')}, screenshot:${screenshot} ` + err);
+        }
+    }
+
+    // Supports two-level context menus: items[0] is clicked in the top-level menu (Item or SubTrigger),
+    // items[1..n] are clicked in the SubContent panel that opens after hovering the SubTrigger.
+    async selectContextMenuItem(items) {
+        try {
+            const [firstItem, ...subItems] = items;
+            let firstSelector = xpath.contextMenuTopLevelItemByName(firstItem);
+            await this.waitForElementDisplayed(firstSelector, appConst.mediumTimeout);
+            await this.clickOnElement(firstSelector);
+            await this.pause(500);
+            for (const item of subItems) {
+                let selector = xpath.contextSubMenuItemByName(item);
+                await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+                await this.clickOnElement(selector);
+                await this.pause(500);
+            }
+            return await this.pause(300);
+        } catch (err) {
+            let screenshot = await this.saveScreenshotUniqueName('err_select_context_menu');
+            throw new Error(`Error selecting context menu items: ${items.join(' → ')}, screenshot:${screenshot} ` + err);
         }
     }
 
@@ -268,9 +291,10 @@ class BasePageComponentView extends Page {
     }
 
     async getPageComponentsDisplayName() {
-        let locator = this.container + xpath.pageComponentsItemViewer + lib.H6_DISPLAY_NAME;
+        let locator = this.container + xpath.pageComponentsItemName;
         return await this.getTextInDisplayedElements(locator);
     }
+
 
     async getTextComponentsDisplayName() {
         let locator = this.container + xpath.pageComponentsItemViewerByType('text') + lib.H6_DISPLAY_NAME;

@@ -41,8 +41,8 @@ describe.skip('image.text.component.as.fragment.spec - tests for saving an image
             // 2. Maximize the Live Edit:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert a text component:
-            await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.rightClickAndOpenContextMenu('main');
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await contentWizard.switchToLiveEditFrame();
             // 4. Insert an image in the text component
             await textComponentCke.clickOnInsertImageButton();
@@ -51,7 +51,7 @@ describe.skip('image.text.component.as.fragment.spec - tests for saving an image
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
             // 5. Save the text-component as fragment:
-            await pageComponentView.openMenu('Text');
+            await pageComponentView.rightClickAndOpenContextMenu('Text');
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             await contentWizard.pause(700);

@@ -52,8 +52,8 @@ describe('portal.content.creating.spec - tests for portal creating', function ()
             // 2. Click on minimize-toggle  expand Live Edit and show Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3.Click on the country item and open Context Menu:
-            await pageComponentView.openMenu('country');
-            await pageComponentView.selectMenuItem(['Insert', 'Part']);
+            await pageComponentView.rightClickAndOpenContextMenu('country');
+            await pageComponentView.selectContextMenuItem(['Insert', 'Part']);
             await partInspectionPanel.waitForOpened();
             await partInspectionPanel.typeNameAndSelectPart(appConst.PART_NAME.MY_FIRST_APP_CITY_CREATION);
             await studioUtils.saveScreenshot('template_city_creation_part');

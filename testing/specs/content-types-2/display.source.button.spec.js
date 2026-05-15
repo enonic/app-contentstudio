@@ -29,8 +29,7 @@ describe('display.source.button.spec - tests for user with Content Manager Exper
             // Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
             let userName = builder.generateRandomName('user');
-            let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_APP_EXPERT, appConst.SYSTEM_ROLES.CM_APP,
-                'Default - Author'];
+            let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_APP_EXPERT, 'Default - Author'];
             USER = builder.buildUser(userName, appConst.PASSWORD.MEDIUM, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
         });

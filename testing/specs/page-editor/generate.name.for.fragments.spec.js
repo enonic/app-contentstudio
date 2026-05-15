@@ -60,7 +60,7 @@ describe.skip('Generate name for fragments specification', function () {
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 2. Insert new text-component
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentCke.switchToLiveEditFrame();
             // 3. Open 'Insert Image' dialog and insert an image in htmlArea:
@@ -70,7 +70,7 @@ describe.skip('Generate name for fragments specification', function () {
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
             // 4. Save the text-component as fragment:
-            await pageComponentView.openMenu('Text');
+            await pageComponentView.rightClickAndOpenContextMenu('Text');
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizard.pause(700);
             // Switch to the tab with the fragment:
@@ -148,7 +148,7 @@ describe.skip('Generate name for fragments specification', function () {
             // 2. Click on 'minimize-toggle', expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Click on text-component and expand the menu, then click on Remove menu item:
-            await pageComponentView.openMenu('Text');
+            await pageComponentView.rightClickAndOpenContextMenu('Text');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.REMOVE]);
             // 4. Save the site:
             await contentWizard.waitAndClickOnSave();
@@ -174,8 +174,8 @@ describe.skip('Generate name for fragments specification', function () {
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert existing text-component
-            await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Fragment']);
+            await pageComponentView.rightClickAndOpenContextMenu('main');
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, 'Fragment']);
             await liveFormPanel.selectFragmentByDisplayName('Text');
             await contentWizard.switchToMainFrame();
             await contentWizard.waitForNotificationMessage();
@@ -194,10 +194,10 @@ describe.skip('Generate name for fragments specification', function () {
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new layout-component
-            await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Layout']);
+            await pageComponentView.rightClickAndOpenContextMenu('main');
+            await pageComponentView.selectContextMenuItem(['Insert', 'Layout']);
             // 4. Save the empty layout-component as fragment:
-            await pageComponentView.openMenu('Layout');
+            await pageComponentView.rightClickAndOpenContextMenu('Layout');
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizard.pause(1000);
             await studioUtils.doSwitchToNewWizard();
@@ -217,8 +217,8 @@ describe.skip('Generate name for fragments specification', function () {
             // 2. Click on minimize-toggler, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new fragment-component
-            await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Fragment']);
+            await pageComponentView.rightClickAndOpenContextMenu('main');
+            await pageComponentView.selectContextMenuItem(['Insert', 'Fragment']);
             // 4. Select a fragment in Inspection Panel:
             let fragmentDisplayName = 'Layout';
             await fragmentInspectionPanel.typeNameAndSelectFragment(fragmentDisplayName);
@@ -245,7 +245,7 @@ describe.skip('Generate name for fragments specification', function () {
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text-component
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentCke.switchToLiveEditFrame();
             // 4. Open 'Insert Image' dialog and insert an image in htmlArea:

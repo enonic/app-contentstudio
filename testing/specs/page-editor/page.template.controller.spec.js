@@ -71,11 +71,11 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await pageWidgetPanel.waitForOpened();
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 4. Click on the item and open Context Menu:
-            await pageComponentView.openMenu('main');
+            await pageComponentView.rightClickAndOpenContextMenu('main');
             // 5. Insert Text Component and insert an image:
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
-            await textComponentInspectionPanel.clickInTextArea();
-            await textComponentInspectionPanel.clickOnInsertImageButton();
+            //await textComponentInspectionPanel.clickInTextArea();
+            await textComponentInspectionPanel.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE_NAME);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();
@@ -202,8 +202,8 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await confirmationDialog.waitForDialogClosed();
             await studioUtils.saveScreenshot('site_customised');
             // 5. Open the Page Components modal dialog and insert a text component:
-            await pageComponentsWizardStepForm.openMenu('main');
-            await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('main');
+            await pageComponentsWizardStepForm.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await studioUtils.saveScreenshot('site_customised_component_inserted');
             // 6. Switches to 'live-edit' iframe and insert a text:
             await textComponentInspectionPanel.waitForOpened();

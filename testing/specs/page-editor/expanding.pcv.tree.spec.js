@@ -43,8 +43,9 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             // 1. Open the existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             // 2. Insert the first text component:
-            await pageComponentsWizardStepForm.openMenu('main');
-            await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('main');
+            await pageComponentsWizardStepForm.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            //await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
 
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
@@ -52,8 +53,8 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             await contentWizard.pause(200);
 
             // 3. Insert the second text component:
-            await pageComponentsWizardStepForm.openMenu('main');
-            await pageComponentsWizardStepForm.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentsWizardStepForm.rightClickAndOpenContextMenu('main');
+            await pageComponentsWizardStepForm.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             await textComponentInspectionPanel.waitForOpened();
             await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.typeTextInEditor(TEXT_COMPONENT_2);
@@ -90,13 +91,13 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             // 2. Maximize the Live Edit:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert the first text component:
-            await pageComponentView.openMenu('main');
-            await pageComponentView.selectMenuItem(['Insert', 'Layout']);
+            await pageComponentView.rightClickAndOpenContextMenu('main');
+            await pageComponentView.selectContextMenuItem(['Insert', 'Layout']);
             await layoutInspectionPanel.waitForOpened();
             await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_3_COL);
             await contentWizard.waitForNotificationMessage();
             // 4. Insert text component in the left layout's region (Verify that layout item is expanded in PCV)
-            await pageComponentView.openMenu('left');
+            await pageComponentView.rightClickAndOpenContextMenu('left');
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
 
             await textComponentInspectionPanel.waitForOpened();
@@ -142,7 +143,7 @@ describe('expanding.pcv.tree.spec - test for expanding PCV tree to the item sele
             await contentWizard.clickOnMinimizeLiveEditToggler();
             await pageComponentView.expandItem(LAYOUT_3_COL);
             // 3. Select the text in left region in layout component in Live Edit:
-            await pageComponentView.openMenu(LAYOUT_3_COL);
+            await pageComponentView.rightClickAndOpenContextMenu(LAYOUT_3_COL);
             await pageComponentView.selectMenuItem(['Remove']);
             await studioUtils.saveScreenshot('layout_removed')
             // 4. Verify that the layout item is gets expanded in PCV:

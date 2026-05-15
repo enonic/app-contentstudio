@@ -25,7 +25,7 @@ const XPATH = {
     showPageEditorTogglerButton: "//button[contains(@id,'ContentActionCycleButton') and @title='Show Page Editor']",
     displayNameInput: "//input[@name='displayName']",
     toolbar: `//div[@data-component='Toolbar.Container' and @role='toolbar']`,
-    publishMenuItem:`//div[contains(@id,'ContentWizardToolbar') and @role='menu']`,
+    publishMenuItem: `//div[contains(@id,'ContentWizardToolbar') and @role='menu']`,
     contentItemPreviewToolbar: `//div[contains(@id,'PreviewToolbar')]`,
     toolbarStateIcon: `//div[contains(@class,'toolbar-state-icon')]`,
     // v6: workflow state SVG in the toolbar — aria-label is 'invalid', 'in-progress', or 'ready'
@@ -47,7 +47,7 @@ const XPATH = {
     wizardStepByName:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
-        name => `//ul[contains(@id,'WizardStepNavigator')]//li[contains(@id,'ContentTabBarItem') and @title='${name}']`,
+        name => `//div[@data-component='Tab.List']//button[child::span[text()='${name}']]`,
     xDataTogglerByName:
         name => `//div[contains(@id,'WizardStepsPanel')]//div[contains(@id,'ContentPanelStripHeader') and child::span[contains(.,'${name}')]]//button[contains(@class,'toggler-button')]`,
     publishMenuItemByName(name) {
@@ -276,8 +276,8 @@ class ContentWizardPanel extends Page {
 
     async waitForWizardStepDisplayed(stepName) {
         try {
-            let locator = XPATH.wizardStepByTitle(stepName);
-            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            let locator = XPATH.container + XPATH.wizardStepByTitle(stepName);
+            return await this.waitForElementDisplayed(locator);
         } catch (err) {
             await this.handleError(`Wizard step: ${stepName} was not displayed`, 'err_wizard_step_displayed', err);
         }
@@ -438,31 +438,27 @@ class ContentWizardPanel extends Page {
     // TODO enonic ui bug
     async waitForSavedButtonVisible() {
         try {
-            //await this.waitForElementDisplayed(this.savedButton);
-            //return await this.waitForElementDisabled(this.savedButton);
+            await this.waitForElementDisplayed(this.savedButton);
+            return await this.waitForElementDisabled(this.savedButton);
         } catch (err) {
             await this.handleError(`'Saved' button is not visible or it is not disabled`, 'err_saved_button_not_visible', err);
         }
     }
 
     switchToLiveEditFrame() {
-        return this.switchToFrame(lib.LIVE_EDIT_FRAME);
+        return this.switchToFrame(LIVE_VIEW.LIVE_EDIT_FRAME);
     }
 
     switchToEmptyLiveEditFrame() {
-        return this.switchToFrame(lib.LIVE_VIEW.EMPTY_LIVE_FRAME_DIV);
+        return this.switchToFrame(LIVE_VIEW.EMPTY_LIVE_FRAME_DIV);
     }
 
     waitForLiveEditVisible() {
-        return this.waitForElementDisplayed(lib.LIVE_EDIT_FRAME, appConst.mediumTimeout);
-    }
-
-    waitForLiveEditNotVisible() {
-        return this.waitForElementNotDisplayed(lib.LIVE_EDIT_FRAME, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(LIVE_VIEW.LIVE_EDIT_FRAME, appConst.mediumTimeout);
     }
 
     async getLiveFramePosition() {
-        let el = await this.findElement(lib.LIVE_EDIT_FRAME);
+        let el = await this.findElement(LIVE_VIEW.LIVE_EDIT_FRAME);
         let xValue = parseInt(await el.getLocation('x'));
         let yValue = parseInt(await el.getLocation('y'));
         return {x: xValue, y: yValue};
@@ -478,9 +474,9 @@ class ContentWizardPanel extends Page {
             return;
         }
 
-        await this.waitForElementDisplayed(this.displayNameControl, appConst.shortTimeout);
+        await this.waitForElementDisplayed(this.displayNameControl);
         await this.clickOnElement(this.displayNameControl);
-        await this.waitForElementDisplayed(this.displayNameInput, appConst.shortTimeout);
+        await this.waitForElementDisplayed(this.displayNameInput);
     }
 
     typeInPathInput(path) {
@@ -520,7 +516,7 @@ class ContentWizardPanel extends Page {
     }
 
     async waitForSavingButtonNotVisible() {
-        return await this.waitForElementNotDisplayed(this.savingButton, appConst.mediumTimeout);
+        return await this.waitForElementNotDisplayed(this.savingButton);
     }
 
     async clickOnDeleteButton() {
@@ -559,10 +555,10 @@ class ContentWizardPanel extends Page {
         await this.clickOnPublishMenuDropdownHandle();
         await this.pause(300);
     }
-    async waitForPublishMenuDropdownHandleDisabled(){
+
+    async waitForPublishMenuDropdownHandleDisabled() {
         await this.waitForElementDisabled(this.publishDropDownHandle);
     }
-
 
 
     async waitForPublishMenuItemDisabled(menuItem) {
@@ -571,7 +567,7 @@ class ContentWizardPanel extends Page {
         let role = await aa[0].getAttribute('role');
         let dd = await aa[0].getAttribute('aria-disabled');
 
-        await this.waitForAttributeHasValue(selector,'aria-disabled', 'true');
+        await this.waitForAttributeHasValue(selector, 'aria-disabled', 'true');
         //return await this.waitForAttributeHasValue(selector, 'aria-disabled', 'true');
 
     }
@@ -595,14 +591,8 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    // async waitForPublishMenuItemEnabled(menuItem) {
-    //     let selector = XPATH.publishMenuItemByName(menuItem);
-    //     await this.getAttribute(selector, 'aria-disabled');
-    //     return await this.waitForAttributeNotIncludesValue(selector, 'aria-disabled', 'true');
-    // }
-
     async waitForPublishMenuItemEnabled(menuItem) {
-        let selector =  XPATH.publishMenuItemByName(menuItem);
+        let selector = XPATH.publishMenuItemByName(menuItem);
         return await this.getBrowser().waitUntil(async () => {
             let ariaDisabled = await this.getAttribute(selector, 'aria-disabled');
             return !ariaDisabled || ariaDisabled !== 'true';
@@ -1232,12 +1222,7 @@ class ContentWizardPanel extends Page {
         await this.waitForAttributeIsPresent(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL);
     }
 
-    async waitForProjectViewerAriaLabelAttribute() {
-        let locator = XPATH.container + XPATH.projectViewerDiv;
-        await this.waitForAttributeIsPresent(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL);
-    }
-
-       async waitForPreviewWidgetDropdownDisplayed() {
+    async waitForPreviewWidgetDropdownDisplayed() {
         return await this.waitForElementDisplayed(this.previewWidgetDropdown);
     }
 

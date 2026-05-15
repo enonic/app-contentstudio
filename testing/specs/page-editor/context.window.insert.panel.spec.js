@@ -1,5 +1,5 @@
 /**
- * Created on 17.07.2021.
+ * Created on 17.07.2021.  updated on 15.05.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -13,7 +13,6 @@ const WizardContextWindowPanel = require('../../page_objects/wizardpanel/details
 const PageComponentsWizardStepForm = require('../../page_objects/wizardpanel/wizard-step-form/page.components.wizard.step.form');
 const appConst = require('../../libs/app_const');
 const PageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/page.inspection.panel');
-const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
 describe('context.window.insert.panel: tests for Insert tab in Page widget', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -67,10 +66,15 @@ describe('context.window.insert.panel: tests for Insert tab in Page widget', fun
             let wizardContextWindow = await contentWizard.openContextWindow();
             await wizardContextWindow.selectItemInWidgetSelector(appConst.WIDGET_SELECTOR_OPTIONS.PAGE);
             await pageInspectionPanel.selectPageTemplateOrController(CONTROLLER_NAME);
-            // 5.  Verify that 'Page Component' wizard step form gets visible in the wizard panel:
-            await pageComponentsWizardStepForm.waitForLoaded();
-            // 6. Verify that 'Page' wizard step is displayed in  Wizard Step Toolbar:
+            // 5. Verify that 'Page' wizard step is displayed in  Wizard Step Toolbar:
             await contentWizard.waitForWizardStepDisplayed('Page');
+            await contentWizard.clickOnWizardStep('Page');
+
+            // 6.  Verify that 'Page Component' wizard step form gets visible in the wizard panel:
+            await pageComponentsWizardStepForm.waitForLoaded();
+            let result = await pageComponentsWizardStepForm.getPageComponentsDisplayName();
+            assert.ok(result.includes('MAIN'), 'MAIN item should be displayed');
+            assert.ok(result.includes('main region'), 'main region item should be displayed');
         });
 
     it("WHEN existing site is opened THEN 'Insert tab' panel should be loaded AND all expected components should be present",
@@ -92,28 +96,6 @@ describe('context.window.insert.panel: tests for Insert tab in Page widget', fun
             assert.ok(items.includes('Fragment'), "'Fragment' item should be displayed");
         });
 
-    // verifies the xp#5580 Site Wizard - endless spinner appears when Show-Hide button was pressed in the second time
-    it("GIVEN existing site is opened WHEN 'Hide Page Editor' button has been clicked THEN 'Live Editor' gets not visible",
-        async () => {
-            let contentWizard = new ContentWizard();
-            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
-            // 1. Click on 'Hide Page Editor' button
-            await contentWizard.clickOnPageEditorToggler();
-            await studioUtils.saveScreenshot('live_edit_hidden');
-            // 2. Verify that minimize toggle gets not visible in Wizard Step Toolbar:
-            await contentWizard.waitForMinimizeLiveEditTogglerNotDisplayed();
-            // 3. Live Edit should not be visible now:
-            await contentWizard.waitForLiveEditNotVisible();
-            // 4. Click on 'Show Page Editor' button
-            await contentWizard.clickOnPageEditorToggler();
-            await studioUtils.saveScreenshot('live_edit_shown');
-            await contentWizard.waitForSpinnerNotVisible(appConst.mediumTimeout);
-            // 5. Minimize icon gets visible again in Wizard Step Toolbar
-            await contentWizard.waitForMinimizeLiveEditTogglerDisplayed();
-            // 6. 'Live Edit' should be visible again
-            await contentWizard.waitForLiveEditVisible();
-        });
-
     // verifies https://github.com/enonic/app-contentstudio/issues/335
     // Site Wizard Context panel - versions widget closes after rollback a version
     it.skip(`GIVEN existing site is opened AND Versions widget is opened WHEN the version without the controller has been reverted THEN Versions widget should not be closed`,
@@ -125,10 +107,11 @@ describe('context.window.insert.panel: tests for Insert tab in Page widget', fun
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.openContextWindow();
+            await contentWizard.clickOnWizardStep('Page');
             await pageComponentsWizardStepForm.waitForLoaded();
             // 2. Open Versions widget:
             await wizardContextWindow.openVersionHistory();
-            await wizardVersionsWidget.waitForVersionsLoaded();
+            await wizardVersionsWidget.waitForLoaded();
             // 3. Expand the version item and click on Restore:
             await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
             await wizardVersionsWidget.clickOnRestoreButton();

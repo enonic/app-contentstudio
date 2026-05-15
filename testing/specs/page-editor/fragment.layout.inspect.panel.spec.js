@@ -56,7 +56,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await pageInspectionPanel.selectPageTemplateOrController(MAIN_REGION_CONTROLLER);
             // 3. Click on minimize-toggle  expand Live Edit and open 'Page Component view' modal dialog:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
-            await pageComponentView.openMenu(MAIN_COMPONENT_NAME);
+            await pageComponentView.rightClickAndOpenContextMenu(MAIN_COMPONENT_NAME);
             await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.INSERT, 'Layout']);
             // 4. Verifies #6393: we keep 'Inspect panel' collapsed (or collapse it if it was expanded).
             // So need to open 'Inspect panel':
@@ -66,7 +66,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             let actualDescriptionLayout = await pageComponentView.getComponentDescription(LAYOUT_2_COL);
             assert.equal(actualDescriptionLayout, '2 column layout', 'Expected description should be displayed in the layout item');
             // 4. Verify that the site is automatically saved after selecting a layout in the dropdown:
-            await pageComponentView.openMenu(LAYOUT_2_COL);
+            await pageComponentView.rightClickAndOpenContextMenu(LAYOUT_2_COL);
             // 5. Click on 'Save as Fragment' menu item. (Save the layout as fragment)
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizardPanel.pause(2000);
@@ -99,13 +99,13 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             await studioUtils.selectAndOpenContentInWizard(SITE_1_NAME);
             // 2. Click on minimize-toggle expand Live Edit and show Page Component modal dialog:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
-            await pageComponentView.openMenu(MAIN_COMPONENT_NAME);
+            await pageComponentView.rightClickAndOpenContextMenu(MAIN_COMPONENT_NAME);
             await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.INSERT, 'Layout']);
             // 'Inspect panel' should be expanded in this case :
             await layoutInspectionPanel.typeNameAndSelectLayout(LAYOUT_3_COL);
             // 3. Verify that the site is automatically saved after selecting a layout in the dropdown:
             await contentWizardPanel.waitForNotificationMessage();
-            await pageComponentView.openMenu(LAYOUT_3_COL);
+            await pageComponentView.rightClickAndOpenContextMenu(LAYOUT_3_COL);
             // 4. Click on 'Save as Fragment' menu item. (Save the layout as fragment)
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizardPanel.pause(2000);
@@ -272,7 +272,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with invalid child 
             // 2. Click on minimize-toggle expand Live Edit and show Page Component modal dialog:
             await contentWizardPanel.clickOnMinimizeLiveEditToggler();
             // 3. Insert the fragment-component:
-            await pageComponentView.openMenu(MAIN_COMPONENT_NAME);
+            await pageComponentView.rightClickAndOpenContextMenu(MAIN_COMPONENT_NAME);
             await studioUtils.saveScreenshot('fragment_layout_inspection1');
             await pageComponentView.selectMenuItem([appConst.PCV_MENU_ITEM.INSERT, 'Fragment']);
             // 4. Verify that 'Edit Fragment' button is disabled

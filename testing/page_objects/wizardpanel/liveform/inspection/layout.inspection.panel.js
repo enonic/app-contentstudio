@@ -24,8 +24,8 @@ class LayoutInspectionPanel extends BaseComponentInspectionPanel {
 
     async typeNameAndSelectLayout(displayName) {
         try {
-            let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
-            await componentDescriptorsDropdown.selectFilteredComponent(displayName, xpath.container);
+            let componentDescriptorsDropdown = new ComponentDescriptorsDropdown(xpath.container);
+            await componentDescriptorsDropdown.selectFilteredComponent(displayName);
             return await this.pause(500);
         } catch (err) {
             await this.handleError('Layout Inspection Panel', 'err_layout_inspect_panel_dropdown', err);
@@ -34,7 +34,7 @@ class LayoutInspectionPanel extends BaseComponentInspectionPanel {
 
     async waitForOpened() {
         try {
-            return await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(xpath.container);
         } catch (err) {
             await this.handleError('Layout Inspection Panel was not loaded', 'err_load_layout_inspect_panel', err);
         }

@@ -39,7 +39,7 @@ describe('Save as Template specification', function () {
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Open the menu in the root element:
-            await pageComponentView.openMenu(COUNTRY_LIST_CONTROLLER);
+            await pageComponentView.rightClickAndOpenContextMenu(COUNTRY_LIST_CONTROLLER);
             // 4. Verify menu items
             await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_TEMPLATE);
             await pageComponentView.waitForMenuItemPresent(appConst.COMPONENT_VIEW_MENU_ITEMS.RESET);
@@ -56,7 +56,7 @@ describe('Save as Template specification', function () {
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Open the menu in the root element:
-            await pageComponentView.openMenu(COUNTRY_LIST_CONTROLLER);
+            await pageComponentView.rightClickAndOpenContextMenu(COUNTRY_LIST_CONTROLLER);
             await studioUtils.saveScreenshot(`save_as_template_0`);
             // 4. Click on 'Save as Template' menu item
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_TEMPLATE);
@@ -88,7 +88,7 @@ describe('Save as Template specification', function () {
             await pageComponentView.clickOnComponent(COUNTRY_LIST_CONTROLLER);
             await studioUtils.saveScreenshot('controller_inspection_panel');
             // 4. Click on 'Save as Template' menu item
-            await pageComponentView.openMenu(COUNTRY_LIST_CONTROLLER);
+            await pageComponentView.rightClickAndOpenContextMenu(COUNTRY_LIST_CONTROLLER);
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_TEMPLATE);
             await studioUtils.doSwitchToNextTab();
             // 5. Verify the path of new template that was opened in new browser tab:
