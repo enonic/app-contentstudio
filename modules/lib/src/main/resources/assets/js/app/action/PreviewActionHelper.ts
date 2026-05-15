@@ -3,8 +3,8 @@ import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
 import {type ContentSummary} from '../content/ContentSummary';
-import {ProjectContext} from '../project/ProjectContext';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper} from '../rendering/UriHelper';
 import {RepositoryId} from '../repository/RepositoryId';
@@ -66,7 +66,7 @@ export class PreviewActionHelper {
             contentPath: content.getPath().toString(),
             contentId: content.getContentId().toString(),
             type: content.getType().toString(),
-            repo: `${RepositoryId.CONTENT_REPO_PREFIX}${ProjectContext.get().getProject().getName()}`,
+            repo: `${RepositoryId.CONTENT_REPO_PREFIX}${getActiveProjectName()}`,
             branch: CONFIG.getString('branch'),
             mode,
             cb: Date.now().toString()

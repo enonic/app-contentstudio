@@ -26,7 +26,7 @@ export class ContentEventsProcessor {
             .forEach((contentSummary: ContentSummary) => {
             const editParams: ContentEditParams = ContentEditParams.create()
                 .setContentId(contentSummary.getContentId())
-                .setProject(event.getProject())
+                .setProjectName(event.getProjectName())
                 .setLocalized(event.isLocalized())
                 .setDisplayAsNew(event.isDisplayAsNew())
                 .build();

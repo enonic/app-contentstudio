@@ -37,7 +37,7 @@ import {getCursorPosition, setupEditor, setupEditorUi, type DialogOverrides} fro
 import {useCKEditorConfig} from '../../../../../../shared/form/input-types/html-area/useCKEditorConfig';
 import {$contextContent} from '../../../../../../store/context/contextContent.store';
 import {requestUpdateTextComponent} from '../../../../../../store/page-editor';
-import {$activeProject} from '../../../../../../store/projects.store';
+import {$activeProject} from '../../../../../../store/activeProject.store';
 import {useApplicationKeys} from '../../../../../../hooks/useApplicationKeys';
 import {useInspectTextTracking} from './useInspectTextTracking';
 

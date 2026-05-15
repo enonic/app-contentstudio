@@ -10,7 +10,6 @@ import {Permission} from '../../../access/Permission';
 import {type Content} from '../../../content/Content';
 import {ContentInheritType} from '../../../content/ContentInheritType';
 import {type ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
-import {ProjectContext} from '../../../project/ProjectContext';
 import {ContentsExistRequest} from '../../../resource/ContentsExistRequest';
 import {type ContentsExistResult} from '../../../resource/ContentsExistResult';
 import {ContentSummaryAndCompareStatusFetcher} from '../../../resource/ContentSummaryAndCompareStatusFetcher';
@@ -26,6 +25,7 @@ import {OpenSortDialogEvent} from '../../OpenSortDialogEvent';
 import {SortContentTabMenu} from '../menu/SortContentTabMenu';
 import {type SortContentTabMenuItem} from '../menu/SortContentTabMenuItem';
 import {SortContentTreeGrid} from '../SortContentTreeGrid';
+import {getActiveProject} from '../../../../v6/features/store/activeProject.store';
 
 export class SortContentDialog
     extends ModalDialog {
@@ -175,7 +175,7 @@ export class SortContentDialog
     }
 
     private addInheritedOptionIfParentExists() {
-        const hasParents = ProjectContext.get().getProject().hasParents();
+        const hasParents = getActiveProject().hasParents();
 
         if (hasParents) {
             this.fetchParentLayerContent().then((parentLayerContent: ContentSummaryAndCompareStatus) => {
@@ -192,7 +192,7 @@ export class SortContentDialog
 
     private fetchParentLayerContent(): Q.Promise<ContentSummaryAndCompareStatus> {
         // TODO: Projects. Fix. May calculate to invalid project
-        const parentProject: string = ProjectContext.get().getProject().getMainParent();
+        const parentProject: string = getActiveProject().getMainParent();
 
         return new ContentsExistRequest([this.selectedContent.getId()])
             .setRequestProjectName(parentProject)

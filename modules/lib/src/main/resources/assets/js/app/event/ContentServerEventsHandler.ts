@@ -8,7 +8,6 @@ import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndC
 import {Branch} from '../versioning/Branch';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {type ContentServerChangeItem} from './ContentServerChangeItem';
-import {ProjectContext} from '../project/ProjectContext';
 import {RepositoryId} from '../repository/RepositoryId';
 import {type ContentId} from '../content/ContentId';
 import {type ContentPath} from '../content/ContentPath';
@@ -16,6 +15,7 @@ import {ArchiveServerEvent} from './ArchiveServerEvent';
 import {PermissionsServerEvent} from './PermissionsServerEvent';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {MovedContentItem} from '../browse/MovedContentItem';
+import {isProjectInitialized} from '../../v6/features/store/activeProject.store';
 
 export const CONTENT_SERVER_EVENTS_HANDLER_KEY: string = 'ContentServerEventsHandler';
 
@@ -407,7 +407,7 @@ export class ContentServerEventsHandler {
             console.debug('ContentServerEventsHandler: received server event', event);
         }
 
-        if (!ProjectContext.get().isInitialized()) {
+        if (!isProjectInitialized()) {
             return;
         }
 

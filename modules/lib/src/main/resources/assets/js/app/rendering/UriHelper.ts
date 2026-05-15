@@ -2,9 +2,9 @@ import {RenderingMode} from './RenderingMode';
 import {Branch} from '../versioning/Branch';
 import {type ComponentPath} from '../page/region/ComponentPath';
 import {UriHelper as LibUriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
-import {ProjectContext} from '../project/ProjectContext';
 import {Path} from '@enonic/lib-admin-ui/rest/Path';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
 
 export class UriHelper {
 
@@ -21,14 +21,14 @@ export class UriHelper {
 
     public static getPortalUri(path: string, renderingMode: RenderingMode, branch: Branch = Branch.DRAFT): string {
         const relPath: string = LibUriHelper.relativePath(path);
-        const project: string = ProjectContext.get().getProject().getName();
+        const project: string = getActiveProjectName();
         const uri: string = [renderingMode, project, branch, relPath].join(Path.DEFAULT_ELEMENT_DIVIDER);
 
         return UriHelper.addSitePrefix(uri);
     }
 
     public static getPathFromPortalInlineUri(portalUri: string, renderingMode: RenderingMode, branch: Branch = Branch.DRAFT): string {
-        const project: string = ProjectContext.get().getProject().getName();
+        const project: string = getActiveProjectName();
         const searchEntry: string = [renderingMode, project, branch].join(Path.DEFAULT_ELEMENT_DIVIDER);
 
         const index = portalUri.indexOf(searchEntry);

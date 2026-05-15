@@ -3,8 +3,8 @@ import {GetIssuesRequest} from '../resource/GetIssuesRequest';
 import {type Issue} from '../Issue';
 import {IssueServerEvent} from '../../event/IssueServerEvent';
 import {type IssueServerChangeItem} from '../../event/IssueServerChangeItem';
-import {ProjectContext} from '../../project/ProjectContext';
 import {RepositoryId} from '../../repository/RepositoryId';
+import {isProjectInitialized} from '../../../v6/features/store/activeProject.store';
 
 export class IssueServerEventsHandler {
     private static INSTANCE: IssueServerEventsHandler = new IssueServerEventsHandler();
@@ -44,7 +44,7 @@ export class IssueServerEventsHandler {
             console.debug('IssueServerEventsHandler: received server event', event);
         }
 
-        if (!ProjectContext.get().isInitialized()) {
+        if (!isProjectInitialized()) {
             return;
         }
 

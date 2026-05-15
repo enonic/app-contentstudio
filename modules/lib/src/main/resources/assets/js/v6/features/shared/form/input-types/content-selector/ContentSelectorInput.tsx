@@ -1,7 +1,7 @@
 import type {SelfManagedComponentProps} from '@enonic/lib-admin-ui/form2';
 import type {ReactElement} from 'react';
 import {useStore} from '@nanostores/preact';
-import {$activeProject} from '../../../../store/projects.store';
+import {$activeProject} from '../../../../store/activeProject.store';
 import {useSelectorInput} from '../hooks';
 import {useFormRender} from '../../FormRenderContext';
 import {ContentCombobox} from '../../../selectors/content';

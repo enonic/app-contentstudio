@@ -9,12 +9,12 @@ import {type Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {getActiveProjectName, whenProjectInitialized} from '../../v6/features/store/activeProject.store';
 import {type CompareStatus} from '../content/CompareStatus';
 import {type Content} from '../content/Content';
 import {ContentRequiresSaveEvent} from '../event/ContentRequiresSaveEvent';
 import {type ContentType} from '../inputtype/schema/ContentType';
 import {ComponentPath} from '../page/region/ComponentPath';
-import {ProjectContext} from '../project/ProjectContext';
 import {GetLocalesRequest} from '../resource/GetLocalesRequest';
 import {type ContentWizardHeader} from '../wizard/ContentWizardHeader';
 import {PageEventsManager} from '../wizard/PageEventsManager';
@@ -118,7 +118,7 @@ export class AI {
                 wsServiceUrl: CONFIG.getString('services.aiTranslatorWsServiceUrl')
             });
 
-            ProjectContext.get().whenInitialized(() => {
+            whenProjectInitialized(() => {
                 new AiUpdateDataEvent({language: this.createContentLanguage()}).fire();
 
                 void new GetLocalesRequest().sendAndParse().then((locales) => {
@@ -325,7 +325,7 @@ export class AI {
             contentPath: this.content.getPath().toString(),
             fields: this.content.getContentData().toJson(),
             topic: this.content.getDisplayName(),
-            project: ProjectContext.get().getProject().getName(),
+            project: getActiveProjectName(),
         });
     }
 

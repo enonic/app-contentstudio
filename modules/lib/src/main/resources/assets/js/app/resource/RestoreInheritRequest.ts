@@ -1,9 +1,9 @@
 import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {ProjectContext} from '../project/ProjectContext';
 import {ContentInheritType} from '../content/ContentInheritType';
 import {type ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import {getActiveProjectName} from '../../v6/features/store/activeProject.store';
 
 export class RestoreInheritRequest
     extends CmsContentResourceRequest<void> {
@@ -38,7 +38,7 @@ export class RestoreInheritRequest
     getParams(): object {
         return {
             contentId: this.contentId.toString(),
-            project: this.projectToUpdate ? this.projectToUpdate : ProjectContext.get().getProject().getName(),
+            project: this.projectToUpdate ? this.projectToUpdate : getActiveProjectName(),
             inherit: this.inherit
         };
     }

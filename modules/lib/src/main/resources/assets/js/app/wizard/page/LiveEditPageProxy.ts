@@ -23,9 +23,9 @@ import {PageNavigationMediator} from '../PageNavigationMediator';
 import {PageState} from './PageState';
 import {type PageUpdatedEvent} from '../../page/event/PageUpdatedEvent';
 import {PartComponentType} from '../../page/region/PartComponentType';
-import {ProjectContext} from '../../project/ProjectContext';
 import {SessionStorageHelper} from '../../util/SessionStorageHelper';
 import {TextComponentType} from '../../page/region/TextComponentType';
+import {getActiveProject} from '../../../v6/features/store/activeProject.store';
 import {type LiveEditModel} from '../../../page-editor/LiveEditModel';
 import {ComponentViewDragStartedEvent} from '../../../page-editor/event/ComponentViewDragStartedEvent';
 import {ComponentViewDragStoppedEvent} from '../../../page-editor/event/ComponentViewDragStoppedEvent';
@@ -311,7 +311,7 @@ export class LiveEditPageProxy
         }
 
         // if is root non-site content then get application keys from project, e.g. headless content items
-        return ProjectContext.get().getProject()?.getSiteConfigs()?.map((config) => config.getApplicationKey().toString()) || [];
+        return getActiveProject()?.getSiteConfigs()?.map((config) => config.getApplicationKey().toString()) || [];
     }
 
     isLocked(): boolean {

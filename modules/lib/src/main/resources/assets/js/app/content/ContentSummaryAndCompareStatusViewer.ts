@@ -2,12 +2,11 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {type ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
 import {ExtendedViewer} from '../view/ExtendedViewer';
-import {ProjectContext} from '../project/ProjectContext';
 import {ContentIconUrlResolver} from './ContentIconUrlResolver';
 import {type ContentSummary} from './ContentSummary';
 import {type ContentName} from './ContentName';
 import {ContentPath} from './ContentPath';
-import {type Workflow} from './Workflow';
+import {getActiveProject} from '../../v6/features/store/activeProject.store';
 
 export class ContentSummaryAndCompareStatusViewer
     extends ExtendedViewer<ContentSummaryAndCompareStatus> {
@@ -112,7 +111,7 @@ export class ContentSummaryAndCompareStatusViewer
     }
 
     protected resolveSecondaryName(object: ContentSummaryAndCompareStatus): string {
-        const projectLang: string = ProjectContext.get().getProject().getLanguage();
+        const projectLang: string = getActiveProject().getLanguage();
 
         if (!projectLang) {
             return '';

@@ -21,11 +21,11 @@ import {Class} from '@enonic/lib-admin-ui/Class';
 import {UrlAction} from '../../UrlAction';
 import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
-import {ProjectContext} from '../../project/ProjectContext';
 import {Branch} from '../../versioning/Branch';
 import {type ContentSummary} from '../../content/ContentSummary';
 import {type SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {getActiveProjectName} from '../../../v6/features/store/activeProject.store';
 
 export class CustomSelector
     extends BaseInputTypeManagingAdd {
@@ -157,7 +157,7 @@ export class CustomSelector
 
     private getRequestPath(): string {
         const contentId: string = `/${this.content?.getId() || 'undefined'}`;
-        const projectId: string = this.context.project?.getName() || ProjectContext.get().getProject().getName();
+        const projectId: string = this.context.project?.getName() || getActiveProjectName();
         return StringHelper.format(this.requestPath, projectId, contentId);
     }
 

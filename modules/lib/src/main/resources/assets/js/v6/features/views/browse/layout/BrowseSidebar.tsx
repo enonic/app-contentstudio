@@ -9,7 +9,8 @@ import {DefaultProjectIcon} from '../../../shared/icons/DefaultProjectIcon';
 import {ProjectIcon} from '../../../shared/icons/ProjectIcon';
 import {LegacyElement} from '../../../shared/LegacyElement';
 import {WidgetButton} from '../../../shared/WidgetButton';
-import {$activeProject, $noProjectMode} from '../../../store/projects.store';
+import {$activeProject} from '../../../store/activeProject.store';
+import {$noProjectMode} from '../../../store/projects.store';
 import {$sidebarWidgets, getSettingsWidget, getWidgetKey, isMainWidget, isSettingsWidget, setActiveWidget} from '../../../store/sidebarWidgets.store';
 
 function getWidgetIcon(widget: Readonly<Extension>): LucideIcon | undefined {
