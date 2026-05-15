@@ -58,6 +58,7 @@ export const CustomSelectorInput = ({
 
     // Constants
     const resolvedSelectionMode = occurrences.getMaximum() === 1 ? 'single' : 'staged';
+    const canAdd = occurrences.getMaximum() === 0 || values.length < occurrences.getMaximum();
     const resolvedListMode = config.galleryMode ? 'flat' : 'list';
     const resolvedPopupLabel = useMemo(() => {
         if (!config.extension && !config.service) return noExtensionOrServiceLabel;
@@ -91,43 +92,45 @@ export const CustomSelectorInput = ({
 
     return (
         <div data-component={CUSTOM_SELECTOR_INPUT_NAME} className="flex flex-col gap-2.5">
-            <Combobox.Root
-                value={inputValue}
-                onChange={setInputValue}
-                selection={selection}
-                onSelectionChange={onSelectionChange}
-                selectionMode={resolvedSelectionMode}
-                disabled={disabled}
-                error={resolvedHasErrors}
-                contentType="listbox"
-            >
-                <Combobox.Content>
-                    <Combobox.Control>
-                        <Combobox.Search>
-                            <Combobox.SearchIcon />
-                            <Combobox.Input placeholder={placeholder} />
-                            {resolvedSelectionMode === 'staged' && <Combobox.Apply />}
-                            <Combobox.Toggle />
-                        </Combobox.Search>
-                    </Combobox.Control>
+            {canAdd && (
+                <Combobox.Root
+                    value={inputValue}
+                    onChange={setInputValue}
+                    selection={selection}
+                    onSelectionChange={onSelectionChange}
+                    selectionMode={resolvedSelectionMode}
+                    disabled={disabled}
+                    error={resolvedHasErrors}
+                    contentType="listbox"
+                >
+                    <Combobox.Content>
+                        <Combobox.Control>
+                            <Combobox.Search>
+                                <Combobox.SearchIcon />
+                                <Combobox.Input placeholder={placeholder} />
+                                {resolvedSelectionMode === 'staged' && <Combobox.Apply />}
+                                <Combobox.Toggle />
+                            </Combobox.Search>
+                        </Combobox.Control>
 
-                    <Combobox.Portal>
-                        <Combobox.Popup>
-                            {resolvedPopupLabel && <div className="p-4 text-subtle">{resolvedPopupLabel}</div>}
-                            {!hasError && filteredItems.length > 0 && (
-                                <CustomSelectorInputComboboxList
-                                    items={filteredItems}
-                                    selectionMode={resolvedSelectionMode}
-                                    listMode={resolvedListMode}
-                                    isLoading={isLoading}
-                                    onLoadMore={load}
-                                    hasMore={hasMore}
-                                />
-                            )}
-                        </Combobox.Popup>
-                    </Combobox.Portal>
-                </Combobox.Content>
-            </Combobox.Root>
+                        <Combobox.Portal>
+                            <Combobox.Popup>
+                                {resolvedPopupLabel && <div className="p-4 text-subtle">{resolvedPopupLabel}</div>}
+                                {!hasError && filteredItems.length > 0 && (
+                                    <CustomSelectorInputComboboxList
+                                        items={filteredItems}
+                                        selectionMode={resolvedSelectionMode}
+                                        listMode={resolvedListMode}
+                                        isLoading={isLoading}
+                                        onLoadMore={load}
+                                        hasMore={hasMore}
+                                    />
+                                )}
+                            </Combobox.Popup>
+                        </Combobox.Portal>
+                    </Combobox.Content>
+                </Combobox.Root>
+            )}
 
             <SortableGridList
                 items={selectedContents}
