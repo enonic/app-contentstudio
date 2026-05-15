@@ -12,11 +12,13 @@ export const ImageSelectorInput = (props: SelfManagedComponentProps<ImageSelecto
 
     const allowedContentPaths = props.config.allowPath;
     const disabled = !props.enabled;
+    const canAdd = props.occurrences.getMaximum() === 0 || props.values.length < props.occurrences.getMaximum();
 
     return (
         <ImageSelector
             selection={selection}
             onSelectionChange={handleSelectionChange}
+            canAdd={canAdd}
             selectionMode={selectionMode}
             placeholder={placeholder}
             emptyLabel={emptyLabel}
