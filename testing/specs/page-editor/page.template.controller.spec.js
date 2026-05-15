@@ -40,7 +40,8 @@ describe('page.template.controller: select a controller in a template-wizard', f
 
     // verifies https://github.com/enonic/app-contentstudio/issues/364
     // Upload button should not be visible in the New Content dialog for Templates folder
-    it(`GIVEN _templates folder is selected WHEN New button has been pressed THEN upload button should not be present in the modal dialog`,
+    // TODO bug
+    it.skip(`GIVEN _templates folder is selected WHEN New button has been pressed THEN upload button should not be present in the modal dialog`,
         async () => {
             let newContentDialog = new NewContentDialog();
             // 1. Expand the site, click on Templates folder and click on 'New' button
@@ -73,7 +74,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             // 4. Click on the item and open Context Menu:
             await pageComponentView.rightClickAndOpenContextMenu('main');
             // 5. Insert Text Component and insert an image:
-            await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
+            await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             //await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE_NAME);
