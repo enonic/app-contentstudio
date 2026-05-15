@@ -33,33 +33,40 @@ export const ContentSelectorInput = (props: SelfManagedComponentProps<ContentSel
     const contentTypeNames = props.config.allowContentType;
     const allowedContentPaths = props.config.allowPath;
     const disabled = !props.enabled;
+    const canAdd = props.occurrences.getMaximum() === 0 || props.values.length < props.occurrences.getMaximum();
 
     return (
         <div className="flex flex-col gap-2.5">
-            <div className="flex items-center">
-                <ContentCombobox
-                    selection={selection}
-                    onSelectionChange={handleSelectionChange}
-                    selectionMode={selectionMode}
-                    placeholder={placeholder}
-                    emptyLabel={emptyLabel}
-                    error={hasErrors}
-                    hideToggleIcon={hideToggleIcon}
-                    contentTypeNames={contentTypeNames}
-                    allowedContentPaths={allowedContentPaths}
-                    contextContent={selectorContextContent}
-                    applicationKey={applicationKey}
-                    listMode={listMode}
-                    disabled={disabled}
-                    rowRenderer={ContentRow}
-                    className="w-full focus-within:z-10"
-                    closeOnBlur
-                    withRightButton
-                />
-                <div className="flex items-center justify-center self-stretch">
-                    <ContentSelectorInputAddButton disabled={disabled} selection={selection} onSelectionChange={handleSelectionChange} />
+            {canAdd && (
+                <div className="flex items-center">
+                    <ContentCombobox
+                        selection={selection}
+                        onSelectionChange={handleSelectionChange}
+                        selectionMode={selectionMode}
+                        placeholder={placeholder}
+                        emptyLabel={emptyLabel}
+                        error={hasErrors}
+                        hideToggleIcon={hideToggleIcon}
+                        contentTypeNames={contentTypeNames}
+                        allowedContentPaths={allowedContentPaths}
+                        contextContent={selectorContextContent}
+                        applicationKey={applicationKey}
+                        listMode={listMode}
+                        disabled={disabled}
+                        rowRenderer={ContentRow}
+                        className="w-full focus-within:z-10"
+                        closeOnBlur
+                        withRightButton
+                    />
+                    <div className="flex items-center justify-center self-stretch">
+                        <ContentSelectorInputAddButton
+                            disabled={disabled}
+                            selection={selection}
+                            onSelectionChange={handleSelectionChange}
+                        />
+                    </div>
                 </div>
-            </div>
+            )}
 
             <SelectorSelection
                 selection={selection}

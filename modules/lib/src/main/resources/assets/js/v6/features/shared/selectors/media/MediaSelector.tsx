@@ -16,6 +16,8 @@ export type MediaSelectorProps = {
     'selection': readonly string[];
     /** Callback when selection changes */
     'onSelectionChange': (selection: readonly string[]) => void;
+    /** Whether the selector can add more items */
+    'canAdd'?: boolean;
     /** Selection mode */
     'selectionMode'?: MediaSelectorMode;
     /** List mode */
@@ -63,6 +65,7 @@ const MEDIA_SELECTOR_CONTENT_TYPE_NAMES = [
 export const MediaSelector = ({
     selection,
     onSelectionChange,
+    canAdd = true,
     selectionMode = 'multiple',
     listMode,
     closeOnBlur = false,
@@ -89,37 +92,39 @@ export const MediaSelector = ({
             {/* TODO: Add htmlFor to associate label with combobox input */}
             {label && <label className="text-md font-semibold">{label}</label>}
 
-            <div className="flex items-center">
-                <ContentCombobox
-                    selection={selection}
-                    onSelectionChange={onSelectionChange}
-                    selectionMode={selectionMode}
-                    listMode={listMode}
-                    closeOnBlur={closeOnBlur}
-                    disabled={disabled}
-                    placeholder={placeholder}
-                    emptyLabel={emptyLabel}
-                    aria-label={ariaLabel}
-                    error={error}
-                    hideToggleIcon={hideToggleIcon}
-                    rowRenderer={ContentRow}
-                    contentTypeNames={resolvedContentTypeNames}
-                    allowedContentPaths={allowedContentPaths}
-                    contextContent={contextContent}
-                    applicationKey={applicationKey}
-                    className="w-full focus-within:z-10"
-                    withRightButton={withUpload}
-                />
-                {withUpload && (
-                    <SelectorUploadButton
+            {canAdd && (
+                <div className="flex items-center">
+                    <ContentCombobox
                         selection={selection}
                         onSelectionChange={onSelectionChange}
+                        selectionMode={selectionMode}
+                        listMode={listMode}
+                        closeOnBlur={closeOnBlur}
                         disabled={disabled}
-                        multiple={selectionMode === 'multiple'}
-                        accept={acceptMimeTypes}
+                        placeholder={placeholder}
+                        emptyLabel={emptyLabel}
+                        aria-label={ariaLabel}
+                        error={error}
+                        hideToggleIcon={hideToggleIcon}
+                        rowRenderer={ContentRow}
+                        contentTypeNames={resolvedContentTypeNames}
+                        allowedContentPaths={allowedContentPaths}
+                        contextContent={contextContent}
+                        applicationKey={applicationKey}
+                        className="w-full focus-within:z-10"
+                        withRightButton={withUpload}
                     />
-                )}
-            </div>
+                    {withUpload && (
+                        <SelectorUploadButton
+                            selection={selection}
+                            onSelectionChange={onSelectionChange}
+                            disabled={disabled}
+                            multiple={selectionMode === 'multiple'}
+                            accept={acceptMimeTypes}
+                        />
+                    )}
+                </div>
+            )}
 
             <SelectorSelection
                 selection={selection}
