@@ -280,14 +280,14 @@ public final class ProjectResource
 
     private CreateProjectParams createParams( final CreateProjectParamsJson json )
     {
-        final boolean isPublic = json.getReadAccess() != null && ProjectReadAccessType.PUBLIC.equals( json.getReadAccess().getType() );
+        final boolean publicRead = json.getReadAccess() != null && ProjectReadAccessType.PUBLIC.equals( json.getReadAccess().getType() );
 
         final CreateProjectParams.Builder paramsBuilder = CreateProjectParams.create()
             .name( json.getName() )
             .displayName( json.getDisplayName() )
             .description( json.getDescription() )
             .addParents( json.getParents() )
-            .isPublic( isPublic )
+            .publicRead( publicRead )
             .forceInitialization( true );
 
         json.getApplicationConfigs().stream().forEach( paramsBuilder::addSiteConfig );
