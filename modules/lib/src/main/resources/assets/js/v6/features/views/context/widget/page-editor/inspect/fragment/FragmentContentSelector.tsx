@@ -21,11 +21,19 @@ export const FragmentContentSelector = (): ReactElement | null => {
 
     const label = useI18n('field.fragment');
     const searchPlaceholder = useI18n('field.option.placeholder');
+    const notFoundLabel = useI18n('field.fragments.notFound');
 
     if (isLoading) return null;
 
     if (isEmpty) {
-        return <p className="text-subtle font-semibold leading-5.5 truncate">{label}</p>;
+        return (
+            <div className="flex flex-col gap-2" data-component={FRAGMENT_CONTENT_SELECTOR_NAME}>
+                <span className="font-semibold">{label}</span>
+                <small className="text-sm leading-4.5 text-subtle truncate w-full group-data-[tone=inverse]:text-alt">
+                    {notFoundLabel}
+                </small>
+            </div>
+        );
     }
 
     return (

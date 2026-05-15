@@ -5,6 +5,7 @@ import {DescriptorBasedComponent} from '../../../../../../../../../app/page/regi
 import {useI18n} from '../../../../../../../hooks/useI18n';
 import {$inspectedItem, requestSetComponentDescriptor} from '../../../../../../../store/page-editor';
 import {
+    $componentConfigDescriptor,
     $isComponentInspectionLoading,
     $layoutDescriptorOptions,
     $partDescriptorOptions,
@@ -15,6 +16,7 @@ export type ComponentOption = {
     key: string;
     label: string;
     description: string;
+    isInvalid?: boolean;
 };
 
 const compareOptionsByLabel = (a: ComponentOption, b: ComponentOption): number =>
@@ -37,21 +39,40 @@ export function useComponentDescriptorSelector(componentType: 'part' | 'layout')
     const partDescriptors = useStore($partDescriptorOptions);
     const layoutDescriptors = useStore($layoutDescriptorOptions);
     const selectedKey = useStore($selectedComponentDescriptorKey);
+    const cachedDescriptor = useStore($componentConfigDescriptor);
     const isLoading = useStore($isComponentInspectionLoading);
 
     const noDescriptionLabel = useI18n('text.noDescription');
+    const notFoundLabel = useI18n('notify.component.descriptor.notfound');
 
     const [searchValue, setSearchValue] = useState<string | undefined>();
 
     const descriptors = componentType === 'part' ? partDescriptors : layoutDescriptors;
 
     const options = useMemo((): ComponentOption[] => {
-        return descriptors.map(d => ({
+        const real = descriptors.map(d => ({
             key: d.getKey().toString(),
             label: d.getDisplayName(),
             description: d.getDescription() || noDescriptionLabel,
         }));
-    }, [descriptors, noDescriptionLabel]);
+
+        if (!selectedKey || real.some(o => o.key === selectedKey)) {
+            return real;
+        }
+
+        const cachedMatchesKey = cachedDescriptor?.getKey().toString() === selectedKey;
+        const fallbackLabel = cachedMatchesKey
+            ? cachedDescriptor.getDisplayName()
+            : DescriptorKey.fromString(selectedKey).getName().toString();
+
+        const invalidOption: ComponentOption = {
+            key: selectedKey,
+            label: fallbackLabel,
+            description: notFoundLabel,
+            isInvalid: true,
+        };
+        return [invalidOption, ...real];
+    }, [descriptors, selectedKey, cachedDescriptor, noDescriptionLabel, notFoundLabel]);
 
     const filteredOptions = useMemo(() => {
         if (!searchValue) return options.toSorted(compareOptionsByLabel);
