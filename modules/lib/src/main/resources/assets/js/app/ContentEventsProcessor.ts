@@ -22,8 +22,10 @@ export class ContentEventsProcessor {
     }
 
     static handleEdit(event: EditContentEvent): void {
-        event.getModels()
-            .forEach((contentSummary: ContentSummary) => {
+        const models = event.getModels();
+        const openInSameTab = models.length === 1;
+
+        models.forEach((contentSummary: ContentSummary) => {
             const editParams: ContentEditParams = ContentEditParams.create()
                 .setContentId(contentSummary.getContentId())
                 .setProjectName(event.getProjectName())
@@ -31,7 +33,11 @@ export class ContentEventsProcessor {
                 .setDisplayAsNew(event.isDisplayAsNew())
                 .build();
 
-            ContentUrlHelper.openEditContentTab(editParams);
+            if (openInSameTab) {
+                ContentUrlHelper.openEditContentInCurrentTab(editParams);
+            } else {
+                ContentUrlHelper.openEditContentTab(editParams);
+            }
         });
     }
 
