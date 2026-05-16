@@ -3,8 +3,10 @@ import {useStore} from '@nanostores/preact';
 import {Box, Columns2, PenLine, Puzzle} from 'lucide-react';
 import {type ReactElement, type ReactNode, useCallback} from 'react';
 import {SaveAsTemplateAction} from '../../../../../../app/wizard/action/SaveAsTemplateAction';
+import {FragmentComponent} from '../../../../../../app/page/region/FragmentComponent';
 import {ComponentPath} from '../../../../../../app/page/region/ComponentPath';
 import {ComponentType} from '../../../../../../app/page/region/ComponentType';
+import {ContentUrlHelper} from '../../../../../../app/util/ContentUrlHelper';
 import {PageNavigationEvent} from '../../../../../../app/wizard/PageNavigationEvent';
 import {PageNavigationEventData} from '../../../../../../app/wizard/PageNavigationEventData';
 import {PageNavigationEventType} from '../../../../../../app/wizard/PageNavigationEventType';
@@ -16,12 +18,13 @@ import {
     inspectItem,
     requestComponentAdd,
     requestComponentCreateFragment,
+    requestComponentDetachFragment,
     requestComponentDuplicate,
     requestComponentRemove,
     requestComponentReset,
     requestPageReset,
 } from '../../../../store/page-editor/commands';
-import {$contentContext, $isFragment} from '../../../../store/page-editor/store';
+import {$contentContext, $isFragment, $page} from '../../../../store/page-editor/store';
 import {$componentsTreeState, expandComponentNode, hasLayoutAncestor, rebuildComponentsTree} from './pageComponents.store';
 import type {PageComponentNodeData} from './types';
 
@@ -53,6 +56,8 @@ export const PageComponentsContextMenu = ({node, children}: PageComponentsContex
     const removeLabel = useI18n('action.component.remove');
     const duplicateLabel = useI18n('action.component.duplicate');
     const saveAsFragmentLabel = useI18n('action.component.create.fragment');
+    const detachFragmentLabel = useI18n('action.component.detach.fragment');
+    const editFragmentLabel = useI18n('action.editFragment');
     const saveAsTemplateLabel = useI18n('action.saveAsTemplate');
 
     if (data == null) {
@@ -96,6 +101,8 @@ export const PageComponentsContextMenu = ({node, children}: PageComponentsContex
                             <RemoveItem nodeId={node.id} label={removeLabel} />
                             <DuplicateItem nodeId={node.id} label={duplicateLabel} />
                             {!isFragmentComponent && <SaveAsFragmentItem nodeId={node.id} label={saveAsFragmentLabel} />}
+                            {isFragmentComponent && <DetachFragmentItem nodeId={node.id} label={detachFragmentLabel} />}
+                            {isFragmentComponent && <EditFragmentItem nodeId={node.id} label={editFragmentLabel} />}
                         </>
                     )}
                 </ContextMenu.Content>
@@ -250,6 +257,42 @@ const SaveAsFragmentItem = ({nodeId, label}: MenuItemProps): ReactElement => {
 };
 
 SaveAsFragmentItem.displayName = 'SaveAsFragmentItem';
+
+const DetachFragmentItem = ({nodeId, label}: MenuItemProps): ReactElement => {
+    const handleSelect = useCallback(() => {
+        requestComponentDetachFragment(ComponentPath.fromString(nodeId));
+    }, [nodeId]);
+
+    return (
+        <ContextMenu.Item onSelect={handleSelect}>
+            {label}
+        </ContextMenu.Item>
+    );
+};
+
+DetachFragmentItem.displayName = 'DetachFragmentItem';
+
+const EditFragmentItem = ({nodeId, label}: MenuItemProps): ReactElement | null => {
+    const page = $page.get();
+    const component = page?.getComponentByPath(ComponentPath.fromString(nodeId)) ?? null;
+    const fragmentId = component instanceof FragmentComponent ? component.getFragment() : null;
+
+    const handleSelect = useCallback(() => {
+        if (fragmentId) {
+            ContentUrlHelper.openEditContentTab(fragmentId);
+        }
+    }, [fragmentId]);
+
+    if (!fragmentId) return null;
+
+    return (
+        <ContextMenu.Item onSelect={handleSelect}>
+            {label}
+        </ContextMenu.Item>
+    );
+};
+
+EditFragmentItem.displayName = 'EditFragmentItem';
 
 //
 // * Insert submenu

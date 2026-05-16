@@ -26,6 +26,7 @@ export {
     requestReloadComponent,
     requestComponentDuplicate,
     requestComponentCreateFragment,
+    requestComponentDetachFragment,
     requestComponentMove,
     inspectItem,
     clearInspection,
