@@ -91,6 +91,10 @@ export function requestComponentCreateFragment(path: ComponentPath): void {
     PageEventsManager.get().notifyComponentCreateFragmentRequested(path);
 }
 
+export function requestComponentDetachFragment(path: ComponentPath): void {
+    PageEventsManager.get().notifyComponentDetachFragmentRequested(path);
+}
+
 export function requestComponentMove(from: ComponentPath, to: ComponentPath): void {
     PageEventsManager.get().notifyComponentMoveRequested(from, to);
 }
