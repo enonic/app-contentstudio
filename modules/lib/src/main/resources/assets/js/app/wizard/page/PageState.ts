@@ -23,6 +23,8 @@ import {DescriptorBasedComponent} from '../../page/region/DescriptorBasedCompone
 import {TextComponent} from '../../page/region/TextComponent';
 import {GetComponentDescriptorRequest} from '../../resource/GetComponentDescriptorRequest';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {type Descriptor} from '../../page/Descriptor';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {PageHelper} from '../../util/PageHelper';
@@ -312,6 +314,12 @@ export class PageStateEventHandler {
                     const event = new ComponentFragmentCreatedEvent(fragmentComponent, fragmentContent, path.getPath() as number);
 
                     parentItem.addComponentViaEvent(event);
+
+                    const fragmentName = fragmentComponent.getName().toString();
+                    const fragmentType = fragmentContent.getPage()?.getFragment()?.getType().getShortName();
+                    showSuccess(i18n('notify.fragment.created', fragmentName, fragmentType));
+
+                    PageEventsManager.get().notifyComponentReloadRequested(path, false);
                 }).catch(DefaultErrorHandler.handle);
             }
         });
@@ -337,6 +345,9 @@ export class PageStateEventHandler {
                         return resolvePromise.then(() => {
                             const event = new ComponentDetachedEvent(detachedComponent, content.getDisplayName(), path.getPath() as number);
                             parentItem.addComponentViaEvent(event);
+
+                            showSuccess(i18n('notify.component.detached', content.getDisplayName()));
+                            PageEventsManager.get().notifyComponentReloadRequested(path, false);
                         });
                     }
 
