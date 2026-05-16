@@ -187,8 +187,8 @@ class ImageSelectorForm extends BaseSelectorForm {
         await imageSelectorDropdown.waitForUploadButtonDisplayed();
     }
 
-    waitForUploaderButtonNotDisplayed() {
-        return this.waitForElementEnabled(this.uploaderButton);
+    async waitForUploaderButtonNotDisplayed() {
+        return await this.waitForElementNotDisplayed(this.uploaderButton);
     }
 
     async waitForOptionsFilterInputDisplayed() {

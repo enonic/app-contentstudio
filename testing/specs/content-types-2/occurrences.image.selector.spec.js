@@ -94,10 +94,9 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
             await contentWizard.waitUntilInvalidIconDisappears();
             await contentWizard.waitAndClickOnSave();
             // 4. Options filter input gets not visible:
-            // TODO bug
             //Incorrect behavior in the selectors after item upload or deleted #10283
             //https://github.com/enonic/app-contentstudio/issues/10283
-            //await imageSelectorForm.waitForOptionsFilterInputNotDisplayed();
+            await imageSelectorForm.waitForOptionsFilterInputNotDisplayed();
         });
 
     it(`WHEN content with image-selector(2:4) has been saved with one selected option THEN that content should be invalid in grid`,

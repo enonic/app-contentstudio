@@ -93,9 +93,9 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             let names = await imageSelectorForm.getSelectedImagesDisplayNames();
             assert.equal(names[0], IMAGE_DISPLAY_NAME1);
             // 4. Verify that options filter input is not displayed:
-            // TODO bug  Incorrect behavior in the selectors after item upload or deleted #10283
-            //await imageSelectorForm.waitForOptionsFilterInputNotDisplayed();
-            //await imageSelectorForm.waitForUploaderButtonDisabled();
+            // bug  Incorrect behavior in the selectors after item upload or deleted #10283
+            await imageSelectorForm.waitForOptionsFilterInputNotDisplayed();
+            await imageSelectorForm.waitForUploaderButtonNotDisplayed();
             // 5. Verify that 'Save' button gets enabled:
             await contentWizard.waitForSaveButtonEnabled();
             await studioUtils.saveScreenshot('test_workflow_icon_2');
