@@ -26,6 +26,7 @@ import com.enonic.xp.app.ApplicationKey;
 import com.enonic.app.contentstudio.json.task.TaskResultJson;
 import com.enonic.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.app.contentstudio.rest.resource.ResourceConstants;
+import com.enonic.app.contentstudio.rest.resource.content.ApplyPermissionsProgressListener;
 import com.enonic.app.contentstudio.rest.resource.content.task.ProjectsSyncTask;
 import com.enonic.app.contentstudio.rest.resource.project.json.CreateProjectParamsJson;
 import com.enonic.app.contentstudio.rest.resource.project.json.DeleteProjectParamsJson;
@@ -58,13 +59,12 @@ import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.project.ProjectPermissions;
 import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.project.Projects;
+import com.enonic.xp.project.SetProjectPublicReadParams;
 import com.enonic.xp.security.PrincipalKeys;
 import com.enonic.xp.security.RoleKeys;
-import com.enonic.xp.security.acl.AccessControlEntry;
-import com.enonic.xp.security.acl.AccessControlList;
-import com.enonic.xp.security.acl.Permission;
 import com.enonic.xp.security.auth.AuthenticationInfo;
 import com.enonic.xp.site.SiteConfig;
+import com.enonic.xp.site.SiteConfigs;
 import com.enonic.xp.task.SubmitLocalTaskParams;
 import com.enonic.xp.task.TaskId;
 import com.enonic.xp.task.TaskService;
@@ -282,22 +282,17 @@ public final class ProjectResource
 
     private CreateProjectParams createParams( final CreateProjectParamsJson json )
     {
+        final boolean publicRead = json.getReadAccess() != null && ProjectReadAccessType.PUBLIC.equals( json.getReadAccess().getType() );
+
         final CreateProjectParams.Builder paramsBuilder = CreateProjectParams.create()
             .name( json.getName() )
             .displayName( json.getDisplayName() )
             .description( json.getDescription() )
             .addParents( json.getParents() )
+            .publicRead( publicRead )
             .forceInitialization( true );
 
         json.getApplicationConfigs().stream().forEach( paramsBuilder::addSiteConfig );
-
-        if ( json.getReadAccess() != null && ProjectReadAccessType.PUBLIC.equals( json.getReadAccess().getType() ) )
-        {
-            paramsBuilder.permissions( AccessControlList.create()
-                                           .add(
-                                               AccessControlEntry.create().principal( RoleKeys.EVERYONE ).allow( Permission.READ ).build() )
-                                           .build() );
-        }
 
         return paramsBuilder.build();
     }
@@ -309,12 +304,11 @@ public final class ProjectResource
 
     private ModifyProjectParams createParams( final ModifyProjectParamsJson json )
     {
-        final ModifyProjectParams.Builder paramsBuilder =
-            ModifyProjectParams.create().name( json.getName() ).displayName( json.getDisplayName() ).description( json.getDescription() );
-
-        json.getApplicationConfigs().stream().forEach( paramsBuilder::addSiteConfig );
-
-        return paramsBuilder.build();
+        return ModifyProjectParams.create().name( json.getName() ).editor( edit -> {
+            edit.displayName = json.getDisplayName();
+            edit.description = json.getDescription();
+            edit.siteConfigs = SiteConfigs.from( json.getApplicationConfigs() );
+        } ).build();
     }
 
     private CreateAttachment createIcon( final MultipartForm form )
@@ -354,9 +348,8 @@ public final class ProjectResource
 
         final ProjectPermissions projectPermissions = doFetchPermissions( projectName );
         final ProjectReadAccessType readAccessType = doFetchReadAccess( projectName, projectPermissions.getViewer() ).getType();
-        final Locale language = doFetchLanguage( projectName );
 
-        return doCreateJson( project, projectPermissions, readAccessType, language );
+        return doCreateJson( project, projectPermissions, readAccessType, project.getLanguage() );
     }
 
     private ProjectPermissions doFetchPermissions( final ProjectName projectName )
@@ -366,17 +359,22 @@ public final class ProjectResource
 
     private ProjectReadAccess doFetchReadAccess( final ProjectName projectName, final PrincipalKeys viewerRoleMembers )
     {
-        return GetProjectReadAccessCommand.create()
-            .viewerRoleMembers( viewerRoleMembers )
-            .projectName( projectName )
-            .contentService( contentService )
-            .build()
-            .execute();
-    }
+        final ProjectReadAccess.Builder readAccess = ProjectReadAccess.create();
 
-    private Locale doFetchLanguage( final ProjectName projectName )
-    {
-        return GetProjectLanguageCommand.create().projectName( projectName ).contentService( contentService ).build().execute();
+        if ( projectService.getPublicRead( projectName ) )
+        {
+            readAccess.setType( ProjectReadAccessType.PUBLIC );
+        }
+        else if ( viewerRoleMembers.isEmpty() )
+        {
+            readAccess.setType( ProjectReadAccessType.PRIVATE );
+        }
+        else
+        {
+            readAccess.setType( ProjectReadAccessType.CUSTOM );
+            readAccess.addPrincipals( viewerRoleMembers.getSet() );
+        }
+        return readAccess.build();
     }
 
     private ProjectPermissions doApplyPermissions( final ProjectName projectName, final ProjectPermissions projectPermissions )
@@ -386,25 +384,29 @@ public final class ProjectResource
 
     private Optional<Locale> doApplyLanguage( final ProjectName projectName, final Locale language )
     {
-        final Locale result = ApplyProjectLanguageCommand.create()
-            .projectName( projectName )
-            .language( language )
-            .contentService( contentService )
-            .build()
-            .execute();
-
-        return Optional.ofNullable( result );
+        final Project modified = this.projectService.modify( ModifyProjectParams.create()
+                                                                 .name( projectName )
+                                                                 .editor( edit -> edit.language = language )
+                                                                 .build() );
+        return Optional.ofNullable( modified.getLanguage() );
     }
 
     private TaskResultJson doApplyReadAccess( final ProjectName projectName, final ProjectReadAccess readAccess )
     {
-        return ApplyProjectReadAccessPermissionsCommand.create()
-            .projectName( projectName )
-            .readAccess( readAccess )
-            .taskService( taskService )
-            .contentService( contentService )
-            .build()
-            .execute();
+        final boolean publicRead = ProjectReadAccessType.PUBLIC.equals( readAccess.getType() );
+
+        final SubmitLocalTaskParams params = SubmitLocalTaskParams.create()
+            .runnableTask( ( id, progressReporter ) -> projectService.setPublicRead( SetProjectPublicReadParams.create()
+                                                                                         .name( projectName )
+                                                                                         .publicRead( publicRead )
+                                                                                         .listener( new ApplyPermissionsProgressListener(
+                                                                                             progressReporter ) )
+                                                                                         .build() ) )
+            .description( "Apply project's content root permissions" )
+            .build();
+
+        final TaskId taskId = taskService.submitLocalTask( params );
+        return new TaskResultJson( taskId );
     }
 
     @Reference
