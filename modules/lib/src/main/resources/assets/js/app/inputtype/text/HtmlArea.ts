@@ -37,7 +37,6 @@ import {HtmlEditor} from '../ui/text/HtmlEditor';
 import {HtmlEditorParams} from '../ui/text/HtmlEditorParams';
 import {StylesRequest} from '../ui/text/styles/StylesRequest';
 import {HtmlAreaResizeEvent} from './HtmlAreaResizeEvent';
-import {type AiConfig} from '@enonic/lib-admin-ui/form/inputtype/InputAiConfig';
 
 export class HtmlArea
     extends BaseInputTypeNotManagingAdd {
@@ -610,14 +609,6 @@ export class HtmlArea
     updateInputOccurrenceElement(occurrence: TextAreaWrapper, property: Property, unchangedOnly?: boolean) {
         const textAreaEl = occurrence.getChildren().find((child) => child instanceof TextArea);
         super.updateInputOccurrenceElement(textAreaEl, property, unchangedOnly);
-    }
-
-    getAiConfig(): AiConfig {
-        const formContext = this.getContext().formContext;
-        return formContext ? {
-            group: formContext.getName(),
-            aiTools: formContext.getAiTools(),
-        } : super.getAiConfig();
     }
 
 }
