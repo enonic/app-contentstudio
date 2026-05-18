@@ -3,7 +3,11 @@ import {atom, computed} from 'nanostores';
 import type {CompareStatus} from '../../../../app/content/CompareStatus';
 import type {Content} from '../../../../app/content/Content';
 import type {ContentData} from '../../../../app/ai/event/data/AiData';
+import type {Mixin} from '../../../../app/content/Mixin';
+import type {MixinDescriptor} from '../../../../app/content/MixinDescriptor';
 import type {ContentType} from '../../../../app/inputtype/schema/ContentType';
+import type {Descriptor} from '../../../../app/page/Descriptor';
+import type {Page} from '../../../../app/page/Page';
 import type {ContentWizardHeader} from '../../../../app/wizard/ContentWizardHeader';
 import {$config} from '../config.store';
 import {$languagesLoaded} from '../languages.store';
@@ -15,6 +19,12 @@ import type {EnonicAiPlugin} from './ai.types';
 export type AiWizardBridge = {
     applyDisplayName: (text: string) => void;
     getCurrentDisplayName: () => string;
+    findMixinByKey: (key: string) => Mixin | undefined;
+    getCurrentMixins: () => Mixin[];
+    getCurrentMixinDescriptors: () => MixinDescriptor[];
+    getCurrentPage: () => Page | null;
+    getCurrentPageDescriptor: () => Descriptor | null;
+    getCurrentComponentDescriptors: () => Descriptor[];
 };
 
 //

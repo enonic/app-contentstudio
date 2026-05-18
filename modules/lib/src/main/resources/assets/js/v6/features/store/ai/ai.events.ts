@@ -58,6 +58,10 @@ $config.subscribe(config => {
 type AcquiredTokens = {token: ProcessingToken}[];
 const translatorProcessingTokens = new Map<string, AcquiredTokens>();
 
+// Counts successful translations whose target field was gone on apply. Reset each
+// time AiTranslatorAllCompletedEvent surfaces (and clears) the batch warning.
+let unappliedTranslationCount = 0;
+
 function acquireTranslatorProcessing(aiPath: string): void {
     const target = resolveAiFieldTarget(aiPath);
     if (target == null) return;
@@ -135,7 +139,12 @@ function wireAiEventListeners(): void {
         helper.setState(transformPathOnDemand(event.path), state, data);
 
         if (event.success && event.text != null) {
-            setAiValueAtPath(event.path, event.text);
+            // A successful translation whose target field is gone (form changed
+            // since the translator read the payload) is collected and surfaced once
+            // on AiTranslatorAllCompletedEvent.
+            if (!setAiValueAtPath(event.path, event.text)) {
+                unappliedTranslationCount += 1;
+            }
         } else if (!event.success && !isTopicPath(event.path)) {
             reportTranslatorFailureOnField(event.path, event.message);
         }
@@ -157,6 +166,11 @@ function wireAiEventListeners(): void {
     });
 
     AiTranslatorAllCompletedEvent.on(event => {
+        if (unappliedTranslationCount > 0) {
+            NotifyManager.get().showWarning(i18n('notify.ai.translator.notApplied'));
+            unappliedTranslationCount = 0;
+        }
+
         if (event.success) {
             const content = $aiContent.get();
             if (content) {
