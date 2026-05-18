@@ -1,27 +1,21 @@
 import type {EnonicAiContentOperatorSetupData} from '../../../../app/ai/event/data/EnonicAiContentOperatorSetupData';
-import type {EnonicAiTranslatorSetupData} from '../../../../app/ai/event/data/EnonicAiTranslatorSetupData';
 
-export type EnonicAi = {
+// Transition type: the shape the legacy AI Content Operator attaches to
+// `window.Enonic.AI` during the dual-run. The new protocol's `AiHost` owns the
+// global declaration (see ai-protocol.ts); legacy call sites read this slot via
+// an explicit cast. Removed once the operator is migrated.
+export type LegacyEnonicAi = {
     contentOperator?: {
         setup(setupData: EnonicAiContentOperatorSetupData): void;
         render(buttonContainer: HTMLElement, dialogContainer: HTMLElement): void;
     };
-    translator?: {
-        setup(setupData: EnonicAiTranslatorSetupData): void;
-        render(container: HTMLElement): void;
-    };
 };
 
-export type EnonicAiPlugin = keyof EnonicAi;
-
-declare global {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-    interface Window {
-        Enonic?: {
-            AI?: EnonicAi;
-        };
-    }
-}
+// Both AI plugins still receive per-plugin instructions through `$aiInstructions`:
+// the operator via the legacy `AiContentOperatorConfigureEvent`, the translator
+// via the new protocol's `config:change` signal (see ai.snapshots.ts). The key
+// set therefore stays wider than `keyof LegacyEnonicAi`.
+export type EnonicAiPlugin = 'contentOperator' | 'translator';
 
 export const AI_PLUGIN_KEYS: Readonly<Record<EnonicAiPlugin, `com.enonic.app.ai.${string}`>> = {
     contentOperator: 'com.enonic.app.ai.contentoperator',

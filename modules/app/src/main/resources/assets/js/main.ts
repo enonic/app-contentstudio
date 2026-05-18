@@ -55,6 +55,7 @@ import {VersionHelper} from '@enonic/lib-contentstudio/app/util/VersionHelper';
 import {ContentAppHelper} from '@enonic/lib-contentstudio/app/wizard/ContentAppHelper';
 import {ContentWizardPanelParams} from '@enonic/lib-contentstudio/app/wizard/ContentWizardPanelParams';
 import {AppElement} from '@enonic/lib-contentstudio/v6/features/App';
+import {initAiHost} from '@enonic/lib-contentstudio/v6/features/store/ai';
 import {initConfig} from '@enonic/lib-contentstudio/v6/features/store/config.store';
 import {$activeProject} from '@enonic/lib-contentstudio/v6/features/store/activeProject.store';
 import {$projects, initProjects} from '@enonic/lib-contentstudio/v6/features/store/projects.store';
@@ -283,6 +284,7 @@ function hasActiveProject(): boolean {
 async function startApplication() {
     // v6 app initialization
     AppElement.initialize();
+    initAiHost();
 
     const application: Application = getApplication();
     connectionDetector = startLostConnectionDetector();

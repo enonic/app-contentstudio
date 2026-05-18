@@ -1,0 +1,203 @@
+import type {AiHost, AiPlugin, AiPluginId, AiPluginContext, AiPluginInstance} from './ai-protocol';
+import {createPluginApi, emitToPlugin, type PluginApiHandle} from './ai.plugin-api';
+import {buildPluginConfig, buildLanguageSnapshot, buildContentSnapshot, buildSchemaSnapshot, buildState} from './ai.snapshots';
+import {$aiContent, $aiContentType, $aiInstructions, $aiReady} from './ai.store';
+import {$locales} from '../languages.store';
+
+//
+// * AI plugin host
+//
+// CS owns this. Plugins call `window.Enonic.AI.register(...)`; the host mounts
+// them once CS is ready and fans content/schema/language/config signals out as
+// CS state changes.
+
+const KNOWN_IDS: readonly AiPluginId[] = ['ai.translator', 'ai.contentOperator'];
+
+type Registration = {
+    plugin: AiPlugin;
+    handle: PluginApiHandle;
+    container: HTMLElement;
+    instance: AiPluginInstance | null;
+};
+
+const registry = new Map<AiPluginId, Registration>();
+let isInitialized = false;
+
+function isKnownId(id: string): id is AiPluginId {
+    return (KNOWN_IDS as readonly string[]).includes(id);
+}
+
+function disposeRegistration(registration: Registration): void {
+    try {
+        registration.instance?.dispose();
+    } catch (e) {
+        console.error('[ai-host] plugin dispose failed', e);
+    }
+    registration.instance = null;
+    registration.container.remove();
+}
+
+function createContainer(id: AiPluginId): HTMLElement {
+    const container = document.createElement('div');
+    container.dataset.aiPlugin = id;
+    document.body.appendChild(container);
+    return container;
+}
+
+function mountRegistration(registration: Registration): void {
+    if (registration.instance != null) {
+        return;
+    }
+    const context: AiPluginContext = {
+        config: buildPluginConfig(registration.plugin.id),
+        initial: buildState(),
+        api: registration.handle.api,
+    };
+    try {
+        const result = registration.plugin.mount(registration.container, context);
+        if (result instanceof Promise) {
+            result
+                .then(instance => {
+                    registration.instance = instance;
+                })
+                .catch(e => {
+                    console.error('[ai-host] plugin mount rejected', e);
+                    registry.delete(registration.plugin.id);
+                    registration.container.remove();
+                });
+            return;
+        }
+        registration.instance = result;
+    } catch (e) {
+        console.error('[ai-host] plugin mount threw', e);
+        registry.delete(registration.plugin.id);
+        registration.container.remove();
+    }
+}
+
+// Mounts every registered-but-unmounted plugin. Called by the $aiReady
+// subscription; exported so the mount path is unit-testable without needing
+// to flip the computed $aiReady (which has no .set()).
+export function mountReadyPlugins(): void {
+    registry.forEach(registration => mountRegistration(registration));
+}
+
+const host: AiHost = {
+    register(plugin: AiPlugin): void {
+        if (!isKnownId(plugin.id)) {
+            console.warn(`[ai-host] ignoring unknown plugin id "${plugin.id}"`);
+            return;
+        }
+
+        const existing = registry.get(plugin.id);
+        if (existing != null) {
+            disposeRegistration(existing);
+        }
+
+        const registration: Registration = {
+            plugin,
+            handle: createPluginApi(),
+            container: existing?.container ?? createContainer(plugin.id),
+            instance: null,
+        };
+        registry.set(plugin.id, registration);
+
+        if ($aiReady.get()) {
+            mountRegistration(registration);
+        }
+    },
+
+    unregister(id: AiPluginId): void {
+        const registration = registry.get(id);
+        if (registration == null) {
+            return;
+        }
+        registry.delete(id);
+        disposeRegistration(registration);
+    },
+};
+
+export function getAiHost(): AiHost {
+    return host;
+}
+
+// Sends the `dialog:open` command to a registered plugin. No-op if the plugin
+// is not registered or declares no 'dialog:open' command.
+export function openPluginDialog(id: AiPluginId): void {
+    const registration = registry.get(id);
+    if (registration == null) {
+        return;
+    }
+    if (registration.plugin.commands?.includes('dialog:open') !== true) {
+        return;
+    }
+    emitToPlugin(registration.handle, 'dialog:open', undefined);
+}
+
+//
+// * Signal fan-out
+//
+
+function fanOutContent(): void {
+    const snapshot = buildContentSnapshot();
+    if (snapshot != null) {
+        registry.forEach(r => emitToPlugin(r.handle, 'content:change', snapshot));
+    }
+}
+
+function fanOutSchema(): void {
+    const snapshot = buildSchemaSnapshot();
+    if (snapshot != null) {
+        registry.forEach(r => emitToPlugin(r.handle, 'schema:change', snapshot));
+    }
+}
+
+function fanOutLanguage(): void {
+    const snapshot = buildLanguageSnapshot();
+    if (snapshot != null) {
+        registry.forEach(r => emitToPlugin(r.handle, 'language:change', snapshot));
+    }
+}
+
+function fanOutConfig(): void {
+    registry.forEach(r => emitToPlugin(r.handle, 'config:change', buildPluginConfig(r.plugin.id)));
+}
+
+//
+// * Bootstrap
+//
+
+// Wires the host to window.Enonic.AI and to the CS stores. Idempotent.
+export function initAiHost(): void {
+    if (isInitialized) {
+        return;
+    }
+    isInitialized = true;
+
+    window.Enonic ??= {};
+    const existing = window.Enonic.AI;
+    const pending = existing?._pending ?? [];
+    delete existing?._pending;
+    window.Enonic.AI = Object.assign(existing ?? {}, host);
+
+    // Drain plugins that registered against the main.html bootstrap stub
+    // before the real host was wired.
+    pending.forEach(plugin => host.register(plugin));
+
+    $aiReady.subscribe(ready => {
+        if (ready) {
+            mountReadyPlugins();
+        }
+    });
+
+    $aiContent.subscribe(() => fanOutContent());
+    $aiContentType.subscribe(() => fanOutSchema());
+    $locales.subscribe(() => fanOutLanguage());
+    $aiInstructions.subscribe(() => fanOutConfig());
+}
+
+// Test-only: clears the registry and mounted instances between specs.
+export function __resetAiHostForTest(): void {
+    registry.forEach(r => disposeRegistration(r));
+    registry.clear();
+}

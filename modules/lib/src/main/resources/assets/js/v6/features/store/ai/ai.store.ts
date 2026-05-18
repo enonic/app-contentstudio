@@ -49,8 +49,6 @@ export const $aiContext = atom<string | undefined>(undefined);
 
 export const $aiHasContentOperator = atom<boolean>(false);
 
-export const $aiHasTranslator = atom<boolean>(false);
-
 // Display-name field is not registered in any FieldRegistry, so processing state for
 // the `__topic__` path is exposed here for DisplayNameInput to subscribe to directly.
 // Same reason for the error atom — translator failures on `__topic__` can't go
