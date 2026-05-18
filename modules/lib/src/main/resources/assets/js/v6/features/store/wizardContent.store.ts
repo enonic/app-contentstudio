@@ -846,9 +846,9 @@ setAiWizardBridge({
 });
 
 // Mixin trees mutate independently of $wizardDraftMixins reference identity
-// (xdata field edits call tree.setValue directly), so subscribe to both the
+// (mixin field edits call tree.setValue directly), so subscribe to both the
 // version atom and the array atom. Descriptors flow through here so the AI sees
-// fresh xdata schemas after they load. Coalesce via microtask — initial subscribe
+// fresh mixin schemas after they load. Coalesce via microtask — initial subscribe
 // fires every source synchronously and a single user action commonly hits two.
 let aiMixinsNotifyScheduled = false;
 function scheduleAiMixinsNotify(): void {

@@ -10,7 +10,7 @@ import {TextComponent} from '../../../../app/page/region/TextComponent';
 import {PageState} from '../../../../app/wizard/page/PageState';
 import {isBlank} from '../../utils/format/isBlank';
 import {$aiCompareStatus, $aiContentHeader, $aiDataTree, $aiWizardBridge} from './ai.store';
-import {AI_CONFIG_PREFIX, AI_DATA_PREFIX, AI_PAGE_PREFIX, AI_TOPIC, AI_XDATA_PREFIX} from './ai.types';
+import {AI_CONFIG_PREFIX, AI_DATA_PREFIX, AI_MIXINS_PREFIX, AI_PAGE_PREFIX, AI_TOPIC} from './ai.types';
 
 //
 // * Path predicates
@@ -20,8 +20,8 @@ export function isTopicPath(path: string): boolean {
     return path.indexOf(AI_TOPIC) > -1;
 }
 
-export function isXDataPath(path: string): boolean {
-    return path.startsWith(AI_XDATA_PREFIX);
+export function isMixinPath(path: string): boolean {
+    return path.startsWith(AI_MIXINS_PREFIX);
 }
 
 export function isPagePath(path: string): boolean {
@@ -45,14 +45,14 @@ export function replaceSlashesWithDots(path: string): string {
 }
 
 export function transformPathOnDemand(path: string): string {
-    return isXDataPath(path) ? transformXDataPath(path) : path;
+    return isMixinPath(path) ? transformMixinPath(path) : path;
 }
 
-function transformXDataPath(path: string): string {
+function transformMixinPath(path: string): string {
     const parts = path.split('/');
     const appName = parts[1];
-    const xDataName = parts[2];
-    const key = `${appName.replace(/[/-]/g, '.')}:${xDataName}`;
+    const mixinName = parts[2];
+    const key = `${appName.replace(/[/-]/g, '.')}:${mixinName}`;
 
     return `__${key}__/${parts.slice(3).join('/')}`;
 }
@@ -68,8 +68,8 @@ export function setAiValueAtPath(path: string, text: string): boolean {
     if (isTopicPath(path)) {
         return handleTopicEvent(text);
     }
-    if (isXDataPath(path)) {
-        return handleXDataEvent(path, text);
+    if (isMixinPath(path)) {
+        return handleMixinEvent(path, text);
     }
     if (isPagePath(path)) {
         return handlePageEvent(path, text);
@@ -116,8 +116,8 @@ function isAllowedToChangeName(text: string, currentDisplayName: string): boolea
         && CompareStatusChecker.isNew(status);
 }
 
-function handleXDataEvent(path: string, text: string): boolean {
-    const target = getXDataTarget(path);
+function handleMixinEvent(path: string, text: string): boolean {
+    const target = getMixinTarget(path);
     if (!target) {
         return false;
     }
@@ -131,11 +131,11 @@ function handleXDataEvent(path: string, text: string): boolean {
     return true;
 }
 
-function getXDataTarget(path: string): {tree: PropertyTree; propPath: PropertyPath} | undefined {
+function getMixinTarget(path: string): {tree: PropertyTree; propPath: PropertyPath} | undefined {
     const parts = path.split('/');
     const appName = parts[1];
-    const xDataName = parts[2];
-    const key = `${appName.replace(/[/-]/g, '.')}:${xDataName}`;
+    const mixinName = parts[2];
+    const key = `${appName.replace(/[/-]/g, '.')}:${mixinName}`;
 
     const mixin = $aiWizardBridge.get()?.findMixinByKey(key);
     const tree = mixin?.getData();

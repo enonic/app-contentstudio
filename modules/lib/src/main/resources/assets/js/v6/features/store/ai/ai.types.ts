@@ -41,7 +41,7 @@ export const AI_PLUGIN_KEYS: Readonly<Record<EnonicAiPlugin, `com.enonic.app.ai.
 
 export const AI_DATA_PREFIX = '__data__';
 
-export const AI_XDATA_PREFIX = '__xdata__';
+export const AI_MIXINS_PREFIX = '__mixins__';
 
 export const AI_PAGE_PREFIX = '__page__';
 
