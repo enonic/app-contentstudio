@@ -326,6 +326,7 @@ public class ProjectResourceTest
         when( projectService.create( isA( CreateProjectParams.class ) ) ).thenReturn( project );
         when( projectService.modifyPermissions( eq( project.getName() ), isA( ProjectPermissions.class ) ) ).
             thenAnswer( i -> i.getArguments()[1] );
+        when( projectService.getPublicRead( project.getName() ) ).thenReturn( true );
 
         mockProjectPermissions( project.getName() );
 
@@ -575,6 +576,7 @@ public class ProjectResourceTest
             displayName( displayName ).
             description( description ).
             icon( icon ).
+            language( Locale.ENGLISH ).
             build();
     }
 
@@ -586,8 +588,12 @@ public class ProjectResourceTest
     private Project createProject( final String name, final String displayName, final String description, final Attachment icon,
                                    final String parent )
     {
-        final Project.Builder builder =
-            Project.create().name( ProjectName.from( name ) ).displayName( displayName ).description( description ).icon( icon );
+        final Project.Builder builder = Project.create()
+            .name( ProjectName.from( name ) )
+            .displayName( displayName )
+            .description( description )
+            .icon( icon )
+            .language( Locale.ENGLISH );
 
         if ( parent != null )
         {
