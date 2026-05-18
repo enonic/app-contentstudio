@@ -89,9 +89,9 @@ export function clearAiTopicError(): void {
     }
 }
 
-// Re-push the data + schema payload after a mixin-side change (xdata field edited,
-// xdata enabled/disabled, descriptors loaded). Lets the AI Translator/Operator see
-// the current xdata values and forms — they're not part of `content.getContentData()`.
+// Re-push the data + schema payload after a mixin-side change (mixin field edited,
+// mixin enabled/disabled, descriptors loaded). Lets the AI Translator/Operator see
+// the current mixin values and forms — they're not part of `content.getContentData()`.
 export function notifyAiMixinsChanged(): void {
     new AiUpdateDataEvent({
         data: createContentData(),
@@ -213,8 +213,8 @@ export function createContentData(): ContentData | undefined {
     };
 }
 
-// Live xdata values come from the wizard draft mixins (the same trees MixinView
-// renders and the trees handleXDataEvent writes back into). Falling back to
+// Live mixin values come from the wizard draft mixins (the same trees MixinView
+// renders and the trees handleMixinEvent writes back into). Falling back to
 // `content.getMixins()` keeps the payload populated before the bridge registers.
 function createMixinData(): MixinContentData[] | undefined {
     const mixins = $aiWizardBridge.get()?.getCurrentMixins() ?? $aiContent.get()?.getMixins();

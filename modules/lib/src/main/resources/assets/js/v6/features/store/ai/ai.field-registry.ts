@@ -1,5 +1,5 @@
 import {FieldRegistry} from '@enonic/lib-admin-ui/form2';
-import {AI_CONFIG_PREFIX, AI_DATA_PREFIX, AI_PAGE_PREFIX, AI_XDATA_PREFIX} from './ai.types';
+import {AI_CONFIG_PREFIX, AI_DATA_PREFIX, AI_MIXINS_PREFIX, AI_PAGE_PREFIX} from './ai.types';
 
 //
 // * Scope-keyed registries
@@ -46,8 +46,8 @@ export function resolveAiFieldTarget(aiPath: string): AiFieldTarget | null {
         return {registry: getAiFieldRegistry('data'), fieldPath};
     }
 
-    if (aiPath.startsWith(AI_XDATA_PREFIX)) {
-        // `__xdata__/<appName>/<xDataName>/<relative>` → '.<relative>'
+    if (aiPath.startsWith(AI_MIXINS_PREFIX)) {
+        // `__mixins__/<appName>/<mixinName>/<relative>` → '.<relative>'
         const tail = aiPath.split('/').slice(3).join('/');
         return {registry: getAiFieldRegistry('mixin'), fieldPath: slashesToDotsAbsolute(tail)};
     }
