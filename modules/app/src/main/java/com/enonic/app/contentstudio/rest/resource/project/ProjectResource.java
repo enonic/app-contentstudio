@@ -26,6 +26,7 @@ import com.enonic.xp.app.ApplicationKey;
 import com.enonic.app.contentstudio.json.task.TaskResultJson;
 import com.enonic.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.app.contentstudio.rest.resource.ResourceConstants;
+import com.enonic.app.contentstudio.rest.resource.content.ApplyPermissionsProgressListener;
 import com.enonic.app.contentstudio.rest.resource.content.task.ProjectsSyncTask;
 import com.enonic.app.contentstudio.rest.resource.project.json.CreateProjectParamsJson;
 import com.enonic.app.contentstudio.rest.resource.project.json.DeleteProjectParamsJson;
@@ -58,6 +59,7 @@ import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.project.ProjectPermissions;
 import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.project.Projects;
+import com.enonic.xp.project.SetProjectPublicReadParams;
 import com.enonic.xp.security.PrincipalKeys;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.security.auth.AuthenticationInfo;
@@ -346,9 +348,8 @@ public final class ProjectResource
 
         final ProjectPermissions projectPermissions = doFetchPermissions( projectName );
         final ProjectReadAccessType readAccessType = doFetchReadAccess( projectName, projectPermissions.getViewer() ).getType();
-        final Locale language = doFetchLanguage( projectName );
 
-        return doCreateJson( project, projectPermissions, readAccessType, language );
+        return doCreateJson( project, projectPermissions, readAccessType, project.getLanguage() );
     }
 
     private ProjectPermissions doFetchPermissions( final ProjectName projectName )
@@ -358,17 +359,22 @@ public final class ProjectResource
 
     private ProjectReadAccess doFetchReadAccess( final ProjectName projectName, final PrincipalKeys viewerRoleMembers )
     {
-        return GetProjectReadAccessCommand.create()
-            .viewerRoleMembers( viewerRoleMembers )
-            .projectName( projectName )
-            .contentService( contentService )
-            .build()
-            .execute();
-    }
+        final ProjectReadAccess.Builder readAccess = ProjectReadAccess.create();
 
-    private Locale doFetchLanguage( final ProjectName projectName )
-    {
-        return GetProjectLanguageCommand.create().projectName( projectName ).contentService( contentService ).build().execute();
+        if ( projectService.getPublicRead( projectName ) )
+        {
+            readAccess.setType( ProjectReadAccessType.PUBLIC );
+        }
+        else if ( viewerRoleMembers.isEmpty() )
+        {
+            readAccess.setType( ProjectReadAccessType.PRIVATE );
+        }
+        else
+        {
+            readAccess.setType( ProjectReadAccessType.CUSTOM );
+            readAccess.addPrincipals( viewerRoleMembers.getSet() );
+        }
+        return readAccess.build();
     }
 
     private ProjectPermissions doApplyPermissions( final ProjectName projectName, final ProjectPermissions projectPermissions )
@@ -387,13 +393,20 @@ public final class ProjectResource
 
     private TaskResultJson doApplyReadAccess( final ProjectName projectName, final ProjectReadAccess readAccess )
     {
-        return ApplyProjectReadAccessPermissionsCommand.create()
-            .projectName( projectName )
-            .readAccess( readAccess )
-            .taskService( taskService )
-            .contentService( contentService )
-            .build()
-            .execute();
+        final boolean publicRead = ProjectReadAccessType.PUBLIC.equals( readAccess.getType() );
+
+        final SubmitLocalTaskParams params = SubmitLocalTaskParams.create()
+            .runnableTask( ( id, progressReporter ) -> projectService.setPublicRead( SetProjectPublicReadParams.create()
+                                                                                         .name( projectName )
+                                                                                         .publicRead( publicRead )
+                                                                                         .listener( new ApplyPermissionsProgressListener(
+                                                                                             progressReporter ) )
+                                                                                         .build() ) )
+            .description( "Apply project's content root permissions" )
+            .build();
+
+        final TaskId taskId = taskService.submitLocalTask( params );
+        return new TaskResultJson( taskId );
     }
 
     @Reference
