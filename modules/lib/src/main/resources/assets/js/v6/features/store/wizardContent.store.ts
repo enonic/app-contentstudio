@@ -15,7 +15,9 @@ import {WorkflowState} from '../../../app/content/WorkflowState';
 import type {ContentType} from '../../../app/inputtype/schema/ContentType';
 import type {Page} from '../../../app/page/Page';
 import {ContentDiffHelper} from '../../../app/util/ContentDiffHelper';
-import {setAiDataTree, setAiWizardBridge} from './ai';
+import {notifyAiMixinsChanged, notifyAiPageChanged, setAiDataTree, setAiWizardBridge} from './ai';
+import {$layoutDescriptorOptions, $partDescriptorOptions} from './component-inspection.store';
+import {$pageConfigDescriptor} from './page-inspection.store';
 import {
     addStringOccurrence,
     removeStringOccurrence,
@@ -835,7 +837,52 @@ $wizardDraftData.subscribe((tree) => {
 setAiWizardBridge({
     applyDisplayName: setDraftDisplayName,
     getCurrentDisplayName: () => $wizardDraftDisplayName.get(),
+    findMixinByKey: (key) => $wizardDraftMixins.get().find((m) => m.getName().toString() === key),
+    getCurrentMixins: () => $wizardDraftMixins.get(),
+    getCurrentMixinDescriptors: () => $mixinsDescriptors.get(),
+    getCurrentPage: () => $wizardDraftPage.get(),
+    getCurrentPageDescriptor: () => $pageConfigDescriptor.get(),
+    getCurrentComponentDescriptors: () => [...$partDescriptorOptions.get(), ...$layoutDescriptorOptions.get()],
 });
+
+// Mixin trees mutate independently of $wizardDraftMixins reference identity
+// (xdata field edits call tree.setValue directly), so subscribe to both the
+// version atom and the array atom. Descriptors flow through here so the AI sees
+// fresh xdata schemas after they load. Coalesce via microtask — initial subscribe
+// fires every source synchronously and a single user action commonly hits two.
+let aiMixinsNotifyScheduled = false;
+function scheduleAiMixinsNotify(): void {
+    if (aiMixinsNotifyScheduled) {
+        return;
+    }
+    aiMixinsNotifyScheduled = true;
+    queueMicrotask(() => {
+        aiMixinsNotifyScheduled = false;
+        notifyAiMixinsChanged();
+    });
+}
+$wizardMixinsVersion.subscribe(scheduleAiMixinsNotify);
+$wizardDraftMixins.subscribe(scheduleAiMixinsNotify);
+$mixinsDescriptors.subscribe(scheduleAiMixinsNotify);
+
+// Mirror the mixin coalescing for page-side changes: the page tree mutates outside
+// $wizardDraftPage's reference (component text/config edits), and descriptors load
+// asynchronously, so subscribe to every source and microtask-coalesce.
+let aiPageNotifyScheduled = false;
+function scheduleAiPageNotify(): void {
+    if (aiPageNotifyScheduled) {
+        return;
+    }
+    aiPageNotifyScheduled = true;
+    queueMicrotask(() => {
+        aiPageNotifyScheduled = false;
+        notifyAiPageChanged();
+    });
+}
+$wizardDraftPage.subscribe(scheduleAiPageNotify);
+$pageConfigDescriptor.subscribe(scheduleAiPageNotify);
+$partDescriptorOptions.subscribe(scheduleAiPageNotify);
+$layoutDescriptorOptions.subscribe(scheduleAiPageNotify);
 
 const $siteConfigAppKeys = computed(
     [$wizardDraftData, $wizardDataVersion],

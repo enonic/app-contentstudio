@@ -1,5 +1,6 @@
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
+import type {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {CompareStatusChecker} from '../../../../app/content/CompareStatus';
 import {ComponentPath} from '../../../../app/page/region/ComponentPath';
@@ -7,7 +8,6 @@ import {DescriptorBasedComponent} from '../../../../app/page/region/DescriptorBa
 import type {PageItem} from '../../../../app/page/region/PageItem';
 import {TextComponent} from '../../../../app/page/region/TextComponent';
 import {PageState} from '../../../../app/wizard/page/PageState';
-import {XDataWizardStepForm} from '../../../../app/wizard/XDataWizardStepForm';
 import {isBlank} from '../../utils/format/isBlank';
 import {$aiCompareStatus, $aiContentHeader, $aiDataTree, $aiWizardBridge} from './ai.store';
 import {AI_CONFIG_PREFIX, AI_DATA_PREFIX, AI_PAGE_PREFIX, AI_TOPIC, AI_XDATA_PREFIX} from './ai.types';
@@ -61,26 +61,37 @@ function transformXDataPath(path: string): string {
 // * Value writes
 //
 
-export function setAiValueAtPath(path: string, text: string): void {
+// Returns `false` when the path is recognized but its target field no longer
+// exists (form changed since the translator read the payload). Callers use this
+// to warn the user that a translated value could not be applied.
+export function setAiValueAtPath(path: string, text: string): boolean {
     if (isTopicPath(path)) {
-        handleTopicEvent(text);
-    } else if (isXDataPath(path)) {
-        handleXDataEvent(path, text);
-    } else if (isPagePath(path)) {
-        handlePageEvent(path, text);
-    } else if (isDataPath(path)) {
-        handleDataEvent(path, text);
+        return handleTopicEvent(text);
     }
+    if (isXDataPath(path)) {
+        return handleXDataEvent(path, text);
+    }
+    if (isPagePath(path)) {
+        return handlePageEvent(path, text);
+    }
+    if (isDataPath(path)) {
+        return handleDataEvent(path, text);
+    }
+    return false;
 }
 
-function handleTopicEvent(text: string): void {
+function handleTopicEvent(text: string): boolean {
     // The v6 DisplayNameInput renders from the wizard draft display-name atom. The
     // bridge is the only way to reach it without re-introducing a wizardContent →
     // ai → wizardContent module cycle. The legacy header is kept in sync so any
     // remaining legacy consumers (name auto-generation) keep working.
     const bridge = $aiWizardBridge.get();
-    const currentDisplayName = bridge?.getCurrentDisplayName() ?? '';
-    bridge?.applyDisplayName(text);
+    if (!bridge) {
+        return false;
+    }
+
+    const currentDisplayName = bridge.getCurrentDisplayName() ?? '';
+    bridge.applyDisplayName(text);
 
     const header = $aiContentHeader.get();
     if (header) {
@@ -90,6 +101,8 @@ function handleTopicEvent(text: string): void {
         }
         header.setDisplayName(text);
     }
+
+    return true;
 }
 
 function isAllowedToChangeName(text: string, currentDisplayName: string): boolean {
@@ -103,53 +116,60 @@ function isAllowedToChangeName(text: string, currentDisplayName: string): boolea
         && CompareStatusChecker.isNew(status);
 }
 
-function handleXDataEvent(path: string, text: string): void {
-    const xData = getXData(path);
-    const prop = xData?.xDataStepForm.getData().getRoot().getPropertyByPath(xData.xDataPath);
+function handleXDataEvent(path: string, text: string): boolean {
+    const target = getXDataTarget(path);
+    if (!target) {
+        return false;
+    }
+
+    const prop = target.tree.getRoot().getPropertyByPath(target.propPath);
     if (!prop) {
-        return;
+        return false;
     }
 
     prop.setValue(new Value(text, prop.getType()), true);
+    return true;
 }
 
-function getXData(path: string): {xDataStepForm: XDataWizardStepForm; xDataPath: PropertyPath} | undefined {
+function getXDataTarget(path: string): {tree: PropertyTree; propPath: PropertyPath} | undefined {
     const parts = path.split('/');
     const appName = parts[1];
     const xDataName = parts[2];
     const key = `${appName.replace(/[/-]/g, '.')}:${xDataName}`;
-    const xDataStepForm = XDataWizardStepForm.getXDataWizardStepForm(key);
 
-    return xDataStepForm
-        ? {xDataStepForm, xDataPath: PropertyPath.fromString(`.${parts.slice(3).join('.')}`)}
-        : undefined;
+    const mixin = $aiWizardBridge.get()?.findMixinByKey(key);
+    const tree = mixin?.getData();
+    if (!tree) {
+        return undefined;
+    }
+
+    return {tree, propPath: PropertyPath.fromString(`.${parts.slice(3).join('.')}`)};
 }
 
-function handleDataEvent(path: string, text: string): void {
+function handleDataEvent(path: string, text: string): boolean {
     const data = $aiDataTree.get();
     if (!data) {
-        return;
+        return false;
     }
 
     const pathNoPrefix = path.replace(AI_DATA_PREFIX, '');
     const propPath = PropertyPath.fromString(replaceSlashesWithDots(pathNoPrefix));
     const prop = data.getRoot().getPropertyByPath(propPath);
     if (!prop) {
-        return;
+        return false;
     }
 
     prop.setValue(new Value(text, prop.getType()), true);
+    return true;
 }
 
-function handlePageEvent(path: string, text: string): void {
-    if (path.indexOf(AI_CONFIG_PREFIX) > -1) {
-        handleComponentConfigEvent(path, text);
-    } else {
-        handleComponentEvent(path, text);
-    }
+function handlePageEvent(path: string, text: string): boolean {
+    return path.indexOf(AI_CONFIG_PREFIX) > -1
+        ? handleComponentConfigEvent(path, text)
+        : handleComponentEvent(path, text);
 }
 
-function handleComponentConfigEvent(path: string, text: string): void {
+function handleComponentConfigEvent(path: string, text: string): boolean {
     const parts = path.replace(AI_PAGE_PREFIX, '').split(`/${AI_CONFIG_PREFIX}`);
     const configComponentPath = parts[0];
     const dataPath = parts[1];
@@ -157,23 +177,35 @@ function handleComponentConfigEvent(path: string, text: string): void {
 
     if (isBlank(configComponentPath)) {
         const prop = PageState.getState()?.getConfig().getRoot().getPropertyByPath(propPath);
-        prop?.setValue(new Value(text, prop.getType()));
-        return;
+        if (!prop) {
+            return false;
+        }
+        prop.setValue(new Value(text, prop.getType()));
+        return true;
     }
 
     const item: PageItem = PageState.getState()?.getComponentByPath(ComponentPath.fromString(configComponentPath));
-    if (item instanceof DescriptorBasedComponent) {
-        const prop = item.getConfig().getRoot().getPropertyByPath(propPath);
-        prop?.setValue(new Value(text, prop.getType()));
+    if (!(item instanceof DescriptorBasedComponent)) {
+        return false;
     }
+
+    const prop = item.getConfig().getRoot().getPropertyByPath(propPath);
+    if (!prop) {
+        return false;
+    }
+    prop.setValue(new Value(text, prop.getType()));
+    return true;
 }
 
-function handleComponentEvent(path: string, text: string): void {
+function handleComponentEvent(path: string, text: string): boolean {
     const pathNoPrefix = path.replace(AI_PAGE_PREFIX, '');
     const componentPath = ComponentPath.fromString(pathNoPrefix);
     const item: PageItem = PageState.getState().getComponentByPath(componentPath);
 
-    if (item instanceof TextComponent) {
-        item.setText(text);
+    if (!(item instanceof TextComponent)) {
+        return false;
     }
+
+    item.setText(text);
+    return true;
 }
