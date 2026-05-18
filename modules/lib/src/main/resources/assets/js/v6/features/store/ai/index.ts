@@ -5,7 +5,6 @@ import './ai.events';
 export {
     $aiContext,
     $aiHasContentOperator,
-    $aiHasTranslator,
     $aiReady,
     $aiTopicError,
     $aiTopicProcessing,
@@ -14,10 +13,15 @@ export {
 // Write: signal commands
 export {clearAiTopicError} from './ai.commands';
 
+// Bootstrap: AI plugin host
+export {initAiHost} from './ai.host';
+
+// Write: AI plugin host commands
+export {openPluginDialog} from './ai.host';
+
 // Write: commands
 export {
     renderContentOperator,
-    renderTranslator,
     setAiCompareStatus,
     setAiContent,
     setAiContentHeader,

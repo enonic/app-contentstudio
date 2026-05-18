@@ -12,7 +12,6 @@ import type {
     PageContentSchema,
 } from '../../../../app/ai/event/data/AiData';
 import {AiContentOperatorConfigureEvent} from '../../../../app/ai/event/outgoing/AiContentOperatorConfigureEvent';
-import {AiTranslatorConfigureEvent} from '../../../../app/ai/event/outgoing/AiTranslatorConfigureEvent';
 import {AiUpdateDataEvent} from '../../../../app/ai/event/outgoing/AiUpdateDataEvent';
 import type {CompareStatus} from '../../../../app/content/CompareStatus';
 import type {Content} from '../../../../app/content/Content';
@@ -38,7 +37,7 @@ import {
     $aiWizardBridge,
     type AiWizardBridge,
 } from './ai.store';
-import {AI_PLUGIN_KEYS, type EnonicAiPlugin} from './ai.types';
+import {AI_PLUGIN_KEYS, type EnonicAiPlugin, type LegacyEnonicAi} from './ai.types';
 import {getActiveProject, getActiveProjectName} from '../activeProject.store';
 
 //
@@ -143,9 +142,6 @@ function notifyAiInstructionsChanged(plugin: EnonicAiPlugin, instructions: strin
         case 'contentOperator':
             new AiContentOperatorConfigureEvent({instructions}).fire();
             break;
-        case 'translator':
-            new AiTranslatorConfigureEvent({instructions}).fire();
-            break;
     }
 }
 
@@ -180,11 +176,8 @@ export function whenAiReady(callback: () => void): void {
 //
 
 export function renderContentOperator(buttonContainer: HTMLElement, dialogContainer: HTMLElement): void {
-    window.Enonic?.AI?.contentOperator?.render(buttonContainer, dialogContainer);
-}
-
-export function renderTranslator(container: HTMLElement): void {
-    window.Enonic?.AI?.translator?.render(container);
+    const legacyAi = window.Enonic?.AI as LegacyEnonicAi | undefined;
+    legacyAi?.contentOperator?.render(buttonContainer, dialogContainer);
 }
 
 //
@@ -229,7 +222,7 @@ function createMixinData(): MixinContentData[] | undefined {
 }
 
 export function createContentLanguage(override?: string): ContentLanguage | undefined {
-    const tag = override ?? getActiveProject().getLanguage() ?? $aiContent.get()?.getLanguage();
+    const tag = override ?? getActiveProject()?.getLanguage() ?? $aiContent.get()?.getLanguage();
     if (!tag) {
         return undefined;
     }

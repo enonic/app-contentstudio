@@ -1,40 +1,22 @@
-import {AiHelperState} from '@enonic/lib-admin-ui/ai/AiHelperState';
 import {AiToolHelper} from '@enonic/lib-admin-ui/ai/tool/AiToolHelper';
 import {RGBColor} from '@enonic/lib-admin-ui/ai/tool/ui/AiAnimationHandler';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
-import type {ProcessingToken} from '@enonic/lib-admin-ui/form2';
-import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {AiContentOperatorContextChangedEvent} from '../../../../app/ai/event/incoming/AiContentOperatorContextChangedEvent';
 import {AiContentOperatorDialogHiddenEvent} from '../../../../app/ai/event/incoming/AiContentOperatorDialogHiddenEvent';
 import {AiContentOperatorDialogShownEvent} from '../../../../app/ai/event/incoming/AiContentOperatorDialogShownEvent';
 import {AiContentOperatorInteractionEvent} from '../../../../app/ai/event/incoming/AiContentOperatorInteractionEvent';
 import {AiContentOperatorResultAppliedEvent} from '../../../../app/ai/event/incoming/AiContentOperatorResultAppliedEvent';
-import {AiTranslatorAllCompletedEvent} from '../../../../app/ai/event/incoming/AiTranslatorAllCompletedEvent';
-import {AiTranslatorCompletedEvent} from '../../../../app/ai/event/incoming/AiTranslatorCompletedEvent';
-import {AiTranslatorNoLicenseEvent} from '../../../../app/ai/event/incoming/AiTranslatorNoLicenseEvent';
-import {AiTranslatorStartedEvent} from '../../../../app/ai/event/incoming/AiTranslatorStartedEvent';
 import {AiContentOperatorConfigureEvent} from '../../../../app/ai/event/outgoing/AiContentOperatorConfigureEvent';
-import {ContentRequiresSaveEvent} from '../../../../app/event/ContentRequiresSaveEvent';
-import {ComponentPath} from '../../../../app/page/region/ComponentPath';
-import {PageEventsManager} from '../../../../app/wizard/PageEventsManager';
 import {
-    isPageComponentPath,
     isTopicPath,
     replaceSlashesWithDots,
     setAiValueAtPath,
-    transformPathOnDemand,
 } from './ai.bridge';
-import {resolveAiFieldTarget} from './ai.field-registry';
 import {
-    $aiContent,
     $aiContext,
     $aiHasContentOperator,
-    $aiHasTranslator,
-    $aiTopicError,
-    $aiTopicProcessing,
 } from './ai.store';
-import {AI_DATA_PREFIX, AI_PAGE_PREFIX} from './ai.types';
+import {AI_DATA_PREFIX, type LegacyEnonicAi} from './ai.types';
 import {$config} from '../config.store';
 
 //
@@ -53,52 +35,6 @@ $config.subscribe(config => {
     setupPluginsOnLoad();
 });
 
-// Tokens acquired on AiTranslatorStartedEvent, released on AiTranslatorCompletedEvent.
-// Keyed by event.path because that's what arrives on both events.
-type AcquiredTokens = {token: ProcessingToken}[];
-const translatorProcessingTokens = new Map<string, AcquiredTokens>();
-
-// Counts successful translations whose target field was gone on apply. Reset each
-// time AiTranslatorAllCompletedEvent surfaces (and clears) the batch warning.
-let unappliedTranslationCount = 0;
-
-function acquireTranslatorProcessing(aiPath: string): void {
-    const target = resolveAiFieldTarget(aiPath);
-    if (target == null) return;
-
-    // Drop a stale error so a retry doesn't show old text next to a processing field.
-    target.registry.clearAllTransientErrors(target.fieldPath);
-
-    const occurrenceIds = target.registry.getOccurrenceIds(target.fieldPath);
-    if (occurrenceIds == null) return;
-
-    const tokens: AcquiredTokens = [];
-    occurrenceIds.forEach(id => {
-        const token = target.registry.acquireProcessing(target.fieldPath, id);
-        if (token != null) tokens.push({token});
-    });
-    if (tokens.length > 0) translatorProcessingTokens.set(aiPath, tokens);
-}
-
-function releaseTranslatorProcessing(aiPath: string): void {
-    const tokens = translatorProcessingTokens.get(aiPath);
-    if (tokens == null) return;
-    translatorProcessingTokens.delete(aiPath);
-    // The registry that issued the token is found by scanning handles; safe to call
-    // on the resolved registry whether or not the field is still mounted.
-    const target = resolveAiFieldTarget(aiPath);
-    tokens.forEach(({token}) => target?.registry.releaseProcessing(token));
-}
-
-function reportTranslatorFailureOnField(aiPath: string, message: string | undefined): void {
-    const target = resolveAiFieldTarget(aiPath);
-    if (target == null) return;
-    const occurrenceIds = target.registry.getOccurrenceIds(target.fieldPath);
-    if (occurrenceIds == null) return;
-    const text = message ?? i18n('field.ai.translator.failed');
-    occurrenceIds.forEach(id => target.registry.setTransientError(target.fieldPath, id, text));
-}
-
 function wireAiEventListeners(): void {
     const helper = AiToolHelper.get();
 
@@ -113,72 +49,6 @@ function wireAiEventListeners(): void {
                 RGBColor.GREEN,
             );
         });
-    });
-
-    AiTranslatorStartedEvent.on(event => {
-        helper.setState(transformPathOnDemand(event.path), AiHelperState.PROCESSING);
-
-        if (isPageComponentPath(event.path)) {
-            PageEventsManager.get().notifySetComponentState(
-                ComponentPath.fromString(event.path.replace(AI_PAGE_PREFIX, '')), true);
-        }
-
-        if (isTopicPath(event.path)) {
-            // Drop a stale failure so a retry doesn't show old text alongside the shimmer.
-            $aiTopicError.set(null);
-            $aiTopicProcessing.set(true);
-        } else {
-            acquireTranslatorProcessing(event.path);
-        }
-    });
-
-    AiTranslatorCompletedEvent.on(event => {
-        const state = event.success ? AiHelperState.COMPLETED : AiHelperState.FAILED;
-        const text = !event.success ? event.message : event.text;
-        const data = text ? {text} : undefined;
-        helper.setState(transformPathOnDemand(event.path), state, data);
-
-        if (event.success && event.text != null) {
-            // A successful translation whose target field is gone (form changed
-            // since the translator read the payload) is collected and surfaced once
-            // on AiTranslatorAllCompletedEvent.
-            if (!setAiValueAtPath(event.path, event.text)) {
-                unappliedTranslationCount += 1;
-            }
-        } else if (!event.success && !isTopicPath(event.path)) {
-            reportTranslatorFailureOnField(event.path, event.message);
-        }
-
-        if (isTopicPath(event.path)) {
-            $aiTopicProcessing.set(false);
-            if (!event.success) {
-                $aiTopicError.set(event.message ?? i18n('field.ai.translator.failed'));
-            }
-        } else {
-            releaseTranslatorProcessing(event.path);
-        }
-
-        // Text components do not have AI helpers, so notify the page editor directly.
-        if (isPageComponentPath(event.path)) {
-            PageEventsManager.get().notifySetComponentState(
-                ComponentPath.fromString(event.path.replace(AI_PAGE_PREFIX, '')), false);
-        }
-    });
-
-    AiTranslatorAllCompletedEvent.on(event => {
-        if (unappliedTranslationCount > 0) {
-            NotifyManager.get().showWarning(i18n('notify.ai.translator.notApplied'));
-            unappliedTranslationCount = 0;
-        }
-
-        if (event.success) {
-            const content = $aiContent.get();
-            if (content) {
-                new ContentRequiresSaveEvent(content.getContentId()).fire();
-            }
-        } else if (event.message) {
-            NotifyManager.get().showError(event.message);
-        }
     });
 
     AiContentOperatorContextChangedEvent.on(event => {
@@ -201,31 +71,20 @@ function wireAiEventListeners(): void {
             helper.animate(pathWithGroup, ['scroll', isTopicPath(pathWithGroup) ? 'innerGlow' : 'glow']);
         }
     });
-
-    AiTranslatorNoLicenseEvent.on(() => {
-        NotifyManager.get().showWarning(i18n('notify.ai.translator.license.missing'));
-    });
 }
 
 function setupPluginsOnLoad(): void {
     onWindowLoaded(() => {
         const config = $config.get();
 
-        const co = window.Enonic?.AI?.contentOperator;
+        const legacyAi = window.Enonic?.AI as LegacyEnonicAi | undefined;
+
+        const co = legacyAi?.contentOperator;
         if (co) {
             $aiHasContentOperator.set(true);
             co.setup({
                 sharedSocketUrl: config.sharedSocketUrl,
                 wsServiceUrl: config.services.aiContentOperatorWsServiceUrl || undefined,
-            });
-        }
-
-        const tr = window.Enonic?.AI?.translator;
-        if (tr) {
-            $aiHasTranslator.set(true);
-            tr.setup({
-                licenseServiceUrl: config.services.aiTranslatorLicenseServiceUrl,
-                wsServiceUrl: config.services.aiTranslatorWsServiceUrl,
             });
         }
 
