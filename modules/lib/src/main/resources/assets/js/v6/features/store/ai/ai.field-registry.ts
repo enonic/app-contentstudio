@@ -1,5 +1,5 @@
 import {FieldRegistry} from '@enonic/lib-admin-ui/form2';
-import {AI_CONFIG_PREFIX, AI_DATA_PREFIX, AI_MIXINS_PREFIX, AI_PAGE_PREFIX} from './ai.types';
+import type {AiFieldPath} from './ai-protocol';
 
 //
 // * Scope-keyed registries
@@ -35,38 +35,23 @@ export type AiFieldTarget = {
     fieldPath: string;
 };
 
-// AI translator/operator event paths come prefix-tagged (e.g. `__data__/foo/bar`).
-// InputField registers under `input.getPath().toString()` — an absolute dotted path
-// relative to its form's root (e.g. `.foo.bar`). This resolves both the scope and
-// the relative path in one step. Returns null for paths that don't map to a form
-// field (page text components, topic, etc.).
-export function resolveAiFieldTarget(aiPath: string): AiFieldTarget | null {
-    if (aiPath.startsWith(AI_DATA_PREFIX)) {
-        const fieldPath = slashesToDotsAbsolute(aiPath.slice(AI_DATA_PREFIX.length));
-        return {registry: getAiFieldRegistry('data'), fieldPath};
+// InputField registers under `input.getPath().toString()` — an absolute dotted
+// path relative to its form's root (e.g. `.foo.bar`). This resolves both the
+// scope and the relative path in one step. Returns null for path kinds that
+// don't map to a form field (page text components, topic).
+export function resolveAiFieldTarget(path: AiFieldPath): AiFieldTarget | null {
+    switch (path.kind) {
+        case 'data':
+            return {registry: getAiFieldRegistry('data'), fieldPath: `.${path.field}`};
+        case 'mixin':
+            return {registry: getAiFieldRegistry('mixin'), fieldPath: `.${path.field}`};
+        case 'pageConfig':
+        case 'componentConfig':
+            // Plain component paths (`componentText`) update TextComponent values
+            // and are handled by PageEventsManager + setAiValueAtPath instead.
+            return {registry: getAiFieldRegistry('page'), fieldPath: `.${path.field}`};
+        case 'topic':
+        case 'componentText':
+            return null;
     }
-
-    if (aiPath.startsWith(AI_MIXINS_PREFIX)) {
-        // `__mixins__/<appName>/<mixinName>/<relative>` → '.<relative>'
-        const tail = aiPath.split('/').slice(3).join('/');
-        return {registry: getAiFieldRegistry('mixin'), fieldPath: slashesToDotsAbsolute(tail)};
-    }
-
-    if (aiPath.startsWith(AI_PAGE_PREFIX)) {
-        // Only `__config__`-suffixed page paths target a form field. Plain component
-        // paths (`__page__/<componentPath>`) update TextComponent values and are
-        // handled by PageEventsManager + setAiValueAtPath.
-        const configMarker = `/${AI_CONFIG_PREFIX}`;
-        const configIdx = aiPath.indexOf(configMarker);
-        if (configIdx < 0) return null;
-        const tail = aiPath.slice(configIdx + configMarker.length);
-        return {registry: getAiFieldRegistry('page'), fieldPath: slashesToDotsAbsolute(tail)};
-    }
-
-    return null;
-}
-
-function slashesToDotsAbsolute(tail: string): string {
-    const trimmed = tail.startsWith('/') ? tail.slice(1) : tail;
-    return `.${trimmed.replace(/\//g, '.')}`;
 }

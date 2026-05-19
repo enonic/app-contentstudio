@@ -16,7 +16,7 @@ import type {
 } from './ai-protocol';
 import {applyValueAtPath, routeFieldState} from './ai.router';
 import {$aiContent, $aiContext, $aiPluginDialogOpen} from './ai.store';
-import {formatToLegacy} from './ai.legacy-adapter';
+import {toAiToolHelperPath} from './ai.tool-path';
 
 //
 // * Plugin API
@@ -70,7 +70,7 @@ export function createPluginApi(id: AiPluginId): PluginApiHandle {
         },
 
         animateField(path: AiFieldPath, kinds: AiAnimation[], color?: AiColor): void {
-            AiToolHelper.get().animate(formatToLegacy(path), kinds, toRgb(color));
+            AiToolHelper.get().animate(toAiToolHelperPath(path), kinds, toRgb(color));
         },
 
         setContext(context: string | null): void {

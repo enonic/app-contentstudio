@@ -5,8 +5,8 @@ import {PageEventsManager} from '../../../../app/wizard/PageEventsManager';
 import type {AiFieldPath, AiFieldState, AiFieldStateDetail} from './ai-protocol';
 import {setAiValueAtPath} from './ai.bridge';
 import {resolveAiFieldTarget} from './ai.field-registry';
-import {formatToLegacy} from './ai.legacy-adapter';
 import {$aiTopicError, $aiTopicProcessing} from './ai.store';
+import {toAiToolHelperPath} from './ai.tool-path';
 
 //
 // * Field-state routing
@@ -40,15 +40,16 @@ export function classifyFieldStateRoute(path: AiFieldPath): FieldStateRoute {
 // path resolves but the target field is gone (form changed since the plugin
 // read the payload) — the caller owns the consequence.
 export function applyValueAtPath(path: AiFieldPath, text: string): boolean {
-    return setAiValueAtPath(formatToLegacy(path), text);
+    return setAiValueAtPath(path, text);
 }
 
 //
 // * Field state
 //
 
-// Tracks processing tokens acquired against FieldRegistry handles, keyed by the
-// legacy string form of the path (stable across processing/completed events).
+// Tracks processing tokens acquired against FieldRegistry handles, keyed by a
+// deterministic string form of the path (stable across processing/completed
+// events).
 const acquiredTokens = new Map<string, {release(): void}[]>();
 
 export function routeFieldState(path: AiFieldPath, state: AiFieldState, detail?: AiFieldStateDetail): void {
@@ -83,8 +84,7 @@ function routeTopicState(state: AiFieldState, detail?: AiFieldStateDetail): void
 }
 
 function routeFieldRegistryState(path: AiFieldPath, state: AiFieldState, detail?: AiFieldStateDetail): void {
-    const legacyPath = formatToLegacy(path);
-    const target = resolveAiFieldTarget(legacyPath);
+    const target = resolveAiFieldTarget(path);
     if (target == null) {
         return;
     }
@@ -94,6 +94,8 @@ function routeFieldRegistryState(path: AiFieldPath, state: AiFieldState, detail?
         return;
     }
 
+    const tokenKey = toAiToolHelperPath(path);
+
     if (state === 'processing') {
         target.registry.clearAllTransientErrors(target.fieldPath);
         const tokens = occurrenceIds
@@ -101,14 +103,14 @@ function routeFieldRegistryState(path: AiFieldPath, state: AiFieldState, detail?
             .filter((token): token is NonNullable<typeof token> => token != null)
             .map(token => ({release: () => target.registry.releaseProcessing(token)}));
         if (tokens.length > 0) {
-            acquiredTokens.set(legacyPath, tokens);
+            acquiredTokens.set(tokenKey, tokens);
         }
         return;
     }
 
-    const tokens = acquiredTokens.get(legacyPath);
+    const tokens = acquiredTokens.get(tokenKey);
     if (tokens != null) {
-        acquiredTokens.delete(legacyPath);
+        acquiredTokens.delete(tokenKey);
         tokens.forEach(t => t.release());
     }
 
