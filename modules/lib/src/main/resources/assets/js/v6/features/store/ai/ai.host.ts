@@ -1,7 +1,7 @@
 import type {AiHost, AiPlugin, AiPluginId, AiPluginContext, AiPluginInstance} from './ai-protocol';
 import {createPluginApi, emitToPlugin, type PluginApiHandle} from './ai.plugin-api';
 import {buildPluginConfig, buildLanguageSnapshot, buildContentSnapshot, buildSchemaSnapshot, buildState} from './ai.snapshots';
-import {$aiContent, $aiContentType, $aiInstructions, $aiPluginDialogOpen, $aiReady} from './ai.store';
+import {$aiContent, $aiContentType, $aiInstructions, $aiPluginDialogOpen, $aiReady, $aiRegisteredPlugins} from './ai.store';
 import {$locales} from '../languages.store';
 
 //
@@ -65,6 +65,7 @@ function mountRegistration(registration: Registration): void {
                     console.error('[ai-host] plugin mount rejected', e);
                     registry.delete(registration.plugin.id);
                     registration.container.remove();
+                    $aiRegisteredPlugins.setKey(registration.plugin.id, false);
                 });
             return;
         }
@@ -73,6 +74,7 @@ function mountRegistration(registration: Registration): void {
         console.error('[ai-host] plugin mount threw', e);
         registry.delete(registration.plugin.id);
         registration.container.remove();
+        $aiRegisteredPlugins.setKey(registration.plugin.id, false);
     }
 }
 
@@ -102,6 +104,7 @@ const host: AiHost = {
             instance: null,
         };
         registry.set(plugin.id, registration);
+        $aiRegisteredPlugins.setKey(plugin.id, true);
 
         if ($aiReady.get()) {
             mountRegistration(registration);
@@ -114,6 +117,7 @@ const host: AiHost = {
             return;
         }
         registry.delete(id);
+        $aiRegisteredPlugins.setKey(id, false);
         disposeRegistration(registration);
     },
 };
@@ -227,4 +231,6 @@ export function initAiHost(): void {
 export function __resetAiHostForTest(): void {
     registry.forEach(r => disposeRegistration(r));
     registry.clear();
+    $aiRegisteredPlugins.setKey('ai.translator', false);
+    $aiRegisteredPlugins.setKey('ai.contentOperator', false);
 }

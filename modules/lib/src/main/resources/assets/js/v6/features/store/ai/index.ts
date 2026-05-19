@@ -7,6 +7,7 @@ export {
     $aiHasContentOperator,
     $aiPluginDialogOpen,
     $aiReady,
+    $aiRegisteredPlugins,
     $aiTopicError,
     $aiTopicProcessing,
 } from './ai.store';
@@ -22,7 +23,6 @@ export {closePluginDialog, openPluginDialog, sendPluginContext} from './ai.host'
 
 // Write: commands
 export {
-    renderContentOperator,
     setAiCompareStatus,
     setAiContent,
     setAiContentHeader,

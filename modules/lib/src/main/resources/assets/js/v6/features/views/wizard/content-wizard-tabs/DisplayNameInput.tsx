@@ -1,5 +1,4 @@
 import {cn} from '@enonic/ui';
-import {AiContentOperatorSetContextEvent} from '@enonic/lib-admin-ui/ai/event/AiContentOperatorSetContextEvent';
 import {FieldError} from '@enonic/lib-admin-ui/form2/components/field-error';
 import {useStore} from '@nanostores/preact';
 import {
@@ -13,7 +12,7 @@ import {
     type KeyboardEventHandler,
     type ReactElement,
 } from 'react';
-import {$aiTopicError, $aiTopicProcessing, AI_TOPIC_PATH, clearAiTopicError} from '../../../store/ai';
+import {$aiTopicError, $aiTopicProcessing, AI_TOPIC_PATH, clearAiTopicError, sendPluginContext} from '../../../store/ai';
 import {useI18n} from '../../../hooks/useI18n';
 import {
     $displayName,
@@ -27,7 +26,7 @@ import {$validationVisibility} from '../../../store/wizardValidation.store';
 const DISPLAY_NAME_INPUT_NAME = 'DisplayNameInput';
 
 function setAIContext(): void {
-    new AiContentOperatorSetContextEvent(AI_TOPIC_PATH).fire();
+    sendPluginContext('ai.contentOperator', AI_TOPIC_PATH);
 }
 
 function normalizeSingleLineValue(value: string): string {
