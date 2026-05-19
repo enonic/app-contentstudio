@@ -1,10 +1,6 @@
-// Side effect: subscribe to $config and wire AI listeners once enabled.
-import './ai.events';
-
 // Read: stores
 export {
     $aiContext,
-    $aiHasContentOperator,
     $aiPluginDialogOpen,
     $aiReady,
     $aiRegisteredPlugins,
