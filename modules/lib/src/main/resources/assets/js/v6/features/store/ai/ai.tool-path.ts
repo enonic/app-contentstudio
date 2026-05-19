@@ -1,4 +1,5 @@
 import type {AiFieldPath} from './ai-protocol';
+import {AI_TOPIC_PATH} from './ai.types';
 
 //
 // * AiFieldPath -> stable path-key string
@@ -35,5 +36,25 @@ export function toAiToolHelperPath(path: AiFieldPath): string {
             return `${PAGE}${path.component}`;
         case 'componentConfig':
             return `${PAGE}${path.component}/${CONFIG}/${fieldToTail(path.field)}`;
+    }
+}
+
+// `toPluginContextPath` encodes an `AiFieldPath` in the format the AI Content
+// Operator plugin uses for `context:set` / its internal `$context` store:
+// a leading-slash, slash-separated content-data path. Returns null for kinds
+// the plugin cannot resolve against its form model (mixins/x-data, page config,
+// page text components) — those would be rejected by the plugin's own
+// `isValidContext` check and reset to undefined.
+export function toPluginContextPath(path: AiFieldPath): string | null {
+    switch (path.kind) {
+        case 'topic':
+            return AI_TOPIC_PATH;
+        case 'data':
+            return `/${fieldToTail(path.field)}`;
+        case 'mixin':
+        case 'pageConfig':
+        case 'componentText':
+        case 'componentConfig':
+            return null;
     }
 }

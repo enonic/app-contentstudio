@@ -1,7 +1,9 @@
 import type {AiHost, AiPlugin, AiPluginId, AiPluginContext, AiPluginInstance} from './ai-protocol';
+import {getAiFieldRegistry} from './ai.field-registry';
 import {createPluginApi, emitToPlugin, type PluginApiHandle} from './ai.plugin-api';
 import {buildPluginConfig, buildLanguageSnapshot, buildContentSnapshot, buildSchemaSnapshot, buildState} from './ai.snapshots';
 import {$aiContent, $aiContentLanguage, $aiContentType, $aiInstructions, $aiPluginDialogOpen, $aiReady, $aiRegisteredPlugins} from './ai.store';
+import {toPluginContextPath} from './ai.tool-path';
 
 //
 // * AI plugin host
@@ -224,6 +226,27 @@ export function initAiHost(): void {
     $aiContentType.subscribe(() => fanOutSchema());
     $aiContentLanguage.subscribe(() => fanOutLanguage());
     $aiInstructions.subscribe(() => fanOutConfig());
+
+    // Focus on a content-data InputField -> push that field as the operator's
+    // default context. Ignore the blur signal (undefined): the existing
+    // DisplayName focus handler never clears either, so context persists until
+    // another qualifying field is focused or the user clears it from the dialog.
+    getAiFieldRegistry('data').subscribeActivePath(activePath => {
+        if (activePath == null) {
+            return;
+        }
+        // FieldRegistry paths are absolute dotted form-item paths (".foo.bar").
+        // AiFieldPath.field is the dotted tail with no leading dot.
+        const field = activePath.startsWith('.') ? activePath.slice(1) : activePath;
+        if (field.length === 0) {
+            return;
+        }
+        const context = toPluginContextPath({kind: 'data', field});
+        if (context == null) {
+            return;
+        }
+        sendPluginContext('ai.contentOperator', context);
+    });
 }
 
 // Test-only: clears the registry and mounted instances between specs.
