@@ -11,7 +11,6 @@ import type {
     PageContentData,
     PageContentSchema,
 } from '../../../../app/ai/event/data/AiData';
-import {AiUpdateDataEvent} from '../../../../app/ai/event/outgoing/AiUpdateDataEvent';
 import type {CompareStatus} from '../../../../app/content/CompareStatus';
 import type {Content} from '../../../../app/content/Content';
 import type {ContentType} from '../../../../app/inputtype/schema/ContentType';
@@ -26,6 +25,7 @@ import {$locales} from '../languages.store';
 import {
     $aiCompareStatus,
     $aiContent,
+    $aiContentLanguage,
     $aiContentHeader,
     $aiContentType,
     $aiCurrentData,
@@ -45,24 +45,19 @@ import {getActiveProject, getActiveProjectName} from '../activeProject.store';
 
 export function setAiContent(content: Content): void {
     $aiContent.set(content);
-    new AiUpdateDataEvent({
-        data: createContentData(),
-        language: createContentLanguage(),
-    }).fire();
+    $aiContentLanguage.set(content.getLanguage());
 }
 
 export function setAiContentType(contentType: ContentType): void {
     $aiContentType.set(contentType);
-    new AiUpdateDataEvent({schema: createContentSchema()}).fire();
 }
 
 export function setAiCurrentData(data: ContentData): void {
     $aiCurrentData.set(data);
-    new AiUpdateDataEvent({data: createContentData()}).fire();
 }
 
 export function setAiLanguage(language: string): void {
-    new AiUpdateDataEvent({language: createContentLanguage(language)}).fire();
+    $aiContentLanguage.set(language);
 }
 
 export function setAiDataTree(dataTree: PropertyTree | null): void {
@@ -85,26 +80,6 @@ export function clearAiTopicError(): void {
     if ($aiTopicError.get() != null) {
         $aiTopicError.set(null);
     }
-}
-
-// Re-push the data + schema payload after a mixin-side change (mixin field edited,
-// mixin enabled/disabled, descriptors loaded). Lets the AI Translator/Operator see
-// the current mixin values and forms — they're not part of `content.getContentData()`.
-export function notifyAiMixinsChanged(): void {
-    new AiUpdateDataEvent({
-        data: createContentData(),
-        schema: createContentSchema(),
-    }).fire();
-}
-
-// Re-push the data + schema payload after a page-side change (config, controller,
-// text components, component configs). The Translator needs the current page tree
-// to translate `__page__/...` paths; the Operator needs it for context.
-export function notifyAiPageChanged(): void {
-    new AiUpdateDataEvent({
-        data: createContentData(),
-        schema: createContentSchema(),
-    }).fire();
 }
 
 export function updateAiInstructions(configs: ApplicationConfig[]): void {
@@ -202,8 +177,8 @@ function createMixinData(): MixinContentData[] | undefined {
     }));
 }
 
-export function createContentLanguage(override?: string): ContentLanguage | undefined {
-    const tag = override ?? getActiveProject()?.getLanguage() ?? $aiContent.get()?.getLanguage();
+export function createContentLanguage(): ContentLanguage | undefined {
+    const tag = $aiContentLanguage.get() ?? getActiveProject()?.getLanguage() ?? $aiContent.get()?.getLanguage();
     if (!tag) {
         return undefined;
     }

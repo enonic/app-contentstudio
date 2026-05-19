@@ -1,4 +1,3 @@
-import {AiHelperState} from '@enonic/lib-admin-ui/ai/AiHelperState';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ComponentPath} from '../../../../app/page/region/ComponentPath';
 import {PageEventsManager} from '../../../../app/wizard/PageEventsManager';
@@ -121,20 +120,16 @@ function routeFieldRegistryState(path: AiFieldPath, state: AiFieldState, detail?
 }
 
 //
-// * Helper-state animation glue
+// * Field reveal
 //
 
-// Maps a protocol field state to the lib-admin-ui AiHelperState used by the
-// shimmer/badge UI. Exposed so the AiPluginApi can drive the helper directly.
-export function toHelperState(state: AiFieldState): AiHelperState {
-    switch (state) {
-        case 'idle':
-            return AiHelperState.DEFAULT;
-        case 'processing':
-            return AiHelperState.PROCESSING;
-        case 'completed':
-            return AiHelperState.COMPLETED;
-        case 'failed':
-            return AiHelperState.FAILED;
+// Brings the field at `path` into view through its FieldRegistry handle. Backs
+// the plugin API's `animateField`. No-op for paths with no form field — topic
+// and page text components, for which `resolveAiFieldTarget` returns null.
+export function revealFieldAtPath(path: AiFieldPath): void {
+    const target = resolveAiFieldTarget(path);
+    if (target == null) {
+        return;
     }
+    target.registry.reveal(target.fieldPath);
 }

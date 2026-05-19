@@ -34,6 +34,11 @@ export type AiWizardBridge = {
 
 export const $aiContent = atom<Content | null>(null);
 
+// Drives the protocol `language:change` signal. Seeded from the content's own
+// language by `setAiContent` and overridden by `setAiLanguage` for the translator
+// flows, where the target language is known before the content reload lands.
+export const $aiContentLanguage = atom<string | null>(null);
+
 export const $aiContentType = atom<ContentType | null>(null);
 
 export const $aiCurrentData = atom<ContentData | null>(null);

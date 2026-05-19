@@ -9,11 +9,8 @@ export const AI_PLUGIN_KEYS: Readonly<Record<EnonicAiPlugin, `com.enonic.app.ai.
 };
 
 // Field-path routing is union-native (see `ai.bridge.ts`, `ai.field-registry.ts`,
-// `ai.router.ts`, which switch on `AiFieldPath.kind`). `AI_DATA_PREFIX` survives
-// only as the `ContentWizardHeader` group tag; `AI_TOPIC`/`AI_TOPIC_PATH` address
-// the display-name field.
-
-export const AI_DATA_PREFIX = '__data__';
+// `ai.router.ts`, which switch on `AiFieldPath.kind`). `AI_TOPIC`/`AI_TOPIC_PATH`
+// address the display-name field.
 
 export const AI_TOPIC = '__topic__';
 

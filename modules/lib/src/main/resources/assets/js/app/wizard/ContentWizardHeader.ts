@@ -1,5 +1,4 @@
 import {WizardHeaderWithDisplayNameAndName} from '@enonic/lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
-import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
@@ -11,10 +10,6 @@ import type Q from 'q';
 import {type Content} from '../content/Content';
 import {ContentPath} from '../content/ContentPath';
 import {ContentExistsByPathRequest} from '../resource/ContentExistsByPathRequest';
-import {AiStateTool} from '@enonic/lib-admin-ui/ai/tool/AiStateTool';
-import {AiAnimationTool} from '@enonic/lib-admin-ui/ai/tool/AiAnimationTool';
-import {AiDialogIconTool} from '@enonic/lib-admin-ui/ai/tool/AiDialogIconTool';
-import {$aiRegisteredPlugins, AI_DATA_PREFIX, AI_TOPIC_PATH} from '../../v6/features/store/ai';
 import {ContentUnnamed} from '../content/ContentUnnamed';
 
 export class ContentWizardHeader
@@ -47,35 +42,6 @@ export class ContentWizardHeader
 
         this.loadSpinner = new DivEl('icon-spinner');
         this.loadSpinner.hide();
-
-        this.onRendered(() => {
-            if ($aiRegisteredPlugins.get()['ai.contentOperator']) {
-                const getDataPath = () => this.getAiDataPath();
-
-                new AiStateTool({
-                    group: AI_DATA_PREFIX,
-                    pathElement: this.displayNameEl,
-                    getPath: getDataPath,
-                    label: i18n('field.displayName'),
-                    stateContainer: this.displayNameEl.getParentElement(),
-                });
-
-                new AiDialogIconTool({
-                    group: AI_DATA_PREFIX,
-                    getPath: getDataPath,
-                    pathElement: this.displayNameEl,
-                    aiButtonContainer: this.topRow,
-                    setContextOnFocus: true,
-                });
-
-                new AiAnimationTool({
-                    group: AI_DATA_PREFIX,
-                    getPath: getDataPath,
-                    pathElement: this.displayNameEl,
-                });
-            }
-
-        });
     }
 
     protected initListeners() {
@@ -307,9 +273,5 @@ export class ContentWizardHeader
 
         const path: string = content.getPath().getParentPath().isRoot() ? '/' : `${content.getPath().getParentPath().toString()}/`;
         this.setPath(path);
-    }
-
-    private getAiDataPath(): PropertyPath {
-        return PropertyPath.fromString(AI_TOPIC_PATH);
     }
 }

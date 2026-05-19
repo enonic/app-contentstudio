@@ -1,9 +1,6 @@
-import {AiToolHelper} from '@enonic/lib-admin-ui/ai/tool/AiToolHelper';
-import {RGBColor} from '@enonic/lib-admin-ui/ai/tool/ui/AiAnimationHandler';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {ContentRequiresSaveEvent} from '../../../../app/event/ContentRequiresSaveEvent';
 import type {
-    AiColor,
     AiCommands,
     AiFieldPath,
     AiFieldState,
@@ -12,11 +9,9 @@ import type {
     AiPluginApi,
     AiPluginId,
     AiSignals,
-    AiAnimation,
 } from './ai-protocol';
-import {applyValueAtPath, routeFieldState} from './ai.router';
+import {applyValueAtPath, revealFieldAtPath, routeFieldState} from './ai.router';
 import {$aiContent, $aiContext, $aiPluginDialogOpen} from './ai.store';
-import {toAiToolHelperPath} from './ai.tool-path';
 
 //
 // * Plugin API
@@ -30,12 +25,6 @@ export type PluginApiHandle = {
     api: AiPluginApi;
     listeners: Map<string, ((payload: unknown) => void)[]>;
 };
-
-// ? RGBColor.AMBER does not exist in lib-admin-ui; mapping 'amber' to BLUE as
-// the closest available colour until the upstream enum is extended.
-function toRgb(color: AiColor | undefined): RGBColor {
-    return color === 'amber' ? RGBColor.BLUE : RGBColor.GREEN;
-}
 
 export function createPluginApi(id: AiPluginId): PluginApiHandle {
     const listeners = new Map<string, ((payload: unknown) => void)[]>();
@@ -69,14 +58,13 @@ export function createPluginApi(id: AiPluginId): PluginApiHandle {
             routeFieldState(path, state, detail);
         },
 
-        animateField(path: AiFieldPath, kinds: AiAnimation[], color?: AiColor): void {
-            AiToolHelper.get().animate(toAiToolHelperPath(path), kinds, toRgb(color));
+        animateField(path: AiFieldPath): void {
+            revealFieldAtPath(path);
         },
 
         setContext(context: string | null): void {
             const next = context ?? undefined;
             $aiContext.set(next);
-            AiToolHelper.get().setActiveContext(next ?? null);
         },
 
         setDialogState(open: boolean): void {

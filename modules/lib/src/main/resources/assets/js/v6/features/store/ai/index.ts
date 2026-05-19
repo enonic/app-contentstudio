@@ -27,11 +27,9 @@ export {
     setAiDataTree,
     setAiLanguage,
     setAiWizardBridge,
-    notifyAiMixinsChanged,
-    notifyAiPageChanged,
     updateAiInstructions,
     whenAiReady,
 } from './ai.commands';
 
 // Constants
-export {AI_DATA_PREFIX, AI_TOPIC, AI_TOPIC_PATH} from './ai.types';
+export {AI_TOPIC_PATH} from './ai.types';

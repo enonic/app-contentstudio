@@ -69,7 +69,7 @@ export const ContentWizardToolbar = ({
         contentPath,
         canRenameContentPath,
         contentState,
-        isLayerProject
+        isLayerProject,
     } = useStore($wizardToolbar, {
         keys: [
             'projectLabel',
@@ -81,8 +81,8 @@ export const ContentWizardToolbar = ({
             'contentPath',
             'canRenameContentPath',
             'contentState',
-            'isLayerProject'
-        ]
+            'isLayerProject',
+        ],
     });
     const {'ai.contentOperator': isOperatorRegistered} = useStore($aiRegisteredPlugins, {keys: ['ai.contentOperator']});
     const {'ai.contentOperator': isOperatorDialogOpen} = useStore($aiPluginDialogOpen, {keys: ['ai.contentOperator']});
@@ -101,15 +101,18 @@ export const ContentWizardToolbar = ({
         return () => setInspectSaveAction(null);
     }, [saveAction]);
 
-    const toolbarActions: OverflowActionRowItem[] = useMemo(() => [
-        {id: 'save', action: saveAction},
-        {id: 'reset', action: resetAction},
-        {id: 'localize', action: localizeAction},
-        {id: 'archive', action: archiveAction},
-        {id: 'duplicate', action: duplicateAction},
-        {id: 'move', action: moveAction},
-        {id: 'preview', action: previewAction},
-    ], [archiveAction, duplicateAction, localizeAction, moveAction, previewAction, resetAction, saveAction]);
+    const toolbarActions: OverflowActionRowItem[] = useMemo(
+        () => [
+            {id: 'save', action: saveAction},
+            {id: 'reset', action: resetAction},
+            {id: 'localize', action: localizeAction},
+            {id: 'archive', action: archiveAction},
+            {id: 'duplicate', action: duplicateAction},
+            {id: 'move', action: moveAction},
+            {id: 'preview', action: previewAction},
+        ],
+        [archiveAction, duplicateAction, localizeAction, moveAction, previewAction, resetAction, saveAction],
+    );
     const [desktopPathRef, isDesktopPathVisible] = useElementVisibility<HTMLDivElement>();
     const [mobilePathRef, isMobilePathVisible] = useElementVisibility<HTMLDivElement>();
     const [desktopPublishSplitRef, isDesktopPublishSplitVisible] = useElementVisibility<HTMLDivElement>();
@@ -131,10 +134,15 @@ export const ContentWizardToolbar = ({
         openRequestAction,
         createIssueAction,
     ];
-    const mobileSplitActions: Action[][] = [
-        toolbarActions.map(({action}) => action),
-        publishSplitActions,
-    ];
+    const mobileSplitActions: Action[][] = [toolbarActions.map(({action}) => action), publishSplitActions];
+
+    const aiToggleClassName = cn(
+        'hidden size-9 p-0 shrink-0 sm:flex',
+        'data-[active=true]:bg-transparent data-[active=true]:text-main',
+        'data-[active=true]:hover:bg-btn-primary-hover',
+        '[&_svg]:opacity-70 [&_svg]:transition-opacity',
+        'hover:[&_svg]:opacity-100 data-[active=true]:[&_svg]:opacity-100',
+    );
 
     return (
         <Toolbar data-component={CONTENT_WIZARD_TOOLBAR_NAME}>
@@ -142,7 +150,7 @@ export const ContentWizardToolbar = ({
                 aria-label={toolbarLabel}
                 className={cn(
                     'content-wizard-toolbar w-full h-15 px-2 md:pl-2 md:pr-5 py-1.75 flex items-center border-b border-bdr-soft bg-surface-neutral',
-                    className
+                    className,
                 )}
             >
                 <div className='flex min-w-fit max-w-fit items-center gap-2.5 sm:min-w-0 sm:max-w-none sm:flex-1 sm:basis-0'>
@@ -160,15 +168,13 @@ export const ContentWizardToolbar = ({
                                 language={projectLanguage || undefined}
                                 hasIcon={projectHasIcon}
                                 isLayer={isLayerProject}
-                                className='w-6 shrink-0 flex lg:hidden' />
+                                className='w-6 shrink-0 flex lg:hidden'
+                            />
                             <span className='hidden lg:flex'>{projectViewLabel}</span>
                         </Button>
                     </Toolbar.Item>
                     <div ref={mobileActionsSplitRef} className='sm:hidden shrink-0 min-w-fit'>
-                        <SplitActionButton
-                            actions={mobileSplitActions}
-                            disabled={!isMobileActionsSplitVisible}
-                        />
+                        <SplitActionButton actions={mobileSplitActions} disabled={!isMobileActionsSplitVisible} />
                     </div>
                     <OverflowActionRow actions={toolbarActions} className='hidden sm:flex min-w-0 flex-1' />
                 </div>
@@ -222,7 +228,7 @@ export const ContentWizardToolbar = ({
                         <Tooltip delay={300} side='bottom' value={aiAssistantLabel} asChild>
                             <Toolbar.Item asChild>
                                 <Toggle
-                                    className='hidden size-9 p-0 shrink-0 sm:flex'
+                                    className={aiToggleClassName}
                                     size='sm'
                                     aria-label={aiAssistantLabel}
                                     startIcon={JukeIcon}
@@ -237,7 +243,12 @@ export const ContentWizardToolbar = ({
                         <div className='-space-x-2 items-center px-3.5 hidden md:flex shrink-0'>
                             {collaborators[0] && (
                                 <Tooltip key={collaborators[0].key} value={collaborators[0].label}>
-                                    <Avatar className={cn('ring-2 ring-surface-neutral size-7', collaborators[0].isCurrent && 'ring-info')}>
+                                    <Avatar
+                                        className={cn(
+                                            'ring-2 ring-surface-neutral size-7',
+                                            collaborators[0].isCurrent && 'ring-info',
+                                        )}
+                                    >
                                         <Avatar.Fallback className='text-alt font-semibold'>
                                             <span>{getInitials(collaborators[0].label)}</span>
                                         </Avatar.Fallback>
@@ -247,8 +258,12 @@ export const ContentWizardToolbar = ({
 
                             {collaborators[1] && (
                                 <Tooltip key={collaborators[1].key} value={collaborators[1].label}>
-                                    <Avatar className={cn('hidden xl:inline-flex ring-2 ring-surface-neutral size-7 z-10',
-                         collaborators[1].isCurrent && 'ring-info')}>
+                                    <Avatar
+                                        className={cn(
+                                            'hidden xl:inline-flex ring-2 ring-surface-neutral size-7 z-10',
+                                            collaborators[1].isCurrent && 'ring-info',
+                                        )}
+                                    >
                                         <Avatar.Fallback className='text-alt font-semibold'>
                                             <span>{getInitials(collaborators[1].label)}</span>
                                         </Avatar.Fallback>
@@ -275,10 +290,7 @@ export const ContentWizardToolbar = ({
                     )}
                     <StatusBadge status={publishStatus} className='my-auto px-1.5 md:px-2.75 shrink-0 relative z-0' />
                     <div ref={desktopPublishSplitRef} className='hidden sm:flex shrink-0 min-w-fit relative z-1'>
-                        <SplitActionButton
-                            actions={[publishSplitActions]}
-                            disabled={!isDesktopPublishSplitVisible}
-                        />
+                        <SplitActionButton actions={[publishSplitActions]} disabled={!isDesktopPublishSplitVisible} />
                     </div>
                     <ContextToggle className='shrink-0' />
                 </div>
@@ -289,8 +301,7 @@ export const ContentWizardToolbar = ({
 
 ContentWizardToolbar.displayName = CONTENT_WIZARD_TOOLBAR_NAME;
 
-export class ContentWizardToolbarElement
-    extends LegacyElement<typeof ContentWizardToolbar, ContentWizardToolbarProps> {
+export class ContentWizardToolbarElement extends LegacyElement<typeof ContentWizardToolbar, ContentWizardToolbarProps> {
     constructor(props: ContentWizardToolbarProps) {
         super({className: '', ...props}, ContentWizardToolbar);
     }

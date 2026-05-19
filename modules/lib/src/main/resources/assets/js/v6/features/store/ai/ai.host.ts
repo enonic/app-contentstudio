@@ -1,8 +1,7 @@
 import type {AiHost, AiPlugin, AiPluginId, AiPluginContext, AiPluginInstance} from './ai-protocol';
 import {createPluginApi, emitToPlugin, type PluginApiHandle} from './ai.plugin-api';
 import {buildPluginConfig, buildLanguageSnapshot, buildContentSnapshot, buildSchemaSnapshot, buildState} from './ai.snapshots';
-import {$aiContent, $aiContentType, $aiInstructions, $aiPluginDialogOpen, $aiReady, $aiRegisteredPlugins} from './ai.store';
-import {$locales} from '../languages.store';
+import {$aiContent, $aiContentLanguage, $aiContentType, $aiInstructions, $aiPluginDialogOpen, $aiReady, $aiRegisteredPlugins} from './ai.store';
 
 //
 // * AI plugin host
@@ -223,7 +222,7 @@ export function initAiHost(): void {
 
     $aiContent.subscribe(() => fanOutContent());
     $aiContentType.subscribe(() => fanOutSchema());
-    $locales.subscribe(() => fanOutLanguage());
+    $aiContentLanguage.subscribe(() => fanOutLanguage());
     $aiInstructions.subscribe(() => fanOutConfig());
 }
 
