@@ -4,7 +4,7 @@
 // Mirror copies in app-ai-translator and app-ai-content-operator must stay
 // byte-identical. Do not edit a mirror copy.
 
-export const AI_PROTOCOL_VERSION = 1;
+export const AI_PROTOCOL_VERSION = 2;
 
 // ---- Identity ---------------------------------------------------------------
 
@@ -84,7 +84,9 @@ export type AiSignals = {
 // ---- Commands (declared, CS -> plugin) --------------------------------------
 
 export type AiCommands = {
-    'dialog:open': void;
+    'dialog:open':  void;
+    'dialog:close': void;
+    'context:set':  string | null;
 };
 
 // ---- Host API (plugin -> CS) ------------------------------------------------
@@ -99,6 +101,7 @@ export type AiPluginApi = {
     setFieldState(path: AiFieldPath, state: AiFieldState, detail?: AiFieldStateDetail): void;
     animateField(path: AiFieldPath, kinds: AiAnimation[], color?: AiColor): void;
     setContext(context: string | null): void;
+    setDialogState(open: boolean): void;
     requestSave(): void;
     notify(level: AiNotifyLevel, message: string): void;
 };
