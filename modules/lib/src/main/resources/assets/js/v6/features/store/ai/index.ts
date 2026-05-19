@@ -5,6 +5,7 @@ import './ai.events';
 export {
     $aiContext,
     $aiHasContentOperator,
+    $aiPluginDialogOpen,
     $aiReady,
     $aiTopicError,
     $aiTopicProcessing,
@@ -17,7 +18,7 @@ export {clearAiTopicError} from './ai.commands';
 export {initAiHost} from './ai.host';
 
 // Write: AI plugin host commands
-export {openPluginDialog} from './ai.host';
+export {closePluginDialog, openPluginDialog, sendPluginContext} from './ai.host';
 
 // Write: commands
 export {
