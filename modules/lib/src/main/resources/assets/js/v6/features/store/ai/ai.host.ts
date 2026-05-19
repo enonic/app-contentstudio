@@ -1,7 +1,7 @@
 import type {AiHost, AiPlugin, AiPluginId, AiPluginContext, AiPluginInstance} from './ai-protocol';
 import {createPluginApi, emitToPlugin, type PluginApiHandle} from './ai.plugin-api';
 import {buildPluginConfig, buildLanguageSnapshot, buildContentSnapshot, buildSchemaSnapshot, buildState} from './ai.snapshots';
-import {$aiContent, $aiContentType, $aiInstructions, $aiReady} from './ai.store';
+import {$aiContent, $aiContentType, $aiInstructions, $aiPluginDialogOpen, $aiReady} from './ai.store';
 import {$locales} from '../languages.store';
 
 //
@@ -35,6 +35,7 @@ function disposeRegistration(registration: Registration): void {
     }
     registration.instance = null;
     registration.container.remove();
+    $aiPluginDialogOpen.setKey(registration.plugin.id, false);
 }
 
 function createContainer(id: AiPluginId): HTMLElement {
@@ -96,7 +97,7 @@ const host: AiHost = {
 
         const registration: Registration = {
             plugin,
-            handle: createPluginApi(),
+            handle: createPluginApi(plugin.id),
             container: existing?.container ?? createContainer(plugin.id),
             instance: null,
         };
@@ -132,6 +133,32 @@ export function openPluginDialog(id: AiPluginId): void {
         return;
     }
     emitToPlugin(registration.handle, 'dialog:open', undefined);
+}
+
+// Sends the `dialog:close` command to a registered plugin. No-op if the plugin
+// is not registered or declares no 'dialog:close' command.
+export function closePluginDialog(id: AiPluginId): void {
+    const registration = registry.get(id);
+    if (registration == null) {
+        return;
+    }
+    if (registration.plugin.commands?.includes('dialog:close') !== true) {
+        return;
+    }
+    emitToPlugin(registration.handle, 'dialog:close', undefined);
+}
+
+// Sends the `context:set` command to a registered plugin. No-op if the plugin
+// is not registered or declares no 'context:set' command.
+export function sendPluginContext(id: AiPluginId, context: string | null): void {
+    const registration = registry.get(id);
+    if (registration == null) {
+        return;
+    }
+    if (registration.plugin.commands?.includes('context:set') !== true) {
+        return;
+    }
+    emitToPlugin(registration.handle, 'context:set', context);
 }
 
 //

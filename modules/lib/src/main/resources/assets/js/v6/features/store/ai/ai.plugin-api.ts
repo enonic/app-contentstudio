@@ -10,11 +10,12 @@ import type {
     AiFieldStateDetail,
     AiNotifyLevel,
     AiPluginApi,
+    AiPluginId,
     AiSignals,
     AiAnimation,
 } from './ai-protocol';
 import {applyValueAtPath, routeFieldState} from './ai.router';
-import {$aiContent, $aiContext} from './ai.store';
+import {$aiContent, $aiContext, $aiPluginDialogOpen} from './ai.store';
 import {formatToLegacy} from './ai.legacy-adapter';
 
 //
@@ -36,7 +37,7 @@ function toRgb(color: AiColor | undefined): RGBColor {
     return color === 'amber' ? RGBColor.BLUE : RGBColor.GREEN;
 }
 
-export function createPluginApi(): PluginApiHandle {
+export function createPluginApi(id: AiPluginId): PluginApiHandle {
     const listeners = new Map<string, ((payload: unknown) => void)[]>();
 
     function on(event: string, handler: (payload: unknown) => void): () => void {
@@ -76,6 +77,10 @@ export function createPluginApi(): PluginApiHandle {
             const next = context ?? undefined;
             $aiContext.set(next);
             AiToolHelper.get().setActiveContext(next ?? null);
+        },
+
+        setDialogState(open: boolean): void {
+            $aiPluginDialogOpen.setKey(id, open);
         },
 
         requestSave(): void {
