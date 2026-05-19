@@ -35,7 +35,7 @@ module.exports = {
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.jsx', '.js', '.less', '.css'],
-        conditionNames: ['import', 'node', 'default'],
+        conditionNames: ['browser', 'import', 'default'],   // using node here will use SSR-safe stub of page-editor!
         alias: {
             'preact': path.resolve(__dirname, 'node_modules/preact'),
             'preact/hooks': path.resolve(__dirname, 'node_modules/preact/hooks'),
