@@ -37,7 +37,7 @@ import {
     $aiWizardBridge,
     type AiWizardBridge,
 } from './ai.store';
-import {AI_PLUGIN_KEYS, type EnonicAiPlugin, type LegacyEnonicAi} from './ai.types';
+import {AI_PLUGIN_KEYS, type EnonicAiPlugin} from './ai.types';
 import {getActiveProject, getActiveProjectName} from '../activeProject.store';
 
 //
@@ -169,15 +169,6 @@ export function whenAiReady(callback: () => void): void {
     }
 
     readyCallbacks.push(callback);
-}
-
-//
-// * Plugin rendering
-//
-
-export function renderContentOperator(buttonContainer: HTMLElement, dialogContainer: HTMLElement): void {
-    const legacyAi = window.Enonic?.AI as LegacyEnonicAi | undefined;
-    legacyAi?.contentOperator?.render(buttonContainer, dialogContainer);
 }
 
 //

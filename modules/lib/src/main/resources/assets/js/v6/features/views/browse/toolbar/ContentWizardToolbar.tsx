@@ -9,7 +9,7 @@ import {JukeIcon} from '../../../shared/icons/JukeIcon';
 import {ProjectIcon} from '../../../shared/icons/ProjectIcon';
 import {StatusIcon} from '../../../shared/icons/StatusIcon';
 import {StatusBadge} from '../../../shared/status/StatusBadge';
-import {$aiHasContentOperator} from '../../../store/ai';
+import {$aiPluginDialogOpen, $aiRegisteredPlugins, closePluginDialog, openPluginDialog} from '../../../store/ai';
 import {setInspectSaveAction} from '../../../store/inspect-panel.store';
 import {$wizardToolbar} from '../../../store/wizardToolbar.store';
 import {getInitials} from '../../../utils/format/initials';
@@ -84,7 +84,8 @@ export const ContentWizardToolbar = ({
             'isLayerProject'
         ]
     });
-    const aiHasContentOperator = useStore($aiHasContentOperator);
+    const {'ai.contentOperator': isOperatorRegistered} = useStore($aiRegisteredPlugins, {keys: ['ai.contentOperator']});
+    const {'ai.contentOperator': isOperatorDialogOpen} = useStore($aiPluginDialogOpen, {keys: ['ai.contentOperator']});
 
     const layersLabel = useI18n('widget.layers.displayName');
     const toolbarLabel = useI18n('wcag.contenteditor.toolbar.label');
@@ -113,6 +114,14 @@ export const ContentWizardToolbar = ({
     const [mobilePathRef, isMobilePathVisible] = useElementVisibility<HTMLDivElement>();
     const [desktopPublishSplitRef, isDesktopPublishSplitVisible] = useElementVisibility<HTMLDivElement>();
     const [mobileActionsSplitRef, isMobileActionsSplitVisible] = useElementVisibility<HTMLDivElement>();
+
+    const handleAiOperatorToggle = (pressed: boolean): void => {
+        if (pressed) {
+            openPluginDialog('ai.contentOperator');
+        } else {
+            closePluginDialog('ai.contentOperator');
+        }
+    };
 
     const publishSplitActions: Action[] = [
         markAsReadyAction,
@@ -209,7 +218,7 @@ export const ContentWizardToolbar = ({
                     </div>
                 </div>
                 <div className='flex min-w-fit max-w-fit items-center justify-end gap-0 sm:min-w-fit sm:max-w-none sm:flex-1 sm:basis-0 sm:gap-0.5 md:gap-1 lg:gap-2.5'>
-                    {aiHasContentOperator && (
+                    {isOperatorRegistered && (
                         <Tooltip delay={300} side='bottom' value={aiAssistantLabel} asChild>
                             <Toolbar.Item asChild>
                                 <Toggle
@@ -218,6 +227,8 @@ export const ContentWizardToolbar = ({
                                     aria-label={aiAssistantLabel}
                                     startIcon={JukeIcon}
                                     startIconClassName='size-7'
+                                    pressed={isOperatorDialogOpen}
+                                    onPressedChange={handleAiOperatorToggle}
                                 />
                             </Toolbar.Item>
                         </Tooltip>
