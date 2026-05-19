@@ -33,6 +33,7 @@ import {getActiveProject, getActiveProjectName} from '../../v6/features/store/ac
 import {
     $displayNameInputFocusRequested,
     $isContentFormExpanded,
+    $wizardContentState,
     $wizardHasChanges,
     $wizardIsMarkedAsReady,
     clearDisplayNameInputFocusRequest,
@@ -69,6 +70,7 @@ import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
 import {type ContentId} from '../content/ContentId';
 import {type ContentName} from '../content/ContentName';
 import {ContentPath} from '../content/ContentPath';
+import {type ContentState} from '../content/ContentState';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {type PageTemplate} from '../content/PageTemplate';
 import {type Site} from '../content/Site';
@@ -587,6 +589,12 @@ export class ContentWizardPanel
             }
 
             this.getContentWizardToolbar().setItem(this.getContent());
+            this.isContentFormValid = this.isWizardContentValid();
+            this.wizardActions
+                .setContent(this.getContent())
+                .setContentCanBePublished(this.checkContentCanBePublished())
+                .setIsValid(this.isContentFormValid)
+                .refreshState();
             this.appendChild(this.getContentWizardToolbarPublishControls().getMobilePublishControls());
 
             if (this.contentType?.hasDisplayNameExpression()) {
@@ -610,7 +618,7 @@ export class ContentWizardPanel
             const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
 
             this.onValidityChanged((event: ValidityChangedEvent) => {
-                const isThisValid: boolean = this.isValid();
+                const isThisValid: boolean = this.isWizardContentValid();
                 this.isContentFormValid = isThisValid;
 
                 if (!this.getPersistedItem()) {
@@ -858,8 +866,16 @@ export class ContentWizardPanel
         super.close(checkCanClose);
     }
 
-    public checkContentCanBePublished(): boolean {
-        return this.isContentFormValid && this.contentType != null;
+    public checkContentCanBePublished(contentState?: ContentState | null): boolean {
+        const isValid = contentState == null ? this.isContentFormValid : contentState !== 'invalid';
+
+        return isValid && this.contentType != null;
+    }
+
+    private isWizardContentValid(): boolean {
+        const contentState = $wizardContentState.get();
+
+        return contentState != null && contentState !== 'invalid';
     }
 
     private isCurrentContentId(id: ContentId): boolean {

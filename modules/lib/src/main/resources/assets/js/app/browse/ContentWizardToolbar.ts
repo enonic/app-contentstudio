@@ -96,6 +96,7 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
             previewAction: actions.getPreviewAction(),
             markAsReadyAction: actions.getMarkAsReadyAction(),
             publishAction: actions.getPublishAction(),
+            publishTreeAction: actions.getPublishTreeAction(),
             unpublishAction: actions.getUnpublishAction(),
             requestPublishAction: actions.getRequestPublishAction(),
             openRequestAction: actions.getOpenRequestAction(),
