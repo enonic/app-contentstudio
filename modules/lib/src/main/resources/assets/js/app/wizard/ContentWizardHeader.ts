@@ -14,7 +14,7 @@ import {ContentExistsByPathRequest} from '../resource/ContentExistsByPathRequest
 import {AiStateTool} from '@enonic/lib-admin-ui/ai/tool/AiStateTool';
 import {AiAnimationTool} from '@enonic/lib-admin-ui/ai/tool/AiAnimationTool';
 import {AiDialogIconTool} from '@enonic/lib-admin-ui/ai/tool/AiDialogIconTool';
-import {$aiHasContentOperator, AI_DATA_PREFIX, AI_TOPIC_PATH} from '../../v6/features/store/ai';
+import {$aiRegisteredPlugins, AI_DATA_PREFIX, AI_TOPIC_PATH} from '../../v6/features/store/ai';
 import {ContentUnnamed} from '../content/ContentUnnamed';
 
 export class ContentWizardHeader
@@ -49,7 +49,7 @@ export class ContentWizardHeader
         this.loadSpinner.hide();
 
         this.onRendered(() => {
-            if ($aiHasContentOperator.get()) {
+            if ($aiRegisteredPlugins.get()['ai.contentOperator']) {
                 const getDataPath = () => this.getAiDataPath();
 
                 new AiStateTool({

@@ -11,7 +11,6 @@ import type {
     PageContentData,
     PageContentSchema,
 } from '../../../../app/ai/event/data/AiData';
-import {AiContentOperatorConfigureEvent} from '../../../../app/ai/event/outgoing/AiContentOperatorConfigureEvent';
 import {AiUpdateDataEvent} from '../../../../app/ai/event/outgoing/AiUpdateDataEvent';
 import type {CompareStatus} from '../../../../app/content/CompareStatus';
 import type {Content} from '../../../../app/content/Content';
@@ -127,21 +126,12 @@ export function updateAiInstructions(configs: ApplicationConfig[]): void {
         const value = pluginConfig.getConfig()?.getString('instructions') ?? '';
         if (next[plugin] !== value) {
             next[plugin] = value;
-            notifyAiInstructionsChanged(plugin, value);
             changed = true;
         }
     }
 
     if (changed) {
         $aiInstructions.set(next);
-    }
-}
-
-function notifyAiInstructionsChanged(plugin: EnonicAiPlugin, instructions: string): void {
-    switch (plugin) {
-        case 'contentOperator':
-            new AiContentOperatorConfigureEvent({instructions}).fire();
-            break;
     }
 }
 

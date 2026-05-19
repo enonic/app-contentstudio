@@ -48,8 +48,6 @@ export const $aiInstructions = atom<Record<EnonicAiPlugin, string | undefined> |
 
 export const $aiContext = atom<string | undefined>(undefined);
 
-export const $aiHasContentOperator = atom<boolean>(false);
-
 // Tracks each plugin's dialog visibility, reported by plugins via
 // `api.setDialogState`. Lets CS toolbar controls reflect dialog open state.
 export const $aiPluginDialogOpen = map<Record<AiPluginId, boolean>>({
