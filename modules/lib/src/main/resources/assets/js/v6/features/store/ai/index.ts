@@ -5,6 +5,7 @@ export {
     $aiReady,
     $aiRegisteredPlugins,
     $aiTopicError,
+    $aiTopicHighlight,
     $aiTopicProcessing,
 } from './ai.store';
 

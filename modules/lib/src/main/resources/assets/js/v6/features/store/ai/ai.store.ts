@@ -74,6 +74,12 @@ export const $aiTopicProcessing = atom<boolean>(false);
 
 export const $aiTopicError = atom<string | null>(null);
 
+// Same FieldRegistry gap as $aiTopicProcessing: a reveal request for the `__topic__`
+// path has no handle to route through. The router bumps `count`; DisplayNameInput
+// consumes it as a `useBlinkAttention` trigger and reads `scroll` to decide whether
+// to scroll itself into view (true on single-mention click, false on bulk apply-all).
+export const $aiTopicHighlight = atom<{count: number; scroll: boolean}>({count: 0, scroll: false});
+
 export const $aiWizardBridge = atom<AiWizardBridge | null>(null);
 
 //

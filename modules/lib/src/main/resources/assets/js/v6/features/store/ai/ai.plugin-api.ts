@@ -1,6 +1,7 @@
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {ContentRequiresSaveEvent} from '../../../../app/event/ContentRequiresSaveEvent';
 import type {
+    AiAnimation,
     AiCommands,
     AiFieldPath,
     AiFieldState,
@@ -58,8 +59,8 @@ export function createPluginApi(id: AiPluginId): PluginApiHandle {
             routeFieldState(path, state, detail);
         },
 
-        animateField(path: AiFieldPath): void {
-            revealFieldAtPath(path);
+        animateField(path: AiFieldPath, kinds: AiAnimation[]): void {
+            revealFieldAtPath(path, kinds);
         },
 
         setContext(context: string | null): void {
