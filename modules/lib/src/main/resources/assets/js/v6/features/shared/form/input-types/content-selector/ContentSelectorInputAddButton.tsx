@@ -1,3 +1,4 @@
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Button, cn} from '@enonic/ui';
 import {Plus} from 'lucide-react';
 import {type ReactElement, useEffect, useRef, useState} from 'react';
@@ -115,6 +116,7 @@ export const ContentSelectorInputAddButton = ({
             variant="solid"
             onClick={handleClick}
             disabled={disabled}
+            aria-label={i18n('action.add')}
             className={cn(
                 isUploading && 'pointer-events-none',
                 'relative w-full h-full rounded-none border border-bdr-subtle rounded-tr rounded-br bg-surface-selected',

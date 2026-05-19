@@ -1,3 +1,4 @@
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Button, FilledSquareCheck, IconButton, Menu, useActiveItemFocus, useMenu} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Ellipsis, OctagonAlert, Square} from 'lucide-react';
@@ -99,7 +100,7 @@ export const MixinMenu = (): ReactElement => {
     return (
         <Menu open={open} onOpenChange={handleOpenChange}>
             <Menu.Trigger asChild>
-                <IconButton className="shrink-0" icon={Ellipsis} size="sm" variant="text"/>
+                <IconButton aria-label={i18n('action.toggle.mixin')} className="shrink-0" icon={Ellipsis} size="sm" variant="text"/>
             </Menu.Trigger>
             <Menu.Portal>
                 <Menu.Content align="end">

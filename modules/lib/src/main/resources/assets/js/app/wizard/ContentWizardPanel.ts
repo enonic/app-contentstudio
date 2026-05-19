@@ -203,6 +203,8 @@ export class ContentWizardPanel
     constructor(params: ContentWizardPanelParams, cls?: string) {
         super(params);
 
+        this.getEl().setAttribute('role', 'main');
+
         if (cls) {
             this.addClass(cls);
         }

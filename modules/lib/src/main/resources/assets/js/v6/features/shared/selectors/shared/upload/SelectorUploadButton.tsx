@@ -115,6 +115,7 @@ export const SelectorUploadButton = ({
                 type="file"
                 multiple={multiple}
                 accept={accept}
+                aria-label={i18n('tooltip.button.uploadMedia')}
                 onChange={e => void handleInputChange(e)}
                 className="sr-only"
             />
@@ -122,6 +123,7 @@ export const SelectorUploadButton = ({
                 onClick={handleUploadClick}
                 variant="solid"
                 disabled={disabled}
+                aria-label={i18n('tooltip.button.uploadMedia')}
                 className={cn(
                     isUploading && 'pointer-events-none',
                     'relative w-full h-full rounded-none border border-bdr-subtle rounded-tr rounded-br bg-surface-selected',

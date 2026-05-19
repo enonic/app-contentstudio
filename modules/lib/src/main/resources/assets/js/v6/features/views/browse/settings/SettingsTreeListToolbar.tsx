@@ -55,7 +55,7 @@ const SettingsTreeListToolbar = ({enabled = true}: SettingsTreeListToolbarProps)
                 />
             </div>
 
-            <IconButton aria-label={i18n('wcag.reload.content.label')} icon={RefreshCcw} disabled={!enabled} onClick={handleReload} />
+            <IconButton aria-label={i18n('action.reload.projects')} icon={RefreshCcw} disabled={!enabled} onClick={handleReload} />
         </div>
     );
 };
