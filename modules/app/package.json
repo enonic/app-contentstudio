@@ -8,12 +8,12 @@
     "url": "https://github.com/enonic/app-contentstudio"
   },
   "scripts": {
-    "build": "pnpm --color /^build:.*$/",
+    "build": "pnpm run /^build:.*$/",
     "build:worker": "rspack build --config rspack.worker.config.js",
     "build:client": "rspack build",
     "build:server": "tsc --project ./src/main/resources/lib/tsconfig.json",
-    "check": "pnpm --color /^check:.*$/",
-    "check:types": "pnpm --color /^check:types:.*$/",
+    "check": "pnpm run /^check:.*$/",
+    "check:types": "pnpm run /^check:types:.*$/",
     "check:types:client": "tsc --pretty --skipLibCheck --noEmit",
     "check:types:worker": "tsc --pretty --skipLibCheck --noEmit --project ./src/main/resources/assets/shared-socket/tsconfig.json",
     "check:lint": "eslint **/*.ts --quiet --cache",
@@ -59,6 +59,7 @@
     "@types/ckeditor": "^4.9.10",
     "@types/jquery": "^3.5.33",
     "@types/jqueryui": "^1.12.24",
+    "@types/node": "^25.7.0",
     "@types/q": "^1.5.8",
     "autoprefixer": "^10.4.22",
     "browserslist-config-enonic": "^1.0.8",
@@ -76,9 +77,9 @@
   "browserslist": [
     "extends browserslist-config-enonic"
   ],
-  "packageManager": "pnpm@10.30.2",
+  "packageManager": "pnpm@10.33.4",
   "engines": {
     "node": ">= 24.13.0",
-    "pnpm": ">= 10.30.2"
+    "pnpm": ">= 10.33.4"
   }
 }

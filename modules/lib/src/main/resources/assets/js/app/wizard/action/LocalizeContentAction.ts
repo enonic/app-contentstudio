@@ -23,7 +23,7 @@ export class LocalizeContentAction
                 NotifyManager.get().showFeedback(i18n('notify.content.localized'));
                 wizardPanel.setEnabled(true);
                 wizardPanel.unLockPage();
-                wizardPanel.renderAndOpenTranslatorDialog();
+                wizardPanel.openTranslatorDialog(language);
             }).catch(DefaultErrorHandler.handle);
         });
     }

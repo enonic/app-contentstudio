@@ -4,7 +4,6 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {type Project} from '../../../../app/settings/data/project/Project';
 import {ProjectConfigContext} from '../../../../app/settings/data/project/ProjectConfigContext';
-import {loadLanguages} from '../languages.store';
 import {ProjectAccess} from '../../../../app/settings/access/ProjectAccess';
 import {ProjectCreateRequest} from '../../../../app/settings/resource/ProjectCreateRequest';
 import {ProjectUpdateRequest} from '../../../../app/settings/resource/ProjectUpdateRequest';
@@ -379,12 +378,6 @@ export const updateProject = (): ResultAsync<void, Error> => {
             return error;
         });
 };
-
-//
-// * Initialization
-//
-
-void loadLanguages();
 
 //
 // * Internal

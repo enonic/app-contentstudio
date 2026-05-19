@@ -2,8 +2,9 @@ import {Button} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {OctagonAlert} from 'lucide-react';
 import {type ReactElement, useCallback, useEffect, useMemo} from 'react';
-import {RawValueProvider, ValidationVisibilityProvider} from '@enonic/lib-admin-ui/form2';
+import {FieldRegistryProvider, RawValueProvider, ValidationVisibilityProvider} from '@enonic/lib-admin-ui/form2';
 import {useI18n} from '../../../hooks/useI18n';
+import {getAiFieldRegistry} from '../../../store/ai/ai.field-registry';
 import {$mixinsDescriptors, $wizardDraftMixins, notifyMixinMounted, setDraftMixinEnabled} from '../../../store/wizardContent.store';
 import {$validationVisibility, getMixinRawValueMap} from '../../../store/wizardValidation.store';
 import {FormRenderer} from '../../../shared/form';
@@ -38,6 +39,8 @@ export const MixinView = ({mixinName}: MixinViewProps): ReactElement | null => {
         [descriptor],
     );
 
+    const fieldRegistry = useMemo(() => getAiFieldRegistry('mixin'), []);
+
     const isUnknown = !descriptor && draftMixins.some((mixin) => mixin.getName().toString() === mixinName);
 
     const handleDetach = useCallback(() => {
@@ -71,11 +74,13 @@ export const MixinView = ({mixinName}: MixinViewProps): ReactElement | null => {
     return (
         <ValidationVisibilityProvider visibility={visibility}>
             <RawValueProvider map={rawValueMap}>
-                <FormRenderer
-                    form={form}
-                    propertySet={mixinData.getRoot()}
-                    applicationKey={applicationKey}
-                />
+                <FieldRegistryProvider registry={fieldRegistry}>
+                    <FormRenderer
+                        form={form}
+                        propertySet={mixinData.getRoot()}
+                        applicationKey={applicationKey}
+                    />
+                </FieldRegistryProvider>
             </RawValueProvider>
         </ValidationVisibilityProvider>
     );

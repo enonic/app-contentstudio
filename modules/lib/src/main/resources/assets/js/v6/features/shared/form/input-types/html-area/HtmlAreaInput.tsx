@@ -48,6 +48,8 @@ type CKEditorWrapperProps = {
     onChange: (value: Value, rawValue?: string) => void;
     onBlur?: () => void;
     enabled: boolean;
+    readOnly: boolean;
+    processing: boolean;
     contentSummary: ContentSummary | undefined;
     project: Readonly<Project> | undefined;
     applicationKeys: ApplicationKey[];
@@ -70,6 +72,8 @@ const CKEditorWrapper = ({
     onChange,
     onBlur,
     enabled,
+    readOnly,
+    processing,
     contentSummary,
     project,
     applicationKeys,
@@ -294,12 +298,39 @@ const CKEditorWrapper = ({
         };
     }, [status, editor]);
 
-    // Sync read-only state
+    // Sync read-only state. `processing` and `readOnly` lock editing the same way `!enabled` does.
     useEffect(() => {
         if (editor && status === 'ready') {
-            editor.setReadOnly(!enabled);
+            editor.setReadOnly(!enabled || readOnly || processing);
         }
-    }, [editor, status, enabled]);
+    }, [editor, status, enabled, readOnly, processing]);
+
+    // Toggle the `processing` class on the iframe body so the in-iframe LESS can swap the
+    // editing surface bg + cursor. Re-applies on `contentDom` because CKE recreates the body.
+    useEffect(() => {
+        if (status !== 'ready' || !editor) {
+            return;
+        }
+
+        const apply = (): void => {
+            const body = editor.document?.getBody();
+            if (!body) {
+                return;
+            }
+            if (processing) {
+                body.addClass('processing');
+            } else {
+                body.removeClass('processing');
+            }
+        };
+
+        apply();
+        editor.on('contentDom', apply);
+
+        return () => {
+            editor.removeListener('contentDom', apply);
+        };
+    }, [editor, status, processing]);
 
     // Expose the HtmlArea wrapper as a single row target and translate editor-body Tab
     // presses back into the surrounding row navigation model.
@@ -394,30 +425,55 @@ const CKEditorWrapper = ({
         );
     }
 
+    const showFocusRing = focused && !processing;
+    const showErrorState = hasError && !processing;
+
+    const wrapperClassName = cn(
+        'html-area relative rounded-sm *:rounded-sm transition-highlight',
+        showFocusRing && 'ring-3 ring-offset-3 ring-offset-ring-offset',
+        showFocusRing && (hasError ? 'ring-error' : 'ring-ring'),
+        showErrorState && 'has-error [&_.cke_chrome]:!border-error',
+        processing && [
+            'input-animated-border cursor-progress select-none [--shimmer-band-size:320px]',
+            '[&_.cke_chrome]:!border-transparent',
+            '[&_.cke_top]:opacity-50 [&_.cke_top]:pointer-events-none',
+        ],
+    );
+
     return (
         <>
-            <div data-name={CKEDITOR_WRAPPER_NAME} className={cn(
-                'html-area rounded-sm *:rounded-sm transition-highlight',
-                focused && 'ring-3 ring-offset-3 ring-offset-ring-offset',
-                focused && (hasError ? 'ring-error' : 'ring-ring'),
-                hasError && 'has-error [&_.cke_chrome]:!border-error',
-            )}
-            ref={wrapperRef}
-            tabIndex={0}
-            data-sortable-list-composite-target='true'
-            onFocus={(event: JSX.TargetedFocusEvent<HTMLDivElement>) => {
-                if (event.target !== event.currentTarget) {
-                    return;
-                }
+            <div
+                data-name={CKEDITOR_WRAPPER_NAME}
+                className={wrapperClassName}
+                ref={wrapperRef}
+                tabIndex={0}
+                data-sortable-list-composite-target='true'
+                aria-busy={processing || undefined}
+                onFocus={(event: JSX.TargetedFocusEvent<HTMLDivElement>) => {
+                    if (event.target !== event.currentTarget) {
+                        return;
+                    }
 
-                focusEditorFromWrapper();
-            }}>
+                    focusEditorFromWrapper();
+                }}
+            >
                 <textarea
                     className="hidden invisible"
                     ref={setElement}
                     id={editorId}
                     name={editorId}
                 />
+                {processing && (
+                    <div
+                        aria-hidden='true'
+                        className={cn(
+                            'pointer-events-none absolute inset-0 z-10 opacity-60',
+                            'bg-[length:var(--shimmer-band-size)_100%] bg-no-repeat',
+                            'bg-[linear-gradient(105deg,transparent_0%,var(--color-surface-shimmer)_50%,transparent_100%)]',
+                            'animate-[skeleton-shimmer_1.6s_ease-in-out_infinite]',
+                        )}
+                    />
+                )}
             </div>
             <HtmlAreaImageDialog openRef={openImageDialogRef} />
             <HtmlAreaLinkDialog openRef={openLinkDialogRef} />
@@ -438,6 +494,8 @@ export const HtmlAreaInput = ({
     enabled,
     index,
     errors,
+    readOnly = false,
+    processing = false,
 }: InputTypeComponentProps<HtmlAreaConfig>): JSX.Element => {
     const {contentSummary, project, applicationKeys, assetsUri} = useHtmlAreaContext();
 
@@ -487,6 +545,8 @@ export const HtmlAreaInput = ({
                 onChange={onChange}
                 onBlur={onBlur}
                 enabled={enabled}
+                readOnly={readOnly}
+                processing={processing}
                 contentSummary={contentSummary}
                 project={project}
                 applicationKeys={applicationKeys}
@@ -494,7 +554,7 @@ export const HtmlAreaInput = ({
                 hasError={hasError}
                 editableSourceCode={editableSourceCode}
             />
-            <FieldError message={getFirstError(errors)} />
+            {!processing && <FieldError message={getFirstError(errors)} />}
         </>
     );
 };

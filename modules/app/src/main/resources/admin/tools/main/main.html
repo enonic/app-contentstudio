@@ -62,16 +62,26 @@
     <link rel="stylesheet" type="text/css" href="{{assetsUri}}/styles/index.css">
     <script type="text/javascript" src="{{assetsUri}}/admin/common/js/lib.js"></script>
 
+    {{#isAiEnabled}}
+    <!-- Seed window.Enonic.AI so async plugin bundles can register before initAiHost() runs -->
+    <script>
+        (function () {
+            window.Enonic = window.Enonic || {};
+            var ai = window.Enonic.AI = window.Enonic.AI || {};
+            ai._pending = ai._pending || [];
+            ai.register = ai.register || function (plugin) { ai._pending.push(plugin); };
+        })();
+    </script>
+    {{/isAiEnabled}}
+
     {{#aiContentOperatorAssetsUrl}}
     <!-- Append AI Content Operator -->
-    <link rel="stylesheet" type="text/css" href="{{aiContentOperatorAssetsUrl}}/style.css">
     <script type="text/javascript" src="{{aiContentOperatorAssetsUrl}}/index.js" data-locales="{{aiLocales}}"
             data-asset-url="{{aiContentOperatorAssetsUrl}}" async></script>
     {{/aiContentOperatorAssetsUrl}}
 
     {{#aiTranslatorAssetsUrl}}
     <!-- Append AI Translator -->
-    <link rel="stylesheet" type="text/css" href="{{aiTranslatorAssetsUrl}}/style.css">
     <script type="text/javascript" src="{{aiTranslatorAssetsUrl}}/index.js" data-locales="{{aiLocales}}"
             data-asset-url="{{aiTranslatorAssetsUrl}}" async></script>
     {{/aiTranslatorAssetsUrl}}

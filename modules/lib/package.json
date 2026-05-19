@@ -8,15 +8,15 @@
     "url": "https://github.com/enonic/app-contentstudio"
   },
   "scripts": {
-    "build:prod": "pnpm --color /^build:prod:.*$/",
+    "build:prod": "pnpm run /^build:prod:.*$/",
     "build:prod:client": "tsc --pretty",
     "build:prod:lib": "rspack build",
     "build:prod:css": "vite build --mode production --config vite.config.css.mjs",
-    "build:dev": "pnpm --color /^build:dev:.*$/",
+    "build:dev": "pnpm run /^build:dev:.*$/",
     "build:dev:client": "tsc --pretty --inlineSourceMap --inlineSources",
     "build:dev:lib": "rspack build",
     "build:dev:css": "vite build --mode development --config vite.config.css.mjs",
-    "check": "pnpm --color /^check:.*$/",
+    "check": "pnpm run /^check:.*$/",
     "check:types": "tsc --skipLibCheck --declaration --noEmit",
     "check:lint": "eslint **/*.ts --quiet --cache",
     "check:lint:fix": "eslint **/*.ts --quiet --cache --fix",
@@ -26,7 +26,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@enonic/ui": "~1.0.0-beta.1",
+    "@enonic/ui": "~1.0.0-beta.3",
     "@nanostores/preact": "^1.0.0",
     "ckeditor4-react": "4.3.0",
     "class-variance-authority": "^0.7.1",
@@ -87,9 +87,9 @@
     "vite": "^7.1.3",
     "vitest": "^4.0.11"
   },
-  "packageManager": "pnpm@10.30.2",
+  "packageManager": "pnpm@10.33.4",
   "engines": {
     "node": ">= 24.13.0",
-    "pnpm": ">= 10.30.2"
+    "pnpm": ">= 10.33.4"
   }
 }
