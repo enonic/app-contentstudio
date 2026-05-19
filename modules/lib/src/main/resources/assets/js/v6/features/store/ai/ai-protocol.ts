@@ -29,6 +29,10 @@ export type AiFieldStateDetail = {
     message?: string;
 };
 
+export type AiAnimation = 'glow' | 'innerGlow' | 'scroll';
+
+export type AiColor = 'green' | 'amber';
+
 // ---- State snapshots --------------------------------------------------------
 
 export type AiContentSnapshot = {
@@ -95,7 +99,7 @@ export type AiPluginApi = {
 
     applyValue(path: AiFieldPath, text: string): boolean;
     setFieldState(path: AiFieldPath, state: AiFieldState, detail?: AiFieldStateDetail): void;
-    animateField(path: AiFieldPath): void;
+    animateField(path: AiFieldPath, kinds: AiAnimation[], color?: AiColor): void;
     setContext(context: string | null): void;
     setDialogState(open: boolean): void;
     requestSave(): void;

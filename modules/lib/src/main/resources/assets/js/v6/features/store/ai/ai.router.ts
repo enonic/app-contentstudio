@@ -1,10 +1,10 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ComponentPath} from '../../../../app/page/region/ComponentPath';
 import {PageEventsManager} from '../../../../app/wizard/PageEventsManager';
-import type {AiFieldPath, AiFieldState, AiFieldStateDetail} from './ai-protocol';
+import type {AiAnimation, AiFieldPath, AiFieldState, AiFieldStateDetail} from './ai-protocol';
 import {setAiValueAtPath} from './ai.bridge';
 import {resolveAiFieldTarget} from './ai.field-registry';
-import {$aiTopicError, $aiTopicProcessing} from './ai.store';
+import {$aiTopicError, $aiTopicHighlight, $aiTopicProcessing} from './ai.store';
 import {toAiToolHelperPath} from './ai.tool-path';
 
 //
@@ -126,10 +126,25 @@ function routeFieldRegistryState(path: AiFieldPath, state: AiFieldState, detail?
 // Brings the field at `path` into view through its FieldRegistry handle. Backs
 // the plugin API's `animateField`. No-op for paths with no form field — topic
 // and page text components, for which `resolveAiFieldTarget` returns null.
-export function revealFieldAtPath(path: AiFieldPath): void {
+//
+// `kinds` controls which animations run: highlight is always applied; scroll is
+// only applied when `'scroll'` is present. The plugin sends `['scroll', glow]`
+// for single-mention interactions and `[glow]` for bulk apply-all (highlight
+// without scrolling).
+export function revealFieldAtPath(path: AiFieldPath, kinds: AiAnimation[]): void {
+    const scroll = kinds.includes('scroll');
+
+    // The display-name field has no FieldRegistry handle — reveal it through the
+    // dedicated topic atom, same as topic processing/error state.
+    if (path.kind === 'topic') {
+        const current = $aiTopicHighlight.get();
+        $aiTopicHighlight.set({count: current.count + 1, scroll});
+        return;
+    }
+
     const target = resolveAiFieldTarget(path);
     if (target == null) {
         return;
     }
-    target.registry.reveal(target.fieldPath);
+    target.registry.reveal(target.fieldPath, undefined, {scroll});
 }

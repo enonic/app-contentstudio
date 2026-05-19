@@ -1,4 +1,4 @@
-import {cn} from '@enonic/ui';
+import {cn, useBlinkAttention} from '@enonic/ui';
 import {FieldError} from '@enonic/lib-admin-ui/form2/components/field-error';
 import {useStore} from '@nanostores/preact';
 import {
@@ -12,7 +12,14 @@ import {
     type KeyboardEventHandler,
     type ReactElement,
 } from 'react';
-import {$aiTopicError, $aiTopicProcessing, AI_TOPIC_PATH, clearAiTopicError, sendPluginContext} from '../../../store/ai';
+import {
+    $aiTopicError,
+    $aiTopicHighlight,
+    $aiTopicProcessing,
+    AI_TOPIC_PATH,
+    clearAiTopicError,
+    sendPluginContext,
+} from '../../../store/ai';
 import {useI18n} from '../../../hooks/useI18n';
 import {
     $displayName,
@@ -40,8 +47,11 @@ export const DisplayNameInput = (): ReactElement => {
     const readOnly = useStore($wizardReadOnly);
     const aiProcessing = useStore($aiTopicProcessing);
     const aiError = useStore($aiTopicError);
+    const topicHighlight = useStore($aiTopicHighlight);
     const [touched, setTouched] = useState(false);
     const inputRef = useRef<HTMLTextAreaElement | null>(null);
+    const rootRef = useRef<HTMLDivElement | null>(null);
+    const isBlinking = useBlinkAttention(rootRef, topicHighlight.count, {scrollIntoView: topicHighlight.scroll});
 
     const placeholder = useI18n('field.displayName');
     const requiredErrorMessage = useI18n('field.displayName.required');
@@ -160,7 +170,7 @@ export const DisplayNameInput = (): ReactElement => {
     }, [isEditing, updateEditorHeight]);
 
     return (
-        <div>
+        <div ref={rootRef} className={cn('rounded-sm', isBlinking && 'input-blink-attention')}>
             {!isEditing ? (
                 <button
                     type="button"

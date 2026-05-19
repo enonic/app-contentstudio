@@ -6,7 +6,7 @@ import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {FieldError} from '@enonic/lib-admin-ui/form2/components/field-error';
 import type {InputTypeComponentProps} from '@enonic/lib-admin-ui/form2/types';
 import {getFirstError} from '@enonic/lib-admin-ui/form2/utils/validation';
-import {cn} from '@enonic/ui';
+import {cn, useBlinkAttention} from '@enonic/ui';
 import {useCKEditor} from 'ckeditor4-react';
 import {useEffect, useRef, useState, type JSX} from 'react';
 import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
@@ -56,6 +56,8 @@ type CKEditorWrapperProps = {
     assetsUri: string;
     hasError: boolean;
     editableSourceCode: boolean;
+    inputRef?: (el: HTMLElement | null) => void;
+    highlight?: number;
 };
 
 const CKEDITOR_WRAPPER_NAME = 'CKEditorWrapper';
@@ -80,6 +82,8 @@ const CKEditorWrapper = ({
     assetsUri,
     hasError,
     editableSourceCode,
+    inputRef,
+    highlight,
 }: CKEditorWrapperProps): JSX.Element => {
     const [element, setElement] = useState<HTMLTextAreaElement | null>(null);
     const [focused, setFocused] = useState(false);
@@ -111,6 +115,18 @@ const CKEditorWrapper = ({
         ...createTableDialogOverride(),
         ...createTableQuicktablePopupOverride(),
     });
+
+    const isBlinking = useBlinkAttention(wrapperRef, highlight);
+
+    // Report the editor wrapper as the focusable element so InputField's reveal can
+    // scroll to it — the editor itself exposes no DOM node InputField can address.
+    useEffect(() => {
+        if (inputRef == null) {
+            return undefined;
+        }
+        inputRef(wrapperRef.current);
+        return () => inputRef(null);
+    }, [inputRef]);
 
     // Mark unmounted to prevent debounced callbacks from firing
     useEffect(() => {
@@ -430,6 +446,7 @@ const CKEditorWrapper = ({
 
     const wrapperClassName = cn(
         'html-area relative rounded-sm *:rounded-sm transition-highlight',
+        isBlinking && 'input-blink-attention',
         showFocusRing && 'ring-3 ring-offset-3 ring-offset-ring-offset',
         showFocusRing && (hasError ? 'ring-error' : 'ring-ring'),
         showErrorState && 'has-error [&_.cke_chrome]:!border-error',
@@ -496,6 +513,8 @@ export const HtmlAreaInput = ({
     errors,
     readOnly = false,
     processing = false,
+    inputRef,
+    highlight,
 }: InputTypeComponentProps<HtmlAreaConfig>): JSX.Element => {
     const {contentSummary, project, applicationKeys, assetsUri} = useHtmlAreaContext();
 
@@ -553,6 +572,8 @@ export const HtmlAreaInput = ({
                 assetsUri={assetsUri}
                 hasError={hasError}
                 editableSourceCode={editableSourceCode}
+                inputRef={inputRef}
+                highlight={highlight}
             />
             {!processing && <FieldError message={getFirstError(errors)} />}
         </>
