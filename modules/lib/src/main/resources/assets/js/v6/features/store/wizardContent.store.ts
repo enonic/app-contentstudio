@@ -15,6 +15,9 @@ import {WorkflowState} from '../../../app/content/WorkflowState';
 import type {ContentType} from '../../../app/inputtype/schema/ContentType';
 import type {Page} from '../../../app/page/Page';
 import {ContentDiffHelper} from '../../../app/util/ContentDiffHelper';
+import {setAiDataTree, setAiWizardBridge} from './ai';
+import {$layoutDescriptorOptions, $partDescriptorOptions} from './component-inspection.store';
+import {$pageConfigDescriptor} from './page-inspection.store';
 import {
     addStringOccurrence,
     removeStringOccurrence,
@@ -815,6 +818,10 @@ $wizardDraftData.subscribe((tree) => {
     cleanupTreeListener?.();
     cleanupTreeListener = null;
 
+    // The AI bridge writes translated values directly into this tree, so AI must
+    // see the same instance the form is bound to.
+    setAiDataTree(tree as PropertyTree | null);
+
     if (tree) {
         const handler = () => {
             bumpDraftDataVersion();
@@ -822,6 +829,20 @@ $wizardDraftData.subscribe((tree) => {
         tree.onChanged(handler);
         cleanupTreeListener = () => tree.unChanged(handler);
     }
+});
+
+// Expose wizard writers to the AI bridge. Registering at module load (rather than
+// importing the wizard store from ai.bridge) keeps the dependency one-directional:
+// wizardContent → ai, with no back-edge that would form a module cycle.
+setAiWizardBridge({
+    applyDisplayName: setDraftDisplayName,
+    getCurrentDisplayName: () => $wizardDraftDisplayName.get(),
+    findMixinByKey: (key) => $wizardDraftMixins.get().find((m) => m.getName().toString() === key),
+    getCurrentMixins: () => $wizardDraftMixins.get(),
+    getCurrentMixinDescriptors: () => $mixinsDescriptors.get(),
+    getCurrentPage: () => $wizardDraftPage.get(),
+    getCurrentPageDescriptor: () => $pageConfigDescriptor.get(),
+    getCurrentComponentDescriptors: () => [...$partDescriptorOptions.get(), ...$layoutDescriptorOptions.get()],
 });
 
 const $siteConfigAppKeys = computed(

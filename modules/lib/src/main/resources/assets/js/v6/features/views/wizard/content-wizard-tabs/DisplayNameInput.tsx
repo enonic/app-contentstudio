@@ -1,5 +1,4 @@
 import {cn} from '@enonic/ui';
-import {AiContentOperatorSetContextEvent} from '@enonic/lib-admin-ui/ai/event/AiContentOperatorSetContextEvent';
 import {FieldError} from '@enonic/lib-admin-ui/form2/components/field-error';
 import {useStore} from '@nanostores/preact';
 import {
@@ -13,7 +12,7 @@ import {
     type KeyboardEventHandler,
     type ReactElement,
 } from 'react';
-import {AiContentDataHelper} from '../../../../../app/ai/AiContentDataHelper';
+import {$aiTopicError, $aiTopicProcessing, AI_TOPIC_PATH, clearAiTopicError, sendPluginContext} from '../../../store/ai';
 import {useI18n} from '../../../hooks/useI18n';
 import {
     $displayName,
@@ -27,7 +26,7 @@ import {$validationVisibility} from '../../../store/wizardValidation.store';
 const DISPLAY_NAME_INPUT_NAME = 'DisplayNameInput';
 
 function setAIContext(): void {
-    new AiContentOperatorSetContextEvent(AiContentDataHelper.TOPIC_PATH).fire();
+    sendPluginContext('ai.contentOperator', AI_TOPIC_PATH);
 }
 
 function normalizeSingleLineValue(value: string): string {
@@ -39,27 +38,35 @@ export const DisplayNameInput = (): ReactElement => {
     const shouldFocus = useStore($displayNameInputFocusRequested);
     const visibility = useStore($validationVisibility);
     const readOnly = useStore($wizardReadOnly);
+    const aiProcessing = useStore($aiTopicProcessing);
+    const aiError = useStore($aiTopicError);
     const [touched, setTouched] = useState(false);
     const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
     const placeholder = useI18n('field.displayName');
-    const errorMessage = useI18n('field.displayName.required');
+    const requiredErrorMessage = useI18n('field.displayName.required');
 
     const isInvalid = displayName.trim().length === 0;
-    const showError = isInvalid && (
+    const showRequiredError = !aiProcessing && !aiError && isInvalid && (
         visibility === 'all' || (visibility === 'interactive' && touched)
     );
+    // AI failure wins over the required-field check the same way `InputField`
+    // surfaces transient translator errors above validation errors.
+    const visibleError = aiProcessing
+        ? undefined
+        : aiError ?? (showRequiredError ? requiredErrorMessage : undefined);
+    const showErrorBorder = !aiProcessing && (aiError != null || showRequiredError);
 
     const [isEditing, setIsEditing] = useState(false);
     const isShowingPlaceholder = !displayName && !!placeholder;
 
     const startEditing = useCallback((): void => {
-        if (readOnly) {
+        if (readOnly || aiProcessing) {
             return;
         }
 
         setIsEditing(true);
-    }, [readOnly]);
+    }, [readOnly, aiProcessing]);
 
     const updateEditorHeight = useCallback((): void => {
         if (!inputRef.current) {
@@ -75,6 +82,8 @@ export const DisplayNameInput = (): ReactElement => {
     }, []);
 
     const handleEditorChange: ChangeEventHandler<HTMLTextAreaElement> = useCallback((event): void => {
+        // Mirrors InputField: clear the transient AI error as soon as the user starts editing.
+        clearAiTopicError();
         setDraftDisplayName(normalizeSingleLineValue(event.currentTarget.value));
     }, []);
 
@@ -97,12 +106,21 @@ export const DisplayNameInput = (): ReactElement => {
     }, []);
 
     useLayoutEffect(() => {
-        if (!shouldFocus || !isInvalid || readOnly) {
+        if (!shouldFocus || !isInvalid || readOnly || aiProcessing) {
             return;
         }
 
         setIsEditing(true);
-    }, [shouldFocus, isInvalid, readOnly]);
+    }, [shouldFocus, isInvalid, readOnly, aiProcessing]);
+
+    // AI streamed updates land in the display value while editing would mask them.
+    // Switching out of edit mode lets the shimmer overlay show and prevents the
+    // caret from jumping while text arrives.
+    useEffect(() => {
+        if (aiProcessing && isEditing) {
+            setIsEditing(false);
+        }
+    }, [aiProcessing, isEditing]);
 
     useLayoutEffect(() => {
         if (!isEditing || !inputRef.current) {
@@ -147,8 +165,9 @@ export const DisplayNameInput = (): ReactElement => {
                 <button
                     type="button"
                     data-component={DISPLAY_NAME_INPUT_NAME}
-                    aria-invalid={showError || undefined}
-                    disabled={readOnly}
+                    aria-invalid={showErrorBorder || undefined}
+                    aria-busy={aiProcessing || undefined}
+                    disabled={readOnly || aiProcessing}
                     onClick={startEditing}
                     onFocus={startEditing}
                     className={cn(
@@ -156,10 +175,16 @@ export const DisplayNameInput = (): ReactElement => {
                         'px-2.5 py-1 pl-4.5 rounded-none',
                         'hover:not-disabled:border-l-4 hover:not-disabled:pl-3.75',
                         'focus:outline-none focus:ring-0 focus:ring-offset-0',
-                        'disabled:select-none disabled:cursor-not-allowed disabled:opacity-50',
+                        'disabled:select-none disabled:cursor-not-allowed',
+                        !aiProcessing && 'disabled:opacity-50',
+                        aiProcessing && 'cursor-progress animate-text-shimmer',
                         touched ? 'whitespace-pre-wrap break-words' : 'truncate',
-                        isShowingPlaceholder && 'text-subtle/50',
-                        showError ? 'border-l-error focus:border-l-error' : 'border-l-bdr-subtle focus:border-l-ring',
+                        !aiProcessing && isShowingPlaceholder && 'text-subtle/50',
+                        showErrorBorder
+                            ? 'border-l-error focus:border-l-error'
+                            : aiProcessing
+                                ? 'border-l-bdr-select'
+                                : 'border-l-bdr-subtle focus:border-l-ring',
                     )}
                 >
                     {displayName || placeholder}
@@ -170,7 +195,7 @@ export const DisplayNameInput = (): ReactElement => {
                     data-component={DISPLAY_NAME_INPUT_NAME}
                     value={displayName}
                     placeholder={placeholder}
-                    aria-invalid={showError || undefined}
+                    aria-invalid={showErrorBorder || undefined}
                     rows={1}
                     onChange={handleEditorChange}
                     onFocus={handleEditorFocus}
@@ -183,11 +208,11 @@ export const DisplayNameInput = (): ReactElement => {
                         '[&:hover,&:focus]:border-l-4 [&:hover,&:focus]:pl-3.75 placeholder:text-subtle/50 rounded-none',
                         'transition-highlight focus:outline-none disabled:select-none disabled:cursor-not-allowed disabled:opacity-50',
                         'focus:ring-0 focus:ring-offset-0 focus:border-transparent',
-                        showError ? 'border-l-error focus:border-l-error' : 'border-l-bdr-subtle focus:border-l-ring',
+                        showErrorBorder ? 'border-l-error focus:border-l-error' : 'border-l-bdr-subtle focus:border-l-ring',
                     )}
                 />
             )}
-            <FieldError className="mt-2" message={showError ? errorMessage : undefined} />
+            <FieldError className="mt-2" message={visibleError} />
         </div>
     );
 };

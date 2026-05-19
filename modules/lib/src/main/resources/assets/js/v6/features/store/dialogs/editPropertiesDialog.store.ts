@@ -8,7 +8,6 @@ import {ContentLanguageUpdatedEvent} from '../../../../app/event/ContentLanguage
 import {GetContentByIdRequest} from '../../../../app/resource/GetContentByIdRequest';
 import {UpdateContentLanguageRequest} from '../../../../app/resource/UpdateContentLanguageRequest';
 import {UpdateContentMetadataRequest} from '../../../../app/resource/UpdateContentMetadataRequest';
-import {loadLanguages} from '../languages.store';
 import {loadPrincipalsByKeys} from '../principals.store';
 
 //
@@ -70,7 +69,6 @@ export const openEditPropertiesDialog = (content: ContentSummary): void => {
         ownerSelection: ownerKey ? [ownerKey] : [],
     });
 
-    void loadLanguages();
     if (ownerKey) {
         void loadPrincipalsByKeys([PrincipalKey.fromString(ownerKey)]);
     }

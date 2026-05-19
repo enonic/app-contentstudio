@@ -244,3 +244,19 @@ html.dark.cke_panel_container.htmlarea-styles-popup {
   --cke-popup-text: @cke-dark-text;
   --cke-popup-text-subtle: @cke-dark-text-subtle;
 }
+
+// Processing state — toggled via the `processing` class on the editable body while an
+// external caller (e.g. AI bridge) holds a processing lock. Mirrors the surface-primary
+// readonly bg from @enonic/ui Input/TextArea, plus a progress cursor over the whole surface.
+body.cke_editable.processing {
+  background-color: #f1f5f6; // grey-50 / --color-surface-primary (light)
+  cursor: progress;
+
+  * {
+    cursor: progress;
+  }
+}
+
+body.cke_editable.dark-mode.processing {
+  background-color: @cke-dark-surface-hover; // grey-900 / --color-surface-primary (dark)
+}

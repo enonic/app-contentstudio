@@ -10,7 +10,6 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
 import {getActiveProject, getActiveProjectName} from '../../v6/features/store/activeProject.store';
 import {normalizeContentPathName} from '../../v6/features/utils/cms/content/paths';
-import {AI} from '../ai/AI';
 import {ContentName} from '../content/ContentName';
 import {ContentUnnamed} from '../content/ContentUnnamed';
 import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
@@ -60,8 +59,6 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
     private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
 
     private hiddenElementsHost?: DivEl;
-
-    private aiContentOperatorButtonContainer: DivEl;
 
     private stateIcon?: DivEl;
 
@@ -129,7 +126,6 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
         }
 
         this.addHiddenPublishControls();
-        this.addEnonicAiContentOperatorButton();
 
         this.fetchProjectInfo();
 
@@ -303,25 +299,6 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
 
         const pathName = item?.getPath()?.getName() || '';
         return pathName.startsWith(ContentUnnamed.UNNAMED_PREFIX) ? '' : pathName;
-    }
-
-    private addEnonicAiContentOperatorButton(): void {
-        AI.get().whenReady(() => {
-            if (!this.hiddenElementsHost || !AI.get().has('contentOperator')) {
-                return;
-            }
-
-            this.aiContentOperatorButtonContainer = new DivEl('ai-content-operator-button-container');
-            this.hiddenElementsHost.appendChild(this.aiContentOperatorButtonContainer);
-
-            const aiContentOperatorDialogContainer = new DivEl('ai-content-operator-dialog-container');
-            Body.get().appendChild(aiContentOperatorDialogContainer);
-
-            AI.get().renderContentOperator(
-                this.aiContentOperatorButtonContainer.getHTMLElement(),
-                aiContentOperatorDialogContainer.getHTMLElement()
-            );
-        });
     }
 
     private fetchProjectInfo(): void {

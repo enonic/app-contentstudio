@@ -1,8 +1,9 @@
-import {RawValueProvider, ValidationVisibilityProvider} from '@enonic/lib-admin-ui/form2';
+import {FieldRegistryProvider, RawValueProvider, ValidationVisibilityProvider} from '@enonic/lib-admin-ui/form2';
 import {useStore} from '@nanostores/preact';
 import {type ReactElement, useEffect, useMemo} from 'react';
 import {FormRenderer} from '../../../shared/form';
 import {useBreakpoints} from '../../../hooks/useBreakpoints';
+import {getAiFieldRegistry} from '../../../store/ai/ai.field-registry';
 import {$contentType, $wizardDraftData, notifyContentFormMounted} from '../../../store/wizardContent.store';
 import {$validationVisibility, getContentRawValueMap} from '../../../store/wizardValidation.store';
 import {DisplayNameInput} from './DisplayNameInput';
@@ -19,6 +20,7 @@ export const ContentForm = (): ReactElement | null => {
     const isReady = contentType != null && draftData != null;
     const rawValueMap = useMemo(() => getContentRawValueMap(), []);
     const applicationKey = useMemo(() => contentType?.getContentTypeName().getApplicationKey(), [contentType]);
+    const fieldRegistry = useMemo(() => getAiFieldRegistry('data'), []);
 
     useEffect(() => {
         if (isReady) {
@@ -50,12 +52,14 @@ export const ContentForm = (): ReactElement | null => {
             <DisplayNameInput />
             <ValidationVisibilityProvider visibility={visibility}>
                 <RawValueProvider map={rawValueMap}>
-                    <FormRenderer
-                        form={contentType.getForm()}
-                        propertySet={draftData.getRoot()}
-                        applicationKey={applicationKey}
-                        excludeInputTypes={excludeInputTypes}
-                    />
+                    <FieldRegistryProvider registry={fieldRegistry}>
+                        <FormRenderer
+                            form={contentType.getForm()}
+                            propertySet={draftData.getRoot()}
+                            applicationKey={applicationKey}
+                            excludeInputTypes={excludeInputTypes}
+                        />
+                    </FieldRegistryProvider>
                 </RawValueProvider>
             </ValidationVisibilityProvider>
         </div>

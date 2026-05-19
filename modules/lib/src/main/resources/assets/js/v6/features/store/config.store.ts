@@ -3,6 +3,12 @@ import type {PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';
 import {map} from 'nanostores';
 import {parseBoolean, parseString} from '../utils/format/values';
 
+type ConfigAiServices = {
+    aiContentOperatorWsServiceUrl: string;
+    aiTranslatorLicenseServiceUrl: string;
+    aiTranslatorWsServiceUrl: string;
+};
+
 type ConfigStore = {
     // App
     appId: string;
@@ -12,6 +18,10 @@ type ConfigStore = {
     excludeDependencies: boolean;
     allowContentUpdate: boolean;
     defaultPublishFromTime?: string;
+    // AI
+    aiEnabled: boolean;
+    sharedSocketUrl: string;
+    services: ConfigAiServices;
 };
 
 type ConfigJson = {
@@ -20,9 +30,31 @@ type ConfigJson = {
     excludeDependencies?: unknown;
     allowContentUpdate?: unknown;
     defaultPublishFromTime?: unknown;
+    aiEnabled?: unknown;
+    sharedSocketUrl?: unknown;
+    services?: {
+        aiContentOperatorWsServiceUrl?: unknown;
+        aiTranslatorLicenseServiceUrl?: unknown;
+        aiTranslatorWsServiceUrl?: unknown;
+    };
 };
 
-export const $config = map<ConfigStore>();
+const DEFAULT_CONFIG: Readonly<ConfigStore> = {
+    appId: '',
+    user: undefined,
+    excludeDependencies: false,
+    allowContentUpdate: false,
+    defaultPublishFromTime: undefined,
+    aiEnabled: false,
+    sharedSocketUrl: '',
+    services: {
+        aiContentOperatorWsServiceUrl: '',
+        aiTranslatorLicenseServiceUrl: '',
+        aiTranslatorWsServiceUrl: '',
+    },
+};
+
+export const $config = map<ConfigStore>(structuredClone(DEFAULT_CONFIG));
 
 export function initConfig(scriptId: string): void {
     const scriptElement = document.getElementById(scriptId);
@@ -51,6 +83,13 @@ function parseConfig(content: string): ConfigStore | undefined {
             excludeDependencies: parseBoolean(config.excludeDependencies),
             allowContentUpdate: parseBoolean(config.allowContentUpdate),
             defaultPublishFromTime: parseString(config.defaultPublishFromTime),
+            aiEnabled: parseBoolean(config.aiEnabled),
+            sharedSocketUrl: parseString(config.sharedSocketUrl),
+            services: {
+                aiContentOperatorWsServiceUrl: parseString(config.services?.aiContentOperatorWsServiceUrl),
+                aiTranslatorLicenseServiceUrl: parseString(config.services?.aiTranslatorLicenseServiceUrl),
+                aiTranslatorWsServiceUrl: parseString(config.services?.aiTranslatorWsServiceUrl),
+            },
         } satisfies ConfigStore;
     } catch (error) {
         console.error('Unable to parse config script content.', error);

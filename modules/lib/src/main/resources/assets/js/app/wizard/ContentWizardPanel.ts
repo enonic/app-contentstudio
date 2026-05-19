@@ -5,8 +5,6 @@ import {type WizardStepsPanel} from '@enonic/lib-admin-ui/app/wizard/WizardSteps
 import {type ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {Body} from '@enonic/lib-admin-ui/dom/Body';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
@@ -53,8 +51,16 @@ import {calcSecondaryStatus, calcTreePublishStatus} from '../../v6/features/util
 import {type PreviewToolbarElement} from '../../v6/features/views/browse/layout/preview/PreviewToolbar';
 import {ContentWizardTabsToolbarElement} from '../../v6/features/views/wizard/content-wizard-tabs/ContentWizardTabsToolbarElement';
 import {Permission} from '../access/Permission';
-import {AI} from '../ai/AI';
-import {AiTranslatorOpenDialogEvent} from '../ai/event/outgoing/AiTranslatorOpenDialogEvent';
+import {
+    openPluginDialog,
+    setAiCompareStatus,
+    setAiContent,
+    setAiContentHeader,
+    setAiContentType,
+    setAiLanguage,
+    updateAiInstructions,
+    whenAiReady,
+} from '../../v6/features/store/ai';
 import {ContentWizardToolbar} from '../browse/ContentWizardToolbar';
 import {type MovedContentItem} from '../browse/MovedContentItem';
 import {type CompareStatus} from '../content/CompareStatus';
@@ -253,7 +259,7 @@ export class ContentWizardPanel
         this.handleBrokenImageInTheWizard();
 
         ContentLanguageUpdatedEvent.on((event: ContentLanguageUpdatedEvent) => {
-            this.renderAndOpenTranslatorDialog(event.getLanguage());
+            this.openTranslatorDialog(event.getLanguage());
         });
     }
 
@@ -365,9 +371,9 @@ export class ContentWizardPanel
                 this.currentCompareStatus = loader.compareStatus;
                 this.currentPublishStatus = loader.publishStatus;
 
-                AI.get().setContentType(this.contentType);
-                AI.get().updateInstructions(this.getApplicationsConfigs());
-                AI.get().setCompareStatus(this.persistedCompareStatus);
+                setAiContentType(this.contentType);
+                updateAiInstructions(this.getApplicationsConfigs());
+                setAiCompareStatus(this.persistedCompareStatus);
             })
             .then(() => super.doLoadData())
             .then((loadedContent: Content) => {
@@ -835,11 +841,11 @@ export class ContentWizardPanel
             if (this.params.localized) {
                 this.onRendered(() => {
                     NotifyManager.get().showFeedback(i18n('notify.content.localized'));
-                    this.renderAndOpenTranslatorDialog();
+                    this.openTranslatorDialog();
                 });
             }
 
-            AI.get().setContentHeader(this.wizardHeader);
+            setAiContentHeader(this.wizardHeader);
             return this.fetchContentSummaryAndUpdate(persistedContent);
         });
     }
@@ -1338,7 +1344,7 @@ export class ContentWizardPanel
     private updateSiteModel(site: Site): void {
         this.siteModel.update(site);
         this.site = site;
-        AI.get().updateInstructions(this.getApplicationsConfigs());
+        updateAiInstructions(this.getApplicationsConfigs());
     }
 
     private initLiveEditModel(content: Content): LiveEditModel {
@@ -1589,7 +1595,7 @@ export class ContentWizardPanel
 
         setWizardPersistedContent(newPersistedItem);
 
-        AI.get().setContent(newPersistedItem);
+        setAiContent(newPersistedItem);
     }
 
     protected convertToCurrentItem(content: Content): Content {
@@ -1600,7 +1606,7 @@ export class ContentWizardPanel
         ContentContext.get().setContent(content);
         this.persistedCompareStatus = content.getCompareStatus();
 
-        AI.get().setCompareStatus(this.persistedCompareStatus);
+        setAiCompareStatus(this.persistedCompareStatus);
 
         this.contextView?.setItem(content);
     }
@@ -1676,10 +1682,6 @@ export class ContentWizardPanel
         return this.splitPanel;
     }
 
-    isTranslatable(): boolean {
-        return this.isContentExistsInParentProject() && this.getContent().hasOriginProject() &&
-               !!getActiveProject().getLanguage();
-    }
 
     private getTemplateForCustomize(): Q.Promise<PageTemplate> {
         const currentTemplateKey = PageState.getState()?.getTemplate();
@@ -1699,24 +1701,16 @@ export class ContentWizardPanel
         return [...(this.site?.getSiteConfigs() ?? []), ...getActiveProject().getSiteConfigs()];
     }
 
-    renderAndOpenTranslatorDialog(language?: string): void {
-        if ((!language && !this.isTranslatable()) || !AI.get().hasTranslator()) {
-            return;
-        }
-
+    // Opens the AI Translator dialog via the `dialog:open` plugin command.
+    // No-op if the translator plugin is not registered.
+    openTranslatorDialog(language?: string): void {
         if (language) {
-            AI.get().setLanguage(language);
+            setAiLanguage(language);
         }
 
-        const isAlreadyRendered = document.querySelector('.ai-translator-container');
-        if (!isAlreadyRendered) {
-            const aiTranslatorContainer = new DivEl('ai-translator-container');
-            Body.get().appendChild(aiTranslatorContainer);
-            AI.get().renderTranslator(aiTranslatorContainer.getHTMLElement());
-        }
-
-        AI.get().whenReady(() => {
-            new AiTranslatorOpenDialogEvent().fire();
+        whenAiReady(() => {
+            openPluginDialog('ai.translator');
         });
     }
+
 }

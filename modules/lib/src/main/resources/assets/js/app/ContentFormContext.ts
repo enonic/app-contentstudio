@@ -116,7 +116,6 @@ export class ContentFormContext
             .setFormState(this.getFormState())
             .setShowEmptyFormItemSetOccurrences(this.getShowEmptyFormItemSetOccurrences())
             .setName(this.getName())
-            .addAiTools(Array.from(this.getAiTools()))
             .setValidationErrors(this.getValidationErrors());
     }
 

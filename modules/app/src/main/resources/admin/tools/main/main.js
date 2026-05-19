@@ -54,6 +54,7 @@ exports.getParams = function (path, locales) {
         configScriptId: configLib.configJsonId,
         configAsJson: JSON.stringify(configLib.getConfig(locales, isAiEnabled), null, 4).replace(/<(\/?script|!--)/gi, "\\u003C$1"),
         isBrowseMode: isBrowseMode,
+        isAiEnabled: isAiEnabled,
         aiLocales: locales ? locales.join(',') : '',
     };
 };
