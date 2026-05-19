@@ -47,6 +47,7 @@ type CKEditorWrapperProps = {
     stringValue: string;
     onChange: (value: Value, rawValue?: string) => void;
     onBlur?: () => void;
+    onFocus?: () => void;
     enabled: boolean;
     readOnly: boolean;
     processing: boolean;
@@ -73,6 +74,7 @@ const CKEditorWrapper = ({
     stringValue,
     onChange,
     onBlur,
+    onFocus,
     enabled,
     readOnly,
     processing,
@@ -295,24 +297,28 @@ const CKEditorWrapper = ({
         onBlur,
     ]);
 
-    // Track editor focus for focus ring
+    // Track editor focus for focus ring and propagate to the host `onFocus` prop —
+    // CKEditor has no native focus event on a DOM node InputField can hook into.
     useEffect(() => {
         if (status !== 'ready' || !editor) {
             setFocused(false);
             return;
         }
 
-        const onFocus = () => setFocused(true);
+        const onEditorFocus = () => {
+            setFocused(true);
+            onFocus?.();
+        };
         const onEditorBlur = () => setFocused(false);
 
-        editor.on('focus', onFocus);
+        editor.on('focus', onEditorFocus);
         editor.on('blur', onEditorBlur);
 
         return () => {
-            editor.removeListener('focus', onFocus);
+            editor.removeListener('focus', onEditorFocus);
             editor.removeListener('blur', onEditorBlur);
         };
-    }, [status, editor]);
+    }, [status, editor, onFocus]);
 
     // Sync read-only state. `processing` and `readOnly` lock editing the same way `!enabled` does.
     useEffect(() => {
@@ -506,6 +512,7 @@ export const HtmlAreaInput = ({
     value,
     onChange,
     onBlur,
+    onFocus,
     config,
     input,
     enabled,
@@ -563,6 +570,7 @@ export const HtmlAreaInput = ({
                 stringValue={stringValue}
                 onChange={onChange}
                 onBlur={onBlur}
+                onFocus={onFocus}
                 enabled={enabled}
                 readOnly={readOnly}
                 processing={processing}

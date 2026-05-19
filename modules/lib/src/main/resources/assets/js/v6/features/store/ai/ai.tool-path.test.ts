@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {toAiToolHelperPath} from './ai.tool-path';
+import {toAiToolHelperPath, toPluginContextPath} from './ai.tool-path';
 
 describe('toAiToolHelperPath', () => {
     it('encodes topic', () => {
@@ -31,5 +31,23 @@ describe('toAiToolHelperPath', () => {
 
     it('encodes a component text path', () => {
         expect(toAiToolHelperPath({kind: 'componentText', component: '/main/0'})).toBe('__page__/main/0');
+    });
+});
+
+describe('toPluginContextPath', () => {
+    it('encodes topic to /__topic__', () => {
+        expect(toPluginContextPath({kind: 'topic'})).toBe('/__topic__');
+    });
+
+    it('encodes a data field with a leading slash and slash-separated tail', () => {
+        expect(toPluginContextPath({kind: 'data', field: 'intro'})).toBe('/intro');
+        expect(toPluginContextPath({kind: 'data', field: 'foo.bar'})).toBe('/foo/bar');
+    });
+
+    it('returns null for kinds the plugin cannot resolve in its form model', () => {
+        expect(toPluginContextPath({kind: 'mixin', mixin: 'com.enonic.app.foo:MyMixin', field: 'heading'})).toBeNull();
+        expect(toPluginContextPath({kind: 'pageConfig', field: 'heading'})).toBeNull();
+        expect(toPluginContextPath({kind: 'componentText', component: '/main/0'})).toBeNull();
+        expect(toPluginContextPath({kind: 'componentConfig', component: '/main/0', field: 'caption'})).toBeNull();
     });
 });
