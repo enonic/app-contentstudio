@@ -118,7 +118,9 @@ const CKEditorWrapper = ({
         ...createTableQuicktablePopupOverride(),
     });
 
-    const isBlinking = useBlinkAttention(wrapperRef, highlight);
+    // ? Scroll is owned by the parent InputField (gated on RevealOptions.scroll);
+    // the inner blink should highlight only, never scroll again.
+    const isBlinking = useBlinkAttention(wrapperRef, highlight, {scrollIntoView: false});
 
     // Report the editor wrapper as the focusable element so InputField's reveal can
     // scroll to it — the editor itself exposes no DOM node InputField can address.
