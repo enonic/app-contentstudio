@@ -1,12 +1,11 @@
 import type {AiFieldPath} from './ai-protocol';
 
 //
-// * AiFieldPath -> AiToolHelper path string
+// * AiFieldPath -> stable path-key string
 //
-// `toAiToolHelperPath` encodes an `AiFieldPath` into the slash-prefixed string
-// scheme that the lib-admin-ui `AiToolHelper` consumes for its animation and
-// state UI. This is the only remaining boundary where the union must cross into
-// the legacy string protocol; everything else routes on the union directly.
+// `toAiToolHelperPath` encodes an `AiFieldPath` into a deterministic
+// slash-prefixed string. `ai.router.ts` keys processing tokens by it, so the
+// same path maps to the same key across a field's processing/completed events.
 
 const DATA = '__data__';
 const MIXINS = '__mixins__';
