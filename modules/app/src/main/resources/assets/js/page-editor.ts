@@ -8,8 +8,10 @@ import {setActiveProject} from '@enonic/lib-contentstudio/v6/features/store/acti
 import {ComponentPath as EditorComponentPath, EditorEvent, EditorEvents, PageEditor} from '@enonic/page-editor';
 import DOMPurify from 'dompurify';
 
-PageEditor.init(true);
+PageEditor.init({editMode: true});
 
+// TODO: Add a new event to PageEditor.on(EditorEvents.Initialize)
+//  to encapsulate internal InitializeLiveEditEvent
 InitializeLiveEditEvent.on((event: InitializeLiveEditEvent) => {
     setActiveProject(Project.fromJson(event.projectJson));
 });
