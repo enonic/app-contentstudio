@@ -76,9 +76,9 @@
   "browserslist": [
     "extends browserslist-config-enonic"
   ],
-  "packageManager": "pnpm@10.30.2",
+  "packageManager": "pnpm@10.33.4",
   "engines": {
-    "node": ">= 24.13.0",
-    "pnpm": ">= 10.30.2"
+    "node": ">= 24.15.0",
+    "pnpm": ">= 10.33.4"
   }
 }
