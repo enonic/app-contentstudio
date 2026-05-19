@@ -1,9 +1,9 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Button, cn} from '@enonic/ui';
 import {Plus} from 'lucide-react';
 import {type ReactElement, useEffect, useRef, useState} from 'react';
 import {useStore} from '@nanostores/preact';
 import {listenKeys} from 'nanostores';
+import {useI18n} from '../../../../hooks/useI18n';
 import {$newContentDialog, openNewContentDialog} from '../../../../store/dialogs/newContentDialog.store';
 import {$contextContent} from '../../../../store/context/contextContent.store';
 import {$contentCreated} from '../../../../store/socket.store';
@@ -20,6 +20,7 @@ export const ContentSelectorInputAddButton = ({
     selection,
     onSelectionChange,
 }: ContentSelectorInputAddButtonProps): ReactElement => {
+    const addLabel = useI18n('action.add');
     const [progress, setProgress] = useState(0);
     const [uploadIds, setUploadIds] = useState<string[]>([]);
     const contextContent = useStore($contextContent);
@@ -116,7 +117,7 @@ export const ContentSelectorInputAddButton = ({
             variant="solid"
             onClick={handleClick}
             disabled={disabled}
-            aria-label={i18n('action.add')}
+            aria-label={addLabel}
             className={cn(
                 isUploading && 'pointer-events-none',
                 'relative w-full h-full rounded-none border border-bdr-subtle rounded-tr rounded-br bg-surface-selected',

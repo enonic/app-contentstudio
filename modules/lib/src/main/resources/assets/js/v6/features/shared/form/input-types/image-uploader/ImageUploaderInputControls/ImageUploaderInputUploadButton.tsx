@@ -1,4 +1,3 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {type ChangeEvent, type ReactElement, useCallback, useRef} from 'react';
 import {Button, cn} from '@enonic/ui';
 import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
@@ -16,6 +15,7 @@ export const ImageUploaderInputUploadButton = (): ReactElement => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const uploadLabel = useI18n('action.upload');
+    const uploadImageLabel = useI18n('tooltip.button.uploadImage');
 
     // Handlers
     const handleChange = useCallback(
@@ -63,7 +63,7 @@ export const ImageUploaderInputUploadButton = (): ReactElement => {
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
-                aria-label={i18n('tooltip.button.uploadImage')}
+                aria-label={uploadImageLabel}
                 onChange={handleFileChange}
                 className="sr-only"
             />
@@ -71,7 +71,7 @@ export const ImageUploaderInputUploadButton = (): ReactElement => {
                 onClick={handleUploadClick}
                 variant="outline"
                 disabled={!enabled || isUploading}
-                aria-label={i18n('tooltip.button.uploadImage')}
+                aria-label={uploadImageLabel}
                 className={cn(isUploading && 'pointer-events-none', 'relative text-sm')}
             >
                 {isUploading && (

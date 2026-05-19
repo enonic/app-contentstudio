@@ -1,4 +1,3 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Button, FilledSquareCheck, IconButton, Menu, useActiveItemFocus, useMenu} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Ellipsis, OctagonAlert, Square} from 'lucide-react';
@@ -21,6 +20,7 @@ const CONFIRM_ITEM_ID = 'mixin-confirm';
 const ConfirmMenuItem = ({disabled, onConfirm}: ConfirmMenuItemProps): ReactElement => {
     const {active, registerItem, unregisterItem} = useMenu();
     const confirmLabel = useI18n('action.confirm');
+
     const buttonRef = useRef<HTMLButtonElement>(null);
     const isActive = active === CONFIRM_ITEM_ID;
 
@@ -54,6 +54,8 @@ const ConfirmMenuItem = ({disabled, onConfirm}: ConfirmMenuItemProps): ReactElem
 ConfirmMenuItem.displayName = 'ConfirmMenuItem';
 
 export const MixinMenu = (): ReactElement => {
+    const toggleMixinLabel = useI18n('action.toggle.mixin');
+    const pageLabel = useI18n('field.page');
     const hasPage = useStore($hasPage);
     const menuItems = useStore($mixinsMenuItems);
     const invalidTabs = useStore($invalidTabs);
@@ -100,13 +102,13 @@ export const MixinMenu = (): ReactElement => {
     return (
         <Menu open={open} onOpenChange={handleOpenChange}>
             <Menu.Trigger asChild>
-                <IconButton aria-label={i18n('action.toggle.mixin')} className="shrink-0" icon={Ellipsis} size="sm" variant="text"/>
+                <IconButton aria-label={toggleMixinLabel} className="shrink-0" icon={Ellipsis} size="sm" variant="text"/>
             </Menu.Trigger>
             <Menu.Portal>
                 <Menu.Content align="end">
                     {hasPage && (
                         <Menu.Item className="font-semibold text-base px-4.5 py-1 gap-2.5" disabled>
-                            <span className="flex-1">{useI18n('field.page')}</span>
+                            <span className="flex-1">{pageLabel}</span>
                             <FilledSquareCheck className="size-4"/>
                         </Menu.Item>
                     )}

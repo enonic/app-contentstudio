@@ -1,6 +1,5 @@
 import {Button, Checkbox, IconButton, Input, RadioGroup} from '@enonic/ui';
 import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {UploadIcon, X} from 'lucide-react';
 import {useCallback, useEffect, useMemo, useRef, useState, type ReactElement} from 'react';
 import {fetchNearestSite} from '../../../api/content';
@@ -46,7 +45,7 @@ export const ContentTabPanel = (): ReactElement => {
     const paramNameLabel = useI18n('dialog.link.parameters.name');
     const paramValueLabel = useI18n('dialog.link.parameters.value');
     const addLabel = useI18n('action.add');
-    const uploadMediaLabel = i18n('tooltip.button.uploadMedia');
+    const uploadMediaLabel = useI18n('tooltip.button.uploadMedia');
 
     // Load parent site path for scoping
     const [parentSitePath, setParentSitePath] = useState<string | undefined>(undefined);
@@ -97,7 +96,7 @@ export const ContentTabPanel = (): ReactElement => {
     }, [handleSelectionChange]);
 
     const onUploadError = useCallback((error: UploadMediaError) => {
-        showError(i18n('notify.upload.error', error.mediaIdentifier, error.message));
+        showError(useI18n('notify.upload.error', error.mediaIdentifier, error.message));
     }, []);
 
     const {handleInputChange} = useUploadMedia({

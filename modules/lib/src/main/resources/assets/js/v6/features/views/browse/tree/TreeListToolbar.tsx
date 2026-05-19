@@ -1,5 +1,4 @@
 import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Checkbox, type CheckboxChecked, IconButton} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {RefreshCcw} from 'lucide-react';
@@ -32,6 +31,7 @@ const TreeListToolbar = ({enabled = true}: TreeListToolbarProps): ReactElement =
     const isAllSelected = useStore($isAllLoadedSelected);
     const totalSelected = useStore($selectionCount);
     const isNoneSelected = useStore($isNoneSelected);
+    const reloadLabel = useI18n('action.reload.content');
     const selectAllLabel = isNoneSelected ? useI18n('field.selection.selectAll') : useI18n('field.selection.clear',
         totalSelected);
 
@@ -62,7 +62,7 @@ const TreeListToolbar = ({enabled = true}: TreeListToolbarProps): ReactElement =
                 />
             </div>
 
-            <IconButton aria-label={i18n('action.reload.content')} icon={RefreshCcw} disabled={isLoading || !enabled} onClick={handleReload} />
+            <IconButton aria-label={reloadLabel} icon={RefreshCcw} disabled={isLoading || !enabled} onClick={handleReload} />
         </div>
     );
 };
