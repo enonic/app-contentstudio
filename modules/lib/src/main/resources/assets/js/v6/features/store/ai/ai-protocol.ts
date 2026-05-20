@@ -70,6 +70,12 @@ export type AiPluginConfig = {
     licenseServiceUrl?: string;
     sharedSocketUrl?: string;
     instructions: string;
+    user?: AiUser;
+};
+
+export type AiUser = {
+    key: string;
+    displayName: string;
 };
 
 // ---- Signals (universal, CS -> plugin) --------------------------------------
