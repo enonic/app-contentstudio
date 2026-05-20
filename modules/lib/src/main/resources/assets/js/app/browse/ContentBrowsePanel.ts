@@ -361,7 +361,9 @@ export class ContentBrowsePanel
 
         onActiveProjectChanged(() => {
             this.selectionWrapper.deselectAll();
-            this.updateActionsAndPreview();
+            this.getBrowseActions().updateActionsEnabledState([]);
+            this.getBrowseItemPanel().togglePreviewForItem(null);
+            this.updateContextView(null).catch(DefaultErrorHandler.handle);
             this.filterPanel.reset().then(() => {
                 this.hideFilterPanel();
                 this.toggleFilterPanelButton.removeClass('filtered');
