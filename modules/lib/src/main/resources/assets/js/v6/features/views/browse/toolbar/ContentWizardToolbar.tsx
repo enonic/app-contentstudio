@@ -31,6 +31,7 @@ export type ContentWizardToolbarProps = {
     previewAction: Action;
     markAsReadyAction: Action;
     publishAction: Action;
+    publishTreeAction: Action;
     unpublishAction: Action;
     requestPublishAction: Action;
     openRequestAction: Action;
@@ -53,6 +54,7 @@ export const ContentWizardToolbar = ({
     previewAction,
     markAsReadyAction,
     publishAction,
+    publishTreeAction,
     unpublishAction,
     requestPublishAction,
     openRequestAction,
@@ -129,6 +131,7 @@ export const ContentWizardToolbar = ({
     const publishSplitActions: Action[] = [
         markAsReadyAction,
         publishAction,
+        publishTreeAction,
         unpublishAction,
         requestPublishAction,
         openRequestAction,

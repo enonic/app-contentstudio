@@ -38,6 +38,7 @@ export class ContentWizardToolbarPublishControls
             menuActions: [
                 actions.getMarkAsReadyAction(),
                 actions.getPublishAction(),
+                actions.getPublishTreeAction(),
                 actions.getUnpublishAction(),
                 actions.getRequestPublishAction(),
                 actions.getOpenRequestAction(),
