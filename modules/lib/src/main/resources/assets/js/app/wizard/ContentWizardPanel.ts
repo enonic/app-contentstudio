@@ -70,7 +70,6 @@ import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
 import {type ContentId} from '../content/ContentId';
 import {type ContentName} from '../content/ContentName';
 import {ContentPath} from '../content/ContentPath';
-import {type ContentState} from '../content/ContentState';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {type PageTemplate} from '../content/PageTemplate';
 import {type Site} from '../content/Site';
@@ -866,10 +865,8 @@ export class ContentWizardPanel
         super.close(checkCanClose);
     }
 
-    public checkContentCanBePublished(contentState?: ContentState | null): boolean {
-        const isValid = contentState == null ? this.isContentFormValid : contentState !== 'invalid';
-
-        return isValid && this.contentType != null;
+    public checkContentCanBePublished(): boolean {
+        return this.isWizardContentValid() && this.contentType != null;
     }
 
     private isWizardContentValid(): boolean {

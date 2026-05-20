@@ -83,6 +83,10 @@ export class ContentWizardActions
 
     private publishTreeRequestId: number = 0;
 
+    private hasCheckedUnpublishedChildren: boolean = false;
+
+    private hasUnpublishedChildren: boolean = false;
+
     constructor(wizardPanel: ContentWizardPanel) {
         const contentSaveAction = new ContentSaveAction(wizardPanel);
         const resetContentAction = new ResetContentAction(wizardPanel);
@@ -207,7 +211,7 @@ export class ContentWizardActions
 
             const isValid = contentState !== 'invalid';
             this.setContentCanBeMarkedAsReady(contentState === 'in-progress')
-                .setContentCanBePublished(this.wizardPanel.checkContentCanBePublished(contentState))
+                .setContentCanBePublished(this.wizardPanel.checkContentCanBePublished())
                 .setIsValid(isValid)
                 .refreshState();
         });
@@ -220,6 +224,7 @@ export class ContentWizardActions
         this.wizardHasChangesUnsubscribe = undefined;
         this.wizardContentStateUnsubscribe?.();
         this.wizardContentStateUnsubscribe = undefined;
+        this.publishTreeRequestId++;
     }
 
     private isPersistedUnnamed(): boolean {
@@ -368,6 +373,8 @@ export class ContentWizardActions
     }
 
     setContent(content: ContentSummaryAndCompareStatus): ContentWizardActions {
+        this.hasCheckedUnpublishedChildren = false;
+        this.hasUnpublishedChildren = false;
         this.content = content;
         this.compareResult = undefined;
         return this;
@@ -428,7 +435,7 @@ export class ContentWizardActions
 
         this.enableActions({
             PUBLISH: canBePublished,
-            PUBLISH_TREE: canPublishTree,
+            PUBLISH_TREE: canPublishTree && this.hasUnpublishedChildren,
             CREATE_ISSUE: true,
             UNPUBLISH: canBeUnpublished,
             MARK_AS_READY: canBeMarkedAsReady,
@@ -486,11 +493,12 @@ export class ContentWizardActions
     }
 
     private updatePublishTreeAction(canPublishTree: boolean): void {
-        const requestId = ++this.publishTreeRequestId;
-
-        if (!canPublishTree) {
+        if (!canPublishTree || this.hasCheckedUnpublishedChildren) {
             return;
         }
+
+        this.hasCheckedUnpublishedChildren = true;
+        const requestId = ++this.publishTreeRequestId;
 
         new HasUnpublishedChildrenRequest([this.content.getContentId()])
             .sendAndParse()
@@ -499,11 +507,13 @@ export class ContentWizardActions
                     return;
                 }
 
-                const hasUnpublishedChildren: boolean =
+                this.hasUnpublishedChildren =
                     hasUnpublishedChildrenResult.getResult().some((item: HasUnpublishedChildren) => item.getHasChildren());
-
-                this.enableActions({PUBLISH_TREE: hasUnpublishedChildren});
-            }).catch(DefaultErrorHandler.handle);
+                this.enableActions({PUBLISH_TREE: this.hasUnpublishedChildren});
+            }).catch((err: unknown) => {
+                this.hasCheckedUnpublishedChildren = false;
+                DefaultErrorHandler.handle(err);
+            });
     }
 
     isOnline(): boolean {
