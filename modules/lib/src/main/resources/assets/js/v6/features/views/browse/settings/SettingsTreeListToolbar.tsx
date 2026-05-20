@@ -1,7 +1,7 @@
 import {LegacyElement} from '@enonic/lib-admin-ui/ui2/LegacyElement';
-import {Checkbox, CheckboxChecked, IconButton} from '@enonic/ui';
+import {Checkbox, type CheckboxChecked, IconButton} from '@enonic/ui';
 import {RefreshCcw} from 'lucide-react';
-import {ReactElement, useMemo} from 'react';
+import {type ReactElement, useMemo} from 'react';
 import {useStore} from '@nanostores/preact';
 import {useI18n} from '../../../hooks/useI18n';
 import {reloadProjects} from '../../../store/projects.store';
@@ -23,6 +23,7 @@ const SettingsTreeListToolbar = ({enabled = true}: SettingsTreeListToolbarProps)
     const isAllSelected = useStore($isAllSelected);
     const totalSelected = useStore($selectionCount);
     const isNoneSelected = useStore($isNoneSelected);
+    const reloadLabel = useI18n('action.reload.projects');
     const selectAllLabel = isNoneSelected
         ? useI18n('field.selection.selectAll')
         : useI18n('field.selection.clear', totalSelected);
@@ -54,7 +55,7 @@ const SettingsTreeListToolbar = ({enabled = true}: SettingsTreeListToolbarProps)
                 />
             </div>
 
-            <IconButton icon={RefreshCcw} disabled={!enabled} onClick={handleReload} />
+            <IconButton aria-label={reloadLabel} icon={RefreshCcw} disabled={!enabled} onClick={handleReload} />
         </div>
     );
 };

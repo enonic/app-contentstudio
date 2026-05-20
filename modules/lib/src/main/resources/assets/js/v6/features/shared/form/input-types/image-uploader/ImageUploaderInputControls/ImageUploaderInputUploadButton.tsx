@@ -15,6 +15,7 @@ export const ImageUploaderInputUploadButton = (): ReactElement => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const uploadLabel = useI18n('action.upload');
+    const uploadImageLabel = useI18n('tooltip.button.uploadImage');
 
     // Handlers
     const handleChange = useCallback(
@@ -57,11 +58,20 @@ export const ImageUploaderInputUploadButton = (): ReactElement => {
 
     return (
         <>
-            <input tabIndex={-1} ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="sr-only" />
+            <input
+                tabIndex={-1}
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                aria-label={uploadImageLabel}
+                onChange={handleFileChange}
+                className="sr-only"
+            />
             <Button
                 onClick={handleUploadClick}
                 variant="outline"
                 disabled={!enabled || isUploading}
+                aria-label={uploadImageLabel}
                 className={cn(isUploading && 'pointer-events-none', 'relative text-sm')}
             >
                 {isUploading && (

@@ -122,8 +122,10 @@ const LIVE_VIEW = {
 const TREE_GRID = {
     DIV_ROLE_GRID: "//div[@role='grid']",
     DIV_ROLE_ROW: "//div[@role='row']",
+    CONTENT_TREE_LIST_DATA_COMPONENT:"//div[@data-component='ContentTreeList']",
+    VIRTUALIZED_TREE_ROW: "//div[@data-component='VirtualizedTreeList.Row']",
     TREE_LIST_DIV: "//div[contains(@id,'tree-list')]",
-    TREE_LIST_ITEM_DIV: "//div[contains(@role,'listitem')]",
+    TREE_LIST_ITEM_COMPONENT: "//div[@data-component='ListItem']",
     CONTENT_ITEM_CONTEXT_MENU: "//div[@role='menu' and contains(@id,'content')]",
     TREE_ITEM_DIV: "//div[contains(@role,'treeitem') and descendant::small]",
     TREE_LIST_ITEM_CHECKBOX_LABEL: "//div[@role='checkbox']",
@@ -140,13 +142,14 @@ const TREE_GRID = {
         return `//div[@role='menu' and contains(@id,'content')]//div[contains(@id,'menu-item') and contains(.,'${name}')]`;
     },
     itemByName: name => {
-        return `//div[contains(@role,'treeitem') and descendant::small[contains(@class,'t-subtle') and contains(.,'${name}')]]`
+        return `//div[@data-component='VirtualizedTreeList.Row' and descendant::small[contains(@class,'t-subtle') and contains(.,'${name}')]]`
     },
+    VIRTUALIZED_TREE_ROW: "//div[@data-component='VirtualizedTreeList.Row']",
     itemByDisplayName: displayName => {
-        return `//div[contains(@role,'treeitem') and descendant::span[contains(.,'${displayName}')]]`
+        return `//div[@data-component='VirtualizedTreeList.Row' and descendant::span[contains(.,'${displayName}')]]`
     },
     itemTreeGridListElementByName: name => {
-        return `//div[contains(@role,'treeitem') and descendant::small[contains(@class,'t-subtle') and contains(.,'${name}')]]`;
+        return `//div[@data-component='VirtualizedTreeList.Row' and descendant::small[contains(@class,'t-subtle') and contains(.,'${name}')]]`;
     },
 }
 const DROPDOWN = {

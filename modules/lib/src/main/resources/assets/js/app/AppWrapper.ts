@@ -31,6 +31,8 @@ export class AppWrapper extends DivEl {
     constructor(className?: string) {
         super(cn('main-app-wrapper text-main', className));
 
+        this.getEl().setAttribute('role', 'main');
+
         this.initElements();
         this.initListeners();
         this.setNoProjectMode(this.noProjectMode);

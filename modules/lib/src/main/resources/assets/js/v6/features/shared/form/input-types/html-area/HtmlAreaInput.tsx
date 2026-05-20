@@ -43,6 +43,7 @@ type CKEditorWrapperProps = {
     editorConfig: CKEDITOR.config;
     htmlAreaConfig: HtmlAreaConfig;
     editorId: string;
+    editorLabel: string;
     previewContent: string;
     stringValue: string;
     onChange: (value: Value, rawValue?: string) => void;
@@ -70,6 +71,7 @@ const CKEditorWrapper = ({
     editorConfig,
     htmlAreaConfig,
     editorId,
+    editorLabel,
     previewContent,
     stringValue,
     onChange,
@@ -372,8 +374,12 @@ const CKEditorWrapper = ({
 
             iframe = nextIframe;
 
-            if (iframe && iframe.getAttribute(SORTABLE_MANAGED_TABINDEX_ATTR) == null) {
-                iframe.tabIndex = enabled ? 0 : -1;
+            if (iframe) {
+                iframe.title = editorLabel;
+
+                if (iframe.getAttribute(SORTABLE_MANAGED_TABINDEX_ATTR) == null) {
+                    iframe.tabIndex = enabled ? 0 : -1;
+                }
             }
         };
 
@@ -410,7 +416,7 @@ const CKEditorWrapper = ({
             editableBody?.removeEventListener('keydown', handleEditableKeyDown);
             editor.removeListener('contentDom', handleContentDom);
         };
-    }, [enabled, status, editor]);
+    }, [enabled, status, editor, editorLabel]);
 
     // Sync external value changes (e.g., from undo/redo or remote sync)
     useEffect(() => {
@@ -528,6 +534,7 @@ export const HtmlAreaInput = ({
     const {contentSummary, project, applicationKeys, assetsUri} = useHtmlAreaContext();
 
     const editorId = `htmlarea-${input.getName()}-${index}`;
+    const editorLabel = input.getLabel() || input.getName().toString();
     const [editableSourceCode, setEditableSourceCode] = useState<boolean | undefined>(undefined);
 
     // Resolve editableSourceCode async (cached after first resolve)
@@ -568,6 +575,7 @@ export const HtmlAreaInput = ({
                 editorConfig={editorConfig}
                 htmlAreaConfig={config}
                 editorId={editorId}
+                editorLabel={editorLabel}
                 previewContent={previewContent}
                 stringValue={stringValue}
                 onChange={onChange}

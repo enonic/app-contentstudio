@@ -1,6 +1,5 @@
 import {Button, Checkbox, IconButton, Input, RadioGroup} from '@enonic/ui';
 import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {UploadIcon, X} from 'lucide-react';
 import {useCallback, useEffect, useMemo, useRef, useState, type ReactElement} from 'react';
 import {fetchNearestSite} from '../../../api/content';
@@ -46,6 +45,7 @@ export const ContentTabPanel = (): ReactElement => {
     const paramNameLabel = useI18n('dialog.link.parameters.name');
     const paramValueLabel = useI18n('dialog.link.parameters.value');
     const addLabel = useI18n('action.add');
+    const uploadMediaLabel = useI18n('tooltip.button.uploadMedia');
 
     // Load parent site path for scoping
     const [parentSitePath, setParentSitePath] = useState<string | undefined>(undefined);
@@ -96,7 +96,7 @@ export const ContentTabPanel = (): ReactElement => {
     }, [handleSelectionChange]);
 
     const onUploadError = useCallback((error: UploadMediaError) => {
-        showError(i18n('notify.upload.error', error.mediaIdentifier, error.message));
+        showError(useI18n('notify.upload.error', error.mediaIdentifier, error.message));
     }, []);
 
     const {handleInputChange} = useUploadMedia({
@@ -132,12 +132,14 @@ export const ContentTabPanel = (): ReactElement => {
                                 tabIndex={-1}
                                 ref={fileInputRef}
                                 type='file'
+                                aria-label={uploadMediaLabel}
                                 onChange={handleInputChange}
                                 className='sr-only'
                             />
                             <Button
                                 onClick={handleUploadClick}
                                 variant='solid'
+                                aria-label={uploadMediaLabel}
                                 className='relative h-12 rounded-none border border-bdr-subtle rounded-tr rounded-br bg-surface-selected focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset transition-highlight'
                             >
                                 <UploadIcon size={20} absoluteStrokeWidth />

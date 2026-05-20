@@ -20,6 +20,7 @@ export const AttachmentUploaderInput = ({
 }: SelfManagedComponentProps<AttachmentUploaderConfig>): ReactElement => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const noAttachmentLabel = useI18n('field.content.noattachment');
+    const uploadLabel = useI18n('action.upload');
     const attachmentNames: string[] = useMemo(() => values.filter((v) => v.isNotNull()).map((v) => v.getString()), [values]);
     const [isDragging, setIsDragging] = useState(false);
     const {progress, canUpload, isUploading, isMultiple, contentId, handleFiles, handleRemove} = useAttachmentUploader({
@@ -81,7 +82,14 @@ export const AttachmentUploaderInput = ({
 
     return (
         <div data-component={ATTACHMENT_UPLOADER_INPUT_NAME} className="flex flex-col gap-2.5" {...dropHandlers}>
-            <input ref={fileInputRef} type="file" multiple={isMultiple} onChange={handleFileChange} className="hidden" />
+            <input
+                ref={fileInputRef}
+                type="file"
+                multiple={isMultiple}
+                aria-label={uploadLabel}
+                onChange={handleFileChange}
+                className="hidden"
+            />
 
             <div className={cn('w-full', !config.hideDropZone && canUpload && isDragging && 'border border-dashed rounded p-1')}>
                 <AttachmentUploaderList
