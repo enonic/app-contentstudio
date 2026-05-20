@@ -227,9 +227,9 @@ export function initAiHost(): void {
     $aiContentLanguage.subscribe(() => fanOutLanguage());
     $aiInstructions.subscribe(() => fanOutConfig());
 
-    // Push the focused field's parent container so siblings appear as mentions.
-    // Ignore the blur signal — context persists until another field is focused
-    // or the user clears it from the dialog.
+    // Push the focused field itself as context so it becomes the single mention
+    // target. Ignore the blur signal — context persists until another field is
+    // focused or the user clears it from the dialog.
     getAiFieldRegistry('data').subscribeActivePath(activePath => {
         if (activePath == null) {
             return;
@@ -240,16 +240,7 @@ export function initAiHost(): void {
             return;
         }
 
-        // Send the parent container, not the leaf, so the plugin surfaces siblings via isChildPath.
-        const lastDot = field.lastIndexOf('.');
-        if (lastDot === -1) {
-            // Top-level field has no container — clear context to fall back to root mentions.
-            sendPluginContext('ai.contentOperator', null);
-            return;
-        }
-
-        const parentField = field.slice(0, lastDot);
-        const context = toPluginContextPath({kind: 'data', field: parentField});
+        const context = toPluginContextPath({kind: 'data', field});
         if (context == null) {
             return;
         }
