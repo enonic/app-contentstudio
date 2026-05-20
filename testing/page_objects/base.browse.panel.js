@@ -205,7 +205,7 @@ class BaseBrowsePanel extends Page {
         let checkboxElement = await listElement.$('.' + TREE_GRID.TREE_LIST_ITEM_CHECKBOX_LABEL);
 
         await this.getBrowser().waitUntil(async () => {
-            let isChecked =  await checkboxElement.getAttribute('aria-checked');
+            let isChecked = await checkboxElement.getAttribute('aria-checked');
             return isChecked;
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "The Checkbox was not selected"});
     }
@@ -232,7 +232,7 @@ class BaseBrowsePanel extends Page {
             }
             return await this.browser.waitUntil(async () => {
                 let result = await el[0].getAttribute('aria-disabled');
-                return result===null;
+                return result === null;
             }, {timeout: appConst.mediumTimeout, timeoutMsg: "context menu item is not enabled in 3000 ms"});
         } catch (err) {
             await this.handleError(`Browse Panel, the context menu item '${menuItem}' should be enabled: `, 'err_context_menu_item_', err);
