@@ -6,6 +6,7 @@ import {
     ArrowDownNarrowWide,
     CaseSensitive,
     CircleCheckBig,
+    CircleQuestionMark,
     CircleUserRound,
     Cloud,
     CloudOff,
@@ -40,6 +41,7 @@ export const ContentOperation = {
     METADATA: 'content.updateMetadata',
     WORKFLOW: 'content.updateWorkflow',
     SYNC: 'content.sync',
+    IMPORT: 'content.import',
 } as const;
 
 export type ContentOperation = typeof ContentOperation[keyof typeof ContentOperation];
@@ -69,10 +71,10 @@ export const VersionField = {
 export const VersionOperationType = {
     ...ContentOperation,
     RENAME: 'content.rename',
-    IMPORT: 'content.import',
     LOCALIZE: 'content.localize',
     SYNTHETIC_CREATE: 'content.syntheticCreate',
     EDITORIAL_PATCH: 'content.editorialPatch',
+    UNKNOWN: 'content.unknown',
 } as const;
 
 export type VersionOperationType = typeof VersionOperationType[keyof typeof VersionOperationType];
@@ -128,6 +130,7 @@ const VERSION_OPERATION_MATRIX: Record<VersionOperationType, VersionOperationCon
     [VersionOperationType.IMPORT]: {standardMode: true, fullMode: true, restorable: true, comparable: true, icon: Import, labelKey: 'operation.content.import'},
     [VersionOperationType.LOCALIZE]: {standardMode: true, fullMode: true, restorable: true, comparable: true, icon: Globe, labelKey: 'operation.content.localize'},
     [VersionOperationType.SYNTHETIC_CREATE]: {standardMode: true, fullMode: true, restorable: false, comparable: false, icon: PenLine, labelKey: 'operation.content.create'},
+    [VersionOperationType.UNKNOWN]: {standardMode: false, fullMode: true, restorable: false, comparable: false, icon: CircleQuestionMark, labelKey: 'operation.content.unknown'},
 };
 
 //
@@ -144,7 +147,7 @@ export const resolveVersionOperationType = (version: ContentVersion): VersionOpe
     const action = getFirstAction(version);
 
     if (!action) {
-        return VersionOperationType.IMPORT;
+        return VersionOperationType.UNKNOWN;
     }
 
     const operation = action.getOperation();
@@ -184,8 +187,16 @@ export const isVersionRevertable = (version: ContentVersion): boolean =>
 export const isVersionComparable = (version: ContentVersion): boolean =>
     getVersionConfig(version)?.comparable ?? false;
 
+// Publish with no editorial ref becomes its own badge target (see
+// `$allPublishBadges`) and must stay visible in default mode.
+const isStandalonePublishBadgeTarget = (version: ContentVersion): boolean => {
+    if (!version.getPublishInfo()) return false;
+    const publishAction = version.getActions().find(a => a.getOperation() === ContentOperation.PUBLISH);
+    return publishAction != null && publishAction.getEditorial() == null;
+};
+
 export const isStandardModeVersion = (version: ContentVersion): boolean =>
-    getVersionConfig(version)?.standardMode ?? false;
+    (getVersionConfig(version)?.standardMode ?? false) || isStandalonePublishBadgeTarget(version);
 
 export const isVersionToBeDisplayedInFullMode = (version: ContentVersion): boolean =>
     getVersionConfig(version)?.fullMode ?? true;

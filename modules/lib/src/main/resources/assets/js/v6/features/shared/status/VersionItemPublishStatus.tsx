@@ -1,4 +1,5 @@
-import {cn} from '@enonic/ui';
+import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
+import {cn, Tooltip} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {Cloud} from 'lucide-react';
 import {ReactElement, useMemo} from 'react';
@@ -28,6 +29,11 @@ export const VersionItemPublishStatus = ({version, className}: VersionItemPublis
         [versionId, badges],
     );
 
+    const unpublishedTooltip = useI18n(
+        'widget.versionhistory.unpublishedOn',
+        badge?.unpublishedAt ? DateHelper.formatDateTime(badge.unpublishedAt) : '',
+    );
+
     if (!version || !badge) {
         return null;
     }
@@ -45,7 +51,17 @@ export const VersionItemPublishStatus = ({version, className}: VersionItemPublis
         }
     }
 
-    return <Cloud className={cn('w-4 h-4 shrink-0', className)} />;
+    const cloudIcon = <Cloud className={cn('w-4 h-4 shrink-0', className)} />;
+
+    if (badge.unpublishedAt) {
+        return (
+            <Tooltip value={unpublishedTooltip} delay={300} side='top' asChild={false}>
+                {cloudIcon}
+            </Tooltip>
+        );
+    }
+
+    return cloudIcon;
 };
 
 VersionItemPublishStatus.displayName = 'VersionItemPublishStatus';

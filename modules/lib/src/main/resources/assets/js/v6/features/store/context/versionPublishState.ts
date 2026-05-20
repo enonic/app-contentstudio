@@ -23,12 +23,14 @@ export type PublishBadge = {
     publishStatus: VersionPublishStatus;
     publishedFrom: Date;
     publishedTo: Date | undefined;
+    unpublishedAt: Date | undefined;
 };
 
 export type ItemPublishBadge = {
     status: VersionPublishStatus;
     publishedFrom: Date;
     publishedTo: Date | undefined;
+    unpublishedAt: Date | undefined;
     isOnline: boolean;
 };
 
@@ -139,12 +141,14 @@ const $allPublishBadges = computed($versions, (versions): PublishBadge[] => {
             continue;
         }
 
+        const unpublishedAt = findUnpublishDate(versions, i);
         seen.add(targetId);
         badges.push({
             versionId: targetId,
             publishStatus: isPublish ? getVersionPublishStatus(v) : VersionPublishStatus.PUBLISHED,
             publishedFrom: v.getTimestamp(),
-            publishedTo: findUnpublishDate(versions, i) ?? v.getPublishInfo()?.getTo(),
+            publishedTo: unpublishedAt ?? v.getPublishInfo()?.getTo(),
+            unpublishedAt,
         });
     }
 
@@ -182,6 +186,7 @@ export const $publishBadgeByVersionId = computed(
                 status: badge.publishStatus,
                 publishedFrom: badge.publishedFrom,
                 publishedTo: badge.publishedTo,
+                unpublishedAt: badge.unpublishedAt,
                 isOnline: onlineVersionId != null && badge.versionId === onlineVersionId,
             });
         }
