@@ -152,22 +152,27 @@ describe('resolveVersionOperationType', () => {
         expect(resolveVersionOperationType(version)).toBe(VersionOperationType.MOVE);
     });
 
-    it('resolves no-actions version as IMPORT when not first version', () => {
+    it('resolves no-actions version as UNKNOWN when not first version', () => {
         const version = createVersion('v1', []);
-        expect(resolveVersionOperationType(version)).toBe(VersionOperationType.IMPORT);
+        expect(resolveVersionOperationType(version)).toBe(VersionOperationType.UNKNOWN);
     });
 
-    it('resolves no-actions version as IMPORT when first version and all loaded', () => {
+    it('resolves no-actions version as UNKNOWN when first version and all loaded', () => {
         const version = createVersion('v1', []);
         $versions.set([version]);
         $allVersionsLoaded.set(true);
-        expect(resolveVersionOperationType(version)).toBe(VersionOperationType.IMPORT);
+        expect(resolveVersionOperationType(version)).toBe(VersionOperationType.UNKNOWN);
     });
 
-    it('resolves no-actions version as IMPORT when first version but not all loaded', () => {
+    it('resolves no-actions version as UNKNOWN when first version but not all loaded', () => {
         const version = createVersion('v1', []);
         $versions.set([version]);
         $allVersionsLoaded.set(false);
+        expect(resolveVersionOperationType(version)).toBe(VersionOperationType.UNKNOWN);
+    });
+
+    it('resolves version with IMPORT action as IMPORT', () => {
+        const version = createVersion('v1', [createAction(ContentOperation.IMPORT)]);
         expect(resolveVersionOperationType(version)).toBe(VersionOperationType.IMPORT);
     });
 
@@ -247,9 +252,14 @@ describe('isVersionRevertable', () => {
         }
     });
 
-    it('returns true for IMPORT (no actions, not first version)', () => {
-        const version = createVersion('v1', []);
+    it('returns true for IMPORT', () => {
+        const version = createVersion('v1', [createAction(ContentOperation.IMPORT)]);
         expect(isVersionRevertable(version)).toBe(true);
+    });
+
+    it('returns false for no-actions version (UNKNOWN)', () => {
+        const version = createVersion('v1', []);
+        expect(isVersionRevertable(version)).toBe(false);
     });
 });
 
@@ -327,6 +337,21 @@ describe('isStandardModeVersion', () => {
         const version = createVersion('v1', [createAction(ContentOperation.PATCH, [VersionField.DATA])]);
         expect(isStandardModeVersion(version)).toBe(true);
     });
+
+    it('returns true for PUBLISH without editorial counterpart (standalone publish badge target)', () => {
+        const version = createPublishedVersion('v1', new Date('2024-01-15T09:00:00Z'));
+        expect(isStandardModeVersion(version)).toBe(true);
+    });
+
+    it('returns false for PUBLISH with editorial counterpart', () => {
+        const version = createPublishedVersion('v1', new Date('2024-01-15T09:00:00Z'), undefined, {editorial: 'editorial-1'});
+        expect(isStandardModeVersion(version)).toBe(false);
+    });
+
+    it('returns false for PUBLISH without publishInfo', () => {
+        const version = createVersion('v1', [createAction(ContentOperation.PUBLISH)]);
+        expect(isStandardModeVersion(version)).toBe(false);
+    });
 });
 
 // ============================================================================
@@ -345,6 +370,29 @@ describe('$versionsByDate', () => {
         const result = $versionsByDate.get();
         const allVersions = Object.values(result).flat();
         expect(allVersions).toEqual([create]);
+    });
+
+    it('keeps a publish without editorial counterpart visible in standard mode', () => {
+        const create = createVersion('v1', [createAction(ContentOperation.CREATE)], new Date('2024-01-15'));
+        const orphanPublish = createPublishedVersion('v2', new Date('2024-01-15T09:00:00Z'));
+        $versions.set([orphanPublish, create]);
+        $versionsDisplayMode.set('standard');
+
+        const result = $versionsByDate.get();
+        const allVersions = Object.values(result).flat();
+        expect(allVersions).toEqual([orphanPublish, create]);
+    });
+
+    it('hides a publish that has an editorial counterpart in standard mode', () => {
+        const create = createVersion('v1', [createAction(ContentOperation.CREATE)], new Date('2024-01-15'));
+        const editorial = createVersion('editorial-1', [createAction(ContentOperation.PATCH, [VersionField.DATA])], new Date('2024-01-15'));
+        const publish = createPublishedVersion('v3', new Date('2024-01-15T09:00:00Z'), undefined, {editorial: 'editorial-1'});
+        $versions.set([publish, editorial, create]);
+        $versionsDisplayMode.set('standard');
+
+        const result = $versionsByDate.get();
+        const allVersions = Object.values(result).flat();
+        expect(allVersions).toEqual([editorial, create]);
     });
 
     it('includes SORT with manualOrderValue in full mode', () => {
@@ -405,8 +453,8 @@ describe('getIconForOperation', () => {
         expect(getIconForOperation(version)).toBe(CaseSensitive);
     });
 
-    it('returns Import for no-actions version (IMPORT)', () => {
-        const version = createVersion('v1', []);
+    it('returns Import for IMPORT', () => {
+        const version = createVersion('v1', [createAction(ContentOperation.IMPORT)]);
         expect(getIconForOperation(version)).toBe(Import);
     });
 
@@ -663,18 +711,18 @@ describe('$versionsForDisplay synthetic placeholder', () => {
         expect($versionsForDisplay.get()).toHaveLength(1);
     });
 
-    it('does not append when last version has no actions and is first (IMPORT)', () => {
+    it('appends synthetic when last version has no actions (UNKNOWN)', () => {
         const noActions = createVersion('v1', []);
         $versions.set([noActions]);
         $allVersionsLoaded.set(true);
         setContentCreatedTime(new Date('2023-06-01'));
 
-        expect($versionsForDisplay.get()).toHaveLength(1);
-        expect(resolveVersionOperationType(noActions)).toBe(VersionOperationType.IMPORT);
+        expect($versionsForDisplay.get()).toHaveLength(2);
+        expect(resolveVersionOperationType(noActions)).toBe(VersionOperationType.UNKNOWN);
     });
 
     it('does not append when last version is IMPORT', () => {
-        const imported = createVersion('v-import', []);
+        const imported = createVersion('v-import', [createAction(ContentOperation.IMPORT)]);
         const update = createVersion('v-update', [createAction(ContentOperation.UPDATE)]);
         $versions.set([update, imported]);
         $allVersionsLoaded.set(true);
@@ -733,31 +781,31 @@ describe('$versionsForDisplay synthetic placeholder', () => {
 // isFirstVersion and $allVersionsLoaded interaction
 // ============================================================================
 
-describe('isFirstVersion behavior with $allVersionsLoaded', () => {
-    it('no-actions version is IMPORT when all versions not loaded', () => {
+describe('no-actions version resolves to UNKNOWN', () => {
+    it('is UNKNOWN when all versions not loaded', () => {
         const noActions = createVersion('v1', []);
         $versions.set([noActions]);
         $allVersionsLoaded.set(false);
 
-        expect(resolveVersionOperationType(noActions)).toBe(VersionOperationType.IMPORT);
+        expect(resolveVersionOperationType(noActions)).toBe(VersionOperationType.UNKNOWN);
     });
 
-    it('no-actions version is IMPORT when it is last and all loaded', () => {
+    it('is UNKNOWN when it is last and all loaded', () => {
         const update = createVersion('v2', [createAction(ContentOperation.UPDATE)]);
         const noActions = createVersion('v1', []);
         $versions.set([update, noActions]);
         $allVersionsLoaded.set(true);
 
-        expect(resolveVersionOperationType(noActions)).toBe(VersionOperationType.IMPORT);
+        expect(resolveVersionOperationType(noActions)).toBe(VersionOperationType.UNKNOWN);
     });
 
-    it('no-actions version is IMPORT when it is not last even if all loaded', () => {
+    it('is UNKNOWN when it is not last even if all loaded', () => {
         const noActions = createVersion('v2', []);
         const create = createVersion('v1', [createAction(ContentOperation.CREATE)]);
         $versions.set([noActions, create]);
         $allVersionsLoaded.set(true);
 
-        expect(resolveVersionOperationType(noActions)).toBe(VersionOperationType.IMPORT);
+        expect(resolveVersionOperationType(noActions)).toBe(VersionOperationType.UNKNOWN);
     });
 });
 
@@ -772,7 +820,7 @@ describe('VERSION_OPERATION_MATRIX', () => {
             const version = type === VersionOperationType.RENAME
                 ? createVersion('v1', [createAction(ContentOperation.MOVE, [VersionField.NAME])])
                 : type === VersionOperationType.IMPORT
-                    ? createVersion('v-import', [])
+                    ? createVersion('v-import', [createAction(ContentOperation.IMPORT)])
                     : type === VersionOperationType.SYNTHETIC_CREATE
                         ? (() => {
                             const b = new ContentVersionBuilder();
@@ -785,7 +833,9 @@ describe('VERSION_OPERATION_MATRIX', () => {
                             ? null // stubbed, skip
                             : type === VersionOperationType.EDITORIAL_PATCH
                                 ? createVersion('v1', [createAction(ContentOperation.PATCH, [VersionField.DATA])])
-                                : createVersion('v1', [createAction(type)]);
+                                : type === VersionOperationType.UNKNOWN
+                                    ? createVersion('v1', [])
+                                    : createVersion('v1', [createAction(type)]);
 
             if (!version) {
                 continue;
