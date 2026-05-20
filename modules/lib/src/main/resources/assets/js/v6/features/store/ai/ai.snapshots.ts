@@ -5,6 +5,7 @@ import type {
     AiPluginId,
     AiSchemaSnapshot,
     AiState,
+    AiUser,
 } from './ai-protocol';
 import {createContentData, createContentLanguage, createContentSchema} from './ai.commands';
 import {$aiInstructions} from './ai.store';
@@ -44,15 +45,29 @@ const ID_TO_LEGACY_PLUGIN: Record<AiPluginId, EnonicAiPlugin> = {
     'ai.contentOperator': 'contentOperator',
 };
 
+function buildUserSnapshot(): AiUser | undefined {
+    const user = $config.get().user;
+    if (user == null) {
+        return undefined;
+    }
+
+    return {
+        key: user.getKey().toString(),
+        displayName: user.getDisplayName(),
+    };
+}
+
 export function buildPluginConfig(id: AiPluginId): AiPluginConfig {
     const config = $config.get();
     const instructions = $aiInstructions.get()?.[ID_TO_LEGACY_PLUGIN[id]] ?? '';
+    const user = buildUserSnapshot();
 
     if (id === 'ai.contentOperator') {
         return {
             wsServiceUrl: config.services.aiContentOperatorWsServiceUrl,
             sharedSocketUrl: config.sharedSocketUrl,
             instructions,
+            user,
         };
     }
 
@@ -61,5 +76,6 @@ export function buildPluginConfig(id: AiPluginId): AiPluginConfig {
         licenseServiceUrl: config.services.aiTranslatorLicenseServiceUrl,
         sharedSocketUrl: config.sharedSocketUrl,
         instructions,
+        user,
     };
 }

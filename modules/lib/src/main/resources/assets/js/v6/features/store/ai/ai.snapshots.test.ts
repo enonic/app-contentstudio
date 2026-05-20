@@ -1,4 +1,5 @@
 import {describe, expect, it, beforeEach} from 'vitest';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {$config} from '../config.store';
 import {$aiInstructions} from './ai.store';
 import {buildPluginConfig} from './ai.snapshots';
@@ -34,5 +35,21 @@ describe('buildPluginConfig', () => {
     it('falls back to an empty instructions string when none are set', () => {
         $aiInstructions.set(null);
         expect(buildPluginConfig('ai.translator').instructions).toBe('');
+    });
+
+    it('includes the current user when set', () => {
+        $config.setKey('user', Principal.fromJson({
+            key: 'user:system:edloidas',
+            displayName: 'Mikita Taukachou',
+            modifiedTime: new Date().toISOString(),
+        }));
+        expect(buildPluginConfig('ai.contentOperator').user).toEqual({
+            key: 'user:system:edloidas',
+            displayName: 'Mikita Taukachou',
+        });
+    });
+
+    it('omits user when none is set', () => {
+        expect(buildPluginConfig('ai.contentOperator').user).toBeUndefined();
     });
 });
