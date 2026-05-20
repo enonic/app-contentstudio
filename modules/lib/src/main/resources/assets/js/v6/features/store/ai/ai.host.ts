@@ -227,21 +227,29 @@ export function initAiHost(): void {
     $aiContentLanguage.subscribe(() => fanOutLanguage());
     $aiInstructions.subscribe(() => fanOutConfig());
 
-    // Focus on a content-data InputField -> push that field as the operator's
-    // default context. Ignore the blur signal (undefined): the existing
-    // DisplayName focus handler never clears either, so context persists until
-    // another qualifying field is focused or the user clears it from the dialog.
+    // Push the focused field's parent container so siblings appear as mentions.
+    // Ignore the blur signal — context persists until another field is focused
+    // or the user clears it from the dialog.
     getAiFieldRegistry('data').subscribeActivePath(activePath => {
         if (activePath == null) {
             return;
         }
-        // FieldRegistry paths are absolute dotted form-item paths (".foo.bar").
-        // AiFieldPath.field is the dotted tail with no leading dot.
+        // Strip the leading dot from the absolute data path (e.g. ".itemSet[1].field" -> "itemSet[1].field").
         const field = activePath.startsWith('.') ? activePath.slice(1) : activePath;
         if (field.length === 0) {
             return;
         }
-        const context = toPluginContextPath({kind: 'data', field});
+
+        // Send the parent container, not the leaf, so the plugin surfaces siblings via isChildPath.
+        const lastDot = field.lastIndexOf('.');
+        if (lastDot === -1) {
+            // Top-level field has no container — clear context to fall back to root mentions.
+            sendPluginContext('ai.contentOperator', null);
+            return;
+        }
+
+        const parentField = field.slice(0, lastDot);
+        const context = toPluginContextPath({kind: 'data', field: parentField});
         if (context == null) {
             return;
         }
