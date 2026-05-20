@@ -181,7 +181,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     get displayNames() {
         // div[1] contains the icon, div[2] contains the name
-        return TREE_GRID.TREE_LIST_DIV + TREE_GRID.TREE_LIST_ITEM_DIV + TREE_GRID.CONTENT_LABEL_BLOCK + '//div[2]//span';
+        return TREE_GRID.CONTENT_TREE_LIST_DATA_COMPONENT + TREE_GRID.VIRTUALIZED_TREE_ROW + TREE_GRID.CONTENT_LABEL_BLOCK + '//div[2]//span';
     }
 
     get contentNames() {

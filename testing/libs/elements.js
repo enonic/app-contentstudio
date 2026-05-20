@@ -122,6 +122,8 @@ const LIVE_VIEW = {
 const TREE_GRID = {
     DIV_ROLE_GRID: "//div[@role='grid']",
     DIV_ROLE_ROW: "//div[@role='row']",
+    CONTENT_TREE_LIST_DATA_COMPONENT:"//div[@data-component='ContentTreeList']",
+    VIRTUALIZED_TREE_ROW: "//div[@data-component='VirtualizedTreeList.Row']",
     TREE_LIST_DIV: "//div[contains(@id,'tree-list')]",
     TREE_LIST_ITEM_DIV: "//div[contains(@role,'listitem')]",
     CONTENT_ITEM_CONTEXT_MENU: "//div[@role='menu' and contains(@id,'content')]",
