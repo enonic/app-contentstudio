@@ -1,11 +1,11 @@
 import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Button, cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {UploadIcon} from 'lucide-react';
 import {listenKeys} from 'nanostores';
 import {type ReactElement, useCallback, useEffect, useRef, useState} from 'react';
 import type {UploadMediaError, UploadMediaSuccess} from '../../../../api/uploadMedia';
+import {useI18n} from '../../../../hooks/useI18n';
 import {useUploadMedia} from '../../../../hooks/useUploadMedia';
 import {$contextContent} from '../../../../store/context/contextContent.store';
 import {$uploads, removeUpload} from '../../../../store/uploads.store';
@@ -28,6 +28,7 @@ export const SelectorUploadButton = ({
     multiple,
     accept,
 }: SelectorUploadButtonProps): ReactElement => {
+    const uploadMediaLabel = useI18n('tooltip.button.uploadMedia');
     const [progress, setProgress] = useState<number>(0);
     const [uploadIds, setUploadIds] = useState<string[]>([]);
     const [newContentIds, setNewContentIds] = useState<string[]>([]);
@@ -91,7 +92,7 @@ export const SelectorUploadButton = ({
         (error: UploadMediaError) => {
             removeUpload(error.mediaIdentifier);
             setUploadIds((prev) => prev.filter((id) => id !== error.mediaIdentifier));
-            showError(i18n('notify.upload.error', error.mediaIdentifier, error.message));
+            showError(useI18n('notify.upload.error', error.mediaIdentifier, error.message));
         },
         [setUploadIds]
     );
@@ -115,6 +116,7 @@ export const SelectorUploadButton = ({
                 type="file"
                 multiple={multiple}
                 accept={accept}
+                aria-label={uploadMediaLabel}
                 onChange={e => void handleInputChange(e)}
                 className="sr-only"
             />
@@ -122,6 +124,7 @@ export const SelectorUploadButton = ({
                 onClick={handleUploadClick}
                 variant="solid"
                 disabled={disabled}
+                aria-label={uploadMediaLabel}
                 className={cn(
                     isUploading && 'pointer-events-none',
                     'relative w-full h-full rounded-none border border-bdr-subtle rounded-tr rounded-br bg-surface-selected',

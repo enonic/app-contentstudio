@@ -3,6 +3,7 @@ import {type ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/Conte
 import {cn, IconButton} from '@enonic/ui';
 import {X} from 'lucide-react';
 import {type ReactElement} from 'react';
+import {useI18n} from '../../../../hooks/useI18n';
 import {ContentTypeFilterItemView} from './ContentTypeFilterItemView';
 
 type ContentTypeFilterSelectionItemViewProps = {
@@ -18,12 +19,13 @@ export const ContentTypeFilterSelectionItemView = ({
     onRemove,
     className,
 }: ContentTypeFilterSelectionItemViewProps): ReactElement => {
+    const removeLabel = useI18n('action.remove');
     const {index, item: contentType} = context;
 
     return (
         <div className={cn('flex items-center gap-2.5 w-full', className)}>
             <ContentTypeFilterItemView contentType={contentType} />
-            <IconButton icon={X} onClick={() => onRemove(index)} className="shrink-0" />
+            <IconButton aria-label={removeLabel} icon={X} onClick={() => onRemove(index)} className="shrink-0" />
         </div>
     );
 };

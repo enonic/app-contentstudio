@@ -50,7 +50,7 @@ export const SelectorSelectionItem = ({
 
     return (
         <div data-component={SELECTOR_SELECTION_ITEM_NAME} className="min-w-0 flex-1">
-            <ListItem key={content.getId()} className="@container py-2.5 px-0">
+            <ListItem key={content.getId()} className="@container py-2.5 px-0" role="presentation">
                 <ListItem.Content>{renderContent(content)}</ListItem.Content>
 
                 <ListItem.Right className="gap-0.5 ml-0 @min-[400px]:ml-2.5 @min-[560px]:ml-5">
