@@ -33,6 +33,7 @@ import {getActiveProject, getActiveProjectName} from '../../v6/features/store/ac
 import {
     $displayNameInputFocusRequested,
     $isContentFormExpanded,
+    $wizardContentState,
     $wizardHasChanges,
     $wizardIsMarkedAsReady,
     clearDisplayNameInputFocusRequest,
@@ -587,6 +588,12 @@ export class ContentWizardPanel
             }
 
             this.getContentWizardToolbar().setItem(this.getContent());
+            this.isContentFormValid = this.isWizardContentValid();
+            this.wizardActions
+                .setContent(this.getContent())
+                .setContentCanBePublished(this.checkContentCanBePublished())
+                .setIsValid(this.isContentFormValid)
+                .refreshState();
             this.appendChild(this.getContentWizardToolbarPublishControls().getMobilePublishControls());
 
             if (this.contentType?.hasDisplayNameExpression()) {
@@ -610,7 +617,7 @@ export class ContentWizardPanel
             const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
 
             this.onValidityChanged((event: ValidityChangedEvent) => {
-                const isThisValid: boolean = this.isValid();
+                const isThisValid: boolean = this.isWizardContentValid();
                 this.isContentFormValid = isThisValid;
 
                 if (!this.getPersistedItem()) {
@@ -859,7 +866,13 @@ export class ContentWizardPanel
     }
 
     public checkContentCanBePublished(): boolean {
-        return this.isContentFormValid && this.contentType != null;
+        return this.isWizardContentValid() && this.contentType != null;
+    }
+
+    private isWizardContentValid(): boolean {
+        const contentState = $wizardContentState.get();
+
+        return contentState != null && contentState !== 'invalid';
     }
 
     private isCurrentContentId(id: ContentId): boolean {
