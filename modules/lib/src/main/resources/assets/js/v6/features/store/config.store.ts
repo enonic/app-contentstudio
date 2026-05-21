@@ -12,6 +12,7 @@ type ConfigAiServices = {
 type ConfigStore = {
     // App
     appId: string;
+    appVersion: string;
     // Session
     user?: Principal;
     // Flags
@@ -26,6 +27,7 @@ type ConfigStore = {
 
 type ConfigJson = {
     appId: unknown;
+    appVersion: unknown;
     user: unknown;
     excludeDependencies?: unknown;
     allowContentUpdate?: unknown;
@@ -41,6 +43,7 @@ type ConfigJson = {
 
 const DEFAULT_CONFIG: Readonly<ConfigStore> = {
     appId: '',
+    appVersion: '',
     user: undefined,
     excludeDependencies: false,
     allowContentUpdate: false,
@@ -79,6 +82,7 @@ function parseConfig(content: string): ConfigStore | undefined {
 
         return {
             appId: parseString(config.appId),
+            appVersion: parseString(config.appVersion),
             user: config.user ? Principal.fromJson(config.user as PrincipalJson) : undefined,
             excludeDependencies: parseBoolean(config.excludeDependencies),
             allowContentUpdate: parseBoolean(config.allowContentUpdate),
