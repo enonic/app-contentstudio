@@ -11,7 +11,7 @@ import {
     setEditPropertiesDialogLanguageSelection,
     setEditPropertiesDialogOwnerSelection,
 } from '../../store/dialogs/editPropertiesDialog.store';
-import {$languages, LanguageOption} from '../../store/languages.store';
+import {$languages, type LanguageOption} from '../../store/languages.store';
 import {$principals} from '../../store/principals.store';
 import {FlagIcon} from '../icons/FlagIcon';
 import {PrincipalLabel} from '../PrincipalLabel';
@@ -33,7 +33,6 @@ export const EditPropertiesDialog = (): ReactElement => {
     const noLanguagesFoundLabel = useI18n('widget.properties.edit.settings.noLanguagesFound');
     const noOwnersFoundLabel = useI18n('widget.properties.edit.settings.noOwnersFound');
     const applyLabel = useI18n('action.apply');
-    const cancelLabel = useI18n('action.cancel');
     const languageLabel = useI18n('field.lang');
     const ownerLabel = useI18n('field.owner');
     const searchPlaceholder = useI18n('field.option.placeholder');

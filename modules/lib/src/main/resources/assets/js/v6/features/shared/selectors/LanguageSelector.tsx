@@ -104,20 +104,9 @@ export const LanguageSelector = ({
     const selectedIds = selection ?? [];
     const safeSelection = useMemo(() => new Set(selectedIds.map(toOptionKey)), [selectedIds]);
 
-    const optionMap = useMemo(() => new Map(options.map((option) => [option.id, option])), [options]);
     const optionKeyMap = useMemo(() => {
         return new Map(options.map((option) => [toOptionKey(option.id), option.id]));
     }, [options]);
-    const selectionDisplay = useMemo(() => {
-        const selectedId = selectedIds[0];
-        return selectedId ? (optionMap.get(selectedId)?.label ?? selectedId) : '';
-    }, [selectedIds, optionMap]);
-
-    useEffect(() => {
-        if (!open) {
-            setInputValue(selectionDisplay);
-        }
-    }, [open, selectionDisplay]);
 
     const visibleOptions = useMemo(() => {
         if (!open) {
@@ -167,7 +156,6 @@ export const LanguageSelector = ({
     const handleOpenChange = (next: boolean): void => {
         setOpen(next);
         if (next && !open) {
-            setInputValue('');
             // Set initial active to first item
             const firstNode = flatNodes[0];
             if (firstNode) {
@@ -180,10 +168,8 @@ export const LanguageSelector = ({
         const nextArray = Array.from(next);
         const decodedSelection = nextArray.map((value) => optionKeyMap.get(value) ?? value);
         const selectedIds = decodedSelection.slice(0, 1);
-        const selectedId = selectedIds[0];
-        const nextDisplay = selectedId ? (optionMap.get(selectedId)?.label ?? selectedId) : '';
 
-        setInputValue(nextDisplay);
+        setInputValue('');
         onSelectionChange(selectedIds);
         setOpen(false);
     };
