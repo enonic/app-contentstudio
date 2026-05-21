@@ -19,7 +19,7 @@ import {
     ROOT_LOADING_KEY,
 } from '../lib/tree-store';
 import {$contentCache} from './content.store';
-import {$contentDeleted, $contentArchived, $contentCreated, $contentDuplicated} from './socket.store';
+import {$contentDeleted, $contentArchived, $contentCreated, $contentDuplicated, $contentMoved} from './socket.store';
 import type {ContentData} from '../views/browse/grid/ContentData';
 import {convertToContentFlatNode} from './tree/utils';
 import type {ContentTreeNodeData, LoadingStateValue} from './tree/types';
@@ -233,6 +233,13 @@ $contentCreated.subscribe((event) => {
 
 // Content duplicated - filter may need refresh to include duplicate
 $contentDuplicated.subscribe((event) => {
+    if (event?.data) {
+        $filterRefreshNeeded.set(Date.now());
+    }
+});
+
+// Content moved - filter results depend on the new path/parent, so trigger a refresh
+$contentMoved.subscribe((event) => {
     if (event?.data) {
         $filterRefreshNeeded.set(Date.now());
     }
