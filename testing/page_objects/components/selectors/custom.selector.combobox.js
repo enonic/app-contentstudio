@@ -1,40 +1,51 @@
 /**
- * Created on 20.02.2024
+ * Created on 20.02.2024  updated on 21.05.2026
  */
 const BaseDropdown = require('./base.dropdown');
-const lib = require('../../../libs/elements-old');
-const appConst = require('../../../libs/app_const');
+const {DROPDOWN, BUTTONS} = require('../../../libs/elements');
 
 const XPATH = {
-    container: "//div[contains(@id,'CustomSelectorComboBox')]",
-    selectorListBoxUL: "//ul[contains(@id,'CustomSelectorListBox')]",
-    optionByText: text => {
-        return `//div[contains(@id,'ComboBoxDisplayValueViewer') and text()='${text}']`
-    },
+    selectionItemDisplayName: "//div[@data-component='SortableGridList']//div[@data-component='ItemLabel']/div/span[contains(@class,'font-semibold')]",
 };
 
 class CustomSelectorComboBox extends BaseDropdown {
 
+    constructor(parentElementXpath) {
+        super();
+        this._container = parentElementXpath;
+    }
+
+    // returns the element that contains the dropdown:
     get container() {
-        return XPATH.container;
+        return this._container;
     }
 
-    async selectFilteredOptionAndClickOnApply(optionName, parentElement) {
+    optionsFilterInput() {
+        return this.dataComponentDiv + DROPDOWN.OPTION_FILTER_INPUT;
+    }
+
+    get dataComponentDiv() {
+        return "//div[@data-component='CustomSelectorInput']";
+    }
+
+    async selectFilteredOptionAndClickOnApply(optionName) {
         try {
-            await this.clickOnFilteredByDisplayNameItemAndClickOnApply(optionName, parentElement);
+            await this.doFilterItem(optionName);
+            await this.clickOnOptionByDisplayName(optionName);
+            await this.clickOnApplySelectionButton();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('CustomSelectorComboBox - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError(`CustomSelectorComboBox, tried to click on the option, ${optionName} `, 'err_dropdown', err);
         }
     }
 
-    async getOptionsName(parentXpath) {
-        if (parentXpath === undefined) {
-            parentXpath = '';
-        }
-        let locator = parentXpath + XPATH.selectorListBoxUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.pause(500);
+    async getSelectedOptionsName() {
+        const locator = this.container + XPATH.selectionItemDisplayName;
+        return await this.getTextInDisplayedElements(locator);
+    }
+
+    // Options in the dropdown list:
+    async getOptionsName() {
+        const locator = DROPDOWN.COMBOBOX_POPUP + "//div[@data-component='Listbox.Item']//span[contains(@class,'font-semibold')]";
         return await this.getTextInDisplayedElements(locator);
     }
 }

@@ -164,7 +164,7 @@ class ImageSelectorForm extends BaseSelectorForm {
 
     async waitForEmptyOptionsMessage() {
         try {
-            let locator = "//div[@data-combobox-popup]//span[contains(@class,'text-subtle') and contains(text(),'No matching items')]"
+            let locator = "//div[@data-component='Combobox.Popup']//span[contains(@class,'text-subtle') and contains(text(),'No matching items')]"
             return await this.waitForElementDisplayed(locator);
         } catch (err) {
             await this.handleError(`Image Selector - 'No matching items' text should appear`, 'err_img_sel_empty_opt', err);

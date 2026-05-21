@@ -1,5 +1,5 @@
 /**
- * Created on 03.06.2019.
+ * Created on 03.06.2019.  updated on 21.05.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -14,18 +14,11 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
     let CONTENT_NAME;
     const CONTENT_NAME_2 = appConst.generateRandomName('cselector');
     const OPTION_1 = 'Option number 1';
     const OPTION_2 = 'Option number 2';
-
-    it(`Preconditions: new site should be created`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
     // Verifies Custom Selector incorrectly loads options #3407
     // https://github.com/enonic/app-contentstudio/issues/3407
@@ -35,7 +28,7 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
             let customSelectorForm = new CustomSelectorForm();
             CONTENT_NAME = contentBuilder.generateRandomName('cselector');
             // 1. Wizard for Custom-Selector content is opened
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CUSTOM_SELECTOR_0_2);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.CUSTOM_SELECTOR_0_2);
             await contentWizard.typeDisplayName(CONTENT_NAME);
             // 2. non-existing option has been typed in the Options Filter Input
             await customSelectorForm.typeTextInOptionsFilterInput('test');
@@ -60,7 +53,7 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
             let customSelectorForm = new CustomSelectorForm();
             CONTENT_NAME = contentBuilder.generateRandomName('cselector');
             // 1. Wizard for Custom-Selector content is opened
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CUSTOM_SELECTOR_0_2);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.CUSTOM_SELECTOR_0_2);
             await contentWizard.typeDisplayName(CONTENT_NAME);
             // 2. One option has been selected:
             await customSelectorForm.selectOptionByDisplayName(OPTION_1);
@@ -106,7 +99,7 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
         async () => {
             let customSelectorForm = new CustomSelectorForm();
             let contentWizard = new ContentWizard();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.CUSTOM_SELECTOR_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.CUSTOM_SELECTOR_1_1);
             // 1. Fill in the name input:
             await contentWizard.typeDisplayName(CONTENT_NAME_2);
             await studioUtils.saveScreenshot('custom_selector_1_1');

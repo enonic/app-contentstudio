@@ -49,7 +49,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     get deleteButton() {
-        return XPATH.toolbarDiv +  BUTTONS.buttonAriaLabel('Delete');
+        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Delete');
     }
 
     get homeButton() {
@@ -162,8 +162,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(nameXpath);
             return await this.pause(500);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_find_project');
-            throw new Error('Project Browse Panel - project was not found ' + screenshot + '  ' + err);
+            await this.handleError(`Error occurred after clicking on the row with display name: ${displayName}`, 'err_click_row', err);
         }
     }
 

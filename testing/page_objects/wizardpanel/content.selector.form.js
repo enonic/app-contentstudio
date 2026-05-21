@@ -3,7 +3,6 @@
  */
 const {COMMON, BUTTONS} = require('../../libs/elements');
 const BaseSelectorForm = require('./base.selector.form');
-const appConst = require('../../libs/app_const');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 
 const XPATH = {

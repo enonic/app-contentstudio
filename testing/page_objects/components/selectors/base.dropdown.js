@@ -118,7 +118,7 @@ class BaseDropdown extends Page {
     // new
     async doFilterItem(text) {
         let optionsFilterLocator = this.optionsFilterInput();
-        await this.waitUntilDisplayed(optionsFilterLocator, appConst.mediumTimeout);
+        await this.waitUntilDisplayed(optionsFilterLocator);
         let elements = await this.getDisplayedElements(optionsFilterLocator);
         await elements[0].setValue(text);
         return await this.pause(300);
@@ -126,7 +126,7 @@ class BaseDropdown extends Page {
 
     async typeCharsInFilterItem(text) {
         let optionsFilterLocator = this.optionsFilterInput();
-        await this.waitUntilDisplayed(optionsFilterLocator, appConst.mediumTimeout);
+        await this.waitUntilDisplayed(optionsFilterLocator);
         let elements = await this.getDisplayedElements(optionsFilterLocator);
         await elements[0].click();
         await this.pause(200);
@@ -147,7 +147,8 @@ class BaseDropdown extends Page {
 
     async isOptionsFilterInputDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.container + this.optionsFilterInput, appConst.shortTimeout);
+            let locator = this.container + this.optionsFilterInput();
+            return await this.waitForElementDisplayed(locator, appConst.shortTimeout);
         } catch (err) {
             return false;
         }
