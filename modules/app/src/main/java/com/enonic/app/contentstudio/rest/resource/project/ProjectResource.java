@@ -288,6 +288,7 @@ public final class ProjectResource
             .name( json.getName() )
             .displayName( json.getDisplayName() )
             .description( json.getDescription() )
+            .language( json.getLanguage() )
             .addParents( json.getParents() )
             .publicRead( publicRead )
             .forceInitialization( true );
@@ -307,6 +308,7 @@ public final class ProjectResource
         return ModifyProjectParams.create().name( json.getName() ).editor( edit -> {
             edit.displayName = json.getDisplayName();
             edit.description = json.getDescription();
+            edit.language = json.getLanguage();
             edit.siteConfigs = SiteConfigs.from( json.getApplicationConfigs() );
         } ).build();
     }

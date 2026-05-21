@@ -16,6 +16,8 @@ export abstract class ProjectCreateUpdateRequest
 
     protected applicationConfigs: ApplicationConfig[] = [];
 
+    protected language: string;
+
     protected constructor() {
         super();
         this.setMethod(HttpMethod.POST);
@@ -41,11 +43,17 @@ export abstract class ProjectCreateUpdateRequest
         return this;
     }
 
+    setLanguage(value: string): ProjectCreateUpdateRequest {
+        this.language = value;
+        return this;
+    }
+
     getParams(): object {
         return {
             name: this.name,
             displayName: this.displayName,
             description: this.description,
+            language: this.language,
             applicationConfigs: this.applicationConfigs.map((config: ApplicationConfig) => config.toJson())
         };
     }

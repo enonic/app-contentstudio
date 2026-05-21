@@ -1,18 +1,21 @@
 import {cn, Dialog, Tooltip} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {ReactElement, useCallback, useMemo} from 'react';
+import {ReactElement, useCallback, useMemo, useRef} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {
+    $isProjectDialogAccessModeDirty,
     $isProjectDialogDirty,
     $projectDialog,
     closeProjectDialog,
     createProject,
     updateProject,
+    revertProjectDialogAccessMode,
     setProjectDialogStep,
     setProjectDialogView,
 } from '../../../store/dialogs/projectDialog.store';
 import {ConfirmationDialog} from '../ConfirmationDialog';
 import {ProjectDialogSteps} from './steps';
+import {ProgressDialogContent} from '../ProgressDialogContent';
 
 const NEW_PROJECT_DIALOG_NAME = 'ProjectDialog';
 
@@ -22,20 +25,26 @@ export const ProjectDialog = (): ReactElement => {
         view,
         step,
         accessMode,
+        readAccessProgress,
         nameData: {hasError},
         submitting,
         mode,
-    } = useStore($projectDialog, {keys: ['open', 'view', 'step', 'accessMode', 'nameData', 'submitting', 'mode']});
+    } = useStore($projectDialog, {keys: ['open', 'view', 'step', 'accessMode', 'readAccessProgress', 'nameData', 'submitting', 'mode']});
 
     const isDirty = useStore($isProjectDialogDirty);
+    const isProjectDialogAccessModeDirty = useStore($isProjectDialogAccessModeDirty);
+    const pendingStep = useRef<string | null>(null);
 
     const previousLabel = useI18n('action.previous');
     const nextLabel = useI18n('action.next');
     const createLabel = useI18n('dialog.project.wizard.action.submit');
     const updateLabel = useI18n('dialog.project.wizard.action.update');
     const submitLabel = mode === 'edit' ? updateLabel : createLabel;
-    const confirmTitle = useI18n('dialog.confirm.title');
-    const confirmDescription = useI18n('dialog.confirm.applyChanges');
+    const dirtyConfirmTitle = useI18n('dialog.confirm.title');
+    const dirtyConfirmDescription = useI18n('dialog.confirm.applyChanges');
+    const accessConfirmTitle = useI18n('dialog.confirm.title');
+    const accessConfirmDescription = useI18n('dialog.projectAccess.confirm');
+    const applyingLabel = useI18n('dialog.projectAccess.applying');
     const parentStepTitle = useI18n('dialog.project.wizard.parent.stepTitle');
     const nameStepTitle = useI18n('dialog.project.wizard.name.stepTitle');
     const accessStepTitle = useI18n('dialog.project.wizard.access.stepTitle');
@@ -60,13 +69,13 @@ export const ProjectDialog = (): ReactElement => {
         (open: boolean) => {
             if (open) return;
 
-            if (view === 'confirmation') {
+            if (view === 'dirty-confirmation' || view === 'access-confirmation') {
                 setProjectDialogView('main');
                 return;
             }
 
             if (isDirty) {
-                setProjectDialogView('confirmation');
+                setProjectDialogView('dirty-confirmation');
                 return;
             }
 
@@ -83,9 +92,31 @@ export const ProjectDialog = (): ReactElement => {
         }
     }, [mode]);
 
-    const handleConfirm = () => {
-        closeProjectDialog();
-    };
+    const handleStepChange = useCallback(
+        (newStep: string) => {
+            if (step === 'step-access' && isProjectDialogAccessModeDirty && newStep !== 'step-name') {
+                pendingStep.current = newStep;
+                setProjectDialogView('access-confirmation');
+                return;
+            }
+            setProjectDialogStep(newStep);
+        },
+        [step, isProjectDialogAccessModeDirty]
+    );
+
+    const handleAccessConfirm = useCallback(() => {
+        if (pendingStep.current) {
+            setProjectDialogStep(pendingStep.current);
+            pendingStep.current = null;
+        }
+        setProjectDialogView('main');
+    }, []);
+
+    const handleAccessCancel = useCallback(() => {
+        pendingStep.current = null;
+        revertProjectDialogAccessMode();
+        setProjectDialogView('main');
+    }, []);
 
     return (
         <Dialog.Root
@@ -93,7 +124,7 @@ export const ProjectDialog = (): ReactElement => {
             open={open}
             onOpenChange={handleOpenChange}
             step={step}
-            onStepChange={setProjectDialogStep}
+            onStepChange={handleStepChange}
         >
             <Dialog.Portal>
                 <Dialog.Overlay />
@@ -132,11 +163,24 @@ export const ProjectDialog = (): ReactElement => {
                         </Dialog.Footer>
                     </Dialog.Content>
                 )}
-                {view === 'confirmation' && (
+                {view === 'dirty-confirmation' && (
                     <ConfirmationDialog.Content>
-                        <ConfirmationDialog.DefaultHeader title={confirmTitle} description={confirmDescription} />
-                        <ConfirmationDialog.Footer onConfirm={handleConfirm} />
+                        <ConfirmationDialog.DefaultHeader title={dirtyConfirmTitle} description={dirtyConfirmDescription} />
+                        <ConfirmationDialog.Footer onConfirm={() => closeProjectDialog()} />
                     </ConfirmationDialog.Content>
+                )}
+                {view === 'access-confirmation' && (
+                    <ConfirmationDialog.Content>
+                        <ConfirmationDialog.DefaultHeader title={accessConfirmTitle} description={accessConfirmDescription} />
+                        <ConfirmationDialog.Footer onConfirm={handleAccessConfirm} onCancel={handleAccessCancel} />
+                    </ConfirmationDialog.Content>
+                )}
+                {view === 'progress' && (
+                    <ProgressDialogContent
+                        title={applyingLabel}
+                        progress={readAccessProgress ?? 0}
+                        data-component={NEW_PROJECT_DIALOG_NAME}
+                    />
                 )}
             </Dialog.Portal>
         </Dialog.Root>
