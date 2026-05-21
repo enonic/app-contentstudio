@@ -37,6 +37,8 @@ const COMMON = {
         DIV_BUTTON:"//div[@role='button']",
         textAreaByName: (name) => `//textarea[@name='${name}']`,
         inputByAriaLabel: (ariaLabel) => `//input[@aria-label='${ariaLabel}']`,
+        dataComponentInputByLabel: (label) => `//div[@data-component='Input' and descendant::label[contains(.,'${label}')]]`,
+        dataComponentRadioByLabel: (label) => `//button[@data-component='RadioGroup.Item' and descendant::span[contains(.,'${label}')]]`,
     },
     CKE:{
         textAreaElement:"//textarea[contains(@id,'htmlarea')]",
@@ -169,7 +171,7 @@ const DROPDOWN = {
     LISTBOX_OPTIONS_DIV: "//div[contains(@role,'listbox')]",
     imageItemView: (imageDisplayName)=>`//div[@data-component='ImageSelectorItemView' and descendant::span[contains(text(),'${imageDisplayName}')]]`,
     listboxOptionByText: (text) => `//div[contains(@role,'option')  and descendant::span[text()='${text}']]`,
-    optionByDisplayName: (displayName) => `//div[contains(@id,'listbox-option')  and descendant::span[contains(.,'${displayName}')]]`,
+    optionByDisplayName: (displayName) => `//div[@data-component='Listbox.Item'  and descendant::span[contains(.,'${displayName}')]]`,
     listItemOptionByDisplayName: (displayName) => `//div[@role='listitem'  and descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]]]`,
     treeItemByDisplayName: (displayName) => `//div[@role='treeitem']//div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]]`,
     treeItemExpanderByDisplayName: (displayName) => `//div[@role='treeitem' and descendant::span[contains(.,'${displayName}')]]//button[@aria-label='Expand']`,
@@ -192,24 +194,7 @@ const DROPDOWN = {
     WIDGET_COMBOBOX: "//div[@data-component='WidgetsSelector']",
     OPTION_FILTER_INPUT: "//input[@role='combobox']",
 };
-const DROPDOWN_OLD = {
-    HANDLE: "//button[contains(@id,'DropdownHandle')]",
-    DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
-    OPTION_FILTER_INPUT: "//input[contains(@id,'OptionFilterInput') and contains(@class, 'option-filter-input')]",
-    DROPDOWN_DIV: "//div[contains(@id,'Dropdown')]",
-    DROPDOWN_LIST_ITEM: "//*[contains(@class,'item-view-wrapper')]",
-    DROPDOWN_DIV_ITEM: "//div[contains(@class,'item-view-wrapper')]",
-    FILTERABLE_LISTBOX: "//div[contains(@id,'FilterableListBoxWrapper')]",
-    IMAGE_CONTENT_COMBOBOX_DIV: "//div[contains(@id,'ImageContentComboBox')]",
-    MODE_TOGGLER_BUTTON: "//button[contains(@id,'ModeTogglerButton')]",
-    APPLY_SELECTION_BUTTON: "//button[contains(@class,'apply-selection-button')]",
-    flatModeDropdownImgItemByDisplayName: (container, displayName) => {
-        return container +
-               `//*[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]//img`;
-    },
-    IMG_DROPDOWN_OPT_DISPLAY_NAME_FLAT_MODE: "//li[contains(@class,'item-view-wrapper')]" +
-                                             "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",
-};
+
 const ISSUE = {
     contentRowByName: displayName => `//div[@data-component='ContentRow' and (descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]])]`,
 }
@@ -233,6 +218,9 @@ const SELECTION_STATUS_BAR = {
     buttonByLabel: (label) => `//button[@data-component='StatusBarEntryButton' and contains(.,'${label}')]`,
 
 };
+const PROJECTS = {
+    PROJECT_STEP_COMPONENT: `//div[@data-component='Dialog.StepContent']`,
+};
 module.exports = Object.freeze({
     COMMON,
     BUTTONS,
@@ -242,5 +230,6 @@ module.exports = Object.freeze({
     DROPDOWN,
     ISSUE,
     DIALOG_ITEMS,
-    SELECTION_STATUS_BAR
+    SELECTION_STATUS_BAR,
+    PROJECTS,
 });

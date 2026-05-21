@@ -4,10 +4,7 @@
 const BasDropdown = require('./base.dropdown');
 const appConst = require('../../../libs/app_const');
 const {DROPDOWN} = require('../../../libs/elements');
-const XPATH = {
-    listBoxUL: "//ul[contains(@id,'PrincipalsListBox')]",
-    principalViewerDiv: "//div[contains(@id,'PrincipalViewer')]",
-};
+
 
 class PrincipalSelector extends BasDropdown {
 
