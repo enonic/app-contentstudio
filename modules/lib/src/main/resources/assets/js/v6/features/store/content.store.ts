@@ -235,11 +235,32 @@ $contentDuplicated.subscribe((event) => {
     }
 });
 
-// Content moved - no action needed here.
-// Move operation triggers both delete (from old location) and create (at new location) events,
-// which are handled by their respective subscriptions above.
-$contentMoved.subscribe(() => {
-    // Intentionally empty - handled by delete + create events
+// $contentMoved is the only event for cross-parent moves; delete/create are not emitted.
+$contentMoved.subscribe((event) => {
+    if (!event?.data) return;
+
+    const cacheUpdates: ContentCacheState = {...$contentCache.get()};
+    const indexUpdates: Record<string, string> = {...$pathToId.get()};
+
+    for (const moved of event.data) {
+        const summary = moved.item.getContentSummary();
+        const id = summary.getId();
+        const newPath = summary.getPath?.()?.toString();
+        const oldPath = moved.oldPath.toString();
+
+        cacheUpdates[id] = summary;
+
+        if (indexUpdates[oldPath] === id) {
+            delete indexUpdates[oldPath];
+        }
+
+        if (newPath) {
+            indexUpdates[newPath] = id;
+        }
+    }
+
+    $contentCache.set(cacheUpdates);
+    $pathToId.set(indexUpdates);
 });
 
 // Content sorted - update cache with new order data

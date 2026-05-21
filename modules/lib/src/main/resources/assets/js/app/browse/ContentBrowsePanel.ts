@@ -14,7 +14,7 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import type Q from 'q';
 import {$actionsNeedRefresh, clearActionsRefreshSignal} from '../../v6/features/store/actions.store';
 import {removeContent, setContent} from '../../v6/features/store/content.store';
-import {hasFilterSet, setContentFilterOpen} from '../../v6/features/store/contentFilter.store';
+import {setContentFilterOpen} from '../../v6/features/store/contentFilter.store';
 import {hasCurrentItems} from '../../v6/features/store/contentTreeSelection.store';
 import {onActiveProjectChanged} from '../../v6/features/store/activeProject.store';
 import {onNoProjectsAvailable} from '../../v6/features/store/projects.store';
@@ -548,10 +548,6 @@ export class ContentBrowsePanel
             removeContent(id);
             removeTreeNode(id);
         });
-
-        if (hasFilterSet()) {
-            this.contentTreeList.setFilterQuery(null);
-        }
 
         this.updateContextPanelOnNodesDelete(items);
         this.refreshFilterWithDelay();

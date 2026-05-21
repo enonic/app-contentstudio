@@ -4,6 +4,7 @@ import type {ContentSummary} from '../../../app/content/ContentSummary';
 import {$activeRawFlatNodes, $isFilterActive} from './active-tree.store';
 import {$contentCache} from './content.store';
 import {$filterTreeState} from './filter-tree.store';
+import {$contentArchived, $contentDeleted, $contentMoved} from './socket.store';
 import {$treeState} from './tree-list.store';
 
 //
@@ -292,4 +293,60 @@ $filterTreeState.subscribe((state) => {
     if (rootsChanged && $selectAllMode.get() && $isFilterActive.get()) {
         $selectAllMode.set(false);
     }
+});
+
+//
+// * Drop departing items from selection / active
+//
+// VirtualizedTreeList falls back to items[0] when its controlled `active` id leaves
+// the items array. Clearing here makes `active` go to null instead.
+
+function dropFromSelectionAndActive(ids: ReadonlySet<string>): void {
+    if (ids.size === 0) return;
+
+    const currentSelection = $selection.get();
+    let changed = false;
+    const nextSelection = new Set<string>();
+    for (const id of currentSelection) {
+        if (ids.has(id)) {
+            changed = true;
+        } else {
+            nextSelection.add(id);
+        }
+    }
+    if (changed) {
+        $selection.set(nextSelection);
+    }
+
+    const activeId = $activeId.get();
+    if (activeId && ids.has(activeId)) {
+        $activeId.set(null);
+    }
+}
+
+// Cross-parent moves only — same-parent renames keep the node in the tree.
+$contentMoved.subscribe((event) => {
+    if (!event?.data) return;
+
+    const ids = new Set<string>();
+    for (const moved of event.data) {
+        const summary = moved.item.getContentSummary();
+        const newPath = summary.getPath?.();
+        if (!newPath) continue;
+        if (moved.oldPath.getParentPath().equals(newPath.getParentPath())) continue;
+        ids.add(summary.getId());
+    }
+    dropFromSelectionAndActive(ids);
+});
+
+$contentDeleted.subscribe((event) => {
+    if (!event?.data) return;
+    const ids = new Set(event.data.map((item) => item.getContentId().toString()));
+    dropFromSelectionAndActive(ids);
+});
+
+$contentArchived.subscribe((event) => {
+    if (!event?.data) return;
+    const ids = new Set(event.data.map((item) => item.getContentId().toString()));
+    dropFromSelectionAndActive(ids);
 });
