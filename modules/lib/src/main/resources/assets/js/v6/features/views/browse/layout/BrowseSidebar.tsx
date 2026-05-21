@@ -10,6 +10,7 @@ import {ProjectIcon} from '../../../shared/icons/ProjectIcon';
 import {LegacyElement} from '../../../shared/LegacyElement';
 import {WidgetButton} from '../../../shared/WidgetButton';
 import {$activeProject} from '../../../store/activeProject.store';
+import {$config} from '../../../store/config.store';
 import {$noProjectMode} from '../../../store/projects.store';
 import {$sidebarWidgets, getSettingsWidget, getWidgetKey, isMainWidget, isSettingsWidget, setActiveWidget} from '../../../store/sidebarWidgets.store';
 
@@ -19,14 +20,17 @@ function getWidgetIcon(widget: Readonly<Extension>): LucideIcon | undefined {
     return undefined;
 }
 
+function stripVersionSuffix(version: string): string {
+    return version.match(/^\d+\.\d+\.\d+/)?.[0] ?? version;
+}
+
 export const BrowseSidebar = (): ReactElement => {
     const activeProject = useStore($activeProject);
     const noProjectMode = useStore($noProjectMode);
     const {widgets, activeWidgetId} = useStore($sidebarWidgets);
+    const config = useStore($config, {keys: ['appVersion']});
     const name = Store.instance().get('application').getName();
-    // const version = 'v' + CONFIG.getString('appVersion');
-    const version = 'v6.0.0'; // temporary hardcoded for demo purposes
-
+    const version = `v${stripVersionSuffix(config.appVersion)}`;
     const settingsWidget = getSettingsWidget(widgets);
     const mainWidgets = noProjectMode ? [] : widgets.slice(0, -1);
     const footerWidget = noProjectMode ? settingsWidget : widgets.at(-1);

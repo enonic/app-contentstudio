@@ -8,6 +8,7 @@ describe('buildPluginConfig', () => {
     beforeEach(() => {
         $config.set({
             appId: '',
+            appVersion: '',
             user: undefined,
             excludeDependencies: false,
             allowContentUpdate: false,
