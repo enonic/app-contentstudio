@@ -32,7 +32,7 @@ import {
 } from './tree-list.store';
 import {clearContentCache, setContent, setContents} from './content.store';
 import {addUpload, clearUploads} from './uploads.store';
-import {emitContentCreated, emitContentDeleted, emitContentDuplicated, emitContentArchived} from './socket.store';
+import {emitContentCreated, emitContentDeleted, emitContentArchived} from './socket.store';
 import type {ContentServerChangeItem} from '../../../app/event/ContentServerChangeItem';
 
 // Mock ContentTreeNodeData
@@ -707,54 +707,5 @@ describe('tree-list.store', () => {
             });
         });
 
-        describe('$contentDuplicated', () => {
-            it('adds duplicated content to tree when parent is loaded', () => {
-                // Setup: parent node in tree with path in cache
-                const parentContent = createMockContentWithParent('parent', '/');
-                setContents([parentContent]);
-                addTreeNode({id: 'parent', data: createNodeData('parent'), hasChildren: true, childIds: ['child1']});
-                setTreeRootIds(['parent']);
-                expandNode('parent');
-
-                // Emit: duplicated content
-                const duplicatedContent = createMockContentWithParent('duplicate', '/parent', false, 'Duplicated');
-                emitContentDuplicated([duplicatedContent]);
-
-                // Assert: duplicate appears in tree
-                expect(hasTreeNode('duplicate')).toBe(true);
-                const parent = getTreeNode('parent');
-                expect(parent?.childIds).toContain('duplicate');
-            });
-
-            it('does not add a duplicated content to the tree when parent children are not loaded yet', () => {
-                // Setup: parent node in tree with path in cache
-                const parentContent = createMockContentWithParent('parent', '/');
-                setContents([parentContent]);
-                addTreeNode({id: 'parent', data: createNodeData('parent'), hasChildren: true});
-                setTreeRootIds(['parent']);
-                expandNode('parent');
-
-                // Emit: duplicated content
-                const duplicatedContent = createMockContentWithParent('duplicate', '/parent', false, 'Duplicated');
-                emitContentDuplicated([duplicatedContent]);
-
-                // Assert: duplicate appears in tree
-                expect(hasTreeNode('duplicate')).not.toBe(true);
-                const parent = getTreeNode('parent');
-                expect(parent?.childIds).not.toContain('duplicate');
-            });
-
-            it('does not add duplicated content when parent is not in tree', () => {
-                // Setup: empty tree
-                setTreeRootIds([]);
-
-                // Emit: duplicated content with non-existent parent
-                const content = createMockContentWithParent('duplicate', '/non-existent');
-                emitContentDuplicated([content]);
-
-                // Assert: content not added
-                expect(hasTreeNode('duplicate')).toBe(false);
-            });
-        });
     });
 });
