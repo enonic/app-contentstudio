@@ -123,6 +123,15 @@ class CustomSelectorForm extends BaseSelectorForm {
                 'err_swap_options', err);
         }
     }
+
+    async waitForEmptyOptionsMessage() {
+        try {
+            let locator = "//div[@data-component='Combobox.Popup']//div[contains(@class,'text-subtle') and contains(text(),'No matching items')]";
+            return await this.waitForElementDisplayed(locator);
+        } catch (err) {
+            await this.handleError(`Custom Selector - 'No matching items' text should appear`, 'err_img_sel_empty_opt', err);
+        }
+    }
 }
 
 module.exports = CustomSelectorForm;
