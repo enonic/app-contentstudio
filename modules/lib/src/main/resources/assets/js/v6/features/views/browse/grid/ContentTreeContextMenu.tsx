@@ -1,7 +1,7 @@
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ContextMenu} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {ReactElement, ReactNode} from 'react';
+import {type ReactElement, type ReactNode} from 'react';
 import {useAction} from '../../../hooks/useAction';
 import {$currentItems} from '../../../store/contentTreeSelection.store';
 
@@ -13,8 +13,9 @@ export type ContentTreeContextMenuProps = {
 const CONTENT_TREE_CONTEXT_MENU_NAME = 'ContentTreeContextMenu';
 
 export const ContentTreeContextMenu = ({children, actions = {}}: ContentTreeContextMenuProps): ReactElement => {
-    const item = useStore($currentItems)[0];
-
+    const items = useStore($currentItems);
+    const hasPublishedItems = items.some((item) => !!item.getPublishFromTime());
+    const hasUnpublishedItems = items.some((item) => !item.getPublishFromTime());
     const hasActions = Object.keys(actions).length > 0;
     const publishAction = actions.publishAction;
     const unpublishAction = actions.unpublishAction;
@@ -34,13 +35,14 @@ export const ContentTreeContextMenu = ({children, actions = {}}: ContentTreeCont
                         <ContentTreeContextMenuAction key={actionName} action={action} />
                     ))}
 
-                    {!!item?.getPublishFirstTime() && unpublishAction && (
+                    {hasUnpublishedItems && publishAction && (
+                        <ContentTreeContextMenuAction key="publishAction" action={publishAction} />
+                    )}
+
+                    {hasPublishedItems && unpublishAction && (
                         <ContentTreeContextMenuAction key="unpublishAction" action={unpublishAction} />
                     )}
 
-                    {!item?.getPublishFirstTime() && publishAction && (
-                        <ContentTreeContextMenuAction key="publishAction" action={publishAction} />
-                    )}
                 </ContextMenu.Content>
             </ContextMenu.Portal>
         </ContextMenu>
