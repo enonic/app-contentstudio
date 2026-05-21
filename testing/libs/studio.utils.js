@@ -683,18 +683,6 @@ module.exports = {
     async navigateToContentStudioAppMobile(userName, password) {
         await this.navigateToContentStudioApp(userName, password);
     },
-    async navigateToContentStudioWithProjects(userName, password) {
-        try {
-            await this.clickOnContentStudioLink(userName, password);
-            console.log('testUtils:switching to Content Browse panel...');
-            let browsePanel = new BrowsePanel();
-            await this.getBrowser().switchWindow("Content Studio - Enonic XP Admin");
-            return await browsePanel.pause(1000);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_navigate_to_studio');
-            throw new Error(`Error when navigating to Content Studio, screenshot: ${screenshot} ` + err);
-        }
-    },
     async doLogin(userName, password) {
         let loginPage = new LoginPage();
         let result = await loginPage.isLoaded();
@@ -711,23 +699,6 @@ module.exports = {
             let homePage = new HomePage();
             await homePage.clickOnContentStudioLink();
             await this.closeProjectSelectionDialog();
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_navigate_to_studio');
-            throw new Error(`Error when navigating to Content Studio. Screenshot: ${screenshot}` + err);
-        }
-    },
-    async navigateToContentStudioSelectDefault(userName, password) {
-        try {
-            let projectSelectionDialog = new ProjectSelectionDialog();
-            await this.clickOnContentStudioLink(userName, password);
-            await this.switchToTab(appConst.BROWSER_XP_TITLES.CONTENT_STUDIO);
-            let isLoaded = await projectSelectionDialog.isDialogLoaded();
-            if (isLoaded) {
-                await projectSelectionDialog.pause(200);
-                await projectSelectionDialog.selectContext('Default');
-                await projectSelectionDialog.waitForDialogClosed();
-                return await this.getBrowser().pause(200);
-            }
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_navigate_to_studio');
             throw new Error(`Error when navigating to Content Studio. Screenshot: ${screenshot}` + err);
