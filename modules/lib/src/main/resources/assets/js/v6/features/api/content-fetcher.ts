@@ -8,9 +8,11 @@ import {ContentSummaryAndCompareStatusFetcher} from '../../../app/resource/Conte
 import {ListContentByIdRequest} from '../../../app/resource/ListContentByIdRequest';
 import {type ChildOrder} from '../../../app/resource/order/ChildOrder';
 import {Branch} from '../../../app/versioning/Branch';
-import {setContents, getMissingIds, getContents} from '../store/content.store';
+import {setContents, getMissingIds, getContents, getIdByPath} from '../store/content.store';
+import {$contentMoved} from '../store/socket.store';
 import {
     $treeState,
+    addTreeNode,
     addTreeNodes,
     setTreeChildren,
     setTreeRootIds,
@@ -1055,3 +1057,94 @@ export async function fetchFilterChildrenIdsOnly(
         setFilterNodeLoading(parentId, false);
     }
 }
+
+//
+// * Content Moved Handling
+//
+
+/**
+ * Clears a parent's loaded childIds and re-fetches them so a moved item lands at
+ * the correct sorted slot.
+ */
+export async function reloadParentChildren(parentId: string | null): Promise<string[]> {
+    if (parentId === null) {
+        setTreeRootIds([]);
+        return fetchRootChildrenIdsOnly();
+    }
+
+    const parent = $treeState.get().nodes.get(parentId);
+    if (!parent) return [];
+
+    // Force hasChildren=true and clear childIds so the fetchChildrenIdsOnly guard passes.
+    addTreeNode({id: parentId, hasChildren: true, childIds: []});
+
+    return fetchChildrenIdsOnly(parentId);
+}
+
+// Old-parent refresh handles the case where the moved item lived under an unexpanded
+// parent and was never in $treeState, so removeContentFromTree could not adjust its
+// hasChildren. Runs in filter mode too so the main tree is current when the filter clears.
+$contentMoved.subscribe((event) => {
+    if (!event?.data) return;
+
+    const state = $treeState.get();
+    const parentsToReload = new Set<string | null>();
+    const oldParentsToRefresh = new Set<string>();
+
+    for (const moved of event.data) {
+        const content = moved.item.getContentSummary();
+        const newPath = content.getPath?.();
+        if (!newPath) continue;
+        // Skip same-parent changes (renames) — the parents' listings are unaffected.
+        if (moved.oldPath.getParentPath().equals(newPath.getParentPath())) continue;
+
+        // New parent
+        const newParentPath = newPath.hasParentContent() ? newPath.getParentPath() : null;
+        const newParentId =
+            newParentPath && !newParentPath.isRoot()
+                ? getIdByPath(newParentPath.toString()) ?? null
+                : null;
+
+        if (newParentPath && !newParentPath.isRoot() && !newParentId) {
+            // New parent not in tree/cache — nothing to update on the new side.
+        } else if (newParentId === null) {
+            if (state.rootIds.length > 0) {
+                parentsToReload.add(null);
+            }
+        } else {
+            const parent = state.nodes.get(newParentId);
+            if (parent) {
+                if (parent.childIds.length > 0) {
+                    parentsToReload.add(newParentId);
+                } else if (!parent.hasChildren) {
+                    addTreeNode({id: newParentId, hasChildren: true});
+                }
+            }
+        }
+
+        // Old parent
+        const oldParentPath = moved.oldPath.hasParentContent() ? moved.oldPath.getParentPath() : null;
+        if (oldParentPath && !oldParentPath.isRoot()) {
+            const oldParentId = getIdByPath(oldParentPath.toString());
+            if (oldParentId && state.nodes.has(oldParentId)) {
+                oldParentsToRefresh.add(oldParentId);
+            }
+        }
+    }
+
+    for (const parentId of parentsToReload) {
+        void reloadParentChildren(parentId).catch(() => undefined);
+    }
+
+    for (const id of oldParentsToRefresh) {
+        void refreshContent(id)
+            .then((summary) => {
+                if (!summary) return;
+                const node = $treeState.get().nodes.get(id);
+                if (node && node.hasChildren !== summary.hasChildren()) {
+                    addTreeNode({id, hasChildren: summary.hasChildren()});
+                }
+            })
+            .catch(() => undefined);
+    }
+});
