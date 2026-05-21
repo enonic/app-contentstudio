@@ -1,5 +1,5 @@
 import {atom, computed} from 'nanostores';
-import {$contentDeleted, $contentArchived, $contentCreated, $contentDuplicated, $contentMoved} from './socket.store';
+import {$contentDeleted, $contentArchived, $contentCreated, $contentMoved} from './socket.store';
 import type {ContentSummary} from '../../../app/content/ContentSummary';
 import {calcContentState} from '../utils/cms/content/workflow';
 import {calcTreePublishStatus} from '../utils/cms/content/status';
@@ -406,13 +406,7 @@ $contentCreated.subscribe((event) => {
     }
 });
 
-// Socket: Content duplicated
-$contentDuplicated.subscribe((event) => {
-    if (!event?.data) return;
-    for (const content of event.data) {
-        addContentToTree(content);
-    }
-});
+// Duplicates: positioned by content-fetcher's $contentDuplicated reload.
 
 // Skip renames that leak into $contentMoved as same-parent changes — $contentCache covers them.
 // The new parent is reloaded by content-fetcher so the item lands in the correct sorted slot.

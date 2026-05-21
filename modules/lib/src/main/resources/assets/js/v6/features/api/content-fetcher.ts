@@ -9,7 +9,7 @@ import {ListContentByIdRequest} from '../../../app/resource/ListContentByIdReque
 import {type ChildOrder} from '../../../app/resource/order/ChildOrder';
 import {Branch} from '../../../app/versioning/Branch';
 import {setContents, getMissingIds, getContents, getIdByPath} from '../store/content.store';
-import {$contentMoved} from '../store/socket.store';
+import {$contentDuplicated, $contentMoved} from '../store/socket.store';
 import {
     $treeState,
     addTreeNode,
@@ -1146,5 +1146,53 @@ $contentMoved.subscribe((event) => {
                 }
             })
             .catch(() => undefined);
+    }
+});
+
+// Refetch instead of inserting locally: the server owns the child order (it may
+// be manual) so we cannot compute the new item's slot client-side. With includeChildren,
+// descendants of a freshly duplicated node are skipped — their parent is not yet
+// loaded, lazy-load fills the subtree on expand.
+$contentDuplicated.subscribe((event) => {
+    if (!event?.data) return;
+
+    const state = $treeState.get();
+    const duplicatedIds = new Set(event.data.map((content) => content.getId()));
+    const parentsToReload = new Set<string | null>();
+
+    for (const content of event.data) {
+        const path = content.getPath?.();
+        if (!path) continue;
+
+        const newParentPath = path.hasParentContent() ? path.getParentPath() : null;
+        const newParentId =
+            newParentPath && !newParentPath.isRoot()
+                ? getIdByPath(newParentPath.toString()) ?? null
+                : null;
+
+        if (newParentId && duplicatedIds.has(newParentId)) continue;
+
+        if (newParentPath && !newParentPath.isRoot() && !newParentId) {
+            continue;
+        }
+
+        if (newParentId === null) {
+            if (state.rootIds.length > 0) {
+                parentsToReload.add(null);
+            }
+        } else {
+            const parent = state.nodes.get(newParentId);
+            if (parent) {
+                if (parent.childIds.length > 0) {
+                    parentsToReload.add(newParentId);
+                } else if (!parent.hasChildren) {
+                    addTreeNode({id: newParentId, hasChildren: true});
+                }
+            }
+        }
+    }
+
+    for (const parentId of parentsToReload) {
+        void reloadParentChildren(parentId).catch(() => undefined);
     }
 });
