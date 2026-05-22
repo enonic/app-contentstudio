@@ -1,20 +1,11 @@
-import {HTMLAreaHelper} from '@enonic/lib-contentstudio/app/inputtype/ui/text/HTMLAreaHelper';
-import {ComponentPath} from '@enonic/lib-contentstudio/app/page/region/ComponentPath';
-import {RenderingMode} from '@enonic/lib-contentstudio/app/rendering/RenderingMode';
-import {UriHelper} from '@enonic/lib-contentstudio/app/rendering/UriHelper';
-import {Project} from '@enonic/lib-contentstudio/app/settings/data/project/Project';
-import {InitializeLiveEditEvent} from '@enonic/lib-contentstudio/page-editor/event/InitializeLiveEditEvent';
-import {setActiveProject} from '@enonic/lib-contentstudio/v6/features/store/activeProject.store';
+import {ALLOWED_URI_REGEXP} from '@enonic/lib-contentstudio/v6/features/utils/url/allowedUri';
 import {ComponentPath as EditorComponentPath, EditorEvent, EditorEvents, PageEditor} from '@enonic/page-editor';
 import DOMPurify from 'dompurify';
 
-PageEditor.init({editMode: true});
+const scriptElement = document.currentScript as HTMLScriptElement | null;
+const project = scriptElement?.dataset.project;
 
-// TODO: Add a new event to PageEditor.on(EditorEvents.Initialize)
-//  to encapsulate internal InitializeLiveEditEvent
-InitializeLiveEditEvent.on((event: InitializeLiveEditEvent) => {
-    setActiveProject(Project.fromJson(event.projectJson));
-});
+PageEditor.init({editMode: true});
 
 PageEditor.on(
     EditorEvents.ComponentLoadRequest,
@@ -45,7 +36,20 @@ async function handleComponentLoad(path: EditorComponentPath, isExisting: boolea
 
 function resolveComponentUrl(path: EditorComponentPath): string {
     const contentId = PageEditor.getContent().getContentId().toString();
-    return UriHelper.getComponentUri(contentId, toComponentPath(path), RenderingMode.EDIT);
+    const componentPath = path.toString().replace(/^\//, '');
+    return `${getSitePathPrefix()}/${contentId}/_/component/${componentPath}`;
+}
+
+// ? Built here instead of via UriHelper because the active project store has
+// ? a separate module instance inside this iframe bundle and is not populated.
+function getSitePathPrefix(): string {
+    if (!project) throw new Error('Cannot reload component: project is missing');
+
+    const {pathname} = window.location;
+    const siteIdx = pathname.indexOf('/site/');
+    if (siteIdx < 0) throw new Error(`Cannot derive site path prefix from ${pathname}`);
+    const adminSitePrefix = pathname.slice(0, siteIdx + '/site/'.length);
+    return `${adminSitePrefix}edit/${project}/draft`;
 }
 
 // Duplicated layouts may contain parts with contributions
@@ -60,9 +64,5 @@ function sanitizeComponentHtml(html: string, path: EditorComponentPath): string 
     if (PageEditor.getComponentAt(path)?.type !== 'fragment') {
         return html;
     }
-    return DOMPurify.sanitize(html, {ALLOWED_URI_REGEXP: HTMLAreaHelper.getAllowedUriRegexp()});
-}
-
-function toComponentPath(path: EditorComponentPath): ComponentPath {
-    return ComponentPath.fromString(path.toString());
+    return DOMPurify.sanitize(html, {ALLOWED_URI_REGEXP});
 }
