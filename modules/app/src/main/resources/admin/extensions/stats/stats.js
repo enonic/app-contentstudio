@@ -57,7 +57,7 @@ router.get(`${STATIC_BASE_PATH}/{path:.*}`, (request) => {
 
 function localise(locale, key) {
     return i18nLib.localize({
-        bundles: ['i18n/phrases'],
+        bundles: ['i18n/widgets'],
         key,
         locale
     });

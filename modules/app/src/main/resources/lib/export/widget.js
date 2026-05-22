@@ -71,7 +71,7 @@ function i18nFn(req) {
     return function (key) {
         return i18nLib.localize({
             key,
-            bundles: ['i18n/phrases'],
+            bundles: ['i18n/phrases', 'i18n/widgets'],
             locale: locales
         });
     }
