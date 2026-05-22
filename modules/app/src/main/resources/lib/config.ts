@@ -12,7 +12,7 @@ interface GetMarketConfigBean {
 
 function geti18nPhrases(locales: string[]): Record<string, string> {
     const phrases: Record<string, string> = {};
-    const bundles = ['i18n/common', 'i18n/phrases', 'i18n/cs-plus', 'i18n/dialogs', 'i18n/page-editor', 'i18n/wcag'];
+    const bundles = ['i18n/common', 'i18n/phrases', 'i18n/widgets', 'i18n/cs-plus', 'i18n/dialogs', 'i18n/page-editor', 'i18n/wcag'];
 
     bundles.forEach(function (bundle) {
         const bundlePhrases = getPhrases(locales, [bundle]);
