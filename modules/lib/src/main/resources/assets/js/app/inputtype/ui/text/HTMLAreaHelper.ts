@@ -8,6 +8,7 @@ import {ContentId} from '../../../content/ContentId';
 import {type Project} from '../../../settings/data/project/Project';
 import {ProjectHelper} from '../../../settings/data/project/ProjectHelper';
 import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
+import {ALLOWED_URI_REGEXP} from '../../../../v6/features/utils/url/allowedUri';
 import {HtmlAreaSanitizer} from './HtmlAreaSanitizer';
 import {Styles} from './styles/Styles';
 
@@ -135,7 +136,7 @@ export class HTMLAreaHelper {
     }
 
     public static getAllowedUriRegexp(): RegExp {
-        return /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|content|media|image):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i;
+        return ALLOWED_URI_REGEXP;
     }
 
     public static isNbsp(value: string): boolean {
