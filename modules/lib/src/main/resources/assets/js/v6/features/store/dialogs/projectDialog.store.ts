@@ -1,5 +1,6 @@
 import {atom, computed, map} from 'nanostores';
-import {ResultAsync} from 'neverthrow';
+import {okAsync, ResultAsync} from 'neverthrow';
+import {type TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {showError, showSuccess} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {type Project} from '../../../../app/settings/data/project/Project';
@@ -9,7 +10,6 @@ import {ProjectCreateRequest} from '../../../../app/settings/resource/ProjectCre
 import {ProjectUpdateRequest} from '../../../../app/settings/resource/ProjectUpdateRequest';
 import {ProjectReadAccess} from '../../../../app/settings/data/project/ProjectReadAccess';
 import {type ProjectReadAccessType} from '../../../../app/settings/data/project/ProjectReadAccessType';
-import {UpdateProjectLanguageRequest} from '../../../../app/settings/resource/UpdateProjectLanguageRequest';
 import {UpdateProjectPermissionsRequest} from '../../../../app/settings/resource/UpdateProjectPermissionsRequest';
 import {ProjectItemPermissionsBuilder} from '../../../../app/settings/data/project/ProjectPermissions';
 import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
@@ -45,10 +45,11 @@ type ProjectDialogStore = {
     title: string;
     open: boolean;
     mode: 'create' | 'edit';
-    view: 'main' | 'confirmation';
+    view: 'main' | 'dirty-confirmation' | 'access-confirmation' | 'progress';
     isMultiInheritance: boolean;
     step: string;
     submitting: boolean;
+    readAccessProgress: number | null;
 
     // data
     parentProjects: Readonly<Project>[];
@@ -79,6 +80,7 @@ const initialState: ProjectDialogStore = {
     isMultiInheritance: false,
     step: 'step-parent',
     submitting: false,
+    readAccessProgress: null,
     mode: 'create',
 
     // data
@@ -100,55 +102,68 @@ const initialState: ProjectDialogStore = {
 export const $projectDialog = map<ProjectDialogStore>(structuredClone(initialState));
 const $editProjectSnapshot = atom<EditProjectSnapshot | undefined>(undefined);
 const $initialParentNames = atom<readonly string[]>([]);
+const $confirmedAccessMode = atom<string | undefined>(undefined);
 
-export const $isProjectDialogDirty = computed([$projectDialog, $editProjectSnapshot, $initialParentNames], (state, snapshot, initialParents): boolean => {
-    if (state.mode === 'edit' && snapshot) {
-        const currentPermissionKeys = state.permissions.map((p) => p.getKey().toString());
-        const snapshotPermissionKeys = snapshot.permissions.map((p) => p.getKey().toString());
-        const permissionsDirty =
-            currentPermissionKeys.length !== snapshotPermissionKeys.length ||
-            currentPermissionKeys.some((k, i) => k !== snapshotPermissionKeys[i]);
+export const $isProjectDialogAccessModeDirty = computed(
+    [$projectDialog, $editProjectSnapshot, $confirmedAccessMode],
+    (state, snapshot, confirmedAccessMode): boolean => {
+        if (state.mode !== 'edit' || !snapshot) return false;
+        if (state.accessMode === snapshot.accessMode) return false;
+        if (confirmedAccessMode !== undefined && state.accessMode === confirmedAccessMode) return false;
 
-        const currentRoleKeys = Object.keys(state.roles);
-        const snapshotRoleKeys = Object.keys(snapshot.roles);
-        const rolesDirty =
-            currentRoleKeys.length !== snapshotRoleKeys.length ||
-            currentRoleKeys.some((k, i) => k !== snapshotRoleKeys[i]) ||
-            currentRoleKeys.some((k) => state.roles[k] !== snapshot.roles[k]);
+        return true;
+    }
+);
 
-        const currentAppKeys = state.applications.map((a) => a.getApplicationKey().toString());
-        const snapshotAppKeys = snapshot.applications.map((a) => a.getApplicationKey().toString());
-        const appsDirty = currentAppKeys.length !== snapshotAppKeys.length || currentAppKeys.some((k, i) => k !== snapshotAppKeys[i]);
+export const $isProjectDialogDirty = computed(
+    [$projectDialog, $editProjectSnapshot, $initialParentNames],
+    (state, snapshot, initialParents): boolean => {
+        if (state.mode === 'edit' && snapshot) {
+            const currentPermissionKeys = state.permissions.map((p) => p.getKey().toString());
+            const snapshotPermissionKeys = snapshot.permissions.map((p) => p.getKey().toString());
+            const permissionsDirty =
+                currentPermissionKeys.length !== snapshotPermissionKeys.length ||
+                currentPermissionKeys.some((k, i) => k !== snapshotPermissionKeys[i]);
+
+            const currentRoleKeys = Object.keys(state.roles);
+            const snapshotRoleKeys = Object.keys(snapshot.roles);
+            const rolesDirty =
+                currentRoleKeys.length !== snapshotRoleKeys.length ||
+                currentRoleKeys.some((k) => state.roles[k] !== snapshot.roles[k]);
+
+            const currentAppKeys = state.applications.map((a) => a.getApplicationKey().toString());
+            const snapshotAppKeys = snapshot.applications.map((a) => a.getApplicationKey().toString());
+            const appsDirty = currentAppKeys.length !== snapshotAppKeys.length || currentAppKeys.some((k, i) => k !== snapshotAppKeys[i]);
+
+            return (
+                permissionsDirty ||
+                rolesDirty ||
+                appsDirty ||
+                state.defaultLanguage !== snapshot.defaultLanguage ||
+                $isProjectDialogAccessModeDirty.get() ||
+                state.nameData.name !== snapshot.name ||
+                state.nameData.description !== snapshot.description
+            );
+        }
+
+        const currentParentNames = state.parentProjects.map((p) => p.getName());
+        const parentsDirty =
+            currentParentNames.length !== initialParents.length || currentParentNames.some((name, i) => name !== initialParents[i]);
 
         return (
-            permissionsDirty ||
-            rolesDirty ||
-            appsDirty ||
-            state.defaultLanguage !== snapshot.defaultLanguage ||
-            state.accessMode !== snapshot.accessMode ||
-            state.nameData.name !== snapshot.name ||
-            state.nameData.description !== snapshot.description
+            parentsDirty ||
+            state.defaultLanguage !== '' ||
+            state.accessMode !== '' ||
+            state.permissions.length > 0 ||
+            Object.keys(state.roles).length > 0 ||
+            state.rolePrincipals.length > 0 ||
+            state.applications.length > 0 ||
+            state.nameData.name !== '' ||
+            state.nameData.identifier !== '' ||
+            state.nameData.description !== ''
         );
     }
-
-    const currentParentNames = state.parentProjects.map((p) => p.getName());
-    const parentsDirty =
-        currentParentNames.length !== initialParents.length ||
-        currentParentNames.some((name, i) => name !== initialParents[i]);
-
-    return (
-        parentsDirty ||
-        state.defaultLanguage !== '' ||
-        state.accessMode !== '' ||
-        state.permissions.length > 0 ||
-        Object.keys(state.roles).length > 0 ||
-        state.rolePrincipals.length > 0 ||
-        state.applications.length > 0 ||
-        state.nameData.name !== '' ||
-        state.nameData.identifier !== '' ||
-        state.nameData.description !== ''
-    );
-});
+);
 
 //
 // * Public API
@@ -203,6 +218,7 @@ export const openEditProjectDialog = async (project: Project, parentProjects: Pr
     };
 
     $editProjectSnapshot.set(snapshot);
+    $confirmedAccessMode.set(undefined);
 
     $projectDialog.set({
         ...structuredClone(initialState),
@@ -229,10 +245,11 @@ export const openEditProjectDialog = async (project: Project, parentProjects: Pr
 export const closeProjectDialog = (): void => {
     $editProjectSnapshot.set(undefined);
     $initialParentNames.set([]);
+    $confirmedAccessMode.set(undefined);
     $projectDialog.set(structuredClone(initialState));
 };
 
-export const setProjectDialogView = (view: 'main' | 'confirmation'): void => {
+export const setProjectDialogView = (view: ProjectDialogStore['view']): void => {
     $projectDialog.setKey('view', view);
 };
 
@@ -250,6 +267,23 @@ export const setProjectDialogDefaultLanguage = (defaultLanguage: string): void =
 
 export const setProjectDialogAccessMode = (accessMode: string): void => {
     $projectDialog.setKey('accessMode', accessMode);
+};
+
+export const confirmProjectDialogAccessMode = (): void => {
+    $confirmedAccessMode.set($projectDialog.get().accessMode);
+};
+
+export const revertProjectDialogAccessMode = (): void => {
+    const snapshot = $editProjectSnapshot.get();
+    if (!snapshot) return;
+
+    const confirmed = $confirmedAccessMode.get();
+    const target = confirmed ?? snapshot.accessMode;
+    $projectDialog.setKey('accessMode', target);
+
+    if (target === snapshot.accessMode) {
+        $projectDialog.setKey('permissions', snapshot.permissions);
+    }
 };
 
 export const setProjectDialogPermissions = (permissions: Principal[]): void => {
@@ -291,8 +325,8 @@ export const createProject = (): ResultAsync<void, Error> => {
         .setDescription(description)
         .setName(identifier)
         .setDisplayName(name)
+        .setLanguage(defaultLanguage)
         .setApplicationConfigs(applicationConfigs);
-    const updateProjectLanguageRequest = new UpdateProjectLanguageRequest().setName(identifier).setLanguage(defaultLanguage);
     const updateProjectPermissionsRequest = new UpdateProjectPermissionsRequest()
         .setName(identifier)
         .setPermissions(projectRoles)
@@ -301,10 +335,9 @@ export const createProject = (): ResultAsync<void, Error> => {
     // Project create
     return ResultAsync.fromPromise(projectCreateRequest.sendAndParse(), formatError)
         .andThen((project) => {
-            const updateLanguageResult = ResultAsync.fromPromise(updateProjectLanguageRequest.sendAndParse(), formatError);
             const updatePermissionsResult = ResultAsync.fromPromise(updateProjectPermissionsRequest.sendAndParse(), formatError);
 
-            return ResultAsync.combine([updateLanguageResult, updatePermissionsResult]).map(() => project);
+            return updatePermissionsResult.map(() => project);
         })
         .map((project) => {
             $projectDialog.setKey('submitting', false);
@@ -321,61 +354,92 @@ export const createProject = (): ResultAsync<void, Error> => {
 };
 
 export const updateProject = (): ResultAsync<void, Error> => {
-    $projectDialog.setKey('submitting', true);
-
     const {
         nameData: {name, identifier, description},
         defaultLanguage,
+        accessMode,
         permissions,
     } = $projectDialog.get();
 
     const {readAccess, applicationConfigs, projectRoles} = getDataForRequests();
+    const {updateGuard, permissionsGuard, accessGuard} = getRequestsGuards();
 
     // Building requests
     const projectUpdateRequest = new ProjectUpdateRequest()
         .setDescription(description)
         .setName(identifier)
         .setDisplayName(name)
+        .setLanguage(defaultLanguage)
         .setApplicationConfigs(applicationConfigs);
-    const updateProjectLanguageRequest = new UpdateProjectLanguageRequest().setName(identifier).setLanguage(defaultLanguage);
     const updateProjectPermissionsRequest = new UpdateProjectPermissionsRequest()
         .setName(identifier)
         .setPermissions(projectRoles)
-        .setViewers(permissions.map((p: Principal) => p.getKey()));
+        .setViewers(accessMode === 'custom' ? permissions.map((p: Principal) => p.getKey()) : []);
     const updateProjectReadAccessRequest = new UpdateProjectReadAccessRequest().setName(identifier).setReadAccess(readAccess);
 
-    // Project update
-    return ResultAsync.fromPromise<Project, Error>(projectUpdateRequest.sendAndParse(), formatError)
-        .andThen((project) => {
-            const updateLanguageResult = ResultAsync.fromPromise(updateProjectLanguageRequest.sendAndParse(), formatError);
-            const updatePermissionsResult = ResultAsync.fromPromise(updateProjectPermissionsRequest.sendAndParse(), formatError);
-            const updateReadAccessResult = ResultAsync.fromPromise(updateProjectReadAccessRequest.sendAndParse(), formatError);
+    const handleUpdateSuccess = (): void => {
+        $projectDialog.setKey('submitting', false);
+        $projectDialog.setKey('readAccessProgress', null);
+        closeProjectDialog();
+        new ProjectUpdatedEvent(identifier).fire();
+        showSuccess(i18n('notify.settings.project.modified', name));
+        refreshAndSelectProject(identifier);
+    };
 
-            return ResultAsync.combine([updateLanguageResult, updatePermissionsResult, updateReadAccessResult]).map(([_, __, taskId]) => ({
-                project,
-                taskId,
-            }));
+    const handleUpdateError = (message?: string): void => {
+        $projectDialog.setKey('submitting', false);
+        $projectDialog.setKey('readAccessProgress', null);
+        $projectDialog.setKey('view', 'main');
+        showError(i18n('notify.settings.project.modifyFailed'));
+        if (message) console.error(message);
+    };
+
+    $projectDialog.setKey('submitting', true);
+
+    const modifyResult: ResultAsync<void, Error> = updateGuard
+        ? ResultAsync.fromPromise(projectUpdateRequest.sendAndParse(), formatError)
+        : okAsync(undefined);
+
+    return modifyResult
+        .andThen(() => {
+            const requests: ResultAsync<unknown, Error>[] = [];
+
+            if (permissionsGuard) {
+                requests.push(ResultAsync.fromPromise(updateProjectPermissionsRequest.sendAndParse(), formatError));
+            }
+
+            if (accessGuard) {
+                $projectDialog.setKey('view', 'progress');
+                const readAccessResult = ResultAsync.fromPromise<TaskId, Error>(updateProjectReadAccessRequest.sendAndParse(), formatError);
+                return ResultAsync.combine([...requests, readAccessResult]).map((results) => results[results.length - 1] as TaskId);
+            }
+
+            if (requests.length === 0) {
+                return okAsync(null as TaskId | null);
+            }
+
+            return ResultAsync.combine(requests).map(() => null as TaskId | null);
         })
-        .map(({project, taskId}) => {
-            trackTask(taskId, {
-                onComplete: (resultState, message) => {
-                    if (resultState === 'SUCCESS') {
-                        $projectDialog.setKey('submitting', false);
-                        closeProjectDialog();
-                        new ProjectUpdatedEvent(project.getName()).fire();
-                        showSuccess(i18n('notify.settings.project.modified', project.getDisplayName()));
-                        refreshAndSelectProject(project.getName());
-                    } else {
-                        $projectDialog.setKey('submitting', false);
-                        showError(i18n('notify.settings.project.modifyFailed'));
-                        console.error(message);
-                    }
-                },
-            });
+        .map((taskId) => {
+            if (taskId) {
+                trackTask(taskId, {
+                    onComplete: (resultState, message) => {
+                        if (resultState === 'SUCCESS') {
+                            handleUpdateSuccess();
+                        } else {
+                            handleUpdateError(message);
+                        }
+                    },
+                    onProgress: (progress) => {
+                        $projectDialog.setKey('readAccessProgress', progress);
+                    },
+                });
+            } else {
+                handleUpdateSuccess();
+            }
         })
         .mapErr((error) => {
-            $projectDialog.setKey('submitting', false);
-            showError(i18n('notify.settings.project.modifyFailed'));
+            handleUpdateError();
             console.error(error);
             return error;
         });
@@ -418,6 +482,55 @@ function getDataForRequests() {
         applicationConfigs,
         projectRoles,
     };
+}
+
+type RequestGuards = {
+    updateGuard: boolean;
+    permissionsGuard: boolean;
+    accessGuard: boolean;
+};
+
+function getRequestsGuards(): RequestGuards {
+    const snapshot = $editProjectSnapshot.get();
+
+    if (!snapshot) {
+        return {updateGuard: false, permissionsGuard: false, accessGuard: false};
+    }
+
+    const {
+        defaultLanguage,
+        accessMode,
+        permissions,
+        roles,
+        applications,
+        nameData: {name, description},
+    } = $projectDialog.get();
+
+    const currentAppKeys = applications.map((a) => a.getApplicationKey().toString());
+    const snapshotAppKeys = snapshot.applications.map((a) => a.getApplicationKey().toString());
+    const currentPermKeys = permissions.map((p) => p.getKey().toString());
+    const snapshotPermKeys = snapshot.permissions.map((p) => p.getKey().toString());
+    const currentRoleKeys = Object.keys(roles);
+    const snapshotRoleKeys = Object.keys(snapshot.roles);
+
+    const appsDirty = currentAppKeys.length !== snapshotAppKeys.length || currentAppKeys.some((k, i) => k !== snapshotAppKeys[i]);
+    const permissionsDirty =
+        currentPermKeys.length !== snapshotPermKeys.length || currentPermKeys.some((k, i) => k !== snapshotPermKeys[i]);
+    const rolesDirty =
+        currentRoleKeys.length !== snapshotRoleKeys.length ||
+        currentRoleKeys.some((k) => roles[k] !== snapshot.roles[k]);
+
+    const updateGuard =
+        name !== snapshot.name ||
+        description !== snapshot.description ||
+        defaultLanguage !== snapshot.defaultLanguage ||
+        appsDirty;
+    const accessGuard = accessMode !== snapshot.accessMode;
+    // third condition clears viewers when switching away from 'custom' mode
+    const permissionsGuard =
+        rolesDirty || permissionsDirty || (accessMode !== 'custom' && snapshot.accessMode === 'custom' && permissions.length > 0);
+
+    return {updateGuard, permissionsGuard, accessGuard};
 }
 
 function refreshAndSelectProject(projectId: string) {

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,6 +28,7 @@ import com.enonic.xp.content.UpdateContentParams;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.jaxrs.impl.MockRestResponse;
 import com.enonic.xp.project.CreateProjectParams;
+import com.enonic.xp.project.EditableProject;
 import com.enonic.xp.project.ModifyProjectIconParams;
 import com.enonic.xp.project.ModifyProjectParams;
 import com.enonic.xp.project.Project;
@@ -52,6 +52,7 @@ import com.enonic.xp.web.multipart.MultipartItem;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -388,57 +389,116 @@ public class ProjectResourceTest
     }
 
     @Test
-    public void modify_language_success()
+    public void create_project_with_language()
         throws Exception
     {
-        testModifyLanguage( "en" );
-    }
+        final Project project = createProject( "project1", "project name 1", "project description 1", null );
 
-    @Test
-    public void modify_language_null()
-        throws Exception
-    {
-        testModifyLanguage( null );
-    }
+        mockRootContent();
+        mockProjectPermissions( project.getName() );
 
-    @Test
-    public void modify_language_empty()
-        throws Exception
-    {
-        testModifyLanguage( "" );
-    }
+        when( projectService.create( isA( CreateProjectParams.class ) ) ).then( args -> {
+            final CreateProjectParams params = args.getArgument( 0 );
+            assertEquals( Locale.forLanguageTag( "en" ), params.getLanguage() );
+            return project;
+        } );
+        when( projectService.modifyPermissions( eq( project.getName() ), isA( ProjectPermissions.class ) ) ).
+            thenAnswer( i -> i.getArguments()[1] );
 
-    private void testModifyLanguage( final String language )
-        throws Exception
-    {
-        createProject( "project1", "project name 1", "project description 1", Attachment.create().
-            name( "logo.png" ).
-            mimeType( "image/png" ).
-            label( "small" ).
-            build() );
-
-        final Content rootContent = mockRootContent();
-
-        when( contentService.update( isA( UpdateContentParams.class ) ) ).
-            then( args -> {
-                final UpdateContentParams params = args.getArgument( 0 );
-                final ContentEditor contentEditor = params.getEditor();
-                final EditableContent editableContent = new EditableContent( rootContent );
-
-                contentEditor.edit( editableContent );
-                final Content modifiedContent = editableContent.build();
-
-                assertEquals( language, Optional.ofNullable( modifiedContent.getLanguage() ).
-                    map( Locale::toLanguageTag ).
-                    orElse( null ) );
-
-                return modifiedContent;
-            } );
-
-        request().path( "project/modifyLanguage" ).
-            entity( "{\"name\":\"project1\",\"language\":" + language + "}", MediaType.APPLICATION_JSON_TYPE ).
+        request().path( "project/create" ).
+            entity( "{\"name\":\"project1\",\"displayName\":\"x\",\"description\":\"y\",\"language\":\"en\"}",
+                    MediaType.APPLICATION_JSON_TYPE ).
             post().getAsString();
+    }
 
+    @Test
+    public void create_project_without_language()
+        throws Exception
+    {
+        final Project project = createProject( "project1", "project name 1", "project description 1", null );
+
+        mockRootContent();
+        mockProjectPermissions( project.getName() );
+
+        when( projectService.create( isA( CreateProjectParams.class ) ) ).then( args -> {
+            final CreateProjectParams params = args.getArgument( 0 );
+            assertNull( params.getLanguage() );
+            return project;
+        } );
+        when( projectService.modifyPermissions( eq( project.getName() ), isA( ProjectPermissions.class ) ) ).
+            thenAnswer( i -> i.getArguments()[1] );
+
+        request().path( "project/create" ).
+            entity( "{\"name\":\"project1\",\"displayName\":\"x\",\"description\":\"y\"}", MediaType.APPLICATION_JSON_TYPE ).
+            post().getAsString();
+    }
+
+    @Test
+    public void create_project_with_blank_language()
+        throws Exception
+    {
+        final Project project = createProject( "project1", "project name 1", "project description 1", null );
+
+        mockRootContent();
+        mockProjectPermissions( project.getName() );
+
+        when( projectService.create( isA( CreateProjectParams.class ) ) ).then( args -> {
+            final CreateProjectParams params = args.getArgument( 0 );
+            assertNull( params.getLanguage() );
+            return project;
+        } );
+        when( projectService.modifyPermissions( eq( project.getName() ), isA( ProjectPermissions.class ) ) ).
+            thenAnswer( i -> i.getArguments()[1] );
+
+        request().path( "project/create" ).
+            entity( "{\"name\":\"project1\",\"displayName\":\"x\",\"description\":\"y\",\"language\":\"\"}",
+                    MediaType.APPLICATION_JSON_TYPE ).
+            post().getAsString();
+    }
+
+    @Test
+    public void modify_project_with_language()
+        throws Exception
+    {
+        final Project project = createProject( "project1", "project name 1", "project description 1", null );
+
+        mockProjectPermissions( project.getName() );
+        mockRootContent();
+
+        when( projectService.modify( isA( ModifyProjectParams.class ) ) ).then( args -> {
+            final ModifyProjectParams params = args.getArgument( 0 );
+            final EditableProject editable = new EditableProject( project );
+            params.getEditor().edit( editable );
+            assertEquals( Locale.forLanguageTag( "en" ), editable.language );
+            return project;
+        } );
+
+        request().path( "project/modify" ).
+            entity( "{\"name\":\"project1\",\"displayName\":\"x\",\"description\":\"y\",\"language\":\"en\"}",
+                    MediaType.APPLICATION_JSON_TYPE ).
+            post().getAsString();
+    }
+
+    @Test
+    public void modify_project_without_language()
+        throws Exception
+    {
+        final Project project = createProject( "project1", "project name 1", "project description 1", null );
+
+        mockProjectPermissions( project.getName() );
+        mockRootContent();
+
+        when( projectService.modify( isA( ModifyProjectParams.class ) ) ).then( args -> {
+            final ModifyProjectParams params = args.getArgument( 0 );
+            final EditableProject editable = new EditableProject( project );
+            params.getEditor().edit( editable );
+            assertNull( editable.language );
+            return project;
+        } );
+
+        request().path( "project/modify" ).
+            entity( "{\"name\":\"project1\",\"displayName\":\"x\",\"description\":\"y\"}", MediaType.APPLICATION_JSON_TYPE ).
+            post().getAsString();
     }
 
     @Test
