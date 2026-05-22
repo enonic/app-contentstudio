@@ -17,6 +17,7 @@ const EditProjectNameStep = require("../../page_objects/project/project-wizard-d
 const ProjectWizardDialogPermissionsStep = require("../../page_objects/project/project-wizard-dialog/project.wizard.permissions.step");
 const ProjectWizardDialogApplicationsStep = require("../../page_objects/project/project-wizard-dialog/project.wizard.applications.step");
 const ProjectWizardDialogSummaryStep = require("../../page_objects/project/project-wizard-dialog/project.wizard.summary.step");
+const ConfirmationDialog = require("../../page_objects/confirmation.dialog");
 
 describe('edit.project.spec - ui-tests for editing a project', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -108,6 +109,10 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             // 4. Verify that SU is added in 'Custom Read Access'
             let result = await projectWizardDialogAccessModeStep.getSelectedUsersInCustomReadAccessSelector();
             await projectWizardDialogAccessModeStep.clickOnNextButton();
+            let confirmationDialog = new ConfirmationDialog();
+            await confirmationDialog.waitForDialogOpened();
+            await confirmationDialog.clickOnConfirmButton();
+            await confirmationDialog.waitForDialogClosed();
             let permissionsStep = new ProjectWizardDialogPermissionsStep();
             await permissionsStep.waitForLoaded();
             await permissionsStep.clickOnNextButton();

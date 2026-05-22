@@ -185,6 +185,7 @@ module.exports = {
             let nameAndIdStep = new ProjectWizardDialogNameAndIdStep();
             await nameAndIdStep.waitForLoaded();
             await this.fillNameAndDescriptionStep(project.name, project.identifier, project.description);
+            await this.saveScreenshot(project.name);
             await nameAndIdStep.clickOnNextButton();
             let accessModeStep = new ProjectWizardDialogAccessModeStep();
             await accessModeStep.waitForLoaded();

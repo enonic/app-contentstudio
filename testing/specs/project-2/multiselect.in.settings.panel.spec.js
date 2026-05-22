@@ -16,8 +16,8 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
         webDriverHelper.setupBrowser();
     }
 
-    const PROJECT_DISPLAY_NAME_1 = studioUtils.generateRandomName('project');
-    const PROJECT_DISPLAY_NAME_2 = studioUtils.generateRandomName('project');
+    const PROJECT_DISPLAY_NAME_1 = studioUtils.generateRandomName('proj');
+    const PROJECT_DISPLAY_NAME_2 = studioUtils.generateRandomName('proj');
     const DESCRIPTION = "Test description";
 
 
