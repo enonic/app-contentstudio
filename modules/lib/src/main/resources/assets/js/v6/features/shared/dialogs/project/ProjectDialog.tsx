@@ -7,9 +7,10 @@ import {
     $isProjectDialogDirty,
     $projectDialog,
     closeProjectDialog,
+    confirmProjectDialogAccessMode,
     createProject,
-    updateProject,
     revertProjectDialogAccessMode,
+    updateProject,
     setProjectDialogStep,
     setProjectDialogView,
 } from '../../../store/dialogs/projectDialog.store';
@@ -105,6 +106,7 @@ export const ProjectDialog = (): ReactElement => {
     );
 
     const handleAccessConfirm = useCallback(() => {
+        confirmProjectDialogAccessMode();
         if (pendingStep.current) {
             setProjectDialogStep(pendingStep.current);
             pendingStep.current = null;

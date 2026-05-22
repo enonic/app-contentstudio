@@ -102,12 +102,18 @@ const initialState: ProjectDialogStore = {
 export const $projectDialog = map<ProjectDialogStore>(structuredClone(initialState));
 const $editProjectSnapshot = atom<EditProjectSnapshot | undefined>(undefined);
 const $initialParentNames = atom<readonly string[]>([]);
+const $confirmedAccessMode = atom<string | undefined>(undefined);
 
-export const $isProjectDialogAccessModeDirty = computed([$projectDialog, $editProjectSnapshot], (state, snapshot): boolean => {
-    if (state.mode !== 'edit' || !snapshot) return false;
+export const $isProjectDialogAccessModeDirty = computed(
+    [$projectDialog, $editProjectSnapshot, $confirmedAccessMode],
+    (state, snapshot, confirmedAccessMode): boolean => {
+        if (state.mode !== 'edit' || !snapshot) return false;
+        if (state.accessMode === snapshot.accessMode) return false;
+        if (confirmedAccessMode !== undefined && state.accessMode === confirmedAccessMode) return false;
 
-    return state.accessMode !== snapshot.accessMode;
-});
+        return true;
+    }
+);
 
 export const $isProjectDialogDirty = computed(
     [$projectDialog, $editProjectSnapshot, $initialParentNames],
@@ -212,6 +218,7 @@ export const openEditProjectDialog = async (project: Project, parentProjects: Pr
     };
 
     $editProjectSnapshot.set(snapshot);
+    $confirmedAccessMode.set(undefined);
 
     $projectDialog.set({
         ...structuredClone(initialState),
@@ -238,6 +245,7 @@ export const openEditProjectDialog = async (project: Project, parentProjects: Pr
 export const closeProjectDialog = (): void => {
     $editProjectSnapshot.set(undefined);
     $initialParentNames.set([]);
+    $confirmedAccessMode.set(undefined);
     $projectDialog.set(structuredClone(initialState));
 };
 
@@ -261,10 +269,19 @@ export const setProjectDialogAccessMode = (accessMode: string): void => {
     $projectDialog.setKey('accessMode', accessMode);
 };
 
+export const confirmProjectDialogAccessMode = (): void => {
+    $confirmedAccessMode.set($projectDialog.get().accessMode);
+};
+
 export const revertProjectDialogAccessMode = (): void => {
     const snapshot = $editProjectSnapshot.get();
-    if (snapshot) {
-        $projectDialog.setKey('accessMode', snapshot.accessMode);
+    if (!snapshot) return;
+
+    const confirmed = $confirmedAccessMode.get();
+    const target = confirmed ?? snapshot.accessMode;
+    $projectDialog.setKey('accessMode', target);
+
+    if (target === snapshot.accessMode) {
         $projectDialog.setKey('permissions', snapshot.permissions);
     }
 };
@@ -372,6 +389,7 @@ export const updateProject = (): ResultAsync<void, Error> => {
     const handleUpdateError = (message?: string): void => {
         $projectDialog.setKey('submitting', false);
         $projectDialog.setKey('readAccessProgress', null);
+        $projectDialog.setKey('view', 'main');
         showError(i18n('notify.settings.project.modifyFailed'));
         if (message) console.error(message);
     };
