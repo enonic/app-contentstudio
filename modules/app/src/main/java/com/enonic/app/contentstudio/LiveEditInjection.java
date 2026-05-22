@@ -22,6 +22,8 @@ import com.enonic.xp.portal.postprocess.HtmlTag;
 import com.enonic.xp.portal.postprocess.PostProcessInjection;
 import com.enonic.xp.portal.url.AssetUrlParams;
 import com.enonic.xp.portal.url.PortalUrlService;
+import com.enonic.xp.project.ProjectConstants;
+import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.util.Exceptions;
 
 @Component(immediate = true, service = PostProcessInjection.class, configurationPid = "com.enonic.app.contentstudio")
@@ -81,7 +83,7 @@ public final class LiveEditInjection
 
             if ( htmlTag == HtmlTag.BODY_END )
             {
-                return Collections.singletonList( injectBodyEnd() );
+                return Collections.singletonList( injectBodyEnd( portalRequest ) );
             }
         }
         finally
@@ -98,7 +100,7 @@ public final class LiveEditInjection
         {
             if ( htmlTag == HtmlTag.BODY_END )
             {
-                return Collections.singletonList( injectUsingTemplate( this.inlineBodyEndTemplate, makeModelForInjection() ) );
+                return Collections.singletonList( injectUsingTemplate( this.inlineBodyEndTemplate, makeModelForInjection( portalRequest ) ) );
             }
         }
         finally
@@ -118,9 +120,9 @@ public final class LiveEditInjection
         return finalTemplate;
     }
 
-    private String injectBodyEnd()
+    private String injectBodyEnd( final PortalRequest portalRequest )
     {
-        return injectUsingTemplate( this.bodyEndTemplate, makeModelForInjection() );
+        return injectUsingTemplate( this.bodyEndTemplate, makeModelForInjection( portalRequest ) );
     }
 
     private String injectUsingTemplate( final String template, final Map<String, String> model )
@@ -128,13 +130,20 @@ public final class LiveEditInjection
         return new StringSubstitutor( model, PREFIX, SUFFIX, ESCAPE ).replace( template );
     }
 
-    private Map<String, String> makeModelForInjection()
+    private Map<String, String> makeModelForInjection( final PortalRequest portalRequest )
     {
         final Map<String, String> map = Maps.newHashMap();
         final AssetUrlParams params = new AssetUrlParams();
         params.application( "com.enonic.app.contentstudio" );
         map.put( "assetsUrl", portalUrlService.assetUrl( params ) );
+        map.put( "project", resolveProject( portalRequest ) );
         return map;
+    }
+
+    private String resolveProject( final PortalRequest portalRequest )
+    {
+        final RepositoryId repositoryId = portalRequest.getRepositoryId();
+        return repositoryId != null ? repositoryId.toString().replace( ProjectConstants.PROJECT_REPO_ID_PREFIX, "" ) : "";
     }
 
     public String loadTemplate( final String name )

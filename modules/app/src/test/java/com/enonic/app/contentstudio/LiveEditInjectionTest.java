@@ -22,6 +22,7 @@ import com.enonic.xp.portal.RenderMode;
 import com.enonic.xp.portal.postprocess.HtmlTag;
 import com.enonic.xp.portal.url.AssetUrlParams;
 import com.enonic.xp.portal.url.PortalUrlService;
+import com.enonic.xp.project.ProjectName;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -110,6 +111,7 @@ class LiveEditInjectionTest
         mockPortalUrlService();
         this.portalRequest.setMode( RenderMode.EDIT );
         this.portalRequest.setRawRequest( this.request );
+        this.portalRequest.setRepositoryId( ProjectName.from( "myproject" ).getRepoId() );
 
         final List<String> list = this.injection.inject( this.portalRequest, this.portalResponse, HtmlTag.BODY_END );
         assertNotNull( list );
