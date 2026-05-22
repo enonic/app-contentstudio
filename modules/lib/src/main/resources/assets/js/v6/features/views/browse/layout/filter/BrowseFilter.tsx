@@ -7,7 +7,9 @@ import {Download} from 'lucide-react';
 import {useEffect, useMemo, useRef} from 'react';
 import {
     $contentFilterState,
+    $isContentFilterDirty,
     $isContentFilterOpen,
+    resetContentFilter,
     setContentFilterSelection,
     setContentFilterValue
 } from '../../../../store/contentFilter.store';
@@ -38,6 +40,8 @@ export const BrowseFilter = ({
     const searchPlaceholder = useI18n('field.option.placeholder');
 
     const exportAction = exportOptions?.action;
+    const searchLabel = useI18n('panel.filter.search');
+    const clearLabel = useI18n('panel.filter.clear');
     const exportLabel = exportOptions?.label || useI18n('action.export');
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -46,6 +50,7 @@ export const BrowseFilter = ({
         [bucketAggregations]
     );
     const {value, selection} = useStore($contentFilterState);
+    const isFilterDirty = useStore($isContentFilterDirty);
 
     const getBucketSelection = (ba: BucketAggregation) => selection.find(s => s.getName() === ba.getName())?.getSelectedBuckets() ?? [];
     const onBucketSelectionChange = (aggregationName: string, buckets: Bucket[]) => {
@@ -69,6 +74,15 @@ export const BrowseFilter = ({
 
     return (
         <div className='bg-surface-neutral'>
+            <div className='flex justify-between items-center gap-2.5 mb-2'>
+                <h4 className='font-semibold'>{searchLabel}</h4>
+                {isFilterDirty && (
+                    <button className='underline underline-offset-4 cursor-pointer' onClick={() => resetContentFilter()}>
+                        {clearLabel}
+                    </button>
+                )}
+            </div>
+
             <SearchField.Root className='h-11.5' id='SearchInput' placeholder={searchPlaceholder} value={value} onChange={setContentFilterValue}>
                 <SearchField.Input ref={inputRef}/>
                 <SearchField.Clear />
@@ -83,6 +97,7 @@ export const BrowseFilter = ({
                     <Button size='sm' label={exportLabel} variant='outline' endIcon={Download} onClick={exportAction} />
                 }
             </div>
+
             <div className='flex flex-col gap-7.5'>
                 {nonEmptyAggregations.map((ba) => {
                     const safeKey = ba.getName();

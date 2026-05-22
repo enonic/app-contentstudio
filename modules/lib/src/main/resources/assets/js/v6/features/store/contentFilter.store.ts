@@ -1,5 +1,5 @@
 import {type AggregationSelection} from '@enonic/lib-admin-ui/aggregation/AggregationSelection';
-import {atom, map} from 'nanostores';
+import {atom, computed, map} from 'nanostores';
 
 type ContentFilterStore = {
     value: string;
@@ -12,6 +12,10 @@ export const $contentFilterState = map<ContentFilterStore>({
 });
 
 export const $isContentFilterOpen = atom<boolean>(false);
+
+export const $isContentFilterDirty = computed($contentFilterState, ({value, selection}) =>
+    value.trim().length > 0 || selection.length > 0
+);
 
 export function setContentFilterValue(value: string): void {
     $contentFilterState.setKey('value', value);
