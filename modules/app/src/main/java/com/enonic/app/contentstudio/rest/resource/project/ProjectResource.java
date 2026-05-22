@@ -3,7 +3,6 @@ package com.enonic.app.contentstudio.rest.resource.project;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
@@ -30,7 +29,6 @@ import com.enonic.app.contentstudio.rest.resource.content.ApplyPermissionsProgre
 import com.enonic.app.contentstudio.rest.resource.content.task.ProjectsSyncTask;
 import com.enonic.app.contentstudio.rest.resource.project.json.CreateProjectParamsJson;
 import com.enonic.app.contentstudio.rest.resource.project.json.DeleteProjectParamsJson;
-import com.enonic.app.contentstudio.rest.resource.project.json.ModifyLanguageParamsJson;
 import com.enonic.app.contentstudio.rest.resource.project.json.ModifyPermissionsParamsJson;
 import com.enonic.app.contentstudio.rest.resource.project.json.ModifyProjectParamsJson;
 import com.enonic.app.contentstudio.rest.resource.project.json.ModifyReadAccessParamsJson;
@@ -120,13 +118,6 @@ public final class ProjectResource
     {
         final Project modifiedProject = this.projectService.modify( createParams( json ) );
         return doCreateJson( modifiedProject );
-    }
-
-    @POST
-    @Path("modifyLanguage")
-    public String modifyLanguage( final ModifyLanguageParamsJson params )
-    {
-        return doApplyLanguage( params.getName(), params.getLanguage() ).map( Locale::toLanguageTag ).orElse( null );
     }
 
     @POST
@@ -288,6 +279,7 @@ public final class ProjectResource
             .name( json.getName() )
             .displayName( json.getDisplayName() )
             .description( json.getDescription() )
+            .language( json.getLanguage() )
             .addParents( json.getParents() )
             .publicRead( publicRead )
             .forceInitialization( true );
@@ -307,6 +299,7 @@ public final class ProjectResource
         return ModifyProjectParams.create().name( json.getName() ).editor( edit -> {
             edit.displayName = json.getDisplayName();
             edit.description = json.getDescription();
+            edit.language = json.getLanguage();
             edit.siteConfigs = SiteConfigs.from( json.getApplicationConfigs() );
         } ).build();
     }
@@ -382,16 +375,7 @@ public final class ProjectResource
         return projectService.modifyPermissions( projectName, projectPermissions );
     }
 
-    private Optional<Locale> doApplyLanguage( final ProjectName projectName, final Locale language )
-    {
-        final Project modified = this.projectService.modify( ModifyProjectParams.create()
-                                                                 .name( projectName )
-                                                                 .editor( edit -> edit.language = language )
-                                                                 .build() );
-        return Optional.ofNullable( modified.getLanguage() );
-    }
-
-    private TaskResultJson doApplyReadAccess( final ProjectName projectName, final ProjectReadAccess readAccess )
+private TaskResultJson doApplyReadAccess( final ProjectName projectName, final ProjectReadAccess readAccess )
     {
         final boolean publicRead = ProjectReadAccessType.PUBLIC.equals( readAccess.getType() );
 

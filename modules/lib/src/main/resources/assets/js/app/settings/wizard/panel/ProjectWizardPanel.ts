@@ -15,7 +15,6 @@ import {ProjectWizardActions} from '../action/ProjectWizardActions';
 import {ProjectReadAccessWizardStepForm} from './form/ProjectReadAccessWizardStepForm';
 import {type SettingDataItemWizardStepForm} from './form/SettingDataItemWizardStepForm';
 import {type ProjectPermissions} from '../../data/project/ProjectPermissions';
-import {UpdateProjectLanguageRequest} from '../../resource/UpdateProjectLanguageRequest';
 import {type ProjectReadAccess} from '../../data/project/ProjectReadAccess';
 import {UpdateProjectPermissionsRequest} from '../../resource/UpdateProjectPermissionsRequest';
 import {ProjectRolesWizardStepForm} from './form/ProjectRolesWizardStepForm';
@@ -153,13 +152,6 @@ export class ProjectWizardPanel
             showFeedback(this.getSuccessfulUpdateMessage(item.getName()));
             return item;
         });
-    }
-
-    private updateProjectLanguage(projectName: string, language: string): Q.Promise<string> {
-        return new UpdateProjectLanguageRequest()
-            .setName(projectName)
-            .setLanguage(language)
-            .sendAndParse();
     }
 
     private updateProjectPermissions(projectName: string, permissions: ProjectPermissions,
@@ -326,22 +318,13 @@ export class ProjectWizardPanel
         return this.updateProjectPermissions(project.getName(), permissions, readAccess);
     }
 
-    private updateLanguageAndPermissionsIfNeeded(project: Project): Q.Promise<Project> {
-        const languagePromise: Q.Promise<string> =
-            this.isLanguageChanged() ?
-            this.updateProjectLanguage(project.getName(), this.readAccessWizardStepForm.getLanguage()) : Q(project.getLanguage());
-
-        return languagePromise.then((language: string) => {
-            return this.updateAccessAndPermissionsForExistingProject(project, language);
-        });
-    }
-
     private doUpdatePersistedItem(): Q.Promise<Project> {
-        const projectPromise: Q.Promise<Project> = (this.isProjectMetaChanged() || this.isApplicationsChanged()) ?
-                                                   this.produceUpdateItemRequest().sendAndParse() : Q(this.getPersistedItem().getData());
+        const projectPromise: Q.Promise<Project> = (this.isProjectMetaChanged() || this.isApplicationsChanged() || this.isLanguageChanged())
+            ? this.produceUpdateItemRequest().sendAndParse()
+            : Q(this.getPersistedItem().getData());
 
         return projectPromise.then((project: Project) => {
-            return this.updateLanguageAndPermissionsIfNeeded(project).then();
+            return this.updateAccessAndPermissionsForExistingProject(project, project.getLanguage()).then();
         });
     }
 
@@ -354,6 +337,7 @@ export class ProjectWizardPanel
             .setDescription(this.projectWizardStepForm.getDescription().trim())
             .setName(this.projectWizardStepForm.getProjectName())
             .setDisplayName(this.getDisplayName())
+            .setLanguage(this.readAccessWizardStepForm.getLanguage())
             .setApplicationConfigs(this.applicationsWizardStepForm?.getApplicationConfigs());
     }
 

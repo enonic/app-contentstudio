@@ -2,6 +2,8 @@ package com.enonic.app.contentstudio.rest.resource.project.json;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -25,11 +27,14 @@ public final class CreateProjectParamsJson
 
     private final List<SiteConfig> applicationConfigs;
 
+    private final Locale language;
+
     @JsonCreator
     CreateProjectParamsJson( @JsonProperty("name") final String name, @JsonProperty("displayName") final String displayName,
                              @JsonProperty("description") final String description, @JsonProperty("parents") final List<String> parents,
                              @JsonProperty("readAccess") final ProjectReadAccessJson readAccess,
-                             @JsonProperty("applicationConfigs") final List<SiteConfigParamsJson> applicationConfigs )
+                             @JsonProperty("applicationConfigs") final List<SiteConfigParamsJson> applicationConfigs,
+                             @JsonProperty("language") final String language )
     {
         this.name = ProjectName.from( name );
         this.displayName = displayName;
@@ -39,6 +44,10 @@ public final class CreateProjectParamsJson
         this.applicationConfigs = applicationConfigs != null ? applicationConfigs.stream()
             .map( siteConfigParamsJson -> siteConfigParamsJson.getSiteConfig() )
             .collect( Collectors.toList() ) : new ArrayList<>();
+        this.language = Optional.ofNullable( language )
+            .filter( lang -> !lang.isBlank() )
+            .map( Locale::forLanguageTag )
+            .orElse( null );
     }
 
     public ProjectName getName()
@@ -69,6 +78,11 @@ public final class CreateProjectParamsJson
     public List<SiteConfig> getApplicationConfigs()
     {
         return applicationConfigs;
+    }
+
+    public Locale getLanguage()
+    {
+        return language;
     }
 
 }
