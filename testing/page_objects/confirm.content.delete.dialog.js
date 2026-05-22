@@ -29,7 +29,7 @@ class ConfirmValueDialog extends Page {
     }
 
     get numberInput() {
-        return XPATH.container + "//input[@inputmode='numeric']";
+        return XPATH.container + "//input";
     }
 
     // Title: Confirm delete

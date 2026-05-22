@@ -884,11 +884,16 @@ module.exports = {
         await this.getBrowser().url('http://localhost:8080/admin/');
         await this.getBrowser().pause(100);
     },
-    async doCloseAllWindowTabs() {
-        let handles = await this.getBrowser().getWindowHandles();
-        for (const item of handles) {
-            let result = await this.switchAndCheckTitle(item, "Enonic XP Admin");
-            if (!result) {
+    async doCloseAllWindowTabs(keepTitle1 = 'Enonic XP Admin', keepTitle2 = 'Settings') {
+        const handles = await this.getBrowser().getWindowHandles();
+        const keepTitles = [keepTitle1, keepTitle2].filter(Boolean);
+
+        for (const handle of handles) {
+            await this.getBrowser().switchToWindow(handle);
+            const title = await this.getBrowser().getTitle();
+
+            const shouldKeep = keepTitles.some(keepTitle => title.includes(keepTitle));
+            if (!shouldKeep) {
                 await this.getBrowser().closeWindow();
                 await this.getBrowser().pause(100);
             }
@@ -954,7 +959,8 @@ module.exports = {
         }
     },
     async switchToContentMode() {
-        await this.clickOnElement(lib.WIDGET_SIDEBAR.MODE_CONTENT_BUTTON);
+        let buttonLocator = COMMON.WIDGET_SIDEBAR.CONTAINER + BUTTONS.buttonAriaLabel('Content');
+        await this.clickOnElement(buttonLocator);
         await this.getBrowser().pause(200);
         return new ContentBrowsePanel();
     },

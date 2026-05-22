@@ -140,6 +140,12 @@ const TREE_GRID = {
                                             displayName) => `//div[@role='listitem' and @data-component='${dataComponent}' and (descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]])]`,
     // Block that contains: name, displayName, icon...
     CONTENT_LABEL_BLOCK: "//div[@data-component='ContentLabel']",
+    // ProjectLabel: shows a project's display name (font-semibold span) and its identifier (<small>).
+    // The display-name span contains an inner '(en)' language-suffix span with class 'font-normal'.
+    PROJECT_LABEL_BLOCK: "//div[@data-component='ProjectLabel']",
+    PROJECT_LABEL_DISPLAY_NAME_SPAN: "//div[@data-component='ProjectLabel']//span[contains(@class,'font-semibold')]",
+    PROJECT_LABEL_LANGUAGE_SUFFIX_SPAN: "//div[@data-component='ProjectLabel']//span[contains(@class,'font-semibold')]/span[contains(@class,'font-normal')]",
+    PROJECT_LABEL_IDENTIFIER_SMALL: "//div[@data-component='ProjectLabel']//small",
     itemContextMenuItemByName: (name) => {
         return `//div[@role='menu' and contains(@id,'content')]//div[contains(@id,'menu-item') and contains(.,'${name}')]`;
     },

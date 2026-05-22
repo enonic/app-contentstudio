@@ -3,7 +3,7 @@
  */
 const SettingsBrowsePanel = require('../page_objects/project/settings.browse.panel');
 const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
-const ProjectWizardDialogParentProjectStep = require('../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
+const LanguageAndParentProjectStep = require('../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
 const ProjectWizardDialogLanguageStep = require('../page_objects/project/project-wizard-dialog/project.wizard.language.step');
 const ProjectWizardDialogAccessModeStep = require('../page_objects/project/project-wizard-dialog/project.wizard.access.mode.step');
 const ProjectWizardDialogPermissionsStep = require('../page_objects/project/project-wizard-dialog/project.wizard.permissions.step');
@@ -23,13 +23,51 @@ module.exports = {
             return webDriverHelper.browser;
         }
     },
-    async saveTestProject(name, description, language, permissions, accessMode, applications, identifier) {
-        let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+    normalizeSaveProjectArgs(...args) {
+        if (args.length === 1 && args[0] && typeof args[0] === 'object' && !Array.isArray(args[0])) {
+            const {
+                name,
+                description = null,
+                language = null,
+                permissions = null,
+                accessMode = null,
+                applications = null,
+                identifier = null,
+                parents = null
+            } = args[0];
+
+            if (!name) {
+                throw new Error('saveTestProject: `name` is required');
+            }
+
+            return {name, description, language, permissions, accessMode, applications, identifier, parents};
+        }
+
+        const [name, description, language, permissions, accessMode, applications, identifier, parents] = args;
+
+        if (!name) {
+            throw new Error('saveTestProject: `name` is required');
+        }
+
+        return {name, description, language, permissions, accessMode, applications, identifier};
+    },
+    async saveTestProject(...args) {
+        const options = this.normalizeSaveProjectArgs(...args);
+        let languageAndParentProjectStep = new LanguageAndParentProjectStep();
         let summaryStep = new ProjectWizardDialogSummaryStep();
         let settingsBrowsePanel = new SettingsBrowsePanel();
         await settingsBrowsePanel.clickOnNewButton();
-        await parentProjectStep.waitForLoaded();
-        let project = this.buildProject(language, accessMode, permissions, applications, name, identifier, description);
+        await languageAndParentProjectStep.waitForLoaded();
+        const project = this.buildProject(
+            options.language,
+            options.accessMode,
+            options.permissions,
+            options.applications,
+            options.name,
+            options.identifier,
+            options.description,
+            options.parents
+        );
         await this.fillFormsWizard(project);
         await summaryStep.waitForLoaded();
         await summaryStep.clickOnCreateProjectButton();
@@ -38,7 +76,7 @@ module.exports = {
     },
     async selectParentProjectsByName(parents) {
         try {
-            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            let parentProjectStep = new LanguageAndParentProjectStep();
             parents = [].concat(parents);
             let selectedItems = await parentProjectStep.getSelectedProjects();
             for (let name of parents) {
@@ -47,8 +85,6 @@ module.exports = {
                     await parentProjectStep.selectParentProjectMulti(name);
                 }
             }
-            await parentProjectStep.clickOnNextButton();
-            return new ProjectWizardDialogLanguageStep();
         } catch (err) {
             await this.handleError('Tried to select parent projects by name', 'err_parent_proj_step', err);
         }
@@ -62,9 +98,6 @@ module.exports = {
             if (!isSelected) {
                 await parentProjectStep.selectParentProject(parent);
             }
-
-            await parentProjectStep.clickOnNextButton();
-            return new ProjectWizardDialogLanguageStep();
         } catch (err) {
             await this.handleError('Tried to select a single parent project by name', 'err_single_parent_proj_step', err);
         }
@@ -77,26 +110,19 @@ module.exports = {
         });
         return false;
     },
-    async fillLanguageStep(language) {
-        let languageStep = new ProjectWizardDialogLanguageStep();
-        if (language) {
-            await languageStep.selectLanguage(language);
-            await languageStep.clickOnNextButton();
-        } else {
-            await languageStep.clickOnSkipButton();
-        }
-        return new ProjectWizardDialogAccessModeStep();
-    },
+
     async fillAccessModeStep(accessMode) {
-        let accessModeStep = new ProjectWizardDialogAccessModeStep();
-        if (accessMode) {
-            await accessModeStep.clickOnAccessModeRadio(accessMode);
-        } else {
-            //set the default access mode for ui-tests:
-            await accessModeStep.clickOnAccessModeRadio('Private');
+        try {
+            let accessModeStep = new ProjectWizardDialogAccessModeStep();
+            if (accessMode) {
+                await accessModeStep.clickOnAccessModeRadio(accessMode);
+            } else {
+                //set the default access mode for ui-tests:
+                await accessModeStep.clickOnAccessModeRadio('Private');
+            }
+        } catch (err) {
+            await this.handleError('Project wizard - access mode step', 'err_access_mode_step', err);
         }
-        await accessModeStep.clickOnNextButton();
-        return new ProjectWizardDialogPermissionsStep();
     },
     async fillPermissionsStep(principalsToAccess) {
         let permissionsStep = new ProjectWizardDialogPermissionsStep();
@@ -106,9 +132,6 @@ module.exports = {
             } else {
                 await permissionsStep.selectProjectAccessRole(principalsToAccess);
             }
-            await permissionsStep.clickOnNextButton();
-        } else {
-            await permissionsStep.clickOnSkipButton();
         }
     },
     async fillApplicationStep(applications) {
@@ -127,56 +150,68 @@ module.exports = {
         return new ProjectWizardDialogNameAndIdStep();
     },
     async fillNameAndDescriptionStep(name, identifier, description,) {
-        let nameAndIdStep = new ProjectWizardDialogNameAndIdStep();
-        if (name) {
-            await nameAndIdStep.typeDisplayName(name);
+        try {
+            let nameAndIdStep = new ProjectWizardDialogNameAndIdStep();
+            if (name) {
+                await nameAndIdStep.typeDisplayName(name);
+            }
+            if (description) {
+                await nameAndIdStep.typeDescription(description);
+            }
+            if (identifier) {
+                await nameAndIdStep.clearIdInput()
+                await nameAndIdStep.typeTextInProjectIdentifierInput(identifier);
+            }
+            await nameAndIdStep.pause(500);
+        } catch (err) {
+            await this.handleError('Tried to fill in the Name and Description step', 'err_name_desc_step', err);
         }
-        if (description) {
-            await nameAndIdStep.typeDescription(description);
-        }
-        if (identifier) {
-            await nameAndIdStep.typeTextInProjectIdentifierInput(identifier);
-        }
-        await nameAndIdStep.pause(800);
-        await nameAndIdStep.clickOnNextButton();
-        return new ProjectWizardDialogSummaryStep();
     },
     async fillFormsWizard(project) {
         try {
-            if (!project.parents) {
-                let parentProjectStep = new ProjectWizardDialogParentProjectStep();
-                await parentProjectStep.clickOnSkipButton();
-            } else {
-                let languageStep;
+            let languageAndParentProjectStep = new LanguageAndParentProjectStep();
+            await languageAndParentProjectStep.selectLanguage(project.language);
+            if (project.parents) {
                 if (Array.isArray(project.parents)) {
-                    languageStep = await this.selectParentProjectsByName(project.parents);
+                    // multi projects:
+                    await this.selectParentProjectsByName(project.parents);
                 } else {
-                    languageStep = await this.selectSingleParentProjectsByName(project.parents);
+                    await this.selectSingleParentProjectsByName(project.parents);
                 }
-
-                await languageStep.waitForLoaded();
             }
-            let accessModeStep = await this.fillLanguageStep(project.language);
+
+            await languageAndParentProjectStep.clickOnNextButton();
+
+            let nameAndIdStep = new ProjectWizardDialogNameAndIdStep();
+            await nameAndIdStep.waitForLoaded();
+            await this.fillNameAndDescriptionStep(project.name, project.identifier, project.description);
+            await nameAndIdStep.clickOnNextButton();
+            let accessModeStep = new ProjectWizardDialogAccessModeStep();
             await accessModeStep.waitForLoaded();
-            let permissionsStep = await this.fillAccessModeStep(project.accessMode);
+            await accessModeStep.clickOnAccessModeRadio(project.accessMode);
+            await accessModeStep.clickOnNextButton();
+
+            let permissionsStep = new ProjectWizardDialogPermissionsStep();
             await permissionsStep.waitForLoaded();
             await this.fillPermissionsStep(project.principalsToAccess);
+            await permissionsStep.clickOnNextButton();
             let applicationStep = new ProjectWizardDialogApplicationsStep();
 
             if (await applicationStep.isLoaded()) {
                 if (project.applications) {
                     await this.fillApplicationStep(project.applications);
-                } else {
-                    await applicationStep.clickOnSkipButton();
                 }
+                await applicationStep.clickOnNextButton();
             }
-            let nameAndIdStep = new ProjectWizardDialogNameAndIdStep();
-            await nameAndIdStep.waitForLoaded();
-            let projectWizardDialogSummaryStep = await this.fillNameAndDescriptionStep(project.name, project.identifier,
-                project.description);
-            await projectWizardDialogSummaryStep.pause(1000);
+
+            let projectWizardDialogSummaryStep = new ProjectWizardDialogSummaryStep();
             await projectWizardDialogSummaryStep.waitForLoaded();
+            await projectWizardDialogSummaryStep.pause(1000);
+
         } catch (err) {
+            if (err && err.isHandledError) {
+                throw err;
+            }
             await this.handleError('Tried to fill in the project wizard steps', 'err_ave_proj', err);
         }
     },
@@ -234,7 +269,9 @@ module.exports = {
     },
     async handleError(errorMessage, screenshotName, error) {
         let screenshot = await this.saveScreenshotUniqueName(screenshotName);
-        throw new Error(`${errorMessage}, screenshot: ${screenshot} ` + error);
+        const wrappedError = new Error(`${errorMessage}, screenshot: ${screenshot} ` + error);
+        wrappedError.isHandledError = true;
+        throw wrappedError;
     },
     async saveScreenshot(name, that) {
         try {

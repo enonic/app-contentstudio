@@ -101,10 +101,10 @@ class ProjectWizardDialog extends Page {
 
     async waitForNextButtonEnabled() {
         try {
-            return await this.waitForElementEnabled(this.nextButton, appConst.mediumTimeout);
+            await this.waitForElementClickable(this.nextButton);
+            return await this.waitForElementEnabled(this.nextButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_next_disabled');
-            throw new Error(" 'Next' button is not enabled. Screenshot: " + screenshot + ' ' + err);
+            await this.handleError("'Next' button is not clickable", 'err_next_disabled', err);
         }
     }
 
@@ -119,13 +119,17 @@ class ProjectWizardDialog extends Page {
 
     async clickOnNextButton() {
         try {
+            if (await this.isNotificationMessageDisplayed()) {
+                await this.removeNotificationMessage();
+            }
+            //await this.waitForNotificationMessage()
             await this.waitForNextButtonDisplayed();
             await this.waitForNextButtonEnabled();
             await this.pause(500);
             await this.clickOnElement(this.nextButton);
             return await this.pause(300);
         } catch (err) {
-            throw new Error("Error occurred during clicking on Next button: " + err);
+            throw new Error("Project Wizard - Error occurred during clicking on Next button: " + err);
         }
     }
 
