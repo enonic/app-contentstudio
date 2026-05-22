@@ -51,7 +51,7 @@ export const ProjectDialogParentStepContent = (): ReactElement => {
     const parentProjectLabel = useI18n('settings.field.project.parent');
     const typeToSearchLabel = useI18n('field.option.placeholder');
     const noProjectsFoundLabel = useI18n('settings.projects.notfound');
-    const hintLabel = useI18n('settings.projects.parent.helptext');
+    const helptextLabel = useI18n('dialog.project.wizard.parent.helptext');
     const projectLabel = isMultiInheritance ? parentProjectsLabel : parentProjectLabel;
     const languageLabel = useI18n('settings.projects.language.label');
     const noLanguagesFoundLabel = useI18n('dialog.project.wizard.parent.noLanguagesFound');
@@ -109,9 +109,10 @@ export const ProjectDialogParentStepContent = (): ReactElement => {
             <div className="flex flex-col">
                 {/* Project selection */}
                 <div>
-                    {mode === 'create' && (
+                    {mode === 'create' && projects.length > 0 && (
                         <ProjectSelector
                             label={projectLabel}
+                            description={helptextLabel}
                             selection={projectSelection}
                             onSelectionChange={setProjectSelection}
                             selectionMode={isMultiInheritance ? 'staged' : 'single'}
@@ -187,8 +188,6 @@ export const ProjectDialogParentStepContent = (): ReactElement => {
                             })}
                         </GridList>
                     )}
-
-                    {mode === 'create' && <span className="text-sm text-subtle italic">{hintLabel}</span>}
                 </div>
 
                 {/* Language selection */}
