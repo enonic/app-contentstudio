@@ -24,8 +24,8 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
         webDriverHelper.setupBrowser();
     }
 
-    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
-    const PROJECT2_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('proj');
+    const PROJECT2_DISPLAY_NAME = studioUtils.generateRandomName('proj');
     const TEST_DESCRIPTION = 'description';
     const PROJ_IDENTIFIER = studioUtils.generateRandomName('id');
     const IMPORTED_SITE = 'site040269';
