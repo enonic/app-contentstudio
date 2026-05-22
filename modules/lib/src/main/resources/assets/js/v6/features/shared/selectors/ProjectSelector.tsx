@@ -1,6 +1,6 @@
 import {cn, Combobox, useCombobox, VirtualizedTreeList, type ComboboxRootProps, type FlatNode} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {forwardRef, useCallback, useId, useMemo, useRef, useState, type HTMLAttributes, type ReactElement} from 'react';
+import {forwardRef, useCallback, useId, useMemo, useRef, useState, type HTMLAttributes, type ReactElement, type ReactNode} from 'react';
 import {Virtuoso, type VirtuosoHandle} from 'react-virtuoso';
 import type {Project} from '../../../../app/settings/data/project/Project';
 import {$projects} from '../../store/projects.store';
@@ -12,6 +12,7 @@ type ProjectSelectorProps = {
     onSelectionChange: (selection: readonly string[]) => void;
     selectionMode?: ComboboxRootProps['selectionMode'];
     label?: string;
+    description?: ReactNode;
     placeholder?: string;
     emptyLabel?: string;
     closeOnBlur?: boolean;
@@ -21,7 +22,7 @@ type ProjectSelectorProps = {
 const PROJECT_SELECTOR_NAME = 'ProjectSelector';
 
 export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
-    const {selection, onSelectionChange, selectionMode = 'single', label, placeholder, emptyLabel, closeOnBlur, className} = props;
+    const {selection, onSelectionChange, selectionMode = 'single', label, description, placeholder, emptyLabel, closeOnBlur, className} = props;
 
     // Hooks
     const {projects} = useStore($projects);
@@ -49,7 +50,12 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
 
     return (
         <div data-component={PROJECT_SELECTOR_NAME} className={cn('flex flex-col gap-2', className)}>
-            {label && <label htmlFor={inputId} className="font-semibold">{label}</label>}
+            {(label || description) && (
+                <div className="flex flex-col gap-1">
+                    {label && <label htmlFor={inputId} className="font-semibold">{label}</label>}
+                    {description && <div className="text-sm text-subtle">{description}</div>}
+                </div>
+            )}
             <Combobox.Root
                 value={searchValue}
                 onChange={setSearchValue}
