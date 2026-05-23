@@ -1,47 +1,48 @@
 /**
  * Created on 05.08.2022
  */
-const lib = require('../../../libs/elements');
+const {COMMON, PROJECTS} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const ProjectWizardDialog = require('./project.wizard.dialog');
 
-const XPATH = {
-    container: "//div[contains(@id,'ProjectWizardDialog')]",
-    projectIdStepForm: `//form[contains(@class,'project-id-step')]`,
-};
+const XPATH = {};
 const DESCRIPTION = "Give the new project a name and a unique identifier";
 
 class ProjectWizardDialogNameAndIdStep extends ProjectWizardDialog {
 
     get projectIdentifierInput() {
-        return XPATH.container + XPATH.projectIdStepForm + lib.formItemByLabel("Identifier") + lib.TEXT_INPUT;
+        return PROJECTS.PROJECT_STEP_COMPONENT + COMMON.INPUTS.dataComponentInputByLabel("Identifier") + "//input";
     }
 
     get projectIdentifierValidationMessage() {
-        return XPATH.container + XPATH.projectIdStepForm + lib.formItemByLabel("Identifier") +
-               "//div[contains(@id,'ValidationRecordingViewer')]//li";
+        return PROJECTS.PROJECT_STEP_COMPONENT + COMMON.INPUTS.dataComponentInputByLabel("Identifier") +
+               "//div[contains(@class,'text-error')]";
     }
 
     get displayNameInput() {
-        return XPATH.container + XPATH.projectIdStepForm + lib.formItemByLabel("Display Name") + lib.TEXT_INPUT;
+        return PROJECTS.PROJECT_STEP_COMPONENT + COMMON.INPUTS.dataComponentInputByLabel("Display Name") + "//input";
     }
 
     get descriptionInput() {
-        return XPATH.container + XPATH.projectIdStepForm + lib.formItemByLabel("Description") + lib.TEXT_INPUT;
+        return PROJECTS.PROJECT_STEP_COMPONENT + COMMON.INPUTS.dataComponentInputByLabel("Description") + "//input";
     }
 
     async typeDisplayName(name) {
         await this.waitForElementDisplayed(this.displayNameInput);
-        return await this.typeTextInInput(this.displayNameInput, name);
+        return await this.typeChars(this.displayNameInput, name);
+    }
+
+    async clearIdInput() {
+        await this.clearInputText(this.projectIdentifierInput);
     }
 
     async waitForIdentifierInputEnabled() {
-        await this.waitForElementDisplayed(this.projectIdentifierInput, appConst.mediumTimeout);
-        return this.waitForElementEnabled(this.projectIdentifierInput, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.projectIdentifierInput);
+        return this.waitForElementEnabled(this.projectIdentifierInput);
     }
 
-    typeDescription(description) {
-        return this.typeTextInInput(this.descriptionInput, description);
+    async typeDescription(description) {
+        return await this.typeChars(this.descriptionInput, description);
     }
 
     getDescription() {
@@ -59,7 +60,7 @@ class ProjectWizardDialogNameAndIdStep extends ProjectWizardDialog {
 
     async typeTextInProjectIdentifierInput(text) {
         await this.waitForIdentifierInputEnabled();
-        await this.typeTextInInput(this.projectIdentifierInput, text);
+        await this.typeChars(this.projectIdentifierInput, text);
         return await this.pause(200);
     }
 

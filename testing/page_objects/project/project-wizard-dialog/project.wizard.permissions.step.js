@@ -4,10 +4,10 @@
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const ProjectWizardDialog = require('./project.wizard.dialog');
-const ProjectAccessControlComboBox = require('../../components/projects/project.access.control.combobox');
+const PrincipalSelector = require('../../components/selectors/principal.combobox.dropdown');
 
 const XPATH = {
-    container: "//div[contains(@id,'ProjectWizardDialog')]",
+    container: "//div[@role='dialog' and descendant::h2[contains(.,'Grant project roles')]]",
 };
 const DESCRIPTION = "Give access to manage the project and its content";
 
@@ -15,8 +15,10 @@ class ProjectWizardDialogPermissionsStep extends ProjectWizardDialog {
 
     // Adds a user with the default role (Contributor) in Roles step form:
     async selectProjectAccessRole(principalDisplayName) {
-        let projectAccessControlComboBox = new ProjectAccessControlComboBox();
-        await projectAccessControlComboBox.clickOnFilteredByDisplayNamePrincipalAndClickOnApply(principalDisplayName, XPATH.container);
+        let principalSelector = new PrincipalSelector(XPATH.container);
+        await principalSelector.doFilterItem(principalDisplayName);
+        await principalSelector.clickOnFilteredByDisplayNameItemAndClickOnApply(principalDisplayName);
+        await this.pause(300);
     }
 
     addPrincipalsInRolesForm(memberDisplayNames) {
@@ -28,10 +30,11 @@ class ProjectWizardDialogPermissionsStep extends ProjectWizardDialog {
     }
 
     async waitForLoaded() {
-        await this.getBrowser().waitUntil(async () => {
-            let actualDescription = await this.getStepDescription();
-            return actualDescription.includes(DESCRIPTION);
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Project Wizard Dialog, step 4 is not loaded"});
+        try {
+            await this.waitForElementDisplayed(XPATH.container);
+        } catch (err) {
+            await this.handleError("Project Wizard, Grant project roles, name step is not loaded", 'err_name_step', err);
+        }
     }
 
     // click on the role, open menu and select new role for the user:

@@ -7,7 +7,7 @@ const ProjectWizardDialog = require('./project.wizard.dialog');
 const ProjectApplicationsComboBox = require('../../components/projects/project.applications.combobox');
 
 const XPATH = {
-    container: "//div[contains(@id,'ProjectWizardDialog')]",
+    container: "//div[@role='dialog' and descendant::h2[contains(.,'Project scope applications')]]",
     projectApplicationsComboBox: "//div[contains(@id,'ProjectApplicationsComboBox')]",
     selectedProjectView: displayName => `//div[contains(@id,'ProjectApplicationSelectedOptionView') and descendant::h6[text()='${displayName}']]`,
     selectedApplications: "//div[contains(@id,'ProjectApplicationSelectedOptionView') ]",
@@ -37,15 +37,15 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
     }
 
     async waitForLoaded() {
-        await this.getBrowser().waitUntil(async () => {
-            let actualDescription = await this.getStepDescription();
-            return actualDescription.includes(DESCRIPTION);
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Project Wizard Dialog, step 5 is not loaded"});
+        try {
+            await this.waitForElementDisplayed(XPATH.container);
+        } catch (err) {
+            await this.handleError("Project Wizard Dialog, app step was not loaded", 'err_name_step', err);
+        }
     }
 
     async isLoaded() {
-        let locator = `//p[@class='xp-admin-common-sub-name' and contains(.,'${DESCRIPTION}')]`;
-        return await this.isElementDisplayed(locator);
+        return await this.isElementDisplayed(XPATH.container);
     }
 
     addApplications(appDisplayNames) {

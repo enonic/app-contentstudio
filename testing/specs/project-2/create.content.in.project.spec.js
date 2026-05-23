@@ -21,7 +21,7 @@ describe('create.content.in.project.spec - create new content in the selected co
     }
 
     let TEST_FOLDER_NAME = studioUtils.generateRandomName('folder');
-    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('proj');
     let TEST_DESCRIPTION = 'test description';
 
     it(`Preconditions: new project(with Norsk (no) language) and 'Private' access mode should be added`,
