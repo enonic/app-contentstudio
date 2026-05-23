@@ -1,6 +1,7 @@
-import {map} from 'nanostores';
+import {computed, map} from 'nanostores';
 import type {ContentSummary} from '../../../app/content/ContentSummary';
 import {ContentSummaryAndCompareStatus} from '../../../app/content/ContentSummaryAndCompareStatus';
+import {$activeProject} from './activeProject.store';
 import {
     $contentArchived,
     $contentCreated,
@@ -18,42 +19,81 @@ import {
 // * Types
 //
 
-type ContentCacheState = Record<string, ContentSummary>;
+type ProjectCache = Record<string, ContentSummary>;
+type PathIndex = Record<string, string>;
 
 //
 // * Store
 //
 
-/** Global content cache - stores all loaded content by ID */
-export const $contentCache = map<ContentCacheState>({});
+// Frozen empties guard against accidental mutation of the shared reference.
+const EMPTY_CACHE: ProjectCache = Object.freeze({});
+const EMPTY_INDEX: PathIndex = Object.freeze({});
 
-/** Path string to content ID index for O(1) lookups */
-const $pathToId = map<Record<string, string>>({});
+const $contentCacheByProject = map<Record<string, ProjectCache>>({});
+const $pathToIdByProject = map<Record<string, PathIndex>>({});
+
+/** Active project's slice. Shape kept as Record<id, ContentSummary> for legacy consumers. */
+export const $contentCache = computed(
+    [$contentCacheByProject, $activeProject],
+    (byProject, project): ProjectCache => {
+        const name = project?.getName();
+        if (!name) return EMPTY_CACHE;
+        return byProject[name] ?? EMPTY_CACHE;
+    },
+);
+
+//
+// * Internal helpers
+//
+
+function resolveProjectName(projectName?: string): string | undefined {
+    return projectName ?? $activeProject.get()?.getName();
+}
+
+function readProjectCache(projectName: string): ProjectCache {
+    return $contentCacheByProject.get()[projectName] ?? EMPTY_CACHE;
+}
+
+function readPathIndex(projectName: string): PathIndex {
+    return $pathToIdByProject.get()[projectName] ?? EMPTY_INDEX;
+}
+
+function writeProjectCache(projectName: string, next: ProjectCache): void {
+    $contentCacheByProject.setKey(projectName, next);
+}
+
+function writePathIndex(projectName: string, next: PathIndex): void {
+    $pathToIdByProject.setKey(projectName, next);
+}
 
 //
 // * Actions
 //
+// Writers accept an optional projectName so async callers can capture the
+// project at request start and stay consistent across awaits. Defaults to active.
+//
 
-export function setContent(content: ContentSummary): void {
+export function setContent(content: ContentSummary, projectName?: string): void {
+    const name = resolveProjectName(projectName);
+    if (!name) return;
+
     const id = content.getId();
     const path = content.getPath?.()?.toString();
-    $contentCache.setKey(id, content);
+
+    writeProjectCache(name, {...readProjectCache(name), [id]: content});
     if (path) {
-        $pathToId.setKey(path, id);
+        writePathIndex(name, {...readPathIndex(name), [path]: id});
     }
 }
 
-/**
- * Adds or updates multiple content items in the cache.
- * More efficient than calling setContent multiple times.
- */
-export function setContents(contents: ContentSummary[]): void {
+export function setContents(contents: ContentSummary[], projectName?: string): void {
     if (contents.length === 0) return;
+    const name = resolveProjectName(projectName);
+    if (!name) return;
 
-    const currentCache = $contentCache.get();
-    const currentIndex = $pathToId.get();
-    const cacheUpdates: ContentCacheState = {...currentCache};
-    const indexUpdates: Record<string, string> = {...currentIndex};
+    const cacheUpdates: ProjectCache = {...readProjectCache(name)};
+    const indexUpdates: PathIndex = {...readPathIndex(name)};
 
     for (const content of contents) {
         const id = content.getId();
@@ -64,134 +104,136 @@ export function setContents(contents: ContentSummary[]): void {
         }
     }
 
-    $contentCache.set(cacheUpdates);
-    $pathToId.set(indexUpdates);
+    writeProjectCache(name, cacheUpdates);
+    writePathIndex(name, indexUpdates);
 }
 
-export function removeContent(id: string): void {
-    const currentCache = $contentCache.get();
-    if (!(id in currentCache)) return;
+export function removeContent(id: string, projectName?: string): void {
+    const name = resolveProjectName(projectName);
+    if (!name) return;
 
-    const content = currentCache[id];
+    const cache = readProjectCache(name);
+    if (!(id in cache)) return;
+
+    const content = cache[id];
     const path = content?.getPath?.()?.toString();
 
-    const {[id]: _, ...restCache} = currentCache;
-    $contentCache.set(restCache);
+    const {[id]: _, ...restCache} = cache;
+    writeProjectCache(name, restCache);
 
     if (path) {
-        const currentIndex = $pathToId.get();
-        const {[path]: __, ...restIndex} = currentIndex;
-        $pathToId.set(restIndex);
+        const index = readPathIndex(name);
+        const {[path]: __, ...restIndex} = index;
+        writePathIndex(name, restIndex);
     }
 }
 
-export function removeContents(ids: string[]): void {
+export function removeContents(ids: string[], projectName?: string): void {
     if (ids.length === 0) return;
+    const name = resolveProjectName(projectName);
+    if (!name) return;
 
-    const currentCache = $contentCache.get();
-    const currentIndex = $pathToId.get();
+    const cache = readProjectCache(name);
+    const index = readPathIndex(name);
     const idsSet = new Set(ids);
 
-    // Collect paths to remove
     const pathsToRemove: string[] = [];
     for (const id of ids) {
-        const content = currentCache[id];
+        const content = cache[id];
         const path = content?.getPath?.()?.toString();
         if (path) pathsToRemove.push(path);
     }
 
-    const filteredCache = Object.fromEntries(Object.entries(currentCache).filter(([id]) => !idsSet.has(id)));
+    const filteredCache = Object.fromEntries(Object.entries(cache).filter(([cid]) => !idsSet.has(cid)));
     const pathsSet = new Set(pathsToRemove);
-    const filteredIndex = Object.fromEntries(Object.entries(currentIndex).filter(([path]) => !pathsSet.has(path)));
+    const filteredIndex = Object.fromEntries(Object.entries(index).filter(([p]) => !pathsSet.has(p)));
 
-    $contentCache.set(filteredCache);
-    $pathToId.set(filteredIndex);
+    writeProjectCache(name, filteredCache);
+    writePathIndex(name, filteredIndex);
 }
 
-export function clearContentCache(): void {
-    $contentCache.set({});
-    $pathToId.set({});
+/** Clears one project's slice. Defaults to the active project; no-op if none. */
+export function clearProjectContentCache(projectName?: string): void {
+    const name = resolveProjectName(projectName);
+    if (!name) return;
+
+    writeProjectCache(name, EMPTY_CACHE);
+    writePathIndex(name, EMPTY_INDEX);
+}
+
+/** Wipes every project's slice. For tests and explicit full resets. */
+export function clearAllContentCaches(): void {
+    $contentCacheByProject.set({});
+    $pathToIdByProject.set({});
 }
 
 //
-// * Selectors (synchronous lookups)
+// * Selectors
 //
 
-/**
- * Gets content by ID from cache (synchronous).
- * Returns undefined if not in cache.
- */
-export function getContent(id: string): ContentSummary | undefined {
-    return $contentCache.get()[id];
+export function getContent(id: string, projectName?: string): ContentSummary | undefined {
+    const name = resolveProjectName(projectName);
+    if (!name) return undefined;
+    return readProjectCache(name)[id];
 }
 
-/**
- * Gets multiple content items by IDs from cache (synchronous).
- * Missing items are not included in the result.
- */
-export function getContents(ids: string[]): ContentSummary[] {
-    const cache = $contentCache.get();
+export function getContents(ids: string[], projectName?: string): ContentSummary[] {
+    const name = resolveProjectName(projectName);
+    if (!name) return [];
+    const cache = readProjectCache(name);
     return ids.map((id) => cache[id]).filter(Boolean);
 }
 
-/** Get content wrapped as CSCS for legacy code that requires ContentSummaryAndCompareStatus */
-export function getContentAsCSCS(id: string): ContentSummaryAndCompareStatus | undefined {
-    const summary = getContent(id);
+/** Wraps cached summary as CSCS for legacy code paths. */
+export function getContentAsCSCS(id: string, projectName?: string): ContentSummaryAndCompareStatus | undefined {
+    const summary = getContent(id, projectName);
     return summary ? ContentSummaryAndCompareStatus.fromContentSummary(summary) : undefined;
 }
 
-export function hasContent(id: string): boolean {
-    return id in $contentCache.get();
+export function hasContent(id: string, projectName?: string): boolean {
+    const name = resolveProjectName(projectName);
+    if (!name) return false;
+    return id in readProjectCache(name);
 }
 
-/**
- * Gets content ID by path from the path index (O(1) lookup).
- * Returns undefined if path is not in index.
- */
-export function getIdByPath(pathStr: string): string | undefined {
-    return $pathToId.get()[pathStr];
+export function getIdByPath(pathStr: string, projectName?: string): string | undefined {
+    const name = resolveProjectName(projectName);
+    if (!name) return undefined;
+    return readPathIndex(name)[pathStr];
 }
 
-/**
- * Gets IDs that are missing from the cache.
- */
-export function getMissingIds(ids: string[]): string[] {
-    const cache = $contentCache.get();
+export function getMissingIds(ids: string[], projectName?: string): string[] {
+    const name = resolveProjectName(projectName);
+    if (!name) return ids.slice();
+    const cache = readProjectCache(name);
     return ids.filter((id) => !(id in cache));
 }
 
-/**
- * Gets all content IDs currently in cache.
- */
-export function getAllContentIds(): string[] {
-    return Object.keys($contentCache.get());
+export function getAllContentIds(projectName?: string): string[] {
+    const name = resolveProjectName(projectName);
+    if (!name) return [];
+    return Object.keys(readProjectCache(name));
 }
 
 //
-// * Self-initializing Socket Subscriptions
+// * Socket Subscriptions
 //
-// These subscriptions run at module load and persist for the application lifetime.
-// They are NOT cleaned up because:
-// 1. The content store is a global singleton
-// 2. The app requires real-time updates throughout its lifecycle
-// 3. Cleanup would break functionality when re-entering the content browser
+// Self-initialise at module load and live for the app's lifetime.
+// Server-side subscriptions are per-active-project, so writes target that partition.
 //
 
-// Content updated - update cache with new data
 $contentUpdated.subscribe((event) => {
     if (event?.data) {
         setContents(event.data);
     }
 });
 
-// Content created - add to cache
 $contentCreated.subscribe((event) => {
     if (event?.data) {
         setContents(event.data);
     }
 });
 
-// Content deleted - remove from cache
 $contentDeleted.subscribe((event) => {
     if (event?.data) {
         const ids = event.data.map((item) => item.getContentId().toString());
@@ -199,14 +241,12 @@ $contentDeleted.subscribe((event) => {
     }
 });
 
-// Content renamed - update cache with new data
 $contentRenamed.subscribe((event) => {
     if (event?.data?.items) {
         setContents(event.data.items);
     }
 });
 
-// Content archived - remove from cache
 $contentArchived.subscribe((event) => {
     if (event?.data) {
         const ids = event.data.map((item) => item.getContentId().toString());
@@ -214,21 +254,18 @@ $contentArchived.subscribe((event) => {
     }
 });
 
-// Content published - update cache
 $contentPublished.subscribe((event) => {
     if (event?.data) {
         setContents(event.data);
     }
 });
 
-// Content unpublished - update cache
 $contentUnpublished.subscribe((event) => {
     if (event?.data) {
         setContents(event.data);
     }
 });
 
-// Content duplicated - add to cache
 $contentDuplicated.subscribe((event) => {
     if (event?.data) {
         setContents(event.data);
@@ -239,8 +276,11 @@ $contentDuplicated.subscribe((event) => {
 $contentMoved.subscribe((event) => {
     if (!event?.data) return;
 
-    const cacheUpdates: ContentCacheState = {...$contentCache.get()};
-    const indexUpdates: Record<string, string> = {...$pathToId.get()};
+    const name = $activeProject.get()?.getName();
+    if (!name) return;
+
+    const cacheUpdates: ProjectCache = {...readProjectCache(name)};
+    const indexUpdates: PathIndex = {...readPathIndex(name)};
 
     for (const moved of event.data) {
         const summary = moved.item.getContentSummary();
@@ -259,24 +299,17 @@ $contentMoved.subscribe((event) => {
         }
     }
 
-    $contentCache.set(cacheUpdates);
-    $pathToId.set(indexUpdates);
+    writeProjectCache(name, cacheUpdates);
+    writePathIndex(name, indexUpdates);
 });
 
-// Content sorted - update cache with new order data
 $contentSorted.subscribe((event) => {
     if (event?.data) {
         setContents(event.data);
     }
 });
 
-/**
- * @deprecated Socket subscriptions are now self-initializing at module load.
- * This function is kept for backwards compatibility but does nothing.
- */
+/** @deprecated Subscriptions self-initialise at module load. Kept for back-compat. */
 export function subscribeToContentEvents(): () => void {
-    // No-op - subscriptions are now self-initializing
-    return () => {
-        // No-op
-    };
+    return () => undefined;
 }

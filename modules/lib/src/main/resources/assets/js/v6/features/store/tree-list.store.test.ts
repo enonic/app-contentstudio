@@ -30,8 +30,10 @@ import {
     getTreeDescendantIds,
     type ContentTreeNodeData,
 } from './tree-list.store';
-import {clearContentCache, setContent, setContents} from './content.store';
+import {clearAllContentCaches, setContent, setContents} from './content.store';
+import {$activeProject} from './activeProject.store';
 import {addUpload, clearUploads} from './uploads.store';
+import type {Project} from '../../../app/settings/data/project/Project';
 import {emitContentCreated, emitContentDeleted, emitContentArchived} from './socket.store';
 import type {ContentServerChangeItem} from '../../../app/event/ContentServerChangeItem';
 
@@ -153,8 +155,9 @@ function createMockChangeItem(id: string): ContentServerChangeItem {
 
 describe('tree-list.store', () => {
     beforeEach(() => {
+        $activeProject.set({getName: () => 'default'} as unknown as Project);
         resetTree();
-        clearContentCache();
+        clearAllContentCaches();
         clearUploads();
     });
 
