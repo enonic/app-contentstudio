@@ -3,7 +3,9 @@ import {beforeEach, describe, expect, it} from 'vitest';
 import type {ContentSummary} from '../../../app/content/ContentSummary';
 import {PublishStatus} from '../../../app/publish/PublishStatus';
 import {setFilterActive} from './active-tree.store';
-import {clearContentCache, setContent} from './content.store';
+import {$activeProject} from './activeProject.store';
+import {clearAllContentCaches, setContent} from './content.store';
+import type {Project} from '../../../app/settings/data/project/Project';
 import {
     $activeId,
     $currentIds,
@@ -55,10 +57,11 @@ function createMockContent(id: string, name?: string): ContentSummary {
 describe('contentTreeSelection.store', () => {
     beforeEach(() => {
         // Reset all state
+        $activeProject.set({getName: () => 'default'} as unknown as Project);
         $selection.set(new Set());
         $activeId.set(null);
         $selectAllMode.set(false);
-        clearContentCache();
+        clearAllContentCaches();
         resetTree();
         setFilterActive(false);
     });

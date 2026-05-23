@@ -6,7 +6,7 @@ import {type ReactElement, useMemo} from 'react';
 import {activateFilter, fetchRootChildrenIdsOnly, getFilterQuery} from '../../../api/content-fetcher';
 import {useI18n} from '../../../hooks/useI18n';
 import {$isFilterActive} from '../../../store/active-tree.store';
-import {clearContentCache} from '../../../store/content.store';
+import {clearProjectContentCache} from '../../../store/content.store';
 import {$isAllLoadedSelected, $isNoneSelected, $selectionCount, clearSelection, selectAll} from '../../../store/contentTreeSelection.store';
 import {$rootLoadingState, resetTree} from '../../../store/tree-list.store';
 
@@ -20,7 +20,7 @@ const handleReload = (): void => {
         if (query) void activateFilter(query);
     } else {
         resetTree();
-        clearContentCache();
+        clearProjectContentCache();
         void fetchRootChildrenIdsOnly();
     }
 };
