@@ -154,7 +154,7 @@ class BaseBrowsePanel extends Page {
 
     async clickOnEditButton() {
         try {
-            await this.waitForElementEnabled(this.editButton, appConst.mediumTimeout);
+            await this.waitForElementEnabled(this.editButton);
             await this.clickOnElement(this.editButton);
             return await this.pause(500);
         } catch (err) {

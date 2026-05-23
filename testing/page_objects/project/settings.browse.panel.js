@@ -1,7 +1,7 @@
 /**
  * Created on 5/03/2020.
  */
-const {BUTTONS} = require('../../libs/elements');
+const {BUTTONS, TREE_GRID} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const BaseBrowsePanel = require('../../page_objects/base.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
@@ -13,17 +13,14 @@ const XPATH = {
     appBar: "//div[contains(@id,'ContentAppBar')]",
     appBarTabMenu: "//div[contains(@id,'AppBarTabMenu')]",
     homeButton: "//div[contains(@class,'home-button') and descendant::span[text()='Settings']]",
-    toolbarDiv: `//div[contains(@id,'SettingsBrowseToolbar') and @role='toolbar'  and @aria-label='Project settings menu bar']`,
+    toolbarDiv: `//div[@data-component='Toolbar.Container'  and @aria-label='Project settings menu bar']`,
     itemsTreeGrid: `//div[contains(@id,'SettingsItemsTreeGrid')]`,
-    settingsTreeList: `//ul[contains(@id,'SettingsTreeList')]`,
+    settingsTreeListDataComponent: `//div[@data-component='SettingsTreeList']`,
     listBoxToolbarDiv: `//div[contains(@id,'ListBoxToolbar')]`,
     listSelectionControllerDiv: `//div[contains(@id,'ListSelectionController')]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     showIssuesButton: "//button[contains(@id,'ShowIssuesDialogButton')]//span",
 
-    contextMenuItemByName: (name) => {
-        return `${lib.TREE_GRID_CONTEXT_MENU}/li[contains(@id,'MenuItem') and contains(.,'${name}')]`;
-    },
     projectItemByDisplayName:
         displayName => `//*[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
 
@@ -69,7 +66,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     get treeGrid() {
-        return XPATH.container + XPATH.settingsTreeList;
+        return XPATH.container + XPATH.settingsTreeListDataComponent;
     }
 
     get browseToolbar() {
@@ -89,7 +86,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     get displayNames() {
-        return XPATH.settingsTreeList + lib.H6_DISPLAY_NAME;
+        return XPATH.settingsTreeListDataComponent + lib.H6_DISPLAY_NAME;
     }
 
     // returns array with displayName of all items in the Settings Browse Panel
@@ -100,7 +97,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async clickOnExpanderIcon(name) {
         try {
-            let expanderIcon = XPATH.settingsTreeList + XPATH.expanderIconByName(name);
+            let expanderIcon = XPATH.settingsTreeListDataComponent + XPATH.expanderIconByName(name);
             await this.clickOnElement(expanderIcon);
             return await this.pause(500);
         } catch (err) {
@@ -111,7 +108,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForItemDisplayed(projectName) {
         try {
-            let locator = XPATH.settingsTreeList + XPATH.projectItemByDisplayName(projectName);
+            let locator = XPATH.settingsTreeListDataComponent + XPATH.projectItemByDisplayName(projectName);
             return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_browse_panel');
@@ -121,7 +118,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForItemByDisplayNameDisplayed(displayName) {
         try {
-            let selector = XPATH.settingsTreeList + lib.itemByDisplayName(displayName);
+            let selector = XPATH.settingsTreeListDataComponent + lib.itemByDisplayName(displayName);
             return await this.waitForElementDisplayed(selector, appConst.longTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_find_item');
@@ -131,7 +128,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForLanguageIconDisplayed(displayName) {
         try {
-            let locatorIcon = XPATH.settingsTreeList + lib.PROJECTS.projectByName(displayName) + "//div[contains(@id,'Flag')]";
+            let locatorIcon = XPATH.settingsTreeListDataComponent + lib.PROJECTS.projectByName(displayName) + "//div[contains(@id,'Flag')]";
             await this.waitForElementDisplayed(locatorIcon, appConst.longTimeout);
             return await this.getAttribute(locatorIcon, 'data-code');
         } catch (err) {
@@ -151,23 +148,22 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     //Click on SETTINGS button:
     async clickOnHomeButton() {
-        await this.waitForElementDisplayed(this.homeButton, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.homeButton);
         return await this.clickOnElement(this.homeButton);
     }
 
     async clickOnRowByDisplayName(displayName) {
         try {
-            let nameXpath = XPATH.settingsTreeList + lib.itemByDisplayName(displayName);
-            await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
+            let nameXpath = XPATH.settingsTreeListDataComponent + TREE_GRID.itemByDisplayName(displayName);
+            await this.waitForElementDisplayed(nameXpath);
             await this.clickOnElement(nameXpath);
-            return await this.pause(500);
         } catch (err) {
             await this.handleError(`Error occurred after clicking on the row with display name: ${displayName}`, 'err_click_row', err);
         }
     }
 
     async waitForItemByNameVisible(name) {
-        let nameXpath = XPATH.settingsTreeList + lib.itemByName(name);
+        let nameXpath = XPATH.settingsTreeListDataComponent + lib.itemByName(name);
         try {
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
         } catch (err) {
@@ -178,7 +174,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForProjectByDisplayNameVisible(displayName) {
         try {
-            let nameXpath = XPATH.settingsTreeList + lib.itemByDisplayName(displayName);
+            let nameXpath = XPATH.settingsTreeListDataComponent + lib.itemByDisplayName(displayName);
             return await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_find_project');
@@ -219,7 +215,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     isExpanderIconPresent(name) {
-        let expanderIcon = XPATH.settingsTreeList + XPATH.expanderIconByName(name);
+        let expanderIcon = XPATH.settingsTreeListDataComponent + XPATH.expanderIconByName(name);
         return this.waitForElementDisplayed(expanderIcon).catch(err => {
             this.saveScreenshot('expander_not_exists ' + name);
             return false;
@@ -280,14 +276,32 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         return projectWizard;
     }
 
-    getProjectDisplayName(name) {
-        let selector = XPATH.projectItemByDisplayName(name) + "//span[@class='display-name']";
-        return this.getText(selector)
+    // Looks up a project row by its identifier (the <small> sub-name) and returns the bold display name
+    // without the trailing language suffix (e.g. ' (en)') that the renderer appends as a nested span.
+    async getProjectDisplayName(name) {
+        const rowLocator = XPATH.settingsTreeListDataComponent + TREE_GRID.itemByName(name);
+        const displayNameLocator = rowLocator + TREE_GRID.PROJECT_LABEL_DISPLAY_NAME_SPAN;
+        const languageSuffixLocator = rowLocator + TREE_GRID.PROJECT_LABEL_LANGUAGE_SUFFIX_SPAN;
+        await this.waitForElementDisplayed(displayNameLocator, appConst.mediumTimeout);
+        const fullText = await this.getText(displayNameLocator);
+        // Strip the ' (xx)' language suffix span text if present, so we return just the bare display name.
+        const suffixElements = await this.findElements(languageSuffixLocator);
+        if (suffixElements.length > 0) {
+            const suffix = await suffixElements[0].getText();
+            if (suffix && fullText.endsWith(suffix)) {
+                return fullText.substring(0, fullText.length - suffix.length).trim();
+            }
+        }
+        return fullText.trim();
     }
 
-    getProjectIdentifier(displayName) {
-        let selector = XPATH.projectItemByDisplayName(displayName) + "//p[contains(@class,'sub-name')]";
-        return this.getText(selector)
+    // Looks up a project row by its display name and returns the identifier shown in <small>.
+    async getProjectIdentifier(displayName) {
+        const identifierLocator = XPATH.settingsTreeListDataComponent +
+                                  TREE_GRID.itemByDisplayName(displayName) +
+                                  TREE_GRID.PROJECT_LABEL_IDENTIFIER_SMALL;
+        await this.waitForElementDisplayed(identifierLocator, appConst.mediumTimeout);
+        return await this.getText(identifierLocator);
     }
 
     async clickOnCloseIcon(displayName) {

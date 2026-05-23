@@ -1,12 +1,12 @@
 /**
  * Created on 05.08.2022
  */
-const lib = require('../../../libs/elements');
+const {BUTTONS} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const ProjectWizardDialog = require('./project.wizard.dialog');
 
 const XPATH = {
-    container: "//div[contains(@id,'ProjectWizardDialog')]",
+    container: "//div[@role='dialog' and descendant::h2[contains(.,'Summary')]]",
     createProjectButton: "//button[contains(@id,'DialogButton') and child::span[text()='Create Project']]",
     projectNameXpath: "//div[contains(@id,'SummaryNameContainer') and child::h6[text()='Project name/id']]/following-sibling::div[contains(@id,'SummaryValueContainer')]/h6",
     accessModeValueXpath: "//div[contains(@id,'SummaryNameContainer') and child::h6[text()='Access mode']]/following-sibling::div[contains(@id,'AccessValueContainer')]/h6",
@@ -35,12 +35,20 @@ class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {
     }
 
     get createProjectButton() {
-        return XPATH.container + XPATH.createProjectButton;
+        return XPATH.container + BUTTONS.buttonAriaLabel('Create Project');
     }
 
+    get updateProjectButton() {
+        return XPATH.container + BUTTONS.buttonAriaLabel('Update Project');
+    }
     async clickOnCreateProjectButton() {
-        await this.waitForElementDisplayed(this.createProjectButton, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.createProjectButton);
         await this.clickOnElement(this.createProjectButton);
+    }
+
+    async clickOnUpdateProjectButton() {
+        await this.waitForElementDisplayed(this.updateProjectButton);
+        await this.clickOnElement(this.updateProjectButton);
     }
 
     async getAccessMode() {
@@ -84,10 +92,11 @@ class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {
     }
 
     async waitForLoaded() {
-        await this.getBrowser().waitUntil(async () => {
-            let actualDescription = await this.getStepDescription();
-            return actualDescription.includes(DESCRIPTION);
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Project Wizard Dialog, step 6 is not loaded"});
+        try {
+            await this.waitForElementDisplayed(XPATH.container);
+        } catch (err) {
+            await this.handleError("Project Wizard Dialog, Summary step was not loaded", 'err_name_step', err);
+        }
     }
 }
 

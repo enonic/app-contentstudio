@@ -5,9 +5,10 @@ const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const ProjectsComboBox = require('../../components/projects/projects.combobox');
 const ProjectWizardDialog = require('./project.wizard.dialog');
+const LocaleSelectorDropdown = require("../../components/selectors/locale.selector.dropdown");
 
 const XPATH = {
-    container: "//div[@role='dialog' and descendant::h2[contains(.,'Optional content layering')]]",
+    container: "//div[@role='dialog' and descendant::h2[contains(.,'Language and content layering')]]",
     projectSelectedOptionView: "//div[contains(@id,'ProjectSelectedOptionView')]",
     parentProjectComboboxDiv: "//div[contains(@id,'ProjectsSelector')]",
 };
@@ -114,6 +115,16 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
 
     async isSelectedParentProjectDisplayed() {
         return this.isElementDisplayed(XPATH.container + XPATH.projectSelectedOptionView);
+    }
+
+    async selectLanguage(language) {
+        if (!language) {
+            return;
+        }
+        let localeSelectorDropdown = new LocaleSelectorDropdown(XPATH.container);
+        await localeSelectorDropdown.clickOnFilteredLanguage(language);
+        console.log('Project Wizard, language is selected: ' + language);
+        return await this.pause(300);
     }
 }
 
