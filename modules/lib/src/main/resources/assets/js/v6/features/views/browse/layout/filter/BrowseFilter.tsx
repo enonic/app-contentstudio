@@ -7,7 +7,9 @@ import {Download} from 'lucide-react';
 import {useEffect, useMemo, useRef} from 'react';
 import {
     $contentFilterState,
+    $isContentFilterDirty,
     $isContentFilterOpen,
+    resetContentFilter,
     setContentFilterSelection,
     setContentFilterValue
 } from '../../../../store/contentFilter.store';
@@ -35,17 +37,25 @@ export const BrowseFilter = ({
     filterableAggregations,
     exportOptions,
 }: BrowseFilterProps): React.ReactElement => {
+    const {value, selection} = useStore($contentFilterState);
+    const isFilterDirty = useStore($isContentFilterDirty);
+    const isOpen = useStore($isContentFilterOpen);
+
+    const inputRef = useRef<HTMLInputElement>(null);
+
     const searchPlaceholder = useI18n('field.option.placeholder');
+    const searchLabel = useI18n('panel.filter.search');
+    const clearLabel = useI18n('panel.filter.clear');
+    const exportFallbackLabel = useI18n('action.export');
+    const resultsLabel = useI18n('field.search.results', hits);
 
     const exportAction = exportOptions?.action;
-    const exportLabel = exportOptions?.label || useI18n('action.export');
-    const inputRef = useRef<HTMLInputElement>(null);
+    const exportLabel = exportOptions?.label ?? exportFallbackLabel;
 
     const nonEmptyAggregations = useMemo(
         () => bucketAggregations.filter(ba => ba.getBuckets().some(b => b.getDocCount() > 0)),
         [bucketAggregations]
     );
-    const {value, selection} = useStore($contentFilterState);
 
     const getBucketSelection = (ba: BucketAggregation) => selection.find(s => s.getName() === ba.getName())?.getSelectedBuckets() ?? [];
     const onBucketSelectionChange = (aggregationName: string, buckets: Bucket[]) => {
@@ -60,7 +70,6 @@ export const BrowseFilter = ({
         setContentFilterSelection(newSelection);
     }
 
-    const isOpen = useStore($isContentFilterOpen);
     useEffect(() => {
         if (isOpen) {
             inputRef.current?.focus();
@@ -69,6 +78,19 @@ export const BrowseFilter = ({
 
     return (
         <div className='bg-surface-neutral'>
+            <div className='flex justify-between items-center gap-2.5 mb-2 min-h-9'>
+                <h3 className='font-semibold'>{searchLabel}</h3>
+                {isFilterDirty && (
+                    <Button
+                        size='sm'
+                        variant='text'
+                        label={clearLabel}
+                        className='underline underline-offset-4'
+                        onClick={resetContentFilter}
+                    />
+                )}
+            </div>
+
             <SearchField.Root className='h-11.5' id='SearchInput' placeholder={searchPlaceholder} value={value} onChange={setContentFilterValue}>
                 <SearchField.Input ref={inputRef}/>
                 <SearchField.Clear />
@@ -76,7 +98,7 @@ export const BrowseFilter = ({
 
             <div className='flex mt-2 mb-7.5 items-center'>
                 <div className='grow'>
-                    <span className='text-lg pl-4.5 pr-4.5'>{useI18n('field.search.results', hits)}</span>
+                    <span className='text-lg pl-4.5 pr-4.5'>{resultsLabel}</span>
                 </div>
                 {
                     exportAction && hits > 0 &&
