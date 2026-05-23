@@ -90,6 +90,12 @@ export class ContentUrlHelper {
         }
     }
 
+    static openEditContentInCurrentTab(data: ContentId | ContentEditParams): void {
+        const params: ContentEditParams = data instanceof ContentEditParams ? data : ContentEditParams.create(data).build();
+        const url: string = ContentUrlHelper.generateEditContentUrl(params);
+        window.location.assign(url);
+    }
+
     static generateEditContentUrl(data: ContentId | ContentEditParams): string {
         const params: ContentEditParams = data instanceof ContentEditParams ? data : ContentEditParams.create(data).build();
         const urlParams: string = this.makeUrlParamsString(this.makeEditParams(params));
