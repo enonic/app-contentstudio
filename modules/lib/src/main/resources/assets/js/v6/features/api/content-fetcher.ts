@@ -8,6 +8,7 @@ import {ContentSummaryAndCompareStatusFetcher} from '../../../app/resource/Conte
 import {ListContentByIdRequest} from '../../../app/resource/ListContentByIdRequest';
 import {type ChildOrder} from '../../../app/resource/order/ChildOrder';
 import {Branch} from '../../../app/versioning/Branch';
+import {$activeProject} from '../store/activeProject.store';
 import {setContents, getMissingIds, getContents, getIdByPath} from '../store/content.store';
 import {$contentDuplicated, $contentMoved} from '../store/socket.store';
 import {
@@ -27,6 +28,18 @@ import type {CreateNodeOptions} from '../lib/tree-store';
 import {calcContentState} from '../utils/cms/content/workflow';
 import {calcTreePublishStatus} from '../utils/cms/content/status';
 import {resolveDisplayName, resolveSubName} from '../utils/cms/content/prettify';
+
+// Snapshot the active project at request start; gate tree writes against it
+// after each await so a project switch cannot land stale data on the new tree.
+// Cache writes stay safe because they target the captured partition.
+function captureActiveProjectName(): string | undefined {
+    return $activeProject.get()?.getName();
+}
+
+function isProjectStale(captured: string | undefined): boolean {
+    if (captured == null) return false;
+    return $activeProject.get()?.getName() !== captured;
+}
 
 //
 // * Constants
@@ -148,7 +161,8 @@ export async function fetchChildren(
     size: number = DEFAULT_BATCH_SIZE,
     childOrder?: ChildOrder
 ): Promise<FetchChildrenResult> {
-    // Set loading state
+    const projectName = captureActiveProjectName();
+
     setNodeLoading(parentId, true);
 
     try {
@@ -164,29 +178,25 @@ export async function fetchChildren(
         const total = metadata.getTotalHits();
         const hasMore = offset + summaries.length < total;
 
-        // Update readonly status
         await fetcher.updateReadOnly(summaries);
 
-        // Update content cache
-        setContents(summaries);
+        setContents(summaries, projectName);
 
-        // Create tree nodes
+        if (isProjectStale(projectName)) {
+            return {ids: [], hasMore: false, total: 0};
+        }
+
         const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map((content) => toNodeOptions(content, parentId));
-
-        // Update tree
         addTreeNodes(nodeOptions);
 
         const childIds = summaries.map((c) => c.getId());
 
         if (offset === 0) {
-            // First batch - set children
             setTreeChildren(parentId, childIds);
         } else {
-            // Pagination - append children
             appendTreeChildren(parentId, childIds);
         }
 
-        // Update totalChildren for pagination
         if (parentId) {
             setNodeTotalChildren(parentId, total);
         } else {
@@ -242,12 +252,12 @@ export async function fetchFilteredRootChildren(
     offset: number = 0,
     size: number = DEFAULT_BATCH_SIZE
 ): Promise<FetchChildrenResult> {
+    const projectName = captureActiveProjectName();
+
     setNodeLoading(null, true);
 
     try {
         const configuredQuery = configureContentQuery(query, offset, size);
-
-        // Execute query
         const request = new ContentQueryRequest<ContentSummaryJson, ContentSummary>(configuredQuery)
             .setTargetBranch(Branch.DRAFT)
             .setExpand(Expand.SUMMARY);
@@ -258,15 +268,16 @@ export async function fetchFilteredRootChildren(
         const total = metadata.getTotalHits();
         const hasMore = offset + summaries.length < total;
 
-        // Update readonly status
         await fetcher.updateReadOnly(summaries);
 
-        // Update content cache
-        setContents(summaries);
+        setContents(summaries, projectName);
 
-        // Create tree nodes (all as root since it's a flat query result)
+        if (isProjectStale(projectName)) {
+            return {ids: [], hasMore: false, total: 0};
+        }
+
+        // Flat query result, every item is at root level.
         const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map((content) => toNodeOptions(content, null));
-
         addTreeNodes(nodeOptions);
 
         const childIds = summaries.map((c) => c.getId());
@@ -277,7 +288,6 @@ export async function fetchFilteredRootChildren(
             appendTreeChildren(null, childIds);
         }
 
-        // Update root total children for pagination
         setRootTotalChildren(total);
 
         return {ids: childIds, hasMore, total};
@@ -296,19 +306,21 @@ export async function fetchFilteredRootChildren(
 export async function fetchContentByIds(ids: string[]): Promise<ContentSummary[]> {
     if (ids.length === 0) return [];
 
+    const projectName = captureActiveProjectName();
+
     // Check what's missing from cache
-    const missingIds = getMissingIds(ids);
+    const missingIds = getMissingIds(ids, projectName);
 
     // Fetch missing content
     if (missingIds.length > 0) {
         const contentIds = missingIds.map((id) => new ContentId(id));
         const fetched = await fetcher.fetchByIds(contentIds);
         await fetcher.updateReadOnly(fetched);
-        setContents(fetched);
+        setContents(fetched, projectName);
     }
 
     // Return all requested content from cache
-    return getContents(ids);
+    return getContents(ids, projectName);
 }
 
 /**
@@ -316,24 +328,28 @@ export async function fetchContentByIds(ids: string[]): Promise<ContentSummary[]
  * Useful for prefetching visible nodes.
  */
 export async function fetchMissingContent(ids: string[]): Promise<void> {
-    const missingIds = getMissingIds(ids);
+    const projectName = captureActiveProjectName();
+
+    const missingIds = getMissingIds(ids, projectName);
     if (missingIds.length === 0) return;
 
     const contentIds = missingIds.map((id) => new ContentId(id));
     const fetched = await fetcher.fetchByIds(contentIds);
     await fetcher.updateReadOnly(fetched);
-    setContents(fetched);
+    setContents(fetched, projectName);
 }
 
 /**
  * Force refreshes a single content item in the cache.
  */
 export async function refreshContent(id: string): Promise<ContentSummary | undefined> {
+    const projectName = captureActiveProjectName();
+
     const contentId = new ContentId(id);
     const summaries = await fetcher.fetchByIds([contentId]);
     if (summaries.length > 0) {
         await fetcher.updateReadOnly(summaries);
-        setContents(summaries);
+        setContents(summaries, projectName);
         return summaries[0];
     }
     return undefined;
@@ -345,10 +361,12 @@ export async function refreshContent(id: string): Promise<ContentSummary | undef
 export async function refreshContents(ids: string[]): Promise<ContentSummary[]> {
     if (ids.length === 0) return [];
 
+    const projectName = captureActiveProjectName();
+
     const contentIds = ids.map((id) => new ContentId(id));
     const summaries = await fetcher.fetchByIds(contentIds);
     await fetcher.updateReadOnly(summaries);
-    setContents(summaries);
+    setContents(summaries, projectName);
     return summaries;
 }
 
@@ -385,6 +403,7 @@ export async function fetchChildrenIdsOnly(
     parentId: string | null,
     childOrder?: ChildOrder
 ): Promise<string[]> {
+    const projectName = captureActiveProjectName();
     const state = $treeState.get();
 
     if (parentId === null) {
@@ -407,6 +426,8 @@ export async function fetchChildrenIdsOnly(
 
         // Convert ContentId[] to string[]
         const idStrings = ids.map((id) => id.toString());
+
+        if (isProjectStale(projectName)) return [];
 
         // Create placeholder nodes (no data yet)
         const placeholderNodes: CreateNodeOptions<ContentTreeNodeData>[] = idStrings.map((id) => ({
@@ -676,6 +697,7 @@ export function resetVisibleFilterContentDataRetryState(): void {
  * @param ids - Content IDs to fetch data for
  */
 export async function fetchVisibleContentData(ids: string[]): Promise<void> {
+    const projectName = captureActiveProjectName();
     const state = $treeState.get();
 
     // Filter to IDs that need tree node update:
@@ -695,10 +717,10 @@ export async function fetchVisibleContentData(ids: string[]): Promise<void> {
     if (idsNeedingUpdate.length === 0) return;
 
     // Check content cache - separate cached vs uncached
-    const cachedContents = getContents(idsNeedingUpdate);
+    const cachedContents = getContents(idsNeedingUpdate, projectName);
     const cachedIds = new Set(cachedContents.map((c) => c.getId()));
 
-    // Update tree nodes with cached content immediately (no fetch needed)
+    // Sync path before any await — no project staleness possible here.
     if (cachedContents.length > 0) {
         updateTreeNodesWithData(cachedContents);
         clearBatchFailure(visibleDataBatchState, visibleDataFailedIds, cachedContents.map((c) => c.getId()));
@@ -724,8 +746,11 @@ export async function fetchVisibleContentData(ids: string[]): Promise<void> {
                 const fetchedIds = new Set(summaries.map((content) => content.getId()));
                 const unresolvedIds = batch.filter((id) => !fetchedIds.has(id));
 
-                // Update content cache
-                setContents(summaries);
+                setContents(summaries, projectName);
+
+                // Project switched — drop this and remaining batches; the new
+                // project's loader will fetch its own.
+                if (isProjectStale(projectName)) return;
 
                 // Update tree node data
                 updateTreeNodesWithData(summaries);
@@ -846,6 +871,8 @@ async function fetchFilteredContentForFilterTree(
     offset: number,
     size: number
 ): Promise<FetchChildrenResult> {
+    const projectName = captureActiveProjectName();
+
     const configuredQuery = configureContentQuery(query, offset, size);
 
     // Execute query
@@ -862,8 +889,11 @@ async function fetchFilteredContentForFilterTree(
     // Update readonly status
     await fetcher.updateReadOnly(summaries);
 
-    // Update content cache
-    setContents(summaries);
+    setContents(summaries, projectName);
+
+    if (isProjectStale(projectName)) {
+        return {ids: [], hasMore: false, total: 0};
+    }
 
     // Create filter tree nodes (all as root since it's a flat query result)
     const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map((content) => toNodeOptions(content, null));
@@ -921,6 +951,7 @@ export async function fetchMoreFilteredResults(
  * @param ids - Content IDs to fetch data for
  */
 export async function fetchVisibleFilterContentData(ids: string[]): Promise<void> {
+    const projectName = captureActiveProjectName();
     const state = $filterTreeState.get();
 
     // Filter to IDs that need tree node update:
@@ -940,10 +971,11 @@ export async function fetchVisibleFilterContentData(ids: string[]): Promise<void
     if (idsNeedingUpdate.length === 0) return;
 
     // Check content cache - separate cached vs uncached
-    const cachedContents = getContents(idsNeedingUpdate);
+    const cachedContents = getContents(idsNeedingUpdate, projectName);
     const cachedIds = new Set(cachedContents.map((c) => c.getId()));
 
-    // Update filter tree nodes with cached content immediately (no fetch needed)
+    // Update filter tree nodes with cached content immediately (no fetch needed).
+    // Synchronous, no await — no staleness check needed.
     if (cachedContents.length > 0) {
         const updates: CreateNodeOptions<ContentTreeNodeData>[] = cachedContents.map((content) => ({
             id: content.getId(),
@@ -975,8 +1007,9 @@ export async function fetchVisibleFilterContentData(ids: string[]): Promise<void
                 const fetchedIds = new Set(summaries.map((content) => content.getId()));
                 const unresolvedIds = batch.filter((id) => !fetchedIds.has(id));
 
-                // Update content cache
-                setContents(summaries);
+                setContents(summaries, projectName);
+
+                if (isProjectStale(projectName)) return;
 
                 // Update filter tree node data
                 const updates: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map((content) => ({
@@ -1018,6 +1051,7 @@ export async function fetchFilterChildrenIdsOnly(
     parentId: string,
     childOrder?: ChildOrder
 ): Promise<string[]> {
+    const projectName = captureActiveProjectName();
     const state = $filterTreeState.get();
     const parent = state.nodes.get(parentId);
 
@@ -1034,6 +1068,8 @@ export async function fetchFilterChildrenIdsOnly(
 
         // Convert ContentId[] to string[]
         const idStrings = ids.map((id) => id.toString());
+
+        if (isProjectStale(projectName)) return [];
 
         // Create placeholder nodes (no data yet)
         const placeholderNodes: CreateNodeOptions<ContentTreeNodeData>[] = idStrings.map((id) => ({

@@ -1,7 +1,9 @@
 import {describe, it, expect, beforeEach, afterEach, vi} from 'vitest';
 import type {ContentSummary} from '../../../app/content/ContentSummary';
-import {clearContentCache, getContent, hasContent, setContent, getMissingIds} from '../store/content.store';
-import {addTreeNodes, resetTree, setTreeRootIds, $treeState} from '../store/tree-list.store';
+import {clearAllContentCaches, clearProjectContentCache, getContent, hasContent, setContent, getMissingIds} from '../store/content.store';
+import {$activeProject} from '../store/activeProject.store';
+import type {Project} from '../../../app/settings/data/project/Project';
+import {addTreeNodes, hasTreeNode, resetTree, setTreeRootIds, $treeState} from '../store/tree-list.store';
 import {addFilterNodes, resetFilterTree, setFilterRootIds, $filterTreeState} from '../store/filter-tree.store';
 import {
     clearChildrenIdsRetryCooldown,
@@ -77,9 +79,10 @@ function createMockContent(id: string, displayName?: string): ContentSummary {
 
 describe('content-fetcher store integration', () => {
     beforeEach(() => {
+        $activeProject.set({getName: () => 'default'} as unknown as Project);
         resetTree();
         resetFilterTree();
-        clearContentCache();
+        clearAllContentCaches();
         mockFetchByIds.mockReset();
         mockUpdateReadOnly.mockReset().mockImplementation((items: unknown[]) => Promise.resolve(items));
         mockFetchChildrenIds.mockReset();
@@ -91,6 +94,7 @@ describe('content-fetcher store integration', () => {
     });
 
     afterEach(() => {
+        $activeProject.set(undefined);
         vi.useRealTimers();
     });
 
@@ -157,11 +161,11 @@ describe('content-fetcher store integration', () => {
             expect(getContent('1')?.getDisplayName()).toBe('Updated');
         });
 
-        it('clearContentCache removes all content', () => {
+        it('clearProjectContentCache removes content of the active project', () => {
             setContent(createMockContent('1'));
             setContent(createMockContent('2'));
 
-            clearContentCache();
+            clearProjectContentCache();
 
             expect(hasContent('1')).toBe(false);
             expect(hasContent('2')).toBe(false);
@@ -457,6 +461,82 @@ describe('content-fetcher store integration', () => {
             mockFetchChildrenIds.mockResolvedValue([{toString: () => 'child-filter-ok'}]);
             await expect(fetchFilterChildrenIdsOnly('parent-filter-3x')).resolves.toEqual(['child-filter-ok']);
             expect(isFilterChildrenIdsLoadFailed('parent-filter-3x')).toBe(false);
+        });
+    });
+
+    describe('project-switch race protection', () => {
+        const projectA = {getName: () => 'projectA'} as unknown as Project;
+        const projectB = {getName: () => 'projectB'} as unknown as Project;
+
+        it('fetchVisibleContentData: stale response writes to source partition but not the new tree', async () => {
+            $activeProject.set(projectA);
+            addTreeNodes([{id: 'race-1', data: null, parentId: null, hasChildren: false}]);
+            setTreeRootIds(['race-1']);
+
+            let resolveFetch!: (value: ContentSummary[]) => void;
+            mockFetchByIds.mockImplementation(
+                () => new Promise<ContentSummary[]>((resolve) => {
+                    resolveFetch = resolve;
+                }),
+            );
+
+            const pending = fetchVisibleContentData(['race-1']);
+
+            // User switches mid-flight: tree resets, $activeProject moves to B.
+            $activeProject.set(projectB);
+            resetTree();
+
+            // The slow response for project A arrives.
+            resolveFetch([createMockContent('race-1', 'A version')]);
+            await pending;
+
+            // Project B's tree must not have absorbed A's response.
+            expect(hasTreeNode('race-1')).toBe(false);
+
+            // But A's partition gets the data — useful when the user returns to A.
+            expect(getContent('race-1', 'projectA')?.getDisplayName()).toBe('A version');
+            // And B's partition stays clean.
+            expect(getContent('race-1', 'projectB')).toBeUndefined();
+        });
+
+        it('fetchChildrenIdsOnly: stale response does not seed the new tree', async () => {
+            $activeProject.set(projectA);
+
+            let resolveIds!: (value: {toString: () => string}[]) => void;
+            mockFetchChildrenIds.mockImplementation(
+                () => new Promise<{toString: () => string}[]>((resolve) => {
+                    resolveIds = resolve;
+                }),
+            );
+
+            const pending = fetchRootChildrenIdsOnly();
+
+            // Switch projects before the IDs land.
+            $activeProject.set(projectB);
+            resetTree();
+
+            resolveIds([{toString: () => 'stale-root-1'}, {toString: () => 'stale-root-2'}]);
+            const result = await pending;
+
+            // Helper returns an empty list on stale; new tree stays empty.
+            expect(result).toEqual([]);
+            expect($treeState.get().rootIds).toEqual([]);
+            expect(hasTreeNode('stale-root-1')).toBe(false);
+        });
+
+        it('does not gate when no project was captured at request start', async () => {
+            // No active project at capture time: skip the staleness check entirely.
+            $activeProject.set(undefined);
+            addTreeNodes([{id: 'no-capture', data: null, parentId: null, hasChildren: false}]);
+            setTreeRootIds(['no-capture']);
+
+            mockFetchByIds.mockResolvedValue([createMockContent('no-capture', 'still-fetched')]);
+
+            await fetchVisibleContentData(['no-capture']);
+
+            // Tree still updates because there was no project to be stale against.
+            const node = $treeState.get().nodes.get('no-capture');
+            expect(node?.data).not.toBeNull();
         });
     });
 });

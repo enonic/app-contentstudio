@@ -5,7 +5,8 @@ import {
     setContents,
     removeContent,
     removeContents,
-    clearContentCache,
+    clearAllContentCaches,
+    clearProjectContentCache,
     getContent,
     getContents,
     hasContent,
@@ -13,6 +14,7 @@ import {
     getAllContentIds,
     getIdByPath,
 } from './content.store';
+import {$activeProject} from './activeProject.store';
 import {
     emitContentUpdated,
     emitContentCreated,
@@ -21,6 +23,13 @@ import {
     emitContentPublished,
 } from './socket.store';
 import type {ContentSummary} from '../../../app/content/ContentSummary';
+import type {Project} from '../../../app/settings/data/project/Project';
+
+const DEFAULT_TEST_PROJECT = 'default';
+
+function mockProject(name: string): Project {
+    return {getName: () => name} as unknown as Project;
+}
 
 // Mock ContentSummary
 function createMockContent(id: string, displayName?: string): ContentSummary {
@@ -64,7 +73,12 @@ function createMockChangeItem(id: string): {getContentId: () => {toString: () =>
 
 describe('content.store', () => {
     beforeEach(() => {
-        clearContentCache();
+        $activeProject.set(mockProject(DEFAULT_TEST_PROJECT));
+        clearAllContentCaches();
+    });
+
+    afterEach(() => {
+        $activeProject.set(undefined);
     });
 
     describe('setContent', () => {
@@ -146,11 +160,11 @@ describe('content.store', () => {
         });
     });
 
-    describe('clearContentCache', () => {
+    describe('clearProjectContentCache', () => {
         it('removes all content from cache', () => {
             setContents([createMockContent('1'), createMockContent('2')]);
 
-            clearContentCache();
+            clearProjectContentCache();
 
             expect(getAllContentIds()).toEqual([]);
         });
@@ -246,7 +260,7 @@ describe('content.store', () => {
     // They persist for the application lifetime and don't need explicit subscription.
     describe('socket subscriptions (self-initializing)', () => {
         afterEach(() => {
-            clearContentCache();
+            clearAllContentCaches();
         });
 
         it('updates cache on contentUpdated event', () => {
@@ -372,18 +386,90 @@ describe('content.store', () => {
             });
         });
 
-        describe('clearContentCache clears path index', () => {
+        describe('clearProjectContentCache clears path index', () => {
             it('clears path index when cache is cleared', () => {
                 setContents([
                     createMockContentWithPath('1', '/content/site'),
                     createMockContentWithPath('2', '/content/folder'),
                 ]);
 
-                clearContentCache();
+                clearProjectContentCache();
 
                 expect(getIdByPath('/content/site')).toBeUndefined();
                 expect(getIdByPath('/content/folder')).toBeUndefined();
             });
+        });
+    });
+
+    describe('project partitioning', () => {
+        // Synchronous isolation only. Async race-protection (a fetch started in
+        // project A whose response arrives after a switch to B) is exercised in
+        // content-fetcher.test.ts under 'project-switch race protection'.
+        it('partitions content storage by project name (sync writes)', () => {
+            $activeProject.set(mockProject('projectA'));
+            setContent(createMockContent('shared-id', 'A version'));
+
+            $activeProject.set(mockProject('projectB'));
+            expect(getContent('shared-id')).toBeUndefined();
+            expect(hasContent('shared-id')).toBe(false);
+
+            setContent(createMockContent('shared-id', 'B version'));
+            expect(getContent('shared-id')?.getDisplayName()).toBe('B version');
+
+            $activeProject.set(mockProject('projectA'));
+            expect(getContent('shared-id')?.getDisplayName()).toBe('A version');
+        });
+
+        it('keeps path index separate per project', () => {
+            $activeProject.set(mockProject('projectA'));
+            setContent(createMockContentWithPath('a1', '/content/site'));
+
+            $activeProject.set(mockProject('projectB'));
+            expect(getIdByPath('/content/site')).toBeUndefined();
+
+            setContent(createMockContentWithPath('b1', '/content/site'));
+            expect(getIdByPath('/content/site')).toBe('b1');
+
+            $activeProject.set(mockProject('projectA'));
+            expect(getIdByPath('/content/site')).toBe('a1');
+        });
+
+        it('writes accept an explicit projectName, bypassing the active project', () => {
+            $activeProject.set(mockProject('projectA'));
+            setContents([createMockContent('x', 'from-B')], 'projectB');
+
+            expect(getContent('x')).toBeUndefined();
+            expect(getContent('x', 'projectB')?.getDisplayName()).toBe('from-B');
+        });
+
+        it('clearProjectContentCache(name) wipes only that project', () => {
+            $activeProject.set(mockProject('projectA'));
+            setContent(createMockContent('a1'));
+            $activeProject.set(mockProject('projectB'));
+            setContent(createMockContent('b1'));
+
+            clearProjectContentCache('projectA');
+
+            expect(getContent('a1', 'projectA')).toBeUndefined();
+            expect(getContent('b1', 'projectB')?.getId()).toBe('b1');
+        });
+
+        it('no-ops writes when there is no active project and no override', () => {
+            $activeProject.set(undefined);
+            setContent(createMockContent('orphan'));
+
+            $activeProject.set(mockProject(DEFAULT_TEST_PROJECT));
+            expect(hasContent('orphan')).toBe(false);
+        });
+
+        it('$contentCache exposes the active project slice reactively', () => {
+            $activeProject.set(mockProject('projectA'));
+            setContent(createMockContent('a1'));
+
+            expect($contentCache.get()['a1']?.getId()).toBe('a1');
+
+            $activeProject.set(mockProject('projectB'));
+            expect($contentCache.get()['a1']).toBeUndefined();
         });
     });
 });
