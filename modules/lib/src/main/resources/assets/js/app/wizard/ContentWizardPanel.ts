@@ -2070,6 +2070,14 @@ export class ContentWizardPanel
     * Callback after local save of content
     * */
     postUpdatePersistedItem(persistedItem: Content): Q.Promise<Content> {
+        this.wizardActions.setContentCanBeMarkedAsReady(
+            this.isValid() && persistedItem.getWorkflow().getState() !== WorkflowState.READY);
+
+        if (this.wizardFormUpdatedDuringSave && this.persistedCompareStatus === CompareStatus.EQUAL) {
+            this.persistedCompareStatus = CompareStatus.NEWER;
+            this.currentCompareStatus = CompareStatus.NEWER;
+        }
+
         // set the new property set to the form so that we receive change events
         // should happen before resetWizard which clears dirty state on inputs
         const currentContent = this.getCurrentItem();
@@ -2089,6 +2097,7 @@ export class ContentWizardPanel
 
         return this.generateDataAndXDataAfterLayout(persistedItem).then((data) => {
             this.contentAfterLayout = persistedItem.newBuilder().setData(data.data).setExtraData(data.xData).build();
+            this.workflowStateManager.update();
             return Q.resolve(persistedItem);
         });
     }

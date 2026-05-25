@@ -40,7 +40,7 @@ export abstract class BasePublishAction
                     }
                 }).catch((reason) => {
                     DefaultErrorHandler.handle(reason);
-                }).finally(() => this.setEnabled(true)).done();
+                }).finally(() => this.config.wizard.getWizardActions().refreshState()).done();
 
             } else {
                 this.firePromptEvent();
