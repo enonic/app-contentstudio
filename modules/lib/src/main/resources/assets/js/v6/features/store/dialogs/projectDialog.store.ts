@@ -27,7 +27,8 @@ import {ProjectCreatedEvent} from '../../../../app/settings/event/ProjectCreated
 import {ProjectUpdatedEvent} from '../../../../app/settings/event/ProjectUpdatedEvent';
 import {clearSelection, setActive} from '../settingsTreeSelection.store';
 import {$settingsTreeState, resetSettingsTreeForReload} from '../settings-tree.store';
-import {reloadProjects} from '../projects.store';
+import {$projects, reloadProjects} from '../projects.store';
+import {setProjectSelectionDialogOpen} from '../dialogs.store';
 
 //
 // * Store State
@@ -247,6 +248,13 @@ export const closeProjectDialog = (): void => {
     $initialParentNames.set([]);
     $confirmedAccessMode.set(undefined);
     $projectDialog.set(structuredClone(initialState));
+};
+
+export const cancelProjectDialog = (): void => {
+    closeProjectDialog();
+    if ($projects.get().activeProjectId == null) {
+        setProjectSelectionDialogOpen(true);
+    }
 };
 
 export const setProjectDialogView = (view: ProjectDialogStore['view']): void => {
