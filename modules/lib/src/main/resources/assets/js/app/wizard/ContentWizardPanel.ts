@@ -2095,11 +2095,15 @@ export class ContentWizardPanel
         this.xDataWizardStepForms.validate();
         this.displayValidationErrors(!this.isValid());
 
-        return this.generateDataAndXDataAfterLayout(persistedItem).then((data) => {
-            this.contentAfterLayout = persistedItem.newBuilder().setData(data.data).setExtraData(data.xData).build();
-            this.workflowStateManager.update();
-            return Q.resolve(persistedItem);
+        const filteredXData: ExtraData[] = [];
+        this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
+            if (!form.isOptional() || form.isEnabled()) {
+                filteredXData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), form.getData().copy()));
+            }
         });
+        this.contentAfterLayout = persistedItem.newBuilder().setExtraData(filteredXData).build();
+        this.notifyDataChanged();
+        return Q.resolve(persistedItem);
     }
 
     private showFeedbackContentSaved(content: Content, wasInherited: boolean = false) {
