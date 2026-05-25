@@ -55,8 +55,9 @@ export class ContextSplitPanel
         this.dockedContextPanel.onAdded(this.renderAfterDockedPanelReady.bind(this));
 
         InspectEvent.on((event: InspectEvent) => {
-            if(event.isSetWidget()) {
-                this.contextView.setActiveExtensionByType(event.getWidgetType());
+            const widgetName = event.getWidgetName();
+            if (widgetName !== undefined) {
+                this.contextView.setActiveExtensionByName(widgetName, event.getWidgetApplicationKey());
             }
             if (event.isShowPanel() && this.isRendered() && !this.isExpanded()) {
                 this.showContextPanel();

@@ -92,7 +92,7 @@ export class PageEditorContextController implements PageNavigationHandler {
     }
 
     private deactivatePageEditor(): void {
-        const wasPageEditorActive = this.pageEditorWidget.compareByType(this.contextView.getActiveExtension());
+        const wasPageEditorActive = this.pageEditorWidget.isSameAs(this.contextView.getActiveExtension());
 
         this.contextView.setDefaultWidget(this.fallbackWidget);
         this.pageEditorIsDefault = false;
