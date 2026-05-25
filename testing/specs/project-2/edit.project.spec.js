@@ -27,7 +27,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('proj');
     const PROJECT2_DISPLAY_NAME = studioUtils.generateRandomName('proj');
-    const TEST_DESCRIPTION = 'description';
+    const TEST_DESCRIPTION = 'test';
     const PROJ_IDENTIFIER = studioUtils.generateRandomName('id');
     const IMPORTED_SITE = 'site040269';
     const IMPORTED_PROJECT = 'Default';
