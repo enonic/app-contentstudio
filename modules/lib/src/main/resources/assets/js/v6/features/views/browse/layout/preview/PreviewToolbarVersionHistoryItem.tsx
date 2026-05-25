@@ -2,10 +2,10 @@ import {Button, Toolbar} from '@enonic/ui';
 import {History} from 'lucide-react';
 import type {ReactElement} from 'react';
 import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
-import {InspectEvent} from '../../../../../../app/event/InspectEvent';
-import {InternalExtensionType} from '../../../../../../app/view/context/ExtensionView';
+import {openContextWidget} from '../../../context/openContextWidget';
 import {useI18n} from '../../../../hooks/useI18n';
 import {calcSecondaryStatus, calcTreePublishStatus, createSecondaryStatusKey} from '../../../../utils/cms/content/status';
+import {VERSIONS_WIDGET_NAME} from '../../../../utils/widget/versions/versions';
 
 type PreviewToolbarVersionHistoryItemProps = {
     contentSummary: ContentSummary;
@@ -22,12 +22,7 @@ export function PreviewToolbarVersionHistoryItem({
     const buttonLabel = secondaryStatus ? secondaryStatusLabel : publishedLabel;
 
     const handleShowVersionHistory = () => {
-        InspectEvent.create()
-            .setWidgetType(InternalExtensionType.HISTORY)
-            .setShowExtension(true)
-            .setShowPanel(true)
-            .build()
-            .fire();
+        openContextWidget(VERSIONS_WIDGET_NAME);
     };
 
     return (

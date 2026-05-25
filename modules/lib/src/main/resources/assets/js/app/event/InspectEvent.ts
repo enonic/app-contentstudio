@@ -1,10 +1,11 @@
 import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {Event} from '@enonic/lib-admin-ui/event/Event';
-import type {InternalExtensionType} from '../view/context/ExtensionView';
 import {type PageNavigationEventSource} from '../wizard/PageNavigationEventData';
 
 export class InspectEvent extends Event {
-    private readonly widgetType: InternalExtensionType;
+    private readonly widgetName: string | undefined;
+
+    private readonly widgetApplicationKey: string | undefined;
 
     private readonly showExtension: boolean;
 
@@ -16,13 +17,10 @@ export class InspectEvent extends Event {
         super();
 
         this.showExtension = builder.showExtension;
-        this.widgetType = builder.widgetType;
+        this.widgetName = builder.widgetName;
+        this.widgetApplicationKey = builder.widgetApplicationKey;
         this.showPanel = builder.showPanel;
         this.source = builder.source;
-    }
-
-    isSetWidget(): boolean {
-        return this.widgetType !== undefined;
     }
 
     isShowExtension(): boolean {
@@ -37,8 +35,12 @@ export class InspectEvent extends Event {
         return this.source;
     }
 
-    getWidgetType(): InternalExtensionType {
-        return this.widgetType;
+    getWidgetName(): string | undefined {
+        return this.widgetName;
+    }
+
+    getWidgetApplicationKey(): string | undefined {
+        return this.widgetApplicationKey;
     }
 
     static on(handler: (event: InspectEvent) => void) {
@@ -55,7 +57,9 @@ export class InspectEvent extends Event {
 }
 
 export class InspectEventBuilder {
-    widgetType: InternalExtensionType;
+    widgetName: string | undefined;
+
+    widgetApplicationKey: string | undefined;
 
     showExtension: boolean;
 
@@ -63,8 +67,9 @@ export class InspectEventBuilder {
 
     source: PageNavigationEventSource;
 
-    setWidgetType(value: InternalExtensionType): InspectEventBuilder {
-        this.widgetType = value;
+    setWidgetName(value: string, applicationKey?: string): InspectEventBuilder {
+        this.widgetName = value;
+        this.widgetApplicationKey = applicationKey;
         return this;
     }
 

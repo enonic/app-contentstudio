@@ -1,6 +1,6 @@
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {type Extension} from '@enonic/lib-admin-ui/extension/Extension';
+import {type Extension, type ExtensionDescriptorKey} from '@enonic/lib-admin-ui/extension/Extension';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import type {LucideIcon} from '@enonic/ui';
 import {default as Q} from 'q';
@@ -8,14 +8,6 @@ import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryA
 import {type ContextView} from './ContextView';
 import {ExtensionItemView, type ExtensionItemViewType} from './ExtensionItemView';
 import {isBlank} from '../../../v6/features/utils/format/isBlank';
-
-export enum InternalExtensionType {
-    INFO,
-    HISTORY,
-    DEPENDENCIES,
-    COMPONENTS,
-    LAYERS
-}
 
 export class ExtensionView
     extends DivEl {
@@ -38,8 +30,6 @@ export class ExtensionView
 
     private url: string = '';
 
-    private readonly type: InternalExtensionType;
-
     private content: ContentSummaryAndCompareStatus;
 
     private activationListeners: (() => void)[] = [];
@@ -58,7 +48,6 @@ export class ExtensionView
         this.extensionDescription = builder.extension?.getDescription() || builder.description || noDescription;
         this.extensionItemViews = builder.extensionItemViews;
         this.extension = builder.extension;
-        this.type = builder.type;
         if (!this.extensionItemViews.length) {
             this.createDefaultExtensionItemView();
         }
@@ -185,8 +174,20 @@ export class ExtensionView
         return this.extensionIcon;
     }
 
+    getDescriptorKey(): ExtensionDescriptorKey | null {
+        return this.extension ? this.extension.getDescriptorKey() : null;
+    }
+
     getExtensionKey(): string {
-        return this.extension ? this.extension.getDescriptorKey().toString() : null;
+        return this.getDescriptorKey()?.toString() ?? null;
+    }
+
+    getExtensionDescriptorName(): string | null {
+        return this.getDescriptorKey()?.getName() ?? null;
+    }
+
+    getExtensionApplicationKey(): string | null {
+        return this.getDescriptorKey()?.getApplicationKey().toString() ?? null;
     }
 
     getExtensionIconUrl(): string {
@@ -247,24 +248,14 @@ export class ExtensionView
         return this.contextView.getActiveExtension() === this;
     }
 
-    getType(): InternalExtensionType {
-        return this.type;
-    }
-
-    hasType(): boolean {
-        return this.type != null;
-    }
-
     hasKey(): boolean {
         return this.getExtensionKey() != null;
     }
 
-    compareByType(widgetView: ExtensionView): boolean {
-        return widgetView != null && (
-            this === widgetView ||
-                (this.getType() === widgetView.getType() && this.hasType() && widgetView.hasType()) ||
-            (this.getExtensionKey() === widgetView.getExtensionKey() && this.hasKey() && widgetView.hasKey())
-        );
+    isSameAs(widgetView: ExtensionView): boolean {
+        if (widgetView == null) return false;
+        if (this === widgetView) return true;
+        return this.hasKey() && widgetView.hasKey() && this.getExtensionKey() === widgetView.getExtensionKey();
     }
 
     private hasDynamicHeight(): boolean {
@@ -324,8 +315,6 @@ export class ExtensionViewBuilder {
 
     icon: LucideIcon;
 
-    type: InternalExtensionType;
-
     public setName(name: string): ExtensionViewBuilder {
         this.name = name;
         return this;
@@ -368,11 +357,6 @@ export class ExtensionViewBuilder {
 
     public setIcon(icon: LucideIcon) {
         this.icon = icon;
-        return this;
-    }
-
-    public setType(type: InternalExtensionType) {
-        this.type = type;
         return this;
     }
 
