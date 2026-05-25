@@ -21,6 +21,7 @@ import {
     setNodeLoading,
     resetTree,
     setNodeTotalChildren,
+    setRootTotalChildren,
     getTreeNode,
     hasTreeNode,
     isNodeExpanded,
@@ -607,6 +608,37 @@ describe('tree-list.store', () => {
                 const state = $treeState.get();
                 expect(state.rootIds).toContain('new-root');
                 expect(state.rootIds[0]).toBe('new-root'); // Prepended
+            });
+
+            it('adds root-level content when root is loaded but empty', () => {
+                // Setup: root has been loaded for an empty project. rootTotalChildren=0
+                // marks the empty state as verified (vs. undefined = not yet loaded).
+                setTreeRootIds([]);
+                setRootTotalChildren(0);
+
+                // Emit: first root-level content created
+                const rootContent = createMockContentWithParent('new-root', '/');
+                emitContentCreated([rootContent]);
+
+                // Assert: new item appears in the empty root
+                const state = $treeState.get();
+                expect(hasTreeNode('new-root')).toBe(true);
+                expect(state.rootIds).toEqual(['new-root']);
+            });
+
+            it('does not add root-level content when root has never been loaded', () => {
+                // Setup: tree was never loaded — rootTotalChildren stays undefined
+                // after resetTree() in beforeEach.
+                setTreeRootIds([]);
+
+                // Emit: root-level content created before initial root fetch
+                const rootContent = createMockContentWithParent('new-root', '/');
+                emitContentCreated([rootContent]);
+
+                // Assert: item is dropped to avoid polluting an unloaded tree;
+                // the upcoming root fetch will populate it.
+                expect(hasTreeNode('new-root')).toBe(false);
+                expect($treeState.get().rootIds).toEqual([]);
             });
 
             it('updates parent hasChildren when first child created', () => {

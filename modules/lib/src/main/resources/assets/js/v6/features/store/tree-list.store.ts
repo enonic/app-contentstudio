@@ -362,7 +362,9 @@ function addContentToTree(content: ContentSummary): void {
         if (parentId === null) {
             // If this content is not root-level, do not insert it as root.
             if (hasParentPath) return state;
-            if (state.rootIds.length === 0) return state;
+            // Skip only when the root has never been loaded; a verified-empty root
+            // (rootTotalChildren === 0) should still accept new root-level items.
+            if (state.rootIds.length === 0 && $rootTotalChildren.get() === undefined) return state;
         } else {
             const parent = state.nodes.get(parentId);
             if (!parent) return state;
