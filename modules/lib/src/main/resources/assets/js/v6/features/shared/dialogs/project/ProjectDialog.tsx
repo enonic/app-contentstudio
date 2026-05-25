@@ -6,7 +6,7 @@ import {
     $isProjectDialogAccessModeDirty,
     $isProjectDialogDirty,
     $projectDialog,
-    closeProjectDialog,
+    cancelProjectDialog,
     confirmProjectDialogAccessMode,
     createProject,
     revertProjectDialogAccessMode,
@@ -18,7 +18,7 @@ import {ConfirmationDialog} from '../ConfirmationDialog';
 import {ProjectDialogSteps} from './steps';
 import {ProgressDialogContent} from '../ProgressDialogContent';
 
-const NEW_PROJECT_DIALOG_NAME = 'ProjectDialog';
+const PROJECT_DIALOG_NAME = 'ProjectDialog';
 
 export const ProjectDialog = (): ReactElement => {
     const {
@@ -30,7 +30,9 @@ export const ProjectDialog = (): ReactElement => {
         nameData: {hasError},
         submitting,
         mode,
-    } = useStore($projectDialog, {keys: ['open', 'view', 'step', 'accessMode', 'readAccessProgress', 'nameData', 'submitting', 'mode']});
+    } = useStore($projectDialog, {
+        keys: ['open', 'view', 'step', 'accessMode', 'readAccessProgress', 'nameData', 'submitting', 'mode'],
+    });
 
     const isDirty = useStore($isProjectDialogDirty);
     const isProjectDialogAccessModeDirty = useStore($isProjectDialogAccessModeDirty);
@@ -62,7 +64,7 @@ export const ProjectDialog = (): ReactElement => {
                 ['step-application', applicationStepTitle],
                 ['step-summary', summaryStepTitle],
             ]),
-        [parentStepTitle, nameStepTitle, accessStepTitle, roleStepTitle, applicationStepTitle, summaryStepTitle]
+        [parentStepTitle, nameStepTitle, accessStepTitle, roleStepTitle, applicationStepTitle, summaryStepTitle],
     );
 
     // Handlers
@@ -80,9 +82,9 @@ export const ProjectDialog = (): ReactElement => {
                 return;
             }
 
-            closeProjectDialog();
+            cancelProjectDialog();
         },
-        [isDirty, view]
+        [isDirty, view],
     );
 
     const handleSubmit = useCallback(() => {
@@ -102,7 +104,7 @@ export const ProjectDialog = (): ReactElement => {
             }
             setProjectDialogStep(newStep);
         },
-        [step, isProjectDialogAccessModeDirty]
+        [step, isProjectDialogAccessModeDirty],
     );
 
     const handleAccessConfirm = useCallback(() => {
@@ -121,17 +123,14 @@ export const ProjectDialog = (): ReactElement => {
     }, []);
 
     return (
-        <Dialog.Root
-            data-component={NEW_PROJECT_DIALOG_NAME}
-            open={open}
-            onOpenChange={handleOpenChange}
-            step={step}
-            onStepChange={handleStepChange}
-        >
+        <Dialog.Root open={open} onOpenChange={handleOpenChange} step={step} onStepChange={handleStepChange}>
             <Dialog.Portal>
                 <Dialog.Overlay />
                 {view === 'main' && (
-                    <Dialog.Content className="w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220">
+                    <Dialog.Content
+                        className='w-full h-full gap-10 sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-220'
+                        data-component={PROJECT_DIALOG_NAME}
+                    >
                         <ProjectDialogSteps.ParentStep.Header />
                         <ProjectDialogSteps.NameStep.Header />
                         <ProjectDialogSteps.AccessStep.Header />
@@ -148,7 +147,7 @@ export const ProjectDialog = (): ReactElement => {
                             <ProjectDialogSteps.SummaryStep.Content locked={!accessMode || hasError} />
                         </Dialog.Body>
 
-                        <Dialog.Footer className="flex flex-col">
+                        <Dialog.Footer className='flex flex-col'>
                             <Dialog.StepIndicator
                                 previousLabel={previousLabel}
                                 nextLabel={nextLabel}
@@ -157,7 +156,7 @@ export const ProjectDialog = (): ReactElement => {
                                 pending={submitting}
                                 dots
                                 renderDot={(dot, step) => (
-                                    <Tooltip delay={150} side="top" value={String(stepsMap.get(step))}>
+                                    <Tooltip delay={150} side='top' value={String(stepsMap.get(step))}>
                                         {dot}
                                     </Tooltip>
                                 )}
@@ -167,13 +166,19 @@ export const ProjectDialog = (): ReactElement => {
                 )}
                 {view === 'dirty-confirmation' && (
                     <ConfirmationDialog.Content>
-                        <ConfirmationDialog.DefaultHeader title={dirtyConfirmTitle} description={dirtyConfirmDescription} />
-                        <ConfirmationDialog.Footer onConfirm={() => closeProjectDialog()} />
+                        <ConfirmationDialog.DefaultHeader
+                            title={dirtyConfirmTitle}
+                            description={dirtyConfirmDescription}
+                        />
+                        <ConfirmationDialog.Footer onConfirm={() => cancelProjectDialog()} />
                     </ConfirmationDialog.Content>
                 )}
                 {view === 'access-confirmation' && (
                     <ConfirmationDialog.Content>
-                        <ConfirmationDialog.DefaultHeader title={accessConfirmTitle} description={accessConfirmDescription} />
+                        <ConfirmationDialog.DefaultHeader
+                            title={accessConfirmTitle}
+                            description={accessConfirmDescription}
+                        />
                         <ConfirmationDialog.Footer onConfirm={handleAccessConfirm} onCancel={handleAccessCancel} />
                     </ConfirmationDialog.Content>
                 )}
@@ -181,7 +186,7 @@ export const ProjectDialog = (): ReactElement => {
                     <ProgressDialogContent
                         title={applyingLabel}
                         progress={readAccessProgress ?? 0}
-                        data-component={NEW_PROJECT_DIALOG_NAME}
+                        data-component={PROJECT_DIALOG_NAME}
                     />
                 )}
             </Dialog.Portal>
@@ -189,4 +194,4 @@ export const ProjectDialog = (): ReactElement => {
     );
 };
 
-ProjectDialog.displayName = NEW_PROJECT_DIALOG_NAME;
+ProjectDialog.displayName = PROJECT_DIALOG_NAME;
