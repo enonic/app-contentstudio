@@ -2,8 +2,10 @@ import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 import {Extension} from '@enonic/lib-admin-ui/extension/Extension';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {FolderInput, History, Link, List, SquareChartGantt} from 'lucide-react';
-import {APP_NAME} from '../../../v6/features/utils/cms/app/app';
+import {DEPENDENCIES_WIDGET_KEY} from '../../../v6/features/utils/widget/dependencies';
+import {DETAILS_WIDGET_KEY} from '../../../v6/features/utils/widget/details';
 import {IMPORT_CONTENT_WIDGET_KEY} from '../../../v6/features/utils/widget/import-content';
+import {PAGE_EDITOR_WIDGET_KEY} from '../../../v6/features/utils/widget/pageEditor';
 import {VERSIONS_WIDGET_KEY} from '../../../v6/features/utils/widget/versions/versions';
 import {DependenciesWidgetElement} from '../../../v6/features/views/context/widget/dependencies';
 import {DetailsWidgetElement} from '../../../v6/features/views/context/widget/details';
@@ -11,7 +13,7 @@ import {ImportContentWidgetElement} from '../../../v6/features/views/context/wid
 import {PageEditorExtensionElement} from '../../../v6/features/views/context/widget/page-editor';
 import {VersionsWidgetElement} from '../../../v6/features/views/context/widget/versions/VersionsWidget';
 import {type ContextView} from './ContextView';
-import {ExtensionView, InternalExtensionType} from './ExtensionView';
+import {ExtensionView} from './ExtensionView';
 
 export interface DefaultContextWidgets {
     properties: ExtensionView;
@@ -54,13 +56,12 @@ export function listDefaultContextWidgets(widgets: DefaultContextWidgets): Exten
 
 function createPropertiesWidget(contextView: ContextView): ExtensionView {
     return ExtensionView.create()
-        .setExtension(Extension.create().setExtensionDescriptorKey(`${APP_NAME}:details`).build())
+        .setExtension(Extension.create().setExtensionDescriptorKey(DETAILS_WIDGET_KEY).build())
         .setName(i18n('field.contextPanel.details'))
         .setDescription(i18n('field.contextPanel.details.description'))
         .setExtensionClass('properties-widget')
         .setIconClass('icon-list')
         .setIcon(List)
-        .setType(InternalExtensionType.INFO)
         .setContextView(contextView)
         .addExtensionItemView(new DetailsWidgetElement())
         .build();
@@ -74,7 +75,6 @@ function createVersionsWidget(contextView: ContextView): ExtensionView {
         .setExtensionClass('versions-widget')
         .setIconClass('icon-history')
         .setIcon(History)
-        .setType(InternalExtensionType.HISTORY)
         .setContextView(contextView)
         .addExtensionItemView(new VersionsWidgetElement())
         .build();
@@ -82,13 +82,12 @@ function createVersionsWidget(contextView: ContextView): ExtensionView {
 
 function createDependenciesWidget(contextView: ContextView): ExtensionView {
     return ExtensionView.create()
-        .setExtension(Extension.create().setExtensionDescriptorKey(`${APP_NAME}:dependencies`).build())
+        .setExtension(Extension.create().setExtensionDescriptorKey(DEPENDENCIES_WIDGET_KEY).build())
         .setName(i18n('field.contextPanel.dependencies'))
         .setDescription(i18n('field.contextPanel.dependencies.description'))
         .setExtensionClass('dependency-widget')
         .setIconClass('icon-link')
         .setIcon(Link)
-        .setType(InternalExtensionType.DEPENDENCIES)
         .setContextView(contextView)
         .addExtensionItemView(new DependenciesWidgetElement())
         .build();
@@ -96,13 +95,12 @@ function createDependenciesWidget(contextView: ContextView): ExtensionView {
 
 function createPageEditorWidget(contextView: ContextView): ExtensionView {
     return ExtensionView.create()
-        .setExtension(Extension.create().setExtensionDescriptorKey(`${APP_NAME}:page`).build())
+        .setExtension(Extension.create().setExtensionDescriptorKey(PAGE_EDITOR_WIDGET_KEY).build())
         .setName(i18n('field.contextPanel.pageEditor'))
         .setDescription(i18n('field.contextPanel.pageEditor.description'))
         .setIcon(SquareChartGantt)
         .addExtensionItemView(new PageEditorExtensionElement())
         .setContextView(contextView)
-        .setType(InternalExtensionType.COMPONENTS)
         .build();
 }
 
@@ -113,7 +111,6 @@ function createImportContentWidget(contextView: ContextView): ExtensionView {
         .setDescription(i18n('widget.import.description'))
         .setExtensionClass('import-content-widget')
         .setIcon(FolderInput)
-        .setType(InternalExtensionType.INFO)
         .setContextView(contextView)
         .addExtensionItemView(new ImportContentWidgetElement())
         .build();

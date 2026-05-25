@@ -6,13 +6,17 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {cn} from '@enonic/ui';
 import Q from 'q';
 import {PreviewLabelElement} from '../../../v6/features/shared/PreviewLabel';
-import {setActiveWidgetId as setActiveExtensionId} from '../../../v6/features/store/contextWidgets.store';
+import {
+    type RegisteredWidget,
+    setActiveWidgetId as setActiveExtensionId,
+    setRegisteredWidgets,
+} from '../../../v6/features/store/contextWidgets.store';
 import WidgetsSelectorElement from '../../../v6/features/views/context/widget/WidgetsSelector';
 import {CompareStatus} from '../../content/CompareStatus';
 import type {ContentId} from '../../content/ContentId';
 import type {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
-import {type ExtensionView, type InternalExtensionType} from './ExtensionView';
+import {type ExtensionView} from './ExtensionView';
 import {ReloadActiveExtensionEvent} from './ReloadActiveExtensionEvent';
 
 export class ContextView
@@ -62,6 +66,7 @@ export class ContextView
         widgets.forEach(w => {
             this.widgets.push(w);
             this.contextContainer.appendChild(w);
+            this.warnIfDescriptorNameConflict(w);
         });
 
         if (defaultWidget) {
@@ -75,13 +80,29 @@ export class ContextView
     addWidget(widget: ExtensionView): void {
         this.widgets.push(widget);
         this.contextContainer.appendChild(widget);
+        this.warnIfDescriptorNameConflict(widget);
         this.refreshSelector();
     }
 
     insertWidget(widget: ExtensionView, index: number): void {
         this.widgets.splice(index, 0, widget);
         this.contextContainer.insertChild(widget, index);
+        this.warnIfDescriptorNameConflict(widget);
         this.refreshSelector();
+    }
+
+    private warnIfDescriptorNameConflict(widget: ExtensionView): void {
+        const name = widget.getExtensionDescriptorName();
+        if (!name) return;
+
+        const matches = this.widgets.filter(w => w.getExtensionDescriptorName() === name);
+        if (matches.length < 2) return;
+
+        const keys = matches.map(w => w.getExtensionKey()).join(', ');
+        console.warn(
+            `ContextView: multiple widgets share descriptor name "${name}" (${keys}). ` +
+            `setActiveExtensionByName will activate the first one registered.`,
+        );
     }
 
     removeWidgetByKey(key: string): void {
@@ -147,10 +168,17 @@ export class ContextView
         this.widgetsSelector?.updateState(this.activeWidget);
     }
 
-    setActiveExtensionByType(type: InternalExtensionType): void {
-        const widget = this.widgets.find(w => w.getType() === type);
+    // Goes through `widget.setActive`, which guards against re-activation —
+    // a direct `setActiveExtension` would tear down external iframes via
+    // `setInactive`/`cleanupWidget` and render the widget empty.
+    setActiveExtensionByName(name: string, applicationKey?: string): void {
+        const widget = this.widgets.find(w => {
+            if (w.getExtensionDescriptorName() !== name) return false;
+            if (applicationKey === undefined) return true;
+            return w.getExtensionApplicationKey() === applicationKey;
+        });
         if (!widget) return;
-        this.setActiveExtension(widget);
+        widget.setActive();
     }
 
     getActiveExtension(): ExtensionView {
@@ -277,6 +305,21 @@ export class ContextView
     private refreshSelector(): void {
         this.widgetsSelector.updateExtensionsSelector(this.widgets);
         this.widgetsSelector.updateState(this.activeWidget);
+        this.publishRegisteredWidgets();
+    }
+
+    private publishRegisteredWidgets(): void {
+        const registry: RegisteredWidget[] = [];
+        this.widgets.forEach(w => {
+            const descriptorKey = w.getDescriptorKey();
+            if (!descriptorKey) return;
+            registry.push({
+                name: descriptorKey.getName(),
+                applicationKey: descriptorKey.getApplicationKey().toString(),
+                key: descriptorKey.toString(),
+            });
+        });
+        setRegisteredWidgets(registry);
     }
 
     private layout(empty: boolean = true): void {
