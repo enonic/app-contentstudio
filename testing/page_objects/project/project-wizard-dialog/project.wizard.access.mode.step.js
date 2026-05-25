@@ -1,10 +1,8 @@
 /**
  * Created on 05.08.2022
  */
-const appConst = require('../../../libs/app_const');
 const ProjectWizardDialog = require('./project.wizard.dialog');
-const {COMMON} = require('../../../libs/elements');
-const ExtendedPrincipalComboBox = require('../../components/projects/extended.principal.combobox');
+const {COMMON, TREE_GRID} = require('../../../libs/elements');
 const PrincipalSelector = require("../../components/selectors/principal.combobox.dropdown");
 
 const XPATH = {
@@ -30,7 +28,7 @@ class ProjectWizardDialogAccessModeStep extends ProjectWizardDialog {
 
     // Returns the currently selected access mode capitalized to match appConst.PROJECT_ACCESS_MODE ('Public' / 'Private' / 'Custom').
     async getSelectedAccessMode() {
-        await this.waitForElementDisplayed(XPATH.selectedAccessModeRadio, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(XPATH.selectedAccessModeRadio);
         const registryId = await this.getAttribute(XPATH.selectedAccessModeRadio, 'data-registry-id');
         return registryId.charAt(0).toUpperCase() + registryId.slice(1);
     }

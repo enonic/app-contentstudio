@@ -18,72 +18,55 @@ describe('parent.project.dialog.step.spec - ui-tests for Parent Project step in 
     it(`GIVEN Project Wizard modal dialog is opened WHEN 'Close' button has been pressed THEN the dialog should be closed`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            let parentProjectAndLanguageStep = new ProjectWizardDialogParentProjectStep();
             // 1.'New...' button has been clicked:
             await settingsBrowsePanel.clickOnNewButton();
             // 2. 'parent Project Step' dialog should be loaded:
-            await parentProjectStep.waitForLoaded();
-            const MULTI_PROJECTS = ['Features', 'Default'];
-            await parentProjectStep.selectParentParentProjects(MULTI_PROJECTS);
+            await parentProjectAndLanguageStep.waitForLoaded();
             // 3. 'Close' button has been clicked
-            await parentProjectStep.clickOnCloseButton();
+            await parentProjectAndLanguageStep.clickOnCloseButton();
             await studioUtils.saveScreenshot("setting_item_dialog_canceled");
-            await parentProjectStep.waitForDialogClosed();
+            await parentProjectAndLanguageStep.waitForDialogClosed();
         });
 
     it(`WHEN 'New...' button has been pressed THEN 'Parent Project' step should be loaded in Project Wizard dialog`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            let parentProjectAndLanguageStep = new ProjectWizardDialogParentProjectStep();
             // 1.'New' button has been clicked:
             await settingsBrowsePanel.clickOnNewButton();
             // 2. 'parent Project Step' dialog should be loaded:
-            await parentProjectStep.waitForLoaded();
-            await studioUtils.saveScreenshot("setting_item_dialog_1");
+            await parentProjectAndLanguageStep.waitForLoaded();
+            await studioUtils.saveScreenshot('setting_item_dialog_1');
             // 3. Expected title should be loaded:
-            let actualDescription = await parentProjectStep.getStepDescription();
+            let actualDescription = await parentProjectAndLanguageStep.getStepDescription();
             assert.equal(actualDescription, DESCRIPTION, "Expected description should be displayed");
             // 4. Next button should be enabled:
-            await parentProjectStep.waitForNextButtonEnabled();
+            await parentProjectAndLanguageStep.waitForNextButtonEnabled();
             // 5. Verify that Project options filter input is displayed:
-            await parentProjectStep.waitForProjectOptionsFilterInputDisplayed();
-        });
-
-    it(`GIVEN Project Wizard modal dialog is opened WHEN 'Close' button has been pressed THEN the dialog should be closed`,
-        async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
-            // 1.'New...' button has been clicked:
-            await settingsBrowsePanel.clickOnNewButton();
-            // 2. 'parent Project Step' dialog should be loaded:
-            await parentProjectStep.waitForLoaded();
-            const MULTI_PROJECTS = ['cc', 'Default'];
-            await parentProjectStep.selectParentParentProjects(MULTI_PROJECTS);
-            // 3. 'Close' button has been clicked
-            await parentProjectStep.clickOnCloseButton();
-            await studioUtils.saveScreenshot("setting_item_dialog_canceled");
-            await parentProjectStep.waitForDialogClosed();
+            await parentProjectAndLanguageStep.waitForProjectOptionsFilterInputDisplayed();
+            await parentProjectAndLanguageStep.waitForLanguageFilterInputDisplayed();
         });
 
     it(`GIVEN Project Wizard modal dialog is opened WHEN 'Esc' key has been pressed THEN the dialog should be closed`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            let parentProjectAndLanguageStep = new ProjectWizardDialogParentProjectStep();
             // 1.'New' button has been clicked:
             await settingsBrowsePanel.clickOnNewButton();
             // 2. 'parent Project Step' dialog should be loaded:
-            await parentProjectStep.waitForLoaded();
+            await parentProjectAndLanguageStep.waitForLoaded();
             // 3. 'Esc' key has been pressed:
-            await parentProjectStep.pressEscKey();
-            await studioUtils.saveScreenshot("setting_item_dialog_esc");
-            await parentProjectStep.waitForDialogClosed();
+            await parentProjectAndLanguageStep.pressEscKey();
+            await studioUtils.saveScreenshot('setting_item_dialog_esc');
+            await parentProjectAndLanguageStep.waitForDialogClosed();
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioSelectDefault();
+        await studioUtils.navigateToContentStudioApp();
         return await studioUtils.openSettingsPanel();
     });
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

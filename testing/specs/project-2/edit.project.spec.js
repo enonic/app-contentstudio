@@ -190,6 +190,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
         });
 
     beforeEach(async () => {
+        // selects Default context
         await studioUtils.navigateToContentStudioApp();
         return await studioUtils.openSettingsPanel();
     });

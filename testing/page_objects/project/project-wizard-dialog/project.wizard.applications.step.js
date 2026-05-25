@@ -1,16 +1,27 @@
 /**
  * Created on 05.08.2022
  */
-const {DROPDOWN} = require('../../../libs/elements');
+const {DROPDOWN, TREE_GRID, BUTTONS} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const ProjectWizardDialog = require('./project.wizard.dialog');
-const ProjectApplicationsComboBox = require('../../components/projects/project.applications.combobox');
+const ProjectApplicationsCombobox = require('../../components/projects/project.applications.combobox');
+
+// Selected applications render in a GridList that is a sibling of the ApplicationSelector combobox.
+const SELECTED_APPS_GRID =
+    "//div[@data-component='ApplicationSelector']/following-sibling::div[@data-component='GridList']";
 
 const XPATH = {
     container: "//div[@role='dialog' and descendant::h2[contains(.,'Project scope applications')]]",
     projectApplicationsComboBox: "//div[contains(@id,'ProjectApplicationsComboBox')]",
-    selectedProjectView: displayName => `//div[contains(@id,'ProjectApplicationSelectedOptionView') and descendant::h6[text()='${displayName}']]`,
-    selectedApplications: "//div[contains(@id,'ProjectApplicationSelectedOptionView') ]",
+    // All selected-app display-name spans, used by getSelectedApplications.
+    selectedAppDisplayNameSpan:
+        SELECTED_APPS_GRID +
+        "//div[@data-component='GridList.Row']//div[@data-component='ItemLabel']//span[contains(@class,'font-semibold')]",
+    // The remove (X) IconButton for a given app display name. Empty aria-label means we key on data-component.
+    removeAppIconByDisplayName: displayName =>
+        SELECTED_APPS_GRID +
+        `//div[@data-component='GridList.Row' and descendant::div[@data-component='ItemLabel']//span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]` +
+        "//button[@data-component='IconButton']",
 };
 const DESCRIPTION = "Select applications for the project content";
 
@@ -22,14 +33,14 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
 
     //types an application name and click on the filtered option
     async selectApplication(appName) {
-        let projectApplicationsComboBox = new ProjectApplicationsComboBox();
-        await projectApplicationsComboBox.clickFilteredByAppNameItemAndClickOnOk(appName, XPATH.container);
+        let projectApplicationsCombobox = new ProjectApplicationsCombobox(XPATH.container);
+        await projectApplicationsCombobox.clickFilteredByAppNameItemAndClickOnOk(appName);
         return await this.pause(500);
     }
 
     //expand the dropdown and click on an option
     async expandDropdownListAndSelectApplication(appName) {
-        let projectApplicationsComboBox = new ProjectApplicationsComboBox();
+        let projectApplicationsComboBox = new ProjectApplicationsCombobox();
         await projectApplicationsComboBox.clickOnDropdownHandle(XPATH.container);
         await projectApplicationsComboBox.clickOnOptionByDisplayName(appName, XPATH.container);
         await projectApplicationsComboBox.clickOnApplySelectionButton(XPATH.container);
@@ -59,34 +70,35 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
     }
 
     async waitForRemoveAppIconNotDisplayed(appName) {
-        let removeIconLocator = XPATH.container + XPATH.selectedProjectView(appName) + lib.REMOVE_ICON;
+        const removeIconLocator = XPATH.container + TREE_GRID.gridListRowByDisplayName(appName) + BUTTONS.BUTTON_REMOVE_ICON;//XPATH.removeAppIconByDisplayName(appName);
         await this.waitForElementNotDisplayed(removeIconLocator, appConst.mediumTimeout);
     }
 
     async waitForRemoveAppIconDisplayed(appName) {
-        let removeIconLocator = XPATH.container + XPATH.selectedProjectView(appName) + lib.REMOVE_ICON;
+        const removeIconLocator = XPATH.container + TREE_GRID.gridListRowByDisplayName(appName) + BUTTONS.ICON_BUTTON;
         await this.waitForElementDisplayed(removeIconLocator, appConst.mediumTimeout);
     }
 
     async removeApplication(appName) {
         try {
-            let removeIconLocator = XPATH.container + XPATH.selectedProjectView(appName) + lib.REMOVE_ICON;
+            const removeIconLocator = XPATH.container + TREE_GRID.gridListRowByDisplayName(appName) + BUTTONS.ICON_BUTTON;
             await this.waitForRemoveAppIconDisplayed(appName);
             return await this.clickOnElement(removeIconLocator);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_remove_app');
-            throw new Error("error after pressing the remove button, screenshot: " + screenshot + "  " + err);
+            const screenshot = await this.saveScreenshotUniqueName('err_remove_app');
+            throw new Error('error after pressing the remove button, screenshot: ' + screenshot + '  ' + err);
         }
     }
 
+    // Returns the display names of all selected applications. Returns [] when none are selected
+    // (the GridList is not rendered until at least one app is added).
     async getSelectedApplications() {
-        let locator = XPATH.container + XPATH.selectedApplications + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        const locator = XPATH.container + XPATH.selectedAppDisplayNameSpan;
         return await this.getTextInDisplayedElements(locator);
     }
 
     async waitForSelectedApplicationsNotDisplayed() {
-        let locator = XPATH.container + XPATH.selectedApplications + lib.H6_DISPLAY_NAME;
+        const locator = XPATH.container + XPATH.selectedAppDisplayNameSpan;
         return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
     }
 }

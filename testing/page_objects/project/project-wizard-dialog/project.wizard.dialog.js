@@ -6,11 +6,11 @@ const {BUTTONS} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
 const XPATH = {
-    container: "//div[@role='dialog']",
+    container: "//div[@data-component='Dialog.Content' and @role='dialog']",
     title: "//h6[@class='xp-admin-common-main-name']",
     stepDescription: "//header//p[2]",
     buttonRow: "//div[contains(@class,'button-container')]",
-    copyFromParentButton: parent => `//button[contains(@id,'Button') and child::span[text()='Copy from ${parent}']]`,
+    copyFromParentButton: parent => `//button[@data-component='InlineButton' and text()='Copy from ${parent}']`,
 };
 
 class ProjectWizardDialog extends Page {
@@ -168,7 +168,7 @@ class ProjectWizardDialog extends Page {
         return await this.getText(locator);
     }
 
-    async clickOnBackButton() {
+    async clickOnPreviousButton() {
         try {
             await this.waitForPreviousButtonDisplayed();
             await this.waitForElementEnabled(this.previousButton, appConst.mediumTimeout);

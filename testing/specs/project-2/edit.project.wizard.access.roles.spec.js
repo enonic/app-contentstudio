@@ -1,5 +1,5 @@
 /**
- * Created on 30.04.2020.
+ * Created on 30.04.2020.  updated 0n 25.05.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -16,7 +16,7 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
     }
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
-    const TEST_DESCRIPTION = "test description";
+    const TEST_DESCRIPTION = "description";
     const PRINCIPALS = [appConst.systemUsersDisplayName.SUPER_USER];
 
     it(`Preconditions: new project should be added. SU should be assigned as Contributor`,
@@ -24,7 +24,13 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
             //1. Navigate to Settings Panel:
             await studioUtils.closeProjectSelectionDialog();
             //2. Save new project:
-            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, null, PRINCIPALS);
+           // await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, null, PRINCIPALS);
+            await projectUtils.saveTestProject({
+                name: PROJECT_DISPLAY_NAME,
+                description: TEST_DESCRIPTION,
+                accessMode: appConst.PROJECT_ACCESS_MODE.PRIVATE,
+                permissions:PRINCIPALS
+            });
         });
 
     it(`WHEN existing project(with project access entry) is opened THEN default(Contributor) role should be displayed in the selected option`,
@@ -34,6 +40,9 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
             // 1.Click on the project and press 'Edit' button:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
+
+
+            ///TODO
             await projectWizard.waitForLoaded();
             // 2. Verify that expected role is displayed in Roles step: SU should be with Contributor role by default
             let actualRole = await projectWizard.getSelectedRoleInProjectAccessControlEntry("su");
@@ -93,7 +102,8 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
+        // selects Default context
+        await studioUtils.navigateToContentStudioApp();
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

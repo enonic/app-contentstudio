@@ -8,7 +8,12 @@ const browser_version = properties.get('browser.version');
 exports.config = {
 
     specs: [
-        path.join(__dirname, '../specs/project-2/edit.project.spec.js')
+        path.join(__dirname, '../specs/project-2/edit.project.spec.js'),
+        path.join(__dirname, '../specs/project-2/parent.project.dialog.step.spec.js'),
+        path.join(__dirname, '../specs/project-2/project.wizard.applications.step.spec.js'),
+        path.join(__dirname, '../specs/project-2/project.wizard.dialog.permissions.step.spec.js'),
+
+
     ],
 
     maxInstances: 1,

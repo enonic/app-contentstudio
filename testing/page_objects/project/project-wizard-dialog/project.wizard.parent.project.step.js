@@ -21,7 +21,7 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
     }
 
     async waitForProjectOptionsFilterInputDisplayed() {
-        let projectsComboBox = new ProjectsComboBox();
+        let projectsComboBox = new ProjectsComboBox(XPATH.container);
         return await projectsComboBox.waitForSearchInputDisplayed();
     }
 
@@ -34,9 +34,10 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
 
     // Type a text (description) in the filter input then click on filtered item then click on 'OK' button and apply selection
     async typeTextInOptionFilterInputAndSelectOption(text, projectDisplayName) {
-        let projectsComboBox = new ProjectsComboBox();
+        let projectsComboBox = new ProjectsComboBox(XPATH.container);
         await projectsComboBox.typeTextInSearchInput(text);
-        await projectsComboBox.clickOnFilteredByDisplayNameItem(projectDisplayName, XPATH.container);
+        await projectsComboBox.clickOnOptionByDisplayName(projectDisplayName);
+        await projectsComboBox.clickOnApplySelectionButton();
         return await this.pause(400);
     }
 
@@ -44,7 +45,7 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
     async selectParentProject(projectDisplayName) {
         let projectsComboBox = new ProjectsComboBox();
         await projectsComboBox.typeTextInSearchInput(projectDisplayName);
-        await projectsComboBox.clickOnFilteredByDisplayNameItem(projectDisplayName);
+        await projectsComboBox.clickOnOptionByDisplayName(projectDisplayName);
         console.log("Project Wizard, parent project is selected: " + projectDisplayName);
         return await this.pause(400);
     }
@@ -69,13 +70,14 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
 
     // Types a text in Options Filter Input in Projects Combobox:
     async typeTextInProjectsOptionsFilterInput(text) {
-        await this.typeTextInInput(this.projectOptionsFilterInput, text);
+        let projectsComboBox = new ProjectsComboBox();
+        await projectsComboBox.typeTextInSearchInput(text);
     }
 
     // Projects Combobox: selects an option in the dropdown - clicks on the filtered option:
     async clickOnFilteredProjectsOption(projectDisplayName) {
         try {
-            let projectsComboBox = new ProjectsComboBox();
+            let projectsComboBox = new ProjectsComboBox(XPATH.container);
             let optionLocator = projectsComboBox.buildLocatorForOptionByDisplayName(projectDisplayName, XPATH.container);
             await projectsComboBox.selectFilteredByDisplayNameAndClickOnApply(optionLocator);
             return await this.pause(400);
@@ -125,6 +127,10 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
         await localeSelectorDropdown.clickOnFilteredLanguage(language);
         console.log('Project Wizard, language is selected: ' + language);
         return await this.pause(300);
+    }
+    async waitForLanguageFilterInputDisplayed(){
+        let localeSelectorDropdown = new LocaleSelectorDropdown(XPATH.container);
+        return await localeSelectorDropdown.waitForOptionFilterInputDisplayed();
     }
 }
 
