@@ -19,6 +19,10 @@ const DESCRIPTION = "Select default read permissions for a new content in the pr
 
 class ProjectWizardDialogAccessModeStep extends ProjectWizardDialog {
 
+    get container() {
+        return XPATH.container;
+    }
+
     async clickOnAccessModeRadio(mode) {
         let selector = `//button[@data-component='RadioGroup.Item' and @data-registry-id='${String(mode).toLowerCase()}']`;
         await this.waitForElementEnabled(COMMON.INPUTS.dataComponentRadioByLabel(mode));

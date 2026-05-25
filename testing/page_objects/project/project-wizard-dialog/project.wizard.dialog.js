@@ -6,7 +6,6 @@ const {BUTTONS} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
 const XPATH = {
-    container: "//div[@data-component='Dialog.Content' and @role='dialog']",
     title: "//h6[@class='xp-admin-common-main-name']",
     stepDescription: "//header//p[2]",
     buttonRow: "//div[contains(@class,'button-container')]",
@@ -16,7 +15,7 @@ const XPATH = {
 class ProjectWizardDialog extends Page {
 
     get container() {
-        return XPATH.container;
+        throw new Error(`${this.constructor.name}: override getter 'container' in subclass`);
     }
 
     get closeButton() {
@@ -152,7 +151,7 @@ class ProjectWizardDialog extends Page {
 
     async waitForDialogClosed() {
         try {
-            return await this.waitForElementNotDisplayed(XPATH.container, appConst.saveProjectTimeout);
+            return await this.waitForElementNotDisplayed(this.container, appConst.saveProjectTimeout);
         } catch (err) {
            await this.handleError('Project Wizard dialog was not closed', 'err_dialog_not_closed', err);
         }

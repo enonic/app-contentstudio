@@ -27,6 +27,10 @@ const DESCRIPTION = "Select applications for the project content";
 
 class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
 
+    get container() {
+        return XPATH.container;
+    }
+
     get appSelectorDropDownHandler() {
         return XPATH.container + XPATH.projectApplicationsComboBox + DROPDOWN.DROP_DOWN_HANDLE;
     }

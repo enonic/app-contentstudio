@@ -1,7 +1,6 @@
 /**
  * Created on 05.08.2022
  */
-const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const ProjectsComboBox = require('../../components/projects/projects.combobox');
 const ProjectWizardDialog = require('./project.wizard.dialog');
@@ -16,7 +15,7 @@ const DESCRIPTION = "To set up synchronization of a content with another project
 
 class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
 
-    get container(){
+    get container() {
         return XPATH.container;
     }
 
@@ -112,7 +111,11 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
     }
 
     async waitForLoaded() {
-        await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+        try {
+            await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError('Project Wizard Dialog, parent project step was not loaded', 'err_parent_proj_step', err);
+        }
     }
 
     async isSelectedParentProjectDisplayed() {
@@ -123,12 +126,17 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
         if (!language) {
             return;
         }
-        let localeSelectorDropdown = new LocaleSelectorDropdown(XPATH.container);
-        await localeSelectorDropdown.clickOnFilteredLanguage(language);
-        console.log('Project Wizard, language is selected: ' + language);
-        return await this.pause(300);
+        try {
+            let localeSelectorDropdown = new LocaleSelectorDropdown(XPATH.container);
+            await localeSelectorDropdown.clickOnFilteredLanguage(language);
+            console.log('Project Wizard, language is selected: ' + language);
+            return await this.pause(300);
+        } catch (err) {
+            await this.handleError('Error occurred during selecting a language in parent project step', 'err_select_language', err);
+        }
     }
-    async waitForLanguageFilterInputDisplayed(){
+
+    async waitForLanguageFilterInputDisplayed() {
         let localeSelectorDropdown = new LocaleSelectorDropdown(XPATH.container);
         return await localeSelectorDropdown.waitForOptionFilterInputDisplayed();
     }
