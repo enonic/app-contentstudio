@@ -4,7 +4,7 @@ import {type ReactElement, useEffect, useMemo} from 'react';
 import {FormRenderer} from '../../../shared/form';
 import {useBreakpoints} from '../../../hooks/useBreakpoints';
 import {getAiFieldRegistry} from '../../../store/ai/ai.field-registry';
-import {$contentType, $wizardDraftData, notifyContentFormMounted} from '../../../store/wizardContent.store';
+import {$contentType, $wizardDraftData, $wizardReadOnly, notifyContentFormMounted} from '../../../store/wizardContent.store';
 import {$validationVisibility, getContentRawValueMap} from '../../../store/wizardValidation.store';
 import {DisplayNameInput} from './DisplayNameInput';
 import {ImageUploaderDescriptor} from '../../../shared/form/input-types/image-uploader';
@@ -15,6 +15,7 @@ export const ContentForm = (): ReactElement | null => {
     const contentType = useStore($contentType);
     const draftData = useStore($wizardDraftData);
     const visibility = useStore($validationVisibility);
+    const readOnly = useStore($wizardReadOnly);
     const {lg} = useBreakpoints();
 
     const isReady = contentType != null && draftData != null;
@@ -56,6 +57,7 @@ export const ContentForm = (): ReactElement | null => {
                         <FormRenderer
                             form={contentType.getForm()}
                             propertySet={draftData.getRoot()}
+                            enabled={!readOnly}
                             applicationKey={applicationKey}
                             excludeInputTypes={excludeInputTypes}
                         />

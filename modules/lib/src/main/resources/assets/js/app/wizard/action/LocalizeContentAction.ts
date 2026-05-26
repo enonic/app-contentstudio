@@ -3,6 +3,7 @@ import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {getActiveProject} from '../../../v6/features/store/activeProject.store';
+import {setWizardReadOnly} from '../../../v6/features/store/wizardContent.store';
 import {type ContentId} from '../../content/ContentId';
 import {LocalizeContentsRequest} from '../../resource/LocalizeContentsRequest';
 import {type ContentWizardPanel} from '../ContentWizardPanel';
@@ -22,6 +23,7 @@ export class LocalizeContentAction
             new LocalizeContentsRequest([contentId], language).sendAndParse().then(() => {
                 NotifyManager.get().showFeedback(i18n('notify.content.localized'));
                 wizardPanel.setEnabled(true);
+                setWizardReadOnly(false);
                 wizardPanel.unLockPage();
                 wizardPanel.openTranslatorDialog(language);
             }).catch(DefaultErrorHandler.handle);
