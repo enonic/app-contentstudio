@@ -194,7 +194,7 @@ export const ContentWizardToolbar = ({
                         </Toolbar.Item>
                     )}
                     {contentState && (
-                        <StatusIcon status={contentState} className='size-3.5 my-auto mx-1.5 md:mx-2.75 shrink-0' />
+                        <StatusIcon status={contentState} withTooltip className='size-3.5 my-auto mx-1.5 md:mx-2.75 shrink-0' />
                     )}
                     <div ref={desktopPathRef} className='hidden md:flex min-w-0'>
                         <Toolbar.Item asChild disabled={!isDesktopPathVisible}>

@@ -1,6 +1,8 @@
-import {cn} from '@enonic/ui';
+import {cn, Tooltip} from '@enonic/ui';
 import {cva, type VariantProps} from 'class-variance-authority';
 import {CircleAlert, CircleCheck, CircleX, Info, type LucideIcon} from 'lucide-react';
+import {type ComponentProps, type ReactElement} from 'react';
+import {useI18n} from '../../hooks/useI18n';
 
 const statusIconVariants = cva(
     [
@@ -33,8 +35,9 @@ type Status = VariantProps<typeof statusIconVariants>['status'];
 
 type Props = {
     status: Status;
+    withTooltip?: boolean;
     'data-component'?: string;
-} & React.ComponentProps<LucideIcon>;
+} & ComponentProps<LucideIcon>;
 
 
 function getIcon(status: Status): LucideIcon {
@@ -48,20 +51,42 @@ function getIcon(status: Status): LucideIcon {
         case 'invalid':
             return CircleX;
     }
-};
+}
+
+function getTooltipKey(status: Status): string {
+    switch (status) {
+        case 'info':
+            return 'field.contextPanel.details.sections.info';
+        case 'ready':
+            return 'tooltip.state.ready';
+        case 'in-progress':
+            return 'field.workflow.status.inProgress';
+        case 'invalid':
+            return 'field.invalid';
+    }
+}
 
 const STATUS_ICON_NAME = 'StatusIcon';
 
 export const StatusIcon = ({
     className,
     status,
+    withTooltip,
     'data-component': componentName = STATUS_ICON_NAME,
     ...props
-}: Props): React.ReactElement => {
+}: Props): ReactElement => {
     const classNames = cn(statusIconVariants({status}), className);
     const Icon = getIcon(status);
+    const tooltip = useI18n(getTooltipKey(status));
+    const icon = <Icon data-component={componentName} className={classNames} aria-label={status} {...props} />;
 
-    return <Icon data-component={componentName} className={classNames} aria-label={status} {...props} />;
+    if (!withTooltip) return icon;
+
+    return (
+        <Tooltip side="top" delay={300} value={tooltip}>
+            {icon}
+        </Tooltip>
+    );
 };
 
 StatusIcon.displayName = STATUS_ICON_NAME;
