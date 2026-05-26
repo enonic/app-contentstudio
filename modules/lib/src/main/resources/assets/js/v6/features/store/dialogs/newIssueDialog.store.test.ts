@@ -1,6 +1,8 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import type {ContentId} from '../../../../app/content/ContentId';
 import {
     emitContentArchived,
+    emitContentCreated,
     emitContentDeleted,
     emitContentPublished,
     emitContentRenamed,
@@ -104,6 +106,32 @@ describe('newIssueDialog.store', () => {
         emitContentRenamed([renamed], []);
 
         expect($newIssueDialog.get().items[0].getDisplayName()).toBe('Renamed item');
+    });
+
+    it('refreshes main items when created content is below a selected item path', async () => {
+        const parent = createMockContent('item-1', {displayName: 'Parent', path: '/parent'});
+        const updatedParent = createMockContent('item-1', {displayName: 'Parent', path: '/parent', hasChildren: true});
+        const unrelated = createMockContent('item-2', {displayName: 'Elsewhere', path: '/other/child'});
+        const child = createMockContent('item-3', {displayName: 'Child', path: '/parent/child'});
+
+        mockFetchContentSummaries.mockImplementation((ids: ContentId[]) => {
+            return ids.some(id => id.toString() === 'item-1') ? [updatedParent] : [];
+        });
+
+        openNewIssueDialog([parent]);
+        await flushNewIssueReload();
+
+        emitContentCreated([unrelated]);
+        await flushNewIssueReload();
+
+        expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(1);
+        expect($newIssueDialog.get().items[0].hasChildren()).toBe(false);
+
+        emitContentCreated([child]);
+        await flushNewIssueReload();
+
+        expect($newIssueDialog.get().items[0].hasChildren()).toBe(true);
+        expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
     });
 
     it.each(removalEventCases)(

@@ -11,7 +11,12 @@ import {resolvePublishDependencies} from '../../api/publish';
 import {buildItems, dedupeItems, getItemIds} from '../../utils/cms/content/buildItems';
 import {hasContentIdInIds, uniqueIds} from '../../utils/cms/content/ids';
 import {findContentIdsWithCreatedDescendants} from '../../utils/cms/content/paths';
-import {patchItemsById} from '../../utils/cms/content/patchItemsById';
+import {
+    createContentIdSet,
+    patchTrackedContentItems,
+    refreshTrackedMainContentItems,
+    removeTrackedContentItems,
+} from '../../utils/cms/content/trackedItems';
 import {createGuardedSocketHandler} from '../../utils/store/createGuardedSocketHandler';
 import {createDebounce} from '../../utils/timing/createDebounce';
 import {
@@ -299,57 +304,29 @@ const onNewIssueSocketEvent = createGuardedSocketHandler(isNewIssueDialogActive)
 const patchTrackedNewIssueItems = (
     updates: ContentSummary[],
 ): {updatedMain: boolean; updatedDependants: boolean} => {
-    if (updates.length === 0) {
-        return {updatedMain: false, updatedDependants: false};
+    const change = patchTrackedContentItems($newIssueDialog.get(), updates);
+
+    if (change.changed) {
+        $newIssueDialog.set(change.state);
     }
 
-    const state = $newIssueDialog.get();
-    const patchedItems = patchItemsById(state.items, updates);
-    const patchedDependants = patchItemsById(state.dependants, updates);
-    const updatedMain = patchedItems.changed;
-    const updatedDependants = patchedDependants.changed;
-
-    if (!updatedMain && !updatedDependants) {
-        return {updatedMain, updatedDependants};
-    }
-
-    $newIssueDialog.set({
-        ...state,
-        items: patchedItems.items,
-        dependants: patchedDependants.items,
-    });
-
-    return {updatedMain, updatedDependants};
+    return {
+        updatedMain: change.changedMain,
+        updatedDependants: change.changedDependants,
+    };
 };
 
 const removeTrackedNewIssueItems = (idsToRemove: Set<string>): {removedMain: boolean; removedDependants: boolean} => {
-    const state = $newIssueDialog.get();
-    const items = state.items.filter(item => !idsToRemove.has(item.getContentId().toString()));
-    const dependants = state.dependants.filter(item => !idsToRemove.has(item.getContentId().toString()));
-    const excludeChildrenIds = state.excludeChildrenIds.filter(id => !idsToRemove.has(id.toString()));
-    const excludedDependantIds = state.excludedDependantIds.filter(id => !idsToRemove.has(id.toString()));
-    const requiredDependantIds = state.requiredDependantIds.filter(id => !idsToRemove.has(id.toString()));
+    const change = removeTrackedContentItems($newIssueDialog.get(), idsToRemove);
 
-    const removedMain = items.length !== state.items.length;
-    const removedDependants = dependants.length !== state.dependants.length;
-    const exclusionsChanged = excludeChildrenIds.length !== state.excludeChildrenIds.length ||
-        excludedDependantIds.length !== state.excludedDependantIds.length ||
-        requiredDependantIds.length !== state.requiredDependantIds.length;
-
-    if (!removedMain && !removedDependants && !exclusionsChanged) {
-        return {removedMain, removedDependants};
+    if (change.changed) {
+        $newIssueDialog.set(change.state);
     }
 
-    $newIssueDialog.set({
-        ...state,
-        items,
-        dependants,
-        excludeChildrenIds,
-        excludedDependantIds,
-        requiredDependantIds,
-    });
-
-    return {removedMain, removedDependants};
+    return {
+        removedMain: change.changedMain,
+        removedDependants: change.changedDependants,
+    };
 };
 
 const handleRemovedNewIssueItems = (idsToRemove: Set<string>): void => {
@@ -369,12 +346,27 @@ const handleRemovedNewIssueItems = (idsToRemove: Set<string>): void => {
     }
 };
 
+const refreshNewIssueMainItems = async (ids: ContentId[]): Promise<void> => {
+    try {
+        const change = await refreshTrackedMainContentItems($newIssueDialog.get(), ids, fetchContentSummaries);
+
+        if (change.changed && isNewIssueDialogActive()) {
+            $newIssueDialog.set(change.state);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
+
 $contentCreated.subscribe(onNewIssueSocketEvent((event) => {
     const matched = findContentIdsWithCreatedDescendants($newIssueDialog.get().items, event.data);
     if (matched.length === 0) {
         return;
     }
-    reloadDependenciesDebounced();
+
+    void refreshNewIssueMainItems(matched).finally(() => {
+        reloadDependenciesDebounced();
+    });
 }));
 
 $contentUpdated.subscribe(onNewIssueSocketEvent((event) => {
@@ -389,11 +381,11 @@ $contentRenamed.subscribe(onNewIssueSocketEvent((event) => {
 }));
 
 $contentDeleted.subscribe(onNewIssueSocketEvent((event) => {
-    handleRemovedNewIssueItems(new Set(event.data.map(item => item.getContentId().toString())));
+    handleRemovedNewIssueItems(createContentIdSet(event.data));
 }));
 
 $contentArchived.subscribe(onNewIssueSocketEvent((event) => {
-    handleRemovedNewIssueItems(new Set(event.data.map(item => item.getContentId().toString())));
+    handleRemovedNewIssueItems(createContentIdSet(event.data));
 }));
 
 $contentPublished.subscribe(onNewIssueSocketEvent((event) => {

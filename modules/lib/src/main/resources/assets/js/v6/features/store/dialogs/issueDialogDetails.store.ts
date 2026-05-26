@@ -20,7 +20,11 @@ import {fetchContentSummaries} from '../../api/content';
 import {resolvePublishDependencies} from '../../api/publish';
 import {hasContentIdInIds, isIdsEqual, uniqueIds} from '../../utils/cms/content/ids';
 import {findContentIdsWithCreatedDescendants} from '../../utils/cms/content/paths';
-import {patchItemsById} from '../../utils/cms/content/patchItemsById';
+import {
+    createContentIdSet,
+    patchTrackedContentItems,
+    removeTrackedContentItems,
+} from '../../utils/cms/content/trackedItems';
 import {createGuardedSocketHandler} from '../../utils/store/createGuardedSocketHandler';
 import {
     $contentArchived,
@@ -895,7 +899,7 @@ const getIssueContext = (updatingKey?: IssueDetailsUpdatingKey): IssueContext | 
 
     const dialogState = $issueDialog.get();
     const issueWithAssignees = dialogState.issues.find(item => item.getIssue().getId() === issueId);
-    const issue = issueWithAssignees?.getIssue() ?? state.issue;
+    const issue = state.issue ?? issueWithAssignees?.getIssue();
 
     if (!issue) {
         return null;
@@ -1056,63 +1060,47 @@ const onIssueDialogDetailsSocketEvent = createGuardedSocketHandler(isIssueDialog
 const patchTrackedIssueDialogItems = (
     updates: ContentSummary[],
 ): {updatedMain: boolean; updatedDependants: boolean} => {
-    if (updates.length === 0) {
-        return {updatedMain: false, updatedDependants: false};
+    const change = patchTrackedContentItems($issueDialogDetails.get(), updates);
+
+    if (change.changed) {
+        $issueDialogDetails.set(change.state);
     }
 
-    const state = $issueDialogDetails.get();
-    const patchedItems = patchItemsById(state.items, updates);
-    const patchedDependants = patchItemsById(state.dependants, updates);
-    const updatedMain = patchedItems.changed;
-    const updatedDependants = patchedDependants.changed;
-
-    if (!updatedMain && !updatedDependants) {
-        return {updatedMain, updatedDependants};
-    }
-
-    $issueDialogDetails.set({
-        ...state,
-        items: patchedItems.items,
-        dependants: patchedDependants.items,
-    });
-
-    return {updatedMain, updatedDependants};
+    return {
+        updatedMain: change.changedMain,
+        updatedDependants: change.changedDependants,
+    };
 };
 
 const removeTrackedIssueDialogItems = (
     idsToRemove: Set<string>,
 ): {removedMain: boolean; removedDependants: boolean} => {
-    const state = $issueDialogDetails.get();
-    const items = state.items.filter(item => !idsToRemove.has(item.getContentId().toString()));
-    const dependants = state.dependants.filter(item => !idsToRemove.has(item.getContentId().toString()));
-    const excludeChildrenIds = state.excludeChildrenIds.filter(id => !idsToRemove.has(id.toString()));
-    const excludedDependantIds = state.excludedDependantIds.filter(id => !idsToRemove.has(id.toString()));
-    const requiredDependantIds = state.requiredDependantIds.filter(id => !idsToRemove.has(id.toString()));
+    const change = removeTrackedContentItems($issueDialogDetails.get(), idsToRemove);
 
-    const removedMain = items.length !== state.items.length;
-    const removedDependants = dependants.length !== state.dependants.length;
-    const exclusionsChanged = excludeChildrenIds.length !== state.excludeChildrenIds.length ||
-        excludedDependantIds.length !== state.excludedDependantIds.length ||
-        requiredDependantIds.length !== state.requiredDependantIds.length;
-
-    if (!removedMain && !removedDependants && !exclusionsChanged) {
-        return {removedMain, removedDependants};
+    if (change.changed) {
+        $issueDialogDetails.set(change.state);
     }
 
-    $issueDialogDetails.set({
-        ...state,
-        items,
-        dependants,
-        excludeChildrenIds,
-        excludedDependantIds,
-        requiredDependantIds,
-    });
+    return {
+        removedMain: change.changedMain,
+        removedDependants: change.changedDependants,
+    };
+};
 
-    return {removedMain, removedDependants};
+const getCurrentIssueDialogIssue = (): Issue | undefined => {
+    const state = $issueDialogDetails.get();
+    if (state.issue) {
+        return state.issue;
+    }
+
+    const {issueId, issues} = $issueDialog.get();
+    const currentIssueId = state.issueId ?? issueId;
+
+    return issues.find(item => item.getIssue().getId() === currentIssueId)?.getIssue();
 };
 
 const reloadIssueDialogItemsForCurrentIssue = (): void => {
-    const {issue} = $issueDialogDetails.get();
+    const issue = getCurrentIssueDialogIssue();
     if (!issue) {
         return;
     }
@@ -1139,33 +1127,24 @@ $contentRenamed.subscribe(onIssueDialogDetailsSocketEvent((event) => {
 }));
 
 $contentDeleted.subscribe(onIssueDialogDetailsSocketEvent((event) => {
-    const ids = new Set(event.data.map(item => item.getContentId().toString()));
-    const {removedMain, removedDependants} = removeTrackedIssueDialogItems(ids);
+    const {removedMain, removedDependants} = removeTrackedIssueDialogItems(createContentIdSet(event.data));
     if (removedMain || removedDependants) {
         reloadIssueDialogItemsForCurrentIssue();
     }
 }));
 
 $contentArchived.subscribe(onIssueDialogDetailsSocketEvent((event) => {
-    const ids = new Set(event.data.map(item => item.getContentId().toString()));
-    const {removedMain, removedDependants} = removeTrackedIssueDialogItems(ids);
+    const {removedMain, removedDependants} = removeTrackedIssueDialogItems(createContentIdSet(event.data));
     if (removedMain || removedDependants) {
         reloadIssueDialogItemsForCurrentIssue();
     }
 }));
 
 $contentPublished.subscribe(onIssueDialogDetailsSocketEvent((event) => {
-    const updates = event.data;
-    const trackedIds = new Set<string>([
-        ...$issueDialogDetails.get().items.map(item => item.getContentId().toString()),
-        ...$issueDialogDetails.get().dependants.map(item => item.getContentId().toString()),
-    ]);
-    const affects = updates.some(item => trackedIds.has(item.getContentId().toString()));
-    if (!affects) {
-        return;
+    const {updatedMain, updatedDependants} = patchTrackedIssueDialogItems(event.data);
+    if (updatedMain || updatedDependants) {
+        reloadIssueDialogItemsForCurrentIssue();
     }
-    patchTrackedIssueDialogItems(updates);
-    reloadIssueDialogItemsForCurrentIssue();
 }));
 
 $issueDialog.subscribe(({open, view, issueId}) => {

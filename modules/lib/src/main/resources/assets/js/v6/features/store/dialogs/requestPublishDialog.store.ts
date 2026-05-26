@@ -11,8 +11,13 @@ import {fetchContentSummaries} from '../../api/content';
 import {markAsReady, resolvePublishDependencies} from '../../api/publish';
 import {buildItems, dedupeItems, getItemIds} from '../../utils/cms/content/buildItems';
 import {hasContentIdInIds, uniqueIds} from '../../utils/cms/content/ids';
-import {patchItemsById} from '../../utils/cms/content/patchItemsById';
 import {findContentIdsWithCreatedDescendants} from '../../utils/cms/content/paths';
+import {
+    createContentIdSet,
+    patchTrackedContentItems,
+    refreshTrackedMainContentItems,
+    removeTrackedContentItems,
+} from '../../utils/cms/content/trackedItems';
 import {createGuardedSocketHandler} from '../../utils/store/createGuardedSocketHandler';
 import {createDebounce} from '../../utils/timing/createDebounce';
 import {
@@ -186,27 +191,16 @@ const onRequestPublishSocketEvent = <T>(
 const patchTrackedRequestPublishItems = (
     updates: ContentSummary[],
 ): {updatedMain: boolean; updatedDependants: boolean} => {
-    if (updates.length === 0) {
-        return {updatedMain: false, updatedDependants: false};
+    const change = patchTrackedContentItems($requestPublishDialog.get(), updates);
+
+    if (change.changed) {
+        $requestPublishDialog.set(change.state);
     }
 
-    const state = $requestPublishDialog.get();
-    const patchedItems = patchItemsById(state.items, updates);
-    const patchedDependants = patchItemsById(state.dependants, updates);
-    const updatedMain = patchedItems.changed;
-    const updatedDependants = patchedDependants.changed;
-
-    if (!updatedMain && !updatedDependants) {
-        return {updatedMain, updatedDependants};
-    }
-
-    $requestPublishDialog.set({
-        ...state,
-        items: patchedItems.items,
-        dependants: patchedDependants.items,
-    });
-
-    return {updatedMain, updatedDependants};
+    return {
+        updatedMain: change.changedMain,
+        updatedDependants: change.changedDependants,
+    };
 };
 
 const refreshRequestPublishMainItems = async (ids: ContentId[]): Promise<void> => {
@@ -215,9 +209,10 @@ const refreshRequestPublishMainItems = async (ids: ContentId[]): Promise<void> =
     }
 
     try {
-        const updatedItems = await fetchContentSummaries(ids);
-        if (updatedItems.length > 0) {
-            patchTrackedRequestPublishItems(updatedItems);
+        const change = await refreshTrackedMainContentItems($requestPublishDialog.get(), ids, fetchContentSummaries);
+
+        if (change.changed && isRequestPublishDialogActive()) {
+            $requestPublishDialog.set(change.state);
         }
     } catch (error) {
         console.error(error);
@@ -263,37 +258,16 @@ const syncQueuedRequestPublishSocketChanges = async (): Promise<void> => {
 const removeTrackedRequestPublishItems = (
     idsToRemove: Set<string>,
 ): {removedMain: boolean; removedDependants: boolean} => {
-    const state = $requestPublishDialog.get();
-    const items = state.items.filter(item => !idsToRemove.has(item.getContentId().toString()));
-    const dependants = state.dependants.filter(item => !idsToRemove.has(item.getContentId().toString()));
-    const excludeChildrenIds = state.excludeChildrenIds.filter(id => !idsToRemove.has(id.toString()));
-    const excludedDependantIds = state.excludedDependantIds.filter(id => !idsToRemove.has(id.toString()));
-    const requiredDependantIds = state.requiredDependantIds.filter(id => !idsToRemove.has(id.toString()));
+    const change = removeTrackedContentItems($requestPublishDialog.get(), idsToRemove);
 
-    const removedMain = items.length !== state.items.length;
-    const removedDependants = dependants.length !== state.dependants.length;
-    const exclusionsChanged = excludeChildrenIds.length !== state.excludeChildrenIds.length ||
-        excludedDependantIds.length !== state.excludedDependantIds.length ||
-        requiredDependantIds.length !== state.requiredDependantIds.length;
-
-    if (!removedMain && !removedDependants && !exclusionsChanged) {
-        return {removedMain, removedDependants};
+    if (change.changed) {
+        $requestPublishDialog.set(change.state);
     }
 
-    $requestPublishDialog.set({
-        ...state,
-        items,
-        dependants,
-        excludeChildrenIds,
-        excludedDependantIds,
-        requiredDependantIds,
-    });
-
-    return {removedMain, removedDependants};
-};
-
-const getRemovedRequestPublishIds = (items: {getContentId: () => {toString: () => string}}[]): Set<string> => {
-    return new Set(items.map(item => item.getContentId().toString()));
+    return {
+        removedMain: change.changedMain,
+        removedDependants: change.changedDependants,
+    };
 };
 
 const handleRemovedRequestPublishItems = (idsToRemove: Set<string>): void => {
@@ -706,13 +680,13 @@ $contentRenamed.subscribe(onRequestPublishSocketEvent((event) => {
 }));
 
 $contentDeleted.subscribe(onRequestPublishSocketEvent((event) => {
-    handleRemovedRequestPublishItems(getRemovedRequestPublishIds(event.data));
+    handleRemovedRequestPublishItems(createContentIdSet(event.data));
 }, (event) => event.data.map(item => item.getContentId().toString())));
 
 $contentArchived.subscribe(onRequestPublishSocketEvent((event) => {
-    handleRemovedRequestPublishItems(getRemovedRequestPublishIds(event.data));
+    handleRemovedRequestPublishItems(createContentIdSet(event.data));
 }, (event) => event.data.map(item => item.getContentId().toString())));
 
 $contentPublished.subscribe(onRequestPublishSocketEvent((event) => {
-    handleRemovedRequestPublishItems(getRemovedRequestPublishIds(event.data));
+    handleRemovedRequestPublishItems(createContentIdSet(event.data));
 }, (event) => event.data.map(item => item.getContentId().toString())));
