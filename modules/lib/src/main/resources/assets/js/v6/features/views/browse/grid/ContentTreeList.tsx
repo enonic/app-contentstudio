@@ -478,6 +478,7 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
             selectionMode="multiple"
             active={activeId}
             onActiveChange={setActive}
+            preserveFilteredSelection={isFilterActive}
             onExpand={handleExpand}
             onCollapse={handleCollapse}
             onActivate={handleActivate}

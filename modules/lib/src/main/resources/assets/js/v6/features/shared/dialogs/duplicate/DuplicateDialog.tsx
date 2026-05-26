@@ -9,7 +9,7 @@ import {
     cancelDuplicateDialog,
     executeDuplicateDialogAction
 } from '../../../store/dialogs/duplicateDialog.store';
-import {resetSelection} from '../../../store/contentTreeSelection.store';
+import {clearSelection, setActive} from '../../../store/contentTreeSelection.store';
 import {DuplicateDialogMainContent} from './DuplicateDialogMainContent';
 import {DuplicateDialogProgressContent} from './DuplicateDialogProgressContent';
 
@@ -46,7 +46,8 @@ export const DuplicateDialog = (): ReactElement => {
         setView('progress');
         const started = await executeDuplicateDialogAction();
         if (started) {
-            resetSelection();
+            setActive(null);
+            clearSelection();
             return;
         }
         setView('main');
