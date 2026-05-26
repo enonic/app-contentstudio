@@ -26,7 +26,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@enonic/ui": "~1.0.0-beta.6",
+    "@enonic/ui": "~1.0.0-beta.7",
     "@nanostores/preact": "^1.0.0",
     "ckeditor4-react": "4.3.0",
     "class-variance-authority": "^0.7.1",
@@ -89,7 +89,7 @@
   },
   "packageManager": "pnpm@10.33.4",
   "engines": {
-    "node": ">= 24.13.0",
+    "node": ">= 24.16.0",
     "pnpm": ">= 10.33.4"
   }
 }

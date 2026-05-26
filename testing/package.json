@@ -27,9 +27,9 @@
     "properties-reader": "3.0.1",
     "webdriverio": "9.27.0"
   },
+  "packageManager": "pnpm@10.33.4",
   "engines": {
-    "node": ">= 24.13.0",
-    "pnpm": ">= 10.33.4",
-    "npm": ">= 11.6.2"
+    "node": ">= 24.16.0",
+    "pnpm": ">= 10.33.4"
   }
 }
