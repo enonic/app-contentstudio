@@ -33,6 +33,7 @@ export class ImageSelectorSelectedOptionView
 
         this.icon = new ImgEl();
         this.icon.setDraggable('false');
+        this.icon.getEl().setAttribute('loading', 'lazy');
         this.progress = new ProgressBar();
         this.error = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.compact).setAppendIcon(true).build();
         this.loadMask = new LoadMask(this);
@@ -41,8 +42,6 @@ export class ImageSelectorSelectedOptionView
             if (this.getOption().getDisplayValue().getContentSummary()) {
                 this.showResult();
             }
-
-            ResponsiveManager.fireResizeEvent();
         });
     }
 
