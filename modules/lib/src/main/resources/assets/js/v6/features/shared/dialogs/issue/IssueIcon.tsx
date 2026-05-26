@@ -27,7 +27,7 @@ export const IssueIcon = ({issue, type, className}: IssueIconProps): ReactElemen
             data-component={ISSUE_ICON_NAME}
             className={cn(
                 'size-6 shrink-0',
-                isTask && 'border-subtle border-solid rounded-sm p-0.25 border-2',
+                isTask && 'border-subtle border-solid rounded-sm p-px border-2',
                 className,
             )}
         />
