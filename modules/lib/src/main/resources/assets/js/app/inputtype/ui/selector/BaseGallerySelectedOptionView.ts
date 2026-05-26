@@ -52,7 +52,7 @@ export abstract class BaseGallerySelectedOptionView<T> extends LibBaseSelectedOp
     doRender(): Q.Promise<boolean> {
         this.initElements();
 
-        this.appendChild(this.createWrapper(), true);
+        this.appendChild(this.createWrapper());
 
         this.whenRendered(() => {
             if (this.option) {
