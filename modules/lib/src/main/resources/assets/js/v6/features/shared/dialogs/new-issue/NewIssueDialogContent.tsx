@@ -183,6 +183,7 @@ export const NewIssueDialogContent = (): ReactElement => {
                             selection={selectedIds}
                             onSelectionChange={handleSelectionChange}
                             disabled={submitting}
+                            closeOnBlur={true}
                         />
                         <SplitList>
                             <SplitList.Primary
