@@ -5,7 +5,13 @@ import {type ReactElement, useCallback, useEffect, useMemo} from 'react';
 import {FieldRegistryProvider, RawValueProvider, ValidationVisibilityProvider} from '@enonic/lib-admin-ui/form2';
 import {useI18n} from '../../../hooks/useI18n';
 import {getAiFieldRegistry} from '../../../store/ai/ai.field-registry';
-import {$mixinsDescriptors, $wizardDraftMixins, notifyMixinMounted, setDraftMixinEnabled} from '../../../store/wizardContent.store';
+import {
+    $mixinsDescriptors,
+    $wizardDraftMixins,
+    $wizardReadOnly,
+    notifyMixinMounted,
+    setDraftMixinEnabled,
+} from '../../../store/wizardContent.store';
 import {$validationVisibility, getMixinRawValueMap} from '../../../store/wizardValidation.store';
 import {FormRenderer} from '../../../shared/form';
 
@@ -17,6 +23,7 @@ export const MixinView = ({mixinName}: MixinViewProps): ReactElement | null => {
     const descriptors = useStore($mixinsDescriptors);
     const draftMixins = useStore($wizardDraftMixins);
     const visibility = useStore($validationVisibility);
+    const readOnly = useStore($wizardReadOnly);
     const unknownMessage = useI18n('field.mixin.unavailable');
     const detachLabel = useI18n('action.mixin.detach');
 
@@ -62,6 +69,7 @@ export const MixinView = ({mixinName}: MixinViewProps): ReactElement | null => {
                         size="sm"
                         variant="outline"
                         label={detachLabel}
+                        disabled={readOnly}
                         onClick={handleDetach}
                     />
                 </div>
@@ -78,6 +86,7 @@ export const MixinView = ({mixinName}: MixinViewProps): ReactElement | null => {
                     <FormRenderer
                         form={form}
                         propertySet={mixinData.getRoot()}
+                        enabled={!readOnly}
                         applicationKey={applicationKey}
                     />
                 </FieldRegistryProvider>

@@ -183,7 +183,7 @@ export const ContentCombobox = ({
             >
                 <Combobox.Content onKeyDown={handleKeyDown}>
                     <Combobox.Control className={cn(withRightButton && 'rounded-tr-none rounded-br-none')}>
-                        <Combobox.Search className={cn(!hideToggleIcon && 'pl-0', withRightButton && 'rounded-tr-none rounded-br-none')}>
+                        <Combobox.Search disabled={disabled} className={cn(!hideToggleIcon && 'pl-0', withRightButton && 'rounded-tr-none rounded-br-none')}>
                             {hideToggleIcon ? (
                                 <Combobox.SearchIcon />
                             ) : (

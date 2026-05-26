@@ -6,6 +6,7 @@ import {useI18n} from '../../../hooks/useI18n';
 import {
     $hasPage,
     $mixinsMenuItems,
+    $wizardReadOnly,
     setDraftMixinEnabled,
 } from '../../../store/wizardContent.store';
 import {$invalidTabs, $validationVisibility} from '../../../store/wizardValidation.store';
@@ -60,6 +61,7 @@ export const MixinMenu = (): ReactElement => {
     const menuItems = useStore($mixinsMenuItems);
     const invalidTabs = useStore($invalidTabs);
     const validationVisibility = useStore($validationVisibility);
+    const readOnly = useStore($wizardReadOnly);
 
     const [pendingChanges, setPendingChanges] = useState<Map<string, boolean>>(new Map());
     const [open, setOpen] = useState(false);
@@ -102,7 +104,14 @@ export const MixinMenu = (): ReactElement => {
     return (
         <Menu open={open} onOpenChange={handleOpenChange}>
             <Menu.Trigger asChild>
-                <IconButton aria-label={toggleMixinLabel} className="shrink-0" icon={Ellipsis} size="sm" variant="text"/>
+                <IconButton
+                    aria-label={toggleMixinLabel}
+                    className="shrink-0"
+                    icon={Ellipsis}
+                    size="sm"
+                    variant="text"
+                    disabled={readOnly}
+                />
             </Menu.Trigger>
             <Menu.Portal>
                 <Menu.Content align="end">
