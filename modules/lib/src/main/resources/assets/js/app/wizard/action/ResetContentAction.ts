@@ -7,6 +7,7 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentInheritType} from '../../content/ContentInheritType';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {DialogPresetConfirmElement} from '../../../v6/features/shared/dialogs/DialogPreset';
+import {setWizardReadOnly} from '../../../v6/features/store/wizardContent.store';
 
 export class ResetContentAction
     extends Action {
@@ -37,6 +38,7 @@ export class ResetContentAction
             .then(() => {
                 showFeedback(i18n('notify.content.reset'));
                 wizardPanel.setEnabled(false);
+                setWizardReadOnly(true);
             })
             .catch(DefaultErrorHandler.handle);
     }
