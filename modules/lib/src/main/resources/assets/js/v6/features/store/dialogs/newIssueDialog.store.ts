@@ -397,7 +397,10 @@ $contentArchived.subscribe(onNewIssueSocketEvent((event) => {
 }));
 
 $contentPublished.subscribe(onNewIssueSocketEvent((event) => {
-    handleRemovedNewIssueItems(new Set(event.data.map(item => item.getContentId().toString())));
+    const {updatedMain, updatedDependants} = patchTrackedNewIssueItems(event.data);
+    if (updatedMain || updatedDependants) {
+        reloadDependenciesDebounced();
+    }
 }));
 
 const reloadNewIssueDependencies = async (): Promise<void> => {

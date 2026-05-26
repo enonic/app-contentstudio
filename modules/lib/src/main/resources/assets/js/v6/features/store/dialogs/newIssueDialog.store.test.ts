@@ -59,10 +59,6 @@ const removalEventCases = [
         name: 'archived',
         emit: (ids: string[]) => emitContentArchived(ids.map(createMockChangeItem)),
     },
-    {
-        name: 'published',
-        emit: (ids: string[]) => emitContentPublished(ids.map(id => createMockContent(id))),
-    },
 ] as const;
 
 async function flushNewIssueReload(): Promise<void> {
@@ -143,6 +139,20 @@ describe('newIssueDialog.store', () => {
             expect($newIssueDialog.get().excludeChildrenIds).toEqual([]);
         },
     );
+
+    it('patches published items in the open dialog without removing them', async () => {
+        const original = createMockContent('item-1', {displayName: 'Original'});
+        const published = createMockContent('item-1', {displayName: 'Published', isOnline: true});
+
+        openNewIssueDialog([original]);
+        await flushNewIssueReload();
+
+        emitContentPublished([published]);
+        await flushNewIssueReload();
+
+        expect($newIssueDialog.get().items.map(item => item.getId())).toEqual(['item-1']);
+        expect($newIssueDialog.get().items[0].getDisplayName()).toBe('Published');
+    });
 
     it('ignores events when the dialog is closed', async () => {
         const item = createMockContent('item-1', {displayName: 'Item'});
