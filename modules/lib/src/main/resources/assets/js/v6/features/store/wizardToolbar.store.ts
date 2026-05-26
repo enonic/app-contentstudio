@@ -18,6 +18,8 @@ const createInitialState = (): WizardToolbarStore => ({
     isContentOnline: false,
     contentState: null,
     isLayerProject: false,
+    isContentInherited: false,
+    isContentDataInherited: false,
 });
 
 export const $wizardToolbar = map<WizardToolbarStore>(createInitialState());
@@ -109,6 +111,11 @@ export function setWizardToolbarIsContentOnline(isContentOnline: boolean): void 
 
 export function setWizardToolbarIsLayerProject(isLayerProject: boolean): void {
     $wizardToolbar.setKey('isLayerProject', isLayerProject);
+}
+
+export function setWizardToolbarContentInheritance(isInherited: boolean, isDataInherited: boolean): void {
+    $wizardToolbar.setKey('isContentInherited', isInherited);
+    $wizardToolbar.setKey('isContentDataInherited', isDataInherited);
 }
 
 export function resetWizardToolbar(): void {

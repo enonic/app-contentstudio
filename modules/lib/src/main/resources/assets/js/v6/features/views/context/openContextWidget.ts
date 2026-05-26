@@ -4,15 +4,17 @@ import {$registeredWidgets} from '../../store/contextWidgets.store';
 export type OpenContextWidgetOptions = {
     applicationKey?: string;
     showPanel?: boolean;
+    contentId?: string;
 };
 
 export function openContextWidget(name: string, options: OpenContextWidgetOptions = {}): boolean {
-    const {applicationKey, showPanel = true} = options;
+    const {applicationKey, showPanel = true, contentId} = options;
 
     if (!isContextWidgetRegistered(name, applicationKey)) return false;
 
     InspectEvent.create()
         .setWidgetName(name, applicationKey)
+        .setContentId(contentId)
         .setShowPanel(showPanel)
         .build()
         .fire();

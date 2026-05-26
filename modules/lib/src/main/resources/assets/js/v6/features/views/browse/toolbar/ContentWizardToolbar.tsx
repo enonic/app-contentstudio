@@ -1,11 +1,12 @@
 import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Avatar, Button, cn, IconButton, Toggle, Toolbar, Tooltip} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {ArrowLeft, Layers, Link2} from 'lucide-react';
+import {ArrowLeft, Link2} from 'lucide-react';
 import {type ReactElement, useEffect, useMemo} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {LegacyElement} from '../../../shared/LegacyElement';
 import {JukeIcon} from '../../../shared/icons/JukeIcon';
+import {LayerIndicator} from '../../../shared/icons/LayerIndicator';
 import {ProjectIcon} from '../../../shared/icons/ProjectIcon';
 import {StatusIcon} from '../../../shared/icons/StatusIcon';
 import {StatusBadge} from '../../../shared/status/StatusBadge';
@@ -72,6 +73,8 @@ export const ContentWizardToolbar = ({
         canRenameContentPath,
         contentState,
         isLayerProject,
+        isContentInherited,
+        isContentDataInherited,
     } = useStore($wizardToolbar, {
         keys: [
             'projectLabel',
@@ -84,12 +87,14 @@ export const ContentWizardToolbar = ({
             'canRenameContentPath',
             'contentState',
             'isLayerProject',
+            'isContentInherited',
+            'isContentDataInherited',
         ],
     });
     const {'ai.contentOperator': isOperatorRegistered} = useStore($aiRegisteredPlugins, {keys: ['ai.contentOperator']});
     const {'ai.contentOperator': isOperatorDialogOpen} = useStore($aiPluginDialogOpen, {keys: ['ai.contentOperator']});
 
-    const layersLabel = useI18n('widget.layers.displayName');
+    const isContentLocalised = isContentInherited && !isContentDataInherited;
     const toolbarLabel = useI18n('wcag.contenteditor.toolbar.label');
     const projectRoot = useI18n('field.root');
     const fieldPathLabel = useI18n('field.path');
@@ -182,14 +187,12 @@ export const ContentWizardToolbar = ({
                     <OverflowActionRow actions={toolbarActions} className='hidden sm:flex min-w-0 flex-1' />
                 </div>
                 <div className='flex min-w-0 flex-1 items-center justify-center px-0 sm:flex-none sm:shrink sm:px-2'>
-                    {isLayerProject && (
-                        <Toolbar.Item asChild>
-                            <IconButton
-                                size='sm'
-                                icon={Layers}
-                                aria-label={layersLabel}
-                                onClick={onLayersClick}
-                                className='shrink-0 size-8'
+                    {isContentInherited && (
+                        <Toolbar.Item className='inline-flex shrink-0'>
+                            <LayerIndicator
+                                isLocalised={isContentLocalised}
+                                onClick={() => onLayersClick?.()}
+                                className='size-8'
                             />
                         </Toolbar.Item>
                     )}

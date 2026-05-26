@@ -7,6 +7,8 @@ export class InspectEvent extends Event {
 
     private readonly widgetApplicationKey: string | undefined;
 
+    private readonly contentId: string | undefined;
+
     private readonly showExtension: boolean;
 
     private readonly showPanel: boolean;
@@ -19,6 +21,7 @@ export class InspectEvent extends Event {
         this.showExtension = builder.showExtension;
         this.widgetName = builder.widgetName;
         this.widgetApplicationKey = builder.widgetApplicationKey;
+        this.contentId = builder.contentId;
         this.showPanel = builder.showPanel;
         this.source = builder.source;
     }
@@ -43,6 +46,10 @@ export class InspectEvent extends Event {
         return this.widgetApplicationKey;
     }
 
+    getContentId(): string | undefined {
+        return this.contentId;
+    }
+
     static on(handler: (event: InspectEvent) => void) {
         Event.bind(ClassHelper.getFullName(this), handler);
     }
@@ -61,6 +68,8 @@ export class InspectEventBuilder {
 
     widgetApplicationKey: string | undefined;
 
+    contentId: string | undefined;
+
     showExtension: boolean;
 
     showPanel: boolean;
@@ -70,6 +79,11 @@ export class InspectEventBuilder {
     setWidgetName(value: string, applicationKey?: string): InspectEventBuilder {
         this.widgetName = value;
         this.widgetApplicationKey = applicationKey;
+        return this;
+    }
+
+    setContentId(value: string | undefined): InspectEventBuilder {
+        this.contentId = value;
         return this;
     }
 
