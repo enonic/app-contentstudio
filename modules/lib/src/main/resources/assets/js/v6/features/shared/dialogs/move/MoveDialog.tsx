@@ -11,7 +11,7 @@ import {
     cancelMoveDialog,
     executeMoveDialogAction,
 } from '../../../store/dialogs/moveDialog.store';
-import {resetSelection} from '../../../store/contentTreeSelection.store';
+import {clearSelection, setActive} from '../../../store/contentTreeSelection.store';
 import {MoveDialogMainContent} from './MoveDialogMainContent';
 import {MoveDialogProgressContent} from './MoveDialogProgressContent';
 
@@ -45,7 +45,8 @@ export const MoveDialog = (): ReactElement => {
         setView('progress');
         const started = await executeMoveDialogAction();
         if (started) {
-            resetSelection();
+            setActive(null);
+            clearSelection();
             return;
         }
         resetView();

@@ -5,23 +5,39 @@ import {RefreshCcw} from 'lucide-react';
 import {type ReactElement, useMemo} from 'react';
 import {activateFilter, fetchRootChildrenIdsOnly, getFilterQuery} from '../../../api/content-fetcher';
 import {useI18n} from '../../../hooks/useI18n';
-import {$isFilterActive} from '../../../store/active-tree.store';
+import {$activeRawFlatNodes, $isFilterActive} from '../../../store/active-tree.store';
 import {clearProjectContentCache} from '../../../store/content.store';
-import {$isAllLoadedSelected, $isNoneSelected, $selectionCount, clearSelection, selectAll} from '../../../store/contentTreeSelection.store';
+import {$activeId, $isAllLoadedSelected, $isNoneSelected, $selectionCount, clearSelection, selectAll, setActive} from '../../../store/contentTreeSelection.store';
 import {$rootLoadingState, resetTree} from '../../../store/tree-list.store';
 
 type TreeListToolbarProps = {
     enabled?: boolean;
 };
 
-const handleReload = (): void => {
-    if ($isFilterActive.get()) {
-        const query = getFilterQuery();
-        if (query) void activateFilter(query);
-    } else {
-        resetTree();
-        clearProjectContentCache();
-        void fetchRootChildrenIdsOnly();
+const restoreActiveAfterReload = (activeId: string | null): void => {
+    if (!activeId) {
+        setActive(null);
+        return;
+    }
+
+    const activeExists = $activeRawFlatNodes.get().some((node) => node.nodeType === 'node' && node.id === activeId);
+    setActive(activeExists ? activeId : null);
+};
+
+const handleReload = async (): Promise<void> => {
+    const activeId = $activeId.get();
+
+    try {
+        if ($isFilterActive.get()) {
+            const query = getFilterQuery();
+            if (query) await activateFilter(query);
+        } else {
+            resetTree();
+            clearProjectContentCache();
+            await fetchRootChildrenIdsOnly();
+        }
+    } finally {
+        restoreActiveAfterReload(activeId);
     }
 };
 
