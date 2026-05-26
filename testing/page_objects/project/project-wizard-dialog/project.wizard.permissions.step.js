@@ -1,8 +1,6 @@
 /**
  * Created on 05.08.2022
  */
-const lib = require('../../../libs/elements');
-const appConst = require('../../../libs/app_const');
 const ProjectWizardDialog = require('./project.wizard.dialog');
 const PrincipalSelector = require('../../components/selectors/principal.combobox.dropdown');
 
@@ -13,11 +11,16 @@ const DESCRIPTION = "Give access to manage the project and its content";
 
 class ProjectWizardDialogPermissionsStep extends ProjectWizardDialog {
 
+    get container() {
+        return XPATH.container;
+    }
+
     // Adds a user with the default role (Contributor) in Roles step form:
     async selectProjectAccessRole(principalDisplayName) {
         let principalSelector = new PrincipalSelector(XPATH.container);
         await principalSelector.doFilterItem(principalDisplayName);
-        await principalSelector.clickOnFilteredByDisplayNameItemAndClickOnApply(principalDisplayName);
+        await principalSelector.clickOnOptionByDisplayName(principalDisplayName);
+        await principalSelector.clickOnApplySelectionButton();
         await this.pause(300);
     }
 
@@ -39,21 +42,25 @@ class ProjectWizardDialogPermissionsStep extends ProjectWizardDialog {
 
     // click on the role, open menu and select new role for the user:
     async updateUserAccessRole(userDisplayName, newRole) {
-        let projectAccessControlComboBox = new ProjectAccessControlComboBox();
-        return await projectAccessControlComboBox.updateUserAccessRole(userDisplayName, newRole, XPATH.container);
+        let principalSelector = new PrincipalSelector(XPATH.container);
+        return await principalSelector.updateUserAccessRole(userDisplayName, newRole);
     }
 
     //clicks on remove icon and  remove a user from Roles form:
     async removeProjectAccessItem(principalName) {
-        let projectAccessControlComboBox = new ProjectAccessControlComboBox();
-        return await projectAccessControlComboBox.removeProjectAccessItem(principalName, XPATH.container)
+        let principalSelector = new PrincipalSelector(XPATH.container);
+        return await principalSelector.clickOnRemoveButton(principalName);
     }
 
     //gets selected options - return names of selected principals:
-    async getSelectedPrincipals() {
-        let locator = XPATH.container + "//div[contains(@id,'PrincipalContainerSelectedOptionView')]//h6[contains(@class,'main-name')]"
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getTextInDisplayedElements(locator);
+    async getSelectedPrincipalOptions() {
+        try {
+            const itemLocator = this.container +
+                                "//div[@data-component='GridList.Row']//div[@data-component='ItemLabel']//span[contains(@class,'font-semibold') and not(ancestor::span[@data-component='Avatar.Root'])]";
+            return await this.getTextInElements(itemLocator);
+        } catch (err) {
+            await this.handleError(`Principal Selector, selected options...`, 'err_project_', err);
+        }
     }
 }
 

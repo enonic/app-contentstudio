@@ -2,20 +2,30 @@
  * Created on 22.02.2024
  */
 const BasDropdown = require('../selectors/base.dropdown');
-const XPATH = {
-    container: "//div[contains(@id,'ProjectApplicationsComboBox')]",
-};
+const {DROPDOWN} = require("../../../libs/elements");
+
 
 // Applications Step wizard( or form panel) - select an application in the dropdown selector
 class ProjectApplicationsCombobox extends BasDropdown {
 
-    get container() {
-        return XPATH.container;
+    constructor(parentElementXpath) {
+        super();
+        this._parentContainer = parentElementXpath;
     }
 
-    async clickFilteredByAppNameItemAndClickOnOk(appDisplayName, parentElement) {
+    get container() {
+        return this._parentContainer
+    }
+
+    optionsFilterInput() {
+        return this.container + DROPDOWN.OPTION_FILTER_INPUT;
+    }
+
+    async clickFilteredByAppNameItemAndClickOnOk(appDisplayName) {
         try {
-            await this.clickOnFilteredByDisplayNameItemAndClickOnApply(appDisplayName, parentElement);
+            await this.doFilterItem(appDisplayName);
+            await this.clickOnOptionByDisplayName(appDisplayName);
+            await this.clickOnApplySelectionButton();
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
             throw new Error(`Error occurred in Project Applications Comboboox selector, screenshot:${screenshot} ` + err);

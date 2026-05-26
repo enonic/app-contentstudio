@@ -24,24 +24,24 @@ const COMMON = {
 
     INPUTS: {
         CHECKBOX_INPUT: "//input[@type='checkbox']",
-        DATA_COMPONENT_INPUT:"//div[@data-component='Input']",
-        FORM_RENDERER_DATA_COMPONENT:"//div[@data-component='FormRenderer']",
-        DATA_COMPONENT_INPUT_FIELD:"//div[@data-component='InputField']",
-        inputFieldByLabel:(label)=>`//div[@data-component='InputField' and descendant::div[@data-component='InputLabel' and contains(.,'${label}')]]`,
+        DATA_COMPONENT_INPUT: "//div[@data-component='Input']",
+        FORM_RENDERER_DATA_COMPONENT: "//div[@data-component='FormRenderer']",
+        DATA_COMPONENT_INPUT_FIELD: "//div[@data-component='InputField']",
+        inputFieldByLabel: (label) => `//div[@data-component='InputField' and descendant::div[@data-component='InputLabel' and contains(.,'${label}')]]`,
         OCCURRENCES_DATA_COMPONENT: "//div[@data-component='OccurrenceList']",
-        VALIDATION_RECORDING:"//div[contains(@class,'text-error')]",
+        VALIDATION_RECORDING: "//div[contains(@class,'text-error')]",
         CHECKBOX_INPUT_CHECKED: "//input[@type='checkbox' and @aria-checked='true']",
         TEXT: "//input[@type='text']",
         TEXTAREA: "//textarea",
         INPUT: "//input",
-        DIV_BUTTON:"//div[@role='button']",
+        DIV_BUTTON: "//div[@role='button']",
         textAreaByName: (name) => `//textarea[@name='${name}']`,
         inputByAriaLabel: (ariaLabel) => `//input[@aria-label='${ariaLabel}']`,
         dataComponentInputByLabel: (label) => `//div[@data-component='Input' and descendant::label[contains(.,'${label}')]]`,
         dataComponentRadioByLabel: (label) => `//button[@data-component='RadioGroup.Item' and descendant::span[contains(.,'${label}')]]`,
     },
-    CKE:{
-        textAreaElement:"//textarea[contains(@id,'htmlarea')]",
+    CKE: {
+        textAreaElement: "//textarea[contains(@id,'htmlarea')]",
         TEXTAREA_DIV: "//div[contains(@id,'cke_TextArea')]",
         insertTableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
         pasteModeButton: `//a[contains(@class,'cke_button') and contains(@title,'Paste mode')]`,
@@ -108,6 +108,7 @@ const BUTTONS = {
     MORE_BUTTON: "//button[contains(@id,'MoreButton')]",
     ADD_BUTTON: "//div[contains(@class,'bottom-button-row')]//button[child::span[text()='Add']]",
     BUTTON: label => `//button[contains(@type,'button') and contains(.,'${label}')]`,
+    ICON_BUTTON:"//button[@data-component='IconButton']",
 };
 const LIVE_VIEW = {
     EMULATOR_DROPDOWN: "//div[contains(@id,'EmulatorDropdown')]",
@@ -124,7 +125,7 @@ const LIVE_VIEW = {
 const TREE_GRID = {
     DIV_ROLE_GRID: "//div[@role='grid']",
     DIV_ROLE_ROW: "//div[@role='row']",
-    CONTENT_TREE_LIST_DATA_COMPONENT:"//div[@data-component='ContentTreeList']",
+    CONTENT_TREE_LIST_DATA_COMPONENT: "//div[@data-component='ContentTreeList']",
     VIRTUALIZED_TREE_ROW: "//div[@data-component='VirtualizedTreeList.Row']",
     TREE_LIST_DIV: "//div[contains(@id,'tree-list')]",
     TREE_LIST_ITEM_COMPONENT: "//div[@data-component='ListItem']",
@@ -159,14 +160,16 @@ const TREE_GRID = {
     itemTreeGridListElementByName: name => {
         return `//div[@data-component='VirtualizedTreeList.Row' and descendant::small[contains(@class,'t-subtle') and contains(.,'${name}')]]`;
     },
+
+    gridListRowByDisplayName: displayName => `//div[@data-component='GridList.Row' and descendant::div[@data-component='ItemLabel']//span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`,
 }
 const DROPDOWN = {
-    LIST_BOX_ITEM:"//div[@data-component='Listbox.Item']",
-    CHECKBOX_DATA_COMPONENT:"//div[@data-component='Checkbox']",
-    ITEM_LABEL:"//div[@data-component='ItemLabel']",
-    SELECTOR_UPLOAD_BUTTON:"//div[@data-component='SelectorUploadButton']",
-    ITEM_LABEL_NAME_SPAN:"//div[@data-component='ItemLabel']//span",
-    MODE_TOGGLE:"//button[@aria-label='Tree view' or @aria-label='List view']",
+    LIST_BOX_ITEM: "//div[@data-component='Listbox.Item']",
+    CHECKBOX_DATA_COMPONENT: "//div[@data-component='Checkbox']",
+    ITEM_LABEL: "//div[@data-component='ItemLabel']",
+    SELECTOR_UPLOAD_BUTTON: "//div[@data-component='SelectorUploadButton']",
+    ITEM_LABEL_NAME_SPAN: "//div[@data-component='ItemLabel']//span",
+    MODE_TOGGLE: "//button[@aria-label='Tree view' or @aria-label='List view']",
     DROPDOWN_LIST_ITEM_DISPLAY_NAME: `//div[@role='option']//div[1]//span[1]`,
     CONTENT_LABEL_OPTIONS_NAME: "//div[@role='treeitem']//div[@data-component='ContentLabel']/div[2]/span",
     CONTENT_LABEL_OPTIONS_NAME_FLAT_MODE: "//div[@role='treeitem' and @aria-level='0']//div[@data-component='ContentLabel']/div[2]/span",
@@ -175,7 +178,7 @@ const DROPDOWN = {
     CONTENT_COMBOBOX: "//div[@data-component='ContentCombobox')]",
     DROPDOWN_HANDLE: "//button[@aria-label='Toggle']",
     LISTBOX_OPTIONS_DIV: "//div[contains(@role,'listbox')]",
-    imageItemView: (imageDisplayName)=>`//div[@data-component='ImageSelectorItemView' and descendant::span[contains(text(),'${imageDisplayName}')]]`,
+    imageItemView: (imageDisplayName) => `//div[@data-component='ImageSelectorItemView' and descendant::span[contains(text(),'${imageDisplayName}')]]`,
     listboxOptionByText: (text) => `//div[contains(@role,'option')  and descendant::span[text()='${text}']]`,
     optionByDisplayName: (displayName) => `//div[@data-component='Listbox.Item'  and descendant::span[contains(.,'${displayName}')]]`,
     listItemOptionByDisplayName: (displayName) => `//div[@role='listitem'  and descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${displayName}')]]]`,
@@ -209,7 +212,7 @@ const DIALOG_ITEMS = {
     SECONDARY_DATA_COMPONENT_DIV: "//div[@data-component='SplitList.Secondary']",
     INCLUDE_CHILDREN_CHECKBOX: "/following::div[contains(@id,'children') and descendant::span[contains(.,'Include children')]]//label",
     CONTENT_ROW: "//div[@data-component='ContentRow' and (not(@aria-disabled) or @aria-disabled!='true')]",
-    CONTENT_REMOVE_BUTTON:"//div[@data-component='ContentRowRemoveButton' ]//button",
+    CONTENT_REMOVE_BUTTON: "//div[@data-component='ContentRowRemoveButton' ]//button",
     mainItemRowByName: name => `//div[@data-component='ContentRow' and descendant::div[@data-component='ContentLabel' and descendant::span[contains(.,'${name}')]]]`,
     contentRowByName: displayName => `//div[@data-component='ContentRow' and (not(@aria-disabled) or @aria-disabled!='true') and (descendant::div[@data-component='ContentRowLabel' and descendant::span[contains(.,'${displayName}')]])]`,
     ITEMS_NAME_SPAN: "//div[@data-component='ContentRowLabel']//div[@data-component='ContentLabel']//div[2]//span",

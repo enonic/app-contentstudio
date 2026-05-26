@@ -3,12 +3,12 @@
  */
 const BasDropdown = require('./base.dropdown');
 const appConst = require('../../../libs/app_const');
-const {DROPDOWN} = require('../../../libs/elements');
+const {DROPDOWN, TREE_GRID, BUTTONS} = require('../../../libs/elements');
 
 
 class PrincipalSelector extends BasDropdown {
 
-    constructor(parentElementXpath='') {
+    constructor(parentElementXpath = '') {
         super();
         this._container = parentElementXpath;
     }
@@ -40,6 +40,16 @@ class PrincipalSelector extends BasDropdown {
         await this.waitForElementDisplayed(optionsLocator, appConst.mediumTimeout);
         await this.pause(200);
         return await this.getTextInDisplayedElements(optionsLocator);
+    }
+
+    async clickOnRemoveButton(principalName) {
+        try {
+            const removeIconLocator =  TREE_GRID.gridListRowByDisplayName(principalName) + BUTTONS.ICON_BUTTON;
+            await this.waitForElementDisplayed(removeIconLocator);
+            return await this.clickOnElement(removeIconLocator);
+        } catch (err) {
+            await this.handleError(`Principal Selector, tried to click on the remove button for the principal: ${principalName} `, 'err_remove_role', err);
+        }
     }
 }
 
