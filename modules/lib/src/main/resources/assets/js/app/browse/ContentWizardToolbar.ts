@@ -27,6 +27,7 @@ import {
     $wizardToolbar,
     setWizardToolbarCanRenameContentPath,
     resetWizardToolbar,
+    setWizardToolbarContentInheritance,
     setWizardToolbarContentPath,
     setWizardToolbarCollaborators,
     setWizardToolbarIsContentOnline,
@@ -39,9 +40,11 @@ import {$wizardDraftName, setDraftName} from '../../v6/features/store/wizardCont
 import {openRenameContentDialog} from '../../v6/features/store/dialogs/renameContentDialog.store';
 import type {WizardToolbarCollaborator} from '../../v6/features/store/wizardToolbar.types';
 import {calcTreePublishStatus} from '../../v6/features/utils/cms/content/status';
+import {LAYERS_WIDGET_NAME} from '../../v6/features/utils/widget/layers';
 import {
     ContentWizardToolbarElement as V6ContentWizardToolbarElement
 } from '../../v6/features/views/browse/toolbar/ContentWizardToolbar';
+import {openContextWidget} from '../../v6/features/views/context/openContextWidget';
 
 export type ContentWizardToolbarConfig = ToolbarConfig & {
     actions: ContentWizardActions;
@@ -173,6 +176,7 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
         setWizardToolbarContentPath(contentPath);
         setWizardToolbarCanRenameContentPath(!!item?.getPath());
         setWizardToolbarIsContentOnline(this.isOnline(publishStatus));
+        setWizardToolbarContentInheritance(!!item?.isInherited(), !!item?.isDataInherited());
         this.contentWizardToolbarPublishControls.setContent(item);
 
         if (this.isCollaborationEnabled()) {
@@ -369,7 +373,7 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
     }
 
     private handleLayersClicked(): void {
-        // Layers widget integration is pending. Keep icon visible and this as a safe no-op.
+        openContextWidget(LAYERS_WIDGET_NAME);
     }
 
     private addHiddenPublishControls(): void {

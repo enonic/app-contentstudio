@@ -9,6 +9,7 @@ import {type ResponsiveRange} from '@enonic/lib-admin-ui/ui/responsive/Responsiv
 import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {getContentAsCSCS} from '../../../v6/features/store/content.store';
 import {InspectEvent} from '../../event/InspectEvent';
 import {ContextPanelState} from './ContextPanelState';
 import {type ContextView} from './ContextView';
@@ -55,12 +56,21 @@ export class ContextSplitPanel
         this.dockedContextPanel.onAdded(this.renderAfterDockedPanelReady.bind(this));
 
         InspectEvent.on((event: InspectEvent) => {
+            const contentId = event.getContentId();
+            if (contentId !== undefined) {
+                const item = getContentAsCSCS(contentId);
+                if (item) {
+                    void this.contextView.setItem(item);
+                }
+            }
+
             const widgetName = event.getWidgetName();
-            if (widgetName !== undefined) {
+            const activatingWidget = widgetName !== undefined;
+            if (activatingWidget) {
                 this.contextView.setActiveExtensionByName(widgetName, event.getWidgetApplicationKey());
             }
             if (event.isShowPanel() && this.isRendered() && !this.isExpanded()) {
-                this.showContextPanel();
+                this.showContextPanel(!activatingWidget);
             }
         });
 
@@ -126,7 +136,13 @@ export class ContextSplitPanel
         this.resetToggleButtonActiveState();
     }
 
-    showContextPanel(): void {
+    showContextPanel(refreshActive: boolean = true): void {
+        // ? `setState(EXPANDED)` mirrors into `$isContextOpen` whose subscriber re-enters
+        // showContextPanel() with refreshActive=true, refetching the widget the caller asked us not to.
+        if (this.isExpanded()) {
+            return;
+        }
+
         this.switchPanelModeIfNeeded();
 
         if (this.isContextPanelLessThanMin()) {
@@ -136,7 +152,7 @@ export class ContextSplitPanel
         this.showSecondPanel();
         this.setState(ContextPanelState.EXPANDED);
         this.resetToggleButtonActiveState();
-        if (this.dockedContextPanel.getItem()) {
+        if (refreshActive && this.dockedContextPanel.getItem()) {
             this.contextView.updateActiveExtension();
         }
     }
