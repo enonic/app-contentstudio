@@ -10,7 +10,23 @@ import {fetchContentSummaries} from '../../api/content';
 import {resolvePublishDependencies} from '../../api/publish';
 import {buildItems, dedupeItems, getItemIds} from '../../utils/cms/content/buildItems';
 import {hasContentIdInIds, uniqueIds} from '../../utils/cms/content/ids';
+import {findContentIdsWithCreatedDescendants} from '../../utils/cms/content/paths';
+import {
+    createContentIdSet,
+    patchTrackedContentItems,
+    refreshTrackedMainContentItems,
+    removeTrackedContentItems,
+} from '../../utils/cms/content/trackedItems';
+import {createGuardedSocketHandler} from '../../utils/store/createGuardedSocketHandler';
 import {createDebounce} from '../../utils/timing/createDebounce';
+import {
+    $contentArchived,
+    $contentCreated,
+    $contentDeleted,
+    $contentPublished,
+    $contentRenamed,
+    $contentUpdated,
+} from '../socket.store';
 import {closeIssueDialog, openIssueDialogDetails} from './issueDialog.store';
 
 const DEPENDENCY_RELOAD_DELAY_MS = 150;
@@ -273,6 +289,111 @@ export const submitNewIssueDialog = async (): Promise<void> => {
         $newIssueDialog.setKey('submitting', false);
     }
 };
+
+//
+// * Socket Event Handlers
+//
+
+const isNewIssueDialogActive = (): boolean => {
+    const {open, items} = $newIssueDialog.get();
+    return open && items.length > 0;
+};
+
+const onNewIssueSocketEvent = createGuardedSocketHandler(isNewIssueDialogActive);
+
+const patchTrackedNewIssueItems = (
+    updates: ContentSummary[],
+): {updatedMain: boolean; updatedDependants: boolean} => {
+    const change = patchTrackedContentItems($newIssueDialog.get(), updates);
+
+    if (change.changed) {
+        $newIssueDialog.set(change.state);
+    }
+
+    return {
+        updatedMain: change.changedMain,
+        updatedDependants: change.changedDependants,
+    };
+};
+
+const removeTrackedNewIssueItems = (idsToRemove: Set<string>): {removedMain: boolean; removedDependants: boolean} => {
+    const change = removeTrackedContentItems($newIssueDialog.get(), idsToRemove);
+
+    if (change.changed) {
+        $newIssueDialog.set(change.state);
+    }
+
+    return {
+        removedMain: change.changedMain,
+        removedDependants: change.changedDependants,
+    };
+};
+
+const handleRemovedNewIssueItems = (idsToRemove: Set<string>): void => {
+    const {removedMain, removedDependants} = removeTrackedNewIssueItems(idsToRemove);
+
+    if ($newIssueDialog.get().items.length === 0) {
+        $newIssueDialog.set(resetDependenciesState({
+            ...$newIssueDialog.get(),
+            items: [],
+            excludeChildrenIds: [],
+        }));
+        return;
+    }
+
+    if (removedMain || removedDependants) {
+        reloadDependenciesDebounced();
+    }
+};
+
+const refreshNewIssueMainItems = async (ids: ContentId[]): Promise<void> => {
+    try {
+        const change = await refreshTrackedMainContentItems($newIssueDialog.get(), ids, fetchContentSummaries);
+
+        if (change.changed && isNewIssueDialogActive()) {
+            $newIssueDialog.set(change.state);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+$contentCreated.subscribe(onNewIssueSocketEvent((event) => {
+    const matched = findContentIdsWithCreatedDescendants($newIssueDialog.get().items, event.data);
+    if (matched.length === 0) {
+        return;
+    }
+
+    void refreshNewIssueMainItems(matched).finally(() => {
+        reloadDependenciesDebounced();
+    });
+}));
+
+$contentUpdated.subscribe(onNewIssueSocketEvent((event) => {
+    const {updatedMain, updatedDependants} = patchTrackedNewIssueItems(event.data);
+    if (updatedMain || updatedDependants) {
+        reloadDependenciesDebounced();
+    }
+}));
+
+$contentRenamed.subscribe(onNewIssueSocketEvent((event) => {
+    patchTrackedNewIssueItems(event.data.items);
+}));
+
+$contentDeleted.subscribe(onNewIssueSocketEvent((event) => {
+    handleRemovedNewIssueItems(createContentIdSet(event.data));
+}));
+
+$contentArchived.subscribe(onNewIssueSocketEvent((event) => {
+    handleRemovedNewIssueItems(createContentIdSet(event.data));
+}));
+
+$contentPublished.subscribe(onNewIssueSocketEvent((event) => {
+    const {updatedMain, updatedDependants} = patchTrackedNewIssueItems(event.data);
+    if (updatedMain || updatedDependants) {
+        reloadDependenciesDebounced();
+    }
+}));
 
 const reloadNewIssueDependencies = async (): Promise<void> => {
     const currentInstance = ++instanceId;
