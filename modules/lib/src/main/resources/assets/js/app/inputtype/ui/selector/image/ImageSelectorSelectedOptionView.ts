@@ -9,7 +9,6 @@ import {NamesAndIconViewBuilder, NamesAndIconView} from '@enonic/lib-admin-ui/ap
 import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Element} from '@enonic/lib-admin-ui/dom/Element';
-import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 
 export class ImageSelectorSelectedOptionView
     extends BaseGallerySelectedOptionView<MediaTreeSelectorItem> {
@@ -33,6 +32,7 @@ export class ImageSelectorSelectedOptionView
 
         this.icon = new ImgEl();
         this.icon.setDraggable('false');
+        this.icon.getEl().setAttribute('loading', 'lazy');
         this.progress = new ProgressBar();
         this.error = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.compact).setAppendIcon(true).build();
         this.loadMask = new LoadMask(this);
@@ -41,8 +41,6 @@ export class ImageSelectorSelectedOptionView
             if (this.getOption().getDisplayValue().getContentSummary()) {
                 this.showResult();
             }
-
-            ResponsiveManager.fireResizeEvent();
         });
     }
 
