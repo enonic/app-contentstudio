@@ -4,7 +4,6 @@
 const BasDropdown = require('../selectors/base.dropdown');
 const {DROPDOWN, COMMON} = require('../../../libs/elements');
 const XPATH = {
-    container: "//div[child::label[contains(.,'Parent project')]]",
     searchInput: "//input[@aria-label='Search']",
     optionRowByDisplayName: displayName => `//div[@data-component='ProjectLabel' and descendant::span[contains(.,'${displayName}')]]`,
 };
@@ -12,31 +11,33 @@ const XPATH = {
 // Parent Step wizard - select a project in the dropdown selector
 class ProjectsSelector extends BasDropdown {
 
+    constructor(parentElementXpath) {
+        super();
+        this._container = parentElementXpath;
+    }
+
+    // returns the element that contains the dropdown:
     get container() {
-        return XPATH.container;
+        return this._container;
     }
 
     optionsFilterInput() {
-        return XPATH.container + XPATH.searchInput;
+        return this.dataComponentDiv + DROPDOWN.OPTION_FILTER_INPUT;
+    }
+
+    get dataComponentDiv() {
+        return "//div[@data-component='ProjectSelector']";
     }
 
     async typeTextInSearchInput(text) {
-        return await this.typeTextInInput(this.optionsFilterInput, text);
+        return await this.typeTextInInput(this.optionsFilterInput(), text);
     }
 
     async waitForSearchInputDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.searchInput);
+            return await this.waitForElementDisplayed(this.optionsFilterInput());
         } catch (err) {
             await this.handleError(`Projects Combobox, search input is not displayed`, 'err_search_input', err);
-        }
-    }
-
-    async selectFilteredByIdAndClickOnApply(projectId, parentElement) {
-        try {
-            await this.clickOnFilteredByNameItemAndClickOnApply(projectId, parentElement);
-        } catch (err) {
-            await this.handleError(`Projects Combobox, tried to click on option by id: ${projectId}`, 'err_project_dropdown', err);
         }
     }
 
@@ -51,7 +52,7 @@ class ProjectsSelector extends BasDropdown {
         }
     }
 
-    async clickOnOptionByDisplayName(displayName, parent = '') {
+    async clickOnOptionByDisplayName(displayName) {
         try {
             let optionLocator = DROPDOWN.COMBOBOX_POPUP + XPATH.optionRowByDisplayName(displayName);
             await this.waitForElementDisplayed(optionLocator);

@@ -18,6 +18,10 @@ const DESCRIPTION = 'View summary of a new project';
 
 class ProjectWizardDialogSummaryStep extends ProjectWizardDialog {
 
+    get container() {
+        return XPATH.container;
+    }
+
     get accessMode() {
         return XPATH.container + XPATH.accessModeValueXpath;
     }

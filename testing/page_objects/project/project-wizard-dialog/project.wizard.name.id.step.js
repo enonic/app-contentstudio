@@ -5,10 +5,16 @@ const {COMMON, PROJECTS} = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const ProjectWizardDialog = require('./project.wizard.dialog');
 
-const XPATH = {};
+const XPATH = {
+    container: "//div[@role='dialog' and descendant::h2[contains(.,'Name your project')]]",
+};
 const DESCRIPTION = "Give the new project a name and a unique identifier";
 
 class ProjectWizardDialogNameAndIdStep extends ProjectWizardDialog {
+
+    get container() {
+        return XPATH.container;
+    }
 
     get projectIdentifierInput() {
         return PROJECTS.PROJECT_STEP_COMPONENT + COMMON.INPUTS.dataComponentInputByLabel("Identifier") + "//input";
@@ -70,14 +76,15 @@ class ProjectWizardDialogNameAndIdStep extends ProjectWizardDialog {
     }
 
     async waitForProjectIdentifierValidationMessageNotVisible() {
-        return await this.waitForElementNotDisplayed(this.projectIdentifierValidationMessage, appConst.shortTimeout);
+        return await this.waitForElementNotDisplayed(this.projectIdentifierValidationMessage);
     }
 
     async waitForLoaded() {
-        await this.getBrowser().waitUntil(async () => {
-            let actualDescription = await this.getStepDescription();
-            return actualDescription.includes(DESCRIPTION);
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Project Wizard Dialog, step with project name is not loaded"});
+        try {
+            await this.waitForElementDisplayed(XPATH.container);
+        } catch (err) {
+            await this.handleError('Project Wizard Dialog, name and id step was not loaded', 'err_name_id_step', err);
+        }
     }
 }
 
