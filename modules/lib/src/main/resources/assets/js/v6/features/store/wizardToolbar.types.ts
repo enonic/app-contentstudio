@@ -19,4 +19,6 @@ export type WizardToolbarStore = {
     isContentOnline: boolean;
     contentState: ContentState | null;
     isLayerProject: boolean;
+    isContentInherited: boolean;
+    isContentDataInherited: boolean;
 };
