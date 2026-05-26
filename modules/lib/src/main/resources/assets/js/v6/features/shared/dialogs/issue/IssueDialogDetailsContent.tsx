@@ -770,6 +770,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                     selection={selectedItemIdStrings}
                                     onSelectionChange={handleSelectionChange}
                                     disabled={isItemsDisabled}
+                                    closeOnBlur={true}
                                 />
                                 <div className='pb-1.5 mt-2.5 flex flex-col gap-7.5'>
                                     <SplitList>
