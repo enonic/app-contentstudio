@@ -19,6 +19,21 @@ import {GetPrincipalsByKeysRequest} from '../../../../app/security/GetPrincipals
 import {fetchContentSummaries} from '../../api/content';
 import {resolvePublishDependencies} from '../../api/publish';
 import {hasContentIdInIds, isIdsEqual, uniqueIds} from '../../utils/cms/content/ids';
+import {findContentIdsWithCreatedDescendants} from '../../utils/cms/content/paths';
+import {
+    createContentIdSet,
+    patchTrackedContentItems,
+    removeTrackedContentItems,
+} from '../../utils/cms/content/trackedItems';
+import {createGuardedSocketHandler} from '../../utils/store/createGuardedSocketHandler';
+import {
+    $contentArchived,
+    $contentCreated,
+    $contentDeleted,
+    $contentPublished,
+    $contentRenamed,
+    $contentUpdated,
+} from '../socket.store';
 import {$issueDialog, loadIssueDialogList} from './issueDialog.store';
 
 import type {Issue} from '../../../../app/issue/Issue';
@@ -884,7 +899,7 @@ const getIssueContext = (updatingKey?: IssueDetailsUpdatingKey): IssueContext | 
 
     const dialogState = $issueDialog.get();
     const issueWithAssignees = dialogState.issues.find(item => item.getIssue().getId() === issueId);
-    const issue = issueWithAssignees?.getIssue() ?? state.issue;
+    const issue = state.issue ?? issueWithAssignees?.getIssue();
 
     if (!issue) {
         return null;
@@ -1026,6 +1041,111 @@ const resetIssueDialogDetails = (issueId?: string): void => {
     });
     $deleteCommentConfirmation.set({open: false, commentId: undefined});
 };
+
+//
+// * Socket Event Handlers
+//
+
+const isIssueDialogDetailsActive = (): boolean => {
+    const {open, view} = $issueDialog.get();
+    if (!open || view !== 'details') {
+        return false;
+    }
+    const {items} = $issueDialogDetails.get();
+    return items.length > 0;
+};
+
+const onIssueDialogDetailsSocketEvent = createGuardedSocketHandler(isIssueDialogDetailsActive);
+
+const patchTrackedIssueDialogItems = (
+    updates: ContentSummary[],
+): {updatedMain: boolean; updatedDependants: boolean} => {
+    const change = patchTrackedContentItems($issueDialogDetails.get(), updates);
+
+    if (change.changed) {
+        $issueDialogDetails.set(change.state);
+    }
+
+    return {
+        updatedMain: change.changedMain,
+        updatedDependants: change.changedDependants,
+    };
+};
+
+const removeTrackedIssueDialogItems = (
+    idsToRemove: Set<string>,
+): {removedMain: boolean; removedDependants: boolean} => {
+    const change = removeTrackedContentItems($issueDialogDetails.get(), idsToRemove);
+
+    if (change.changed) {
+        $issueDialogDetails.set(change.state);
+    }
+
+    return {
+        removedMain: change.changedMain,
+        removedDependants: change.changedDependants,
+    };
+};
+
+const getCurrentIssueDialogIssue = (): Issue | undefined => {
+    const state = $issueDialogDetails.get();
+    if (state.issue) {
+        return state.issue;
+    }
+
+    const {issueId, issues} = $issueDialog.get();
+    const currentIssueId = state.issueId ?? issueId;
+
+    return issues.find(item => item.getIssue().getId() === currentIssueId)?.getIssue();
+};
+
+const reloadIssueDialogItemsForCurrentIssue = (): void => {
+    const issue = getCurrentIssueDialogIssue();
+    if (!issue) {
+        return;
+    }
+    void loadIssueDialogItems(issue, {forceReload: true});
+};
+
+$contentCreated.subscribe(onIssueDialogDetailsSocketEvent((event) => {
+    const matched = findContentIdsWithCreatedDescendants($issueDialogDetails.get().items, event.data);
+    if (matched.length === 0) {
+        return;
+    }
+    reloadIssueDialogItemsForCurrentIssue();
+}));
+
+$contentUpdated.subscribe(onIssueDialogDetailsSocketEvent((event) => {
+    const {updatedMain, updatedDependants} = patchTrackedIssueDialogItems(event.data);
+    if (updatedMain || updatedDependants) {
+        reloadIssueDialogItemsForCurrentIssue();
+    }
+}));
+
+$contentRenamed.subscribe(onIssueDialogDetailsSocketEvent((event) => {
+    patchTrackedIssueDialogItems(event.data.items);
+}));
+
+$contentDeleted.subscribe(onIssueDialogDetailsSocketEvent((event) => {
+    const {removedMain, removedDependants} = removeTrackedIssueDialogItems(createContentIdSet(event.data));
+    if (removedMain || removedDependants) {
+        reloadIssueDialogItemsForCurrentIssue();
+    }
+}));
+
+$contentArchived.subscribe(onIssueDialogDetailsSocketEvent((event) => {
+    const {removedMain, removedDependants} = removeTrackedIssueDialogItems(createContentIdSet(event.data));
+    if (removedMain || removedDependants) {
+        reloadIssueDialogItemsForCurrentIssue();
+    }
+}));
+
+$contentPublished.subscribe(onIssueDialogDetailsSocketEvent((event) => {
+    const {updatedMain, updatedDependants} = patchTrackedIssueDialogItems(event.data);
+    if (updatedMain || updatedDependants) {
+        reloadIssueDialogItemsForCurrentIssue();
+    }
+}));
 
 $issueDialog.subscribe(({open, view, issueId}) => {
     if (!open || view !== 'details') {

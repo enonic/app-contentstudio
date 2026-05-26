@@ -11,8 +11,12 @@ import {hasUnpublishedChildren} from '../../api/hasUnpublishedChildren';
 import {findIdsByParents, markAsReady, publishContent, resolvePublishDependencies as resolvePublishDeps} from '../../api/publish';
 import {cleanupTask, trackTask} from '../../services/task.service';
 import {hasContentById, hasContentIdInIds, isIdsEqual, uniqueIds} from '../../utils/cms/content/ids';
-import {patchItemsById} from '../../utils/cms/content/patchItemsById';
 import {findContentIdsWithCreatedDescendants} from '../../utils/cms/content/paths';
+import {
+    createContentIdSet,
+    patchContentItemsByContentId,
+    removeContentItemsById,
+} from '../../utils/cms/content/trackedItems';
 import {createGuardedSocketHandler} from '../../utils/store/createGuardedSocketHandler';
 import {createDebounce} from '../../utils/timing/createDebounce';
 import {$contentArchived, $contentCreated, $contentDeleted, $contentPublished, $contentRenamed, $contentUpdated} from '../socket.store';
@@ -755,17 +759,16 @@ const removeItemsByIds = (idsToRemove: Set<string>): {removedMain: boolean; remo
     const {items} = $publishDialog.get();
     const dependantItems = $publishDialogDependants.get();
 
-    const newItems = items.filter(item => !idsToRemove.has(item.getId()));
-    const newDependantItems = dependantItems.filter(item => !idsToRemove.has(item.getId()));
-
-    const removedMain = newItems.length !== items.length;
-    const removedDependant = newDependantItems.length !== dependantItems.length;
+    const nextItems = removeContentItemsById(items, idsToRemove);
+    const nextDependantItems = removeContentItemsById(dependantItems, idsToRemove);
+    const removedMain = nextItems.changed;
+    const removedDependant = nextDependantItems.changed;
 
     if (removedMain) {
-        $publishDialog.setKey('items', newItems);
+        $publishDialog.setKey('items', nextItems.items);
     }
     if (removedDependant) {
-        $publishDialogDependants.set(newDependantItems);
+        $publishDialogDependants.set(nextDependantItems.items);
     }
 
     return {removedMain, removedDependant};
@@ -793,8 +796,8 @@ const patchTrackedPublishItems = (
 
     const {items} = $publishDialog.get();
     const dependantItems = $publishDialogDependants.get();
-    const patchedItems = patchItemsById(items, updates);
-    const patchedDependants = patchItemsById(dependantItems, updates);
+    const patchedItems = patchContentItemsByContentId(items, updates);
+    const patchedDependants = patchContentItemsByContentId(dependantItems, updates);
     const updatedMain = patchedItems.changed;
     const updatedDependants = patchedDependants.changed;
 
@@ -818,9 +821,9 @@ const refreshPublishDialogMainItems = async (ids: ContentId[]): Promise<void> =>
         const updatedItems = await fetchContentSummaries(ids);
         if (updatedItems.length > 0) {
             const {items} = $publishDialog.get();
-            const patchedItems = patchItemsById(items, updatedItems);
+            const patchedItems = patchContentItemsByContentId(items, updatedItems);
 
-            if (patchedItems.changed) {
+            if (patchedItems.changed && isDialogActive()) {
                 $publishDialog.setKey('items', patchedItems.items);
             }
         }
@@ -894,12 +897,12 @@ $contentRenamed.subscribe(onPublishSocketEvent((event) => {
 
 // Handle content deletion: remove from lists, close if no items left, reload if needed
 $contentDeleted.subscribe(onPublishSocketEvent((event) => {
-    handleRemovedPublishItems(new Set(event.data.map(item => item.getContentId().toString())));
+    handleRemovedPublishItems(createContentIdSet(event.data));
 }));
 
 // Handle content archived: same as delete
 $contentArchived.subscribe(onPublishSocketEvent((event) => {
-    handleRemovedPublishItems(new Set(event.data.map(item => item.getContentId().toString())));
+    handleRemovedPublishItems(createContentIdSet(event.data));
 }));
 
 //
