@@ -13,10 +13,12 @@ export const ApplicationIcon = ({application, className}: ApplicationIconProps):
     const url = application.getIconUrl();
 
     if (url) {
-        return <img src={url} alt={name} draggable={false} className={cn('size-6 bg-center object-cover', className)} />;
+        return (
+            <img src={url} alt={name} draggable={false} className={cn('size-6 bg-center object-contain', className)} />
+        );
     }
 
-    return <Box className={cn('rounded-full bg-center object-cover', className)} />;
+    return <Box className={cn('rounded-full bg-center object-contain', className)} />;
 };
 
 ApplicationIcon.displayName = 'ApplicationIcon';
