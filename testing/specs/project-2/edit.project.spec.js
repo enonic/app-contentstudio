@@ -12,12 +12,12 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const ProjectWizardDialogAccessModeStep = require("../../page_objects/project/project-wizard-dialog/project.wizard.access.mode.step");
 const EditProjectDefaultLanguageStep = require("../../page_objects/project/project-wizard-dialog/edit.project.default.language.step");
-
 const EditProjectNameStep = require("../../page_objects/project/project-wizard-dialog/edit.project.name.step");
 const ProjectWizardDialogPermissionsStep = require("../../page_objects/project/project-wizard-dialog/project.wizard.permissions.step");
 const ProjectWizardDialogApplicationsStep = require("../../page_objects/project/project-wizard-dialog/project.wizard.applications.step");
 const ProjectWizardDialogSummaryStep = require("../../page_objects/project/project-wizard-dialog/project.wizard.summary.step");
 const ConfirmationDialog = require("../../page_objects/confirmation.dialog");
+const ProjectWizardDialogParentProjectStep = require("../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step");
 
 describe('edit.project.spec - ui-tests for editing a project', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -73,6 +73,34 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             assert.equal(accessMode, appConst.PROJECT_ACCESS_MODE.PRIVATE, 'Expected access mode should be selected');
         });
 
+    // Verify BUG https://github.com/enonic/app-contentstudio/issues/10597
+    // Project Wizard - parent selector should filter items by project ID #10597
+    it.skip(`GIVEN Parent project step has been opened THEN existing project should be searchable by Identifier`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            // 1.Open new project wizard:
+            await settingsBrowsePanel.openProjectWizardDialog();
+            let parentProjectAndLanguageStep = new ProjectWizardDialogParentProjectStep();
+            await parentProjectAndLanguageStep.waitForLoaded();
+            // 2. Verify that projects searchable by Identifier:
+            await parentProjectStep.typeTextInOptionFilterInputAndSelectOption(PROJ_IDENTIFIER, PROJECT_DISPLAY_NAME);
+            let names = await parentProjectStep.getSelectedProjects();
+            assert.equal(names[0], PROJECT_DISPLAY_NAME, "Expected parent project should be present in the selected option");
+        });
+
+    it.skip(`WHEN Parent project step has been opened THEN new created project should be searchable by its Description in the dropdown`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            // 1. Open project wizard dialog:
+            await settingsBrowsePanel.openProjectWizardDialog();
+            // 2. Verify that projects searchable by Description:
+            await parentProjectStep.typeTextInOptionFilterInputAndSelectOption(TEST_DESCRIPTION, PROJECT_DISPLAY_NAME);
+            let names = await parentProjectStep.getSelectedProjects();
+            assert.equal(names[0], PROJECT_DISPLAY_NAME, "Expected parent project should be present in the selected option");
+        });
+
     it(`WHEN existing project is selected THEN expected identifier should be displayed in the settings browse panel`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
@@ -88,7 +116,6 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
     it(`GIVEN existing project is opened WHEN 'SU' has been added in 'custom read access' THEN 'SU' should appear in the selected options`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
             // 1.Click on the project and press 'Edit' button:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();

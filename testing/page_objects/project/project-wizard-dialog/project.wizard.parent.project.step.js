@@ -33,11 +33,17 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
 
     // Type a text (description) in the filter input then click on filtered item then click on 'OK' button and apply selection
     async typeTextInOptionFilterInputAndSelectOption(text, projectDisplayName) {
-        let projectsComboBox = new ProjectsComboBox(XPATH.container);
-        await projectsComboBox.typeTextInSearchInput(text);
-        await projectsComboBox.clickOnOptionByDisplayName(projectDisplayName);
-        await projectsComboBox.clickOnApplySelectionButton();
-        return await this.pause(400);
+        try {
+            let projectsComboBox = new ProjectsComboBox(XPATH.container);
+            await projectsComboBox.typeTextInSearchInput(text);
+            await projectsComboBox.clickOnOptionByDisplayName(projectDisplayName);
+            await projectsComboBox.clickOnApplySelectionButton();
+            return await this.pause(400);
+        } catch (err) {
+            await this.handleError(
+                `Parent project step, search text: ${text} , error occurred during selecting a parent project: ${projectDisplayName}`,
+                'err_select_parent_project', err);
+        }
     }
 
     // Type a name (description) in the filter input then click on the filtered item
