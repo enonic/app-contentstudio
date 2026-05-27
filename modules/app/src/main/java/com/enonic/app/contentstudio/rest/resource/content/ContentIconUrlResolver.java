@@ -2,28 +2,39 @@ package com.enonic.app.contentstudio.rest.resource.content;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import com.enonic.xp.app.ApplicationNotFoundException;
 import com.enonic.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.app.contentstudio.rest.resource.schema.content.ContentTypeIconResolver;
 import com.enonic.app.contentstudio.rest.resource.schema.content.ContentTypeIconUrlResolver;
+import com.enonic.xp.app.ApplicationNotFoundException;
 import com.enonic.xp.attachment.AttachmentNames;
+import com.enonic.xp.branch.Branch;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.Media;
 import com.enonic.xp.context.ContextAccessor;
+import com.enonic.xp.portal.url.ImageUrlGeneratorParams;
+import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 import com.enonic.xp.project.ProjectConstants;
+import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.web.servlet.ServletRequestUrlHelper;
 
 public final class ContentIconUrlResolver
 {
+    private static final String ICON_SCALE = "square(128)";
+
     private final ContentTypeIconUrlResolver contentTypeIconUrlResolver;
+
+    private final PortalUrlGeneratorService portalUrlGeneratorService;
 
     private final HttpServletRequest servletRequest;
 
-    public ContentIconUrlResolver( final ContentTypeService contentTypeService, final HttpServletRequest servletRequest )
+    public ContentIconUrlResolver( final ContentTypeService contentTypeService,
+                                   final PortalUrlGeneratorService portalUrlGeneratorService,
+                                   final HttpServletRequest servletRequest )
     {
         final ContentTypeIconResolver contentTypeIconResolver = new ContentTypeIconResolver( contentTypeService );
         this.contentTypeIconUrlResolver = new ContentTypeIconUrlResolver( contentTypeIconResolver, servletRequest );
+        this.portalUrlGeneratorService = portalUrlGeneratorService;
         this.servletRequest = servletRequest;
     }
 
@@ -31,12 +42,12 @@ public final class ContentIconUrlResolver
     {
         if ( content.getAttachments().byName( AttachmentNames.THUMBNAIL ) != null )
         {
-            return makeIconPath( content );
+            return makeLegacyThumbnailUrl( content );
         }
 
         if ( isImageWithAttachment( content ) )
         {
-            return makeIconPath( content );
+            return makeImageApiUrl( (Media) content );
         }
 
         try
@@ -51,25 +62,30 @@ public final class ContentIconUrlResolver
 
     private boolean isImageWithAttachment( final Content content )
     {
-        if ( !isImage( content ) )
-        {
-            return false;
-        }
-
-        return ( (Media) content ).getMediaAttachment() != null;
+        return isImage( content ) && ( (Media) content ).getMediaAttachment() != null;
     }
 
     private boolean isImage( final Content content )
     {
-        if ( !( content instanceof Media ) )
-        {
-            return false;
-        }
-
-        return ( (Media) content ).isImage();
+        return content instanceof Media && ( (Media) content ).isImage();
     }
 
-    private String makeIconPath( final Content content )
+    private String makeImageApiUrl( final Media media )
+    {
+        final ProjectName projectName = ProjectName.from( getProjectName() );
+        final Branch branch = ContextAccessor.current().getBranch();
+
+        final ImageUrlGeneratorParams params = ImageUrlGeneratorParams.create()
+            .setMedia( () -> media )
+            .setProjectName( () -> projectName )
+            .setBranch( () -> branch )
+            .setScale( ICON_SCALE )
+            .build();
+
+        return ServletRequestUrlHelper.createUri( servletRequest, portalUrlGeneratorService.imageUrl( params ) );
+    }
+
+    private String makeLegacyThumbnailUrl( final Content content )
     {
         return ServletRequestUrlHelper.createUri( servletRequest,
                                                   ResourceConstants.REST_ROOT + "cms/" + getProjectName() + "/" + getLayer() +
@@ -79,9 +95,7 @@ public final class ContentIconUrlResolver
 
     private String getProjectName()
     {
-        final String project =
-            ContextAccessor.current().getRepositoryId().toString().replace( ProjectConstants.PROJECT_REPO_ID_PREFIX, "" );
-        return project;
+        return ContextAccessor.current().getRepositoryId().toString().replace( ProjectConstants.PROJECT_REPO_ID_PREFIX, "" );
     }
 
     private String getLayer()

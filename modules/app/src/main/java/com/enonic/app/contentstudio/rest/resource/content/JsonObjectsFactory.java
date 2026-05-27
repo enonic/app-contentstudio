@@ -29,6 +29,7 @@ import com.enonic.xp.content.FindContentByParentParams;
 import com.enonic.xp.content.ValidationErrors;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.page.PageDescriptor;
+import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 import com.enonic.xp.region.LayoutDescriptor;
 import com.enonic.xp.region.PartDescriptor;
 import com.enonic.xp.schema.content.CmsFormFragmentService;
@@ -50,6 +51,8 @@ public class JsonObjectsFactory
     private ContentPrincipalsResolver principalsResolver;
 
     private ComponentDisplayNameResolver componentDisplayNameResolver;
+
+    private PortalUrlGeneratorService portalUrlGeneratorService;
 
     public JsonObjectsFactory()
     {
@@ -95,14 +98,14 @@ public class JsonObjectsFactory
                                                                                 request.getLocales() ) ) )
             .collect( Collectors.toList() );
 
-        return new ContentJson( content, hasChildren( content ), new ContentIconUrlResolver( contentTypeService, request ), principalsResolver,
+        return new ContentJson( content, hasChildren( content ), new ContentIconUrlResolver( contentTypeService, portalUrlGeneratorService, request ), principalsResolver,
                                 componentDisplayNameResolver, new ContentListTitleResolver( contentTypeService ),
                                 localizedValidationErrors );
     }
 
     public ContentSummaryJson createContentSummaryJson( final Content content, final HttpServletRequest request )
     {
-        return new ContentSummaryJson( content, hasChildren( content ), new ContentIconUrlResolver( contentTypeService, request ),
+        return new ContentSummaryJson( content, hasChildren( content ), new ContentIconUrlResolver( contentTypeService, portalUrlGeneratorService, request ),
                                        new ContentListTitleResolver( contentTypeService ) );
     }
 
@@ -148,5 +151,11 @@ public class JsonObjectsFactory
     public void setContentService( final ContentService contentService )
     {
         this.contentService = contentService;
+    }
+
+    @Reference
+    public void setPortalUrlGeneratorService( final PortalUrlGeneratorService portalUrlGeneratorService )
+    {
+        this.portalUrlGeneratorService = portalUrlGeneratorService;
     }
 }
