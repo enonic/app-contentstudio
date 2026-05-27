@@ -99,7 +99,10 @@ export const DisplayNameInput = (): ReactElement => {
 
     const handleEditorFocus: FocusEventHandler<HTMLTextAreaElement> = useCallback((): void => {
         setAIContext();
-        requestAnimationFrame(() => inputRef.current?.select());
+        requestAnimationFrame(() => {
+            const input = inputRef.current;
+            input?.setSelectionRange(input.value.length, input.value.length);
+        });
     }, []);
 
     const handleEditorBlur: FocusEventHandler<HTMLTextAreaElement> = useCallback((event): void => {
@@ -116,12 +119,12 @@ export const DisplayNameInput = (): ReactElement => {
     }, []);
 
     useLayoutEffect(() => {
-        if (!shouldFocus || !isInvalid || readOnly || aiProcessing) {
+        if (!shouldFocus || readOnly || aiProcessing) {
             return;
         }
 
         setIsEditing(true);
-    }, [shouldFocus, isInvalid, readOnly, aiProcessing]);
+    }, [shouldFocus, readOnly, aiProcessing]);
 
     // AI streamed updates land in the display value while editing would mask them.
     // Switching out of edit mode lets the shimmer overlay show and prevents the
