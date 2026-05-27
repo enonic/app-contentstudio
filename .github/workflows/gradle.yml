@@ -97,8 +97,6 @@ jobs:
 
       - name: Run Selenium Tests
         run: ./gradlew --refresh-dependencies :testing:${{ matrix.suite }}
-        env:
-          WDIO_SKIP_DRIVER_INSTALL: true
 
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2

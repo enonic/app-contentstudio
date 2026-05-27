@@ -48,13 +48,7 @@ exports.config = {
             ]
         }
     }],
-    logLevel: 'info',
-    services: [
-        ['chromedriver', {
-            logFileName: 'wdio-chromedriver.log', // default
-            args: ['--silent']
-        }]
-    ],
+    logLevel: 'trace',
     //
     // Enables colors for log output.
     coloredLogs: true,

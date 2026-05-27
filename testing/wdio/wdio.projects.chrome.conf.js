@@ -15,7 +15,6 @@ exports.config = {
 
     capabilities: [{
         browserName: 'chrome',
-        browserVersion: browser_version,
         "wdio:enforceWebDriverClassic": true,
         'goog:chromeOptions': {
             "args": [
@@ -26,8 +25,7 @@ exports.config = {
             ]
         }
     }],
-    logLevel: 'info',
-    services: ['chromedriver'],
+    logLevel: 'trace',
     //
     // Enables colors for log output.
     coloredLogs: true,
