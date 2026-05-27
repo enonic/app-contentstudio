@@ -42,9 +42,8 @@ module.exports = {
             'react-dom': path.resolve(__dirname, 'node_modules/preact/compat'),
             'react/jsx-runtime': path.resolve(__dirname, 'node_modules/preact/jsx-runtime'),
             'react/jsx-dev-runtime': path.resolve(__dirname, 'node_modules/preact/jsx-dev-runtime'),
-            // ? Defensive: matches the singleton pattern above. lib's entries do not
-            // ? import @enonic/ui in JS today (only CSS via tailwind), so this is a no-op,
-            // ? but keeps parity with modules/app and guards against future drift.
+            // Parity with modules/app — lib's entries don't import @enonic/ui in JS today
+            // (only CSS via Tailwind), so this is a no-op now but guards against drift.
             '@enonic/ui': path.resolve(__dirname, 'node_modules/@enonic/ui')
         }
     },
