@@ -39,6 +39,7 @@ exports.config = {
             ]
         }
     }],
+    services: ['chromedriver'],
     logLevel: 'info',
     //
     // Enables colors for log output.
