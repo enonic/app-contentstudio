@@ -7,6 +7,7 @@ import {
 } from '../../../../../store/context/versionOperations';
 import {
     $activeVersionId,
+    $comparableVersionsCount,
     $versions,
     toggleVersionSelection,
 } from '../../../../../store/context/versionStore';
@@ -38,6 +39,7 @@ export const useVersionsKeyboard = ({
 }: UseVersionsKeyboardOptions) => {
     const versions = useStore($versions);
     const latestContentVersionId = useStore($activeVersionId);
+    const comparableVersionsCount = useStore($comparableVersionsCount);
     const revertActions = useRevertActions();
 
     const hasRestoreButton = useCallback((): boolean => {
@@ -97,7 +99,7 @@ export const useVersionsKeyboard = ({
             e.preventDefault();
             e.stopPropagation();
             const version = versions.find((item) => item.getId() === activeListItemId);
-            if (version && isVersionComparable(version)) {
+            if (version && isVersionComparable(version) && comparableVersionsCount > 1) {
                 toggleVersionSelection(activeListItemId);
             }
             return;
@@ -122,6 +124,7 @@ export const useVersionsKeyboard = ({
         onSetRestoreFocus,
         revertActions,
         versions,
+        comparableVersionsCount,
     ]);
 
     return {handleKeyDown};

@@ -17,6 +17,7 @@ import {
 } from '../../../../store/context/versionPublishState';
 import {
     $activeVersionId,
+    $comparableVersionsCount,
     $selectedVersions,
     toggleVersionSelection,
 } from '../../../../store/context/versionStore';
@@ -49,13 +50,14 @@ type VersionsListItemProps = {
 const useVersionItemState = (version: ContentVersion) => {
     const selectedVersions = useStore($selectedVersions);
     const currentVersionId = useStore($activeVersionId);
+    const comparableVersionsCount = useStore($comparableVersionsCount);
     const {active, setActive} = useListbox();
 
     const versionId = version.getId();
     const isActive = active === versionId;
     const isSelected = useMemo(() => selectedVersions.has(versionId), [versionId, selectedVersions]);
     const isRevertable = version.getId() !== currentVersionId && isVersionRevertable(version);
-    const isComparable = isVersionComparable(version);
+    const isComparable = isVersionComparable(version) && comparableVersionsCount > 1;
 
     return {
         versionId,

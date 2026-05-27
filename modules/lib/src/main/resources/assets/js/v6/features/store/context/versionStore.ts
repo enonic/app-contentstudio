@@ -3,6 +3,7 @@ import {type ContentVersion, ContentVersionBuilder} from '../../../../app/Conten
 import {
     getFormattedVersionDate,
     isStandardModeVersion,
+    isVersionComparable,
     isVersionToBeDisplayedInFullMode,
     resolveVersionOperationType,
     SYNTHETIC_VERSION_ID,
@@ -84,6 +85,13 @@ export const $versionsByDate = computed(
             return acc;
         }, {});
     },
+);
+
+export const $comparableVersionsCount = computed($versionsByDate, (versionsByDate) =>
+    Object.values(versionsByDate).reduce(
+        (count, versions) => count + versions.filter(isVersionComparable).length,
+        0,
+    ),
 );
 
 //
