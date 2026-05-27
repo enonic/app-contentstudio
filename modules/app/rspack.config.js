@@ -43,11 +43,11 @@ module.exports = {
             'react-dom': path.resolve(__dirname, 'node_modules/preact/compat'),
             'react/jsx-runtime': path.resolve(__dirname, 'node_modules/preact/jsx-runtime'),
             'react/jsx-dev-runtime': path.resolve(__dirname, 'node_modules/preact/jsx-dev-runtime'),
-            // ! Force a single @enonic/ui instance. lib-admin-ui's compiled JS imports
-            // ! @enonic/ui without a local copy and resolves to app's hoisted version,
-            // ! which is often a different beta than lib-contentstudio's. Two copies in
-            // ! the bundle means two ToolbarContext instances and a context lookup miss.
-            '@enonic/ui': path.resolve(__dirname, 'node_modules/@enonic/lib-contentstudio/node_modules/@enonic/ui')
+            // Force a single @enonic/ui instance. Both lib-admin-ui and lib-contentstudio
+            // currently resolve to the same hoisted copy, but pin the alias here so any
+            // future hoist/dedupe drift can't reintroduce two ToolbarContext instances
+            // in the bundle.
+            '@enonic/ui': path.resolve(__dirname, 'node_modules/@enonic/ui')
         }
     },
     module: {
