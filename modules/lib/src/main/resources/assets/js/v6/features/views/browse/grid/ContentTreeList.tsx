@@ -4,6 +4,8 @@ import {AlertCircle, LoaderCircle} from 'lucide-react';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {ListRange, VirtuosoHandle} from 'react-virtuoso';
 import {Virtuoso} from 'react-virtuoso';
+import {EditContentAction} from '../../../../../app/browse/action/EditContentAction';
+import {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../../../../app/event/EditContentEvent';
 import {
     clearChildrenIdsRetryCooldown,
@@ -157,6 +159,7 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
     const virtuosoRef = useRef<VirtuosoHandle>(null);
     const visibleDataLoadInFlightRef = useRef(false);
     const [isVisibleDataLoadInFlight, setIsVisibleDataLoadInFlight] = useState(false);
+    const editAction = contextMenuActions.editAction;
     const flatNodes = useStore($activeFlatNodes);
     const selection = useStore($selection);
     const activeId = useStore($activeId);
@@ -365,10 +368,15 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
         (id: string) => {
             const node = flatNodes.find((n) => n.id === id);
             if (node && hasDisplayNameData(node.data) && node.data.item) {
+                if (editAction instanceof EditContentAction) {
+                    editAction.executeForItems([ContentSummaryAndCompareStatus.fromContentSummary(node.data.item)]);
+                    return;
+                }
+
                 new EditContentEvent([node.data.item]).fire();
             }
         },
-        [flatNodes]
+        [editAction, flatNodes]
     );
 
     // Handle selection change from VirtualizedTreeList (merge-based handling)
@@ -479,7 +487,18 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
             className='w-full flex-1 min-h-0'
         >
             {({getItemProps, containerProps}) => {
-                const {className: containerClassName, ...restContainerProps} = containerProps;
+                const {className: containerClassName, onKeyDown, ...restContainerProps} = containerProps;
+                const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+                    if (event.key === 'Enter' && event.target === event.currentTarget && editAction) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        editAction.execute();
+                        return;
+                    }
+
+                    onKeyDown(event);
+                };
+
                 return (
                     <ContentTreeContextMenu actions={contextMenuActions}>
                         <Virtuoso<ContentFlatNode>
@@ -488,6 +507,7 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
                             className={cn('h-full px-5 py-2.5 bg-surface-neutral', containerClassName)}
                             components={virtuosoComponents}
                             rangeChanged={handleRangeChange}
+                            onKeyDown={handleKeyDown}
                             {...restContainerProps}
                             itemContent={(index, node) => {
                                 const {id, level, isExpanded, hasChildren, nodeType, data} = node;
