@@ -90,7 +90,7 @@ export const FilterableBucketAggregation = ({
     return (
         <div className='relative flex flex-col gap-2'>
             <div className='font-semibold'>{displayName}</div>
-            <div>
+            <div className='flex flex-col gap-2.5 px-2.5 py-2'>
             {topBuckets.map((bucket) => {
                 const key = buildKey(aggregation.getName(), bucket.getKey(), 'top');
 
