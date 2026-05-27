@@ -26,6 +26,10 @@ import Q from 'q';
 import {LiveEditModel} from '../../page-editor/LiveEditModel';
 import {compareContent} from '../../v6/features/api/compare';
 import {cleanupWizardMixinsService, initWizardMixinsService} from '../../v6/features/services/wizardMixins.service';
+import {
+    cleanupWizardContentSyncService,
+    initWizardContentSyncService,
+} from '../../v6/features/services/wizardContentSync.service';
 import {setWizardContent} from '../../v6/features/store/context/contextContent.store';
 import {$isContextOpen, setContextOpen} from '../../v6/features/store/contextWidgets.store';
 import {$isPreviewPanelVisible} from '../../v6/features/store/previewPanel.store';
@@ -211,7 +215,11 @@ export class ContentWizardPanel
         }
 
         initWizardMixinsService();
-        this.onClosed(() => cleanupWizardMixinsService());
+        initWizardContentSyncService();
+        this.onClosed(() => {
+            cleanupWizardMixinsService();
+            cleanupWizardContentSyncService();
+        });
 
         this.loadData();
         this.initBindings();
@@ -1611,6 +1619,10 @@ export class ContentWizardPanel
         setWizardPersistedContent(newPersistedItem);
 
         setAiContent(newPersistedItem);
+    }
+
+    public replacePersistedContent(newContent: Content): void {
+        this.setPersistedItem(newContent);
     }
 
     protected convertToCurrentItem(content: Content): Content {
