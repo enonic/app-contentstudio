@@ -8,14 +8,13 @@ export interface FlagData {
     classCode: string;
 }
 
-export class Flag
-    extends DivEl {
-
+export class Flag extends DivEl {
     private static CODE_NONE: string = 'none';
 
     private static CODE_UNKNOWN: string = 'unknown';
 
     private static NONSTANDARD_CODES: NonstandardCodes = Object.freeze({
+        'ar-SA': 'sa',
         'ast-es': 'es',
         'af-na': 'na',
         'af-za': 'za',
@@ -110,7 +109,7 @@ export class Flag
         sr: 'rs',
         sv: 'se',
         uk: 'ua',
-        zh: 'cn'
+        zh: 'cn',
     });
 
     private countryCode: string;
@@ -125,7 +124,7 @@ export class Flag
 
     updateCountryCode(countryCode: string) {
         const oldCountryCode = this.countryCode || '';
-        const codeData = this.mapCode((countryCode || ''));
+        const codeData = this.mapCode(countryCode || '');
         const oldCodeData = this.mapCode(oldCountryCode);
         const countryClass = Flag.createCountryClass(codeData.classCode);
         const oldCountryClass = Flag.createCountryClass(oldCodeData.classCode);
@@ -136,7 +135,7 @@ export class Flag
     }
 
     getCountryClass(): string {
-        const codeData = this.mapCode((this.countryCode || ''));
+        const codeData = this.mapCode(this.countryCode || '');
         return Flag.createCountryClass(codeData.classCode);
     }
 
@@ -154,13 +153,13 @@ export class Flag
     }
 
     protected mapCode(countryCode: string): FlagData {
-        const codeMap = this.getCodeMap();
+        const codeMap = Flag.NONSTANDARD_CODES;
         const fullCode = countryCode.toLowerCase();
         const longCode = fullCode.slice(0, 3);
         const shortCode = fullCode.slice(0, 2);
 
         const classCode = codeMap[fullCode] || codeMap[longCode] || codeMap[shortCode] || shortCode;
-        const code = (this.hasNoFlag(classCode) || !this.isShortCode(classCode)) ? shortCode : classCode;
+        const code = this.hasNoFlag(classCode) || !this.isShortCode(classCode) ? shortCode : classCode;
 
         return {code, classCode};
     }
@@ -171,9 +170,5 @@ export class Flag
 
     protected isShortCode(classCode: string): boolean {
         return classCode.length === 2 || classCode.length === 1;
-    }
-
-    protected getCodeMap(): NonstandardCodes {
-        return Flag.NONSTANDARD_CODES;
     }
 }

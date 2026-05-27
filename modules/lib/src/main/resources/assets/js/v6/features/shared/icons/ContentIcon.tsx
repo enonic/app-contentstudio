@@ -77,7 +77,7 @@ const BuiltInIcon = ({contentType, ...props}: BuiltInIconProps): React.ReactElem
     return <Icon {...props} />;
 };
 
-export const ContentIcon = ({className, contentType, url, imageSize = 64, crop}: Props): React.ReactElement => {
+export const ContentIcon = ({className, contentType, url, imageSize = 64, crop = false}: Props): React.ReactElement => {
     const src = url ? createImageUrl(url, {size: imageSize * 2, crop}) : undefined;
 
     const [isImageBroken, setImageBroken] = useState(false);
@@ -96,10 +96,8 @@ export const ContentIcon = ({className, contentType, url, imageSize = 64, crop}:
         return (
             <Image
                 className={cn(
-                    'w-6 h-6 p-px',
-                    isImageType
-                        ? 'object-cover'
-                        : 'object-contain dark:invert-100 dark:brightness-75 dark:contrast-125',
+                    'size-6 p-px object-contain',
+                    isImageType && 'object-contain dark:invert-100 dark:brightness-75 dark:contrast-125',
                     className,
                 )}
                 alt={contentType}
@@ -109,7 +107,7 @@ export const ContentIcon = ({className, contentType, url, imageSize = 64, crop}:
         );
     }
 
-    return <BuiltInIcon className={cn('w-6 h-6', className)} contentType={contentType} strokeWidth={1.75} />;
+    return <BuiltInIcon className={cn('size-6', className)} contentType={contentType} strokeWidth={1.75} />;
 };
 
 ContentIcon.displayName = 'ContentIcon';
