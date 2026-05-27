@@ -84,11 +84,8 @@ export function setCropInPropertySet(value: Value, crop: Crop, dimensions: Dimen
         set.setDoubleByPath('cropPosition.top', crop.y1 / dimensions.h);
         set.setDoubleByPath('cropPosition.right', crop.x2 / dimensions.w);
         set.setDoubleByPath('cropPosition.bottom', crop.y2 / dimensions.h);
-        set.setDoubleByPath('cropPosition.zoom', 1);
-        set.setDoubleByPath('zoomPosition.left', 0);
-        set.setDoubleByPath('zoomPosition.top', 0);
-        set.setDoubleByPath('zoomPosition.right', 1);
-        set.setDoubleByPath('zoomPosition.bottom', 1);
+        // zoomPosition is never read by XP nor by this input type; don't persist it (drops stale values too).
+        set.removeProperty('zoomPosition', 0);
     } else {
         set.removeProperty('cropPosition', 0);
         set.removeProperty('zoomPosition', 0);
