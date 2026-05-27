@@ -557,6 +557,127 @@ export function onWizardPersistedContentSet(callback: (content: Content) => void
     return () => { persistedContentSetCallbacks.delete(callback); };
 }
 
+//
+// * Server-side update merge
+//
+
+export type ApplyServerContentResult = {
+    syncedMixinNames: Set<string>;
+};
+
+export function applyServerSidePersistedContent(content: Content): ApplyServerContentResult {
+    const snapshot = buildPersistedSectionsSnapshot(content);
+
+    applyDisplayNameFromServer(snapshot.displayName);
+    applyNameFromServer(snapshot.name);
+    applyDataFromServer(snapshot.data);
+    const syncedMixinNames = applyMixinsFromServer(snapshot.mixins);
+    applyWorkflowFromServer(snapshot.workflow);
+
+    return {syncedMixinNames};
+}
+
+function applyDisplayNameFromServer(nextValue: string): void {
+    const isDirty = $wizardPersistedDisplayName.get() !== $wizardDraftDisplayName.get();
+    $wizardPersistedDisplayName.set(nextValue);
+    if (!isDirty) {
+        $wizardDraftDisplayName.set(nextValue);
+    }
+}
+
+function applyNameFromServer(nextValue: ContentName | null): void {
+    const isDirty = !contentNamesEqual($wizardPersistedName.get(), $wizardDraftName.get());
+    $wizardPersistedName.set(nextValue);
+    if (!isDirty) {
+        $wizardDraftName.set(nextValue);
+    }
+}
+
+function applyDataFromServer(nextPersisted: PropertyTree | null): void {
+    const oldPersisted = $wizardPersistedData.get();
+    const currentDraft = $wizardDraftData.get();
+    const isDirty = !dataTreesEqual(oldPersisted, currentDraft);
+
+    $wizardPersistedData.set(nextPersisted);
+
+    if (!isDirty) {
+        $wizardDraftData.set(nextPersisted ? nextPersisted.copy() : null);
+        $wizardDataChangedPaths.set({});
+    }
+
+    bumpDraftDataVersion();
+}
+
+function isMixinDataDirty(draftMixin: Mixin | undefined, persistedMixin: Mixin | undefined): boolean {
+    if (draftMixin == null && persistedMixin == null) return false;
+    if (draftMixin == null || persistedMixin == null) return true;
+    return !ContentDiffHelper.dataEquals(draftMixin.getData(), persistedMixin.getData(), false);
+}
+
+function applyMixinsFromServer(nextPersisted: Mixin[]): Set<string> {
+    const oldPersisted = $wizardPersistedMixins.get();
+    const currentDraft = $wizardDraftMixins.get();
+
+    const oldPersistedByName = new Map<string, Mixin>();
+    for (const mixin of oldPersisted) {
+        oldPersistedByName.set(mixin.getName().toString(), mixin);
+    }
+
+    const draftByName = new Map<string, Mixin>();
+    for (const mixin of currentDraft) {
+        draftByName.set(mixin.getName().toString(), mixin);
+    }
+
+    $wizardPersistedMixins.set(nextPersisted);
+
+    const nextDraft: Mixin[] = [];
+    const handledNames = new Set<string>();
+    const syncedMixinNames = new Set<string>();
+
+    for (const persistedMixin of nextPersisted) {
+        const name = persistedMixin.getName().toString();
+        handledNames.add(name);
+
+        const draftMixin = draftByName.get(name);
+
+        // User explicitly disabled an optional mixin that previously existed —
+        // honour that and skip re-adding from server.
+        if (draftMixin == null && oldPersistedByName.has(name)) {
+            continue;
+        }
+
+        if (isMixinDataDirty(draftMixin, oldPersistedByName.get(name))) {
+            nextDraft.push((draftMixin ?? persistedMixin).clone());
+        } else {
+            nextDraft.push(persistedMixin.clone());
+            syncedMixinNames.add(name);
+        }
+    }
+
+    // Locally added/enabled mixins missing on server: keep only if dirty.
+    for (const draftMixin of currentDraft) {
+        const name = draftMixin.getName().toString();
+        if (handledNames.has(name)) continue;
+
+        if (isMixinDataDirty(draftMixin, oldPersistedByName.get(name))) {
+            nextDraft.push(draftMixin.clone());
+        }
+    }
+
+    $wizardDraftMixins.set(nextDraft);
+    bumpMixinsVersion();
+
+    return syncedMixinNames;
+}
+
+function applyWorkflowFromServer(nextWorkflow: WorkflowState | null): void {
+    const isDirty = $wizardPersistedWorkflowState.get() !== $wizardDraftWorkflowState.get();
+    $wizardPersistedWorkflowState.set(nextWorkflow);
+    if (!isDirty) {
+        $wizardDraftWorkflowState.set(nextWorkflow);
+    }
+}
+
 export function initializeWizardContentState(
     content: Content,
     contentType: ContentType | null,
