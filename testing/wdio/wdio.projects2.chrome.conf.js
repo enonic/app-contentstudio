@@ -12,22 +12,23 @@ exports.config = {
         path.join(__dirname, '../specs/project-2/parent.project.dialog.step.spec.js'),
         path.join(__dirname, '../specs/project-2/project.wizard.applications.step.spec.js'),
         path.join(__dirname, '../specs/project-2/project.wizard.dialog.permissions.step.spec.js'),
-
-
+        path.join(__dirname, '../specs/project-2/project.wizard.dialog.name.step.spec.js'),
+        path.join(__dirname, '../specs/project-2/project.wizard.dialog.summary.step.spec.js'),
     ],
 
     maxInstances: 1,
 
     capabilities: [{
         browserName: 'chrome',
-        browserVersion: browser_version,
         "wdio:enforceWebDriverClassic": true,
         'goog:chromeOptions': {
             "args": [
-                "--headless", "--disable-gpu", "--no-sandbox",
+                "--disable-gpu", "--no-sandbox",
                 "--lang=en",
+                "--headless=new",
                 '--disable-extensions',
-                'window-size=1970,1000'
+                '--disable-dev-shm-usage',
+                '--window-size=1970,1000'
             ]
         }
     }],

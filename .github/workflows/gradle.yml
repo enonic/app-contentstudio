@@ -82,6 +82,10 @@ jobs:
         with:
           java-version: 25
           distribution: 'temurin'
+      - name: Setup chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: 'stable'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
@@ -93,6 +97,8 @@ jobs:
 
       - name: Run Selenium Tests
         run: ./gradlew --refresh-dependencies :testing:${{ matrix.suite }}
+        env:
+          WDIO_SKIP_DRIVER_INSTALL: true
 
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2
