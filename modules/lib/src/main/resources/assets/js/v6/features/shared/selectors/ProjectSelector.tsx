@@ -22,7 +22,17 @@ type ProjectSelectorProps = {
 const PROJECT_SELECTOR_NAME = 'ProjectSelector';
 
 export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
-    const {selection, onSelectionChange, selectionMode = 'single', label, description, placeholder, emptyLabel, closeOnBlur, className} = props;
+    const {
+        selection,
+        onSelectionChange,
+        selectionMode = 'single',
+        label,
+        description,
+        placeholder,
+        emptyLabel,
+        closeOnBlur,
+        className,
+    } = props;
 
     // Hooks
     const {projects} = useStore($projects);
@@ -37,7 +47,10 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
     const filteredItems = useMemo(() => {
         if (!searchValue) return items;
         const searchLower = searchValue.toLowerCase();
-        return items.filter((node) => node.data.getDisplayName().toLowerCase().includes(searchLower));
+        return items.filter(
+            (node) =>
+                node.data.getDisplayName().toLowerCase().includes(searchLower) || node.data.getName().toLowerCase().includes(searchLower)
+        );
     }, [items, searchValue]);
 
     // Handlers
@@ -52,7 +65,11 @@ export const ProjectSelector = (props: ProjectSelectorProps): ReactElement => {
         <div data-component={PROJECT_SELECTOR_NAME} className={cn('flex flex-col gap-2', className)}>
             {(label || description) && (
                 <div className="flex flex-col gap-1">
-                    {label && <label htmlFor={inputId} className="font-semibold">{label}</label>}
+                    {label && (
+                        <label htmlFor={inputId} className="font-semibold">
+                            {label}
+                        </label>
+                    )}
                     {description && <div className="text-sm text-subtle">{description}</div>}
                 </div>
             )}
