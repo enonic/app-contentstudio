@@ -1,13 +1,14 @@
-import {Dialog, GridList, IconButton} from '@enonic/ui';
+import {Dialog, IconButton, ListItem} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {X} from 'lucide-react';
-import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
+import {ReactElement, useCallback, useEffect, useState} from 'react';
 import {$projectDialog, setProjectDialogApplications} from '../../../../store/dialogs/projectDialog.store';
 import {useI18n} from '../../../../hooks/useI18n';
 import {$applications} from '../../../../store/applications.store';
 import {ItemLabel} from '../../../ItemLabel';
 import {ApplicationIcon} from '../../../icons/ApplicationIcon';
 import {ApplicationSelector} from '../../../selectors/ApplicationSelector';
+import {SortableGridList} from '@enonic/lib-admin-ui/form2/components/sortable-grid-list';
 
 export const ProjectDialogApplicationStepHeader = (): ReactElement => {
     const {mode, title} = useStore($projectDialog, {keys: ['mode', 'title']});
@@ -35,23 +36,19 @@ export const ProjectDialogApplicationStepContent = ({locked = false}: ProjectDia
     // Hooks
     const {applications: newProjectApplications} = useStore($projectDialog, {keys: ['applications']});
     const {applications} = useStore($applications, {keys: ['applications']});
+    // Constants
+    const label = useI18n('settings.items.wizard.step.applications');
+    const typeToSearchLabel = useI18n('field.option.placeholder');
+    const noApplicationsFoundLabel = useI18n('dialog.project.wizard.application.noApplicationsFound');
+    const reorderLabel = useI18n('field.occurrence.action.reorder');
     const [selection, setSelection] = useState<readonly string[]>(
         newProjectApplications.map((application) => application.getApplicationKey().toString())
     );
-    const selectedApplications = useMemo(() => {
-        return selection.map((id) => applications.find((application) => application.getApplicationKey().toString() === id));
-    }, [selection, applications]);
-
     // Sync with the store
     useEffect(() => {
         const apps = selection.map((id) => applications.find((application) => application.getApplicationKey().toString() === id));
         setProjectDialogApplications(apps);
     }, [selection, applications]);
-
-    // Constants
-    const label = useI18n('settings.items.wizard.step.applications');
-    const typeToSearchLabel = useI18n('field.option.placeholder');
-    const noApplicationsFoundLabel = useI18n('dialog.project.wizard.application.noApplicationsFound');
 
     // Handlers
     const handleUnselect = useCallback(
@@ -60,6 +57,14 @@ export const ProjectDialogApplicationStepContent = ({locked = false}: ProjectDia
         },
         [setSelection, selection]
     );
+    const handleReorder = useCallback((fromIndex: number, toIndex: number): void => {
+        setSelection((prev) => {
+            const next = [...prev];
+            const [moved] = next.splice(fromIndex, 1);
+            next.splice(toIndex, 0, moved);
+            return next;
+        });
+    }, []);
 
     return (
         <Dialog.StepContent step="step-application" locked={locked}>
@@ -73,30 +78,34 @@ export const ProjectDialogApplicationStepContent = ({locked = false}: ProjectDia
                 closeOnBlur
             />
             {selection.length > 0 && (
-                <GridList className="rounded-md mb-2.5 py-2.5 pl-4 pr-1">
-                    {selectedApplications.map((application) => {
-                        const key = application.getApplicationKey().toString();
-                        const name = application.getDisplayName();
-                        const description = application.getDescription();
+                <SortableGridList
+                    items={Array.from(selection)}
+                    keyExtractor={(key) => key}
+                    onMove={handleReorder}
+                    enabled
+                    fullRowDraggable
+                    dragLabel={reorderLabel}
+                    className="flex flex-col gap-y-2.5 rounded-md mb-2.5 py-2.5 px-1"
+                    renderItem={({item: key}) => {
+                        const application = applications.find((app) => app.getApplicationKey().toString() === key);
+                        const name = application?.getDisplayName();
+                        const description = application?.getDescription();
 
                         return (
-                            <GridList.Row key={key} id={key} className="p-1 gap-1.5">
-                                <GridList.Cell interactive={false} className="flex-1 self-stretch">
+                            <ListItem className="pl-0 py-0 flex-1 bg-unset">
+                                <ListItem.Content className="flex items-center gap-2.5 p-1.5 rounded cursor-move">
                                     <ItemLabel
                                         icon={<ApplicationIcon application={application} />}
                                         primary={name}
                                         secondary={description}
+                                        className="flex-1 self-stretch"
                                     />
-                                </GridList.Cell>
-                                <GridList.Cell>
-                                    <GridList.Action>
-                                        <IconButton variant="text" icon={X} onClick={() => handleUnselect(key)} />
-                                    </GridList.Action>
-                                </GridList.Cell>
-                            </GridList.Row>
+                                    <IconButton variant="text" icon={X} onClick={() => handleUnselect(key)} />
+                                </ListItem.Content>
+                            </ListItem>
                         );
-                    })}
-                </GridList>
+                    }}
+                />
             )}
         </Dialog.StepContent>
     );

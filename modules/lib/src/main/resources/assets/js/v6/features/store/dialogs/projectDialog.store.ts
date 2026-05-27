@@ -129,8 +129,7 @@ export const $isProjectDialogDirty = computed(
             const currentRoleKeys = Object.keys(state.roles);
             const snapshotRoleKeys = Object.keys(snapshot.roles);
             const rolesDirty =
-                currentRoleKeys.length !== snapshotRoleKeys.length ||
-                currentRoleKeys.some((k) => state.roles[k] !== snapshot.roles[k]);
+                currentRoleKeys.length !== snapshotRoleKeys.length || currentRoleKeys.some((k) => state.roles[k] !== snapshot.roles[k]);
 
             const currentAppKeys = state.applications.map((a) => a.getApplicationKey().toString());
             const snapshotAppKeys = snapshot.applications.map((a) => a.getApplicationKey().toString());
@@ -170,10 +169,20 @@ export const $isProjectDialogDirty = computed(
 // * Public API
 //
 
-export const openCreateProjectDialog = (selectedProjects: Project[]): void => {
+export const openCreateProjectDialog = async (selectedProjects: Project[]): Promise<void> => {
     const isMultiInheritance = Boolean(ProjectConfigContext.get().getProjectConfig()?.isMultiInheritance());
 
-    void loadApplications();
+    await loadApplications();
+
+    const applications = $applications.get().applications;
+
+    const seen = new Set<string>();
+    const selectedApplications = selectedProjects
+        .flatMap((p) => p.getSiteConfigs())
+        .map((c) => c.getApplicationKey().toString())
+        .filter((k) => !seen.has(k) && (seen.add(k), true))
+        .map((k) => applications.find((a) => a.getApplicationKey().toString() === k))
+        .filter(Boolean);
 
     $initialParentNames.set(selectedProjects.map((p) => p.getName()));
     $projectDialog.set({
@@ -181,6 +190,7 @@ export const openCreateProjectDialog = (selectedProjects: Project[]): void => {
         title: i18n('dialog.project.wizard.title'),
         open: true,
         parentProjects: selectedProjects,
+        applications: selectedApplications,
         isMultiInheritance: isMultiInheritance,
     });
 };
@@ -524,15 +534,10 @@ function getRequestsGuards(): RequestGuards {
     const appsDirty = currentAppKeys.length !== snapshotAppKeys.length || currentAppKeys.some((k, i) => k !== snapshotAppKeys[i]);
     const permissionsDirty =
         currentPermKeys.length !== snapshotPermKeys.length || currentPermKeys.some((k, i) => k !== snapshotPermKeys[i]);
-    const rolesDirty =
-        currentRoleKeys.length !== snapshotRoleKeys.length ||
-        currentRoleKeys.some((k) => roles[k] !== snapshot.roles[k]);
+    const rolesDirty = currentRoleKeys.length !== snapshotRoleKeys.length || currentRoleKeys.some((k) => roles[k] !== snapshot.roles[k]);
 
     const updateGuard =
-        name !== snapshot.name ||
-        description !== snapshot.description ||
-        defaultLanguage !== snapshot.defaultLanguage ||
-        appsDirty;
+        name !== snapshot.name || description !== snapshot.description || defaultLanguage !== snapshot.defaultLanguage || appsDirty;
     const accessGuard = accessMode !== snapshot.accessMode;
     // third condition clears viewers when switching away from 'custom' mode
     const permissionsGuard =
