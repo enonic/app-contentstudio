@@ -116,6 +116,7 @@ export class ExtensionRenderingHandler {
 
     public layout() {
         this.bindListeners();
+        this.renderer.getMask()?.addClass('preview-load-mask');
         this.renderer.getChildrenContainer().appendChildren(this.emptyView, this.messageView);
     }
 
