@@ -1,6 +1,7 @@
 import type {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import type {Form} from '@enonic/lib-admin-ui/form/Form';
 import type {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
+import {LocaleProvider} from '@enonic/lib-admin-ui/form2';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {useStore} from '@nanostores/preact';
 import {type ReactElement, type ReactNode, useMemo} from 'react';
@@ -65,14 +66,16 @@ const HtmlAreaShell = ({children}: {children: ReactNode}): ReactElement => {
     const applicationKeys = useApplicationKeys();
 
     return (
-        <HtmlAreaProvider
-            contentSummary={contextContent ?? undefined}
-            project={activeProject}
-            applicationKeys={applicationKeys}
-            assetsUri={CONFIG.getString('assetsUri')}
-        >
-            {children}
-        </HtmlAreaProvider>
+        <LocaleProvider locale={contextContent?.getLanguage()}>
+            <HtmlAreaProvider
+                contentSummary={contextContent ?? undefined}
+                project={activeProject}
+                applicationKeys={applicationKeys}
+                assetsUri={CONFIG.getString('assetsUri')}
+            >
+                {children}
+            </HtmlAreaProvider>
+        </LocaleProvider>
     );
 };
 
