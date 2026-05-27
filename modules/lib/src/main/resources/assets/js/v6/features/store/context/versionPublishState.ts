@@ -181,13 +181,14 @@ export const $publishBadgeByVersionId = computed(
     [$allPublishBadges, $onlineVersionId],
     (badges, onlineVersionId): ReadonlyMap<string, ItemPublishBadge> => {
         const map = new Map<string, ItemPublishBadge>();
+        const onlineBadgeId = onlineVersionId != null ? badges[0]?.versionId : undefined;
         for (const badge of badges) {
             map.set(badge.versionId, {
                 status: badge.publishStatus,
                 publishedFrom: badge.publishedFrom,
                 publishedTo: badge.publishedTo,
                 unpublishedAt: badge.unpublishedAt,
-                isOnline: onlineVersionId != null && badge.versionId === onlineVersionId,
+                isOnline: onlineBadgeId != null && badge.versionId === onlineBadgeId,
             });
         }
         return map;
