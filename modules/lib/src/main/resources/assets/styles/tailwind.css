@@ -81,6 +81,10 @@
     @apply !bg-overlay;
   }
 
+  .preview-load-mask {
+    @apply !z-40;
+  }
+
   .datetime-selector-input {
     input + div {
       @apply !bg-surface-neutral;
