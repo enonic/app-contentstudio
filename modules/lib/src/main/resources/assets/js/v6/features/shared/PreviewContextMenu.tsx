@@ -27,14 +27,16 @@ export const PreviewContextMenu = ({pageName, pageType, messages, showIcon}: Pre
     const handleClick = useCallback((event: ReactMouseEvent<HTMLDivElement>) => {
         if (event.button !== 0) return;
         event.preventDefault();
-        event.currentTarget.dispatchEvent(new MouseEvent('contextmenu', {
-            bubbles: true,
-            cancelable: true,
-            clientX: event.clientX,
-            clientY: event.clientY,
-            button: 2,
-            view: window,
-        }));
+        event.currentTarget.dispatchEvent(
+            new MouseEvent('contextmenu', {
+                bubbles: true,
+                cancelable: true,
+                clientX: event.clientX,
+                clientY: event.clientY,
+                button: 2,
+                view: window,
+            }),
+        );
     }, []);
 
     const handleInspect = useCallback(() => {
@@ -45,10 +47,7 @@ export const PreviewContextMenu = ({pageName, pageType, messages, showIcon}: Pre
 
     return (
         <ContextMenu data-component={PREVIEW_CONTEXT_MENU_NAME}>
-            <ContextMenu.Trigger
-                className="flex h-full w-full items-center justify-center"
-                onClick={handleClick}
-            >
+            <ContextMenu.Trigger className="flex h-full w-full items-center justify-center" onClick={handleClick}>
                 <PreviewLabel messages={messages} showIcon={showIcon} className="text-xl" />
             </ContextMenu.Trigger>
             <ContextMenu.Portal>
@@ -57,9 +56,7 @@ export const PreviewContextMenu = ({pageName, pageType, messages, showIcon}: Pre
                         <Globe className="size-4 shrink-0" aria-hidden />
                         <span className="truncate">{pageName || pageType}</span>
                     </div>
-                    <ContextMenu.Item onSelect={handleInspect}>
-                        {inspectLabel}
-                    </ContextMenu.Item>
+                    <ContextMenu.Item onSelect={handleInspect}>{inspectLabel}</ContextMenu.Item>
                 </ContextMenu.Content>
             </ContextMenu.Portal>
         </ContextMenu>
@@ -73,9 +70,7 @@ PreviewContextMenu.displayName = PREVIEW_CONTEXT_MENU_NAME;
 //
 
 export class PreviewContextMenuElement extends LegacyElement<typeof PreviewContextMenu> {
-
     constructor(props: PreviewContextMenuProps) {
         super(props, PreviewContextMenu);
-        this.addClass('size-full');
     }
 }
