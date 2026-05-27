@@ -26,15 +26,27 @@ export class EditContentAction
     protected handleExecuted() {
         const contents = [...getCurrentItemsAsCSCS()];
 
+        this.editContents(contents, this.isLocalize);
+    }
+
+    executeForItems(contents: ContentSummaryAndCompareStatus[]): void {
+        this.editContents(contents, this.shouldLocalize(contents));
+    }
+
+    private editContents(contents: ContentSummaryAndCompareStatus[], localize: boolean): void {
         if (contents.length > EditContentAction.MAX_ITEMS_TO_EDIT) {
             showWarning(i18n('notify.edit.tooMuch'));
         } else if (contents.length > 0) {
-            if (this.isLocalize) {
+            if (localize) {
                 this.localizeContents(contents);
             } else {
                 new EditContentEvent(contents).fire();
             }
         }
+    }
+
+    private shouldLocalize(contents: ContentSummaryAndCompareStatus[]): boolean {
+        return contents.length > 0 && contents.every((content: ContentSummaryAndCompareStatus) => content.isDataInherited());
     }
 
     private localizeContents(contents: ContentSummaryAndCompareStatus[]): void {
