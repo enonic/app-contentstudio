@@ -93,6 +93,10 @@ export function getMixinDataContext(mixinName: string): FormDataContextValue {
     return stores.context;
 }
 
+export function resetMixinChangedPaths(mixinName: string): void {
+    mixinDataStoresMap.get(mixinName)?.$changedPaths.set({});
+}
+
 function resetMixinDataStores(): void {
     for (const stores of mixinDataStoresMap.values()) {
         stores.$changedPaths.set({});

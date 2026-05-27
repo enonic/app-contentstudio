@@ -2,6 +2,7 @@ import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryA
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {RestoreInheritRequest} from '../../resource/RestoreInheritRequest';
+import {GetContentByIdRequest} from '../../resource/GetContentByIdRequest';
 import {type ContentWizardPanel} from '../ContentWizardPanel';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentInheritType} from '../../content/ContentInheritType';
@@ -31,11 +32,15 @@ export class ResetContentAction
     }
 
     private restoreContentInheritance(wizardPanel: ContentWizardPanel) {
+        const contentId = wizardPanel.getContent().getContentId();
+
         new RestoreInheritRequest()
-            .setContentId(wizardPanel.getContent().getContentId())
+            .setContentId(contentId)
             .setInherit(this.getInheritTypesToRestore(wizardPanel.getContent()))
             .sendAndParse()
-            .then(() => {
+            .then(() => new GetContentByIdRequest(contentId).sendAndParse())
+            .then((content) => {
+                wizardPanel.replacePersistedContent(content);
                 showFeedback(i18n('notify.content.reset'));
                 wizardPanel.setEnabled(false);
                 setWizardReadOnly(true);
