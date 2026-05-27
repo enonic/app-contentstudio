@@ -12,8 +12,8 @@ exports.config = {
         path.join(__dirname, '../specs/project-2/parent.project.dialog.step.spec.js'),
         path.join(__dirname, '../specs/project-2/project.wizard.applications.step.spec.js'),
         path.join(__dirname, '../specs/project-2/project.wizard.dialog.permissions.step.spec.js'),
-
-
+        path.join(__dirname, '../specs/project-2/project.wizard.dialog.name.step.spec.js'),
+        path.join(__dirname, '../specs/project-2/project.wizard.dialog.summary.step.spec.js'),
     ],
 
     maxInstances: 1,

@@ -24,6 +24,10 @@ class ProjectWizardDialogNameAndIdStep extends ProjectWizardDialog {
         return PROJECTS.PROJECT_STEP_COMPONENT + COMMON.INPUTS.dataComponentInputByLabel("Identifier") +
                "//div[contains(@class,'text-error')]";
     }
+    get projectNameValidationMessage() {
+        return PROJECTS.PROJECT_STEP_COMPONENT + COMMON.INPUTS.dataComponentInputByLabel("Display Name") +
+               "//div[contains(@class,'text-error')]";
+    }
 
     get displayNameInput() {
         return PROJECTS.PROJECT_STEP_COMPONENT + COMMON.INPUTS.dataComponentInputByLabel("Display Name") + "//input";
@@ -72,6 +76,11 @@ class ProjectWizardDialogNameAndIdStep extends ProjectWizardDialog {
 
     async getProjectIdentifierValidationMessage() {
         await this.waitForElementDisplayed(this.projectIdentifierValidationMessage, appConst.shortTimeout);
+        return await this.getText(this.projectIdentifierValidationMessage);
+    }
+
+    async getProjectNameValidationMessage() {
+        await this.waitForElementDisplayed(this.projectNameValidationMessage, appConst.shortTimeout);
         return await this.getText(this.projectIdentifierValidationMessage);
     }
 
