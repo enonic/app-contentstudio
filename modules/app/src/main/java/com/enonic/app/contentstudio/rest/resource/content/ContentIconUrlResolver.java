@@ -95,7 +95,7 @@ public final class ContentIconUrlResolver
 
     private String getProjectName()
     {
-        return ContextAccessor.current().getRepositoryId().toString().replace( ProjectConstants.PROJECT_REPO_ID_PREFIX, "" );
+        return ProjectName.from( ContextAccessor.current().getRepositoryId() ).toString();
     }
 
     private String getLayer()
