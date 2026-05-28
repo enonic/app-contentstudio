@@ -7,7 +7,7 @@ import {errAsync} from 'neverthrow';
 import {type ContentSummary} from '../../../../app/content/ContentSummary';
 import {type AggregateContentTypesResult, type ContentTypeAggregation} from '../../../../app/resource/AggregateContentTypesResult';
 import {ContentTypesHelper} from '../../../../app/util/ContentTypesHelper';
-import {fetchRootChildrenFiltered} from '../../api/content-fetcher';
+import {reloadParentChildren} from '../../api/content-fetcher';
 import {
     type UploadDataUrlImageOptions,
     type UploadMediaError,
@@ -17,7 +17,7 @@ import {
 } from '../../api/uploadMedia';
 import {generateUniqueName} from '../../utils/image/generateUniqueName';
 import {$activeProject} from '../activeProject.store';
-import {resetTree} from '../tree-list.store';
+import {expandNode, hasTreeNode, isNodeExpanded} from '../tree-list.store';
 import {addUpload, removeUpload, updateUploadProgress} from '../uploads.store';
 
 type UploadOptions = {
@@ -161,7 +161,11 @@ export async function uploadMediaFiles({dataTransfer, parentContent}: UploadOpti
         });
     });
 
-    await Promise.all(tasks.map((task) => task.match(onEachSuccess, onEachError)));
+    const results = await Promise.all(tasks.map((task) => task.match(onEachSuccess, onEachError)));
+
+    if (results.some(Boolean)) {
+        await revealUploadedContent(parentContent);
+    }
 }
 
 // TODO: replace places invoking this function with the useUploadMedia hook
@@ -194,7 +198,11 @@ export async function uploadDragImages({dataTransfer, parentContent}: UploadOpti
         return uploadRemoteImage(params);
     });
 
-    await Promise.all(tasks.map((task) => task.match(onEachSuccess, onEachError)));
+    const results = await Promise.all(tasks.map((task) => task.match(onEachSuccess, onEachError)));
+
+    if (results.some(Boolean)) {
+        await revealUploadedContent(parentContent);
+    }
 }
 
 //
@@ -238,15 +246,28 @@ function extractImageSources(htmlData: string): string[] {
         .filter((src): src is string => src != null);
 }
 
-function onEachSuccess(success: UploadMediaSuccess) {
+function onEachSuccess(success: UploadMediaSuccess): boolean {
     removeUpload(success.mediaIdentifier);
-    resetTree();
-    void fetchRootChildrenFiltered();
     showSuccess(i18n('notify.upload.success', success.mediaIdentifier));
+    return true;
 }
 
-function onEachError(error: UploadMediaError) {
+function onEachError(error: UploadMediaError): boolean {
     console.error(error);
     removeUpload(error.mediaIdentifier);
     showError(i18n('notify.upload.error', error.mediaIdentifier, error.message));
+    return false;
+}
+
+// Reveal uploaded items under their target parent: expand it (unless already
+// expanded) and reload its children. The server owns the child order (it may be
+// manual), so we refetch rather than insert locally — same approach as duplication.
+async function revealUploadedContent(parentContent?: ContentSummary): Promise<void> {
+    const parentId = parentContent?.getContentId()?.toString() ?? null;
+
+    if (parentId && hasTreeNode(parentId) && !isNodeExpanded(parentId)) {
+        expandNode(parentId);
+    }
+
+    await reloadParentChildren(parentId).catch(() => undefined);
 }
