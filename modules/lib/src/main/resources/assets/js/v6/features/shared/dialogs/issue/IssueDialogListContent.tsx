@@ -8,6 +8,7 @@ import {
     $issueDialog,
     $issueDialogListFilteredIssues,
     $issueDialogListTabCounts,
+    ISSUE_DIALOG_FILTER_ORDER,
     openIssueDialogDetails,
     setIssueDialogListFilter,
     setIssueDialogListTab,
@@ -21,14 +22,7 @@ import type {IssueDialogFilter, IssueDialogTab} from './issueDialog.types';
 
 const ISSUE_DIALOG_LIST_CONTENT_NAME = 'IssueDialogListContent';
 
-const FILTER_ORDER: IssueDialogFilter[] = [
-    'all',
-    'assignedToMe',
-    'createdByMe',
-    'publishRequests',
-    'issues',
-];
-const FILTER_VALUES = new Set<string>(FILTER_ORDER);
+const FILTER_VALUES = new Set<string>(ISSUE_DIALOG_FILTER_ORDER);
 
 const isIssueDialogFilter = (value: string): value is IssueDialogFilter => {
     return FILTER_VALUES.has(value);
@@ -77,7 +71,7 @@ export const IssueDialogListContent = (): ReactElement => {
             return tab === 'open' ? counts.open ?? 0 : counts.closed ?? 0;
         };
 
-        const filterOptions = FILTER_ORDER.map(option => {
+        const filterOptions = ISSUE_DIALOG_FILTER_ORDER.map(option => {
             const count = getFilterCount(option);
             const baseLabel = filterLabels[option];
             return {
