@@ -17,9 +17,12 @@ export function IssueStatusBadge({status, className}: IssueStatusBadgeProps): Re
 
     // TODO: Enonic UI - Replace bg-bdr-subtle once the closed status color is defined.
     return (
-        <span data-component={ISSUE_STATUS_BADGE_NAME} className={cn('inline-flex items-center gap-3', className)}>
+        <span
+            data-component={ISSUE_STATUS_BADGE_NAME}
+            className={cn(ISSUE_STATUS_BADGE_NAME, 'inline-flex items-center gap-3', className)}
+        >
             <span className={cn('size-4 rounded-full bg-success', isClosed && 'bg-surface-muted')} />
-            <span className={cn('text-lg font-semibold capitalize', isClosed && 'text-subtle')}>
+            <span className={cn('text-lg font-semibold capitalize', isClosed && 'group-data-[tone=inverse]:text-alt')}>
                 {label}
             </span>
         </span>
