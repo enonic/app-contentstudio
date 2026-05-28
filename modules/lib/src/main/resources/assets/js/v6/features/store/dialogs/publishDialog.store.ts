@@ -6,6 +6,7 @@ import {type ContentId} from '../../../../app/content/ContentId';
 import type {ContentSummary} from '../../../../app/content/ContentSummary';
 import {fetchContentSummaries} from '../../api/content';
 import {type CompareResult, compareContent} from '../../api/compare';
+import {PublishStatus} from '../../../../app/publish/PublishStatus';
 import {calcSecondaryStatus, calcTreePublishStatus} from '../../utils/cms/content/status';
 import {hasUnpublishedChildren} from '../../api/hasUnpublishedChildren';
 import {findIdsByParents, markAsReady, publishContent, resolvePublishDependencies as resolvePublishDeps} from '../../api/publish';
@@ -229,6 +230,18 @@ export const $publishableIds = computed([$mainPublishItems, $dependantPublishIte
 export const $totalPublishableItems = computed($publishableIds, (publishableIds): number => {
     return publishableIds.length;
 });
+
+// Scheduling only makes sense when at least one item is not currently online.
+// Mirrors legacy `hasSchedulable`: hide when all items are Published, Modified, or Scheduled.
+export const $hasSchedulableItems = computed(
+    [$publishDialog, $publishDialogDependants],
+    ({items}, dependants): boolean => {
+        return [...items, ...dependants].some(item => {
+            const status = calcTreePublishStatus(item);
+            return status === PublishStatus.OFFLINE || status === PublishStatus.EXPIRED;
+        });
+    },
+);
 
 export const $publishCheckErrors = computed([$publishChecks], (state): PublishCheckErrorsStore => {
     return {

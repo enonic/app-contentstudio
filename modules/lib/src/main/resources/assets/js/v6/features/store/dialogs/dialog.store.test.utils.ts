@@ -17,6 +17,8 @@ type MockContentOptions = {
     path?: string;
     hasChildren?: boolean;
     isOnline?: boolean;
+    publishFromTime?: Date;
+    publishToTime?: Date;
 };
 
 // Returns an object that satisfies both ContentSummary and ContentSummaryAndCompareStatus
@@ -28,10 +30,12 @@ export function createMockContent(
         path,
         hasChildren = false,
         isOnline = false,
+        publishFromTime: publishFromTimeOption,
+        publishToTime,
     }: MockContentOptions = {},
 ): ContentSummary & ContentSummaryAndCompareStatus {
     const contentId = new ContentId(id);
-    const publishFromTime = isOnline ? new Date() : undefined;
+    const publishFromTime = publishFromTimeOption ?? (isOnline ? new Date() : undefined);
     const publishTime = isOnline ? new Date() : undefined;
 
     const summary = {
@@ -41,6 +45,7 @@ export function createMockContent(
         getPath: () => path ? {toString: () => path} : undefined,
         hasChildren: () => hasChildren,
         getPublishFromTime: () => publishFromTime,
+        getPublishToTime: () => publishToTime,
         getPublishTime: () => publishTime,
         getPublishFirstTime: () => publishTime,
         getContentSummary: () => summary as unknown as ContentSummary,
