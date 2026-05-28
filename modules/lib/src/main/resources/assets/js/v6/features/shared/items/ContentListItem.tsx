@@ -1,15 +1,21 @@
-import {Button, cn, ListItem, type ListItemProps} from '@enonic/ui';
-import React, {type ReactNode} from 'react';
+import {Button, cn, ListItem, type ButtonProps, type ListItemProps} from '@enonic/ui';
+import React, {type ReactNode, type Ref} from 'react';
 import type {ContentSummary} from '../../../../app/content/ContentSummary';
 import {EditContentEvent} from '../../../../app/event/EditContentEvent';
 import {ContentLabel, type ContentLabelVariant} from '../content/ContentLabel';
 import {LegacyElement} from '../LegacyElement';
 import {DiffStatusBadge} from '../status/DiffStatusBadge';
 
+export type ContentButtonProps = Omit<ButtonProps, 'children'> & {
+    'data-active'?: boolean;
+};
+
 export type ContentItemProps = {
     content: ContentSummary;
     variant?: ContentLabelVariant;
     rightSlotOrder?: 'before-status' | 'after-status';
+    contentButtonProps?: ContentButtonProps;
+    contentButtonRef?: Ref<HTMLButtonElement>;
     'data-component'?: string;
     children?: ReactNode;
 } & Omit<ListItemProps, 'children'>;
@@ -22,20 +28,41 @@ export const ContentListItem = ({
                                     rightSlotOrder = 'before-status',
                                     selected = false,
                                     className,
+                                    contentButtonProps,
+                                    contentButtonRef,
                                     children,
                                     'data-component': componentName = CONTENT_LIST_ITEM_NAME,
                                     ...props
                                 }: ContentItemProps): React.ReactElement => {
     const isCompact = variant === 'compact';
+    const {
+        className: contentButtonClassName,
+        onClick: onContentButtonClick,
+        ...restContentButtonProps
+    } = contentButtonProps ?? {};
 
-    const handleClick = () => {
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        onContentButtonClick?.(event);
+        if (event.defaultPrevented) {
+            return;
+        }
         new EditContentEvent([content]).fire();
     };
 
     return (
         <ListItem selected={selected} data-component={componentName} className={cn('pl-0 py-0', className)} {...props}>
             <ListItem.Content className='flex'>
-                <Button onClick={handleClick} className={cn('box-content justify-start flex-1 px-2.5 py-1', isCompact && 'h-6')}>
+                <Button
+                    ref={contentButtonRef}
+                    onClick={handleClick}
+                    className={cn(
+                        'box-content justify-start flex-1 px-2.5 py-1',
+                        'active:bg-transparent data-[active=true]:bg-transparent',
+                        isCompact && 'h-6',
+                        contentButtonClassName,
+                    )}
+                    {...restContentButtonProps}
+                >
                     <ContentLabel content={content} variant={variant}/>
                 </Button>
             </ListItem.Content>

@@ -1,6 +1,6 @@
-import {Button, Dialog, Separator, cn} from '@enonic/ui';
+import {Button, Dialog} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
-import {useMemo, useRef, type ReactElement} from 'react';
+import {useCallback, useMemo, useRef, type ReactElement} from 'react';
 import type {ContentSummary} from '../../../../../app/content/ContentSummary';
 import {Branch} from '../../../../../app/versioning/Branch';
 import {useI18n} from '../../../hooks/useI18n';
@@ -12,7 +12,7 @@ import {
     $isDeleteDialogReady,
     ignoreDeleteInboundDependencies,
 } from '../../../store/dialogs/deleteDialog.store';
-import {ContentListItemWithReference} from '../../items/ContentListItemWithReference';
+import {ContentReferenceList} from '../ContentReferenceList';
 import {InboundStatusBar} from '../status-bar/InboundStatusBar';
 
 type DeleteDialogMainContentProps = {
@@ -32,7 +32,8 @@ export const DeleteDialogMainContent = ({
     const total = useStore($deleteItemsCount);
     const inboundIds = useStore($deleteInboundIds);
     const inboundSet = useMemo(() => new Set(inboundIds), [inboundIds]);
-    const isInbound = (content: ContentSummary) => inboundSet.has(content.getContentId().toString());
+    const isInbound = useCallback((content: ContentSummary) =>
+        inboundSet.has(content.getContentId().toString()), [inboundSet]);
 
     const single = useI18n('dialog.delete.single');
     const multiple = useI18n('dialog.delete.multiple');
@@ -45,12 +46,12 @@ export const DeleteDialogMainContent = ({
     const actionButtonRef = useRef<HTMLButtonElement>(null);
 
     useOnceWhen(() => {
-        actionButtonRef.current?.focus({focusVisible: true});
+        actionButtonRef.current?.focus();
     }, ready);
 
-    const handleOpenAutoFocus = (event: FocusEvent) => {
+    const handleOpenAutoFocus = (event: Event) => {
         event.preventDefault();
-        actionButtonRef.current?.focus({focusVisible: true});
+        actionButtonRef.current?.focus();
     };
 
     const inboundCount = useMemo(() => {
@@ -80,33 +81,16 @@ export const DeleteDialogMainContent = ({
                 }}
             />
 
-            <Dialog.Body className="flex flex-col gap-y-10">
-                <ul className="flex flex-col gap-y-2.5">
-                    {items.map(item => (
-                        <ContentListItemWithReference
-                            key={`main-${item.getId()}`}
-                            variant='normal'
-                            content={item}
-                            branch={Branch.DRAFT}
-                            hasInbound={isInbound(item)}
-                        />
-                    ))}
-                </ul>
-
-                <div className={cn('flex flex-col gap-y-7.5', dependants.length === 0 && 'hidden')}>
-                    <Separator className="pr-1" label={dependantsLabel} />
-                    <ul className="flex flex-col gap-y-1.5">
-                        {dependants.map(item => (
-                            <ContentListItemWithReference
-                                key={`dep-${item.getId()}`}
-                                variant='compact'
-                                content={item}
-                                branch={Branch.DRAFT}
-                                hasInbound={isInbound(item)}
-                            />
-                        ))}
-                    </ul>
-                </div>
+            <Dialog.Body>
+                <ContentReferenceList
+                    items={items}
+                    dependants={dependants}
+                    dependantsLabel={dependantsLabel}
+                    branch={Branch.DRAFT}
+                    isInbound={isInbound}
+                    label={title}
+                    dependantVariant='compact'
+                />
             </Dialog.Body>
 
             <Dialog.Footer className="flex items-center gap-2.5">

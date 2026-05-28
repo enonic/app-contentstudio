@@ -2924,6 +2924,12 @@ packages:
     peerDependencies:
       postcss: ^8.4.32
 
+  cssnano-utils@5.0.3:
+    resolution: {integrity: sha512-ynIREMICLxkxm7e9bCR9sh75s4Q5drICi0ua1yxo5jH2XPBqSKkl4dOh4EbFqtUmnTMhRffHgYL0EKKkMjtJTg==}
+    engines: {node: ^18.12.0 || ^20.9.0 || >=22.0}
+    peerDependencies:
+      postcss: ^8.5.13
+
   cssnano-utils@6.0.0:
     resolution: {integrity: sha512-ztS9W/+uaDn+bkYmDhs+GdMveHJ3CL8IPNHpRqDUQXv5GJOTQAJjV1XUOInr9esLXSabQV1pLRZlJpyUwEqDyQ==}
     engines: {node: ^22.11.0 || ^24.11.0 || >=26.0}
@@ -7745,7 +7751,7 @@ snapshots:
   caniuse-api@3.0.0:
     dependencies:
       browserslist: 4.28.2
-      caniuse-lite: 1.0.30001780
+      caniuse-lite: 1.0.30001791
       lodash.memoize: 4.1.2
       lodash.uniq: 4.5.0
 
@@ -7924,7 +7930,7 @@ snapshots:
 
   cssnano-preset-default@7.0.11(postcss@8.5.15):
     dependencies:
-      browserslist: 4.28.1
+      browserslist: 4.28.2
       css-declaration-sorter: 7.3.1(postcss@8.5.15)
       cssnano-utils: 5.0.1(postcss@8.5.15)
       postcss: 8.5.15
@@ -7990,6 +7996,10 @@ snapshots:
       postcss-unique-selectors: 8.0.0(postcss@8.5.15)
 
   cssnano-utils@5.0.1(postcss@8.5.15):
+    dependencies:
+      postcss: 8.5.15
+
+  cssnano-utils@5.0.3(postcss@8.5.15):
     dependencies:
       postcss: 8.5.15
 
@@ -9621,7 +9631,7 @@ snapshots:
     dependencies:
       browserslist: 4.28.2
       caniuse-api: 3.0.0
-      cssnano-utils: 5.0.1(postcss@8.5.15)
+      cssnano-utils: 5.0.3(postcss@8.5.15)
       postcss: 8.5.15
       postcss-selector-parser: 7.1.1
 
@@ -9646,7 +9656,7 @@ snapshots:
   postcss-minify-gradients@7.0.1(postcss@8.5.15):
     dependencies:
       colord: 2.9.3
-      cssnano-utils: 5.0.1(postcss@8.5.15)
+      cssnano-utils: 5.0.3(postcss@8.5.15)
       postcss: 8.5.15
       postcss-value-parser: 4.2.0
 
@@ -9660,7 +9670,7 @@ snapshots:
   postcss-minify-params@7.0.6(postcss@8.5.15):
     dependencies:
       browserslist: 4.28.2
-      cssnano-utils: 5.0.1(postcss@8.5.15)
+      cssnano-utils: 5.0.3(postcss@8.5.15)
       postcss: 8.5.15
       postcss-value-parser: 4.2.0
 
@@ -9806,7 +9816,7 @@ snapshots:
 
   postcss-ordered-values@7.0.2(postcss@8.5.15):
     dependencies:
-      cssnano-utils: 5.0.1(postcss@8.5.15)
+      cssnano-utils: 5.0.3(postcss@8.5.15)
       postcss: 8.5.15
       postcss-value-parser: 4.2.0
 
