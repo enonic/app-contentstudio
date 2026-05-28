@@ -11,9 +11,10 @@ import {type ContentData} from './ContentData';
 export type ContentTreeListItemProps = {
     content: ContentData;
     showPath?: boolean;
+    selected?: boolean;
 };
 
-export const ContentTreeListItem = ({content, showPath = false}: ContentTreeListItemProps): React.ReactElement => {
+export const ContentTreeListItem = ({content, showPath = false, selected = false}: ContentTreeListItemProps): React.ReactElement => {
     const {item} = content;
     const isInherited = item.isInherited();
     const isLocalised = isInherited && !item.isDataInherited();
@@ -43,6 +44,7 @@ export const ContentTreeListItem = ({content, showPath = false}: ContentTreeList
                         onClick={handleLayersClick}
                         onDblClick={stopRowActivation}
                         tabIndex={-1}
+                        selected={selected}
                     />
                 )}
                 <StatusBadge status={content.publishStatus} />
