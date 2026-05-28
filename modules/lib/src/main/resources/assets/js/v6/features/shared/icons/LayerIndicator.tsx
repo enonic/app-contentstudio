@@ -11,6 +11,7 @@ export type LayerIndicatorProps = {
     onClick: (e: MouseEvent<HTMLButtonElement>) => void;
     onDblClick?: (e: MouseEvent<HTMLButtonElement>) => void;
     tabIndex?: number;
+    selected?: boolean;
     className?: string;
 };
 
@@ -19,6 +20,7 @@ export const LayerIndicator = ({
     onClick,
     onDblClick,
     tabIndex,
+    selected = false,
     className,
 }: LayerIndicatorProps): ReactElement => {
     const registeredWidgetNames = useStore($registeredWidgetNames);
@@ -39,11 +41,11 @@ export const LayerIndicator = ({
                 onDblClick={onDblClick}
                 tabIndex={tabIndex}
                 className={cn(
-                    'shrink-0 bg-transparent hover:bg-transparent',
+                    'shrink-0 bg-transparent hover:bg-transparent active:bg-transparent active:text-main',
+                    selected && 'text-alt hover:text-alt active:text-alt',
                     !isLocalised && 'opacity-40',
                     !isClickable && [
                         'cursor-default',
-                        'active:bg-transparent active:text-main',
                         'focus-visible:ring-0 focus-visible:ring-offset-0',
                     ],
                     className,
