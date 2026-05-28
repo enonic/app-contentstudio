@@ -1,11 +1,11 @@
-import {cn, Link, LinkProps} from '@enonic/ui';
-import {useMemo} from 'react';
+import {cn, Link, type LinkProps} from '@enonic/ui';
+import {forwardRef, useMemo} from 'react';
 
 import type {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {useStore} from '@nanostores/preact';
 import {DependencyType} from '../../../app/browse/DependencyType';
 import {UrlHelper} from '../../../app/util/UrlHelper';
-import {Branch} from '../../../app/versioning/Branch';
+import {type Branch} from '../../../app/versioning/Branch';
 import {useI18n} from '../hooks/useI18n';
 import {$activeProject} from '../store/activeProject.store';
 
@@ -13,18 +13,19 @@ export type ContentReferencesLinkProps = {
     contentId: string;
     branch: Branch;
     contentTypeName?: ContentTypeName;
+    'data-active'?: boolean;
     'data-component'?: string;
 } & Omit<LinkProps, 'href' | 'newTab'>;
 
 const CONTENT_REFERENCES_LINK_NAME = 'ContentReferencesLink';
-export function ContentReferencesLink({
+export const ContentReferencesLink = forwardRef<HTMLAnchorElement, ContentReferencesLinkProps>(({
     contentId,
     branch,
     contentTypeName,
     className,
     'data-component': componentName = CONTENT_REFERENCES_LINK_NAME,
     ...props
-}: ContentReferencesLinkProps) {
+}: ContentReferencesLinkProps, ref) => {
     const label = useI18n('action.showReferences');
     const projectName = useStore($activeProject)?.getName();
     const contentType = contentTypeName?.toString();
@@ -36,7 +37,11 @@ export function ContentReferencesLink({
 
     return (
         <Link
-            className={cn('visited:text-main', className)}
+            ref={ref}
+            className={cn(
+                className,
+                'visited:text-main h-12 px-2 active:bg-transparent data-[active=true]:bg-transparent',
+            )}
             href={href}
             newTab
             data-component={componentName}
@@ -45,6 +50,6 @@ export function ContentReferencesLink({
             {label}
         </Link>
     );
-}
+});
 
 ContentReferencesLink.displayName = CONTENT_REFERENCES_LINK_NAME;
