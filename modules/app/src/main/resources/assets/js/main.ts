@@ -377,8 +377,8 @@ async function startApplication() {
 
     CreateIssuePromptEvent.on((event) => IssueDialogsManager.get().openCreateDialog(event.getModels()));
 
-    ShowIssuesDialogEvent.on((event: ShowIssuesDialogEvent) =>
-        IssueDialogsManager.get().openListDialog(event.getAssignedToMe()));
+    ShowIssuesDialogEvent.on(() =>
+        IssueDialogsManager.get().openListDialog());
 
     ShowDependenciesEvent.on(ContentEventsProcessor.handleShowDependencies);
 
