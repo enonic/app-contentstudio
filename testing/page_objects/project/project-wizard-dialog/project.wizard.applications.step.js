@@ -8,7 +8,7 @@ const ProjectApplicationsCombobox = require('../../components/projects/project.a
 
 // Selected applications render in a GridList that is a sibling of the ApplicationSelector combobox.
 const SELECTED_APPS_GRID =
-    "//div[@data-component='ApplicationSelector']/following-sibling::div[@data-component='GridList']";
+    "//div[@data-component='ApplicationSelector']/following-sibling::div[@data-component='SortableGridList']";
 
 const XPATH = {
     container: "//div[@role='dialog' and descendant::h2[contains(.,'Project scope applications')]]",
@@ -16,11 +16,11 @@ const XPATH = {
     // All selected-app display-name spans, used by getSelectedApplications.
     selectedAppDisplayNameSpan:
         SELECTED_APPS_GRID +
-        "//div[@data-component='GridList.Row']//div[@data-component='ItemLabel']//span[contains(@class,'font-semibold')]",
+        "//div[@data-component='ListItem']//div[@data-component='ItemLabel']//span[contains(@class,'font-semibold')]",
     // The remove (X) IconButton for a given app display name. Empty aria-label means we key on data-component.
     removeAppIconByDisplayName: displayName =>
         SELECTED_APPS_GRID +
-        `//div[@data-component='GridList.Row' and descendant::div[@data-component='ItemLabel']//span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]` +
+        `//div[@data-component='ListItem' and descendant::div[@data-component='ItemLabel']//span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]` +
         "//button[@data-component='IconButton']",
 };
 const DESCRIPTION = "Select applications for the project content";
@@ -79,13 +79,13 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
     }
 
     async waitForRemoveAppIconDisplayed(appName) {
-        const removeIconLocator = XPATH.container + TREE_GRID.gridListRowByDisplayName(appName) + BUTTONS.ICON_BUTTON;
+        const removeIconLocator = XPATH.container + XPATH.removeAppIconByDisplayName(appName);
         await this.waitForElementDisplayed(removeIconLocator, appConst.mediumTimeout);
     }
 
     async removeApplication(appName) {
         try {
-            const removeIconLocator = XPATH.container + TREE_GRID.gridListRowByDisplayName(appName) + BUTTONS.ICON_BUTTON;
+            const removeIconLocator = XPATH.container + XPATH.removeAppIconByDisplayName(appName);
             await this.waitForRemoveAppIconDisplayed(appName);
             return await this.clickOnElement(removeIconLocator);
         } catch (err) {

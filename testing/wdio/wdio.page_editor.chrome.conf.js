@@ -35,7 +35,7 @@ exports.config = {
             ]
         }
     }],
-    logLevel: 'info',
+    logLevel: 'trace',
     //
     // Enables colors for log output.
     coloredLogs: true,
