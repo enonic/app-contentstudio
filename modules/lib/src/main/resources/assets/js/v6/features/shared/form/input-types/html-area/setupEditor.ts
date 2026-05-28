@@ -11,6 +11,7 @@ import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {isBlank} from '../../../../utils/format/isBlank';
 import {ContentPath} from '../../../../../../app/content/ContentPath';
 import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
+import {ContentRequiresSaveEvent} from '../../../../../../app/event/ContentRequiresSaveEvent';
 import {normalizeHtmlAreaLangDirection} from '../../../../../../app/inputtype/ui/text/HtmlAreaLangDirection';
 import {ContentsExistByPathRequest} from '../../../../../../app/resource/ContentsExistByPathRequest';
 import type {ContentsExistByPathResult} from '../../../../../../app/resource/ContentsExistByPathResult';
@@ -59,6 +60,7 @@ export type SetupEditorParams = {
     allowedHeadings: string | undefined;
     editableSourceCode: boolean;
     dialogOverrides?: DialogOverrides;
+    onSave?: () => void;
 };
 
 function createDialogHandler(overrides?: DialogOverrides): (event: CreateHtmlAreaDialogEvent) => void {
@@ -310,6 +312,26 @@ export function getCursorPosition(editor: CKEDITOR.editor): HtmlEditorCursorPosi
     };
 }
 
+export function createContentSaveHandler(contentSummary: ContentSummary | undefined): (() => void) | undefined {
+    const id = contentSummary?.getContentId();
+    if (!id) return undefined;
+
+    return () => {
+        new ContentRequiresSaveEvent(id).fire();
+    };
+}
+
+function setupSaveHandler(editor: CKEDITOR.editor, onSave?: () => void): void {
+    if (!onSave) return;
+
+    editor.addCommand('saveHandler', {
+        exec: () => {
+            onSave();
+            return true;
+        },
+    });
+}
+
 function setupKeyboardShortcuts(editor: CKEDITOR.editor): void {
     const commandDef: CKEDITOR.commandDefinition = {
         exec: function () {
@@ -346,6 +368,7 @@ function setupKeyboardShortcuts(editor: CKEDITOR.editor): void {
     editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.SHIFT + 56, 'div');
     editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.SHIFT + 57, 'address');
     editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.SHIFT + 32, 'insertNbsp');
+    editor.setKeystroke(CKEDITOR.CTRL + 83, 'saveHandler');
 
     editor.on('key', (evt: EventInfo) => {
         if (evt.data.keyCode === CKEDITOR.CTRL + 65) {
@@ -826,6 +849,7 @@ export function setupEditor(editor: CKEDITOR.editor, params: SetupEditorParams):
     handleTooltipForClickableElements(editor);
     setupDialogsToOpen(editor, editorParams);
     setupKeyboardShortcuts(editor);
+    setupSaveHandler(editor, params.onSave);
     addCustomLangEntries(editor);
     removeUnwantedMenuItems(editor);
     moveSourceButtonToBottomBar(editor);
