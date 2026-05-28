@@ -10,6 +10,7 @@ import {
 } from '../socket.store';
 import {
     $dependantPublishItems,
+    $hasSchedulableItems,
     $isPublishReady,
     $publishCheckErrors,
     $publishDialog,
@@ -244,6 +245,57 @@ describe('publishDialog.store', () => {
             expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
         },
     );
+
+    describe('$hasSchedulableItems', () => {
+        it('should be true when at least one main item is offline', async () => {
+            const offline = createMockContent('item-1', {isOnline: false});
+            const online = createMockContent('item-2', {isOnline: true});
+
+            openPublishDialog([offline, online]);
+            await flushInitialReload();
+
+            expect($hasSchedulableItems.get()).toBe(true);
+        });
+
+        it('should be false when all main items are online', async () => {
+            const first = createMockContent('item-1', {isOnline: true});
+            const second = createMockContent('item-2', {isOnline: true});
+
+            openPublishDialog([first, second]);
+            await flushInitialReload();
+
+            expect($hasSchedulableItems.get()).toBe(false);
+        });
+
+        it('should be true when at least one item is expired', async () => {
+            const past = new Date(Date.now() - 60_000);
+            const expired = createMockContent('item-1', {
+                isOnline: true,
+                publishFromTime: new Date(Date.now() - 120_000),
+                publishToTime: past,
+            });
+            const online = createMockContent('item-2', {isOnline: true});
+
+            openPublishDialog([expired, online]);
+            await flushInitialReload();
+
+            expect($hasSchedulableItems.get()).toBe(true);
+        });
+
+        it('should be true when an offline dependant is present even if all main items are online', async () => {
+            const main = createMockContent('item-1', {isOnline: true});
+            const dependantId = new ContentId('dep-1');
+            const dependant = createMockContent('dep-1', {isOnline: false});
+
+            mockResolvePublishDependencies.mockResolvedValue(createResolveResult({dependants: [dependantId]}));
+            mockFetchContentSummaries.mockResolvedValue([dependant]);
+
+            openPublishDialog([main]);
+            await flushInitialReload();
+
+            expect($hasSchedulableItems.get()).toBe(true);
+        });
+    });
 
     it('ignores published events while submitting', async () => {
         const item = createMockContent('item-1', {displayName: 'Item'});
