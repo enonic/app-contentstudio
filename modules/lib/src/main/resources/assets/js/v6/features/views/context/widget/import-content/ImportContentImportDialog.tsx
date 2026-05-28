@@ -1,6 +1,6 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Button, Checkbox, type CheckboxChecked, Dialog} from '@enonic/ui';
-import {FolderOutput, LoaderCircle} from 'lucide-react';
+import {Button, Checkbox, type CheckboxChecked, Dialog, IconButton, Tooltip} from '@enonic/ui';
+import {Copy, FolderOutput, LoaderCircle} from 'lucide-react';
 import {type FormEvent, type ReactElement, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {ContentSummary} from '../../../../../../app/content/ContentSummary';
 import {importContent, type ImportResult} from '../../../../api/importContent';
@@ -36,6 +36,8 @@ export const ImportContentImportDialog = ({
     const targetLabel = useI18n('widget.import.import.dialog.target');
     const submitLabel = useI18n('widget.import.import.dialog.submit');
     const keepLabel = useI18n('widget.import.import.dialog.keepPublishFirst');
+    const resultNameLabel = useI18n('widget.import.export.dialog.result.name');
+    const copyLabel = useI18n('field.contextPanel.details.sections.info.copy');
 
     const initialId = content?.getContentId().toString() ?? ROOT_ID;
     const initialItem = useMemo(() => content ?? createRootContent(), [content]);
@@ -105,7 +107,12 @@ export const ImportContentImportDialog = ({
                     </Dialog.Header>
 
                     {phase.kind === 'success' ? (
-                        <ResultView result={phase.result} />
+                        <ResultView
+                            result={phase.result}
+                            exportName={exportName}
+                            nameLabel={resultNameLabel}
+                            copyLabel={copyLabel}
+                        />
                     ) : (
                         <form className="contents" onSubmit={(event) => { void handleSubmit(event); }}>
                             <Dialog.Body className="flex flex-col gap-4 overflow-visible">
@@ -160,24 +167,39 @@ ImportContentImportDialog.displayName = IMPORT_CONTENT_IMPORT_DIALOG_NAME;
 
 type ResultViewProps = {
     result: ImportResult;
+    exportName: string;
+    nameLabel: string;
+    copyLabel: string;
 };
 
-const ResultView = ({result}: ResultViewProps): ReactElement => {
+const ResultView = ({result, exportName, nameLabel, copyLabel}: ResultViewProps): ReactElement => {
     const added = result.addedNodes?.length ?? 0;
     const updated = result.updatedNodes?.length ?? 0;
     const summary = i18n('widget.import.import.dialog.result.summary', added, updated);
-    const allNodes = [...(result.addedNodes ?? []), ...(result.updatedNodes ?? [])];
+
+    const copyExportName = (): void => {
+        void navigator?.clipboard?.writeText(exportName);
+    };
 
     return (
         <Dialog.Body className="flex flex-col gap-4 overflow-visible">
-            <span className="text-sm font-semibold">{summary}</span>
-            {allNodes.length > 0 && (
-                <ul className="max-h-60 overflow-auto border border-bdr-soft rounded-sm p-1.5 flex flex-col gap-0.5">
-                    {allNodes.map(path => (
-                        <li key={path} className="text-xs font-mono truncate" title={path}>{path}</li>
-                    ))}
-                </ul>
-            )}
+            <div className="flex flex-col gap-1">
+                <span className="text-sm text-subtle">{nameLabel}</span>
+                <div className="flex items-center gap-2">
+                    <code className="flex-1 text-sm font-mono break-all pl-5">{exportName}</code>
+                    <Tooltip value={copyLabel} side="left">
+                        <IconButton
+                            size="sm"
+                            icon={Copy}
+                            iconSize={14}
+                            aria-label={copyLabel}
+                            onClick={copyExportName}
+                            className="shrink-0"
+                        />
+                    </Tooltip>
+                </div>
+            </div>
+            <span className="text-sm text-subtle">{summary}</span>
         </Dialog.Body>
     );
 };
