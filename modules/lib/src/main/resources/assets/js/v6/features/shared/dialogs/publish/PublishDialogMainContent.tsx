@@ -6,6 +6,7 @@ import {useI18n} from '../../../hooks/useI18n';
 import {$config} from '../../../store/config.store';
 import {
     $dependantPublishItems,
+    $hasSchedulableItems,
     $isPublishChecking,
     $isPublishReady,
     $isPublishSelectionSynced,
@@ -49,6 +50,7 @@ export const PublishDialogMainContent = ({
     const mainItems = useStore($mainPublishItems);
     const dependantItems = useStore($dependantPublishItems);
     const publishCount = useStore($totalPublishableItems);
+    const hasSchedulableItems = useStore($hasSchedulableItems);
 
     const hasDependantItems = dependantItems.length > 0;
 
@@ -57,6 +59,7 @@ export const PublishDialogMainContent = ({
     const {invalid, inProgress, noPermissions} = useStore($publishCheckErrors);
     const {schedule} = useStore($publishDialog, {keys: ['schedule']});
     const scheduleMode = schedule !== undefined;
+    const showScheduleButton = scheduleMode || hasSchedulableItems;
     const firstScheduleInputRef = useRef<HTMLInputElement>(null);
     const wasScheduleMode = useRef(scheduleMode);
 
@@ -260,23 +263,31 @@ export const PublishDialogMainContent = ({
                     variant="outline"
                     onClick={handleToggleComment}
                 />
+                {showScheduleButton && (
+                    <Button
+                        className={'ml-auto'}
+                        label={scheduleMode ? cancelScheduleLabel : scheduleLabel}
+                        variant="outline"
+                        onClick={handleSchedule}
+                        onKeyDown={(event) => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                scheduleKeyboardActivation.current = true;
+                            }
+                        }}
+                        onPointerDown={() => {
+                            scheduleKeyboardActivation.current = false;
+                        }}
+                        endIcon={!scheduleMode && Calendar}
+                        disabled={!scheduleMode && !isPublishReady}
+                    />
+                )}
                 <Button
-                    className={'ml-auto'}
-                    label={scheduleMode ? cancelScheduleLabel : scheduleLabel}
-                    variant="outline"
-                    onClick={handleSchedule}
-                    onKeyDown={(event) => {
-                        if (event.key === 'Enter' || event.key === ' ') {
-                            scheduleKeyboardActivation.current = true;
-                        }
-                    }}
-                    onPointerDown={() => {
-                        scheduleKeyboardActivation.current = false;
-                    }}
-                    endIcon={!scheduleMode && Calendar}
-                    disabled={!scheduleMode && !isPublishReady}
+                    className={showScheduleButton ? undefined : 'ml-auto'}
+                    label={scheduleMode ? confirmScheduleLabel : publishLabel}
+                    variant="solid"
+                    onClick={onPublish}
+                    disabled={!isPublishReady}
                 />
-                <Button label={scheduleMode ? confirmScheduleLabel : publishLabel} variant="solid" onClick={onPublish} disabled={!isPublishReady} />
             </Dialog.Footer>
 
         </Dialog.Content>
