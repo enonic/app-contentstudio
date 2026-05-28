@@ -9,9 +9,9 @@ const {module: _module, exclude: _exclude, ...swcOptions} = swcConfig;
 const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
-    cache: true,
+    cache: !isProd,
     experiments: {
-        cache: {
+        cache: isProd ? false : {
             type: 'persistent',
             buildDependencies: [__filename],
             storage: {
@@ -30,7 +30,8 @@ module.exports = {
     },
     output: {
         path: path.join(__dirname, '/build/resources/main/assets'),
-        filename: './[name].js'
+        filename: './[name].js',
+        chunkFilename: './[id].[contenthash:8].js'
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.jsx', '.js', '.less', '.css'],
@@ -103,6 +104,7 @@ module.exports = {
         ]
     },
     optimization: {
+        chunkIds: 'named',
         minimizer: [
             new rspack.SwcJsMinimizerRspackPlugin({
                 // Exclude pre-built CKEditor — already minified, re-minimizing
