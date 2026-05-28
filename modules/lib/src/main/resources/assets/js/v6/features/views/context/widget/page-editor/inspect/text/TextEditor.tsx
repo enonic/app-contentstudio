@@ -33,7 +33,7 @@ import type {OpenHtmlAreaLinkDialogParams} from '../../../../../../shared/dialog
 import {createMacroDialogOverride, HtmlAreaMacroDialog} from '../../../../../../shared/dialogs/htmlarea-macro/HtmlAreaMacroDialog';
 import type {OpenHtmlAreaMacroDialogParams} from '../../../../../../shared/dialogs/htmlarea-macro/HtmlAreaMacroDialogContext';
 import type {HtmlAreaConfig} from '../../../../../../shared/form/input-types/html-area/HtmlAreaConfig';
-import {getCursorPosition, setupEditor, setupEditorUi, type DialogOverrides} from '../../../../../../shared/form/input-types/html-area/setupEditor';
+import {createContentSaveHandler, getCursorPosition, setupEditor, setupEditorUi, type DialogOverrides} from '../../../../../../shared/form/input-types/html-area/setupEditor';
 import {useCKEditorConfig} from '../../../../../../shared/form/input-types/html-area/useCKEditorConfig';
 import {$contextContent} from '../../../../../../store/context/contextContent.store';
 import {requestUpdateTextComponent} from '../../../../../../store/page-editor';
@@ -279,6 +279,7 @@ const TextEditorInner = ({
                 allowedHeadings: TEXT_EDITOR_CONFIG.allowedHeadings,
                 editableSourceCode,
                 dialogOverrides: dialogOverridesRef.current,
+                onSave: createContentSaveHandler(contentSummary),
             });
         }
 

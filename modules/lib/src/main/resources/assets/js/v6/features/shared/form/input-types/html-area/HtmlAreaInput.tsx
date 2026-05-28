@@ -33,7 +33,7 @@ import type {OpenHtmlAreaMacroDialogParams} from '../../../dialogs/htmlarea-macr
 import type {HtmlAreaConfig} from './HtmlAreaConfig';
 import {dispatchSyntheticTabKey, focusAdjacentDocumentTabStop} from './editorIframeNavigation';
 import {useHtmlAreaContext} from './HtmlAreaContext';
-import {setupEditor, setupEditorUi, type DialogOverrides} from './setupEditor';
+import {createContentSaveHandler, setupEditor, setupEditorUi, type DialogOverrides} from './setupEditor';
 import {useCKEditorConfig} from './useCKEditorConfig';
 
 const sanitizer = new HtmlAreaSanitizer();
@@ -258,6 +258,7 @@ const CKEditorWrapper = ({
                 allowedHeadings: htmlAreaConfig.allowedHeadings,
                 editableSourceCode,
                 dialogOverrides: dialogOverridesRef.current,
+                onSave: createContentSaveHandler(contentSummary),
             });
         }
 
