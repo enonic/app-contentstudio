@@ -9,9 +9,9 @@ const {module: _module, exclude: _exclude, ...swcOptions} = swcConfig;
 const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
-    cache: true,
+    cache: !isProd,
     experiments: {
-        cache: {
+        cache: isProd ? false : {
             type: 'persistent',
             buildDependencies: [__filename],
             storage: {
@@ -31,6 +31,7 @@ module.exports = {
     output: {
         path: path.join(__dirname, '/build/resources/main/assets'),
         filename: './[name].js',
+        chunkFilename: './[id].[contenthash:8].js',
         assetModuleFilename: './[file]'
     },
     resolve: {
@@ -86,6 +87,7 @@ module.exports = {
         ]
     },
     optimization: {
+        chunkIds: 'named',
         minimizer: [
             new rspack.SwcJsMinimizerRspackPlugin({
                 minimizerOptions: {
