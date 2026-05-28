@@ -169,9 +169,9 @@ export class IssueDialogsManager {
         openIssueDialogDetails(issue.getId());
     }
 
-    openListDialog(assignedToMe: boolean = false) {
+    openListDialog() {
         openIssueDialog();
-        setIssueDialogListFilter(assignedToMe ? 'assignedToMe' : 'all');
+        setIssueDialogListFilter('assignedToMe');
     }
 
     openCreateDialog(summaries?: ContentSummaryAndCompareStatus[]) {

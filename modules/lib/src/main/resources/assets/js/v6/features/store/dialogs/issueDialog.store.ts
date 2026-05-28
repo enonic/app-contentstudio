@@ -11,6 +11,7 @@ import {$activeProject} from '../activeProject.store';
 
 import type {
     IssueDialogFilter,
+    IssueDialogListCounts,
     IssueDialogListTotals,
     IssueDialogTab,
     IssueDialogView,
@@ -36,6 +37,14 @@ type IssueDialogStore = {
 
 const EMPTY_COUNTS = {open: 0, closed: 0};
 
+export const ISSUE_DIALOG_FILTER_ORDER: IssueDialogFilter[] = [
+    'all',
+    'assignedToMe',
+    'createdByMe',
+    'publishRequests',
+    'issues',
+];
+
 const createEmptyTotals = (): IssueDialogListTotals => ({
     all: {...EMPTY_COUNTS},
     assignedToMe: {...EMPTY_COUNTS},
@@ -48,7 +57,7 @@ const initialListState: Pick<IssueDialogStore, 'loading' | 'error' | 'issues' | 
     loading: false,
     error: false,
     issues: [],
-    filter: 'all',
+    filter: 'assignedToMe',
     tab: 'open',
     totals: createEmptyTotals(),
 };
@@ -173,7 +182,7 @@ export const loadIssueDialogList = async (): Promise<void> => {
             loading: false,
             error: false,
         });
-        syncTabWithTotals();
+        syncViewWithTotals();
     } catch (error) {
         console.error(error);
         $issueDialog.set({
@@ -236,18 +245,27 @@ const matchesFilter = (
     return false;
 };
 
-const syncTabWithTotals = (): void => {
-    const {filter, tab, totals} = $issueDialog.get();
-    const counts = totals[filter] ?? EMPTY_COUNTS;
-    const openCount = counts.open ?? 0;
-    const closedCount = counts.closed ?? 0;
+const getTabCount = (counts: IssueDialogListCounts | undefined, tab: IssueDialogTab): number => {
+    return (tab === 'open' ? counts?.open : counts?.closed) ?? 0;
+};
 
-    if (tab === 'open' && openCount === 0 && closedCount > 0) {
-        $issueDialog.setKey('tab', 'closed');
+// Keep the current view when it has issues; otherwise prefer the first filter with open
+// issues, and only fall back to closed issues when no filter has anything open.
+const syncViewWithTotals = (): void => {
+    const {filter, tab, totals} = $issueDialog.get();
+    if (getTabCount(totals[filter], tab) > 0) {
+        return;
     }
 
-    if (tab === 'closed' && closedCount === 0 && openCount > 0) {
-        $issueDialog.setKey('tab', 'open');
+    const openFilter = ISSUE_DIALOG_FILTER_ORDER.find(option => getTabCount(totals[option], 'open') > 0);
+    if (openFilter) {
+        $issueDialog.set({...$issueDialog.get(), filter: openFilter, tab: 'open'});
+        return;
+    }
+
+    const closedFilter = ISSUE_DIALOG_FILTER_ORDER.find(option => getTabCount(totals[option], 'closed') > 0);
+    if (closedFilter) {
+        $issueDialog.set({...$issueDialog.get(), filter: closedFilter, tab: 'closed'});
     }
 };
 
