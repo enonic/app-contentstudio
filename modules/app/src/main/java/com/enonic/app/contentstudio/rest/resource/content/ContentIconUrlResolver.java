@@ -13,7 +13,6 @@ import com.enonic.xp.content.Media;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.portal.url.ImageUrlGeneratorParams;
 import com.enonic.xp.portal.url.PortalUrlGeneratorService;
-import com.enonic.xp.project.ProjectConstants;
 import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.web.servlet.ServletRequestUrlHelper;
@@ -22,14 +21,15 @@ public final class ContentIconUrlResolver
 {
     private static final String ICON_SCALE = "square(128)";
 
+    private static final String ADMIN_TOOL_BASE_URL = "/admin/com.enonic.app.contentstudio/main";
+
     private final ContentTypeIconUrlResolver contentTypeIconUrlResolver;
 
     private final PortalUrlGeneratorService portalUrlGeneratorService;
 
     private final HttpServletRequest servletRequest;
 
-    public ContentIconUrlResolver( final ContentTypeService contentTypeService,
-                                   final PortalUrlGeneratorService portalUrlGeneratorService,
+    public ContentIconUrlResolver( final ContentTypeService contentTypeService, final PortalUrlGeneratorService portalUrlGeneratorService,
                                    final HttpServletRequest servletRequest )
     {
         final ContentTypeIconResolver contentTypeIconResolver = new ContentTypeIconResolver( contentTypeService );
@@ -62,20 +62,17 @@ public final class ContentIconUrlResolver
 
     private boolean isImageWithAttachment( final Content content )
     {
-        return isImage( content ) && ( (Media) content ).getMediaAttachment() != null;
-    }
-
-    private boolean isImage( final Content content )
-    {
-        return content instanceof Media && ( (Media) content ).isImage();
+        return ( content.getType().isImageMedia() || content.getType().isVectorMedia() ) &&
+            content.getAttachments().byLabel( "source" ) != null;
     }
 
     private String makeImageApiUrl( final Media media )
     {
-        final ProjectName projectName = ProjectName.from( getProjectName() );
+        final ProjectName projectName = getProjectName();
         final Branch branch = ContextAccessor.current().getBranch();
 
         final ImageUrlGeneratorParams params = ImageUrlGeneratorParams.create()
+            .setBaseUrl( ADMIN_TOOL_BASE_URL )
             .setMedia( () -> media )
             .setProjectName( () -> projectName )
             .setBranch( () -> branch )
@@ -93,9 +90,9 @@ public final class ContentIconUrlResolver
                                                       content.getModifiedTime().toEpochMilli() );
     }
 
-    private String getProjectName()
+    private ProjectName getProjectName()
     {
-        return ProjectName.from( ContextAccessor.current().getRepositoryId() ).toString();
+        return ProjectName.from( ContextAccessor.current().getRepositoryId() );
     }
 
     private String getLayer()
