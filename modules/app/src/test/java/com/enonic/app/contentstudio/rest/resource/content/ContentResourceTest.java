@@ -150,6 +150,7 @@ import com.enonic.xp.index.ChildOrder;
 import com.enonic.xp.jaxrs.impl.MockRestResponse;
 import com.enonic.xp.page.Page;
 import com.enonic.xp.page.PageTemplateKey;
+import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.region.LayoutDescriptorService;
@@ -252,6 +253,8 @@ public class ContentResourceTest
 
     private ProjectService projectService;
 
+    private PortalUrlGeneratorService portalUrlGeneratorService;
+
     private HttpServletRequest request;
 
     @Override
@@ -297,11 +300,14 @@ public class ContentResourceTest
         componentNameResolver.setLayoutDescriptorService( layoutDescriptorService );
         componentNameResolver.setPartDescriptorService( partDescriptorService );
 
+        portalUrlGeneratorService = mock( PortalUrlGeneratorService.class );
+
         final JsonObjectsFactory jsonObjectsFactory = new JsonObjectsFactory();
         jsonObjectsFactory.setComponentNameResolver( componentNameResolver );
         jsonObjectsFactory.setSecurityService( securityService );
         jsonObjectsFactory.setContentTypeService( contentTypeService );
         jsonObjectsFactory.setContentService( contentService );
+        jsonObjectsFactory.setPortalUrlGeneratorService( portalUrlGeneratorService );
         resource.setJsonObjectsFactory( jsonObjectsFactory );
 
         config = mock( AdminRestConfig.class, invocation -> invocation.getMethod().getDefaultValue() );
@@ -1664,9 +1670,9 @@ public class ContentResourceTest
         assertEquals( 2L, result.getMetadata().getTotalHits() );
 
         assertEquals( 2, result.getContents().size() );
-        assertEquals( new ContentSummaryJson( content1, null, new ContentIconUrlResolver( contentTypeService, request ),
+        assertEquals( new ContentSummaryJson( content1, null, new ContentIconUrlResolver( contentTypeService, portalUrlGeneratorService, request ),
                                               new ContentListTitleResolver( contentTypeService ) ), result.getContents().get( 0 ) );
-        assertEquals( new ContentSummaryJson( content2, null, new ContentIconUrlResolver( contentTypeService, request ),
+        assertEquals( new ContentSummaryJson( content2, null, new ContentIconUrlResolver( contentTypeService, portalUrlGeneratorService, request ),
                                               new ContentListTitleResolver( contentTypeService ) ), result.getContents().get( 1 ) );
     }
 
@@ -1757,7 +1763,7 @@ public class ContentResourceTest
         componentNameResolver.setLayoutDescriptorService( layoutDescriptorService );
         componentNameResolver.setPartDescriptorService( partDescriptorService );
 
-        assertEquals( new ContentJson( site, false, new ContentIconUrlResolver( contentTypeService, request ),
+        assertEquals( new ContentJson( site, false, new ContentIconUrlResolver( contentTypeService, portalUrlGeneratorService, request ),
                                        new ContentPrincipalsResolver( securityService ), componentNameResolver,
                                        new ContentListTitleResolver( contentTypeService ), Collections.emptyList() ), result );
     }
