@@ -4,8 +4,6 @@ import {AlertCircle, LoaderCircle} from 'lucide-react';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {ListRange, VirtuosoHandle} from 'react-virtuoso';
 import {Virtuoso} from 'react-virtuoso';
-import {EditContentAction} from '../../../../../app/browse/action/EditContentAction';
-import {ContentSummaryAndCompareStatus} from '../../../../../app/content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../../../../app/event/EditContentEvent';
 import {
     clearChildrenIdsRetryCooldown,
@@ -368,15 +366,10 @@ export const ContentTreeList = ({contextMenuActions = {}}: ContentTreeListProps)
         (id: string) => {
             const node = flatNodes.find((n) => n.id === id);
             if (node && hasDisplayNameData(node.data) && node.data.item) {
-                if (editAction instanceof EditContentAction) {
-                    editAction.executeForItems([ContentSummaryAndCompareStatus.fromContentSummary(node.data.item)]);
-                    return;
-                }
-
                 new EditContentEvent([node.data.item]).fire();
             }
         },
-        [editAction, flatNodes]
+        [flatNodes]
     );
 
     // Handle selection change from VirtualizedTreeList (merge-based handling)

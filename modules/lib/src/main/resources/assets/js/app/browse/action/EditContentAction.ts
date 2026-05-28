@@ -1,10 +1,7 @@
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {getCurrentItemsAsCSCS} from '../../../v6/features/store/contentTreeSelection.store';
-import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../event/EditContentEvent';
-import {ContentLocalizer} from './ContentLocalizer';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {type ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 
@@ -12,10 +9,6 @@ export class EditContentAction
     extends ContentTreeGridAction {
 
     private static MAX_ITEMS_TO_EDIT: number = 50;
-
-    private isLocalize: boolean = false;
-
-    private contentLocalizer?: ContentLocalizer;
 
     constructor() {
         super(i18n('action.edit'), 'mod+e');
@@ -26,35 +19,11 @@ export class EditContentAction
     protected handleExecuted() {
         const contents = [...getCurrentItemsAsCSCS()];
 
-        this.editContents(contents, this.isLocalize);
-    }
-
-    executeForItems(contents: ContentSummaryAndCompareStatus[]): void {
-        this.editContents(contents, this.shouldLocalize(contents));
-    }
-
-    private editContents(contents: ContentSummaryAndCompareStatus[], localize: boolean): void {
         if (contents.length > EditContentAction.MAX_ITEMS_TO_EDIT) {
             showWarning(i18n('notify.edit.tooMuch'));
         } else if (contents.length > 0) {
-            if (localize) {
-                this.localizeContents(contents);
-            } else {
-                new EditContentEvent(contents).fire();
-            }
+            new EditContentEvent(contents).fire();
         }
-    }
-
-    private shouldLocalize(contents: ContentSummaryAndCompareStatus[]): boolean {
-        return contents.length > 0 && contents.every((content: ContentSummaryAndCompareStatus) => content.isDataInherited());
-    }
-
-    private localizeContents(contents: ContentSummaryAndCompareStatus[]): void {
-        if (!this.contentLocalizer) {
-            this.contentLocalizer = new ContentLocalizer();
-        }
-
-        this.contentLocalizer.localizeAndEdit(contents).catch(DefaultErrorHandler.handle);
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
@@ -62,15 +31,12 @@ export class EditContentAction
     }
 
     updateLabel(state: ContentTreeGridItemsState) {
-        this.isLocalize = state.hasAllInherited();
         this.setLabel(this.getLabelByState(state));
     }
 
     private getLabelByState(state: ContentTreeGridItemsState): string {
         if (state.hasAllReadOnly()) {
             return i18n('action.open');
-        } else if (this.isLocalize) {
-            return i18n('action.translate');
         }
 
         return i18n('action.edit');

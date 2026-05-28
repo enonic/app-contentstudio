@@ -26,10 +26,6 @@ export class ContentTreeGridItemsState {
 
     private anyEditable: boolean = false;
 
-    private anyInherited: boolean = false;
-
-    private allInherited: boolean = false;
-
     private allValid: boolean = false;
 
     private allOnline: boolean = false;
@@ -71,8 +67,6 @@ export class ContentTreeGridItemsState {
 
     private reset() {
         this.anyDeletable = false;
-        this.anyInherited = false;
-        this.allInherited = this.items.length > 0;
         this.anyEditable = false;
         this.allValid = true;
         this.allOnline = this.items.length > 0;
@@ -117,12 +111,6 @@ export class ContentTreeGridItemsState {
 
             if (content.hasChildren()) {
                 this.allLeafs = false;
-            }
-
-            if (content.isDataInherited()) {
-                this.anyInherited = true;
-            } else {
-                this.allInherited = false;
             }
 
             if (canBeMarkedAsReady(content)) {
@@ -195,10 +183,6 @@ export class ContentTreeGridItemsState {
         return this.anyEditable;
     }
 
-    hasAnyInherited(): boolean {
-        return this.anyInherited;
-    }
-
     hasAllValid(): boolean {
         return this.allValid;
     }
@@ -209,10 +193,6 @@ export class ContentTreeGridItemsState {
 
     hasAnyDeletable(): boolean {
         return this.anyDeletable;
-    }
-
-    hasAllInherited(): boolean {
-        return this.allInherited;
     }
 
     canCreate(): boolean {
