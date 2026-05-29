@@ -1,11 +1,9 @@
-import {FormState} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {FormContext} from '@enonic/lib-admin-ui/form/FormContext';
-import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import Q from 'q';
+import {seedFormDefaults} from '../../../v6/features/shared/form/seedFormDefaults';
 import {type Descriptor} from '../Descriptor';
 import {DescriptorKey} from '../DescriptorKey';
 import {ComponentDescriptorUpdatedEvent} from './ComponentDescriptorUpdatedEvent';
@@ -43,18 +41,24 @@ export abstract class DescriptorBasedComponent
 
         this.descriptorKey = descriptor?.getKey();
 
-        // populating config before saving with values from form view after layout
+        // Pre-seed config with the descriptor's defaults so it matches what the
+        // form2 FormRenderer produces on mount, avoiding a reload loop (#9085).
         const propertyTree = new PropertyTree();
-        const layoutPromise = descriptor ? new FormView(FormContext.create().setFormState(new FormState(true)).build(),
-            descriptor.getConfig(), propertyTree.getRoot()).layout(false) : Q.resolve(null);
+        const configForm = descriptor?.getConfig();
+        if (configForm) {
+            try {
+                seedFormDefaults(configForm, propertyTree.getRoot());
+            } catch (e) {
+                DefaultErrorHandler.handle(e);
+            }
+        }
 
-        return layoutPromise.catch(DefaultErrorHandler.handle).finally(() => {
-            this.config?.unChanged(this.configChangedHandler);
-            this.config = propertyTree;
-            this.config.onChanged(this.configChangedHandler);
-            this.notifyComponentUpdated(new ComponentDescriptorUpdatedEvent(this.getPath(), this.descriptorKey));
-            return Q.resolve();
-        });
+        this.config?.unChanged(this.configChangedHandler);
+        this.config = propertyTree;
+        this.config.onChanged(this.configChangedHandler);
+        this.notifyComponentUpdated(new ComponentDescriptorUpdatedEvent(this.getPath(), this.descriptorKey));
+
+        return Q.resolve();
     }
 
     doReset() {
