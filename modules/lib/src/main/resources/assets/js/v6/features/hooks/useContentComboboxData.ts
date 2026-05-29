@@ -340,9 +340,9 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
             request.setFrom(0);
             request.setSize(BATCH_SIZE);
             request.setExpand(Expand.SUMMARY);
+            applyContentFilters(request, filtersRef.current);
             request.setParentPath(null);
             request.setChildOrder(createDefaultChildOrder());
-            applyContentFilters(request, filtersRef.current);
 
             const rawItems = await request.sendAndParse();
             const metadata = request.getMetadata();
@@ -389,9 +389,9 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
             request.setFrom(offset);
             request.setSize(BATCH_SIZE);
             request.setExpand(Expand.SUMMARY);
+            applyContentFilters(request, filtersRef.current);
             request.setParentPath(null);
             request.setChildOrder(createDefaultChildOrder());
-            applyContentFilters(request, filtersRef.current);
 
             const rawItems = await request.sendAndParse();
             const items = deduplicateById(rawItems);
@@ -441,12 +441,12 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
                 request.setSize(BATCH_SIZE);
                 request.setExpand(Expand.SUMMARY);
 
+                applyContentFilters(request, filtersRef.current);
+
                 if (parentContent) {
                     request.setParentPath(parentContent.getPath());
                     request.setChildOrder(parentContent.getChildOrder());
                 }
-
-                applyContentFilters(request, filtersRef.current);
 
                 const rawItems = await request.sendAndParse();
                 const metadata = request.getMetadata();
@@ -502,12 +502,12 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
                 request.setSize(BATCH_SIZE);
                 request.setExpand(Expand.SUMMARY);
 
+                applyContentFilters(request, filtersRef.current);
+
                 if (parentContent) {
                     request.setParentPath(parentContent.getPath());
                     request.setChildOrder(parentContent.getChildOrder());
                 }
-
-                applyContentFilters(request, filtersRef.current);
 
                 const rawItems = await request.sendAndParse();
                 const items = deduplicateById(rawItems);
