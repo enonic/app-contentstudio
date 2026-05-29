@@ -37,6 +37,7 @@ export type ContentWizardToolbarProps = {
     requestPublishAction: Action;
     openRequestAction: Action;
     createIssueAction: Action;
+    getContentFullPath?: (contentPath: string) => string;
     className?: string;
 };
 
@@ -60,6 +61,7 @@ export const ContentWizardToolbar = ({
     requestPublishAction,
     openRequestAction,
     createIssueAction,
+    getContentFullPath,
     className,
 }: ContentWizardToolbarProps): ReactElement => {
     const {
@@ -102,6 +104,7 @@ export const ContentWizardToolbar = ({
     const pathLabel = `<${fieldPathLabel}>`;
     const projectViewLabel = projectLabel || projectRoot;
     const contentPathLabel = contentPath || pathLabel;
+    const contentFullPath = getContentFullPath?.(contentPath) || contentPathLabel;
 
     useEffect(() => {
         setInspectSaveAction(saveAction);
@@ -205,7 +208,7 @@ export const ContentWizardToolbar = ({
                                 size='sm'
                                 variant='text'
                                 className='min-w-0 max-w-full px-1.5 md:px-2.75'
-                                title={contentPathLabel}
+                                title={contentFullPath}
                                 disabled={!canRenameContentPath}
                                 onClick={onContentPathClick}
                             >
@@ -221,7 +224,7 @@ export const ContentWizardToolbar = ({
                                 size='md'
                                 icon={Link2}
                                 aria-label={contentPathLabel}
-                                title={contentPathLabel}
+                                title={contentFullPath}
                                 disabled={!canRenameContentPath}
                                 onClick={onContentPathClick}
                                 className='shrink-0 size-8'
