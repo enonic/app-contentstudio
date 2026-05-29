@@ -8,6 +8,7 @@ import {StatusIcon} from '../../../../shared/icons/StatusIcon';
 import {DiffStatusBadge} from '../../../../shared/status/DiffStatusBadge';
 import {$contextContent, $contextContentCompareResult, $isContextCompareLoading} from '../../../../store/context/contextContent.store';
 import {formatCompareResult} from '../../../../utils/cms/content/formatCompareResult';
+import {getContentPathDisplayValues} from '../../../../utils/cms/content/paths';
 import {calcSecondaryStatus, calcTreePublishStatus, createContentStateKey} from '../../../../utils/cms/content/status';
 import {calcContentState} from '../../../../utils/cms/content/workflow';
 
@@ -31,10 +32,12 @@ export const DetailsWidgetContentSection = (): ReactElement => {
     const movedLabel = useI18n('status.moved');
     const modifiedLabel = useI18n('status.modified');
     const contentStateLabel = useI18n(createContentStateKey(contentState));
+    const unnamedContentPathLabel = useI18n('field.unnamed');
 
     if (!content) return null;
 
     const displayName = createDisplayName(content);
+    const fullPath = getContentPathDisplayValues(content.getPath(), unnamedContentPathLabel).fullPath;
     const publishStatus = calcTreePublishStatus(content);
     const secondaryStatus = calcSecondaryStatus(publishStatus, content);
     const showContentState = contentState != null && !(publishStatus === PublishStatus.ONLINE && contentState === 'ready' && !secondaryStatus);
@@ -80,7 +83,7 @@ export const DetailsWidgetContentSection = (): ReactElement => {
 
                 <div className="flex flex-col gap-1">
                     <dt className="text-xs text-subtle">{pathLabel}</dt>
-                    <dd className="text-sm truncate">{content.getPath().toString()}</dd>
+                    <dd className="text-sm truncate">{fullPath}</dd>
                 </div>
             </dl>
         </section>

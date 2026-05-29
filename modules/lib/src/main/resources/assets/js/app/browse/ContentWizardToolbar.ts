@@ -35,6 +35,7 @@ import {
     setWizardToolbarProjectInfo,
     setWizardToolbarProjectLabel,
     setWizardToolbarPublishStatus,
+    resolveWizardToolbarContentFullPath,
 } from '../../v6/features/store/wizardToolbar.store';
 import {$wizardDraftName, setDraftName} from '../../v6/features/store/wizardContent.store';
 import {openRenameContentDialog} from '../../v6/features/store/dialogs/renameContentDialog.store';
@@ -54,6 +55,8 @@ export type ContentWizardToolbarConfig = ToolbarConfig & {
 class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
 
     ariaLabel: string = i18n('wcag.contenteditor.toolbar.label');
+
+    private readonly unnamedContentPathLabel = i18n('field.unnamed');
 
     private readonly config: ContentWizardToolbarConfig;
 
@@ -172,6 +175,13 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
         this.item = item;
         const publishStatus = this.resolveToolbarPublishStatus(item);
         const contentPath = this.resolveToolbarContentPath(item);
+        this.setProps({
+            getContentFullPath: (currentContentPath: string) => resolveWizardToolbarContentFullPath(
+                item,
+                currentContentPath,
+                this.unnamedContentPathLabel,
+            ),
+        });
         setWizardToolbarPublishStatus(publishStatus);
         setWizardToolbarContentPath(contentPath);
         setWizardToolbarCanRenameContentPath(!!item?.getPath());
@@ -357,6 +367,7 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
             initialName,
             persistedName,
             isPublished: this.config.actions.isOnline(),
+            unnamedContentPathLabel: this.unnamedContentPathLabel,
         }).then((newName?: string) => {
             if (!newName) {
                 return;
