@@ -28,7 +28,7 @@ function geti18nPhrases(locales: string[]): Record<string, string> {
 
 export function getConfig(locales: string[], aiEnabled: boolean): Record<string, unknown> {
     const allowContentUpdate = app.config['publishingWizard.allowContentUpdate'] !== 'false';
-    const excludeDependencies = app.config['publishingWizard.excludeDependencies'] === 'true' || false;
+    const excludeDependencies = app.config['publishingWizard.excludeDependencies'] !== 'false';
     const allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
     const enableCollaboration = app.config['contentWizard.enableCollaboration'] !== 'false';
     const checkLatestVersion = app.config['settings.checkLatestVersion'] !== 'false';
