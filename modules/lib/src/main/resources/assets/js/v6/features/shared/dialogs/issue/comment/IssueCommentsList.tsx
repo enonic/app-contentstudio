@@ -34,10 +34,10 @@ export const IssueCommentsList = ({
         <div
             data-component={ISSUE_COMMENTS_LIST_NAME}
             aria-label={ariaLabel}
-            className={cn('flex min-h-0 max-h-80 flex-col gap-2.5 overflow-y-auto px-2 -mx-2', className)}
+            className={cn('flex min-h-5 max-h-80 flex-col gap-2.5 overflow-y-auto px-2 -mx-2', className)}
         >
             {hasNoContent && (
-                <div className='text-sm text-subtle'>{noCommentsText}</div>
+                <div className='italic text-subtle'>{noCommentsText}</div>
             )}
             {comments.map((comment) => (
                 <IssueCommentItem

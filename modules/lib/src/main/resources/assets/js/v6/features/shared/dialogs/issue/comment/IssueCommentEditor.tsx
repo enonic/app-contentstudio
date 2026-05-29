@@ -37,9 +37,12 @@ export const IssueCommentEditor = ({
                 value={value}
                 onInput={(event) => onChange(event.currentTarget.value)}
                 onKeyDown={onKeyDown}
-                rows={3}
+                rows={2}
+                autoSize
+                resizable
                 disabled={saving}
                 aria-label={commentLabel}
+                className='[&_textarea]:max-h-75 [&_textarea]:overflow-y-auto'
             />
             <div className='flex items-center gap-2'>
                 <Button
