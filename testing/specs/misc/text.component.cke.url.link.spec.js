@@ -161,7 +161,7 @@ describe('Text Component with CKE - insert link and table specification', functi
                 return insertLinkDialog.clickOnCancelButton();
             }
         }).then(() => {
-            return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            return studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         })
     });
     before(async () => {

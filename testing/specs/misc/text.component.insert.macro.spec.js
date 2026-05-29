@@ -77,7 +77,7 @@ describe('Text Component - insert embed iframe and preview the site', function (
                 return insertMacroDialog.clickOnCancelButton();
             }
         }).then(() => {
-            return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            return studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         })
     });
     before(async () => {

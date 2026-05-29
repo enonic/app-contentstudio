@@ -116,7 +116,7 @@ describe.skip('Tests for preview panel in mobile mode', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioAppMobile());
     afterEach(function () {
-        return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        return studioUtils.doCloseAllWindowTabsAndNavigateToHome();
     });
     before(async () => {
         if (typeof browser !== 'undefined') {

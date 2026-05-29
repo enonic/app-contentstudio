@@ -69,7 +69,7 @@ describe('request.publish.dialog.validation.spec - opens request publish modal d
 
     beforeEach(() => studioUtils.navigateToContentStudioApp()
     );
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome()
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome()
     );
     before(async () => {
         if (typeof browser !== 'undefined') {

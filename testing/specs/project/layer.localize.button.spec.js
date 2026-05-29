@@ -107,7 +107,7 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
     beforeEach(async () => {
         return await studioUtils.navigateToContentStudioWithProjects();
     });
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

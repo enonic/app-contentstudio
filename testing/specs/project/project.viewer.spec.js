@@ -82,7 +82,7 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             await studioUtils.doAddReadyFolder(TEST_FOLDER);
             // SU is logged out:
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 
@@ -141,7 +141,7 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
         let title = await studioUtils.getBrowser().getTitle();
         //Do not close the Login page:
         if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConst.TAB_TITLE_PART)) {
-            return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            return await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         }
     });
     before(async () => {

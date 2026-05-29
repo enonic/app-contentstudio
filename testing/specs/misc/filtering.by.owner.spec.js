@@ -25,7 +25,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_ADMIN];
             USER = contentBuilder.buildUser(userName, appConst.PASSWORD.MEDIUM, contentBuilder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 
@@ -41,7 +41,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             let compactNames = await contentWizard.getCollaborationUserCompactName();
             assert.equal(compactNames[0], 'US', 'US - this compact name should be displayed in the toolbar');
             assert.equal(compactNames.length, 1, 'One compact name should be displayed');
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 
@@ -63,7 +63,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             // 4. Verify language in the wizard for new child folder:
             let language = await editSettingsDialog.getSelectedLanguage();
             assert.equal(language, appConst.LANGUAGES.EN, 'English language should be selected by default in wizard for new child content');
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 
@@ -81,7 +81,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             let options = await filterPanel.getOwnerNameInSelector();
             assert.ok(options.includes('Me'), "'Me' user should be displayed in options");
             assert.ok(options.includes(USER.displayName), 'Expected user should be displayed in options');
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 
@@ -101,7 +101,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             let contentNames = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.ok(contentNames.includes(FOLDER.displayName));
             assert.equal(contentNames.length, 3, 'Only three items should be present in the grid');
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 
@@ -122,7 +122,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             assert.ok(contentNames.includes(FOLDER.displayName));
             assert.equal(contentNames.length, 3, 'Only three items should be present in the grid');
 
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 
@@ -147,7 +147,7 @@ describe('filter.by.owner.spec: tests for filtering by', function () {
             // 7. Verify that 'Clear Filter' icon is not visible in Filter Panel ( top right)
             await filterPanel.waitForClearLinkNotDisplayed();
 
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 

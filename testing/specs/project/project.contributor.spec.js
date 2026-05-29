@@ -44,7 +44,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         });
 
     it("GIVEN new project wizard dialog is opened WHEN existing user has been added as contributor THEN expected user should be selected in Project Roles form",
@@ -84,7 +84,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
             // Do log out:
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 
@@ -292,7 +292,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
         let title = await studioUtils.getBrowser().getTitle();
         //Do not close the Login page:
         if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes('Users') || title.includes(appConst.TAB_TITLE_PART)) {
-            return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            return await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         }
     });
     before(async () => {

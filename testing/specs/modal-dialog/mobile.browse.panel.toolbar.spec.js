@@ -64,7 +64,7 @@ describe.skip('Tests for browse panel toolbar in mobile mode', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioAppMobile());
     afterEach(function () {
-        return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        return studioUtils.doCloseAllWindowTabsAndNavigateToHome();
     });
     before(async () => {
         if (typeof browser !== 'undefined') {

@@ -87,7 +87,7 @@ describe("project.create.roles.in.users.app.spec - ui-tests for checkin project'
             assert.equal(items.length, 0, "All project's roles should be deleted");
         });
 
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

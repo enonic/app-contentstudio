@@ -114,7 +114,7 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
     beforeEach(async () => {
         return await studioUtils.navigateToContentStudioWithProjects();
     });
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

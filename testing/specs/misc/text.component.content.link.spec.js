@@ -80,7 +80,7 @@ describe('Text Component with CKE - insert content-link specification', function
                 return insertLinkDialog.clickOnCancelButton();
             }
         }).then(() => {
-            return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            return studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         })
     });
     before(async () => {

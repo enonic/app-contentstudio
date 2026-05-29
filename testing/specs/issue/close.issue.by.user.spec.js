@@ -163,7 +163,7 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
             let actualUser = await browseVersionsWidget.getUserNameInItemByHeader(appConst.VERSIONS_ITEM_HEADER.CREATED, 0);
             assert.ok(actualUser.includes(USER.displayName), 'Expected user name should be displayed in the version list item');
 
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 

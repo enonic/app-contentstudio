@@ -147,7 +147,7 @@ describe('move.content.spec: Tests for destination options in move dialog', func
             await moveContentDialog.clickOnCloseButton();
             await moveContentDialog.waitForClosed();
         }
-        await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
     });
     before(async () => {
         if (typeof browser !== 'undefined') {
