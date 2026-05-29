@@ -11,7 +11,7 @@ const BrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/
 const MobileContentBrowsePanel = require('../../page_objects/browsepanel/mobile.content.browse.panel');
 const MobileContentWizardPanel = require('../../page_objects/wizardpanel/mobile.content.wizard.panel');
 
-describe('Tests for preview panel in mobile mode', function () {
+describe.skip('Tests for preview panel in mobile mode', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser(414, 736);

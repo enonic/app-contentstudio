@@ -9,7 +9,7 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const contentBuilder = require("../../libs/content.builder");
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
-const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const DetailsWidgetPermissionsSection = require('../../page_objects/browsepanel/detailspanel/details.widget.permissions.section');
 const appConst = require('../../libs/app_const');
 
 describe('change.access.mode.spec - Update Access Mode in project wizard', function () {
@@ -26,7 +26,7 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
             // 1. Navigate to Settings Panel:
             await studioUtils.openSettingsPanel();
             // 2. Save new project (mode access is Private):
-            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, 'test description', null, null, 'Private');
+            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, 'description', null, null, 'Private');
         });
 
     it("Precondition: new folder should be added in existing project(Private mode access)",
@@ -85,7 +85,7 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
 
     it(`GIVEN existing project's context is selected WHEN existing folder has been clicked THEN 'Everyone can read this item' header should be displayed in Access Widget`,
         async () => {
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             // 1. Select the project in 'Select Context' dialog
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             // 2. Select existing folder:
@@ -99,9 +99,9 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
+        await studioUtils.navigateToContentStudioApp();
     });
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

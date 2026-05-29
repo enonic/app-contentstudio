@@ -5,7 +5,7 @@ const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
-const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const DetailsWidgetPermissionsSection = require('../../page_objects/browsepanel/detailspanel/details.widget.permissions.section');
 const EditPermissionsGeneralStep = require('../../page_objects/permissions/edit.permissions.general.step');
 const EditPermissionsSummaryStep = require('../../page_objects/permissions/edit.permissions.summary.step');
 const EditPermissionsChooseApplyChangesStep = require('../../page_objects/permissions/edit.permissions.choose.apply.changes.step');
@@ -25,7 +25,7 @@ describe(`Child and parent content, apply changes to children content only and c
 
         it(`GIVEN child folder is selected WHEN Edit Permissions dialog has been opened THEN permissions updated in the child folder`,
             async () => {
-                let userAccessWidget = new UserAccessWidget();
+                let userAccessWidget = new DetailsWidgetPermissionsSection();
                 let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
                 let displayName = appConst.generateRandomName('parent');
                 PARENT_FOLDER = contentBuilder.buildFolder(displayName);
@@ -55,7 +55,7 @@ describe(`Child and parent content, apply changes to children content only and c
 
         it(`GIVEN permissions have been updated in parent folder WHEN Children only radio AND click on 'Replace All permissions' button and confirm it THEN permissions should be overwritten in child folder`,
             async () => {
-                let userAccessWidget = new UserAccessWidget();
+                let userAccessWidget = new DetailsWidgetPermissionsSection();
                 let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
                 let editPermissionsChooseApplyChangesStep = new EditPermissionsChooseApplyChangesStep();
                 // 1. Select the parent folder and open Edit Permissions general step:
@@ -86,7 +86,7 @@ describe(`Child and parent content, apply changes to children content only and c
 
         it(`WHEN select the child folder AND open Edit Permissions dialog THEN all permissions should be overwritten in the child folder('Administrator' and 'Audit Log' entries should not be displayed)`,
             async () => {
-                let userAccessWidget = new UserAccessWidget();
+                let userAccessWidget = new DetailsWidgetPermissionsSection();
                 let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
                 // 1. Select the child folder and open Edit Permissions general step:
                 await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
@@ -111,7 +111,7 @@ describe(`Child and parent content, apply changes to children content only and c
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());
-        afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+        afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
         before(async () => {
             if (typeof browser !== 'undefined') {
                 await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

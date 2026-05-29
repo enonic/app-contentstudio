@@ -5,7 +5,7 @@ const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
-const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const DetailsWidgetPermissionsSection = require('../../page_objects/browsepanel/detailspanel/details.widget.permissions.section');
 const EditPermissionsGeneralStep = require('../../page_objects/permissions/edit.permissions.general.step');
 const EditPermissionsSummaryStep = require('../../page_objects/permissions/edit.permissions.summary.step');
 const EditPermissionsChooseApplyChangesStep = require('../../page_objects/permissions/edit.permissions.choose.apply.changes.step');
@@ -28,7 +28,7 @@ describe('Child and parent content, replace existing permissions in child conten
     // https://github.com/enonic/app-contentstudio/issues/8837
     it(`GIVEN existing root-folder is selected WHEN 'General Step' of Edit Permissions dialog has been opened THEN expected elements should be displayed in the step`,
         async () => {
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let displayName = appConst.generateRandomName('folder');
             PARENT_FOLDER = contentBuilder.buildFolder(displayName);
@@ -56,7 +56,7 @@ describe('Child and parent content, replace existing permissions in child conten
 
     it(`GIVEN a permission-entry has been removed in General Step WHEN 'Reset' button has been pressed THEN 'Reset' and 'Copy from project' buttons gets disabled again`,
         async () => {
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             // 1. Select the folder and open Details Panel:
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
@@ -88,7 +88,7 @@ describe('Child and parent content, replace existing permissions in child conten
 
     it(`GIVEN a permission-entry has been removed in General Step WHEN 'Copy from project' button has been pressed THEN 'Reset' and 'Copy from project' buttons gets disabled again`,
         async () => {
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             // 1. Select the folder and open Details Panel:
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
@@ -121,7 +121,7 @@ describe('Child and parent content, replace existing permissions in child conten
     // Principal selector doesn't include the "Everyone" principal
     it(`GIVEN General Step of Edit Permissions dialog has been opened WHEN 'Everyone' text has been inserted in the filter input THEN 'No matching items' message should appear`,
         async () => {
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             // 1. Select the folder and open Details Panel:
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
@@ -134,7 +134,7 @@ describe('Child and parent content, replace existing permissions in child conten
 
     it(`GIVEN child folder - 'Restricted' radio button has been pressed WHEN 'Reset' button has been clicked THEN 'Public' radio gets selected again`,
         async () => {
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             // 1. Select the folder and open Details Panel:
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
@@ -156,7 +156,7 @@ describe('Child and parent content, replace existing permissions in child conten
 
     it(`GIVEN child folder - 'Restricted' radio button has been pressed WHEN 'Next' button has been clicked THEN 'Apply changes' button should be enabled`,
         async () => {
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             // 1. Select the folder and open Details Panel:
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
@@ -182,7 +182,7 @@ describe('Child and parent content, replace existing permissions in child conten
 
     it(`GIVEN child folder - with selected 'Restricted' radio WHEN Edit permission dialog has been opened THEN 'Copy from parent' button should be enabled AND 'Restricted' radio should be selected`,
         async () => {
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             // 1. Select the folder and open Details Panel:
             await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
@@ -293,7 +293,7 @@ describe('Child and parent content, replace existing permissions in child conten
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

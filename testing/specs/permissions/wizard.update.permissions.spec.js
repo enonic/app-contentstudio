@@ -9,7 +9,7 @@ const appConst = require('../../libs/app_const');
 const EditPermissionsGeneralStep = require('../../page_objects/permissions/edit.permissions.general.step');
 const EditPermissionsSummaryStep = require('../../page_objects/permissions/edit.permissions.summary.step');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
-const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const DetailsWidgetPermissionsSection = require('../../page_objects/browsepanel/detailspanel/details.widget.permissions.section');
 const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 
 describe('wizard.update.permissions.spec: update permissions and check the state of Save button on toolbar', function () {
@@ -29,7 +29,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             let contentWizard = new ContentWizard();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             // 1. Open new folder-wizard,
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             // 2. Fill in the name input:
@@ -56,7 +56,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
     it(`GIVEN wizard for a root-folder has been opened WHEN 'Edit Permissions' dialog has been opened THEN 'Copy From Project' button should be disabled`,
         async () => {
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let contentWizard = new ContentWizard();
             let wizardContextPanel = new WizardContextPanel();
             // 1. Open new folder-wizard,
@@ -82,7 +82,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             let contentWizard = new ContentWizard();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let wizardContextPanel = new WizardContextPanel();
             // 1. Open new folder-wizard, and open Edit Permissions dialog
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
@@ -100,7 +100,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
         async () => {
             let contentWizard = new ContentWizard();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let wizardContextPanel = new WizardContextPanel();
             // 1. Open new folder-wizard, fill in the name input and save it:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
@@ -135,7 +135,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
     it(`WHEN folder's permissions have been updated in browse panel (Details Panel) THEN 'Save(Disabled)' button should still be present after applying permissions in the grid`,
         async () => {
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let contentWizard = new ContentWizard();
             // 1. Select and open the folder:
             await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);

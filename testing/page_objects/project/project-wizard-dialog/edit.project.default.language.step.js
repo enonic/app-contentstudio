@@ -1,7 +1,6 @@
 /**
  * Created on 22.05.2026
  */
-const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 const LocaleSelectorDropdown = require("../../components/selectors/locale.selector.dropdown");
 const ProjectWizardDialog = require("./project.wizard.dialog");

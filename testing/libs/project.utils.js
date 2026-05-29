@@ -143,9 +143,7 @@ module.exports = {
             } else {
                 await applicationsStep.expandDropdownListAndSelectApplication(applications);
             }
-            await applicationsStep.clickOnNextButton();
-        } else {
-            await applicationsStep.clickOnSkipButton();
+            //await applicationsStep.clickOnNextButton();
         }
         return new ProjectWizardDialogNameAndIdStep();
     },

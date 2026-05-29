@@ -12,7 +12,7 @@ const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wiz
 const PublishContentDialog = require('../../page_objects/content.publish.dialog');
 const CompareWithPublishedVersionDialog = require('../../page_objects/compare.with.published.version.dialog');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
-const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const DetailsWidgetPermissionsSection = require('../../page_objects/browsepanel/detailspanel/details.widget.permissions.section');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const contentBuilder = require('../../libs/content.builder');
 const EditPermissionsSummaryStep = require('../../page_objects/permissions/edit.permissions.summary.step');
@@ -60,7 +60,7 @@ describe.skip('version.items.after.publishing.spec tests for version items', fun
         async () => {
             let contentWizard = new ContentWizard();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             // 1. Select the folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
             await contentWizard.openDetailsWidget();
@@ -139,7 +139,7 @@ describe.skip('version.items.after.publishing.spec tests for version items', fun
 
         });
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

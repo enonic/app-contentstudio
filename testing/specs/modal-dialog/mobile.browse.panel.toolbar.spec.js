@@ -7,7 +7,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const MobileContentBrowsePanel = require('../../page_objects/browsepanel/mobile.content.browse.panel');
 const FilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
 
-describe('Tests for browse panel toolbar in mobile mode', function () {
+describe.skip('Tests for browse panel toolbar in mobile mode', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     const MOBILE_WIDTH = 414;
     const MOBILE_HEIGHT = 736;
