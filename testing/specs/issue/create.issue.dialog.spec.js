@@ -64,7 +64,7 @@ describe('create.issue.dialog.spec: Create Issue Dialog specification', function
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(function () {
-        return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        return studioUtils.doCloseAllWindowTabsAndNavigateToHome();
     });
     before(async () => {
         if (typeof browser !== 'undefined') {

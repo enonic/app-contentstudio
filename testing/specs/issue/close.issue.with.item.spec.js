@@ -70,7 +70,7 @@ describe('close.issue.with.item.spec: close an issue and verify control elements
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(async() => {
         await studioUtils.doPressEscape();
-        await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
     });
     before(async () => {
         if (typeof browser !== 'undefined') {

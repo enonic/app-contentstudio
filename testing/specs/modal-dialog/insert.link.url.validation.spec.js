@@ -1,5 +1,5 @@
 /**
- * Created on 29.06.2022
+ * Created on 29.06.2022 updated on 28.05.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -335,11 +335,7 @@ describe("insert.link.url.validation.spec: insert https,ftp links into htmlArea"
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(async () => {
-        await studioUtils.doCloseAllWindowTabs();
-        await studioUtils.navigateToHomePage();
-
-    });
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

@@ -36,7 +36,7 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         });
 
     it(`Precondition 2 - parent project with private access mode should be created`,
@@ -93,7 +93,7 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
             await summaryStep.waitForDialogClosed();
             await settingsBrowsePanel.waitForNotificationMessage();
             // Do log out:
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 
@@ -162,7 +162,7 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
             // 3.Verify that the Default project is not visible for the user with Owner role:
             await settingsBrowsePanel.waitForProjectNotDisplayed('Default');
             // Do log out:
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 
@@ -180,7 +180,7 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
         if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes('Users') || title.includes(appConst.TAB_TITLE_PART)) {
-            return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            return await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         }
     });
     before(async () => {

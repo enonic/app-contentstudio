@@ -174,7 +174,7 @@ describe('project.wizard.panel.select.app.spec - Select an application in projec
     beforeEach(async () => {
         await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
     });
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

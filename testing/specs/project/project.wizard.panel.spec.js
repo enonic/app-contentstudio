@@ -56,7 +56,7 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
         await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

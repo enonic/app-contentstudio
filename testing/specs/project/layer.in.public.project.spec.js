@@ -174,7 +174,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
         await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

@@ -92,7 +92,7 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
     beforeEach(async () => {
         return await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
     });
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

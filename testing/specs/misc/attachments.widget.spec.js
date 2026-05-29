@@ -33,7 +33,7 @@ describe('attachments.widget.spec: Tests for attachments widget in Details Panel
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(function () {
-        return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        return studioUtils.doCloseAllWindowTabsAndNavigateToHome();
     });
     before(async () => {
         if (typeof browser !== 'undefined') {

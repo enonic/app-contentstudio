@@ -46,7 +46,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         });
 
     it("GIVEN new project wizard is opened WHEN existing user has been added as 'Author' THEN expected user should be selected in Project Roles form",
@@ -93,7 +93,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
             assert.equal(projectAccessItems[0], USER.displayName, "expected user should be selected in Project Roles form");
             // Do log out:
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         });
 
     it("Precondition 2: new site should be created in the just created project",
@@ -106,7 +106,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
             // Do log out:
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 
@@ -120,7 +120,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             // 3. Verify that expected site is loaded:
             let actualTitle = await studioUtils.getBrowser().getTitle();
             assert.equal(actualTitle, SITE_NAME, 'expected site should be loaded');
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         });
 
     it("GIVEN user with 'Author' role is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
@@ -243,7 +243,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
         if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConst.TAB_TITLE_PART)) {
-            return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            return await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         }
     });
     before(async () => {

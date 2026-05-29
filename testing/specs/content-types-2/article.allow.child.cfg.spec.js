@@ -133,7 +133,7 @@ describe(`article.allow.child.cfg.spec: tests for 'allow-child-content-type' in 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(async() => {
         await studioUtils.doPressEscape();
-        await studioUtils.doCloseAllWindowTabsAndSwitchToHome()
+        await studioUtils.doCloseAllWindowTabsAndNavigateToHome()
     });
     before(async () => {
         if (typeof browser !== 'undefined') {

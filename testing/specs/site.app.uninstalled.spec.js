@@ -77,7 +77,7 @@ describe('site.app.uninstalled.spec - ui-tests for a site with uninstalled app',
             assert.ok(isInstalled, 'The application should be displayed as uninstalled');
         });
 
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

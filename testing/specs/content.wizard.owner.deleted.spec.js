@@ -29,7 +29,7 @@ describe('content.wizard.owner.spec - ui-tests for owner', function () {
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, appConst.PASSWORD.MEDIUM, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         });
 
     it("GIVEN wizard for new folder is opened WHEN just created user has been set as owner THEN expected user should be present in the selected option",
@@ -98,7 +98,7 @@ describe('content.wizard.owner.spec - ui-tests for owner', function () {
             assert.equal(compactNames.length, 1, 'One compact name should be displayed');
         });
 
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

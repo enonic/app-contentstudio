@@ -185,7 +185,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
     beforeEach(async () => {
         return await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
     });
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

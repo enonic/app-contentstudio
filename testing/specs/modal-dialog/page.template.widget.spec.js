@@ -82,7 +82,7 @@ describe('page.template.widget.spec: Tests for page template widget in Details P
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(function () {
-        return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        return studioUtils.doCloseAllWindowTabsAndNavigateToHome();
     });
     before(async () => {
         if (typeof browser !== 'undefined') {

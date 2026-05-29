@@ -5,7 +5,7 @@ const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
-const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const DetailsWidgetPermissionsSection = require('../../page_objects/browsepanel/detailspanel/details.widget.permissions.section');
 const EditPermissionsGeneralStep = require('../../page_objects/permissions/edit.permissions.general.step');
 const appConst = require('../../libs/app_const');
 
@@ -22,7 +22,7 @@ describe('Folder in root directory, General step, edit.permissions.dialog.spec '
     // https://github.com/enonic/app-contentstudio/issues/8837
     it(`GIVEN existing root-folder is selected WHEN 'General Step' of Edit Permissions dialog has been opened THEN expected elements should be displayed in the step`,
         async () => {
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let displayName = contentBuilder.generateRandomName('folder');
             FOLDER = contentBuilder.buildFolder(displayName);
@@ -46,7 +46,7 @@ describe('Folder in root directory, General step, edit.permissions.dialog.spec '
 
     it(`GIVEN a permission-entry has been removed in General Step WHEN 'Reset' button has been pressed THEN 'Reset' and 'Copy from project' buttons gets disabled again`,
         async () => {
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             // 1. Select the folder and open Details Panel:
             await studioUtils.findAndSelectItem(FOLDER.displayName);
@@ -78,7 +78,7 @@ describe('Folder in root directory, General step, edit.permissions.dialog.spec '
 
     it(`GIVEN a permission-entry has been removed in General Step WHEN 'Copy from project' button has been pressed THEN 'Reset' and 'Copy from project' buttons gets disabled again`,
         async () => {
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let displayName = contentBuilder.generateRandomName('folder');
             // 1. Select the folder and open Details Panel:
@@ -109,7 +109,7 @@ describe('Folder in root directory, General step, edit.permissions.dialog.spec '
     // Principal selector doesn't include the "Everyone" principal
     it(`GIVEN General Step of Edit Permissions dialog has been opened WHEN 'Everyone' text has been inserted in the filter input THEN 'No matching items' message should appear`,
         async () => {
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let displayName = contentBuilder.generateRandomName('folder');
             // 1. Select the folder and open Details Panel:
@@ -122,7 +122,7 @@ describe('Folder in root directory, General step, edit.permissions.dialog.spec '
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

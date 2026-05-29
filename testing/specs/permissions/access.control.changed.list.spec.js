@@ -12,7 +12,7 @@ const appConst = require('../../libs/app_const');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
 
-describe(`Summary step - tests for changed list, access.control.changed.list.spec: `,
+describe(`access.control.changed.list.spec: Permissions widget - Summary step - tests for changed list `,
     function () {
         this.timeout(appConst.SUITE_TIMEOUT);
         if (typeof browser === 'undefined') {
@@ -58,7 +58,7 @@ describe(`Summary step - tests for changed list, access.control.changed.list.spe
         beforeEach(() => studioUtils.navigateToContentStudioApp());
         afterEach(async () => {
             await studioUtils.doPressEscape();
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         });
         before(async () => {
             if (typeof browser !== 'undefined') {

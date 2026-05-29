@@ -46,7 +46,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         });
 
     it("GIVEN SU is logged in AND new project wizard is opened WHEN existing user has been added as Owner THEN the user should be selected in Project Roles form",
@@ -126,7 +126,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             let actualUsers = await issueDetailsDialogAssigneesTab.getSelectedUsers();
             assert.equal(actualUsers[0], USER.displayName, "Expected user should be present in Assignees tab");
             // Do log out:
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 
@@ -310,7 +310,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
         if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes('Users') || title.includes(appConst.TAB_TITLE_PART)) {
-            return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            return await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         }
     });
     before(async () => {

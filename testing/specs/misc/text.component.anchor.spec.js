@@ -191,7 +191,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
         }).then(() => {
             return insertAnchorDialog.pause(500);
         }).then(() => {
-            return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            return studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         })
     });
     before(async () => {

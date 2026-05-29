@@ -24,7 +24,7 @@ describe('response.headers.spec - Send a request and verify headers in response'
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(() => {
         return console.log('specification is starting: ' + this.title);
     });

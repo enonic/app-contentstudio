@@ -28,7 +28,7 @@ describe('user.access.widget.spec:  test for user access widget and Edit Permiss
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_APP_EXPERT];
             USER_CAN_WRITE = builder.buildUser(userName, appConst.PASSWORD.MEDIUM, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER_CAN_WRITE);
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         });
 
     it(`Preconditions: new folder should be added`,
@@ -90,7 +90,7 @@ describe('user.access.widget.spec:  test for user access widget and Edit Permiss
         }
         return console.log('specification starting: ' + this.title);
     });
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
