@@ -1384,15 +1384,22 @@ public final class ContentResource
             .filter( content -> layerPaths.contains( content.getPath() ) )
             .collect( Collectors.toList() );
 
-        final List<ContentTreeSelectorJson> resultItems = layersContents.stream()
+        final int totalLayerHits = layersContents.size();
+        final int fromIndex = from != null ? Math.min( Math.max( from, 0 ), totalLayerHits ) : 0;
+        final int toIndex = size == null || size < 0
+            ? totalLayerHits
+            : Math.min( fromIndex + size, totalLayerHits );
+        final List<Content> pagedContents = layersContents.subList( fromIndex, toIndex );
+
+        final List<ContentTreeSelectorJson> resultItems = pagedContents.stream()
             .map( content -> new ContentTreeSelectorJson( jsonObjectsFactory.createContentJson( content, request ),
                                                           targetContentPaths.contains( content.getPath() ), targetContentPaths.stream()
                                                               .anyMatch( path -> path.isChildOf( content.getPath() ) ) ) )
             .collect( Collectors.toList() );
 
         final ContentListMetaData metaData = ContentListMetaData.create()
-            .hits( findLayerContentsResult.getContents().getSize() )
-            .totalHits( findLayerContentsResult.getTotalHits() )
+            .hits( resultItems.size() )
+            .totalHits( totalLayerHits )
             .build();
 
         return new ContentTreeSelectorListJson( resultItems, metaData );

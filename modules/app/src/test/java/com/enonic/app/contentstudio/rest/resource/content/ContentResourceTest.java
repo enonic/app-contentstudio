@@ -1459,6 +1459,63 @@ public class ContentResourceTest
     }
 
     @Test
+    public void treeSelectorQuery_paginated()
+    {
+        ContentResource contentResource = getResourceInstance();
+
+        Content child1 = createContent( "child-id1", "child-name1", "myapplication:content-type" );
+        Content child2 = createContent( "child-id2", "child-name2", "myapplication:content-type" );
+        Content child3 = createContent( "child-id3", "child-name3", "myapplication:content-type" );
+
+        when( this.contentService.findPaths( isA( ContentQuery.class ) ) ).thenReturn( FindContentPathsByQueryResult.create()
+                                                                                           .contentPaths( ContentPaths.from(
+                                                                                               child1.getPath(), child2.getPath(),
+                                                                                               child3.getPath() ) )
+                                                                                           .totalHits( 3 )
+                                                                                           .build() );
+
+        doReturn( FindContentByParentResult.create()
+                      .totalHits( 3L )
+                      .contents( Contents.from( child1, child2, child3 ) )
+                      .build() ).when( this.contentService ).findByParent( isA( FindContentByParentParams.class ) );
+        when( contentService.findIdsByParent( any() ) ).thenReturn( FindContentIdsByParentResult.create().build() );
+
+        ContentTreeSelectorQueryJson json = mock( ContentTreeSelectorQueryJson.class );
+        when( json.getQueryExprString() ).thenReturn( "" );
+        when( json.getContentTypeNames() ).thenReturn( Collections.emptyList() );
+        when( json.getParentPath() ).thenReturn( null );
+
+        when( json.getFrom() ).thenReturn( 0 );
+        when( json.getSize() ).thenReturn( 2 );
+        ContentTreeSelectorListJson firstPage = contentResource.treeSelectorQuery( json, request );
+        assertEquals( 2, firstPage.getItems().size() );
+        assertEquals( child1.getId().toString(), firstPage.getItems().get( 0 ).getContent().getId() );
+        assertEquals( child2.getId().toString(), firstPage.getItems().get( 1 ).getContent().getId() );
+        assertEquals( 3, firstPage.getMetadata().getTotalHits() );
+        assertEquals( 2, firstPage.getMetadata().getHits() );
+
+        when( json.getFrom() ).thenReturn( 2 );
+        when( json.getSize() ).thenReturn( 2 );
+        ContentTreeSelectorListJson secondPage = contentResource.treeSelectorQuery( json, request );
+        assertEquals( 1, secondPage.getItems().size() );
+        assertEquals( child3.getId().toString(), secondPage.getItems().get( 0 ).getContent().getId() );
+        assertEquals( 3, secondPage.getMetadata().getTotalHits() );
+        assertEquals( 1, secondPage.getMetadata().getHits() );
+
+        when( json.getFrom() ).thenReturn( 10 );
+        when( json.getSize() ).thenReturn( 2 );
+        ContentTreeSelectorListJson outOfRange = contentResource.treeSelectorQuery( json, request );
+        assertEquals( 0, outOfRange.getItems().size() );
+        assertEquals( 3, outOfRange.getMetadata().getTotalHits() );
+
+        when( json.getFrom() ).thenReturn( 0 );
+        when( json.getSize() ).thenReturn( -1 );
+        ContentTreeSelectorListJson unlimited = contentResource.treeSelectorQuery( json, request );
+        assertEquals( 3, unlimited.getItems().size() );
+        assertEquals( 3, unlimited.getMetadata().getTotalHits() );
+    }
+
+    @Test
     public void createMedia()
         throws Exception
     {
