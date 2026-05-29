@@ -65,7 +65,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
     const {invalid, inProgress, noPermissions} = useStore($requestPublishDialogErrors);
     const {allowContentUpdate} = useStore($config, {keys: ['allowContentUpdate']});
 
-    const dialogTitle = useI18n('dialog.requestPublish');
+    const dialogTitle = useI18n('action.requestPublish');
     const titleLabel = useI18n('field.title');
     const addCommentLabel = useI18n('field.comment.aria.label');
     const assigneesLabel = useI18n('dialog.requestPublish.assignees');
