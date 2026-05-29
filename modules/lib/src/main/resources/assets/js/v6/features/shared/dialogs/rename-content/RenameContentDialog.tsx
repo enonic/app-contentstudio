@@ -18,7 +18,7 @@ export const RenameContentDialog = (): ReactElement => {
     const {
         open,
         mode,
-        path,
+        fullPath,
         value,
         placeholder,
         availabilityStatus,
@@ -26,7 +26,7 @@ export const RenameContentDialog = (): ReactElement => {
         keys: [
             'open',
             'mode',
-            'path',
+            'fullPath',
             'value',
             'placeholder',
             'availabilityStatus',
@@ -81,7 +81,7 @@ export const RenameContentDialog = (): ReactElement => {
                 >
                     <Dialog.DefaultHeader title={title} withClose>
                         <Dialog.Description className='text-subtle'>
-                            {path}
+                            {fullPath}
                         </Dialog.Description>
                     </Dialog.DefaultHeader>
                     <Dialog.Body className='flex flex-col gap-2.5 overflow-visible'>

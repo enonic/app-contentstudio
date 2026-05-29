@@ -1,8 +1,10 @@
 import type {ContentId} from '../../../../../app/content/ContentId';
 import {ContentUnnamed} from '../../../../../app/content/ContentUnnamed';
 
-type ContentPathValue = {
+export type ContentPathValue = {
     toString: () => string;
+    getElements?: () => string[];
+    getName?: () => string;
 } | null | undefined;
 
 export type PathLikeContent = {
@@ -15,6 +17,40 @@ export type PathAwareContent = PathLikeContent & {
 
 function getContentPath(item: PathLikeContent): string | undefined {
     return item.getPath?.()?.toString();
+}
+
+function getContentPathElements(path: ContentPathValue | string): string[] {
+    if (!path) {
+        return [];
+    }
+
+    if (typeof path === 'string') {
+        return path.split('/').filter(Boolean);
+    }
+
+    return path.getElements?.() ?? path.toString().split('/').filter(Boolean);
+}
+
+export type ContentPathDisplayValues = {
+    pathLabel: string;
+    fullPath: string;
+};
+
+export function getUnnamedContentPathLabel(unnamedContentPathLabel: string): string {
+    return `<${unnamedContentPathLabel}>`;
+}
+
+export function normalizeContentPathElement(pathElement: string, unnamedContentPathLabel: string): string {
+    return pathElement.startsWith(ContentUnnamed.UNNAMED_PREFIX) ? getUnnamedContentPathLabel(unnamedContentPathLabel) : pathElement;
+}
+
+export function getContentPathDisplayValues(path: ContentPathValue | string, unnamedContentPathLabel: string): ContentPathDisplayValues {
+    const elements = getContentPathElements(path).map((element: string) => normalizeContentPathElement(element, unnamedContentPathLabel));
+
+    return {
+        pathLabel: elements.at(-1) ?? '',
+        fullPath: `/${elements.join('/')}`,
+    };
 }
 
 export function isDescendantContentPath(parentPath: string | undefined, childPath: string | undefined): boolean {
@@ -55,5 +91,3 @@ export function findContentIdsWithCreatedDescendants(
 export function normalizeContentPathName(pathName: string): string {
     return pathName?.startsWith(ContentUnnamed.UNNAMED_PREFIX) ? '' : pathName;
 }
-
-
