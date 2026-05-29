@@ -20,6 +20,7 @@ import {
 } from '../../utils/cms/content/trackedItems';
 import {createGuardedSocketHandler} from '../../utils/store/createGuardedSocketHandler';
 import {createDebounce} from '../../utils/timing/createDebounce';
+import {$config} from '../config.store';
 import {$contentArchived, $contentCreated, $contentDeleted, $contentPublished, $contentRenamed, $contentUpdated} from '../socket.store';
 import type {TaskResultState} from '../task.store';
 
@@ -293,6 +294,8 @@ export const $publishTaskId = computed($publishDialogPending, ({taskId}) => task
 // Used to cancel old ongoing fetch operations if the instanceId changes
 let instanceId = 0;
 
+let cleanLoad = false;
+
 //
 // * Public API
 //
@@ -336,6 +339,8 @@ export const syncPublishDialogContext = async ({
         return;
     }
 
+    cleanLoad = true;
+
     $publishDialog.set({
         open: false,
         failed: false,
@@ -362,6 +367,8 @@ export const openPublishDialog = (items: ContentSummary[], includeChildItems = f
     const current = $publishDialog.value;
 
     if (current.open || items.length === 0) return;
+
+    cleanLoad = true;
 
     const excludedItemsWithChildrenIds = !includeChildItems ? filterItemsWithChildren(items).map(item => item.getContentId()) : [];
 
@@ -395,6 +402,7 @@ export const openPublishDialogWithState = (items: ContentSummary[], excludedIds:
 export const resetPublishDialogContext = () => {
     instanceId += 1;
     compareInstanceId += 1;
+    cleanLoad = false;
     const {taskId} = $publishDialogPending.get();
     if (taskId) {
         cleanupTask(taskId);
@@ -969,9 +977,20 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
 
     const childrenIds = itemsWithChildrenIds.length > 0 ? await findIdsByParents(itemsWithChildrenIds) : [];
     const maxResult = await resolvePublishDeps({ids: itemsIds, excludedIds: excludedItemsIds, excludeChildrenIds: allExcludedItemsWithChildrenIds});
-    const minResult = await resolvePublishDeps({ids: itemsIds, excludedIds: initialExcludedIds, excludeChildrenIds: allExcludedItemsWithChildrenIds});
+
+    const excludeNonRequired = $config.get().excludeDependencies && cleanLoad;
+    const minExcludedIds = excludeNonRequired
+        ? uniqueIds([
+            ...initialExcludedIds,
+            ...maxResult.getDependants().filter(id =>
+                !hasContentIdInIds(id, childrenIds) && !hasContentIdInIds(id, itemsIds)),
+        ])
+        : initialExcludedIds;
+    const minResult = await resolvePublishDeps({ids: itemsIds, excludedIds: minExcludedIds, excludeChildrenIds: allExcludedItemsWithChildrenIds});
 
     if (currentInstanceId !== instanceId) return;
+
+    cleanLoad = false;
 
     const excludedIds = maxResult.getDependants().filter(id => {
         return !hasContentIdInIds(id, childrenIds) &&
