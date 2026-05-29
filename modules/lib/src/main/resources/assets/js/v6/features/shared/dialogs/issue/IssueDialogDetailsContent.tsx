@@ -289,6 +289,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const [scheduleFromRangeError, setScheduleFromRangeError] = useState<string | undefined>();
     const [scheduleToRangeError, setScheduleToRangeError] = useState<string | undefined>();
     const firstScheduleInputRef = useRef<HTMLInputElement>(null);
+    const backButtonRef = useRef<HTMLButtonElement>(null);
     const scheduleKeyboardActivation = useRef(false);
     const wasScheduleMode = useRef(scheduleMode);
     const scheduleFromRef = useRef<Date | undefined>(issuePublishFrom);
@@ -531,11 +532,14 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             return;
         }
         event.preventDefault();
-        handleCommentSubmit();
+        void handleCommentSubmit(true);
     };
 
-    const handleCommentSubmit = (): void => {
-        void submitIssueDialogComment();
+    const handleCommentSubmit = async (focusBackAfterSubmit = false): Promise<void> => {
+        const submitted = await submitIssueDialogComment();
+        if (submitted && focusBackAfterSubmit) {
+            requestAnimationFrame(() => backButtonRef.current?.focus());
+        }
     };
 
     const handlePublishComplete = useCallback((resultState: string): void => {
@@ -657,7 +661,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     return (
         <Dialog.Content
             data-component={ISSUE_DIALOG_DETAILS_CONTENT_NAME}
-            className='sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 flex min-h-0 flex-col gap-7.5 overflow-hidden px-5'
+            className='sm:h-fit md:min-w-180 md:max-w-184 md:max-h-[85vh] lg:max-w-236 flex min-h-0 flex-col gap-3 h-sm:gap-7.5 overflow-hidden py-5 px-5 h-sm:py-10'
         >
             <Dialog.Header className='grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 px-5'>
                 <div className='flex min-w-0 items-center gap-1.5'>
@@ -685,7 +689,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                 <Dialog.DefaultClose className='self-start justify-self-end' />
             </Dialog.Header>
             <Dialog.Body className='flex min-h-0 flex-1 flex-col overflow-hidden'>
-                <Tab.Root value={detailsTab} onValueChange={handleTabChange} className='flex min-h-0 flex-1 flex-col gap-7.5'>
+                <Tab.Root value={detailsTab} onValueChange={handleTabChange} className='flex min-h-0 flex-1 flex-col gap-3 h-sm:gap-7.5'>
                     <div className='grid grid-cols-4 gap-x-3.5 items-end px-2.5'>
                         <div className='flex flex-col gap-2.5 px-2.5 pt-1.5'>
                             <IssueDialogSelector
@@ -713,7 +717,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
 
                     <div className='flex min-h-0 flex-1 flex-col px-5 pb-1.5'>
                         <Tab.Content value='comments' className='mt-0 flex min-h-0 flex-1 flex-col'>
-                            <div className='flex min-h-0 flex-1 flex-col gap-7.5'>
+                            <div className='flex min-h-0 flex-1 flex-col gap-3 h-sm:gap-7.5'>
                                 <IssueCommentsList
                                     comments={comments}
                                     loading={commentsLoading}
@@ -728,11 +732,13 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                     value={commentText}
                                     onInput={handleCommentInput}
                                     onKeyDown={handleCommentKeyDown}
-                                    rows={3}
+                                    rows={2}
                                     autoSize
+                                    resizable
                                     disabled={commentSubmitting || isClosed}
                                     aria-label={commentAriaLabel}
                                     placeholder={commentAriaLabel}
+                                    className='[&_textarea]:max-h-75 [&_textarea]:overflow-y-auto'
                                 />
                             </div>
                         </Tab.Content>
@@ -901,13 +907,13 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                 <div ref={setPortalContainer} />
             </Dialog.Body>
             <Dialog.Footer className='-mt-1.5 px-5 justify-between'>
-                <Button variant='outline' size='lg' label={backLabel} onClick={handleBack} />
+                <Button ref={backButtonRef} variant='outline' size='lg' label={backLabel} onClick={handleBack} />
                 {isCommentsTab && (
                     <Button
                         variant='solid'
                         size='lg'
                         label={commentActionLabel}
-                        onClick={handleCommentSubmit}
+                        onClick={() => void handleCommentSubmit()}
                         disabled={!canSubmitComment}
                     />
                 )}

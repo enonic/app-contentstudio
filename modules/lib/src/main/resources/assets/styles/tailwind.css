@@ -15,6 +15,11 @@
 @source "../../../../../node_modules/@enonic/lib-admin-ui/ui2/";
 @source "../../../../../node_modules/@enonic/lib-admin-ui/form2/";
 
+@custom-variant h-sm (@media (min-height: 640px));
+@custom-variant h-md (@media (min-height: 768px));
+@custom-variant h-lg (@media (min-height: 1024px));
+@custom-variant h-xl (@media (min-height: 1280px));
+
 @theme {
   /* Temporary alias until @enonic/ui exposes grey-500 */
   --color-surface-muted: #b2b2b2;

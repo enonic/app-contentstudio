@@ -363,18 +363,18 @@ export const loadIssueDialogComments = async (nextIssueId?: string): Promise<voi
     }
 };
 
-export const submitIssueDialogComment = async (): Promise<void> => {
+export const submitIssueDialogComment = async (): Promise<boolean> => {
     const state = $issueDialogDetails.get();
     const issueId = state.issueId;
 
     if (!issueId) {
-        return;
+        return false;
     }
 
     const trimmedComment = state.commentText.trim();
 
     if (!trimmedComment || state.commentSubmitting) {
-        return;
+        return false;
     }
 
     $issueDialogDetails.setKey('commentSubmitting', true);
@@ -398,6 +398,7 @@ export const submitIssueDialogComment = async (): Promise<void> => {
             commentSubmitting: false,
         });
         showFeedback(i18n(getCommentMessageKey(issueType)));
+        return true;
     } catch (error) {
         console.error(error);
         $issueDialogDetails.setKey('commentSubmitting', false);
@@ -405,6 +406,7 @@ export const submitIssueDialogComment = async (): Promise<void> => {
         const errorMessage = error?.message ?? String(error);
         const fallbackMessage = errorMessage && errorMessage !== baseMessage ? `${baseMessage} ${errorMessage}` : baseMessage;
         showError(fallbackMessage);
+        return false;
     }
 };
 
