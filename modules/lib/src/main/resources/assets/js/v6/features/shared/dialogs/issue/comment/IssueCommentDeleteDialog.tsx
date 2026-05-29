@@ -22,7 +22,7 @@ export const IssueCommentDeleteDialog = ({
         <ConfirmationDialog.Root open={open} onOpenChange={onOpenChange}>
             <ConfirmationDialog.Portal>
                 <ConfirmationDialog.Overlay className='z-40 bg-transparent' />
-                <ConfirmationDialog.Content>
+                <ConfirmationDialog.Content data-click-outside-ignore>
                     <ConfirmationDialog.DefaultHeader title={title} description={description} />
                     <ConfirmationDialog.Footer
                         intent='danger'
