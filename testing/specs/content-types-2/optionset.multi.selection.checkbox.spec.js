@@ -118,7 +118,7 @@ describe('optionset.multi.selection.checkbox.spec: tests for option set with mul
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

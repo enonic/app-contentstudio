@@ -13,7 +13,7 @@ const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wiz
 const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspanel/browse.versions.widget');
 const CompareContentVersionsDialog = require('../../page_objects/compare.content.versions.dialog');
-const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const DetailsWidgetPermissionsSection = require('../../page_objects/browsepanel/detailspanel/details.widget.permissions.section');
 const WizardContextPanel = require('../../page_objects/wizardpanel/details/wizard.context.window.panel');
 
 describe('folder.content.revert.permissions.spec: tests for reverting of permissions in folder content', function () {
@@ -35,7 +35,7 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
             let wizardContextPanel = new WizardContextPanel();
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             // 1. open the existing folder:
             await studioUtils.selectByDisplayNameAndOpenContent(FOLDER_NAME);
@@ -110,7 +110,7 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
             let editPermissionsDialog = new EditPermissionsGeneralStep();
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             //1. open the existing folder:
             await studioUtils.selectByDisplayNameAndOpenContent(FOLDER_NAME);
             //2. open Versions Widget and revert the previous version:
@@ -134,7 +134,7 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
             let wizardVersionsWidget = new WizardVersionsWidget();
             let contentWizard = new ContentWizard();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             // 1. open the existing folder:
             await studioUtils.selectByDisplayNameAndOpenContent(FOLDER_NAME);
             // 2. open Versions Widget:
@@ -196,7 +196,7 @@ describe('folder.content.revert.permissions.spec: tests for reverting of permiss
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

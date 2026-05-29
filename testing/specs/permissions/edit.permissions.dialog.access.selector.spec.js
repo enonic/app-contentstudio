@@ -5,7 +5,7 @@ const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
-const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const DetailsWidgetPermissionsSection = require('../../page_objects/browsepanel/detailspanel/details.widget.permissions.section');
 const EditPermissionsGeneralStep = require('../../page_objects/permissions/edit.permissions.general.step');
 const EditPermissionsSummaryStep = require('../../page_objects/permissions/edit.permissions.summary.step');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
@@ -32,7 +32,7 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
     it(`GIVEN 'Edit Permissions' dialog is opened WHEN 'Custom' permissions has been selected for CM_Admin AND 'Create' operation has been switched off AND 'Apply' button pressed THEN expected notification should appear `,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
             // 1. Select the folder and open Details Panel:
@@ -59,7 +59,7 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
 
     it(`GIVEN existing folder with 'Custom' permissions is opened WHEN 'Edit Permissions dialog' has been opened THEN expected operations should be allowed`,
         async () => {
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let contentWizard = new ContentWizard();
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             // 1. Open existing folder:
@@ -78,7 +78,7 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
     it.skip(`WHEN folder with updated permissions is selected AND Edit Permissions dialog is opened THEN ACL-entries should be consistently sorted by name`,
         async () => {
             let editPermissionsDialog = new EditPermissionsGeneralStep();
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             // 1. Select the folder and open Details Panel
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             await studioUtils.openBrowseDetailsPanel();
@@ -91,7 +91,7 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

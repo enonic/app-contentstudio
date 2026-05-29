@@ -58,7 +58,7 @@ describe('refresh.request.publish.dialog.spec - opens request publish modal dial
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(async() => {
         await studioUtils.doPressEscape();
-        await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
     });
     before(async () => {
         if (typeof browser !== 'undefined') {

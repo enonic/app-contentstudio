@@ -134,7 +134,7 @@ describe('layer.with.app.spec - tests for layer with applications', function () 
     beforeEach(async () => {
         return await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
     });
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

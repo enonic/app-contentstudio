@@ -255,7 +255,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

@@ -75,7 +75,7 @@ describe('filter.by.modifier.spec: tests for filter panel', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(function () {
-        return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        return studioUtils.doCloseAllWindowTabsAndNavigateToHome();
     });
     before(async () => {
         if (typeof browser !== 'undefined') {

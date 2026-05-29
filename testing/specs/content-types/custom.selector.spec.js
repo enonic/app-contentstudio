@@ -145,7 +145,7 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

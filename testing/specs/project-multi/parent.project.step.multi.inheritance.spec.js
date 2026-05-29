@@ -104,7 +104,7 @@ describe('parent.project.step.multi.inheritance.spec - ui-tests for parent proje
         await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

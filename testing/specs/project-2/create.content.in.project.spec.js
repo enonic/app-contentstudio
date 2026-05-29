@@ -11,7 +11,7 @@ const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizar
 const BrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.context.window.panel');
 const DetailsWidgetContentSection = require('../../page_objects/details_panel/details.widget.content.section');
 const EditPermissionsGeneralStep = require('../../page_objects/permissions/edit.permissions.general.step');
-const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const DetailsWidgetPermissionsSection = require('../../page_objects/browsepanel/detailspanel/details.widget.permissions.section');
 const appConst = require('../../libs/app_const');
 
 describe('create.content.in.project.spec - create new content in the selected context and verify a language in wizards', function () {
@@ -73,7 +73,7 @@ describe('create.content.in.project.spec - create new content in the selected co
         async () => {
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let contentWizardPanel = new ContentWizardPanel();
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             // 1. Select the project's context in 'Select Context' dialog
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             // 2. Open new folder wizard:
@@ -98,7 +98,7 @@ describe('create.content.in.project.spec - create new content in the selected co
 
     it("GIVEN project with 'Private' access mode is selected AND existing folder is selected WHEN Details Panel has been opened THEN 'Restricted access to item' should be in Access Widget",
         async () => {
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             // 1. Select the project in 'Select Context' dialog:
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             // 2. Select the folder and open details panel
@@ -167,7 +167,7 @@ describe('create.content.in.project.spec - create new content in the selected co
     beforeEach(async () => {
         await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
     });
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

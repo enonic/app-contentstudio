@@ -64,7 +64,7 @@ describe('project.wizard.dialog.select.parent.lower.case.spec - check case sensi
         await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

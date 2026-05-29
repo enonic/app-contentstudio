@@ -105,7 +105,7 @@ describe('issue.publish.two.items.spec: 2 folders have been added and published'
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(async() => {
         await studioUtils.doPressEscape();
-        await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
     });
     before(async () => {
         if (typeof browser !== 'undefined') {

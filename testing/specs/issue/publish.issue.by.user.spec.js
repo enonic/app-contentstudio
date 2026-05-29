@@ -32,7 +32,7 @@ describe('publish.issue.by.user.spec: an user publishes assigned to him issue', 
             USER = contentBuilder.buildUser(userName, PASSWORD, contentBuilder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
             //TODO users should be updated
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         });
 
     it(`GIVEN SU selects a folder and opens 'Create Issue...' dialog WHEN new issue has been assigned to the just created user THEN new issue should be loaded in IssueDetailsDialog`,
@@ -57,7 +57,7 @@ describe('publish.issue.by.user.spec: an user publishes assigned to him issue', 
             let message = await contentBrowsePanel.waitForNotificationMessage();
             assert.equal(message, appConst.NOTIFICATION_MESSAGES.ISSUE_CREATED_MESSAGE);
             await issueDetailsDialog.waitForDialogLoaded();
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 
@@ -83,7 +83,7 @@ describe('publish.issue.by.user.spec: an user publishes assigned to him issue', 
             // 6. Verify that the notification message appears:
             await issueDetailsDialog.waitForNotificationMessage();
             await issueDetailsDialogItemsTab.getSt
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 
@@ -105,7 +105,7 @@ describe('publish.issue.by.user.spec: an user publishes assigned to him issue', 
             //let expectedMessage = appConst.issueClosedBy(USER.displayName);
             // 6. Verify that the info message is displayed in the status selector : "Closed by user:system:${userName}"
             //assert.ok(info.includes(expectedMessage), "Expected notification message should appear");
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 

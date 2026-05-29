@@ -105,7 +105,7 @@ describe('close.issue.no.items.spec: create an issue than does not have items, c
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(async() => {
         await studioUtils.doPressEscape();
-        await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
     });
     before(async () => {
         if (typeof browser !== 'undefined') {

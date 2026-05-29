@@ -2,7 +2,7 @@ const path = require('path');
 const propertiesReaderModule = require('properties-reader');
 const propertiesReader = propertiesReaderModule.propertiesReader || propertiesReaderModule.default || propertiesReaderModule;
 const file = path.join(__dirname, '/../browser.properties');
-const properties = propertiesReader({ sourceFile: file });
+const properties = propertiesReader({sourceFile: file});
 const browser_version = properties.get('browser.version');
 
 exports.config = {
@@ -14,6 +14,8 @@ exports.config = {
         path.join(__dirname, '../specs/project-2/project.wizard.dialog.permissions.step.spec.js'),
         path.join(__dirname, '../specs/project-2/project.wizard.dialog.name.step.spec.js'),
         path.join(__dirname, '../specs/project-2/project.wizard.dialog.summary.step.spec.js'),
+        path.join(__dirname, '../specs/project-2/edit.project.wizard.access.roles.spec.js'),
+        path.join(__dirname, '../specs/project-2/project.wizard.two.apps.spec.js'),
     ],
 
     maxInstances: 1,

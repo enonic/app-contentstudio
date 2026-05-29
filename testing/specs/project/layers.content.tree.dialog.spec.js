@@ -95,7 +95,7 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
         await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

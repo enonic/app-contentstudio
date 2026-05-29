@@ -34,7 +34,7 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         });
 
     it(`Precondition 2 - parent project with private access mode should be created`,
@@ -70,7 +70,7 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             await projectUtils.fillFormsWizardAndClickOnCreateButton(layer);
             await settingsBrowsePanel.waitForNotificationMessage();
             // Do log out:
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 
@@ -103,7 +103,7 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             // 3. Verify that expected site is loaded:
             let actualTitle = await studioUtils.getBrowser().getTitle();
             assert.equal(actualTitle, SITE_NAME, 'Expected site should be loaded');
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         });
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/2337
@@ -120,7 +120,7 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             // 3.Verify that the Default project is not visible for the user with contributor role:
             await settingsBrowsePanel.waitForProjectNotDisplayed('Default');
             // Do log out:
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 
@@ -135,7 +135,7 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
         if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes('Users') || title.includes(appConst.TAB_TITLE_PART)) {
-            return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            return await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         }
     });
     before(async () => {

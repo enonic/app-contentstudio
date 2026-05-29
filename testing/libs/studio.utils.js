@@ -871,7 +871,7 @@ module.exports = {
         }
     },
 
-    async doCloseAllWindowTabsAndSwitchToHome() {
+    async doCloseAllWindowTabsAndAndClickOnOpenXP_menu() {
         await this.doCloseAllWindowTabs();
         let contentBrowsePanel = new ContentBrowsePanel();
         await contentBrowsePanel.clickOnShowXpMenuButton();

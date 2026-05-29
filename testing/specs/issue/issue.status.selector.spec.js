@@ -115,7 +115,7 @@ describe('issue.status.selector.spec: open and close issue by clicking on menu b
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(async() => {
         await studioUtils.doPressEscape();
-        await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
     });
     before(async () => {
         if (typeof browser !== 'undefined') {

@@ -15,7 +15,7 @@ const NotificationDialog = require('../../page_objects/notification.dialog');
 const OptionSetForm2View = require('../../page_objects/wizardpanel/optionset/optionset.form2.view');
 const appConst = require('../../libs/app_const');
 const EditPermissionsDialog = require('../../page_objects/permissions/edit.permissions.general.step');
-const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const DetailsWidgetPermissionsSection = require('../../page_objects/browsepanel/detailspanel/details.widget.permissions.section');
 
 describe("optionset.title.labels.spec: checks option set's title and labels", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -257,7 +257,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
     it.skip(`GIVEN existing option set is opened WHEN permissions have been updated THEN 'Save' button remains visible and disabled`,
         async () => {
             let contentWizard = new ContentWizard();
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             let editPermissionsDialog = new EditPermissionsDialog();
             // 1. Open existing 'Option Set' content:
             await studioUtils.selectAndOpenContentInWizard(OPTION_SET_NAME);
@@ -275,7 +275,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);

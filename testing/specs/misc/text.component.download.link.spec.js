@@ -233,7 +233,7 @@ describe('Text Component with CKE - insert download-link specification', functio
                 return insertLinkDialog.clickOnCancelButton();
             }
         }).then(() => {
-            return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            return studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         })
     });
     before(async () => {

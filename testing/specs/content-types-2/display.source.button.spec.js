@@ -14,7 +14,7 @@ const EditPermissionsGeneralStep = require('../../page_objects/permissions/edit.
 const EditPermissionsSummaryStep = require('../../page_objects/permissions/edit.permissions.summary.step');
 const EditPermissionsChooseApplyChangesStep = require('../../page_objects/permissions/edit.permissions.choose.apply.changes.step');
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
-const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const DetailsWidgetPermissionsSection = require('../../page_objects/browsepanel/detailspanel/details.widget.permissions.section');
 
 describe('display.source.button.spec - tests for user with Content Manager Expert role and  Display Source button', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -40,7 +40,7 @@ describe('display.source.button.spec - tests for user with Content Manager Exper
             let editPermissionsGeneralStep = new EditPermissionsGeneralStep();
             let editPermissionsSummaryStep = new EditPermissionsSummaryStep();
             let editPermissionsChooseApplyChangesStep = new EditPermissionsChooseApplyChangesStep();
-            let userAccessWidget = new UserAccessWidget();
+            let userAccessWidget = new DetailsWidgetPermissionsSection();
             // 1. Do Log in with 'SU':
             await studioUtils.navigateToContentStudioApp();
             // 2. SU creates new site:
@@ -68,7 +68,7 @@ describe('display.source.button.spec - tests for user with Content Manager Exper
             // 7. click on 'Apply Changes' button:
             await editPermissionsSummaryStep.clickOnApplyChangesButton();
             await editPermissionsSummaryStep.waitForDialogClosed();
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
             assert.equal(number, 1, "Expected number of changes should be displayed in the button: 1");
         });
@@ -106,7 +106,7 @@ describe('display.source.button.spec - tests for user with Content Manager Exper
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
         if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes('Users') || title.includes(appConst.TAB_TITLE_PART)) {
-            return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            return await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         }
     });
     before(async () => {

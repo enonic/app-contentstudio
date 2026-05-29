@@ -46,7 +46,7 @@ describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', fun
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         });
 
     it(`Precondition 2 - parent project with private access mode should be created`,
@@ -106,7 +106,7 @@ describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', fun
             await summaryStep.waitForDialogClosed();
             await settingsBrowsePanel.waitForNotificationMessage();
             // Do log out:
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 
@@ -160,9 +160,7 @@ describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', fun
             // 3. Verify that expected site is loaded:
             let actualTitle = await studioUtils.getBrowser().getTitle();
             assert.equal(actualTitle, SITE_NAME, 'expected site should be loaded');
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
-            // Do log out:
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 
@@ -176,7 +174,7 @@ describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', fun
             await studioUtils.findAndSelectItem(SITE_NAME);
             await contentBrowsePanel.clickOnMarkAsReadyButton();
             // Do log out:
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 
@@ -299,7 +297,7 @@ describe.skip('layer.owner.spec - ui-tests for user with layer-Owner role ', fun
         let title = await studioUtils.getBrowser().getTitle();
         // Do not close the Login page:
         if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes('Users') || title.includes(appConst.TAB_TITLE_PART)) {
-            return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            return await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         }
     });
     before(async () => {

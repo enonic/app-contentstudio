@@ -42,7 +42,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         });
 
     it("GIVEN new project wizard dialog is opened WHEN existing user has been added as Editor THEN expected user should be selected in Project Roles form",
@@ -89,7 +89,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
             assert.equal(projectAccessItems[0], USER.displayName, 'expected user should be selected in Project Roles form');
             // Do log out:
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         });
 
     it("Precondition 2: new site should be created by the SU in the parent project",
@@ -102,7 +102,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             // 3. SU adds new site:
             SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConst.APP_CONTENT_TYPES], appConst.CONTROLLER_NAME.MAIN_REGION);
             await studioUtils.doAddSite(SITE);
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
             await studioUtils.doLogout();
         });
 
@@ -246,7 +246,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
         if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes('Users') || title.includes(appConst.TAB_TITLE_PART)) {
-            return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            return await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         }
     });
     before(async () => {

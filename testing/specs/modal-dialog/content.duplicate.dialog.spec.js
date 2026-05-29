@@ -86,7 +86,7 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(function () {
-        return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        return studioUtils.doCloseAllWindowTabsAndNavigateToHome();
     });
     before(async () => {
         if (typeof browser !== 'undefined') {

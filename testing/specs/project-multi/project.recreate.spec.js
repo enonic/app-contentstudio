@@ -57,7 +57,7 @@ describe("project.recreate.spec - tests for recreating the only one project ", f
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioWithProjects());
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {
             await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
