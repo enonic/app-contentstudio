@@ -45,7 +45,7 @@ const DEFAULT_CONFIG: Readonly<ConfigStore> = {
     appId: '',
     appVersion: '',
     user: undefined,
-    excludeDependencies: false,
+    excludeDependencies: true,
     allowContentUpdate: false,
     defaultPublishFromTime: undefined,
     aiEnabled: false,
