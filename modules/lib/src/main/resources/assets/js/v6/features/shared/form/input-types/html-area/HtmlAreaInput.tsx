@@ -459,8 +459,17 @@ const CKEditorWrapper = ({
     const showFocusRing = focused && !processing;
     const showErrorState = hasError && !processing;
 
+    // keeping B/I/U in the toolbar for copy-paste to work, but hiding them by default in non-fullscreen mode to save space
+    const enabledTools = htmlAreaConfig.enabledTools ?? [];
+    const hideBold = !enabledTools.includes('Bold');
+    const hideItalic = !enabledTools.includes('Italic');
+    const hideUnderline = !enabledTools.includes('Underline');
+
     const wrapperClassName = cn(
         'html-area relative rounded-sm *:rounded-sm transition-highlight',
+        hideBold && 'hide-bold',
+        hideItalic && 'hide-italic',
+        hideUnderline && 'hide-underline',
         isBlinking && 'input-blink-attention',
         showFocusRing && 'ring-3 ring-offset-3 ring-offset-ring-offset',
         showFocusRing && (hasError ? 'ring-error' : 'ring-ring'),
