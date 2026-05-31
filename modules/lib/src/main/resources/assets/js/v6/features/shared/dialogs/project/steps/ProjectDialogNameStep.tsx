@@ -50,6 +50,7 @@ export const ProjectDialogNameStepContent = ({locked = false}: ProjectDialogName
     const projectErrorIdentifierAlreadyExists = useI18n('settings.project.name.occupied');
     const errorRequiredField = useI18n('field.value.required');
     const errorInvalidField = useI18n('field.value.invalid');
+    const errorIdentifierTooLong = useI18n('settings.wizard.project.identifier.tooLong');
 
     const updateIdentifier = useCallback(
         (value: string, isUserInput?: boolean) => {
@@ -62,6 +63,11 @@ export const ProjectDialogNameStepContent = ({locked = false}: ProjectDialogName
 
             if (prettifiedIdentifier.length === 0) {
                 setIdentifierError(errorRequiredField);
+                return;
+            }
+
+            if (prettifiedIdentifier.length > 48) {
+                setIdentifierError(errorIdentifierTooLong);
                 return;
             }
 
