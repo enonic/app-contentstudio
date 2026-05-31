@@ -43,7 +43,7 @@ const PAGE_COMPONENTS_ITEM_NAME = 'PageComponentsItem';
 
 const LEVEL_INDENT_PX = 20;
 
-const calcSpacerWidth = (level: number): number => LEVEL_INDENT_PX * (level - 1) - 10;
+export const calcSpacerWidth = (level: number): number => LEVEL_INDENT_PX * (level - 1) - 10;
 
 //
 // * Component
@@ -68,7 +68,8 @@ export const PageComponentsItem = ({
     const isSubdued = isRegion || !data.hasDescriptor;
     const Icon = isPage && pageMetadata ? pageMetadata.Icon : NODE_TYPE_ICON[data.nodeType];
     const displayName = isPage && pageMetadata ? pageMetadata.displayName : data.displayName;
-    const spacerWidth = calcSpacerWidth(node.level);
+    // Mid-drag the dragged row adopts its projected drop level; otherwise its own level.
+    const spacerWidth = context.projectedIndent ?? calcSpacerWidth(node.level);
 
     const handleToggleClick = (e: MouseEvent<HTMLButtonElement>): void => {
         e.stopPropagation();

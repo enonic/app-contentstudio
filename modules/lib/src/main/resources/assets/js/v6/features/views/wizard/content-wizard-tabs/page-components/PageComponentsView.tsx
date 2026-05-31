@@ -1,4 +1,12 @@
-import {SortableList, type SortableListItemContext} from '@enonic/lib-admin-ui/form2/components';
+import {
+    type DropNode,
+    type DropProjection,
+    projectTreeDrop,
+    type SortableDragInfo,
+    type SortableDropHint,
+    SortableList,
+    type SortableListItemContext,
+} from '@enonic/lib-admin-ui/form2/components';
 import {cn} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {type ReactElement, useCallback, useEffect, useMemo, useRef, useState} from 'react';
@@ -10,12 +18,11 @@ import {PageNavigationMediator} from '../../../../../../app/wizard/PageNavigatio
 import {useI18n} from '../../../../hooks/useI18n';
 import {useSelectedPageOption} from '../../../../hooks/usePageOptions';
 import type {FlatNode} from '../../../../lib/tree-store';
-import {getNode} from '../../../../lib/tree-store';
 import {inspectItem, requestComponentMove} from '../../../../store/page-editor';
 import {$inspectedPath, $pageVersion} from '../../../../store/page-editor/store';
 import {$invalidComponentPaths, $validationVisibility} from '../../../../store/wizardValidation.store';
 import {PageComponentsContextMenu} from './PageComponentsContextMenu';
-import {PageComponentsItem, type PageComponentPageMetadata} from './PageComponentsItem';
+import {calcSpacerWidth, PageComponentsItem, type PageComponentPageMetadata} from './PageComponentsItem';
 import {
     $componentsFlatNodes,
     $componentsTreeState,
@@ -83,48 +90,67 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
         return () => cancelAnimationFrame(handle);
     }, [inspectedPath]);
 
-    const handleMove = useCallback((fromIndex: number, toIndex: number): void => {
-        const sourceNode = flatNodes[fromIndex];
-        const targetNode = flatNodes[toIndex];
-        if (sourceNode?.data == null || targetNode?.data == null) {
-            return;
-        }
-
-        if (!sourceNode.data.draggable) {
-            return;
+    const resolveProjection = useCallback((info: SortableDragInfo): DropProjection | null => {
+        const sourceNode = flatNodes[info.activeIndex];
+        const overNode = flatNodes[info.overIndex];
+        if (sourceNode?.data == null || overNode == null || !sourceNode.data.draggable) {
+            return null;
         }
 
         const treeState = $componentsTreeState.get();
-
-        const target = resolveTargetPath(sourceNode, targetNode, fromIndex, toIndex);
-        if (target == null) {
-            return;
-        }
-
         const isLayoutDrag = sourceNode.data.nodeType === 'layout'
             || (sourceNode.data.nodeType === 'fragment' && sourceNode.data.layoutFragment);
 
-        if (isLayoutDrag && hasLayoutAncestor(treeState, target.regionPath)) {
+        return projectTreeDrop({
+            nodes: toDropNodes(flatNodes),
+            activeId: sourceNode.id,
+            overId: overNode.id,
+            side: info.side,
+            direction: info.direction,
+            isContainerAllowed: (containerId) => !(isLayoutDrag && hasLayoutAncestor(treeState, containerId)),
+        });
+    }, [flatNodes]);
+
+    const resolveDrop = useCallback((info: SortableDragInfo): SortableDropHint | null => {
+        const projection = resolveProjection(info);
+        if (projection == null) {
+            return null;
+        }
+        return {indent: calcSpacerWidth(projection.depth), allowed: projection.allowed};
+    }, [resolveProjection]);
+
+    const handleMove = useCallback((_fromIndex: number, _toIndex: number, info?: SortableDragInfo): void => {
+        if (info == null) {
+            return;
+        }
+        const sourceNode = flatNodes[info.activeIndex];
+        if (sourceNode?.data == null) {
             return;
         }
 
+        const projection = resolveProjection(info);
+        if (projection == null || !projection.allowed) {
+            return;
+        }
+
+        const targetComponentPath = `${projection.containerId}/${projection.index}`;
         const fromPath = ComponentPath.fromString(sourceNode.id);
-        const toPath = ComponentPath.fromString(target.componentPath);
+        const toPath = ComponentPath.fromString(targetComponentPath);
 
         if (fromPath.equals(toPath)) {
             return;
         }
 
         requestComponentMove(fromPath, toPath);
-        remapExpandedIdsAfterMove(sourceNode.id, target.componentPath);
+        remapExpandedIdsAfterMove(sourceNode.id, targetComponentPath);
         rebuildComponentsTree();
 
-        const movedPath = ComponentPath.fromString(computeMovedItemPath(sourceNode.id, target.componentPath));
+        const movedPath = ComponentPath.fromString(computeMovedItemPath(sourceNode.id, targetComponentPath));
         inspectItem(movedPath);
         PageNavigationMediator.get().notify(
             new PageNavigationEvent(PageNavigationEventType.SELECT, new PageNavigationEventData(movedPath)),
         );
-    }, [flatNodes]);
+    }, [flatNodes, resolveProjection]);
 
     const handleDragStart = useCallback((index: number): void => {
         const node = flatNodes[index];
@@ -144,21 +170,6 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
     const isItemMovable = useCallback((node: FlatNode<PageComponentNodeData>): boolean => {
         return node.data?.draggable ?? false;
     }, []);
-
-    const isDropAllowed = useCallback((fromIndex: number, toIndex: number): boolean => {
-        const sourceNode = flatNodes[fromIndex];
-        const targetNode = flatNodes[toIndex];
-        if (sourceNode?.data == null || targetNode?.data == null) return false;
-        if (!sourceNode.data.draggable) return false;
-
-        const target = resolveTargetPath(sourceNode, targetNode, fromIndex, toIndex);
-        if (target == null) return false;
-
-        const isLayoutDrag = sourceNode.data.nodeType === 'layout'
-            || (sourceNode.data.nodeType === 'fragment' && sourceNode.data.layoutFragment);
-
-        return !(isLayoutDrag && hasLayoutAncestor($componentsTreeState.get(), target.regionPath));
-    }, [flatNodes]);
 
     const itemClassName = useCallback((
         context: SortableListItemContext<FlatNode<PageComponentNodeData>>,
@@ -200,7 +211,7 @@ export const PageComponentsView = ({showTitle = false}: PageComponentsViewProps 
                 enabled={flatNodes.length > 1}
                 fullRowDraggable
                 isItemMovable={isItemMovable}
-                isDropAllowed={isDropAllowed}
+                resolveDrop={resolveDrop}
                 animateLayoutChanges={animateLayoutChanges}
                 itemClassName={itemClassName}
                 renderItem={renderItem}
@@ -216,76 +227,18 @@ PageComponentsView.displayName = PAGE_COMPONENTS_VIEW_NAME;
 // * Internal
 //
 
-function resolveTargetPath(
-    sourceNode: FlatNode<PageComponentNodeData>,
-    targetNode: FlatNode<PageComponentNodeData>,
-    fromIndex: number,
-    toIndex: number,
-): {regionPath: string; componentPath: string} | null {
-    const targetData = targetNode.data;
-    if (targetData == null) {
-        return null;
+// Projects the flattened tree onto the drop model: regions are containers, every
+// other node (page, parts, layouts, text, fragments) is a draggable item.
+function toDropNodes(flatNodes: FlatNode<PageComponentNodeData>[]): DropNode[] {
+    const dropNodes: DropNode[] = [];
+    for (const node of flatNodes) {
+        if (node.data == null) continue;
+        dropNodes.push({
+            id: node.id,
+            parentId: node.parentId,
+            depth: node.level,
+            kind: node.data.nodeType === 'region' ? 'container' : 'item',
+        });
     }
-
-    const treeState = $componentsTreeState.get();
-
-    if (targetData.nodeType === 'region') {
-        // Dragging up past a region header → place at end of the previous sibling region
-        if (fromIndex > toIndex && targetNode.parentId != null) {
-            const parentNode = getNode(treeState, targetNode.parentId);
-            if (parentNode != null) {
-                const regionIdx = parentNode.childIds.indexOf(targetNode.id);
-                if (regionIdx > 0) {
-                    const prevRegionId = parentNode.childIds[regionIdx - 1];
-                    const prevRegion = getNode(treeState, prevRegionId);
-                    const childCount = prevRegion?.childIds.length ?? 0;
-                    return {
-                        regionPath: prevRegionId,
-                        componentPath: `${prevRegionId}/${childCount}`,
-                    };
-                }
-                return null;
-            }
-        }
-
-        const regionNode = getNode(treeState, targetNode.id);
-        const childCount = regionNode?.childIds.length ?? 0;
-        return {
-            regionPath: targetNode.id,
-            componentPath: `${targetNode.id}/${childCount}`,
-        };
-    }
-
-    if (targetData.nodeType === 'page') {
-        return null;
-    }
-
-    const treeNode = getNode(treeState, targetNode.id);
-    if (treeNode?.parentId == null) {
-        return null;
-    }
-
-    const parentNode = getNode(treeState, treeNode.parentId);
-    if (parentNode?.data?.nodeType !== 'region') {
-        return null;
-    }
-
-    const siblingIndex = parentNode.childIds.indexOf(targetNode.id);
-    if (siblingIndex === -1) {
-        return null;
-    }
-
-    // ! When dragging down within the same region, the backend removes the
-    // ! source first (shifting indices down), then inserts at the target index.
-    // ! Using siblingIndex + 1 would overshoot by one in that case.
-    const sourceTreeNode = getNode(treeState, sourceNode.id);
-    const sameRegion = sourceTreeNode?.parentId === parentNode.id;
-    const index = fromIndex < toIndex
-        ? (sameRegion ? siblingIndex : siblingIndex + 1)
-        : siblingIndex;
-
-    return {
-        regionPath: parentNode.id,
-        componentPath: `${parentNode.id}/${index}`,
-    };
+    return dropNodes;
 }
