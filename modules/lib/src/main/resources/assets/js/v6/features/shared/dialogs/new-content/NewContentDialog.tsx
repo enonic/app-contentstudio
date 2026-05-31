@@ -22,7 +22,9 @@ export const NewContentDialog = (): ReactElement => {
     const inputRef = useRef<HTMLInputElement>(null);
     const dialogContentRef = useRef<HTMLDivElement>(null);
     const shouldFocusInput = useRef(false);
-    const {open, selectedTab, inputValue, parentContent, filteredBaseContentTypes, filteredSuggestedContentTypes} = useStore($newContentDialog);
+    const {open, selectedTab, inputValue, parentContent, filteredBaseContentTypes, filteredSuggestedContentTypes} =
+        useStore($newContentDialog);
+    const isTemplateFolder = parentContent?.getType().isTemplateFolder() ?? false;
     const isMediaTab = selectedTab === 'media';
     const isInputEmpty = inputValue.length === 0;
     const isInputHidden = isInputEmpty || isMediaTab;
@@ -92,6 +94,7 @@ export const NewContentDialog = (): ReactElement => {
     };
 
     const handleDragEnter = () => {
+        if (isTemplateFolder) return;
         setIsDragging(true);
         setSelectedTab('media');
     };
@@ -144,7 +147,11 @@ export const NewContentDialog = (): ReactElement => {
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
                 >
-                    <Tab.Root value={selectedTab} onValueChange={setSelectedTab} className="flex flex-col h-full gap-2.5">
+                    <Tab.Root
+                        value={selectedTab}
+                        onValueChange={setSelectedTab}
+                        className="flex flex-col h-full gap-2.5"
+                    >
                         <Dialog.Header className="flex flex-col gap-2.5">
                             <div className="flex justify-between">
                                 <div className="space-y-2.5">
@@ -158,16 +165,20 @@ export const NewContentDialog = (): ReactElement => {
                             <Tab.List onKeyDownCapture={handleTabListKeyDownCapture}>
                                 <Tab.Trigger value="all">{allTabLabel}</Tab.Trigger>
                                 <Tab.Trigger value="suggested">{suggestedTabLabel}</Tab.Trigger>
-                                <Tab.Trigger value="media">{mediaTabLabel}</Tab.Trigger>
+                                <Tab.Trigger value="media" disabled={isTemplateFolder}>
+                                    {mediaTabLabel}
+                                </Tab.Trigger>
                             </Tab.List>
                         </Dialog.Header>
 
                         <Dialog.Body className="contents">
-                            <div className={cn(
-                                'h-22 px-1.5 -mx-1.5 -mb-2 overflow-hidden',
-                                isMediaTab ? 'hidden' : 'transition-all ease-in-out duration-150',
-                                isInputHidden && 'h-0 pointer-events-none'
-                            )}>
+                            <div
+                                className={cn(
+                                    'h-22 px-1.5 -mx-1.5 -mb-2 overflow-hidden',
+                                    isMediaTab ? 'hidden' : 'transition-all ease-in-out duration-150',
+                                    isInputHidden && 'h-0 pointer-events-none',
+                                )}
+                            >
                                 <NewContentDialogSearch
                                     className={isInputHidden && 'hidden'}
                                     onChange={handleInputChange}
@@ -176,11 +187,12 @@ export const NewContentDialog = (): ReactElement => {
                                 />
                             </div>
 
-                            <div className={cn(
-                                'min-h-0 flex-1 my-5',
-                                isMediaTab ? 'overflow-visible' : 'overflow-y-auto px-1.5 -mx-1.5'
-                            )}>
-
+                            <div
+                                className={cn(
+                                    'min-h-0 flex-1 my-5',
+                                    isMediaTab ? 'overflow-visible' : 'overflow-y-auto px-1.5 -mx-1.5',
+                                )}
+                            >
                                 <NewContentDialogContentTypesTab
                                     tabName="all"
                                     contentTypes={filteredBaseContentTypes}
