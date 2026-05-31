@@ -51,6 +51,7 @@ export const ProjectDialogSummaryStepContent = ({locked = false}: ProjectDialogS
     const parentProjectLabel = useI18n('settings.field.project.parent');
     const parentProjectsLabel = useI18n('settings.field.project.parents');
     const projectNameAndIdLabel = useI18n('dialog.project.wizard.summary.projectNameAndId');
+    const descriptionLabel = useI18n('dialog.project.wizard.name.projectDescription');
     const languageLabel = useI18n('dialog.project.wizard.summary.language');
     const accessModeLabel = useI18n('dialog.projectAccess');
     const permissionsLabel = useI18n('dialog.project.wizard.summary.permissions');
@@ -117,6 +118,13 @@ export const ProjectDialogSummaryStepContent = ({locked = false}: ProjectDialogS
                         {nameData.name} / {nameData.identifier}
                     </dd>
                 </div>
+
+                {nameData.description && (
+                    <div className="contents">
+                        <dt className="font-semibold">{descriptionLabel}</dt>
+                        <dd>{nameData.description}</dd>
+                    </div>
+                )}
 
                 {defaultLanguage && (
                     <div className="contents">
