@@ -69,13 +69,6 @@ class ContentSelectorDropdown extends BaseDropdown {
         return await super.getOptionsDisplayNameInFlatMode();
     }
 
-    async getOptionsName(parentXpath) {
-        let locator = XPATH.contentListBoxUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.P_SUB_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.pause(500);
-        return await this.getTextInDisplayedElements(locator);
-    }
-
     async removeSelectedOption(displayName) {
         try {
             const locator = this.container + DROPDOWN.selectedItemByDisplayName(displayName) + BUTTONS.BUTTON_REMOVE_ICON;
@@ -118,7 +111,6 @@ class ContentSelectorDropdown extends BaseDropdown {
     async clickOnAddNewContentButton() {
         await this.clickOnElement(this.addNewContentButton);
     }
-
 }
 
 module.exports = ContentSelectorDropdown;

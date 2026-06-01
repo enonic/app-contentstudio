@@ -1,15 +1,14 @@
 /**
- * Created on 19.02.2020.
+ * Created on 19.02.2020. updated on 01.06.2026
  */
 const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
-const lib = require('../../../../libs/elements-old');
+const {BUTTONS} = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
 const FragmentDropdown = require('../../../components/selectors/fragment.dropdown');
 
 const xpath = {
-    container: `//div[contains(@id,'FragmentInspectionPanel')]`,
+    container: `//div[@data-component='FragmentInspectionPanel']`,
     selectedOptionView: `//div[contains(@id,'SelectedOptionView')]`,
-    editFragmentButton: "//button[child::span[contains(.,'Edit Fragment')]]"
 };
 
 //Content Wizard,Context Window, Inspect tab for Fragment Component
@@ -24,15 +23,15 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     get editFragmentButton() {
-        return xpath.container + xpath.editFragmentButton;
+        return xpath.container + BUTTONS.buttonAriaLabel('Edit Fragment');
     }
 
     waitForEditFragmentButtonEnabled() {
-        return this.waitForElementEnabled(this.editFragmentButton, appConst.mediumTimeout);
+        return this.waitForElementEnabled(this.editFragmentButton);
     }
 
     waitForEditFragmentButtonDisabled() {
-        return this.waitForElementDisabled(this.editFragmentButton, appConst.mediumTimeout);
+        return this.waitForElementDisabled(this.editFragmentButton);
     }
 
     async clickOnEditFragmentButton() {
@@ -43,7 +42,7 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
 
     async clickOnFragmentDropdownHandle() {
         try {
-            await this.waitForElementDisplayed(this.fragmentDropdownHandle, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.fragmentDropdownHandle);
             await this.clickOnElement(this.fragmentDropdownHandle);
             return await this.pause(300);
         } catch (err) {
@@ -57,32 +56,33 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     async typeNameAndSelectFragment(displayName) {
-        let fragmentDropdown = new FragmentDropdown();
-        await fragmentDropdown.selectFilteredFragment(displayName, xpath.container);
+        let fragmentDropdown = new FragmentDropdown(xpath.container);
+        await fragmentDropdown.selectFilteredFragment(displayName);
     }
 
     async clickOnOptionInFragmentDropdown(optionDisplayName) {
-        let fragmentDropdown = new FragmentDropdown();
-        await fragmentDropdown.clickOnOptionByDisplayName(optionDisplayName, xpath.container);
+        let fragmentDropdown = new FragmentDropdown(xpath.container);
+        await fragmentDropdown.clickOnOptionByDisplayName(optionDisplayName);
         await this.waitForSpinnerNotVisible();
     }
 
     async waitForOpened() {
         try {
-            return await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout)
+            return await this.waitForElementDisplayed(xpath.container);
         } catch (err) {
             await this.handleError('Fragment Inspection Panel was not loaded', 'err_fragment_inspection_panel', err);
         }
     }
 
     async getSelectedOptionPath() {
-        let fragmentDropdown = new FragmentDropdown();
+        let fragmentDropdown = new FragmentDropdown(xpath.container);
         return await fragmentDropdown.getSelectedOptionPath(xpath.container)
     }
 
     async waitForEmptyOptionsMessage() {
         try {
-            return await this.waitForElementDisplayed(xpath.container + lib.EMPTY_OPTIONS_H5, appConst.longTimeout);
+            let locator = "//div[@data-component='Combobox.Popup']//span[contains(@class,'text-subtle') and contains(text(),'No matching items')]"
+            return await this.waitForElementDisplayed(locator);
         } catch (err) {
             await this.handleError('Fragment Inspection Panel, Empty options text is not visible', 'err_empty_options', err);
         }

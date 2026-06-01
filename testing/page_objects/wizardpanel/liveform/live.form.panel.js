@@ -13,7 +13,7 @@ const xpath = {
     fragmentComponentView: "//div[contains(@id,'FragmentComponentView')]",
     itemViewContextMenu: "//div[contains(@id,'ItemViewContextMenu')]",
     layoutComponentView: "//div[contains(@id,'LayoutComponentView')]",
-    layoutPlaceholderDiv: `//div[contains(@id,'LayoutPlaceholder')]`,
+    layoutPlaceholderDiv: `//div[@data-portal-component-type='layout']`,
     fragmentPlaceHolderDiv: `//div[contains(@id,'FragmentPlaceholder')]`,
     sectionTextComponentView: "//section[contains(@id,'TextComponentView')]",
     textComponentView: "//*[contains(@id,'TextComponentView')]",
@@ -324,7 +324,7 @@ class LiveFormPanel extends Page {
 
     async waitForLayoutPlaceHolderDisplayed() {
         try {
-            return await this.waitForElementDisplayed(xpath.layoutPlaceholderDiv, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(xpath.layoutPlaceholderDiv);
         } catch (err) {
             await this.handleError(`Live Editor - layout placeholder should be displayed`, 'err_live_edit_layout_placeholder', err);
         }

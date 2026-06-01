@@ -56,6 +56,7 @@ describe('parent.project.dialog.step.spec - ui-tests for Parent Project step in 
             await settingsBrowsePanel.clickOnNewButton();
             // 2. 'parent Project Step' dialog should be loaded:
             await parentProjectAndLanguageStep.waitForLoaded();
+            await studioUtils.saveScreenshot('esc_proj_dlg_test');
             // 3. 'Esc' key has been pressed:
             await parentProjectAndLanguageStep.pressEscKey();
             await studioUtils.saveScreenshot('setting_item_dialog_esc');

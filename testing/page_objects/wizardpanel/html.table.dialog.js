@@ -1,38 +1,51 @@
 const Page = require('../page');
-const lib = require('../../libs/elements-old');
-const appConst = require('../../libs/app_const');
+const {COMMON, BUTTONS} = require('../../libs/elements');
 
 const xpath = {
-    container: `//div[contains(@id,'TableDialog')]`,
+    container: `//div[@data-component='TableDialog']`,
     okButton: "//button[contains(@id,'DialogButton') and child::span[text()='OK']]",
 };
 
 class HtmlTableDialog extends Page {
 
     get rowsInput() {
-        return xpath.container + "//div[contains(@id,'FormItem') and descendant::span[text()='Rows']]" + lib.TEXT_INPUT;
+        return xpath.container +
+               "//label[child::span[contains(@class,'font-semibold') and normalize-space(text())='Rows']]" +
+               "//input[@data-component='LongInput']";
     }
 
     get columnsInput() {
-        return xpath.container + "//div[contains(@id,'FormItem') and descendant::span[text()='Columns']]" + lib.TEXT_INPUT;
+        return xpath.container +
+               "//label[child::span[contains(@class,'font-semibold') and normalize-space(text())='Columns']]" +
+               "//input[@data-component='LongInput']";
     }
 
     get okButton() {
-        return xpath.container + xpath.okButton;
+        return xpath.container + BUTTONS.submitButtonByLabel("OK");
     }
 
     waitForOkButtonDisplayed() {
-        return this.waitForElementDisplayed(this.okButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.okButton);
     }
 
     async typeTextInRowsInput(rowsNumber) {
-        await this.waitForElementDisplayed(this.rowsInput, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.rowsInput);
         await this.typeTextInInput(this.rowsInput, rowsNumber);
+        return await this.pause(200);
+    }
+    async clearRowsInput() {
+        await this.waitForElementDisplayed(this.rowsInput);
+        await this.clearInputText(this.rowsInput);
+        return await this.pause(200);
+    }
+    async clearColumnsInput() {
+        await this.waitForElementDisplayed(this.columnsInput);
+        await this.clearInputText(this.columnsInput);
         return await this.pause(200);
     }
 
     async typeTextInColumnsInput(columnsNumber) {
-        await this.waitForElementDisplayed(this.columnsInput, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.columnsInput);
         await this.typeTextInInput(this.columnsInput, columnsNumber);
         return await this.pause(200);
     }
@@ -44,16 +57,14 @@ class HtmlTableDialog extends Page {
 
     async waitForDialogLoaded() {
         try {
-            let res = await this.findElements(this.okButton);
-            return await this.waitForElementDisplayed(this.okButton, appConst.shortTimeout);
+            return await this.waitForElementDisplayed(this.okButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_open_table_dialog');
-            throw new Error('Table Dialog must be opened! screenshot ' + screenshot + ' ' + err);
+            await this.handleError('Html Table Dialog - tried to wait for dialog loaded: ', 'err_wait_for_table_dialog', err);
         }
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(xpath.container, appConst.shortTimeout);
+        return this.waitForElementNotDisplayed(xpath.container);
     }
 }
 

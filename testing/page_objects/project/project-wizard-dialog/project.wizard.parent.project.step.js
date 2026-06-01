@@ -87,8 +87,8 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
             await projectsComboBox.selectFilteredByDisplayNameAndClickOnApply(optionLocator);
             return await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('parent_proj_combobox');
-            throw new Error("Error occurred in Projects Combobox, during clicking on the filtered option:" + screenshot + ' ' + err);
+            await this.handleError(`Error occurred in Projects Combobox, during clicking on the filtered option: ${projectDisplayName}`,
+                'err_click_filtered_option', err);
         }
     }
 
@@ -118,7 +118,8 @@ class ProjectWizardDialogParentProjectStep extends ProjectWizardDialog {
 
     async waitForLoaded() {
         try {
-            await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(XPATH.container);
+            await this.pause(1000);
         } catch (err) {
             await this.handleError('Project Wizard Dialog, parent project step was not loaded', 'err_parent_proj_step', err);
         }

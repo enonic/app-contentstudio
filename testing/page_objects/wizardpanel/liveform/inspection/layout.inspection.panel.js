@@ -1,14 +1,13 @@
 /**
  * Created on 19.02.2020.
  */
-const lib = require('../../../../libs/elements-old');
+const {DROPDOWN, COMMON} = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
 const ComponentDescriptorsDropdown = require('../../../components/selectors/component.descriptors.dropdown');
 const BaseComponentInspectionPanel = require('./base.component.inspection.panel');
 
 const xpath = {
-    container: `//div[contains(@id,'LayoutInspectionPanel')]`,
-    layoutDropdown: `//div[contains(@id,'ComponentDescriptorsDropdown')]`,
+    container: "//div[@data-component='ComponentInspectionPanel' and descendant::span[text()='Layout']]",
 };
 
 //Context Window, Inspect tab for Layout Component
@@ -18,8 +17,12 @@ class LayoutInspectionPanel extends BaseComponentInspectionPanel {
         return xpath.container + xpath.layoutDropdown;
     }
 
+    optionsFilterInput() {
+        return xpath.container + COMMON.INPUTS.INPUT;
+    }
+
     get layoutDropdownHandle() {
-        return xpath.container + xpath.layoutDropdown + lib.DROP_DOWN_HANDLE;
+        return xpath.container + DROPDOWN.COMBOBOX_DROPDOWN_HANDLE;
     }
 
     async typeNameAndSelectLayout(displayName) {
@@ -64,13 +67,13 @@ class LayoutInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     async getLayoutDropdownOptions() {
-        let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
-        return await componentDescriptorsDropdown.getOptionsDisplayName(xpath.container);
+        let componentDescriptorsDropdown = new ComponentDescriptorsDropdown(xpath.container);
+        return await componentDescriptorsDropdown.getOptionsDisplayName();
     }
 
     async waitForLayoutOptionsFilterInputDisplayed() {
-        let componentDescriptorsDropdown = new ComponentDescriptorsDropdown();
-        return await componentDescriptorsDropdown.waitForOptionFilterInputDisplayed(xpath.container);
+        let componentDescriptorsDropdown = new ComponentDescriptorsDropdown(xpath.container);
+        return await componentDescriptorsDropdown.waitForOptionFilterInputDisplayed();
     }
 }
 

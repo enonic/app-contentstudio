@@ -27,7 +27,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -112,7 +112,6 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             await pageComponentView.rightClickAndOpenContextMenu('main');
             await pageComponentView.selectContextMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.INSERT, appConst.PCV_MENU_ITEM.TEXT]);
             // 4. Open 'Insert Image' dialog and insert an image in htmlArea:
-            //await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
