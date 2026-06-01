@@ -18,11 +18,11 @@ import {ContentDiffHelper} from '../../../app/util/ContentDiffHelper';
 import {setAiDataTree, setAiWizardBridge} from './ai';
 import {$layoutDescriptorOptions, $partDescriptorOptions} from './component-inspection.store';
 import {$pageConfigDescriptor} from './page-inspection.store';
-import {
-    addStringOccurrence,
-    removeStringOccurrence,
-    setStringValue,
-} from './wizardPropertyTree.utils';
+import {addStringOccurrence, removeStringOccurrence, setStringValue} from './wizardPropertyTree.utils';
+import {createDebounce} from '../utils/timing/createDebounce';
+import {$contextContent} from './context/contextContent.store';
+import {ContentPath} from '../../../app/content/ContentPath';
+import {ContentExistsByPathRequest} from '../../../app/resource/ContentExistsByPathRequest';
 
 //
 // * Types
@@ -53,6 +53,11 @@ type WizardPersistedSectionsSnapshot = {
     mixins: Mixin[];
     page: Page | null;
     workflow: WorkflowState | null;
+};
+
+type WizardContentPathExists = {
+    fetching: boolean;
+    exists: boolean;
 };
 
 const BASE_URL_INPUT_PROP = 'baseUrl';
@@ -129,6 +134,8 @@ export const $mixinsDescriptors = atom<MixinDescriptor[]>([]);
 
 export const $wizardDataValidation = map<FormDataValidation>({});
 
+export const $wizardContentPathExists = map<WizardContentPathExists>({fetching: false, exists: false});
+
 export const $isContentFormExpanded = atom<boolean>(true);
 
 export const $wizardReadOnly = atom<boolean>(true);
@@ -145,57 +152,39 @@ export const $hasPage = computed($wizardDraftPage, (page) => page != null);
 
 export const $contentTypeDisplayName = computed($contentType, (contentType) => contentType?.getTitle() ?? '');
 
-const $wizardDataChanged = computed(
-    [$wizardPersistedData, $wizardDraftData, $wizardDataVersion],
-    (persistedData, draftData): boolean => {
-        return !dataTreesEqual(persistedData, draftData);
-    },
-);
+const $wizardDataChanged = computed([$wizardPersistedData, $wizardDraftData, $wizardDataVersion], (persistedData, draftData): boolean => {
+    return !dataTreesEqual(persistedData, draftData);
+});
 
 const $wizardDisplayNameChanged = computed(
     [$wizardPersistedDisplayName, $wizardDraftDisplayName],
-    (persistedDisplayName, draftDisplayName): boolean => persistedDisplayName !== draftDisplayName,
+    (persistedDisplayName, draftDisplayName): boolean => persistedDisplayName !== draftDisplayName
 );
 
 const $wizardNameChanged = computed(
     [$wizardPersistedName, $wizardDraftName],
-    (persistedName, draftName): boolean => !contentNamesEqual(persistedName, draftName),
+    (persistedName, draftName): boolean => !contentNamesEqual(persistedName, draftName)
 );
 
 const $wizardMixinsChanged = computed(
     [$wizardPersistedMixins, $wizardDraftMixins, $wizardMixinsVersion],
-    (persistedMixins, draftMixins): boolean => !mixinsEqual(persistedMixins, draftMixins),
+    (persistedMixins, draftMixins): boolean => !mixinsEqual(persistedMixins, draftMixins)
 );
 
-const $wizardPageChanged = computed(
-    [$wizardPersistedPage, $wizardDraftPage],
-    (persistedPage, draftPage): boolean => persistedPage ? !persistedPage.equals(draftPage) : !!draftPage,
+const $wizardPageChanged = computed([$wizardPersistedPage, $wizardDraftPage], (persistedPage, draftPage): boolean =>
+    persistedPage ? !persistedPage.equals(draftPage) : !!draftPage
 );
 
 const $wizardWorkflowChanged = computed(
     [$wizardPersistedWorkflowState, $wizardDraftWorkflowState],
-    (persistedWorkflowState, draftWorkflowState): boolean => persistedWorkflowState !== draftWorkflowState,
+    (persistedWorkflowState, draftWorkflowState): boolean => persistedWorkflowState !== draftWorkflowState
 );
 
 export const $wizardSectionChanges = computed(
-    [
-        $wizardDataChanged,
-        $wizardDisplayNameChanged,
-        $wizardNameChanged,
-        $wizardMixinsChanged,
-        $wizardPageChanged,
-        $wizardWorkflowChanged,
-    ],
-    (
-        data,
-        displayName,
-        name,
-        mixins,
-        page,
-        workflow,
-    ): WizardSectionChanges => {
+    [$wizardDataChanged, $wizardDisplayNameChanged, $wizardNameChanged, $wizardMixinsChanged, $wizardPageChanged, $wizardWorkflowChanged],
+    (data, displayName, name, mixins, page, workflow): WizardSectionChanges => {
         return {data, displayName, name, mixins, page, workflow};
-    },
+    }
 );
 
 export const $wizardChangedSections = computed($wizardSectionChanges, (sections): WizardChangeSection[] => {
@@ -219,6 +208,7 @@ type CreateContentStateParams = {
     name: ContentName | null;
     draftWorkflowState: WorkflowState | null;
     validation: FormDataValidation;
+    pathExists: {fetching: boolean; exists: boolean};
 };
 
 function hasDataValidationErrors(validation: FormDataValidation): boolean {
@@ -240,9 +230,14 @@ export function createContentState({
     name,
     draftWorkflowState,
     validation,
+    pathExists,
 }: CreateContentStateParams): ContentState | null {
     if (draftWorkflowState == null) {
         return null;
+    }
+
+    if (pathExists.exists) {
+        return 'invalid';
     }
 
     if (!hasValidDisplayName(displayName) || !hasValidName(name)) {
@@ -261,15 +256,16 @@ export function createContentState({
 }
 
 export const $wizardContentState = batched(
-    [$wizardDraftDisplayName, $wizardDraftName, $wizardDraftWorkflowState, $wizardDataValidation],
-    (displayName, name, draftWorkflowState, validation): ContentState | null => {
+    [$wizardDraftDisplayName, $wizardDraftName, $wizardDraftWorkflowState, $wizardDataValidation, $wizardContentPathExists],
+    (displayName, name, draftWorkflowState, validation, pathExists): ContentState | null => {
         return createContentState({
             displayName,
             name,
             draftWorkflowState,
             validation,
+            pathExists,
         });
-    },
+    }
 );
 
 $wizardHasContentChanges.subscribe((hasChanges) => {
@@ -289,58 +285,56 @@ export type MixinTabInfo = {
     unknown?: boolean;
 };
 
-export const $enabledMixinsNames = computed(
-    [$wizardDraftMixins, $mixinsDescriptors],
-    (mixins, schemas): Set<string> => {
-        const enabledMixinNames = new Set(mixins.map((mixin) => mixin.getName().toString()));
-        const enabledNames = new Set<string>();
+export const $enabledMixinsNames = computed([$wizardDraftMixins, $mixinsDescriptors], (mixins, schemas): Set<string> => {
+    const enabledMixinNames = new Set(mixins.map((mixin) => mixin.getName().toString()));
+    const enabledNames = new Set<string>();
 
-        for (const schema of schemas) {
-            const name = schema.getName();
-            if (!schema.isOptional() || enabledMixinNames.has(name)) {
-                enabledNames.add(name);
-            }
+    for (const schema of schemas) {
+        const name = schema.getName();
+        if (!schema.isOptional() || enabledMixinNames.has(name)) {
+            enabledNames.add(name);
         }
+    }
 
-        return enabledNames;
-    },
-);
+    return enabledNames;
+});
 
-export const $unknownMixinsNames = computed(
-    [$wizardDraftMixins, $mixinsDescriptors],
-    (mixins, schemas): Set<string> => {
-        const knownNames = new Set(schemas.map((schema) => schema.getName()));
-        const unknownNames = new Set<string>();
+export const $unknownMixinsNames = computed([$wizardDraftMixins, $mixinsDescriptors], (mixins, schemas): Set<string> => {
+    const knownNames = new Set(schemas.map((schema) => schema.getName()));
+    const unknownNames = new Set<string>();
 
-        for (const mixin of mixins) {
-            const name = mixin.getName().toString();
-            if (!knownNames.has(name)) {
-                unknownNames.add(name);
-            }
+    for (const mixin of mixins) {
+        const name = mixin.getName().toString();
+        if (!knownNames.has(name)) {
+            unknownNames.add(name);
         }
+    }
 
-        return unknownNames;
-    },
-);
+    return unknownNames;
+});
 
 export const $mixinsTabs = computed(
     [$enabledMixinsNames, $mixinsDescriptors, $unknownMixinsNames],
     (enabledNames, schemas, unknownNames): MixinTabInfo[] => {
         const knownTabs = schemas
             .filter((schema) => enabledNames.has(schema.getName()))
-            .map((schema): MixinTabInfo => ({
-                name: schema.getName(),
-                title: schema.getTitle() ?? schema.getName(),
-            }));
+            .map(
+                (schema): MixinTabInfo => ({
+                    name: schema.getName(),
+                    title: schema.getTitle() ?? schema.getName(),
+                })
+            );
 
-        const unknownTabs = Array.from(unknownNames).map((name): MixinTabInfo => ({
-            name,
-            title: name,
-            unknown: true,
-        }));
+        const unknownTabs = Array.from(unknownNames).map(
+            (name): MixinTabInfo => ({
+                name,
+                title: name,
+                unknown: true,
+            })
+        );
 
         return [...knownTabs, ...unknownTabs];
-    },
+    }
 );
 
 export type MixinMenuItem = {
@@ -354,23 +348,27 @@ export type MixinMenuItem = {
 export const $mixinsMenuItems = computed(
     [$mixinsDescriptors, $enabledMixinsNames, $unknownMixinsNames],
     (schemas, enabledNames, unknownNames): MixinMenuItem[] => {
-        const knownItems = schemas.map((schema): MixinMenuItem => ({
-            name: schema.getName(),
-            displayName: schema.getTitle() ?? schema.getName(),
-            isOptional: schema.isOptional(),
-            isEnabled: enabledNames.has(schema.getName()),
-        }));
+        const knownItems = schemas.map(
+            (schema): MixinMenuItem => ({
+                name: schema.getName(),
+                displayName: schema.getTitle() ?? schema.getName(),
+                isOptional: schema.isOptional(),
+                isEnabled: enabledNames.has(schema.getName()),
+            })
+        );
 
-        const unknownItems = Array.from(unknownNames).map((name): MixinMenuItem => ({
-            name,
-            displayName: name,
-            isOptional: true,
-            isEnabled: true,
-            unknown: true,
-        }));
+        const unknownItems = Array.from(unknownNames).map(
+            (name): MixinMenuItem => ({
+                name,
+                displayName: name,
+                isOptional: true,
+                isEnabled: true,
+                unknown: true,
+            })
+        );
 
         return [...knownItems, ...unknownItems];
-    },
+    }
 );
 
 //
@@ -554,7 +552,9 @@ const persistedContentSetCallbacks = new Set<(content: Content) => void>();
 
 export function onWizardPersistedContentSet(callback: (content: Content) => void): () => void {
     persistedContentSetCallbacks.add(callback);
-    return () => { persistedContentSetCallbacks.delete(callback); };
+    return () => {
+        persistedContentSetCallbacks.delete(callback);
+    };
 }
 
 //
@@ -682,7 +682,7 @@ export function initializeWizardContentState(
     content: Content,
     contentType: ContentType | null,
     mixins: MixinDescriptor[],
-    workflowState?: WorkflowState | null,
+    workflowState?: WorkflowState | null
 ): void {
     setPersistedContent(content);
     $contentType.set(contentType);
@@ -917,10 +917,10 @@ export function setDraftMixinEnabled(name: string, enabled: boolean): void {
 
     const nextMixins = enabled
         ? (() => {
-            const persistedMixin = $wizardPersistedMixins.get().find((mixin) => mixin.getName().toString() === name);
-            const mixinToAdd = persistedMixin ? persistedMixin.clone() : new Mixin(new MixinName(name), new PropertyTree());
-            return [...currentMixins, mixinToAdd];
-        })()
+              const persistedMixin = $wizardPersistedMixins.get().find((mixin) => mixin.getName().toString() === name);
+              const mixinToAdd = persistedMixin ? persistedMixin.clone() : new Mixin(new MixinName(name), new PropertyTree());
+              return [...currentMixins, mixinToAdd];
+          })()
         : currentMixins.filter((mixin) => mixin.getName().toString() !== name);
 
     setDraftMixins(nextMixins);
@@ -930,7 +930,9 @@ const resetCallbacks = new Set<() => void>();
 
 export function onWizardContentReset(callback: () => void): () => void {
     resetCallbacks.add(callback);
-    return () => { resetCallbacks.delete(callback); };
+    return () => {
+        resetCallbacks.delete(callback);
+    };
 }
 
 let cleanupTreeListener: (() => void) | null = null;
@@ -966,22 +968,19 @@ setAiWizardBridge({
     getCurrentComponentDescriptors: () => [...$partDescriptorOptions.get(), ...$layoutDescriptorOptions.get()],
 });
 
-const $siteConfigAppKeys = computed(
-    [$wizardDraftData, $wizardDataVersion],
-    (data): Set<string> => {
-        const keys = new Set<string>();
-        if (!data) return keys;
+const $siteConfigAppKeys = computed([$wizardDraftData, $wizardDataVersion], (data): Set<string> => {
+    const keys = new Set<string>();
+    if (!data) return keys;
 
-        const configs = data.getPropertySets(SITE_CONFIG_PROP);
-        for (const config of configs) {
-            const key = config.getString(APPLICATION_KEY_PROP);
-            if (key) {
-                keys.add(key);
-            }
+    const configs = data.getPropertySets(SITE_CONFIG_PROP);
+    for (const config of configs) {
+        const key = config.getString(APPLICATION_KEY_PROP);
+        if (key) {
+            keys.add(key);
         }
-        return keys;
-    },
-);
+    }
+    return keys;
+});
 
 let previousAppKeys = new Set<string>();
 
@@ -1061,12 +1060,14 @@ function snapshotMixinBaseline(mixinName: string): void {
         return;
     }
 
-    $wizardPersistedMixins.set($wizardPersistedMixins.get().map((m) => {
-        if (m.getName().toString() === mixinName) {
-            return new Mixin(m.getName(), draftMixin.getData().copy());
-        }
-        return m;
-    }));
+    $wizardPersistedMixins.set(
+        $wizardPersistedMixins.get().map((m) => {
+            if (m.getName().toString() === mixinName) {
+                return new Mixin(m.getName(), draftMixin.getData().copy());
+            }
+            return m;
+        })
+    );
 
     const next = new Set(needed);
     next.delete(mixinName);
@@ -1083,6 +1084,44 @@ $wizardDataVersion.subscribe(() => {
             snapshotContentBaseline();
         });
     }
+});
+
+//
+// * Wizard content path existence check
+//
+
+const PATH_CHECK_DEBOUNCE_MS = 500;
+
+const debouncedPathCheck = createDebounce(async () => {
+    const draftName = $wizardDraftName.get();
+
+    if (!draftName || draftName.isUnnamed()) {
+        $wizardContentPathExists.set({fetching: false, exists: false});
+        return;
+    }
+
+    const persistedName = $wizardPersistedName.get();
+
+    if (persistedName && !persistedName.isUnnamed() && draftName.equals(persistedName)) {
+        $wizardContentPathExists.set({fetching: false, exists: false});
+        return;
+    }
+
+    const parentPath = $contextContent.get()?.getPath().getParentPath() || ContentPath.getRoot();
+    const fullPath = ContentPath.create().fromParent(parentPath, draftName.toString()).build();
+
+    $wizardContentPathExists.setKey('fetching', true);
+
+    try {
+        const exists = await new ContentExistsByPathRequest(fullPath.toString()).sendAndParse();
+        $wizardContentPathExists.set({fetching: false, exists});
+    } catch {
+        $wizardContentPathExists.set({fetching: false, exists: false});
+    }
+}, PATH_CHECK_DEBOUNCE_MS);
+
+$wizardDraftName.listen(() => {
+    debouncedPathCheck();
 });
 
 //
@@ -1148,6 +1187,7 @@ export function resetWizardContent(): void {
     $wizardPersistedWorkflowState.set(null);
     $wizardDraftWorkflowState.set(null);
     $wizardDataValidation.set({});
+    $wizardContentPathExists.set({fetching: false, exists: false});
 
     $contentType.set(null);
     $mixinsDescriptors.set([]);
