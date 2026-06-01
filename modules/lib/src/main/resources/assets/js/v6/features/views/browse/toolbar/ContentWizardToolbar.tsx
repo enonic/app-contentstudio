@@ -2,7 +2,7 @@ import {type Action} from '@enonic/lib-admin-ui/ui/Action';
 import {Avatar, Button, cn, IconButton, Toggle, Toolbar, Tooltip} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ArrowLeft, Link2} from 'lucide-react';
-import {type ReactElement, useEffect, useMemo} from 'react';
+import {type ReactElement, useEffect, useMemo, useState} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
 import {LegacyElement} from '../../../shared/LegacyElement';
 import {JukeIcon} from '../../../shared/icons/JukeIcon';
@@ -19,6 +19,7 @@ import {useElementVisibility} from '../../../utils/hooks/useElementVisibility';
 import {ContextToggle} from './ContextToggle';
 import {OverflowActionRow, type OverflowActionRowItem} from './OverflowActionRow';
 import {SplitActionButton} from './SplitActionButton';
+import {$wizardContentPathExists} from '../../../store/wizardContent.store';
 
 export type ContentWizardToolbarProps = {
     onProjectBack?: () => void;
@@ -96,6 +97,20 @@ export const ContentWizardToolbar = ({
     });
     const {'ai.contentOperator': isOperatorRegistered} = useStore($aiRegisteredPlugins, {keys: ['ai.contentOperator']});
     const {'ai.contentOperator': isOperatorDialogOpen} = useStore($aiPluginDialogOpen, {keys: ['ai.contentOperator']});
+    const {exists: contentPathExists, fetching: isPathFetching} = useStore($wizardContentPathExists);
+
+    // Delay disabling the split buttons until the fetch has been in-flight for 200ms.
+    // Most path-exists responses are faster than that, so the buttons never visually
+    // disable and the user sees no blink.
+    const [isPathFetchingDelayed, setIsPathFetchingDelayed] = useState(false);
+    useEffect(() => {
+        if (!isPathFetching) {
+            setIsPathFetchingDelayed(false);
+            return;
+        }
+        const timer = setTimeout(() => setIsPathFetchingDelayed(true), 200);
+        return () => clearTimeout(timer);
+    }, [isPathFetching]);
 
     const isContentLocalised = isContentInherited && !isContentDataInherited;
     const toolbarLabel = useI18n('wcag.contenteditor.toolbar.label');
@@ -125,7 +140,7 @@ export const ContentWizardToolbar = ({
             {id: 'move', action: moveAction},
             {id: 'preview', action: previewAction},
         ],
-        [archiveAction, duplicateAction, localizeAction, moveAction, previewAction, resetAction, saveAction],
+        [archiveAction, duplicateAction, localizeAction, moveAction, previewAction, resetAction, saveAction]
     );
     const [desktopPathRef, isDesktopPathVisible] = useElementVisibility<HTMLDivElement>();
     const [mobilePathRef, isMobilePathVisible] = useElementVisibility<HTMLDivElement>();
@@ -156,7 +171,7 @@ export const ContentWizardToolbar = ({
         'data-[active=true]:bg-transparent data-[active=true]:text-main',
         'data-[active=true]:hover:bg-btn-primary-hover',
         '[&_svg]:opacity-70 [&_svg]:transition-opacity',
-        'hover:[&_svg]:opacity-100 data-[active=true]:[&_svg]:opacity-100',
+        'hover:[&_svg]:opacity-100 data-[active=true]:[&_svg]:opacity-100'
     );
 
     return (
@@ -165,17 +180,17 @@ export const ContentWizardToolbar = ({
                 aria-label={toolbarLabel}
                 className={cn(
                     'content-wizard-toolbar w-full h-15 px-2 md:pl-2 md:pr-5 py-1.75 flex items-center border-b border-bdr-soft bg-surface-neutral',
-                    className,
+                    className
                 )}
             >
-                <div className='flex min-w-fit max-w-fit items-center gap-2.5 sm:min-w-0 sm:max-w-none sm:flex-1 sm:basis-0'>
+                <div className="flex min-w-fit max-w-fit items-center gap-2.5 sm:min-w-0 sm:max-w-none sm:flex-1 sm:basis-0">
                     <Toolbar.Item asChild>
                         <Button
-                            size='sm'
-                            variant='text'
+                            size="sm"
+                            variant="text"
                             startIcon={ArrowLeft}
                             onClick={onProjectBack}
-                            className='min-w-fit pr-2.75 sm:pr-3.5'
+                            className="min-w-fit pr-2.75 sm:pr-3.5"
                             aria-label={projectViewLabel}
                         >
                             <ProjectIcon
@@ -183,69 +198,70 @@ export const ContentWizardToolbar = ({
                                 language={projectLanguage || undefined}
                                 hasIcon={projectHasIcon}
                                 isLayer={isLayerProject}
-                                className='w-6 shrink-0 flex lg:hidden'
+                                className="w-6 shrink-0 flex lg:hidden"
                             />
-                            <span className='hidden lg:flex'>{projectViewLabel}</span>
+                            <span className="hidden lg:flex">{projectViewLabel}</span>
                         </Button>
                     </Toolbar.Item>
-                    <div ref={mobileActionsSplitRef} className='sm:hidden shrink-0 min-w-fit'>
-                        <SplitActionButton actions={mobileSplitActions} disabled={!isMobileActionsSplitVisible} />
+                    <div ref={mobileActionsSplitRef} className="sm:hidden shrink-0 min-w-fit">
+                        <SplitActionButton actions={mobileSplitActions} disabled={!isMobileActionsSplitVisible || isPathFetchingDelayed} />
                     </div>
-                    <OverflowActionRow actions={toolbarActions} className='hidden sm:flex min-w-0 flex-1' />
+                    <OverflowActionRow actions={toolbarActions} className="hidden sm:flex min-w-0 flex-1" />
                 </div>
-                <div className='flex min-w-0 flex-1 items-center justify-center px-0 sm:flex-none sm:shrink sm:px-2'>
+                <div className="flex min-w-0 flex-1 items-center justify-center px-0 sm:flex-none sm:shrink sm:px-2">
                     {isContentInherited && (
-                        <Toolbar.Item className='inline-flex shrink-0'>
-                            <LayerIndicator
-                                isLocalised={isContentLocalised}
-                                onClick={() => onLayersClick?.()}
-                                className='size-8'
-                            />
+                        <Toolbar.Item className="inline-flex shrink-0">
+                            <LayerIndicator isLocalised={isContentLocalised} onClick={() => onLayersClick?.()} className="size-8" />
                         </Toolbar.Item>
                     )}
                     {contentState && (
-                        <StatusIcon status={contentState} withTooltip className='size-3.5 my-auto mx-1.5 md:mx-2.75 shrink-0' />
+                        <StatusIcon status={contentState} withTooltip className="size-3.5 my-auto mx-1.5 md:mx-2.75 shrink-0" />
                     )}
-                    <div ref={desktopPathRef} className='hidden md:flex min-w-0'>
+                    <div ref={desktopPathRef} className="hidden md:flex min-w-0">
                         <Toolbar.Item asChild disabled={!isDesktopPathVisible}>
                             <Button
-                                size='sm'
-                                variant='text'
-                                className='min-w-0 max-w-full px-1.5 md:px-2.75'
+                                size="sm"
+                                variant="text"
+                                className="min-w-0 max-w-full px-1.5 md:px-2.75"
                                 title={contentFullPath}
                                 disabled={!canRenameContentPath}
                                 onClick={onContentPathClick}
                             >
-                                <span className='min-w-0 max-w-full overflow-hidden text-ellipsis whitespace-nowrap'>
+                                <span
+                                    className={cn(
+                                        'min-w-0 max-w-full overflow-hidden text-ellipsis whitespace-nowrap',
+                                        contentPathExists && 'text-error'
+                                    )}
+                                >
                                     {contentNameLabel}
                                 </span>
                             </Button>
                         </Toolbar.Item>
                     </div>
-                    <div ref={mobilePathRef} className='md:hidden shrink-0'>
+                    <div ref={mobilePathRef} className="md:hidden shrink-0">
                         <Toolbar.Item asChild disabled={!isMobilePathVisible}>
                             <IconButton
-                                size='md'
+                                size="md"
                                 icon={Link2}
                                 aria-label={contentNameLabel}
                                 title={contentFullPath}
                                 disabled={!canRenameContentPath}
                                 onClick={onContentPathClick}
-                                className='shrink-0 size-8'
+                                className="shrink-0 size-8"
                             />
                         </Toolbar.Item>
                     </div>
                 </div>
-                <div className='flex min-w-fit max-w-fit items-center justify-end gap-0 sm:min-w-fit sm:max-w-none sm:flex-1 sm:basis-0 sm:gap-0.5 md:gap-1 lg:gap-2.5'>
+                <div className="flex min-w-fit max-w-fit items-center justify-end gap-0 sm:min-w-fit sm:max-w-none sm:flex-1 sm:basis-0 sm:gap-0.5 md:gap-1 lg:gap-2.5">
                     {isOperatorRegistered && (
-                        <Tooltip delay={300} side='bottom' value={aiAssistantLabel} asChild>
+                        <Tooltip delay={300} side="bottom" value={aiAssistantLabel} asChild>
                             <Toolbar.Item asChild>
                                 <Toggle
                                     className={aiToggleClassName}
-                                    size='sm'
+                                    size="sm"
                                     aria-label={aiAssistantLabel}
                                     startIcon={JukeIcon}
-                                    startIconClassName='size-7'
+                                    startIconClassName="size-7"
                                     pressed={isOperatorDialogOpen}
                                     onPressedChange={handleAiOperatorToggle}
                                 />
@@ -253,16 +269,11 @@ export const ContentWizardToolbar = ({
                         </Tooltip>
                     )}
                     {collaborators.length > 0 && (
-                        <div className='-space-x-2 items-center px-3.5 hidden md:flex shrink-0'>
+                        <div className="-space-x-2 items-center px-3.5 hidden md:flex shrink-0">
                             {collaborators[0] && (
                                 <Tooltip key={collaborators[0].key} value={collaborators[0].label}>
-                                    <Avatar
-                                        className={cn(
-                                            'ring-2 ring-surface-neutral size-7',
-                                            collaborators[0].isCurrent && 'ring-info',
-                                        )}
-                                    >
-                                        <Avatar.Fallback className='text-alt font-semibold'>
+                                    <Avatar className={cn('ring-2 ring-surface-neutral size-7', collaborators[0].isCurrent && 'ring-info')}>
+                                        <Avatar.Fallback className="text-alt font-semibold">
                                             <span>{getInitials(collaborators[0].label)}</span>
                                         </Avatar.Fallback>
                                     </Avatar>
@@ -274,10 +285,10 @@ export const ContentWizardToolbar = ({
                                     <Avatar
                                         className={cn(
                                             'hidden xl:inline-flex ring-2 ring-surface-neutral size-7 z-10',
-                                            collaborators[1].isCurrent && 'ring-info',
+                                            collaborators[1].isCurrent && 'ring-info'
                                         )}
                                     >
-                                        <Avatar.Fallback className='text-alt font-semibold'>
+                                        <Avatar.Fallback className="text-alt font-semibold">
                                             <span>{getInitials(collaborators[1].label)}</span>
                                         </Avatar.Fallback>
                                     </Avatar>
@@ -285,7 +296,7 @@ export const ContentWizardToolbar = ({
                             )}
 
                             {collaborators.length > 1 && (
-                                <Avatar className='xl:hidden ring-2 ring-surface-neutral size-7 text-alt font-semibold'>
+                                <Avatar className="xl:hidden ring-2 ring-surface-neutral size-7 text-alt font-semibold">
                                     <Avatar.Fallback>
                                         <span>+{collaborators.length - 1}</span>
                                     </Avatar.Fallback>
@@ -293,7 +304,7 @@ export const ContentWizardToolbar = ({
                             )}
 
                             {collaborators.length > 2 && (
-                                <Avatar className='hidden xl:inline-flex ring-2 ring-surface-neutral size-7 text-alt font-semibold'>
+                                <Avatar className="hidden xl:inline-flex ring-2 ring-surface-neutral size-7 text-alt font-semibold">
                                     <Avatar.Fallback>
                                         <span>+{collaborators.length - 2}</span>
                                     </Avatar.Fallback>
@@ -301,11 +312,11 @@ export const ContentWizardToolbar = ({
                             )}
                         </div>
                     )}
-                    <StatusBadge status={publishStatus} className='my-auto px-1.5 md:px-2.75 shrink-0 relative z-0' />
-                    <div ref={desktopPublishSplitRef} className='hidden sm:flex shrink-0 min-w-fit relative z-1'>
-                        <SplitActionButton actions={[publishSplitActions]} disabled={!isDesktopPublishSplitVisible} />
+                    <StatusBadge status={publishStatus} className="my-auto px-1.5 md:px-2.75 shrink-0 relative z-0" />
+                    <div ref={desktopPublishSplitRef} className="hidden sm:flex shrink-0 min-w-fit relative z-1">
+                        <SplitActionButton actions={[publishSplitActions]} disabled={!isDesktopPublishSplitVisible || isPathFetchingDelayed} />
                     </div>
-                    <ContextToggle className='shrink-0' />
+                    <ContextToggle className="shrink-0" />
                 </div>
             </Toolbar.Container>
         </Toolbar>
