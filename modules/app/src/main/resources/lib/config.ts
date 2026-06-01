@@ -32,6 +32,7 @@ export function getConfig(locales: string[], aiEnabled: boolean): Record<string,
     const allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
     const enableCollaboration = app.config['contentWizard.enableCollaboration'] !== 'false';
     const checkLatestVersion = app.config['settings.checkLatestVersion'] !== 'false';
+    const enableTextComponent = app.config['settings.enableTextComponent'] === 'true';
     const defaultPublishFromTime = parseTime(app.config['publishingWizard.defaultPublishFromTime'] || '12:00');
     const requiredPublishFrom = app.config['publishingWizard.requiredPublishFrom'] === 'true' || false;
     const toolUri = getToolUrl(
@@ -55,6 +56,7 @@ export function getConfig(locales: string[], aiEnabled: boolean): Record<string,
         excludeDependencies,
         allowPathTransliteration,
         checkLatestVersion,
+        enableTextComponent,
         adminUrl: getHomeToolUrl(),
         assetsUri: assetUrl({
             path: ''

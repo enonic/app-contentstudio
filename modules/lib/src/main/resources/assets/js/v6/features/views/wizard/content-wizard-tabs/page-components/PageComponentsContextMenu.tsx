@@ -24,6 +24,7 @@ import {
     requestComponentReset,
     requestPageReset,
 } from '../../../../store/page-editor/commands';
+import {$config} from '../../../../store/config.store';
 import {$contentContext, $isFragment, $page} from '../../../../store/page-editor/store';
 import {$componentsTreeState, expandComponentNode, hasLayoutAncestor, rebuildComponentsTree} from './pageComponents.store';
 import type {PageComponentNodeData} from './types';
@@ -302,6 +303,8 @@ const InsertSubMenu = ({nodeId, label}: MenuItemProps): ReactElement => {
     const treeState = $componentsTreeState.get();
     const insideLayout = hasLayoutAncestor(treeState, nodeId);
 
+    const {enableTextComponent} = useStore($config, {keys: ['enableTextComponent']});
+
     const partLabel = useI18n('field.part');
     const layoutLabel = useI18n('field.layout');
     const textLabel = useI18n('field.text');
@@ -335,7 +338,7 @@ const InsertSubMenu = ({nodeId, label}: MenuItemProps): ReactElement => {
     const items = [
         {type: 'part', Icon: Box, label: partLabel, disabled: false},
         {type: 'layout', Icon: Columns2, label: layoutLabel, disabled: insideLayout},
-        {type: 'text', Icon: PenLine, label: textLabel, disabled: false},
+        ...(enableTextComponent ? [{type: 'text', Icon: PenLine, label: textLabel, disabled: false}] : []),
         {type: 'fragment', Icon: Puzzle, label: fragmentLabel, disabled: false},
     ];
 
