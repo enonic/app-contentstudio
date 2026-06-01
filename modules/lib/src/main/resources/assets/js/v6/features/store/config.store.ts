@@ -18,6 +18,7 @@ type ConfigStore = {
     // Flags
     excludeDependencies: boolean;
     allowContentUpdate: boolean;
+    enableTextComponent: boolean;
     defaultPublishFromTime?: string;
     // AI
     aiEnabled: boolean;
@@ -31,6 +32,7 @@ type ConfigJson = {
     user: unknown;
     excludeDependencies?: unknown;
     allowContentUpdate?: unknown;
+    enableTextComponent?: unknown;
     defaultPublishFromTime?: unknown;
     aiEnabled?: unknown;
     sharedSocketUrl?: unknown;
@@ -47,6 +49,7 @@ const DEFAULT_CONFIG: Readonly<ConfigStore> = {
     user: undefined,
     excludeDependencies: true,
     allowContentUpdate: false,
+    enableTextComponent: false,
     defaultPublishFromTime: undefined,
     aiEnabled: false,
     sharedSocketUrl: '',
@@ -86,6 +89,7 @@ function parseConfig(content: string): ConfigStore | undefined {
             user: config.user ? Principal.fromJson(config.user as PrincipalJson) : undefined,
             excludeDependencies: parseBoolean(config.excludeDependencies),
             allowContentUpdate: parseBoolean(config.allowContentUpdate),
+            enableTextComponent: parseBoolean(config.enableTextComponent),
             defaultPublishFromTime: parseString(config.defaultPublishFromTime),
             aiEnabled: parseBoolean(config.aiEnabled),
             sharedSocketUrl: parseString(config.sharedSocketUrl),
