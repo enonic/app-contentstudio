@@ -33,6 +33,8 @@ type DeleteDialogStore = {
     // Validation
     inboundTargets: ContentId[];
     inboundIgnored: boolean;
+    // IDs of content referencing the items (inbound sources); changes to these may add/remove references
+    inboundSourceIds: string[];
     // Pending operation (after dialog closes)
     submitting: boolean;
     pendingIds: string[];
@@ -50,6 +52,7 @@ const initialState: DeleteDialogStore = {
     archiveMessage: '',
     inboundTargets: [],
     inboundIgnored: false,
+    inboundSourceIds: [],
     submitting: false,
     pendingIds: [],
     pendingTotal: 0,
@@ -219,13 +222,17 @@ const reloadDeleteDialogData = async (): Promise<void> => {
 
         if (currentInstance !== instanceId) return;
 
-        const inboundTargets = result.getInboundDependencies().map(dep => dep.getId());
+        const inboundDependencies = result.getInboundDependencies();
+        const inboundTargets = inboundDependencies.map(dep => dep.getId());
+        const inboundSourceIds = inboundDependencies.flatMap(dep =>
+            dep.getInboundDependencies().map(id => id.toString()));
 
         $deleteDialog.set({
             ...$deleteDialog.get(),
             dependants: sortDependantsByInbound(dependants, inboundTargets),
             inboundTargets,
             inboundIgnored: inboundTargets.length === 0,
+            inboundSourceIds,
             loading: false,
             failed: false,
         });
@@ -277,6 +284,12 @@ const removeItemsByIds = (ids: Set<string>): {removedMain: boolean; removedDepen
     return {removedMain, removedDependant};
 };
 
+/** Whether any of the changed IDs is a content referencing the items (inbound source) */
+const hasInboundSourceChange = (changedIds: Set<string>): boolean => {
+    const {inboundSourceIds} = $deleteDialog.get();
+    return inboundSourceIds.some(id => changedIds.has(id));
+};
+
 //
 // * Completion Handling
 //
@@ -294,7 +307,8 @@ const handleExternalDeleteEvent = (changeItems: ContentServerChangeItem[]): void
             return;
         }
 
-        if (removedMain || removedDependant) {
+        // Removing a referencing content drops an inbound dependency: re-resolve to refresh references.
+        if (removedMain || removedDependant || hasInboundSourceChange(ids)) {
             reloadDeleteDialogDataDebounced();
         }
     }
@@ -339,9 +353,9 @@ $contentUpdated.subscribe((event) => {
     // Patch main items with updated data (display name, status, etc.)
     patchItemsWithUpdates(event.data);
 
-    // Reload when dependants change - dependency graph might have changed
+    // Reload when dependants change, or when a referencing content is edited to drop a reference.
     const hasDependantUpdates = dependants.some(item => updatedIds.has(item.getId()));
-    if (hasDependantUpdates) {
+    if (hasDependantUpdates || hasInboundSourceChange(updatedIds)) {
         reloadDeleteDialogDataDebounced();
     }
 });
