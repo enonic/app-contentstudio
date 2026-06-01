@@ -3,6 +3,7 @@ import {useStore} from '@nanostores/preact';
 import {Box, Columns2, PenLine, Puzzle} from 'lucide-react';
 import type {ReactElement} from 'react';
 import {useI18n} from '../../../../../hooks/useI18n';
+import {$config} from '../../../../../store/config.store';
 import {$isFragment} from '../../../../../store/page-editor';
 import {InsertableItem} from './InsertableItem';
 
@@ -14,6 +15,7 @@ const INSERT_PANEL_NAME = 'InsertPanel';
 
 export const InsertPanel = ({className}: Props): ReactElement => {
     const isFragment = useStore($isFragment);
+    const {enableTextComponent} = useStore($config, {keys: ['enableTextComponent']});
 
     const partLabel = useI18n('field.part');
     const partDescription = useI18n('field.part.help');
@@ -30,7 +32,9 @@ export const InsertPanel = ({className}: Props): ReactElement => {
             {!isFragment && (
                 <InsertableItem name="layout" icon={Columns2} displayName={layoutLabel} description={layoutDescription} />
             )}
-            <InsertableItem name="text" icon={PenLine} displayName={textLabel} description={textDescription} />
+            {enableTextComponent && (
+                <InsertableItem name="text" icon={PenLine} displayName={textLabel} description={textDescription} />
+            )}
             <InsertableItem name="fragment" icon={Puzzle} displayName={fragmentLabel} description={fragmentDescription} />
         </ul>
     );

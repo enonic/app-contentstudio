@@ -1,3 +1,4 @@
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {type LiveEditModel} from './LiveEditModel';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {FragmentComponent} from '../app/page/region/FragmentComponent';
@@ -38,6 +39,8 @@ export class LiveEditParams {
 
     readonly modifyPermissions?: boolean;
 
+    readonly enableTextComponent?: boolean;
+
     constructor(builder: LiveEditParamsBuilder) {
         this.isFragment = builder.isFragment;
         this.isFragmentAllowed = builder.isFragmentAllowed;
@@ -54,6 +57,7 @@ export class LiveEditParams {
         this.contentType = builder.contentType;
         this.sitePath = builder.sitePath;
         this.modifyPermissions = builder.modifyPermissions;
+        this.enableTextComponent = builder.enableTextComponent;
     }
 
     static create(): LiveEditParamsBuilder {
@@ -80,6 +84,7 @@ export class LiveEditParams {
             .setContentType(liveEditModel.getContent().getType()?.toString())
             .setSitePath(liveEditModel.getSiteModel()?.getSite().getPath().toString())
             .setModifyPermissions(modifyPermissions)
+            .setEnableTextComponent(CONFIG.isTrue('enableTextComponent'))
             .build();
     }
 
@@ -100,6 +105,7 @@ export class LiveEditParams {
             .setContentType(obj['contentType'])
             .setSitePath(obj['sitePath'])
             .setModifyPermissions(obj['modifyPermissions'])
+            .setEnableTextComponent(obj['enableTextComponent'])
             .build();
     }
 
@@ -160,6 +166,8 @@ export class LiveEditParamsBuilder {
     sitePath?: string;
 
     modifyPermissions?: boolean;
+
+    enableTextComponent?: boolean;
 
     setIsFragment(value: boolean): LiveEditParamsBuilder {
         this.isFragment = value;
@@ -233,6 +241,11 @@ export class LiveEditParamsBuilder {
 
     setModifyPermissions(value: boolean): LiveEditParamsBuilder {
         this.modifyPermissions = value;
+        return this;
+    }
+
+    setEnableTextComponent(value: boolean): LiveEditParamsBuilder {
+        this.enableTextComponent = value;
         return this;
     }
 
