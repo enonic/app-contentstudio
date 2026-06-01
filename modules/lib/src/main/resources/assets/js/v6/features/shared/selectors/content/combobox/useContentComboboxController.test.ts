@@ -101,14 +101,6 @@ describe('useContentComboboxController', () => {
             expect(result.current.activeId).toBeNull();
         });
 
-        it('starts with isFiltering false', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown:{}}),
-            );
-
-            expect(result.current.isFiltering).toBe(false);
-        });
-
         it('starts in tree list mode', () => {
             const {result} = renderHook(() =>
                 useContentComboboxController({filters: {}, dropdown:{}}),
@@ -370,28 +362,6 @@ describe('useContentComboboxController', () => {
             });
 
             expect(mockLoadMoreChildren).not.toHaveBeenCalled();
-        });
-    });
-
-    describe('isFiltering', () => {
-        it('is true when inputValue is not empty', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown:{}}),
-            );
-
-            act(() => {
-                result.current.setInputValue('search');
-            });
-
-            expect(result.current.isFiltering).toBe(true);
-        });
-
-        it('is false when inputValue is empty', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown:{}}),
-            );
-
-            expect(result.current.isFiltering).toBe(false);
         });
     });
 

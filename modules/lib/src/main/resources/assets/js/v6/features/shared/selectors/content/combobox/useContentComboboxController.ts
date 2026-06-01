@@ -59,7 +59,6 @@ export type UseContentComboboxControllerReturn = {
     isLoading: boolean;
     hasMore: boolean;
     dropdownHeight: number;
-    isFiltering: boolean;
 
     // Error handling
     error: Error | null;
@@ -144,9 +143,6 @@ export function useContentComboboxController(options: UseContentComboboxControll
         isOpen: open,
         treeQuery,
     });
-
-    // Whether the user has typed a search query
-    const isFiltering = inputValue.length > 0;
 
     // Track if we need to trigger a search
     const lastSearchedQueryRef = useRef<string | null>(null);
@@ -323,7 +319,6 @@ export function useContentComboboxController(options: UseContentComboboxControll
         isLoading,
         hasMore,
         dropdownHeight,
-        isFiltering,
 
         // Error handling
         error,
