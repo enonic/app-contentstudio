@@ -174,7 +174,6 @@ let mockControllerState = {
     isLoading: false,
     hasMore: false,
     dropdownHeight: 56,
-    isFiltering: false,
     error: null as Error | null,
     retry: mockRetry,
 };
@@ -216,7 +215,6 @@ describe('ContentCombobox', () => {
             isLoading: false,
             hasMore: false,
             dropdownHeight: 56,
-            isFiltering: false,
             error: null,
             retry: mockRetry,
         };

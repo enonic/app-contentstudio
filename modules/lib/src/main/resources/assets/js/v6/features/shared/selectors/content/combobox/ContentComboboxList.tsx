@@ -82,9 +82,18 @@ export const ContentComboboxList = ({
                 // or if item is selectable
                 return !item || item.data?.selectable !== false;
             });
+
+            // ! Skip when the filtered selection is unchanged (e.g. click on a
+            // non-selectable row). In single mode the Combobox closes the popup on
+            // every onSelectionChange call, so firing it here would close the
+            // dropdown even though nothing was actually selected.
+            const isUnchanged = selectableIds.length === selection.size && selectableIds.every((id) => selection.has(id));
+
+            if (isUnchanged) return;
+
             onSelectionChange(selectableIds);
         },
-        [onSelectionChange, items]
+        [onSelectionChange, items, selection]
     );
 
     // Trigger load more when loading nodes become visible

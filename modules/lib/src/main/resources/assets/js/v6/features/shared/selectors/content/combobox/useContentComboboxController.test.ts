@@ -101,14 +101,6 @@ describe('useContentComboboxController', () => {
             expect(result.current.activeId).toBeNull();
         });
 
-        it('starts with isFiltering false', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown:{}}),
-            );
-
-            expect(result.current.isFiltering).toBe(false);
-        });
-
         it('starts in tree list mode', () => {
             const {result} = renderHook(() =>
                 useContentComboboxController({filters: {}, dropdown:{}}),
@@ -373,28 +365,6 @@ describe('useContentComboboxController', () => {
         });
     });
 
-    describe('isFiltering', () => {
-        it('is true when inputValue is not empty', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown:{}}),
-            );
-
-            act(() => {
-                result.current.setInputValue('search');
-            });
-
-            expect(result.current.isFiltering).toBe(true);
-        });
-
-        it('is false when inputValue is empty', () => {
-            const {result} = renderHook(() =>
-                useContentComboboxController({filters: {}, dropdown:{}}),
-            );
-
-            expect(result.current.isFiltering).toBe(false);
-        });
-    });
-
     describe('listMode', () => {
         it('is "tree" in tree view without filtering', () => {
             const {result} = renderHook(() =>
@@ -416,7 +386,7 @@ describe('useContentComboboxController', () => {
             expect(result.current.listMode).toBe('flat');
         });
 
-        it('is "flat" when filtering in tree view', () => {
+        it('stays "tree" when filtering in tree view', () => {
             const {result} = renderHook(() =>
                 useContentComboboxController({filters: {}, dropdown:{}}),
             );
@@ -425,7 +395,7 @@ describe('useContentComboboxController', () => {
                 result.current.setInputValue('search');
             });
 
-            expect(result.current.listMode).toBe('flat');
+            expect(result.current.listMode).toBe('tree');
         });
     });
 
@@ -456,7 +426,7 @@ describe('useContentComboboxController', () => {
             expect(result.current.displayItems).toEqual(mockFlatItems);
         });
 
-        it('returns flatItems when filtering', () => {
+        it('returns treeItems when filtering in tree view', () => {
             mockTreeItems = [{id: 'tree-1', data: {}, nodeType: 'node'}];
             mockFlatItems = [{id: 'flat-1', data: {}, nodeType: 'node'}];
 
@@ -468,7 +438,7 @@ describe('useContentComboboxController', () => {
                 result.current.setInputValue('search');
             });
 
-            expect(result.current.displayItems).toEqual(mockFlatItems);
+            expect(result.current.displayItems).toEqual(mockTreeItems);
         });
     });
 

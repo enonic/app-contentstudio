@@ -59,7 +59,6 @@ export type UseContentComboboxControllerReturn = {
     isLoading: boolean;
     hasMore: boolean;
     dropdownHeight: number;
-    isFiltering: boolean;
 
     // Error handling
     error: Error | null;
@@ -108,6 +107,9 @@ export function useContentComboboxController(options: UseContentComboboxControll
     // Debounced search query - only updates after user stops typing
     const debouncedQuery = useDebouncedValue(inputValue, debounceDelay);
 
+    // Tree view filters the tree itself; flat view drives the flat search instead.
+    const treeQuery = isTreeView ? debouncedQuery : '';
+
     // Memoize filter options to avoid recreating on every render
     const filterOptions: ContentFilterOptions = useMemo(
         () => ({
@@ -138,19 +140,16 @@ export function useContentComboboxController(options: UseContentComboboxControll
     } = useContentComboboxData({
         filters: filterOptions,
         isOpen: open,
+        treeQuery,
     });
-
-    // Whether we're showing filtered (flat) results
-    const isFiltering = inputValue.length > 0;
 
     // Track if we need to trigger a search
     const lastSearchedQueryRef = useRef<string | null>(null);
 
-    // Load flat data when needed
+    // Load flat data when in flat view. Tree-view filtering is handled by the
+    // data hook via treeQuery, so flat search runs only when the tree is hidden.
     useEffect(() => {
-        const needsFlatData = !isTreeView || isFiltering;
-
-        if (!open || !needsFlatData) {
+        if (!open || isTreeView) {
             lastSearchedQueryRef.current = null;
             return;
         }
@@ -160,7 +159,7 @@ export function useContentComboboxController(options: UseContentComboboxControll
             lastSearchedQueryRef.current = debouncedQuery;
             void search(debouncedQuery);
         }
-    }, [open, isTreeView, isFiltering, debouncedQuery, search]);
+    }, [open, isTreeView, debouncedQuery, search]);
 
     // Reset search tracking when closed (preserves input value for UX)
     useEffect(() => {
@@ -173,7 +172,7 @@ export function useContentComboboxController(options: UseContentComboboxControll
     useEffect(() => {
         if (!open) return;
 
-        const items = isFiltering || !isTreeView ? flatItems : treeItems;
+        const items = isTreeView ? treeItems : flatItems;
         const firstItem = items[0];
 
         if (firstItem) {
@@ -184,27 +183,15 @@ export function useContentComboboxController(options: UseContentComboboxControll
         } else {
             setActiveId(null);
         }
-    }, [open, isFiltering, isTreeView, treeItems, flatItems, activeId]);
+    }, [open, isTreeView, treeItems, flatItems, activeId]);
 
-    // Choose items based on view mode and filter state
     const displayItems = useMemo(() => {
-        // When filtering, both views use flat list results
-        if (isFiltering) {
-            return flatItems;
-        }
-
-        // No filter: tree view shows tree, flat view shows flat list
-        if (isTreeView) {
-            return treeItems;
-        }
-
-        // Flat view without filter
-        return flatItems;
-    }, [isTreeView, isFiltering, treeItems, flatItems]);
+        return isTreeView ? treeItems : flatItems;
+    }, [isTreeView, treeItems, flatItems]);
 
     // Calculate dropdown height based on display items
     const dropdownHeight = useMemo(() => {
-        const mode = isTreeView && !isFiltering ? 'tree' : 'flat';
+        const mode = isTreeView ? 'tree' : 'flat';
         const baseHeight = mode === 'tree' ? treeRowHeight : flatRowHeight;
         const count = displayItems.length;
 
@@ -224,7 +211,6 @@ export function useContentComboboxController(options: UseContentComboboxControll
     }, [
         displayItems.length,
         isTreeView,
-        isFiltering,
         treeRowHeight,
         flatRowHeight,
         flatRowHeightRatio,
@@ -286,9 +272,9 @@ export function useContentComboboxController(options: UseContentComboboxControll
     }, [flatHasMore, isFlatLoading, loadMoreFlat]);
 
     // Derived values
-    const isLoading = isFiltering || !isTreeView ? isFlatLoading : isTreeLoading;
-    const hasMore = isFiltering || !isTreeView ? flatHasMore : treeHasMore;
-    const listMode = isTreeView && !isFiltering ? 'tree' : 'flat';
+    const isLoading = isTreeView ? isTreeLoading : isFlatLoading;
+    const hasMore = isTreeView ? treeHasMore : flatHasMore;
+    const listMode = isTreeView ? 'tree' : 'flat';
 
     return {
         // Refs
@@ -322,7 +308,6 @@ export function useContentComboboxController(options: UseContentComboboxControll
         isLoading,
         hasMore,
         dropdownHeight,
-        isFiltering,
 
         // Error handling
         error,
