@@ -17,6 +17,7 @@ type ApplicationSelectorProps = {
     emptyLabel?: string;
     closeOnBlur?: boolean;
     className?: string;
+    inheritedKeys?: ReadonlySet<string>;
 };
 
 export const ApplicationSelector = (props: ApplicationSelectorProps): ReactElement => {
@@ -24,7 +25,7 @@ export const ApplicationSelector = (props: ApplicationSelectorProps): ReactEleme
     const baseId = useId();
     const inputId = `${APPLICATION_SELECTOR_NAME}-${baseId}-input`;
     const [searchValue, setSearchValue] = useState('');
-    const {label, selection, onSelectionChange, selectionMode, placeholder, emptyLabel, closeOnBlur, className} = props;
+    const {label, selection, onSelectionChange, selectionMode, placeholder, emptyLabel, closeOnBlur, className, inheritedKeys} = props;
 
     const filtered = useMemo(() => {
         if (!searchValue) return applications;
@@ -55,7 +56,7 @@ export const ApplicationSelector = (props: ApplicationSelectorProps): ReactEleme
                     </Combobox.Control>
                     <Combobox.Portal>
                         <Combobox.Popup>
-                            <ApplicationSelectorList items={filtered} emptyLabel={emptyLabel} />
+                            <ApplicationSelectorList items={filtered} emptyLabel={emptyLabel} inheritedKeys={inheritedKeys} />
                         </Combobox.Popup>
                     </Combobox.Portal>
                 </Combobox.Content>
@@ -69,10 +70,11 @@ ApplicationSelector.displayName = APPLICATION_SELECTOR_NAME;
 type ApplicationSelectorListProps = {
     items: Application[];
     emptyLabel?: string;
+    inheritedKeys?: ReadonlySet<string>;
 };
 
 const ApplicationSelectorList = (props: ApplicationSelectorListProps): ReactElement => {
-    const {items, emptyLabel} = props;
+    const {items, emptyLabel, inheritedKeys} = props;
     const {selection, selectionMode} = useCombobox();
 
     return (
@@ -83,14 +85,14 @@ const ApplicationSelectorList = (props: ApplicationSelectorListProps): ReactElem
                 const description = application.getDescription();
 
                 return (
-                    <Listbox.Item key={key} value={key}>
+                    <Listbox.Item key={key} value={key} disabled={inheritedKeys?.has(key)}>
                         <ItemLabel
                             className="flex-1"
                             icon={<ApplicationIcon application={application} />}
                             primary={name}
                             secondary={description}
                         />
-                        {selectionMode !== 'single' && (
+                        {selectionMode !== 'single' && !inheritedKeys?.has(key) && (
                             <Checkbox tabIndex={-1} checked={selection.has(key)} onClick={(event) => event.preventDefault()} />
                         )}
                     </Listbox.Item>
