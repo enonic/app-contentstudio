@@ -6,19 +6,30 @@ const lib = require('../../../libs/elements-old');
 const appConst = require('../../../libs/app_const');
 
 const XPATH = {
-    container: "//div[contains(@id,'FragmentDropdown')]",
-    fragmentDropdownListUL: "//ul[contains(@id,'FragmentDropdownList')]",
+    dataComponentDiv: "//div[contains(@data-component='FragmentContentSelector']",
 }
 
 class FragmentDropdown extends BaseDropdown {
 
-    get container() {
-        return XPATH.container;
+
+
+    constructor(parentElementXpath) {
+        super();
+        this._container = parentElementXpath;
     }
 
-    async selectFilteredFragment(optionName, parentElement) {
+    get container() {
+        return this._container;
+    }
+
+    get dataComponentDiv() {
+        return XPATH.dataComponentDiv;
+    }
+
+    async selectFilteredFragment(optionName) {
         try {
-            await this.clickOnFilteredByDisplayNameItem(optionName, parentElement);
+            await this.doFilterItem(optionName);
+            await this.clickOnOptionByName(optionName);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
             throw new Error('CustomSelectorComboBox - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);

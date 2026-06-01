@@ -37,7 +37,7 @@ describe('Text Component with CKE - insert download-link specification', functio
     it(`Precondition: new site should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(displayName, null, ['All Content Types App'], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 

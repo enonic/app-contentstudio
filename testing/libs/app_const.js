@@ -106,6 +106,9 @@ module.exports = Object.freeze({
         permissionsAppliedNotificationMessage: (name) => {
             return `Permissions for \"${name}\" are applied.`
         },
+        fragmentCreated:(part)=>{
+            return `The fragment has been created from \"${part}\"`
+        }
     },
     TEST_DATA: {
         TEST_FOLDER_IMAGES_1_DISPLAY_NAME: 'All Content types images',

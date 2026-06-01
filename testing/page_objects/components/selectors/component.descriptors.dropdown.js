@@ -1,11 +1,10 @@
 /**
- * Created on 30.01.2024
+ * Created on 30.01.2024 updated on 01.06.2026
  */
 const BasDropdown = require('./base.dropdown');
-const lib = require('../../../libs/elements-old');
-const appConst = require('../../../libs/app_const');
+const {DROPDOWN} = require("../../../libs/elements");
 const XPATH = {
-    container: "//div[contains(@id,'ComponentDescriptorsDropdown')]",
+    container: "//div[@data-component='ComponentDescriptorSelector']",
     descriptorListBoxUL: "//ul[contains(@id,'DescriptorListBox')]",
 };
 
@@ -15,26 +14,30 @@ class ComponentDescriptorsDropdown extends BasDropdown {
         super();
         this._parent = parentElementXpath;
     }
+
+    get dataComponentDiv() {
+        return "//div[@data-component='ComponentInspectionPanel']";
+    }
+
+    optionsFilterInput() {
+        return this.container  + DROPDOWN.OPTION_FILTER_DATA_COMPONENT;
+    }
+
     get container() {
-        return this._parent+ XPATH.container;
+        return this._parent + XPATH.container;
     }
 
-    async selectFilteredComponent(displayName, parentElement) {
+    async selectFilteredComponent(displayName) {
         try {
-            await this.clickOnFilteredByDisplayNameItem(displayName, parentElement);
+            await this.doFilterItem(displayName);
+            await this.clickOnOptionByDisplayName(displayName);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dropdown');
-            throw new Error('Component Descriptors Dropdown - Error during selecting the option, screenshot: ' + screenshot + ' ' + err);
+            await this.handleError(`Content selector, tried to click on the filtered option, ${displayName} `, 'err_content_sel', err);
         }
     }
 
-    async getOptionsDisplayName(parentXpath) {
-        if (parentXpath === undefined) {
-            parentXpath = '';
-        }
-        let locator = parentXpath + XPATH.descriptorListBoxUL + lib.DROPDOWN_SELECTOR.DROPDOWN_LIST_ITEM + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.pause(300);
+    async getOptionsDisplayName() {
+        const locator = DROPDOWN.COMBOBOX_POPUP + "//div[@data-component='Listbox.Item']//span[contains(@class,'font-semibold')]";
         return await this.getTextInDisplayedElements(locator);
     }
 }

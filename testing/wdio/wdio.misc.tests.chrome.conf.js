@@ -14,6 +14,9 @@ exports.config = {
         path.join(__dirname, '../specs/misc/shortcut.publish.dialog.spec.js'),
         path.join(__dirname, '../specs/misc/content.duplicate.spec.js'),
         path.join(__dirname, '../specs/misc/contentitem.preview.toolbar.spec.js'),
+        path.join(__dirname, '../specs/misc/text.component.insert.macro.spec.js'),
+        path.join(__dirname, '../specs/misc/text.component.insert.table.spec.js'),
+
     ],
     exclude: [
         //path.join(__dirname, '../specs/misc/revert.published.content.spec.js'),

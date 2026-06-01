@@ -9,17 +9,11 @@ const xpath = {
     parentListElement: "//ancestor::div[contains(@class,'item-view-wrapper')]",
     pageComponentsItemName: "//div[@data-component='ContextMenu.Trigger']//span[text()]",
     pageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer')]",
+    contextMenuItems:"//div[@data-component='ContextMenu.Content']//div[@data-component='ContextMenu.Item']",
     pageComponentsItemViewerByType(componentType) {
         return `//div[contains(@id,'PageComponentsItemViewer') and contains(@class,'${componentType}')]`
     },
     pageComponentsTreeGrid: `//div[contains(@id,'PageComponentsTreeGrid')]`,
-
-    componentByName(name) {
-        return `//div[contains(@id,'PageComponentsItemViewer') and descendant::h6[contains(@class,'main-name')  and text()='${name}']]`
-    },
-    componentByDescription(description) {
-        return `//div[contains(@id,'PageComponentsItemViewer') and descendant::p[contains(@class,'sub-name')  and contains(.,'${description}')]]`;
-    },
     contextMenuTrigger(name) {
         return `//div[@data-component='ContextMenu.Trigger']//span[@class and contains(@class, 'truncate') and text()='${name}']`
     },
@@ -120,9 +114,9 @@ class BasePageComponentView extends Page {
 
     async clickOnComponent(componentName) {
         try {
-            let component = this.container + xpath.componentByName(componentName);
-            await this.waitForElementDisplayed(component);
-            await this.clickOnElement(component);
+            let item = this.container + xpath.contextMenuTrigger(componentName);
+            await this.waitForElementDisplayed(item);
+            await this.clickOnElement(item);
             return await this.pause(500);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_component_click');
@@ -146,7 +140,7 @@ class BasePageComponentView extends Page {
 
 
     async getContextMenuItems() {
-        let locator = "//dl[contains(@id,'TreeContextMenu')]//*[contains(@id,'TreeMenuItem')]";
+        let locator = xpath.contextMenuItems;
         await this.waitForElementDisplayed(locator);
         return await this.getTextInDisplayedElements(locator);
     }
