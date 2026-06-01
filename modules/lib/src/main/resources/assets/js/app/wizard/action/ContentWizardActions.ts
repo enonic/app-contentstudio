@@ -6,7 +6,7 @@ import {Permission} from '../../access/Permission';
 import {PublishStatus} from '../../publish/PublishStatus';
 import {type CompareResult} from '../../../v6/features/api/compare';
 import {calcTreePublishStatus, calcSecondaryStatus} from '../../../v6/features/utils/cms/content/status';
-import {$wizardContentState, $wizardHasChanges} from '../../../v6/features/store/wizardContent.store';
+import {$wizardContentPathExists, $wizardContentState, $wizardHasChanges} from '../../../v6/features/store/wizardContent.store';
 import {CloseAction} from '@enonic/lib-admin-ui/app/wizard/CloseAction';
 import {WizardActions} from '@enonic/lib-admin-ui/app/wizard/WizardActions';
 import {type ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
@@ -42,9 +42,7 @@ import {ShowFormAction} from './ShowFormAction';
 import {ShowLiveEditAction} from './ShowLiveEditAction';
 import {UnpublishAction} from './UnpublishAction';
 
-export class ContentWizardActions
-    extends WizardActions<Content> {
-
+export class ContentWizardActions extends WizardActions<Content> {
     private deleteOnlyMode: boolean = false;
 
     private persistedContent: Content;
@@ -76,6 +74,8 @@ export class ContentWizardActions
     private wizardHasChangesUnsubscribe?: () => void;
 
     private wizardContentStateUnsubscribe?: () => void;
+
+    private wizardPathExistsUnsubscribe?: () => void;
 
     private beforeActionsStashedListeners: (() => void)[] = [];
 
@@ -180,21 +180,24 @@ export class ContentWizardActions
 
         let checkSaveStateOnWizardRendered: boolean = false;
 
-        this.checkSaveActionStateHandler = AppHelper.debounce(() => {
-            if (this.wizardPanel.isRendered()) {
-                this.doCheckSaveActionStateHandler();
-            } else {
-                if (!checkSaveStateOnWizardRendered) {
-                    this.wizardPanel.whenRendered(() => {
-                        this.doCheckSaveActionStateHandler();
-                        checkSaveStateOnWizardRendered = false;
-                    });
+        this.checkSaveActionStateHandler = AppHelper.debounce(
+            () => {
+                if (this.wizardPanel.isRendered()) {
+                    this.doCheckSaveActionStateHandler();
+                } else {
+                    if (!checkSaveStateOnWizardRendered) {
+                        this.wizardPanel.whenRendered(() => {
+                            this.doCheckSaveActionStateHandler();
+                            checkSaveStateOnWizardRendered = false;
+                        });
 
-                    checkSaveStateOnWizardRendered = true;
+                        checkSaveStateOnWizardRendered = true;
+                    }
                 }
-
-            }
-        }, 100, false);
+            },
+            100,
+            false
+        );
 
         this.wizardHasChangesUnsubscribe = $wizardHasChanges.subscribe((hasChanges, previousHasChanges) => {
             if (previousHasChanges === undefined || hasChanges === previousHasChanges) {
@@ -216,6 +219,14 @@ export class ContentWizardActions
                 .refreshState();
         });
 
+        this.wizardPathExistsUnsubscribe = $wizardContentPathExists.subscribe((store, prevStore) => {
+            if (store?.exists === prevStore?.exists) {
+                return;
+            }
+
+            this.checkSaveActionStateHandler();
+        });
+
         this.wizardPanel.onPageStateChanged(this.checkSaveActionStateHandler);
     }
 
@@ -224,6 +235,8 @@ export class ContentWizardActions
         this.wizardHasChangesUnsubscribe = undefined;
         this.wizardContentStateUnsubscribe?.();
         this.wizardContentStateUnsubscribe = undefined;
+        this.wizardPathExistsUnsubscribe?.();
+        this.wizardPathExistsUnsubscribe = undefined;
         this.publishTreeRequestId++;
     }
 
@@ -232,13 +245,10 @@ export class ContentWizardActions
     }
 
     private doCheckSaveActionStateHandler(): void {
-        let isEnabled: boolean = this.hasUnsavedChanges();
+        let isEnabled: boolean = this.hasUnsavedChanges() && !this.pathAlreadyExists();
 
         if (this.persistedContent) {
-            isEnabled = isEnabled &&
-                        this.persistedContent.isEditable() &&
-                        this.userCanModify &&
-                        !this.persistedContent.isDataInherited();
+            isEnabled = isEnabled && this.persistedContent.isEditable() && this.userCanModify && !this.persistedContent.isDataInherited();
         }
         this.enableActions({SAVE: isEnabled});
 
@@ -266,7 +276,7 @@ export class ContentWizardActions
         this.persistedContent = null;
         this.stateManager.enableActions({});
         this.enableActions({
-            SAVE: this.hasUnsavedChanges(),
+            SAVE: this.hasUnsavedChanges() && !this.pathAlreadyExists(),
             ARCHIVE: true,
             MOVE: !this.isPersistedUnnamed(),
         });
@@ -287,7 +297,7 @@ export class ContentWizardActions
 
         this.enableActionsForExistingByPermissions(existing);
         this.enableActions({
-            SAVE: existing.isEditable() && this.hasUnsavedChanges() && !existing.isDataInherited()
+            SAVE: existing.isEditable() && this.hasUnsavedChanges() && !existing.isDataInherited() && !this.pathAlreadyExists(),
         });
 
         return Q();
@@ -345,31 +355,32 @@ export class ContentWizardActions
         }
 
         if (existing.hasParent()) {
-            new GetContentByPathRequest(existing.getPath().getParentPath()).sendAndParse().then(
-                (parent: Content) => {
-                    new GetContentPermissionsByIdRequest(parent.getContentId()).sendAndParse().then(
-                        (accessControlList: AccessControlList) => {
-                            const hasParentCreatePermission = AccessControlHelper.hasPermission(Permission.CREATE, accessControlList);
-
-                            if (!hasParentCreatePermission) {
-                                this.enableActions({DUPLICATE: false});
-                            }
-                        });
-                });
-        } else {
-            new GetContentRootPermissionsRequest().sendAndParse().then(
-                (accessControlList: AccessControlList) => {
+            new GetContentByPathRequest(existing.getPath().getParentPath()).sendAndParse().then((parent: Content) => {
+                new GetContentPermissionsByIdRequest(parent.getContentId()).sendAndParse().then((accessControlList: AccessControlList) => {
                     const hasParentCreatePermission = AccessControlHelper.hasPermission(Permission.CREATE, accessControlList);
 
                     if (!hasParentCreatePermission) {
                         this.enableActions({DUPLICATE: false});
                     }
                 });
+            });
+        } else {
+            new GetContentRootPermissionsRequest().sendAndParse().then((accessControlList: AccessControlList) => {
+                const hasParentCreatePermission = AccessControlHelper.hasPermission(Permission.CREATE, accessControlList);
+
+                if (!hasParentCreatePermission) {
+                    this.enableActions({DUPLICATE: false});
+                }
+            });
         }
     }
 
     private hasUnsavedChanges(): boolean {
         return $wizardHasChanges.get();
+    }
+
+    private pathAlreadyExists(): boolean {
+        return $wizardContentPathExists.get().exists;
     }
 
     setContent(content: ContentSummaryAndCompareStatus): ContentWizardActions {
@@ -442,7 +453,7 @@ export class ContentWizardActions
             REQUEST_PUBLISH: canBeRequestedPublish,
             OPEN_REQUEST: this.hasPublishRequest,
             RESET: this.userCanModify && canBeReset,
-            LOCALIZE: this.userCanModify && canBeLocalized
+            LOCALIZE: this.userCanModify && canBeLocalized,
         });
 
         this.actionsMap.OPEN_REQUEST.setVisible(this.hasPublishRequest);
@@ -507,10 +518,12 @@ export class ContentWizardActions
                     return;
                 }
 
-                this.hasUnpublishedChildren =
-                    hasUnpublishedChildrenResult.getResult().some((item: HasUnpublishedChildren) => item.getHasChildren());
+                this.hasUnpublishedChildren = hasUnpublishedChildrenResult
+                    .getResult()
+                    .some((item: HasUnpublishedChildren) => item.getHasChildren());
                 this.enableActions({PUBLISH_TREE: this.hasUnpublishedChildren});
-            }).catch((err: unknown) => {
+            })
+            .catch((err: unknown) => {
                 this.hasCheckedUnpublishedChildren = false;
                 DefaultErrorHandler.handle(err);
             });
