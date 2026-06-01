@@ -67,6 +67,8 @@ export type UseContentComboboxDataOptions = {
     filters: ContentFilterOptions;
     /** Whether the combobox is currently open */
     isOpen: boolean;
+    /** Search string for tree-mode requests; empty loads the full tree. */
+    treeQuery?: string;
 };
 
 /**
@@ -193,7 +195,7 @@ function createFilterKey(filters: ContentFilterOptions): string {
  * Handles tree and flat list data, pagination, search, and error handling.
  */
 export function useContentComboboxData(options: UseContentComboboxDataOptions): UseContentComboboxDataReturn {
-    const {filters, isOpen} = options;
+    const {filters, isOpen, treeQuery = ''} = options;
 
     // Create stable filter key for dependency tracking
     const filterKey = useMemo(() => createFilterKey(filters), [filters]);
@@ -203,6 +205,10 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
     // which triggers re-initialization with the new filters.
     const filtersRef = useRef(filters);
     filtersRef.current = filters;
+
+    // Current tree search string, read by tree callbacks without re-binding them.
+    const treeQueryRef = useRef(treeQuery);
+    treeQueryRef.current = treeQuery;
 
     // Tree state
     const tree = useTreeStore<ContentComboboxNodeData>();
@@ -329,6 +335,18 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
         setError(null);
     }, [filterKey, treeClear]);
 
+    // Reload the tree when the search string changes.
+    const prevTreeQueryRef = useRef(treeQuery);
+    useEffect(() => {
+        if (prevTreeQueryRef.current === treeQuery) return;
+        prevTreeQueryRef.current = treeQuery;
+
+        treeRequestIdRef.current++;
+        treeClear();
+        setTotalRootChildren(undefined);
+        setTreeInitialized(false);
+    }, [treeQuery, treeClear]);
+
     // Load root content for tree view
     const loadTree = useCallback(async (): Promise<void> => {
         const currentRequestId = ++treeRequestIdRef.current;
@@ -343,6 +361,7 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
             applyContentFilters(request, filtersRef.current);
             request.setParentPath(null);
             request.setChildOrder(createDefaultChildOrder());
+            request.setSearchString(treeQueryRef.current);
 
             const rawItems = await request.sendAndParse();
             const metadata = request.getMetadata();
@@ -392,6 +411,7 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
             applyContentFilters(request, filtersRef.current);
             request.setParentPath(null);
             request.setChildOrder(createDefaultChildOrder());
+            request.setSearchString(treeQueryRef.current);
 
             const rawItems = await request.sendAndParse();
             const items = deduplicateById(rawItems);
@@ -447,6 +467,7 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
                     request.setParentPath(parentContent.getPath());
                     request.setChildOrder(parentContent.getChildOrder());
                 }
+                request.setSearchString(treeQueryRef.current);
 
                 const rawItems = await request.sendAndParse();
                 const metadata = request.getMetadata();
@@ -508,6 +529,7 @@ export function useContentComboboxData(options: UseContentComboboxDataOptions): 
                     request.setParentPath(parentContent.getPath());
                     request.setChildOrder(parentContent.getChildOrder());
                 }
+                request.setSearchString(treeQueryRef.current);
 
                 const rawItems = await request.sendAndParse();
                 const items = deduplicateById(rawItems);

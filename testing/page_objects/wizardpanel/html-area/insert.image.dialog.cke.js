@@ -270,6 +270,11 @@ class InsertImageDialog extends Page {
         return this.waitForElementNotDisplayed(XPATH.container + XPATH.imageRangeValue, appConst.mediumTimeout);
     }
 
+    async clickOnImageSelectorModeTogglerButton() {
+        let imageSelector = new ImageSelectorDropdown(XPATH.container);
+        await imageSelector.clickOnModeTogglerButton();
+    }
+
     // Type a displayName in the image selector filter input then click on the filtered option:
     async filterAndSelectImage(imageDisplayName) {
         try {
