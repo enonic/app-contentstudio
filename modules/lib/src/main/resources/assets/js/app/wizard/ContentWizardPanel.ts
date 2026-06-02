@@ -5,6 +5,7 @@ import {type WizardStepsPanel} from '@enonic/lib-admin-ui/app/wizard/WizardSteps
 import {type ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {AuthHelper} from '@enonic/lib-admin-ui/auth/AuthHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
@@ -854,6 +855,9 @@ export class ContentWizardPanel
         return super.doLayout(persistedContent).then(() => {
             this.updateThumbnailWithContent(persistedContent);
             this.updateTabsElement();
+
+            this.wizardHeader.setSimplifiedNameGeneration(
+                persistedContent.getType().isDescendantOfMedia() || !CONFIG.isTrue('allowPathTransliteration'));
 
             if (this.params.localized) {
                 this.onRendered(() => {
