@@ -49,7 +49,7 @@ export const ContentForm = (): ReactElement | null => {
     }
 
     return (
-        <div data-component={CONTENT_FORM_NAME} className="flex flex-col gap-7.5">
+        <div data-component={CONTENT_FORM_NAME} className="flex flex-col gap-7.5 pb-10">
             <DisplayNameInput />
             <ValidationVisibilityProvider visibility={visibility}>
                 <RawValueProvider map={rawValueMap}>
