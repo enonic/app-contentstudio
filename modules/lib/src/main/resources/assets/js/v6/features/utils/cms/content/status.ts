@@ -40,6 +40,10 @@ export function calcTreePublishStatus(summary: ContentSummary): PublishStatus {
     return PublishStatus.ONLINE;
 }
 
+export function isPublished(summary: ContentSummary): boolean {
+    return summary.getPublishFromTime() != null;
+}
+
 export function calcSecondaryStatus(publishStatus: PublishStatus, summary: ContentSummary): SecondaryStatus | undefined {
     if (publishStatus === PublishStatus.OFFLINE) {
         return summary.getPublishFirstTime() ? 'unpublished' : 'new';

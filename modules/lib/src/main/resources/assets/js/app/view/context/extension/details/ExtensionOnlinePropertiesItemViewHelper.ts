@@ -40,12 +40,4 @@ export class ExtensionOnlinePropertiesItemViewHelper
 
         return super.isFormAllowed(type);
     }
-
-    isEditScheduleAllowed(): boolean {
-        if (this.item.getContentSummary().getPublishFromTime() != null || this.item.getContentSummary().getPublishFromTime() != null) {
-            return true;
-        }
-
-        return this.item.getContentSummary().getPublishFirstTime() != null && this.item.isPublished();
-    }
 }
