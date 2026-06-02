@@ -4,7 +4,12 @@ import {type ReactElement, useMemo} from 'react';
 import {DescriptorBasedComponent} from '../../../../../../../../app/page/region/DescriptorBasedComponent';
 import {FormRenderer} from '../../../../../../shared/form/FormRenderer';
 import {getAiFieldRegistry} from '../../../../../../store/ai/ai.field-registry';
-import {$contentContext, $inspectedItem, $pageEditorLifecycle} from '../../../../../../store/page-editor';
+import {
+    $contentContext,
+    $inspectedItem,
+    $inspectedPath,
+    $pageEditorLifecycle,
+} from '../../../../../../store/page-editor';
 import {$componentConfigDescriptor} from '../../../../../../store/component-inspection.store';
 import {useInspectFormTracking} from '../useInspectFormTracking';
 import {ComponentDescriptorSelector} from './ComponentDescriptorSelector';
@@ -17,6 +22,7 @@ const COMPONENT_INSPECTION_PANEL_NAME = 'ComponentInspectionPanel';
 
 export const ComponentInspectionPanel = ({componentType}: ComponentInspectionPanelProps): ReactElement | null => {
     const item = useStore($inspectedItem);
+    const inspectedPath = useStore($inspectedPath);
     const ctx = useStore($contentContext);
     const lifecycle = useStore($pageEditorLifecycle);
     const descriptor = useStore($componentConfigDescriptor);
@@ -26,6 +32,9 @@ export const ComponentInspectionPanel = ({componentType}: ComponentInspectionPan
     const configForm = descriptor?.getConfig() ?? null;
     const configRoot = hasDescriptor ? (item.getConfig()?.getRoot() ?? null) : null;
     const fieldRegistry = useMemo(() => getAiFieldRegistry('page'), []);
+
+    // Component may share descriptor key, so make it unique
+    const formKey = hasDescriptor ? `${inspectedPath ?? ''}::${item.getDescriptorKey()?.toString() ?? ''}` : undefined;
 
     useInspectFormTracking(configForm, configRoot);
 
@@ -40,6 +49,7 @@ export const ComponentInspectionPanel = ({componentType}: ComponentInspectionPan
             {hasDescriptor && configForm && configRoot && (
                 <FieldRegistryProvider registry={fieldRegistry}>
                     <FormRenderer
+                        key={formKey}
                         form={configForm}
                         propertySet={configRoot}
                         enabled={!lifecycle.isPageLocked}
