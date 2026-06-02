@@ -23,6 +23,7 @@ class GeoPointForm extends OccurrencesFormView {
         let locationElements = await this.getDisplayedElements(this.geoLocationInput);
         for (const ch of value) {
             await locationElements[index].addValue(ch);
+            await this.pause(20);
         }
         return await this.pause(300);
     }
