@@ -60,7 +60,8 @@ class BaseDropdown extends Page {
     async clickOnModeTogglerButton() {
         try {
             await this.waitForElementDisplayed(this.modeTogglerButton);
-            return await this.clickOnElement(this.modeTogglerButton);
+            await this.clickOnElement(this.modeTogglerButton);
+            await this.pause(300);
         } catch (err) {
             await this.handleError('Tried to click on mode toggle icon.', 'err_click_mode_toggle', err);
         }

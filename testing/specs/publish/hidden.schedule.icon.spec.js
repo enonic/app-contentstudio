@@ -92,7 +92,7 @@ describe('hidden.schedule.icon.spec:  tests for archiving content', function () 
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
             await contentPublishDialog.waitForDialogOpened();
             // 3. Verify that Add Schedule icon is displayed:
-            await contentPublishDialog.waitForAddScheduleIconDisplayed();
+            await contentPublishDialog.waitForScheduleButtonDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
