@@ -13,6 +13,7 @@ import {StatusBadge} from '../../../shared/status/StatusBadge';
 import {$aiPluginDialogOpen, $aiRegisteredPlugins, closePluginDialog, openPluginDialog} from '../../../store/ai';
 import {setInspectSaveAction} from '../../../store/inspect-panel.store';
 import {$wizardToolbar} from '../../../store/wizardToolbar.store';
+import {formatContentFullPath} from '../../../utils/cms/content/paths';
 import {getInitials} from '../../../utils/format/initials';
 import {useElementVisibility} from '../../../utils/hooks/useElementVisibility';
 import {ContextToggle} from './ContextToggle';
@@ -37,7 +38,6 @@ export type ContentWizardToolbarProps = {
     requestPublishAction: Action;
     openRequestAction: Action;
     createIssueAction: Action;
-    getContentFullPath?: (contentPath: string) => string;
     className?: string;
 };
 
@@ -61,7 +61,6 @@ export const ContentWizardToolbar = ({
     requestPublishAction,
     openRequestAction,
     createIssueAction,
-    getContentFullPath,
     className,
 }: ContentWizardToolbarProps): ReactElement => {
     const {
@@ -71,7 +70,8 @@ export const ContentWizardToolbar = ({
         projectHasIcon,
         collaborators,
         publishStatus,
-        contentPath,
+        contentName,
+        contentParentPath,
         canRenameContentPath,
         contentState,
         isLayerProject,
@@ -85,7 +85,8 @@ export const ContentWizardToolbar = ({
             'projectHasIcon',
             'collaborators',
             'publishStatus',
-            'contentPath',
+            'contentName',
+            'contentParentPath',
             'canRenameContentPath',
             'contentState',
             'isLayerProject',
@@ -99,12 +100,15 @@ export const ContentWizardToolbar = ({
     const isContentLocalised = isContentInherited && !isContentDataInherited;
     const toolbarLabel = useI18n('wcag.contenteditor.toolbar.label');
     const projectRoot = useI18n('field.root');
-    const fieldPathLabel = useI18n('field.path');
+    const nameFieldLabel = useI18n('field.name');
+    const unnamedFieldLabel = useI18n('field.unnamed');
     const aiAssistantLabel = useI18n('tooltip.ai.assistant');
-    const pathLabel = `<${fieldPathLabel}>`;
     const projectViewLabel = projectLabel || projectRoot;
-    const contentPathLabel = contentPath || pathLabel;
-    const contentFullPath = getContentFullPath?.(contentPath) || contentPathLabel;
+    const unnamedPathLabel = `<${unnamedFieldLabel}>`;
+    const contentNameLabel = contentName || `<${nameFieldLabel}>`;
+    const contentFullPath = canRenameContentPath
+                            ? formatContentFullPath(contentParentPath, contentName || unnamedPathLabel, unnamedPathLabel)
+                            : contentNameLabel;
 
     useEffect(() => {
         setInspectSaveAction(saveAction);
@@ -213,7 +217,7 @@ export const ContentWizardToolbar = ({
                                 onClick={onContentPathClick}
                             >
                                 <span className='min-w-0 max-w-full overflow-hidden text-ellipsis whitespace-nowrap'>
-                                    {contentPathLabel}
+                                    {contentNameLabel}
                                 </span>
                             </Button>
                         </Toolbar.Item>
@@ -223,7 +227,7 @@ export const ContentWizardToolbar = ({
                             <IconButton
                                 size='md'
                                 icon={Link2}
-                                aria-label={contentPathLabel}
+                                aria-label={contentNameLabel}
                                 title={contentFullPath}
                                 disabled={!canRenameContentPath}
                                 onClick={onContentPathClick}

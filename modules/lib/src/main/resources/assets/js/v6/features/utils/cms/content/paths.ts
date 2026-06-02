@@ -4,7 +4,6 @@ import {ContentUnnamed} from '../../../../../app/content/ContentUnnamed';
 export type ContentPathValue = {
     toString: () => string;
     getElements?: () => string[];
-    getName?: () => string;
 } | null | undefined;
 
 export type PathLikeContent = {
@@ -31,26 +30,21 @@ function getContentPathElements(path: ContentPathValue | string): string[] {
     return path.getElements?.() ?? path.toString().split('/').filter(Boolean);
 }
 
-export type ContentPathDisplayValues = {
-    pathLabel: string;
-    fullPath: string;
-};
-
-export function getUnnamedContentPathLabel(unnamedContentPathLabel: string): string {
-    return `<${unnamedContentPathLabel}>`;
+export function normalizeContentPathElement(pathElement: string, unnamedPathLabel: string): string {
+    return pathElement.startsWith(ContentUnnamed.UNNAMED_PREFIX) ? unnamedPathLabel : pathElement;
 }
 
-export function normalizeContentPathElement(pathElement: string, unnamedContentPathLabel: string): string {
-    return pathElement.startsWith(ContentUnnamed.UNNAMED_PREFIX) ? getUnnamedContentPathLabel(unnamedContentPathLabel) : pathElement;
+export function formatContentPath(path: ContentPathValue | string, unnamedPathLabel: string): string {
+    const elements = getContentPathElements(path).map((element: string) => normalizeContentPathElement(element, unnamedPathLabel));
+
+    return `/${elements.join('/')}`;
 }
 
-export function getContentPathDisplayValues(path: ContentPathValue | string, unnamedContentPathLabel: string): ContentPathDisplayValues {
-    const elements = getContentPathElements(path).map((element: string) => normalizeContentPathElement(element, unnamedContentPathLabel));
+export function formatContentFullPath(parentPath: ContentPathValue | string, leafLabel: string, unnamedPathLabel: string): string {
+    const elements = getContentPathElements(parentPath).map((element: string) => normalizeContentPathElement(element, unnamedPathLabel));
+    elements.push(leafLabel);
 
-    return {
-        pathLabel: elements.at(-1) ?? '',
-        fullPath: `/${elements.join('/')}`,
-    };
+    return `/${elements.join('/')}`;
 }
 
 export function isDescendantContentPath(parentPath: string | undefined, childPath: string | undefined): boolean {

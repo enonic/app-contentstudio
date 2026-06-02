@@ -14,7 +14,8 @@ export type WizardToolbarStore = {
     projectHasIcon: boolean;
     collaborators: WizardToolbarCollaborator[];
     publishStatus: PublishStatus | null;
-    contentPath: string;
+    contentName: string;
+    contentParentPath: string;
     canRenameContentPath: boolean;
     isContentOnline: boolean;
     contentState: ContentState | null;
