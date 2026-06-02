@@ -1092,7 +1092,13 @@ $wizardDataVersion.subscribe(() => {
 
 const PATH_CHECK_DEBOUNCE_MS = 500;
 
+// Sequence guard: only the latest path check may write the result. A slower
+// response for a stale name (or one resolving after the wizard was reset) must
+// be ignored, otherwise it could overwrite the state with an outdated value.
+let pathCheckSeq = 0;
+
 const debouncedPathCheck = createDebounce(async () => {
+    const seq = ++pathCheckSeq;
     const draftName = $wizardDraftName.get();
 
     if (!draftName || draftName.isUnnamed()) {
@@ -1114,8 +1120,10 @@ const debouncedPathCheck = createDebounce(async () => {
 
     try {
         const exists = await new ContentExistsByPathRequest(fullPath.toString()).sendAndParse();
+        if (seq !== pathCheckSeq) return;
         $wizardContentPathExists.set({fetching: false, exists});
     } catch {
+        if (seq !== pathCheckSeq) return;
         $wizardContentPathExists.set({fetching: false, exists: false});
     }
 }, PATH_CHECK_DEBOUNCE_MS);
@@ -1187,6 +1195,11 @@ export function resetWizardContent(): void {
     $wizardPersistedWorkflowState.set(null);
     $wizardDraftWorkflowState.set(null);
     $wizardDataValidation.set({});
+
+    // Invalidate any scheduled or in-flight path check so a stale response
+    // cannot mark the freshly opened content as invalid.
+    debouncedPathCheck.cancel();
+    pathCheckSeq++;
     $wizardContentPathExists.set({fetching: false, exists: false});
 
     $contentType.set(null);

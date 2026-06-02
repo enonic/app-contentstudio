@@ -118,12 +118,14 @@ export const ContentWizardToolbar = ({
     const nameFieldLabel = useI18n('field.name');
     const unnamedFieldLabel = useI18n('field.unnamed');
     const aiAssistantLabel = useI18n('tooltip.ai.assistant');
+    const pathExistsLabel = useI18n('notify.path.not.available');
     const projectViewLabel = projectLabel || projectRoot;
     const unnamedPathLabel = `<${unnamedFieldLabel}>`;
     const contentNameLabel = contentName || `<${nameFieldLabel}>`;
     const contentFullPath = canRenameContentPath
                             ? formatContentFullPath(contentParentPath, contentName || unnamedPathLabel, unnamedPathLabel)
                             : contentNameLabel;
+    const pathTitle = contentPathExists ? pathExistsLabel : contentFullPath;
 
     useEffect(() => {
         setInspectSaveAction(saveAction);
@@ -223,7 +225,7 @@ export const ContentWizardToolbar = ({
                                 size="sm"
                                 variant="text"
                                 className="min-w-0 max-w-full px-1.5 md:px-2.75"
-                                title={contentFullPath}
+                                title={pathTitle}
                                 disabled={!canRenameContentPath}
                                 onClick={onContentPathClick}
                             >
@@ -244,7 +246,7 @@ export const ContentWizardToolbar = ({
                                 size="md"
                                 icon={Link2}
                                 aria-label={contentNameLabel}
-                                title={contentFullPath}
+                                title={pathTitle}
                                 disabled={!canRenameContentPath}
                                 onClick={onContentPathClick}
                                 className="shrink-0 size-8"
