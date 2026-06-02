@@ -1,9 +1,19 @@
+import {Name} from '@enonic/lib-admin-ui/Name';
 import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {map} from 'nanostores';
 import {ContentName} from '../../../app/content/ContentName';
 import {ContentUnnamed} from '../../../app/content/ContentUnnamed';
 import type {PublishStatus} from '../../../app/publish/PublishStatus';
-import {$wizardContentState, $wizardDraftDisplayName, $wizardDraftName, $wizardPersistedDisplayName, $wizardPersistedName, setDraftName} from './wizardContent.store';
+import {$config} from './config.store';
+import {
+    $contentType,
+    $wizardContentState,
+    $wizardDraftDisplayName,
+    $wizardDraftName,
+    $wizardPersistedDisplayName,
+    $wizardPersistedName,
+    setDraftName,
+} from './wizardContent.store';
 import type {WizardToolbarCollaborator, WizardToolbarStore} from './wizardToolbar.types';
 
 const createInitialState = (): WizardToolbarStore => ({
@@ -25,7 +35,16 @@ const createInitialState = (): WizardToolbarStore => ({
 
 export const $wizardToolbar = map<WizardToolbarStore>(createInitialState());
 
+function isSimplifiedNameGeneration(): boolean {
+    const isMedia = $contentType.get()?.getContentTypeName()?.isDescendantOfMedia() ?? false;
+    return isMedia || !$config.get().allowPathTransliteration;
+}
+
 function prettifyName(displayName: string): string {
+    if (isSimplifiedNameGeneration()) {
+        return displayName.replace(Name.SIMPLIFIED_FORBIDDEN_CHARS, '').toLowerCase();
+    }
+
     return NamePrettyfier.prettify(displayName);
 }
 
@@ -45,8 +64,12 @@ function normalizeContentName(name: string): string {
 
 let previousDisplayName: string | undefined;
 
-$wizardDraftDisplayName.subscribe((displayName) => {
-    if ($wizardToolbar.get().isContentOnline || previousDisplayName === undefined || displayName === previousDisplayName) {
+$wizardDraftDisplayName.subscribe(displayName => {
+    if (
+        $wizardToolbar.get().isContentOnline ||
+        previousDisplayName === undefined ||
+        displayName === previousDisplayName
+    ) {
         previousDisplayName = displayName;
         return;
     }
@@ -71,12 +94,12 @@ $wizardDraftDisplayName.subscribe((displayName) => {
     previousDisplayName = displayName;
 });
 
-$wizardDraftName.subscribe((name) => {
+$wizardDraftName.subscribe(name => {
     const nameStr = name?.toString() || '';
     $wizardToolbar.setKey('contentName', normalizeContentName(nameStr));
 });
 
-$wizardContentState.subscribe((contentState) => {
+$wizardContentState.subscribe(contentState => {
     $wizardToolbar.setKey('contentState', contentState);
 });
 
@@ -84,7 +107,11 @@ export function setWizardToolbarProjectLabel(projectLabel: string): void {
     $wizardToolbar.setKey('projectLabel', projectLabel);
 }
 
-export function setWizardToolbarProjectInfo(projectName: string, projectLanguage: string, projectHasIcon: boolean): void {
+export function setWizardToolbarProjectInfo(
+    projectName: string,
+    projectLanguage: string,
+    projectHasIcon: boolean,
+): void {
     $wizardToolbar.setKey('projectName', projectName);
     $wizardToolbar.setKey('projectLanguage', projectLanguage);
     $wizardToolbar.setKey('projectHasIcon', projectHasIcon);
