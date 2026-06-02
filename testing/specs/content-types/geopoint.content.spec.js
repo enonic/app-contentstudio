@@ -1,5 +1,5 @@
 /**
- * Created on 8.10.2021
+ * Created on 8.10.2021 updated on 02.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -36,24 +36,24 @@ describe('geopoint.content.spec: tests for geo point content', function () {
             await geoPoint.waitForOccurrenceValidationRecordingNotDisplayedAt(0);
         });
 
-    it.skip(`GIVEN wizard for 'GeoPoint 0:0' is opened WHEN not valid value has been typed THEN validation message should be present`,
+    it(`GIVEN wizard for 'GeoPoint 0:0' is opened WHEN invalid value has been typed THEN validation message should be displayed`,
         async () => {
             let geoPoint = new GeoPointForm();
             let contentWizard = new ContentWizardPanel();
             await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.GEOPOINT_0_0);
             // 1. Type an incorrect geo point:
-            await geoPoint.typeInGeoPointInput(INCORRECT_GEO_LOCATION, 0);
             await contentWizard.typeDisplayName(GEO_POINT_CONTENT_NAME_1);
+            await geoPoint.typeInGeoPointInput(INCORRECT_GEO_LOCATION, 0);
             await studioUtils.saveScreenshot('geo_point_content_not_valid');
             // 2. Verify that validation message is displayed: 'Invalid value entered'
-            await geoPoint.waitForOccurrenceValidationRecordingDisplayedAt(appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED);
+            await geoPoint.waitForOccurrenceValidationRecordingDisplayedAt(0, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED);
             // 3. Save the content and check the red icon in the wizard:
             await contentWizard.waitAndClickOnSave();
             let isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid === false, 'This content should be valid');
         });
 
-    it.skip(`GIVEN invalid value has been typed in geo point input AND the content has been saved WHEN the content has been reopened THEN geo point input should be empty`,
+    it(`GIVEN invalid value has been typed in geo point input AND the content has been saved WHEN the content has been reopened THEN geo point input should be empty`,
         async () => {
             let geoPoint = new GeoPointForm();
             let contentWizard = new ContentWizardPanel();
