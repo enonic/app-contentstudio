@@ -91,7 +91,7 @@ export const AttachmentUploaderInput = ({
                 className="hidden"
             />
 
-            <div className={cn('w-full', !config.hideDropZone && canUpload && isDragging && 'border border-dashed rounded p-1')}>
+            <div className={cn('w-full', !config.hideDropZone && canUpload && isDragging && 'dash-border dash-border-select bg-bdr-select/8 rounded p-1')}>
                 <AttachmentUploaderList
                     names={attachmentNames}
                     contentId={contentId}

@@ -45,7 +45,7 @@ export const ImageUploadZone = (): ReactElement => {
 
     if (uploading) {
         return (
-            <div className='flex flex-col items-center justify-center gap-2 rounded-md border border-dashed border-info-rev p-8'>
+            <div className='flex flex-col items-center justify-center gap-2 rounded-md dash-border p-8'>
                 <div className='text-sm text-subtle'>{uploadingLabel}</div>
                 <div className='w-full max-w-60 h-2 rounded-full bg-muted overflow-hidden'>
                     <div
