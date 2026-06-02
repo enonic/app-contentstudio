@@ -12,6 +12,7 @@ describe('buildPluginConfig', () => {
             user: undefined,
             excludeDependencies: false,
             allowContentUpdate: false,
+            allowPathTransliteration: true,
             enableTextComponent: false,
             defaultPublishFromTime: undefined,
             aiEnabled: true,
