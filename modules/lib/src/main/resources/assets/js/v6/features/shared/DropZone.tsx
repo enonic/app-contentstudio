@@ -103,9 +103,9 @@ export const DropZone = ({
                 htmlFor={inputId}
                 className={cn(
                     'relative flex flex-col gap-2.5 size-full items-center justify-center p-5',
-                    'border border-dashed border-info-rev hover:cursor-pointer transition-all',
+                    'dash-border hover:cursor-pointer transition-all',
                     'peer-focus-visible:outline-none peer-focus-visible:ring-3 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-3 peer-focus-visible:ring-offset-ring-offset',
-                    isDragging && 'bg-info-rev/10 border-solid',
+                    isDragging && 'dash-border-select bg-bdr-select/8',
                 )}
             >
                 {icon}

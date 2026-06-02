@@ -50,6 +50,31 @@
   animation: text-shimmer-slide 1.5s ease-in-out infinite;
 }
 
+/*
+ * Decorative dashed border drawn as a background gradient, matching the page
+ * editor placeholders (16px dash period, 65% fill, 1px thick). The color comes
+ * from --dash-color, defaulting to the neutral decorative token; the -select
+ * variant switches it to the selection color for drag-over states.
+ */
+@utility dash-border {
+  background-image:
+    linear-gradient(90deg, var(--dash-color, var(--color-decorative)) 65%, transparent 0),
+    linear-gradient(90deg, var(--dash-color, var(--color-decorative)) 65%, transparent 0),
+    linear-gradient(0deg, var(--dash-color, var(--color-decorative)) 65%, transparent 0),
+    linear-gradient(0deg, var(--dash-color, var(--color-decorative)) 65%, transparent 0);
+  background-position: top, bottom, left, right;
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  background-size:
+    16px 1px,
+    16px 1px,
+    1px 16px,
+    1px 16px;
+}
+
+@utility dash-border-select {
+  --dash-color: var(--color-bdr-select);
+}
+
 /* HACKS */
 @layer overrides {
   /* Hide launcher buttons that is injected from Launcher app */
