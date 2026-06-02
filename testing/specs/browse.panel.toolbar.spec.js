@@ -29,7 +29,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'test for metadata', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddReadySite(SITE);
-            await studioUtils.findAndSelectItem(SITE.displayName);
+            await studioUtils.findContentAndClickCheckBox(SITE.displayName);
             FOLDER_NAME = appConst.generateRandomName('folder');
             let folder = contentBuilder.buildFolder(FOLDER_NAME);
             // opens folder-wizard, types a name and saves it then closes the wizard.

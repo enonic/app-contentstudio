@@ -88,7 +88,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             // 2. 'New' status should be displayed in the modal dialog:
             assert.equal(status, appConst.CONTENT_STATUS.NEW, "'New' status should be displayed in the dialog");
             // 3. 'Add Schedule' button should be displayed as well:
-            await contentPublishDialog.waitForAddScheduleIconDisplayed();
+            await contentPublishDialog.waitForScheduleButtonDisplayed();
             // 4. This item should not be removable, remove-icon should be disabled:
             let isDisabled = await contentPublishDialog.isRemoveItemIconDisabled(FOLDER1_NAME);
             assert.ok(isDisabled, "This item should not be removable, remove-icon should be disabled");
@@ -110,7 +110,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             let status = await contentPublishDialog.getContentStatus(appConst.TEST_FOLDER_WITH_IMAGES);
             assert.equal(status, 'New', `'New' status should be displayed in the dialog`);
             // 4. Verify  that "Add schedule" button should be displayed:
-            await contentPublishDialog.waitForAddScheduleIconDisplayed();
+            await contentPublishDialog.waitForScheduleButtonDisplayed();
             // 5. Remove-icon should be disabled for the Parent item
             let isDisabled = await contentPublishDialog.isRemoveItemIconDisabled(appConst.TEST_FOLDER_WITH_IMAGES);
             assert.ok(isDisabled, 'Remove icon should be disabled for the Parent item');

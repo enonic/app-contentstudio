@@ -12,11 +12,9 @@ const XPATH = {
     dialogTitle: "//h2[text()='Publishing Wizard']",
     dialogStateBarDiv: "//div[contains(@id,'DialogStateBar')]",
     logMessageLink: "//div[contains(@class,'content-dialog-sub-title')]/a",
-    publishScheduleForm: "//div[contains(@id,'PublishScheduleForm')]",
-    scheduleButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Schedule')]]`,
+    publishScheduleForm: "//div[@data-component='PublishScheduleForm']",
     includeChildrenToogler: `//div[contains(@id,'IncludeChildrenToggler')]`,
     checkableDependentItemDiv: `//div[contains(@id,'StatusCheckableItem')`,
-    addScheduleIcon: `//button[contains(@id,'ButtonEl') and contains(@class,'icon-calendar')]`,
     removeItemIcon: `//div[contains(@class,'icon remove')]`,
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
     changeLogInput: "//input[contains(@id,'AutosizeTextInput')]",
@@ -27,7 +25,6 @@ const XPATH = {
     invalidStateEntryDiv: "//div[contains(@id,'DialogStateEntry') and descendant::span[contains(@class,'icon-state-invalid')]]",
     inProgressSpan: "//span[contains(@class,'entry-text') and text()='In progress']",
     dependentItemToPublish: displayName => `//div[contains(@id,'StatusCheckableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
-    contentStatus: displayName => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/div[contains(@class,'status')][2]`,
     excludedItemsNote: "//span[@class='excluded-items-note']",
     publishChangeLogInput: "//input[contains(@placeholder,'Describe changes that will')]",
 };
@@ -79,12 +76,12 @@ class ContentPublishDialog extends Page {
         return XPATH.container + BUTTONS.buttonAriaLabel('Update Scheduled');
     }
 
-    get addScheduleIcon() {
+    get addScheduleButton() {
         return XPATH.container + BUTTONS.buttonByLabel('Schedule');
     }
 
-    get scheduleButton() {
-        return XPATH.container + BUTTONS.buttonByLabel('Schedule');
+    get confirmScheduleButton() {
+        return XPATH.container + BUTTONS.buttonByLabel('Confirm schedule');
     }
 
     get includeChildrenToogler() {
@@ -265,7 +262,7 @@ class ContentPublishDialog extends Page {
 
     async waitForDialogClosed() {
         try {
-            await this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
+            await this.waitForElementNotDisplayed(XPATH.container);
         } catch (err) {
             await this.handleError(`Publish Dialog, wait for dialog to be closed `, 'err_close_publish_dialog', err);
         }
@@ -273,7 +270,7 @@ class ContentPublishDialog extends Page {
 
     async clickOnPublishNowButton() {
         try {
-            await this.waitForElementDisplayed(this.publishNowButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.publishNowButton);
             await this.waitForElementEnabled(this.publishNowButton, appConst.longTimeout);
             await this.clickOnElement(this.publishNowButton);
             return await this.pause(500);
@@ -287,10 +284,10 @@ class ContentPublishDialog extends Page {
     }
 
     // Click on icon-calendar:
-    async clickOnAddScheduleIcon() {
+    async clickOnAddScheduleButton() {
         try {
-            await this.waitForElementDisplayed(this.addScheduleIcon, appConst.shortTimeout);
-            await this.clickOnElement(this.addScheduleIcon);
+            await this.waitForElementDisplayed(this.addScheduleButton);
+            await this.clickOnElement(this.addScheduleButton);
             return await this.pause(500);
         } catch (err) {
             await this.handleError(`Publish Dialog, click on 'Add Schedule' icon-button `, 'err_publish_dialog_schedule_button', err);
@@ -298,29 +295,37 @@ class ContentPublishDialog extends Page {
     }
 
     // Verifies that schedule button is enabled then clicks on it:
-    async clickOnScheduleButton() {
+    async clickOnConfirmScheduleButton() {
         try {
-            await this.waitForScheduleButtonEnabled();
-            await this.clickOnElement(this.scheduleButton);
+            await this.waitForConfirmScheduleButtonEnabled();
+            await this.clickOnElement(this.confirmScheduleButton);
             return await this.pause(300);
         } catch (err) {
             await this.handleError(`Publish Dialog, click on 'Schedule' button `, 'err_click_on_schedule_button', err);
         }
     }
 
-    waitForScheduleButtonDisplayed() {
-        return this.waitForElementEnabled(this.scheduleButton, appConst.mediumTimeout);
+    waitForConfirmScheduleButtonDisplayed() {
+        return this.waitForElementEnabled(this.confirmScheduleButton);
     }
 
     waitForScheduleButtonNotDisplayed(){
-        return this.waitForElementNotDisplayed(this.scheduleButton, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(this.addScheduleButton);
     }
     waitForScheduleButtonEnabled() {
-        return this.waitForElementEnabled(this.scheduleButton, appConst.mediumTimeout);
+        return this.waitForElementEnabled(this.addScheduleButton);
     }
 
     waitForScheduleButtonDisabled() {
-        return this.waitForElementDisabled(this.scheduleButton, appConst.mediumTimeout);
+        return this.waitForElementDisabled(this.addScheduleButton);
+    }
+
+    async waitForConfirmScheduleButtonEnabled() {
+        return await this.waitForElementEnabled(this.confirmScheduleButton);
+    }
+
+    async waitForConfirmScheduleButtonDisabled() {
+        return await this.waitForElementDisabled(this.confirmScheduleButton);
     }
 
     async clickOnShowExcludedItemsButton() {
@@ -345,7 +350,7 @@ class ContentPublishDialog extends Page {
 
     async waitForShowExcludedItemsButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.showExcludedItemsButton, appConst.mediumTimeout)
+            return await this.waitForElementDisplayed(this.showExcludedItemsButton);
         } catch (err) {
             await this.handleError(`Publish Dialog, 'Show excluded items' button should be visible, `, 'err_show_excluded_btn', err);
         }
@@ -361,7 +366,7 @@ class ContentPublishDialog extends Page {
 
     async waitForHideExcludedItemsButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.hideExcludedItemsButton);
         } catch (err) {
             await this.handleError(`Publish Dialog, 'Hide excluded items' button should be displayed, `, 'err_hide_excluded_btn', err);
         }
@@ -369,7 +374,7 @@ class ContentPublishDialog extends Page {
 
     async waitForHideExcludedItemsButtonNotDisplayed() {
         try {
-            return this.waitForElementNotDisplayed(this.hideExcludedItemsButton, appConst.mediumTimeout)
+            return this.waitForElementNotDisplayed(this.hideExcludedItemsButton);
         } catch (err) {
             await this.handleError(`Publish Dialog, 'Hide excluded items' button should not be displayed, `, 'err_hide_excluded_btn', err);
         }
@@ -377,7 +382,7 @@ class ContentPublishDialog extends Page {
 
     async clickOnIncludeChildrenToogler() {
         try {
-            await this.waitForElementDisplayed(this.includeChildrenToogler, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.includeChildrenToogler);
             await this.clickOnElement(this.includeChildrenToogler);
             return await this.pause(700);
         } catch (err) {
@@ -387,7 +392,7 @@ class ContentPublishDialog extends Page {
 
     async waitForScheduleButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.scheduleButton);
+            return await this.waitForElementDisplayed(this.addScheduleButton);
         } catch (err) {
             throw new Error("'Schedule' button should be visible!" + err);
         }
@@ -416,22 +421,6 @@ class ContentPublishDialog extends Page {
         return await this.getTextInInput(this.changeLogInput);
     }
 
-    async waitForAddScheduleIconDisplayed() {
-        try {
-            return await this.waitForElementDisplayed(this.addScheduleIcon, appConst.shortTimeout)
-        } catch (err) {
-            await this.handleError(`Publish Dialog, 'Add Schedule' button should be displayed, `, 'err_add_schedule_icon', err);
-
-        }
-    }
-
-    async waitForAddScheduleIconNotDisplayed() {
-        try {
-            return this.waitForElementNotDisplayed(this.addScheduleIcon, appConst.shortTimeout)
-        } catch (err) {
-            await this.handleError(`Publish Dialog, 'Add Schedule' button should not be displayed, `, 'err_add_schedule_icon', err);
-        }
-    }
 
     async isLogMessageLinkDisplayed() {
         await this.saveScreenshotUniqueName('publish_dlg_log_message_input');
@@ -478,6 +467,13 @@ class ContentPublishDialog extends Page {
         await dateTimeRange.typeOnlineFrom(dateTime);
         return await this.pause(300);
     }
+
+    async getValueInOnlineFrom(dateTime) {
+        let dateTimeRange = new DateTimeRange(XPATH.container);
+        return await dateTimeRange.getOnlineFrom();
+    }
+
+    getOnlineFrom
 
     async showOnlineToPickerPopup() {
         let dateTimeRange = new DateTimeRange(XPATH.container);
@@ -555,9 +551,9 @@ class ContentPublishDialog extends Page {
         return await this.waitForElementDisplayed(locator);
     }
 
-    async clickOnCloseScheduleFormButton() {
+    async clickOnCancelScheduleFormButton() {
         try {
-            let locator = XPATH.container + XPATH.publishScheduleForm + `//a[contains(@class,'icon-close')]`;
+            let locator = XPATH.container + BUTTONS.buttonAriaLabel('Cancel schedule');
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             await this.clickOnElement(locator);
             return await this.pause(300);
@@ -566,9 +562,9 @@ class ContentPublishDialog extends Page {
         }
     }
 
-    waitForScheduleFormNotDisplayed() {
-        let locator = XPATH.container + XPATH.publishScheduleForm + "//a[contains(@class,'icon-close')]";
-        return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+    async waitForScheduleFormNotDisplayed() {
+        let locator = XPATH.container + XPATH.publishScheduleForm;
+        return await this.waitForElementNotDisplayed(locator);
     }
 
     // get number of items in the span: In progress (4)
@@ -615,22 +611,30 @@ class ContentPublishDialog extends Page {
         return await this.getAttribute(locator, 'data-count');
     }
 
-    getScheduleValidationRecord() {
+    getOnlineToScheduleValidationRecord() {
         let dateTimeRange = new DateTimeRange(XPATH.container);
-        return dateTimeRange.getValidationRecord();
+        return dateTimeRange.getOnlineToValidationRecord();
     }
 
-    waitForScheduleValidationMessageNotDisplayed() {
+    waitForOnlineToScheduleValidationMessageNotDisplayed() {
         let dateTimeRange = new DateTimeRange(XPATH.container);
-        return dateTimeRange.waitForValidationRecordingNotDisplayed();
+        return dateTimeRange.waitForOnlineToValidationRecordingNotDisplayed();
     }
 
-    async waitForScheduleValidationMessageDisplayed() {
+    async waitForOnlineToScheduleValidationMessageDisplayed() {
         try {
             let dateTimeRange = new DateTimeRange(XPATH.container);
-            return await dateTimeRange.waitForValidationRecording(appConst.shortTimeout);
+            return await dateTimeRange.waitForOnlineToValidationRecording();
         } catch (err) {
-            await this.handleError(`Publish Dialog, schedule validation message should be displaye `, 'err_schedule_val_message', err);
+            await this.handleError(`Publish Dialog, schedule validation message should be displayed `, 'err_schedule_val_message', err);
+        }
+    }
+    async waitForOnlineFromScheduleValidationMessageDisplayed() {
+        try {
+            let dateTimeRange = new DateTimeRange(XPATH.container);
+            return await dateTimeRange.waitForOnlineFromValidationRecording();
+        } catch (err) {
+            await this.handleError(`Publish Dialog, schedule validation message should be displayed `, 'err_schedule_val_message', err);
         }
     }
 
