@@ -174,7 +174,7 @@ module.exports = Object.freeze({
     VALIDATION_MESSAGE: {
         TEXT_IS_TOO_LONG: 'Text is too long',
         INVALID_VALUE_ENTERED: 'Invalid value entered',
-        SCHEDULE_FORM_ONLINE_PAST: "Online to cannot be in the past",
+        SCHEDULE_FORM_ONLINE_PAST: "Online To cannot be in the past",
         SCHEDULE_FORM_ONLINE_FROM_EMPTY: "Online to cannot be set without Online from",
         THIS_FIELD_IS_REQUIRED: 'This field is required',
         SINGLE_SELECTION_OPTION_SET: "At least one option must be selected",

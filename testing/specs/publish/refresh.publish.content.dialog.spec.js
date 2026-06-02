@@ -1,5 +1,5 @@
 /**
- * Created on 05.08.2019.
+ * Created on 05.08.2019.  updated on 02.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -18,10 +18,10 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
         webDriverHelper.setupBrowser();
     }
     let FOLDER;
-    const DEFAULT_TIME_POPUP = '12:00';
+    const DEFAULT_TIME_POPUP = '16:00';
     const DATE_TIME_IN_PAST = '2022-01-10 00:00';
 
-    it(`GIVEN 'Ready for publishing' folder is selected AND Publish dialog has been opened WHEN a language has been selected for the folder THEN the workflow-status should be not updated in Publish Wizard`,
+    it(`GIVEN 'Ready for publishing' folder is selected AND Publish dialog has been opened WHEN a language has been selected for the folder THEN the workflow-status should be work in progress`,
         async () => {
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -41,17 +41,18 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             await editSettingsDialog.filterOptionsAndSelectLanguage(appConst.LANGUAGES.EN);
             await editSettingsDialog.clickOnApplyButton();
             await contentWizard.waitForNotificationMessage();
-            // TODO bug Enonic ui
-            //await contentWizard.waitForSaveButtonDisabled();
+            await contentWizard.waitForSaveButtonDisabled();
             await contentWizard.pause(1000);
             // 5. close the wizard
             await studioUtils.doCloseWizardAndSwitchToGrid();
             // 6. Switch to the Browse Panel  - Publish Modal Dialog is still opened:
             let workflowStatus = await contentPublishDialog.getWorkflowIconState(FOLDER.displayName);
-            assert.equal(workflowStatus, 'ready', "Workflow status should be 'Ready for publishing' in the modal dialog");
+            assert.equal(workflowStatus, 'in-progress', "Workflow status should be 'in-progress' in the modal dialog");
+            await contentPublishDialog.waitForScheduleButtonDisabled();
+            await contentPublishDialog.clickOnMarkAsReadyButton();
             await contentPublishDialog.waitForPublishNowButtonEnabled();
             // 7. 'Add Schedule' button  should be displayed, because the content is `Ready for publishing`
-            await contentPublishDialog.waitForScheduleButtonDisplayed();
+            await contentPublishDialog.waitForScheduleButtonEnabled();
         });
 
     it(`GIVEN schedule form has been added WHEN 'Online to' in past has been inserted THEN expected validation message should appear`,
@@ -65,15 +66,15 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
             // 2. Verify that icon-calendar gets visible now. Click on this icon:
-            await contentPublishDialog.clickOnAddScheduleIcon();
+            await contentPublishDialog.clickOnAddScheduleButton();
             await contentPublishDialog.typeInOnlineTo(DATE_TIME_IN_PAST);
-            await contentPublishDialog.waitForScheduleValidationMessageDisplayed();
-            let actualMsg = await contentPublishDialog.getScheduleValidationRecord();
+            await contentPublishDialog.waitForOnlineToScheduleValidationMessageDisplayed();
+            let actualMsg = await contentPublishDialog.getOnlineToScheduleValidationRecord();
             assert.strictEqual(actualMsg, appConst.VALIDATION_MESSAGE.SCHEDULE_FORM_ONLINE_PAST,
                 'Expected validation message should appear');
         });
 
-    it(`GIVEN schedule form has been added WHEN click on hours 'arrow down' (set the date in the future) icon in 'Online to' THEN validation message should not be displayed in the modal dialog`,
+    it(`WHEN click on a day in 'Next month' (set the date in the future) icon in 'Online to' THEN validation message should not be displayed in the modal dialog`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
@@ -81,25 +82,23 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             let dateRangeInput = new DateRangeInput();
             // 1. Select existing 'work in progress' folder and open Publish Dialog
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
+            await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
-            // 2. Click on this icon Add Schedule calendar icon:
-            await contentPublishDialog.clickOnAddScheduleIcon();
+            // 2. Click on this icon 'Schedule' button:
+            await contentPublishDialog.clickOnAddScheduleButton();
             // 3. Open 'Online To' date time picker popup:
             await contentPublishDialog.showOnlineToPickerPopup();
             await studioUtils.saveScreenshot('schedule_picker_popup_online_to_1');
             // Click on  'arrow up' in hours in the Online To Picker popup:
-            await dateTimePickerPopup.clickOnHoursArrowDown();
+            await dateTimePickerPopup.clickOnNextMonthButton();
+            await dateTimePickerPopup.clickOnDayInCalendar(10);
             await studioUtils.saveScreenshot('schedule_picker_popup_online_to_2');
-            await dateRangeInput.pause(1000);
-            // 4. Verify that Picker popup is still displayed AND 23 hours is set for the current date:
-            await dateRangeInput.waitForOnlineToPickerDisplayed();
             await dateTimePickerPopup.clickOnOkButton();
             // 5. Online to is in the future, so validation message should not be displayed:
-            await contentPublishDialog.waitForScheduleValidationMessageNotDisplayed();
+            await contentPublishDialog.waitForOnlineToScheduleValidationMessageNotDisplayed();
         });
 
-    it(`GIVEN schedule form has been added WHEN click on hours 'arrow up' icon in 'Online to'(set time in the past) THEN validation message should be displayed in the modal dialog`,
+    it(`WHEN click on a day 'Prev month' icon in 'Online to'(set time in the past) THEN validation message should be displayed in the modal dialog`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
@@ -107,23 +106,22 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             let dateRangeInput = new DateRangeInput();
             // 1. Select existing 'work in progress' folder and open Publish Dialog
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
+            await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
             // 2. Click on this icon Add Schedule calendar icon:
-            await contentPublishDialog.clickOnAddScheduleIcon();
+            await contentPublishDialog.clickOnAddScheduleButton();
             // 3. Open 'Online To' date time picker popup:
             await contentPublishDialog.showOnlineToPickerPopup();
             await studioUtils.saveScreenshot('schedule_picker_popup_online_to_1');
             // 4. Click on  'arrow up' in hours in the Online To Picker popup:
-            await dateTimePickerPopup.clickOnHoursArrowUp();
+            await dateTimePickerPopup.clickOnPrevMonthButton();
+            await dateTimePickerPopup.clickOnDayInCalendar(10);
             await studioUtils.saveScreenshot('schedule_picker_popup_online_to_2');
-            await dateRangeInput.pause(1000);
-            // 5. Verify that Picker popup is still displayed AND date in the past has been set:
-            await dateRangeInput.waitForOnlineToPickerDisplayed();
+            await dateRangeInput.pause(100);
             await dateTimePickerPopup.clickOnOkButton();
             // 6. Online to is in the past, so validation message should  be displayed:
-            await contentPublishDialog.waitForScheduleValidationMessageDisplayed();
-            let message = await contentPublishDialog.getScheduleValidationRecord();
+            await contentPublishDialog.waitForOnlineToScheduleValidationMessageDisplayed();
+            let message = await contentPublishDialog.getOnlineToScheduleValidationRecord();
             assert.equal(message, appConst.VALIDATION_MESSAGE.SCHEDULE_FORM_ONLINE_PAST,
                 'Expected message - Online to cannot be in the past');
         });
@@ -135,53 +133,52 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             let dateTimePickerPopup = new DateTimePickerPopup();
             // 1. Select existing 'ready' folder and open Publish Dialog
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
+            await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
             // 2. Click on 'Add schedule' button:
-            await contentPublishDialog.clickOnAddScheduleIcon();
+            await contentPublishDialog.clickOnAddScheduleButton();
             // 3. Open Oline from Picker popup:
             await contentPublishDialog.showOnlineFormPickerPopup();
+            await dateTimePickerPopup.clickOnOkButton();
             // 4. Verify that without publishingWizard.defaultPublishFromTime config default time is set to "12:00"
-            let actualTime = await dateTimePickerPopup.getTimeInOnlineFrom();
-            assert.equal(actualTime, DEFAULT_TIME_POPUP, 'The default time should be displayed in the online from Picker Popup');
+            let actualTime = await contentPublishDialog.getValueInOnlineFrom();
+            assert.ok(actualTime.includes(DEFAULT_TIME_POPUP), 'The default time should be displayed in the online from Picker Popup');
         });
 
-    it(`WHEN schedule form has been added in the modal dialog THEN 'Schedule' button should be disabled`,
+    it(`WHEN schedule form has been added in the modal dialog THEN 'Confirm Schedule' button should be enabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
             // 1. Select existing 'ready' folder and open Publish Dialog
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
+            await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
             // 2. Click on 'Add schedule' button:
-            await contentPublishDialog.clickOnAddScheduleIcon();
-            // 3. Verify that 'Schedule' button is disabled (online form is not filled)
-            await contentPublishDialog.waitForScheduleButtonDisabled();
+            await contentPublishDialog.clickOnAddScheduleButton();
+            // 3. Verify that 'Confirm Schedule' button is enabled - online form is now by default
+            await contentPublishDialog.waitForConfirmScheduleButtonEnabled();
             // 4. Fill in the 'online from' input
             await contentPublishDialog.typeInOnlineFrom(DATE_TIME_IN_PAST);
             // 5. Verify that 'Schedule' button gets enabled in the modal dialog
-            await contentPublishDialog.waitForScheduleButtonEnabled();
+            await contentPublishDialog.waitForConfirmScheduleButtonEnabled();
         });
 
-    it(`GIVEN schedule form has been added in the modal dialog WHEN close schedule-form button has been clicked THEN date time inputs gets hidden`,
+    it(`GIVEN schedule form has been added in the modal dialog WHEN Cancel schedule-form button has been clicked THEN date time inputs gets hidden`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
             // 1. Select existing 'ready' folder and open Publish Dialog
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-            await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
+            await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
             // 2. Click on 'Add schedule' button:
-            await contentPublishDialog.clickOnAddScheduleIcon();
-            // 3. Verify that 'Schedule' button is disabled (online from is not filled)
-            await contentPublishDialog.waitForScheduleButtonDisabled();
-            // 4. Click on 'Close Schedule Form'
-            await contentPublishDialog.clickOnCloseScheduleFormButton();
-            // 5. Schedule form should not be visible:
+            await contentPublishDialog.clickOnAddScheduleButton();
+            // 3. Click on 'Cancel Schedule Form'
+            await contentPublishDialog.clickOnCancelScheduleFormButton();
+            // 4. Schedule form should not be visible:
             await contentPublishDialog.waitForScheduleFormNotDisplayed();
-            // 6. Verify that 'Add Schedule' button gets visible  again:
-            await contentPublishDialog.waitForAddScheduleIconDisplayed();
+            // 5. Verify that 'Schedule' button gets visible  again:
+            await contentPublishDialog.waitForScheduleButtonDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
