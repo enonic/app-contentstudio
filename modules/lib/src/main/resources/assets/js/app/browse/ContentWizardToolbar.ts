@@ -28,14 +28,14 @@ import {
     setWizardToolbarCanRenameContentPath,
     resetWizardToolbar,
     setWizardToolbarContentInheritance,
-    setWizardToolbarContentPath,
+    setWizardToolbarContentName,
+    setWizardToolbarContentParentPath,
     setWizardToolbarCollaborators,
     setWizardToolbarIsContentOnline,
     setWizardToolbarIsLayerProject,
     setWizardToolbarProjectInfo,
     setWizardToolbarProjectLabel,
     setWizardToolbarPublishStatus,
-    resolveWizardToolbarContentFullPath,
 } from '../../v6/features/store/wizardToolbar.store';
 import {$wizardDraftName, setDraftName} from '../../v6/features/store/wizardContent.store';
 import {openRenameContentDialog} from '../../v6/features/store/dialogs/renameContentDialog.store';
@@ -55,8 +55,6 @@ export type ContentWizardToolbarConfig = ToolbarConfig & {
 class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
 
     ariaLabel: string = i18n('wcag.contenteditor.toolbar.label');
-
-    private readonly unnamedContentPathLabel = i18n('field.unnamed');
 
     private readonly config: ContentWizardToolbarConfig;
 
@@ -174,16 +172,10 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
     setItem(item: ContentSummaryAndCompareStatus): void {
         this.item = item;
         const publishStatus = this.resolveToolbarPublishStatus(item);
-        const contentPath = this.resolveToolbarContentPath(item);
-        this.setProps({
-            getContentFullPath: (currentContentPath: string) => resolveWizardToolbarContentFullPath(
-                item,
-                currentContentPath,
-                this.unnamedContentPathLabel,
-            ),
-        });
+        const contentName = this.resolveToolbarContentName(item);
         setWizardToolbarPublishStatus(publishStatus);
-        setWizardToolbarContentPath(contentPath);
+        setWizardToolbarContentName(contentName);
+        setWizardToolbarContentParentPath(item?.getPath()?.getParentPath()?.toString() ?? '');
         setWizardToolbarCanRenameContentPath(!!item?.getPath());
         setWizardToolbarIsContentOnline(this.isOnline(publishStatus));
         setWizardToolbarContentInheritance(!!item?.isInherited(), !!item?.isDataInherited());
@@ -301,7 +293,7 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
         return publishStatus != null && publishStatus !== PublishStatus.OFFLINE;
     }
 
-    private resolveToolbarContentPath(item: ContentSummaryAndCompareStatus): string {
+    private resolveToolbarContentName(item: ContentSummaryAndCompareStatus): string {
         const draftName = $wizardDraftName.get()?.toString() || '';
         if (draftName.length > 0) {
             return draftName;
@@ -367,7 +359,6 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
             initialName,
             persistedName,
             isPublished: this.config.actions.isOnline(),
-            unnamedContentPathLabel: this.unnamedContentPathLabel,
         }).then((newName?: string) => {
             if (!newName) {
                 return;

@@ -2,11 +2,6 @@ import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {computed, map} from 'nanostores';
 import {ContentPath} from '../../../../app/content/ContentPath';
 import {ContentExistsByPathRequest} from '../../../../app/resource/ContentExistsByPathRequest';
-import {
-    type ContentPathDisplayValues,
-    getContentPathDisplayValues,
-    getUnnamedContentPathLabel,
-} from '../../utils/cms/content/paths';
 
 export type RenameContentDialogMode = 'rename-published' | 'rename' | 'set-name';
 export type RenameContentDialogAvailabilityStatus = 'not-available' | 'checking' | 'available';
@@ -14,10 +9,9 @@ export type RenameContentDialogAvailabilityStatus = 'not-available' | 'checking'
 type RenameContentDialogStore = {
     open: boolean;
     mode: RenameContentDialogMode;
-    fullPath: string;
+    pathName: string;
     initialName: string;
     value: string;
-    placeholder: string;
     parentPath?: ContentPath;
     availabilityStatus?: RenameContentDialogAvailabilityStatus;
 };
@@ -27,16 +21,14 @@ type OpenRenameContentDialogParams = {
     initialName: string;
     persistedName?: string;
     isPublished: boolean;
-    unnamedContentPathLabel: string;
 };
 
 const initialState: RenameContentDialogStore = {
     open: false,
     mode: 'rename',
-    fullPath: '',
+    pathName: '',
     initialName: '',
     value: '',
-    placeholder: '',
     parentPath: undefined,
     availabilityStatus: undefined,
 };
@@ -66,25 +58,6 @@ const clearAvailabilityTimer = (): void => {
 
 const buildPath = (parentPath: ContentPath, name: string): ContentPath => {
     return ContentPath.create().fromParent(parentPath, name).build();
-};
-
-const buildContentPathDisplayValues = (
-    parentPath: ContentPath,
-    name: string,
-    unnamedContentPathLabel: string,
-): ContentPathDisplayValues => {
-    const normalizedName = name.trim();
-    if (normalizedName) {
-        return getContentPathDisplayValues(buildPath(parentPath, normalizedName), unnamedContentPathLabel);
-    }
-
-    const parentFullPath = getContentPathDisplayValues(parentPath, unnamedContentPathLabel).fullPath;
-    const pathLabel = getUnnamedContentPathLabel(unnamedContentPathLabel);
-
-    return {
-        pathLabel,
-        fullPath: `${parentFullPath === '/' ? '' : parentFullPath}/${pathLabel}`,
-    };
 };
 
 const resetRenameContentDialog = (): void => {
@@ -148,7 +121,6 @@ export const openRenameContentDialog = ({
     initialName,
     persistedName,
     isPublished,
-    unnamedContentPathLabel,
 }: OpenRenameContentDialogParams): Promise<string | undefined> => {
     resolveDialog?.(undefined);
     resolveDialog = undefined;
@@ -159,17 +131,15 @@ export const openRenameContentDialog = ({
     const mode: RenameContentDialogMode = hasName
         ? (isPublished ? 'rename-published' : 'rename')
         : 'set-name';
-    const {fullPath, pathLabel} = buildContentPathDisplayValues(parentPath, normalizedInitialName, unnamedContentPathLabel);
 
     resetRenameContentDialog();
     $renameContentDialog.set({
         ...structuredClone(initialState),
         open: true,
         mode,
-        fullPath,
+        pathName: normalizedInitialName,
         initialName: normalizedPersistedName,
         value: hasName ? normalizedInitialName : '',
-        placeholder: pathLabel,
         parentPath,
     });
 
