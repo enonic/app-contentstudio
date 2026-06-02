@@ -664,10 +664,10 @@ export const updateIssueDialogSchedule = async (
     }
 };
 
-export const updateIssueDialogItems = async (nextItemIds: ContentId[]): Promise<void> => {
+export const updateIssueDialogItems = async (nextItemIds: ContentId[]): Promise<boolean> => {
     const context = getIssueContext('itemsUpdating');
     if (!context) {
-        return;
+        return false;
     }
     const {issueId, dialogState, issueWithAssignees, issue} = context;
 
@@ -675,7 +675,7 @@ export const updateIssueDialogItems = async (nextItemIds: ContentId[]): Promise<
     const publishRequest = issue.getPublishRequest();
     const currentItemIds = publishRequest?.getItemsIds() ?? [];
     if (isIdsEqual(currentItemIds, nextUniqueIds)) {
-        return;
+        return true;
     }
 
     $issueDialogDetails.setKey('itemsUpdating', true);
@@ -695,7 +695,7 @@ export const updateIssueDialogItems = async (nextItemIds: ContentId[]): Promise<
         .setPublishRequestItems(nextItems)
         .build();
 
-    await updateIssueWithPublishRequest({
+    return !!await updateIssueWithPublishRequest({
         issueId,
         issue,
         dialogState,
@@ -986,7 +986,7 @@ const updateIssueWithPublishRequest = async ({
     dialogState: IssueDialogState;
     issueWithAssignees?: IssueWithAssignees;
     nextPublishRequest: PublishRequest;
-}): Promise<void> => {
+}): Promise<Issue | undefined> => {
     try {
         const request = new UpdateIssueRequest(issueId)
             .setTitle(issue.getTitle())
@@ -997,17 +997,21 @@ const updateIssueWithPublishRequest = async ({
         populateSchedule(request, issue);
         const updatedIssue = await request.sendAndParse();
 
-        applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, {itemsUpdating: false});
+        applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, {});
+        await loadIssueDialogItems(updatedIssue, {forceReload: true});
+        $issueDialogDetails.setKey('itemsUpdating', false);
 
         const prefix = updatedIssue.getType() === IssueType.PUBLISH_REQUEST
                        ? 'notify.publishRequest.'
                        : 'notify.issue.';
         showFeedback(i18n(`${prefix}updated`));
         void loadIssueDialogList();
+        return updatedIssue;
     } catch (error) {
         console.error(error);
         $issueDialogDetails.setKey('itemsUpdating', false);
         showError(error?.message ?? String(error));
+        return undefined;
     }
 };
 

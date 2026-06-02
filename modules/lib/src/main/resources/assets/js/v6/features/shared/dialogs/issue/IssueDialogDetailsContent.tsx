@@ -295,6 +295,10 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const scheduleFromRef = useRef<Date | undefined>(issuePublishFrom);
     const scheduleToRef = useRef<Date | undefined>(issuePublishTo);
 
+    const focusBackButton = useCallback((): void => {
+        requestAnimationFrame(() => backButtonRef.current?.focus());
+    }, []);
+
     const {options: assigneeOptions, handleSearchChange} = useAssigneeSearch({
         publishableContentIds: publishTargetIds,
         useRootFallback: true,
@@ -365,19 +369,6 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         [requiredDependantIds],
     );
     const itemsWithUnpublishedChildren = useItemsWithUnpublishedChildren(items);
-    const selectedItemKey = useMemo(
-        () => selectedItemIds.map(id => id.toString()).join('|'),
-        [selectedItemIds],
-    );
-    const selectedItemConfigKey = useMemo(() => {
-        const itemsConfig = issueData?.getPublishRequest()?.getItems() ?? [];
-        return itemsConfig
-            .map(item => `${item.getId().toString()}:${item.isIncludeChildren() ? 1 : 0}`)
-            .join('|');
-    }, [issueData]);
-    const excludedDependantKey = useMemo(() => {
-        return issueData?.getPublishRequest()?.getExcludeIds().map(id => id.toString()).join('|') ?? '';
-    }, [issueData]);
 
     const selectedAssigneeOptions = useAssigneeSelection({
         assigneeIds,
@@ -392,7 +383,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
             return;
         }
         void loadIssueDialogItems(issueData);
-    }, [issueDataId, selectedItemConfigKey, excludedDependantKey, loadIssueDialogItems]);
+    }, [issueDataId, loadIssueDialogItems]);
 
     const handleStatusChange = (next: string): void => {
         if (!isStatusOption(next)) {
@@ -441,12 +432,13 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     useEffect(() => {
         return () => {
             debouncedUpdateItems.cancel();
+            pendingItemIdsRef.current = null;
         };
     }, [debouncedUpdateItems]);
 
     useEffect(() => {
         pendingItemIdsRef.current = null;
-    }, [selectedItemKey]);
+    }, [selectedItemIds]);
 
     const handleAssigneesChange = (next: readonly string[]): void => {
         debouncedUpdateAssignees([...next]);
@@ -460,6 +452,23 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         pendingItemIdsRef.current = nextIds;
         debouncedUpdateItems(nextIds);
     }, [issueData, debouncedUpdateItems]);
+
+    const handleItemsApply = useCallback(async (nextSelection: readonly string[]): Promise<void> => {
+        if (!issueData) {
+            return;
+        }
+        debouncedUpdateItems.cancel();
+        const nextIds = nextSelection.map(id => new ContentId(id));
+        pendingItemIdsRef.current = null;
+        const updated = await updateIssueDialogItems(nextIds);
+        if (updated) {
+            focusBackButton();
+        }
+    }, [issueData, debouncedUpdateItems, focusBackButton]);
+
+    const handleItemsAppliedSelectionChange = useCallback((nextSelection: readonly string[]): void => {
+        void handleItemsApply(nextSelection);
+    }, [handleItemsApply]);
 
     const handleItemRemoved = useCallback((id: ContentId): void => {
         if (!issueData) {
@@ -538,7 +547,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
     const handleCommentSubmit = async (focusBackAfterSubmit = false): Promise<void> => {
         const submitted = await submitIssueDialogComment();
         if (submitted && focusBackAfterSubmit) {
-            requestAnimationFrame(() => backButtonRef.current?.focus());
+            focusBackButton();
         }
     };
 
@@ -775,6 +784,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                     label={itemsLabel}
                                     selection={selectedItemIdStrings}
                                     onSelectionChange={handleSelectionChange}
+                                    onAppliedSelectionChange={handleItemsAppliedSelectionChange}
                                     disabled={isItemsDisabled}
                                     closeOnBlur={true}
                                 />
@@ -896,6 +906,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                 searchPlaceholder={inviteUsersLabel}
                                 emptyLabel={noResultsLabel}
                                 onSelectionChange={handleAssigneesChange}
+                                onAppliedSelectionChange={focusBackButton}
                                 onSearchChange={handleSearchChange}
                                 disabled={isAssigneesDisabled}
                                 className='min-h-0 flex-1'

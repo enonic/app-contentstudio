@@ -97,7 +97,6 @@ export function useContentComboboxController(options: UseContentComboboxControll
     // Refs
     const virtuosoRef = useRef<VirtuosoHandle>(null);
     const inputRef = useRef<HTMLInputElement | null>(null);
-    const prevOpenRef = useRef(false);
 
     // View state
     const [open, setOpen] = useState(false);
@@ -167,16 +166,6 @@ export function useContentComboboxController(options: UseContentComboboxControll
         if (!open) {
             lastSearchedQueryRef.current = null;
         }
-    }, [open]);
-
-    // Focus restoration - return focus to input when dropdown closes
-    useEffect(() => {
-        if (prevOpenRef.current && !open) {
-            requestAnimationFrame(() => {
-                inputRef.current?.focus();
-            });
-        }
-        prevOpenRef.current = open;
     }, [open]);
 
     // Reset active item when list changes

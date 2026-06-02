@@ -21,6 +21,7 @@ const EMPTY_STRING_ARRAY: string[] = [];
 export type ContentComboboxProps = {
     'selection': readonly string[];
     'onSelectionChange': (selection: readonly string[]) => void;
+    'onAppliedSelectionChange'?: (selection: readonly string[]) => void;
     'selectionMode'?: 'single' | 'multiple';
     'listMode'?: 'tree' | 'flat';
     'closeOnBlur'?: boolean;
@@ -69,6 +70,7 @@ const CONTENT_COMBOBOX_NAME = 'ContentCombobox';
 export const ContentCombobox = ({
     selection,
     onSelectionChange,
+    onAppliedSelectionChange,
     selectionMode = 'multiple',
     'listMode': externalListMode = 'tree',
     closeOnBlur = false,
@@ -160,6 +162,9 @@ export const ContentCombobox = ({
 
     // Use staged selection mode for multiple selection
     const comboboxSelectionMode = selectionMode === 'multiple' ? 'staged' : 'single';
+    const handleSelectionChange = comboboxSelectionMode === 'staged' && onAppliedSelectionChange
+                                  ? onAppliedSelectionChange
+                                  : onSelectionChange;
 
     return (
         <div data-component={CONTENT_COMBOBOX_NAME} className={cn('flex flex-col gap-2.5', className)}>
@@ -174,7 +179,7 @@ export const ContentCombobox = ({
                 value={inputValue}
                 onChange={setInputValue}
                 selection={selection}
-                onSelectionChange={onSelectionChange}
+                onSelectionChange={handleSelectionChange}
                 selectionMode={comboboxSelectionMode}
                 contentType="tree"
                 closeOnBlur={closeOnBlur}

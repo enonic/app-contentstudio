@@ -1,6 +1,6 @@
 import {Combobox, IconButton, ListItem, Listbox, cn} from '@enonic/ui';
 import {X} from 'lucide-react';
-import {useEffect, useMemo, useRef, useState, type ReactElement} from 'react';
+import {useEffect, useMemo, useState, type ReactElement} from 'react';
 import {createDebounce} from '../../../utils/timing/createDebounce';
 import {AssigneeOptionItem} from './AssigneeOptionItem';
 import {AssigneeOptionRow} from './AssigneeOptionRow';
@@ -12,6 +12,7 @@ export type AssigneeSelectorProps = {
     options: AssigneeSelectorOption[];
     selection: readonly string[];
     onSelectionChange: (selection: readonly string[]) => void;
+    onAppliedSelectionChange?: (selection: readonly string[]) => void;
     selectedOptions?: AssigneeSelectorOption[];
     selectedListClassName?: string;
     applyLabel?: string;
@@ -57,6 +58,7 @@ export const AssigneeSelector = ({
     options,
     selection,
     onSelectionChange,
+    onAppliedSelectionChange,
     selectedOptions,
     selectedListClassName,
     applyLabel,
@@ -72,10 +74,10 @@ export const AssigneeSelector = ({
     const [open, setOpen] = useState(false);
     const [inputValue, setInputValue] = useState('');
     const [activeItem, setActiveItem] = useState<string | null>(null);
-    const inputRef = useRef<HTMLInputElement>(null);
-    const restoreFocusRef = useRef(false);
 
     const selectedIds = selection ?? [];
+    const SELECTED_IDS_KEY_SEPARATOR = '\u0000';
+    const selectedIdsKey = selectedIds.join(SELECTED_IDS_KEY_SEPARATOR);
     const shouldFilter = filterOptions ?? !onSearchChange;
 
     const optionLookup = useMemo(() => {
@@ -103,7 +105,7 @@ export const AssigneeSelector = ({
         selectedIds.forEach(register);
 
         return {rawToSafe, safeToRaw};
-    }, [options, selectedOptions, selectedIds]);
+    }, [options, selectedOptions, selectedIdsKey]);
 
     const selectedOptionList = useMemo(() => {
         return selectedIds
@@ -165,40 +167,20 @@ export const AssigneeSelector = ({
     }, [debouncedSearch]);
 
     const showSelectedOptions = selectedOptionList.length > 0;
-    const safeSelection = selectedIds.map(id => valueMap.rawToSafe.get(id) ?? toSafeValue(id));
-    const selectionKey = useMemo(() => safeSelection.join('|'), [safeSelection]);
+    const safeSelection = useMemo(
+        () => selectedIds.map(toSafeValue),
+        [selectedIdsKey],
+    );
 
     const handleRemoveAssignee = (id: string): void => {
         onSelectionChange(selectedIds.filter(selectedId => selectedId !== id));
     };
-
-    const focusInput = (): void => {
-        requestAnimationFrame(() => {
-            inputRef.current?.focus();
-        });
-    };
-
-    const requestFocusRestore = (): void => {
-        restoreFocusRef.current = true;
-    };
-
-    useEffect(() => {
-        if (open) {
-            return;
-        }
-
-        if (restoreFocusRef.current) {
-            restoreFocusRef.current = false;
-            focusInput();
-        }
-    }, [open]);
 
     return (
         <div
             data-component={ASSIGNEE_SELECTOR_NAME}
             className={cn('flex min-h-0 flex-col gap-2', className)}>
             <Combobox.Root
-                key={selectionKey}
                 open={open}
                 onOpenChange={setOpen}
                 value={inputValue}
@@ -206,12 +188,13 @@ export const AssigneeSelector = ({
                 active={activeItem ?? ''}
                 setActive={setActiveItem}
                 selectionMode='staged'
-                defaultSelection={safeSelection}
+                selection={safeSelection}
                 onSelectionChange={(next) => {
                     const mapped = next
                         .map(value => valueMap.safeToRaw.get(value))
                         .filter((value): value is string => !!value);
                     onSelectionChange(mapped);
+                    onAppliedSelectionChange?.(mapped);
                 }}
                 disabled={disabled}
             >
@@ -220,11 +203,10 @@ export const AssigneeSelector = ({
                         <Combobox.Search>
                             <Combobox.SearchIcon />
                             <Combobox.Input
-                                ref={inputRef}
                                 placeholder={searchPlaceholder ?? placeholder}
                                 aria-label={label}
                             />
-                            <Combobox.Apply label={applyLabel} onPointerDown={requestFocusRestore} />
+                            <Combobox.Apply label={applyLabel} />
                             <Combobox.Toggle />
                         </Combobox.Search>
                     </Combobox.Control>
@@ -235,7 +217,6 @@ export const AssigneeSelector = ({
                                 label={label}
                                 emptyLabel={emptyLabel}
                                 hasOptions={visibleOptions.length > 0}
-                                onApply={requestFocusRestore}
                             >
                                 {visibleOptions.map(option => {
                                     const safeValue = valueMap.rawToSafe.get(option.id) ?? toSafeValue(option.id);
