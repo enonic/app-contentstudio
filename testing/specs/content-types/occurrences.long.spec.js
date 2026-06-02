@@ -73,7 +73,7 @@ describe('occurrences.long.spec:  tests for content with Long inputs', function 
             await longForm.waitForOccurrenceValidationRecordingDisplayedAt(0, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED);
             // 3. Verify that the content is invalid, the content gets invalid as well:
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.ok(isInvalid , 'The content should be invalid');
+            assert.ok(isInvalid === false, 'The content should be valid');
         });
 
     it(`GIVEN wizard for not required 'long' content is opened WHEN the minimum safe value has been entered THEN red border should not be present in the long input`,
@@ -103,9 +103,9 @@ describe('occurrences.long.spec:  tests for content with Long inputs', function 
             await studioUtils.saveScreenshot('long_less_min_safe');
             // 2. Verify that input validation message(Invalid value entered) is displayed:
             await longForm.waitForOccurrenceValidationRecordingDisplayedAt(0, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED);
-            // 3. Verify that the content becomes invalid as well
+            // 3. Verify that the content remains valid:
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.ok(isInvalid , 'The content should be invalid');
+            assert.ok(isInvalid === false, 'The content should be valid');
         });
 
     it(`GIVEN wizard for not required 'long' content is opened WHEN invalid value has been entered THEN red border should be present in the long input`,
@@ -114,14 +114,14 @@ describe('occurrences.long.spec:  tests for content with Long inputs', function 
             let contentWizard = new ContentWizard();
             await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.LONG_0_1);
             // 1. Type max safe value:
-            await longForm.typeLong(INVALID_LONG,0);
+            await longForm.typeLong(INVALID_LONG, 0);
             await contentWizard.typeDisplayName(CONTENT_1);
             await studioUtils.saveScreenshot('long_invalid_value');
             // 2. Verify that input validation message(Invalid value entered) is displayed:
             await longForm.waitForOccurrenceValidationRecordingDisplayedAt(0, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED);
             // 3. Verify that the content is valid, because the long input is not required
             let isInvalid = await contentWizard.isContentInvalid();
-            assert.ok(isInvalid, "The content should be invalid");
+            assert.ok(isInvalid === false, "The content should be valid");
         });
 
     it(`GIVEN wizard for new 'long 2:4' content is opened WHEN values have been entered in both inputs, and one is invalid THEN red border should be present in the second long input`,
