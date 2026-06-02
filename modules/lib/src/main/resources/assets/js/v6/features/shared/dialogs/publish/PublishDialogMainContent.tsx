@@ -252,6 +252,7 @@ export const PublishDialogMainContent = ({
                         onInput={(e) => setPublishDialogMessage(e.currentTarget.value)}
                         placeholder={commentPlaceholder}
                         rows={2}
+                        className="mb-2"
                     />
                 )}
                 {scheduleMode && <PublishScheduleForm firstInputRef={firstScheduleInputRef} defaultTimeValue={defaultPublishFromTime} />}
