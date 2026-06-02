@@ -8,15 +8,19 @@ import {
     emitContentRenamed,
     emitContentUpdated,
 } from '../socket.store';
+import {$config} from '../config.store';
 import {
     $dependantPublishItems,
     $hasSchedulableItems,
     $isPublishReady,
+    $isScheduleValid,
     $publishCheckErrors,
     $publishDialog,
     $publishDialogPending,
+    $scheduleFromError,
     openPublishDialog,
     resetPublishDialogContext,
+    setPublishSchedule,
 } from './publishDialog.store';
 import {
     createMockChangeItem,
@@ -315,5 +319,36 @@ describe('publishDialog.store', () => {
         expect($publishDialog.get().items.map(currentItem => currentItem.getId())).toEqual(['item-1']);
         expect($publishDialogPending.get().submitting).toBe(true);
         expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+    });
+
+    describe('requiredPublishFrom', () => {
+        afterEach(() => {
+            $config.setKey('requiredPublishFrom', false);
+            setPublishSchedule(undefined);
+        });
+
+        it('keeps an empty "online from" valid when the config is off', () => {
+            $config.setKey('requiredPublishFrom', false);
+            setPublishSchedule({});
+
+            expect($isScheduleValid.get()).toBe(true);
+            expect($scheduleFromError.get()).toBeUndefined();
+        });
+
+        it('invalidates an empty "online from" when the config is on', () => {
+            $config.setKey('requiredPublishFrom', true);
+            setPublishSchedule({});
+
+            expect($isScheduleValid.get()).toBe(false);
+            expect($scheduleFromError.get()).toBeTruthy();
+        });
+
+        it('accepts a provided "online from" when the config is on', () => {
+            $config.setKey('requiredPublishFrom', true);
+            setPublishSchedule({from: new Date('2030-01-01T12:00:00Z')});
+
+            expect($isScheduleValid.get()).toBe(true);
+            expect($scheduleFromError.get()).toBeUndefined();
+        });
     });
 });
