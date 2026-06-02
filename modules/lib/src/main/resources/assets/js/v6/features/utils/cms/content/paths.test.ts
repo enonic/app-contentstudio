@@ -3,8 +3,8 @@ import {ContentId} from '../../../../../app/content/ContentId';
 import {ContentPath} from '../../../../../app/content/ContentPath';
 import {
     findContentIdsWithCreatedDescendants,
-    getContentPathDisplayValues,
-    getUnnamedContentPathLabel,
+    formatContentFullPath,
+    formatContentPath,
     isDescendantContentPath,
     type PathAwareContent,
     type PathLikeContent,
@@ -30,7 +30,7 @@ function createContentPath(path: string): ContentPath {
 }
 
 describe('content paths utils', () => {
-    const unnamedContentPathLabel = 'unnamed';
+    const unnamedPathLabel = '<unnamed>';
 
     it('matches only descendant paths', () => {
         expect(isDescendantContentPath('/site/parent', '/site/parent/child')).toBe(true);
@@ -51,36 +51,29 @@ describe('content paths utils', () => {
         expect(findContentIdsWithCreatedDescendants(parentItems, createdItems).map(id => id.toString())).toEqual(['1']);
     });
 
-    it('resolves path label and full path for named content', () => {
-        expect(getContentPathDisplayValues(createContentPath('/parent/child'), unnamedContentPathLabel)).toEqual({
-            pathLabel: 'child',
-            fullPath: '/parent/child',
-        });
-        expect(getContentPathDisplayValues(createContentPath('/content'), unnamedContentPathLabel)).toEqual({
-            pathLabel: 'content',
-            fullPath: '/content',
-        });
+    it('formats a named content path', () => {
+        expect(formatContentPath(createContentPath('/parent/child'), unnamedPathLabel)).toBe('/parent/child');
+        expect(formatContentPath(createContentPath('/content'), unnamedPathLabel)).toBe('/content');
     });
 
-    it('normalizes unnamed path elements in path label and full path', () => {
-        expect(getContentPathDisplayValues(createContentPath('/__unnamed__parent/juyjju'), unnamedContentPathLabel)).toEqual({
-            pathLabel: 'juyjju',
-            fullPath: '/<unnamed>/juyjju',
-        });
-        expect(getContentPathDisplayValues(createContentPath('/__unnamed__parent/__unnamed__child'), unnamedContentPathLabel)).toEqual({
-            pathLabel: '<unnamed>',
-            fullPath: '/<unnamed>/<unnamed>',
-        });
+    it('normalizes unnamed elements in a content path', () => {
+        expect(formatContentPath(createContentPath('/__unnamed__parent/juyjju'), unnamedPathLabel)).toBe('/<unnamed>/juyjju');
+        expect(formatContentPath(createContentPath('/__unnamed__parent/__unnamed__child'), unnamedPathLabel))
+            .toBe('/<unnamed>/<unnamed>');
     });
 
-    it('resolves display values from a raw path string', () => {
-        expect(getContentPathDisplayValues('/__unnamed__parent/child', unnamedContentPathLabel)).toEqual({
-            pathLabel: 'child',
-            fullPath: '/<unnamed>/child',
-        });
+    it('formats a content path from a raw path string', () => {
+        expect(formatContentPath('/__unnamed__parent/child', unnamedPathLabel)).toBe('/<unnamed>/child');
     });
 
-    it('formats unnamed content labels', () => {
-        expect(getUnnamedContentPathLabel(unnamedContentPathLabel)).toBe('<unnamed>');
+    it('appends a leaf label to a normalized parent path', () => {
+        expect(formatContentFullPath(createContentPath('/parent'), 'child', unnamedPathLabel)).toBe('/parent/child');
+        expect(formatContentFullPath('/', 'child', unnamedPathLabel)).toBe('/child');
+    });
+
+    it('normalizes the parent path but appends the leaf label verbatim', () => {
+        // The caller resolves the leaf label (a name or the unnamed placeholder) before passing it in.
+        expect(formatContentFullPath('/__unnamed__parent', unnamedPathLabel, unnamedPathLabel)).toBe('/<unnamed>/<unnamed>');
+        expect(formatContentFullPath('/__unnamed__parent', 'child', unnamedPathLabel)).toBe('/<unnamed>/child');
     });
 });

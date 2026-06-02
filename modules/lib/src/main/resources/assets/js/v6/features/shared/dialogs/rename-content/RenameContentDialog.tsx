@@ -10,6 +10,7 @@ import {
     setRenameContentDialogValue,
     submitRenameContentDialog,
 } from '../../../store/dialogs/renameContentDialog.store';
+import {formatContentFullPath} from '../../../utils/cms/content/paths';
 
 const RENAME_CONTENT_DIALOG_NAME = 'RenameContentDialog';
 
@@ -18,17 +19,17 @@ export const RenameContentDialog = (): ReactElement => {
     const {
         open,
         mode,
-        fullPath,
+        pathName,
+        parentPath,
         value,
-        placeholder,
         availabilityStatus,
     } = useStore($renameContentDialog, {
         keys: [
             'open',
             'mode',
-            'fullPath',
+            'pathName',
+            'parentPath',
             'value',
-            'placeholder',
             'availabilityStatus',
         ],
     });
@@ -44,6 +45,11 @@ export const RenameContentDialog = (): ReactElement => {
     const availableLabel = useI18n('path.available');
     const notAvailableLabel = useI18n('path.not.available');
     const renameLabel = useI18n('action.rename');
+    const unnamedFieldLabel = useI18n('field.unnamed');
+
+    const unnamedPathLabel = `<${unnamedFieldLabel}>`;
+    const placeholder = pathName || unnamedPathLabel;
+    const fullPath = parentPath ? formatContentFullPath(parentPath, placeholder, unnamedPathLabel) : '';
 
     const title = mode === 'rename-published'
                   ? renamePublishedTitle
