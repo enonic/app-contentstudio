@@ -844,6 +844,10 @@ export function requestDisplayNameInputFocus(): void {
         return;
     }
 
+    if ($displayName.get().trim().length > 0) {
+        return;
+    }
+
     $displayNameInputFocusRequested.set(true);
 }
 
