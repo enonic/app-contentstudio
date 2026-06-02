@@ -20,6 +20,7 @@ type ConfigStore = {
     allowContentUpdate: boolean;
     enableTextComponent: boolean;
     defaultPublishFromTime?: string;
+    requiredPublishFrom: boolean;
     // AI
     aiEnabled: boolean;
     sharedSocketUrl: string;
@@ -34,6 +35,7 @@ type ConfigJson = {
     allowContentUpdate?: unknown;
     enableTextComponent?: unknown;
     defaultPublishFromTime?: unknown;
+    requiredPublishFrom?: unknown;
     aiEnabled?: unknown;
     sharedSocketUrl?: unknown;
     services?: {
@@ -51,6 +53,7 @@ const DEFAULT_CONFIG: Readonly<ConfigStore> = {
     allowContentUpdate: false,
     enableTextComponent: false,
     defaultPublishFromTime: undefined,
+    requiredPublishFrom: false,
     aiEnabled: false,
     sharedSocketUrl: '',
     services: {
@@ -91,6 +94,7 @@ function parseConfig(content: string): ConfigStore | undefined {
             allowContentUpdate: parseBoolean(config.allowContentUpdate),
             enableTextComponent: parseBoolean(config.enableTextComponent),
             defaultPublishFromTime: parseString(config.defaultPublishFromTime),
+            requiredPublishFrom: parseBoolean(config.requiredPublishFrom),
             aiEnabled: parseBoolean(config.aiEnabled),
             sharedSocketUrl: parseString(config.sharedSocketUrl),
             services: {

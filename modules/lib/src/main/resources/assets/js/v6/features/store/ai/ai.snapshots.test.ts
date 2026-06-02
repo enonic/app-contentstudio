@@ -14,6 +14,7 @@ describe('buildPluginConfig', () => {
             allowContentUpdate: false,
             enableTextComponent: false,
             defaultPublishFromTime: undefined,
+            requiredPublishFrom: false,
             aiEnabled: true,
             sharedSocketUrl: 'wss://shared',
             services: {
