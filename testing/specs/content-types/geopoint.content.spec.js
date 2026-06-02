@@ -33,7 +33,7 @@ describe('geopoint.content.spec: tests for geo point content', function () {
             await geoPoint.pause(500);
             await studioUtils.saveScreenshot('geo_point_content_valid');
             // 2. Verify that validation message is not displayed:
-           await geoPoint.waitForOccurrenceValidationRecordingNotDisplayedAt(0);
+            await geoPoint.waitForOccurrenceValidationRecordingNotDisplayedAt(0);
         });
 
     it.skip(`GIVEN wizard for 'GeoPoint 0:0' is opened WHEN not valid value has been typed THEN validation message should be present`,
@@ -46,8 +46,7 @@ describe('geopoint.content.spec: tests for geo point content', function () {
             await contentWizard.typeDisplayName(GEO_POINT_CONTENT_NAME_1);
             await studioUtils.saveScreenshot('geo_point_content_not_valid');
             // 2. Verify that validation message is displayed: 'Invalid value entered'
-            let recording = await geoPoint.getOccurrenceValidationRecording(0);
-            assert.equal(recording, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, 'Validation recording should be displayed');
+            await geoPoint.waitForOccurrenceValidationRecordingDisplayedAt(appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED);
             // 3. Save the content and check the red icon in the wizard:
             await contentWizard.waitAndClickOnSave();
             let isInvalid = await contentWizard.isContentInvalid();
@@ -83,7 +82,7 @@ describe('geopoint.content.spec: tests for geo point content', function () {
             await geoPoint.typeInGeoPointInput(INCORRECT_GEO_LOCATION, 0);
             // 2. Verify the validation message:
             await studioUtils.saveScreenshot('geo_point_content_invalid_required');
-            let recording = await geoPoint.waitForOccurrenceValidationRecordingDisplayedAt(0, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED);
+            await geoPoint.waitForOccurrenceValidationRecordingDisplayedAt(0, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED);
             // 3. Verify that the becomes invalid
             let result = await contentWizard.isContentInvalid();
             assert.ok(result, 'This content should be invalid');
