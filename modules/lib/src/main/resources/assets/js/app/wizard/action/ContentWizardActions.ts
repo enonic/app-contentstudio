@@ -5,7 +5,7 @@ import {type ContentSummaryAndCompareStatus} from '../../content/ContentSummaryA
 import {Permission} from '../../access/Permission';
 import {PublishStatus} from '../../publish/PublishStatus';
 import {type CompareResult} from '../../../v6/features/api/compare';
-import {calcTreePublishStatus, calcSecondaryStatus} from '../../../v6/features/utils/cms/content/status';
+import {calcTreePublishStatus, calcSecondaryStatus, isPublished} from '../../../v6/features/utils/cms/content/status';
 import {$wizardContentPathExists, $wizardContentState, $wizardHasChanges} from '../../../v6/features/store/wizardContent.store';
 import {CloseAction} from '@enonic/lib-admin-ui/app/wizard/CloseAction';
 import {WizardActions} from '@enonic/lib-admin-ui/app/wizard/WizardActions';
@@ -437,7 +437,7 @@ export class ContentWizardActions extends WizardActions<Content> {
     private doRefreshState() {
         const canBePublished: boolean = this.canBePublished();
         const canPublishTree: boolean = this.canPublishTree();
-        const canBeUnpublished: boolean = !!this.content.getContentSummary().getPublishFirstTime() && this.userCanPublish;
+        const canBeUnpublished: boolean = isPublished(this.content.getContentSummary()) && this.userCanPublish;
         const canBeMarkedAsReady: boolean = this.contentCanBeMarkedAsReady && this.userCanModify;
         const canBeRequestedPublish: boolean = this.isContentValid && !this.isOnline();
         const isInheritedItem: boolean = this.wizardPanel.isContentExistsInParentProject() && this.content.hasOriginProject();
