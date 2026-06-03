@@ -6,11 +6,7 @@ import Q from 'q';
 import {type ChangeEvent, type ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
 import {type ContentSummaryAndCompareStatus} from '../../../../../../app/content/ContentSummaryAndCompareStatus';
 import {type ExtensionItemViewType} from '../../../../../../app/view/context/ExtensionItemView';
-import {
-    type ExportResult,
-    fetchExports,
-    type ImportResult,
-} from '../../../../api/importContent';
+import {type ExportResult, fetchExports, type ImportResult} from '../../../../api/importContent';
 import {useI18n} from '../../../../hooks/useI18n';
 import {LegacyElement} from '../../../../shared/LegacyElement';
 import {ContentLabel} from '../../../../shared/content/ContentLabel';
@@ -74,24 +70,27 @@ const ImportContentWidget = (): ReactElement | null => {
     const hasContent = contentId != null;
     const canRender = isContextOpen && isActiveWidget;
 
-    const refresh = useCallback(async (preserveSelected?: string) => {
-        setBusy('list');
-        setStatus({kind: 'info', message: loadingLabel});
-        const result = await fetchExports();
-        result.match(
-            list => {
-                setExports(list);
-                setSelected(preserveSelected && list.includes(preserveSelected) ? preserveSelected : '');
-                setStatus(IDLE);
-            },
-            err => {
-                setExports([]);
-                setSelected('');
-                setStatus({kind: 'error', message: err.message || listErrorLabel});
-            },
-        );
-        setBusy(null);
-    }, [loadingLabel, listErrorLabel]);
+    const refresh = useCallback(
+        async (preserveSelected?: string) => {
+            setBusy('list');
+            setStatus({kind: 'info', message: loadingLabel});
+            const result = await fetchExports();
+            result.match(
+                list => {
+                    setExports(list);
+                    setSelected(preserveSelected && list.includes(preserveSelected) ? preserveSelected : '');
+                    setStatus(IDLE);
+                },
+                err => {
+                    setExports([]);
+                    setSelected('');
+                    setStatus({kind: 'error', message: err.message || listErrorLabel});
+                },
+            );
+            setBusy(null);
+        },
+        [loadingLabel, listErrorLabel],
+    );
 
     useEffect(() => {
         setSelected('');
@@ -114,10 +113,13 @@ const ImportContentWidget = (): ReactElement | null => {
         setExportDialogOpen(false);
     }, []);
 
-    const handleExportSuccess = useCallback((exported: ExportResult) => {
-        setStatus({kind: 'info', message: i18n('widget.import.status.exported', exported.exportName)});
-        void refresh(exported.exportName);
-    }, [refresh]);
+    const handleExportSuccess = useCallback(
+        (exported: ExportResult) => {
+            setStatus({kind: 'info', message: i18n('widget.import.status.exported', exported.exportName)});
+            void refresh(exported.exportName);
+        },
+        [refresh],
+    );
 
     const handleOpenImportDialog = useCallback(() => {
         if (!selected) return;
@@ -156,7 +158,7 @@ const ImportContentWidget = (): ReactElement | null => {
             <section className="flex flex-col gap-3 flex-1 min-h-0">
                 <div className="flex items-center gap-2 shrink-0">
                     <Separator label={listHeadingLabel} className="flex-1 min-w-0" />
-                    <Tooltip value={refreshLabel} side="bottom">
+                    <Tooltip delay={300} value={refreshLabel}>
                         <IconButton
                             variant="text"
                             icon={RefreshCw}
@@ -174,16 +176,18 @@ const ImportContentWidget = (): ReactElement | null => {
                     placeholder={filterPlaceholder}
                     aria-label={filterPlaceholder}
                     className="shrink-0"
-                    endAddon={filter ? (
-                        <button
-                            type="button"
-                            onClick={clearFilter}
-                            aria-label={clearFilterLabel}
-                            className="flex items-center justify-center px-3 text-subtle hover:text-main cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-                        >
-                            <X size={16} />
-                        </button>
-                    ) : undefined}
+                    endAddon={
+                        filter ? (
+                            <button
+                                type="button"
+                                onClick={clearFilter}
+                                aria-label={clearFilterLabel}
+                                className="flex items-center justify-center px-3 text-subtle hover:text-main cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                            >
+                                <X size={16} />
+                            </button>
+                        ) : undefined
+                    }
                 />
 
                 {visibleExports.length === 0 ? (
@@ -224,7 +228,9 @@ const ImportContentWidget = (): ReactElement | null => {
                 </div>
 
                 {status.kind !== 'idle' && (
-                    <span className={`text-sm truncate shrink-0 ${status.kind === 'error' ? 'text-error' : 'text-subtle'}`}>
+                    <span
+                        className={`text-sm truncate shrink-0 ${status.kind === 'error' ? 'text-error' : 'text-subtle'}`}
+                    >
                         {status.message}
                     </span>
                 )}
@@ -252,7 +258,10 @@ const ImportContentWidget = (): ReactElement | null => {
 
 ImportContentWidget.displayName = IMPORT_CONTENT_WIDGET_NAME;
 
-export class ImportContentWidgetElement extends LegacyElement<typeof ImportContentWidget> implements ExtensionItemViewType {
+export class ImportContentWidgetElement
+    extends LegacyElement<typeof ImportContentWidget>
+    implements ExtensionItemViewType
+{
     constructor() {
         super({}, ImportContentWidget);
     }
