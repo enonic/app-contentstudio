@@ -17,6 +17,7 @@ minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   - "@enonic/page-editor"
   - "@enonic/ui"
+  - "@enonic-types/*"
 
 overrides:
   brace-expansion@<1.1.13: ">=1.1.13"

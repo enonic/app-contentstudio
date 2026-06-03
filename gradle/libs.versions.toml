@@ -4,17 +4,17 @@ junit = "6.1.0"
 mockito = "5.23.0"
 assertj = "3.27.7"
 enonicDefaults = "2.1.6"
-xpApp = "4.0.0-A2"
+xpApp = "4.0.0-A1"
 
 nodeGradle = "7.1.0"
 
 # App
 commonsText = "1.15.0"
-libTextEncoding = "2.1.1"
-libMustache = "2.1.1"
-libHttpClient = "3.2.2"
-libRouter = "3.2.0"
-libStatic = "2.1.2-SNAPSHOT"
+libTextEncoding = "3.0.0-B1"
+libMustache = "3.0.0-B1"
+libHttpClient = "4.0.0-B1"
+libRouter = "4.0.0-B1"
+libStatic = "3.0.0-B4"
 
 # Rest
 jacksonJrObjects = "2.22.0"
