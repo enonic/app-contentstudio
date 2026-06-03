@@ -52,7 +52,7 @@ Licensor retains all rights, title, and interest in the Software originally prov
 
 7. Termination
 
-If You violate this License, the permissions granted to You under this License terminate automatically.
+If You violate this License, the permissions granted to You terminate automatically. However, Your rights are reinstated if You fix the violation within 30 days of being notified by Licensor.
 
 If You or Your organization assert in writing, in any litigation or formal claim, that the Software infringes or contributes to the infringement of any patent, all licenses granted to You under this License, including the patent license in Section 2, terminate automatically.
 
