@@ -1,11 +1,22 @@
-Enonic XP - Content Studio App
+Content Studio - Authoring interface for Enonic XP
 ===
 
 [![Actions Status](https://github.com/enonic/app-contentstudio/workflows/Gradle%20Build/badge.svg)](https://github.com/enonic/app-contentstudio/actions)
 [![License][license-image]][license-url]
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/058e2e1b329b41e38a00769827b7912b)](https://www.codacy.com/gh/enonic/app-contentstudio/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=enonic/app-contentstudio&amp;utm_campaign=Badge_Grade)
 
-Create sites and manage content in [Enonic XP](https://github.com/enonic/xp). The documentation can be found [here](https://developer.enonic.com/docs/content-studio/stable).
+Manage your content stored in [Enonic XP](https://github.com/enonic/xp). The documentation can be found [here](https://developer.enonic.com/docs/content-studio/stable).
+
+## Free Core. Forever.
+
+The foundational features of Content Studio — browsing, creating, and editing content, visual page editor, and basic publishing workflow — are always free to use for everyone. Build, launch, and host it for yourself or your clients without a subscription. The source code is publicly available right here on GitHub. Our [Subscription and hosting plans](https://www.enonic.com/pricing) give access to enterprise features such as AI, advanced governance, and commercial support.
+
+[!NOTE] 
+Content Studio provides extensions points for anyone to implement custom features under any license, without modifying and maintaining Content Studio itself.
+
+### Why the Enonic License?
+
+As of Content Studio 6, this project is licensed under the [Enonic License 2.0](LICENSE.txt). The new license lets us ship previously separate applications — Content Studio+, AI features, and more — as a single app, simplifying maintenance for us and installation for you. Also eliminating any concerns related to the GPL license. It does not change how the core product works.
 
 ## Usage
 
@@ -72,4 +83,4 @@ To rebuild the project from scratch, you may want to remove all compiles sources
 
 <!-- Links -->
 [license-url]:   LICENSE.txt
-[license-image]: https://img.shields.io/github/license/enonic/app-contentstudio.svg "GPL 3.0"
+[license-image]: https://img.shields.io/badge/license-Enonic%20License%202.0-blue "Enonic License 2.0"
