@@ -94,7 +94,7 @@ SkeletonRow.displayName = 'SkeletonRow';
 const DefaultRow = (content: ContentSummary, hideStatus: boolean): ReactElement => (
     <ListItem className="p-0">
         <ListItem.Left className="flex-1">
-            <ContentLabel content={content} />
+            <ContentLabel content={content} variant='detailed' />
         </ListItem.Left>
         {!hideStatus && (
             <ListItem.Right>
