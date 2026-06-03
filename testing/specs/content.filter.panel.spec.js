@@ -64,18 +64,15 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             // 1. Open Filter Panel:
             await contentBrowsePanel.clickOnSearchButton();
             await filterPanel.waitForOpened();
+            await filterPanel.pause(300);
             // 2. Get the number in Folder aggregation checkbox in Filter Panel
             let number1 = await filterPanel.getNumberInAggregationLabel('Folder');
-
             // 3. Open new folder wizard and save the folder:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);
             await contentWizard.waitAndClickOnSave();
-            // TODO enonic ui bug
-            //await contentWizard.waitForSavedButtonVisible();
             // 4. Switch to Browse Panel and verify that number in the aggregation checkbox is updated:
             await studioUtils.doSwitchToContentBrowsePanel();
-            await contentBrowsePanel.clickOnSearchButton();
             await filterPanel.waitForOpened();
             let number2 = await filterPanel.getNumberInAggregationLabel('Folder');
             assert.equal(number2 - number1, 1, "Number of folders should be increased in the Filter Panel");
