@@ -93,6 +93,15 @@ function handleSummaryEvent(contents: readonly ContentSummary[] | undefined): vo
 // * Public API
 //
 
+export function recordOwnContentModification(content: Content | ContentSummary | null | undefined): void {
+    const modifiedMs = getModifiedTimeMs(content);
+    if (modifiedMs == null) return;
+
+    if (lastKnownModifiedTimeMs == null || modifiedMs > lastKnownModifiedTimeMs) {
+        lastKnownModifiedTimeMs = modifiedMs;
+    }
+}
+
 // nanostores subscribe() fires once synchronously with the current value; drop
 // that replay so we don't act on an event from before the wizard opened.
 function subscribeFresh<T>(atom: {subscribe: (cb: (value: T) => void) => () => void}, handler: (value: T) => void): () => void {
