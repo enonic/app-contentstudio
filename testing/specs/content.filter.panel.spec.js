@@ -73,6 +73,7 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             await contentWizard.typeDisplayName(FOLDER_NAME);
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
+            await contentWizard.pause(1000);
             // 4. Switch to Browse Panel and verify that number in the aggregation checkbox is updated:
             await studioUtils.doSwitchToContentBrowsePanel();
             await filterPanel.waitForOpened();
