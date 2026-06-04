@@ -26,7 +26,7 @@ const XPATH = {
 class BrowseFilterPanel extends Page {
 
     get clearFilterLink() {
-        return XPATH.container + XPATH.clearFilterLink;
+        return XPATH.container + BUTTONS.buttonAriaLabel('Clear');
     }
 
     get exportButton() {
@@ -35,7 +35,6 @@ class BrowseFilterPanel extends Page {
 
     get showMoreButton() {
         return `${XPATH.container}//div[child::h4[text()='Content Types']]${BUTTONS.buttonAriaLabel('Show more')}`;
-
     }
 
     get showLessButton() {
@@ -51,11 +50,12 @@ class BrowseFilterPanel extends Page {
         return XPATH.container + XPATH.searchInput;
     }
 
-    async clearSearchInput(){
+    async clearSearchInput() {
         let input = await this.findElement(this.searchTextInput);
         await input.click();
         await this.clearInputTextElement(input);
     }
+
     async typeSearchText(text) {
         try {
             await this.typeTextInInput(this.searchTextInput, text);
@@ -160,10 +160,14 @@ class BrowseFilterPanel extends Page {
         }
     }
 
-    async clickOnClearLink() {
+    async clickOnClearButton() {
         await this.waitForClearLinkDisplayed();
         await this.clickOnElement(this.clearFilterLink)
         await this.pause(1000);
+    }
+
+    async isClearButtonDisplayed() {
+        return await this.isElementDisplayed(this.clearFilterLink);
     }
 
     async waitForAggregationGroupDisplayed(blockName) {

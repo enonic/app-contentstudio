@@ -663,7 +663,7 @@ class Page {
             return this.getAttribute(selector, attribute).then(result => {
                 return result.includes(value);
             });
-        }, {timeout: appConst.shortTimeout, timeoutMsg: 'Attribute ' + attribute + '  does not contain the value:' + value});
+        }, {timeout: appConst.shortTimeout, timeoutMsg: 'Attribute ' + attribute + '  does not contain the value:' + value  + " locator:" + selector});
     }
 
     waitForAttributeNotIncludesValue(selector, attribute, value) {

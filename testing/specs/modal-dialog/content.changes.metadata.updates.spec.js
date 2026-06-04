@@ -28,7 +28,7 @@ describe('content.changes.metadata.updated, tests to verify the bug #7128', func
             await studioUtils.doAddReadySite(SITE);
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnPublishButton();
-            await contentPublishDialog.clickOnIncludeChildrenToogler();
+            await contentPublishDialog.clickOnIncludeChildrenCheckbox();
             await contentPublishDialog.clickOnPublishNowButton();
             await contentPublishDialog.waitForDialogClosed();
             await contentPublishDialog.waitForNotificationMessage();

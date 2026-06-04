@@ -1,44 +1,42 @@
 const Page = require('./page');
 const appConst = require('../libs/app_const');
-const lib = require('../libs/elements-old');
+const {BUTTONS} = require('../libs/elements');
+const DiffStatusBadge = require('./components/diff.status.badge');
 
 const XPATH = {
-    container: `//div[contains(@id,'ContentUnpublishDialog')]`,
-    dialogHeader: "//div[contains(@id,'ModalDialogHeader')]//h2[@class='title']",
-    dialogSubheader: "//div[contains(@id,'ModalDialogHeader')]//h6[@class='sub-title']",
-    unpublishButton: "//button[contains(@id,'DialogButton') and descendant::span[contains(.,'Unpublish')]]",
-    cancelButtonBottom: "//button[contains(@class,'cancel-button-bottom')]",
-    dialogMainItemListUl: "//ul[contains(@id,'DialogWithRefsItemList')]",
-    itemBlock: displayName => `//div[contains(@id,'ArchiveSelectableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/div[contains(@class,'status')][2]`,
+    container: `//div[@data-component='UnpublishDialogMainContent']`,
+    dialogHeader: "//h2[contains(.,'Unpublish item')]",
+    mainListItemsDisplayName: `//div[@role='separator']/preceding::div[@data-component='ContentListItemWithReference']//div[@data-component='ContentLabel']//span[following-sibling::small]`,
+    dependantListItemDisplayName: `//div[@role='separator']/following::div[@data-component='ContentListItemWithReference']//div[@data-component='ContentLabel']//span[following-sibling::small]`,
     showReferencesButton(displayName) {
         return `//div[contains(@id,'ArchiveSelectableItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/button[contains(@id,'ActionButton') and child::span[text()='Show references']]`;
-    }
+    },
+    mainItemByName: name =>
+        `//div[@role='separator']/preceding::div[@data-component='ContentListItemWithReference' and descendant::div[@data-component='ContentLabel']//span[contains(.,'${name}')]]`,
+    dependentItemByName: name =>
+        `//div[@role='separator']/following::div[@data-component='ContentListItemWithReference' and descendant::div[@data-component='ContentLabel']//span[contains(.,'${name}')]]`,
 };
 
 class ContentUnpublishDialog extends Page {
 
     get dependantsBlock() {
-        return XPATH.container + lib.DEPENDANTS.DEPENDANTS_BLOCK
+        return XPATH.container + "//div[@data-component='ContentListItemWithReference']"
     }
 
-    get cancelButtonBottom() {
-        return XPATH.container + XPATH.cancelButtonBottom;
+    get closeButton() {
+        return XPATH.container + BUTTONS.buttonAriaLabel('Close');
     }
 
     get header() {
         return XPATH.container + XPATH.dialogHeader;
     }
 
-    get subheader() {
-        return XPATH.container + XPATH.dialogSubheader;
-    }
-
     get unpublishButton() {
-        return XPATH.container + XPATH.unpublishButton;
+        return XPATH.container + BUTTONS.buttonAriaLabel('Unpublish');
     }
 
     get ignoreInboundReferencesButton() {
-        return XPATH.container + lib.actionButton('Ignore inbound references');
+        return XPATH.container + "//button[@data-component='StatusBarErrorEntry' and contains(.,'Ignore inbound references')]]";
     }
 
     waitForDialogOpened() {
@@ -53,8 +51,7 @@ class ContentUnpublishDialog extends Page {
         try {
             return await this.waitForElementEnabled(this.unpublishButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_unpublish_btn');
-            throw new Error(`Unpublish button should be enabled in the dialog, screenshot: ${screenshot}  ` + err);
+            await this.handleError('Content Unpublish Dialog', 'err_unpublish_btn_enabled', err);
         }
     }
 
@@ -73,11 +70,11 @@ class ContentUnpublishDialog extends Page {
     }
 
     waitForIgnoreInboundReferencesButtonDisplayed() {
-        return this.waitForElementDisplayed(this.ignoreInboundReferencesButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.ignoreInboundReferencesButton);
     }
 
     waitForIgnoreInboundReferencesButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.ignoreInboundReferencesButton, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(this.ignoreInboundReferencesButton);
     }
 
     async clickOnIgnoreInboundReferences() {
@@ -97,19 +94,23 @@ class ContentUnpublishDialog extends Page {
         return await this.pause(2000);
     }
 
-    async getItemDisplayName() {
+    async getMainItemDisplayName() {
         try {
-            let locator = XPATH.container + XPATH.dialogMainItemListUl + lib.H6_DISPLAY_NAME;
+            let locator = XPATH.container + XPATH.mainListItemsDisplayName;
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.getTextInDisplayedElements(locator);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_unpublish_dlg');
-            throw new Error(`Content Unpublish Dialog - Error occurred during getting items in main items list,  screenshot: ${screenshot} ` + err);
+            await this.handleError('Content Unpublish Dialog', 'err_get_main_items', err);
         }
     }
 
-    getDependentItemsPath() {
-        let locator = XPATH.container + lib.DEPENDANTS.DEPENDANT_ITEM_LIST_UNPUBLISH_DIALOG + lib.H6_DISPLAY_NAME;
+    async getDependentItemsPath() {
+        let locator = XPATH.container + XPATH.dependantListItemDisplayName;
+        return await this.getTextInDisplayedElements(locator);
+    }
+
+    getDependentItemsName() {
+        let locator = XPATH.container + XPATH.dependantListItemDisplayName;
         return this.getTextInDisplayedElements(locator);
     }
 
@@ -117,30 +118,33 @@ class ContentUnpublishDialog extends Page {
         return this.getText(this.header);
     }
 
-    getDialogSubheader() {
-        return this.getText(this.subheader);
-    }
-
     async getNumberInUnpublishButton() {
-        let locator = XPATH.container + XPATH.unpublishButton + '//span';
-        let label = await this.getText(locator);
+        let label = await this.getText(this.unpublishButton);
         let startIndex = label.indexOf('(');
+        if (startIndex === -1) {
+            return '';
+        }
         let endIndex = label.indexOf(')');
         return label.substring(startIndex + 1, endIndex);
     }
 
-    async getItemStatus(displayName) {
-        let locator = XPATH.container + XPATH.itemBlock(displayName);
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getText(locator);
+    async getMainItemStatus(displayName) {
+        const rowXpath = XPATH.container + XPATH.mainItemByName(displayName);
+        const diffStatusBadge = new DiffStatusBadge(rowXpath);
+        return await diffStatusBadge.getStatusText();
+    }
+
+    async getDependentItemStatus(displayName) {
+        const rowXpath = XPATH.container + XPATH.dependentItemByName(displayName);
+        const diffStatusBadge = new DiffStatusBadge(rowXpath);
+        return await diffStatusBadge.getStatusText();
     }
 
     async waitForDependantsBlockDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.dependantsBlock, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.dependantsBlock);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_dependencies_block');
-            throw new Error(`Unpublish dialog, Dependencies block is not displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError('Content Unpublish Dialog', 'err_dependences_block', err);
         }
     }
 }
