@@ -1,12 +1,7 @@
 import type {ContentSummary} from '../../content/ContentSummary';
 import {ManagedActionManager} from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
 import {Permission} from '../../access/Permission';
-import {PublishStatus} from '../../publish/PublishStatus';
-import {calcTreePublishStatus, calcSecondaryStatus, isPublished} from '../../../v6/features/utils/cms/content/status';
-
-function isOnline(content: ContentSummary): boolean {
-    return calcTreePublishStatus(content) === PublishStatus.ONLINE && !calcSecondaryStatus(PublishStatus.ONLINE, content);
-}
+import {isOnline, isPublished} from '../../../v6/features/utils/cms/content/status';
 
 function canBeMarkedAsReady(content: ContentSummary): boolean {
     return !isOnline(content) && content.isValid() && !content.isReady();

@@ -44,6 +44,14 @@ export function isPublished(summary: ContentSummary): boolean {
     return summary.getPublishFromTime() != null;
 }
 
+// Content with a published version (online, scheduled or expired) that has no
+// pending changes. Scheduled/expired count as online here: they already have a
+// published version, so they are not awaiting an initial publish.
+export function isOnline(summary: ContentSummary): boolean {
+    const status = calcTreePublishStatus(summary);
+    return status !== PublishStatus.OFFLINE && calcSecondaryStatus(status, summary) == null;
+}
+
 export function calcSecondaryStatus(publishStatus: PublishStatus, summary: ContentSummary): SecondaryStatus | undefined {
     if (publishStatus === PublishStatus.OFFLINE) {
         return summary.getPublishFirstTime() ? 'unpublished' : 'new';

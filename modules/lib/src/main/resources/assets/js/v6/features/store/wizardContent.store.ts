@@ -670,7 +670,7 @@ function applyMixinsFromServer(nextPersisted: Mixin[]): Set<string> {
     return syncedMixinNames;
 }
 
-function applyWorkflowFromServer(nextWorkflow: WorkflowState | null): void {
+export function applyWorkflowFromServer(nextWorkflow: WorkflowState | null): void {
     const isDirty = $wizardPersistedWorkflowState.get() !== $wizardDraftWorkflowState.get();
     $wizardPersistedWorkflowState.set(nextWorkflow);
     if (!isDirty) {
