@@ -28,6 +28,7 @@ import {
 import {
     getIconForOperation,
     getOperationLabel,
+    getVersionBranch,
 } from '../../views/context/widget/versions/labels';
 
 import {
@@ -508,31 +509,14 @@ describe('getOperationLabel', () => {
         expect(getOperationLabel(version)).toBe('operation.content.unknown');
     });
 
-    it('returns draft patch label for PATCH with draft origin', () => {
-        const version = createVersion('v1', [createAction(ContentOperation.PATCH, [], {origin: 'draft'})]);
-        expect(getOperationLabel(version)).toBe('operation.content.patch.draft');
-    });
+    it('returns generic patch label regardless of origin', () => {
+        const draft = createVersion('v1', [createAction(ContentOperation.PATCH, [], {origin: 'draft'})]);
+        const master = createVersion('v2', [createAction(ContentOperation.PATCH, [], {origin: 'master'})]);
+        const none = createVersion('v3', [createAction(ContentOperation.PATCH)]);
 
-    it('returns master patch label for PATCH with master origin', () => {
-        const version = createVersion('v1', [createAction(ContentOperation.PATCH, [], {origin: 'master'})]);
-        expect(getOperationLabel(version)).toBe('operation.content.patch.master');
-    });
-
-    it('returns generic patch label for PATCH with no origin', () => {
-        const version = createVersion('v1', [createAction(ContentOperation.PATCH)]);
-        expect(getOperationLabel(version)).toBe('operation.content.patch');
-    });
-
-    it('returns draft patch label for EDITORIAL_PATCH with draft origin', () => {
-        const version = createVersion('v1',
-            [createAction(ContentOperation.PATCH, [VersionField.DATA], {origin: 'draft'})]);
-        expect(getOperationLabel(version)).toBe('operation.content.patch.draft');
-    });
-
-    it('returns master patch label for EDITORIAL_PATCH with master origin', () => {
-        const version = createVersion('v1',
-            [createAction(ContentOperation.PATCH, [VersionField.DATA], {origin: 'master'})]);
-        expect(getOperationLabel(version)).toBe('operation.content.patch.master');
+        expect(getOperationLabel(draft)).toBe('operation.content.patch');
+        expect(getOperationLabel(master)).toBe('operation.content.patch');
+        expect(getOperationLabel(none)).toBe('operation.content.patch');
     });
 
     it('returns create label for SYNTHETIC_CREATE', () => {
@@ -541,6 +525,41 @@ describe('getOperationLabel', () => {
         builder.timestamp = new Date();
         builder.actions = [];
         expect(getOperationLabel(builder.build())).toBe('operation.content.create');
+    });
+});
+
+// ============================================================================
+// Branch resolution
+// ============================================================================
+
+describe('getVersionBranch', () => {
+    const branchAwareCases: [string, string, string[]?][] = [
+        ['PATCH', ContentOperation.PATCH],
+        ['EDITORIAL_PATCH', ContentOperation.PATCH, [VersionField.DATA]],
+        ['METADATA', ContentOperation.METADATA],
+        ['PERMISSIONS', ContentOperation.PERMISSIONS],
+    ];
+
+    for (const [name, operation, fields] of branchAwareCases) {
+        it(`resolves draft origin for ${name}`, () => {
+            const version = createVersion('v1', [createAction(operation, fields ?? [], {origin: 'draft'})]);
+            expect(getVersionBranch(version)).toBe('draft');
+        });
+
+        it(`resolves master origin for ${name}`, () => {
+            const version = createVersion('v1', [createAction(operation, fields ?? [], {origin: 'master'})]);
+            expect(getVersionBranch(version)).toBe('master');
+        });
+
+        it(`returns undefined for ${name} with no origin`, () => {
+            const version = createVersion('v1', [createAction(operation, fields ?? [])]);
+            expect(getVersionBranch(version)).toBeUndefined();
+        });
+    }
+
+    it('returns undefined for operations that do not target a branch', () => {
+        const version = createVersion('v1', [createAction(ContentOperation.UPDATE, [], {origin: 'draft'})]);
+        expect(getVersionBranch(version)).toBeUndefined();
     });
 });
 
