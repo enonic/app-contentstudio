@@ -5,7 +5,7 @@ const Page = require('./page');
 const {BUTTONS} = require('../libs/elements');
 const appConst = require('../libs/app_const');
 const XPATH = {
-    container: `//div[@role='dialog' and descendant::h2[contains(.,'Confirm delete')]]`,
+    container: `//div[@data-component='DialogPresetGatedConfirmContent' and descendant::h2[contains(.,'Confirm')]]`,
     suggestedNumberToDelete: "//p/strong",
 
 };
@@ -63,10 +63,10 @@ class ConfirmValueDialog extends Page {
         }
     }
 
-    async waitForCancelButtonEnabled(){
+    async waitForCancelButtonEnabled() {
         try {
             await this.waitForElementEnabled(this.cancelButton, appConst.mediumTimeout);
-        }catch (err){
+        } catch (err) {
             await this.handleError('Confirm Value Dialog - Cancel button', 'err_confirm_value_dlg_cancel_button', err);
         }
     }

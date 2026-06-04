@@ -13,7 +13,8 @@ const XPATH = {
     dialogStateBarDiv: "//div[contains(@id,'DialogStateBar')]",
     logMessageLink: "//div[contains(@class,'content-dialog-sub-title')]/a",
     publishScheduleForm: "//div[@data-component='PublishScheduleForm']",
-    includeChildrenToogler: `//div[contains(@id,'IncludeChildrenToggler')]`,
+    includeChildrenCheckbox: DIALOG_ITEMS.PRIMARY_DATA_COMPONENT +
+                             "//div[@data-component='Checkbox' and descendant::span[contains(.,'Include child')]]//label",
     checkableDependentItemDiv: `//div[contains(@id,'StatusCheckableItem')`,
     removeItemIcon: `//div[contains(@class,'icon remove')]`,
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
@@ -84,8 +85,8 @@ class ContentPublishDialog extends Page {
         return XPATH.container + BUTTONS.buttonByLabel('Confirm schedule');
     }
 
-    get includeChildrenToogler() {
-        return XPATH.container + XPATH.includeChildrenToogler;
+    get includeChildrenCheckbox() {
+        return XPATH.container + XPATH.includeChildrenCheckbox;
     }
 
     get markAsReadyButton() {
@@ -94,12 +95,20 @@ class ContentPublishDialog extends Page {
 
     // Invalid item(s) Exclude button:
     get excludeInvalidItemsButton() {
-        return XPATH.container + XPATH.invalidStateEntryDiv + lib.PUBLISH_DIALOG.EXCLUDE_BTN;
+        return XPATH.container + XPATH.inProgressStateEntryDiv + "//button[@data-component='StatusBarErrorEntry' and contains(.,'Invalid items')]]";
     }
 
     // In progress() Exclude button:
     get excludeItemsInProgressButton() {
-        return XPATH.container + XPATH.inProgressStateEntryDiv + lib.PUBLISH_DIALOG.EXCLUDE_BTN;
+        return XPATH.container + XPATH.inProgressStateEntryDiv + "//button[@data-component='StatusBarEntryButton' and text()='Exclude']";
+    }
+
+    get applyButton() {
+        return XPATH.container + "//button[@data-component='StatusBarEntryButton' and text()='Apply']";
+    }
+
+    get cancelButton() {
+        return XPATH.container  + "//button[@data-component='StatusBarEntryButton' and text()='Cancel']";
     }
 
     getContainerXpath() {
@@ -108,6 +117,12 @@ class ContentPublishDialog extends Page {
 
     get allDependantsCheckbox() {
         return XPATH.container + lib.checkBoxDiv('All');
+    }
+
+    async clickOnApplyButton(){
+        await this.waitForElementDisplayed(this.applyButton, appConst.mediumTimeout);
+        await this.clickOnElement(this.applyButton);
+        await this.pause(1000);
     }
 
     async clickOnLogMessageLink() {
@@ -280,7 +295,7 @@ class ContentPublishDialog extends Page {
     }
 
     isIncludeChildToggleDisplayed() {
-        return this.isElementDisplayed(this.includeChildrenToogler);
+        return this.isElementDisplayed(this.includeChildrenCheckbox);
     }
 
     // Click on icon-calendar:
@@ -380,10 +395,10 @@ class ContentPublishDialog extends Page {
         }
     }
 
-    async clickOnIncludeChildrenToogler() {
+    async clickOnIncludeChildrenCheckbox() {
         try {
-            await this.waitForElementDisplayed(this.includeChildrenToogler);
-            await this.clickOnElement(this.includeChildrenToogler);
+            await this.waitForElementDisplayed(this.includeChildrenCheckbox);
+            await this.clickOnElement(this.includeChildrenCheckbox);
             return await this.pause(700);
         } catch (err) {
             await this.handleError(`Publish Dialog, click on Include Children toggle `, 'err_include_children_toggle', err);

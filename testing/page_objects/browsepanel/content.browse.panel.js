@@ -35,7 +35,7 @@ const XPATH = {
     resetSelectionCheckbox: `//label[child::input[contains(@aria-label,'Clear selection')]]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     publishMenuItemByName(name) {
-        return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
+        return `//div[@data-component='Menu.Item' and child::span[text()='${name}']]`;
     },
     defaultActionByName: name => `//button[contains(@id, 'ActionButton') and child::span[contains(.,'${name}')]]`,
     foldButtonByName: name => `//div[contains(@id,'ContentBrowseToolbar')]//span[text()='${name}']`,
@@ -168,7 +168,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get unpublishButton() {
-        return toolbarButton('Unpublish...');
+        return toolbarButton('Unpublish');
     }
 
     get publishTreeButton() {
@@ -813,21 +813,27 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForPublishMenuItemDisabled(menuItem) {
         try {
-            let selector = XPATH.toolbarDiv + XPATH.publishMenuItemByName(menuItem);
-            return await this.waitForAttributeHasValue(selector, 'class', 'disabled');
+            // Disabled items have aria-disabled='true'; enabled ones have no such attribute.
+            let selector = XPATH.publishMenuItemByName(menuItem) + "[@aria-disabled='true']";
+            return await this.waitForElementDisplayed(selector);
         } catch (err) {
             await this.handleError(`${menuItem} should be disabled`, 'err_publish_menuItem_disabled', err);
         }
     }
 
     async waitForPublishMenuItemEnabled(menuItem) {
-        let selector = XPATH.toolbarDiv + XPATH.publishMenuItemByName(menuItem);
-        return await this.waitForAttributeNotIncludesValue(selector, "class", "disabled");
+        try {
+            // Enabled items have no aria-disabled attribute; disabled ones have aria-disabled='true'.
+            let selector = XPATH.publishMenuItemByName(menuItem) + "[not(@aria-disabled='true')]";
+            return await this.waitForElementDisplayed(selector);
+        } catch (err) {
+            await this.handleError(`${menuItem} should be enabled`, 'err_publish_menuItem_enabled', err);
+        }
     }
 
     async openPublishMenu() {
         await this.clickOnElement(this.showPublishMenuButton);
-        return await this.pause(300);
+        return await this.pause(500);
     }
 
     async openPublishMenuSelectItem(menuItem) {
