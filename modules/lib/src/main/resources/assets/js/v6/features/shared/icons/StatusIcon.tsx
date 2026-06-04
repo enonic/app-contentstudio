@@ -78,12 +78,20 @@ export const StatusIcon = ({
     const classNames = cn(statusIconVariants({status}), className);
     const Icon = getIcon(status);
     const tooltip = useI18n(getTooltipKey(status));
-    const icon = <Icon data-component={componentName} className={classNames} aria-label={status} {...props} />;
+    const icon = (
+        <Icon
+            data-component={componentName}
+            className={classNames}
+            aria-label={status}
+            {...props}
+            focusable="false"
+        />
+    );
 
     if (!withTooltip) return icon;
 
     return (
-        <Tooltip side="top" delay={300} value={tooltip}>
+        <Tooltip side="top" delay={300} value={tooltip} trigger="hover">
             {icon}
         </Tooltip>
     );
