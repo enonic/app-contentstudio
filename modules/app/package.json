@@ -25,6 +25,7 @@
     "@enonic/lib-admin-ui": "workspace:*",
     "@enonic/lib-contentstudio": "workspace:*",
     "@enonic/page-editor": "^1.0.0",
+    "@enonic/ui": "^1.0.1",
     "@radix-ui/react-slot": "^1.2.3",
     "chart.js": "^4.5.1",
     "dompurify": "^3.3.1",

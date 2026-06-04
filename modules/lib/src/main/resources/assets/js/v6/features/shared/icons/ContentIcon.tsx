@@ -19,7 +19,7 @@ import {
     FolderOpen,
     Globe,
     ImageIcon,
-    LucideIcon,
+    type LucideIcon,
     Presentation,
     Shapes,
     SplinePointer,
@@ -107,7 +107,7 @@ export const ContentIcon = ({className, contentType, url, imageSize = 64, crop =
         );
     }
 
-    return <BuiltInIcon className={cn('size-6', className)} contentType={contentType} strokeWidth={1.75} />;
+    return <BuiltInIcon className={cn('size-6', className)} contentType={contentType} strokeWidth={1.75}/>;
 };
 
 ContentIcon.displayName = 'ContentIcon';
