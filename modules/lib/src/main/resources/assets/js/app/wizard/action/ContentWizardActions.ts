@@ -537,10 +537,12 @@ export class ContentWizardActions extends WizardActions<Content> {
             return this.content.isOnline();
         }
 
-        // Derive from ContentSummary publish dates + compare API result
+        // Derive from ContentSummary publish dates + compare API result.
+        // Scheduled and expired content has a published version, so it counts
+        // as online here; only truly offline content stays publishable.
         const summary = this.content.getContentSummary();
         const publishStatus = calcTreePublishStatus(summary);
-        if (publishStatus !== PublishStatus.ONLINE) return false;
+        if (publishStatus === PublishStatus.OFFLINE) return false;
 
         // If compare result available, empty diff means content is in sync
         if (this.compareResult != null) {

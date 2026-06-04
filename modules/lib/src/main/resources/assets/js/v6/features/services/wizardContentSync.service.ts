@@ -6,7 +6,7 @@ import type {ContentId} from '../../../app/content/ContentId';
 import type {ContentSummary} from '../../../app/content/ContentSummary';
 import {GetContentByIdRequest} from '../../../app/resource/GetContentByIdRequest';
 import {$contentRenamed, $contentUpdated} from '../store/socket.store';
-import {applyServerSidePersistedContent, onWizardPersistedContentSet} from '../store/wizardContent.store';
+import {$wizardPersistedWorkflowState, applyWorkflowFromServer, applyServerSidePersistedContent, onWizardPersistedContentSet} from '../store/wizardContent.store';
 import {resetMixinChangedPaths} from '../store/wizardMixinData.store';
 
 //
@@ -76,13 +76,14 @@ function handleSummaryEvent(contents: readonly ContentSummary[] | undefined): vo
     const summary = findMatchingSummary(contents);
     if (summary == null) return;
 
-    // Skip echo of our own save: third-party changes carry a later modifiedTime.
     const summaryModifiedMs = getModifiedTimeMs(summary);
-    if (
-        summaryModifiedMs != null &&
-        lastKnownModifiedTimeMs != null &&
-        summaryModifiedMs <= lastKnownModifiedTimeMs
-    ) {
+    const isEcho = summaryModifiedMs != null && lastKnownModifiedTimeMs != null && summaryModifiedMs <= lastKnownModifiedTimeMs;
+
+    if (isEcho) {
+        const summaryWorkflowState = summary.getWorkflow()?.getState() ?? null;
+        if (summaryWorkflowState !== $wizardPersistedWorkflowState.get()) {
+            applyWorkflowFromServer(summaryWorkflowState);
+        }
         return;
     }
 

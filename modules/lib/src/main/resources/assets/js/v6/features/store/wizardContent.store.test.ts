@@ -15,12 +15,15 @@ import {PageBuilder, type Page} from '../../../app/page/Page';
 import {
     $isContentFormExpanded,
     addDraftStringOccurrenceByPath,
+    applyWorkflowFromServer,
     $mixinsDescriptors,
     $wizardDataChangedPaths,
     $wizardChangedSections,
     $wizardDraftData,
     $wizardDraftMixins,
+    $wizardDraftWorkflowState,
     $wizardHasChanges,
+    $wizardPersistedWorkflowState,
     $wizardSectionChanges,
     initializeWizardContentState,
     getDraftStringByPath,
@@ -299,6 +302,27 @@ describe('wizardContent.store', () => {
 
         expect($wizardSectionChanges.get().workflow).toBe(true);
         expect($wizardChangedSections.get()).toContain('workflow');
+    });
+
+    it('applies a server-side workflow change to both persisted and draft state without marking unsaved changes', () => {
+        initializeWizardContentState(createContent(), null, [], WorkflowState.IN_PROGRESS);
+
+        applyWorkflowFromServer(WorkflowState.READY);
+
+        expect($wizardPersistedWorkflowState.get()).toBe(WorkflowState.READY);
+        expect($wizardDraftWorkflowState.get()).toBe(WorkflowState.READY);
+        expect($wizardSectionChanges.get().workflow).toBe(false);
+        expect($wizardHasChanges.get()).toBe(false);
+    });
+
+    it('keeps a dirty workflow draft when applying a server-side workflow change', () => {
+        initializeWizardContentState(createContent(), null, [], WorkflowState.IN_PROGRESS);
+        setDraftWorkflowState(WorkflowState.READY);
+
+        applyWorkflowFromServer(WorkflowState.IN_PROGRESS);
+
+        expect($wizardPersistedWorkflowState.get()).toBe(WorkflowState.IN_PROGRESS);
+        expect($wizardDraftWorkflowState.get()).toBe(WorkflowState.READY);
     });
 
     it('removes middle occurrence and shifts remaining values in draft tree', () => {
