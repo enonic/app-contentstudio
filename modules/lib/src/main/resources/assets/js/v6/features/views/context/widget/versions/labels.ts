@@ -10,6 +10,17 @@ import {
 
 const getFirstAction = (version: ContentVersion) => version.getActions()[0];
 
+export type VersionBranch = 'draft' | 'master';
+
+// Operations applied to a published content land on both branches, producing
+// two version entries per event; a branch marker distinguishes them.
+const BRANCH_AWARE_OPERATIONS = new Set<VersionOperationType>([
+    VersionOperationType.PATCH,
+    VersionOperationType.EDITORIAL_PATCH,
+    VersionOperationType.METADATA,
+    VersionOperationType.PERMISSIONS,
+]);
+
 export const getOperationLabel = (version: ContentVersion): string => {
     const config = getVersionConfig(version);
     if (!config) {
@@ -22,18 +33,18 @@ export const getOperationLabel = (version: ContentVersion): string => {
         return i18n('operation.content.scheduled');
     }
 
-    if (type === VersionOperationType.PATCH || type === VersionOperationType.EDITORIAL_PATCH) {
-        const origin = getFirstAction(version)?.getOrigin();
+    return i18n(config.labelKey);
+};
 
-        if (origin === 'draft') {
-            return i18n('operation.content.patch.draft');
-        }
-        if (origin === 'master') {
-            return i18n('operation.content.patch.master');
-        }
+/** Branch a version's action targeted, when the operation can apply to either. */
+export const getVersionBranch = (version: ContentVersion): VersionBranch | undefined => {
+    const type = resolveVersionOperationType(version);
+    if (type == null || !BRANCH_AWARE_OPERATIONS.has(type)) {
+        return undefined;
     }
 
-    return i18n(config.labelKey);
+    const origin = getFirstAction(version)?.getOrigin();
+    return origin === 'draft' || origin === 'master' ? origin : undefined;
 };
 
 export const getModifierLabel = (version: ContentVersion): string | undefined => {
