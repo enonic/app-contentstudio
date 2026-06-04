@@ -1,6 +1,6 @@
 import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Button, Checkbox, cn, useListbox} from '@enonic/ui';
+import {Button, Checkbox, cn, Tooltip, useListbox} from '@enonic/ui';
 import {useStore} from '@nanostores/preact';
 import {ComponentPropsWithoutRef, ReactElement, useCallback, useMemo} from 'react';
 import {ContentId} from '../../../../../../app/content/ContentId';
@@ -21,7 +21,7 @@ import {
     $selectedVersions,
     toggleVersionSelection,
 } from '../../../../store/context/versionStore';
-import {getOperationLabel} from './labels';
+import {getOperationLabel, getVersionBranch, VersionBranch} from './labels';
 import {useRevertActions} from './revert/useRevertActions';
 
 const COMPONENT_NAME = 'VersionsListItem';
@@ -73,6 +73,19 @@ const useVersionItemState = (version: ContentVersion) => {
 // Subcomponents
 // ============================================================================
 
+type VersionBranchMarkerProps = {
+    branch: VersionBranch;
+};
+
+// Compact (D)/(M) tag whose tooltip names the target branch (draft/master).
+const VersionBranchMarker = ({branch}: VersionBranchMarkerProps): ReactElement => (
+    <Tooltip delay={300} value={branch} asChild>
+        <span className='text-subtle text-sm font-semibold'>
+            ({branch.charAt(0).toUpperCase()})
+        </span>
+    </Tooltip>
+);
+
 type VersionItemMainInfoProps = {
     version: ContentVersion;
 };
@@ -80,6 +93,7 @@ type VersionItemMainInfoProps = {
 const VersionItemMainInfo = ({version}: VersionItemMainInfoProps): ReactElement => {
     const modifierDisplayName = version.getActions()[0]?.getUserDisplayName();
     const modifierLabel = useI18n('field.version.by', modifierDisplayName ?? '');
+    const branch = getVersionBranch(version);
 
     return (
         <div className='flex flex-col justify-center grow'>
@@ -89,6 +103,7 @@ const VersionItemMainInfo = ({version}: VersionItemMainInfoProps): ReactElement 
                 </span>
                 <span className='text-bdr-soft text-sm'>|</span>
                 <span className='text-sm font-semibold'>{getOperationLabel(version)}</span>
+                {branch && <VersionBranchMarker branch={branch} />}
             </div>
             {modifierDisplayName && (
                 <div className='text-xs'>{modifierLabel}</div>
