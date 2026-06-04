@@ -169,7 +169,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
             let displayName = contentBuilder.generateRandomName('child');
             CHILD_FOLDER = contentBuilder.buildFolder(displayName);
             // 1. Select a folder and add a child folder:
-            await studioUtils.findAndSelectItem(FOLDER.displayName);
+            await studioUtils.findContentAndClickCheckBox(FOLDER.displayName);
             await studioUtils.doAddFolder(CHILD_FOLDER);
             // 2.  'Sort' button gets enabled, because child folder was added:
             await contentBrowsePanel.waitForSortButtonEnabled();
