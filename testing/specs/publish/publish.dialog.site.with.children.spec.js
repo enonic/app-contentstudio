@@ -45,7 +45,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
             // 2. Click on 'Include children' button
-            await contentPublishDialog.clickOnIncludeChildrenToogler();
+            await contentPublishDialog.clickOnIncludeChildrenCheckbox();
             // 3. Verify that 'All' checkbox is displayed and enabled:
             await contentPublishDialog.waitForAllDependantsCheckboxDisplayed();
             await contentPublishDialog.waitForAllDependantsCheckboxEnabled();
@@ -64,7 +64,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
             // 2. Click on 'Include children' button
-            await contentPublishDialog.clickOnIncludeChildrenToogler();
+            await contentPublishDialog.clickOnIncludeChildrenCheckbox();
             // 3. Unselect the checkbox for 'unnamed' (invalid) folder:
             await contentPublishDialog.clickOnCheckboxInDependentItem('_unnamed_');
             // 4. Apply the selection:
@@ -88,7 +88,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
             // 2. Click on Include children button
-            await contentPublishDialog.clickOnIncludeChildrenToogler();
+            await contentPublishDialog.clickOnIncludeChildrenCheckbox();
             let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
             assert.equal(depItems.length, 2, 'Two dependent items should be displayed');
             // 3. Click on 'Exclude invalid' items button:
@@ -119,7 +119,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
             // 2. Click on 'Include children' button
-            await contentPublishDialog.clickOnIncludeChildrenToogler();
+            await contentPublishDialog.clickOnIncludeChildrenCheckbox();
             let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
             assert.equal(depItems.length, 3, 'Three dependent items should be displayed');
             await studioUtils.saveScreenshot('include_children_clicked');
@@ -150,8 +150,8 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
-            // 2. Click on 'Include children' button
-            await contentPublishDialog.clickOnIncludeChildrenToogler();
+            // 2. Click on 'Include children' checkbox
+            await contentPublishDialog.clickOnIncludeChildrenCheckbox();
             // 3. Click on 'Exclude invalid items':
             await contentPublishDialog.clickOnExcludeInvalidItemsButton();
             // 4. Exclude all 'work in progress' items:

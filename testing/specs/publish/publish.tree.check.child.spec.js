@@ -42,7 +42,7 @@ describe('publish.tree.check.child.spec - Publish Tree action - publish a conten
             // 3. Get dependent items:
             let items1 = await contentPublishDialog.getDisplayNameInDependentItems();
             // 4. Exclude child items:
-            await contentPublishDialog.clickOnIncludeChildrenToogler();
+            await contentPublishDialog.clickOnIncludeChildrenCheckbox();
             // 5. Close the modal dialog
             await contentPublishDialog.clickOnCloseButton();
             // 6. Click on the 'Publish Tree' menu item and reopen the modal dialog:

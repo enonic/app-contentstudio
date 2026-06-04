@@ -240,7 +240,6 @@ module.exports = {
     async openContentWizard(contentType) {
         let browsePanel = new BrowsePanel();
         let newContentDialog = new NewContentDialog();
-        let contentWizardPanel = new ContentWizardPanel();
         await browsePanel.waitForNewButtonEnabled(appConst.mediumTimeout);
         await browsePanel.clickOnNewButton();
         await newContentDialog.waitForOpened();
@@ -631,6 +630,10 @@ module.exports = {
             if (!result) {
                 await browsePanel.clickOnSearchButton();
                 await filterPanel.waitForOpened();
+            }
+            let isDisplayed = await filterPanel.isClearButtonDisplayed();
+            if (isDisplayed) {
+                await filterPanel.clickOnClearButton();
             }
             await filterPanel.typeSearchText(name);
             await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);

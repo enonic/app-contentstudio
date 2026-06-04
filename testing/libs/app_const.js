@@ -501,7 +501,7 @@ module.exports = Object.freeze({
     PUBLISH_MENU: {
         REQUEST_PUBLISH: 'Request publishing',
         PUBLISH: 'Publish',
-        PUBLISH_TREE: 'Publish Tree',
+        PUBLISH_TREE: 'Publish tree',
         MARK_AS_READY: 'Mark as ready',
         UNPUBLISH: 'Unpublish',
         CREATE_ISSUE: 'Create issue'

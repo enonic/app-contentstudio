@@ -43,7 +43,7 @@ describe('publish.site.with.invalid.child.spec tests for Publish Wizard with inv
             await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
             // 2. Click on 'Include children' icon:
-            await contentPublishDialog.clickOnIncludeChildrenToogler();
+            await contentPublishDialog.clickOnIncludeChildrenCheckbox();
             // 3. Verify that 'Publish Now' button gets disabled:
             await contentPublishDialog.waitForPublishNowButtonDisabled();
         });
@@ -56,8 +56,8 @@ describe('publish.site.with.invalid.child.spec tests for Publish Wizard with inv
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
-            // 2.  Click on 'Include children' icon:
-            await contentPublishDialog.clickOnIncludeChildrenToogler();
+            // 2.  Click on 'Include children' checkbox:
+            await contentPublishDialog.clickOnIncludeChildrenCheckbox();
             // 3. Click on checkbox in the dependent item and  remove the invalid item:
             await contentPublishDialog.clickOnCheckboxInDependentItem(LONG_2_4_NAME);
             // Click on 'Apply selection' button:
@@ -76,8 +76,8 @@ describe('publish.site.with.invalid.child.spec tests for Publish Wizard with inv
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
-            // 2.  Click on 'Include children' icon:
-            await contentPublishDialog.clickOnIncludeChildrenToogler();
+            // 2.  Click on 'Include children' checkbox:
+            await contentPublishDialog.clickOnIncludeChildrenCheckbox();
             // 3. Click on checkbox in the dependent item and  exclude the invalid item:
             await contentPublishDialog.clickOnCheckboxInDependentItem(LONG_2_4_NAME);
             // 4. Click on 'Cancel selection' button:

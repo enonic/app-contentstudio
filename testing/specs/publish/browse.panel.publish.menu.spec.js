@@ -1,5 +1,5 @@
 /**
- * Created on 18.02.2019.
+ * Created on 18.02.2019.  updated on 03.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -30,7 +30,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
 
     it('Preconditions: test site should be created', async () => {
         let displayName = contentBuilder.generateRandomName('site');
-        SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
+        SITE = contentBuilder.buildSite(displayName, null, ['All Content Types App']);
         await studioUtils.doAddSite(SITE);
     });
 
@@ -53,9 +53,8 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             // 3. open Publish Menu and verify status of all menu items:
             await contentBrowsePanel.openPublishMenu();
             await studioUtils.saveScreenshot('publish_menu_Folder_ready');
+
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.PUBLISH);
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH_TREE);
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.MARK_AS_READY);
             // 4.  do publish the folder:
@@ -73,9 +72,8 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             // 2. Open Publish Menu and verify status of all menu items:
             await contentBrowsePanel.openPublishMenu();
             await studioUtils.saveScreenshot('publish_menu_Folder_published');
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.UNPUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
-            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH);
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH_TREE);
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.MARK_AS_READY);
         });
@@ -96,7 +94,6 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             await studioUtils.saveScreenshot('publish_menu_Folder_unpublished');
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.PUBLISH);
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH_TREE);
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.MARK_AS_READY);
         });

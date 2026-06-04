@@ -1,5 +1,5 @@
 /**
- * Created on 22.07.2019.
+ * Created on 22.07.2019. update on 03.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -43,7 +43,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await contentPublishDialog.clickOnRemoveItemIcon(appConst.TEST_IMAGES.KOTEY);
             // 4. Verify that the second remove-icon gets disabled:
             isDisabled = await contentPublishDialog.isRemoveItemIconDisabled(appConst.TEST_IMAGES.SHIP);
-            assert.ok(isDisabled,  'Remove icon should be disabled for the single item');
+            assert.ok(isDisabled, 'Remove icon should be disabled for the single item');
         });
 
     // Set the property before the test - publishingWizard.excludeDependencies=false (com.enonic.app.contentstudio.cfg)
@@ -131,7 +131,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             // 1. Click on 'Publish...' button
             await contentBrowsePanel.clickOnPublishButton();
             // 2. 'Include children' has been clicked
-            await contentPublishDialog.clickOnIncludeChildrenToogler();
+            await contentPublishDialog.clickOnIncludeChildrenCheckbox();
             // 3. 'All' checkbox gets visible:
             await contentPublishDialog.waitForAllDependantsCheckboxDisplayed();
             let isSelected = await contentPublishDialog.isAllDependantsCheckboxSelected();
@@ -192,7 +192,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
             await contentPublishDialog.waitForDialogOpened();
             // 3. Click on 'Include child items' toggler icon
-            await contentPublishDialog.clickOnIncludeChildrenToogler();
+            await contentPublishDialog.clickOnIncludeChildrenCheckbox();
             // 4. Verify that 'All' checkbox gets not visible:
             await contentPublishDialog.waitForAllDependantsCheckboxNotDisplayed();
             await contentPublishDialog.waitForPublishNowButtonEnabled();
@@ -244,7 +244,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await studioUtils.selectContentAndOpenWizard(PARENT_FOLDER.displayName);
             // 2. OPen Publish Wizard:
             await contentWizard.clickOnPublishButton();
-            await contentPublishDialog.clickOnIncludeChildrenToogler();
+            await contentPublishDialog.clickOnIncludeChildrenCheckbox();
             // 3. Exclude the child item in Dependent block
             await contentPublishDialog.clickOnCheckboxInDependentItem(CHILD_FOLDER.displayName);
             // 4. Verify that Apply button gets visible then click on it:

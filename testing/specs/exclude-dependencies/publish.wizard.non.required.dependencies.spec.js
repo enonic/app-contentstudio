@@ -29,7 +29,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
     it("Precondition: ready for publishing site should be added",
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES],
+            SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.APP_CONTENT_TYPES],
                 appConst.CONTROLLER_NAME.MAIN_REGION);
             await studioUtils.doAddSite(SITE);
             await studioUtils.saveScreenshot('issue_open2');
@@ -82,7 +82,7 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
             let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
             assert.equal(depItems.length, 0, 'dependencies list should be empty');
             // 7. Click on 'Include child items' toggle:
-            await contentPublishDialog.clickOnIncludeChildrenToogler();
+            await contentPublishDialog.clickOnIncludeChildrenCheckbox();
             // 8. Verify that expected dependency item gets visible in the dialog:
             await contentPublishDialog.waitForDependenciesListDisplayed();
             depItems = await contentPublishDialog.getDisplayNameInDependentItems();

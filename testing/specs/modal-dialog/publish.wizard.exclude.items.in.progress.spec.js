@@ -73,8 +73,8 @@ describe('publish.wizard.exclude.items.in.progress.spec - tests for  Exclude ite
             // 2. Click on the 'Publish Tree' menu item
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH_TREE);
             await contentPublishDialog.waitForDialogOpened();
-            // 3. Click on 'Include children' toggler and exclude children items:
-            await contentPublishDialog.clickOnIncludeChildrenToogler();
+            // 3. Click on 'Include children' checkbox and exclude children items:
+            await contentPublishDialog.clickOnIncludeChildrenCheckbox();
             await studioUtils.saveScreenshot('exclude_items_in_progress_toggled');
             // 4. Verify that 'Exclude items in progress' button gets not visible
             await contentPublishDialog.waitForExcludeItemsInProgressButtonNotDisplayed();
