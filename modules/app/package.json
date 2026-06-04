@@ -2,7 +2,7 @@
   "name": "app-contentstudio",
   "version": "6.0.0",
   "description": "Enonic XP - Content Studio App",
-  "license": "GPL-3.0",
+  "license": "Enonic License 2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/enonic/app-contentstudio"
