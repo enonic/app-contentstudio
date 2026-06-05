@@ -869,16 +869,16 @@ class ContentWizardPanel extends Page {
         }
     }
 
+    async openPublishMenu(){
+        await this.waitForShowPublishMenuButtonVisible();
+        await this.clickOnElement(this.publishDropDownHandle);
+        await this.pause(500);
+    }
     async openPublishMenuSelectItem(menuItem) {
         try {
             await this.waitForShowPublishMenuButtonVisible();
             await this.clickOnElement(this.publishDropDownHandle);
             let selector = XPATH.publishMenuItemByName(menuItem);
-            // let menuSelector = `//div[contains(@id,'ContentWizardToolbar') and @role='menu']`;
-            // await this.waitForElementDisplayed(menuSelector);
-            // let selector =
-            //     `//div[@role='menu']//div[@role='menuitem' and .//span[text()='${menuItem}'] and not(@aria-disabled='true')]`;
-            // await this.waitForElementDisplayed(selector,);
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
@@ -1292,7 +1292,6 @@ class ContentWizardPanel extends Page {
             await this.handleError(`${menuItem} should be enabled`, 'err_publish_menuItem_enabled', err);
         }
     }
-
 }
 
 module.exports = ContentWizardPanel;
