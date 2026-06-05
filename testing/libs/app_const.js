@@ -488,6 +488,7 @@ module.exports = Object.freeze({
     },
     CONTENT_STATUS: {
         OFFLINE_NEW: 'Offline New',
+        ONLINE_MOVED:'Online Moved',
         OFFLINE_NEW_READY: 'Offline New Ready for publishing',
         OFFLINE: 'Offline',
         ONLINE:'Online',

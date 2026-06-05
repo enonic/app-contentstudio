@@ -15,19 +15,13 @@ describe('person.display.name-expression.spec: tests for Display name expression
     if (typeof browser === 'undefined') {
         webDriverHelper.setupBrowser();
     }
-    let SITE;
-    const CONTENT_NAME = contentBuilder.generateRandomName('person');
+    const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
     const PERSON_FIRST_NAME = 'John';
     const PERSON_LAST_NAME = "O'Brien";
     const EXPECTED_NAME_EXPRESSION = "John O 'Brien";
     const EXPECTED_CONTENT_NAME = "john-o-brien"
 
-    it(`Preconditions: new site should be added`,
-        async () => {
-            let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
-            await studioUtils.doAddSite(SITE);
-        });
+
 
     // Verifies https://github.com/enonic/app-contentstudio/issues/4172
     // DisplayNameResolver spawns error on field values with a single quote #4172
@@ -36,7 +30,7 @@ describe('person.display.name-expression.spec: tests for Display name expression
             let personForm = new PersonFormPanel();
             let contentWizard = new ContentWizard();
             // 1. open new wizard and fill in the name input:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.PERSON);
+            await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.PERSON);
             // 2. Fill in the first name input
             await personForm.typeInFirstNameInput(PERSON_FIRST_NAME);
             // 3. Fill in the last name input

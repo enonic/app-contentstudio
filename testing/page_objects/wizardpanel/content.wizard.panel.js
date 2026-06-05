@@ -25,14 +25,13 @@ const XPATH = {
     showPageEditorTogglerButton: "//button[contains(@id,'ContentActionCycleButton') and @title='Show Page Editor']",
     displayNameInput: "//input[@name='displayName']",
     toolbar: `//div[@data-component='Toolbar.Container' and @role='toolbar']`,
+
     publishMenuItem: `//div[contains(@id,'ContentWizardToolbar') and @role='menu']`,
     contentItemPreviewToolbar: `//div[contains(@id,'PreviewToolbar')]`,
     toolbarStateIcon: `//div[contains(@class,'toolbar-state-icon')]`,
     // v6: workflow state SVG in the toolbar — aria-label is 'invalid', 'in-progress', or 'ready'
     toolbarWorkflowStateIcon: `//svg[@aria-label and not(@aria-hidden='true')]`,
     publishMenuButton: "//div[contains(@id,'ContentWizardPublishMenuButton')]",
-    openRequestButton: "//button[contains(@id,'ActionButton') and child::span[text()='Open Request...']]",
-    unpublishMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Unpublish...']",
     inspectionPanelToggler: "//button[contains(@id, 'TogglerButton') and contains(@class,'icon-cog')]",
     thumbnailUploader: "//div[contains(@id,'ThumbnailUploaderEl')]",
     scheduleTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Schedule']`,
@@ -43,7 +42,6 @@ const XPATH = {
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
     shaderPage: "//div[@class='xp-page-editor-shader xp-page-editor-page']",
-    pagePlaceholderInfoBlock1: "//div[contains(@id,'PagePlaceholderInfoBlock')]//div[contains(@class,'page-placeholder-info-line1')]",
     wizardStepByName:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
@@ -55,6 +53,11 @@ const XPATH = {
     },
     previewToolbarMenuItem: (optionName) => {
         return `//div[contains(@id,'PreviewToolbar') and @role='menu']//div[@role='menuitemradio' and descendant::span[text()='${optionName}']]`
+    },
+    openRenameDialogButton: name => `//button[@data-component='Tooltip' and child::span[text()='${name}']]`,
+    nameInToolbarButton: `//button[@data-component='Tooltip' and contains(@id,'toolbar-item')]/span`,
+    publishMenuItemByName(name) {
+        return `//div[@data-component='Menu.Item' and child::span[text()='${name}']]`;
     },
 };
 
@@ -130,10 +133,6 @@ class ContentWizardPanel extends Page {
 
     get publishDropDownHandle() {
         return XPATH.toolbar + "//div[contains(@class,'justify-end')]//button[@aria-label='More actions']";
-    }
-
-    get unpublishMenuItem() {
-        return XPATH.toolbarPublish + XPATH.unpublishMenuItem;
     }
 
     get thumbnailUploader() {
@@ -479,10 +478,6 @@ class ContentWizardPanel extends Page {
         await this.waitForElementDisplayed(this.displayNameInput);
     }
 
-    typeInPathInput(path) {
-        return this.typeTextInInput(this.pathInput, path);
-    }
-
     async getDisplayName() {
         if (await this.isElementDisplayed(this.displayNameInput)) {
             return await this.getTextInInput(this.displayNameInput);
@@ -491,8 +486,10 @@ class ContentWizardPanel extends Page {
         return await this.getText(this.displayNameControl);
     }
 
-    getPath() {
-        return this.getTextInInput(this.pathInput);
+    async getNameInToolbar() {
+        let locator = XPATH.toolbar + XPATH.nameInToolbarButton;
+        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+        return await this.getText(locator);
     }
 
     async clearDisplayNameInput() {
@@ -560,17 +557,11 @@ class ContentWizardPanel extends Page {
         await this.waitForElementDisabled(this.publishDropDownHandle);
     }
 
-
-    async waitForPublishMenuItemDisabled(menuItem) {
-        let selector = XPATH.publishMenuItemByName(menuItem);
-        let aa = await this.findElements(selector);
-        let role = await aa[0].getAttribute('role');
-        let dd = await aa[0].getAttribute('aria-disabled');
-
-        await this.waitForAttributeHasValue(selector, 'aria-disabled', 'true');
-        //return await this.waitForAttributeHasValue(selector, 'aria-disabled', 'true');
-
-    }
+    //
+    // async waitForPublishMenuItemDisabled(menuItem) {
+    //     let selector = XPATH.publishMenuItemByName(menuItem);
+    //     await this.waitForAttributeHasValue(selector, 'aria-disabled', 'true');
+    // }
 
     async waitForReadOnlyMode() {
         try {
@@ -699,7 +690,6 @@ class ContentWizardPanel extends Page {
         }
     }
 
-
     // Select a page descriptor and wait for Context Window is loaded
     // // TODO 8607
     async selectPageDescriptor(pageControllerDisplayName, checkContextPanel) {
@@ -755,26 +745,10 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    async typeData1(content) {
-        try {
-            let contentStepForm = new ContentStepForm();
-            await this.waitForElementDisplayed(this.displayNameControl, appConst.shortTimeout);
-            await this.typeDisplayName(content.displayName);
-            if (content.data != null) {
-                await contentStepForm.type(content.data, content.contentType);
-            }
-            if (content.settings != null) {
-                let wizardContextPanel = new WizardContextPanel();
-                let option = await wizardContextPanel.getSelectedOptionInWidgetSelectorDropdown();
-                if (option !== 'Details') {
-                    await this.openDetailsWidget();
-                }
-                await this.typeSettings(content.settings);
-            }
-            return await this.pause(300);
-        } catch (err) {
-            await this.handleError('Content Wizard, tried to fill in the content data', 'err_type_content_data', err);
-        }
+
+    async openPublishMenu() {
+        await this.clickOnElement(this.showPublishMenuButton);
+        return await this.pause(500);
     }
 
     async clickOnPublishMenuDropdownHandle() {
@@ -787,19 +761,15 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    ///
     async clickOnUnpublishMenuItem() {
         try {
             await this.clickOnPublishMenuDropdownHandle();
-            await this.waitForElementDisplayed(this.unpublishMenuItem);
-            await this.clickOnElement(this.unpublishMenuItem);
+            let locator = XPATH.publishMenuItemByName('Unpublish');
+            await this.waitForElementDisplayed(locator);
+            await this.clickOnElement(locator);
         } catch (err) {
             await this.handleError('Content wizard, tried to click on unpublish menu item', 'err_unpublish_menu_item', err);
         }
-    }
-
-    async waitForMinimizeLiveEditTogglerNotDisplayed() {
-        return await this.waitForElementNotDisplayed(this.minimizeLiveEditToggler);
     }
 
     async waitForMinimizeLiveEditTogglerDisplayed() {
@@ -899,15 +869,16 @@ class ContentWizardPanel extends Page {
         }
     }
 
+    async openPublishMenu(){
+        await this.waitForShowPublishMenuButtonVisible();
+        await this.clickOnElement(this.publishDropDownHandle);
+        await this.pause(500);
+    }
     async openPublishMenuSelectItem(menuItem) {
         try {
             await this.waitForShowPublishMenuButtonVisible();
             await this.clickOnElement(this.publishDropDownHandle);
-            let menuSelector = `//div[contains(@id,'ContentWizardToolbar') and @role='menu']`;
-            await this.waitForElementDisplayed(menuSelector);
-            let selector =
-                `//div[@role='menu']//div[@role='menuitem' and .//span[text()='${menuItem}'] and not(@aria-disabled='true')]`;
-            await this.waitForElementDisplayed(selector,);
+            let selector = XPATH.publishMenuItemByName(menuItem);
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
@@ -1089,10 +1060,11 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
-    async clickOnNameInputOpenModifyPathDialog() {
-        await this.waitForModifyPathSpanDisplayed();
+    async clickOnRenameNameButton(name) {
+        //await this.waitForModifyPathSpanDisplayed();
+        await this.clickOnRenameContentDialogButton(name);
         await this.pause(300);
-        await this.clickOnElement(this.modifyPathSpan);
+        //await this.clickOnElement(this.modifyPathSpan);
         let renamePublishedContentDialog = new RenamePublishedContentDialog();
         await renamePublishedContentDialog.waitForDialogLoaded();
         return renamePublishedContentDialog;
@@ -1114,15 +1086,6 @@ class ContentWizardPanel extends Page {
             }, {timeout: appConst.mediumTimeout, timeoutMsg: `'Click to rename the content' tooltip should be displayed`});
         } catch (err) {
             await this.handleError(`Verify tooltip in the Content Wizard`, 'err_path_input_tooltip', err);
-        }
-    }
-
-    async waitForModifyPathSpanDisplayed() {
-        try {
-            return await this.waitForElementDisplayed(this.modifyPathSpan, appConst.mediumTimeout);
-        } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_modify_path_span');
-            throw new Error(`Modify path span should be displayed, screenshot: ${screenshot} ` + err);
         }
     }
 
@@ -1314,6 +1277,21 @@ class ContentWizardPanel extends Page {
         }
     }
 
+    async clickOnRenameContentDialogButton(path) {
+        let locator = XPATH.toolbar + XPATH.openRenameDialogButton(path);
+        await this.waitForElementDisplayed(locator);
+        await this.clickOnElement(locator);
+    }
+
+    async waitForPublishMenuItemEnabled(menuItem) {
+        try {
+            // Enabled items have no aria-disabled attribute; disabled ones have aria-disabled='true'.
+            let selector = XPATH.publishMenuItemByName(menuItem) + "[not(@aria-disabled='true')]";
+            return await this.waitForElementDisplayed(selector);
+        } catch (err) {
+            await this.handleError(`${menuItem} should be enabled`, 'err_publish_menuItem_enabled', err);
+        }
+    }
 }
 
 module.exports = ContentWizardPanel;

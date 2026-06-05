@@ -40,7 +40,6 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             let liveFormPanel = new LiveFormPanel();
             // 1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-            //automatic template does not exist, so no need to unlock the editor
             // 2. Click on minimize-toggle, expand Live Edit and open Page Component modal dialog:
             await contentWizard.clickOnMinimizeLiveEditToggler();
             // 3. Insert new text component:
@@ -50,6 +49,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             await textComponentInspectionPanel.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.waitForDialogVisible();
             // 4. Insert an image in the text component:
+            await insertImageDialog.clickOnImageSelectorModeTogglerButton();
             await insertImageDialog.filterAndSelectImage(appConst.TEST_IMAGES.SENG);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             // 5. Fill in the Caption input an insert the image:
@@ -67,7 +67,7 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             await pageComponentView.rightClickAndOpenContextMenu(CAPTION);
             await pageComponentView.selectMenuItem([appConst.COMPONENT_VIEW_MENU_ITEMS.REMOVE]);
             await contentWizard.waitAndClickOnSave();
-            //await contentWizard.waitForNotificationMessage();
+            await contentWizard.waitForNotificationMessage();
         });
 
     //Verifies: Browser hangs after a page with an open modal dialogs is refreshed #5003
@@ -114,6 +114,8 @@ describe("text.component.image.caption.spec: Inserts a text component with an im
             // 4. Open 'Insert Image' dialog and insert an image in htmlArea:
             //await textComponentInspectionPanel.clickInTextArea();
             await textComponentInspectionPanel.showToolbarAndClickOnInsertImageButton();
+            await insertImageDialog.waitForDialogVisible();
+            await insertImageDialog.clickOnImageSelectorModeTogglerButton();
             await insertImageDialog.filterAndSelectImage(TEST_IMAGE);
             await insertImageDialog.clickOnDecorativeImageRadioButton();
             await insertImageDialog.clickOnInsertButton();

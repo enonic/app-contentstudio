@@ -1,11 +1,10 @@
 const Page = require('../page');
-const lib = require('../../libs/elements-old');
+const {BUTTONS} = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const XPATH = {
-    container: "//div[contains(@id,'RenameContentDialog')]",
-    renameButton: "//button[contains(@id,'DialogButton') and child::span[text()='Rename']]",
-    cancelButton: "//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]",
+    container: "//div[@data-component='RenameContentDialog']",
+    nameAvailabilityStatus: "//div[@data-component='Input']//input/following-sibling::div",
 };
 
 class RenameContentDialog extends Page {
@@ -14,46 +13,71 @@ class RenameContentDialog extends Page {
         return XPATH.container + XPATH.cancelButton;
     }
 
-    get cancelButtonTop() {
-        return `${XPATH.container}` + `${lib.CANCEL_BUTTON_TOP}`;
+    get closeButton() {
+        return `${XPATH.container}` + BUTTONS.buttonAriaLabel('Close');
     }
 
     get renameButton() {
-        return XPATH.container + XPATH.renameButton;
+        return XPATH.container + BUTTONS.buttonAriaLabel('Rename');
     }
 
     get newNameInput() {
-        return XPATH.container + lib.TEXT_INPUT;
+        return XPATH.container + "//div[@data-component='Input' and descendant::label[contains(.,'New name')]]//input";
     }
 
     get validationPathMessage() {
         return XPATH.container + "//div[contains(@id,'RenameInput')]//div[contains(@class,'status')]";
     }
 
+    get nameAvailabilityStatus() {
+        return XPATH.container + XPATH.nameAvailabilityStatus;
+    }
+
+    // Waits until the name-availability status equals the expected value ('Available' or 'Unavailable')
+    async waitForNameAvailabilityStatus(status) {
+        let locator = this.nameAvailabilityStatus;
+        await this.getBrowser().waitUntil(async () => {
+            let actual = await this.getText(locator);
+            return actual && actual.trim() === status;
+        }, {
+            timeout: appConst.mediumTimeout,
+            timeoutMsg: `Rename content dialog: expected name availability status '${status}' did not appear`
+        });
+    }
+
     async typeInNewNameInput(text) {
-        await this.waitForNewNameInputDisplayed();
         await this.typeTextInInput(this.newNameInput, text);
         return await this.pause(700);
     }
 
-    waitForNewNameInputDisplayed() {
-        return this.waitForElementDisplayed(this.newNameInput, appConst.mediumTimeout);
+    async clickOnCloseButton() {
+        await this.clickOnElement(this.closeButton);
+    }
+
+    async getNameInInput() {
+        return await this.getTextInInput(this.newNameInput);
+    }
+
+
+    async clearNewNameInput() {
+        await this.clearInputText(this.newNameInput);
+        return await this.pause(300);
     }
 
     async waitForValidationMessageDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.validationPathMessage, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.validationPathMessage);
         } catch (err) {
-            await this.handleError("Rename content dialog: Validation path message is not displayed!",'err_validation_path_dialog', err);
+            await this.handleError("Rename content dialog: Validation path message is not displayed!", 'err_validation_path_dialog', err);
         }
     }
 
     waitForRenameButtonEnabled() {
-        return this.waitForElementEnabled(this.renameButton, appConst.mediumTimeout);
+        return this.waitForElementEnabled(this.renameButton);
     }
 
     waitForRenameButtonDisabled() {
-        return this.waitForElementDisabled(this.renameButton, appConst.mediumTimeout);
+        return this.waitForElementDisabled(this.renameButton);
     }
 
     clickOnCancelButton() {
@@ -63,7 +87,8 @@ class RenameContentDialog extends Page {
     async clickOnRenameButton() {
         await this.waitForRenameButtonEnabled();
         await this.clickOnElement(this.renameButton);
-        return await this.waitForDialogClosed();
+        await this.waitForDialogClosed();
+        await this.pause(500);
     }
 
     waitForDialogLoaded() {
