@@ -5,16 +5,19 @@ import {IssueServerChange} from './IssueServerChange';
 export class IssueServerEvent
     extends NodeServerEvent {
 
+    private static ISSUE_PATH_PATTERN: RegExp = /^\/issues\/[^/]+(?:\/.*)?$/;
+
     constructor(change: IssueServerChange) {
         super(change);
     }
 
     /*
-     Comments are stored under the issue at /issues/issue-1/comment-2
-     So we need to filter them out leaving just /issues/issue-N
-      */
+     * Issue comments are stored as child nodes under /issues/<issue-name>/...
+     * Keep child issue paths so details dialogs can refresh comments from server events.
+     */
+
     static is(eventJson: NodeEventJson): boolean {
-        return eventJson.data.nodes.some(node => /^\/issues\/issue-\d+$/.test(node.path));
+        return eventJson.data.nodes.some(node => IssueServerEvent.ISSUE_PATH_PATTERN.test(node.path));
     }
 
     static fromJson(nodeEventJson: NodeEventJson): IssueServerEvent {
