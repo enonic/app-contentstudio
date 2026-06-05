@@ -1,4 +1,5 @@
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
+import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
 import {showError, showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
@@ -37,7 +38,7 @@ import {
     $contentRenamed,
     $contentUpdated,
 } from '../socket.store';
-import {$issueDialog, loadIssueDialogList} from './issueDialog.store';
+import {$issueDialog, closeIssueDialog, loadIssueDialogList} from './issueDialog.store';
 
 import type {Issue} from '../../../../app/issue/Issue';
 import type {IssueComment} from '../../../../app/issue/IssueComment';
@@ -868,8 +869,6 @@ let commentsRequestId = 0;
 
 let serverEventReloadRequestId = 0;
 
-const ISSUE_COMMENT_SERVER_EVENT_PATH_PATTERN: RegExp = /^\/issues\/([^/]+)\/(?:comment(?:[-/].*)?|comments(?:\/.*)?)$/;
-
 const resolveDefaultDetailsTab = (issueId?: string, issue?: Issue): IssueDialogDetailsTab => {
     if (!issueId) {
         return initialState.detailsTab;
@@ -1184,20 +1183,7 @@ const queueIssueDialogDetailsServerEventReload = createDebounce((issueId: string
     void reloadIssueDialogDetailsForServerEvent(issueId);
 }, 1250);
 
-const getIssueCommentServerEventIssueNames = (event: IssueServerEvent): string[] => {
-    return [...event
-        .getNodeChange()
-        .getChangeItems()
-        .reduce((issueNames: Set<string>, item) => {
-            const issueName = ISSUE_COMMENT_SERVER_EVENT_PATH_PATTERN.exec(item.getPath().toString())?.[1];
-            if (issueName) {
-                issueNames.add(issueName);
-            }
-            return issueNames;
-        }, new Set<string>())];
-};
-
-const isCurrentIssueDialogServerEvent = (issueIds: string[], event: IssueServerEvent): boolean => {
+const isCurrentIssueDialogServerEvent = (issueIds: string[]): boolean => {
     const currentIssueId = getCurrentIssueDialogIssueId();
     if (!currentIssueId || !isIssueDialogDetailsActive()) {
         return false;
@@ -1208,16 +1194,7 @@ const isCurrentIssueDialogServerEvent = (issueIds: string[], event: IssueServerE
     }
 
     const currentIssueName = getCurrentIssueDialogIssueName();
-    if (currentIssueName && issueIds.includes(currentIssueName)) {
-        return true;
-    }
-
-    const commentIssueNames = getIssueCommentServerEventIssueNames(event);
-    if (currentIssueName) {
-        return commentIssueNames.includes(currentIssueName);
-    }
-
-    return commentIssueNames.length > 0;
+    return currentIssueName != null && issueIds.includes(currentIssueName);
 };
 
 const reloadIssueDialogItemsForCurrentIssue = (): void => {
@@ -1270,7 +1247,13 @@ $contentPublished.subscribe(onIssueDialogDetailsSocketEvent((event) => {
 
 const handleIssueDialogDetailsIssueChanged = (issueIds: string[], event: IssueServerEvent): void => {
     const currentIssueId = getCurrentIssueDialogIssueId();
-    if (!currentIssueId || !isCurrentIssueDialogServerEvent(issueIds, event)) {
+    if (!currentIssueId || !isCurrentIssueDialogServerEvent(issueIds)) {
+        return;
+    }
+
+    // An id match (not just a name) on delete means the open issue itself was removed, not a comment.
+    if (event.getType() === NodeServerChangeType.DELETE && issueIds.includes(currentIssueId)) {
+        closeIssueDialog();
         return;
     }
 

@@ -7,16 +7,14 @@ import {RepositoryId} from '../../repository/RepositoryId';
 import {isProjectInitialized} from '../../../v6/features/store/activeProject.store';
 
 interface IssueServerEventIds {
-    createdIssueIds: string[];
     rootIssueIds: string[];
-    childIssueIds: string[];
     affectedIssueIds: string[];
 }
 
 export class IssueServerEventsHandler {
-    private static ISSUE_ROOT_PATH_PATTERN: RegExp = /^\/issues\/([^/]+)$/;
+    private static ISSUE_ROOT_PATH_PATTERN = /^\/issues\/([^/]+)$/;
 
-    private static ISSUE_CHILD_PATH_PATTERN: RegExp = /^\/issues\/([^/]+)\/.+$/;
+    private static ISSUE_CHILD_PATH_PATTERN = /^\/issues\/([^/]+)\/.+$/;
 
     private static INSTANCE: IssueServerEventsHandler = new IssueServerEventsHandler();
 
@@ -71,9 +69,7 @@ export class IssueServerEventsHandler {
 
     private getCurrentRepoIssueIds(event: IssueServerEvent): IssueServerEventIds {
         const currentRepo: string = RepositoryId.fromCurrentProject().toString();
-        const createdIssueIds = new Set<string>();
         const rootIssueIds = new Set<string>();
-        const childIssueIds = new Set<string>();
         const affectedIssueIds = new Set<string>();
 
         event
@@ -84,7 +80,7 @@ export class IssueServerEventsHandler {
                 const path = changeItem.getPath().toString();
                 const rootIssuePathId = IssueServerEventsHandler.getRootIssuePathId(path);
                 if (rootIssuePathId) {
-                    createdIssueIds.add(changeItem.getId());
+                    // Root change: expose both node id and name so listeners can match on either.
                     rootIssueIds.add(changeItem.getId());
                     affectedIssueIds.add(changeItem.getId());
                     affectedIssueIds.add(rootIssuePathId);
@@ -93,15 +89,13 @@ export class IssueServerEventsHandler {
 
                 const childIssuePathId = IssueServerEventsHandler.getChildIssuePathId(path);
                 if (childIssuePathId) {
-                    childIssueIds.add(childIssuePathId);
+                    // Child change (e.g. a comment) only reveals the parent issue name, not its node id.
                     affectedIssueIds.add(childIssuePathId);
                 }
             });
 
         return {
-            createdIssueIds: [...createdIssueIds],
             rootIssueIds: [...rootIssueIds],
-            childIssueIds: [...childIssueIds],
             affectedIssueIds: [...affectedIssueIds],
         };
     }
@@ -115,19 +109,14 @@ export class IssueServerEventsHandler {
     }
 
     private handleServerEvent(issueIds: IssueServerEventIds, eventType: NodeServerChangeType) {
+        // Only root issue ids resolve via GetIssuesRequest; child changes are handled by listeners.
         if (eventType === NodeServerChangeType.CREATE) {
-            this.handleIssueCreate(issueIds.createdIssueIds);
-            this.handleIssueUpdate(issueIds.childIssueIds);
+            this.handleIssueCreate(issueIds.rootIssueIds);
             return;
         }
 
         if (eventType === NodeServerChangeType.UPDATE) {
-            this.handleIssueUpdate([...new Set([...issueIds.rootIssueIds, ...issueIds.childIssueIds])]);
-            return;
-        }
-
-        if (eventType === NodeServerChangeType.DELETE) {
-            this.handleIssueUpdate(issueIds.childIssueIds);
+            this.handleIssueUpdate(issueIds.rootIssueIds);
         }
     }
 
