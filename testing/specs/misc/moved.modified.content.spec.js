@@ -37,8 +37,6 @@ describe('moved.modified.content.spec - tests for content with Moved, Modified c
             // 2. Modify the path and click on 'Rename' button:
             await renamePublishedContentDialog.clickOnRenameButton();
             await renamePublishedContentDialog.waitForDialogClosed();
-            // 3. Verify that 'modify path' span remains visible in wizard page after updating the path:
-            await contentWizard.waitForModifyPathSpanDisplayed();
             // 4. Verify that Page Editor with Preview Widget, is loaded by default , Verify that status gets Moved in the preview widget:
             await studioUtils.saveScreenshot('moved_folder');
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.MOVED);

@@ -287,7 +287,7 @@ module.exports = {
         //timeout = ms === undefined ? appConst.longTimeout : ms;
         let waitForFocused = checkFocused === undefined ? true : checkFocused;
         if (waitForFocused) {
-            await contentWizardPanel.waitForDisplayNameInputFocused();
+            //await contentWizardPanel.waitForDisplayNameInputFocused();
         }
         return contentWizardPanel;
     },

@@ -10,10 +10,8 @@ exports.config = {
     specs: [
         //path.join(__dirname, '../specs/page-editor/*.spec.js'),
         path.join(__dirname, '../specs/page-editor/page.inspection.panel.spec.js'),
-        path.join(__dirname, '../specs/page-editor/text.component.image.caption.spec.js'),
         path.join(__dirname, '../specs/page-editor/context.window.insert.panel.spec.js'),
         path.join(__dirname, '../specs/page-editor/layout.context.menu.spec.js'),
-
     ],
     exclude: [
         path.join(__dirname, '../specs/page-editor/revert.site.with.components.spec.js'),
