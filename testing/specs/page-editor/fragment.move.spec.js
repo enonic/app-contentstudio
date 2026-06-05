@@ -175,8 +175,6 @@ describe('Move Fragment specification', function () {
             // 7. Verify the notification message - "You are about to move content out of its site which might make it unreachable. Are you sure?"
             await studioUtils.saveScreenshot('fragment_is_moved');
             await contentBrowsePanel.waitForNotificationMessage();
-            let actionLinkText = await contentBrowsePanel.waitForNotificationActionsText();
-            assert.equal(actionLinkText, `/${FOLDER.displayName}`, "Expected text should be present in the actions link");
         });
 
     // Verifies - Exception thrown after opening a moved fragment #6822

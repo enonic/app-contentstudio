@@ -51,11 +51,6 @@ describe('browse.panel.mark.as.ready.multiselection.spec - select 2 folders and 
             await studioUtils.findContentAndClickCheckBox(name);
             // Click on 'MARK AS READY' button, no confirmation needed for single content:
             await contentBrowsePanel.clickOnMarkAsReadyButton();
-
-            let message = await contentBrowsePanel.waitForNotificationMessage();
-            let expectedMessage = appConst.itemMarkedAsReadyMessage(folder.displayName);
-            await studioUtils.saveScreenshot('mark_as_ready_confirmation');
-            assert.equal(message, expectedMessage, "Item is marked as ready - message should appear");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

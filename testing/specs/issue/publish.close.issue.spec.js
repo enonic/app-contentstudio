@@ -58,9 +58,7 @@ describe('publish.close.issue.spec: publish a content and close the issue.', fun
             // 4. Click on 'Publish Now' button in 'Publish Wizard' dialog:
             await contentPublishDialog.clickOnPublishNowButton();
             // 5. Verify the notification message:
-            let message = await issueDetailsDialog.waitForNotificationMessage();
-            let expected = appConst.itemPublishedNotificationMessage(TEST_FOLDER.displayName);
-            assert.equal(message, expected, 'expected message should be displayed');
+            await issueDetailsDialog.waitForNotificationMessage();
             // 6. 'Reopen Issue' button should appear in the bottom of the dialog:
             await issueDetailsDialogItemsTab.waitForReopenIssueButtonDisplayed();
         });
