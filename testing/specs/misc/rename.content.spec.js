@@ -40,7 +40,7 @@ describe('rename.content.spec - tests for Renamed version item', function () {
             await renameContentDialog.typeInNewNameInput(NEW_NAME);
             await renameContentDialog.clickOnRenameButton();
             await renameContentDialog.waitForDialogClosed();
-            await contentWizard.waitAndClickOnSave();
+            // Should be automatically saved:
             await contentWizard.waitForNotificationMessages();
             // 3. Verify that 'Renamed' version item is visible in the Versions Widget contentWizard panel:
             await wizardVersionsWidget.waitForRenamedItemDisplayed();
