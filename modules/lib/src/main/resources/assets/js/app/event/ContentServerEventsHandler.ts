@@ -1,3 +1,4 @@
+import Q from 'q';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
 import {ContentDeletedEvent} from './ContentDeletedEvent';
@@ -16,6 +17,8 @@ import {PermissionsServerEvent} from './PermissionsServerEvent';
 import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {MovedContentItem} from '../browse/MovedContentItem';
 import {isProjectInitialized} from '../../v6/features/store/activeProject.store';
+import {ContentsExistByPathRequest} from '../resource/ContentsExistByPathRequest';
+import {type ContentsExistByPathResult} from '../resource/ContentsExistByPathResult';
 
 export const CONTENT_SERVER_EVENTS_HANDLER_KEY: string = 'ContentServerEventsHandler';
 
@@ -23,6 +26,8 @@ export const CONTENT_SERVER_EVENTS_HANDLER_KEY: string = 'ContentServerEventsHan
  * Class that listens to server events and fires UI events
  */
 export class ContentServerEventsHandler {
+
+    private static readonly RECENTLY_DELETED_CONTENT_ID_TTL_MS: number = 5000;
 
     private handler: (event: BatchContentServerEvent) => void;
 
@@ -55,6 +60,8 @@ export class ContentServerEventsHandler {
     private contentPermissionsUpdatedListeners: ((contentIds: ContentId[]) => void)[] = [];
 
     private contentFetcher: ContentSummaryAndCompareStatusFetcher = new ContentSummaryAndCompareStatusFetcher();
+
+    private recentlyDeletedContentIds: Map<string, number> = new Map<string, number>();
 
     private static debug: boolean = false;
 
@@ -162,6 +169,8 @@ export class ContentServerEventsHandler {
         if (ContentServerEventsHandler.debug) {
             console.debug('ContentServerEventsHandler: deleted', changeItems);
         }
+        this.rememberDeletedContentIds(changeItems);
+
         const contentDeletedEvent: ContentDeletedEvent = new ContentDeletedEvent();
         changeItems.forEach((changeItem) => {
             contentDeletedEvent.addItem(changeItem.getContentId(), changeItem.getPath(),
@@ -457,12 +466,7 @@ export class ContentServerEventsHandler {
             d => deletedItems.every(deleted => !ObjectHelper.equals(deleted.getContentId(),
                 d.getContentId())));
 
-        if (unpublishedItems.length) {
-            this.contentFetcher.fetchAndCompareStatus(this.extractContentIds(unpublishedItems))
-                .then((summaries) => {
-                    this.handleContentUnpublished(summaries);
-                });
-        }
+        this.handleMasterDeleteItems(unpublishedItems);
     }
 
     private handleMovedAndArchived(changeItems: ContentServerChangeItem[]) {
@@ -472,6 +476,7 @@ export class ContentServerEventsHandler {
             changeItems.filter((item: ContentServerChangeItem) => item.getNewPath().isInContentRoot());
 
         if (archivedItems.length > 0) {
+            this.rememberDeletedContentIds(archivedItems);
             this.notifyContentDeleted(archivedItems);
             this.notifyContentArchived(archivedItems);
         }
@@ -500,7 +505,40 @@ export class ContentServerEventsHandler {
     }
 
     private handleEventByType(changeItems: ContentServerChangeItem[], type: NodeServerChangeType) {
-        this.contentFetcher.fetchAndCompareStatus(this.extractContentIds(changeItems))
+        const itemsToFetch: ContentServerChangeItem[] = this.filterRecentlyDeletedContentItems(changeItems);
+
+        if (itemsToFetch.length === 0) {
+            return;
+        }
+
+        if (type === NodeServerChangeType.DELETE) {
+            this.handleMasterDeleteItems(itemsToFetch);
+
+            return;
+        }
+
+        this.fetchAndHandleEventByType(itemsToFetch, type);
+    }
+
+    private handleMasterDeleteItems(changeItems: ContentServerChangeItem[]) {
+        const itemsToFetch: ContentServerChangeItem[] = this.filterRecentlyDeletedContentItems(changeItems);
+
+        if (itemsToFetch.length === 0) {
+            return;
+        }
+
+        this.filterExistingContentRootItems(itemsToFetch)
+            .then((existingItemsToFetch: ContentServerChangeItem[]) => this.fetchAndHandleEventByType(existingItemsToFetch,
+                NodeServerChangeType.DELETE))
+            .catch(DefaultErrorHandler.handle);
+    }
+
+    private fetchAndHandleEventByType(itemsToFetch: ContentServerChangeItem[], type: NodeServerChangeType) {
+        if (itemsToFetch.length === 0) {
+            return;
+        }
+
+        this.contentFetcher.fetchAndCompareStatus(this.extractContentIds(itemsToFetch))
             .then((summaries: ContentSummaryAndCompareStatus[]) => {
                 switch (type) {
                 case NodeServerChangeType.CREATE:
@@ -511,7 +549,7 @@ export class ContentServerEventsHandler {
                     break;
                 case NodeServerChangeType.RENAME:
                     // also supply old paths in case of rename
-                    this.handleContentRenamed(summaries, this.extractContentPaths(changeItems));
+                    this.handleContentRenamed(summaries, this.extractContentPaths(itemsToFetch));
                     break;
                 case NodeServerChangeType.DELETE:
                     // delete from draft has been handled without fetching summaries,
@@ -533,6 +571,54 @@ export class ContentServerEventsHandler {
                     //
                 }
             }).catch(DefaultErrorHandler.handle);
+    }
+
+    private filterExistingContentRootItems(changeItems: ContentServerChangeItem[]): Q.Promise<ContentServerChangeItem[]> {
+        const itemsWithPath: ContentServerChangeItem[] = changeItems.filter((changeItem: ContentServerChangeItem) => !!changeItem.getPath());
+
+        if (itemsWithPath.length === 0) {
+            return Q([]);
+        }
+
+        const contentPaths: string[] = this.extractContentPaths(itemsWithPath).map((path: ContentPath) => path.toString());
+
+        return new ContentsExistByPathRequest(contentPaths).sendAndParse()
+            .then((result: ContentsExistByPathResult) => {
+                const contentsExistMap: object = result.getContentsExistMap();
+
+                return itemsWithPath.filter((changeItem: ContentServerChangeItem) => {
+                    return contentsExistMap[changeItem.getPath().toString()];
+                });
+            });
+    }
+
+    private rememberDeletedContentIds(changeItems: ContentServerChangeItem[]) {
+        const now: number = Date.now();
+        const expiresAt: number = now + ContentServerEventsHandler.RECENTLY_DELETED_CONTENT_ID_TTL_MS;
+
+        this.pruneRecentlyDeletedContentIds(now);
+
+        changeItems.forEach((changeItem: ContentServerChangeItem) => {
+            this.recentlyDeletedContentIds.set(changeItem.getContentId().toString(), expiresAt);
+        });
+    }
+
+    private filterRecentlyDeletedContentItems(changeItems: ContentServerChangeItem[]): ContentServerChangeItem[] {
+        const now: number = Date.now();
+
+        this.pruneRecentlyDeletedContentIds(now);
+
+        return changeItems.filter((changeItem: ContentServerChangeItem) => {
+            return !this.recentlyDeletedContentIds.has(changeItem.getContentId().toString());
+        });
+    }
+
+    private pruneRecentlyDeletedContentIds(now: number = Date.now()) {
+        this.recentlyDeletedContentIds.forEach((expiresAt: number, contentId: string) => {
+            if (expiresAt <= now) {
+                this.recentlyDeletedContentIds.delete(contentId);
+            }
+        });
     }
 
     private handleContentPermissionsUpdated(contentIds: ContentId[]) {
