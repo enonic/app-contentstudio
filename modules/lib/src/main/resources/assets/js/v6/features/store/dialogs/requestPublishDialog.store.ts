@@ -12,6 +12,7 @@ import {markAsReady, resolvePublishDependencies} from '../../api/publish';
 import {buildItems, dedupeItems, getItemIds} from '../../utils/cms/content/buildItems';
 import {hasContentIdInIds, uniqueIds} from '../../utils/cms/content/ids';
 import {findContentIdsWithCreatedDescendants} from '../../utils/cms/content/paths';
+import {isOnline} from '../../utils/cms/content/status';
 import {
     createContentIdSet,
     patchTrackedContentItems,
@@ -51,8 +52,6 @@ type RequestPublishChecksStore = {
     invalidExcludable: boolean;
     inProgressIds: ContentId[];
     inProgressExcludable: boolean;
-    notPublishableIds: ContentId[];
-    notPublishableExcludable: boolean;
 };
 
 const initialState: RequestPublishDialogStore = {
@@ -75,8 +74,6 @@ const initialChecksState: RequestPublishChecksStore = {
     invalidExcludable: false,
     inProgressIds: [],
     inProgressExcludable: false,
-    notPublishableIds: [],
-    notPublishableExcludable: false,
 };
 
 export const $requestPublishDialog = map<RequestPublishDialogStore>(structuredClone(initialState));
@@ -98,7 +95,6 @@ export const $requestPublishDialogErrors = computed(
         const excludedSet = new Set<string>(excludedDependantIds.map(id => id.toString()));
         const invalidCount = checks.invalidIds.filter(id => !excludedSet.has(id.toString())).length;
         const inProgressCount = checks.inProgressIds.filter(id => !excludedSet.has(id.toString())).length;
-        const noPermissionsCount = checks.notPublishableIds.filter(id => !excludedSet.has(id.toString())).length;
 
         return {
             invalid: {
@@ -109,24 +105,33 @@ export const $requestPublishDialogErrors = computed(
                 count: inProgressCount,
                 disabled: !checks.inProgressExcludable,
             },
-            noPermissions: {
-                count: noPermissionsCount,
-                disabled: !checks.notPublishableExcludable,
-            },
         };
     },
 );
 
+export const $requestPublishPublishableCount = computed(
+    $requestPublishDialog,
+    ({items, dependants, excludedDependantIds}) => {
+        const included = [
+            ...items,
+            ...dependants.filter(item => !hasContentIdInIds(item.getContentId(), excludedDependantIds)),
+        ];
+        return included.filter(item => !isOnline(item)).length;
+    },
+);
+
 export const $isRequestPublishReady = computed(
-    [$requestPublishDialog, $requestPublishDialogCreateCount, $requestPublishDialogErrors],
-    ({loading, failed}, total, errors): boolean => {
+    [$requestPublishDialog, $requestPublishDialogCreateCount, $requestPublishPublishableCount, $requestPublishDialogErrors],
+    ({loading, failed}, total, publishableCount, errors): boolean => {
         if (loading || failed) {
             return false;
         }
+        // Publish permission is intentionally not a gate: a publish request is how a
+        // user without publish rights asks someone else to publish.
         return total > 0 &&
+               publishableCount > 0 &&
                errors.invalid.count === 0 &&
-               errors.inProgress.count === 0 &&
-               errors.noPermissions.count === 0;
+               errors.inProgress.count === 0;
     },
 );
 
@@ -451,24 +456,6 @@ export const excludeInProgressRequestPublishItems = (): void => {
     );
 };
 
-export const excludeNotPublishableRequestPublishItems = (): void => {
-    const {dependants, excludedDependantIds, requiredDependantIds} = $requestPublishDialog.get();
-    const dependantIds = dependants.map(item => item.getContentId());
-    const notPublishableIds = $requestPublishChecks.get().notPublishableIds;
-    const idsToExclude = notPublishableIds
-        .filter(id => hasContentIdInIds(id, dependantIds))
-        .filter(id => !hasContentIdInIds(id, requiredDependantIds));
-
-    if (idsToExclude.length === 0) {
-        return;
-    }
-
-    $requestPublishDialog.setKey(
-        'excludedDependantIds',
-        uniqueIds([...excludedDependantIds, ...idsToExclude]),
-    );
-};
-
 export const markAllAsReadyInProgressRequestPublishItems = async (): Promise<void> => {
     const currentState = $requestPublishDialog.get();
     if (currentState.loading) {
@@ -598,7 +585,6 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
 
         const invalidIds = result.getInvalid();
         const inProgressIds = result.getInProgress().filter(id => !hasContentIdInIds(id, invalidIds));
-        const notPublishableIds = result.getNotPublishable();
 
         const isExcludable = (id: ContentId): boolean => {
             return !hasContentIdInIds(id, itemIds) &&
@@ -608,7 +594,6 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
 
         const invalidExcludable = invalidIds.length > 0 && invalidIds.every(id => isExcludable(id));
         const inProgressExcludable = inProgressIds.length > 0 && inProgressIds.every(id => isExcludable(id));
-        const notPublishableExcludable = notPublishableIds.length > 0 && notPublishableIds.every(id => isExcludable(id));
 
         $requestPublishDialog.set({
             ...latestState,
@@ -624,8 +609,6 @@ const reloadRequestPublishDependencies = async (): Promise<void> => {
             invalidExcludable,
             inProgressIds,
             inProgressExcludable,
-            notPublishableIds,
-            notPublishableExcludable,
         });
     } catch (error) {
         if (currentInstance !== instanceId) {

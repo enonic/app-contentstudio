@@ -10,9 +10,9 @@ import {
     $requestPublishDialog,
     $requestPublishDialogCreateCount,
     $requestPublishDialogErrors,
+    $requestPublishPublishableCount,
     excludeInProgressRequestPublishItems,
     excludeInvalidRequestPublishItems,
-    excludeNotPublishableRequestPublishItems,
     markAllAsReadyInProgressRequestPublishItems,
     removeRequestPublishItem,
     setRequestPublishAssignees,
@@ -61,8 +61,9 @@ export const RequestPublishDialogContent = (): ReactElement => {
         ],
     });
     const createCount = useStore($requestPublishDialogCreateCount);
+    const publishableCount = useStore($requestPublishPublishableCount);
     const isPublishReady = useStore($isRequestPublishReady);
-    const {invalid, inProgress, noPermissions} = useStore($requestPublishDialogErrors);
+    const {invalid, inProgress} = useStore($requestPublishDialogErrors);
     const {allowContentUpdate} = useStore($config, {keys: ['allowContentUpdate']});
 
     const dialogTitle = useI18n('action.requestPublish');
@@ -75,6 +76,8 @@ export const RequestPublishDialogContent = (): ReactElement => {
     const applyLabel = useI18n('action.apply');
     const noResultsLabel = useI18n('dialog.search.result.noResults');
     const includeChildrenLabel = useI18n('dialog.includeChildren');
+    const nothingToPublishText = useI18n('dialog.publish.noItems');
+    const nothingToPublishWarning = createCount > 0 && publishableCount === 0 ? nothingToPublishText : undefined;
 
     const excludeChildrenSet = useMemo(
         () => new Set(excludeChildrenIds.map(id => id.toString())),
@@ -105,8 +108,8 @@ export const RequestPublishDialogContent = (): ReactElement => {
 
     const itemsWithUnpublishedChildren = useItemsWithUnpublishedChildren(items);
 
-    const createButtonLabel = createCount > 1
-        ? `${createLabel} (${createCount})`
+    const createButtonLabel = publishableCount > 1
+        ? `${createLabel} (${publishableCount})`
         : createLabel;
     const isCreateDisabled = submitting || loading || !isPublishReady || title.trim().length === 0;
 
@@ -141,6 +144,7 @@ export const RequestPublishDialogContent = (): ReactElement => {
                 loading={loading}
                 failed={failed}
                 showReady={isPublishReady}
+                warningText={nothingToPublishWarning}
                 editing={false}
                 onApply={() => undefined}
                 onCancel={() => undefined}
@@ -155,10 +159,6 @@ export const RequestPublishDialogContent = (): ReactElement => {
                     invalid: {
                         ...invalid,
                         onExclude: () => excludeInvalidRequestPublishItems(),
-                    },
-                    noPermissions: {
-                        ...noPermissions,
-                        onExclude: () => excludeNotPublishableRequestPublishItems(),
                     },
                 }}
             />

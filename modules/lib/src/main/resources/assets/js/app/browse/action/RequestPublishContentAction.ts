@@ -1,5 +1,6 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {getCurrentItemsAsCSCS} from '../../../v6/features/store/contentTreeSelection.store';
+import {ProjectHelper} from '../../settings/data/project/ProjectHelper';
 import {RequestContentPublishPromptEvent} from '../RequestContentPublishPromptEvent';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {type ContentTreeGridItemsState} from './ContentTreeGridItemsState';
@@ -18,6 +19,6 @@ export class RequestPublishContentAction
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
-        return !state.isEmpty() && state.hasAllValid();
+        return !state.isEmpty() && state.hasAllValid() && !state.hasAllOnline() && ProjectHelper.canRequestPublish();
     }
 }
