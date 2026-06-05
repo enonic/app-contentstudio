@@ -13,6 +13,7 @@ type Props = {
     editing?: boolean;
     failed?: boolean;
     showReady?: boolean;
+    warningText?: string;
     onApply: () => void;
     onCancel: () => void;
     errors: {
@@ -27,7 +28,7 @@ type Props = {
             disabled?: boolean;
             onExclude: () => void;
         };
-        noPermissions: {
+        noPermissions?: {
             count: number;
             disabled?: boolean;
             onExclude: () => void;
@@ -37,13 +38,14 @@ type Props = {
 
 type ErrorKind = keyof Props['errors'];
 
-type Status = 'loading' | 'failed' | 'editing' | 'ready' | 'errors' | 'none';
+type Status = 'loading' | 'failed' | 'editing' | 'ready' | 'errors' | 'warning' | 'none';
 
 function getStatus({
     loading,
     failed,
     editing,
     showReady,
+    warningText,
     errors,
 }: Omit<Props, 'className' | 'onApply' | 'onCancel'>): Status {
     if (loading) {
@@ -55,8 +57,11 @@ function getStatus({
     if (editing) {
         return 'editing';
     }
-    if (Object.values(errors).some(({count}) => count > 0)) {
+    if (Object.values(errors).some(entry => (entry?.count ?? 0) > 0)) {
         return 'errors';
+    }
+    if (warningText) {
+        return 'warning';
     }
     if (showReady) {
         return 'ready';
@@ -126,6 +131,13 @@ export const SelectionStatusBar = ({className, onApply, onCancel, ...props}: Pro
                 </StatusBarEntry>
             )}
 
+            {status === 'warning' && (
+                <StatusBarEntry className="bg-surface-warn">
+                    <StatusIcon className="w-6 h-6" status="in-progress" />
+                    <span className="text-sm font-semibold">{props.warningText}</span>
+                </StatusBarEntry>
+            )}
+
             {status === 'errors' && inProgress.count > 0 && (
                 <StatusBarErrorEntry status="in-progress" label={`${inProgressText} (${inProgress.count})`}>
                     {!inProgress.disabled && (
@@ -162,7 +174,7 @@ export const SelectionStatusBar = ({className, onApply, onCancel, ...props}: Pro
                 </StatusBarErrorEntry>
             )}
 
-            {status === 'errors' && noPermissions.count > 0 && (
+            {status === 'errors' && noPermissions && noPermissions.count > 0 && (
                 <StatusBarErrorEntry
                     status="invalid"
                     label={`${noPermissionsText} (${noPermissions.count})`}

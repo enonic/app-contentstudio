@@ -12,6 +12,7 @@ import {
     $isRequestPublishReady,
     $requestPublishDialog,
     $requestPublishDialogErrors,
+    $requestPublishPublishableCount,
     openRequestPublishDialog,
     resetRequestPublishDialogContext,
     submitRequestPublishDialog,
@@ -155,6 +156,41 @@ describe('requestPublishDialog.store', () => {
         expect($requestPublishDialogErrors.get().inProgress.count).toBe(0);
         expect($isRequestPublishReady.get()).toBe(true);
         expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+    });
+
+    it('should not block create-readiness when the user lacks publish permission', async () => {
+        const itemId = new ContentId('item-1');
+        const item = createMockContent('item-1');
+
+        // notPublishable must not block creating a publish request.
+        mockResolvePublishDependencies.mockResolvedValue(createResolveResult({notPublishable: [itemId]}));
+
+        openRequestPublishDialog([item]);
+        await flushRequestPublishReload();
+
+        expect($isRequestPublishReady.get()).toBe(true);
+    });
+
+    it('should block create-readiness when no selected item needs publishing', async () => {
+        // A purely online item has nothing to publish.
+        const item = createMockContent('online-1', {isOnline: true});
+
+        openRequestPublishDialog([item]);
+        await flushRequestPublishReload();
+
+        expect($requestPublishPublishableCount.get()).toBe(0);
+        expect($isRequestPublishReady.get()).toBe(false);
+    });
+
+    it('should allow create-readiness when at least one item needs publishing', async () => {
+        const onlineItem = createMockContent('online-1', {isOnline: true});
+        const offlineItem = createMockContent('offline-1');
+
+        openRequestPublishDialog([onlineItem, offlineItem]);
+        await flushRequestPublishReload();
+
+        expect($requestPublishPublishableCount.get()).toBe(1);
+        expect($isRequestPublishReady.get()).toBe(true);
     });
 
     it('patches renamed items without forcing a dependency reload', async () => {

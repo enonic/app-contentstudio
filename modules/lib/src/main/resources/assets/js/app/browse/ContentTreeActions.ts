@@ -18,6 +18,7 @@ import {GetContentTypeByNameRequest} from '../resource/GetContentTypeByNameReque
 import {GetPermittedActionsRequest} from '../resource/GetPermittedActionsRequest';
 import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
 import {type HasUnpublishedChildren, type HasUnpublishedChildrenResult} from '../resource/HasUnpublishedChildrenResult';
+import {ProjectHelper} from '../settings/data/project/ProjectHelper';
 import {ArchiveContentAction} from './action/ArchiveContentAction';
 import {type ContentTreeGridAction} from './action/ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './action/ContentTreeGridItemsState';
@@ -51,6 +52,8 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
     private actionsUnStashedListeners: (() => void)[] = [];
 
     private state: State = State.ENABLED;
+
+    private updateChildrenActionsRequestId: number = 0;
 
     constructor() {
         this.initActions();
@@ -212,7 +215,7 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
             }
 
             this.toggleVisibility(state);
-            return this.updateDefaultActionsMultipleItemsSelected(items);
+            return this.updateDefaultActionsMultipleItemsSelected(items, state);
         });
     }
 
@@ -257,7 +260,7 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
         this.showDefaultActions();
     }
 
-    private updateDefaultActionsMultipleItemsSelected(items: ContentSummary[]): Q.Promise<void> {
+    private updateDefaultActionsMultipleItemsSelected(items: ContentSummary[], state: ContentTreeGridItemsState): Q.Promise<void> {
         const promises: Q.Promise<void>[] = [];
 
         if (items.length === 1 &&
@@ -270,20 +273,48 @@ export class ContentTreeActions implements TreeGridActions<ContentSummaryAndComp
             }));
         }
 
-        if (this.getAction(ActionName.PUBLISH_TREE).isEnabled()) {
-            promises.push(this.updatePublishTreeAction(items));
+        if (this.shouldCheckUnpublishedChildren(state)) {
+            promises.push(this.updatePublishActionsByChildren(items, state));
         }
 
         return Q.all(promises).thenResolve(null);
     }
 
-    private updatePublishTreeAction(items: ContentSummary[]): Q.Promise<void> {
+    private shouldCheckUnpublishedChildren(state: ContentTreeGridItemsState): boolean {
+        if (state.hasAllLeafs()) {
+            return false;
+        }
+
+        if (this.getAction(ActionName.PUBLISH_TREE).isEnabled()) {
+            return true;
+        }
+
+        // Request Publishing: probe only when items are online themselves but may
+        // still have unpublished descendants.
+        return state.hasAllOnline() && state.hasAllValid() && ProjectHelper.canRequestPublish();
+    }
+
+    private updatePublishActionsByChildren(items: ContentSummary[], state: ContentTreeGridItemsState): Q.Promise<void> {
+        const requestId: number = ++this.updateChildrenActionsRequestId;
+
         return new HasUnpublishedChildrenRequest(items.map((item: ContentSummary) => item.getContentId()))
             .sendAndParse().then((hasUnpublishedChildrenResult: HasUnpublishedChildrenResult) => {
+                // Drop stale response superseded by a newer selection.
+                if (requestId !== this.updateChildrenActionsRequestId) {
+                    return;
+                }
+
                 const hasUnpublishedChildren: boolean =
                     hasUnpublishedChildrenResult.getResult().some((item: HasUnpublishedChildren) => item.getHasChildren());
 
-                this.getAction(ActionName.PUBLISH_TREE).setEnabled(hasUnpublishedChildren);
+                const publishTreeAction = this.getAction(ActionName.PUBLISH_TREE);
+                if (publishTreeAction.isEnabled()) {
+                    publishTreeAction.setEnabled(hasUnpublishedChildren);
+                }
+
+                if (hasUnpublishedChildren && state.hasAllValid() && ProjectHelper.canRequestPublish()) {
+                    this.getAction(ActionName.REQUEST_PUBLISH).setEnabled(true);
+                }
             }).catch(reason => DefaultErrorHandler.handle(reason));
     }
 

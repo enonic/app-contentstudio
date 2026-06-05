@@ -24,6 +24,7 @@ import {HasUnpublishedChildrenRequest} from '../../resource/HasUnpublishedChildr
 import {type HasUnpublishedChildren, type HasUnpublishedChildrenResult} from '../../resource/HasUnpublishedChildrenResult';
 import {type ContentWizardPanel} from '../ContentWizardPanel';
 import {AccessControlHelper} from '../AccessControlHelper';
+import {ProjectHelper} from '../../settings/data/project/ProjectHelper';
 import {ArchiveContentAction} from './ArchiveContentAction';
 import {ContentSaveAction} from './ContentSaveAction';
 import {CreateIssueAction} from './CreateIssueAction';
@@ -439,7 +440,7 @@ export class ContentWizardActions extends WizardActions<Content> {
         const canPublishTree: boolean = this.canPublishTree();
         const canBeUnpublished: boolean = isPublished(this.content.getContentSummary()) && this.userCanPublish;
         const canBeMarkedAsReady: boolean = this.contentCanBeMarkedAsReady && this.userCanModify;
-        const canBeRequestedPublish: boolean = this.isContentValid && !this.isOnline();
+        const canBeRequestedPublish: boolean = this.canBeRequestedPublish();
         const isInheritedItem: boolean = this.wizardPanel.isContentExistsInParentProject() && this.content.hasOriginProject();
         const canBeReset: boolean = isInheritedItem && !this.content.isFullyInherited();
         const canBeLocalized: boolean = isInheritedItem && this.content.isDataInherited();
@@ -460,7 +461,11 @@ export class ContentWizardActions extends WizardActions<Content> {
         this.actionsMap.RESET.setVisible(canBeReset);
         this.actionsMap.LOCALIZE.setVisible(canBeLocalized);
 
-        this.updatePublishTreeAction(canPublishTree);
+        this.updateActionsRequiringChildrenInfo(canPublishTree);
+    }
+
+    private canBeRequestedPublish(): boolean {
+        return ProjectHelper.canRequestPublish() && this.isContentValid && (!this.isOnline() || this.hasUnpublishedChildren);
     }
 
     canBePublished(): boolean {
@@ -503,8 +508,13 @@ export class ContentWizardActions extends WizardActions<Content> {
         return true;
     }
 
-    private updatePublishTreeAction(canPublishTree: boolean): void {
-        if (!canPublishTree || this.hasCheckedUnpublishedChildren) {
+    private updateActionsRequiringChildrenInfo(canPublishTree: boolean): void {
+        if (this.hasCheckedUnpublishedChildren || !this.content?.hasChildren()) {
+            return;
+        }
+
+        const isRelevantForRequestPublish = this.isContentValid && ProjectHelper.canRequestPublish();
+        if (!canPublishTree && !isRelevantForRequestPublish) {
             return;
         }
 
@@ -521,7 +531,10 @@ export class ContentWizardActions extends WizardActions<Content> {
                 this.hasUnpublishedChildren = hasUnpublishedChildrenResult
                     .getResult()
                     .some((item: HasUnpublishedChildren) => item.getHasChildren());
-                this.enableActions({PUBLISH_TREE: this.hasUnpublishedChildren});
+                this.enableActions({
+                    PUBLISH_TREE: canPublishTree && this.hasUnpublishedChildren,
+                    REQUEST_PUBLISH: this.canBeRequestedPublish(),
+                });
             })
             .catch((err: unknown) => {
                 this.hasCheckedUnpublishedChildren = false;

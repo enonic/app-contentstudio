@@ -1,12 +1,39 @@
 import {type Project} from './Project';
-import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {ProjectGetRequest} from '../../resource/ProjectGetRequest';
 import Q from 'q';
 import {type ProjectPermissions} from './ProjectPermissions';
 import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
-import {getActiveProjectName} from '../../../../v6/features/store/activeProject.store';
+import {getActiveProjectName, isProjectInitialized} from '../../../../v6/features/store/activeProject.store';
+import {ProjectAccess} from '../../access/ProjectAccess';
+import {PermissionsHelper} from '../../../access/PermissionsHelper';
 
 export class ProjectHelper {
+
+    // Any project member except a viewer.
+    private static PUBLISH_REQUEST_ROLES: ProjectAccess[] = [
+        ProjectAccess.OWNER,
+        ProjectAccess.EDITOR,
+        ProjectAccess.AUTHOR,
+        ProjectAccess.CONTRIBUTOR,
+    ];
+
+    static canRequestPublish(): boolean {
+        if (PermissionsHelper.hasAdminPermissions()) {
+            return true;
+        }
+
+        if (!isProjectInitialized()) {
+            return false;
+        }
+
+        const projectName: string = getActiveProjectName();
+        const allowedRoleKeys: PrincipalKey[] = ProjectHelper.PUBLISH_REQUEST_ROLES.map(
+            (role: ProjectAccess) => PrincipalKey.ofRole(`cms.project.${projectName}.${role}`));
+
+        return AuthContext.get().getPrincipals().some(
+            principal => allowedRoleKeys.some((roleKey: PrincipalKey) => roleKey.equals(principal.getKey())));
+    }
 
     public static isUserProjectOwnerOrEditor(): Q.Promise<boolean> {
         return new ProjectGetRequest(getActiveProjectName()).sendAndParse().then((project: Project) => {
