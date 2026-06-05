@@ -230,8 +230,18 @@ export class LiveEditPageProxy
         this.isPageLocked = false;
 
         if (this.liveEditWindow) {
-            this.stopListening(this.liveEditWindow);
+            if (LiveEditPageProxy.isPreviewAccessible(this.liveEditWindow)) {
+                this.stopListening(this.liveEditWindow);
+            }
             this.liveEditWindow = null;
+        }
+    }
+
+    private static isPreviewAccessible(contextWindow: Window): boolean {
+        try {
+            return !!contextWindow.document;
+        } catch (e) {
+            return false;
         }
     }
 
@@ -248,18 +258,21 @@ export class LiveEditPageProxy
     }
 
     private handleIFrameLoadedEvent() {
-        let liveEditWindow: Window = this.liveEditIFrame.getHTMLElement()['contentWindow'];
+        const liveEditWindow: Window = this.liveEditIFrame.getHTMLElement()['contentWindow'];
 
         if (LiveEditPageProxy.debug) {
             console.debug('LiveEditPageProxy.handleIframeLoadedEvent at ' + new Date().toISOString());
         }
 
-        if (liveEditWindow) {
-            this.isPageLocked = false;
-
-            if (this.liveEditWindow) {
+        if (this.liveEditWindow) {
+            if (LiveEditPageProxy.isPreviewAccessible(this.liveEditWindow)) {
                 this.stopListening(this.liveEditWindow);
             }
+            this.liveEditWindow = null;
+        }
+
+        if (liveEditWindow && LiveEditPageProxy.isPreviewAccessible(liveEditWindow)) {
+            this.isPageLocked = false;
 
             this.liveEditWindow = liveEditWindow;
             const liveEditGlobal: GlobalLibAdmin = liveEditWindow[GLOBAL];
