@@ -87,7 +87,8 @@ class RenameContentDialog extends Page {
     async clickOnRenameButton() {
         await this.waitForRenameButtonEnabled();
         await this.clickOnElement(this.renameButton);
-        return await this.waitForDialogClosed();
+        await this.waitForDialogClosed();
+        await this.pause(500);
     }
 
     waitForDialogLoaded() {
