@@ -1,5 +1,7 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
 import {ContentId} from '../../../../app/content/ContentId';
+import type {IssueServerEvent} from '../../../../app/event/IssueServerEvent';
 import type {Issue} from '../../../../app/issue/Issue';
 import {IssueType} from '../../../../app/issue/IssueType';
 import type {IssueWithAssignees} from '../../../../app/issue/IssueWithAssignees';
@@ -16,6 +18,7 @@ import {
     createMockChangeItem,
     createMockContent,
     createResolveResult,
+    flushDebouncedReload,
     flushPromises,
 } from './dialog.store.test.utils';
 
@@ -25,6 +28,8 @@ const {
     mockShowError,
     mockShowFeedback,
     mockIssueServerEventsHandler,
+    mockGetIssueSend,
+    mockListIssueCommentsSend,
 } = vi.hoisted(() => ({
     mockFetchContentSummaries: vi.fn(),
     mockResolvePublishDependencies: vi.fn(),
@@ -33,7 +38,11 @@ const {
     mockIssueServerEventsHandler: {
         onIssueCreated: vi.fn(),
         onIssueUpdated: vi.fn(),
+        onIssueChanged: vi.fn(),
+        unIssueChanged: vi.fn(),
     },
+    mockGetIssueSend: vi.fn(),
+    mockListIssueCommentsSend: vi.fn(),
 }));
 
 vi.mock('../../api/content', () => ({
@@ -47,6 +56,26 @@ vi.mock('../../api/publish', () => ({
 vi.mock('../../../../app/issue/event/IssueServerEventsHandler', () => ({
     IssueServerEventsHandler: {
         getInstance: () => mockIssueServerEventsHandler,
+    },
+}));
+
+vi.mock('../../../../app/issue/resource/GetIssueRequest', () => ({
+    GetIssueRequest: class {
+        constructor(private readonly id: string) {}
+
+        sendAndParse(): Promise<unknown> {
+            return mockGetIssueSend(this.id);
+        }
+    },
+}));
+
+vi.mock('../../../../app/issue/resource/ListIssueCommentsRequest', () => ({
+    ListIssueCommentsRequest: class {
+        constructor(private readonly id: string) {}
+
+        sendAndParse(): Promise<unknown> {
+            return mockListIssueCommentsSend(this.id);
+        }
     },
 }));
 
@@ -151,6 +180,8 @@ describe('issueDialogDetails.store', () => {
         mockResolvePublishDependencies.mockReset().mockResolvedValue(createResolveResult({}));
         mockShowError.mockReset();
         mockShowFeedback.mockReset();
+        mockGetIssueSend.mockReset();
+        mockListIssueCommentsSend.mockReset();
     });
 
     afterEach(() => {
@@ -261,5 +292,65 @@ describe('issueDialogDetails.store', () => {
 
         expect($issueDialogDetails.get().items[0].getDisplayName()).toBe('Published');
         expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+    });
+
+    describe('issue server events', () => {
+        const captureIssueChangedListener = (): (issueIds: string[], event: IssueServerEvent) => void => {
+            const listener = mockIssueServerEventsHandler.onIssueChanged.mock.calls.at(-1)?.[0];
+            expect(listener).toBeTypeOf('function');
+            return listener as (issueIds: string[], event: IssueServerEvent) => void;
+        };
+
+        const createServerEvent = (type: NodeServerChangeType): IssueServerEvent => {
+            return {getType: () => type} as unknown as IssueServerEvent;
+        };
+
+        it('reloads issue details when the current issue changes on the server', async () => {
+            const issueId = 'issue-id-1';
+            const serverIssue = {
+                getId: () => issueId,
+                getName: () => 'issue-1',
+                getType: () => IssueType.STANDARD,
+                getApprovers: () => [],
+                getPublishRequest: () => null,
+            } as unknown as Issue;
+
+            mockGetIssueSend.mockResolvedValue(serverIssue);
+            mockListIssueCommentsSend.mockResolvedValue({getIssueComments: () => [{getId: () => 'comment-1'}]});
+
+            openIssueDialogDetails(issueId);
+            await flushPromises();
+
+            const unsubscribe = $issueDialogDetails.subscribe(() => { /* mount the store */ });
+            const notifyIssueChanged = captureIssueChangedListener();
+
+            notifyIssueChanged([issueId], createServerEvent(NodeServerChangeType.UPDATE));
+            await flushDebouncedReload(1250, 10);
+
+            expect(mockGetIssueSend).toHaveBeenCalledWith(issueId);
+            expect($issueDialogDetails.get().comments).toHaveLength(1);
+            expect($issueDialogDetails.get().commentsIssueId).toBe(issueId);
+
+            unsubscribe();
+        });
+
+        it('closes the dialog when the current issue is deleted on the server', async () => {
+            const issueId = 'issue-id-2';
+
+            openIssueDialogDetails(issueId);
+            await flushPromises();
+
+            const unsubscribe = $issueDialogDetails.subscribe(() => { /* mount the store */ });
+            const notifyIssueChanged = captureIssueChangedListener();
+
+            expect($issueDialog.get().open).toBe(true);
+
+            notifyIssueChanged([issueId], createServerEvent(NodeServerChangeType.DELETE));
+
+            expect($issueDialog.get().open).toBe(false);
+            expect(mockGetIssueSend).not.toHaveBeenCalled();
+
+            unsubscribe();
+        });
     });
 });
