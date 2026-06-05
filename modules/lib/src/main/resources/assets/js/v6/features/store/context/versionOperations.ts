@@ -205,11 +205,18 @@ export const isVersionToBeDisplayedInFullMode = (version: ContentVersion): boole
 // * Date formatting
 //
 
-/** Formats version date as YYYY-MM-DD. */
+// Single source of truth for "when the version's operation happened". Uses the
+// first action's opTime (consistent with `resolveVersionOperationType` and the
+// modifier, which both read `getActions()[0]`), falling back to the version
+// timestamp when there are no actions or opTime is absent.
+export const getVersionOperationTime = (version: ContentVersion): Date =>
+    version.getActions()[0]?.getOpTime() ?? version.getTimestamp();
+
+/** Formats version operation date as YYYY-MM-DD. */
 export const getFormattedVersionDate = (version: ContentVersion): string => {
-    const timestamp = version.getTimestamp();
-    const year = timestamp.getFullYear();
-    const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
-    const day = timestamp.getDate().toString().padStart(2, '0');
+    const time = getVersionOperationTime(version);
+    const year = time.getFullYear();
+    const month = (time.getMonth() + 1).toString().padStart(2, '0');
+    const day = time.getDate().toString().padStart(2, '0');
     return `${year}-${month}-${day}`;
 };

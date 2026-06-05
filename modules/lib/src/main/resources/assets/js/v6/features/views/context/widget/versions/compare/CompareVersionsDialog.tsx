@@ -5,6 +5,7 @@ import {format, showUnchanged} from 'jsondiffpatch/formatters/html';
 import {ReactElement, useCallback, useEffect, useId, useMemo} from 'react';
 import {ContentVersion} from '../../../../../../../app/ContentVersion';
 import {fetchVersion as defaultFetchVersion} from '../../../../../api/versions';
+import {getVersionOperationTime} from '../../../../../store/context/versionOperations';
 import {useI18n} from '../../../../../hooks/useI18n';
 import {
     $compareVersionsDialog,
@@ -22,7 +23,7 @@ type OrderedVersions = {
 };
 
 const orderVersions = (left: ContentVersion, right: ContentVersion): OrderedVersions =>
-    left.getTimestamp() <= right.getTimestamp()
+    getVersionOperationTime(left) <= getVersionOperationTime(right)
         ? {older: left, newer: right}
         : {older: right, newer: left};
 

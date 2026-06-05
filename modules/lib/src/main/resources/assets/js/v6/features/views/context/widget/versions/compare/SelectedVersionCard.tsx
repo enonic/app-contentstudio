@@ -2,6 +2,7 @@ import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {ReactElement} from 'react';
 import {ContentVersion} from '../../../../../../../app/ContentVersion';
 import {VersionItemPublishStatus} from '../../../../../shared/status/VersionItemPublishStatus';
+import {getVersionOperationTime} from '../../../../../store/context/versionOperations';
 import {getModifierLabel, getOperationLabel} from '../labels';
 
 type SelectedVersionCardProps = {
@@ -12,7 +13,7 @@ type SelectedVersionCardProps = {
 export const SelectedVersionCard = ({label, version}: SelectedVersionCardProps): ReactElement => {
     const modifierLabel = getModifierLabel(version);
     const operationLabel = getOperationLabel(version);
-    const timeLabel = DateHelper.getFormattedTimeFromDate(version.getTimestamp());
+    const timeLabel = DateHelper.getFormattedTimeFromDate(getVersionOperationTime(version));
 
     return (
         <div className="flex flex-col gap-5">
