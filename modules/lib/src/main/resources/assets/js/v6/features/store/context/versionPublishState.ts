@@ -1,7 +1,7 @@
 import {atom, computed} from 'nanostores';
 import {type ContentVersion} from '../../../../app/ContentVersion';
 import {type ContentVersionAction} from '../../../../app/ContentVersionAction';
-import {ContentOperation, EDITORIAL_PATCH_FIELDS} from './versionOperations';
+import {ContentOperation, EDITORIAL_PATCH_FIELDS, getVersionOperationTime} from './versionOperations';
 import {$versions} from './versionStore';
 
 //
@@ -111,7 +111,7 @@ const getOnlineEventAction = (version: ContentVersion): ContentVersionAction | u
 const findUnpublishDate = (versions: ContentVersion[], publishIndex: number): Date | undefined => {
     for (let i = publishIndex - 1; i >= 0; i--) {
         if (isUnpublishEvent(versions[i])) {
-            return versions[i].getTimestamp();
+            return getVersionOperationTime(versions[i]);
         }
         if (getOnlineEventAction(versions[i])) {
             return undefined;
@@ -146,7 +146,7 @@ const $allPublishBadges = computed($versions, (versions): PublishBadge[] => {
         badges.push({
             versionId: targetId,
             publishStatus: isPublish ? getVersionPublishStatus(v) : VersionPublishStatus.PUBLISHED,
-            publishedFrom: v.getTimestamp(),
+            publishedFrom: getVersionOperationTime(v),
             publishedTo: unpublishedAt ?? v.getPublishInfo()?.getTo(),
             unpublishedAt,
         });
