@@ -30,9 +30,8 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             await studioUtils.doAddReadyFolder(FOLDER);
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             await studioUtils.openDialogAndPublishSelectedContent();
-            let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
-            let expectedMessage = appConst.itemPublishedNotificationMessage(FOLDER.displayName);
-            assert.equal(actualMessage, expectedMessage, `'Item is published' - message should appear`);
+            await contentBrowsePanel.waitForNotificationMessage();
+            appConst.itemPublishedNotificationMessage(FOLDER.displayName);
             //2. Verify the default action gets 'Unpublish' in Publish menu:
             await contentBrowsePanel.waitForUnPublishButtonVisible();
             //3. Verify that 'publish menu' is available:

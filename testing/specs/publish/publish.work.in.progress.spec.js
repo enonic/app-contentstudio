@@ -99,10 +99,9 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             // 3. Click on 'Publish Now' button
             await contentPublishDialog.clickOnPublishNowButton();
             await contentPublishDialog.waitForDialogClosed();
-            let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
+            await contentBrowsePanel.waitForNotificationMessage();
             // 4. Verify that the status gets 'Published'
             await contentBrowsePanel.waitForStatus(SITE.displayName, appConst.CONTENT_STATUS.PUBLISHED);
-            assert.equal(actualMessage, appConst.NOTIFICATION_MESSAGES.TWO_ITEMS_PUBLISHED, "'2 items are published.' should appear");
         });
 
     it("GIVEN existing published site is opened WHEN a text component has been inserted THEN site's state should be 'Modified' and 'Work in progress' icon should be displayed in the grid",

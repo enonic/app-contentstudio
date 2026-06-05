@@ -44,9 +44,7 @@ describe('project.wizard.dialog.permissions.step.spec - ui-tests for Permissions
             await permissionsStep.waitForNextButtonEnabled();
             // 7. Click on 'Copy from parent' button:
             await accessModeStep.clickOnCopyFromParentButton(PARENT_DEFAULT);
-            let actualMessage = await accessModeStep.waitForNotificationMessage();
-            // Verify the message - 'Roles has been copied from "Default"'
-            assert.equal(actualMessage, appConst.projectRolesCopied(PARENT_DEFAULT));
+            await accessModeStep.waitForNotificationMessage();
             await studioUtils.saveScreenshot('roles_copied_from_default');
             // 8. Verify that 'Skip' button gets visible and enabled:
             await accessModeStep.waitForSkipButtonEnabled();

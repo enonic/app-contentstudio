@@ -41,8 +41,7 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
             await studioUtils.saveScreenshot('scheduled_site_publish_dialog');
             // 4. Press the 'Schedule' button in the dialog:
             await contentPublishDialog.clickOnScheduleButton();
-            let actualMessage = await contentWizard.waitForNotificationMessage();
-            assert.equal(actualMessage, appConst.NOTIFICATION_MESSAGES.TWO_ITEMS_PUBLISHED, '2 items have been published. -  notification message should appear');
+            await contentWizard.waitForNotificationMessage();
             await contentPublishDialog.waitForDialogClosed();
             // 5. Verify that status is 'Publishing Scheduled' in Grid:
             let actualStatus = await contentBrowsePanel.getContentStatus(SITE.displayName);

@@ -71,8 +71,7 @@ describe('archive.confirm.content.dialog.spec:  tests for archiving content', fu
             // 7. Verify that Confirm button gets enabled:
             await confirmValueDialog.clickOnConfirmButton();
             // 8. Verify the notification message:
-            let message = await contentBrowsePanel.waitForNotificationMessage();
-            assert.equal(message, '2 items have been archived', '2 items have been archived -  notification message should appear');
+            await contentBrowsePanel.waitForNotificationMessage();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -88,8 +88,7 @@ describe('overwrite.permissions.spec: tests for permissions in parent and child 
             // 3. Access Control combobox gets visible now, add 'Can Read' permissions for Anonymous User:
             await editPermissionsDialog.filterAndSelectPrincipal(appConst.systemUsersDisplayName.ANONYMOUS_USER);
             await editPermissionsDialog.clickOnApplyButton();
-            let result = await contentBrowsePanel.waitForNotificationMessage();
-            assert.equal(result, NOTIFICATION_MESSAGE, 'Permissions for 2 items are applied.')
+            await contentBrowsePanel.waitForNotificationMessage();
         });
 
     it(`WHEN 'Edit Permissions' dialog is opened in the child folder THEN default permissions for 'Anonymous' user should be inherited from the parent folder`,

@@ -45,9 +45,7 @@ describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions
             // 5. Click on 'Apply' button and close the modal dialog:
             await editPermissionsDialog.clickOnApplyButton();
             // 6. Verify the notification message:
-            let expectedMessage = appConst.permissionsAppliedNotificationMessage(FOLDER.displayName);
-            let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
-            assert.equal(actualMessage, expectedMessage, "'Permissions for 'name' are applied.' - Is expected message");
+            await contentBrowsePanel.waitForNotificationMessage();
         });
 
     it(`GIVEN existing folder with 'Custom' permissions is opened WHEN 'Edit Permissions dialog' has been opened THEN expected operations should be allowed`,

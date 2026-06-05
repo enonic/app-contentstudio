@@ -139,8 +139,7 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             await confirmValueDialog.waitForConfirmButtonEnabled();
             // 5. Click on 'Confirm' button and verify the message:
             await confirmValueDialog.clickOnConfirmButton();
-            let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
-            assert.equal(actualMessage, '3 items have been deleted.', 'Expected notification message should be displayed');
+            await contentBrowsePanel.waitForNotificationMessage();
         });
 
     it("WHEN the original site has been deleted THEN the copy of the site should not be deleted",

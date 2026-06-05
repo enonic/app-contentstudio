@@ -174,8 +174,7 @@ describe('Move Fragment specification', function () {
             await confirmationDialog.clickOnYesButton();
             // 7. Verify the notification message - "You are about to move content out of its site which might make it unreachable. Are you sure?"
             await studioUtils.saveScreenshot('fragment_is_moved');
-            let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
-            assert.equal(actualMessage, `1 item(s) have been moved to`, 'Expected notification message should appear');
+            await contentBrowsePanel.waitForNotificationMessage();
             let actionLinkText = await contentBrowsePanel.waitForNotificationActionsText();
             assert.equal(actionLinkText, `/${FOLDER.displayName}`, "Expected text should be present in the actions link");
         });

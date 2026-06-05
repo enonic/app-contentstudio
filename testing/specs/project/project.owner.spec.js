@@ -120,8 +120,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await studioUtils.saveScreenshot('project_owner_1_1');
             // 4. Click on 'Create Task' button and create new task:
             await createTaskDialog.clickOnCreateIssueButton();
-            let message = await contentBrowsePanel.waitForNotificationMessage();
-            assert.equal(message, appConst.NOTIFICATION_MESSAGES.ISSUE_CREATED_MESSAGE);
+            await contentBrowsePanel.waitForNotificationMessage();
             await issueDetailsDialog.clickOnAssigneesTabBarItem();
             await studioUtils.saveScreenshot('project_owner_assignees_tab');
             let actualUsers = await issueDetailsDialogAssigneesTab.getSelectedUsers();

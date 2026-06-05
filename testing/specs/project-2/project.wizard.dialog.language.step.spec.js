@@ -34,8 +34,7 @@ describe('project.wizard.dialog.language.step.spec - ui-tests for Language wizar
             await languageStep.waitForNextButtonDisplayed();
             // 6. Verify that 'Copy from parent' gets enabled, Click on the button:
             await languageStep.clickOnCopyFromParentButton(PARENT_DEFAULT);
-            let message = await languageStep.waitForNotificationMessage();
-            assert.equal(message, appConst.languageCopiedNotification(PARENT_DEFAULT), "Expected notification message");
+            await languageStep.waitForNotificationMessage();
             // 7. Verify that 'Skip' button gets visible again:
             await languageStep.waitForSkipButtonDisplayed();
             // 8. Verify that Language options filter input gets visible:

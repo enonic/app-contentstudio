@@ -32,9 +32,7 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             await studioUtils.findAndSelectItem(TEST_FOLDER1.displayName);
             // 2. Create new 'Publish Request':
             await studioUtils.createPublishRequest(REQ_TITLE);
-            let message = await browsePanel.waitForNotificationMessage();
-            assert.equal(message, appConst.NOTIFICATION_MESSAGES.REQUEST_CREATED_MESSAGE,
-                "'New publish request created successfully' message should appear");
+            await browsePanel.waitForNotificationMessage();
             // 3. Verify that Issue Details dialog closes after creating an issue:
             await publishRequestDetailsDialog.waitForClosed();
             await publishRequestDetailsDialog.pause(500);

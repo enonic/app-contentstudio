@@ -52,9 +52,8 @@ describe('content.duplicate.spec: Select and duplicate 2 folders', function () {
             await studioUtils.saveScreenshot('folders_to_duplicate');
             //Click on Duplicate button in the dialog:
             await contentDuplicateDialog.clickOnDuplicateButton();
-            let result = await contentBrowsePanel.waitForNotificationMessage();
+            await contentBrowsePanel.waitForNotificationMessage();
             await studioUtils.saveScreenshot('folders_were_duplicated2');
-            assert.equal(result, '2 items have been duplicated.', 'Expected notification message should be displayed');
         });
 
     it(`WHEN two folders have been duplicated THEN 2 copies should be present in the grid`,

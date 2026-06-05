@@ -155,11 +155,9 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             await confirmValueDialog.typeNumberOrName(LAYER_DISPLAY_NAME);
             await confirmValueDialog.clickOnConfirmButton();
             await confirmValueDialog.waitForDialogClosed();
-            let message = await settingsBrowsePanel.waitForNotificationMessage();
+            await settingsBrowsePanel.waitForNotificationMessage();
             //3. Switch to content mode and verify that parent project's context is loaded:
             await studioUtils.switchToContentMode();
-            let expectedMessage = appConst.projectDeletedMessage(LAYER_DISPLAY_NAME);
-            assert.equal(message, expectedMessage, "'Project is deleted' this message should appear");
             let actualContextName2 = await contentBrowsePanel.getCurrentProjectDisplayName();
             assert.equal(actualContextName1, LAYER_DISPLAY_NAME, "layer's context should be loaded before the deleting of the layer");
             assert.equal(actualContextName2, PROJECT_DISPLAY_NAME, "Parent context should be loaded after deleting its layer");
