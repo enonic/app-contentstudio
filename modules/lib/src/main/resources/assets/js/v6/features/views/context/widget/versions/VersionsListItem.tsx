@@ -8,6 +8,7 @@ import {ContentVersion} from '../../../../../../app/ContentVersion';
 import {useI18n} from '../../../../hooks/useI18n';
 import {VersionItemPublishStatus} from '../../../../shared/status/VersionItemPublishStatus';
 import {
+    getVersionOperationTime,
     isVersionComparable,
     isVersionRevertable,
 } from '../../../../store/context/versionOperations';
@@ -99,7 +100,7 @@ const VersionItemMainInfo = ({version}: VersionItemMainInfoProps): ReactElement 
         <div className='flex flex-col justify-center grow'>
             <div className='flex gap-1'>
                 <span className='shrink-0 text-sm font-semibold'>
-                    {DateHelper.getFormattedTimeFromDate(version.getTimestamp())}
+                    {DateHelper.getFormattedTimeFromDate(getVersionOperationTime(version))}
                 </span>
                 <span className='text-bdr-soft text-sm'>|</span>
                 <span className='text-sm font-semibold'>{getOperationLabel(version)}</span>
