@@ -33,6 +33,8 @@ const {
     mockIssueServerEventsHandler: {
         onIssueCreated: vi.fn(),
         onIssueUpdated: vi.fn(),
+        onIssueChanged: vi.fn(),
+        unIssueChanged: vi.fn(),
     },
 }));
 
