@@ -16,7 +16,13 @@ export {clearAiTopicError} from './ai.commands';
 export {initAiHost} from './ai.host';
 
 // Write: AI plugin host commands
-export {closePluginDialog, openPluginDialog, sendPluginContext} from './ai.host';
+export {
+    captureOperatorSeed,
+    closePluginDialog,
+    openOperatorWithSeed,
+    openPluginDialog,
+    sendPluginContext,
+} from './ai.host';
 
 // Write: commands
 export {
