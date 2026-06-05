@@ -10,7 +10,7 @@ import {LayerIndicator} from '../../../shared/icons/LayerIndicator';
 import {ProjectIcon} from '../../../shared/icons/ProjectIcon';
 import {StatusIcon} from '../../../shared/icons/StatusIcon';
 import {StatusBadge} from '../../../shared/status/StatusBadge';
-import {$aiPluginDialogOpen, $aiRegisteredPlugins, closePluginDialog, openPluginDialog} from '../../../store/ai';
+import {$aiPluginDialogOpen, $aiRegisteredPlugins, captureOperatorSeed, closePluginDialog, openOperatorWithSeed} from '../../../store/ai';
 import {setInspectSaveAction} from '../../../store/inspect-panel.store';
 import {$wizardToolbar} from '../../../store/wizardToolbar.store';
 import {formatContentFullPath} from '../../../utils/cms/content/paths';
@@ -149,9 +149,14 @@ export const ContentWizardToolbar = ({
     const [desktopPublishSplitRef, isDesktopPublishSplitVisible] = useElementVisibility<HTMLDivElement>();
     const [mobileActionsSplitRef, isMobileActionsSplitVisible] = useElementVisibility<HTMLDivElement>();
 
+    // Capture the focused field before this click blurs it; consumed on open.
+    const handleAiOperatorPointerDown = (): void => {
+        captureOperatorSeed();
+    };
+
     const handleAiOperatorToggle = (pressed: boolean): void => {
         if (pressed) {
-            openPluginDialog('ai.contentOperator');
+            openOperatorWithSeed();
         } else {
             closePluginDialog('ai.contentOperator');
         }
@@ -278,6 +283,7 @@ export const ContentWizardToolbar = ({
                                     startIcon={JukeIcon}
                                     startIconClassName="size-7"
                                     pressed={isOperatorDialogOpen}
+                                    onPointerDown={handleAiOperatorPointerDown}
                                     onPressedChange={handleAiOperatorToggle}
                                 />
                             </Toolbar.Item>
