@@ -34,7 +34,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
         await studioUtils.doAddSite(SITE);
     });
 
-    it(`GIVEN browse panel is loaded WHEN no selected items THEN 'CREATE TASK...' button should appear in the browse-toolbar`, async () => {
+    it(`GIVEN browse panel is loaded WHEN no selected items THEN 'CREATE Issue' button should appear in the browse-toolbar`, async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
         await contentBrowsePanel.waitForCreateIssueButtonDisplayed();
     });
@@ -64,7 +64,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             assert.equal(status, appConst.CONTENT_STATUS.ONLINE, 'The folder should be Online');
         });
 
-    it(`GIVEN existing 'published' folder WHEN publish menu has been expanded THEN 'Unpublish' and 'Create Task...' menu items should be enabled`,
+    it(`GIVEN existing 'online' folder WHEN publish menu has been expanded THEN only 'Create Issue' menu items should be enabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the folder:
@@ -72,7 +72,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             // 2. Open Publish Menu and verify status of all menu items:
             await contentBrowsePanel.openPublishMenu();
             await studioUtils.saveScreenshot('publish_menu_Folder_published');
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH_TREE);
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.MARK_AS_READY);
@@ -109,7 +109,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             await contentBrowsePanel.waitForPublishTreeButtonVisible();
         });
 
-    it(`GIVEN existing published site has been selected WHEN 'PUBLISH TREE...' button has been pressed THEN published dependent items should not be displayed in the dialog`,
+    it(`GIVEN existing published site has been selected WHEN 'PUBLISH TREE' button has been pressed THEN published dependent items should not be displayed in the dialog`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizard = new ContentWizard();
@@ -137,7 +137,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
         });
 
     //test verifies https://github.com/enonic/app-contentstudio/issues/493
-    it(`GIVEN existing published site has been selected WHEN 'PUBLISH TREE...' has been pressed THEN UNPUBLISH gets visible in the browse toolbar`,
+    it(`GIVEN existing published site has been selected WHEN 'PUBLISH TREE' has been pressed THEN UNPUBLISH gets visible in the browse toolbar`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(SITE.displayName);
