@@ -671,7 +671,7 @@ describe('publish badge', () => {
         expect(past.get('v-pub')?.publishedTo).toBeUndefined();
     });
 
-    it('unpublish between online events sets the earlier patch publishedTo to unpublish timestamp', () => {
+    it('unpublish between online events sets the earlier patch unpublishedAt to unpublish timestamp', () => {
         const earlyPatchTimestamp = new Date('2024-01-10');
         const unpublishTimestamp = new Date('2024-01-12');
         const laterPublishTimestamp = new Date('2024-01-15');
@@ -688,7 +688,8 @@ describe('publish badge', () => {
         $onlineVersionId.set('some-id');
 
         const past = $pastPublishBadges.get();
-        expect(past.get('v-patch')?.publishedTo).toEqual(unpublishTimestamp);
+        expect(past.get('v-patch')?.unpublishedAt).toEqual(unpublishTimestamp);
+        expect(past.get('v-patch')?.publishedTo).toBeUndefined();
     });
 });
 

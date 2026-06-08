@@ -173,21 +173,29 @@ export const VersionsListItem = ({
     const publishStatusMessage = useMemo(() => {
         if (!badge) return undefined;
 
-        if (badge.isOnline) {
-            if (badge.status === VersionPublishStatus.PUBLISHED && badge.publishedTo) {
-                return i18n('widget.versionhistory.publishedUntil', DateHelper.formatDateTime(badge.publishedTo));
-            }
-            if (badge.status === VersionPublishStatus.SCHEDULED && badge.publishedFrom) {
-                return i18n('widget.versionhistory.scheduled', DateHelper.formatDateTime(badge.publishedFrom));
-            }
-            if (badge.status === VersionPublishStatus.EXPIRED && badge.publishedTo) {
-                return i18n('widget.versionhistory.expired', DateHelper.formatDateTime(badge.publishedTo));
-            }
-            return undefined;
+        if (badge.status === VersionPublishStatus.SCHEDULED && badge.publishedFrom) {
+            return i18n('widget.versionhistory.scheduled', DateHelper.formatDateTime(badge.publishedFrom));
         }
 
         if (badge.status === VersionPublishStatus.EXPIRED && badge.publishedTo) {
             return i18n('widget.versionhistory.expired', DateHelper.formatDateTime(badge.publishedTo));
+        }
+
+        // Online version with a scheduled expiry keeps the "Published until" message.
+        if (badge.isOnline && badge.status === VersionPublishStatus.PUBLISHED && badge.publishedTo) {
+            return i18n('widget.versionhistory.publishedUntil', DateHelper.formatDateTime(badge.publishedTo));
+        }
+
+        // A published version shows its publish (and, if unpublished, unpublish) date.
+        if (badge.publishedFrom) {
+            if (badge.unpublishedAt) {
+                return i18n(
+                    'widget.versionhistory.publishedFromTo',
+                    DateHelper.formatDateTime(badge.publishedFrom),
+                    DateHelper.formatDateTime(badge.unpublishedAt),
+                );
+            }
+            return i18n('widget.versionhistory.publishedFrom', DateHelper.formatDateTime(badge.publishedFrom));
         }
 
         return undefined;
@@ -223,12 +231,11 @@ export const VersionsListItem = ({
                 <div className='text-sm font-normal'>{publishMessage}</div>
             )}
 
-            {isExpanded && publishStatusMessage && (
-                <div className='text-sm font-normal'>{publishStatusMessage}</div>
-            )}
-
-            {showRestoreButton && (
-                <div className='w-full flex justify-end'>
+            {showRestoreButton ? (
+                <div className='w-full flex items-center gap-2'>
+                    {publishStatusMessage && (
+                        <span className='text-xs font-normal'>{publishStatusMessage}</span>
+                    )}
                     <Button
                         label={revertLabel}
                         size='sm'
@@ -236,9 +243,13 @@ export const VersionsListItem = ({
                         onClick={handleRestoreClick}
                         onMouseDown={preventFocusChange}
                         tabIndex={-1}
-                        className={cn(isRestoreFocused && 'ring-2')}
+                        className={cn('ml-auto shrink-0', isRestoreFocused && 'ring-2')}
                     />
                 </div>
+            ) : (
+                isExpanded && publishStatusMessage && (
+                    <div className='text-xs font-normal '>{publishStatusMessage}</div>
+                )
             )}
         </div>
     );
