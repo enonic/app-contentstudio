@@ -16,6 +16,9 @@ class ProjectApplicationsCombobox extends BasDropdown {
     get container() {
         return this._parentContainer
     }
+    get dataComponentDiv() {
+        return "//div[@data-component='ApplicationSelector']";
+    }
 
     optionsFilterInput() {
         return this.container + DROPDOWN.OPTION_FILTER_INPUT;

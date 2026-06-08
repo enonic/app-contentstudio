@@ -26,8 +26,8 @@ class ProjectWizardDialogAccessModeStep extends ProjectWizardDialog {
     async clickOnAccessModeRadio(mode) {
         let selector = `//button[@data-component='RadioGroup.Item' and @data-registry-id='${String(mode).toLowerCase()}']`;
         await this.waitForElementEnabled(COMMON.INPUTS.dataComponentRadioByLabel(mode));
-        await this.pause(200);
-        return await this.clickOnElement(selector);
+        await this.clickOnElement(selector);
+        await this.pause(300);
     }
 
     // Returns the currently selected access mode capitalized to match appConst.PROJECT_ACCESS_MODE ('Public' / 'Private' / 'Custom').

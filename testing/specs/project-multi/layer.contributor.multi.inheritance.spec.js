@@ -19,7 +19,7 @@ describe('layer.contributor.multi.inheritance.spec - ui-tests for user with laye
         webDriverHelper.setupBrowser();
     }
 
-    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('proj');
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName('layer');
     const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const SITE_NAME = contentBuilder.generateRandomName('site');
@@ -42,17 +42,21 @@ describe('layer.contributor.multi.inheritance.spec - ui-tests for user with laye
     it(`Precondition 2 - parent project with private access mode should be created`,
         async () => {
             // 1. Navigate to Settings Panel:
-            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
+            await studioUtils.navigateToContentStudioApp();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             // 2. Save the new project (mode access is Private):
-            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, null, null, null, null, appConst.APP_CONTENT_TYPES);
+            await projectUtils.saveTestProject({
+                name: PROJECT_DISPLAY_NAME,
+                accessMode: appConst.PROJECT_ACCESS_MODE.PRIVATE,
+                applications: appConst.APP_CONTENT_TYPES
+            });
         });
 
     it('Precondition 3: new site should be created in the parent project',
         async () => {
             // 1. Do Log in with 'SU':
-            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
+            await studioUtils.navigateToContentStudioApp();
             // 2. Select the new user context:
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             // 3. SU adds new site:
@@ -64,7 +68,7 @@ describe('layer.contributor.multi.inheritance.spec - ui-tests for user with laye
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             // 1. Do Log in with 'SU':
-            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
+            await studioUtils.navigateToContentStudioApp();
             await studioUtils.openSettingsPanel();
             await settingsBrowsePanel.openProjectWizardDialog();
             let layer = projectUtils.buildLayer(MULTI_PROJECTS, null, appConst.PROJECT_ACCESS_MODE.PRIVATE, USER.displayName, null,
@@ -82,7 +86,7 @@ describe('layer.contributor.multi.inheritance.spec - ui-tests for user with laye
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             // 1. Do log in with the user-contributor and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.closeProjectSelectionDialog();
             // 2. Go to Settings Browse Panel:
             await studioUtils.openSettingsPanel();
@@ -97,7 +101,7 @@ describe('layer.contributor.multi.inheritance.spec - ui-tests for user with laye
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizard = new ContentWizard();
             // 1. Do log in with the user-owner and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             // Verify that Project Selection dialog is loaded, then close it
             await studioUtils.closeProjectSelectionDialog();
             // 2. Select the site from the primary-inherited project:
@@ -116,7 +120,7 @@ describe('layer.contributor.multi.inheritance.spec - ui-tests for user with laye
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizard = new ContentWizard()
             // 1. Do log in with the user-owner and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             // Verify that Project Selection dialog is loaded, then close it
             //await studioUtils.closeProjectSelectionDialog();
             // 2. Select the content from the secondary-inherited project:
@@ -133,7 +137,7 @@ describe('layer.contributor.multi.inheritance.spec - ui-tests for user with laye
     it("WHEN user-contributor navigated to 'Settings Panel' THEN parent project and its layer should be visible",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             // 1.Verify that the layer is visible in the grid:
             await settingsBrowsePanel.waitForItemDisplayed(LAYER_DISPLAY_NAME);
@@ -148,7 +152,7 @@ describe('layer.contributor.multi.inheritance.spec - ui-tests for user with laye
 
     it(`WHEN existing layer is opened THEN 2 parent projects should be displayed in the selected options`,
         async () => {
-            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog('su', 'password');
+            await studioUtils.navigateToContentStudioApp('su', 'password');
             await studioUtils.openSettingsPanel();
 
             let settingsBrowsePanel = new SettingsBrowsePanel();
@@ -169,7 +173,7 @@ describe('layer.contributor.multi.inheritance.spec - ui-tests for user with laye
     it('Post conditions: the layer should be deleted',
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog('su', 'password');
+            await studioUtils.navigateToContentStudioApp('su', 'password');
             await studioUtils.openSettingsPanel();
             // 1. Select and delete the layer:
             await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);

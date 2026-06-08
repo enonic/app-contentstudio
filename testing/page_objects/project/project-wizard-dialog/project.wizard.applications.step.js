@@ -44,11 +44,15 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
 
     //expand the dropdown and click on an option
     async expandDropdownListAndSelectApplication(appName) {
-        let projectApplicationsComboBox = new ProjectApplicationsCombobox();
-        await projectApplicationsComboBox.clickOnDropdownHandle(XPATH.container);
-        await projectApplicationsComboBox.clickOnOptionByDisplayName(appName, XPATH.container);
-        await projectApplicationsComboBox.clickOnApplySelectionButton(XPATH.container);
-        return await this.pause(500);
+        try {
+            let projectApplicationsComboBox = new ProjectApplicationsCombobox(XPATH.container);
+            await projectApplicationsComboBox.clickOnDropdownHandle();
+            await projectApplicationsComboBox.clickOnOptionByDisplayName(appName);
+            await projectApplicationsComboBox.clickOnApplySelectionButton();
+            return await this.pause(500);
+        } catch (err) {
+            await this.handleError("Project Wizard Dialog, error while selecting an application in dropdown", 'err_select_app_dropdown', err);
+        }
     }
 
     async waitForLoaded() {

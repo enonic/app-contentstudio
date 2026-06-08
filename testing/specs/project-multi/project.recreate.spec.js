@@ -53,10 +53,10 @@ describe("project.recreate.spec - tests for recreating the only one project ", f
             await summaryStep.waitForDialogClosed();
             await settingsBrowsePanel.waitForNotificationMessage();
             await studioUtils.saveScreenshotUniqueName('verify_issue_7646')
-            await settingsBrowsePanel.waitForProjectByDisplayNameVisible('Default');
+            await settingsBrowsePanel.waitForProjectByDisplayNameDisplayed('Default');
         });
 
-    beforeEach(() => studioUtils.navigateToContentStudioWithProjects());
+    beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {
         if (typeof browser !== 'undefined') {

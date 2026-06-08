@@ -25,9 +25,9 @@ const XPATH = {
         displayName => `//*[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
 
 
-    projectCheckboxByName: name => {
-        return `//div[contains(@id,'ProjectItemViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]/..//..//div[contains(@id,'Checkbox')]/label`
-    },
+    projectCheckboxByName: name =>
+        `//div[@data-component='VirtualizedTreeList.Row' and descendant::div[@data-component='ProjectLabel']//span[contains(@class,'font-semibold') and contains(.,'${name}')]]` +
+        `//div[@data-component='VirtualizedTreeList.RowSelectionControl']`,
 
     projectCheckboxByIdentifier: id => {
         return `//div[contains(@id,'ProjectItemViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${id}')]]/..//..//div[contains(@id,'Checkbox')]/label`
@@ -108,8 +108,8 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForItemDisplayed(projectName) {
         try {
-            let locator = XPATH.settingsTreeListDataComponent + XPATH.projectItemByDisplayName(projectName);
-            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            let nameXpath = XPATH.settingsTreeListDataComponent + TREE_GRID.itemByDisplayName(projectName);
+            await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_browse_panel');
             throw new Error(`Project is not displayed ! Screenshot: ${screenshot} ` + err);
@@ -139,8 +139,8 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForProjectNotDisplayed(projectDisplayName) {
         try {
-            let selector = XPATH.settingsTreeList + lib.itemByDisplayName(projectDisplayName);
-            return await this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
+            let locator = XPATH.settingsTreeListDataComponent + TREE_GRID.itemByDisplayName(projectDisplayName);
+            return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
             throw new Error("projectName is still displayed : " + err);
         }
@@ -162,8 +162,8 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    async waitForItemByNameVisible(name) {
-        let nameXpath = XPATH.settingsTreeListDataComponent + lib.itemByName(name);
+    async waitForProjectByIdDisplayed(id) {
+        let nameXpath = XPATH.settingsTreeListDataComponent + TREE_GRID.itemByName(id);
         try {
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
         } catch (err) {
@@ -172,9 +172,9 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    async waitForProjectByDisplayNameVisible(displayName) {
+    async waitForProjectByDisplayNameDisplayed(displayName) {
         try {
-            let nameXpath = XPATH.settingsTreeListDataComponent + lib.itemByDisplayName(displayName);
+            let nameXpath = XPATH.settingsTreeListDataComponent + TREE_GRID.itemByDisplayName(displayName);
             return await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_find_project');
@@ -197,7 +197,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     async clickOnProjectsFolderCheckbox() {
-        let locator = `//div[contains(@id,'FolderItemViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'Projects')]]/..//..//div[contains(@id,'Checkbox')]/label`;
+        let locator =
         await this.waitForElementDisplayed(locator, appConst.shortTimeout);
         await this.clickOnElement(locator);
     }
