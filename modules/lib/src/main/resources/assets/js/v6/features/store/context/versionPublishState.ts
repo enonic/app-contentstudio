@@ -142,12 +142,23 @@ const $allPublishBadges = computed($versions, (versions): PublishBadge[] => {
         }
 
         const unpublishedAt = findUnpublishDate(versions, i);
+        const publishInfo = v.getPublishInfo();
+
+        // Scheduled, then unpublished before its publish-from date: the item never went
+        // online, so it should not get a badge on its editorial version.
+        const scheduledFrom = publishInfo?.getFrom();
+        if (unpublishedAt && scheduledFrom && unpublishedAt < scheduledFrom) {
+            continue;
+        }
+
         seen.add(targetId);
         badges.push({
             versionId: targetId,
             publishStatus: isPublish ? getVersionPublishStatus(v) : VersionPublishStatus.PUBLISHED,
-            publishedFrom: getVersionOperationTime(v),
-            publishedTo: unpublishedAt ?? v.getPublishInfo()?.getTo(),
+            // Online start date (when content goes/went live), not the publish operation time.
+            publishedFrom: publishInfo?.getFrom() ?? getVersionOperationTime(v),
+            // Scheduled expiry (when content goes/went offline).
+            publishedTo: publishInfo?.getTo(),
             unpublishedAt,
         });
     }
