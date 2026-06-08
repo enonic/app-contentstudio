@@ -43,8 +43,12 @@ class ProjectWizardDialogPermissionsStep extends ProjectWizardDialog {
 
     // click on the role, open menu and select new role for the user:
     async updateUserAccessRole(userDisplayName, newRole) {
-        let principalSelector = new PrincipalSelector(XPATH.container);
-        return await principalSelector.updateUserAccessRole(userDisplayName, newRole);
+        try {
+            await this.expandPrincipalRoleMenu(userDisplayName);
+            await this.clickOnRoleInExpandedMenu(newRole);
+        } catch (err) {
+            await this.handleError(`Principal Selector, tried to update role for: ${userDisplayName}`, 'err_update_role', err);
+        }
     }
 
     //clicks on remove icon and  remove a user from Roles form:

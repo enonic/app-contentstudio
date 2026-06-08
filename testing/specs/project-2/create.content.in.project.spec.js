@@ -29,7 +29,11 @@ describe('create.content.in.project.spec - create new content in the selected co
             // 1. Navigate to Settings Panel:
             await studioUtils.openSettingsPanel();
             // 2. Save new project (mode access is Private):
-            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConst.LANGUAGES.NORSK_NO);
+            await projectUtils.saveTestProject({
+                name: PROJECT_DISPLAY_NAME,
+                accessMode: appConst.PROJECT_ACCESS_MODE.PRIVATE,
+                language: appConst.LANGUAGES.NORSK_NO,
+            });
         });
 
     it(`WHEN existing project has been clicked in 'Select Context' dialog THEN empty grid should be loaded`,
@@ -38,16 +42,18 @@ describe('create.content.in.project.spec - create new content in the selected co
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select the project in 'Select Context' dialog
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
-            // 2. Verify that 'No open issues' - this label should be in Issues Button:
-            let actualLabel = await settingsBrowsePanel.getTextInShowIssuesButton();
-            assert.equal(actualLabel, appConst.SHOW_ISSUES_BUTTON_LABEL.NO_OPEN_ISSUES, "'No open issues' should be displayed");
+
             // Verify that the grid is empty:
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.equal(result.length, 0, 'Browse Panel should not contain content');
             // 3. Verify the current project:
             let actualDisplayName = await contentBrowsePanel.getCurrentProjectDisplayName();
-            assert.equal(actualDisplayName, PROJECT_DISPLAY_NAME,
+            assert.equal(actualDisplayName, PROJECT_DISPLAY_NAME + " (no)",
                 'Expected name should be displayed in the project selected option(App Bar)');
+            // 2. Verify that 'No open issues' - this label should be in Issues Button:
+            let actualLabel = await settingsBrowsePanel.getTextInShowIssuesButton();
+            assert.equal(actualLabel, appConst.SHOW_ISSUES_BUTTON_LABEL.NO_OPEN_ISSUES, "'No open issues' should be displayed");
+
         });
 
     it(`GIVEN existing context is selected WHEN new folder wizard has been opened THEN expected language should be automatically set in the wizard step`,
@@ -104,7 +110,7 @@ describe('create.content.in.project.spec - create new content in the selected co
             // 2. Select the folder and open details panel
             await studioUtils.findAndSelectItem(TEST_FOLDER_NAME);
             await studioUtils.openBrowseDetailsPanel();
-            let actualHeader = await userAccessWidget.getHeader();
+            let actualHeader = await userAccessWidget.getPermissionsAccessDescription();
             assert.equal(actualHeader, appConst.ACCESS_WIDGET_HEADER.RESTRICTED_ACCESS,
                 `'Restricted access to item' - header should be displayed`);
 
@@ -165,7 +171,7 @@ describe('create.content.in.project.spec - create new content in the selected co
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
+        await studioUtils.navigateToContentStudioApp();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());
     before(async () => {

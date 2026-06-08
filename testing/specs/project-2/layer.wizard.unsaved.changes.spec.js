@@ -9,6 +9,7 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const LayerWizardPanel = require('../../page_objects/project/layer.wizard.panel');
 const SettingsItemStatisticsPanel = require('../../page_objects/project/settings.item.statistics.panel');
+const LanguageAndParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
 const appConst = require('../../libs/app_const');
 
 describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wizard', function () {
@@ -21,10 +22,12 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
 
     it("GIVEN layer(in Default) with roles has been saved and reopened WHEN 'Copy roles from parent' has been clicked THEN 'Save' button gets enabled",
         async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
             let layerWizard = new LayerWizardPanel();
+            let languageAndParentProjectStep = new LanguageAndParentProjectStep();
             // 1. Open Project Wizard Dialog:
-            await projectUtils.selectParentAndOpenProjectWizardDialog(appConst.PROJECTS.DEFAULT_PROJECT_NAME);
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            await settingsBrowsePanel.clickOnNewButton();
+            await languageAndParentProjectStep.waitForLoaded();
             let layer = projectUtils.buildLayer(PARENT_PROJECT, appConst.LANGUAGES.EN, appConst.PROJECT_ACCESS_MODE.PRIVATE, 'Super User',
                 null, LAYER_DISPLAY_NAME)
             // 2. Fill in forms in the wizard then click on Create button:
@@ -33,7 +36,7 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
             // 3.Open just created layer:
             await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
-            await layerWizard.waitForLoaded();
+            await languageAndParentProjectStep.waitForLoaded();
             // 4. Click on 'Copy roles from parent':
             await layerWizard.clickOnCopyRolesFromParent(PARENT_PROJECT);
             // 5. Verify that notification message appears:
@@ -120,7 +123,7 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
+        await studioUtils.navigateToContentStudioApp();
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());

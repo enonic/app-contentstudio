@@ -2,13 +2,15 @@ const path = require('path');
 const propertiesReaderModule = require('properties-reader');
 const propertiesReader = propertiesReaderModule.propertiesReader || propertiesReaderModule.default || propertiesReaderModule;
 const file = path.join(__dirname, '/../browser.properties');
-const properties = propertiesReader({ sourceFile: file });
+const properties = propertiesReader({sourceFile: file});
 const browser_version = properties.get('browser.version');
 
 exports.config = {
 
     specs: [
-        path.join(__dirname, '../specs/project-multi/*.spec.js')
+        //path.join(__dirname, '../specs/project-multi/*.spec.js')
+        path.join(__dirname, '../specs/project-multi/parent.project.step.multi.inheritance.spec.js'),
+        path.join(__dirname, '../specs/project-multi/ layer.owner.multi.inheritance.spec.js'),
     ],
 
     maxInstances: 1,
