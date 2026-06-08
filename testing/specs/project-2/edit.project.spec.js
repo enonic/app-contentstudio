@@ -36,7 +36,6 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
     it(`WHEN existing project is opened THEN expected identifier, description and language should be displayed`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
             // 1. Open project wizard dialog and create new project:
             await projectUtils.saveTestProject({
                 name: PROJECT_DISPLAY_NAME,

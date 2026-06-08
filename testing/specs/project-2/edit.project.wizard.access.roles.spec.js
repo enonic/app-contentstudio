@@ -20,7 +20,7 @@ describe('edit.project.wizard.access.roles.spec - tests for giving access to man
         webDriverHelper.setupBrowser();
     }
 
-    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('proj');
     const PRINCIPALS = [appConst.systemUsersDisplayName.SUPER_USER];
 
     it(`Preconditions: new project should be added. SU should be assigned as Contributor`,

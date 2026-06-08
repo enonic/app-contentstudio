@@ -25,7 +25,9 @@ describe('item.set.spec: tests for content with Item Set', function () {
             let itemSetForm = new ItemSetForm();
             let contentWizard = new ContentWizard();
             await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.ITEM_SET_0_0);
+            await contentWizard.typeDisplayName('test');
             // 1. Click on 'Add' button,
+            //await contentWizard.pause(500);
             await itemSetForm.clickOnAddButton();
             await contentWizard.pause(500);
             // 2. Expand the menu then click on 'Add above' menu item:
@@ -34,7 +36,7 @@ describe('item.set.spec: tests for content with Item Set', function () {
             await itemSetForm.waitForCollapseAllButtonDisplayed();
             // 4. Click on the top ItemSet item, collapse it
             await itemSetForm.clickOnFormOccurrence('ItemSet', 0);
-            await studioUtils.saveScreenshot('itemset_0_0_top_item_collapsed');
+            await studioUtils.saveScreenshot('item_set_0_0_top_item_collapsed');
             // 5. Verify that 'Collapse all' button remains visible:
             await itemSetForm.waitForCollapseAllButtonDisplayed();
         });
@@ -44,10 +46,10 @@ describe('item.set.spec: tests for content with Item Set', function () {
             let itemSetForm = new ItemSetForm();
             let contentWizard = new ContentWizard();
             await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.ITEM_SET_0_0);
-            // 1. Click on 'Add' button,
-            await itemSetForm.clickOnAddButton();
-            // 2. Fill in the name input:
+            // 1. Fill in the name input:
             await contentWizard.typeDisplayName(ITEM_SET_CONTENT_NAME_2);
+            // 2. Click on 'Add' button,
+            await itemSetForm.clickOnAddButton();
             // 3. Fill in required inputs in the added form:
             await itemSetForm.typeTextInHtmlArea(0, 'hello htmlarea');
             await itemSetForm.typeTextInTextLine(0, TEXT_LINE_TEXT_1);
@@ -103,7 +105,7 @@ describe('item.set.spec: tests for content with Item Set', function () {
             // 2. Item-set form should not be displayed:
             await itemSetForm.waitForItemSetFormNotDisplayed();
             await contentWizard.typeDisplayName(ITEM_SET_CONTENT_NAME_1);
-            await studioUtils.saveScreenshot('itemset_0_0_no_set');
+            await studioUtils.saveScreenshot('item_set_0_0_no_set');
             // 3. Verify that the content gets valid after the filling the display name input:
             let isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid === false, "the content with Item Set should be valid");
@@ -121,7 +123,7 @@ describe('item.set.spec: tests for content with Item Set', function () {
             // 2. Fill in the name input:
             await contentWizard.typeDisplayName(ITEM_SET_CONTENT_NAME_1);
             // 3. Verify that the content gets invalid after clicking on Add button, because there are required inputs in the form:
-            await studioUtils.saveScreenshot('itemset_0_0_set_added');
+            await studioUtils.saveScreenshot('item_set_0_0_set_added');
             let isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid, "Item Set content should be invalid, required inputs are present in the set");
             await contentWizard.waitAndClickOnSave();
@@ -180,7 +182,7 @@ describe('item.set.spec: tests for content with Item Set', function () {
             // 3. Fill in required inputs only in the first form:
             await itemSetForm.typeTextInHtmlArea(0, 'hello htmlarea');
             await itemSetForm.typeTextInTextLine(0, 'hello text line');
-            await studioUtils.saveScreenshot('itemset_0_0_filled_2');
+            await studioUtils.saveScreenshot('item_set_0_0_filled_2');
             // 4. Verify that the content gets invalid after adding the second level with required inputs:
             let isInvalid = await contentWizard.isContentInvalid();
             assert.ok(isInvalid, "the content should be invalid");

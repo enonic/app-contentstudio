@@ -21,7 +21,8 @@ class DetailsWidgetPermissionsSection extends Page {
         return xpath.container + BUTTONS.buttonAriaLabel('Edit permissions');
     }
 
-    async getHeader() {
+    // 'Everyone can read this item' OR ''
+    async getPermissionsAccessDescription() {
         let locator = xpath.container + xpath.description;
         await this.waitForElementDisplayed(locator, appConst.shortTimeout);
         return await this.getText(locator);

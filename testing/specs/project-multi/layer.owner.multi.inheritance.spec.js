@@ -1,5 +1,5 @@
 /**
- * Created on 31.01.2024
+ * Created on 31.01.2024 updated on 07.06.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -12,6 +12,11 @@ const contentBuilder = require("../../libs/content.builder");
 const appConst = require('../../libs/app_const');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
+const LanguageAndParentProjectStep = require("../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step");
+const ProjectWizardDialogNameAndIdStep = require("../../page_objects/project/project-wizard-dialog/project.wizard.name.id.step");
+const ProjectWizardDialogAccessModeStep = require("../../page_objects/project/project-wizard-dialog/project.wizard.access.mode.step");
+const ProjectWizardDialogPermissionsStep = require("../../page_objects/project/project-wizard-dialog/project.wizard.permissions.step");
+const ProjectWizardDialogSummaryStep = require("../../page_objects/project/project-wizard-dialog/project.wizard.summary.step");
 
 describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owner role', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -19,7 +24,7 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
         webDriverHelper.setupBrowser();
     }
 
-    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('project');
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('proj');
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName('layer');
     const CONTROLLER_NAME = appConst.CONTROLLER_NAME.MAIN_REGION;
     const SITE_NAME = contentBuilder.generateRandomName('site');
@@ -42,52 +47,68 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
     it(`Precondition 2 - parent project with private access mode should be created`,
         async () => {
             // 1. Navigate to Settings Panel:
-            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
+            await studioUtils.navigateToContentStudioApp();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             // 2. Save the new project (mode access is Private):
-            await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, null, null, null, null, appConst.APP_CONTENT_TYPES);
+            //await projectUtils.saveTestProject(PROJECT_DISPLAY_NAME, null, null, null, null, appConst.APP_CONTENT_TYPES);
+            await projectUtils.saveTestProject({
+                name: PROJECT_DISPLAY_NAME,
+                accessMode: appConst.PROJECT_ACCESS_MODE.PRIVATE,
+                applications: appConst.APP_CONTENT_TYPES
+            });
         });
 
     it('Precondition 3: new site should be created in the parent project',
         async () => {
             // 1. Do Log in with 'SU':
-            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
+            await studioUtils.navigateToContentStudioApp();
             // 2. Select the new user context:
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             // 3. SU adds new site:
-            SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            SITE = contentBuilder.buildSite(SITE_NAME, null, [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
         });
 
     it("Precondition 4: new layer with 2 parent projects should be added, 'Default' is the secondary inherited project",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let applicationsStep = new ProjectWizardDialogApplicationsStep();
+            let languageAndParentProjectStep = new LanguageAndParentProjectStep();
             // 1. Do Log in with 'SU':
-            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
+            await studioUtils.navigateToContentStudioApp();
             await studioUtils.openSettingsPanel();
             // 2. Open Project Wizard Dialog:
             await settingsBrowsePanel.openProjectWizardDialog();
-            // 3. Select the parent project in the first step:
-            let projectWizardDialogStep2 = await projectUtils.selectParentProjectsByName(MULTI_PROJECTS);
-            await projectWizardDialogStep2.waitForLoaded();
-            // 4. Click on Skip button in the second step:
-            let accessModeStep = await projectUtils.fillLanguageStep(null);
+            // 3. Select parent projects in the first step:
+            await projectUtils.fillLanguageAndMultiParentProjectStep(null, MULTI_PROJECTS);
+            await languageAndParentProjectStep.waitForLoaded();
+            await languageAndParentProjectStep.clickOnNextButton();
+
+            let nameAndIdStep = new ProjectWizardDialogNameAndIdStep();
+            await nameAndIdStep.waitForLoaded();
+            await projectUtils.fillNameAndDescriptionStep(LAYER_DISPLAY_NAME);
+            await nameAndIdStep.clickOnNextButton();
+
+            // 5. Select 'Private' access mode in the step:
+            let accessModeStep = new ProjectWizardDialogAccessModeStep();
             await accessModeStep.waitForLoaded();
-            // 5. Select 'Private' access mode in the fours step:
-            let permissionsStep = await projectUtils.fillAccessModeStep(appConst.PROJECT_ACCESS_MODE.PRIVATE);
+            await projectUtils.fillAccessModeStep(appConst.PROJECT_ACCESS_MODE.PRIVATE);
+            await accessModeStep.clickOnNextButton();
+
+            let permissionsStep = new ProjectWizardDialogPermissionsStep();
             await permissionsStep.waitForLoaded();
             // 6. Select the user with default role:
-            await permissionsStep.selectProjectAccessRole(USER.displayName);
+            await projectUtils.fillPermissionsStep(USER.displayName);
             // 7. Update the default role to "Owner"
             await permissionsStep.updateUserAccessRole(USER.displayName, appConst.PROJECT_ROLES.OWNER);
-            // 8. Click on Next button
             await permissionsStep.clickOnNextButton();
+
+            let applicationsStep = new ProjectWizardDialogApplicationsStep();
             if (await applicationsStep.isLoaded()) {
-                await applicationsStep.clickOnSkipButton();
+                await applicationsStep.clickOnNextButton();
             }
-            let summaryStep = await projectUtils.fillNameAndDescriptionStep(LAYER_DISPLAY_NAME);
+
+            let summaryStep = new ProjectWizardDialogSummaryStep();
             await summaryStep.waitForLoaded();
             await summaryStep.clickOnCreateProjectButton();
             await summaryStep.waitForDialogClosed();
@@ -101,7 +122,7 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             // 1. Do log in with the user-owner and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.closeProjectSelectionDialog();
             // 2. Go to Settings Browse Panel:
             await studioUtils.openSettingsPanel();
@@ -111,34 +132,38 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
             await settingsBrowsePanel.waitForEditButtonEnabled();
         });
 
+    // TODO bug Project context from the previous user session persists after login #10766
+    // https://github.com/enonic/app-contentstudio/issues/10766
     it.skip("GIVEN user with 'Owner' role is logged in WHEN site that is 'inherited' from the primary project has been selected THEN 'Localise' button should be enabled in the browse toolbar",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizard = new ContentWizard();
             // 1. Do log in with the user-owner and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             // Verify that Project Selection dialog is loaded, then close it
-            await studioUtils.closeProjectSelectionDialog();
+            //await studioUtils.closeProjectSelectionDialog();
             // 2. Select the site from the primary-inherited project:
             await studioUtils.findAndSelectItem(SITE_NAME);
             // 3. Verify that 'Localise' button gets visible and enabled :
-            await contentBrowsePanel.clickOnLocalizeButton();
+            await contentBrowsePanel.clickOnEditButton();
             await studioUtils.doSwitchToNextTab();
             // 4. Verify that the content is opened in the browser-tab:
             await contentWizard.waitForOpened();
+            await contentWizard.clickOnLocalizeButton();
             // 'Inherited content is localized' - message should appear
             let message = await contentWizard.waitForNotificationMessage();
             assert.equal(message, appConst.NOTIFICATION_MESSAGES.INHERITED_CONTENT_LOCALIZED,
                 "'Inherited content has been localized' - message should appear");
         });
 
-
+    // TODO bug Project context from the previous user session persists after login #10766
+    // https://github.com/enonic/app-contentstudio/issues/10766
     it.skip("GIVEN user with 'Owner'-layer role is logged in WHEN content that is 'inherited' from the secondary project has been selected THEN 'Localize' button should be enabled in the browse toolbar",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizard = new ContentWizard()
             // 1. Do log in with the user-owner and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             // 2. Select the content from the secondary-inherited project:
             await studioUtils.findAndSelectItem(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_NAME);
             // 3. Verify that 'Localize' button gets  enabled :
@@ -153,7 +178,7 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
     it("WHEN user-owner navigated to 'Settings Panel' THEN parent project and its layer should be visible",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             // 1.Verify that the layer is visible in the grid:
             await settingsBrowsePanel.waitForItemDisplayed(LAYER_DISPLAY_NAME);
@@ -169,7 +194,7 @@ describe('layer.owner.multi.inheritance.spec - ui-tests for user with layer-owne
     it('Post conditions: the layer should be deleted',
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog('su', 'password');
+            await studioUtils.navigateToContentStudioApp('su', 'password');
             await studioUtils.openSettingsPanel();
             // 1. Select and delete the layer:
             await projectUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);

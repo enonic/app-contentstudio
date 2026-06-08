@@ -52,9 +52,9 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
             // 6. 'Scheduled' status should be displayed in the 'Preview Item toolbar':
             //let status = await contentItemPreviewPanel.getContentStatus();
             //assert.equal(status, appConst.CONTENT_STATUS.PUBLISHING_SCHEDULED,
-             //   "'Scheduled' status should be displayed in the Preview Item toolbar");
+            //   "'Scheduled' status should be displayed in the Preview Item toolbar");
             // 7. 'Show Changes' button should be displayed in the 'Preview Item' toolbar:
-           // await contentItemPreviewPanel.waitForShowChangesButtonNotDisplayed();
+            // await contentItemPreviewPanel.waitForShowChangesButtonNotDisplayed();
         });
 
     // Verify issue: Unpublish Item dialog - dependent items are not displayed when content with children are scheduled #4185
@@ -70,7 +70,7 @@ describe('Tests for dependent items in Unpublish dialog (for scheduled content)'
             await studioUtils.saveScreenshot('scheduled_site_unpublish_dialog');
             // 3. Verify that 'Dependencies block' is displayed in the modal dialog
             await contentUnpublishDialog.waitForDependantsBlockDisplayed();
-            let actualStatus = await contentUnpublishDialog.getItemStatus(SITE.displayName);
+            let actualStatus = await contentUnpublishDialog.getMainItemStatus(SITE.displayName);
             // 4. Verify the number of dependent items
             let dependantItems = await contentUnpublishDialog.getDependentItemsPath();
             assert.ok(dependantItems.length === 1, 'One dependent item should be displayed in the dialog');
