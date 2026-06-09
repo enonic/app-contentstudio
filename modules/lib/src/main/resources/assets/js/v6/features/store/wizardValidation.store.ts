@@ -1,7 +1,6 @@
 import {ComponentConfigValidationError, DataValidationError, MixinConfigValidationError, SiteConfigValidationError, type ValidationError} from '@enonic/lib-admin-ui/ValidationError';
-import {ValidationErrorHelper} from '@enonic/lib-admin-ui/ValidationErrorHelper';
-import {type RawValueMap, type ValidationVisibility, validateForm} from '@enonic/lib-admin-ui/form2';
-import {atom} from 'nanostores';
+import {matchesFieldPath, matchesOccurrencePath, type RawValueMap, type ServerErrorEntry, type ValidationVisibility, validateForm} from '@enonic/lib-admin-ui/form2';
+import {atom, computed} from 'nanostores';
 import type {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import type {Descriptor} from '../../../app/page/Descriptor';
 import {DescriptorBasedComponent} from '../../../app/page/region/DescriptorBasedComponent';
@@ -34,6 +33,11 @@ export const $invalidTabs = atom<ReadonlySet<string>>(new Set());
 export const $invalidComponentPaths = atom<ReadonlySet<string>>(new Set());
 
 const $contentServerErrors = atom<DataValidationError[]>([]);
+
+// Server content errors flattened for the form fields to display by data path.
+export const $serverErrorEntries = computed($contentServerErrors, (errors): ServerErrorEntry[] =>
+    errors.map((e) => ({path: e.getPropertyPath(), message: e.getMessage()})),
+);
 
 const $componentConfigErrors = atom<ComponentConfigValidationError[]>([]);
 
@@ -213,9 +217,6 @@ let mixinTreeCleanups: Unsubscribe[] = [];
 function setupSubscriptions(): void {
     subscriptions.push(
         $wizardDataVersion.subscribe(() => {
-            if ($contentServerErrors.get().length > 0) {
-                $contentServerErrors.set([]);
-            }
             debouncedRunValidation();
         }),
     );
@@ -298,18 +299,28 @@ export function escalateVisibility(mode: ValidationVisibility): void {
     }
 }
 
+// Validation error codes are `<applicationKey>:<code>` (e.g. "system:cms.occurrencesInvalid").
+// Errors in the SYSTEM application are built-in occurrence/required checks that duplicate our
+// client-side validation; we ignore them and surface the (more readable) client messages instead.
+// Custom app validators carry their own application key (e.g. "com.acme.app:..") and are kept.
+const SYSTEM_ERROR_CODE_PREFIX = 'system:';
+
+function isSystemError(error: ValidationError): boolean {
+    return (error.getErrorCode() ?? '').startsWith(SYSTEM_ERROR_CODE_PREFIX);
+}
+
 export function setServerValidationErrors(errors: ValidationError[]): void {
     // ! Only DataValidationError has a propertyPath that validateForm can match
     // ! against content form fields. Base ValidationError and AttachmentValidationError
     // ! return null from getPropertyPath(), which would crash matchServerErrors.
-    // ! System errors (e.g. "system:required") are already handled by client-side
-    // ! validation; keeping them here would make them sticky after the user fixes
-    // ! the field, because $contentServerErrors is only refreshed on save.
+    // ! System (built-in) errors are dropped — client-side validation covers them with
+    // ! clearer messages; keeping them would also make them sticky until the next save.
     const contentErrors = errors.filter(
         (e): e is DataValidationError => e instanceof DataValidationError
             && !(e instanceof ComponentConfigValidationError)
             && !(e instanceof SiteConfigValidationError)
             && !(e instanceof MixinConfigValidationError)
+            && !isSystemError(e)
     );
 
     const componentErrors = errors.filter(
@@ -317,6 +328,28 @@ export function setServerValidationErrors(errors: ValidationError[]): void {
     );
     $contentServerErrors.set(contentErrors);
     $componentConfigErrors.set(componentErrors);
+    runValidation();
+}
+
+// Drop the server errors on an edited occurrence's data path (and its descendants).
+export function clearServerErrorsAtPath(occurrencePath: string): void {
+    const current = $contentServerErrors.get();
+    const next = current.filter((e) => !matchesOccurrencePath(e.getPropertyPath(), occurrencePath));
+    if (next.length === current.length) return;
+
+    $contentServerErrors.set(next);
+    runValidation();
+}
+
+// Drop every server error on a field (all occurrences). Used on structural
+// occurrence changes (add/remove/move), where positional alignment is lost;
+// fresh errors arrive on the next save.
+export function clearServerErrorsForField(fieldPath: string): void {
+    const current = $contentServerErrors.get();
+    const next = current.filter((e) => !matchesFieldPath(e.getPropertyPath(), fieldPath));
+    if (next.length === current.length) return;
+
+    $contentServerErrors.set(next);
     runValidation();
 }
 

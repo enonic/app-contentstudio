@@ -1,7 +1,9 @@
+import {PropertyPath, PropertyPathElement} from '@enonic/lib-admin-ui/data/PropertyPath';
 import type {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import type {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
 import {
     usePropertySetArray,
+    useServerErrors,
     useSetOccurrenceManager,
     useValidationVisibility,
     ValidationVisibilityProvider,
@@ -56,8 +58,17 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
     const {propertySets} = usePropertySetArray(propertyArray);
     const propertySetKeys = usePropertySetKeys(propertySets);
     const {state, remove, move} = useSetOccurrenceManager(occurrences, propertySets);
+    const serverErrors = useServerErrors();
     const {setOccurrenceRef, scheduleScrollTo} = useScrollPanelToOccurrence(propertySets);
     const lastAddedIndexRef = useRef<number | null>(null);
+
+    // Structural occurrence changes (add/remove/move/reset) shift set positions, so
+    // the positional server errors under this set no longer align — drop them all
+    // (re-validated on the next save). Plain edits clear per-occurrence elsewhere.
+    const clearSetServerErrors = useCallback(() => {
+        const path = PropertyPath.fromParent(propertySet.getPropertyPath(), new PropertyPathElement(name, 0)).toString();
+        serverErrors?.clearField(path.startsWith('.') ? path.slice(1) : path);
+    }, [serverErrors, propertySet, name]);
     const {expanded, isAllExpanded, handleExpandAll, handleCollapseAll, handleDragStart, handleToggleSingle} = useSetExpanded(
         propertyArray,
         state.count
@@ -79,11 +90,12 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
             const newSet = propertyArray.addSet();
             seedDefaults(newSet);
             scheduleScrollTo(index);
+            clearSetServerErrors();
             return;
         }
 
         setConfirmingAdd(true);
-    }, [isRadio, state.canAdd, propertyArray, seedDefaults, scheduleScrollTo]);
+    }, [isRadio, state.canAdd, propertyArray, seedDefaults, scheduleScrollTo, clearSetServerErrors]);
     const handleConfirmAdd = useCallback(
         (selectedName: string) => {
             setConfirmingAdd(false);
@@ -95,8 +107,9 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
             const newSet = propertyArray.addSet();
             selectOptionInPropertySet(newSet, optionSet, selectedName);
             scheduleScrollTo(index);
+            clearSetServerErrors();
         },
-        [state.canAdd, propertyArray, optionSet, scheduleScrollTo]
+        [state.canAdd, propertyArray, optionSet, scheduleScrollTo, clearSetServerErrors]
     );
     const handleCancelAdd = useCallback(() => {
         setConfirmingAdd(false);
@@ -114,8 +127,9 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
                 seedDefaults(newSet);
             }
             scheduleScrollTo(index);
+            clearSetServerErrors();
         },
-        [state.canAdd, propertyArray, optionSet, seedDefaults, scheduleScrollTo]
+        [state.canAdd, propertyArray, optionSet, seedDefaults, scheduleScrollTo, clearSetServerErrors]
     );
     const handleAddBelow = useCallback(
         (index: number, selectedName?: string) => {
@@ -130,8 +144,9 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
                 seedDefaults(newSet);
             }
             scheduleScrollTo(index + 1);
+            clearSetServerErrors();
         },
-        [state.canAdd, propertyArray, optionSet, seedDefaults, scheduleScrollTo]
+        [state.canAdd, propertyArray, optionSet, seedDefaults, scheduleScrollTo, clearSetServerErrors]
     );
     const handleRemove = useCallback(
         (index: number) => {
@@ -139,9 +154,10 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
 
             if (remove(index)) {
                 propertyArray.remove(index);
+                clearSetServerErrors();
             }
         },
-        [state.canRemove, remove, propertyArray]
+        [state.canRemove, remove, propertyArray, clearSetServerErrors]
     );
     const handleReset = useCallback(
         (index: number) => {
@@ -156,16 +172,18 @@ export const OptionSetView = ({optionSet, propertySet}: OptionSetViewProps): Rea
             for (const option of optionSet.getOptions()) {
                 ps.removeProperty(option.getName(), 0);
             }
+            clearSetServerErrors();
         },
-        [propertySets, optionSet]
+        [propertySets, optionSet, clearSetServerErrors]
     );
     const handleMove = useCallback(
         (fromIndex: number, toIndex: number) => {
             if (move(fromIndex, toIndex)) {
                 propertyArray.move(fromIndex, toIndex);
+                clearSetServerErrors();
             }
         },
-        [move, propertyArray]
+        [move, propertyArray, clearSetServerErrors]
     );
 
     return (

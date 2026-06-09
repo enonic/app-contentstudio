@@ -10,23 +10,36 @@ import {MixinName} from '../../../app/content/MixinName';
 import {Workflow} from '../../../app/content/Workflow';
 import {WorkflowState} from '../../../app/content/WorkflowState';
 import type {ContentType} from '../../../app/inputtype/schema/ContentType';
+import {ValidationError} from '@enonic/lib-admin-ui/ValidationError';
 import {
+    $wizardDataVersion,
     initializeWizardContentState,
     resetWizardContent,
     setDraftDisplayName,
 } from './wizardContent.store';
 import {
     $invalidTabs,
+    $serverErrorEntries,
     $validationVisibility,
+    clearServerErrorsAtPath,
+    clearServerErrorsForField,
     escalateVisibility,
     flushValidation,
     initializeValidation,
     resetValidation,
+    setServerValidationErrors,
 } from './wizardValidation.store';
 
-vi.mock('@enonic/lib-admin-ui/form2', () => {
+vi.mock('@enonic/lib-admin-ui/form2', async () => {
+    // Real (pure) path matchers — the clear commands rely on them; only validateForm
+    // is stubbed to keep form2's heavy React components out of the node test env.
+    const serverErrors = await vi.importActual<typeof import('@enonic/lib-admin-ui/form2/utils/serverErrors')>(
+        '@enonic/lib-admin-ui/form2/utils/serverErrors',
+    );
     return {
         validateForm: vi.fn(() => ({isValid: true, children: []})),
+        matchesFieldPath: serverErrors.matchesFieldPath,
+        matchesOccurrencePath: serverErrors.matchesOccurrencePath,
     };
 });
 
@@ -291,6 +304,69 @@ describe('wizardValidation.store', () => {
             flushValidation();
 
             expect($invalidTabs.get().has('content')).toBe(true);
+        });
+    });
+
+    describe('server validation errors', () => {
+        const serverError = (path: string, message: string) =>
+            ValidationError.create().setPropertyPath(path).setMessage(message).build();
+
+        it('should expose content server errors as path/message entries', () => {
+            setupWizard();
+
+            setServerValidationErrors([serverError('long[1]', 'The value is not allowed')]);
+
+            expect($serverErrorEntries.get()).toEqual([{path: 'long[1]', message: 'The value is not allowed'}]);
+        });
+
+        it('should ignore system errors (built-in) and keep custom-app errors', () => {
+            setupWizard();
+            const systemError = ValidationError.create()
+                .setPropertyPath('long')
+                .setMessage('System occurrence message')
+                .setErrorCode('system:cms.occurrencesInvalid')
+                .build();
+            const customError = ValidationError.create()
+                .setPropertyPath('long')
+                .setMessage('Custom app message')
+                .setErrorCode('com.acme.app:badValue')
+                .build();
+
+            setServerValidationErrors([systemError, customError]);
+
+            expect($serverErrorEntries.get()).toEqual([{path: 'long', message: 'Custom app message'}]);
+        });
+
+        it('should NOT clear server errors when the data version bumps (regression)', () => {
+            setupWizard();
+            setServerValidationErrors([serverError('long[1]', 'bad')]);
+
+            // Simulate any field edit bumping the data version.
+            $wizardDataVersion.set($wizardDataVersion.get() + 1);
+
+            expect($serverErrorEntries.get()).toEqual([{path: 'long[1]', message: 'bad'}]);
+        });
+
+        it('clearServerErrorsAtPath should drop only the matching occurrence', () => {
+            setupWizard();
+            setServerValidationErrors([serverError('mySet', 'a'), serverError('mySet[1].title', 'b')]);
+
+            clearServerErrorsAtPath('mySet[1].title');
+
+            expect($serverErrorEntries.get()).toEqual([{path: 'mySet', message: 'a'}]);
+        });
+
+        it('clearServerErrorsForField should drop every occurrence of the field only', () => {
+            setupWizard();
+            setServerValidationErrors([
+                serverError('mySet', 'a'),
+                serverError('mySet[1].title', 'b'),
+                serverError('other', 'c'),
+            ]);
+
+            clearServerErrorsForField('mySet');
+
+            expect($serverErrorEntries.get()).toEqual([{path: 'other', message: 'c'}]);
         });
     });
 });

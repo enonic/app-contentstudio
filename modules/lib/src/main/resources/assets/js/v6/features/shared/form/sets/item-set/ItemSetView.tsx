@@ -1,7 +1,9 @@
+import {PropertyPath, PropertyPathElement} from '@enonic/lib-admin-ui/data/PropertyPath';
 import type {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
 import type {FormItemSet} from '@enonic/lib-admin-ui/form/set/itemset/FormItemSet';
 import {
     usePropertySetArray,
+    useServerErrors,
     useSetOccurrenceManager,
     useValidationVisibility,
     ValidationVisibilityProvider,
@@ -36,7 +38,16 @@ export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElem
     const {propertySets} = usePropertySetArray(propertyArray);
     const propertySetKeys = usePropertySetKeys(propertySets);
     const {state, remove, move} = useSetOccurrenceManager(occurrences, propertySets);
+    const serverErrors = useServerErrors();
     const {setOccurrenceRef, scheduleScrollTo} = useScrollPanelToOccurrence(propertySets);
+
+    // Structural occurrence changes (add/remove/move) shift set positions, so the
+    // positional server errors under this set no longer align — drop them all
+    // (re-validated on the next save). Plain edits clear per-occurrence elsewhere.
+    const clearSetServerErrors = useCallback(() => {
+        const path = PropertyPath.fromParent(propertySet.getPropertyPath(), new PropertyPathElement(name, 0)).toString();
+        serverErrors?.clearField(path.startsWith('.') ? path.slice(1) : path);
+    }, [serverErrors, propertySet, name]);
     const lastAddedIndexRef = useRef<number | null>(null);
     const {expanded, isAllExpanded, handleExpandAll, handleCollapseAll, handleDragStart, handleToggleSingle} = useSetExpanded(
         propertyArray,
@@ -58,7 +69,8 @@ export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElem
         lastAddedIndexRef.current = index;
         propertyArray.addSet();
         scheduleScrollTo(index);
-    }, [state.canAdd, propertyArray, scheduleScrollTo]);
+        clearSetServerErrors();
+    }, [state.canAdd, propertyArray, scheduleScrollTo, clearSetServerErrors]);
     const handleAddAbove = useCallback(
         (index: number) => {
             if (!state.canAdd) return;
@@ -67,8 +79,9 @@ export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElem
             propertyArray.addSet();
             propertyArray.move(propertyArray.getSize() - 1, index);
             scheduleScrollTo(index);
+            clearSetServerErrors();
         },
-        [state.canAdd, propertyArray, scheduleScrollTo]
+        [state.canAdd, propertyArray, scheduleScrollTo, clearSetServerErrors]
     );
     const handleAddBelow = useCallback(
         (index: number) => {
@@ -78,8 +91,9 @@ export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElem
             propertyArray.addSet();
             propertyArray.move(propertyArray.getSize() - 1, index + 1);
             scheduleScrollTo(index + 1);
+            clearSetServerErrors();
         },
-        [state.canAdd, propertyArray, scheduleScrollTo]
+        [state.canAdd, propertyArray, scheduleScrollTo, clearSetServerErrors]
     );
     const handleRemove = useCallback(
         (index: number) => {
@@ -87,17 +101,19 @@ export const ItemSetView = ({itemSet, propertySet}: ItemSetViewProps): ReactElem
 
             if (remove(index)) {
                 propertyArray.remove(index);
+                clearSetServerErrors();
             }
         },
-        [state.canRemove, remove, propertyArray]
+        [state.canRemove, remove, propertyArray, clearSetServerErrors]
     );
     const handleMove = useCallback(
         (fromIndex: number, toIndex: number) => {
             if (move(fromIndex, toIndex)) {
                 propertyArray.move(fromIndex, toIndex);
+                clearSetServerErrors();
             }
         },
-        [move, propertyArray]
+        [move, propertyArray, clearSetServerErrors]
     );
 
     return (
