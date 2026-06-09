@@ -4,8 +4,12 @@ const projectUtils = require('../../libs/project.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const appConst = require('../../libs/app_const');
 const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
-const ProjectWizardDialogLanguageStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.language.step');
 const ProjectNotAvailableDialog = require('../../page_objects/project/project.not.available.dialog');
+const ProjectWizardDialogNameAndIdStep = require("../../page_objects/project/project-wizard-dialog/project.wizard.name.id.step");
+const ProjectWizardDialogAccessModeStep = require("../../page_objects/project/project-wizard-dialog/project.wizard.access.mode.step");
+const ProjectWizardDialogPermissionsStep = require("../../page_objects/project/project-wizard-dialog/project.wizard.permissions.step");
+const ProjectWizardDialogSummaryStep = require("../../page_objects/project/project-wizard-dialog/project.wizard.summary.step");
+const LanguageAndParentProjectStep = require("../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step");
 
 describe("project.recreate.spec - tests for recreating the only one project ", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -20,10 +24,8 @@ describe("project.recreate.spec - tests for recreating the only one project ", f
     it("GIVEN the only one existing project has been deleted then recreated THEN the project should be displayed in Setting Panel",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let languageStep = new ProjectWizardDialogLanguageStep();
-            let applicationsStep = new ProjectWizardDialogApplicationsStep();
+            let languageAndParentProjectStep = new LanguageAndParentProjectStep();
             // 1. Open Setting panel
-            //await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             // 2. Select and delete the project:
             await projectUtils.selectAndDeleteProject(PROJECT_DEFAULT_NAME, 'default');
@@ -33,22 +35,31 @@ describe("project.recreate.spec - tests for recreating the only one project ", f
             // 4. Open the wizard:
             await projectNotAvailableDialog.clickOnStartWizardButton();
             await projectNotAvailableDialog.waitForDialogClosed();
-            // 5. Skip the language step
-            await languageStep.waitForLoaded();
-            await languageStep.clickOnSkipButton();
-            // 6. Select 'Private' access mode in the fours step:
-            let permissionsStep = await projectUtils.fillAccessModeStep(appConst.PROJECT_ACCESS_MODE.PRIVATE);
+            await languageAndParentProjectStep.waitForLoaded();
+            await languageAndParentProjectStep.clickOnNextButton();
+
+            let nameAndIdStep = new ProjectWizardDialogNameAndIdStep();
+            await nameAndIdStep.waitForLoaded();
+            await projectUtils.fillNameAndDescriptionStep("Default");
+            await nameAndIdStep.clickOnNextButton();
+
+            // 5. Select 'Private' access mode in the step:
+            let accessModeStep = new ProjectWizardDialogAccessModeStep();
+            await accessModeStep.waitForLoaded();
+            await projectUtils.fillAccessModeStep(appConst.PROJECT_ACCESS_MODE.PUBLIC);
+            await accessModeStep.clickOnNextButton();
+
+            let permissionsStep = new ProjectWizardDialogPermissionsStep();
             await permissionsStep.waitForLoaded();
-            // 7. skip the permissions step:
-            await permissionsStep.clickOnSkipButton();
-            // 8. Skip the applications step
+            await permissionsStep.clickOnNextButton();
+
+            let applicationsStep = new ProjectWizardDialogApplicationsStep();
             if (await applicationsStep.isLoaded()) {
-                await applicationsStep.clickOnSkipButton();
+                await applicationsStep.clickOnNextButton();
             }
-            // 9. Fill in the name input
-            let summaryStep = await projectUtils.fillNameAndDescriptionStep(PROJECT_DEFAULT_NAME);
+
+            let summaryStep = new ProjectWizardDialogSummaryStep();
             await summaryStep.waitForLoaded();
-            // 10. Click on 'Create Project' button and wait for the wizard-dialog is closed:
             await summaryStep.clickOnCreateProjectButton();
             await summaryStep.waitForDialogClosed();
             await settingsBrowsePanel.waitForNotificationMessage();

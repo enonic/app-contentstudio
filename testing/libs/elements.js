@@ -166,6 +166,7 @@ const TREE_GRID = {
 }
 const DROPDOWN = {
     COMBOBOX_SEARCH_INPUT: "//div[@data-component='Combobox.Search']/input",
+    SELECTOR_ICON:"//span[@data-component='Selector.Icon']",
     COMBOBOX_DROPDOWN_HANDLE: "//div[@data-component='Combobox.Search']/button",
     LIST_BOX_ITEM: "//div[@data-component='Listbox.Item']",
     CHECKBOX_DATA_COMPONENT: "//div[@data-component='Checkbox']",
