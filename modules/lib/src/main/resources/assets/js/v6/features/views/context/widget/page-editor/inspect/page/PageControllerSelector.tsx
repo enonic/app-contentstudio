@@ -1,7 +1,8 @@
-import {Combobox, Listbox} from '@enonic/ui';
+import {Combobox} from '@enonic/ui';
 import type {ReactElement} from 'react';
 import {useI18n} from '../../../../../../hooks/useI18n';
 import {ConfirmationDialog} from '../../../../../../shared/dialogs/ConfirmationDialog';
+import {SelectorPopup} from '../SelectorPopup';
 import {usePageControllerSelector} from './hooks/usePageControllerSelector';
 
 const PAGE_CONTROLLER_SELECTOR_NAME = 'PageControllerSelector';
@@ -21,6 +22,7 @@ export const PageControllerSelector = (): ReactElement | null => {
 
     const templateLabel = useI18n('field.page.template');
     const searchPlaceholder = useI18n('field.option.placeholder');
+    const noMatchingLabel = useI18n('field.option.noitems');
 
     // ? Keep mounted on background refetch (after a controller change reloads the
     // ? descriptor list) — only bail on the initial load with nothing to render.
@@ -53,23 +55,21 @@ export const PageControllerSelector = (): ReactElement | null => {
                                 <Combobox.Toggle />
                             </Combobox.Search>
                         </Combobox.Control>
-                        <Combobox.Popup>
-                            <Listbox.Content className="max-h-60 rounded-sm">
-                                {filteredOptions.map(option => (
-                                    <Listbox.Item key={option.key} value={option.key}>
-                                        <option.icon className="size-6 shrink-0" />
-                                        <div className="flex flex-col overflow-hidden">
-                                            <span className="leading-5.5 font-semibold truncate group-data-[tone=inverse]:text-alt">
-                                                {option.label}
-                                            </span>
-                                            <small className="leading-4.5 text-sm text-subtle truncate group-data-[tone=inverse]:text-alt">
-                                                {option.description}
-                                            </small>
-                                        </div>
-                                    </Listbox.Item>
-                                ))}
-                            </Listbox.Content>
-                        </Combobox.Popup>
+                        <SelectorPopup options={filteredOptions} emptyLabel={noMatchingLabel}>
+                            {option => (
+                                <>
+                                    <option.icon className="size-6 shrink-0" />
+                                    <div className="flex flex-col overflow-hidden">
+                                        <span className="leading-5.5 font-semibold truncate group-data-[tone=inverse]:text-alt">
+                                            {option.label}
+                                        </span>
+                                        <small className="leading-4.5 text-sm text-subtle truncate group-data-[tone=inverse]:text-alt">
+                                            {option.description}
+                                        </small>
+                                    </div>
+                                </>
+                            )}
+                        </SelectorPopup>
                     </Combobox.Content>
                 </Combobox.Root>
             </div>
