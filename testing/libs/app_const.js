@@ -285,8 +285,8 @@ module.exports = Object.freeze({
         SITE: 'Site',
     },
     SORTING_ORDER: {
-        MODIFIED_DATE: 'Modified date',
-        CREATED_DATE: 'Created date',
+        MODIFIED_DATE_OLD_TO_NEW: "Modified date (Old to new)",
+        DISPLAY_NAME_A_Z: "Display name (A-Z)",
     },
     TEST_IMAGES: {
         HAND: 'hand',

@@ -1,6 +1,6 @@
 const COMMON = {
-    SHADOW_SELECTORS:{
-        XP_MENU_BUTTON:`button#menu-button`
+    SHADOW_SELECTORS: {
+        XP_MENU_BUTTON: `button#menu-button`
     },
     DISPLAY_NAME_INPUT: "//input[@name='displayName']",
     CONTENT_WIZARD_DATA_COMPONENT: "//div[@data-component='ContentWizardTabs']",
@@ -18,8 +18,8 @@ const COMMON = {
     WIDGET_SIDEBAR: {
         CONTAINER: "//nav[@aria-label='Sidebar']",
     },
-    PCV:{
-        contextMenuDiv:"//div[@data-component='ContextMenu.Content' and @role='menu']",
+    PCV: {
+        contextMenuDiv: "//div[@data-component='ContextMenu.Content' and @role='menu']",
     },
 
     INPUTS: {
@@ -92,6 +92,7 @@ const BUTTONS = {
     SELECTOR_MODE_TOGGLER: "//button[contains(@id,'ModeTogglerButton')]",
     UPLOAD_BUTTON: "//button[contains(@class,'upload-button')]",
     buttonByLabel: (label) => `//button[@type='button' and contains(.,'${label}')]`,
+    submitButtonByLabel: (label) => `//button[@type='submit' and contains(.,'${label}')]`,
     radioButtonByLabel: (label) => `//button[@role='radio' and contains(.,'${label}')]`,
     BUTTON_MENU_POPUP: "//button[@aria-haspopup='menu']",
     buttonAriaLabel: (ariaLabel) => `//button[contains(@type,'button') and contains(@aria-label,'${ariaLabel}') and not(ancestor::*[@aria-hidden='true']) and not(ancestor::*[contains(@class,'sm:hidden')])]`,
@@ -108,7 +109,7 @@ const BUTTONS = {
     MORE_BUTTON: "//button[contains(@id,'MoreButton')]",
     ADD_BUTTON: "//div[contains(@class,'bottom-button-row')]//button[child::span[text()='Add']]",
     BUTTON: label => `//button[contains(@type,'button') and contains(.,'${label}')]`,
-    ICON_BUTTON:"//button[@data-component='IconButton']",
+    ICON_BUTTON: "//button[@data-component='IconButton']",
 };
 const LIVE_VIEW = {
     EMULATOR_DROPDOWN: "//div[contains(@id,'EmulatorDropdown')]",
@@ -117,7 +118,7 @@ const LIVE_VIEW = {
     NO_PREVIEW_MSG_SPAN: "//div[@class='no-preview-message']//span",
     NO_CONTROLLER_NO_PREVIEW_MSG_SPAN: "//div[@class='no-selection-message']//span",
     EMPTY_LIVE_FRAME_DIV: "//div[contains(@class,'frame-container')]//iframe[@class='live-edit-frame']",
-    LIVE_EDIT_FRAME: "//div[contains(@id,'FrameContainer')]//iframe[contains(@class,'text') or contains(@class,'application')]",
+    LIVE_EDIT_FRAME: "//div[contains(@id,'FrameContainer')]//iframe[contains(@class,'text') or contains(@class,'application') and contains(@src,'http')]",
     MINIMIZE_BUTTON: `//button[@data-component='ToggleFormButton' and @aria-label='Collapse content form']`,
     PAGE_EDITOR_TOGGLE_BUTTON: "//button[contains(@id, 'CycleButton')]",
     HIDE_PAGE_EDITOR_BUTTON: "//button[contains(@id,'ContentActionCycleButton') and @title='Hide Page Editor']",
@@ -164,6 +165,9 @@ const TREE_GRID = {
     gridListRowByDisplayName: displayName => `//div[@data-component='GridList.Row' and descendant::div[@data-component='ItemLabel']//span[contains(@class,'font-semibold') and contains(.,'${displayName}')]]`,
 }
 const DROPDOWN = {
+    COMBOBOX_SEARCH_INPUT: "//div[@data-component='Combobox.Search']/input",
+    SELECTOR_ICON:"//span[@data-component='Selector.Icon']",
+    COMBOBOX_DROPDOWN_HANDLE: "//div[@data-component='Combobox.Search']/button",
     LIST_BOX_ITEM: "//div[@data-component='Listbox.Item']",
     CHECKBOX_DATA_COMPONENT: "//div[@data-component='Checkbox']",
     ITEM_LABEL: "//div[@data-component='ItemLabel']",
@@ -202,6 +206,7 @@ const DROPDOWN = {
     SELECTOR_LISTBOX: "//div[contains(@role,'listbox')]",
     WIDGET_COMBOBOX: "//div[@data-component='WidgetsSelector']",
     OPTION_FILTER_INPUT: "//input[@role='combobox']",
+    OPTION_FILTER_DATA_COMPONENT: "//input[@data-component='Combobox.Input' and  @role='combobox']",
 };
 
 const ISSUE = {

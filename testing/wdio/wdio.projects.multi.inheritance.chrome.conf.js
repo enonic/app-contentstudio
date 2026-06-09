@@ -10,7 +10,8 @@ exports.config = {
     specs: [
         //path.join(__dirname, '../specs/project-multi/*.spec.js')
         path.join(__dirname, '../specs/project-multi/parent.project.step.multi.inheritance.spec.js'),
-        path.join(__dirname, '../specs/project-multi/ layer.owner.multi.inheritance.spec.js'),
+        path.join(__dirname, '../specs/project-multi/layer.owner.multi.inheritance.spec.js'),
+        path.join(__dirname, '../specs/project-multi/project.recreate.spec.js'),
     ],
 
     maxInstances: 1,
