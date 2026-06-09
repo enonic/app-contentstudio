@@ -1,7 +1,8 @@
-import {Combobox, Listbox} from '@enonic/ui';
+import {Combobox} from '@enonic/ui';
 import {FileChartPie} from 'lucide-react';
 import type {ReactElement} from 'react';
 import {useI18n} from '../../../../../../hooks/useI18n';
+import {SelectorPopup} from '../SelectorPopup';
 import {useFragmentContentSelector} from './hooks/useFragmentContentSelector';
 
 const FRAGMENT_CONTENT_SELECTOR_NAME = 'FragmentContentSelector';
@@ -22,6 +23,7 @@ export const FragmentContentSelector = (): ReactElement | null => {
     const label = useI18n('field.fragment');
     const searchPlaceholder = useI18n('field.option.placeholder');
     const notFoundLabel = useI18n('field.fragments.notFound');
+    const noMatchingLabel = useI18n('field.option.noitems');
 
     if (isLoading) return null;
 
@@ -61,22 +63,18 @@ export const FragmentContentSelector = (): ReactElement | null => {
                             <Combobox.Toggle />
                         </Combobox.Search>
                     </Combobox.Control>
-                    <Combobox.Popup>
-                        <Listbox.Content className="max-h-60 rounded-sm">
-                            {filteredOptions.map(option => (
-                                <Listbox.Item key={option.key} value={option.key}>
-                                    <div className="flex flex-col overflow-hidden">
-                                        <span className="leading-5.5 font-semibold truncate group-data-[tone=inverse]:text-alt">
-                                            {option.label}
-                                        </span>
-                                        <small className="leading-4.5 text-sm text-subtle truncate group-data-[tone=inverse]:text-alt">
-                                            {option.description}
-                                        </small>
-                                    </div>
-                                </Listbox.Item>
-                            ))}
-                        </Listbox.Content>
-                    </Combobox.Popup>
+                    <SelectorPopup options={filteredOptions} emptyLabel={noMatchingLabel}>
+                        {option => (
+                            <div className="flex flex-col overflow-hidden">
+                                <span className="leading-5.5 font-semibold truncate group-data-[tone=inverse]:text-alt">
+                                    {option.label}
+                                </span>
+                                <small className="leading-4.5 text-sm text-subtle truncate group-data-[tone=inverse]:text-alt">
+                                    {option.description}
+                                </small>
+                            </div>
+                        )}
+                    </SelectorPopup>
                 </Combobox.Content>
             </Combobox.Root>
         </div>

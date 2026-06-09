@@ -1,7 +1,8 @@
-import {cn, Combobox, Listbox} from '@enonic/ui';
+import {cn, Combobox} from '@enonic/ui';
 import {Box, Columns2} from 'lucide-react';
 import type {ReactElement} from 'react';
 import {useI18n} from '../../../../../../hooks/useI18n';
+import {SelectorPopup} from '../SelectorPopup';
 import {useComponentDescriptorSelector} from './hooks/useComponentDescriptorSelector';
 
 const COMPONENT_TYPE_ICON = {
@@ -30,6 +31,7 @@ export const ComponentDescriptorSelector = ({componentType}: ComponentDescriptor
     const label = useI18n(componentType === 'part' ? 'field.part' : 'field.layout');
     const searchPlaceholder = useI18n('field.option.placeholder');
     const notFoundLabel = useI18n('field.descriptors.notFound');
+    const noMatchingLabel = useI18n('field.option.noitems');
 
     const Icon = COMPONENT_TYPE_ICON[componentType];
 
@@ -77,27 +79,23 @@ export const ComponentDescriptorSelector = ({componentType}: ComponentDescriptor
                             <Combobox.Toggle />
                         </Combobox.Search>
                     </Combobox.Control>
-                    <Combobox.Popup>
-                        <Listbox.Content className="max-h-60 rounded-sm">
-                            {filteredOptions.map(option => (
-                                <Listbox.Item key={option.key} value={option.key}>
-                                    <div className="flex flex-col overflow-hidden">
-                                        <span className="leading-5.5 font-semibold truncate group-data-[tone=inverse]:text-alt">
-                                            {option.label}
-                                        </span>
-                                        <small
-                                            className={cn(
-                                                'leading-4.5 text-sm truncate group-data-[tone=inverse]:text-alt',
-                                                option.isInvalid ? 'text-error' : 'text-subtle',
-                                            )}
-                                        >
-                                            {option.description}
-                                        </small>
-                                    </div>
-                                </Listbox.Item>
-                            ))}
-                        </Listbox.Content>
-                    </Combobox.Popup>
+                    <SelectorPopup options={filteredOptions} emptyLabel={noMatchingLabel}>
+                        {option => (
+                            <div className="flex flex-col overflow-hidden">
+                                <span className="leading-5.5 font-semibold truncate group-data-[tone=inverse]:text-alt">
+                                    {option.label}
+                                </span>
+                                <small
+                                    className={cn(
+                                        'leading-4.5 text-sm truncate group-data-[tone=inverse]:text-alt',
+                                        option.isInvalid ? 'text-error' : 'text-subtle',
+                                    )}
+                                >
+                                    {option.description}
+                                </small>
+                            </div>
+                        )}
+                    </SelectorPopup>
                 </Combobox.Content>
             </Combobox.Root>
         </div>
