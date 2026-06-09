@@ -25,7 +25,7 @@ import {
     requestPageReset,
 } from '../../../../store/page-editor/commands';
 import {$config} from '../../../../store/config.store';
-import {$contentContext, $isFragment, $page} from '../../../../store/page-editor/store';
+import {$contentContext, $isFragment, $page, isComponentEmpty} from '../../../../store/page-editor/store';
 import {$componentsTreeState, expandComponentNode, hasLayoutAncestor, rebuildComponentsTree} from './pageComponents.store';
 import type {PageComponentNodeData} from './types';
 
@@ -47,8 +47,6 @@ const ROOT_NODE_ID = '/';
 
 export const PageComponentsContextMenu = ({node, children}: PageComponentsContextMenuProps): ReactElement => {
     const data = node.data;
-    const isFragment = useStore($isFragment);
-    const contentContext = useStore($contentContext);
 
     const selectParentLabel = useI18n('action.component.select.parent');
     const insertLabel = useI18n('widget.components.insert');
@@ -75,9 +73,7 @@ export const PageComponentsContextMenu = ({node, children}: PageComponentsContex
                     <ContextMenu.Content className="min-w-48">
                         <InspectItem nodeId={ROOT_NODE_ID} label={inspectLabel} />
                         <PageResetItem label={resetLabel} onSelect={requestPageReset} />
-                        {!isFragment && !contentContext?.isPageTemplate && (
-                            <SaveAsTemplateItem label={saveAsTemplateLabel} />
-                        )}
+                        <SaveAsTemplateItem label={saveAsTemplateLabel} />
                     </ContextMenu.Content>
                 </ContextMenu.Portal>
             </ContextMenu>
@@ -87,6 +83,7 @@ export const PageComponentsContextMenu = ({node, children}: PageComponentsContex
     const isRegion = data.nodeType === 'region';
     const isComponent = !isRegion;
     const isFragmentComponent = data.nodeType === 'fragment';
+    const isEmpty = isComponentEmpty(node.id);
 
     return (
         <ContextMenu data-component={PAGE_COMPONENTS_CONTEXT_MENU_NAME}>
@@ -98,11 +95,11 @@ export const PageComponentsContextMenu = ({node, children}: PageComponentsContex
                     {isComponent && (
                         <>
                             <InspectItem nodeId={node.id} label={inspectLabel} />
-                            <ResetItem nodeId={node.id} label={resetLabel} />
+                            {!isEmpty && <ResetItem nodeId={node.id} label={resetLabel} />}
                             <RemoveItem nodeId={node.id} label={removeLabel} />
                             <DuplicateItem nodeId={node.id} label={duplicateLabel} />
                             {!isFragmentComponent && <SaveAsFragmentItem nodeId={node.id} label={saveAsFragmentLabel} />}
-                            {isFragmentComponent && <DetachFragmentItem nodeId={node.id} label={detachFragmentLabel} />}
+                            {isFragmentComponent && !isEmpty && <DetachFragmentItem nodeId={node.id} label={detachFragmentLabel} />}
                             {isFragmentComponent && <EditFragmentItem nodeId={node.id} label={editFragmentLabel} />}
                         </>
                     )}
@@ -124,6 +121,13 @@ type PageResetItemProps = {
 };
 
 const PageResetItem = ({label, onSelect}: PageResetItemProps): ReactElement => {
+    const isFragment = useStore($isFragment);
+    const isEmpty = $page.get()?.getFragment()?.isEmpty();
+    
+    if (isFragment && isEmpty) {
+        return null;
+    }
+
     return (
         <ContextMenu.Item onSelect={onSelect}>
             {label}
@@ -134,9 +138,16 @@ const PageResetItem = ({label, onSelect}: PageResetItemProps): ReactElement => {
 PageResetItem.displayName = 'PageResetItem';
 
 const SaveAsTemplateItem = ({label}: {label: string}): ReactElement => {
+    const isFragment = useStore($isFragment);
+    const contentContext = useStore($contentContext);
+
     const handleSelect = useCallback(() => {
         SaveAsTemplateAction.get().execute();
     }, []);
+
+    if (isFragment || contentContext?.isPageTemplate) {
+        return null;
+    }
 
     return (
         <ContextMenu.Item onSelect={handleSelect}>
