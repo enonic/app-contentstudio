@@ -43,6 +43,7 @@ type DependantItem = {
     included: boolean;
     required: boolean;
     excludedByDefault: boolean;
+    hidden: boolean;
 };
 
 type PublishDialogSelectionStore = {
@@ -157,6 +158,9 @@ const $publishChecks = map<PublishChecksStore>(structuredClone(initialChecksStat
 // Store for resolved dependencies (output of reloadPublishDialogData)
 const $publishDialogDependants = atom<ContentSummary[]>([]);
 
+// Dependant ids visible in the dialog (legacy `calcVisibleIds`): min dependants, direct excluded deps, included children
+const $visibleDependantIds = atom<ContentId[]>([]);
+
 export const $publishDialogPending = map<PublishDialogPendingStore>(initialPendingState);
 
 // Store for IDs of items that have unpublished children
@@ -211,17 +215,23 @@ export const $mainPublishItems = computed([$publishDialog, $draftPublishDialogSe
 });
 
 export const $dependantPublishItems = computed(
-    [$publishDialogDependants, $publishDialog, $draftPublishDialogSelection, $publishChecks],
-    (dependantItems, {excludedDependantItemsIds}, {excludedDependantItemsIds: draftExcludedIds}, {requiredIds}): DependantItem[] => {
+    [$publishDialogDependants, $publishDialog, $draftPublishDialogSelection, $publishChecks, $visibleDependantIds],
+    (dependantItems, {excludedDependantItemsIds}, {excludedDependantItemsIds: draftExcludedIds}, {requiredIds}, visibleIds): DependantItem[] => {
         return dependantItems.map(item => ({
             id: item.getId(),
             content: item,
             included: !hasContentIdInIds(item.getContentId(), draftExcludedIds),
             required: hasContentIdInIds(item.getContentId(), requiredIds),
             excludedByDefault: hasContentIdInIds(item.getContentId(), excludedDependantItemsIds),
+            hidden: !hasContentIdInIds(item.getContentId(), visibleIds),
         }));
     }
 );
+
+// Excluded dependants that can be toggled via "Show/Hide excluded" (legacy `hasExcluded`)
+export const $hasExcludedDependantItems = computed($dependantPublishItems, (items): boolean => {
+    return items.some(item => item.excludedByDefault && !item.hidden && !item.required);
+});
 
 export const $publishableIds = computed([$mainPublishItems, $dependantPublishItems], (mainItems, dependantItems): ContentId[] => {
     return [...mainItems, ...dependantItems].filter(item => {
@@ -296,6 +306,9 @@ export const $publishTaskId = computed($publishDialogPending, ({taskId}) => task
 let instanceId = 0;
 
 let cleanLoad = false;
+
+// Drops dependant exclusions and re-runs the auto-exclude pass on the next resolve (legacy `resetExclusions`)
+let resetExclusions = false;
 
 //
 // * Public API
@@ -384,6 +397,7 @@ export const openPublishDialog = (items: ContentSummary[], includeChildItems = f
 
     // Reset dependants store
     $publishDialogDependants.set([]);
+    $visibleDependantIds.set([]);
 
     // TODO: Sync after updates to $publishDialog
     $draftPublishDialogSelection.set({
@@ -404,6 +418,7 @@ export const resetPublishDialogContext = () => {
     instanceId += 1;
     compareInstanceId += 1;
     cleanLoad = false;
+    resetExclusions = false;
     const {taskId} = $publishDialogPending.get();
     if (taskId) {
         cleanupTask(taskId);
@@ -412,6 +427,7 @@ export const resetPublishDialogContext = () => {
     $draftPublishDialogSelection.set(structuredClone(initialSelectionState));
     $publishChecks.set(structuredClone(initialChecksState));
     $publishDialogDependants.set([]);
+    $visibleDependantIds.set([]);
     $publishDialogPending.set(initialPendingState);
     $hasUnpublishedChildrenIds.set(new Set());
     $compareStatuses.set(new Map());
@@ -593,6 +609,7 @@ export const removePublishDialogItem = (id: ContentId): void => {
         excludedItemsWithChildrenIds: current.excludedItemsWithChildrenIds.filter(i => !i.equals(id)),
     });
 
+    resetExclusions = true;
     reloadPublishDialogDataDebounced();
 };
 
@@ -608,10 +625,11 @@ async function reloadPublishDialogData(): Promise<void> {
         const result = await resolvePublishDependencies();
         if (!result) return;
 
-        const {dependantItems, excludedItemsIds, excludedDependantItemsIds, ...checks} = result;
+        const {dependantItems, visibleDependantIds, excludedItemsIds, excludedDependantItemsIds, ...checks} = result;
 
         // Write dependantItems to separate store
         $publishDialogDependants.set(dependantItems);
+        $visibleDependantIds.set(visibleDependantIds);
 
         // Only update exclusion IDs in $publishDialog
         $publishDialog.set({
@@ -809,6 +827,10 @@ const handleRemovedPublishItems = (idsToRemove: Set<string>): void => {
         return;
     }
 
+    if (removedMain) {
+        resetExclusions = true;
+    }
+
     if (removedMain || removedDependant) {
         reloadPublishDialogDataDebounced();
     }
@@ -883,10 +905,15 @@ $publishDialog.subscribe((state, oldState) => {
     if (loading) return;
 
     // Check if exclusions changed since last resolve
+    const childrenExclusionsChanged = !isIdsEqual(excludedItemsWithChildrenIds, oldState?.excludedItemsWithChildrenIds);
     const exclusionsChanged =
+        childrenExclusionsChanged ||
         !isIdsEqual(excludedItemsIds, oldState?.excludedItemsIds) ||
-        !isIdsEqual(excludedItemsWithChildrenIds, oldState?.excludedItemsWithChildrenIds) ||
         !isIdsEqual(excludedDependantItemsIds, oldState?.excludedDependantItemsIds);
+
+    if (childrenExclusionsChanged) {
+        resetExclusions = true;
+    }
 
     if (exclusionsChanged) {
         reloadPublishDialogDataDebounced();
@@ -956,6 +983,7 @@ $contentPublished.subscribe(onIdlePublishSocketEvent((event) => {
 
 type ResolvePublishDependenciesResult = {
     dependantItems: ContentSummary[];
+    visibleDependantIds: ContentId[];
     excludedItemsIds: ContentId[];
     excludedDependantItemsIds: ContentId[];
     requiredIds: ContentId[];
@@ -973,7 +1001,9 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
 
     const {items, excludedItemsIds, excludedDependantItemsIds, excludedItemsWithChildrenIds} = $publishDialog.get();
 
-    const initialExcludedIds = uniqueIds([...excludedItemsIds, ...excludedDependantItemsIds]);
+    const isCleanResolve = cleanLoad || resetExclusions;
+    const baseExcludedDependantIds = resetExclusions ? [] : excludedDependantItemsIds;
+    const initialExcludedIds = uniqueIds([...excludedItemsIds, ...baseExcludedDependantIds]);
     const allExcludedItemsWithChildrenIds = uniqueIds([...excludedItemsWithChildrenIds, ...excludedItemsIds]);
 
     const itemsIds = items.map(item => item.getContentId());
@@ -984,7 +1014,7 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
     const childrenIds = itemsWithChildrenIds.length > 0 ? await findIdsByParents(itemsWithChildrenIds) : [];
     const maxResult = await resolvePublishDeps({ids: itemsIds, excludedIds: excludedItemsIds, excludeChildrenIds: allExcludedItemsWithChildrenIds});
 
-    const excludeNonRequired = $config.get().excludeDependencies && cleanLoad;
+    const excludeNonRequired = $config.get().excludeDependencies && isCleanResolve;
     const minExcludedIds = excludeNonRequired
         ? uniqueIds([
             ...initialExcludedIds,
@@ -997,24 +1027,31 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
     if (currentInstanceId !== instanceId) return;
 
     cleanLoad = false;
+    resetExclusions = false;
 
-    const excludedIds = maxResult.getDependants().filter(id => {
+    const allDependantIds = maxResult.getDependants();
+    const dependantIds = minResult.getDependants();
+
+    const excludedIds = allDependantIds.filter(id => {
         return !hasContentIdInIds(id, childrenIds) &&
-            !hasContentIdInIds(id, minResult.getDependants()) &&
+            !hasContentIdInIds(id, dependantIds) &&
             !hasContentIdInIds(id, itemsIds);
     });
 
     // TODO: notifyIfOutboundContentsNotFound(maxResult);
 
-    const dependantIds = minResult.getDependants();
     const invalidIds = minResult.getInvalid();
     const inProgressIds = minResult.getInProgress();
     const requiredIds = minResult.getRequired();
-    // const nextIds = minResult.getNextDependants();
     const notPublishableIds = minResult.getNotPublishable();
     // const somePublishable = minResult.isSomePublishable();
 
-    // setExcludedIds(excludedIds);
+    const nextDependantIds = minResult.getNextDependants();
+
+    const visibleDependantIds = allDependantIds.filter(id =>
+        hasContentIdInIds(id, dependantIds) ||
+        hasContentIdInIds(id, nextDependantIds) ||
+        hasContentIdInIds(id, childrenIds));
 
     const inProgressIdsWithoutInvalid = inProgressIds.filter(id => !hasContentIdInIds(id, invalidIds));
     const isNotAllExcluded = [...inProgressIdsWithoutInvalid, ...invalidIds].some(id => hasContentIdInIds(id, excludedIds));
@@ -1022,28 +1059,19 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
         // TODO: notify 'dialog.publish.notAllExcluded'
     }
 
-    const missingExcludedIds = dependantIds.filter(id =>
-        !hasContentIdInIds(id, childrenIds) &&
-        !hasContentIdInIds(id, minResult.getDependants()) &&
-        !hasContentIdInIds(id, itemsIds));
-
-    const fullExcludedIds = uniqueIds([...excludedIds, ...missingExcludedIds]);
-
-    const allDependantIds = maxResult.getDependants();
-
     // TODO: Cache dependant items
     const dependantItems = await fetchContentSummaries(allDependantIds);
 
     if (currentInstanceId !== instanceId) return;
 
     const newExcludedItemsIds = items.filter(item =>
-        hasContentIdInIds(item.getContentId(), fullExcludedIds) ||
+        hasContentIdInIds(item.getContentId(), excludedIds) ||
         hasContentIdInIds(item.getContentId(), excludedItemsIds)
     ).map(item => item.getContentId());
 
     const newExcludedDependantItemsIds = dependantItems.filter(item =>
-        hasContentIdInIds(item.getContentId(), fullExcludedIds) ||
-        hasContentIdInIds(item.getContentId(), excludedDependantItemsIds)
+        hasContentIdInIds(item.getContentId(), excludedIds) ||
+        hasContentIdInIds(item.getContentId(), baseExcludedDependantIds)
     ).map(item => item.getContentId());
 
     const isExcludableFromIds = (id: ContentId): boolean => {
@@ -1063,6 +1091,7 @@ async function resolvePublishDependencies(): Promise<ResolvePublishDependenciesR
 
     return {
         dependantItems,
+        visibleDependantIds,
         excludedItemsIds: newExcludedItemsIds,
         excludedDependantItemsIds: newExcludedDependantItemsIds,
         requiredIds,

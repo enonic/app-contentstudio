@@ -6,6 +6,7 @@ import {useI18n} from '../../../hooks/useI18n';
 import {$config} from '../../../store/config.store';
 import {
     $dependantPublishItems,
+    $hasExcludedDependantItems,
     $hasSchedulableItems,
     $isPublishChecking,
     $isPublishReady,
@@ -51,8 +52,7 @@ export const PublishDialogMainContent = ({
     const dependantItems = useStore($dependantPublishItems);
     const publishCount = useStore($totalPublishableItems);
     const hasSchedulableItems = useStore($hasSchedulableItems);
-
-    const hasDependantItems = dependantItems.length > 0;
+    const hasExcludedItems = useStore($hasExcludedDependantItems);
 
     const isSelectionSynced = useStore($isPublishSelectionSynced);
 
@@ -63,24 +63,23 @@ export const PublishDialogMainContent = ({
     const firstScheduleInputRef = useRef<HTMLInputElement>(null);
     const wasScheduleMode = useRef(scheduleMode);
 
-    const [showExcluded, setShowExcluded] = useState(false);
+    const [showExcluded, setShowExcluded] = useState(true);
     const scheduleKeyboardActivation = useRef(false);
     const [showComment, setShowComment] = useState(false);
     const commentTextareaRef = useRef<HTMLTextAreaElement>(null);
 
-    const visibleDependantItems = showExcluded
-        ? dependantItems
-        : dependantItems.filter(item => !item.excludedByDefault);
-    const hasAnyExcludedDependantItems = dependantItems.some(item => item.excludedByDefault);
+    const visibleDependantItems = dependantItems.filter(item =>
+        !item.hidden && (showExcluded || !item.excludedByDefault));
+    const hasVisibleDependantItems = visibleDependantItems.length > 0;
     const showExcludedLabel = useI18n('dialog.publish.excluded.show');
     const hideExcludedLabel = useI18n('dialog.publish.excluded.hide');
     const toggleExcludedLabel = showExcluded ? hideExcludedLabel : showExcludedLabel;
 
     useEffect(() => {
-        if (!hasAnyExcludedDependantItems) {
-            setShowExcluded(false);
+        if (!hasExcludedItems) {
+            setShowExcluded(true);
         }
-    }, [hasAnyExcludedDependantItems]);
+    }, [hasExcludedItems]);
 
     useEffect(() => {
         if (scheduleMode && !wasScheduleMode.current && scheduleKeyboardActivation.current) {
@@ -106,7 +105,7 @@ export const PublishDialogMainContent = ({
 
     const title = useI18n('dialog.publish');
     const separatorLabel = useI18n('dialog.publish.dependants');
-    const emptyDependenciesMessage = useI18n('field.publish.dependencies.empty');
+    const allExcludedMessage = useI18n('dialog.dependencies.allExcluded');
     const scheduleLabel = useI18n('action.schedule');
     const confirmScheduleLabel = useI18n('action.schedule.confirm');
     const cancelScheduleLabel = useI18n('action.schedule.cancel');
@@ -210,20 +209,22 @@ export const PublishDialogMainContent = ({
                         }}
                     />
 
-                    <SplitList.Separator hidden={!hasDependantItems}>
+                    <SplitList.Separator hidden={!hasVisibleDependantItems && !hasExcludedItems}>
                         <SplitList.SeparatorLabel>{separatorLabel}</SplitList.SeparatorLabel>
-                        <SplitList.SeparatorToggle
-                            label={toggleExcludedLabel}
-                            pressed={showExcluded}
-                            onPressedChange={setShowExcluded}
-                            disabled={!hasAnyExcludedDependantItems}
-                        />
+                        {hasExcludedItems && isSelectionSynced && (
+                            <SplitList.SeparatorToggle
+                                label={toggleExcludedLabel}
+                                pressed={showExcluded}
+                                onPressedChange={setShowExcluded}
+                                disabled={loading}
+                            />
+                        )}
                     </SplitList.Separator>
 
                     <SplitList.Secondary
                         items={visibleDependantItems}
                         getItemId={(item) => item.id}
-                        emptyMessage={hasDependantItems ? emptyDependenciesMessage : undefined}
+                        emptyMessage={hasExcludedItems ? allExcludedMessage : undefined}
                         disabled={loading}
                         renderRow={(item) => (
                             <ContentRow
