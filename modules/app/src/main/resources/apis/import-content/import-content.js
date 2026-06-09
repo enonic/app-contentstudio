@@ -11,6 +11,9 @@ function jsonResponse(status, data) {
     return {
         status,
         contentType: 'application/json',
+        headers: {
+            'Cache-Control': 'no-store',
+        },
         body: JSON.stringify(data || {})
     };
 }

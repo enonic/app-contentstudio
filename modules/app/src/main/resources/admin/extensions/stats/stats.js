@@ -39,6 +39,9 @@ router.get('', (req) => {
 
     return {
         contentType: 'text/html',
+        headers: {
+            'Cache-Control': 'no-store',
+        },
         body: mustache.render(view, params)
     };
 });
