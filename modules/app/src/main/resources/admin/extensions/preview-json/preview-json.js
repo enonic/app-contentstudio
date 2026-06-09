@@ -26,9 +26,8 @@ exports.get = function (req) {
         log.debug(`Json [${req.method}] exists: ` + !!content);
 
         if (content) {
-            // extension responses are composed outside the portal flush, so the policy
-            // built with the typed API is emitted via build()
-            const csp = portalLib.csp()
+            // contributed to the request policy; the portal emits the header at response-flush time
+            portalLib.csp()
                 .defaultSrc(portalLib.CspSource.NONE)
                 .styleSrc(portalLib.CspSource.UNSAFE_INLINE)
                 .baseUri(portalLib.CspSource.NONE)
@@ -39,8 +38,7 @@ exports.get = function (req) {
                 contentType: 'text/html',
                 headers: {
                     'Cache-Control': 'no-store',
-                    'X-Frame-Options': 'SAMEORIGIN',
-                    'Content-Security-Policy': csp.build()
+                    'X-Frame-Options': 'SAMEORIGIN'
                 },
                 status: 200,
                 body: buildBody(content)
