@@ -1434,7 +1434,10 @@ export class ContentWizardPanel
         // set the new property set to the form so that we receive change events
         // should happen before resetWizard which clears dirty state on inputs
         escalateVisibility('all');
-        setServerValidationErrors(this.getCurrentItem().getValidationErrors());
+        // Use the server-saved item — the update is re-validated server-side and
+        // carries fresh validationErrors. getCurrentItem() is the in-memory draft
+        // built from the form and has none, which would wipe the errors on save.
+        setServerValidationErrors(persistedItem.getValidationErrors());
 
         return Q.resolve(persistedItem);
     }
