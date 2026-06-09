@@ -13,7 +13,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Maps;
 
-import com.enonic.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.PortalResponse;
@@ -26,7 +25,7 @@ import com.enonic.xp.project.ProjectConstants;
 import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.util.Exceptions;
 
-@Component(immediate = true, service = PostProcessInjection.class, configurationPid = "com.enonic.app.contentstudio")
+@Component(immediate = true, service = PostProcessInjection.class)
 public final class LiveEditInjection
     implements PostProcessInjection
 {
@@ -38,21 +37,15 @@ public final class LiveEditInjection
 
     private final String bodyEndTemplate;
 
-    private final String cspMetaTemplate;
-
-    private final AdminRestConfig config;
-
     private final PortalUrlService portalUrlService;
 
     private final String inlineBodyEndTemplate;
 
     @Activate
-    public LiveEditInjection( AdminRestConfig config, @Reference PortalUrlService portalUrlService )
+    public LiveEditInjection( @Reference PortalUrlService portalUrlService )
     {
         this.bodyEndTemplate = loadTemplate( "liveEditBodyEnd.html" );
         this.inlineBodyEndTemplate = loadTemplate( "liveViewBodyEnd.html" );
-        this.cspMetaTemplate = loadTemplate( "liveEditCSP.html" );
-        this.config = config;
         this.portalUrlService = portalUrlService;
     }
 
@@ -76,11 +69,6 @@ public final class LiveEditInjection
         PortalRequestAccessor.set( portalRequest );
         try
         {
-            if ( htmlTag == HtmlTag.HEAD_BEGIN )
-            {
-                return Collections.singletonList( injectHeadBegin() );
-            }
-
             if ( htmlTag == HtmlTag.BODY_END )
             {
                 return Collections.singletonList( injectBodyEnd( portalRequest ) );
@@ -108,16 +96,6 @@ public final class LiveEditInjection
             PortalRequestAccessor.remove();
         }
         return null;
-    }
-
-    private String injectHeadBegin()
-    {
-        String finalTemplate = "";
-        if ( this.config.contentSecurityPolicy_enabled() )
-        {
-            finalTemplate += this.cspMetaTemplate;
-        }
-        return finalTemplate;
     }
 
     private String injectBodyEnd( final PortalRequest portalRequest )

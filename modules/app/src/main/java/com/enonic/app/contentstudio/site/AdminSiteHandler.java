@@ -24,6 +24,8 @@ import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.PortalResponse;
 import com.enonic.xp.portal.RenderMode;
+import com.enonic.xp.portal.csp.ContentSecurityPolicy;
+import com.enonic.xp.portal.csp.CspSource;
 import com.enonic.xp.project.Project;
 import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.project.ProjectService;
@@ -56,11 +58,25 @@ public class AdminSiteHandler
     private static final Pattern ADMIN_SITE_PATH_PATTERN = Pattern.compile(
         "^(?<base>/admin/com.enonic.app.contentstudio/site/(?<mode>edit|preview|admin|inline))/(?<project>[^/]+)/(?<branch>[^/]+)(?<path>.*)" );
 
+    // Replaces whatever policy the page contributed: pages under edit must stay renderable
+    // inside the page editor, so the curated baseline wins over the site's own policy.
+    private static final String EDIT_CONTENT_SECURITY_POLICY = new ContentSecurityPolicy().defaultSrc( CspSource.SELF )
+        .scriptSrc( CspSource.SELF, CspSource.UNSAFE_INLINE )
+        .objectSrc( CspSource.NONE )
+        .styleSrc( "*", "'unsafe-inline'" )
+        .fontSrc( "*", "data:" )
+        .imgSrc( "*", "data:" )
+        .baseUri( CspSource.SELF )
+        .frameAncestors( CspSource.SELF )
+        .build();
+
     private final ContentService contentService;
 
     private final ProjectService projectService;
 
     private volatile String previewContentSecurityPolicy;
+
+    private volatile boolean contentSecurityPolicyEnabled;
 
     @Activate
     public AdminSiteHandler( @Reference final ContentService contentService, @Reference final ProjectService projectService,
@@ -78,6 +94,7 @@ public class AdminSiteHandler
     public void activate( final AdminSiteConfig config )
     {
         previewContentSecurityPolicy = config.site_preview_contentSecurityPolicy();
+        contentSecurityPolicyEnabled = config.contentSecurityPolicy_enabled();
     }
 
     @Override
@@ -196,7 +213,14 @@ public class AdminSiteHandler
 
         if ( mode == RenderMode.EDIT )
         {
-            builder.removeHeader( HttpHeaders.CONTENT_SECURITY_POLICY );
+            if ( contentSecurityPolicyEnabled )
+            {
+                builder.header( HttpHeaders.CONTENT_SECURITY_POLICY, EDIT_CONTENT_SECURITY_POLICY );
+            }
+            else
+            {
+                builder.removeHeader( HttpHeaders.CONTENT_SECURITY_POLICY );
+            }
         }
         else if ( !nullToEmpty( previewContentSecurityPolicy ).isBlank() &&
             !response.getHeaders().containsKey( HttpHeaders.CONTENT_SECURITY_POLICY ) )

@@ -12,7 +12,7 @@
     <title>{{appName}} - Enonic XP Admin</title>
 
     <!-- Set theme before styles are loaded to prevent flash of incorrect theme -->
-    <script>
+    <script nonce="{{nonce}}">
         try {
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             const stored = localStorage.getItem('enonic:cs:app');
@@ -65,7 +65,7 @@
 
     {{#isAiEnabled}}
     <!-- Seed window.Enonic.AI so async plugin bundles can register before initAiHost() runs -->
-    <script>
+    <script nonce="{{nonce}}">
         (function () {
             window.Enonic = window.Enonic || {};
             var ai = window.Enonic.AI = window.Enonic.AI || {};

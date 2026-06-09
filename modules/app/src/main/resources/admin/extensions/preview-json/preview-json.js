@@ -1,6 +1,7 @@
 /*global app, resolve*/
 
 const widgetLib = require('/lib/export/widget');
+const portalLib = require('/lib/xp/portal');
 
 exports.get = function (req) {
 
@@ -25,12 +26,21 @@ exports.get = function (req) {
         log.debug(`Json [${req.method}] exists: ` + !!content);
 
         if (content) {
+            // extension responses are composed outside the portal flush, so the policy
+            // built with the typed API is emitted via build()
+            const csp = portalLib.csp()
+                .defaultSrc(portalLib.CspSource.NONE)
+                .styleSrc(portalLib.CspSource.UNSAFE_INLINE)
+                .baseUri(portalLib.CspSource.NONE)
+                .formAction(portalLib.CspSource.NONE)
+                .frameAncestors(portalLib.CspSource.SELF);
+
             return {
                 contentType: 'text/html',
                 headers: {
                     'Cache-Control': 'no-store',
                     'X-Frame-Options': 'SAMEORIGIN',
-                    'Content-Security-Policy': "media-src 'self'"
+                    'Content-Security-Policy': csp.build()
                 },
                 status: 200,
                 body: buildBody(content)
