@@ -13,10 +13,12 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Maps;
 
+import com.enonic.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.PortalResponse;
 import com.enonic.xp.portal.RenderMode;
+import com.enonic.xp.portal.csp.CspSource;
 import com.enonic.xp.portal.postprocess.HtmlTag;
 import com.enonic.xp.portal.postprocess.PostProcessInjection;
 import com.enonic.xp.portal.url.AssetUrlParams;
@@ -25,7 +27,7 @@ import com.enonic.xp.project.ProjectConstants;
 import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.util.Exceptions;
 
-@Component(immediate = true, service = PostProcessInjection.class)
+@Component(immediate = true, service = PostProcessInjection.class, configurationPid = "com.enonic.app.contentstudio")
 public final class LiveEditInjection
     implements PostProcessInjection
 {
@@ -37,15 +39,18 @@ public final class LiveEditInjection
 
     private final String bodyEndTemplate;
 
+    private final AdminRestConfig config;
+
     private final PortalUrlService portalUrlService;
 
     private final String inlineBodyEndTemplate;
 
     @Activate
-    public LiveEditInjection( @Reference PortalUrlService portalUrlService )
+    public LiveEditInjection( AdminRestConfig config, @Reference PortalUrlService portalUrlService )
     {
         this.bodyEndTemplate = loadTemplate( "liveEditBodyEnd.html" );
         this.inlineBodyEndTemplate = loadTemplate( "liveViewBodyEnd.html" );
+        this.config = config;
         this.portalUrlService = portalUrlService;
     }
 
@@ -71,6 +76,10 @@ public final class LiveEditInjection
         {
             if ( htmlTag == HtmlTag.BODY_END )
             {
+                if ( this.config.contentSecurityPolicy_enabled() )
+                {
+                    contributeContentSecurityPolicy( portalRequest );
+                }
                 return Collections.singletonList( injectBodyEnd( portalRequest ) );
             }
         }
@@ -79,6 +88,25 @@ public final class LiveEditInjection
             PortalRequestAccessor.remove();
         }
         return null;
+    }
+
+    /**
+     * Unions the editor's requirements into the policy the page contributed during rendering.
+     * Only {@code script-src} / {@code style-src} are overridden: the editor's injected inline
+     * scripts and styles must work even when the page nonce/hash-locks those directives, and
+     * override is the documented way to drop the nonce so {@code 'unsafe-inline'} takes effect.
+     * Post-process runs after the page's own contributions, so the overrides land last.
+     */
+    private static void contributeContentSecurityPolicy( final PortalRequest portalRequest )
+    {
+        portalRequest.getContentSecurityPolicy()
+            .defaultSrc( CspSource.SELF )
+            .imgSrc( "*", "data:" )
+            .fontSrc( "*", "data:" )
+            .objectSrc( CspSource.NONE )
+            .frameAncestors( CspSource.SELF )
+            .override( "script-src", "'self'", "'unsafe-inline'" )
+            .override( "style-src", "*", "'unsafe-inline'" );
     }
 
     private List<String> injectInlineContributions( final PortalRequest portalRequest, final HtmlTag htmlTag )

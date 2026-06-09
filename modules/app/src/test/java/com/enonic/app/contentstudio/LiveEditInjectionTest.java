@@ -6,6 +6,7 @@ import java.util.Locale;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -14,6 +15,7 @@ import com.google.common.io.Resources;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import com.enonic.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalResponse;
 import com.enonic.xp.portal.RenderMode;
@@ -42,6 +44,9 @@ class LiveEditInjectionTest
 
     private HttpServletRequest request;
 
+    @Mock(lenient = true)
+    AdminRestConfig config;
+
     @BeforeEach
     public void setup()
     {
@@ -50,7 +55,7 @@ class LiveEditInjectionTest
         this.request = mockCurrentContextHttpRequest();
 
         this.portalUrlService = mock( PortalUrlService.class );
-        this.injection = new LiveEditInjection( portalUrlService );
+        this.injection = new LiveEditInjection( config, portalUrlService );
     }
 
     @Test
@@ -88,6 +93,49 @@ class LiveEditInjectionTest
         final String result = list.get( 0 );
         assertNotNull( result );
         assertEquals( readResource( "liveEditInjectionBodyEnd.html" ).trim(), result.trim() );
+    }
+
+    @Test
+    public void testEditModeUnionsCspAndOverridesScriptAndStyle()
+        throws Exception
+    {
+        mockPortalUrlService();
+        when( config.contentSecurityPolicy_enabled() ).thenReturn( true );
+        this.portalRequest.setMode( RenderMode.EDIT );
+        this.portalRequest.setRawRequest( this.request );
+        this.portalRequest.setRepositoryId( ProjectName.from( "myproject" ).getRepoId() );
+
+        // the page hardened its policy during rendering
+        this.portalRequest.getContentSecurityPolicy()
+            .add( "script-src", "'nonce-abc'" )
+            .add( "frame-ancestors", "'none'" )
+            .add( "img-src", "https://cdn.example.com" );
+
+        this.injection.inject( this.portalRequest, this.portalResponse, HtmlTag.BODY_END );
+
+        final String policy = this.portalRequest.getContentSecurityPolicy().build();
+        // overridden: the page's nonce is dropped so the editor's inline scripts/styles work
+        assertEquals( true, policy.contains( "script-src 'self' 'unsafe-inline'" ), policy );
+        assertEquals( true, policy.contains( "style-src * 'unsafe-inline'" ), policy );
+        // unioned: 'none' yields to the editor frame, other page sources are kept
+        assertEquals( true, policy.contains( "frame-ancestors 'self'" ), policy );
+        assertEquals( true, policy.contains( "img-src https://cdn.example.com * data:" ), policy );
+        assertEquals( true, policy.contains( "default-src 'self'" ), policy );
+    }
+
+    @Test
+    public void testEditModeLeavesCspAloneWhenDisabled()
+        throws Exception
+    {
+        mockPortalUrlService();
+        when( config.contentSecurityPolicy_enabled() ).thenReturn( false );
+        this.portalRequest.setMode( RenderMode.EDIT );
+        this.portalRequest.setRawRequest( this.request );
+        this.portalRequest.setRepositoryId( ProjectName.from( "myproject" ).getRepoId() );
+
+        this.injection.inject( this.portalRequest, this.portalResponse, HtmlTag.BODY_END );
+
+        assertEquals( "", this.portalRequest.getContentSecurityPolicy().build() );
     }
 
     private HttpServletRequest mockCurrentContextHttpRequest()
