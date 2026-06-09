@@ -28,6 +28,7 @@ exports.get = function (req) {
             return {
                 contentType: 'text/html',
                 headers: {
+                    'Cache-Control': 'no-store',
                     'X-Frame-Options': 'SAMEORIGIN',
                     'Content-Security-Policy': "media-src 'self'"
                 },

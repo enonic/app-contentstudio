@@ -7,6 +7,9 @@ exports.get = function (req) {
     return {
         contentType: `text/${type}`,
         status: report ? 200 : 404,
+        headers: {
+            'Cache-Control': 'no-store',
+        },
         body: report ? report : 'Not found'
     };
 };

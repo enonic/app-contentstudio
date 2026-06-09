@@ -17,7 +17,7 @@ function handleGet() {
         contentType: 'text/html',
         body: mustache.render(view, params),
         headers: {
-            'Cache-Control': 'no-cache',
+            'Cache-Control': 'no-store',
         },
     };
 }

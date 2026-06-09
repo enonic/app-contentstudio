@@ -35,6 +35,9 @@ const handleGet = () => {
 
     return {
         contentType: 'application/json',
+        headers: {
+            'Cache-Control': 'no-store',
+        },
         body: activityMap
     };
 }
