@@ -1,11 +1,11 @@
-import {FieldRegistryProvider, RawValueProvider, ValidationVisibilityProvider} from '@enonic/lib-admin-ui/form2';
+import {FieldRegistryProvider, RawValueProvider, ServerErrorsProvider, ValidationVisibilityProvider} from '@enonic/lib-admin-ui/form2';
 import {useStore} from '@nanostores/preact';
 import {type ReactElement, useEffect, useMemo} from 'react';
 import {FormRenderer} from '../../../shared/form';
 import {useBreakpoints} from '../../../hooks/useBreakpoints';
 import {getAiFieldRegistry} from '../../../store/ai/ai.field-registry';
 import {$contentType, $wizardDraftData, $wizardReadOnly, notifyContentFormMounted} from '../../../store/wizardContent.store';
-import {$validationVisibility, getContentRawValueMap} from '../../../store/wizardValidation.store';
+import {$serverErrorEntries, $validationVisibility, clearServerErrorsAtPath, clearServerErrorsForField, getContentRawValueMap} from '../../../store/wizardValidation.store';
 import {DisplayNameInput} from './DisplayNameInput';
 import {ImageUploaderDescriptor} from '../../../shared/form/input-types/image-uploader';
 
@@ -15,6 +15,7 @@ export const ContentForm = (): ReactElement | null => {
     const contentType = useStore($contentType);
     const draftData = useStore($wizardDraftData);
     const visibility = useStore($validationVisibility);
+    const serverErrorEntries = useStore($serverErrorEntries);
     const readOnly = useStore($wizardReadOnly);
     const {lg} = useBreakpoints();
 
@@ -54,13 +55,19 @@ export const ContentForm = (): ReactElement | null => {
             <ValidationVisibilityProvider visibility={visibility}>
                 <RawValueProvider map={rawValueMap}>
                     <FieldRegistryProvider registry={fieldRegistry}>
-                        <FormRenderer
-                            form={contentType.getForm()}
-                            propertySet={draftData.getRoot()}
-                            enabled={!readOnly}
-                            applicationKey={applicationKey}
-                            excludeInputTypes={excludeInputTypes}
-                        />
+                        <ServerErrorsProvider
+                            entries={serverErrorEntries}
+                            clear={clearServerErrorsAtPath}
+                            clearField={clearServerErrorsForField}
+                        >
+                            <FormRenderer
+                                form={contentType.getForm()}
+                                propertySet={draftData.getRoot()}
+                                enabled={!readOnly}
+                                applicationKey={applicationKey}
+                                excludeInputTypes={excludeInputTypes}
+                            />
+                        </ServerErrorsProvider>
                     </FieldRegistryProvider>
                 </RawValueProvider>
             </ValidationVisibilityProvider>
