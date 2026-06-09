@@ -78,24 +78,24 @@
     {{#aiContentOperatorAssetsUrl}}
     <!-- Append AI Content Operator -->
     <script type="text/javascript" src="{{aiContentOperatorAssetsUrl}}/index.js" data-locales="{{aiLocales}}"
-            data-asset-url="{{aiContentOperatorAssetsUrl}}" async></script>
+            data-asset-url="{{aiContentOperatorAssetsUrl}}" nonce="{{nonce}}" async></script>
     {{/aiContentOperatorAssetsUrl}}
 
     {{#aiTranslatorAssetsUrl}}
     <!-- Append AI Translator -->
     <script type="text/javascript" src="{{aiTranslatorAssetsUrl}}/index.js" data-locales="{{aiLocales}}"
-            data-asset-url="{{aiTranslatorAssetsUrl}}" async></script>
+            data-asset-url="{{aiTranslatorAssetsUrl}}" nonce="{{nonce}}" async></script>
     {{/aiTranslatorAssetsUrl}}
 </head>
 <body>
 <!-- App javascript -->
 
 {{^isBrowseMode}}
-<script type="text/javascript" src="{{assetsUri}}/lib/ckeditor.js" data-asset-url="{{assetsUri}}" defer></script>
+<script type="text/javascript" src="{{assetsUri}}/lib/ckeditor.js" data-asset-url="{{assetsUri}}" nonce="{{nonce}}" defer></script>
 {{/isBrowseMode}}
 
 
 <script type="application/json" id="{{configScriptId}}">{{{configAsJson}}}</script>
-<script type="text/javascript" src="{{assetsUri}}/js/main.js" data-config-script-id="{{configScriptId}}" defer></script>
+<script type="text/javascript" src="{{assetsUri}}/js/main.js" data-config-script-id="{{configScriptId}}" nonce="{{nonce}}" defer></script>
 </body>
 </html>
