@@ -29,7 +29,10 @@ function validateParams(params) {
 function widgetResponse(status, data) {
     const response = {
         status,
-        contentType: 'application/json'
+        contentType: 'application/json',
+        headers: {
+            'Cache-Control': 'no-store',
+        }
     }
 
     if (data) {
@@ -42,7 +45,10 @@ function widgetResponse(status, data) {
 function redirectResponse(url, data) {
     const response = {
         redirect: encodeURI(url),
-        contentType: 'text/html'
+        contentType: 'text/html',
+        headers: {
+            'Cache-Control': 'no-store',
+        }
     }
 
     if (data) {

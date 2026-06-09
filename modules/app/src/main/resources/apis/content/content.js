@@ -17,6 +17,9 @@ exports.get = function (req) {
     return {
         status: 200,
         contentType: 'application/json',
+        headers: {
+            'Cache-Control': 'no-store',
+        },
         body: getContent(contentId, req.params.versionId, req.params.repositoryId)
     };
 };
