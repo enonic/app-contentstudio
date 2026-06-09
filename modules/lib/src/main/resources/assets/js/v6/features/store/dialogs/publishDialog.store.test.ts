@@ -11,6 +11,7 @@ import {
 import {$config} from '../config.store';
 import {
     $dependantPublishItems,
+    $hasExcludedDependantItems,
     $hasSchedulableItems,
     $isPublishReady,
     $isScheduleValid,
@@ -18,8 +19,11 @@ import {
     $publishDialog,
     $publishDialogPending,
     $scheduleFromError,
+    applyDraftPublishDialogSelection,
     openPublishDialog,
     resetPublishDialogContext,
+    setPublishDialogDependantItemSelected,
+    setPublishDialogItemWithChildrenSelected,
     setPublishSchedule,
 } from './publishDialog.store';
 import {
@@ -349,6 +353,106 @@ describe('publishDialog.store', () => {
 
             expect($isScheduleValid.get()).toBe(true);
             expect($scheduleFromError.get()).toBeUndefined();
+        });
+    });
+
+    describe('dependency exclusion display', () => {
+        const imageId = new ContentId('image-1');
+
+        afterEach(() => {
+            $config.setKey('excludeDependencies', true);
+        });
+
+        // Max resolve (no exclusions) returns all dependants; min resolve returns direct excluded deps as next
+        function mockResolveWithExclusion(directIds: ContentId[], deepIds: ContentId[] = []): void {
+            const allIds = [...directIds, ...deepIds];
+            mockResolvePublishDependencies.mockImplementation(({excludedIds = []}: {excludedIds?: ContentId[]}) => {
+                const isMinResolve = excludedIds.some(excludedId => allIds.some(id => id.equals(excludedId)));
+                return Promise.resolve(isMinResolve
+                    ? createResolveResult({next: directIds})
+                    : createResolveResult({dependants: allIds}));
+            });
+        }
+
+        it('should keep auto-excluded dependants visible and unchecked on clean load', async () => {
+            mockResolveWithExclusion([imageId]);
+            mockFetchContentSummaries.mockResolvedValue([createMockContent('image-1')]);
+
+            openPublishDialog([createMockContent('item-1')]);
+            await flushInitialReload();
+
+            const [dependant] = $dependantPublishItems.get();
+            expect(dependant.id).toBe('image-1');
+            expect(dependant.included).toBe(false);
+            expect(dependant.hidden).toBe(false);
+            expect(dependant.excludedByDefault).toBe(true);
+            expect($hasExcludedDependantItems.get()).toBe(true);
+        });
+
+        it('should hide transitive dependants of auto-excluded items', async () => {
+            const subId = new ContentId('sub-1');
+            mockResolveWithExclusion([imageId], [subId]);
+            mockFetchContentSummaries.mockResolvedValue([createMockContent('image-1'), createMockContent('sub-1')]);
+
+            openPublishDialog([createMockContent('item-1')]);
+            await flushInitialReload();
+
+            const dependants = $dependantPublishItems.get();
+            const image = dependants.find(item => item.id === 'image-1');
+            const sub = dependants.find(item => item.id === 'sub-1');
+            expect(image?.hidden).toBe(false);
+            expect(sub?.hidden).toBe(true);
+            expect(image?.included).toBe(false);
+            expect(sub?.included).toBe(false);
+        });
+
+        it('should report excluded dependants only after applying the selection', async () => {
+            $config.setKey('excludeDependencies', false);
+            const depId = new ContentId('dep-1');
+            mockResolveWithExclusion([depId]);
+            mockFetchContentSummaries.mockResolvedValue([createMockContent('dep-1')]);
+
+            openPublishDialog([createMockContent('item-1')]);
+            await flushInitialReload();
+
+            expect($dependantPublishItems.get()[0].included).toBe(true);
+            expect($hasExcludedDependantItems.get()).toBe(false);
+
+            setPublishDialogDependantItemSelected(depId, false);
+            expect($hasExcludedDependantItems.get()).toBe(false);
+
+            applyDraftPublishDialogSelection();
+            await flushDebouncedReload();
+
+            expect($hasExcludedDependantItems.get()).toBe(true);
+            const [dependant] = $dependantPublishItems.get();
+            expect(dependant.included).toBe(false);
+            expect(dependant.hidden).toBe(false);
+        });
+
+        it('should re-include auto-excluded children when "include children" is applied', async () => {
+            const itemId = new ContentId('item-1');
+            mockFindIdsByParents.mockResolvedValue([imageId]);
+            mockFetchContentSummaries.mockResolvedValue([createMockContent('image-1')]);
+            mockResolvePublishDependencies.mockImplementation(({excludedIds = []}: {excludedIds?: ContentId[]}) =>
+                Promise.resolve(excludedIds.some(id => id.equals(imageId))
+                    ? createResolveResult({next: [imageId]})
+                    : createResolveResult({dependants: [imageId]})));
+
+            openPublishDialog([createMockContent('item-1', {hasChildren: true})]);
+            await flushInitialReload();
+
+            expect($dependantPublishItems.get()[0].included).toBe(false);
+
+            setPublishDialogItemWithChildrenSelected(itemId, true);
+            applyDraftPublishDialogSelection();
+            await flushDebouncedReload();
+
+            const [dependant] = $dependantPublishItems.get();
+            expect(dependant.included).toBe(true);
+            expect(dependant.hidden).toBe(false);
+            expect($publishDialog.get().excludedDependantItemsIds).toHaveLength(0);
+            expect($hasExcludedDependantItems.get()).toBe(false);
         });
     });
 });

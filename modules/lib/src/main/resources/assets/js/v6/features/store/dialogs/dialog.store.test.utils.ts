@@ -10,6 +10,7 @@ type ResolveResultOptions = {
     invalid?: ContentId[];
     inProgress?: ContentId[];
     notPublishable?: ContentId[];
+    next?: ContentId[];
 };
 
 type MockContentOptions = {
@@ -68,6 +69,7 @@ export function createResolveResult({
     invalid = [],
     inProgress = [],
     notPublishable = [],
+    next = [],
 }: ResolveResultOptions) {
     return {
         getDependants: () => dependants,
@@ -75,6 +77,7 @@ export function createResolveResult({
         getInvalid: () => invalid,
         getInProgress: () => inProgress,
         getNotPublishable: () => notPublishable,
+        getNextDependants: () => next,
     };
 }
 
