@@ -18,20 +18,16 @@ export const ImageUploaderInputImage = (): ReactElement | null => {
 
     return (
         <div data-component="ImageUploaderInputImage" className="mt-5 flex flex-1 items-center justify-center min-h-0">
-            {showImage && (
-                <div className="relative w-full h-full">
-                    {base64Image && (
-                        <img
-                            src={base64Image}
-                            className="w-full h-full object-contain"
-                            style={{maxWidth: dimensions?.w, maxHeight: dimensions?.h}}
-                        />
-                    )}
-                    {isLoading && (
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                            <LoaderCircle />
-                        </div>
-                    )}
+            {showImage && base64Image && (
+                <img
+                    src={base64Image}
+                    className="w-full h-full object-contain"
+                    style={{maxWidth: dimensions?.w, maxHeight: dimensions?.h}}
+                />
+            )}
+            {showImage && isLoading && (
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                    <LoaderCircle className="animate-spin" />
                 </div>
             )}
             {isCropping && <ImageUploaderInputCropSvg />}

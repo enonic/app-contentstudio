@@ -5,6 +5,7 @@ import type {PageItem} from '../../../../app/page/region/PageItem';
 import type {PageItemType} from '../../../../app/page/region/PageItemType';
 import {PageState} from '../../../../app/wizard/page/PageState';
 import type {PageEditorContentContext, PageEditorLifecycle} from './types';
+import {Component} from '../../../../app/page/region/Component';
 
 //
 // * State
@@ -78,6 +79,16 @@ export const $inspectedItemType = computed(
     $inspectedItem,
     (item): PageItemType | null => item?.getType() ?? null,
 );
+
+//
+// * API
+//
+
+export function isComponentEmpty(nodeId: string): boolean {
+    const page = $page.get();
+    const component = page?.getComponentByPath(ComponentPath.fromString(nodeId)) ?? null;
+    return component instanceof Component ? component?.isEmpty() : false;
+}
 
 //
 // * Internal
