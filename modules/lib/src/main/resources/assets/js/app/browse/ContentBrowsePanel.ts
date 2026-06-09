@@ -84,13 +84,14 @@ export class ContentBrowsePanel
     protected expandedContext: TreeListBoxExpandedHolder;
 
     private contentTreeList: ContentTreeListElement;
+    private modernBrowseToolbar: BrowseToolbarElement;
 
     protected initElements() {
         super.initElements();
 
         const browseActions = this.getBrowseActions();
 
-        this.prependChild(new BrowseToolbarElement({
+        this.modernBrowseToolbar = new BrowseToolbarElement({
             toggleFilterPanelAction: browseActions.getToggleSearchPanelAction(),
             showNewDialogAction: browseActions.getAction(ActionName.SHOW_NEW_DIALOG),
             editAction: browseActions.getAction(ActionName.EDIT),
@@ -105,7 +106,8 @@ export class ContentBrowsePanel
             markAsReadyAction: browseActions.getAction(ActionName.MARK_AS_READY),
             requestPublishAction: browseActions.getAction(ActionName.REQUEST_PUBLISH),
             createIssueAction: browseActions.getAction(ActionName.CREATE_ISSUE),
-        }));
+        });
+        this.prependChild(this.modernBrowseToolbar);
 
         this.contentTreeList.setContextMenuActions({
             showNewDialogAction: browseActions.getAction(ActionName.SHOW_NEW_DIALOG),
@@ -755,7 +757,15 @@ export class ContentBrowsePanel
 
     // TODO: Enonic UI - Sync layer
     toggleFilterPanel() {
-        super.toggleFilterPanel();
+        this.filterAndGridSplitPanel.setFirstPanelIsFullScreen(this.filterPanelToBeShownFullScreen);
+
+        if (this.filterPanelIsHidden()) {
+            this.showFilterPanel();
+        } else {
+            this.hideFilterPanel();
+            this.modernBrowseToolbar.focusSearchToggle();
+        }
+
         const isFilterPanelHidden = this.filterPanelIsHidden();
         setContentFilterOpen(!isFilterPanelHidden);
     }

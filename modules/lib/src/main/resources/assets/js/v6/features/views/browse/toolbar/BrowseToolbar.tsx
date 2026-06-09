@@ -1,6 +1,7 @@
 import {type Action} from '@enonic/lib-admin-ui/ui/Action';
-import {Toolbar} from '@enonic/ui';
-import {type ReactElement, useMemo} from 'react';
+import {IdProvider, Toolbar} from '@enonic/ui';
+import {createRef, forwardRef, type ReactElement, useImperativeHandle, useMemo, useRef} from 'react';
+import {render} from 'react-dom';
 import {useI18n} from '../../../hooks/useI18n';
 import {LegacyElement} from '../../../shared/LegacyElement';
 import {ContextToggle} from './ContextToggle';
@@ -8,7 +9,11 @@ import {OverflowActionRow, type OverflowActionRowItem} from './OverflowActionRow
 import {SearchToggle} from './SearchToggle';
 import {SplitActionButton} from './SplitActionButton';
 
-type Props = {
+export type BrowseToolbarHandle = {
+    focusSearchToggle: () => void;
+};
+
+export type BrowseToolbarProps = {
     toggleFilterPanelAction: Action;
     showNewDialogAction: Action;
     editAction: Action;
@@ -25,7 +30,7 @@ type Props = {
     createIssueAction: Action;
 };
 
-export const BrowseToolbar = ({
+export const BrowseToolbar = forwardRef<BrowseToolbarHandle, BrowseToolbarProps>(({
     toggleFilterPanelAction,
     showNewDialogAction,
     editAction,
@@ -40,7 +45,19 @@ export const BrowseToolbar = ({
     markAsReadyAction,
     requestPublishAction,
     createIssueAction,
-}: Props): ReactElement => {
+}, ref): ReactElement => {
+    const searchToggleRef = useRef<HTMLButtonElement>(null);
+
+    useImperativeHandle(ref, () => ({
+        focusSearchToggle: () => {
+            const toggle = searchToggleRef.current;
+
+            if (toggle?.isConnected && !toggle.disabled) {
+                toggle.focus({preventScroll: true});
+            }
+        },
+    }), []);
+
     const toolbarActions: OverflowActionRowItem[] = useMemo(() => [
         {id: 'new', action: showNewDialogAction},
         {id: 'edit', action: editAction},
@@ -70,7 +87,7 @@ export const BrowseToolbar = ({
                 className="bg-surface-neutral h-15 px-5 py-2 flex items-center gap-2 border-b border-bdr-soft"
             >
                 <div className="flex min-w-fit items-center gap-2 sm:min-w-0 sm:flex-1">
-                    <SearchToggle action={toggleFilterPanelAction} />
+                    <SearchToggle ref={searchToggleRef} action={toggleFilterPanelAction} />
                     <div className="sm:hidden shrink-0 min-w-fit">
                         <SplitActionButton actions={mobileSplitActions} />
                     </div>
@@ -84,12 +101,29 @@ export const BrowseToolbar = ({
             </Toolbar.Container>
         </Toolbar>
     );
-};
+});
 
 BrowseToolbar.displayName = 'BrowseToolbar';
 
-export class BrowseToolbarElement extends LegacyElement<typeof BrowseToolbar, Props> {
-    constructor(props: Props) {
+export class BrowseToolbarElement extends LegacyElement<typeof BrowseToolbar, BrowseToolbarProps> {
+    private readonly toolbarRef = createRef<BrowseToolbarHandle>();
+
+    constructor(props: BrowseToolbarProps) {
         super(props, BrowseToolbar);
+    }
+
+    protected renderJsx(): void {
+        const Component = this.component;
+
+        render(
+            <IdProvider prefix={this.getPrefix()}>
+                <Component {...this.props.get()} ref={this.toolbarRef} />
+            </IdProvider>,
+            this.getHTMLElement()
+        );
+    }
+
+    focusSearchToggle(): void {
+        this.toolbarRef.current?.focusSearchToggle();
     }
 }
