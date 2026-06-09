@@ -45,9 +45,13 @@ function applySecurityPolicy() {
     csp.defaultSrc(portal.CspSource.SELF)
         .connectSrc(portal.CspSource.SELF, 'ws:', 'wss:', baseMarketUrl)
         // nonce + 'strict-dynamic': trust propagates from the nonced scripts in main.html to the
-        // scripts they inject at runtime (CKEditor plugins, AI bundles); 'self' and 'unsafe-inline'
-        // are ignored by CSP3 browsers and only serve as fallbacks for older ones
+        // script elements they inject at runtime (CKEditor plugins, AI bundles); 'self' and
+        // 'unsafe-inline' are ignored by CSP3 browsers and only serve as fallbacks for older ones
         .scriptSrc(portal.CspSource.STRICT_DYNAMIC, portal.CspSource.SELF, portal.CspSource.UNSAFE_INLINE)
+        // CKEditor 4 chrome (toolbar buttons, dialogs, combos, menus) is wired through inline
+        // event-handler attributes ("CKEDITOR.tools.callFunction(...)"), which 'strict-dynamic'
+        // does not cover; allow attributes only, script elements stay nonce-gated
+        .scriptSrcAttr(portal.CspSource.UNSAFE_INLINE)
         .styleSrc(portal.CspSource.SELF, portal.CspSource.UNSAFE_INLINE)
         .imgSrc(portal.CspSource.SELF, portal.CspSource.DATA)
         .fontSrc(portal.CspSource.SELF, portal.CspSource.DATA)
