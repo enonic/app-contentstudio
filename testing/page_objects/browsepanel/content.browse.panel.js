@@ -718,7 +718,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             let expanderIcon = this.treeGrid + TREE_GRID.itemTreeGridListElementByName(contentName) + this.expanderButton;
             await this.waitForExpandToggleDisplayed(contentName);
             await this.clickOnElement(expanderIcon);
-            return await this.pause(900);
+            return await this.pause(1000);
         } catch (err) {
             await this.handleError(`Clicked on the expand-toggle for content: ${contentName}`, 'err_click_on_expander', err);
         }
