@@ -199,10 +199,15 @@ public class AdminSiteHandler
 
         if ( mode == RenderMode.EDIT )
         {
-            // the policy composed on the request (page contributions + the editor's, see
-            // LiveEditInjection) wins over a header the page set by hand, which could
-            // otherwise lock the page editor out
-            final String policy = contentSecurityPolicyEnabled ? request.getContentSecurityPolicy().build() : "";
+            // with CSP disabled the request policy is cleared, so the flush below emits nothing
+            // and any header the page set by hand is stripped; with CSP enabled the composed
+            // policy (page contributions + the editor's, see LiveEditInjection) wins over a
+            // hand-set header, which could otherwise lock the page editor out
+            if ( !contentSecurityPolicyEnabled )
+            {
+                request.getContentSecurityPolicy().resetAll();
+            }
+            final String policy = request.getContentSecurityPolicy().build();
             if ( policy.isEmpty() )
             {
                 builder.removeHeader( HttpHeaders.CONTENT_SECURITY_POLICY );
