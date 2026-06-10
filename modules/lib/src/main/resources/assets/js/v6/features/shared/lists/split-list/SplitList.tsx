@@ -1,13 +1,14 @@
-import {cn, GridList, Separator, Toggle} from '@enonic/ui';
+import {cn, GridList, Separator} from '@enonic/ui';
 import type {ReactElement, ReactNode} from 'react';
 import {useI18n} from '../../../hooks/useI18n';
+import {InlineButton} from '../../InlineButton';
 import type {
     SplitListPrimaryProps,
     SplitListProps,
     SplitListSecondaryProps,
+    SplitListSeparatorButtonProps,
     SplitListSeparatorLabelProps,
     SplitListSeparatorProps,
-    SplitListSeparatorToggleProps,
 } from './types';
 
 //
@@ -100,31 +101,28 @@ const SplitListSeparatorLabel = ({
 SplitListSeparatorLabel.displayName = SPLIT_LIST_SEPARATOR_LABEL_NAME;
 
 //
-// * SplitList.SeparatorToggle
+// * SplitList.SeparatorButton
 //
 
-const SPLIT_LIST_SEPARATOR_TOGGLE_NAME = 'SplitList.SeparatorToggle';
+const SPLIT_LIST_SEPARATOR_BUTTON_NAME = 'SplitList.SeparatorButton';
 
-const SplitListSeparatorToggle = ({
+const SplitListSeparatorButton = ({
     label,
-    pressed,
-    onPressedChange,
+    onClick,
     disabled = false,
     className,
-}: SplitListSeparatorToggleProps): ReactElement => {
+}: SplitListSeparatorButtonProps): ReactElement => {
     return (
-        <Toggle
-            size='sm'
+        <InlineButton
             label={label}
-            pressed={pressed}
-            onPressedChange={onPressedChange}
+            onClick={onClick}
             disabled={disabled}
             className={className}
         />
     );
 };
 
-SplitListSeparatorToggle.displayName = SPLIT_LIST_SEPARATOR_TOGGLE_NAME;
+SplitListSeparatorButton.displayName = SPLIT_LIST_SEPARATOR_BUTTON_NAME;
 
 //
 // * SplitList.Secondary
@@ -174,6 +172,6 @@ export const SplitList = Object.assign(SplitListRoot, {
     Primary: SplitListPrimary,
     Separator: SplitListSeparator,
     SeparatorLabel: SplitListSeparatorLabel,
-    SeparatorToggle: SplitListSeparatorToggle,
+    SeparatorButton: SplitListSeparatorButton,
     Secondary: SplitListSecondary,
 });

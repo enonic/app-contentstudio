@@ -212,10 +212,9 @@ export const PublishDialogMainContent = ({
                     <SplitList.Separator hidden={!hasVisibleDependantItems && !hasExcludedItems}>
                         <SplitList.SeparatorLabel>{separatorLabel}</SplitList.SeparatorLabel>
                         {hasExcludedItems && isSelectionSynced && (
-                            <SplitList.SeparatorToggle
+                            <SplitList.SeparatorButton
                                 label={toggleExcludedLabel}
-                                pressed={showExcluded}
-                                onPressedChange={setShowExcluded}
+                                onClick={() => setShowExcluded(prev => !prev)}
                                 disabled={loading}
                             />
                         )}
