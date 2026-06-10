@@ -12,6 +12,7 @@ export type AssigneeSelectorProps = {
     options: AssigneeSelectorOption[];
     selection: readonly string[];
     onSelectionChange: (selection: readonly string[]) => void;
+    /** Called alongside onSelectionChange when a staged selection is applied. */
     onAppliedSelectionChange?: (selection: readonly string[]) => void;
     selectedOptions?: AssigneeSelectorOption[];
     selectedListClassName?: string;

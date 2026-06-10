@@ -664,10 +664,10 @@ export const updateIssueDialogSchedule = async (
     }
 };
 
-export const updateIssueDialogItems = async (nextItemIds: ContentId[]): Promise<boolean> => {
+export const updateIssueDialogItems = async (nextItemIds: ContentId[]): Promise<void> => {
     const context = getIssueContext('itemsUpdating');
     if (!context) {
-        return false;
+        return;
     }
     const {issueId, dialogState, issueWithAssignees, issue} = context;
 
@@ -675,7 +675,7 @@ export const updateIssueDialogItems = async (nextItemIds: ContentId[]): Promise<
     const publishRequest = issue.getPublishRequest();
     const currentItemIds = publishRequest?.getItemsIds() ?? [];
     if (isIdsEqual(currentItemIds, nextUniqueIds)) {
-        return true;
+        return;
     }
 
     $issueDialogDetails.setKey('itemsUpdating', true);
@@ -695,12 +695,13 @@ export const updateIssueDialogItems = async (nextItemIds: ContentId[]): Promise<
         .setPublishRequestItems(nextItems)
         .build();
 
-    return !!await updateIssueWithPublishRequest({
+    await updateIssueWithPublishRequest({
         issueId,
         issue,
         dialogState,
         issueWithAssignees,
         nextPublishRequest,
+        forceReloadItems: true,
     });
 };
 
@@ -980,13 +981,15 @@ const updateIssueWithPublishRequest = async ({
     dialogState,
     issueWithAssignees,
     nextPublishRequest,
+    forceReloadItems = false,
 }: {
     issueId: string;
     issue: Issue;
     dialogState: IssueDialogState;
     issueWithAssignees?: IssueWithAssignees;
     nextPublishRequest: PublishRequest;
-}): Promise<Issue | undefined> => {
+    forceReloadItems?: boolean;
+}): Promise<void> => {
     try {
         const request = new UpdateIssueRequest(issueId)
             .setTitle(issue.getTitle())
@@ -998,7 +1001,7 @@ const updateIssueWithPublishRequest = async ({
         const updatedIssue = await request.sendAndParse();
 
         applyUpdatedIssue(updatedIssue, dialogState, issueWithAssignees, {});
-        await loadIssueDialogItems(updatedIssue, {forceReload: true});
+        await loadIssueDialogItems(updatedIssue, {forceReload: forceReloadItems});
         $issueDialogDetails.setKey('itemsUpdating', false);
 
         const prefix = updatedIssue.getType() === IssueType.PUBLISH_REQUEST
@@ -1006,12 +1009,10 @@ const updateIssueWithPublishRequest = async ({
                        : 'notify.issue.';
         showFeedback(i18n(`${prefix}updated`));
         void loadIssueDialogList();
-        return updatedIssue;
     } catch (error) {
         console.error(error);
         $issueDialogDetails.setKey('itemsUpdating', false);
         showError(error?.message ?? String(error));
-        return undefined;
     }
 };
 

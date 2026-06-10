@@ -352,9 +352,15 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         () => issueData?.getPublishRequest()?.getItemsIds() ?? [],
         [issueData],
     );
+    // Content-derived key keeps selection identity stable across unrelated
+    // issueData updates, so staged combobox edits are not reset mid-edit.
+    const selectedItemIdsKey = useMemo(
+        () => selectedItemIds.map(id => id.toString()).join('|'),
+        [selectedItemIds],
+    );
     const selectedItemIdStrings = useMemo(
         () => selectedItemIds.map(id => id.toString()),
-        [selectedItemIds],
+        [selectedItemIdsKey],
     );
     const excludeChildrenSet = useMemo(
         () => new Set(excludeChildrenIds.map(id => id.toString())),
@@ -438,7 +444,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
 
     useEffect(() => {
         pendingItemIdsRef.current = null;
-    }, [selectedItemIds]);
+    }, [selectedItemIdsKey]);
 
     const handleAssigneesChange = (next: readonly string[]): void => {
         debouncedUpdateAssignees([...next]);
@@ -452,23 +458,6 @@ export const IssueDialogDetailsContent = (): ReactElement => {
         pendingItemIdsRef.current = nextIds;
         debouncedUpdateItems(nextIds);
     }, [issueData, debouncedUpdateItems]);
-
-    const handleItemsApply = useCallback(async (nextSelection: readonly string[]): Promise<void> => {
-        if (!issueData) {
-            return;
-        }
-        debouncedUpdateItems.cancel();
-        const nextIds = nextSelection.map(id => new ContentId(id));
-        pendingItemIdsRef.current = null;
-        const updated = await updateIssueDialogItems(nextIds);
-        if (updated) {
-            focusBackButton();
-        }
-    }, [issueData, debouncedUpdateItems, focusBackButton]);
-
-    const handleItemsAppliedSelectionChange = useCallback((nextSelection: readonly string[]): void => {
-        void handleItemsApply(nextSelection);
-    }, [handleItemsApply]);
 
     const handleItemRemoved = useCallback((id: ContentId): void => {
         if (!issueData) {
@@ -784,7 +773,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                     label={itemsLabel}
                                     selection={selectedItemIdStrings}
                                     onSelectionChange={handleSelectionChange}
-                                    onAppliedSelectionChange={handleItemsAppliedSelectionChange}
+                                    onAppliedSelectionChange={focusBackButton}
                                     disabled={isItemsDisabled}
                                     closeOnBlur={true}
                                 />
