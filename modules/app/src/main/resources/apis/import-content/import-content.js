@@ -116,6 +116,7 @@ function handleImport(req) {
             return exportLib.importNodes({
                 source: exportName,
                 targetNodePath: targetPath,
+                includeNodeIds: true,
                 xslt: resolve('./import-content.xslt'),
                 xsltParams: {keepPublishFirst: keepPublishFirst ? 'true' : 'false'},
                 versionAttributes: {
