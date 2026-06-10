@@ -63,7 +63,7 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
             await createRequestPublishDialog.clickOnDropDownHandleInAssigneesCombobox();
             // TODO
             //let options = await createRequestPublishDialog.getOptionsInAssigneesDropdownList();
-            /await studioUtils.saveScreenshot('PublishRequest_AssigneesOptions');
+            //await studioUtils.saveScreenshot('PublishRequest_AssigneesOptions');
             //assert.ok(options.includes('Authenticated') === false, 'Roles should not be present in the assignees options');
         });
 
