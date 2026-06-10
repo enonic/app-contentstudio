@@ -10,7 +10,7 @@ import {type ChildOrder} from '../../../app/resource/order/ChildOrder';
 import {Branch} from '../../../app/versioning/Branch';
 import {$activeProject} from '../store/activeProject.store';
 import {setContents, getMissingIds, getContents, getIdByPath} from '../store/content.store';
-import {$contentDuplicated, $contentMoved} from '../store/socket.store';
+import {$contentDuplicated, $contentMoved, $contentSorted} from '../store/socket.store';
 import {
     $treeState,
     addTreeNode,
@@ -29,9 +29,11 @@ import {calcContentState} from '../utils/cms/content/workflow';
 import {calcTreePublishStatus} from '../utils/cms/content/status';
 import {resolveDisplayName, resolveSubName} from '../utils/cms/content/prettify';
 
-// Snapshot the active project at request start; gate tree writes against it
-// after each await so a project switch cannot land stale data on the new tree.
-// Cache writes stay safe because they target the captured partition.
+/**
+ * Snapshots the active project at request start. Tree writes are gated with
+ * isProjectStale() after each await so a project switch cannot land stale data
+ * on the new tree. Cache writes stay safe — they target the captured partition.
+ */
 function captureActiveProjectName(): string | undefined {
     return $activeProject.get()?.getName();
 }
@@ -59,11 +61,7 @@ const fetcher = new ContentSummaryAndCompareStatusFetcher();
 
 let filterQuery: ContentQuery | null = null;
 
-/**
- * Request ID counter for filter operations.
- * Incremented on each filter activation to invalidate previous requests.
- * Used to prevent stale filter results from race conditions.
- */
+/** Incremented on each filter activation to invalidate in-flight requests. */
 let filterRequestId = 0;
 
 /**
@@ -89,9 +87,6 @@ export function clearFilterQuery(): void {
 // * Conversion Helpers
 //
 
-/**
- * Converts ContentSummary to tree node data.
- */
 function toTreeNodeData(content: ContentSummary): ContentTreeNodeData {
     return {
         id: content.getId(),
@@ -105,9 +100,6 @@ function toTreeNodeData(content: ContentSummary): ContentTreeNodeData {
     };
 }
 
-/**
- * Creates tree node options from content.
- */
 function toNodeOptions(content: ContentSummary, parentId: string | null): CreateNodeOptions<ContentTreeNodeData> {
     return {
         id: content.getId(),
@@ -117,9 +109,6 @@ function toNodeOptions(content: ContentSummary, parentId: string | null): Create
     };
 }
 
-/**
- * Configures a ContentQuery with pagination and copies filter settings from source query.
- */
 function configureContentQuery(sourceQuery: ContentQuery, offset: number, size: number): ContentQuery {
     const configuredQuery = new ContentQuery();
     configuredQuery
@@ -153,13 +142,12 @@ export type FetchChildrenResult = {
  * @param offset - Pagination offset
  * @param size - Batch size
  * @param childOrder - Optional child order (used for root)
- * @returns Object with ids, hasMore flag, and total count
  */
 export async function fetchChildren(
     parentId: string | null,
     offset: number = 0,
     size: number = DEFAULT_BATCH_SIZE,
-    childOrder?: ChildOrder
+    childOrder?: ChildOrder,
 ): Promise<FetchChildrenResult> {
     const projectName = captureActiveProjectName();
 
@@ -186,10 +174,12 @@ export async function fetchChildren(
             return {ids: [], hasMore: false, total: 0};
         }
 
-        const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map((content) => toNodeOptions(content, parentId));
+        const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map(content =>
+            toNodeOptions(content, parentId),
+        );
         addTreeNodes(nodeOptions);
 
-        const childIds = summaries.map((c) => c.getId());
+        const childIds = summaries.map(c => c.getId());
 
         if (offset === 0) {
             setTreeChildren(parentId, childIds);
@@ -222,7 +212,10 @@ export function createRootChildOrder(): ChildOrder {
  * @param offset - Pagination offset
  * @param size - Batch size
  */
-export async function fetchRootChildren(offset: number = 0, size: number = DEFAULT_BATCH_SIZE): Promise<FetchChildrenResult> {
+export async function fetchRootChildren(
+    offset: number = 0,
+    size: number = DEFAULT_BATCH_SIZE,
+): Promise<FetchChildrenResult> {
     return fetchChildren(null, offset, size, createRootChildOrder());
 }
 
@@ -233,7 +226,10 @@ export async function fetchRootChildren(offset: number = 0, size: number = DEFAU
  * @param offset - Pagination offset
  * @param size - Batch size
  */
-export async function fetchRootChildrenFiltered(offset: number = 0, size: number = DEFAULT_BATCH_SIZE): Promise<FetchChildrenResult> {
+export async function fetchRootChildrenFiltered(
+    offset: number = 0,
+    size: number = DEFAULT_BATCH_SIZE,
+): Promise<FetchChildrenResult> {
     if (filterQuery) {
         return fetchFilteredRootChildren(filterQuery, offset, size);
     }
@@ -250,7 +246,7 @@ export async function fetchRootChildrenFiltered(offset: number = 0, size: number
 export async function fetchFilteredRootChildren(
     query: ContentQuery,
     offset: number = 0,
-    size: number = DEFAULT_BATCH_SIZE
+    size: number = DEFAULT_BATCH_SIZE,
 ): Promise<FetchChildrenResult> {
     const projectName = captureActiveProjectName();
 
@@ -277,10 +273,12 @@ export async function fetchFilteredRootChildren(
         }
 
         // Flat query result, every item is at root level.
-        const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map((content) => toNodeOptions(content, null));
+        const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map(content =>
+            toNodeOptions(content, null),
+        );
         addTreeNodes(nodeOptions);
 
-        const childIds = summaries.map((c) => c.getId());
+        const childIds = summaries.map(c => c.getId());
 
         if (offset === 0) {
             setTreeChildren(null, childIds);
@@ -308,18 +306,15 @@ export async function fetchContentByIds(ids: string[]): Promise<ContentSummary[]
 
     const projectName = captureActiveProjectName();
 
-    // Check what's missing from cache
     const missingIds = getMissingIds(ids, projectName);
 
-    // Fetch missing content
     if (missingIds.length > 0) {
-        const contentIds = missingIds.map((id) => new ContentId(id));
+        const contentIds = missingIds.map(id => new ContentId(id));
         const fetched = await fetcher.fetchByIds(contentIds);
         await fetcher.updateReadOnly(fetched);
         setContents(fetched, projectName);
     }
 
-    // Return all requested content from cache
     return getContents(ids, projectName);
 }
 
@@ -333,7 +328,7 @@ export async function fetchMissingContent(ids: string[]): Promise<void> {
     const missingIds = getMissingIds(ids, projectName);
     if (missingIds.length === 0) return;
 
-    const contentIds = missingIds.map((id) => new ContentId(id));
+    const contentIds = missingIds.map(id => new ContentId(id));
     const fetched = await fetcher.fetchByIds(contentIds);
     await fetcher.updateReadOnly(fetched);
     setContents(fetched, projectName);
@@ -363,7 +358,7 @@ export async function refreshContents(ids: string[]): Promise<ContentSummary[]> 
 
     const projectName = captureActiveProjectName();
 
-    const contentIds = ids.map((id) => new ContentId(id));
+    const contentIds = ids.map(id => new ContentId(id));
     const summaries = await fetcher.fetchByIds(contentIds);
     await fetcher.updateReadOnly(summaries);
     setContents(summaries, projectName);
@@ -377,7 +372,10 @@ export async function refreshContents(ids: string[]): Promise<ContentSummary[]> 
  * @param parentId - Parent content ID (null for root)
  * @param size - Batch size for initial fetch
  */
-export async function refreshChildren(parentId: string | null, size: number = DEFAULT_BATCH_SIZE): Promise<FetchChildrenResult> {
+export async function refreshChildren(
+    parentId: string | null,
+    size: number = DEFAULT_BATCH_SIZE,
+): Promise<FetchChildrenResult> {
     const childOrder = parentId === null ? createRootChildOrder() : undefined;
     return fetchChildren(parentId, 0, size, childOrder);
 }
@@ -387,22 +385,14 @@ export async function refreshChildren(parentId: string | null, size: number = DE
 //
 
 /**
- * Fetches all child IDs for a parent (no pagination, returns all).
- * Creates placeholder nodes in tree with data: null.
- * Content data is loaded separately via fetchVisibleContentData().
- *
- * This is the first step of the lazy loading pattern:
- * 1. fetchChildrenIds() - Get all IDs quickly
- * 2. fetchVisibleContentData() - Load data for visible items
+ * Fetches all child IDs for a parent (no pagination) and creates placeholder
+ * nodes with data: null. First step of the lazy loading pattern — content data
+ * is loaded separately via fetchVisibleContentData().
  *
  * @param parentId - Parent content ID (null for root)
  * @param childOrder - Optional child order
- * @returns Array of child IDs
  */
-export async function fetchChildrenIdsOnly(
-    parentId: string | null,
-    childOrder?: ChildOrder
-): Promise<string[]> {
+export async function fetchChildrenIdsOnly(parentId: string | null, childOrder?: ChildOrder): Promise<string[]> {
     const projectName = captureActiveProjectName();
     const state = $treeState.get();
 
@@ -424,22 +414,19 @@ export async function fetchChildrenIdsOnly(
         const ids = await fetcher.fetchChildrenIds(parentContentId, childOrder);
         clearChildrenIdsRetryCooldown(parentId);
 
-        // Convert ContentId[] to string[]
-        const idStrings = ids.map((id) => id.toString());
+        const idStrings = ids.map(id => id.toString());
 
         if (isProjectStale(projectName)) return [];
 
-        // Create placeholder nodes (no data yet)
-        const placeholderNodes: CreateNodeOptions<ContentTreeNodeData>[] = idStrings.map((id) => ({
+        const placeholderNodes: CreateNodeOptions<ContentTreeNodeData>[] = idStrings.map(id => ({
             id,
-            data: null, // Will be loaded on demand
+            data: null,
             parentId,
             hasChildren: true, // Assume has children until we know
         }));
 
         addTreeNodes(placeholderNodes);
 
-        // Set children relationship
         if (parentId) {
             setTreeChildren(parentId, idStrings);
             setNodeTotalChildren(parentId, idStrings.length);
@@ -465,14 +452,14 @@ export async function fetchRootChildrenIdsOnly(): Promise<string[]> {
     return fetchChildrenIdsOnly(null, createRootChildOrder());
 }
 
-// Batch size for loading content data in viewport loading
+// Batch size for loading content data of visible nodes
 const DATA_BATCH_SIZE = 20;
 const VISIBLE_DATA_RETRY_DELAY_MS = 1_000;
 const MAX_VISIBLE_DATA_ATTEMPTS = 3;
 const ROOT_PARENT_RETRY_KEY = '__root__';
 
 /**
- * Tracks retry cooldown per content ID after visible data fetch failures.
+ * Retry cooldown state for one data fetch batch.
  * Prevents tight retry loops (e.g. when browser is offline).
  */
 type BatchLoadState = {
@@ -490,21 +477,14 @@ const filterChildrenIdsRetryState = new Map<string, {attempts: number; retryAt: 
 const failedChildrenParentIds = new Set<string>();
 const failedFilterChildrenParentIds = new Set<string>();
 
-/**
- * Normalizes parent retry key. Root-level parent is stored as __root__.
- */
 function toParentRetryKey(parentId: string | null): string {
     return parentId ?? ROOT_PARENT_RETRY_KEY;
 }
 
-/**
- * Returns true when a parent can be retried now.
- * Stops retries after MAX_VISIBLE_DATA_ATTEMPTS.
- */
 function isParentRetryReady(
     stateByParentKey: Map<string, {attempts: number; retryAt: number}>,
     parentId: string | null,
-    now: number
+    now: number,
 ): boolean {
     const state = stateByParentKey.get(toParentRetryKey(parentId));
     if (!state) return true;
@@ -512,14 +492,11 @@ function isParentRetryReady(
     return state.retryAt <= now;
 }
 
-/**
- * Records parent-level failure with cooldown and attempt counter.
- */
 function markParentRetryFailure(
     stateByParentKey: Map<string, {attempts: number; retryAt: number}>,
     failedParentIds: Set<string>,
     parentId: string | null,
-    now = Date.now()
+    now = Date.now(),
 ): void {
     const key = toParentRetryKey(parentId);
     const previousState = stateByParentKey.get(key);
@@ -535,49 +512,33 @@ function markParentRetryFailure(
     }
 }
 
-/**
- * Clears parent-level retry and failed marker after successful or manual retry.
- */
 function clearParentRetryFailure(
     stateByParentKey: Map<string, {attempts: number; retryAt: number}>,
     failedParentIds: Set<string>,
-    parentId: string | null
+    parentId: string | null,
 ): void {
     const key = toParentRetryKey(parentId);
     stateByParentKey.delete(key);
     failedParentIds.delete(key);
 }
 
-/**
- * Clears all parent retry state, e.g. when mode resets.
- */
 function resetParentRetryState(
     stateByParentKey: Map<string, {attempts: number; retryAt: number}>,
-    failedParentIds: Set<string>
+    failedParentIds: Set<string>,
 ): void {
     stateByParentKey.clear();
     failedParentIds.clear();
 }
 
-/**
- * Clears all data-batch retry state and failed IDs.
- */
 function resetBatchFailureState(stateByBatchKey: Map<string, BatchLoadState>, failedIds: Set<string>): void {
     stateByBatchKey.clear();
     failedIds.clear();
 }
 
-/**
- * Creates stable key for retry state of one data fetch batch.
- */
 function toBatchKey(ids: string[]): string {
     return ids.join(',');
 }
 
-/**
- * Returns true when a data batch can be retried now.
- * Stops retries after MAX_VISIBLE_DATA_ATTEMPTS.
- */
 function isBatchReady(stateByBatchKey: Map<string, BatchLoadState>, ids: string[], now: number): boolean {
     const state = stateByBatchKey.get(toBatchKey(ids));
     if (!state) return true;
@@ -585,15 +546,11 @@ function isBatchReady(stateByBatchKey: Map<string, BatchLoadState>, ids: string[
     return state.retryAt <= now;
 }
 
-/**
- * Records batch-level failure with cooldown and attempt counter.
- * When max attempts is reached, all IDs in this batch become failed IDs.
- */
 function markBatchFailure(
     stateByBatchKey: Map<string, BatchLoadState>,
     failedIds: Set<string>,
     ids: string[],
-    now = Date.now()
+    now = Date.now(),
 ): void {
     if (ids.length === 0) return;
 
@@ -608,31 +565,23 @@ function markBatchFailure(
     });
 
     if (attempts >= MAX_VISIBLE_DATA_ATTEMPTS) {
-        ids.forEach((id) => failedIds.add(id));
+        ids.forEach(id => failedIds.add(id));
     }
 }
 
 /**
- * Clears failed IDs and related retry entries that intersect with IDs.
- *
- * The key part is intersection-based cleanup:
- * if the caller retries subset A, we also remove stale retry entries whose
- * stored batch contains any ID from A. This keeps retry state consistent
- * even when UI grouping and fetch batching boundaries differ.
+ * Clears failed IDs and any batch retry entries that intersect them. UI
+ * grouping and fetch batching boundaries can differ, so retrying a subset
+ * must also drop stale entries for batches containing those IDs.
  */
-function clearBatchFailure(
-    stateByBatchKey: Map<string, BatchLoadState>,
-    failedIds: Set<string>,
-    ids: string[]
-): void {
+function clearBatchFailure(stateByBatchKey: Map<string, BatchLoadState>, failedIds: Set<string>, ids: string[]): void {
     if (ids.length === 0) return;
 
-    ids.forEach((id) => failedIds.delete(id));
+    ids.forEach(id => failedIds.delete(id));
 
-    // Clear any batch state that intersects with provided IDs
     const idSet = new Set(ids);
     for (const [key, state] of stateByBatchKey.entries()) {
-        if (state.ids.some((id) => idSet.has(id))) {
+        if (state.ids.some(id => idSet.has(id))) {
             stateByBatchKey.delete(key);
         }
     }
@@ -687,12 +636,9 @@ export function resetVisibleFilterContentDataRetryState(): void {
 }
 
 /**
- * Fetches content data for IDs that are missing from tree nodes.
- * Updates both $contentCache and tree node data.
- *
- * This is the second step of the lazy loading pattern:
- * 1. fetchChildrenIdsOnly() - Get all IDs quickly
- * 2. fetchVisibleContentData() - Load data for visible items
+ * Fetches content data for IDs that are missing from tree nodes and updates
+ * both $contentCache and tree node data. Second step of the lazy loading
+ * pattern started by fetchChildrenIdsOnly().
  *
  * @param ids - Content IDs to fetch data for
  */
@@ -700,38 +646,30 @@ export async function fetchVisibleContentData(ids: string[]): Promise<void> {
     const projectName = captureActiveProjectName();
     const state = $treeState.get();
 
-    // Filter to IDs that need tree node update:
-    // - Node exists in tree
-    // - Node has no data (data === null)
-    // - Node is not already loading
-    const idsNeedingUpdate = ids.filter((id) => {
+    const idsNeedingUpdate = ids.filter(id => {
         const node = state.nodes.get(id);
-        return (
-            node &&
-            node.data === null &&
-            !state.loadingDataIds.has(id) &&
-            !visibleDataFailedIds.has(id)
-        );
+        return node && node.data === null && !state.loadingDataIds.has(id) && !visibleDataFailedIds.has(id);
     });
 
     if (idsNeedingUpdate.length === 0) return;
 
-    // Check content cache - separate cached vs uncached
     const cachedContents = getContents(idsNeedingUpdate, projectName);
-    const cachedIds = new Set(cachedContents.map((c) => c.getId()));
+    const cachedIds = new Set(cachedContents.map(c => c.getId()));
 
     // Sync path before any await — no project staleness possible here.
     if (cachedContents.length > 0) {
         updateTreeNodesWithData(cachedContents);
-        clearBatchFailure(visibleDataBatchState, visibleDataFailedIds, cachedContents.map((c) => c.getId()));
+        clearBatchFailure(
+            visibleDataBatchState,
+            visibleDataFailedIds,
+            cachedContents.map(c => c.getId()),
+        );
     }
 
-    // Filter to IDs not in cache
-    const uncachedIds = idsNeedingUpdate.filter((id) => !cachedIds.has(id));
+    const uncachedIds = idsNeedingUpdate.filter(id => !cachedIds.has(id));
 
     if (uncachedIds.length === 0) return;
 
-    // Mark uncached as loading
     setNodesLoadingData(uncachedIds, true);
 
     try {
@@ -739,12 +677,12 @@ export async function fetchVisibleContentData(ids: string[]): Promise<void> {
         for (let i = 0; i < uncachedIds.length; i += DATA_BATCH_SIZE) {
             const batch = uncachedIds.slice(i, i + DATA_BATCH_SIZE);
             if (!isBatchReady(visibleDataBatchState, batch, Date.now())) continue;
-            const contentIds = batch.map((id) => new ContentId(id));
+            const contentIds = batch.map(id => new ContentId(id));
             try {
                 const summaries = await fetcher.fetchByIds(contentIds);
                 await fetcher.updateReadOnly(summaries);
-                const fetchedIds = new Set(summaries.map((content) => content.getId()));
-                const unresolvedIds = batch.filter((id) => !fetchedIds.has(id));
+                const fetchedIds = new Set(summaries.map(content => content.getId()));
+                const unresolvedIds = batch.filter(id => !fetchedIds.has(id));
 
                 setContents(summaries, projectName);
 
@@ -752,7 +690,6 @@ export async function fetchVisibleContentData(ids: string[]): Promise<void> {
                 // project's loader will fetch its own.
                 if (isProjectStale(projectName)) return;
 
-                // Update tree node data
                 updateTreeNodesWithData(summaries);
                 clearBatchFailure(visibleDataBatchState, visibleDataFailedIds, [...fetchedIds]);
 
@@ -771,11 +708,10 @@ export async function fetchVisibleContentData(ids: string[]): Promise<void> {
 }
 
 /**
- * Updates tree nodes with fetched content data.
- * Called after content is fetched to populate placeholder nodes.
+ * Populates placeholder tree nodes with fetched content data.
  */
 function updateTreeNodesWithData(contents: ContentSummary[]): void {
-    const updates: CreateNodeOptions<ContentTreeNodeData>[] = contents.map((content) => ({
+    const updates: CreateNodeOptions<ContentTreeNodeData>[] = contents.map(content => ({
         id: content.getId(),
         data: toTreeNodeData(content),
         hasChildren: content.hasChildren(),
@@ -785,7 +721,7 @@ function updateTreeNodesWithData(contents: ContentSummary[]): void {
 }
 
 //
-// * Filter Mode Functions (Phase 8)
+// * Filter Mode Functions
 //
 
 import {
@@ -806,36 +742,27 @@ import {
 } from '../store/filter-tree.store';
 
 /**
- * Activates filter mode and fetches filtered results.
- * Resets filter tree and loads fresh results.
- *
- * Uses request ID tracking to prevent race conditions when rapidly switching filters.
- * If a newer filter is activated before this one completes, results are discarded.
+ * Activates filter mode: resets the filter tree and fetches fresh results.
+ * Uses request ID tracking — if a newer filter is activated before this one
+ * completes, the results are discarded.
  *
  * @param query - Content query for filtering
  */
 export async function activateFilter(query: ContentQuery): Promise<void> {
-    // Increment request ID - previous requests become stale
     const requestId = ++filterRequestId;
 
-    // Set filter state
     setFilterActiveState(true);
     filterQuery = query;
     resetVisibleFilterContentDataRetryState();
     resetFilterChildrenIdsRetryState();
-    // Reset filter tree
     resetFilterTree();
-    // Set loading state
     setFilterNodeLoading(null, true);
 
     try {
-        // Fetch filtered results (flat list, no hierarchy)
         const result = await fetchFilteredContentForFilterTree(query, 0, DEFAULT_BATCH_SIZE);
 
-        // Check if this request was superseded by a newer one
         if (requestId !== filterRequestId) return;
 
-        // Update filter tree root IDs and total
         setFilterRootIds(result.ids);
         setFilterRootTotalChildren(result.total);
     } finally {
@@ -851,7 +778,6 @@ export async function activateFilter(query: ContentQuery): Promise<void> {
  * Increments request ID to invalidate any pending filter requests.
  */
 export function deactivateFilter(): void {
-    // Increment to invalidate any pending filter requests
     filterRequestId++;
     filterQuery = null;
     resetVisibleFilterContentDataRetryState();
@@ -869,13 +795,12 @@ export function deactivateFilter(): void {
 async function fetchFilteredContentForFilterTree(
     query: ContentQuery,
     offset: number,
-    size: number
+    size: number,
 ): Promise<FetchChildrenResult> {
     const projectName = captureActiveProjectName();
 
     const configuredQuery = configureContentQuery(query, offset, size);
 
-    // Execute query
     const request = new ContentQueryRequest<ContentSummaryJson, ContentSummary>(configuredQuery)
         .setTargetBranch(Branch.DRAFT)
         .setExpand(Expand.SUMMARY);
@@ -886,7 +811,6 @@ async function fetchFilteredContentForFilterTree(
     const total = metadata.getTotalHits();
     const hasMore = offset + summaries.length < total;
 
-    // Update readonly status
     await fetcher.updateReadOnly(summaries);
 
     setContents(summaries, projectName);
@@ -895,12 +819,14 @@ async function fetchFilteredContentForFilterTree(
         return {ids: [], hasMore: false, total: 0};
     }
 
-    // Create filter tree nodes (all as root since it's a flat query result)
-    const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map((content) => toNodeOptions(content, null));
+    // Flat query result, every item is at root level.
+    const nodeOptions: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map(content =>
+        toNodeOptions(content, null),
+    );
 
     addFilterNodes(nodeOptions);
 
-    const childIds = summaries.map((c) => c.getId());
+    const childIds = summaries.map(c => c.getId());
 
     return {ids: childIds, hasMore, total};
 }
@@ -915,12 +841,10 @@ async function fetchFilteredContentForFilterTree(
  */
 export async function fetchMoreFilteredResults(
     offset: number,
-    size: number = DEFAULT_BATCH_SIZE
+    size: number = DEFAULT_BATCH_SIZE,
 ): Promise<FetchChildrenResult | null> {
     if (!filterQuery) return null;
 
-    // Capture current request ID - if a new filter is activated,
-    // this request becomes stale and results should be ignored
     const requestId = filterRequestId;
     const currentQuery = filterQuery;
 
@@ -929,10 +853,8 @@ export async function fetchMoreFilteredResults(
     try {
         const result = await fetchFilteredContentForFilterTree(currentQuery, offset, size);
 
-        // Check if superseded by newer filter activation
         if (requestId !== filterRequestId) return null;
 
-        // Append new IDs to existing rootIds (pagination)
         appendFilterRootIds(result.ids);
 
         return result;
@@ -954,65 +876,55 @@ export async function fetchVisibleFilterContentData(ids: string[]): Promise<void
     const projectName = captureActiveProjectName();
     const state = $filterTreeState.get();
 
-    // Filter to IDs that need tree node update:
-    // - Node exists in filter tree
-    // - Node has no data (data === null)
-    // - Node is not already loading
-    const idsNeedingUpdate = ids.filter((id) => {
+    const idsNeedingUpdate = ids.filter(id => {
         const node = state.nodes.get(id);
-        return (
-            node &&
-            node.data === null &&
-            !state.loadingDataIds.has(id) &&
-            !visibleFilterDataFailedIds.has(id)
-        );
+        return node && node.data === null && !state.loadingDataIds.has(id) && !visibleFilterDataFailedIds.has(id);
     });
 
     if (idsNeedingUpdate.length === 0) return;
 
-    // Check content cache - separate cached vs uncached
     const cachedContents = getContents(idsNeedingUpdate, projectName);
-    const cachedIds = new Set(cachedContents.map((c) => c.getId()));
+    const cachedIds = new Set(cachedContents.map(c => c.getId()));
 
-    // Update filter tree nodes with cached content immediately (no fetch needed).
-    // Synchronous, no await — no staleness check needed.
+    // Sync path before any await — no project staleness possible here.
     if (cachedContents.length > 0) {
-        const updates: CreateNodeOptions<ContentTreeNodeData>[] = cachedContents.map((content) => ({
+        const updates: CreateNodeOptions<ContentTreeNodeData>[] = cachedContents.map(content => ({
             id: content.getId(),
             data: toTreeNodeData(content),
             hasChildren: content.hasChildren(),
         }));
 
         addFilterNodes(updates);
-        clearBatchFailure(visibleFilterDataBatchState, visibleFilterDataFailedIds, cachedContents.map((c) => c.getId()));
+        clearBatchFailure(
+            visibleFilterDataBatchState,
+            visibleFilterDataFailedIds,
+            cachedContents.map(c => c.getId()),
+        );
     }
 
-    // Filter to IDs not in cache
-    const uncachedIds = idsNeedingUpdate.filter((id) => !cachedIds.has(id));
+    const uncachedIds = idsNeedingUpdate.filter(id => !cachedIds.has(id));
 
     if (uncachedIds.length === 0) return;
 
-    // Mark uncached as loading
     setFilterNodesLoadingData(uncachedIds, true);
 
     try {
-        // Fetch in batches
+        // Fetch in batches to avoid overwhelming the server
         for (let i = 0; i < uncachedIds.length; i += DATA_BATCH_SIZE) {
             const batch = uncachedIds.slice(i, i + DATA_BATCH_SIZE);
             if (!isBatchReady(visibleFilterDataBatchState, batch, Date.now())) continue;
-            const contentIds = batch.map((id) => new ContentId(id));
+            const contentIds = batch.map(id => new ContentId(id));
             try {
                 const summaries = await fetcher.fetchByIds(contentIds);
                 await fetcher.updateReadOnly(summaries);
-                const fetchedIds = new Set(summaries.map((content) => content.getId()));
-                const unresolvedIds = batch.filter((id) => !fetchedIds.has(id));
+                const fetchedIds = new Set(summaries.map(content => content.getId()));
+                const unresolvedIds = batch.filter(id => !fetchedIds.has(id));
 
                 setContents(summaries, projectName);
 
                 if (isProjectStale(projectName)) return;
 
-                // Update filter tree node data
-                const updates: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map((content) => ({
+                const updates: CreateNodeOptions<ContentTreeNodeData>[] = summaries.map(content => ({
                     id: content.getId(),
                     data: toTreeNodeData(content),
                     hasChildren: content.hasChildren(),
@@ -1023,7 +935,12 @@ export async function fetchVisibleFilterContentData(ids: string[]): Promise<void
 
                 // Retry unresolved IDs with backoff up to max attempts
                 if (unresolvedIds.length > 0) {
-                    markBatchFailure(visibleFilterDataBatchState, visibleFilterDataFailedIds, unresolvedIds, Date.now());
+                    markBatchFailure(
+                        visibleFilterDataBatchState,
+                        visibleFilterDataFailedIds,
+                        unresolvedIds,
+                        Date.now(),
+                    );
                 }
             } catch {
                 // Isolate failure to this batch and continue with others
@@ -1036,21 +953,15 @@ export async function fetchVisibleFilterContentData(ids: string[]): Promise<void
 }
 
 /**
- * Fetches children IDs for a filter tree node.
- * Creates placeholder nodes in filter tree with data: null.
- * Content data is loaded via fetchVisibleFilterContentData().
- *
- * This is used when expanding nodes in filter mode - children are added
- * to the filter tree so they remain visible in filter view.
+ * Fetches children IDs for a filter tree node and creates placeholder nodes
+ * with data: null. Content data is loaded via fetchVisibleFilterContentData().
+ * Used when expanding nodes in filter mode — children are added to the filter
+ * tree so they remain visible in filter view.
  *
  * @param parentId - Parent content ID
  * @param childOrder - Optional child order
- * @returns Array of child IDs
  */
-export async function fetchFilterChildrenIdsOnly(
-    parentId: string,
-    childOrder?: ChildOrder
-): Promise<string[]> {
+export async function fetchFilterChildrenIdsOnly(parentId: string, childOrder?: ChildOrder): Promise<string[]> {
     const projectName = captureActiveProjectName();
     const state = $filterTreeState.get();
     const parent = state.nodes.get(parentId);
@@ -1066,22 +977,19 @@ export async function fetchFilterChildrenIdsOnly(
         const ids = await fetcher.fetchChildrenIds(parentContentId, childOrder);
         clearFilterChildrenIdsRetryCooldown(parentId);
 
-        // Convert ContentId[] to string[]
-        const idStrings = ids.map((id) => id.toString());
+        const idStrings = ids.map(id => id.toString());
 
         if (isProjectStale(projectName)) return [];
 
-        // Create placeholder nodes (no data yet)
-        const placeholderNodes: CreateNodeOptions<ContentTreeNodeData>[] = idStrings.map((id) => ({
+        const placeholderNodes: CreateNodeOptions<ContentTreeNodeData>[] = idStrings.map(id => ({
             id,
-            data: null, // Will be loaded on demand
+            data: null,
             parentId,
             hasChildren: true, // Assume has children until we know
         }));
 
         addFilterNodes(placeholderNodes);
 
-        // Set children relationship in filter tree
         setFilterChildren(parentId, idStrings);
         setFilterNodeTotalChildren(parentId, idStrings.length);
 
@@ -1120,7 +1028,7 @@ export async function reloadParentChildren(parentId: string | null): Promise<str
 // Old-parent refresh handles the case where the moved item lived under an unexpanded
 // parent and was never in $treeState, so removeContentFromTree could not adjust its
 // hasChildren. Runs in filter mode too so the main tree is current when the filter clears.
-$contentMoved.subscribe((event) => {
+$contentMoved.subscribe(event => {
     if (!event?.data) return;
 
     const state = $treeState.get();
@@ -1137,9 +1045,7 @@ $contentMoved.subscribe((event) => {
         // New parent
         const newParentPath = newPath.hasParentContent() ? newPath.getParentPath() : null;
         const newParentId =
-            newParentPath && !newParentPath.isRoot()
-                ? getIdByPath(newParentPath.toString()) ?? null
-                : null;
+            newParentPath && !newParentPath.isRoot() ? (getIdByPath(newParentPath.toString()) ?? null) : null;
 
         if (newParentPath && !newParentPath.isRoot() && !newParentId) {
             // New parent not in tree/cache — nothing to update on the new side.
@@ -1174,7 +1080,7 @@ $contentMoved.subscribe((event) => {
 
     for (const id of oldParentsToRefresh) {
         void refreshContent(id)
-            .then((summary) => {
+            .then(summary => {
                 if (!summary) return;
                 const node = $treeState.get().nodes.get(id);
                 if (node && node.hasChildren !== summary.hasChildren()) {
@@ -1189,11 +1095,11 @@ $contentMoved.subscribe((event) => {
 // be manual) so we cannot compute the new item's slot client-side. With includeChildren,
 // descendants of a freshly duplicated node are skipped — their parent is not yet
 // loaded, lazy-load fills the subtree on expand.
-$contentDuplicated.subscribe((event) => {
+$contentDuplicated.subscribe(event => {
     if (!event?.data) return;
 
     const state = $treeState.get();
-    const duplicatedIds = new Set(event.data.map((content) => content.getId()));
+    const duplicatedIds = new Set(event.data.map(content => content.getId()));
     const parentsToReload = new Set<string | null>();
 
     for (const content of event.data) {
@@ -1202,9 +1108,7 @@ $contentDuplicated.subscribe((event) => {
 
         const newParentPath = path.hasParentContent() ? path.getParentPath() : null;
         const newParentId =
-            newParentPath && !newParentPath.isRoot()
-                ? getIdByPath(newParentPath.toString()) ?? null
-                : null;
+            newParentPath && !newParentPath.isRoot() ? (getIdByPath(newParentPath.toString()) ?? null) : null;
 
         if (newParentId && duplicatedIds.has(newParentId)) continue;
 
@@ -1225,6 +1129,33 @@ $contentDuplicated.subscribe((event) => {
                     addTreeNode({id: newParentId, hasChildren: true});
                 }
             }
+        }
+    }
+
+    for (const parentId of parentsToReload) {
+        void reloadParentChildren(parentId).catch(() => undefined);
+    }
+});
+
+//
+// * Content Sorted Handling
+//
+
+// The sorted event carries the parents whose childOrder changed; after a manual
+// reorder the moved children may appear in the payload too. Refetch instead of
+// reordering locally: the server owns the child order. Nodes without loaded
+// children are skipped — lazy-load fetches the fresh order on expand.
+$contentSorted.subscribe(event => {
+    if (!event?.data) return;
+
+    const state = $treeState.get();
+    const parentsToReload = new Set<string>();
+
+    for (const content of event.data) {
+        const id = content.getId();
+        const node = state.nodes.get(id);
+        if (node && node.childIds.length > 0) {
+            parentsToReload.add(id);
         }
     }
 

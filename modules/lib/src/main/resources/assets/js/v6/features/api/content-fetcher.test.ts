@@ -3,7 +3,8 @@ import type {ContentSummary} from '../../../app/content/ContentSummary';
 import {clearAllContentCaches, clearProjectContentCache, getContent, hasContent, setContent, getMissingIds} from '../store/content.store';
 import {$activeProject} from '../store/activeProject.store';
 import type {Project} from '../../../app/settings/data/project/Project';
-import {addTreeNodes, hasTreeNode, resetTree, setTreeRootIds, $treeState} from '../store/tree-list.store';
+import {addTreeNodes, hasTreeNode, resetTree, setTreeChildren, setTreeRootIds, $treeState} from '../store/tree-list.store';
+import {emitContentSorted} from '../store/socket.store';
 import {addFilterNodes, resetFilterTree, setFilterRootIds, $filterTreeState} from '../store/filter-tree.store';
 import {
     clearChildrenIdsRetryCooldown,
@@ -537,6 +538,71 @@ describe('content-fetcher store integration', () => {
             // Tree still updates because there was no project to be stale against.
             const node = $treeState.get().nodes.get('no-capture');
             expect(node?.data).not.toBeNull();
+        });
+    });
+
+    describe('content sorted handling', () => {
+        it('should reload children of a sorted parent in server order when they are loaded', async () => {
+            addTreeNodes([
+                {id: 'sorted-parent', data: null, parentId: null, hasChildren: true},
+                {id: 'sorted-child-a', data: null, parentId: 'sorted-parent', hasChildren: false},
+                {id: 'sorted-child-b', data: null, parentId: 'sorted-parent', hasChildren: false},
+            ]);
+            setTreeRootIds(['sorted-parent']);
+            setTreeChildren('sorted-parent', ['sorted-child-a', 'sorted-child-b']);
+            mockFetchChildrenIds.mockResolvedValue([
+                {toString: () => 'sorted-child-b'},
+                {toString: () => 'sorted-child-a'},
+            ]);
+
+            emitContentSorted([createMockContent('sorted-parent')]);
+
+            await vi.waitFor(() => {
+                expect($treeState.get().nodes.get('sorted-parent')?.childIds)
+                    .toEqual(['sorted-child-b', 'sorted-child-a']);
+            });
+            expect(mockFetchChildrenIds).toHaveBeenCalledTimes(1);
+        });
+
+        it('should not reload a sorted parent whose children are not loaded', () => {
+            addTreeNodes([{id: 'collapsed-parent', data: null, parentId: null, hasChildren: true}]);
+            setTreeRootIds(['collapsed-parent']);
+
+            emitContentSorted([createMockContent('collapsed-parent')]);
+
+            expect(mockFetchChildrenIds).not.toHaveBeenCalled();
+        });
+
+        it('should ignore sorted content missing from the tree', () => {
+            emitContentSorted([createMockContent('untracked-parent')]);
+
+            expect(mockFetchChildrenIds).not.toHaveBeenCalled();
+        });
+
+        it('should skip child summaries of a manual sort payload', async () => {
+            addTreeNodes([
+                {id: 'manual-parent', data: null, parentId: null, hasChildren: true},
+                {id: 'manual-child-a', data: null, parentId: 'manual-parent', hasChildren: false},
+                {id: 'manual-child-b', data: null, parentId: 'manual-parent', hasChildren: false},
+            ]);
+            setTreeRootIds(['manual-parent']);
+            setTreeChildren('manual-parent', ['manual-child-a', 'manual-child-b']);
+            mockFetchChildrenIds.mockResolvedValue([
+                {toString: () => 'manual-child-b'},
+                {toString: () => 'manual-child-a'},
+            ]);
+
+            emitContentSorted([
+                createMockContent('manual-parent'),
+                createMockContent('manual-child-a'),
+                createMockContent('manual-child-b'),
+            ]);
+
+            await vi.waitFor(() => {
+                expect($treeState.get().nodes.get('manual-parent')?.childIds)
+                    .toEqual(['manual-child-b', 'manual-child-a']);
+            });
+            expect(mockFetchChildrenIds).toHaveBeenCalledTimes(1);
         });
     });
 });
