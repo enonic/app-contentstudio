@@ -66,7 +66,7 @@ export const ContentListItem = ({
                     <ContentLabel content={content} variant={variant}/>
                 </Button>
             </ListItem.Content>
-            <ListItem.Right>
+            <ListItem.Right className='self-stretch'>
                 {rightSlotOrder === 'before-status' && children}
                 <DiffStatusBadge contentSummary={content}/>
                 {rightSlotOrder === 'after-status' && children}
